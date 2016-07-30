@@ -1,0 +1,871 @@
+
+Motion Script 매뉴얼, 2016-05-06, 이재정
+
+
+
+- 모션 스크립트는 게임으로부터 받은 모션 정보를 토대로 모션 장치를 움직이게
+  하는 기능을 한다. 모션 스크립트는 텍스트 기반이며, 게임으로 부터
+오는 정보를 분석하고, 계산해서 모션 장치로 전달하는 모든 작업들을 스크립트로
+작성할 수 있도록 설계되었다.
+
+
+
+----------------------------------------------------------------------------------
+- 스크립트 문법
+	- 모션 스크립트는 각 파트마다 다른 문법을 가진다. 자세한 설명은 각
+	  파트별로 따로 설명한다.
+
+
+
+----------------------------------------------------------------------------------
+- 모션 스크립트 구성
+
+	- 모션 스크립트는 크게 입력, 연산, 출력으로 구성된다.
+
+		- 입력 : 게임으로 부터 오는 정보를 분석하고 저장한다.
+		- 연산 : 출력으로 보낼 정보들을 계산한다.
+		- 출력 : 모션 장치로 보낼 정보들을 구성해서 내보낸다.
+
+
+	- 실행 순서는 다음과 같다.
+
+		- 1. 입력 (:input)
+		- 2. 연산 (:module, :mixer)
+		- 3. 출력 (:output)
+
+
+
+----------------------------------------------------------------------------------
+- 모션 스크립트 입력부
+
+	- 모션 입력은 대부분 게임 프로그램으로부터 받는다. 주로 UDP, Shared
+	  Memory 를 통해서 받는다. Dirt의 경우 UDP로 모션 정보를 보내고
+있으며, Assetto Corsa는 Shared Memory를 통해 모션 정보를 내보낸다.
+
+	- 현재 모션스크립트는 UDP, Shared Memory로 입력을 받을 수 있다.
+
+	- 입력부는 연속된 바이너리 형태의 메모리 정보를 분해하는 :protocol
+	  스크립트를 정의해야 한다.
+
+	- 입력부는 :protocol 에서 분해한 정보를 :math 스크립트를 통해 @roll,
+	  @pitch, @yaw, @heave 변수에 저장해야 한다.
+
+	- 입력부는 :protocol -> :math 과정을 통해 계산된 @roll,
+	  @pitch, @yaw, @heave를 :modulation 스크립트에서 최종적으로 출력부로
+나갈 @roll_mod, @pitch_mod, @yaw_mod, @heave_mod 를 계산한다.
+
+	- 입력부의 연산 순서는 :protocol -> :math -> :modulation 이다.
+
+	- 입력부는 2개 이상 정의할 수 있다.
+
+
+
+----------------------------------------------------------------------------------
+- 모션 스크립트 연산부
+
+	- 연산부는 입력부가 모두 실행되고 난 후에 실행된다.
+
+	- 연산부는 :module, :mixer 스크립트로 구성된다. 연산순서는 :module ->
+	  :mixer 이다.
+
+	- :module 스크립트는 특정변수를 제어하고 싶을 때 사용한다. surge,
+	  sway를 계산할 때 쓰인다.
+
+	- :mixer는 :output이 처리되기 전에 마지막으로 계산되는 스크립트다.
+
+	- :mixer는 :input, :module에서 계산된 최종 값들을 합치고, 걸러내는
+	  역할을 한다.
+
+	- 일반적으로 :mixer에서 계산된 최종값은 @roll_fin, @pitch_fin,
+	  @yaw_fin, @heave_fin 변수에 저장한다.
+
+	- :mixer, :module 둘다 2개이상 정의할 수 있다.
+
+
+
+----------------------------------------------------------------------------------
+- 모션 스크립트 출력부
+
+	- 출력부는 입력부, 연산부가 모두 처리되고, 마지막에 실행된다.
+
+	- 출력은 시리얼 통신, UDP통신으로 정보를 내보낼 수 있다.
+
+	- 모션장치는 시리얼통신으로 정보를 주고 받는다. 
+
+	- 정보를 내보내는 형식은 :format 스크립트로 정의 한다.
+
+	- :output 은 2개이상 정의할 수 있다.
+
+
+
+
+----------------------------------------------------------------------------------
+- Motion Script 전역 변수
+
+	- sharedmemory_name : 디버깅시 사용되는 변수다. 모션 스크립트에서 계산되는 변수들을 
+ 			공유메모리에 저장하기 위해 쓰인다. sharedmemory_name는
+			공유 메모리 이름을 가르킨다. 설정하지 않으면, 공유메모리를 사용하지 않는다.
+
+	- log : 디버깅시 사용되는 변수다. 모션 스크립트를 읽고, 분석될 때,
+		  처리과정을 log.txt 파일에 저장한다. 
+
+
+
+
+----------------------------------------------------------------------------------
+- 스크립트 용어 설명
+
+	- id : 문자열
+	- number : 소수점을 포함한 숫자
+	- variable : 스크립트 변수 ($,@ 접두어로 하는 변수)
+	- symbol : id, number, variable, function
+	- expression : 수학 사칙 산술 연산, symbol 사용할 수 있음
+		- +, -, *, /, (,)
+
+
+
+----------------------------------------------------------------------------------
+- :input 문법
+
+	- 문법
+		:input
+		{
+			id = id
+
+			:protocol
+			{
+
+			}
+
+			:math
+			{
+
+			}
+
+			:modulation
+			{
+
+			}
+		}
+
+
+	- device : 입력 장치 설정
+		- udp : UDP 통신 사용
+			- bindport : UDP 포트 
+		- shm : Shared Memory 통신 사용
+			- shmname : 공유 메모리 이름
+
+
+
+----------------------------------------------------------------------------------
+- :input - :protocol 문법
+
+	- :protocol 스크립트는 연속된 바이너리 메모리를 분해할때, 어떤 방식으로 나눌지를
+	  정의한다.
+
+	- 문법
+		:protocol
+		{
+			number, id
+		}
+
+		- '#' 주석 명령어
+		- number : byte size, 연속된 바이너리 메모리 내에서 차지하는 바이트 크기
+		- id : data type, int, float, double, bool
+
+	- 각각의 분해 된 데이타는 순서대로 $1 ~ $N 변수에 저장된다.
+	  공유메모리로 읽은 정보는 $1001 ~ $1001+N 변수에 저장된다.
+
+
+
+
+----------------------------------------------------------------------------------
+- :input - :math 문법
+
+	- :math 스크립트는 산술연산과 특정 함수 호출을 지원한다. (atan, clamp,
+	  scale)
+
+	- 문법
+		:math
+		{
+			variable = expression
+		}
+
+		- 시스템 내부에서 사용되는 변수는 접두어로 '@'를 사용한다.
+		- 일반적으로 변수 접두어로 '$'가 쓰인다. 붙이지 않아도
+		  상관없다.
+		- @,$ 를 쓰지 않는 변수는 :output-:format 에서 쓸수 없다.
+
+	- 지원하는 함수
+		- atan(y, x)
+		- clamp(value, min, max)
+		- scale(value, center, rate)
+
+	- 산술연산된 모든 변수는 float 형으로 저장된다.
+
+
+
+
+----------------------------------------------------------------------------------
+- :input - :modulation 문법
+
+	- :input - :modulation 스크립트는 @roll, @pitch, @yaw, @heave 를
+	  PID제어 하는데 필요한 파라메터들을 정의한다.
+
+	- 문법
+		:modulation
+		{
+			id = number
+		}
+
+
+	- '#' : 한 라인 주석
+
+	- roll/pitch/yaw/heave 이하 '%'로 표시
+	- %_kp, ki, kd : PID 제어 변수
+	- %_recover_enable : %_recover_target 값으로 복귀할지
+	  여부
+	- %_recover_target : 복귀 값
+	- %_recover_proportion : 복귀 비율 값 
+	- %_max_difference_enable : 최대 변화량을 넘었을 때, 감속 여부
+	- %_max_difference : 최대 변화량
+	- %_max_difference_proportion : 최대 변화량을 넘었을 때, %_kp 값
+	- %_range : 값의 범위, 원운동 시 [-3.1415 ~ 3.1415] 범위로 값이
+		  변화한다. 범위를 넘어가는 경계선에 있을 때, 이를 보정하기
+		위한 값.
+	- %_range_enable : %_range_max, %_range_min 값 으로 범위 설정 여부
+	- %_range_min : 최소값
+	- %_range_max : 최소값
+	- %_use_x0_calcvalue : 입력값을 기준으로 PID제어를 한다면 0, PID 결과값으로
+		  PID제어를 한다면 1, 기본값 1.
+	- %_c1, %_c2, %_c3 : 
+		- X : roll, pitch, yaw, heave PID 제어 후 결과 값 
+		- $roll_mod = X*X*roll_c1 + X*roll_c2 + roll_c3
+		- $pitch_mod = X*X*pitch_c1 + X*pitch_c2 + pitch_c3
+		- $yaw_mod = X*X*yaw_c1 + X*yaw_c2 + yaw_c3
+		- $heave_mod = X*X*heave_c1 + X*heave_c2 + heave_c3
+
+
+
+----------------------------------------------------------------------------------
+- :module 문법
+
+	- :module 스크립트는 특정 변수를 PID 제어할 수 있는 기능을 가졌다. 
+
+	- 문법
+		:module
+		{
+			inputvalue = variable
+			outputvalue = variable
+
+			:math
+			{
+				variable = expression
+			}
+
+			:modulation
+			{
+				id = number
+			}
+		}
+
+	- inputvalue : PID 제어할 변수 설정
+	- outputvalue : PID 제어가 끝난 후 저장될 출력 변수 
+
+
+
+----------------------------------------------------------------------------------
+- :module - :math 문법
+
+	- :input - :math 스크립트와 동일하다.
+
+
+
+----------------------------------------------------------------------------------
+- :module - :modulation 문법
+
+	- :input - :modulation 스크립트와 동일한 기능을 한다.
+	- roll,pitch,yaw,heave 이름을 뺀 명령어
+
+
+
+
+----------------------------------------------------------------------------------
+- :mixer 문법
+
+	- :mixer 스크립트는 변수 초기화와 산술 연산을 주로한다.
+
+	- 문법
+		:mixer
+		{
+			:init
+			{
+				variable = expression
+			}
+
+			:math
+			{
+				variable = expression
+			}
+		}
+
+	- :init 스크립트는 모션 스크립트가 실행될 때 한번 만 실행된다. 변수
+	  초기화 용 스크립트다.
+
+	- :math 스크립트는 매 루프 때마다 실행된다.
+
+
+
+----------------------------------------------------------------------------------
+- :mixer - :init 문법
+
+	- :init 스크립트는 산술 연산 스크립트로 변수 초기화를 위해 사용된다.
+
+	- :init 스크립트 문법은 :math 스크립트 문법과 동일하다.
+
+	- 문법
+		:init
+		{
+			variable = expression
+		}
+
+
+
+
+----------------------------------------------------------------------------------
+- :mixer - :math 문법
+
+	- :input - :math 스크립트와 동일하다.
+
+
+
+
+----------------------------------------------------------------------------------
+- :output 문법
+
+	- :output 스크립트는 출력 형식을 지정한다.
+
+	- 문법
+		:output
+		{
+			device = id
+			outputlog = id
+
+			:format
+			{
+				id, id
+			}
+		}
+
+	- device : 출력 장치
+		- udp : UDP 통신으로 결과를 내보낸다.
+			- ip : 데이타를 받을 컴퓨터 IP
+			- port : 데이타를 받을 컴퓨터 UDP 포트 번호
+
+		- serial : 시리얼통신으로 결과를 내보낸다.
+			- portnum : 시리얼 포트 번호
+			- baudrate : 보드레이트
+
+	- outputlog : 전송하는 데이타를 저장하기 위한 로그 파일 이름, 
+		없다면 로그를 남기지 않는다.
+
+	- :format 스크립트는 2개이상 정의할 수 있다.
+
+
+
+
+----------------------------------------------------------------------------------
+- :output - :format 문법
+
+	- :output - :format 스크립트는 출력 스트림을 정의한다.
+
+	- 문법
+		:format
+		{
+			symbol, id
+		}
+
+	- symbol 이 variable일 경우, 출력 포맷을 지정할 수 있다. printf()의
+	  fmt 와 동일하다. 이 때 빈칸은 '0'으로 채워진다.
+
+
+
+
+----------------------------------------------------------------------------------
+- 디버깅
+
+	- 모션 스크립트의 sharedmemory_name 변수에 공유메모리 이름을 지정하면,
+	  스크립트에서 계산하는 모든 Symbol들은 공유메모리에 저장된다.
+
+	- UDPAnalyzer.exe 프로그램을 통해 각 심볼들을 모니터링 할 수 있다.
+
+	- UDPAnalyzer.exe -> Shared Memory View -> Read Shared Memory Name
+	  Setting -> Check Symbols -> Open Button click -> Mixing View ->
+	Update Button Click
+
+	- :output - outputlog 변수에 파일명을 지정하면, 내보내는 모든 정보를
+	  파일에 저장한다. LogPrinter.exe 프로그램을 이용해서 로그를
+	실시간으로 확인 할 수 있다.
+
+	- log = 1 로 설정하면, 모션 스크립트가 분석될 때, 로그를 볼 수 있다.
+
+
+
+
+
+----------------------------------------------------------------------------------
+- dirt3 모션 스크립트 설명
+
+
+// 모션 스크립트가 실행될 때, motionmem 이름으로 된 공유메모리에 결과 정보가
+// 저장된다.
+sharedmemory_name = motionmem
+log = 0
+
+
+:input
+{
+	// Dirt3는 UDP로 모션정보를 내보내므로, 입력을 UDP로 받아야 한다.
+	device = udp
+	bindport = 20777
+
+	// Dirt3 UDP 프로토콜 정의, #이후는 주석처리 된다.
+	// Dirt3는 대부분의 정보가 float 타입으로 넘어온다.
+	:protocol
+	{
+		4, int # $1, play time maybe tick count
+		4, float # $2, play time total (seconds)
+		4, float # $3, distance from start point
+		4, float # $4, distance from start point (another unit)
+		4, float # $5, distance to go
+		4, float # $6 ?? 
+		4, float # $7 ??
+		4, float # $8 
+		4, float # $9
+		4, float # 10, heave ?
+		4, float # 11, speed
+		4, float # 12, yaw = atan2(x)
+		4, float # 13, roll
+		4, float # 14, yaw, rear, 15 same
+		4, float # 15, yaw, rear = atan2(y)
+		4, float # 16,  pitch
+		4, float # 17, yaw, front
+		4, float # 18, front heave power, right
+		4, float # 19, front heave power, left
+		4, float # 20, rear heave power, right
+		4, float # 21, rear heave power, left
+		4, float # 22,
+		4, float # 23,
+		4, float # 24,
+		4, float # 25,
+		4, float # 26, speed, front tire
+		4, float # 27, speed, front tire
+		4, float # 28, speed, rear tire
+		4, float # 29, speed, rear tire
+		4, float # 30, accel 0 ~ 1, back accel 1, Throttle
+		4, float # 31, wheel, left -1, right 1
+		4, float # 32, engine break
+		4, float # 33, clutch
+		4, float # 34, gear
+		4, float # 35, sway
+		4, float # 36, surge
+		4, float # 37, game end 1, game start 0
+		4, float # 38, rpm
+	}
+
+
+	// 산술 연산 스크립트
+	// @roll, @pitch, @yaw, @heave 변수를 정의한다.
+	// @laptime, @distance 를 알아야 게임 시작 유무를 판단할 수 있다.
+	:math
+	{
+		$var4 = $var4 + 1
+
+		@laptime = $2
+		@distance = $4
+
+		@roll = -$13
+		@pitch = $16
+		@yaw = atan($15, $12)
+		@heave = $10
+
+		@yaw2 = (@yaw1 - 255) / 255
+		@pitch2 = (@pitch1 - 255) / 255
+		@roll2 = (@roll1 - 255) / 255
+		@speed = abs($11)
+	}
+
+
+	// @roll, @pitch, @yaw, @heave PID 제어 스크립트
+	// #은 한라인 주석 처리된다.
+	:modulation
+	{
+		# udp input
+
+		yaw_kp = 0.2
+		yaw_ki = 0.0
+		yaw_kd = -0.2
+
+		pitch_kp = 0.4
+		pitch_ki = 0.0
+		pitch_kd = -0.4
+
+		roll_kp = 0.4
+		roll_ki = 0.0
+		roll_kd = -0.3
+
+		heave_kp = 0.1
+		heave_ki = 0
+		heave_kd = 0
+
+
+		yaw_recover_enable = 1
+		yaw_max_difference_enable = 1
+		yaw_recover_target = 0
+		yaw_recover_proportion = 0.02
+		yaw_max_difference = 0.5
+		yaw_max_difference_proportion = 0.2
+		yaw_range = 6.283
+
+
+		pitch_recover_enable = 1
+		pitch_max_difference_enable = 1
+		pitch_recover_target = 0
+		pitch_recover_proportion = 0.02
+		pitch_max_difference = 3.1415
+		pitch_max_difference_proportion = 0.2
+		pitch_range = 6.283
+
+
+		roll_recover_enable = 1
+		roll_max_difference_enable = 1
+		roll_recover_target = 0
+		roll_recover_proportion = 0.02
+		roll_max_difference = 3.1415
+		roll_max_difference_proportion = 0.2
+		roll_range = 6.283
+
+
+		heave_recover_enable = 1
+		heave_max_difference_enable = 0
+		heave_recover_target = 0
+		heave_recover_proportion = 0.1
+		heave_max_difference = 100000
+		heave_max_difference_proportion = 0.2
+		heave_range = 1000000
+		heave_range_enable = 1
+		heave_range_max = 18.5
+		heave_range_min = -18.5
+		heave_use_x0_calcvalue = 0
+
+
+		spline_enable = 0
+
+		yaw_c1 = 0
+		yaw_c2 = 40000
+		yaw_c3 = 10000
+
+		pitch_c1 = 0
+		pitch_c2 = 50000
+		pitch_c3 = 10000
+
+		roll_c1 = 0
+		roll_c2 = 60000
+		roll_c3 = 10000
+
+		heave_c1 = 0
+		heave_c2 = 30000
+		heave_c3 = 10000
+	}
+}
+
+
+// surge 입력을 PID 제어 처리한다.
+// Dirt3의 surge는 $36 으로 넘어 온다.
+// PID 제어 후, 결과 값은 $surge에 저장된다.
+
+:module
+{
+	inputvalue = $36
+	outputvalue = $surge
+
+
+	// #은 한라인 주석
+	// PID 제어 스크립트
+
+	:modulation
+	{
+		# surge speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.4
+		max_difference = 100000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 6.283
+
+		c1 = 0
+		c2 = 30000
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
+
+// sway 입력을 PID 제어 처리한다.
+// Dirt3의 sway는 $35 으로 넘어 온다.
+// PID 제어 후, 결과 값은 $sway에 저장된다.
+
+// 축방향에 따라 c2 값이 양수가 되거나, 음수가 되어야 한다.
+
+:module
+{
+	inputvalue = $35
+	outputvalue = $sway
+
+	:modulation
+	{
+		# sway speed modulation
+
+		kp = 0.2
+		ki = 0.0
+		kd = 0
+
+		recover_enable = 1
+		max_difference_enable = 0
+		recover_target = 0
+		recover_proportion = 0.4
+		max_difference = 10000
+		max_difference_proportion = 0.2
+		piclamp_enable = 0
+		range = 6.283
+
+		c1 = 0
+		c2 = -30000
+		c3 = 0
+
+		spline_plot_sampling_rate = 10
+		spline_interpolation_rate = 10
+	}
+}
+
+
+// 믹서 스크립트
+// 모션 스크립트가 시작되면, @motion_speed 를 1 로 설정, @yaw_speed 를 0으로
+// 설정한다.
+// @yaw_speed가 0이면, Yaw축이 움직이지 않는다.
+// @motion_speed가 1이면, 각 축이 최대치로 움직인다.
+
+:mixer
+{
+	// 초기화 스크립트
+
+	:init
+	{
+		@motion_speed = 1
+		@yaw_speed = 0
+	}
+
+
+	// 믹서에서 최종적으로 계산된 결과값은 @roll_fin, @pitch_fin,
+	// @yaw_fin, @heave_fin 에 저장된다.
+	// 우선 scale(value, center, rate) 함수를 통해 10000을 기준으로
+	// @motion_speed 크기 만큼 스케일링 한다.
+	// 그 후, clamp(value, min, max) 함수로, 최대 최소값을 맞춘다.
+
+	// 최소 : 0, 최대 : 20000, 중간: 10000
+	// roll, pitch, yaw, heave 초기값은 모두 10000 이다.
+	// Yaw 축을 사용하지 않는다면, 10000 이 되어야 한다.
+
+	:math
+	{
+		@roll_fin = clamp( scale( @roll_mod + $sway, 10000, @motion_speed), 0, 20000 )
+		@pitch_fin = clamp( scale( @pitch_mod + $surge, 10000, @motion_speed), 0, 20000 )
+		@yaw_fin = clamp( scale( (@yaw_mod * @yaw_speed) + 10000, 10000, @motion_speed), 0, 20000 )
+		@heave_fin = clamp( scale( @heave_mod, 10000, @motion_speed), 0, 20000 )
+
+		@roll_fin2 = (@roll_fin - 10000) / 10000
+		@pitch_fin2 = (@pitch_fin - 10000) / 10000
+		@yaw_fin2 = (@yaw_fin - 10000) / 10000
+		@heave_fin2 = (@heave_fin - 10000) / 10000
+	}
+}
+
+
+
+// 출력 스크립트
+// 모션 장치는 시리얼 통신으로 정보를 받기 때문에, 출력은 serial 이 되어야
+// 한다.
+// PC 매인보드의 내장된 시리얼포트를 쓰므로, 포트번호는 1번 이다. 보레이트는
+// 115200 bps를 사용한다.
+
+:output
+{
+	device = serial
+	portnum = 1
+	baudrate = 115200
+
+
+	// roll, pitch, yaw, heave 각각 0 ~ 20000 범위의 5자리 숫자로
+	// 표현된다.
+	// 그러므로 스크립트 변수인 @roll_fin, @pitch_fin, @yaw_fin,
+	// @heave_fin 은 %5d 포맷으로 전송되어야 한다.
+	// @roll_fin, @pitch_fin, @yaw_fin, @heave_fin 은 float 타입이지만,
+	// %5d 포맷으로 바뀔 때, 자동으로 int형으로 변환 된다.
+	// ~_fin 은 finish 의 약자다.
+
+	// format 스크립트를 2개이상 정의해서, 필요할 때마다, 다른 포맷으로
+	// 정보를 송신하게 했다.
+
+	// 순서대로
+	// 모션을 움직일 때의 포맷
+	// Servo On 
+	// Servo Off
+	// Servo Start
+	// Servo Stop
+
+	// 모션을 움직일 때의 포맷
+	:format
+	{
+		A
+		@roll_fin, %5d
+		@pitch_fin, %5d
+		@yaw_fin, %5d
+		"00000"
+		"00000"
+		@heave_fin, %5d
+		"000"
+		"000"
+		"000"
+		"000"
+		"000"
+		"0000"
+		Z
+	}
+
+	// Servo On 메세지
+	:format
+	{
+		A1000010000100001000010000100000000000000000000007Z
+	}
+
+	// Servo Off 메세지
+	:format
+	{
+		A1000010000100001000010000100000000000000000000008Z
+	}
+
+	// Servo Start 메세지
+	:format
+	{
+		A1000010000100001000010000100000000000000000000001Z
+	}
+
+	// Servo Stop 메세지 
+	:format
+	{
+		A1000010000100001000010000100000000000000000000002Z
+	}
+
+}
+
+
+// 디버깅용 출력 스크립트
+// udp 통신으로 데이터를 내보낸다.
+
+:output
+{
+	device = udp
+	ip = 127.0.0.1
+	port = 20778
+
+	:format
+	{
+		A
+		@roll
+		@pitch
+		@yaw
+		@heave
+		","
+		@roll_fin2
+		@pitch_fin2
+		@yaw_fin2
+		@heave_fin2
+		","
+		$1006
+		$1007
+		$1008
+		$surge
+		+
+		-
+		"@"
+		Z		
+	}
+}
+
+
+
+
+----------------------------------------------------------------------------------
+- Motion.dll 인터페이스
+
+
+extern "C"
+{
+	// 모션 스크립트 파일을 읽는 함수
+	// 성공하면 1을 리턴하고, 그렇지 않으면 0을 리턴한다.
+	DLL_FUNC int MotionReadScript(char *fileName);
+
+
+	// 매 루프때마다 호출해야 하는 함수
+	// deltaSeconds : 1초가 지나면 1
+	DLL_FUNC void MotionUpdate(const float deltaSeconds);
+
+
+	// 모션장치와 연결을 시도한다.
+	// 모션장치를 On 시키고, Stop 상태에서 대기한다.
+	// 성공하면 1을 리턴하고, 그렇지 않으면 0을 리턴한다.
+	DLL_FUNC int MotionStart();
+
+
+	// 모션장치를 Off 시킨다.
+	// 모션장치와 연결이 끊어진다.
+	// 성공하면 1을 리턴하고, 그렇지 않으면 0을 리턴한다.
+	DLL_FUNC int MotionStop();
+
+
+	// 출력 포맷을 지정한다.
+	// :output - :format 을 설정한다.
+	// outputIndex : :output 이 2개 이상일 경우, 모션 스크립트에서 나오는 순서대로 0,1~
+	// 로 정해진다.
+	// formatIndex : :format 이 2개 이상일 경우, 모션 스크립트에서 나오는 순서대로 0,1~
+	// 로 정해진다.
+	DLL_FUNC void MotionSetOutputFormat(int outputIndex, int formatIndex);
+
+
+	// 모션 스크립트 Varible을 float형으로 변환해서 가져온다.
+	DLL_FUNC float MotionGetSymbolFloat(char *symbolName);
+
+
+	// 모션 스크립트 Varible을 int형으로 변환해서 가져온다.
+	DLL_FUNC int MotionGetSymbolInt(char *symbolName);
+
+
+	// 모션 스크립트 Varible을 float형으로 저장한다.
+	DLL_FUNC void MotionSetSymbolFloat(char *symbolName, float val);
+
+
+	// 모션 스크립트 Varible을 int형으로 저장한다.
+	DLL_FUNC void MotionSetSymbolInt(char *symbolName, int val);
+}
+
+
+
