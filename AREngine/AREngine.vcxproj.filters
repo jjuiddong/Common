@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="arcommon.h" />
+    <ClInclude Include="arengine.h" />
+    <ClInclude Include="arutil.h" />
+    <ClInclude Include="qrcode.h" />
+    <ClInclude Include="qrquadrant.h" />
+    <ClInclude Include="qrtablemap.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="arengine.cpp" />
+    <ClCompile Include="arutil.cpp" />
+    <ClCompile Include="qrcode.cpp" />
+    <ClCompile Include="qrquadrant.cpp" />
+    <ClCompile Include="qrtablemap.cpp" />
+  </ItemGroup>
+</Project>
