@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="gamemain\GameMain.h">
+      <Filter>gamemain</Filter>
+    </ClInclude>
+    <ClInclude Include="window\utility.h">
+      <Filter>window</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\window.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\button.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\uidef.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\event.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\eventhandler.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="window\scene.h">
+      <Filter>window</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="gamemain\GameMain.cpp">
+      <Filter>gamemain</Filter>
+    </ClCompile>
+    <ClCompile Include="window\utility.cpp">
+      <Filter>window</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\window.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\button.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\event.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\eventhandler.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="window\scene.cpp">
+      <Filter>window</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="window">
+      <UniqueIdentifier>{7af92093-bfad-4ede-ae94-881b5b0559b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gamemain">
+      <UniqueIdentifier>{c4917400-df28-4a86-b84f-9a10df3f0893}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{a1752ec0-64f1-4a72-8737-9ce6eee11e0b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
