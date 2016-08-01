@@ -156,7 +156,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 // 파일명과 날짜 정보를 저장해 리턴한다.
 bool CollectFilesRaw(const list<string> &findExt, const string &searchPath, 
-	OUT list< std::pair<FILETIME, string>> &out)
+	OUT list<std::pair<FILETIME, string>> &out)
 {
 	WIN32_FIND_DATAA fd;
 	const string searchDir = searchPath + "*.*";
@@ -214,12 +214,16 @@ bool common::CollectFilesOrdered(const list<string> &findExt, const string &sear
 	CollectFilesRaw(findExt, searchPath, files);
 
 	// 최근 수정된 날짜 순서대로 정렬.
-	files.sort( 
-		[](const pair<FILETIME, string> &a, const pair<FILETIME, string> &b)
-		{ 
-			return CompareFileTime(&a.first, &b.first) > 0; 
-		} 
-	);
+	// 파일과 폴더를 비교할 때는, 폴더가 항상 먼저 나오게 한다.
+	if (flags == 0)
+	{
+		files.sort(  
+			[](const pair<FILETIME, string> &a, const pair<FILETIME, string> &b)
+			{ 
+				return CompareFileTime(&a.first, &b.first) > 0; 
+			} 
+		);
+	}
 
 	for each (auto &it in files)
 		out.push_back(it.second);

@@ -98,6 +98,7 @@ void CFileTreeCtrl::Update(const string &directoryPath, const list<string> &extL
 
 
 // sTreeNode 생성한다.
+// 폴더는 파일보다 위에 있게 한다.
 CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fileList)
 {
 	sTreeNode *rootNode = new sTreeNode;
@@ -115,7 +116,20 @@ CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fi
 			{
 				sTreeNode *t = new sTreeNode;
 				node->children[ name] = t;
-				node->childrenFiles.push_back( std::pair<string, sTreeNode*>(name, t) );
+
+				// 확장자가 없다면, 폴더라고 간주한다.
+				// 확장자는 3개보다 같거나 작아야 한다.
+				const int pos = name.find_last_of('.');
+ 				if ((string::npos == pos) || ((int)name.size() - 4 > pos))
+ 				{
+ 					// 폴더는 파일 리스트에서 상위로 이동한다.
+					node->childrenFiles.push_front(std::pair<string, sTreeNode*>(name, t));
+ 				}
+				else
+				{
+					node->childrenFiles.push_back(std::pair<string, sTreeNode*>(name, t));
+				}
+
 				node = t;
 			}
 			else

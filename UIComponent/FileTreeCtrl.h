@@ -1,3 +1,9 @@
+//
+// 2016-07-31, jjuiddong
+//
+// - folder sorting
+//		- folder는 항상 제일위에 있게함.
+//
 #pragma once
 
 

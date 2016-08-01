@@ -18,7 +18,7 @@ cSimpleMatchScript::cSimpleMatchScript(cMatchScript2 *matchScript)
 	for (int i = 0; i < maxLen; ++i)
 		m_matchResult[i].Clear();
 
-	m_tess.Init("./", "eng");
+	m_tess.Init("./", "eng", "dictionary.txt");
 }
 
 cSimpleMatchScript::~cSimpleMatchScript()
@@ -423,7 +423,9 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 
 			// debug display
 			cvtColor(dst, dst, CV_GRAY2BGR);
-			for (u_int i = 0; i < approx.size() - 1; ++i) 				cv::line(dst, approx[i], approx[i + 1], Scalar(255,255,255), 2); 			cv::line(dst, approx[approx.size() - 1], approx[0], Scalar(255,255,255), 2);
+			for (u_int i = 0; i < approx.size() - 1; ++i)
+ 				cv::line(dst, approx[i], approx[i + 1], Scalar(255,255,255), 2);
+ 			cv::line(dst, approx[approx.size() - 1], approx[0], Scalar(255,255,255), 2);
 			cv::line(dst, approx[i1], approx[i12], Scalar(255, 0, 0), 3);
 			cv::line(dst, approx[i2], approx[i22], Scalar(0, 0, 255), 3);
 
@@ -438,7 +440,8 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 
 			skewPoint1 = Point((int)p1.x, (int)p1.y);
 			skewPoint2 = Point((int)p3.x, (int)p3.y);
-			const Mat affine_matrix = getRotationMatrix2D(Point((int)p1.x, (int)p1.y), angle, 1);
+			const Mat affine_matrix = getRotationMatrix2D(Point((int)p1.x, (int)p1.y), angle, 1);
+
 			if (skewDebug == 0)
 				warpAffine(tmp, dst, affine_matrix, dst.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar::all(255));
 		}
@@ -515,20 +518,26 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 		if (argv[i] == "tess")
 		{
 			// skew 된 영역의 이미지로 문자 인식을 한다.
+			string srcStr;
 			string result;
 			if (skewPoint1 != Point(0, 0))
 			{
 				m_tessImg = dst( Rect(0, MIN(skewPoint1.y, skewPoint2.y)-5,
 					dst.cols, (int)abs(skewPoint1.y-skewPoint2.y)+10) );
-				result = m_tess.Recognize(m_tessImg);
+				srcStr = m_tess.Recognize(m_tessImg);
+				result = m_tess.Dictionary(srcStr);
 			}
 			else
 			{
-				result = m_tess.Recognize(dst);
+				srcStr = m_tess.Recognize(dst);
+				result = m_tess.Dictionary(srcStr);
 			}
-			
-			putText(dst, common::format("tess result = %s", result.c_str()).c_str(), 
+
+			putText(dst, common::format("tess source = %s", srcStr.c_str()).c_str(),
 				Point(0, 90), 1, 2.f, Scalar(255, 255, 255), 2);
+
+			putText(dst, common::format("tess result = %s", result.c_str()).c_str(), 
+				Point(0, 120), 1, 2.f, Scalar(255, 255, 255), 2);
 		}
 
 	}

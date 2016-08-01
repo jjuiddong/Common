@@ -8,9 +8,13 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tesswrapper.h" />
     <ClInclude Include="tess.h" />
+    <ClInclude Include="dictionary.h" />
+    <ClInclude Include="scanner.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="tesswrapper.cpp" />
+    <ClCompile Include="dictionary.cpp" />
+    <ClCompile Include="scanner.cpp" />
   </ItemGroup>
 </Project>

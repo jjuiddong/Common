@@ -82,6 +82,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\Project\tesseract\api;D:\Project\tesseract\ccutil;D:\Project\tesseract\ccstruct;D:\Project\tesseract\ccmain;D:\Project\tesseract\classify;D:\Project\tesseract\cube;D:\Project\tesseract\cutil;D:\Project\tesseract\neural_networks;D:\Project\tesseract\viewer;D:\Project\tesseract\wordrec;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -108,6 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\Project\tesseract\api;D:\Project\tesseract\ccutil;D:\Project\tesseract\ccstruct;D:\Project\tesseract\ccmain;D:\Project\tesseract\classify;D:\Project\tesseract\cube;D:\Project\tesseract\cutil;D:\Project\tesseract\neural_networks;D:\Project\tesseract\viewer;D:\Project\tesseract\wordrec;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,12 +137,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dictionary.h" />
+    <ClInclude Include="scanner.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tess.h" />
     <ClInclude Include="tesswrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dictionary.cpp" />
+    <ClCompile Include="scanner.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
