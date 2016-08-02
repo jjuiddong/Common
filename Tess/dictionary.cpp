@@ -140,31 +140,31 @@ string cDictionary::FastSearch(const string &sentence, OUT vector<string> &out)
 			continue; // 너무 짧은 단어는 제외한다.
 		
 		auto it = m_wordLookup.find(word);
-		if (it != m_wordLookup.end())
+		if (it == m_wordLookup.end())
+			continue;
+
+		ss << (out.empty()? word : string(" ")+ word);
+		out.push_back(word); // add maching word
+
+		const int wordId = it->second;
+		if (wordId >= MAX_WORD)
+			continue;
+
+		if (sentenceSet.empty())
 		{
-			ss << (out.empty()? word : string(" ")+ word);
-			out.push_back(word); // add maching word
-
-			const int wordId = it->second;
-			if (wordId >= MAX_WORD)
-				continue;
-
-			if (sentenceSet.empty())
-			{
-				sentenceSet = m_sentenceWordSet[wordId];
-			}
-			else
-			{
-				// 두 단어가 포함된 문장들끼리의 교집합을 구한다.
-				vector<int> tmp;
-				std::set_intersection(sentenceSet.begin(), sentenceSet.end(),
-					m_sentenceWordSet[wordId].begin(), m_sentenceWordSet[wordId].end(),
-					std::back_inserter(tmp));
+			sentenceSet = m_sentenceWordSet[wordId];
+		}
+		else
+		{
+			// 두 단어가 포함된 문장들끼리의 교집합을 구한다.
+			vector<int> tmp;
+			std::set_intersection(sentenceSet.begin(), sentenceSet.end(),
+				m_sentenceWordSet[wordId].begin(), m_sentenceWordSet[wordId].end(),
+				std::back_inserter(tmp));
 				
-				sentenceSet.clear();
-				for each (auto id in tmp)
-					sentenceSet.insert(id);
-			}
+			sentenceSet.clear();
+			for each (auto id in tmp)
+				sentenceSet.insert(id);
 		}
 	}
 	
@@ -237,7 +237,7 @@ string cDictionary::ErrorCorrectionSearch(const string &sentence)
 
 				cErrCorrectCompare cmp;
 				string tmp = src;
-				cmp.Compare(this, (char*)tmp.c_str(), (char*)m_sentences[sentenceId].lower.c_str(), i, k);
+				cmp.Compare(*this, (char*)&tmp[i], (char*)&m_sentences[sentenceId].lower[k] );
 				if (cmp.m_result.tot > maxTotCount)
 				{
 					maxTotCount = cmp.m_result.tot;

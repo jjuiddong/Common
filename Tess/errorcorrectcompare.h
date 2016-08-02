@@ -22,12 +22,11 @@ namespace tess
 
 		cErrCorrectCompare();
 		virtual ~cErrCorrectCompare();
-		bool Compare(cDictionary *dict, char *src, char *dict_word, const int src_idx, const int dict_index);
+		bool Compare(const cDictionary &dict, char *src, char *dict_word);
 
 
 	protected:
-		bool CompareSub(cDictionary *dict, char *src, char *dict_word, const int src_idx, const int dict_index, 
-			sInfo &info);
+		bool CompareSub(const cDictionary &dict, char *src, char *dict_word, sInfo &info);
 
 
 	public:

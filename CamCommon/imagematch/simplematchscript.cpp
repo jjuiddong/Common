@@ -59,7 +59,13 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 
 	const int t1 = timeGetTime();
 
-	Point skewPoint1, skewPoint2; // skew 명령어로 선택된 skew 위치 
+	// skew 명령어로 선택된 skew 위치 
+	//
+	// deSkewPoint1 ------------------- *
+	// |                                                    |
+	// |                                                    |
+	// deSkewPoint2 ------------------- *
+	Point deSkewPoint1, deSkewPoint2, deSkewPoint3; 
 	string errMsg;
 	char value[128];
 	char value2[128];
@@ -273,8 +279,8 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 		//----------------------------------------------------------------------
 		// skew=arcAlpha
 		float arcAlpha2 = 0;
-		int skewDebug = 0;
-		sscanf(argv[i].c_str(), "skew=%f,%d", &arcAlpha2, &skewDebug);
+		int deSkewDebug = 0;
+		sscanf(argv[i].c_str(), "deskew=%f,%d", &arcAlpha2, &deSkewDebug);
 		if (arcAlpha2 != 0)
 		{
 			Mat tmp = dst.clone();
@@ -424,34 +430,46 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 				idx1 = linePairs.front().idx1;
 				idx2 = linePairs.front().idx2;
 			}
- 
- 			const int i1 = idx1;
+
+
+			const int i1 = idx1;
  			const int i12 = (idx1 + 1) % approx.size();
 			const int i2 = idx2;
 			const int i22 = (idx2 + 1) % approx.size();
 
 			// debug display
-			cvtColor(dst, dst, CV_GRAY2BGR);
-			for (u_int i = 0; i < approx.size() - 1; ++i)
- 				cv::line(dst, approx[i], approx[i + 1], Scalar(255,255,255), 2);
- 			cv::line(dst, approx[approx.size() - 1], approx[0], Scalar(255,255,255), 2);
-			cv::line(dst, approx[i1], approx[i12], Scalar(255, 0, 0), 3);
-			cv::line(dst, approx[i2], approx[i22], Scalar(0, 0, 255), 3);
+			if (deSkewDebug)
+			{
+				cvtColor(dst, dst, CV_GRAY2BGR);
+				for (u_int i = 0; i < approx.size() - 1; ++i)
+ 					cv::line(dst, approx[i], approx[i + 1], Scalar(255,255,255), 2);
+ 				cv::line(dst, approx[approx.size() - 1], approx[0], Scalar(255,255,255), 2);
+				cv::line(dst, approx[i1], approx[i12], Scalar(255, 0, 0), 3);
+				cv::line(dst, approx[i2], approx[i22], Scalar(0, 0, 255), 3);
+			}
 
-			Vector3 p1 = (approx[i1].x < approx[i12].x) ? Vector3((float)approx[i1].x, (float)approx[i1].y, 0) : Vector3((float)approx[i12].x, (float)approx[i12].y, 0);
-			Vector3 p2 = (approx[i1].x > approx[i12].x) ? Vector3((float)approx[i1].x, (float)approx[i1].y, 0) : Vector3((float)approx[i12].x, (float)approx[i12].y, 0);
-			Vector3 p3 = (approx[i2].x < approx[i22].x) ? Vector3((float)approx[i2].x, (float)approx[i2].y, 0) : Vector3((float)approx[i22].x, (float)approx[i22].y, 0); 
+			//
+			// p1 -------- p2
+			// |                 |
+			// |                 |
+			// p3 -------- p4
+			//
+			const Vector3 p1 = (approx[i1].x < approx[i12].x) ? Vector3((float)approx[i1].x, (float)approx[i1].y, 0) : Vector3((float)approx[i12].x, (float)approx[i12].y, 0);
+			const Vector3 p2 = (approx[i1].x > approx[i12].x) ? Vector3((float)approx[i1].x, (float)approx[i1].y, 0) : Vector3((float)approx[i12].x, (float)approx[i12].y, 0);
+			const Vector3 p3 = (approx[i2].x < approx[i22].x) ? Vector3((float)approx[i2].x, (float)approx[i2].y, 0) : Vector3((float)approx[i22].x, (float)approx[i22].y, 0);
+			const Vector3 p4 = (approx[i2].x > approx[i22].x) ? Vector3((float)approx[i2].x, (float)approx[i2].y, 0) : Vector3((float)approx[i22].x, (float)approx[i22].y, 0);
 			Vector3 v = p2 - p1;
 			v.Normalize();
 			double angle = RAD2ANGLE(acos(v.DotProduct(Vector3(1, 0, 0))));
 			if (v.y < 0)
 				angle = -angle;
 
-			skewPoint1 = Point((int)p1.x, (int)p1.y);
-			skewPoint2 = Point((int)p3.x, (int)p3.y);
+			deSkewPoint1 = Point((int)p1.x, (int)p1.y);
+			deSkewPoint2 = Point((int)p3.x, (int)p3.y);
+			deSkewPoint3 = (p2.x > p4.x) ? Point((int)p2.x, (int)p2.y) : Point((int)p4.x, (int)p4.y);
 			const Mat affine_matrix = getRotationMatrix2D(Point((int)p1.x, (int)p1.y), angle, 1);
 
-			if (skewDebug == 0)
+			if (deSkewDebug == 0)
 				warpAffine(tmp, dst, affine_matrix, dst.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar::all(255));
 		}
 
@@ -526,19 +544,19 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 		ZeroMemory(value, sizeof(value));
 		if (argv[i] == "tess")
 		{
-			// skew 된 영역의 이미지로 문자 인식을 한다.
+			// deskew 된 영역의 이미지로 문자 인식을 한다.
 			string srcStr;
 			string fastStr;
 			string result;
 			int t1, t2;
-			if (skewPoint1 != Point(0, 0))
+			if (deSkewPoint1 != Point(0, 0))
 			{
-				m_tessImg = dst( Rect(0, MIN(skewPoint1.y, skewPoint2.y)-5,
-					dst.cols, (int)abs(skewPoint1.y-skewPoint2.y)+10) );
+				const int left = MAX(MIN(deSkewPoint1.x, deSkewPoint3.x) - 10, 0);
+				const int right = MIN(MAX(deSkewPoint1.x, deSkewPoint3.x) + 10, dst.cols);
+				m_tessImg = dst( Rect(left, MIN(deSkewPoint1.y, deSkewPoint2.y)-5,
+					right-left, (int)abs(deSkewPoint1.y-deSkewPoint2.y)+10) );
 				srcStr = m_tess.Recognize(m_tessImg);
 				result = m_tess.Dictionary2(srcStr, fastStr, t1, t2);
-
-				dbg::Log(srcStr.c_str());
 			}
 			else
 			{
