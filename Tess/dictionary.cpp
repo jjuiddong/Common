@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "dictionary.h"
 #include "scanner.h"
+#include "errorcorrectcompare.h"
 
 
 using namespace tess;
@@ -16,6 +17,7 @@ cDictionary::~cDictionary()
 }
 
 
+// 사전 스크립트를 읽어서, 단어 사전을 만든다.
 bool cDictionary::Init(const string &fileName)
 {
 	using namespace std;
@@ -45,10 +47,11 @@ bool cDictionary::Init(const string &fileName)
 			continue;
 		}
 
-		if (0 == state )
+		if (0 == state ) // word list command
 		{
 			string tmp = line;
 			const string lower = lowerCase(tmp);
+
 			if (m_sentenceLookUp.end() == m_sentenceLookUp.find(lower))
 			{// 사전에 추가
 				m_sentences.push_back({line, lower});
@@ -61,21 +64,21 @@ bool cDictionary::Init(const string &fileName)
 
 			// 문장을 공백을 기준으로 나눠 단어로 만든후 저장.
 			const int sentenceId = m_sentences.size() - 1;
-			vector<string> strs;
-			tokenizer(lower, " ", "", strs);
-			for each (auto str in strs)
+			vector<string> words;
+			tokenizer(lower, " ", "", words);
+			for each (auto word in words)
 			{
-				trim(str);
-				if (str.length() < MIN_WORD_LEN)
+				trim(word);
+				if (word.length() < MIN_WORD_LEN)
 					continue; // 너무 짧은 단어는 제외한다.
 
 				int wordId = 0;
-				const auto it = m_wordLookup.find(str);
+				const auto it = m_wordLookup.find(word);
 				if (it == m_wordLookup.end())
 				{
-					m_words.push_back(str);
+					m_words.push_back(word);
 					wordId = m_words.size() - 1;
-					m_wordLookup[str] = m_words.size()-1;
+					m_wordLookup[word] = m_words.size()-1;
 				}
 				else
 				{
@@ -83,23 +86,26 @@ bool cDictionary::Init(const string &fileName)
 				}
 
 				if (wordId < MAX_WORD)
-					m_wordSet[wordId].insert(sentenceId);
+					m_sentenceWordSet[wordId].insert(sentenceId);
 			}
 
 		}
-		else if (1 == state)
+		else if (1 == state) // ambiguous command
 		{
 			// format = c1 - c2 - c3
-			vector<string> strs;
-			tokenizer(line, "-", "", strs);
-			for each (auto str in strs)
+			string tmp = line;
+			const string lower = lowerCase(tmp);
+
+			vector<string> words;
+			tokenizer(lower, "-", "", words);
+			for each (auto word in words)
 			{
-				trim(str);
-				if (str.empty())
+				trim(word);
+				if (word.empty())
 					continue;
-				if (str.length() > 1) // allow only one character
+				if (word.length() > 1) // allow only one character
 					continue;
-				m_ambiguousTable[str[0]] = m_ambigId; // 같은 ID를 부여한다.
+				m_ambiguousTable[word[0]] = m_ambigId; // 같은 ID를 부여한다.
 			}
 			++m_ambigId;
 		}
@@ -114,63 +120,56 @@ bool cDictionary::Init(const string &fileName)
 
 // word 가 사전에 있는 단어로만 구성되어 있다면, true를 리턴한다.
 // 일치하는 단어를 out에 저장해 리턴한다.
-string cDictionary::FastSearch(const string &word, OUT vector<string> &out)
+// ErrorCorrectionSearch() 보다 빠르다.
+string cDictionary::FastSearch(const string &sentence, OUT vector<string> &out)
 {
-	cScanner scanner(*this, word);
+	cScanner scanner(*this, sentence);// 필요없는 문자 제외
 	if (scanner.IsEmpty())
 		return "";
 
 	stringstream ss;
-	set<int> sentences;
+	set<int> sentenceSet; // words 단어에 포함된 문장 id의 집합
 
-	vector<string> strs;
-	tokenizer(scanner.m_str, " ", "", strs);
-	for each (auto str in strs)
+	// 문장을 단어 단위로 비교한다.
+	vector<string> words;
+	tokenizer(scanner.m_str, " ", "", words);
+	for each (auto word in words)
 	{
-		trim(str);
-		if (str.length() < MIN_WORD_LEN)
+		trim(word);
+		if (word.length() < MIN_WORD_LEN)
 			continue; // 너무 짧은 단어는 제외한다.
 		
-		auto it = m_wordLookup.find(str);
+		auto it = m_wordLookup.find(word);
 		if (it != m_wordLookup.end())
 		{
-			ss << (out.empty()? str : string(" ")+ str);
-			out.push_back(str); // add maching word
+			ss << (out.empty()? word : string(" ")+ word);
+			out.push_back(word); // add maching word
 
 			const int wordId = it->second;
 			if (wordId >= MAX_WORD)
 				continue;
 
-			if (sentences.empty())
+			if (sentenceSet.empty())
 			{
-				sentences = m_wordSet[wordId];
+				sentenceSet = m_sentenceWordSet[wordId];
 			}
 			else
 			{
+				// 두 단어가 포함된 문장들끼리의 교집합을 구한다.
 				vector<int> tmp;
-				std::set_intersection(sentences.begin(), sentences.end(),
-					m_wordSet[wordId].begin(), m_wordSet[wordId].end(),
+				std::set_intersection(sentenceSet.begin(), sentenceSet.end(),
+					m_sentenceWordSet[wordId].begin(), m_sentenceWordSet[wordId].end(),
 					std::back_inserter(tmp));
 				
-				sentences.clear();
+				sentenceSet.clear();
 				for each (auto id in tmp)
-					sentences.insert(id);
+					sentenceSet.insert(id);
 			}
 		}
 	}
 	
-	if (sentences.empty())
-		return "";
-
-	const string lastSentence = ss.str();
-	for each (int id in sentences)
-	{
-		if (lastSentence == m_sentences[id].lower)
-		{
-			// find in dictionary
-			return m_sentences[id].src;
-		}
-	}
+	if (sentenceSet.size() == 1)
+		return m_sentences[*sentenceSet.begin()].src;
 
 	return "";
 }
@@ -186,10 +185,10 @@ void cDictionary::Clear()
 
 	for (uint i = 0; i < MAX_CHAR; ++i)
 		for (uint k = 0; k < MAX_LEN; ++k)
-			m_charTable[i][k].words.clear();
+			m_charTable[i][k].sentenceIds.clear();
 
 	for (uint i = 0; i < MAX_WORD; ++i)
-		m_wordSet[i].clear();
+		m_sentenceWordSet[i].clear();
 }
 
 
@@ -197,23 +196,69 @@ void cDictionary::GenerateCharTable()
 {
 	for (uint i = 0; i < m_sentences.size(); ++i)
 	{
-		const uint wordId = i;
-		const sSentence &word = m_sentences[i];
-		for (uint k=0; k < word.src.length(); ++k)
+		const uint sentenceId = i;
+		const sSentence &sentence = m_sentences[i];
+		for (uint k=0; k < sentence.lower.length(); ++k)
 		{
 			if (k >= MAX_LEN)
 				break;
- 			const char c = word.src[k];
-			m_charTable[c][k].words.push_back(wordId);
+ 			const char c = sentence.lower[k];
+			m_charTable[c][k].sentenceIds.insert(sentenceId);
 			m_useChar[c] = true;
 		}
 	}
 }
 
 
-string cDictionary::ErrorCorrection(const string &word)
+// 에러를 보정하면서, 문장을 사전에서 찾는다.
+// FastSearch() 보다 느리다.
+string cDictionary::ErrorCorrectionSearch(const string &sentence)
 {
+	cScanner scanner(*this, sentence);// 필요없는 문자 제외
+	if (scanner.IsEmpty())
+		return "";
 
+	vector<bool> procSentenceIds(m_sentences.size(), false);
+
+	int maxSentenceId = -1;
+	int maxTotCount = -100;
+
+	string src = scanner.m_str;
+	for (uint i = 0; i < src.size(); ++i)
+	{
+		const uchar c = src[i];
+		for (uint k = 0; k < MAX_LEN; ++k)
+		{
+			for each (auto sentenceId in m_charTable[c][k].sentenceIds)
+			{
+				if (procSentenceIds[sentenceId])
+					continue;
+				procSentenceIds[sentenceId] = true;
+
+				cErrCorrectCompare cmp;
+				string tmp = src;
+				cmp.Compare(this, (char*)tmp.c_str(), (char*)m_sentences[sentenceId].lower.c_str(), i, k);
+				if (cmp.m_result.tot > maxTotCount)
+				{
+					maxTotCount = cmp.m_result.tot;
+					maxSentenceId = sentenceId;
+				}
+			}
+		}
+	}
+
+	if (maxSentenceId >= 0)
+		return m_sentences[maxSentenceId].src;
 
 	return "";
+}
+
+
+// FastSearch() + ErrorCorrectionSearch()
+string cDictionary::Search(const string &sentence, OUT vector<string> &out)
+{
+	string result = FastSearch(sentence, out);
+	if (result.empty())
+		result = ErrorCorrectionSearch(sentence);
+	return result;
 }

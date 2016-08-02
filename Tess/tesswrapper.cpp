@@ -3,6 +3,7 @@
 #include "tesswrapper.h"
 #include "dictionary.h"
 #include <baseapi.h>
+#include <mmsystem.h>
 
 using namespace tess;
 using namespace tesseract;
@@ -70,20 +71,38 @@ string cTessWrapper::Recognize(cv::Mat &img)
 
 
 // 사전에 등록된 단어를 리턴
-string cTessWrapper::Dictionary(const string &src)
+// flags = 0 : FastSearch + ErrorCorrectionSearch
+//				1 : FastSearch
+string cTessWrapper::Dictionary(const string &src, const int flags)
 {
 	RETV(!m_dict, "");
 
 	vector<string> out;
-	const string result = m_dict->FastSearch(src, out);
-//	result.clear();
-// 	for each (auto &str in out)
-// 	{
-// 		if (result.empty())
-// 			result = str;
-// 		else
-// 			result += string(" ") + str;
-// 	}
+	string result = m_dict->FastSearch(src, out);
+	if ((flags==0) && result.empty())
+		result = m_dict->ErrorCorrectionSearch(src);
+
+	return result;
+}
+
+
+// out : fast search result
+// t1 : fast search time
+// t2 : fastsearch + errorcorrectsearch
+string cTessWrapper::Dictionary2(const string &src, OUT string &out, OUT int &t1, OUT int &t2)
+{
+	RETV(!m_dict, "");
+
+	const int t0 = timeGetTime();
+	vector<string> strs;
+	string result = m_dict->FastSearch(src, strs);
+	t1 = timeGetTime() - t0;
+
+	out = result;
+	if (result.empty())
+		result = m_dict->ErrorCorrectionSearch(src);
+
+	t2 = timeGetTime() - (t0+t1);
 
 	return result;
 }

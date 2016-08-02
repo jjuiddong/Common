@@ -323,7 +323,7 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			cv::approxPolyDP(cv::Mat(contours[maxLenIdx]), approx, cv::arcLength(cv::Mat(contours[maxLenIdx]), true)*arcAlpha2, true);
 			
 			double maxV = 0, maxV2 = 0;
-			int idx1 = 0, idx2 = 0;
+			uint idx1 = 0, idx2 = 0;
 			// 가장 긴 라인을 구한다. 마지막 circular line 은 제외
 			for (u_int i = 0; i < approx.size()-1; ++i)
 			{
@@ -350,64 +350,73 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 				lineDirs[i] = v;
 			}
 
-			typedef pair<double, int> LineType; // angle, index
-			vector< LineType > lines;
+			struct sLine
+			{
+				double angle;
+				uint i1; // approx index1
+				uint i2; // approx index1
+				double len; // length
+			};
+			//typedef pair<double, int> LineType; // angle, index
+			vector<sLine> lines;
 			lines.reserve(approx.size());
 
 			// 서로 붙어있는 라인일 경우, 무시한다. (y  값으로 판단한다.)
 			const int minimumLength = 20;
-			for (u_int i = 0; i < approx.size(); ++i)
+			for (uint i = 0; i < approx.size(); ++i)
 			{
 				if (i == idx1)
 					continue; // max 값 제외
 
-				const int i2 = (i + 1) % approx.size(); // circular rect
+				const uint i2 = (i + 1) % approx.size(); // circular rect
 				const double len = cv::norm(approx[i] - approx[i2]);
 				const float angle = abs(lineDirs[idx1].DotProduct(lineDirs[i]));
 				if (angle > 0.8f)
-					lines.push_back(LineType(angle, i));
+					lines.push_back({ angle, i, i2, len });
 			}
 
 			// 가장 긴 라인 추가
-			lines.push_back(LineType(1, idx1));
+			lines.push_back({ 1, idx1, idx1+1, maxV});
 
 			// 각 라인끼리, 수평이면서, 거리도 긴 쌍을 구한다.
-			struct sType {
+			struct sLinePair {
 				float angle;
 				int idx1;
 				int idx2;
+				double len;
 			};
 
-			vector<sType> linePairs;
+			vector<sLinePair> linePairs;
 			linePairs.reserve(lines.size() * lines.size());
 
-			for (u_int i = 0; i < lines.size()-1; ++i)
+			for (uint i = 0; i < lines.size()-1; ++i)
 			{
-				for (u_int k = i+1; k < lines.size(); ++k)
+				for (uint k = i+1; k < lines.size(); ++k)
 				{
 					// y 차이가 일정크기 이상이어야 한다.
-					const int i1 = lines[i].second;
-					const int i2 = lines[k].second;
-					const int i12 = (i1 + 1) % approx.size(); // circular rect
-					const int i22 = (i2 + 1) % approx.size(); // circular rect
+					const int i1 = lines[i].i1;
+					const int i12 = lines[i].i2;
+					const int i2 = lines[k].i1;
+					const int i22 = lines[k].i2;
 					const int left1 = (approx[i1].x < approx[i12].x) ? i1 : i12;
 					const int left2 = (approx[i2].x < approx[i22].x) ? i2 : i22;
  					if (abs(approx[left1].y - approx[left2].y) < minimumLength)
  						continue;
 
-					sType type;
-					type.angle = abs(lineDirs[ lines[i].second ].DotProduct(lineDirs[lines[k].second]));
-					type.idx1 = lines[i].second;
-					type.idx2 = lines[k].second;
+					sLinePair type;
+					type.angle = abs(lineDirs[ lines[i].i1 ].DotProduct(lineDirs[lines[k].i1]));
+					type.idx1 = lines[i].i1;
+					type.idx2 = lines[k].i1;
+					type.len = lines[i].len + lines[k].len;
 					linePairs.push_back(type);
 				}
 			}
 
 			// 길면서, 서로 수평인 두 라인을 구한다.
 			std::sort(linePairs.begin(), linePairs.end(),
-				[](const sType &a, sType &b)
+				[](const sLinePair &a, sLinePair &b)
 			{
-				return a.angle > b.angle;
+				return a.angle*a.len > b.angle*b.len;
 			} );
 
 			if (!linePairs.empty())
@@ -519,25 +528,35 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 		{
 			// skew 된 영역의 이미지로 문자 인식을 한다.
 			string srcStr;
+			string fastStr;
 			string result;
+			int t1, t2;
 			if (skewPoint1 != Point(0, 0))
 			{
 				m_tessImg = dst( Rect(0, MIN(skewPoint1.y, skewPoint2.y)-5,
 					dst.cols, (int)abs(skewPoint1.y-skewPoint2.y)+10) );
 				srcStr = m_tess.Recognize(m_tessImg);
-				result = m_tess.Dictionary(srcStr);
+				result = m_tess.Dictionary2(srcStr, fastStr, t1, t2);
+
+				dbg::Log(srcStr.c_str());
 			}
 			else
 			{
 				srcStr = m_tess.Recognize(dst);
-				result = m_tess.Dictionary(srcStr);
+				result = m_tess.Dictionary2(srcStr, fastStr, t1, t2);
 			}
 
 			putText(dst, common::format("tess source = %s", srcStr.c_str()).c_str(),
 				Point(0, 90), 1, 2.f, Scalar(255, 255, 255), 2);
 
-			putText(dst, common::format("tess result = %s", result.c_str()).c_str(), 
+			putText(dst, common::format("tess FastSearch = %s", fastStr.c_str()).c_str(),
 				Point(0, 120), 1, 2.f, Scalar(255, 255, 255), 2);
+
+			putText(dst, common::format("tess result = %s", result.c_str()).c_str(), 
+				Point(0, 150), 1, 2.f, Scalar(255, 255, 255), 2);
+
+			putText(dst, common::format("tess t1 = %d, t2 = %d", t1, t2).c_str(),
+				Point(0, 180), 1, 2.f, Scalar(255, 255, 255), 2);
 		}
 
 	}

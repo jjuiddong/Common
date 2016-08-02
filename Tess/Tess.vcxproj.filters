@@ -10,11 +10,13 @@
     <ClInclude Include="tess.h" />
     <ClInclude Include="dictionary.h" />
     <ClInclude Include="scanner.h" />
+    <ClInclude Include="errorcorrectcompare.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="tesswrapper.cpp" />
     <ClCompile Include="dictionary.cpp" />
     <ClCompile Include="scanner.cpp" />
+    <ClCompile Include="errorcorrectcompare.cpp" />
   </ItemGroup>
 </Project>

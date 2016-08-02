@@ -143,6 +143,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tess.h" />
     <ClInclude Include="tesswrapper.h" />
+    <ClInclude Include="errorcorrectcompare.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dictionary.cpp" />
@@ -154,6 +155,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="tesswrapper.cpp" />
+    <ClCompile Include="errorcorrectcompare.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">
