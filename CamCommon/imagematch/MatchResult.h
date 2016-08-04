@@ -52,6 +52,7 @@ namespace cvproc {
 				cv::Rect matchRect; // 매칭된 위치를 저장한다. TemplateMatch
 				cv::Point matchRect2[4]; // 매칭된 위치를 저장한다. FeatureMatch
 				double max; // 템플릿 매치 최대 값을 저장한다.
+				char str[128]; // OCR 인식 문자열
 				int result; // 매칭 결과
 			};
 

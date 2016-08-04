@@ -278,7 +278,7 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 	q.push_back( ItemType(NULL, matchResult.m_nodeLabel->child) );
 
 	const sParseTree *mostFitnessNode = NULL;
-	double max = 0;
+	double max = -FLT_MAX;
 	while (!q.empty())
 	{
 		ItemType item = q.back();
@@ -302,7 +302,7 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 		if (('@' != node->name[0])) // 링크노드가 아닐때만 처리한다.
 		{
 			++parentCount[node->id];
-			fitness[node->id] += node->max;
+			fitness[node->id] += matchResult.m_data[node->id].max;
 		}
 
 		const sParseTree *child = node->child;
@@ -331,7 +331,10 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 
 	if (mostFitnessNode->child && !mostFitnessNode->child->child)
 	{
-		resultStr = mostFitnessNode->child->name;
+		if (string("return_parent") == mostFitnessNode->child->name)
+			resultStr = matchResult.m_data[mostFitnessNode->id].str;
+		else
+			resultStr = mostFitnessNode->child->name;
 	}
 	else
 	{

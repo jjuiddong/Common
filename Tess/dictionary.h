@@ -19,8 +19,8 @@ namespace tess
 
 		bool Init(const string &fileName);
 		string FastSearch(const string &sentence, OUT vector<string> &out);
-		string ErrorCorrectionSearch(const string &sentence);
-		string Search(const string &sentence, OUT vector<string> &out);
+		string ErrorCorrectionSearch(const string &sentence, OUT float &maxFitness);
+		string Search(const string &sentence, OUT vector<string> &out, OUT float &maxFitness);
 		void Clear();
 
 

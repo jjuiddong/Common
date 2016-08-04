@@ -81,6 +81,7 @@ struct sSharedData
 #include "templatematch.h"
 #include "featurematch.h"
 #include "convertimage.h"
+#include "deskew.h"
 
 
 #include "imagematch/imagematch.h"
@@ -91,7 +92,7 @@ struct sSharedData
 #include "imagematch/graphscript.h"
 #include "imagematch/matchthread.h"
 #include "imagematch/matchprocessor.h"
-#include "imagematch/scenetraverse.h"
+#include "imagematch/flowcontrol.h"
 #include "imagematch/matchmanager.h"
 #include "imagematch/simplematchscript.h"
 #include "imagematch/MatchResult.h"

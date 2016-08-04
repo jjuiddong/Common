@@ -38,6 +38,8 @@ namespace cvproc {
 			void RemoveInputImage(const string &name, const int imageId);
 			void RemoveScalarImage(const int imageId);
 			void RemoveHsvImage(const int imageId);
+			cMatchResult* AllocMatchResult();
+			void FreeMatchResult(cMatchResult *p);
 			void Clear();
 
 
@@ -47,6 +49,8 @@ namespace cvproc {
 			cv::Mat& loadHsvImage(const string &fileName, const int imageId, const cv::Scalar &hsv1, const cv::Scalar &hsv2);
 			void loadDescriptor(const string &fileName, OUT vector<cv::KeyPoint> **keyPoints, OUT cv::Mat **descriptor);
 			void loadDescriptor(const string &keyName, const cv::Mat &img, OUT vector<cv::KeyPoint> **keyPoints, OUT cv::Mat **descriptor, const bool isSearch = true);
+			int executeOcr(INOUT sExecuteTreeArg &arg);
+			tess::cTessWrapper* GetTesseract();
 
 
 		public:
@@ -59,6 +63,20 @@ namespace cvproc {
 			cv::Ptr<cv::xfeatures2d::SURF> m_detector;
 			bool m_isGray = true;
  			bool m_isLog; // default = true, log message print to log.txt
+
+			// match result pool
+			struct sMRInfo
+			{
+				bool used;
+				cMatchResult *p;
+			};
+			vector<sMRInfo> m_matchResults;
+
+			// tesseract pool
+			vector<tess::cTessWrapper*> m_tess;
+			int m_tessIdx;
+			CriticalSection m_tessCS;
+
 
 			CriticalSection m_loadImgCS;
 			CriticalSection m_loadDescriptCS;

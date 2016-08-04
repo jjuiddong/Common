@@ -212,8 +212,10 @@ void cDictionary::GenerateCharTable()
 
 // 에러를 보정하면서, 문장을 사전에서 찾는다.
 // FastSearch() 보다 느리다.
-string cDictionary::ErrorCorrectionSearch(const string &sentence)
+string cDictionary::ErrorCorrectionSearch(const string &sentence, OUT float &maxFitness)
 {
+	maxFitness = 0.f;
+
 	cScanner scanner(*this, sentence);// 필요없는 문자 제외
 	if (scanner.IsEmpty())
 		return "";
@@ -247,6 +249,8 @@ string cDictionary::ErrorCorrectionSearch(const string &sentence)
 		}
 	}
 
+	maxFitness = (float)maxTotCount * 0.01f; // 최대 적합도가 1이 되기위한 계산
+
 	if (maxSentenceId >= 0)
 		return m_sentences[maxSentenceId].src;
 
@@ -255,10 +259,11 @@ string cDictionary::ErrorCorrectionSearch(const string &sentence)
 
 
 // FastSearch() + ErrorCorrectionSearch()
-string cDictionary::Search(const string &sentence, OUT vector<string> &out)
+string cDictionary::Search(const string &sentence, OUT vector<string> &out, OUT float &maxFitness)
 {
+	maxFitness = 1.f;
 	string result = FastSearch(sentence, out);
 	if (result.empty())
-		result = ErrorCorrectionSearch(sentence);
+		result = ErrorCorrectionSearch(sentence, maxFitness);
 	return result;
 }

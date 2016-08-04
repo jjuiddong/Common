@@ -71,28 +71,34 @@ string cTessWrapper::Recognize(cv::Mat &img)
 
 
 // 사전에 등록된 단어를 리턴
+// maxFitness : 적합도, 최대 1
+//					    FastSearch() 에서 인식되면 1.
 // flags = 0 : FastSearch + ErrorCorrectionSearch
 //				1 : FastSearch
-string cTessWrapper::Dictionary(const string &src, const int flags)
+string cTessWrapper::Dictionary(const string &src, OUT float &maxFitness, const int flags) //flags=0
 {
 	RETV(!m_dict, "");
 
+	maxFitness = 1;
 	vector<string> out;
 	string result = m_dict->FastSearch(src, out);
 	if ((flags==0) && result.empty())
-		result = m_dict->ErrorCorrectionSearch(src);
+		result = m_dict->ErrorCorrectionSearch(src, maxFitness);
 
 	return result;
 }
 
 
 // out : fast search result
+// maxFitness : 적합도, 최대 1
+//					    FastSearch() 에서 인식되면 1.
 // t1 : fast search time
 // t2 : fastsearch + errorcorrectsearch
-string cTessWrapper::Dictionary2(const string &src, OUT string &out, OUT int &t1, OUT int &t2)
+string cTessWrapper::Dictionary2(const string &src, OUT string &out, OUT float &maxFitness, OUT int &t1, OUT int &t2)
 {
 	RETV(!m_dict, "");
 
+	maxFitness = 1;
 	const int t0 = timeGetTime();
 	vector<string> strs;
 	string result = m_dict->FastSearch(src, strs);
@@ -100,7 +106,7 @@ string cTessWrapper::Dictionary2(const string &src, OUT string &out, OUT int &t1
 
 	out = result;
 	if (result.empty())
-		result = m_dict->ErrorCorrectionSearch(src);
+		result = m_dict->ErrorCorrectionSearch(src, maxFitness);
 
 	t2 = timeGetTime() - (t0+t1);
 

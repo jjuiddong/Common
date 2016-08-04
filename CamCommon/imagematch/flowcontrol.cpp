@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
-#include "scenetraverse.h"
+#include "flowcontrol.h"
 #include "matchprocessor.h"
 
 using namespace cvproc;
 using namespace cvproc::imagematch;
 
-cSceneTraverse::cSceneTraverse()
+cFlowControl::cFlowControl()
 	: m_state(WAIT)
 	, m_currentNode(NULL)
 	, m_nextNode(NULL)
@@ -22,12 +22,12 @@ cSceneTraverse::cSceneTraverse()
 {
 }
 
-cSceneTraverse::~cSceneTraverse()
+cFlowControl::~cFlowControl()
 {
 }
 
 
-bool cSceneTraverse::Init(const string &imageMatchScriptFileName, 
+bool cFlowControl::Init(const string &imageMatchScriptFileName, 
 	const string &flowScriptFileName
 	, const int screenCaptureKey) // screenCaptureKey=VK_SNAPSHOT
 {
@@ -36,13 +36,13 @@ bool cSceneTraverse::Init(const string &imageMatchScriptFileName,
 	cMatchProcessor::Get()->m_isLog = false;
 	if (!m_matchScript.Read(imageMatchScriptFileName))
 	{
-		dbg::ErrLog("Error!! cSceneTraverse::Init(), read error image match script \n");
+		dbg::ErrLog("Error!! cFlowControl::Init(), read error image match script \n");
 		return false;
 	}
 
 	if (!m_flowScript.Read(flowScriptFileName))
 	{
-		dbg::ErrLog("Error!! cSceneTraverse::Init(), read error menu script \n");
+		dbg::ErrLog("Error!! cFlowControl::Init(), read error menu script \n");
 		return false;
 	}
 
@@ -54,7 +54,7 @@ bool cSceneTraverse::Init(const string &imageMatchScriptFileName,
 
 // 매 루프때마다 호출 되어야 한다.
 // 
-cSceneTraverse::STATE cSceneTraverse::Update(const float deltaSeconds, const cv::Mat &img, OUT int &key)
+cFlowControl::STATE cFlowControl::Update(const float deltaSeconds, const cv::Mat &img, OUT int &key)
 {
 	STATE nextState = m_state;
 
@@ -100,7 +100,7 @@ cSceneTraverse::STATE cSceneTraverse::Update(const float deltaSeconds, const cv:
 }
 
 
-cSceneTraverse::STATE cSceneTraverse::OnDelay(const float deltaSeconds, const cv::Mat &img, OUT int &key)
+cFlowControl::STATE cFlowControl::OnDelay(const float deltaSeconds, const cv::Mat &img, OUT int &key)
 {
 	// 한프레임을 스킵하고, 다음 프레임 부터 시작
 	// 매칭 계산 때문에, deltaSeconds 값이 큰 경우를 넘어가기 위한 코드.
@@ -120,7 +120,7 @@ cSceneTraverse::STATE cSceneTraverse::OnDelay(const float deltaSeconds, const cv
 }
 
 
-cSceneTraverse::STATE cSceneTraverse::OnCapture(const cv::Mat &img, OUT int &key)
+cFlowControl::STATE cFlowControl::OnCapture(const cv::Mat &img, OUT int &key)
 {
 	key = m_screenCaptureKey;
 	return PROC;
@@ -129,7 +129,7 @@ cSceneTraverse::STATE cSceneTraverse::OnCapture(const cv::Mat &img, OUT int &key
 
 // 이미지 영상 처리
 // img 를 인식해, 현재 씬을 판단하고, 목표 씬까지 이동한다.
-cSceneTraverse::STATE cSceneTraverse::OnProc(const cv::Mat &img, OUT int &key)
+cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 {
 	if (!img.data)
 		return PROC;
@@ -158,7 +158,7 @@ cSceneTraverse::STATE cSceneTraverse::OnProc(const cv::Mat &img, OUT int &key)
 		}
 		else
 		{
-			dbg::ErrLog("Error!! cSceneTraverse::OnProc(), not found route [%s] \n", m_moveTo.c_str());
+			dbg::ErrLog("Error!! cFlowControl::OnProc(), not found route [%s] \n", m_moveTo.c_str());
 			return ERR;
 		}
 
@@ -190,7 +190,8 @@ cSceneTraverse::STATE cSceneTraverse::OnProc(const cv::Mat &img, OUT int &key)
 		data.node = m_flowScript.Find(matchResult.m_resultStr);
 
  		if (m_isLog)
- 			dbg::Log("cSceneTraverse::OnProc result=%s, loop=%d, time=%d\n", data.result.c_str(), data.loopCnt, timeGetTime()-t1);
+ 			dbg::Log("cFlowControl::OnProc result=%s, loop=%d, time=%d\n", data.result.c_str(), 
+				data.loopCnt, timeGetTime()-t1);
 	} 
 
 	// 인식에 실패하면, 다시 영상을 인식한다.
@@ -229,7 +230,7 @@ cSceneTraverse::STATE cSceneTraverse::OnProc(const cv::Mat &img, OUT int &key)
 	}
 	else
 	{
-		dbg::ErrLog("Error!! cSceneTraverse::OnProc(), not found route [%s] \n", m_moveTo.c_str());
+		dbg::ErrLog("Error!! cFlowControl::OnProc(), not found route [%s] \n", m_moveTo.c_str());
 		return ERR;
 	}
 
@@ -270,7 +271,7 @@ cSceneTraverse::STATE cSceneTraverse::OnProc(const cv::Mat &img, OUT int &key)
 }
 
 
-cSceneTraverse::STATE cSceneTraverse::OnMenu(const cv::Mat &img, OUT int &key)
+cFlowControl::STATE cFlowControl::OnMenu(const cv::Mat &img, OUT int &key)
 {
 	switch (m_state)
 	{
@@ -317,7 +318,7 @@ cSceneTraverse::STATE cSceneTraverse::OnMenu(const cv::Mat &img, OUT int &key)
 
 // 현재 메뉴의 위치를 확인하고, 목표 메뉴로 이동한다.
 // Left, Right Button or Up, Down Button
-cSceneTraverse::STATE cSceneTraverse::OnMenuDetect(const cv::Mat &img, OUT int &key)
+cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 {
 	cGraphScript::sNode *node = m_currentNode;
 	if (!node)
@@ -333,7 +334,7 @@ cSceneTraverse::STATE cSceneTraverse::OnMenuDetect(const cv::Mat &img, OUT int &
 	cMatchProcessor::Get()->Match(matchResult);
 
 	if (m_isLog)
-		dbg::Log("cSceneTraverse::OnMenuDetect label=%s, result=%s\n", label.c_str(), matchResult.m_resultStr.c_str());
+		dbg::Log("cFlowControl::OnMenuDetect label=%s, result=%s\n", label.c_str(), matchResult.m_resultStr.c_str());
 
 	if (matchResult.m_result <= 0)
 	{
@@ -368,7 +369,7 @@ cSceneTraverse::STATE cSceneTraverse::OnMenuDetect(const cv::Mat &img, OUT int &
 }
 
 
-void cSceneTraverse::Delay(const float delaySeconds, const STATE nextState)
+void cFlowControl::Delay(const float delaySeconds, const STATE nextState)
 {
 	m_isInitDelay = true;
 	m_initDelayTime = delaySeconds;
@@ -379,7 +380,7 @@ void cSceneTraverse::Delay(const float delaySeconds, const STATE nextState)
 
 
 // 씬 이동 명령이 오면, 영상을 캡쳐해, 현재 위치 파악을 먼저 한다.
-void cSceneTraverse::Move(const string &sceneName)
+void cFlowControl::Move(const string &sceneName)
 {
 	Cancel();
 
@@ -392,7 +393,7 @@ void cSceneTraverse::Move(const string &sceneName)
 
 
 // 메뉴 이동 중지
-void cSceneTraverse::Cancel()
+void cFlowControl::Cancel()
 {
 	m_state = WAIT;
 	m_currentNode = NULL;
@@ -405,7 +406,7 @@ void cSceneTraverse::Cancel()
 }
 
 
-string cSceneTraverse::GenerateInputID()
+string cFlowControl::GenerateInputID()
 {
 	stringstream ss;
 	ss << "@input" << m_genId++;
@@ -415,7 +416,7 @@ string cSceneTraverse::GenerateInputID()
 }
 
 
-cMatchResult& cSceneTraverse::GetMatchResult()
+cMatchResult& cFlowControl::GetMatchResult()
 {
 	const int MAX_LEN = sizeof(m_matchResult) / sizeof(cMatchResult);
 
@@ -426,7 +427,7 @@ cMatchResult& cSceneTraverse::GetMatchResult()
 }
 
 
-bool cSceneTraverse::TreeMatch(cGraphScript::sNode *current, const cv::Mat &img, 
+bool cFlowControl::TreeMatch(cGraphScript::sNode *current, const cv::Mat &img, 
 	OUT sTreeMatchData &out, const int loopCnt) // loopCnt=-1
 {
 	RETV(!current, false);
@@ -460,7 +461,7 @@ bool cSceneTraverse::TreeMatch(cGraphScript::sNode *current, const cv::Mat &img,
 			true, true);
 
 		if (m_isLog)
-			dbg::Log("cSceneTraverse::TreeMatch label = %s\n", label.c_str());
+			dbg::Log("cFlowControl::TreeMatch label = %s\n", label.c_str());
 
 		cMatchProcessor::Get()->Match(matchResult);
 		result = matchResult.m_resultStr;
@@ -505,7 +506,7 @@ bool cSceneTraverse::TreeMatch(cGraphScript::sNode *current, const cv::Mat &img,
 
 // 상위 메뉴로 올라가면, true 를 리턴하고,
 // 하위 메뉴로 내려가면, false를 리턴한다.
-bool cSceneTraverse::CheckMenuUpandDown(
+bool cFlowControl::CheckMenuUpandDown(
 	const cGraphScript::sNode *current, 
 	const cGraphScript::sNode *next)
 {
@@ -526,7 +527,7 @@ bool cSceneTraverse::CheckMenuUpandDown(
 
 
 // 현재 노드에서 다음노드로 넘어갈 때 선택해야 할, 분기 메뉴 갯수를 리턴한다.
-int cSceneTraverse::GetNextMenuCount(
+int cFlowControl::GetNextMenuCount(
 	const cGraphScript::sNode *current, 
 	const cGraphScript::sNode *next)
 {
@@ -562,7 +563,7 @@ int cSceneTraverse::GetNextMenuCount(
 
 // node 
 // 음수이면, 아래에서 위로 올라가거나, 오른쪽에서 왼쪽으로 이동하는 메뉴를 뜻한다.
-int cSceneTraverse::CheckNextMenuIndex(const cGraphScript::sNode *current, 
+int cFlowControl::CheckNextMenuIndex(const cGraphScript::sNode *current, 
 	const cGraphScript::sNode *next)
 {
 	RETV(!current || !next, 0);
@@ -592,7 +593,7 @@ int cSceneTraverse::CheckNextMenuIndex(const cGraphScript::sNode *current,
 
 
 // 음수이면, 아래에서 위로 올라가거나, 오른쪽에서 왼쪽으로 이동하는 메뉴를 뜻한다.
-int cSceneTraverse::CheckNextMenuIndex(
+int cFlowControl::CheckNextMenuIndex(
 	const cGraphScript::sNode *current,
 	const string &selectMenuId,
 	const cGraphScript::sNode *next)

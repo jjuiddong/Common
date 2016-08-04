@@ -187,7 +187,6 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 		}
 	}
 
-
 	// sidemenu
 	for (int i = 1; i < (int)attribs.size(); ++i)
 	{

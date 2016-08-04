@@ -120,10 +120,20 @@ bool OrderedContours(const vector<cv::Point> &src, OUT vector<cv::Point> &dst)
 	arr[3] = src[3];
 
 	const bool reval = OrderedContours(arr, out);
-	dst[0] = out[0];
-	dst[1] = out[1];
-	dst[2] = out[2];
-	dst[3] = out[3];
+	if (reval)
+	{
+		dst[0] = out[0];
+		dst[1] = out[1];
+		dst[2] = out[2];
+		dst[3] = out[3];
+	}
+	else
+	{
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+		dst[3] = src[3];
+	}
 
 	return reval;
 }

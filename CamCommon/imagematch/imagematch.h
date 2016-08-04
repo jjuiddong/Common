@@ -11,7 +11,7 @@ namespace cvproc {
 
 		struct sParseTree
 		{
-			int type; // 0=tree, 1=exec
+			int type; // 0=tree, 1=exec, 2=include
 			int id; // tree타입일 때만 사용, 0부터 시작하는 중복되지 않는 id, matchScript2에서 생성
 			char line[256]; // tree parsing string from script file
 			char name[128]; // tree name
@@ -19,7 +19,7 @@ namespace cvproc {
 			int depth; // only use parsing
 			bool isRelation; // parent relation coordinate roi
 			float threshold; // match max threshold, {threshold_0.1 ~ threshold_0.9 ~~ etc}
-			int matchType; // 0:templateMatch, 1:featureMatch, {templatematch or featurematch}
+			int matchType; // 0:templateMatch, 1:featureMatch, 2:ocr match {templatematch or featurematch or tesseract ocr}
 			int scalar[3]; // BGR
 			int hsv[6]; // hsv
 			float scale; // BGR x Scale

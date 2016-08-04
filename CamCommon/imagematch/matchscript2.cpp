@@ -177,12 +177,15 @@ void cMatchScript2::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 	{
 		const int pos1 = attribs[i].find("featurematch");
 		const int pos2 = attribs[i].find("templatematch");
-		if ((string::npos != pos1) || (string::npos != pos2))
+		const int pos3 = attribs[i].find("ocrmatch");
+		if ((string::npos != pos1) || (string::npos != pos2) || (string::npos != pos3))
 		{
 			if (string::npos != pos1)
 				node->matchType = 1;
 			if (string::npos != pos2)
 				node->matchType = 0;
+			if (string::npos != pos3)
+				node->matchType = 2;
 
 			// remove threshold attribute
 			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());

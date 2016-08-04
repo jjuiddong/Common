@@ -279,6 +279,7 @@
     <ClInclude Include="camcommon.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="convertimage.h" />
+    <ClInclude Include="deskew.h" />
     <ClInclude Include="detectrect.h" />
     <ClInclude Include="detectpoint.h" />
     <ClInclude Include="dxcapture.h" />
@@ -294,7 +295,8 @@
     <ClInclude Include="imagematch\MatchResult.h" />
     <ClInclude Include="imagematch\matchscript2.h" />
     <ClInclude Include="imagematch\matchthread.h" />
-    <ClInclude Include="imagematch\scenetraverse.h" />
+    <ClInclude Include="imagematch\menucontrol.h" />
+    <ClInclude Include="imagematch\flowcontrol.h" />
     <ClInclude Include="imagematch\simplematchscript.h" />
     <ClInclude Include="LEDBlinkCapture.h" />
     <ClInclude Include="LEDCalibrater.h" />
@@ -335,6 +337,7 @@
     <ClCompile Include="CameraDistortion.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="convertimage.cpp" />
+    <ClCompile Include="deskew.cpp" />
     <ClCompile Include="detectrect.cpp" />
     <ClCompile Include="detectpoint.cpp" />
     <ClCompile Include="dxcapture.cpp" />
@@ -348,7 +351,8 @@
     <ClCompile Include="imagematch\MatchResult.cpp" />
     <ClCompile Include="imagematch\matchscript2.cpp" />
     <ClCompile Include="imagematch\matchthread.cpp" />
-    <ClCompile Include="imagematch\scenetraverse.cpp" />
+    <ClCompile Include="imagematch\menucontrol.cpp" />
+    <ClCompile Include="imagematch\flowcontrol.cpp" />
     <ClCompile Include="imagematch\simplematchscript.cpp" />
     <ClCompile Include="LEDBlinkCapture.cpp" />
     <ClCompile Include="LEDCalibrater.cpp" />

@@ -18,7 +18,15 @@ cMatchProcessor::cMatchProcessor()
 	, m_inputImageId(0)
 	, m_isLog(true)
 	, m_lastMatchResult(NULL)
+	, m_tessIdx(0)
 {
+
+	for (int i = 0; i < 10; ++i)
+	{
+		tess::cTessWrapper *p = new tess::cTessWrapper();
+		p->Init("./", "eng", "dictionary.txt");
+		m_tess.push_back(p);
+	}
 }
 
 cMatchProcessor::~cMatchProcessor()
@@ -110,6 +118,17 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 	if ('@' == node->name[0]) // link node, excute child node
 		return 1;
 
+	int matchType = 0; // template match
+	if (((script.m_matchType == 1) && (node->matchType == -1)) || (node->matchType == 1))
+		matchType = 1; // feature match
+	else if (node->matchType == 2)
+		matchType = 2; // ocr match
+
+	if (matchType == 2)
+	{
+		return executeOcr(arg);
+	}
+
 	const Mat &matObj = loadImage(node->name);
 	if (matObj.empty())
 		return 0;
@@ -147,9 +166,8 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 	const float maxThreshold = (node->threshold == 0) ? 0.9f : node->threshold;
 	bool isDetect = false;
 
-	const bool isFeatureMatch = ((script.m_matchType == 1) && (node->matchType == -1)) || (node->matchType == 1);
 	if (m_isLog)
-		dbg::Log("executeTree %s, matchType=%d \n", node->name, isFeatureMatch);
+		dbg::Log("executeTree %s, matchType=%d \n", node->name, matchType);
 
 	const Mat *src = &input;
 
@@ -171,7 +189,7 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 	arg.matchResult->m_matchCount++;
 	node->processCnt++; // count node match
 
-	if (!isFeatureMatch) // --> templatematch
+	if (matchType == 0) // --> templatematch
 	{
 		if (((roi.width >= matObj.cols) && (roi.height >= matObj.rows))
 			&& (src->channels() == matObj.channels()))
@@ -198,7 +216,7 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 		if (m_isLog)
 			dbg::Log("%s --- templatematch max=%f, IsDetection = %d \n", node->name, max, isDetect);
 	}
-	else // feature match
+	else if (matchType == 1) // feature match
 	{
 		vector<KeyPoint> *objectKeyPoints, *sceneKeyPoints;
 		Mat *objectDescriotor, *sceneDescriptor;
@@ -236,11 +254,63 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 	node->matchLoc = left_top + Point(roi.x, roi.y);
 
 	if (isDetect)
-	{		
+	{
 		return 1;
 	}
 
 	return 0;
+}
+
+
+int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
+{
+	cMatchScript2 &script = *arg.matchResult->m_script;
+	const cv::Mat &input = arg.matchResult->m_input;
+	const string &inputName = arg.matchResult->m_inputName;
+	const int inputImageId = arg.matchResult->m_inputImageId;
+	sParseTree *parent = arg.parent;
+	sParseTree *node = arg.node;
+	cv::Mat *out = arg.out;
+
+	const Mat *src = &input;
+
+	if (!node->IsEmptyBgr())
+	{
+		src = &loadScalarImage(inputName, inputImageId, Scalar(node->scalar[0], node->scalar[1], node->scalar[2]), node->scale); // BGR
+	}
+
+	// hsv match
+	if (!node->IsEmptyHsv())
+	{
+		src = &loadHsvImage(inputName, inputImageId, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]));
+	}
+
+	cDeSkew deSkew;
+	Mat dst = src->clone();
+	deSkew.DeSkew(dst, 0.005f, 0, true);
+
+	float maxFitness = 0;
+	tess::cTessWrapper *tess = GetTesseract();
+	const string srcStr = tess->Recognize(deSkew.m_tessImg);
+	const string result = tess->Dictionary(srcStr, maxFitness);
+
+	arg.matchResult->m_matchCount++;
+	node->processCnt++; // count node match
+ 	arg.matchResult->m_data[node->id].max = maxFitness;
+
+	// 인식한 문자 저장
+	const int MAX_STR_LEN = sizeof(arg.matchResult->m_data[node->id].str);
+	ZeroMemory(arg.matchResult->m_data[node->id].str, MAX_STR_LEN);
+	memcpy(arg.matchResult->m_data[node->id].str, result.c_str(), MIN(result.length(), MAX_STR_LEN - 1));
+
+	// 성공이든, 실패든, 매칭된 위치는 저장한다.
+	node->matchLoc = deSkew.m_deSkewPoint1;
+	arg.matchResult->m_data[node->id].matchRect2[0] = deSkew.m_pts[0];
+	arg.matchResult->m_data[node->id].matchRect2[1] = deSkew.m_pts[1];
+	arg.matchResult->m_data[node->id].matchRect2[2] = deSkew.m_pts[2];
+	arg.matchResult->m_data[node->id].matchRect2[3] = deSkew.m_pts[3];
+
+	return !result.empty();
 }
 
 
@@ -318,7 +388,7 @@ Mat& cMatchProcessor::loadHsvImage(const string &fileName, const int imageId, co
 	*mat = src.clone();
 	cvtColor(src, *mat, CV_BGR2HSV);
 	inRange(*mat, hsv1, hsv2, *mat);
-	GaussianBlur(*mat, *mat, cv::Size(9, 9), 2, 2);
+	//GaussianBlur(*mat, *mat, cv::Size(9, 9), 2, 2);
 
 	m_hsvImgTable[key] = mat;
 	return *mat;
@@ -558,4 +628,57 @@ void cMatchProcessor::Clear()
 			delete it.second;
 		m_hsvImgTable.clear();
 	}
+
+	for each (auto mr in m_matchResults)
+		delete mr.p;
+	m_matchResults.clear();
+
+	for each (auto p in m_tess)
+		delete p;
+	m_tess.clear();
+}
+
+
+// MatchResult 를 생성해서 리턴한다.
+cMatchResult* cMatchProcessor::AllocMatchResult()
+{
+	for each (auto mr in m_matchResults)
+	{
+		if (!mr.used)
+		{
+			mr.used = true;
+			return mr.p;
+		}
+	}
+
+	cMatchResult *p = new cMatchResult;
+	m_matchResults.push_back({ true, p });
+	return p;
+}
+
+
+void cMatchProcessor::FreeMatchResult(cMatchResult *p)
+{
+	for each (auto mr in m_matchResults)
+	{
+		if (mr.p == p)
+		{
+			mr.used = false;
+			return;
+		}
+	}
+
+	dbg::ErrLog("cMatchProcessor::FreeMatchResult() Not Found pointer \n");
+}
+
+
+tess::cTessWrapper* cMatchProcessor::GetTesseract()
+{
+	AutoCSLock cs(m_tessCS);
+
+	tess::cTessWrapper *p = m_tess[m_tessIdx++];
+	if ((int)m_tess.size() <= m_tessIdx)
+		m_tessIdx = 0;
+
+	return p;
 }

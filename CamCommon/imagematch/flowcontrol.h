@@ -2,7 +2,7 @@
 // 2016-06-02, jjuiddong
 // 씬을 이동하는 기능을 한다.
 // 씬 이동시, ESC, Enter 키를 눌러 이동 한다.
-// cSceneTraverse 는 씬 이동에 따른 키를 반환한다.
+// cFlowControl 는 씬 이동에 따른 키를 반환한다.
 //
 #pragma once
 
@@ -10,11 +10,11 @@
 namespace cvproc {
 	namespace imagematch {
 
-		class cSceneTraverse
+		class cFlowControl
 		{
 		public:
-			cSceneTraverse();
-			virtual ~cSceneTraverse();
+			cFlowControl();
+			virtual ~cFlowControl();
 
 			enum STATE {
 				WAIT, // 대기 중

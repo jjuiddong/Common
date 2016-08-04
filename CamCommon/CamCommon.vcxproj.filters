@@ -149,9 +149,6 @@
     <ClInclude Include="imagematch\graphscript.h">
       <Filter>ImageMatch</Filter>
     </ClInclude>
-    <ClInclude Include="imagematch\scenetraverse.h">
-      <Filter>ImageMatch</Filter>
-    </ClInclude>
     <ClInclude Include="imagematch\matchscript2.h">
       <Filter>ImageMatch</Filter>
     </ClInclude>
@@ -177,6 +174,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="frapscapture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imagematch\menucontrol.h">
+      <Filter>ImageMatch</Filter>
+    </ClInclude>
+    <ClInclude Include="imagematch\flowcontrol.h">
+      <Filter>ImageMatch</Filter>
+    </ClInclude>
+    <ClInclude Include="deskew.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -298,9 +304,6 @@
     <ClCompile Include="imagematch\graphscript.cpp">
       <Filter>ImageMatch</Filter>
     </ClCompile>
-    <ClCompile Include="imagematch\scenetraverse.cpp">
-      <Filter>ImageMatch</Filter>
-    </ClCompile>
     <ClCompile Include="imagematch\matchscript2.cpp">
       <Filter>ImageMatch</Filter>
     </ClCompile>
@@ -326,6 +329,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="frapscapture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imagematch\menucontrol.cpp">
+      <Filter>ImageMatch</Filter>
+    </ClCompile>
+    <ClCompile Include="imagematch\flowcontrol.cpp">
+      <Filter>ImageMatch</Filter>
+    </ClCompile>
+    <ClCompile Include="deskew.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

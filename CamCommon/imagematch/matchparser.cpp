@@ -410,6 +410,24 @@ bool cParser2::Read(const string &fileName)
 					currentExecTree = node;
 				}
 			}
+			else if (string(str) == "include") // include filename
+			{
+				const string includeFileName = m_lineStr;
+				cParser2 parser;
+				if (parser.Read(includeFileName))
+				{
+					sParseTree *node = parser.cloneTree(parser.m_treeRoot);
+
+					if (!m_treeRoot)
+						m_treeRoot = node;
+					else
+						currentTree->next = node;
+
+					while (node->next)
+						node = node->next;
+					currentTree = node;
+				}
+			}
 			else
 			{
 				// error occur
