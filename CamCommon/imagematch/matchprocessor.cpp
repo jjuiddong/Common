@@ -21,7 +21,7 @@ cMatchProcessor::cMatchProcessor()
 	, m_tessIdx(0)
 {
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		tess::cTessWrapper *p = new tess::cTessWrapper();
 		p->Init("./", "eng", "dictionary.txt");
@@ -264,13 +264,13 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 
 int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 {
-	cMatchScript2 &script = *arg.matchResult->m_script;
+	//cMatchScript2 &script = *arg.matchResult->m_script;
 	const cv::Mat &input = arg.matchResult->m_input;
 	const string &inputName = arg.matchResult->m_inputName;
 	const int inputImageId = arg.matchResult->m_inputImageId;
-	sParseTree *parent = arg.parent;
+	//sParseTree *parent = arg.parent;
 	sParseTree *node = arg.node;
-	cv::Mat *out = arg.out;
+	//cv::Mat *out = arg.out;
 
 	const Mat *src = &input;
 
@@ -279,7 +279,6 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 		src = &loadScalarImage(inputName, inputImageId, Scalar(node->scalar[0], node->scalar[1], node->scalar[2]), node->scale); // BGR
 	}
 
-	// hsv match
 	if (!node->IsEmptyHsv())
 	{
 		src = &loadHsvImage(inputName, inputImageId, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]));
@@ -294,14 +293,36 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	const string srcStr = tess->Recognize(deSkew.m_tessImg);
 	const string result = tess->Dictionary(srcStr, maxFitness);
 
+	bool isDetect = true;
+
+	// 스트링 테이블이 있다면, 스트링 테이블에 포함된 문자일 때만,
+	// 매칭에 성공한 것을 간주한다.
+	if (node->table)
+	{
+		isDetect = false;
+		for each (auto &str in *node->table)
+		{
+			if (str == result)
+			{
+				isDetect = true;
+				break;
+			}
+		}
+	}
+
 	arg.matchResult->m_matchCount++;
 	node->processCnt++; // count node match
- 	arg.matchResult->m_data[node->id].max = maxFitness;
+	arg.matchResult->m_data[node->id].max = 0;
 
-	// 인식한 문자 저장
-	const int MAX_STR_LEN = sizeof(arg.matchResult->m_data[node->id].str);
-	ZeroMemory(arg.matchResult->m_data[node->id].str, MAX_STR_LEN);
-	memcpy(arg.matchResult->m_data[node->id].str, result.c_str(), MIN(result.length(), MAX_STR_LEN - 1));
+	if (isDetect)
+	{
+	 	arg.matchResult->m_data[node->id].max = maxFitness;
+
+		// 인식한 문장 저장
+		const int MAX_STR_LEN = sizeof(arg.matchResult->m_data[node->id].str);
+		ZeroMemory(arg.matchResult->m_data[node->id].str, MAX_STR_LEN);
+		memcpy(arg.matchResult->m_data[node->id].str, result.c_str(), MIN(result.length(), MAX_STR_LEN - 1));
+	}
 
 	// 성공이든, 실패든, 매칭된 위치는 저장한다.
 	node->matchLoc = deSkew.m_deSkewPoint1;
@@ -310,7 +331,7 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	arg.matchResult->m_data[node->id].matchRect2[2] = deSkew.m_pts[2];
 	arg.matchResult->m_data[node->id].matchRect2[3] = deSkew.m_pts[3];
 
-	return !result.empty();
+	return isDetect;
 }
 
 

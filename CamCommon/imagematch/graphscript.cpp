@@ -202,6 +202,36 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 		}
 	}
 
+
+	// enterchild
+	for (int i = 1; i < (int)attribs.size(); ++i)
+	{
+		const int pos = attribs[i].find("enterchild");
+		if (string::npos != pos)
+		{
+			node->isEnterChild = true;
+
+			// remove attribute
+			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
+			attribs.pop_back();
+			break;
+		}
+	}
+
+	// nomenu
+	for (int i = 1; i < (int)attribs.size(); ++i)
+	{
+		const int pos = attribs[i].find("nomenu");
+		if (string::npos != pos)
+		{
+			node->isNoMenu = true;
+
+			// remove attribute
+			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
+			attribs.pop_back();
+			break;
+		}
+	}
 }
 
 
@@ -214,71 +244,81 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 	setTreeAttribute(current, attribs);
 
 	sNode *linkNode = FindParent(parentNode, current->name);
-	sNode *currentNode = NULL;
+	sNode *headNode = FindHead(current->name);
+	sNode *srcNode = (headNode) ? headNode : linkNode;
 
 	// terminal node
 	if (current->child == NULL)
 	{
-		if (linkNode)
+		if (srcNode)
 		{
-			parentNode->out.push_back(linkNode);
+			parentNode->out.push_back(srcNode);
 			// 링크로 넘어간 노드는 거꾸로 타고 갈수 없게 한다.
 			// 그래서 in 에는 추가하지 않음.
-		}
-		else
-		{
-			currentNode = new sNode;
-			currentNode->id = current->name;
-			currentNode->tag = current->tag;
-			currentNode->delay = current->delay;
-			currentNode->noProc = current->noProc;
-			currentNode->isAuto = current->isAuto;
-			currentNode->isSideMenu = current->isSideMenu;
-			currentNode->key = current->key;
-			currentNode->noUpperTraverse = current->noUpperTraverse;
-			m_nodes.push_back(currentNode);
-
-			if (parentNode)
-			{
-				parentNode->out.push_back(currentNode);
-				currentNode->in.push_back(parentNode);
-			}
-
-			build(parent, current->next, parentNode);
 		}
 	}
 	else
 	{ // none terminal node
-		if (linkNode)
+		if (srcNode && !headNode)
 		{
 			dbg::ErrLog("duplicate node id = [%s] \n", current->name);
 			return NULL;
 		}
+	}
+
+	sNode *newNode = srcNode;
+
+	// parent setting node
+	if (string("parent") == current->name)
+	{
+		if (parentNode)
+		{
+			// node name을 제외한 모든 속성들을 설정한다.
+			parentNode->tag = current->tag;
+			parentNode->delay = current->delay;
+			parentNode->noProc = current->noProc;
+			parentNode->isAuto = current->isAuto;
+			parentNode->isSideMenu = current->isSideMenu;
+			parentNode->key = current->key;
+			parentNode->noUpperTraverse = current->noUpperTraverse;
+			parentNode->isEnterChild = current->isEnterChild;
+			parentNode->isNoMenu = current->isNoMenu;
+		}
+	} 
+	else if (!srcNode)
+	{
+		newNode = new sNode;
+		newNode->id = current->name;
+		newNode->tag = current->tag;
+		newNode->delay = current->delay;
+		newNode->noProc = current->noProc;
+		newNode->isAuto = current->isAuto;
+		newNode->isSideMenu = current->isSideMenu;
+		newNode->key = current->key;
+		newNode->noUpperTraverse = current->noUpperTraverse;
+		newNode->isEnterChild = current->isEnterChild;
+		newNode->isNoMenu = current->isNoMenu;
+		m_nodes.push_back(newNode);
+
+	}
+
+	if (newNode)
+	{
+		if (parentNode)
+		{
+			parentNode->out.push_back(newNode);
+			newNode->in.push_back(parentNode);
+		}
 		else
 		{
-			currentNode = new sNode;
-			currentNode->id = current->name;
-			currentNode->tag = current->tag;
-			currentNode->delay = current->delay;
-			currentNode->noProc = current->noProc;
-			currentNode->isAuto = current->isAuto;
-			currentNode->isSideMenu = current->isSideMenu;
-			currentNode->key = current->key;
-			currentNode->noUpperTraverse = current->noUpperTraverse;
-			if (parentNode)
-			{
-				parentNode->out.push_back(currentNode);
-				currentNode->in.push_back(parentNode);
-			}
-
-			m_nodes.push_back(currentNode);
-
-			build(current, current->child, currentNode);
-			build(parent, current->next, parentNode);
+			m_heads.push_back(newNode); // 헤드 노드
 		}
 	}
 
-	return currentNode;
+	build(current, current->child, newNode);
+	build(parent, current->next, parentNode);
+
+	return newNode;
 }
 
 
@@ -321,57 +361,75 @@ void cGraphScript::Clear()
 	for each(auto p in m_nodes)
 		delete p;
 	m_nodes.clear();
+	m_heads.clear();
 	m_parser.Clear();
 }
 
 
 cGraphScript::sNode* cGraphScript::Find(const string &id)
 {
-	CheckClearAllNode();
-	return TraverseRec(m_root, id);
-}
-
-
-cGraphScript::sNode* cGraphScript::Traverse(const string &id)
-{
-	CheckClearAllNode();
-	return TraverseRec(m_root, id);
-}
-
-
-cGraphScript::sNode* cGraphScript::TraverseRec(sNode *current, const string &id)
-{
-	RETV(!current, NULL);
-
-	current->check = true;
-
-	if (current->id == id)
-		return current;
-
-	for each (auto node in current->in)
+//	CheckClearAllNode();
+//	return TraverseRec(m_root, id);
+	for each (auto &node in m_nodes)
 	{
-		if (node->check) // already visit node
-			continue;
 		if (node->id == id)
 			return node;
-		node->check = true;
-		if (sNode *p = TraverseRec(node, id))
-			return p;
 	}
-
-	for each (auto node in current->out)
-	{
-		if (node->check) // already visit node
-			continue;
-		if (node->id == id)
-			return node;
-		node->check = true;
-		if (sNode *p = TraverseRec(node, id))
-			return p;
-	}
-
 	return NULL;
 }
+
+
+cGraphScript::sNode* cGraphScript::FindHead(const string &id)
+{
+	for each (auto &node in m_heads)
+	{
+		if (node->id == id)
+			return node;
+	}
+	return NULL;
+}
+
+// 
+// cGraphScript::sNode* cGraphScript::Traverse(const string &id)
+// {
+// 	CheckClearAllNode();
+// 	return TraverseRec(m_root, id);
+// }
+// 
+// 
+// cGraphScript::sNode* cGraphScript::TraverseRec(sNode *current, const string &id)
+// {
+// 	RETV(!current, NULL);
+// 
+// 	current->check = true;
+// 
+// 	if (current->id == id)
+// 		return current;
+// 
+// 	for each (auto node in current->in)
+// 	{
+// 		if (node->check) // already visit node
+// 			continue;
+// 		if (node->id == id)
+// 			return node;
+// 		node->check = true;
+// 		if (sNode *p = TraverseRec(node, id))
+// 			return p;
+// 	}
+// 
+// 	for each (auto node in current->out)
+// 	{
+// 		if (node->check) // already visit node
+// 			continue;
+// 		if (node->id == id)
+// 			return node;
+// 		node->check = true;
+// 		if (sNode *p = TraverseRec(node, id))
+// 			return p;
+// 	}
+// 
+// 	return NULL;
+// }
 
 
 // from 노드에서 to 노드로 가는 루트를 저장해 리턴한다.

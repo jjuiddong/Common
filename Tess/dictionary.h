@@ -33,6 +33,7 @@ namespace tess
 		{
 			string src; // 원본 단어
 			string lower; // 소문자 단어
+			string output; // 매칭이되고 리턴될 문자열, { ~~ } 로 설정한다.
 		};
 
 		vector<sSentence> m_sentences;

@@ -82,19 +82,19 @@ public:
 
     static const int MAX_CONTROLS   = 256;
 
-    typedef struct FRECT {  // floating-point RECT structure
+    struct FRECT {  // floating-point RECT structure
         double  top;
         double  left;
         double  right;
         double  bottom;
     };
     
-    typedef struct FSIZE {  // floating-point SIZE structure
+    struct FSIZE {  // floating-point SIZE structure
         double  cx;
         double  cy;
     };
 
-    typedef struct TCtrlEntry {
+    struct TCtrlEntry {
         unsigned int    nCtrlID;    // dialog-control id of the window
         unsigned int    nFlags;     // docking/anchoring flags for this control
         FRECT           rect;       // actual client-rectangle of the control

@@ -49,12 +49,25 @@ bool cDictionary::Init(const string &fileName)
 
 		if (0 == state ) // word list command
 		{
-			string tmp = line;
+			// 사전 문법 ---> sentence { output sentence }
+			string outputStr;
+			{
+				const int pos1 = line.find('{');
+				const int pos2 = line.find('}');
+				if ((pos1 != string::npos) && (pos2 != string::npos))
+				{
+					outputStr = line.substr(pos1+1, pos2 - pos1 - 1);
+					trim(outputStr);
+				}
+			}
+
+			string tmp = (outputStr.empty())? line : line.substr(0, line.find('{'));
+			trim(tmp);
 			const string lower = lowerCase(tmp);
 
 			if (m_sentenceLookUp.end() == m_sentenceLookUp.find(lower))
 			{// 사전에 추가
-				m_sentences.push_back({line, lower});
+				m_sentences.push_back({line, lower, outputStr});
 				m_sentenceLookUp[lower] = m_sentences.size() - 1; // word index
 			}
 			else
@@ -169,7 +182,10 @@ string cDictionary::FastSearch(const string &sentence, OUT vector<string> &out)
 	}
 	
 	if (sentenceSet.size() == 1)
-		return m_sentences[*sentenceSet.begin()].src;
+	{
+		const int idx = *sentenceSet.begin();
+		return m_sentences[idx].output.empty() ? m_sentences[idx].src : m_sentences[idx].output;
+	}
 
 	return "";
 }
@@ -252,7 +268,8 @@ string cDictionary::ErrorCorrectionSearch(const string &sentence, OUT float &max
 	maxFitness = (float)maxTotCount * 0.01f; // 최대 적합도가 1이 되기위한 계산
 
 	if (maxSentenceId >= 0)
-		return m_sentences[maxSentenceId].src;
+		return m_sentences[maxSentenceId].output.empty() ? 
+			m_sentences[maxSentenceId].src : m_sentences[maxSentenceId].output;
 
 	return "";
 }

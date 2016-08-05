@@ -34,7 +34,10 @@ namespace cvproc {
 			bool Read(const string &fileName);
 			void Clear();
 			string GetSymbol(const string &symbol);
+			int GetSymbolType(const string &symbol);
+			vector<string>* GetSymbol2(const string &symbol);
 			bool SetSymbol(const string &key, const string data);
+			bool SetSymbol(const string &key, const vector<string> &table);
 			bool AddSymbolTable();
 			bool RemoveSymbolTable();
 
@@ -60,7 +63,15 @@ namespace cvproc {
 			sParseTree *m_treeRoot;
 			sParseTree *m_execRoot;
 			std::ifstream m_ifs;
-			vector< map<string, string> > m_symbolTree;
+			
+			struct sSymbolData
+			{
+				int type; // 0:string, 1:vector<string>
+				string str;
+				vector<string> *table; // reference g_stringTable
+			};
+
+			vector<map<string, sSymbolData>> m_symbolTree;
 			char *m_lineStr;
 			char m_scanLine[256];
 			char m_tmpBuffer[256];

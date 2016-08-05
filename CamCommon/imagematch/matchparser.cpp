@@ -2,6 +2,25 @@
 #include "stdafx.h"
 #include "matchparser.h"
 
+
+namespace cvproc {
+	namespace imagematch {
+
+		vector< vector<string>* > g_stringTable;
+
+
+		// imagematch.h 에 선언됨.
+		void ReleaseImageMatch()
+		{
+			for each (auto p in g_stringTable)
+				delete p;
+			g_stringTable.clear();
+		}
+
+	}
+}
+
+
 using namespace cvproc;
 using namespace cvproc::imagematch;
 using namespace std;
@@ -59,6 +78,25 @@ const char* cParser2::id()
 	m_lineStr = passBlank(m_lineStr);
 	if (!m_lineStr)
 		return "";
+
+	// 쌍따옴표로 id를 설정할 때
+	if (*m_lineStr == '\"')
+	{
+		++m_lineStr;
+
+		int cnt = 0;
+		char *dst = m_tmpBuffer;
+		while ((*m_lineStr != '\"') && (cnt < 256) && (*m_lineStr))
+		{
+			*dst++ = *m_lineStr++;
+			++cnt;
+		}
+		*dst = NULL;
+		++m_lineStr;
+		return m_tmpBuffer;
+	}
+
+
 
 	// find first char
 	const char *n = strchr(g_strStr, *m_lineStr);
@@ -136,7 +174,40 @@ int cParser2::assigned(const char *var)
 		return 0;
 	}
 
-	SetSymbol(var, m_lineStr);
+	// array type
+	if ('[' == m_lineStr[0]) 
+	{
+		++m_lineStr;
+
+		string symb = var;
+
+		// symbol = '[' string list ']'
+		vector<string> table;
+		while (1)
+		{
+			const string str = id();
+			if (str.empty())
+				break;
+			table.push_back(str);
+			if (',' != comma())
+				break;
+		}
+
+		SetSymbol(symb, table);
+
+		m_lineStr = passBlank(m_lineStr);
+		if (*m_lineStr != ']')
+		{ // error 
+			dbg::ErrLog("line {%d} assigned error!! not found ']' %s \n", m_lineNum, m_lineStr);
+			return 0;
+		}
+		++m_lineStr;
+	}
+	else
+	{
+		SetSymbol(var, m_lineStr);
+	}
+
 	return 1;
 }
 
@@ -472,17 +543,62 @@ string cParser2::GetSymbol(const string &symbol)
 		auto it = m_symbolTree[i].find(symbol);
 		if (m_symbolTree[i].end() == it)
 			continue;
-		return it->second;
+		return it->second.str;
 	}
 
 	return "";
+}
+
+vector<string>* cParser2::GetSymbol2(const string &symbol)
+{
+	for (int i = m_symbolTree.size() - 1; i >= 0; --i)
+	{
+		auto it = m_symbolTree[i].find(symbol);
+		if (m_symbolTree[i].end() == it)
+			continue;
+		return it->second.table;
+	}
+
+	return NULL;
+}
+
+
+// 심볼이 타입을 리턴한다.
+int cParser2::GetSymbolType(const string &symbol)
+{
+	for (int i = m_symbolTree.size() - 1; i >= 0; --i)
+	{
+		auto it = m_symbolTree[i].find(symbol);
+		if (m_symbolTree[i].end() == it)
+			continue;
+		return it->second.type;
+	}
+	return 0;
 }
 
 
 bool cParser2::SetSymbol(const string &key, const string data)
 {
 	RETV(m_symbolTree.empty(), false);
-	m_symbolTree.back()[key] = data;
+
+	m_symbolTree.back()[key].type = 0;
+	m_symbolTree.back()[key].str = data;
+	return true;
+}
+
+
+bool cParser2::SetSymbol(const string &key, const vector<string> &table)
+{
+	RETV(m_symbolTree.empty(), false);
+
+	// 전역 스트링 테이블에 저장된다.
+	vector<string> *p = new vector<string>();
+	*p = table;
+	g_stringTable.push_back(p);
+	//
+
+	m_symbolTree.back()[key].type = 1;
+	m_symbolTree.back()[key].table = p;
 	return true;
 }
 
@@ -490,7 +606,7 @@ bool cParser2::SetSymbol(const string &key, const string data)
 // 심볼 테이블을 하위에 추가한다.
 bool cParser2::AddSymbolTable()
 {
-	m_symbolTree.push_back(map<string, string>());
+	m_symbolTree.push_back(map<string, sSymbolData>());
 	return true;
 }
 

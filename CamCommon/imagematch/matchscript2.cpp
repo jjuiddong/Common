@@ -101,15 +101,25 @@ int cMatchScript2::buildAttributes(const sParseTree *node, const string &str, ve
 		if (*pid)
 		{
 			const string symb = m_parser.GetSymbol(pid);
-			if (symb.empty())
+			const int symbType = m_parser.GetSymbolType(pid);
+			if (symbType == 0) // string type
 			{
-				attributes.push_back(pid);
+				if (symb.empty())
+				{
+					attributes.push_back(pid);
+				}
+				else
+				{
+					char *old = m_parser.m_lineStr;
+					reval += buildAttributes(node, symb.c_str(), attributes);
+					m_parser.m_lineStr = old;
+				}
 			}
-			else
+			else if (symbType == 1)
 			{
-				char *old = m_parser.m_lineStr;
-				reval += buildAttributes(node, symb.c_str(), attributes);
-				m_parser.m_lineStr = old;
+				// string table type,
+				// setTreeAttribute() 에서 처리한다.
+				attributes.push_back(pid);
 			}
 		}
 		else if (*pnum)
@@ -223,6 +233,22 @@ void cMatchScript2::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 			const int valPos = attribs[i].find("_");
 			sscanf(attribs[i].c_str(), "hsv_%d_%d_%d_%d_%d_%d", &node->hsv[0], &node->hsv[1], &node->hsv[2], 
 				&node->hsv[3], &node->hsv[4], &node->hsv[5] );
+
+			// remove threshold attribute
+			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
+			attribs.pop_back();
+			break;
+		}
+	}
+
+
+	// string table
+	for (int i = 0; i < (int)attribs.size(); ++i)
+	{
+		if (vector<string> *table = m_parser.GetSymbol2(attribs[i]))
+		{
+			// string table 설정
+			node->table = table;
 
 			// remove threshold attribute
 			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());

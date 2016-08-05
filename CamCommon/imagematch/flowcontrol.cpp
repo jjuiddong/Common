@@ -329,7 +329,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 	matchResult.Init(&m_matchScript, &img, "", 0,
 		(sParseTree*)m_matchScript.FindTreeLabel(string("@") + label + "_menu"),
 		true, true);
-	matchResult.m_traverseType = 1;
+	matchResult.m_traverseType = 1; // search all
 
 	cMatchProcessor::Get()->Match(matchResult);
 
@@ -542,7 +542,11 @@ int cFlowControl::GetNextMenuCount(
 			++cnt1;
 	}
 	if (isMenuDown)
+	{
+		if (current->isEnterChild) // 엔터키로 다음 씬으로 넘어갈 때는, 메뉴가 하나만 있는 것처럼 작동하게 한다.
+			return 1;
 		return cnt1;
+	}
 
 	// menu up
 	bool isMenuUp = false;

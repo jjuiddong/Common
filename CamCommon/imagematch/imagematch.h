@@ -15,6 +15,7 @@ namespace cvproc {
 			int id; // tree타입일 때만 사용, 0부터 시작하는 중복되지 않는 id, matchScript2에서 생성
 			char line[256]; // tree parsing string from script file
 			char name[128]; // tree name
+			vector<string> *table; // string table pointer, reference to symbol table
 			int roi[4]; // x,y,w,h
 			int depth; // only use parsing
 			bool isRelation; // parent relation coordinate roi
@@ -35,6 +36,8 @@ namespace cvproc {
 			bool noProc;
 			bool isAuto;
 			bool isSideMenu;
+			bool isEnterChild;
+			bool isNoMenu;
 			float delay;
 			char tag[64];
 			int key; // keyboard
@@ -79,4 +82,9 @@ namespace cvproc {
 		static const char *g_strOp = "+-*/=:()";
 		static const int g_opLen = 7;
 	
+
+
+		// 동적으로 생성된 스크립트 스트링 테이블을 제거한다.
+		void ReleaseImageMatch();
+
 	} }
