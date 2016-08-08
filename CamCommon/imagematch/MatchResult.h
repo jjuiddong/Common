@@ -16,9 +16,11 @@ namespace cvproc {
 			cMatchResult();
 			virtual ~cMatchResult();
 
-			void Init(cMatchScript2 *p, const cv::Mat *input, const string &inputName, 
+			void Init(cMatchScript2 *p, const cv::Mat &input, const string &inputName, 
 				const int inputImageId, sParseTree *labelTree, const bool isRegisterInput, 
 				const bool isBlockMode);
+			
+			void MatchComplete();
 
 			void TerminateMatch();
 

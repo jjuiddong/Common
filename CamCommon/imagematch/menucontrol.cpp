@@ -119,7 +119,7 @@ cMenuControl::STATE cMenuControl::OnProc(const cv::Mat &img, OUT int &key)
 		return PROC;
 
 	cMatchResult *mr = cMatchProcessor::Get()->AllocMatchResult();
-	mr->Init(m_matchScript, &img, "", 0,
+	mr->Init(m_matchScript, img, "", 0,
 		(sParseTree*)m_matchScript->FindTreeLabel(m_headName),
 		true, true);
 	cMatchProcessor::Get()->Match(*mr);

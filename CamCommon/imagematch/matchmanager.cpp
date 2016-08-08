@@ -34,7 +34,7 @@ string cMatchManager::CaptureAndDetect()
 	Mat img = capture.ScreenCapture(true);
 	
 	cMatchResult result;
-	result.Init(&m_matchScript, &img, "@input", 0,
+	result.Init(&m_matchScript, img, "@input", 0,
 		(sParseTree*)m_matchScript.FindTreeLabel(m_executeLabel), true, true);
 
 	cMatchProcessor::Get()->Match(result);

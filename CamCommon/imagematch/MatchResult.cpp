@@ -17,7 +17,7 @@ cMatchResult::~cMatchResult()
 }
 
 
-void cMatchResult::Init(cMatchScript2 *p, const cv::Mat *input, const string &inputName,
+void cMatchResult::Init(cMatchScript2 *p, const cv::Mat &input, const string &inputName,
 	const int inputImageId, sParseTree *labelTree, const bool isRegisterInput, const bool isBlockMode)
 {
 	Clear();
@@ -25,8 +25,8 @@ void cMatchResult::Init(cMatchScript2 *p, const cv::Mat *input, const string &in
 	m_script = p;
 	m_isRun = true;
 	m_isTerminate = false;
-	m_input = input->clone();
-	m_srcImage = input->clone();
+	m_input = input.clone();
+	m_srcImage = input.clone();
 	m_inputName = inputName;
 	m_inputImageId = inputImageId;
 	m_registerInput = isRegisterInput;
@@ -41,8 +41,8 @@ void cMatchResult::Clear()
 	m_traverseType = 0;
 	m_script = NULL;
 	m_input = Mat();
-	m_srcImage = Mat();
-	m_inputName.clear();
+ 	m_srcImage = Mat();
+ 	m_inputName.clear();
 	m_inputImageId = -1;
 	m_registerInput = true;
 	m_blockMode = false;
@@ -62,4 +62,12 @@ void cMatchResult::Clear()
 void cMatchResult::TerminateMatch()
 {
 	m_isTerminate = true;
+}
+
+
+void cMatchResult::MatchComplete()
+{
+	m_isRun = false;
+	m_isEnd = false;
+	m_isTerminate = false;
 }

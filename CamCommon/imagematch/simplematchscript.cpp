@@ -331,7 +331,7 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			const string treeLabelName = (string("@tree_label") == valueTmp) ? tree_label : valueTmp;
 
 			m_src = src.clone(); // 결과 정보를 출력할 때, 쓰임
-			m_matchResult[m_curIdx].Init(m_matchScript, &dst, treeLabelName, 0,
+			m_matchResult[m_curIdx].Init(m_matchScript, dst, treeLabelName, 0,
 				(sParseTree*)m_matchScript->FindTreeLabel(treeLabelName), 
 				true, false);
 
@@ -346,9 +346,10 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 
 
 		//----------------------------------------------------------------------
-		// tesseract
+		// tess=dictionary file name
 		ZeroMemory(value, sizeof(value));
-		if (argv[i] == "tess")
+		sscanf(argv[i].c_str(), "tess=%s", value);
+		if (value[0] != NULL)
 		{
 			// deskew 된 영역의 이미지로 문자 인식을 한다.
 			string srcStr;
@@ -360,12 +361,12 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			{
 				m_tessImg = deSkew.m_tessImg;
 				srcStr = m_tess.Recognize(m_tessImg);
-				result = m_tess.Dictionary2(srcStr, fastStr, maxFitness, t1, t2);
+				result = m_tess.Dictionary2(value, srcStr, fastStr, maxFitness, t1, t2);
 			}
 			else
 			{
 				srcStr = m_tess.Recognize(dst);
-				result = m_tess.Dictionary2(srcStr, fastStr, maxFitness, t1, t2);
+				result = m_tess.Dictionary2(value, srcStr, fastStr, maxFitness, t1, t2);
 			}
 
 			putText(dst, common::format("tess source = %s", srcStr.c_str()).c_str(),

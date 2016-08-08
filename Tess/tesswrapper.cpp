@@ -22,8 +22,7 @@ using namespace tesseract;
 
 cTessWrapper::cTessWrapper()
 	: m_tessApi(NULL)
-	, m_dict(NULL)
-{	
+{
 }
 
 cTessWrapper::~cTessWrapper()
@@ -33,7 +32,10 @@ cTessWrapper::~cTessWrapper()
 		m_tessApi->End();
 		SAFE_DELETE(m_tessApi);
 	}
-	SAFE_DELETE(m_dict);
+	
+	for each (auto kv in m_dicts)
+		SAFE_DELETE(kv.second);
+	m_dicts.clear();
 }
 
 
@@ -47,10 +49,14 @@ bool cTessWrapper::Init(const string &dataPath, const string &language
 		return false;
 	}
 
-	m_dict = new cDictionary();
-	if (!m_dict->Init(dictionaryFileName))
+	cDictionary *dict = new cDictionary();
+	if (!dict->Init(dictionaryFileName))
+	{
+		delete dict;
 		return false;
+	}
 
+	m_dicts[dictionaryFileName] = dict;
 	return true;
 }
 
@@ -75,15 +81,16 @@ string cTessWrapper::Recognize(cv::Mat &img)
 //					    FastSearch() 에서 인식되면 1.
 // flags = 0 : FastSearch + ErrorCorrectionSearch
 //				1 : FastSearch
-string cTessWrapper::Dictionary(const string &src, OUT float &maxFitness, const int flags) //flags=0
+string cTessWrapper::Dictionary(const string &dictionaryFileName, 
+	const string &src, OUT float &maxFitness, const int flags) //flags=0
 {
-	RETV(!m_dict, "");
+	cDictionary *dict = GetDictionary(dictionaryFileName);
 
 	maxFitness = 1;
 	vector<string> out;
-	string result = m_dict->FastSearch(src, out);
+	string result = dict->FastSearch(src, out);
 	if ((flags==0) && result.empty())
-		result = m_dict->ErrorCorrectionSearch(src, maxFitness);
+		result = dict->ErrorCorrectionSearch(src, maxFitness);
 
 	return result;
 }
@@ -94,21 +101,42 @@ string cTessWrapper::Dictionary(const string &src, OUT float &maxFitness, const 
 //					    FastSearch() 에서 인식되면 1.
 // t1 : fast search time
 // t2 : fastsearch + errorcorrectsearch
-string cTessWrapper::Dictionary2(const string &src, OUT string &out, OUT float &maxFitness, OUT int &t1, OUT int &t2)
+string cTessWrapper::Dictionary2(const string &dictionaryFileName, 
+	const string &src, OUT string &out, OUT float &maxFitness, OUT int &t1, OUT int &t2)
 {
-	RETV(!m_dict, "");
+	cDictionary *dict = GetDictionary(dictionaryFileName);
 
 	maxFitness = 1;
 	const int t0 = timeGetTime();
 	vector<string> strs;
-	string result = m_dict->FastSearch(src, strs);
+	string result = dict->FastSearch(src, strs);
 	t1 = timeGetTime() - t0;
 
 	out = result;
 	if (result.empty())
-		result = m_dict->ErrorCorrectionSearch(src, maxFitness);
+		result = dict->ErrorCorrectionSearch(src, maxFitness);
 
 	t2 = timeGetTime() - (t0+t1);
 
 	return result;
+}
+
+
+cDictionary* cTessWrapper::GetDictionary(const string &dictionaryFileName)
+{
+	cDictionary *dict = NULL;
+	auto it = m_dicts.find(dictionaryFileName);
+	if (m_dicts.end() == it)
+	{
+		cDictionary *p = new cDictionary();
+		p->Init(dictionaryFileName);
+		m_dicts[dictionaryFileName] = p;
+		dict = p;
+	}
+	else
+	{
+		dict = it->second;
+	}
+
+	return dict;
 }

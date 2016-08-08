@@ -291,7 +291,7 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	float maxFitness = 0;
 	tess::cTessWrapper *tess = GetTesseract();
 	const string srcStr = tess->Recognize(deSkew.m_tessImg);
-	const string result = tess->Dictionary(srcStr, maxFitness);
+	const string result = tess->Dictionary(node->name, srcStr, maxFitness);
 
 	bool isDetect = true;
 

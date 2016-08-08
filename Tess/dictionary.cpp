@@ -24,6 +24,9 @@ bool cDictionary::Init(const string &fileName)
 
 	Clear();
 
+	m_sentences.reserve(MAX_WORD);
+	m_words.reserve(MAX_WORD);
+
 	ifstream ifs(fileName);
 	if (!ifs.is_open())
 		return false;

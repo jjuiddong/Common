@@ -74,6 +74,7 @@ namespace cvproc {
 			int m_tryMachingCount;
 			int m_screenCaptureKey; // virtual key, VK_SNAPSHOT or VK_F11
 			int m_genId; // default = 100000
+			cv::Mat m_lastImage;
 
 			// menu move
 			int m_nextMenuIdx;

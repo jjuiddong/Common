@@ -131,12 +131,12 @@ cFlowControl::STATE cFlowControl::OnCapture(const cv::Mat &img, OUT int &key)
 // img 를 인식해, 현재 씬을 판단하고, 목표 씬까지 이동한다.
 cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 {
-	if (!img.data)
-		return PROC;
+	if (img.data)
+		m_lastImage = img.clone();
 
 	if (m_nextNode && m_nextNode->noProc)
 	{
-		// 씬 매칭을 하지 않고, 키보드 엔터를 누른 후, 
+		// 씬 매칭을 하지 않고, 키보드 엔터를 누른 후 (서브메뉴가 아니라면)
 		// 다음 씬으로 넘어간다.
 		m_currentNode = m_nextNode;
 
@@ -174,31 +174,49 @@ cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 	data.node = NULL;
 	data.loopCnt = 0;
 
-	if (m_nextNode)
+	bool isSubMenuTraverse = false;
+ 	if (m_currentNode && m_nextNode)
 	{
-		TreeMatch(m_nextNode, img.clone(), data, 1);
+		// 현재 노드가 updn, sidesel 속성을 가질 때, 
+		// 현재 씬을 검사하지 않고, 바로 메뉴 선택 모드로 넘어간다.
+		if (m_nextNode->isSideSubmenu || m_nextNode->isUpDnSubmenu)
+		{
+			isSubMenuTraverse = true;
+			data.node = m_nextNode;
+		}
 	}
-	else
-	{
-		cMatchResult &matchResult = GetMatchResult();
-		matchResult.Init(&m_matchScript, &img, "", 0,
-			(sParseTree*)m_matchScript.FindTreeLabel("@detect_scene"),
-			true, true);
-		cMatchProcessor::Get()->Match(matchResult);
-		
-		data.result = matchResult.m_resultStr;
-		data.node = m_flowScript.Find(matchResult.m_resultStr);
 
- 		if (m_isLog)
- 			dbg::Log("cFlowControl::OnProc result=%s, loop=%d, time=%d\n", data.result.c_str(), 
-				data.loopCnt, timeGetTime()-t1);
-	} 
+	if (!isSubMenuTraverse)
+	{
+		if (!img.data)
+			return PROC;
+
+		if (m_nextNode)
+		{
+			TreeMatch(m_nextNode, img.clone(), data, 1);
+		}
+		else
+		{
+			cMatchResult &matchResult = GetMatchResult();
+			matchResult.Init(&m_matchScript, img, "", 0,
+				(sParseTree*)m_matchScript.FindTreeLabel("@detect_scene"),
+				true, true);
+			cMatchProcessor::Get()->Match(matchResult);
+		
+			data.result = matchResult.m_resultStr;
+			data.node = m_flowScript.Find(matchResult.m_resultStr);
+
+ 			if (m_isLog)
+ 				dbg::Log("cFlowControl::OnProc result=%s, loop=%d, time=%d\n", data.result.c_str(), 
+					data.loopCnt, timeGetTime()-t1);
+		} 
+	}
 
 	// 인식에 실패하면, 다시 영상을 인식한다.
 	if (!data.node)
 	{
 		++m_tryMachingCount;
-		if (m_tryMachingCount > 2)
+		if (m_tryMachingCount > 1)
 		{
 			m_tryMachingCount = 0;
 			m_nextNode = NULL; // 전체 씬을 매칭한다.
@@ -264,7 +282,7 @@ cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 	}
 	else if (nextMenuIdx >= 0)
 	{
-		return OnMenuDetect(img, key);
+		return OnMenuDetect((!img.data)? m_lastImage : img, key);
 	}
 
 	return m_state;
@@ -278,7 +296,18 @@ cFlowControl::STATE cFlowControl::OnMenu(const cv::Mat &img, OUT int &key)
 	case MENU_MOVE:
 		if (m_currentMenuIdx == m_nextMenuIdx)
 		{
-			key = VK_RETURN;
+			if (m_nextNode->isUpDnSubmenu || m_nextNode->isSideSubmenu)
+			{
+				// UpDown SubMenu 일경우, 커서를 옮기는 것 만으로 끝난다.
+				// 만약 목적지에 도착했다면, 종료한다.
+				if (m_path.back() == m_nextNode)
+					return REACH;
+			}
+			else
+			{
+				key = VK_RETURN;
+			}
+
 			Delay(m_nextNode->delay, CAPTURE);
 		}
 		else
@@ -286,12 +315,12 @@ cFlowControl::STATE cFlowControl::OnMenu(const cv::Mat &img, OUT int &key)
 			if (m_currentMenuIdx < m_nextMenuIdx)
 			{
 				++m_currentMenuIdx;
-				key = (m_currentNode->isSideMenu)? VK_RIGHT : VK_DOWN;
+				key = (m_currentNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_RIGHT : VK_DOWN;
 			}
 			else
 			{
 				--m_currentMenuIdx;
-				key = (m_currentNode->isSideMenu)? VK_LEFT : VK_UP;
+				key = (m_currentNode->isSideMenu || m_nextNode->isSideSubmenu)? VK_LEFT : VK_UP;
 			}
 
 			Delay(0.3f, MENU_MOVE);
@@ -326,7 +355,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 
 	cMatchResult &matchResult = GetMatchResult();
 	const string label = node->tag.empty() ? node->id : node->tag;
-	matchResult.Init(&m_matchScript, &img, "", 0,
+	matchResult.Init(&m_matchScript, img, "", 0,
 		(sParseTree*)m_matchScript.FindTreeLabel(string("@") + label + "_menu"),
 		true, true);
 	matchResult.m_traverseType = 1; // search all
@@ -336,19 +365,34 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 	if (m_isLog)
 		dbg::Log("cFlowControl::OnMenuDetect label=%s, result=%s\n", label.c_str(), matchResult.m_resultStr.c_str());
 
-	if (matchResult.m_result <= 0)
+	if ((matchResult.m_result <= 0) || matchResult.m_resultStr.empty())
 	{
 		// 인식에 실패하면 다시 시도한다
 		return CAPTURE;
 	}
+
+	const bool isSkipCapture = (m_nextNode->isUpDnSubmenu || m_nextNode->isSideSubmenu);
 
 	const string selectMenuId = matchResult.m_resultStr;
 	if (selectMenuId == m_nextNode->id)
 	{
 		// 다음으로 넘어갈 메뉴를 선택하고 있는 상태
 		// 엔터키를 눌러 다음 씬으로 넘어간다.
-		key = VK_RETURN;
-		Delay(m_nextNode->delay, CAPTURE);
+		// UpDown 메뉴일 경우 엔터키는 스킵된다.
+		if (m_nextNode->isUpDnSubmenu || m_nextNode->isSideSubmenu)
+		{
+			// UpDown SubMenu 일경우, 커서를 옮기는 것 만으로 끝난다.
+			// 만약 목적지에 도착했다면, 종료한다.
+			if (m_path.back() == m_nextNode)
+				return REACH;
+		}
+		else
+		{
+			key = VK_RETURN;
+		}
+
+		dbg::Log("goto CAPTURE \n");
+		Delay(m_nextNode->delay, (isSkipCapture)? PROC : CAPTURE);
 	}
 	else
 	{
@@ -358,10 +402,12 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 		if (m_nextMenuIdx == 0)
 		{
 			// 도착, 현재 위치를 다시 파악한 후, 종료한다.
-			return CAPTURE;
+			dbg::Log("goto CAPTURE  reach \n");
+			return (isSkipCapture) ? PROC : CAPTURE;
 		}
 
 		// m_nextMenuIdx 만큼 메뉴를 이동한다.
+		dbg::Log("goto MENU_MOVE \n");
 		return MENU_MOVE;
 	}
 
@@ -456,7 +502,7 @@ bool cFlowControl::TreeMatch(cGraphScript::sNode *current, const cv::Mat &img,
 
 		cMatchResult &matchResult = GetMatchResult();
 		const string label = node->tag.empty() ? node->id : node->tag;
-		matchResult.Init(&m_matchScript, &img, inputName, 0,
+		matchResult.Init(&m_matchScript, img, inputName, 0,
 			(sParseTree*)m_matchScript.FindTreeLabel(string("@") + label),
 			true, true);
 
@@ -538,12 +584,14 @@ int cFlowControl::GetNextMenuCount(
 	{
 		if (p == next)
 			isMenuDown = true;
-		if (!p->isAuto)
+		if (!p->isAuto && !p->isNoMenu)
 			++cnt1;
 	}
 	if (isMenuDown)
 	{
-		if (current->isEnterChild) // 엔터키로 다음 씬으로 넘어갈 때는, 메뉴가 하나만 있는 것처럼 작동하게 한다.
+		// 엔터키로 다음 씬으로 넘어갈 때는, 메뉴가 하나만 있는 것처럼 작동하게 한다.
+		// 이 때, 다음 씬은 메뉴에 나타나지 않는 속성이어야 한다.
+		if (current->isEnterChild && next->isNoMenu) 
 			return 1;
 		return cnt1;
 	}

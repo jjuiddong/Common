@@ -232,6 +232,37 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 			break;
 		}
 	}
+
+	// updn
+	for (int i = 1; i < (int)attribs.size(); ++i)
+	{
+		const int pos = attribs[i].find("updn");
+		if (string::npos != pos)
+		{
+			node->isUpDnSubmenu = true;
+
+			// remove attribute
+			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
+			attribs.pop_back();
+			break;
+		}
+	}
+
+	// sidesel
+	for (int i = 1; i < (int)attribs.size(); ++i)
+	{
+		const int pos = attribs[i].find("sidesel");
+		if (string::npos != pos)
+		{
+			node->isSideSubmenu = true;
+
+			// remove attribute
+			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
+			attribs.pop_back();
+			break;
+		}
+	}
+
 }
 
 
@@ -283,6 +314,8 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 			parentNode->noUpperTraverse = current->noUpperTraverse;
 			parentNode->isEnterChild = current->isEnterChild;
 			parentNode->isNoMenu = current->isNoMenu;
+			parentNode->isUpDnSubmenu = current->isUpDnSubmenu;
+			parentNode->isSideSubmenu = current->isSideSubmenu;
 		}
 	} 
 	else if (!srcNode)
@@ -298,8 +331,9 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 		newNode->noUpperTraverse = current->noUpperTraverse;
 		newNode->isEnterChild = current->isEnterChild;
 		newNode->isNoMenu = current->isNoMenu;
+		newNode->isUpDnSubmenu = current->isUpDnSubmenu;
+		newNode->isSideSubmenu = current->isSideSubmenu;
 		m_nodes.push_back(newNode);
-
 	}
 
 	if (newNode)
@@ -316,6 +350,16 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 	}
 
 	build(current, current->child, newNode);
+
+	// 부모가 sidesel 속성을 가질 경우, 첫번 째 child 도 모두 side sel 속성을 가지게 한다.
+	// 그리고 부모의 sidesel 속성은 제거된다.
+	if (newNode && newNode->isSideSubmenu)
+	{
+		newNode->isSideSubmenu = false;
+		for each (auto next in newNode->out)
+			next->isSideSubmenu = true;
+	}
+
 	build(parent, current->next, parentNode);
 
 	return newNode;
@@ -453,13 +497,17 @@ bool cGraphScript::FindRoute(sNode*current, const string &to, OUT vector<sNode*>
 }
 
 
-// 
+// 가장 짧은 경로를 리턴한다.
 bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNode*> &out)
 {
 	RETV(!current, false);
 
 	current->check = true;
-	out.push_back(current);
+
+	vector<sNode*> path1, path2;
+	path1.push_back(current);
+	path2.push_back(current);
+	//out.push_back(current);
 
 	if (current->id == id)
 		return true;
@@ -475,12 +523,12 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 
 			if (node->id == id)
 			{
-				out.push_back(node);
-				return true;
+				path1.push_back(node);
+				break;// return true;
 			}
 			node->check = true;
-			if (FindRouteRec(node, id, out))
-				return true;
+			if (FindRouteRec(node, id, path1))
+				break;//return true;
 		}
 	}
 
@@ -493,15 +541,49 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 
 		if (node->id == id)
 		{
-			out.push_back(node);
-			return true;
+			path2.push_back(node);
+			break;// return true;
 		}
 		node->check = true;
-		if (FindRouteRec(node, id, out))
-			return true;
+		if (FindRouteRec(node, id, path2))
+			break;// return true;
 	}
 
-	out.pop_back();
+
+	if (!path1.empty() && !path2.empty())
+	{
+		// 두 경로 모두 목적지에 도착 했다면, 
+		if ((path1.back()->id == id) && (path2.back()->id == id))
+		{
+			// 더 짧은 경로를 저장한다.
+			if (path1.size() <= path2.size())
+				std::copy(path1.begin(), path1.end(), std::back_inserter(out));
+			else
+				std::copy(path2.begin(), path2.end(), std::back_inserter(out));
+		}
+		else if (path1.back()->id == id) // 경로 1만 목적지에 도달했다면
+		{
+			std::copy(path1.begin(), path1.end(), std::back_inserter(out));
+		}
+		else if(path2.back()->id == id) // 경로 2만 목적지에 도달했다면
+		{
+			std::copy(path2.begin(), path2.end(), std::back_inserter(out));
+		}
+	}
+	else if (!path1.empty())
+	{
+		if (path1.back()->id == id) // 목적지에 도착했다면.
+			std::copy(path1.begin(), path1.end(), std::back_inserter(out));
+	}
+	else if (!path2.empty())
+	{
+		if (path2.back()->id == id) // 목적지에 도착했다면.
+			std::copy(path2.begin(), path2.end(), std::back_inserter(out));
+	}
+
+	// 목적지에 도착했다면 true를 리턴한다.
+	if (!out.empty() && (out.back()->id == id))
+		return true;
 
 	return false;
 }

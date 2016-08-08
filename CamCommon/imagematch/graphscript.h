@@ -33,6 +33,8 @@ namespace cvproc {
 				bool isSideMenu; // use traverse node, side menu operation
 				bool isEnterChild; // use traverse node, enter to next child Scene
 				bool isNoMenu; // use traverse node, does not show menu item
+				bool isUpDnSubmenu; // use traverse node, up down sub menu
+				bool isSideSubmenu;// use traverse node, left, right sub menu, 자식에게 영향을 미친다.
 				float delay; // use move scene delay time seconds
 				vector<sNode*> out;
 				vector<sNode*> in;
