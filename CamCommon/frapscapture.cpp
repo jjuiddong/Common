@@ -13,6 +13,7 @@ cFrapsCapture::cFrapsCapture()
 	, m_keyDownDelay(100)
 {
 	m_exts.push_back("bmp");
+	m_exts.push_back("jpg");
 }
 
 cFrapsCapture::~cFrapsCapture()
@@ -94,7 +95,7 @@ bool cFrapsCapture::SearchFrapsDir()
 	if (out.empty())
 		return false;
 
-	m_img = imread(out.front());
+	m_img = imread(out.back());
 
 	for each (auto file in out)
 		DeleteFileA(file.c_str());
@@ -126,8 +127,8 @@ void FrapsThreadProc(cFrapsCapture *capture)
 
 		case cFrapsCapture::SEARCH_DIR: // Fraps 디렉토리 검색
 		{
-			int cnt = 0; // 5초 동안 검사한다.
-			while (!capture->SearchFrapsDir() && (cnt < 50))
+			int cnt = 0; // 2초 동안 검사한다.
+			while (!capture->SearchFrapsDir() && (cnt < 20))
 			{
 				++cnt;
 				Sleep(100);

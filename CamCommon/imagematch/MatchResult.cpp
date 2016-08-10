@@ -33,6 +33,7 @@ void cMatchResult::Init(cMatchScript2 *p, const cv::Mat &input, const string &in
 	m_removeInput = isRegisterInput;
 	m_blockMode = isBlockMode;
 	m_nodeLabel = labelTree;
+	m_beginTime = timeGetTime();
 }
 
 
@@ -54,6 +55,7 @@ void cMatchResult::Clear()
 	m_isEnd = false;
 	m_result = 0;
 	m_matchCount = 0;
+	m_beginTime = 0;
 
 	ZeroMemory(m_data, sizeof(m_data));
 }

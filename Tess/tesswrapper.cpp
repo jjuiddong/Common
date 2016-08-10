@@ -65,12 +65,14 @@ bool cTessWrapper::Init(const string &dataPath, const string &language
 string cTessWrapper::Recognize(cv::Mat &img)
 {
 	RETV(!m_tessApi, "");
+	RETV(!img.data, "");
 
 	m_tessApi->SetImage((uchar*)img.data, img.size().width, img.size().height, img.channels(), img.step1());
 	m_tessApi->Recognize(0);
 
 	char *outText = m_tessApi->GetUTF8Text();
 	string result = outText;
+	trim(result);
 	SAFE_DELETEA(outText);
 	return result;
 }

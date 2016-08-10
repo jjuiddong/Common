@@ -27,6 +27,9 @@ bool cDeSkew::DeSkew(
 	const int deSkewDebug, // = 0
 	const bool isTesseractOcr) // = false
 {
+	if (!src.data)
+		return false;
+
 	Mat &dst = src;
 	Mat tmp = dst.clone();
 
@@ -217,17 +220,43 @@ bool cDeSkew::DeSkew(
 	m_deSkewPoint1 = Point((int)p1.x, (int)p1.y);
 	m_deSkewPoint2 = Point((int)p3.x, (int)p3.y);
 	m_deSkewPoint3 = (p2.x > p4.x) ? Point((int)p2.x, (int)p2.y) : Point((int)p4.x, (int)p4.y);
-	const Mat affine_matrix = getRotationMatrix2D(Point((int)p1.x, (int)p1.y), angle, 1);
+
+	// P1,P2,P3,P4 영역만 deskew 한다.data
+	int left = 10000, top = 10000, right = 0, bottom = 0;
+	for each (auto &pos in m_pts)
+	{
+		if (pos.x < left)
+			left = pos.x;
+		if (pos.y < top)
+			top = pos.y;
+		if (pos.x > right)
+			right = pos.x;
+		if (pos.y > bottom)
+			bottom = pos.y;
+	}
 
 	if (deSkewDebug == 0)
-		warpAffine(tmp, dst, affine_matrix, dst.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar::all(255));
+	{
+		const Rect roi(left, top, abs(right - left), abs(bottom - top));
+		if (roi.width <= 0)
+			return false;
+		if (roi.height <= 0)
+			return false;
+
+		const Mat affine_matrix = getRotationMatrix2D(Point(roi.width/2, roi.height/2), angle, 1);
+		Mat tmp2 = tmp(roi);
+		warpAffine(tmp2, dst, affine_matrix, dst.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar::all(255));
+	}
 
 	if (isTesseractOcr)
 	{
-		const int left = MAX(MIN(m_deSkewPoint1.x, m_deSkewPoint3.x) - 10, 0);
-		const int right = MIN(MAX(m_deSkewPoint1.x, m_deSkewPoint3.x) + 10, dst.cols);
-		m_tessImg = dst(Rect(left, MIN(m_deSkewPoint1.y, m_deSkewPoint2.y) - 5,
-			right - left, (int)abs(m_deSkewPoint1.y - m_deSkewPoint2.y) + 10));
+		const int height = (int)(abs(p3.y - p1.y) * cos(ANGLE2RAD(angle)));
+		const int width = abs(right - left);
+		Rect roi(0, 
+			MAX(0, abs(bottom - top) / 2 - height / 2),
+			MAX(0, width - 10), 
+			height);
+		m_tessImg = dst(roi);
 	}
 
 	return true;

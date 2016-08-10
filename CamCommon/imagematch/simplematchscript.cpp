@@ -369,17 +369,21 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 				result = m_tess.Dictionary2(value, srcStr, fastStr, maxFitness, t1, t2);
 			}
 
+			Scalar color(0, 0, 255);
+			if (dst.channels() == 1)
+				cvtColor(dst, dst, CV_GRAY2BGR);
+
 			putText(dst, common::format("tess source = %s", srcStr.c_str()).c_str(),
-				Point(0, 90), 1, 2.f, Scalar(255, 255, 255), 2);
+				Point(0, 90), 1, 2.f, color, 2);
 
 			putText(dst, common::format("tess FastSearch = %s", fastStr.c_str()).c_str(),
-				Point(0, 120), 1, 2.f, Scalar(255, 255, 255), 2);
+				Point(0, 120), 1, 2.f, color, 2);
 
 			putText(dst, common::format("tess result = %s", result.c_str()).c_str(), 
-				Point(0, 150), 1, 2.f, Scalar(255, 255, 255), 2);
+				Point(0, 150), 1, 2.f, color, 2);
 
 			putText(dst, common::format("tess t1 = %d, t2 = %d", t1, t2).c_str(),
-				Point(0, 180), 1, 2.f, Scalar(255, 255, 255), 2);
+				Point(0, 180), 1, 2.f, color, 2);
 		}
 
 	}
@@ -446,6 +450,7 @@ bool cSimpleMatchScript::UpdateMatchResult(OUT cv::Mat &dst)
 
 			// 매칭된 이미지 경로 출력
 			putText(dst, m_matchScript->m_nodeTable[i]->name, rect.m_contours[0] + Point(0, 30), 1, 2.f, Scalar(0, 0, 255), 2);
+			putText(dst, common::format("time=%d", timeGetTime() - m_matchResult[m_curIdx].m_beginTime).c_str(), Point(0, 60), 1, 2.f, Scalar(255, 255, 255), 2);
 		}
 	}
 

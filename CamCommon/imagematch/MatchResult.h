@@ -47,6 +47,7 @@ namespace cvproc {
 			bool m_isEnd;
 			int m_result;
 			int m_matchCount; // debug
+			int m_beginTime;
 
 			struct sNodeResult
 			{

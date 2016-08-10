@@ -63,6 +63,7 @@ namespace cvproc {
 			cv::Ptr<cv::xfeatures2d::SURF> m_detector;
 			bool m_isGray = true;
  			bool m_isLog; // default = true, log message print to log.txt
+			bool m_isLog2; // default = true, ocr log
 
 			// match result pool
 			struct sMRInfo

@@ -232,6 +232,8 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 	// 말단 노드 중, 가장 적합도가 높은 노드를 찾는다.
 	if (matchResult->m_traverseType == 1)
 	{
+		matchResult->m_result = 1; // m_traverseType=1 이면, 결과를 무조건 내게 되어있다.
+
 		if (sParseTree *mostFitnessNode = (sParseTree*)FindMostFitnessNode(*matchResult, matchResult->m_resultStr))
 		{
 			mostFitnessNode->result = 2;

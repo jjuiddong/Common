@@ -43,6 +43,7 @@ namespace cvproc {
 			cv::Mat m_src;
 			cv::Mat m_tessImg;
 			int m_curIdx;
+			int m_beginMatchTime;
 			tess::cTessWrapper m_tess;
 		};
 

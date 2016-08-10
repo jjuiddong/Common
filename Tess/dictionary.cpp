@@ -233,7 +233,7 @@ void cDictionary::GenerateCharTable()
 // FastSearch() 보다 느리다.
 string cDictionary::ErrorCorrectionSearch(const string &sentence, OUT float &maxFitness)
 {
-	maxFitness = 0.f;
+	maxFitness = -FLT_MAX;
 
 	cScanner scanner(*this, sentence);// 필요없는 문자 제외
 	if (scanner.IsEmpty())
@@ -255,6 +255,9 @@ string cDictionary::ErrorCorrectionSearch(const string &sentence, OUT float &max
 				if (procSentenceIds[sentenceId])
 					continue;
 				procSentenceIds[sentenceId] = true;
+
+				if (m_sentences[sentenceId].lower.length()/2 <= k)
+					continue; // 짧은 단어는 비교에서 제외 된다.
 
 				cErrCorrectCompare cmp;
 				string tmp = src;

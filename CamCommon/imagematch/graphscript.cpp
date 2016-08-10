@@ -84,182 +84,86 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 	node->delay = 2.f; // default
 
 	// 첫번째 속성값은 node id 이므로 무시된다.
-
-	// delay_number
 	for (int i = 1; i < (int)attribs.size(); ++i)
 	{
-		const int pos = attribs[i].find("delay_");
-		if (string::npos != pos)
+		if (string::npos != attribs[i].find("delay_"))
 		{
-			// delay  값 설정
+			// delay_num, delay  값 설정
 			const int valPos = attribs[i].find("_");
 			const float delay = (float)atof(attribs[i].substr(valPos + 1).c_str());
 			node->delay = delay;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// tag_id
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("tag_");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("tag_"))
 		{
-			// tag 값 설정
+			// tag_id, tag 값 설정
 			const int valPos = attribs[i].find("_");
 			const string tag = attribs[i].substr(valPos + 1);
 			strcpy_s(node->tag, tag.c_str());
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// noproc
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("noproc");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("noproc"))
 		{
+			// noproc
 			node->noProc = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// noup
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("noup");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("noup"))
 		{
+			// noup
 			node->noUpperTraverse = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// auto
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("auto");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("auto"))
 		{
+			// auto
 			node->isAuto = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// key_id
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("key");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("key"))
 		{
-			// tag 값 설정
+			// key_id 값 설정
 			const int valPos = attribs[i].find("_");
 			const string keyboard = attribs[i].substr(valPos + 1);
 			if (keyboard == "esc")
 				node->key = VK_ESCAPE;
 			else if (keyboard == "enter")
 				node->key = VK_RETURN;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// sidemenu
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("sidemenu");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("sidemenu"))
 		{
+			// sidemenu
 			node->isSideMenu = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-
-	// enterchild
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("enterchild");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("enterchild"))
 		{
+			// enterchild
 			node->isEnterChild = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// nomenu
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("nomenu");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("nomenu"))
 		{
+			// nomenu
 			node->isNoMenu = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
 		}
-	}
-
-	// updn
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("updn");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("sidesel"))
 		{
-			node->isUpDnSubmenu = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
-		}
-	}
-
-	// sidesel
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("sidesel");
-		if (string::npos != pos)
-		{
+			// sidesel
 			node->isSideSubmenu = true;
-
-			// remove attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
+		}
+		else if (string::npos != attribs[i].find("sceneid_"))
+		{
+			// sceneid_~~
+			// sceneid_inherit 부모 노드로 부터 상속받는다. 동일한 ID 를 가짐.
+			// sceneid_child_inherit, 현재 노드의 Scene ID를 자식 노드에게 상속시킨다.
+			if (attribs[i] == "sceneid_inherit")
+			{
+				node->isSceneIdInherit = true;
+			}
+			else if (attribs[i] == "sceneid_child_inherit")
+			{
+				node->isSceneIdChildInherit = true;
+			}
+			else
+			{
+				const int valPos = attribs[i].find("_");
+				const int id = atoi(attribs[i].substr(valPos + 1).c_str());
+				node->sceneId = id;
+			}
 		}
 	}
 
@@ -314,8 +218,11 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 			parentNode->noUpperTraverse = current->noUpperTraverse;
 			parentNode->isEnterChild = current->isEnterChild;
 			parentNode->isNoMenu = current->isNoMenu;
-			parentNode->isUpDnSubmenu = current->isUpDnSubmenu;
 			parentNode->isSideSubmenu = current->isSideSubmenu;
+			parentNode->isSceneIdInherit = current->isSceneIdInherit;
+			parentNode->isSceneIdChildInherit = current->isSceneIdChildInherit;
+
+			parentNode->sceneId = (current->sceneId == 0) ? m_sceneIdGen++ : current->sceneId;
 		}
 	} 
 	else if (!srcNode)
@@ -331,8 +238,22 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 		newNode->noUpperTraverse = current->noUpperTraverse;
 		newNode->isEnterChild = current->isEnterChild;
 		newNode->isNoMenu = current->isNoMenu;
-		newNode->isUpDnSubmenu = current->isUpDnSubmenu;
 		newNode->isSideSubmenu = current->isSideSubmenu;
+		newNode->isSceneIdInherit = current->isSceneIdInherit;
+		newNode->isSceneIdChildInherit = current->isSceneIdChildInherit;
+		newNode->sceneId = current->sceneId;
+
+		if (parentNode)
+		{
+ 			if (current->isSceneIdInherit) 
+				newNode->sceneId = parentNode->sceneId ;
+			if (parentNode->isSceneIdChildInherit)
+				newNode->sceneId = parentNode->sceneId;
+		}
+
+		if (newNode->sceneId == 0)
+			newNode->sceneId = m_sceneIdGen++;
+
 		m_nodes.push_back(newNode);
 	}
 
@@ -351,7 +272,7 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 
 	build(current, current->child, newNode);
 
-	// 부모가 sidesel 속성을 가질 경우, 첫번 째 child 도 모두 side sel 속성을 가지게 한다.
+	// 부모가 sidesel 속성을 가질 경우, child 도 모두 side sel 속성을 가지게 한다.
 	// 그리고 부모의 sidesel 속성은 제거된다.
 	if (newNode && newNode->isSideSubmenu)
 	{
@@ -401,6 +322,7 @@ cGraphScript::sNode* cGraphScript::FindParentRec(sNode *current, const string &i
 void cGraphScript::Clear()
 {
 	m_root = NULL;
+	m_sceneIdGen = 1;
 
 	for each(auto p in m_nodes)
 		delete p;

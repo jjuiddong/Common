@@ -38,10 +38,13 @@ namespace cvproc {
 			bool isSideMenu;
 			bool isEnterChild;
 			bool isNoMenu;
-			bool isUpDnSubmenu;
+			//bool isUpDnSubmenu;
 			bool isSideSubmenu;
+			bool isSceneIdInherit;
+			bool isSceneIdChildInherit;
 			float delay;
 			char tag[64];
+			int sceneId;
 			int key; // keyboard
 			//------------------------------------------------------------------
 

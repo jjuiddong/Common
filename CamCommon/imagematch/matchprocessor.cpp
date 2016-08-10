@@ -17,6 +17,7 @@ cMatchProcessor::cMatchProcessor()
 	, m_isThreadTerminate(false)
 	, m_inputImageId(0)
 	, m_isLog(true)
+	, m_isLog2(true)
 	, m_lastMatchResult(NULL)
 	, m_tessIdx(0)
 {
@@ -288,10 +289,13 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	Mat dst = src->clone();
 	deSkew.DeSkew(dst, 0.005f, 0, true);
 
-	float maxFitness = 0;
+	float maxFitness = -FLT_MAX;
 	tess::cTessWrapper *tess = GetTesseract();
+	dbg::Log("ocr crash check1 \n");
 	const string srcStr = tess->Recognize(deSkew.m_tessImg);
+	dbg::Log("ocr crash check2 \n");
 	const string result = tess->Dictionary(node->name, srcStr, maxFitness);
+	dbg::Log("ocr crash check3 \n");
 
 	bool isDetect = true;
 
@@ -322,6 +326,14 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 		const int MAX_STR_LEN = sizeof(arg.matchResult->m_data[node->id].str);
 		ZeroMemory(arg.matchResult->m_data[node->id].str, MAX_STR_LEN);
 		memcpy(arg.matchResult->m_data[node->id].str, result.c_str(), MIN(result.length(), MAX_STR_LEN - 1));
+
+		if (m_isLog2)
+			dbg::Log("executeOcr detect src=%s, result=%s, maxFitness=%3.3f \n", srcStr.c_str(), result.c_str(), maxFitness);
+	}
+	else
+	{
+		if (m_isLog2)
+			dbg::Log("executeOcr not detect src = %s, result=%s, maxFitness=%3.3f \n", srcStr.c_str(), result.c_str(), maxFitness);
 	}
 
 	// 성공이든, 실패든, 매칭된 위치는 저장한다.

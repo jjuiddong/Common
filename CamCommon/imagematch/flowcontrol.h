@@ -21,7 +21,9 @@ namespace cvproc {
 				DELAY, // 일정시간 동안 지연
 				REACH, // 목적지 도착
 				CAPTURE, // 영상 캡쳐 요청, 캡쳐 후, 항상 PROC 상태가 된다.
-				PROC, // 영상을 입력받아, 목적지를 이동하기 위한 key 를 계산
+				CAPTURE_NEXT, // 영상 캡쳐 요청, 캡처 후, NEXT 상태가 된다.
+				PROC, // 영상을 입력받아, 현재 위치를 파악한 후, 목적지를 이동하기 위한 key 를 계산
+				NEXT, // 영상을 입력받아,  다음 설정 메뉴로 넘어간다. 현재 위치는 파악하지 않는다.
 				MENU_MOVE, // 메뉴 이동 중. 상하좌우
 				MENU_DETECT,	// 메뉴 확인 및 이동
 				ERR, // 연산 중, 에러 발생 
@@ -32,7 +34,7 @@ namespace cvproc {
 				const string &flowScriptFileName, 
 				const int screenCaptureKey=VK_SNAPSHOT);
 			STATE Update(const float deltaSeconds, const cv::Mat &img, OUT int &key);
-			void Move(const string &sceneName);
+			bool Command(const string &cmdFileName);
 			void Cancel();
 			
 
@@ -46,20 +48,25 @@ namespace cvproc {
 
 			STATE OnDelay(const float deltaSeconds, const cv::Mat &img, OUT int &key);
 			STATE OnCapture(const cv::Mat &img, OUT int &key);
+			STATE OnCaptureNext(const cv::Mat &img, OUT int &key);
 			STATE OnProc(const cv::Mat &img, OUT int &key);
 			STATE OnMenu(const cv::Mat &img, OUT int &key);
 			STATE OnMenuDetect(const cv::Mat &img, OUT int &key);
+			STATE OnNext(const cv::Mat &img, OUT int &key);
+			STATE NextStep(const cv::Mat &img, cGraphScript::sNode *current, OUT int &key);
 
 			bool TreeMatch(cGraphScript::sNode *current, const cv::Mat &img, OUT sTreeMatchData &out, 
 				const int loopCnt=-1);
-			bool CheckMenuUpandDown(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
+			int CheckMenuUpandDown(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
 			int GetNextMenuCount(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
 			int CheckNextMenuIndex(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
 			int CheckNextMenuIndex(const cGraphScript::sNode *current, const string &selectMenuId, 
 				const cGraphScript::sNode *next);
-			void Delay(const float delaySeconds, const STATE nextState);
+			STATE Delay(const float delaySeconds, const STATE nextState);
 			string GenerateInputID();
 			cMatchResult& GetMatchResult();
+			string GetStateString(const STATE state);
+			STATE NextCommand();
 
 
 		public:
@@ -70,7 +77,8 @@ namespace cvproc {
 			cGraphScript::sNode *m_currentNode;
 			cGraphScript::sNode *m_nextNode;
 			vector<cGraphScript::sNode*> m_path; // 이동 경로
-			string m_moveTo;	// 이동할 씬 이름
+			vector<string> m_commands;
+			int m_cmdIdx; // 실행중인 m_commands Index
 			int m_tryMachingCount;
 			int m_screenCaptureKey; // virtual key, VK_SNAPSHOT or VK_F11
 			int m_genId; // default = 100000

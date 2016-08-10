@@ -26,7 +26,8 @@ namespace tess
 
 
 	protected:
-		bool CompareSub(const cDictionary &dict, char *src, char *dict_word, sInfo &info);
+		bool CompareSub(const cDictionary &dict, char *src, char *dict_word, OUT sInfo &info);
+		bool CompareSub2Type(const cDictionary &dict, char *src, char *dict_word, OUT sInfo &info);
 
 
 	public:
