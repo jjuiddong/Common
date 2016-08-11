@@ -21,13 +21,6 @@ cMatchProcessor::cMatchProcessor()
 	, m_lastMatchResult(NULL)
 	, m_tessIdx(0)
 {
-
-	for (int i = 0; i < 5; ++i)
-	{
-		tess::cTessWrapper *p = new tess::cTessWrapper();
-		p->Init("./", "eng", "dictionary.txt");
-		m_tess.push_back(p);
-	}
 }
 
 cMatchProcessor::~cMatchProcessor()
@@ -626,7 +619,7 @@ void cMatchProcessor::RemoveHsvImage(const int imageId)
 }
 
 
-void cMatchProcessor::Clear()
+void cMatchProcessor::ClearMemPool()
 {
 	{
 		AutoCSLock cs(m_loadImgCS); // 소멸자 호출을 위한 지역변수
@@ -661,6 +654,11 @@ void cMatchProcessor::Clear()
 			delete it.second;
 		m_hsvImgTable.clear();
 	}
+}
+
+void cMatchProcessor::Clear()
+{
+	ClearMemPool();
 
 	for each (auto mr in m_matchResults)
 		delete mr.p;
@@ -708,6 +706,16 @@ void cMatchProcessor::FreeMatchResult(cMatchResult *p)
 tess::cTessWrapper* cMatchProcessor::GetTesseract()
 {
 	AutoCSLock cs(m_tessCS);
+
+	if (m_tess.empty())
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			tess::cTessWrapper *p = new tess::cTessWrapper();
+			p->Init("./", "eng", "dictionary.txt");
+			m_tess.push_back(p);
+		}
+	}
 
 	tess::cTessWrapper *p = m_tess[m_tessIdx++];
 	if ((int)m_tess.size() <= m_tessIdx)

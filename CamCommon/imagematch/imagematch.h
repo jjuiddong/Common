@@ -38,7 +38,6 @@ namespace cvproc {
 			bool isSideMenu;
 			bool isEnterChild;
 			bool isNoMenu;
-			//bool isUpDnSubmenu;
 			bool isSideSubmenu;
 			bool isSceneIdInherit;
 			bool isSceneIdChildInherit;

@@ -225,7 +225,7 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 			parentNode->sceneId = (current->sceneId == 0) ? m_sceneIdGen++ : current->sceneId;
 		}
 	} 
-	else if (!srcNode)
+	else if (!newNode)
 	{
 		newNode = new sNode;
 		newNode->id = current->name;
@@ -257,8 +257,13 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 		m_nodes.push_back(newNode);
 	}
 
-	if (newNode)
+	if (srcNode)
 	{
+		build(parent, current->next, parentNode);
+	}
+	else if (newNode)
+	{
+		// Link 노드가 아닐때, 노드간 연결 (Link 노드는 이미 연결되어 있음)
 		if (parentNode)
 		{
 			parentNode->out.push_back(newNode);
@@ -268,20 +273,25 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 		{
 			m_heads.push_back(newNode); // 헤드 노드
 		}
+
+		build(current, current->child, newNode);
+
+		// 부모가 sidesel 속성을 가질 경우, child 도 모두 side sel 속성을 가지게 한다.
+		// 그리고 부모의 sidesel 속성은 제거된다.
+		if (newNode && newNode->isSideSubmenu)
+		{
+			newNode->isSideSubmenu = false;
+			for each (auto next in newNode->out)
+				next->isSideSubmenu = true;
+		}
+
+		build(parent, current->next, parentNode);
 	}
-
-	build(current, current->child, newNode);
-
-	// 부모가 sidesel 속성을 가질 경우, child 도 모두 side sel 속성을 가지게 한다.
-	// 그리고 부모의 sidesel 속성은 제거된다.
-	if (newNode && newNode->isSideSubmenu)
+	else
 	{
-		newNode->isSideSubmenu = false;
-		for each (auto next in newNode->out)
-			next->isSideSubmenu = true;
+		// parent node
+		build(parent, current->next, parentNode);
 	}
-
-	build(parent, current->next, parentNode);
 
 	return newNode;
 }

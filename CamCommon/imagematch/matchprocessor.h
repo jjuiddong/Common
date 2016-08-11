@@ -40,6 +40,7 @@ namespace cvproc {
 			void RemoveHsvImage(const int imageId);
 			cMatchResult* AllocMatchResult();
 			void FreeMatchResult(cMatchResult *p);
+			void ClearMemPool();
 			void Clear();
 
 
