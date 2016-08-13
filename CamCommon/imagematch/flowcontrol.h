@@ -37,6 +37,7 @@ namespace cvproc {
 				const int screenCaptureKey=VK_SNAPSHOT);
 			STATE Update(const float deltaSeconds, const cv::Mat &img, OUT int &key);
 			bool Command(const string &cmdFileName);
+			bool CommandStr(const string &cmds);
 			void Cancel();
 			
 

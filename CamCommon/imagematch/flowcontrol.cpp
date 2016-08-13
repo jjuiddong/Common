@@ -483,6 +483,33 @@ bool cFlowControl::Command(const string &cmdFileName)
 }
 
 
+// 공백문자로 구분된 명령어 입력
+bool cFlowControl::CommandStr(const string &cmds)
+{
+	Cancel();
+
+	vector<string> out;
+	tokenizer(cmds, " ", "", out);
+
+	for each (auto str in out)
+	{
+		trim(str);
+		if (str.empty())
+			continue;
+		if (str[0] == '#') // comment
+			continue;
+
+		m_commands.push_back(str);
+	}
+
+	if (m_commands.empty())
+		return false;
+
+	m_state = NextCommand();
+	return true;
+}
+
+
 cFlowControl::STATE cFlowControl::NextCommand()
 {
 	RETV(m_commands.empty(), WAIT);
