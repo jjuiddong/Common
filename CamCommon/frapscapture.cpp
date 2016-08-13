@@ -113,7 +113,7 @@ void FrapsThreadProc(cFrapsCapture *capture)
 		switch (capture->m_state)
 		{
 		case cFrapsCapture::WAIT:  // 대기중
-			Sleep(100);
+			Sleep(30);
 			break;
 
 		case cFrapsCapture::SCREENSHOT:	// 스크린샷 요청
@@ -131,14 +131,14 @@ void FrapsThreadProc(cFrapsCapture *capture)
 			while (!capture->SearchFrapsDir() && (cnt < 20))
 			{
 				++cnt;
-				Sleep(100);
+				Sleep(30);
 			}
 			capture->m_state = cFrapsCapture::END;
 		}
 		break;
 
 		case cFrapsCapture::END: // 스크린샷 이미지 가져오기 종료.
-			Sleep(100);
+			Sleep(30);
 			break;
 
 		default:

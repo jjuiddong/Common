@@ -81,7 +81,7 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 	strcpy_s(node->name, attribs[0].c_str());
 
 	// check delay
-	node->delay = 2.f; // default
+	node->delay = 0.5f; // default
 
 	// 첫번째 속성값은 node id 이므로 무시된다.
 	for (int i = 1; i < (int)attribs.size(); ++i)
@@ -144,6 +144,11 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 		{
 			// sidesel
 			node->isSideSubmenu = true;
+		}
+		else if (string::npos != attribs[i].find("circular"))
+		{
+			// circular
+			node->isCircularMenu = true;
 		}
 		else if (string::npos != attribs[i].find("sceneid_"))
 		{
@@ -221,6 +226,7 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 			parentNode->isSideSubmenu = current->isSideSubmenu;
 			parentNode->isSceneIdInherit = current->isSceneIdInherit;
 			parentNode->isSceneIdChildInherit = current->isSceneIdChildInherit;
+			parentNode->isCircularMenu = current->isCircularMenu;
 
 			parentNode->sceneId = (current->sceneId == 0) ? m_sceneIdGen++ : current->sceneId;
 		}
@@ -241,6 +247,7 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 		newNode->isSideSubmenu = current->isSideSubmenu;
 		newNode->isSceneIdInherit = current->isSceneIdInherit;
 		newNode->isSceneIdChildInherit = current->isSceneIdChildInherit;
+		newNode->isCircularMenu = current->isCircularMenu;
 		newNode->sceneId = current->sceneId;
 
 		if (parentNode)
@@ -259,6 +266,13 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 
 	if (srcNode)
 	{
+		if (parentNode)
+		{
+			parentNode->out.push_back(srcNode);
+			srcNode->in.push_back(parentNode);
+		}
+
+		build(current, current->child, srcNode);
 		build(parent, current->next, parentNode);
 	}
 	else if (newNode)

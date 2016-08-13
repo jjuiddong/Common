@@ -21,7 +21,9 @@ namespace cvproc {
 				DELAY, // 일정시간 동안 지연
 				REACH, // 목적지 도착
 				CAPTURE, // 영상 캡쳐 요청, 캡쳐 후, 항상 PROC 상태가 된다.
-				CAPTURE_NEXT, // 영상 캡쳐 요청, 캡처 후, NEXT 상태가 된다.
+				CAPTURE_ERR, // 영상 캡쳐 요청, 인식에 실패해서, 재 계산한다.
+				CAPTURE_NEXT, // 영상 캡쳐 요청, 캡처 후, 다음 씬으로 넘어간다.
+				CAPTURE_MENU, // 영상 캡쳐 요청, 캡처 후, 현재 메뉴 상태를 확인하고, 다음 단계로 넘어간다.
 				PROC, // 영상을 입력받아, 현재 위치를 파악한 후, 목적지를 이동하기 위한 key 를 계산
 				NEXT, // 영상을 입력받아,  다음 설정 메뉴로 넘어간다. 현재 위치는 파악하지 않는다.
 				MENU_MOVE, // 메뉴 이동 중. 상하좌우
@@ -49,11 +51,12 @@ namespace cvproc {
 			STATE OnDelay(const float deltaSeconds, const cv::Mat &img, OUT int &key);
 			STATE OnCapture(const cv::Mat &img, OUT int &key);
 			STATE OnCaptureNext(const cv::Mat &img, OUT int &key);
+			STATE OnCaptureMenu(const cv::Mat &img, OUT int &key);
 			STATE OnProc(const cv::Mat &img, OUT int &key);
 			STATE OnMenu(const cv::Mat &img, OUT int &key);
 			STATE OnMenuDetect(const cv::Mat &img, OUT int &key);
 			STATE OnNext(const cv::Mat &img, OUT int &key);
-			STATE NextStep(const cv::Mat &img, cGraphScript::sNode *current, OUT int &key);
+			STATE NextStep(const cv::Mat &img, cGraphScript::sNode *detectNode, OUT int &key);
 
 			bool TreeMatch(cGraphScript::sNode *current, const cv::Mat &img, OUT sTreeMatchData &out, 
 				const int loopCnt=-1);
@@ -74,7 +77,7 @@ namespace cvproc {
 			bool m_isLog; // 로그 출력
 			cMatchScript2 m_matchScript;
 			cGraphScript m_flowScript;
-			cGraphScript::sNode *m_currentNode;
+			cGraphScript::sNode *m_detectNode;
 			cGraphScript::sNode *m_nextNode;
 			vector<cGraphScript::sNode*> m_path; // 이동 경로
 			vector<string> m_commands;
@@ -87,6 +90,7 @@ namespace cvproc {
 			// menu move
 			int m_nextMenuIdx;
 			int m_currentMenuIdx;
+			bool m_isMenuCheck; // 다음으로 넘어가기 전에 메뉴를 한번 확인한다.
 
 			// delay
 			STATE m_nextState; // 딜레이가 끝난 후, 상태 

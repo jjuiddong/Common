@@ -32,11 +32,12 @@ bool cDeSkew::DeSkew(
 
 	Mat &dst = src;
 	Mat tmp = dst.clone();
+	Mat tmp2 = dst.clone();
 
-	if (dst.data && (dst.channels() >= 3))
-		cvtColor(dst, dst, CV_BGR2GRAY);
-	threshold(dst, dst, 20, 255, CV_THRESH_BINARY_INV);
-	cv::Canny(dst, dst, 0, 100, 5);
+	if (tmp2.data && (tmp2.channels() >= 3))
+		cvtColor(tmp2, tmp2, CV_BGR2GRAY);
+	threshold(tmp2, tmp2, 20, 255, CV_THRESH_BINARY_INV);
+	cv::Canny(tmp2, tmp2, 0, 100, 5);
 
 	vector<vector<cv::Point>> contours;
 	cv::findContours(dst, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
@@ -72,6 +73,7 @@ bool cDeSkew::DeSkew(
 
 	if (maxLenIdx == -1)
 		return false; // error occur
+
 
 	// 좌우로 가장 긴 다각형의 기울어진 각도를 계산해서, 원본 이미지를 수평이 되게 회전시킨다.
 	cv::approxPolyDP(cv::Mat(contours[maxLenIdx]), approx, cv::arcLength(cv::Mat(contours[maxLenIdx]), true)*arcAlpha, true);
@@ -195,6 +197,7 @@ bool cDeSkew::DeSkew(
 		cv::line(dst, approx[i1], approx[i12], Scalar(255, 0, 0), 3);
 		cv::line(dst, approx[i2], approx[i22], Scalar(0, 0, 255), 3);
 	}
+
 
 	//
 	// p1 -------- p2

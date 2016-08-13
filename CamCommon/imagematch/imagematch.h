@@ -41,6 +41,7 @@ namespace cvproc {
 			bool isSideSubmenu;
 			bool isSceneIdInherit;
 			bool isSceneIdChildInherit;
+			bool isCircularMenu;
 			float delay;
 			char tag[64];
 			int sceneId;

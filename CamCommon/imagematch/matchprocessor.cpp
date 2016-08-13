@@ -284,11 +284,8 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 
 	float maxFitness = -FLT_MAX;
 	tess::cTessWrapper *tess = GetTesseract();
-	dbg::Log("ocr crash check1 \n");
 	const string srcStr = tess->Recognize(deSkew.m_tessImg);
-	dbg::Log("ocr crash check2 \n");
 	const string result = tess->Dictionary(node->name, srcStr, maxFitness);
-	dbg::Log("ocr crash check3 \n");
 
 	bool isDetect = true;
 
@@ -673,32 +670,34 @@ void cMatchProcessor::Clear()
 // MatchResult 를 생성해서 리턴한다.
 cMatchResult* cMatchProcessor::AllocMatchResult()
 {
-	for each (auto mr in m_matchResults)
+	for (uint i=0; i < m_matchResults.size(); ++i)
 	{
-		if (!mr.used)
+		if (!m_matchResults[i].used)
 		{
-			mr.used = true;
-			return mr.p;
+			m_matchResults[i].used = true;
+			return m_matchResults[i].p;
 		}
 	}
 
 	cMatchResult *p = new cMatchResult;
 	m_matchResults.push_back({ true, p });
+
+	dbg::Log("matchResult count = %d \n", m_matchResults.size());
 	return p;
 }
 
 
 void cMatchProcessor::FreeMatchResult(cMatchResult *p)
 {
-	for each (auto mr in m_matchResults)
+	for (uint i = 0; i < m_matchResults.size(); ++i)
 	{
-		if (mr.p == p)
+		if (m_matchResults[i].p == p)
 		{
-			mr.used = false;
+			m_matchResults[i].used = false;
 			return;
 		}
 	}
-
+	
 	dbg::ErrLog("cMatchProcessor::FreeMatchResult() Not Found pointer \n");
 }
 
@@ -709,7 +708,7 @@ tess::cTessWrapper* cMatchProcessor::GetTesseract()
 
 	if (m_tess.empty())
 	{
-		for (int i = 0; i < 5; ++i)
+		for (int i = 0; i < 8; ++i)
 		{
 			tess::cTessWrapper *p = new tess::cTessWrapper();
 			p->Init("./", "eng", "dictionary.txt");

@@ -58,6 +58,8 @@ bool cErrCorrectCompare::CompareSub(const cDictionary &dict, char *src, char *di
 		{
 			if ((*src < 0) || (*dict_word < 0)) // 유니코드 작업 필요.
 				break;
+			if ((*src == '\n') || (*src == '\r')) // 개행문자면, 종료.
+				break;
 
 			if (*src == *dict_word)
 			{
@@ -123,6 +125,8 @@ bool cErrCorrectCompare::CompareSub(const cDictionary &dict, char *src, char *di
 		}
 
 		if (!*src || !*dict_word)
+			break;
+		if ((*src == '\n') || (*src == '\r')) // 개행문자면, 종료.
 			break;
 		if (info.err >= MAX_ERROR)
 			break;

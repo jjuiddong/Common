@@ -32,18 +32,24 @@ void dbg::Print( const char* fmt, ...)
 
 void dbg::Log(const char* fmt, ...)
 {
-	char textString[256] = { '\0' };
+	char textString[256];
+	ZeroMemory(textString, sizeof(textString));
+
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf_s(textString, sizeof(textString), _TRUNCATE, fmt, args);
+	vsnprintf_s(textString, sizeof(textString)-1, _TRUNCATE, fmt, args);
 	va_end(args);
 
-	FILE *fp = fopen("log.txt", "a+");
-	if (fp)
-	{
-		fputs(textString, fp);
-		fclose(fp);
-	}
+	std::ofstream ofs("log.txt", std::ios::app);
+	if (ofs.is_open())
+		ofs << textString;
+
+// 	FILE *fp = fopen("log.txt", "a+");
+// 	if (fp)
+// 	{
+// 		fputs(textString, fp);
+// 		fclose(fp);
+// 	}
 }
 
 

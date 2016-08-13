@@ -228,7 +228,7 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 			}
 		}
 	}
-	
+
 	// 말단 노드 중, 가장 적합도가 높은 노드를 찾는다.
 	if (matchResult->m_traverseType == 1)
 	{
@@ -329,7 +329,10 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 	}
 
 	if (!mostFitnessNode)
+	{
+		resultStr = ""; // error return
 		return NULL;
+	}
 
 	if (mostFitnessNode->child && !mostFitnessNode->child->child)
 	{

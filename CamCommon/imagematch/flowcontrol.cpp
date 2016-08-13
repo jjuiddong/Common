@@ -8,7 +8,7 @@ using namespace cvproc::imagematch;
 
 cFlowControl::cFlowControl()
 	: m_state(WAIT)
-	, m_currentNode(NULL)
+	, m_detectNode(NULL)
 	, m_nextNode(NULL)
 	, m_delayTime(0)
 	, m_isInitDelay(false)
@@ -20,6 +20,7 @@ cFlowControl::cFlowControl()
 	, m_matchResultBuffIdx(0)
 	, m_isLog(false)
 	, m_cmdIdx(-1)
+	, m_isMenuCheck(false)
 {
 }
 
@@ -75,11 +76,16 @@ cFlowControl::STATE cFlowControl::Update(const float deltaSeconds, const cv::Mat
 		break;
 
 	case CAPTURE:
+	case CAPTURE_ERR:
 		nextState = OnCapture(img, key);
 		break;
 
 	case CAPTURE_NEXT:
 		nextState = OnCaptureNext(img, key);
+		break;
+
+	case CAPTURE_MENU:
+		nextState = OnCaptureMenu(img, key);
 		break;
 
 	case PROC:
@@ -148,44 +154,23 @@ cFlowControl::STATE cFlowControl::OnCaptureNext(const cv::Mat &img, OUT int &key
 }
 
 
+cFlowControl::STATE cFlowControl::OnCaptureMenu(const cv::Mat &img, OUT int &key)
+{
+	key = m_screenCaptureKey;
+	m_lastImage = cv::Mat();
+	return MENU_DETECT;
+}
+
+
 // 이미지 영상 처리
 // img 를 인식해, 현재 씬을 판단하고, 목표 씬까지 이동한다.
 cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 {
 	if (m_nextNode && m_nextNode->noProc)
-	{
-		// 씬 매칭을 하지 않고, 키보드 엔터를 누른 후 (서브메뉴가 아니라면)
-		// 다음 씬으로 넘어간다.
 		return NextStep(img, m_nextNode, key);
 
-// 		m_currentNode = m_nextNode;
-// 
-// 		// 목표 위치까지 경로 탐색
-// 		m_path.clear();
-// 		if (m_flowScript.FindRoute(m_nextNode, m_commands[m_cmdIdx], m_path))
-// 		{
-// 			if (m_path.empty() || (m_path.size() == 1))
-// 			{
-// 				// 이미 도착한 상태
-// 				return NextCommand();
-// 			}
-// 
-// 			// 다음 노드를 선택한다.
-// 			if (m_path.size() > 1)
-// 			{
-// 				m_nextNode = m_path[1];
-// 			}
-// 		}
-// 		else
-// 		{
-// 			dbg::ErrLog("Error!! cFlowControl::OnProc(), not found route [%s] \n", m_commands[m_cmdIdx].c_str());
-// 			return ERR;
-// 		}
-// 
-// 		key = (m_nextNode->key)? m_nextNode->key : VK_RETURN;
-// 		Delay(m_currentNode->delay, CAPTURE);
-// 		return m_state;
-	}
+	if (m_detectNode && m_nextNode && (m_detectNode->sceneId == m_nextNode->sceneId))
+		return NextStep(img, m_detectNode, key);
 
 	if (!img.data)
 		return PROC;
@@ -216,7 +201,7 @@ cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 				data.loopCnt, timeGetTime()-t1);
 	} 
 
-	// 인식에 실패하면, 다시 영상을 인식한다.
+	// 인식에 실패하면, 다시 영상을 요청한다.
 	if (!data.node)
 	{
 		++m_tryMachingCount;
@@ -243,12 +228,12 @@ cFlowControl::STATE cFlowControl::OnNext(const cv::Mat &img, OUT int &key)
 
 
 // 현재 씬에서, 다음 씬으로 넘어 갈 때, 계산해야 될 내용을 처리한다.
-cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNode *current, OUT int &key)
+cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNode *detectNode, OUT int &key)
 {
 	if (!img.data && !m_lastImage.data)
 		return m_state;
 
-	m_currentNode = current;
+	m_detectNode = detectNode;
 	m_nextNode = NULL;
 	m_currentMenuIdx = 0;
 	m_nextMenuIdx = 0;
@@ -256,7 +241,7 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 
 	// 목표 위치까지 경로 탐색
 	m_path.clear();
-	if (!m_flowScript.FindRoute(current, m_commands[m_cmdIdx], m_path))
+	if (!m_flowScript.FindRoute(m_detectNode, m_commands[m_cmdIdx], m_path))
 	{
 		dbg::ErrLog("Error!! cFlowControl::NextStep(), not found route [%s] \n", m_commands[m_cmdIdx].c_str());
 		return ERR;
@@ -265,8 +250,7 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 	if (m_path.empty() || (m_path.size() == 1))
 		return NextCommand(); // 이미 도착한 상태
 
-	if (m_path.size() > 1)
-		m_nextNode = m_path[1]; // 다음 노드를 설정한다.
+	m_nextNode = m_path[1]; // 다음 노드를 설정한다.
 
 	if (m_isLog)
 	{ // 경로 출력
@@ -310,7 +294,7 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 		else if (nextMenuCount == 1) // 다음 메뉴가 하나밖에 없는 경우..
 		{
 			key = (m_nextNode->key) ? m_nextNode->key : VK_RETURN;
-			Delay(m_currentNode->delay, CAPTURE);
+			Delay(m_nextNode->delay, CAPTURE);
 		}
 		else if (nextMenuIdx >= 0)
 		{
@@ -330,7 +314,10 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 // Left, Right Button or Up, Down Button
 cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 {
-	cGraphScript::sNode *node = m_currentNode;
+	if (!img.data)
+		return m_state;
+	
+	cGraphScript::sNode *node = m_detectNode;
 	if (!node)
 		node = m_flowScript.m_root;
 
@@ -340,7 +327,6 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 		(sParseTree*)m_matchScript.FindTreeLabel(string("@") + label + "_menu"),
 		true, true);
 	matchResult.m_traverseType = 1; // search all
-
 	cMatchProcessor::Get()->Match(matchResult);
 
 	if (m_isLog)
@@ -352,13 +338,10 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 	if ((matchResult.m_result <= 0) || matchResult.m_resultStr.empty())
 	{
 		// 인식에 실패하면 다시 시도한다
-		if (m_isLog)
-			dbg::Log("cFlowControl::OnMenuDetect matchResult.m_result = 0 or m_resultStr = null \n" );
-
-		return CAPTURE;
+		return Delay(0, CAPTURE_ERR);
 	}
 
-	const bool isSkipCapture = m_currentNode->sceneId == m_nextNode->sceneId;
+	const bool isSkipCapture = m_detectNode->sceneId == m_nextNode->sceneId;
 	const string selectMenuId = matchResult.m_resultStr;
 	if (selectMenuId == m_nextNode->id)
 	{
@@ -373,10 +356,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 			key = VK_RETURN;
 		}
 
-		if (m_isLog)
-			dbg::Log("goto CAPTURE \n");
-
-		Delay(m_nextNode->delay, CAPTURE);
+		return Delay(m_nextNode->delay, CAPTURE_NEXT);
 	}
 	else
 	{
@@ -384,7 +364,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 		m_currentMenuIdx = 0;
 
 		if (m_isLog)
-			dbg::Log("cFlowControl::OnMenuDetect, selectMenuId=%s, nextMenuIdx=%d \n", selectMenuId.c_str(), m_nextMenuIdx);
+			dbg::Log("\t- nextMenuIdx = %d \n", m_nextMenuIdx);
 
 		if (m_nextMenuIdx == 0)
 		{
@@ -392,11 +372,11 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 			return NextStep(img, m_path[1], key);
 		}
 
-		// m_nextMenuIdx 만큼 메뉴를 이동한다.
-		if (m_isLog)
-			dbg::Log("goto MENU_MOVE \n");
+		if (abs(m_nextMenuIdx) == 1)
+			m_isMenuCheck = true; // 다음 메뉴와 한칸 차이나면, 또 체크하지 않는다.
 
-		return MENU_MOVE;
+		// m_nextMenuIdx 만큼 메뉴를 이동한다.
+		return Delay(0, MENU_MOVE);
 	}
 
 	return m_state;
@@ -405,35 +385,27 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 
 cFlowControl::STATE cFlowControl::OnMenu(const cv::Mat &img, OUT int &key)
 {
-	if (m_currentMenuIdx == m_nextMenuIdx)
+	if (!m_isMenuCheck && (abs(m_currentMenuIdx - m_nextMenuIdx) == 1))
 	{
-		if (m_currentNode->sceneId == m_nextNode->sceneId)
-		{
-			// 같은 씬일 경우, 커서를 옮기는 것 만으로 끝난다.
-			// 만약 목적지에 도착했다면, 종료한다.
-			if (m_path.back() == m_nextNode)
-				return NextCommand();
-			else
-				return Delay(0, CAPTURE_NEXT);
-		}
-		else
-		{
-			key = VK_RETURN;
-		}
-
-		return Delay(m_nextNode->delay, CAPTURE);
+		m_isMenuCheck = true; // 한번만 실행하기 위한 플래그
+		return Delay(0, CAPTURE_MENU); // 다음 메뉴로 넘어가기 직전에 한번더 확인한다.
+	}
+	else if (m_currentMenuIdx == m_nextMenuIdx)
+	{
+		m_isMenuCheck = false;
+		return Delay(0, CAPTURE_MENU); // 다음 메뉴로 넘어가기 직전에 한번더 확인한다.
 	}
 	else
 	{
 		if (m_currentMenuIdx < m_nextMenuIdx)
 		{
 			++m_currentMenuIdx;
-			key = (m_currentNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_RIGHT : VK_DOWN;
+			key = (m_detectNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_RIGHT : VK_DOWN;
 		}
 		else
 		{
 			--m_currentMenuIdx;
-			key = (m_currentNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_LEFT : VK_UP;
+			key = (m_detectNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_LEFT : VK_UP;
 		}
 
 		return Delay(0.2f, MENU_MOVE);
@@ -466,7 +438,9 @@ string cFlowControl::GetStateString(const STATE state)
 	case DELAY: return "DELAY";
 	case REACH: return "REACH";
 	case CAPTURE: return "CAPTURE";
+	case CAPTURE_ERR: return "CAPTURE_ERR";
 	case CAPTURE_NEXT: return "CAPTURE_NEXT";
+	case CAPTURE_MENU: return "CAPTURE_MENU";
 	case PROC: return "PROC";
 	case NEXT: return "NEXT";
 	case MENU_MOVE: return "MENU_MOVE";
@@ -494,6 +468,8 @@ bool cFlowControl::Command(const string &cmdFileName)
 	{
 		trim(line);
 		if (line.empty())
+			continue;
+		if (line[0] == '#') // comment
 			continue;
 
 		m_commands.push_back(line);
@@ -526,8 +502,8 @@ cFlowControl::STATE cFlowControl::NextCommand()
 			return REACH;
 		}
 
-		if (m_currentNode && !m_nextNode)
-			m_nextNode = m_currentNode;
+		if (m_detectNode && !m_nextNode)
+			m_nextNode = m_detectNode;
 
 		return NEXT;
 	}
@@ -540,7 +516,7 @@ cFlowControl::STATE cFlowControl::NextCommand()
 void cFlowControl::Cancel()
 {
 	m_state = WAIT;
-	m_currentNode = NULL;
+	m_detectNode = NULL;
 	m_nextNode = NULL;
 	m_nextMenuIdx = 0;
 	m_currentMenuIdx = 0;
@@ -568,6 +544,7 @@ cMatchResult& cFlowControl::GetMatchResult()
 	++m_matchResultBuffIdx;
 	if (m_matchResultBuffIdx >= MAX_LEN)
 		m_matchResultBuffIdx = 0;
+
 	return m_matchResult[m_matchResultBuffIdx];
 }
 
@@ -779,6 +756,15 @@ int cFlowControl::CheckNextMenuIndex(
 	if (!check1 || !check2)
 		return 0; // error occur
 
-	return targetMenuIndex - currentMenuIndex;
+	const int moveCnt = targetMenuIndex - currentMenuIndex;
+
+	if (current->isCircularMenu 
+		&& (abs(moveCnt - (int)current->out.size()) < abs(moveCnt)))
+	{
+		// 거꾸로 돌아간다.
+		return moveCnt - (int)current->out.size();
+	}
+
+	return moveCnt;
 }
 
