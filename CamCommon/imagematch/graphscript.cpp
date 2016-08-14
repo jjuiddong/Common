@@ -124,6 +124,8 @@ void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 				node->key = VK_ESCAPE;
 			else if (keyboard == "enter")
 				node->key = VK_RETURN;
+			else if (keyboard == "no")
+				node->key = -1;
 		}
 		else if (string::npos != attribs[i].find("sidemenu"))
 		{
@@ -187,23 +189,10 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 	sNode *headNode = FindHead(current->name);
 	sNode *srcNode = (headNode) ? headNode : linkNode;
 
-	// terminal node
-	if (current->child == NULL)
+	if (current->child && srcNode && !headNode)
 	{
-		if (srcNode)
-		{
-			parentNode->out.push_back(srcNode);
-			// 링크로 넘어간 노드는 거꾸로 타고 갈수 없게 한다.
-			// 그래서 in 에는 추가하지 않음.
-		}
-	}
-	else
-	{ // none terminal node
-		if (srcNode && !headNode)
-		{
-			dbg::ErrLog("duplicate node id = [%s] \n", current->name);
-			return NULL;
-		}
+		dbg::ErrLog("duplicate node id = [%s] \n", current->name);
+		return NULL;
 	}
 
 	sNode *newNode = srcNode;
@@ -541,4 +530,34 @@ void cGraphScript::CheckClearAllNode()
 {
 	for each(auto p in m_nodes)
 		p->check = false;
+}
+
+
+void PrintGraphSub(std::ofstream &ofs, cGraphScript::sNode *current, const int tab)
+{
+	using namespace std;
+	RET(!current);
+
+	for (int i = 0; i < tab; ++i)
+		ofs << "\t";
+	ofs << current->id << endl;
+
+	RET(current->check);
+	
+	current->check = true;
+	for each (auto &out in current->out)
+		PrintGraphSub(ofs, out, tab + 1);
+}
+
+
+void cGraphScript::PrintGraph(const string &rootName)
+{
+	sNode *root = FindHead(rootName);
+	RET(!root);
+
+	CheckClearAllNode();
+
+	std::ofstream ofs("print_graph.txt");
+	if (ofs.is_open())
+		PrintGraphSub(ofs, root, 0);
 }

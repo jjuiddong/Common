@@ -21,6 +21,16 @@ cMatchProcessor::cMatchProcessor()
 	, m_lastMatchResult(NULL)
 	, m_tessIdx(0)
 {
+	if (m_tess.empty())
+	{
+		for (int i = 0; i < 16; ++i)
+		{
+			tess::cTessWrapper *p = new tess::cTessWrapper();
+			p->Init("./", "eng", "dictionary.txt");
+			m_tess.push_back(p);
+		}
+	}
+
 }
 
 cMatchProcessor::~cMatchProcessor()
@@ -284,8 +294,14 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 
 	float maxFitness = -FLT_MAX;
 	tess::cTessWrapper *tess = GetTesseract();
+	const int t1 = timeGetTime();
 	const string srcStr = tess->Recognize(deSkew.m_tessImg);
+	const int t2 = timeGetTime();
 	const string result = tess->Dictionary(node->name, srcStr, maxFitness);
+	const int t3 = timeGetTime();
+
+	if (m_isLog2)
+		dbg::Log("tesseract recognition time = %d, dictionary = %d \n", t2 - t1, t3 - t2);
 
 	bool isDetect = true;
 
@@ -705,16 +721,6 @@ void cMatchProcessor::FreeMatchResult(cMatchResult *p)
 tess::cTessWrapper* cMatchProcessor::GetTesseract()
 {
 	AutoCSLock cs(m_tessCS);
-
-	if (m_tess.empty())
-	{
-		for (int i = 0; i < 8; ++i)
-		{
-			tess::cTessWrapper *p = new tess::cTessWrapper();
-			p->Init("./", "eng", "dictionary.txt");
-			m_tess.push_back(p);
-		}
-	}
 
 	tess::cTessWrapper *p = m_tess[m_tessIdx++];
 	if ((int)m_tess.size() <= m_tessIdx)

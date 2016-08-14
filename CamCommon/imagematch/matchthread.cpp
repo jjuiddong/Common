@@ -141,6 +141,8 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 
 					if (matchResult->m_traverseType == 0) // if match success return
 						break; // success, loop terminate
+					if (matchResult->m_data[node->id].max >= 1.f) // m_traverseType 와 상관없이 max 가 높으면 종료.
+						break;
 				}
 				else if (child && !child->child) // terminal node
 				{
@@ -153,6 +155,8 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 
 					if (matchResult->m_traverseType == 0) // if match success return
 						break; // success, loop terminate
+					if (matchResult->m_data[node->id].max >= 1.f) // m_traverseType 와 상관없이 max 가 높으면 종료.
+						break;
 				}
 				else
 				{
@@ -185,6 +189,8 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 
 						if (matchResult->m_traverseType == 0) // if match success return
 							break; // success, loop terminate
+						if (matchResult->m_data[node->id].max >= 1.f) // m_traverseType 와 상관없이 max 가 높으면 종료.
+							break;
 					}
 					else
 					{

@@ -48,6 +48,7 @@ namespace cvproc {
 			sNode* FindHead(const string &id);
 			bool FindRoute(const string &from, const string &to, OUT vector<sNode*> &out);
 			bool FindRoute(sNode*current, const string &to, OUT vector<sNode*> &out);
+			void PrintGraph(const string &rootName);
 			void CheckClearAllNode();
 			void Clear();
 

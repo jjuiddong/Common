@@ -272,6 +272,12 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 	const int nextMenuCount = GetNextMenuCount(m_path[0], m_path[1]);
 	const int nextMenuIdx = CheckNextMenuIndex(m_path[0], m_path[1]);
 
+	if (m_isLog)
+	{
+		dbg::Log("isSameScene = %d, nextMenuCount = %d, nextMenuIdx = %d \n",
+			isSameScene, nextMenuCount, nextMenuIdx);
+	}
+
 	if (isSameScene)
 	{
 		if (nextMenuIdx < 0)
@@ -356,7 +362,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 			key = VK_RETURN;
 		}
 
-		return Delay(m_nextNode->delay, CAPTURE_NEXT);
+		return Delay(m_nextNode->delay, CAPTURE);
 	}
 	else
 	{
@@ -372,8 +378,9 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 			return NextStep(img, m_path[1], key);
 		}
 
-		if (abs(m_nextMenuIdx) == 1)
-			m_isMenuCheck = true; // 다음 메뉴와 한칸 차이나면, 또 체크하지 않는다.
+		m_isMenuCheck = true;
+		//if (abs(m_nextMenuIdx) == 1)
+		//	m_isMenuCheck = true; // 다음 메뉴와 한칸 차이나면, 또 체크하지 않는다.
 
 		// m_nextMenuIdx 만큼 메뉴를 이동한다.
 		return Delay(0, MENU_MOVE);
@@ -483,13 +490,13 @@ bool cFlowControl::Command(const string &cmdFileName)
 }
 
 
-// 공백문자로 구분된 명령어 입력
+// 세미콜론 문자로 구분된 명령어 입력
 bool cFlowControl::CommandStr(const string &cmds)
 {
 	Cancel();
 
 	vector<string> out;
-	tokenizer(cmds, " ", "", out);
+	tokenizer(cmds, ";", "", out);
 
 	for each (auto str in out)
 	{

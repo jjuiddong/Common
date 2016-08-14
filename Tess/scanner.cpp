@@ -35,7 +35,7 @@ bool cScanner::Init(const cDictionary &dict, const string &str)
 	// 쓰이는 문자, 모호한 기호를 제외한 문자 제거
 	for (uint i = 0; i < src.length(); ++i)
 	{
-		const char c = src[i];
+		const uchar c = src[i];
 		if ((dict.m_useChar[c]) || (dict.m_ambiguousTable[c] != 0))
 			dst += c;
 	}
@@ -62,6 +62,28 @@ bool cScanner::Init(const cDictionary &dict, const string &str)
 			isBlank = false;
 		}
 	}
+
+	// 같은 문자가 3번이상 연속해서 나오면 제거
+	for (int i = 0; i < (int)dst.length() - 3;)
+	{
+		if ((dst[i] == dst[i+1]) 
+			&& (dst[i] == dst[i + 2]))
+		{
+			for (int k = i+1; k < dst.length(); )
+			{
+				if (dst[i] == dst[k])
+					rotatepopvector(dst, k);
+				else
+					break;
+			}
+			rotatepopvector(dst, i);
+		}
+		else
+		{
+			++i;
+		}
+	}
+
 
 	// 짧은 단어들은 제외시킨다.
 	stringstream ss;

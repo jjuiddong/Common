@@ -39,7 +39,8 @@ namespace cvproc {
 			bool Command(const string &cmdFileName);
 			bool CommandStr(const string &cmds);
 			void Cancel();
-			
+			string GetStateString(const STATE state);
+
 
 		protected:
 			struct sTreeMatchData
@@ -69,7 +70,6 @@ namespace cvproc {
 			STATE Delay(const float delaySeconds, const STATE nextState);
 			string GenerateInputID();
 			cMatchResult& GetMatchResult();
-			string GetStateString(const STATE state);
 			STATE NextCommand();
 
 
