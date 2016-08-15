@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "matchprocessor.h"
+#include <shlwapi.h>
 
 
 using namespace cv;
@@ -302,6 +303,20 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 
 	if (m_isLog2)
 		dbg::Log("tesseract recognition time = %d, dictionary = %d \n", t2 - t1, t3 - t2);
+
+	if (t2 - t1 > 200)
+	{// 인식하는데 오래걸리는 것은 파일로 남겨서, 테스트 해본다.
+	 // 중복되지 않는 파일명으로 생성한다.
+		static int imgCnt = 1;
+		string fileName;
+		do
+		{
+			std::stringstream ss;
+			ss << "dbg/ocr_capture" << imgCnt++ << ".jpg";
+			fileName = ss.str();
+		} while (PathFileExistsA(fileName.c_str()));
+		imwrite(fileName.c_str(), deSkew.m_tessImg);
+	}
 
 	bool isDetect = true;
 

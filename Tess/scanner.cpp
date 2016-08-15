@@ -3,6 +3,11 @@
 #include "scanner.h"
 #include "dictionary.h"
 
+namespace tess
+{
+	static const char *g_numStr = "1234567890.";
+}
+
 using namespace tess;
 
 
@@ -63,13 +68,21 @@ bool cScanner::Init(const cDictionary &dict, const string &str)
 		}
 	}
 
-	// 같은 문자가 3번이상 연속해서 나오면 제거
+	// 같은 문자가 3번이상 연속해서 나오면 제거, 
+	// 숫자는 예외
 	for (int i = 0; i < (int)dst.length() - 3;)
 	{
+		const char *n = strchr(g_numStr, dst[i]);
+		if (n) // 숫자는 예외
+		{
+			++i;
+			continue;
+		}
+		
 		if ((dst[i] == dst[i+1]) 
 			&& (dst[i] == dst[i + 2]))
 		{
-			for (int k = i+1; k < dst.length(); )
+			for (int k = i+1; k < (int)dst.length(); )
 			{
 				if (dst[i] == dst[k])
 					rotatepopvector(dst, k);

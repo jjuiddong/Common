@@ -260,6 +260,39 @@ bool cDeSkew::DeSkew(
 			MAX(0, width - 10), 
 			height);
 		m_tessImg = dst(roi);
+		//dilate(m_tessImg, m_tessImg, Mat()); // 검은 반점들을 없앰.
+
+		// 문자영역의 윗부분 노이즈를 제거한다.
+		int culY = 0;
+		for (int i = 0; i < m_tessImg.rows; ++i)
+		{
+			bool checkNextRow = false;
+			uchar *p = m_tessImg.ptr(i) + 10; // 10 pixel 앞으로 전진해서 검사, 왼쪽에 세로로 선이 그어진 경우가 많음.
+			for (int k = 10; k < m_tessImg.cols; ++k, ++p)
+			{
+				if (*p < 200)
+				{
+					if ((abs(m_tessImg.cols - k) / m_tessImg.cols) < 0.2f)
+						break; // 80%  이상 체크했다면, 여기까지 컬링한다.
+
+					checkNextRow = true;
+					break; // check next row
+				}
+			}
+
+			if (!checkNextRow)
+				break;
+
+			++culY;
+			if (m_tessImg.rows / 2 <= culY)
+				break;
+		}
+
+		// 노이즈 영역만큼, 이미지를 짜른다. 노이즈가 너무크면, 문자인식을 하지 않는다.
+		if (culY < m_tessImg.rows / 2)
+			m_tessImg = m_tessImg(Rect(0, culY, m_tessImg.cols, m_tessImg.rows - culY));
+		else
+			m_tessImg = Mat();
 	}
 
 	return true;

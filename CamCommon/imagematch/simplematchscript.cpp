@@ -344,29 +344,51 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			break; // 명령어를 실행한 후, 종료한다.
 		}
 
+		//----------------------------------------------------------------------
+		//     - dilate
+		if (argv[i] == "dilate")
+		{
+			dilate(dst, dst, Mat());
+			continue;
+		}
 
 		//----------------------------------------------------------------------
 		// tess=dictionary file name
 		ZeroMemory(value, sizeof(value));
+		ZeroMemory(value2, sizeof(value2));
 		sscanf(argv[i].c_str(), "tess=%s", value);
-		if (value[0] != NULL)
+		sscanf(argv[i].c_str(), "tess=%s", value2);
+		if ((value[0] != NULL) || (value2[0] != NULL))
 		{
 			// deskew 된 영역의 이미지로 문자 인식을 한다.
 			string srcStr;
 			string fastStr;
 			string result;
-			int t1, t2;
+			int t0, t01, t1, t2;
 			float maxFitness;
 			if (deSkew.m_tessImg.data)
 			{
 				m_tessImg = deSkew.m_tessImg;
+				deSkew.m_tessImg = Mat();				
+				t0 = timeGetTime();
 				srcStr = m_tess.Recognize(m_tessImg);
+				t01 = timeGetTime();
 				result = m_tess.Dictionary2(value, srcStr, fastStr, maxFitness, t1, t2);
 			}
 			else
 			{
+				t0 = timeGetTime();
 				srcStr = m_tess.Recognize(dst);
+				t01 = timeGetTime();
 				result = m_tess.Dictionary2(value, srcStr, fastStr, maxFitness, t1, t2);
+			}
+
+			if (dst.rows < 1080)
+			{
+				Mat tmp(Size(dst.cols, 1080), dst.flags);
+				tmp.setTo(Scalar(255, 255, 255));
+				dst.copyTo(tmp(Rect(0,0,dst.cols, dst.rows)));
+				dst = tmp;
 			}
 
 			Scalar color(0, 0, 255);
@@ -382,7 +404,7 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			putText(dst, common::format("tess result = %s", result.c_str()).c_str(), 
 				Point(0, 150), 1, 2.f, color, 2);
 
-			putText(dst, common::format("tess t1 = %d, t2 = %d", t1, t2).c_str(),
+			putText(dst, common::format("tess recognition time = %d, t1 = %d, t2 = %d", t01-t0, t1, t2).c_str(),
 				Point(0, 180), 1, 2.f, color, 2);
 		}
 
