@@ -6,7 +6,7 @@ using namespace cvproc;
 using namespace cv;
 
 
-cDeSkew::cDeSkew() 
+cDeSkew::cDeSkew()  : m_pts(4)
 {
 }
 
@@ -209,16 +209,34 @@ bool cDeSkew::DeSkew(
 	const Vector3 p2 = (approx[i1].x > approx[i12].x) ? Vector3((float)approx[i1].x, (float)approx[i1].y, 0) : Vector3((float)approx[i12].x, (float)approx[i12].y, 0);
 	const Vector3 p3 = (approx[i2].x < approx[i22].x) ? Vector3((float)approx[i2].x, (float)approx[i2].y, 0) : Vector3((float)approx[i22].x, (float)approx[i22].y, 0);
 	const Vector3 p4 = (approx[i2].x > approx[i22].x) ? Vector3((float)approx[i2].x, (float)approx[i2].y, 0) : Vector3((float)approx[i22].x, (float)approx[i22].y, 0);
+	const Vector3 _p1 = (p1.y < p3.y) ? p1 : p3;
+	const Vector3 _p2 = (p1.y < p3.y) ? p2 : p4;
+	const Vector3 _p3 = (p1.y < p3.y) ? p3 : p1;
+	const Vector3 _p4 = (p1.y < p3.y) ? p4 : p2;
+
 	Vector3 v = p2 - p1;
 	v.Normalize();
 	double angle = RAD2ANGLE(acos(v.DotProduct(Vector3(1, 0, 0))));
 	if (v.y < 0)
 		angle = -angle;
 
-	m_pts[0] = Point((int)p1.x, (int)p1.y);
-	m_pts[1] = Point((int)p2.x, (int)p2.y);
-	m_pts[2] = Point((int)p4.x, (int)p4.y);
-	m_pts[3] = Point((int)p3.x, (int)p3.y);
+	// 두 선의 길이가 거의 같다면, 4점을 기준으로 skew를 한다.
+	const int diffLen = abs((p1 - p2).Length() - (p3 - p4).Length());
+	if (diffLen < 20)
+	{
+		m_pts[0] = Point((int)_p1.x, (int)_p1.y);
+		m_pts[1] = Point((int)_p2.x, (int)_p2.y);
+		m_pts[2] = Point((int)_p4.x, (int)_p4.y);
+		m_pts[3] = Point((int)_p3.x, (int)_p3.y);
+	}
+	else
+	{
+		// 사각형을 만들어 skew 한다.
+		m_pts[0] = Point((int)_p1.x, (int)_p1.y);
+		m_pts[1] = Point((int)_p2.x, (int)_p2.y);
+		m_pts[2] = Point((int)_p2.x, (int)_p4.y);
+		m_pts[3] = Point((int)_p1.x, (int)_p3.y);
+	}
 
 	m_deSkewPoint1 = Point((int)p1.x, (int)p1.y);
 	m_deSkewPoint2 = Point((int)p3.x, (int)p3.y);
@@ -238,62 +256,113 @@ bool cDeSkew::DeSkew(
 			bottom = pos.y;
 	}
 
-	if (deSkewDebug == 0)
-	{
-		const Rect roi(left, top, abs(right - left), abs(bottom - top));
-		if (roi.width <= 0)
-			return false;
-		if (roi.height <= 0)
-			return false;
-
-		const Mat affine_matrix = getRotationMatrix2D(Point(roi.width/2, roi.height/2), angle, 1);
-		Mat tmp2 = tmp(roi);
-		warpAffine(tmp2, dst, affine_matrix, dst.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar::all(255));
-	}
-
 	if (isTesseractOcr)
 	{
 		const int height = (int)(abs(p3.y - p1.y) * cos(ANGLE2RAD(angle)));
-		const int width = abs(right - left);
-		Rect roi(0, 
-			MAX(0, abs(bottom - top) / 2 - height / 2),
-			MAX(0, width - 10), 
-			height);
-		m_tessImg = dst(roi);
-		//dilate(m_tessImg, m_tessImg, Mat()); // 검은 반점들을 없앰.
+		cRectContour rect(m_pts);
+		cSkewDetect skewDetect;
+		skewDetect.Init(rect, 1.f, rect.Width(), height);
+		m_tessImg = skewDetect.Transform(tmp);
 
-		// 문자영역의 윗부분 노이즈를 제거한다.
-		int culY = 0;
-		for (int i = 0; i < m_tessImg.rows; ++i)
-		{
-			bool checkNextRow = false;
-			uchar *p = m_tessImg.ptr(i) + 10; // 10 pixel 앞으로 전진해서 검사, 왼쪽에 세로로 선이 그어진 경우가 많음.
-			for (int k = 10; k < m_tessImg.cols; ++k, ++p)
-			{
-				if (*p < 200)
-				{
-					if ((abs(m_tessImg.cols - k) / m_tessImg.cols) < 0.2f)
-						break; // 80%  이상 체크했다면, 여기까지 컬링한다.
-
-					checkNextRow = true;
-					break; // check next row
-				}
-			}
-
-			if (!checkNextRow)
-				break;
-
-			++culY;
-			if (m_tessImg.rows / 2 <= culY)
-				break;
-		}
-
+		// 위 아래 노이즈를 제거한다.
+		const int culTop = CullingTop(m_tessImg);
+		const int culBottom = CullingBottom(m_tessImg);
+		const int culT = (culTop < m_tessImg.rows / 2) ? culTop : 0;
+		const int culB = (culBottom > m_tessImg.rows / 2) ? culBottom : m_tessImg.rows;
 		// 노이즈 영역만큼, 이미지를 짜른다. 노이즈가 너무크면, 문자인식을 하지 않는다.
-		if (culY < m_tessImg.rows / 2)
-			m_tessImg = m_tessImg(Rect(0, culY, m_tessImg.cols, m_tessImg.rows - culY));
-		else
-			m_tessImg = Mat();
+		if (culB - culT != m_tessImg.rows) // 크기의 변화가 있을 때만
+			m_tessImg = m_tessImg(Rect(0, culT, m_tessImg.cols, culB-culT));
 	}
 
 	return true;
+}
+
+
+// return culling top position
+int cDeSkew::CullingTop(const Mat &src)
+{
+	int culTop = 0;
+	int culRight = 0;
+	int culRightMinY = 0;
+	for (int i = 0; i < src.rows; ++i)
+	{
+		bool checkNextRow = false;
+		const uchar *p = src.ptr(i) + 100; // 100 pixel 앞으로 전진해서 검사, 왼쪽에 세로로 선이 그어진 경우가 많음.
+		for (int k = 100; k < src.cols; ++k, ++p)
+		{
+			if (*p < 200)
+			{
+				// 노이즈가 발생한 위치를 저장한다. 가장 먼 위치 저장
+				if (k > culRight)
+				{
+					culRight = k;
+					culRightMinY = culTop;
+				}
+
+				checkNextRow = true;
+				break; // check next row
+			}
+		}
+
+		if (!checkNextRow)
+			break;
+
+		++culTop;
+		if (src.rows / 2 <= culTop)
+			break;
+	}
+
+	// 노이즈 체크, culY가 크다면, 노이즈가 적었던 위치에서 컬링한다.
+	// 제한조건: 노이즈 위치가 너비의 20% 이하 일때.
+	if ((culTop >= src.rows / 2)
+		&& (((float)abs(src.cols - culRight) / (float)src.cols) < 0.2f))
+		culTop = culRightMinY;
+
+	return culTop;
+}
+
+
+// return culling bottom position
+int cDeSkew::CullingBottom(const Mat &src)
+{
+	int culBottom = src.rows;
+	int culRight = 0;
+	int culRightMinY = 0;
+
+	// 아래에서 위로 검사한다.
+	for (int i = src.rows-1; i >= 0; --i)
+	{
+		bool checkNextRow = false;
+		const uchar *p = src.ptr(i) + 10; // 10 pixel 앞으로 전진해서 검사, 왼쪽에 세로로 선이 그어진 경우가 많음.
+		for (int k = 10; k < src.cols; ++k, ++p)
+		{
+			if (*p < 200)
+			{
+				// 노이즈가 발생한 위치를 저장한다. 가장 먼 위치 저장
+				if (k > culRight)
+				{
+					culRight = k;
+					culRightMinY = culBottom;
+				}
+
+				checkNextRow = true;
+				break; // check next row
+			}
+		}
+
+		if (!checkNextRow)
+			break;
+
+		--culBottom;
+		if (src.rows / 2 >= culBottom)
+			break;
+	}
+
+	// 노이즈 체크, culY가 크다면, 노이즈가 적었던 위치에서 컬링한다.
+	// 제한조건: 노이즈 위치가 너비의 20% 이하 일때.
+	if ((culBottom >= src.rows / 2)
+		&& (((float)abs(src.cols - culRight) / (float)src.cols) < 0.2f))
+		culBottom = culRightMinY;
+
+	return culBottom;
 }

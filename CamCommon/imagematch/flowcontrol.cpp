@@ -344,7 +344,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 	if ((matchResult.m_result <= 0) || matchResult.m_resultStr.empty())
 	{
 		// 인식에 실패하면 다시 시도한다
-		return Delay(0, CAPTURE_ERR);
+		return Delay(0, CAPTURE_MENU);
 	}
 
 	const bool isSkipCapture = m_detectNode->sceneId == m_nextNode->sceneId;
@@ -415,7 +415,8 @@ cFlowControl::STATE cFlowControl::OnMenu(const cv::Mat &img, OUT int &key)
 			key = (m_detectNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_LEFT : VK_UP;
 		}
 
-		return Delay(0.2f, MENU_MOVE);
+		//return Delay(0.1f, MENU_MOVE);
+		return Delay(0.1f, CAPTURE_MENU);
 	}
 
 	return m_state;

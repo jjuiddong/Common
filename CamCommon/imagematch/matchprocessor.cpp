@@ -273,25 +273,61 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	const cv::Mat &input = arg.matchResult->m_input;
 	const string &inputName = arg.matchResult->m_inputName;
 	const int inputImageId = arg.matchResult->m_inputImageId;
-	//sParseTree *parent = arg.parent;
+	sParseTree *parent = arg.parent;
 	sParseTree *node = arg.node;
 	//cv::Mat *out = arg.out;
 
-	const Mat *src = &input;
+	if (node->IsEmptyHsv())
+		return 0;
 
-	if (!node->IsEmptyBgr())
+	// roi x,y,w,h
+	cv::Rect roi(0, 0, input.cols, input.rows);
+	if (!node->IsEmptyRoi())
+		roi = { node->roi[0], node->roi[1], node->roi[2], node->roi[3] };
+	if (node->isRelation && parent)
 	{
-		src = &loadScalarImage(inputName, inputImageId, Scalar(node->scalar[0], node->scalar[1], node->scalar[2]), node->scale); // BGR
+		roi.x += parent->matchLoc.x;
+		roi.y += parent->matchLoc.y;
 	}
 
-	if (!node->IsEmptyHsv())
+	// roi limit check
+	roi.x = max(0, roi.x);
+	roi.y = max(0, roi.y);
+	if (input.cols < roi.x + roi.width)
+		roi.width = input.cols - roi.x;
+	if (input.rows < roi.y + roi.height)
+		roi.height = input.rows - roi.y;
+
+	if ((roi.width < 0) || (roi.height < 0))
 	{
-		src = &loadHsvImage(inputName, inputImageId, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]));
+		// too small source image
+		return 0;
 	}
+
+	if (node->IsEmptyHsv())
+		return 0;
+
+	//-------------------------------------------------------------------------------------------------------------------------------------------
+	// Convert HSV
+	Mat &colorSrc = loadImage(string("color") + inputName);
+	if (!colorSrc.data)
+		return 0;
+
+	Mat dst;
+	if ((roi.width != colorSrc.cols) || (roi.height != colorSrc.rows))
+		dst = colorSrc(roi).clone();
+	else
+		dst = colorSrc.clone();
+
+	cvtColor(dst, dst, CV_BGR2HSV);
+	inRange(dst, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]), dst);
+	//-------------------------------------------------------------------------------------------------------------------------------------------
+
 
 	cDeSkew deSkew;
-	Mat dst = src->clone();
+	const int t0_1 = timeGetTime();
 	deSkew.DeSkew(dst, 0.005f, 0, true);
+	const int t0_2 = timeGetTime();
 
 	float maxFitness = -FLT_MAX;
 	tess::cTessWrapper *tess = GetTesseract();
@@ -302,7 +338,10 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	const int t3 = timeGetTime();
 
 	if (m_isLog2)
-		dbg::Log("tesseract recognition time = %d, dictionary = %d \n", t2 - t1, t3 - t2);
+	{
+		dbg::Log("tesseract recognition deskew = %d, recog time = %d, dictionary = %d, dict = %s, src = %s, result = %s, maxFitness = %3.3f  \n", 
+			t0_2 - t0_1, t2 - t1, t3 - t2, node->name, srcStr.c_str(), result.c_str(), maxFitness);
+	}
 
 	if (t2 - t1 > 200)
 	{// 인식하는데 오래걸리는 것은 파일로 남겨서, 테스트 해본다.
@@ -312,7 +351,7 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 		do
 		{
 			std::stringstream ss;
-			ss << "dbg/ocr_capture" << imgCnt++ << ".jpg";
+			ss << "dbg/ocr_capture" << imgCnt++ << "_" << (t2-t1) << ".jpg";
 			fileName = ss.str();
 		} while (PathFileExistsA(fileName.c_str()));
 		imwrite(fileName.c_str(), deSkew.m_tessImg);
@@ -347,14 +386,6 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 		const int MAX_STR_LEN = sizeof(arg.matchResult->m_data[node->id].str);
 		ZeroMemory(arg.matchResult->m_data[node->id].str, MAX_STR_LEN);
 		memcpy(arg.matchResult->m_data[node->id].str, result.c_str(), MIN(result.length(), MAX_STR_LEN - 1));
-
-		if (m_isLog2)
-			dbg::Log("executeOcr detect src=%s, result=%s, maxFitness=%3.3f \n", srcStr.c_str(), result.c_str(), maxFitness);
-	}
-	else
-	{
-		if (m_isLog2)
-			dbg::Log("executeOcr not detect src = %s, result=%s, maxFitness=%3.3f \n", srcStr.c_str(), result.c_str(), maxFitness);
 	}
 
 	// 성공이든, 실패든, 매칭된 위치는 저장한다.
@@ -737,8 +768,16 @@ tess::cTessWrapper* cMatchProcessor::GetTesseract()
 {
 	AutoCSLock cs(m_tessCS);
 
+	const int MAX_TESS = 16;
+	if ((m_tessIdx >= (int)m_tess.size()) && (m_tess.size() < MAX_TESS))
+	{
+		tess::cTessWrapper *p = new tess::cTessWrapper();
+		p->Init("./", "eng", "dictionary.txt");
+		m_tess.push_back(p);
+	}
+
 	tess::cTessWrapper *p = m_tess[m_tessIdx++];
-	if ((int)m_tess.size() <= m_tessIdx)
+	if (MAX_TESS <= m_tessIdx)
 		m_tessIdx = 0;
 
 	return p;

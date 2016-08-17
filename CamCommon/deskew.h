@@ -19,6 +19,11 @@ namespace cvproc
 			const int deSkewDebug=0, const bool isTesseractOcr=false);
 
 
+	protected:
+		int CullingTop(const cv::Mat &src);
+		int CullingBottom(const cv::Mat &src);
+
+
 	public:
 		cv::Mat m_tessImg;
 
@@ -36,7 +41,7 @@ namespace cvproc
 		// |                 |
 		// |                 |
 		// p4 -------- p3
-		cv::Point m_pts[4];
+		vector<cv::Point> m_pts;
 	};
 
 }
