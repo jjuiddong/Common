@@ -45,6 +45,7 @@ namespace cvproc {
 			int m_curIdx;
 			int m_beginMatchTime;
 			tess::cTessWrapper m_tess;
+			CriticalSection m_processCS;
 		};
 
 } }

@@ -22,7 +22,8 @@ namespace cvproc {
 			float threshold; // match max threshold, {threshold_0.1 ~ threshold_0.9 ~~ etc}
 			int matchType; // 0:templateMatch, 1:featureMatch, 2:ocr match {templatematch or featurematch or tesseract ocr}
 			int scalar[3]; // BGR
-			int hsv[6]; // hsv
+			int hsv[3][6]; // hsv1~3
+			int hls[3][6]; // hls1~3
 			float scale; // BGR x Scale
 			int lineNum; // for error message
 			int result;	// for match traverse, only use excute tree, -1:not visit, 0:fail, 1:success, 2:finale success
@@ -56,9 +57,26 @@ namespace cvproc {
 				return !roi[0] && !roi[1] && !roi[2] && !roi[3];
 			}
 
-			bool IsEmptyHsv() const {
-				return !hsv[0] && !hsv[1] && !hsv[2] &&
-					!hsv[3] && !hsv[4] && !hsv[5];
+			bool IsEmptyHsv(const int idx) const {
+				return !hsv[idx][0] && !hsv[idx][1] && !hsv[idx][2] &&
+					!hsv[idx][3] && !hsv[idx][4] && !hsv[idx][5];
+			}
+
+			bool IsEmptyHls(const int idx) const {
+				return !hls[idx][0] && !hls[idx][1] && !hls[idx][2] &&
+					!hls[idx][3] && !hls[idx][4] && !hls[idx][5];
+			}
+
+			bool IsEmptyCvt() const {
+				for (int i = 0; i < 3; ++i)
+					if (!IsEmptyHsv(i))
+						return false;
+
+				for (int i = 0; i < 3; ++i)
+					if (!IsEmptyHls(i))
+						return false;
+
+				return true;
 			}
 
 			bool IsEmptyBgr() const {

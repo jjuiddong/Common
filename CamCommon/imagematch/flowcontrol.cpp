@@ -194,7 +194,7 @@ cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 		cMatchProcessor::Get()->Match(matchResult);
 		
 		data.result = matchResult.m_resultStr;
-		data.node = m_flowScript.Find(matchResult.m_resultStr);
+		data.node = m_flowScript.Find(m_detectNode, matchResult.m_resultStr);
 
  		if (m_isLog)
  			dbg::Log("cFlowControl::OnProc result=%s, loop=%d, time=%d\n", data.result.c_str(), 

@@ -45,10 +45,14 @@ cSimpleMatchScript::~cSimpleMatchScript()
 string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const string &script
 	,const string &label_select, const string &capture_select, const string &tree_label) // label_select="", tree_label=""
 {
-	//RETV(!src.data, "data is empty");
+	AutoCSLock cs(m_processCS);
 
+	m_src = src.clone(); // 결과 정보를 출력할 때, 쓰임
 	dst = src.clone();
 	m_tessImg = Mat();
+
+	vector<Mat> accMat;
+	accMat.reserve(8);
 
 	// 공백, 개행문자 기준으로 분리
 	vector<string> argv0;
@@ -79,6 +83,16 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			continue;
 		}
 
+		//----------------------------------------------------------------------
+		// rect=x,y,width,height
+		cv::Rect rect = { 0,0,0,0 };
+		sscanf(argv[i].c_str(), "rect=%d,%d,%d,%d", &rect.x, &rect.y, &rect.width, &rect.height);
+		if (rect.area() > 0)
+		{
+			cRectContour r(rect);
+			r.Draw(dst, Scalar(0, 0, 255), 2);
+			continue;
+		}
 
 		//----------------------------------------------------------------------
 		//     - bgr=num1,num2,num3
@@ -118,6 +132,29 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			continue;
 		}
 
+		//----------------------------------------------------------------------
+		int  thresh1 = 0;
+		sscanf(argv[i].c_str(), "threshold=%d", &thresh1);
+		if (thresh1 > 0)
+		{
+			if (dst.data && (dst.channels() >= 3))
+				cvtColor(dst, dst, CV_BGR2GRAY);
+			threshold(dst, dst, thresh1, 255, CV_THRESH_BINARY);
+			continue;
+		}
+
+
+		//----------------------------------------------------------------------
+		double thresh_c = 0;
+		int block_size = 0;
+		sscanf(argv[i].c_str(), "adapthreshold=%d,%lf", &block_size, &thresh_c);
+		if (thresh_c > 0)
+		{
+			if (dst.data && (dst.channels() >= 3))
+				cvtColor(dst, dst, CV_BGR2GRAY);
+			adaptiveThreshold(dst, dst, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, block_size, thresh_c);
+			continue;
+		}
 
 		//----------------------------------------------------------------------
 		int  thresh = 0;
@@ -143,7 +180,37 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 				cvtColor(dst, dst, CV_BGR2HSV);
 				inRange(dst, cv::Scalar(hsv[0], hsv[1], hsv[2]), cv::Scalar(hsv[3], hsv[4], hsv[5]), dst);
 				cvtColor(dst, dst, CV_GRAY2BGR);
-				//GaussianBlur(dst, dst, cv::Size(9, 9), 2, 2);
+				accMat.push_back(dst.clone());
+			}
+			continue;
+		}
+
+
+		//----------------------------------------------------------------------
+		//     - hls=num1,num2,num3,num4,num5,num6
+		//         - hsv converting, inRange( Scalar(num1,num2,num3), Scalar(num4,num5,num6) )
+		int hsl[6] = { 0,0,0, 0,0,0 }; // inrage
+		sscanf(argv[i].c_str(), "hls=%d,%d,%d,%d,%d,%d", hsl, hsl + 1, hsl + 2, hsl + 3, hsl + 4, hsl + 5);
+		if ((hsl[0] != 0) || (hsl[1] != 0) || (hsl[2] != 0) || (hsl[3] != 0) || (hsl[4] != 0) || (hsl[5] != 0))
+		{
+			if (dst.data)
+			{
+				cvtColor(dst, dst, CV_BGR2HLS);
+				inRange(dst, cv::Scalar(hsl[0], hsl[1], hsl[2]), cv::Scalar(hsl[3], hsl[4], hsl[5]), dst);
+				cvtColor(dst, dst, CV_GRAY2BGR);
+				accMat.push_back(dst.clone());
+			}
+			continue;
+		}
+
+		if (argv[i] == "acc" && !accMat.empty())
+		{
+			if (!accMat.empty())
+			{
+				Mat tmp(accMat.front().rows, accMat.front().cols, accMat.front().flags);
+				for each (auto &m in accMat)
+					tmp += m;
+				dst = tmp;
 			}
 			continue;
 		}
@@ -155,13 +222,15 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 		sscanf(argv[i].c_str(), "img=%s", value);
 		if (value[0] != NULL)
 		{
-			src = imread((string("@capture_select") == value) ? capture_select.c_str() : value);
-			if (!src.data)
+			dst = imread((string("@capture_select") == value) ? capture_select.c_str() : value);
+			if (!dst.data)
 			{
 				errMsg = "Not Found Capture Image \n";
 				return errMsg; // 실패시 종료.
 			}
-			dst = src.clone();
+
+			m_src = dst.clone();
+			src = dst.clone();
 		}
 
 
@@ -196,7 +265,7 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 
 
 		//----------------------------------------------------------------------
-		// canny=threshold2
+		// canny=threshold
 		ZeroMemory(value, sizeof(value));
 		sscanf(argv[i].c_str(), "canny=%s", value);
 		if (value[0] != NULL)
@@ -330,7 +399,7 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			char *valueTmp = (value[0] != NULL) ? value : value2;
 			const string treeLabelName = (string("@tree_label") == valueTmp) ? tree_label : valueTmp;
 
-			m_src = src.clone(); // 결과 정보를 출력할 때, 쓰임
+			//m_src = src.clone(); // 결과 정보를 출력할 때, 쓰임
 			m_matchResult[m_curIdx].Init(m_matchScript, dst, treeLabelName, 0,
 				(sParseTree*)m_matchScript->FindTreeLabel(treeLabelName), 
 				true, false);
@@ -351,6 +420,15 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 			dilate(dst, dst, Mat());
 			continue;
 		}
+
+		//----------------------------------------------------------------------
+		//     - erode
+		if (argv[i] == "erode")
+		{
+			erode(dst, dst, Mat());
+			continue;
+		}
+
 
 		//----------------------------------------------------------------------
 		// tess=dictionary file name
@@ -445,6 +523,8 @@ cMatchResult& cSimpleMatchScript::GetCurrentMatchResult()
 // 결과정보를 갱신한다.
 bool cSimpleMatchScript::UpdateMatchResult(OUT cv::Mat &dst)
 {
+	AutoCSLock cs(m_processCS);
+
 	dst = m_src.clone();
 
 	// 결과 정보 출력

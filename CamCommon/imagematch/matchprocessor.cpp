@@ -11,6 +11,35 @@ using namespace cvproc::imagematch;
 Mat cMatchProcessor::m_nullMat; // static 변수 선언
 
 
+bool cMatchProcessor::sCvtKey::operator<(const sCvtKey&rhs) const 
+{
+	if (key1 < rhs.key1)
+	{
+		return true;
+	}
+	else 	if (key1 == rhs.key1)
+	{
+		if (key2 < rhs.key2)
+			return true;
+		else if (key2 == rhs.key2)
+			return key3 < rhs.key3;
+		else
+			return false;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
+bool cMatchProcessor::sCvtKey::operator==(const sCvtKey&rhs) const 
+{
+	return (key1 == rhs.key1) && (key2 == rhs.key2) && (key3 == rhs.key3);
+}
+
+
+
 cMatchProcessor::cMatchProcessor()
 	: m_detector(cv::xfeatures2d::SURF::create(400))
 	, m_isMatchThreadLoop(false)
@@ -183,9 +212,9 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 	}
 
 	// hsv match
-	if (!node->IsEmptyHsv())
+	if (!node->IsEmptyCvt())
 	{
-		src = &loadHsvImage(inputName, inputImageId, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]));
+		src = &loadCvtImageAcc(inputName, inputImageId, node);
 	}
 
 	if (!src->data)
@@ -277,7 +306,7 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	sParseTree *node = arg.node;
 	//cv::Mat *out = arg.out;
 
-	if (node->IsEmptyHsv())
+	if (node->IsEmptyHsv(0))
 		return 0;
 
 	// roi x,y,w,h
@@ -304,9 +333,6 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 		return 0;
 	}
 
-	if (node->IsEmptyHsv())
-		return 0;
-
 	//-------------------------------------------------------------------------------------------------------------------------------------------
 	// Convert HSV
 	Mat &colorSrc = loadImage(string("color") + inputName);
@@ -320,7 +346,7 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 		dst = colorSrc.clone();
 
 	cvtColor(dst, dst, CV_BGR2HSV);
-	inRange(dst, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]), dst);
+	inRange(dst, Scalar(node->hsv[0][0], node->hsv[0][1], node->hsv[0][2]), Scalar(node->hsv[0][3], node->hsv[0][4], node->hsv[0][5]), dst);
 	//-------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -453,30 +479,134 @@ cv::Mat& cMatchProcessor::loadScalarImage(const string &fileName, const int imag
 }
 
 
-Mat& cMatchProcessor::loadHsvImage(const string &fileName, const int imageId, const cv::Scalar &hsv1, const cv::Scalar &hsv2)
-{
-	// make key
-	const __int64 key = ((__int64)hsv1[0]) << 16 | ((__int64)hsv1[1]) << 8 | ((__int64)hsv1[2]) |
-		((__int64)hsv2[0]) << 40 | ((__int64)hsv2[1]) << 32 | ((__int64)hsv2[2]) << 24 |
-		((__int64)imageId << 48);
+// Mat& cMatchProcessor::loadHsvImage(const string &fileName, const int imageId, const cv::Scalar &hsv1, const cv::Scalar &hsv2)
+// {
+// 	// make key
+// 	const __int64 key = ((__int64)hsv1[0]) << 16 | ((__int64)hsv1[1]) << 8 | ((__int64)hsv1[2]) |
+// 		((__int64)hsv2[0]) << 40 | ((__int64)hsv2[1]) << 32 | ((__int64)hsv2[2]) << 24 |
+// 		((__int64)imageId << 48);
+// 
+// 	AutoCSLock cs(m_loadHsvImgCS);
+// 	auto it = m_hsvImgTable.find(key);
+// 	if (m_hsvImgTable.end() != it)
+// 		return *it->second;
+// 
+// 	Mat &src = loadImage(string("color") + fileName);
+// 	if (!src.data)
+// 		return m_nullMat;
+// 
+// 	Mat *mat = new Mat();
+// 	*mat = src.clone();
+// 	cvtColor(src, *mat, CV_BGR2HSV);
+// 	inRange(*mat, hsv1, hsv2, *mat);
+// 
+// 	m_hsvImgTable[key] = mat;
+// 	return *mat;
+// }
 
-	AutoCSLock cs(m_loadHsvImgCS);
-	auto it = m_hsvImgTable.find(key);
-	if (m_hsvImgTable.end() != it)
+
+cv::Mat& cMatchProcessor::loadCvtImageAcc(const string &fileName, const int imageId, sParseTree *node)
+{
+	RETV(!node, m_nullMat);
+
+	// make key
+	__int64 keys[6] = { 0,0,0, 0,0,0 };
+	int keyCnt = 0;
+	for (int i = 0; i < 3; ++i)
+	{
+		if (!node->IsEmptyHsv(i))
+		{
+			const __int64 key = ((__int64)node->hsv[i][0]) << 16 | ((__int64)node->hsv[i][1]) << 8 | ((__int64)node->hsv[i][2]) |
+				((__int64)node->hsv[i][3]) << 40 | ((__int64)node->hsv[i][4]) << 32 | ((__int64)node->hsv[i][5]) << 24 |
+				((__int64)imageId << 48);
+			keys[keyCnt++] = key;
+		}
+	}
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (!node->IsEmptyHls(i))
+		{
+			const __int64 key = ((__int64)node->hls[i][0]) << 16 | ((__int64)node->hls[i][1]) << 8 | ((__int64)node->hls[i][2]) |
+				((__int64)node->hls[i][3]) << 40 | ((__int64)node->hls[i][4]) << 32 | ((__int64)node->hls[i][5]) << 24 |
+				((__int64)imageId << 48);
+			keys[keyCnt++] = key;
+		}
+	}
+	
+	AutoCSLock cs(m_loadHsvImgCS);	
+	auto it = m_cvtImgTable.find({ keys[0], keys[1],keys[2] });
+	if (m_cvtImgTable.end() != it)
 		return *it->second;
 
 	Mat &src = loadImage(string("color") + fileName);
 	if (!src.data)
 		return m_nullMat;
 
-	Mat *mat = new Mat();
-	*mat = src.clone();
-	cvtColor(src, *mat, CV_BGR2HSV);
-	inRange(*mat, hsv1, hsv2, *mat);
-	//GaussianBlur(*mat, *mat, cv::Size(9, 9), 2, 2);
+	Mat *dst = NULL;
 
-	m_hsvImgTable[key] = mat;
-	return *mat;
+	// hsv conversion
+	{
+		Mat hsv;
+		for (int i = 0; i < 3; ++i)
+		{
+			if (!node->IsEmptyHsv(i))
+			{
+				if (!hsv.data)
+					cvtColor(src, hsv, CV_BGR2HSV);
+
+				Mat tmp;
+				inRange(hsv
+					, Scalar(node->hsv[i][0], node->hsv[i][1], node->hsv[i][2])
+					, Scalar(node->hsv[i][3], node->hsv[i][4], node->hsv[i][5])
+					, tmp);
+
+				if (!dst)
+				{
+					dst = new Mat();
+					*dst = Mat::zeros(src.rows, src.cols, tmp.flags);
+				}
+
+				*dst += tmp;
+			}
+		}
+	}
+
+	// hsl conversion
+	{
+		Mat hls;
+		for (int i = 0; i < 3; ++i)
+		{
+			if (!node->IsEmptyHls(i))
+			{
+				if (!hls.data)
+					cvtColor(src, hls, CV_BGR2HLS);
+
+				Mat tmp;
+				inRange(hls
+					, Scalar(node->hls[i][0], node->hls[i][1], node->hls[i][2])
+					, Scalar(node->hls[i][3], node->hls[i][4], node->hls[i][5])
+					, tmp);
+
+				if (!dst)
+				{
+					dst = new Mat();
+					*dst = Mat::zeros(src.rows, src.cols, tmp.flags);
+				}
+
+				*dst += tmp;
+			}
+		}
+	}
+
+	if (keyCnt > 1)
+	{
+		threshold(*dst, *dst, 240, 255, CV_THRESH_BINARY);
+		erode(*dst, *dst, Mat());
+	}
+
+	m_cvtImgTable[{ keys[0], keys[1], keys[2] }] = dst;
+	return *dst;
 }
 
 
@@ -661,20 +791,36 @@ void cMatchProcessor::RemoveHsvImage(const int imageId)
 {
 	AutoCSLock cs(m_loadHsvImgCS);
 
-	auto it = m_hsvImgTable.begin();
-	while (m_hsvImgTable.end() != it)
+// 	auto it = m_hsvImgTable.begin();
+// 	while (m_hsvImgTable.end() != it)
+// 	{
+// 		const int id = (int)(it->first >> 48);
+// 		if (id == imageId)
+// 		{
+// 			delete it->second;
+// 			m_hsvImgTable.erase(it++);
+// 		}
+// 		else
+// 		{
+// 			++it;
+// 		}
+// 	}
+
+	auto it = m_cvtImgTable.begin();
+	while (m_cvtImgTable.end() != it)
 	{
-		const int id = (int)(it->first >> 48);
+		const int id = (int)(it->first.key1 >> 48);
 		if (id == imageId)
 		{
 			delete it->second;
-			m_hsvImgTable.erase(it++);
+			m_cvtImgTable.erase(it++);
 		}
 		else
 		{
 			++it;
 		}
 	}
+
 }
 
 
@@ -709,9 +855,13 @@ void cMatchProcessor::ClearMemPool()
 
 	{
 		AutoCSLock cs(m_loadHsvImgCS);
-		for each (auto it in m_hsvImgTable)
+// 		for each (auto it in m_hsvImgTable)
+// 			delete it.second;
+// 		m_hsvImgTable.clear();
+
+		for each (auto it in m_cvtImgTable)
 			delete it.second;
-		m_hsvImgTable.clear();
+		m_cvtImgTable.clear();
 	}
 }
 

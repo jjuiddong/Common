@@ -163,26 +163,14 @@ void cMatchScript2::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 	if (attribs.empty())
 		return;
 
-	// check threshold
-	for (int i = 0; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("threshold_");
-		if (string::npos != pos)
-		{
-			// threshold 값 설정
-			const int valPos = attribs[i].find("_");
-			const float threshold = (float)atof(attribs[i].substr(valPos + 1).c_str());
-			node->threshold = threshold;
-
-			// remove threshold attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
-		}
-	}
+	vector<int> rmIdices; // remove attribute index array
+	int hsvCnt = 0;
+	int hlsCnt = 0;
 
 	// check match type
 	node->matchType = -1; // defautl value is -1
+
+	// check threshold
 	for (int i = 0; i < (int)attribs.size(); ++i)
 	{
 		const int pos1 = attribs[i].find("featurematch");
@@ -196,68 +184,57 @@ void cMatchScript2::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 				node->matchType = 0;
 			if (string::npos != pos3)
 				node->matchType = 2;
-
-			// remove threshold attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
+			rmIdices.push_back(i);
 		}
-	}
-
-	// check scalar
-	// scalar_255_0_255_1.5
-	for (int i = 0; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("scalar_");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("threshold_"))
 		{
 			// threshold 값 설정
 			const int valPos = attribs[i].find("_");
-			sscanf(attribs[i].c_str(), "scalar_%d_%d_%d_%f", &node->scalar[0], &node->scalar[1], &node->scalar[2], &node->scale);
-
-			// remove threshold attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
+			const float threshold = (float)atof(attribs[i].substr(valPos + 1).c_str());
+			node->threshold = threshold;
+			rmIdices.push_back(i);
 		}
-	}
-
-	// check hsv
-	// hsv_40_40_255_120_255_255
-	for (int i = 0; i < (int)attribs.size(); ++i)
-	{
-		const int pos = attribs[i].find("hsv_");
-		if (string::npos != pos)
+		else if (string::npos != attribs[i].find("scalar_"))
 		{
-			// hsv 값 설정
+			// scalar_255_0_255_1.5
 			const int valPos = attribs[i].find("_");
-			sscanf(attribs[i].c_str(), "hsv_%d_%d_%d_%d_%d_%d", &node->hsv[0], &node->hsv[1], &node->hsv[2], 
-				&node->hsv[3], &node->hsv[4], &node->hsv[5] );
-
-			// remove threshold attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
+			sscanf(attribs[i].c_str(), "scalar_%d_%d_%d_%f", &node->scalar[0], &node->scalar[1], &node->scalar[2], &node->scale);
+			rmIdices.push_back(i);
 		}
-	}
-
-
-	// string table
-	for (int i = 0; i < (int)attribs.size(); ++i)
-	{
-		if (vector<string> *table = m_parser.GetSymbol2(attribs[i]))
+		else if (string::npos != attribs[i].find("hsv_"))
+		{
+			// hsv_40_40_255_120_255_255
+			if (hsvCnt < 3)
+			{
+				sscanf(attribs[i].c_str(), "hsv_%d_%d_%d_%d_%d_%d", &node->hsv[hsvCnt][0], &node->hsv[hsvCnt][1], &node->hsv[hsvCnt][2],
+					&node->hsv[hsvCnt][3], &node->hsv[hsvCnt][4], &node->hsv[hsvCnt][5]);
+			}
+			++hsvCnt;
+			rmIdices.push_back(i);
+		}
+		else if (string::npos != attribs[i].find("hls_"))
+		{
+			// hls_40_40_255_120_255_255
+			if (hlsCnt < 3)
+			{
+				sscanf(attribs[i].c_str(), "hls_%d_%d_%d_%d_%d_%d", &node->hls[hlsCnt][0], &node->hls[hlsCnt][1], &node->hls[hlsCnt][2],
+					&node->hls[hlsCnt][3], &node->hls[hlsCnt][4], &node->hls[hlsCnt][5]);
+			}
+			++hlsCnt;
+			rmIdices.push_back(i);
+		}
+		else if (vector<string> *table = m_parser.GetSymbol2(attribs[i]))
 		{
 			// string table 설정
 			node->table = table;
-
-			// remove threshold attribute
-			std::rotate(attribs.begin() + i, attribs.begin() + i + 1, attribs.end());
-			attribs.pop_back();
-			break;
+			rmIdices.push_back(i);
 		}
 	}
 
 	strcpy_s(node->name, attribs[0].c_str());
+
+	for (int i = rmIdices.size() - 1; i >= 0; --i)
+		rotatepopvector(attribs, rmIdices[i]);
 
 	if (node->type == 0) // tree
 	{
@@ -309,9 +286,9 @@ void cMatchScript2::GetCloneMatchingArea(const Mat &input, const string &inputNa
 	}
 
 	// hsv match
-	if (!node->IsEmptyHsv())
+	if (!node->IsEmptyCvt())
 	{
-		src = &cMatchProcessor::Get()->loadHsvImage(inputName, inputImageId, Scalar(node->hsv[0], node->hsv[1], node->hsv[2]), Scalar(node->hsv[3], node->hsv[4], node->hsv[5]));
+		src = &cMatchProcessor::Get()->loadCvtImageAcc(inputName, inputImageId, node);
 	}
 
 	if (!src->data)

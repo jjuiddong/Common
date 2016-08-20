@@ -347,14 +347,27 @@ void cGraphScript::Clear()
 
 cGraphScript::sNode* cGraphScript::Find(const string &id)
 {
-//	CheckClearAllNode();
-//	return TraverseRec(m_root, id);
 	for each (auto &node in m_nodes)
 	{
 		if (node->id == id)
 			return node;
 	}
 	return NULL;
+}
+
+
+// current를 중심으로 동일한 ID를 가진 노드를 리턴한다.
+cGraphScript::sNode* cGraphScript::Find(sNode*current, const string &id)
+{
+	if (!current)
+		return Find(id);
+
+	vector<sNode*> path;
+	FindRoute(current, id, path);
+	if (path.empty())
+		return NULL;
+
+	return path.back();
 }
 
 
@@ -367,48 +380,6 @@ cGraphScript::sNode* cGraphScript::FindHead(const string &id)
 	}
 	return NULL;
 }
-
-// 
-// cGraphScript::sNode* cGraphScript::Traverse(const string &id)
-// {
-// 	CheckClearAllNode();
-// 	return TraverseRec(m_root, id);
-// }
-// 
-// 
-// cGraphScript::sNode* cGraphScript::TraverseRec(sNode *current, const string &id)
-// {
-// 	RETV(!current, NULL);
-// 
-// 	current->check = true;
-// 
-// 	if (current->id == id)
-// 		return current;
-// 
-// 	for each (auto node in current->in)
-// 	{
-// 		if (node->check) // already visit node
-// 			continue;
-// 		if (node->id == id)
-// 			return node;
-// 		node->check = true;
-// 		if (sNode *p = TraverseRec(node, id))
-// 			return p;
-// 	}
-// 
-// 	for each (auto node in current->out)
-// 	{
-// 		if (node->check) // already visit node
-// 			continue;
-// 		if (node->id == id)
-// 			return node;
-// 		node->check = true;
-// 		if (sNode *p = TraverseRec(node, id))
-// 			return p;
-// 	}
-// 
-// 	return NULL;
-// }
 
 
 // from 노드에서 to 노드로 가는 루트를 저장해 리턴한다.
@@ -442,7 +413,6 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 	vector<sNode*> path1, path2;
 	path1.push_back(current);
 	path2.push_back(current);
-	//out.push_back(current);
 
 	if (current->id == id)
 		return true;
@@ -459,11 +429,11 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 			if (node->id == id)
 			{
 				path1.push_back(node);
-				break;// return true;
+				break;
 			}
 			node->check = true;
 			if (FindRouteRec(node, id, path1))
-				break;//return true;
+				break;
 		}
 	}
 
@@ -477,11 +447,11 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 		if (node->id == id)
 		{
 			path2.push_back(node);
-			break;// return true;
+			break;
 		}
 		node->check = true;
 		if (FindRouteRec(node, id, path2))
-			break;// return true;
+			break;
 	}
 
 
