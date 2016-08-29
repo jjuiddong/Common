@@ -374,7 +374,8 @@ void cStreamingSender::RemoveSession(const SOCKET remoteSock)
 		if (it->second >= 0)
 		{
 			m_udpUsed[it->second] = false; // UDP ÃÊ±âÈ­
-		}m_udpClient[it->second].Close();
+			m_udpClient[it->second].Close();
+		} 
 	}
 }
 
