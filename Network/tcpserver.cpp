@@ -107,6 +107,9 @@ bool cTCPServer::AddSession(const SOCKET remoteSock)
 			return false; // 이미 있다면 종료.
 	}
 
+	if (m_listener)
+		m_listener->AddSession(remoteSock);
+
 	sSession session;
 	session.state = SESSION_STATE::LOGIN_WAIT;
 	session.socket = remoteSock;
@@ -123,11 +126,20 @@ void cTCPServer::RemoveSession(const SOCKET remoteSock)
 	{
 		if (remoteSock == m_sessions[i].socket)
 		{
+			if (m_listener)
+				m_listener->RemoveSession(remoteSock);
+
 			closesocket(m_sessions[i].socket);
 			common::rotatepopvector(m_sessions, i);
 			break;
 		}
 	}
+}
+
+
+void cTCPServer::SetListener(iSessionListener *listener)
+{
+	m_listener = listener;
 }
 
 

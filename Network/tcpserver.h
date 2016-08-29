@@ -11,6 +11,13 @@
 
 namespace network
 {
+	class iSessionListener
+	{
+	public:
+		virtual void RemoveSession(const SOCKET remoteSock) = 0;
+		virtual void AddSession(const SOCKET remoteSock) = 0;
+	};
+
 	class cTCPServer
 	{
 	public:
@@ -18,6 +25,7 @@ namespace network
 		virtual ~cTCPServer();
 
 		bool Init(const int port, const int packetSize=512, const int maxPacketCount=10, const int sleepMillis = 30);
+		void SetListener(iSessionListener *listener);
 		void Close();
 		bool IsConnect() const;
 		void MakeFdSet(OUT fd_set &out);
@@ -28,6 +36,7 @@ namespace network
 
 		SOCKET m_svrSocket;
 		vector<sSession> m_sessions;
+		iSessionListener *m_listener;
 		int m_port;
 		bool m_isConnect;
  		int m_maxBuffLen;

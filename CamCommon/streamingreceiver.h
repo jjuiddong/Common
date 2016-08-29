@@ -48,5 +48,6 @@ namespace cvproc
 		unsigned short m_oldCols = 0;
 		int m_oldFlags = 0;
 		unsigned char m_oldId = -1;
+		string m_rcvUDPIp;
 	};
 }

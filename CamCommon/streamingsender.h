@@ -23,7 +23,7 @@
 
 namespace cvproc
 {
-	class cStreamingSender
+	class cStreamingSender : public network::iSessionListener
 	{
 	public:
 		cStreamingSender();
@@ -43,6 +43,8 @@ namespace cvproc
 			const unsigned short width, const unsigned short height, const unsigned int flag,
 			const bool isGray, const bool isCompressed);
 		bool SendSplit();
+		virtual void RemoveSession(const SOCKET remoteSock) override;
+		virtual void AddSession(const SOCKET remoteSock) override;
 
 
 	public:

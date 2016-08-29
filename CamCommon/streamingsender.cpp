@@ -41,6 +41,8 @@ bool cStreamingSender::Init(const int port,
 	if (!m_tcpServer.Init(port, g_maxStreamSize, 512, 1))
 		return false;
 
+	m_tcpServer.SetListener(this);
+
 	m_state = READY;
 
 	if (m_gray.empty())
@@ -361,4 +363,23 @@ bool cStreamingSender::IsConnect()
 bool cStreamingSender::IsExistClient()
 {
 	return m_tcpServer.IsExistSession();
+}
+
+
+void cStreamingSender::RemoveSession(const SOCKET remoteSock)
+{
+	auto it = m_users.find(remoteSock);
+	if (m_users.end() != it)
+	{
+		if (it->second >= 0)
+		{
+			m_udpUsed[it->second] = false; // UDP ÃÊ±âÈ­
+		}m_udpClient[it->second].Close();
+	}
+}
+
+
+void cStreamingSender::AddSession(const SOCKET remoteSock)
+{
+	// nothing to do
 }

@@ -38,14 +38,14 @@ bool cStreamingReceiver::Init(const bool isUDP, const string &ip, const int port
 	// 포트번호는 tcp/ip포트의 +1 한 값이다.
 	if (isUDP)
 	{
-		const string rcvIp = common::GetHostIP(networkCardIdx);
-		std::cout << "UDP Receive IP = " << rcvIp << std::endl;
+		m_rcvUDPIp = common::GetHostIP(networkCardIdx);
+		std::cout << "UDP Receive IP = " << m_rcvUDPIp << std::endl;
 
 		sStreamingProtocol data;
 		data.protocol = 100;
 		data.type = 1;
 		data.port = port + 1;
-		data.uip = inet_addr(rcvIp.c_str());
+		data.uip = inet_addr(m_rcvUDPIp.c_str());
 		m_tcpClient.Send((BYTE*)&data, sizeof(data));
 
 		m_udpServer.SetMaxBufferLength(g_maxStreamSize);
