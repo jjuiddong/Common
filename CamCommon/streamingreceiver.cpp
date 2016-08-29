@@ -49,6 +49,7 @@ bool cStreamingReceiver::Init(const bool isUDP, const string &ip, const int port
 		m_tcpClient.Send((BYTE*)&data, sizeof(data));
 
 		m_udpServer.SetMaxBufferLength(g_maxStreamSize);
+		m_udpServer.m_sleepMillis = 10;
 		if (!m_udpServer.Init(0, port + 1))
 		{
 			// udp로 수신되는 것이 실패했다면, tcp/ip로 받는다.

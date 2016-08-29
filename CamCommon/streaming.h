@@ -44,6 +44,6 @@ namespace cvproc
 	};
 
 
-	const static int g_maxStreamSize = (int)pow(2, 15) - 1;  // 32767
-	//const static int g_maxStreamSize = (int)pow(2, 14) - 1;
+	//const static int g_maxStreamSize = (int)pow(2, 15) - 1;  // 32767
+	const static int g_maxStreamSize = 65507;
 }

@@ -177,7 +177,7 @@ unsigned WINAPI UDPClientThreadFunction(void* arg)
 
 
 		// Receive
-		const timeval t = { 0, 1 }; // 10 millisecond
+		const timeval t = { 0, 1 }; // 1 millisecond
 		fd_set readSockets;
 		FD_ZERO(&readSockets);
 		FD_SET(udp->m_socket, &readSockets);

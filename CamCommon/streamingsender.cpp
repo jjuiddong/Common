@@ -49,7 +49,7 @@ bool cStreamingSender::Init(const int port,
 		m_gray = Mat(480, 640, CV_8UC1);
 
 	if (m_compressBuffer.capacity() == 0)
-		m_compressBuffer.reserve(g_maxStreamSize); // 307200
+		m_compressBuffer.reserve(g_maxStreamSize);
 
 	if (!m_sndBuffer)
 		m_sndBuffer = new BYTE[g_maxStreamSize];
@@ -108,7 +108,7 @@ void cStreamingSender::CheckPacket()
 						char *ip = inet_ntoa(*(in_addr*)&data->uip);
 						cout << "select udp index " << selectIdx << endl;
 						m_udpClient[selectIdx].SetMaxBufferLength(g_maxStreamSize);
-						if (m_udpClient[selectIdx].Init(ip, data->port))
+						if (m_udpClient[selectIdx].Init(ip, data->port, 1))
 						{
 							m_udpUsed[selectIdx] = true;
 						}
@@ -337,7 +337,6 @@ bool cStreamingSender::SendSplit()
 		else
 		{
 			m_tcpServer.m_sendQueue.Push(session.socket, (BYTE*)packet, sizeof(sStreamingData) + copyLen);
-
 			//dbg::Log("SendImage chunkidx = %d\n", m_sendChunkIndex);
 		}
 	}

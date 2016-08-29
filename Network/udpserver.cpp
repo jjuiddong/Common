@@ -126,24 +126,17 @@ void cUDPServer::SetMaxBufferLength(const int length)
 }
 
 
-// void PrintBuffer(const char *buffer, const int bufferLen)
-// {
-// 	for (int i = 0; i < bufferLen; ++i)
-// 		printf("%c", buffer[i]);
-// 	printf("\n");
-// }
-
-
 // UDP 서버 쓰레드
 unsigned WINAPI UDPServerThreadFunction(void* arg)
 {
 	cUDPServer *udp = (cUDPServer*)arg;
 
 	BYTE *buff = new BYTE[udp->m_maxBuffLen];
+	ZeroMemory(buff, udp->m_maxBuffLen);
 
 	while (udp->m_threadLoop)
 	{
-		const timeval t = { 0, udp->m_sleepMillis }; // ? millisecond
+		const timeval t = {0, 1}; // ? millisecond
 		fd_set readSockets;
 		FD_ZERO(&readSockets);
 		FD_SET(udp->m_socket, &readSockets);
@@ -151,7 +144,6 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 		const int ret = select(readSockets.fd_count, &readSockets, NULL, NULL, &t);
 		if (ret != 0 && ret != SOCKET_ERROR)
 		{
-			//char buff[cUDPServer::BUFFER_LENGTH];
 			const int result = recv(readSockets.fd_array[0], (char*)buff, udp->m_maxBuffLen, 0);
 			if (result == SOCKET_ERROR || result == 0) // 받은 패킷사이즈가 0이면 서버와 접속이 끊겼다는 의미다.
 			{
@@ -163,7 +155,7 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 			}
 		}
 
-		//Sleep(udp->m_sleepMillis);
+		Sleep(udp->m_sleepMillis);
 	}
 
 	delete[] buff;
