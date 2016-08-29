@@ -55,6 +55,7 @@ cDxCapture::~cDxCapture()
 
 	DeleteCriticalSection(&m_criticalSection);
  
+	SAFE_DELETE(m_gdiBitmap);
  	// Release COM
 // 	CoUninitialize();
 }
@@ -669,7 +670,7 @@ Mat& cDxCapture::GetCloneBufferToImage(const bool cpyImage)
 		return m_matImage;
 
 	CopyMemory(m_iplImage.data, buffer, size);
-	flip(m_iplImage, m_matImage, 1);
+	flip(m_iplImage, m_matImage, 0);
 
 	return m_matImage;
 }

@@ -1,24 +1,25 @@
 
 #include "stdafx.h"
-#include "dictionary.h"
+#include "dictionary2.h"
 #include "scanner.h"
-#include "errorcorrectcompare.h"
 
 
 using namespace tess;
 
-cDictionary::cDictionary()
+cDictionary2::cDictionary2()
 	: m_ambigId(1)
+	, col(256), prevCol(256)
 {
+	memset(m_ambiguousTable, 1, sizeof(m_ambiguousTable));
 }
 
-cDictionary::~cDictionary()
+cDictionary2::~cDictionary2()
 {
 }
 
 
 // 사전 스크립트를 읽어서, 단어 사전을 만든다.
-bool cDictionary::Init(const string &fileName)
+bool cDictionary2::Init(const string &fileName)
 {
 	using namespace std;
 
@@ -62,20 +63,24 @@ bool cDictionary::Init(const string &fileName)
 					outputStr = line.substr(pos1+1, pos2 - pos1 - 1);
 					trim(outputStr);
 				}
+				else
+				{
+					outputStr = line;
+				}
 			}
 
-			string tmp = (outputStr.empty())? line : line.substr(0, line.find('{'));
-			trim(tmp);
-			const string lower = lowerCase(tmp);
+			string srcLine = (outputStr.empty())? line : line.substr(0, line.find('{'));
+			trim(srcLine);
+			const string lower = lowerCase(srcLine);
 
 			if (m_sentenceLookUp.end() == m_sentenceLookUp.find(lower))
 			{// 사전에 추가
-				m_sentences.push_back({line, lower, outputStr});
+				m_sentences.push_back({ srcLine, lower, outputStr});
 				m_sentenceLookUp[lower] = m_sentences.size() - 1; // word index
 			}
 			else
 			{ // 사전에 이미 있으니 넘어감
-				dbg::ErrLog("error already exist word = [%s]\n", line.c_str());
+				//dbg::ErrLog("error already exist word = [%s]\n", line.c_str());
 			}
 
 			// 문장을 공백을 기준으로 나눠 단어로 만든후 저장.
@@ -104,7 +109,6 @@ bool cDictionary::Init(const string &fileName)
 				if (wordId < MAX_WORD)
 					m_sentenceWordSet[wordId].insert(sentenceId);
 			}
-
 		}
 		else if (1 == state) // ambiguous command
 		{
@@ -125,11 +129,9 @@ bool cDictionary::Init(const string &fileName)
 			}
 			++m_ambigId;
 		}
+
 	}
 
-	// dictionary script 를 모두 읽은 후, 테이블을 생성한다.
-	GenerateCharTable();
-	
 	return true;
 }
 
@@ -137,7 +139,7 @@ bool cDictionary::Init(const string &fileName)
 // word 가 사전에 있는 단어로만 구성되어 있다면, true를 리턴한다.
 // 일치하는 단어를 out에 저장해 리턴한다.
 // ErrorCorrectionSearch() 보다 빠르다.
-string cDictionary::FastSearch(const string &sentence, OUT vector<string> &out)
+string cDictionary2::FastSearch(const string &sentence, OUT vector<string> &out)
 {
 	cScanner scanner(sentence);// 필요없는 문자 제외
 	if (scanner.IsEmpty())
@@ -194,44 +196,20 @@ string cDictionary::FastSearch(const string &sentence, OUT vector<string> &out)
 }
 
 
-void cDictionary::Clear()
+void cDictionary2::Clear()
 {
-	m_ambigId = 0;
 	m_sentences.clear();
 	m_words.clear();
 	m_sentenceLookUp.clear();
-	ZeroMemory(m_useChar, sizeof(m_useChar));
-
-	for (uint i = 0; i < MAX_CHAR; ++i)
-		for (uint k = 0; k < MAX_LEN; ++k)
-			m_charTable[i][k].sentenceIds.clear();
 
 	for (uint i = 0; i < MAX_WORD; ++i)
 		m_sentenceWordSet[i].clear();
 }
 
 
-void cDictionary::GenerateCharTable()
-{
-	for (uint i = 0; i < m_sentences.size(); ++i)
-	{
-		const uint sentenceId = i;
-		const sSentence &sentence = m_sentences[i];
-		for (uint k=0; k < sentence.lower.length(); ++k)
-		{
-			if (k >= MAX_LEN)
-				break;
- 			const char c = sentence.lower[k];
-			m_charTable[c][k].sentenceIds.insert(sentenceId);
-			m_useChar[c] = true;
-		}
-	}
-}
-
-
 // 에러를 보정하면서, 문장을 사전에서 찾는다.
 // FastSearch() 보다 느리다.
-string cDictionary::ErrorCorrectionSearch(const string &sentence, OUT float &maxFitness)
+string cDictionary2::ErrorCorrectionSearch(const string &sentence, OUT float &maxFitness)
 {
 	maxFitness = -FLT_MAX;
 
@@ -239,54 +217,54 @@ string cDictionary::ErrorCorrectionSearch(const string &sentence, OUT float &max
 	if (scanner.IsEmpty())
 		return "";
 
-	vector<bool> procSentenceIds(m_sentences.size(), false);
+ 	string src = scanner.m_str;
 
-	int maxSentenceId = -1;
-	int maxTotCount = -100;
-
-	string src = scanner.m_str;
-	for (uint i = 0; i < src.size(); ++i)
+	int sentenceId = -1;
+	int minDistance = 1000000;
+	for (uint i = 0; i < m_sentences.size(); ++i)
 	{
-		const uchar c = src[i];
-		for (uint k = 0; k < MAX_LEN; ++k)
+		const int dist = levenshtein_distance(src.c_str(), m_sentences[i].lower);
+		if (dist < minDistance)
 		{
-			for each (auto sentenceId in m_charTable[c][k].sentenceIds)
-			{
-				if (procSentenceIds[sentenceId])
-					continue;
-				procSentenceIds[sentenceId] = true;
-
-				if (m_sentences[sentenceId].lower.length()/2 <= k)
-					continue; // 짧은 단어는 비교에서 제외 된다.
-
-				cErrCorrectCompare cmp;
-				string tmp = src;
-				cmp.Compare(*this, (char*)&tmp[i], (char*)&m_sentences[sentenceId].lower[k] );
-				if (cmp.m_result.tot > maxTotCount)
-				{
-					maxTotCount = cmp.m_result.tot;
-					maxSentenceId = sentenceId;
-				}
-			}
+			minDistance = dist;
+			sentenceId = i;
 		}
 	}
 
-	maxFitness = (float)maxTotCount * 0.01f; // 최대 적합도가 1이 되기위한 계산
+	if (sentenceId < 0)
+		return "";
 
-	if (maxSentenceId >= 0)
-		return m_sentences[maxSentenceId].output.empty() ? 
-			m_sentences[maxSentenceId].src : m_sentences[maxSentenceId].output;
-
-	return "";
+	maxFitness = (20 - minDistance) * 0.01f;
+	return m_sentences[sentenceId].output;
 }
 
 
 // FastSearch() + ErrorCorrectionSearch()
-string cDictionary::Search(const string &sentence, OUT vector<string> &out, OUT float &maxFitness)
+string cDictionary2::Search(const string &sentence, OUT vector<string> &out, OUT float &maxFitness)
 {
 	maxFitness = 1.f;
+
 	string result = FastSearch(sentence, out);
 	if (result.empty())
 		result = ErrorCorrectionSearch(sentence, maxFitness);
 	return result;
+}
+
+
+unsigned int cDictionary2::levenshtein_distance(const std::string& s1, const std::string& s2)
+{
+#define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
+	const std::size_t len1 = s1.size(), len2 = s2.size();
+
+	for (unsigned int i = 0; i < prevCol.size(); i++)
+		prevCol[i] = i;
+	for (unsigned int i = 0; i < len1; i++) {
+		col[0] = i + 1;
+		for (unsigned int j = 0; j < len2; j++)
+			col[j + 1] = MIN3(prevCol[1 + j] + 1, col[j] + 1, prevCol[j] + (s1[i] == s2[j] ? 0 : 1));
+
+		col.swap(prevCol);
+	}
+	return prevCol[len2];
 }

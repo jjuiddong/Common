@@ -11,6 +11,7 @@
     <ClInclude Include="dictionary.h" />
     <ClInclude Include="scanner.h" />
     <ClInclude Include="errorcorrectcompare.h" />
+    <ClInclude Include="dictionary2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -18,5 +19,6 @@
     <ClCompile Include="dictionary.cpp" />
     <ClCompile Include="scanner.cpp" />
     <ClCompile Include="errorcorrectcompare.cpp" />
+    <ClCompile Include="dictionary2.cpp" />
   </ItemGroup>
 </Project>

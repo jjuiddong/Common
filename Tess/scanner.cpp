@@ -3,6 +3,7 @@
 #include "scanner.h"
 #include "dictionary.h"
 
+
 namespace tess
 {
 	static const char *g_numStr = "1234567890.";
@@ -15,9 +16,9 @@ tess::cScanner::cScanner()
 {
 }
 
-cScanner::cScanner(const cDictionary &dict, const string &str)
+cScanner::cScanner(const string &str)
 {
-	Init(dict, str);
+	Init(str);
 }
 
 tess::cScanner::~cScanner()
@@ -26,25 +27,15 @@ tess::cScanner::~cScanner()
 
 
 // 소문자 변환, 공백문자는 최대 1개 까지, 
-// 사용하지 않는 특수 문자 제거
 // 짧은 단어는 제외시킨다.
-bool cScanner::Init(const cDictionary &dict, const string &str)
+bool cScanner::Init(const string &str)
 {
 	string src = str;
 	trim(src);
 	lowerCase(src);
 
-	//m_str.clear();
-	string dst;
+	string dst = str;
 
-	// 쓰이는 문자, 모호한 기호를 제외한 문자 제거
-	for (uint i = 0; i < src.length(); ++i)
-	{
-		const uchar c = src[i];
-		if ((dict.m_useChar[c]) || (dict.m_ambiguousTable[c] != 0))
-			dst += c;
-	}
-	
 	// 공백 최대 1개
 	bool isBlank = false;
 	for (uint i = 0; i < dst.length(); )

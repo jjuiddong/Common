@@ -363,6 +363,8 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	const string result = tess->Dictionary(node->name, srcStr, maxFitness);
 	const int t3 = timeGetTime();
 
+	dbg::Log2("log2.txt", "%s\n", trim(string(srcStr)).c_str());
+
 	if (m_isLog2)
 	{
 		dbg::Log("tesseract recognition deskew = %d, recog time = %d, dictionary = %d, dict = %s, src = %s, result = %s, maxFitness = %3.3f  \n", 

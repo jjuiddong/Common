@@ -8,6 +8,8 @@
 
 namespace tess
 {
+	class cDictionary;
+
 	class cErrCorrectCompare
 	{
 	public:

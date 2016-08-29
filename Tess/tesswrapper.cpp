@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "tesswrapper.h"
-#include "dictionary.h"
+#include "dictionary2.h"
 #include <baseapi.h>
 #include <mmsystem.h>
 
@@ -49,7 +49,7 @@ bool cTessWrapper::Init(const string &dataPath, const string &language
 		return false;
 	}
 
-	cDictionary *dict = new cDictionary();
+	cDictionary2 *dict = new cDictionary2();
 	if (!dict->Init(dictionaryFileName))
 	{
 		delete dict;
@@ -86,7 +86,7 @@ string cTessWrapper::Recognize(cv::Mat &img)
 string cTessWrapper::Dictionary(const string &dictionaryFileName, 
 	const string &src, OUT float &maxFitness, const int flags) //flags=0
 {
-	cDictionary *dict = GetDictionary(dictionaryFileName);
+	cDictionary2 *dict = GetDictionary(dictionaryFileName);
 
 	maxFitness = 1;
 	vector<string> out;
@@ -106,7 +106,7 @@ string cTessWrapper::Dictionary(const string &dictionaryFileName,
 string cTessWrapper::Dictionary2(const string &dictionaryFileName, 
 	const string &src, OUT string &out, OUT float &maxFitness, OUT int &t1, OUT int &t2)
 {
-	cDictionary *dict = GetDictionary(dictionaryFileName);
+	cDictionary2 *dict = GetDictionary(dictionaryFileName);
 
 	maxFitness = 1;
 	const int t0 = timeGetTime();
@@ -124,13 +124,13 @@ string cTessWrapper::Dictionary2(const string &dictionaryFileName,
 }
 
 
-cDictionary* cTessWrapper::GetDictionary(const string &dictionaryFileName)
+cDictionary2* cTessWrapper::GetDictionary(const string &dictionaryFileName)
 {
-	cDictionary *dict = NULL;
+	cDictionary2 *dict = NULL;
 	auto it = m_dicts.find(dictionaryFileName);
 	if (m_dicts.end() == it)
 	{
-		cDictionary *p = new cDictionary();
+		cDictionary2 *p = new cDictionary2();
 		p->Init(dictionaryFileName);
 		m_dicts[dictionaryFileName] = p;
 		dict = p;

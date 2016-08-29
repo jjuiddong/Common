@@ -336,7 +336,7 @@ bool cStreamingSender::SendSplit()
 		{
 			m_tcpServer.m_sendQueue.Push(session.socket, (BYTE*)packet, sizeof(sStreamingData) + copyLen);
 
-			dbg::Log("SendImage chunkidx = %d\n", m_sendChunkIndex);
+			//dbg::Log("SendImage chunkidx = %d\n", m_sendChunkIndex);
 		}
 	}
 

@@ -17,7 +17,7 @@ namespace tesseract {
 namespace tess
 {
 
-	class cDictionary;
+	class cDictionary2;
 	class cTessWrapper
 	{
 	public:
@@ -37,12 +37,12 @@ namespace tess
 
 
 	protected:
-		cDictionary* GetDictionary(const string &dictionaryFileName);
+		cDictionary2* GetDictionary(const string &dictionaryFileName);
 
 
 	public:
 		tesseract::TessBaseAPI *m_tessApi;
-		map<string, cDictionary*> m_dicts;
+		map<string, cDictionary2*> m_dicts;
 	};
 
 }
