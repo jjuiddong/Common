@@ -7,6 +7,9 @@
 // isConnect()
 // thread restart bug fix
 //
+// 2016-08-30
+//		- packetqueue Ãß°¡
+//
 #pragma once
 
 

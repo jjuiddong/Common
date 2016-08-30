@@ -34,6 +34,7 @@ namespace network
 		bool IsExistSession();
 
 
+	public:
 		SOCKET m_svrSocket;
 		vector<sSession> m_sessions;
 		iSessionListener *m_listener;

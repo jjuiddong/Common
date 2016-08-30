@@ -11,19 +11,14 @@ unsigned WINAPI UDPClientThreadFunction(void* arg);
 cUDPClient::cUDPClient() : 
 	m_isConnect(false)
 	, m_threadLoop(true)
-//	, m_sndBuffLen(0)
-//	, m_isSendData(false)
 	, m_sleepMillis(30)
 	, m_maxBuffLen(BUFFER_LENGTH)
 {
-//	m_sndBuffer = new BYTE[m_maxBuffLen];
 }
 
 cUDPClient::~cUDPClient()
 {
 	Close();
-
-//	delete[] m_sndBuffer;
 }
 
 
@@ -68,25 +63,12 @@ bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis) /
 void cUDPClient::SendData(const BYTE *buff, const int buffLen)
 {
 	m_sndQueue.Push(m_socket, buff, buffLen);
-
-// 	AutoCSLock cs(m_sndCriticalSection);
-// 	m_sndBuffLen = min(buffLen, m_maxBuffLen);
-// 	memcpy(m_sndBuffer, buff, m_sndBuffLen);
-// 	m_isSendData = true;
 }
 
 
 void cUDPClient::SetMaxBufferLength(const int length)
 {
 	m_maxBuffLen = length;
-
-// 	if (m_maxBuffLen != length)
-// 	{
-// 		delete[] m_sndBuffer;
-// 
-// 		m_maxBuffLen = length;
-// 		m_sndBuffer = new BYTE[length];
-// 	}
 }
 
 
@@ -109,10 +91,6 @@ unsigned WINAPI UDPClientThreadFunction(void* arg)
 {
 	cUDPClient *udp = (cUDPClient*)arg;
 
-// 	int snd_len;
-// 	char *sndBuff = new char[udp->m_maxBuffLen];
-// 	memset(sndBuff, '\0', udp->m_maxBuffLen);
-
 	while (udp->m_threadLoop)
 	{
 		if (!udp->m_isConnect || (INVALID_SOCKET == udp->m_socket))
@@ -123,9 +101,8 @@ unsigned WINAPI UDPClientThreadFunction(void* arg)
 
 		udp->m_sndQueue.SendAll(udp->m_sockaddr);
 
-		//std::this_thread::sleep_for(std::chrono::microseconds(udp->m_sleepMillis));
+		std::this_thread::sleep_for(std::chrono::microseconds(udp->m_sleepMillis));
 	}
 
-//	delete[] sndBuff;
 	return 0;
 }

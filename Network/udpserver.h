@@ -8,6 +8,9 @@
 // add variable m_isReceivData
 // thread restart bug fix
 //
+// 2016-08-30
+//		- packetqueue 추가
+//
 #pragma once
 
 
@@ -27,13 +30,11 @@ namespace network
 		bool IsConnect() const;
 
 
+	public:
 		int m_id;
 		SOCKET m_socket;
 		int m_port;
 		bool m_isConnect;
-		BYTE *m_buffer;
-		int m_bufferLen;
-		bool m_isReceiveData; // 패킷을 받았다면 true가 된다. GetRecvData() 함수에서 초기화 된다.
 		int m_maxBuffLen;
 		cPacketQueue m_recvQueue;
 
