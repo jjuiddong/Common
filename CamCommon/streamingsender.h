@@ -17,6 +17,10 @@
 //		- 처음 접속은 tcp/ip로 이뤄진다. 이 후, udp로 통신할지의 여부는 
 //		sStreamingProtocol 패킷을 클라이언트가 전송하면서 결정한다.
 //
+// 2016-08-30
+//		- 코드 정리, 버그 해결
+//
+//
 #pragma once
 
 #include "streaming.h"
@@ -58,6 +62,9 @@ namespace cvproc
 		bool m_isConvertGray;
 		bool m_isCompressed;
 		int m_jpgCompressQuality;
+		bool m_tempIsConvertGray;
+		bool m_tempIsCompressed;
+		int m_tempJpgCompressQuality;
 		int m_fps;
 		int m_deltaTime;
 		int m_lastSendTime;

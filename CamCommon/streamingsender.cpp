@@ -6,9 +6,13 @@ using namespace cv;
 using namespace cvproc;
 using namespace std;
 
-cStreamingSender::cStreamingSender() :
-	m_jpgCompressQuality(40)
+cStreamingSender::cStreamingSender() 
+	: m_jpgCompressQuality(40)
+	, m_isConvertGray(false)
 	, m_isCompressed(false)
+	, m_tempJpgCompressQuality(40)
+	, m_tempIsConvertGray(false)
+	, m_tempIsCompressed(false)
 	, m_sndBuffer(NULL)
 	, m_state(NOTCONNECT)
 	, m_fps(20)
@@ -29,9 +33,9 @@ cStreamingSender::~cStreamingSender()
 bool cStreamingSender::Init(const int port,
 	const bool isConvertGray, const bool isCompressed, const int jpgQuality)
 {
-	m_isConvertGray = isConvertGray;
-	m_isCompressed = isCompressed;
-	m_jpgCompressQuality = jpgQuality;
+	m_tempIsConvertGray = isConvertGray;
+	m_tempIsCompressed = isCompressed;
+	m_tempJpgCompressQuality = jpgQuality;
 
 	for each (auto &udp in m_udpClient)
 		udp.Close();
@@ -44,9 +48,6 @@ bool cStreamingSender::Init(const int port,
 	m_tcpServer.SetListener(this);
 
 	m_state = READY;
-
-	if (m_gray.empty())
-		m_gray = Mat(480, 640, CV_8UC1);
 
 	if (m_compressBuffer.capacity() == 0)
 		m_compressBuffer.reserve(g_maxStreamSize);
@@ -141,9 +142,9 @@ void cStreamingSender::CheckPacket()
 
 
 			case 101: // gray, compressed, compressed quality 설정
-				m_isConvertGray = (data->gray == 1) ? true : false;
-				m_isCompressed = (data->compressed == 1) ? true : false;
-				m_jpgCompressQuality = data->compQuality;
+				m_tempIsConvertGray = (data->gray == 1) ? true : false;
+				m_tempIsCompressed = (data->compressed == 1) ? true : false;
+				m_tempJpgCompressQuality = data->compQuality;
 				m_fps = data->fps;
 		
 				if (data->fps > 0)
@@ -152,7 +153,9 @@ void cStreamingSender::CheckPacket()
 					m_deltaTime = 100;
 
 				cout << "**change option >>" << endl;
-				cout << "gray=" << m_isConvertGray << ", compressed=" << m_isCompressed << ", jpgCompressQuality=" << m_jpgCompressQuality << ", fps=" << m_fps << endl;
+				cout << "gray=" << m_tempIsConvertGray << ", compressed=" 
+					<< m_tempIsCompressed << ", jpgCompressQuality=" << m_tempJpgCompressQuality 
+					<< ", fps=" << m_fps << endl;
 				cout << "**<< " << endl;
 				break;
 			}
@@ -165,7 +168,6 @@ void cStreamingSender::CheckPacket()
 }
 
 
-// 크기는 640/480 이어야 한다.
 // 전송할 영상이 남았다면 0을 리턴한다.
 // 모두 전송했다면 1을 리턴한다.
 int cStreamingSender::Send(const cv::Mat &image)
@@ -183,13 +185,16 @@ int cStreamingSender::Send(const cv::Mat &image)
 		m_lastSendTime = curT;
 		//
 
-		// 이미지를 변조한다.
 		uchar *data = image.data;
-		int buffSize = image.total() * image.elemSize();
+		int buffSize = image.step[0] * image.rows;
 		m_rows = image.rows;
 		m_cols = image.cols;
 		m_flag = image.flags;
+		m_isConvertGray = m_tempIsConvertGray;
+		m_isCompressed = m_tempIsCompressed;
+		m_jpgCompressQuality = m_tempJpgCompressQuality;
 
+		// 이미지를 변조한다.
 		// Gray Scale
 		if (m_isConvertGray)
 		{
