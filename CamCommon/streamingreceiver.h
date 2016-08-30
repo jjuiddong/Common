@@ -1,10 +1,6 @@
 //
 // Protocol
-//	- (byte) chunk size (이미지 용량 때문에 나눠진 데이타 청크의 갯수)
-//	- (byte) chunk index
-//	- (byte) gray 0 : 1
-//	- (byte) compressed 0 : 1
-//	- (int) image size
+//		- streaming.h 에 정의됨.
 //
 #pragma once
 
@@ -31,7 +27,7 @@ namespace cvproc
 		network::cUDPServer m_udpServer;
 		network::cTCPClient m_tcpClient;
 		bool m_isUDP;
-		cv::Mat m_src;
+		//cv::Mat m_tempImage;
 		vector<uchar> m_compBuffer;
 		cv::Mat m_finalImage;		// 최종 이미지
 		cv::Mat m_cloneImage;		// 최종 이미지가 만들어지고 난 후, 복사된 이미지

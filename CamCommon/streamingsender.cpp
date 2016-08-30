@@ -195,7 +195,7 @@ int cStreamingSender::Send(const cv::Mat &image)
 		{
 			cvtColor(image, m_gray, CV_RGB2GRAY);
 			data = m_gray.data;
-			buffSize = m_gray.total() * m_gray.elemSize();
+			buffSize = m_gray.step[0] * m_gray.rows;
 		}
 
 		// æ–√‡

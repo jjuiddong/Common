@@ -133,12 +133,14 @@ int cStreamingReceiver::Update()
 
 		if (packet->isGray)
 		{
- 			m_src = Mat(packet->height, packet->width, CV_8UC1);
+ 			//m_tempImage = Mat(packet->height, packet->width, CV_8UC1);
+			m_compBuffer.resize(packet->imageBytes);
  			m_finalImage = Mat(packet->height, packet->width, CV_8UC1);
 		}
 		else
 		{
-			m_src = Mat(packet->height, packet->width, packet->flag);
+			//m_tempImage = Mat(packet->height, packet->width, packet->flag);
+			m_compBuffer.resize(packet->imageBytes);
 			m_finalImage = Mat(packet->height, packet->width, packet->flag);
 		}
 	}
@@ -152,8 +154,10 @@ int cStreamingReceiver::Update()
 		{
 			if (packet->imageBytes <= len)
 			{
-				memcpy((char*)m_src.data, packet->data, packet->imageBytes);
-				cv::imdecode(m_src, 1, &m_finalImage);
+				//memcpy((char*)m_tempImage.data, packet->data, packet->imageBytes);
+				//cv::imdecode(m_tempImage, 1, &m_finalImage);
+				memcpy((char*)&m_compBuffer[0], packet->data, packet->imageBytes);
+				cv::imdecode(m_compBuffer, 1, &m_finalImage);
 			}
 		}
 		else
@@ -166,7 +170,11 @@ int cStreamingReceiver::Update()
 		m_isBeginDownload = false;
 		m_chunkSize = 1;
 		m_checkRcv[0] = true;
-		m_cloneImage = m_finalImage.clone();
+
+		if (m_cloneImage.size() != m_finalImage.size())
+			m_cloneImage = m_finalImage.clone();
+		else
+			memcpy(m_cloneImage.data, m_finalImage.data, m_finalImage.step[0]* m_finalImage.rows);
 
 		if (m_isLog)
 			dbg::Log("recv packet id=%d, chunksize=1, chunk=%d, copyLen=%d\n", 
@@ -210,14 +218,18 @@ int cStreamingReceiver::Update()
 			{
 				// 바로 final image 에 복사해서 리턴한다.
 				if (!m_compBuffer.empty())
-					memcpy((char*)m_finalImage.data, (char*)&m_compBuffer[0], m_src.total() * m_src.elemSize());
+					memcpy((char*)m_finalImage.data, (char*)&m_compBuffer[0], m_compBuffer.size());
 			}
 
 			reVal = 1;
 			m_isBeginDownload = false;
 			m_chunkSize = packet->chunkSize;
 			m_currentChunkIdx = packet->chunkSize;
-			m_cloneImage = m_finalImage.clone();
+
+			if (m_cloneImage.size() != m_finalImage.size())
+				m_cloneImage = m_finalImage.clone();
+			else
+				memcpy(m_cloneImage.data, m_finalImage.data, m_finalImage.step[0] * m_finalImage.rows);
 		}
 	}
 
