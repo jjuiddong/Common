@@ -43,9 +43,8 @@ namespace network
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
 
-		HANDLE m_handle;
-		DWORD m_threadId;
-		CRITICAL_SECTION m_criticalSection;
+		std::thread m_thread;
+		CriticalSection m_criticalSection;
 		bool m_threadLoop;
 		int m_sleepMillis;
 		int m_sendBytes; // debug

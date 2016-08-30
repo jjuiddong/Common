@@ -282,6 +282,33 @@ void cPacketQueue::SendAll()
 }
 
 
+
+void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
+{
+	RET(m_queue.empty());
+
+	cAutoCS cs(m_criticalSection);
+	for (u_int i = 0; i < m_queue.size(); ++i)
+	{
+		if (m_isIgnoreHeader)
+		{
+			//send(m_queue[i].sock, (const char*)m_queue[i].buffer + sizeof(sHeader), m_queue[i].actualLen, 0);
+			sendto(m_queue[i].sock, (const char*)m_queue[i].buffer + sizeof(sHeader), m_queue[i].actualLen,
+				0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
+		}
+		else
+		{
+			sendto(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen,
+				0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
+
+			//send(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen, 0);
+		}
+		Free(m_queue[i].buffer);
+	}
+	m_queue.clear();
+}
+
+
 // 큐에 저장된 버퍼의 총 크기 (바이트 단위)
 int cPacketQueue::GetSize()
 {

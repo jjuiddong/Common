@@ -44,6 +44,6 @@ namespace cvproc
 	};
 
 
-	//const static int g_maxStreamSize = (int)pow(2, 15) - 1;  // 32767
+	// http://stackoverflow.com/questions/1098897/what-is-the-largest-safe-udp-packet-size-on-the-internet
 	const static int g_maxStreamSize = 65507;
 }

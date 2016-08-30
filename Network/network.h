@@ -19,10 +19,9 @@
 #endif
 
 
-// #include <winsock2.h>
-// #include <windows.h>
 #include <string>
 #include <algorithm>
+#include <mmsystem.h>
 using std::string;
 
 #pragma comment( lib, "wsock32.lib" )

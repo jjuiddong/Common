@@ -51,6 +51,7 @@ namespace network
 		bool Front(OUT sSockBuffer &out);
 		void Pop();
 		void SendAll();
+		void SendAll(const sockaddr_in &sockAddr);
 		void SendBroadcast(vector<sSession> &sessions, const bool exceptOwner = true);
 		void Lock();
 		void Unlock();

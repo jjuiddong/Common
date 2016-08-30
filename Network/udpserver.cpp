@@ -1,8 +1,6 @@
 
 #include "stdafx.h"
 #include "udpserver.h"
-#include <iostream>
-#include <process.h> 
 
 using namespace network;
 
@@ -17,18 +15,12 @@ cUDPServer::cUDPServer()
 	, m_maxBuffLen(BUFFER_LENGTH)
 	, m_sleepMillis(1)
 {
-	InitializeCriticalSectionAndSpinCount(&m_CriticalSection, 0x00000400);
 	m_buffer = new BYTE[m_maxBuffLen];
 }
 
 cUDPServer::~cUDPServer()
 {
-	m_threadLoop = false;
-
-	::WaitForSingleObject(m_handle, 1000);
-
-	DeleteCriticalSection(&m_CriticalSection);
-	closesocket(m_socket);
+	Close(true);
 
 	delete[] m_buffer;
 }
@@ -41,19 +33,27 @@ bool cUDPServer::Init(const int id, const int port)
 
 	if (m_isConnect)
 	{
-		closesocket(m_socket);
-		m_isConnect = false;
-		m_threadLoop = false;
+		Close();
 	}
 	else
 	{
-		std::cout << "Bind UDP Server port = " << port << std::endl;
+		dbg::Log("Bind UDP Server port = %d \n", port);
 
 		if (network::LaunchUDPServer(port, m_socket))
 		{
+			if (!m_recvQueue.Init(m_maxBuffLen, 512))
+			{
+				Close();
+				return false;
+			}
+
+			m_threadLoop = false;
+			if (m_thread.joinable())
+				m_thread.join();
+
 			m_isConnect = true;
 			m_threadLoop = true;
-			m_handle = (HANDLE)_beginthreadex(NULL, 0, UDPServerThreadFunction, this, 0, (unsigned*)&m_threadId);
+			m_thread = std::thread(UDPServerThreadFunction, this);
 		}
 		else
 		{
@@ -65,50 +65,42 @@ bool cUDPServer::Init(const int id, const int port)
 }
 
 
-void cUDPServer::SetRecvData(const BYTE *buff, const int buffLen)
-{
-	EnterCriticalSection(&m_CriticalSection);
-	memcpy(m_buffer, buff, buffLen);
-	m_bufferLen = buffLen;
-	m_isReceiveData = true;
-	LeaveCriticalSection(&m_CriticalSection);
-}
-
-
 // 받은 패킷을 dst에 저장해서 리턴한다.
 // 동기화 처리.
 int cUDPServer::GetRecvData(OUT BYTE *dst, const int maxSize)
 {
-	EnterCriticalSection(&m_CriticalSection);
-	int buffLen = 0;
-	if (maxSize < m_bufferLen)
-	{
-		LeaveCriticalSection(&m_CriticalSection);
+	network::sSockBuffer sb;
+	if (!m_recvQueue.Front(sb))
 		return 0;
-	}
 
-	if (!m_isReceiveData || (m_bufferLen <= 0))
-	{
-		m_isReceiveData = false;
-		LeaveCriticalSection(&m_CriticalSection);
-		return 0;
-	}
+	const int len = min(maxSize, sb.actualLen);
+	memcpy(dst, sb.buffer, len);
+	m_recvQueue.Pop();
+	return len;
 
-	memcpy(dst, m_buffer, m_bufferLen);
-	buffLen = m_bufferLen;
-	m_isReceiveData = false;
-	LeaveCriticalSection(&m_CriticalSection);
-	return buffLen;
+// 	AutoCSLock cs(m_CriticalSection);
+// 
+// 	if (maxSize < m_bufferLen)
+// 		return 0;
+// 
+// 	if (!m_isReceiveData || (m_bufferLen <= 0))
+// 	{
+// 		m_isReceiveData = false;
+// 		return 0;
+// 	}
+// 
+// 	memcpy(dst, m_buffer, m_bufferLen);
+// 	m_isReceiveData = false;
+// 	return m_bufferLen;
 }
 
 
 void cUDPServer::Close(const bool isWait) // isWait = false
 {
 	m_threadLoop = false;
-	if (isWait)
-	{
-		::WaitForSingleObject(m_handle, INFINITE);
-	}
+	if (isWait && m_thread.joinable())
+		m_thread.join();
+
 	m_isConnect = false;
 	closesocket(m_socket);
 }
@@ -151,11 +143,13 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 			}
 			else
 			{
-				udp->SetRecvData(buff, result);
+				udp->m_recvQueue.Push(readSockets.fd_array[0], buff, result, true);
+				//udp->SetRecvData(buff, result);
 			}
 		}
-
-		Sleep(udp->m_sleepMillis);
+		
+// 		if (udp->m_sleepMillis)
+// 			std::this_thread::sleep_for(std::chrono::microseconds(udp->m_sleepMillis));
 	}
 
 	delete[] buff;

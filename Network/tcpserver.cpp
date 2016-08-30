@@ -1,11 +1,7 @@
 
 #include "stdafx.h"
 #include "tcpserver.h"
-#include <iostream>
-#include <process.h> 
-#include <mmsystem.h>
 
-#pragma comment(lib, "winmm.lib")
 
 using namespace std;
 using namespace network;
@@ -20,14 +16,11 @@ cTCPServer::cTCPServer()
 	, m_sleepMillis(10)
 	, m_sendBytes(0)
 {
-	InitializeCriticalSectionAndSpinCount(&m_criticalSection, 0x00000400);
 }
 
 cTCPServer::~cTCPServer()
 {
 	Close();
-
-	DeleteCriticalSection(&m_criticalSection);
 }
 
 
@@ -56,12 +49,13 @@ bool cTCPServer::Init(const int port, const int packetSize, const int maxPacketC
 			return false;
 		}
 
+		m_threadLoop = false;
+		if (m_thread.joinable())
+			m_thread.join();
+
 		m_isConnect = true;
 		m_threadLoop = true;
-		if (!m_handle)
-		{
-			m_handle = (HANDLE)_beginthreadex(NULL, 0, TCPServerThreadFunction, this, 0, (unsigned*)&m_threadId);
-		}
+		m_thread = std::thread(TCPServerThreadFunction, this);
 	}
 	else
 	{
@@ -77,11 +71,9 @@ void cTCPServer::Close()
 {
 	m_isConnect = false;
 	m_threadLoop = false;
-	if (m_handle)
-	{
-		::WaitForSingleObject(m_handle, 1000);
-		m_handle = NULL;
-	}
+	if (m_thread.joinable())
+		m_thread.join();
+
 	closesocket(m_svrSocket);
 	m_svrSocket = INVALID_SOCKET;
 }
@@ -99,7 +91,7 @@ void cTCPServer::MakeFdSet(OUT fd_set &out)
 
 bool cTCPServer::AddSession(const SOCKET remoteSock)
 {
-	cAutoCS cs(m_criticalSection);
+	AutoCSLock cs(m_criticalSection);
 
 	for each (auto &session in m_sessions)
 	{
@@ -120,7 +112,7 @@ bool cTCPServer::AddSession(const SOCKET remoteSock)
 
 void cTCPServer::RemoveSession(const SOCKET remoteSock)
 {
-	cAutoCS cs(m_criticalSection);
+	AutoCSLock cs(m_criticalSection);
 
 	for (u_int i = 0; i < m_sessions.size(); ++i)
 	{
@@ -145,7 +137,7 @@ void cTCPServer::SetListener(iSessionListener *listener)
 
 bool cTCPServer::IsExistSession()
 {
-	cAutoCS cs(m_criticalSection);
+	AutoCSLock cs(m_criticalSection);
 	return m_isConnect && !m_sessions.empty();
 }
 
@@ -181,7 +173,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 				SOCKET remoteSocket = accept(acceptSockets.fd_array[0], NULL, NULL);
 				if (remoteSocket == INVALID_SOCKET)
 				{
-	 				//clog::Error(clog::ERROR_CRITICAL, "Client를 Accept하는 도중에 에러가 발생함\n");
+	 				//Client를 Accept하는 도중에 에러가 발생함
 					continue;
 				}
 				server->AddSession(remoteSocket);
@@ -211,7 +203,6 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 				}
 				else
 				{
-					//cout << "packet recv size = " << result << endl;
 					server->m_recvQueue.Push(sockets.fd_array[i], (BYTE*)buff, result, true);
 				}
 			}
@@ -225,7 +216,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 		//-----------------------------------------------------------------------------------
 
 		const int sleepTime = server->m_sessions.empty() ? 100 : server->m_sleepMillis;
-		Sleep(sleepTime);
+		std::this_thread::sleep_for(std::chrono::microseconds(sleepTime));
 	}
 
 	delete[] buff;

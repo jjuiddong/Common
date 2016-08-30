@@ -1,8 +1,6 @@
 
 #include "stdafx.h"
 #include "tcpclient.h"
-#include <iostream>
-#include <process.h> 
 
 using namespace std;
 using namespace network;
@@ -13,7 +11,6 @@ unsigned WINAPI TCPClientThreadFunction(void* arg);
 cTCPClient::cTCPClient()
 : m_isConnect(false)
 , m_threadLoop(true)
-, m_handle(NULL)
 , m_sleepMillis(30)
 , m_maxBuffLen(BUFFER_LENGTH)
 , m_recvBytes(0)
@@ -40,7 +37,6 @@ bool cTCPClient::Init(const string &ip, const int port,
 
 	if (network::LaunchTCPClient(ip, port, m_socket))
 	{
-		//cout << "Connect TCP/IP Client ip= " << ip << ", port= " << port << endl;
 		common::dbg::Log("Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
 
 		if (!m_recvQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
@@ -55,16 +51,16 @@ bool cTCPClient::Init(const string &ip, const int port,
 			return false;
 		}
 
+		m_threadLoop = false;
+		if (m_thread.joinable())
+			m_thread.join();
+
  		m_isConnect = true;
  		m_threadLoop = true;
-		if (!m_handle)
-		{
-			m_handle = (HANDLE)_beginthreadex(NULL, 0, TCPClientThreadFunction, this, 0, (unsigned*)&m_threadId);
-		}
+		m_thread = std::thread(TCPClientThreadFunction, this);
 	}
 	else
 	{
-		//cout << "Error!! Connect TCP/IP Client ip=" << ip << ", port=" << port << endl;
 		common::dbg::ErrLog("Error!! Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
 		return false;
 	}
@@ -84,11 +80,9 @@ void cTCPClient::Close()
 {
 	m_isConnect = false;
 	m_threadLoop = false;
-	if (m_handle)
-	{
-		::WaitForSingleObject(m_handle, 1000);
-		m_handle = NULL;
-	}
+	if (m_thread.joinable())
+		m_thread.join();
+
 	closesocket(m_socket);
 	m_socket = INVALID_SOCKET;
 }
@@ -118,11 +112,9 @@ unsigned WINAPI TCPClientThreadFunction(void* arg)
 				// error occur
 				client->m_isConnect = false;
 				client->m_threadLoop = false;
-				//cout << "cTCPClient socket close " << endl;
 			}
 			else
 			{
-				//cout << "recv packet size = " << result << endl;
 				client->m_recvBytes += result;
 				client->m_recvQueue.Push(readSockets.fd_array[0], (BYTE*)buff, result, true);
 			}

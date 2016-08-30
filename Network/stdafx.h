@@ -12,6 +12,6 @@
 
 
 #include "../../Common/Common/common.h"
+using namespace common;
 
 #include "network.h"
-

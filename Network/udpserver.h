@@ -21,7 +21,6 @@ namespace network
 		virtual ~cUDPServer();
 
 		bool Init(const int id, const int port);
-		void SetRecvData(const BYTE *buff, const int buffLen);
 		int GetRecvData(OUT BYTE *dst, const int maxSize);
 		void SetMaxBufferLength(const int length);
 		void Close(const bool isWait = false);
@@ -36,12 +35,11 @@ namespace network
 		int m_bufferLen;
 		bool m_isReceiveData; // 패킷을 받았다면 true가 된다. GetRecvData() 함수에서 초기화 된다.
 		int m_maxBuffLen;
-		int m_sleepMillis; // default = 1
+		cPacketQueue m_recvQueue;
 
-		HANDLE m_handle;
-		DWORD m_threadId;
-		CRITICAL_SECTION m_CriticalSection;
+		std::thread m_thread;
 		bool m_threadLoop;
+		int m_sleepMillis; // default = 1
 	};
 
 

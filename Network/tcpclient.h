@@ -33,9 +33,8 @@ namespace network
 		int m_maxBuffLen;
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
-		
-		HANDLE m_handle;
-		DWORD m_threadId;
+
+		std::thread m_thread;
 		bool m_threadLoop;
 		int m_sleepMillis;
 		int m_recvBytes; // debug

@@ -21,30 +21,23 @@ namespace network
 
 		bool Init(const string &ip, const int port, const int sleepMillis=30);
 		void SendData(const BYTE *buff, const int buffLen);
-		int GetReceiveData(BYTE *dst, const int maxbuffLen);
 		void SetMaxBufferLength(const int length);
 		void Close();
 		bool IsConnect() const;
 
 
+	public:
 		string m_ip;
 		int m_port;
 
 		bool m_isConnect;
 		SOCKET m_socket;
-		sockaddr_in m_si_other;
-		BYTE *m_sndBuffer;
-		int m_sndBuffLen;
+		sockaddr_in m_sockaddr;
 		int m_maxBuffLen;
-		BYTE *m_rcvBuffer;
-		int m_rcvBuffLen;
-		bool m_isReceiveData;
-		bool m_isSendData;
+		cPacketQueue m_sndQueue;
 
-		HANDLE m_handle;
-		DWORD m_threadId;
-		CRITICAL_SECTION m_sndCriticalSection;
-		CRITICAL_SECTION m_rcvCriticalSection;
+		std::thread m_thread;
+		CriticalSection m_sndCriticalSection;
 		bool m_threadLoop;
 		int m_sleepMillis; // Sleep(m_sleepMillis)
 	};
