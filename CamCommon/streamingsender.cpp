@@ -165,7 +165,6 @@ void cStreamingSender::CheckPacket()
 }
 
 
-// image는 흑백 영상이어야 한다.
 // 크기는 640/480 이어야 한다.
 // 전송할 영상이 남았다면 0을 리턴한다.
 // 모두 전송했다면 1을 리턴한다.
@@ -175,15 +174,15 @@ int cStreamingSender::Send(const cv::Mat &image)
 	if (m_tcpServer.m_sessions.empty())
 		return 1;
 
-	// fps control
-	const int curT = timeGetTime();
-	if ((curT - m_lastSendTime) < m_deltaTime)
-		return 0;
-	m_lastSendTime = curT;
-	//
-
 	if (READY == m_state)
 	{
+		// fps control
+		const int curT = timeGetTime();
+		if ((curT - m_lastSendTime) < m_deltaTime)
+			return 0;
+		m_lastSendTime = curT;
+		//
+
 		// 이미지를 변조한다.
 		uchar *data = image.data;
 		int buffSize = image.total() * image.elemSize();
