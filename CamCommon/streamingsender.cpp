@@ -38,7 +38,7 @@ bool cStreamingSender::Init(const int port,
 	m_tcpServer.Close();
 	memset(m_udpUsed, 0, sizeof(m_udpUsed));
 
-	if (!m_tcpServer.Init(port, g_maxStreamSize, 512, 1))
+	if (!m_tcpServer.Init(port, g_maxStreamSize, 512, 10))
 		return false;
 
 	m_tcpServer.SetListener(this);
@@ -108,7 +108,7 @@ void cStreamingSender::CheckPacket()
 						char *ip = inet_ntoa(*(in_addr*)&data->uip);
 						cout << "select udp index " << selectIdx << endl;
 						m_udpClient[selectIdx].SetMaxBufferLength(g_maxStreamSize);
-						if (m_udpClient[selectIdx].Init(ip, data->port, 1))
+						if (m_udpClient[selectIdx].Init(ip, data->port, 10))
 						{
 							m_udpUsed[selectIdx] = true;
 						}

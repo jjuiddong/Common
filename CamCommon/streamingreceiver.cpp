@@ -31,7 +31,7 @@ bool cStreamingReceiver::Init(const bool isUDP, const string &ip, const int port
 	m_tcpClient.Close();
 	
 	// 우선 TCP/IP로 접속한 후, udp/tcp 전송을 결정 한다.
-	if (!m_tcpClient.Init(ip, port, g_maxStreamSize, 512, 1))
+	if (!m_tcpClient.Init(ip, port, g_maxStreamSize, 512, 10))
 		return false;
 
 	// UDP로 전송 받기위해, 현재 컴퓨터의 IP와 포트번호를 전송한다.
