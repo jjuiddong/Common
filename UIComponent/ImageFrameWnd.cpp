@@ -15,6 +15,7 @@ END_MESSAGE_MAP()
 
 CImageFrameWnd::cImageView::cImageView()
 	: m_image(NULL) 
+	, m_imgFlags(-1)
 {
 }
 
@@ -42,7 +43,7 @@ bool CImageFrameWnd::cImageView::ShowImage(const cv::Mat &img)
 {
 	if (img.data)
 	{
-		if (m_image && (m_image->GetWidth() == img.cols) && (m_image->GetHeight() == img.rows))
+		if (m_image && (m_imgFlags == img.flags))
 		{
 			CGdiPlus::CopyMatToBmp(img, (Gdiplus::Bitmap*)m_image);
 		}
@@ -50,6 +51,7 @@ bool CImageFrameWnd::cImageView::ShowImage(const cv::Mat &img)
 		{
 			SAFE_DELETE(m_image);
 			m_image = CGdiPlus::CopyMatToBmp(img);
+			m_imgFlags = img.flags;
 		}
 		InvalidateRect(0);
 	}

@@ -133,15 +133,15 @@ int cStreamingReceiver::Update()
 
 		if (packet->isGray)
 		{
- 			//m_tempImage = Mat(packet->height, packet->width, CV_8UC1);
-			m_compBuffer.resize(packet->imageBytes);
+			m_tempBuffer.resize(packet->imageBytes);
  			m_finalImage = Mat(packet->height, packet->width, CV_8UC1);
+			m_cloneImage = Mat(packet->height, packet->width, CV_8UC1);
 		}
 		else
 		{
-			//m_tempImage = Mat(packet->height, packet->width, packet->flag);
-			m_compBuffer.resize(packet->imageBytes);
+			m_tempBuffer.resize(packet->imageBytes);
 			m_finalImage = Mat(packet->height, packet->width, packet->flag);
+			m_cloneImage = Mat(packet->height, packet->width, packet->flag);
 		}
 	}
 
@@ -154,10 +154,8 @@ int cStreamingReceiver::Update()
 		{
 			if (packet->imageBytes <= len)
 			{
-				//memcpy((char*)m_tempImage.data, packet->data, packet->imageBytes);
-				//cv::imdecode(m_tempImage, 1, &m_finalImage);
-				memcpy((char*)&m_compBuffer[0], packet->data, packet->imageBytes);
-				cv::imdecode(m_compBuffer, 1, &m_finalImage);
+				memcpy((char*)&m_tempBuffer[0], packet->data, packet->imageBytes);
+				cv::imdecode(m_tempBuffer, IMREAD_UNCHANGED, &m_finalImage);
 			}
 		}
 		else
@@ -170,10 +168,7 @@ int cStreamingReceiver::Update()
 		m_isBeginDownload = false;
 		m_chunkSize = 1;
 		m_checkRcv[0] = true;
-
-		if (m_cloneImage.size() != m_finalImage.size())
-			m_cloneImage = m_finalImage.clone();
-		else
+		if ((m_cloneImage.step[0] * m_cloneImage.rows) == (m_finalImage.step[0] * m_finalImage.rows))
 			memcpy(m_cloneImage.data, m_finalImage.data, m_finalImage.step[0]* m_finalImage.rows);
 
 		if (m_isLog)
@@ -188,14 +183,14 @@ int cStreamingReceiver::Update()
 		// 영상이 바뀌고 난 후, 다음 이미지 첫번 째 청크를 받았을 때..
 		if (m_oldId != packet->id)
 		{
-			m_compBuffer.resize(packet->imageBytes);
+			m_tempBuffer.resize(packet->imageBytes);
 			ZeroMemory(m_checkRcv, sizeof(m_checkRcv));
 			m_oldId = packet->id;
 			m_isBeginDownload = true;
 		}
 
 		packet->data = m_rcvBuffer + sizeof(sStreamingData);
-		char *dst = (char*)&m_compBuffer[0] + packet->chunkIndex * sizePerChunk;
+		char *dst = (char*)&m_tempBuffer[0] + packet->chunkIndex * sizePerChunk;
 		const int copyLen = max(0, (len - (int)sizeof(sStreamingData)));
 		memcpy(dst, packet->data, copyLen);
 
@@ -211,24 +206,21 @@ int cStreamingReceiver::Update()
 		{
 			if (packet->isCompressed)
 			{
-				if (!m_compBuffer.empty())
-					cv::imdecode(m_compBuffer, 1, &m_finalImage);
+				if (!m_tempBuffer.empty())
+					cv::imdecode(m_tempBuffer, IMREAD_UNCHANGED, &m_finalImage);
 			}
 			else
 			{
 				// 바로 final image 에 복사해서 리턴한다.
-				if (!m_compBuffer.empty())
-					memcpy((char*)m_finalImage.data, (char*)&m_compBuffer[0], m_compBuffer.size());
+				if (!m_tempBuffer.empty())
+					memcpy((char*)m_finalImage.data, (char*)&m_tempBuffer[0], m_tempBuffer.size());
 			}
 
 			reVal = 1;
 			m_isBeginDownload = false;
 			m_chunkSize = packet->chunkSize;
 			m_currentChunkIdx = packet->chunkSize;
-
-			if (m_cloneImage.size() != m_finalImage.size())
-				m_cloneImage = m_finalImage.clone();
-			else
+			if ((m_cloneImage.step[0] * m_cloneImage.rows) == (m_finalImage.step[0] * m_finalImage.rows))
 				memcpy(m_cloneImage.data, m_finalImage.data, m_finalImage.step[0] * m_finalImage.rows);
 		}
 	}

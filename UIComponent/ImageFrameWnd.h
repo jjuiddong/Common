@@ -25,6 +25,7 @@ protected:
 	public:
 		string m_fileName;
 		Gdiplus::Image *m_image;
+		int m_imgFlags;
 		DECLARE_MESSAGE_MAP()
 	};
 

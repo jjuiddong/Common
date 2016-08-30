@@ -2,6 +2,9 @@
 // Protocol
 //		- streaming.h 에 정의됨.
 //
+// 2016-08-30
+//		- refactoring
+//
 #pragma once
 
 #include "streaming.h"
@@ -27,8 +30,7 @@ namespace cvproc
 		network::cUDPServer m_udpServer;
 		network::cTCPClient m_tcpClient;
 		bool m_isUDP;
-		//cv::Mat m_tempImage;
-		vector<uchar> m_compBuffer;
+		vector<uchar> m_tempBuffer;
 		cv::Mat m_finalImage;		// 최종 이미지
 		cv::Mat m_cloneImage;		// 최종 이미지가 만들어지고 난 후, 복사된 이미지
 		BYTE *m_rcvBuffer;
@@ -44,6 +46,6 @@ namespace cvproc
 		unsigned short m_oldCols = 0;
 		int m_oldFlags = 0;
 		unsigned char m_oldId = -1;
-		string m_rcvUDPIp;
+		string m_rcvUDPIp; // debug 용
 	};
 }
