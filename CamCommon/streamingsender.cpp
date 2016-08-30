@@ -352,8 +352,6 @@ bool cStreamingSender::SendSplit()
 
 bool cStreamingSender::IsConnect()
 {
-// 	if (isUdp)
-// 		return m_udpClient.IsConnect();
 	return m_tcpServer.IsConnect();
 }
 
@@ -375,10 +373,4 @@ void cStreamingSender::RemoveSession(const SOCKET remoteSock)
 			m_udpClient[it->second].Close();
 		} 
 	}
-}
-
-
-void cStreamingSender::AddSession(const SOCKET remoteSock)
-{
-	// nothing to do
 }

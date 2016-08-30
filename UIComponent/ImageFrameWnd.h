@@ -11,68 +11,18 @@ protected:
 	class cImageView : public CView
 	{
 	public:
-		cImageView() : m_image(NULL) {}
-		virtual ~cImageView() {
-			SAFE_DELETE(m_image);
-		}
+		cImageView();
+		virtual ~cImageView();
 
-		bool Init(CWnd *parentWnd, const CRect &rect)
-		{
-			if (!Create(NULL, L"ImageWnd", WS_VISIBLE | WS_CHILDWINDOW, rect, parentWnd, 100))
-				return false;
-			return true;
-		}
-
-		bool ShowImage(const string &fileName)
-		{
-			SAFE_DELETE(m_image);
-			m_image = Gdiplus::Image::FromFile(str2wstr(fileName).c_str());
- 			InvalidateRect(0);
-			return true;
-		}
-
-		bool ShowImage(const cv::Mat &img)
-		{
-			SAFE_DELETE(m_image);
-			if (img.data)
-				m_image = CGdiPlus::CopyMatToBmp(img);
-			//InvalidateRect(0);
-			CDC *pDC = GetDC();
-			OnDraw(pDC);
-			ReleaseDC(pDC);
-			return true;
-		}
-
-		virtual void OnDraw(CDC* pDC)
-		{
-			Gdiplus::Graphics g(*pDC);
-			if (m_image)
-			{
-				CRect cr;
-				GetClientRect(cr);
-				// 윈도우 크기가 이미지 보다 크다면, 이미지 크기대로 출력한다.
-				// 이미지 크기가 윈도우 보다 크다면, 윈도우 크기대로 출력한다.
-				const int w = MIN((int)m_image->GetWidth(), cr.Width());
-				const int h = MIN((int)m_image->GetHeight(), cr.Height());
-				g.DrawImage(m_image, 0, 0, w, h);
-			}
-		}
-
-		afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-		{
-			if (nChar == VK_ESCAPE)
-			{
-				CImageFrameWnd *parent = (CImageFrameWnd*)GetParent();
-				parent->ShowWindow(SW_HIDE);
-			}
-		}
-
-		BOOL OnEraseBkgnd(CDC* pDC)
-		{
-			return TRUE;
-		}
+		bool Init(CWnd *parentWnd, const CRect &rect);
+		bool ShowImage(const string &fileName);
+		bool ShowImage(const cv::Mat &img);
+		virtual void OnDraw(CDC* pDC);
+		afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+		BOOL OnEraseBkgnd(CDC* pDC);
 
 
+	public:
 		string m_fileName;
 		Gdiplus::Image *m_image;
 		DECLARE_MESSAGE_MAP()

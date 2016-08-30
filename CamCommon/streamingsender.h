@@ -44,7 +44,7 @@ namespace cvproc
 			const bool isGray, const bool isCompressed);
 		bool SendSplit();
 		virtual void RemoveSession(const SOCKET remoteSock) override;
-		virtual void AddSession(const SOCKET remoteSock) override;
+		virtual void AddSession(const SOCKET remoteSock) override { }
 
 
 	public:

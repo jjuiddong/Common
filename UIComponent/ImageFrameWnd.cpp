@@ -2,13 +2,94 @@
 #include "stdafx.h"
 #include "ImageFrameWnd.h"
 
+
+
+//-----------------------------------------------------------------------------------------------
+// cImageView
+
 BEGIN_MESSAGE_MAP(CImageFrameWnd::cImageView, CView)
 	ON_WM_KEYDOWN()
 	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 
-// CImageFrameWnd2
+CImageFrameWnd::cImageView::cImageView()
+	: m_image(NULL) 
+{
+}
+
+CImageFrameWnd::cImageView::~cImageView()
+{
+	SAFE_DELETE(m_image);
+}
+
+bool CImageFrameWnd::cImageView::Init(CWnd *parentWnd, const CRect &rect)
+{
+	if (!Create(NULL, L"ImageWnd", WS_VISIBLE | WS_CHILDWINDOW, rect, parentWnd, 100))
+		return false;
+	return true;
+}
+
+bool CImageFrameWnd::cImageView::ShowImage(const string &fileName)
+{
+	SAFE_DELETE(m_image);
+	m_image = Gdiplus::Image::FromFile(str2wstr(fileName).c_str());
+	InvalidateRect(0);
+	return true;
+}
+
+bool CImageFrameWnd::cImageView::ShowImage(const cv::Mat &img)
+{
+	if (img.data)
+	{
+		if (m_image && (m_image->GetWidth() == img.cols) && (m_image->GetHeight() == img.rows))
+		{
+			CGdiPlus::CopyMatToBmp(img, (Gdiplus::Bitmap*)m_image);
+		}
+		else
+		{
+			SAFE_DELETE(m_image);
+			m_image = CGdiPlus::CopyMatToBmp(img);
+		}
+		InvalidateRect(0);
+	}
+	return true;
+}
+
+void CImageFrameWnd::cImageView::OnDraw(CDC* pDC)
+{
+	Gdiplus::Graphics g(*pDC);
+	if (m_image)
+	{
+		CRect cr;
+		GetClientRect(cr);
+		// 윈도우 크기가 이미지 보다 크다면, 이미지 크기대로 출력한다.
+		// 이미지 크기가 윈도우 보다 크다면, 윈도우 크기대로 출력한다.
+		const int w = MIN((int)m_image->GetWidth(), cr.Width());
+		const int h = MIN((int)m_image->GetHeight(), cr.Height());
+		g.DrawImage(m_image, 0, 0, w, h);
+	}
+}
+
+void CImageFrameWnd::cImageView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar == VK_ESCAPE)
+	{
+		CImageFrameWnd *parent = (CImageFrameWnd*)GetParent();
+		parent->ShowWindow(SW_HIDE);
+	}
+}
+
+BOOL CImageFrameWnd::cImageView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
+}
+
+
+
+//-----------------------------------------------------------------------------------------------
+// CImageFrameWnd
+
 CImageFrameWnd::CImageFrameWnd() 
 	: m_isAutoSize(false)
 	, m_imageView(NULL)

@@ -153,7 +153,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 
 	while (server->m_threadLoop)
 	{
-		const timeval t = { 0, 10};
+		const timeval t = { 0, 1};
 
 		// Accept는 가끔씩 처리한다.
 		const int curT = timeGetTime();
