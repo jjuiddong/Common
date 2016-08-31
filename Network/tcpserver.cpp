@@ -11,6 +11,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg);
 
 cTCPServer::cTCPServer()
 	: m_isConnect(false)
+	, m_listener(NULL)
 	, m_threadLoop(true)
 	, m_maxBuffLen(BUFFER_LENGTH)
 	, m_sleepMillis(10)

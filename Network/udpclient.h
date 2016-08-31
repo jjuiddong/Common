@@ -40,7 +40,6 @@ namespace network
 		cPacketQueue m_sndQueue;
 
 		std::thread m_thread;
-		CriticalSection m_sndCriticalSection;
 		bool m_threadLoop;
 		int m_sleepMillis; // Sleep(m_sleepMillis)
 	};

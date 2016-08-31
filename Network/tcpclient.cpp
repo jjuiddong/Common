@@ -10,6 +10,7 @@ unsigned WINAPI TCPClientThreadFunction(void* arg);
 
 cTCPClient::cTCPClient()
 : m_isConnect(false)
+, m_socket(INVALID_SOCKET)
 , m_threadLoop(true)
 , m_sleepMillis(30)
 , m_maxBuffLen(BUFFER_LENGTH)

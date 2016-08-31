@@ -282,7 +282,6 @@ void cPacketQueue::SendAll()
 }
 
 
-
 void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 {
 	RET(m_queue.empty());
@@ -292,7 +291,6 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 	{
 		if (m_isIgnoreHeader)
 		{
-			//send(m_queue[i].sock, (const char*)m_queue[i].buffer + sizeof(sHeader), m_queue[i].actualLen, 0);
 			sendto(m_queue[i].sock, (const char*)m_queue[i].buffer + sizeof(sHeader), m_queue[i].actualLen,
 				0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
 		}
@@ -300,8 +298,6 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 		{
 			sendto(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen,
 				0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
-
-			//send(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen, 0);
 		}
 		Free(m_queue[i].buffer);
 	}
