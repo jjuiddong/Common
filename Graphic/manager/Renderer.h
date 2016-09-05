@@ -52,7 +52,7 @@ namespace graphic
 	//bool InitRenderer(cRenderer &renderer, HWND hWnd, const int width, const int height);
 	void ReleaseRenderer();
 	//inline cRenderer* GetRenderer() { return cRenderer::Get(); }
-	///inline LPDIRECT3DDEVICE9 GetDevice() { return cRenderer::Get()->GetDevice(); }
+	//inline LPDIRECT3DDEVICE9 GetDevice() { return cRenderer::Get()->GetDevice(); }
 	inline LPDIRECT3DDEVICE9 cRenderer::GetDevice() { return m_pDevice; }
 	inline HWND cRenderer::GetHwnd() const { return m_hWnd; }
 
