@@ -16,9 +16,11 @@ cLine::cLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const fl
 }
 
 
-void cLine::Render(cRenderer &renderer)
+void cLine::Render(cRenderer &renderer, const Matrix44 &tm)//tm = Matrix44::Identity
 {
-	renderer.GetDevice()->SetTransform( D3DTS_WORLD, (D3DXMATRIX*)&m_tm );
+	Matrix44 m = m_tm * tm;
+
+	renderer.GetDevice()->SetTransform( D3DTS_WORLD, (D3DXMATRIX*)&m );
 	m_material.Bind(renderer);
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);

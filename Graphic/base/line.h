@@ -11,7 +11,7 @@ namespace graphic
 		cLine();
 		cLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width);
 
-		void Render(cRenderer &renderer);
+		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width);
 		cMaterial& GetMaterial();
 		void SetTransform(const Matrix44 &tm);
