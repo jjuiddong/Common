@@ -167,7 +167,7 @@ void cGameMain::Run()
 
 		Update(t);
 		Render(t);
-		Sleep(0);
+		Sleep(1);
 	}
 }
 

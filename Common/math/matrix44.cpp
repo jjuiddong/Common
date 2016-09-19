@@ -12,6 +12,12 @@ Matrix44::Matrix44()
 	SetIdentity();
 }
 
+// ar : float ar[16]
+Matrix44::Matrix44(const float *ar)
+{
+	memcpy((float*)m, ar, sizeof(m));
+}
+
 void Matrix44::SetIdentity()
 {
 	_11 = _22 = _33 = _44 = 1;

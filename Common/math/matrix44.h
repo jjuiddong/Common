@@ -21,6 +21,7 @@ namespace common
 		static const Matrix44 Identity; // 전역 단위행렬 상수.
 
 		Matrix44();
+		Matrix44(const float *ar);
 		inline void SetIdentity();
 		void	SetRotationX( const float angle );
 		void	SetRotationY( const float angle );
