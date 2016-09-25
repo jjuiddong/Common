@@ -11,7 +11,6 @@ cUDPServer::cUDPServer()
 	: m_id(0)
 	, m_isConnect(false)
 	, m_threadLoop(true)
-	, m_maxBuffLen(BUFFER_LENGTH)
 	, m_sleepMillis(1)
 {
 }
@@ -22,10 +21,14 @@ cUDPServer::~cUDPServer()
 }
 
 
-bool cUDPServer::Init(const int id, const int port)
+bool cUDPServer::Init(const int id, const int port
+	, const int packetSize, const int maxPacketCount, const int sleepMillis
+	, const bool isIgnoreHeader)
+// packetSize = 512, maxPacketCount = 10, sleepMillis = 30, isIgnoreHeader=true
 {
 	m_id = id;
 	m_port = port;
+	m_sleepMillis = sleepMillis;
 
 	if (m_isConnect)
 	{
@@ -37,7 +40,7 @@ bool cUDPServer::Init(const int id, const int port)
 
 		if (network::LaunchUDPServer(port, m_socket))
 		{
-			if (!m_recvQueue.Init(m_maxBuffLen, 512))
+			if (!m_recvQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
 			{
 				Close();
 				return false;
@@ -89,7 +92,12 @@ void cUDPServer::Close(const bool isWait) // isWait = false
 
 void cUDPServer::SetMaxBufferLength(const int length)
 {
-	m_maxBuffLen = length;
+	if (!m_recvQueue.Init(length, 
+		m_recvQueue.GetMaxPacketCount(), 
+		m_recvQueue.IsIgnoreHeader()))
+	{
+		Close();
+	}
 }
 
 
@@ -98,8 +106,8 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 {
 	cUDPServer *udp = (cUDPServer*)arg;
 
-	BYTE *buff = new BYTE[udp->m_maxBuffLen];
-	ZeroMemory(buff, udp->m_maxBuffLen);
+	BYTE *buff = new BYTE[udp->m_recvQueue.GetPacketSize()];
+	ZeroMemory(buff, udp->m_recvQueue.GetPacketSize());
 
 	while (udp->m_threadLoop)
 	{
@@ -111,7 +119,7 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 		const int ret = select(readSockets.fd_count, &readSockets, NULL, NULL, &t);
 		if (ret != 0 && ret != SOCKET_ERROR)
 		{
-			const int result = recv(readSockets.fd_array[0], (char*)buff, udp->m_maxBuffLen, 0);
+			const int result = recv(readSockets.fd_array[0], (char*)buff, udp->m_recvQueue.GetPacketSize(), 0);
 			if (result == SOCKET_ERROR || result == 0) // 받은 패킷사이즈가 0이면 서버와 접속이 끊겼다는 의미다.
 			{
 				// 에러가 발생하더라도, 수신 대기상태로 계속 둔다.
@@ -123,7 +131,7 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 		}
 		
 		if (udp->m_sleepMillis)
-			std::this_thread::sleep_for(std::chrono::microseconds(udp->m_sleepMillis));
+			std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 	}
 
 	delete[] buff;

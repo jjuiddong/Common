@@ -17,9 +17,9 @@ namespace motion
 		cShmemInput();
 		virtual ~cShmemInput();
 
-		bool Init(const int startIndex, const string &sharedMemoryName, const string &protocolCmd, 
+		bool Init(const int startIndex, const int memSize, const string &sharedMemoryName, const string &protocolCmd, 
 			const string &cmd, const string &modulatorScript);
-		bool Init2(const int startIndex, const string &sharedMemoryName, const string &protocolScriptFileName,
+		bool Init2(const int startIndex, const int memSize, const string &sharedMemoryName, const string &protocolScriptFileName,
 			const string &cmdScriptFileName, const string &modulatorScriptFileName);
 		virtual bool Start() override;
 		virtual bool Stop() override;
@@ -32,13 +32,14 @@ namespace motion
 
 
 	public:
-		enum {SHMEM_SIZE = 256};
+		//enum {SHMEM_SIZE = 7316};
 
 		boost::interprocess::windows_shared_memory m_sharedmem;
 		boost::interprocess::mapped_region m_mmap;
 		BYTE *m_memPtr;
 
 		int m_startIndex;
+		int m_memorySize;
 		cProtocolParser m_protocolParser;
 		cMathParser m_cmdParser;
 		mathscript::cMathInterpreter m_cmdInterpreter;

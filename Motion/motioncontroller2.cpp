@@ -431,13 +431,17 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 			shmName = trim(parentComp->cmd->values["shmname"]);
 
 		int startIndex = 1001;
+		int memorySize = 1024;
 		if (parentComp->cmd)
 		{
 			const string strStartIndex = parentComp->cmd->values["startindex"];
 			startIndex = (strStartIndex.empty())? 1001 : atoi(strStartIndex.c_str());
+
+			const string strMemorySize = parentComp->cmd->values["memsize"];
+			memorySize = (strMemorySize.empty()) ? 1001 : atoi(strMemorySize.c_str());
 		}
 
-		if (shmInput->Init(startIndex, shmName, strProtocol ? *strProtocol : "",
+		if (shmInput->Init(startIndex, memorySize, shmName, strProtocol ? *strProtocol : "",
 			strMath ? *strMath : "", strModulation ? *strModulation : ""))
 		{
 			AddInput(shmInput);

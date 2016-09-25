@@ -23,7 +23,10 @@ namespace network
 		cUDPServer();
 		virtual ~cUDPServer();
 
-		bool Init(const int id, const int port);
+		bool Init(const int id, const int port 
+			,const int packetSize = 1024, const int maxPacketCount = 512, const int sleepMillis = 1
+			,const bool isIgnoreHeader = true);
+
 		int GetRecvData(OUT BYTE *dst, const int maxSize);
 		void SetMaxBufferLength(const int length);
 		void Close(const bool isWait = false);
@@ -35,7 +38,6 @@ namespace network
 		SOCKET m_socket;
 		int m_port;
 		bool m_isConnect;
-		int m_maxBuffLen;
 		cPacketQueue m_recvQueue;
 
 		std::thread m_thread;

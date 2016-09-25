@@ -8,11 +8,13 @@ using namespace network;
 cPacketQueue::cPacketQueue()
 	: m_memPoolPtr(NULL)
 	, m_chunkBytes(0)
+	, m_packetBytes(0)
 	, m_totalChunkCount(0)
 	, m_tempHeaderBuffer(NULL)
 	, m_tempBuffer(NULL)
 	, m_isStoreTempHeaderBuffer(false)
 	, m_isIgnoreHeader(false)
+	, m_isLogIgnorePacket(false)
 {
 	InitializeCriticalSectionAndSpinCount(&m_criticalSection, 0x00000400);
 }
@@ -33,6 +35,7 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount, const bo
 	m_isIgnoreHeader = isIgnoreHeader;
 
 	// Init Memory pool
+	m_packetBytes = (isIgnoreHeader)? packetSize : (packetSize + sizeof(sHeader));
 	m_chunkBytes = packetSize;
 	m_totalChunkCount = maxPacketCount;
 	m_memPoolPtr = new BYTE[(packetSize+sizeof(sHeader)) * maxPacketCount];
@@ -63,7 +66,7 @@ void cPacketQueue::Push(const SOCKET sock, const BYTE *data, const int len,
 
 	// 남은 여분의 버퍼가 있을 때.. 
 	// 임시로 저장해뒀던 정보와 인자로 넘어온 정보를 합쳐서 처리한다.
-	if (m_isStoreTempHeaderBuffer)
+	if (!m_isIgnoreHeader && m_isStoreTempHeaderBuffer)
 	{
 		if (m_tempBufferSize < (len + m_tempHeaderBufferSize))
 		{
@@ -93,7 +96,7 @@ void cPacketQueue::Push(const SOCKET sock, const BYTE *data, const int len,
 		{
 			// 남은 여분의 데이타가 sHeader 보다 작을 때, 임시로 
 			// 저장한 후, 나머지 패킷이 왔을 때 처리한다.
-			if (fromNetwork && (size < sizeof(sHeader)))
+			if (!m_isIgnoreHeader && fromNetwork && (size < sizeof(sHeader)))
 			{
 				m_tempHeaderBufferSize = size;
 				m_isStoreTempHeaderBuffer = true;
@@ -102,7 +105,15 @@ void cPacketQueue::Push(const SOCKET sock, const BYTE *data, const int len,
 			}
 			else
 			{
-				offset += AddSockBuffer(sock, ptr, size, fromNetwork);
+				int addLen = AddSockBuffer(sock, ptr, size, fromNetwork);
+				if (0 == addLen)
+				{
+					if (m_isLogIgnorePacket)
+						common::dbg::ErrLog("packetqueue push Alloc error!! \n");
+					break;
+				}
+
+				offset += addLen;
 			}
 		}
 	}
@@ -113,6 +124,8 @@ void cPacketQueue::Push(const SOCKET sock, const BYTE *data, const int len,
 // sock 에 해당하는 큐를 리턴한다. 
 sSockBuffer* cPacketQueue::FindSockBuffer(const SOCKET sock)
 {
+	RETV(m_queue.empty(), NULL);
+
 	// find specific packet by socket
 	for (u_int i = 0; i < m_queue.size(); ++i)
 	{
@@ -122,6 +135,15 @@ sSockBuffer* cPacketQueue::FindSockBuffer(const SOCKET sock)
 		if (m_queue[i].readLen < m_queue[i].totalLen)
 			return &m_queue[i];
 	}
+
+	// fastmode?
+	// 최대 패킷 수를 1개만 생성한 경우, 버퍼 하나에 업데이트하는 방식으로 작동한다.
+	if (m_totalChunkCount == 1)
+	{
+		m_queue.front().readLen = 0;
+		return &m_queue.front();
+	}
+
 	return NULL;
 }
 
@@ -157,24 +179,23 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const BYTE *data, const int l
 
 	bool isMakeHeader = false; // 패킷 헤더가 없는 경우, 생성한다.
 
-	int offset = 0;
 	if (fromNetwork)
 	{
 		// 네트워크를 통해 온 패킷이라면, 이미 패킷헤더가 포함된 상태다.
 		// 전체 패킷 크기를 저장해서, 분리된 패킷인지를 판단한다.
-		sHeader *pheader = (sHeader*)data;
-		if ((pheader->head[0] == '$') && (pheader->head[1] == '@'))
+		if (m_isIgnoreHeader)
 		{
-			sockBuffer.totalLen = pheader->length;
-			sockBuffer.actualLen = pheader->length - sizeof(sHeader);
-			sockBuffer.buffer = Alloc();
+			// 헤더가 없는 패킷을 경우, 생성해서 추가한다.
+			isMakeHeader = true;
 		}
 		else
 		{
-			if (m_isIgnoreHeader)
+			sHeader *pheader = (sHeader*)data;
+			if ((pheader->head[0] == '$') && (pheader->head[1] == '@'))
 			{
-				// 헤더가 없는 패킷을 경우, 생성해서 추가한다.
-				isMakeHeader = true;
+				sockBuffer.totalLen = pheader->length;
+				sockBuffer.actualLen = pheader->length - sizeof(sHeader);
+				sockBuffer.buffer = Alloc();
 			}
 			else
 			{
@@ -192,26 +213,22 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const BYTE *data, const int l
 	{
 		// 송신할 패킷을 추가할 경우, or 헤더가 없는 패킷을 받을 경우.
 		// 패킷 헤더를 추가한다.
-		sockBuffer.totalLen = len + sizeof(sHeader);
+		sockBuffer.totalLen = (m_isIgnoreHeader)? len : (len + sizeof(sHeader));
 		sockBuffer.actualLen = len;
-
-		sHeader header;
-		header.head[0] = '$';
-		header.head[1] = '@';
-		header.length = len + sizeof(sHeader);
-
 		sockBuffer.buffer = Alloc();
-		if (sockBuffer.buffer)
+
+		if (!m_isIgnoreHeader && sockBuffer.buffer)
 		{
-			offset += CopySockBuffer(&sockBuffer, (BYTE*)&header, sizeof(sHeader));
+			sHeader header;
+			header.head[0] = '$';
+			header.head[1] = '@';
+			header.length = len + sizeof(sHeader);
+			CopySockBuffer(&sockBuffer, (BYTE*)&header, sizeof(sHeader));
 		}
-	}	
+	}
 
 	if (!sockBuffer.buffer)
-	{
-		common::dbg::ErrLog("packetqueue push error!! canceled 1.\n");
-		return len; // Error!! 
-	}
+		return 0; // Error!! 
 
 	if ((sockBuffer.totalLen < 0) || (sockBuffer.actualLen < 0))
 	{
@@ -219,18 +236,11 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const BYTE *data, const int l
 		return len;
 	}
 
-	CopySockBuffer(&sockBuffer, data, len);
+	const int copyLen = CopySockBuffer(&sockBuffer, data, len);
 	m_queue.push_back(sockBuffer);
 
-	if (fromNetwork)
-	{
-		return sockBuffer.readLen;
-	}
-	else
-	{
-		// 패킷헤더 크기는 제외(순수하게 data에서 복사된 크기를 리턴한다.)
-		return sockBuffer.readLen - sizeof(sHeader); 
-	}
+	// 패킷헤더 크기는 제외(순수하게 data에서 복사된 크기를 리턴한다.)
+	return copyLen;
 }
 
 
@@ -242,7 +252,7 @@ bool cPacketQueue::Front(OUT sSockBuffer &out)
 	RETV(!m_queue[0].full, false);
 
 	out.sock = m_queue[0].sock;
-	out.buffer = m_queue[0].buffer + sizeof(sHeader); // 헤더부를 제외한 패킷 데이타를 리턴한다.
+	out.buffer = m_queue[0].buffer + ((m_isIgnoreHeader)? 0 : sizeof(sHeader)); // 헤더부를 제외한 패킷 데이타를 리턴한다.
 	out.readLen = m_queue[0].readLen;
 	out.totalLen = m_queue[0].totalLen;
 	out.actualLen = m_queue[0].actualLen;
@@ -268,14 +278,7 @@ void cPacketQueue::SendAll()
 	cAutoCS cs(m_criticalSection);
 	for (u_int i = 0; i < m_queue.size(); ++i)
 	{
-		if (m_isIgnoreHeader)
-		{
-			send(m_queue[i].sock, (const char*)m_queue[i].buffer+sizeof(sHeader), m_queue[i].actualLen, 0);
-		}
-		else
-		{
-			send(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen, 0);
-		}
+		send(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen, 0);
 		Free(m_queue[i].buffer);
 	}
 	m_queue.clear();
@@ -289,16 +292,8 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 	cAutoCS cs(m_criticalSection);
 	for (u_int i = 0; i < m_queue.size(); ++i)
 	{
-		if (m_isIgnoreHeader)
-		{
-			sendto(m_queue[i].sock, (const char*)m_queue[i].buffer + sizeof(sHeader), m_queue[i].actualLen,
-				0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
-		}
-		else
-		{
-			sendto(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen,
-				0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
-		}
+		sendto(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen,
+			0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
 		Free(m_queue[i].buffer);
 	}
 	m_queue.clear();

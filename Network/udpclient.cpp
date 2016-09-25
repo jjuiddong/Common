@@ -23,7 +23,8 @@ cUDPClient::~cUDPClient()
 
 
 // UDP 클라언트 생성, ip, port 에 접속을 시도한다.
-bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis) //sleepMillis=30
+bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis, const bool isIgnoreHeader) 
+//sleepMillis=30, isIgnoreHeader=true
 {
 	Close();
 
@@ -35,7 +36,7 @@ bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis) /
 	{
 		dbg::Log("Connect UDP Client ip=%s, port=%d\n", ip.c_str(), port);
 
-		if (!m_sndQueue.Init(m_maxBuffLen, 512))
+		if (!m_sndQueue.Init(m_maxBuffLen, 512, isIgnoreHeader))
 		{
 			Close();
 			return false;
@@ -95,13 +96,13 @@ unsigned WINAPI UDPClientThreadFunction(void* arg)
 	{
 		if (!udp->m_isConnect || (INVALID_SOCKET == udp->m_socket))
 		{
-			std::this_thread::sleep_for(std::chrono::microseconds(udp->m_sleepMillis));
+			std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 			continue;
 		}
 
 		udp->m_sndQueue.SendAll(udp->m_sockaddr);
 
-		std::this_thread::sleep_for(std::chrono::microseconds(udp->m_sleepMillis));
+		std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 	}
 
 	return 0;

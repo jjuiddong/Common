@@ -61,7 +61,8 @@ bool cUDPInput::Start()
 {
 	RETV((m_udpBindPort == 0), false);
 
-	if (!m_udpSvr.Init(0, m_udpBindPort))
+	m_udpSvr.m_sleepMillis = 30;
+	if (!m_udpSvr.Init(0, m_udpBindPort, 256, 1))
 		return false;
 
 	m_state = MODULE_STATE::START;

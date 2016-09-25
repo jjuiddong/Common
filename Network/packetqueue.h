@@ -15,6 +15,9 @@
 //		- 큰 패킷이 나눠져서 온 경우 sHeader 정보를 토대로, 패킷을 차례차례 쌓는다.
 //		- 네트워크로 부터 온 패킷이 2개 이상의 프로토콜을 포함할 경우, 나눠서 처리한다.
 //
+// 2016-09-24, jjuiddong
+//		- 메모리풀을 모두 차면, 들어오는 패킷을 무시한다.
+//
 #pragma once
 
 
@@ -56,6 +59,9 @@ namespace network
 		void Lock();
 		void Unlock();
 		int GetSize();
+		bool IsIgnoreHeader();
+		int GetPacketSize();
+		int GetMaxPacketCount();
 
 		vector<sSockBuffer> m_queue;
 
@@ -66,13 +72,12 @@ namespace network
 		BYTE *m_tempBuffer; // 임시로 저장될 버퍼
 		int m_tempBufferSize;
 		bool m_isIgnoreHeader; // sHeader 데이타가 없는 패킷을 받을 때, true
-
+		bool m_isLogIgnorePacket; // 무시한 패킷 로그를 남길지 여부, default = false
 
 	protected:
 		sSockBuffer* FindSockBuffer(const SOCKET sock);
 		int CopySockBuffer(sSockBuffer *dst, const BYTE *data, const int len);
 		int AddSockBuffer(const SOCKET sock, const BYTE *data, const int len, const bool fromNetwork);
-
 
 		//---------------------------------------------------------------------
 		// Simple Queue Memory Pool
@@ -93,4 +98,9 @@ namespace network
 		int m_totalChunkCount;
 		CRITICAL_SECTION m_criticalSection;
 	};
+
+
+	inline bool cPacketQueue::IsIgnoreHeader() { return  m_isIgnoreHeader;  }
+	inline int cPacketQueue::GetPacketSize() { return m_packetBytes;  }
+	inline int cPacketQueue::GetMaxPacketCount() { return m_totalChunkCount; }
 }

@@ -217,7 +217,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 		//-----------------------------------------------------------------------------------
 
 		const int sleepTime = server->m_sessions.empty() ? 100 : server->m_sleepMillis;
-		std::this_thread::sleep_for(std::chrono::microseconds(sleepTime));
+		std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}
 
 	delete[] buff;

@@ -10,6 +10,7 @@ cShmemInput::cShmemInput()
 	: cInput(MOTION_MEDIA::SHARED_MEM)
 	, m_memPtr(NULL)
 	, m_startIndex(1001)
+	, m_memorySize(1024)
 {
 }
 
@@ -19,10 +20,11 @@ cShmemInput::~cShmemInput()
 
 
 // 클래스 초기화
-bool cShmemInput::Init(const int startIndex, const string &sharedMemoryName, 
+bool cShmemInput::Init(const int startIndex, const int memSize, const string &sharedMemoryName,
 	const string &protocolCmd, const string &cmd, const string &modulatorScript)
 {
 	m_startIndex = startIndex;
+	m_memorySize = memSize;
 
 	if (!CreateSharedMem(sharedMemoryName))
 		return false;
@@ -39,11 +41,11 @@ bool cShmemInput::Init(const int startIndex, const string &sharedMemoryName,
 }
 
 
-bool cShmemInput::Init2(const int startIndex, const string &sharedMemoryName, 
+bool cShmemInput::Init2(const int startIndex, const int memSize, const string &sharedMemoryName,
 	const string &protocolScriptFileName,const string &cmdScriptFileName, const string &modulatorScriptFileName)
 {
 	m_startIndex = startIndex;
-	m_startIndex = startIndex;
+	m_memorySize = memSize;
 
 	if (!CreateSharedMem(sharedMemoryName))
 		return false;
@@ -68,9 +70,9 @@ bool cShmemInput::CreateSharedMem(const string &sharedMemoryName)
 
 	try
 	{
-		m_sharedmem = windows_shared_memory(open_or_create, sharedMemoryName.c_str(), read_write, SHMEM_SIZE);
+		m_sharedmem = windows_shared_memory(open_or_create, sharedMemoryName.c_str(), read_write, m_memorySize);
 
-		m_mmap = mapped_region(m_sharedmem, read_write, 0, SHMEM_SIZE);
+		m_mmap = mapped_region(m_sharedmem, read_write, 0, m_memorySize);
 
 		m_memPtr = static_cast<BYTE*>(m_mmap.get_address());
 	}
@@ -113,7 +115,7 @@ bool cShmemInput::Update(const float deltaSeconds)
 	if (m_incTime < 0.033f)
 		return true;
 
-	ParseSharedMem(m_memPtr, SHMEM_SIZE);
+	ParseSharedMem(m_memPtr, m_memorySize);
 
 	// Excute Command Script
 	m_cmdInterpreter.Excute(m_cmdParser.m_stmt);
@@ -160,7 +162,7 @@ void cShmemInput::ParseSharedMem(const BYTE *buffer, const int bufferLen)
 
 		script::sFieldData data;
 		ZeroMemory(data.buff, sizeof(data));
-		memcpy(data.buff, pmem, field.bytes);
+		memcpy(data.buff, pmem, MIN(field.bytes, sizeof(data)));
 		data.type = field.type;
 
 		const string id = format("$%d", i + m_startIndex); // $1 ,$2, $3 ~

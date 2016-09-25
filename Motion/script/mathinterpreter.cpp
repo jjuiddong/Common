@@ -100,6 +100,20 @@ float cMathInterpreter::func(const sFunc *p)
 			val = abs( expr(p->exprs->expr) );
 		}
 	}
+	if (p->id == "floor") // floor( val )
+	{
+		if (p->exprs)
+		{
+			val = floor(expr(p->exprs->expr));
+		}
+	}
+	if (p->id == "round") // round( val )
+	{
+		if (p->exprs)
+		{
+			val = round(expr(p->exprs->expr));
+		}
+	}
 	else if (p->id == "atan") // atan( y, x )
 	{
 		if (p->exprs && p->exprs->expr && p->exprs->next->expr) // null check
