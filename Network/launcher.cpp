@@ -9,7 +9,7 @@ using namespace common;
 //------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------
-bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET &out)
+bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET &out, const bool isLog)
 {
 	const string tmpIp = ip; // thread safety
 
@@ -21,7 +21,8 @@ bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET 
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "윈속 버전이 틀렸습니다\n" );
-		dbg::ErrLog("윈속 버전이 틀렸습니다\n");
+		if (isLog)
+			dbg::ErrLog("윈속 버전이 틀렸습니다\n");
 		return false;
 	}
 
@@ -30,7 +31,8 @@ bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET 
 	if(lpHostEntry == NULL)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "gethostbyname() error\n" );
-		dbg::ErrLog("gethostbyname() error\n");
+		if (isLog)
+			dbg::ErrLog("gethostbyname() error\n");
 		return false;
 	}
 
@@ -40,7 +42,8 @@ bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET 
 	if (clientSocket == INVALID_SOCKET)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "socket() error\n" );
-		dbg::ErrLog("socket() error\n");
+		if (isLog)
+			dbg::ErrLog("socket() error\n");
 		return false;
 	}
 
@@ -56,7 +59,8 @@ bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET 
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "connect() error ip=%s, port=%d\n", ip.c_str(), port );
-		dbg::ErrLog("connect() error ip=%s, port=%d\n", ip.c_str(), port);
+		if (isLog)
+			dbg::ErrLog("connect() error ip=%s, port=%d\n", ip.c_str(), port);
 		closesocket(clientSocket);
 		return false;
 	}
@@ -71,7 +75,7 @@ bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET 
 //------------------------------------------------------------------------
 // 서버 시작
 //------------------------------------------------------------------------
-bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
+bool network::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog)
 {
 	// 윈속을 시작하고 버전을 확인합니다
 	WORD wVersionRequested = MAKEWORD(1, 1);
@@ -80,7 +84,8 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		//clog::Error( clog::ERROR_CRITICAL,  "윈속 버전이 틀렸습니다\n" );
-		dbg::ErrLog("윈속 버전이 틀렸습니다\n");
+		if (isLog)
+			dbg::ErrLog("윈속 버전이 틀렸습니다\n");
 		return false;
 	}
 
@@ -89,7 +94,8 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
 	if(svrSocket == INVALID_SOCKET)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "socket() error\n" );
-		dbg::ErrLog("socket() error\n");
+		if (isLog)
+			dbg::ErrLog("socket() error\n");
 		return false;
 	}
 
@@ -105,7 +111,8 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL,  "bind() error port: %d\n", port );
-		dbg::ErrLog("bind() error port: %d\n", port);
+		if (isLog)
+			dbg::ErrLog("bind() error port: %d\n", port);
 		closesocket(svrSocket);
 		return false;
 	}
@@ -115,7 +122,8 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "gethostname() error\n" );
-		dbg::ErrLog("gethostname() error\n");
+		if (isLog)
+			dbg::ErrLog("gethostname() error\n");
 		closesocket(svrSocket);
 		return false;
 	}
@@ -126,7 +134,8 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "listen() error\n" );
-		dbg::ErrLog("listen() error\n");
+		if (isLog)
+			dbg::ErrLog("listen() error\n");
 		closesocket(svrSocket);
 		return false;
 	}
@@ -141,7 +150,7 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out)
 //------------------------------------------------------------------------
 // 서버 시작
 //------------------------------------------------------------------------
-bool network::LaunchUDPServer(const int port, OUT SOCKET &out)
+bool network::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog)
 {
 	// 윈속을 시작하고 버전을 확인합니다
 	WORD wVersionRequested = MAKEWORD(1, 1);
@@ -150,7 +159,8 @@ bool network::LaunchUDPServer(const int port, OUT SOCKET &out)
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		//clog::Error( clog::ERROR_CRITICAL,  "윈속 버전이 틀렸습니다\n" );
-		dbg::ErrLog("윈속 버전이 틀렸습니다\n");
+		if (isLog)
+			dbg::ErrLog("윈속 버전이 틀렸습니다\n");
 		return false;
 	}
 
@@ -160,7 +170,8 @@ bool network::LaunchUDPServer(const int port, OUT SOCKET &out)
 	if (svrSocket == INVALID_SOCKET)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "socket() error\n" );
-		dbg::ErrLog("socket() error\n");
+		if (isLog)
+			dbg::ErrLog("socket() error\n");
 		return false;
 	}
 
@@ -176,7 +187,8 @@ bool network::LaunchUDPServer(const int port, OUT SOCKET &out)
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL,  "bind() error port: %d\n", port );
-		dbg::ErrLog("bind() error port: %d\n", port);
+		if (isLog)
+			dbg::ErrLog("bind() error port: %d\n", port);
 		closesocket(svrSocket);
 		return false;
 	}
@@ -186,7 +198,8 @@ bool network::LaunchUDPServer(const int port, OUT SOCKET &out)
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "gethostname() error\n" );
-		dbg::ErrLog("gethostname() error\n");
+		if (isLog)
+			dbg::ErrLog("gethostname() error\n");
 		closesocket(svrSocket);
 		return false;
 	}
@@ -202,7 +215,7 @@ bool network::LaunchUDPServer(const int port, OUT SOCKET &out)
 //------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------
-bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADDR_IN &sockAddr, OUT SOCKET &out)
+bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADDR_IN &sockAddr, OUT SOCKET &out, const bool isLog)
 {
 	// 윈속 버전을 확인 합니다.
 	WORD wVersionRequested = MAKEWORD(1, 1);
@@ -211,7 +224,8 @@ bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADD
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "윈속 버전이 틀렸습니다\n" );
-		dbg::ErrLog("윈속 버전이 틀렸습니다\n");
+		if (isLog)
+			dbg::ErrLog("윈속 버전이 틀렸습니다\n");
 		return false;
 	}
 
@@ -220,7 +234,8 @@ bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADD
 	if (lpHostEntry == NULL)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "gethostbyname() error\n" );
-		dbg::ErrLog("gethostbyname() error\n");
+		if (isLog)
+			dbg::ErrLog("gethostbyname() error\n");
 		return false;
 	}
 
@@ -230,7 +245,8 @@ bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADD
 	if (clientSocket == INVALID_SOCKET)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "socket() error\n" );
-		dbg::ErrLog("socket() error\n");
+		if (isLog)
+			dbg::ErrLog("socket() error\n");
 		return false;
 	}
 
@@ -246,7 +262,8 @@ bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADD
 	if (nRet == SOCKET_ERROR)
 	{
 		//clog::Error( clog::ERROR_CRITICAL, "connect() error ip=%s, port=%d\n", ip.c_str(), port );
-		dbg::ErrLog("connect() error ip=%s, port=%d\n", ip.c_str(), port);
+		if (isLog)
+			dbg::ErrLog("connect() error ip=%s, port=%d\n", ip.c_str(), port);
 		closesocket(clientSocket);
 		return false;
 	}

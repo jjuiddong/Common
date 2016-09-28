@@ -15,6 +15,7 @@ cTCPClient::cTCPClient()
 , m_sleepMillis(30)
 , m_maxBuffLen(BUFFER_LENGTH)
 , m_recvBytes(0)
+, m_isLog(true)
 {
 }
 
@@ -36,9 +37,10 @@ bool cTCPClient::Init(const string &ip, const int port,
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
 
-	if (network::LaunchTCPClient(ip, port, m_socket))
+	if (network::LaunchTCPClient(ip, port, m_socket, m_isLog))
 	{
-		common::dbg::Log("Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
+		if (m_isLog)
+			common::dbg::Log("Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
 
 		if (!m_recvQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
 		{
@@ -62,7 +64,8 @@ bool cTCPClient::Init(const string &ip, const int port,
 	}
 	else
 	{
-		common::dbg::ErrLog("Error!! Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
+		if (m_isLog)
+			common::dbg::ErrLog("Error!! Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
 		return false;
 	}
 

@@ -38,6 +38,7 @@ namespace network
 		bool m_threadLoop;
 		int m_sleepMillis;
 		int m_recvBytes; // debug
+		bool m_isLog; // debug
 	};
 
 

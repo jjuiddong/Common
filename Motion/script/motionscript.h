@@ -44,7 +44,7 @@ namespace motion
 	}
 	namespace DEVICE_TYPE {
 		enum TYPE {
-			NONE, UDP, TCP, SERIAL, SHAREDMEM, JOYSTICK,
+			NONE, UDP, TCP, SERIAL, SHAREDMEM, JOYSTICK, CUSTOM,
 		};
 	}
 

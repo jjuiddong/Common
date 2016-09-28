@@ -34,7 +34,7 @@ bool cScanner::Init(const string &str)
 	trim(src);
 	lowerCase(src);
 
-	string dst = str;
+	string dst = src;
 
 	// 공백 최대 1개
 	bool isBlank = false;

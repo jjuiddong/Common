@@ -8,6 +8,7 @@ using namespace motion;
 
 cController2::cController2() :
 	m_state(MODULE_STATE::STOP)
+	, m_customCallback(NULL)
 {
 }
 
@@ -273,6 +274,12 @@ bool cController2::MotionScriptInterpreter()
 }
 
 
+void cController2::CreateCustomModuleCallback(CUSTOM_CALLBACK func)
+{
+	m_customCallback = func;
+}
+
+
 bool cController2::CreateComponent(const sComponent *parentComp)
 {
 	RETV(!parentComp, false);
@@ -302,6 +309,7 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 		case DEVICE_TYPE::SERIAL: break;
 		case DEVICE_TYPE::SHAREDMEM: shmInput = new cShmemInput(); break;
 		case DEVICE_TYPE::JOYSTICK: joystickInput = new cJoyStickInput(); break;
+		case DEVICE_TYPE::CUSTOM: break;
 		default:
 			dbg::ErrLog("not found device type [%d] \n", parentComp->devType);
 			assert(0);
@@ -370,6 +378,18 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 
 	//-------------------------------------------------------------------
 	// Create Component
+
+
+	// Create Custom Input
+	if ((parentComp->type == COMPONENT_TYPE::INPUT)
+		&& (parentComp->devType == DEVICE_TYPE::CUSTOM))
+	{
+		if (m_customCallback)
+			return m_customCallback(parentComp, strProtocol, strMath, strMath, strModulation, strFormats);
+
+		return true;
+	}
+
 
 	// Create UDP Input
 	if (udpInput)

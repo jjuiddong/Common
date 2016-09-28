@@ -100,18 +100,32 @@ float cMathInterpreter::func(const sFunc *p)
 			val = abs( expr(p->exprs->expr) );
 		}
 	}
-	if (p->id == "floor") // floor( val )
+	else if (p->id == "floor") // floor( val )
 	{
 		if (p->exprs)
 		{
 			val = floor(expr(p->exprs->expr));
 		}
 	}
-	if (p->id == "round") // round( val )
+	else if (p->id == "round") // round( val )
 	{
 		if (p->exprs)
 		{
 			val = round(expr(p->exprs->expr));
+		}
+	}
+	else if (p->id == "angle2rad") // angle2rad( val )
+	{
+		if (p->exprs)
+		{
+			val = ANGLE2RAD(expr(p->exprs->expr));
+		}
+	}
+	else if (p->id == "rad2angle") // rad2angle( val )
+	{
+		if (p->exprs)
+		{
+			val = RAD2ANGLE(expr(p->exprs->expr));
 		}
 	}
 	else if (p->id == "atan") // atan( y, x )

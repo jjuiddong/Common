@@ -71,9 +71,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Project\GitHub\tesseract\api;C:\Project\GitHub\tesseract\ccmain;C:\Project\GitHub\tesseract\ccstruct;C:\Project\GitHub\tesseract\ccutil;C:\Project\GitHub\tesseract\classify;C:\Project\GitHub\tesseract\cube;C:\Project\GitHub\tesseract\cutil;C:\Project\GitHub\tesseract\dict;C:\Project\GitHub\tesseract\neural_networks;C:\Project\GitHub\tesseract\textord;C:\Project\GitHub\tesseract\viewer;C:\Project\GitHub\tesseract\wordrec;$(IncludePath)</IncludePath>
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Project\GitHub\tesseract\api;C:\Project\GitHub\tesseract\ccmain;C:\Project\GitHub\tesseract\ccstruct;C:\Project\GitHub\tesseract\ccutil;C:\Project\GitHub\tesseract\classify;C:\Project\GitHub\tesseract\cube;C:\Project\GitHub\tesseract\cutil;C:\Project\GitHub\tesseract\dict;C:\Project\GitHub\tesseract\neural_networks;C:\Project\GitHub\tesseract\textord;C:\Project\GitHub\tesseract\viewer;C:\Project\GitHub\tesseract\wordrec;$(IncludePath)</IncludePath>
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

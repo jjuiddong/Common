@@ -12,6 +12,11 @@ namespace motion
 	class cInput;
 	class cMixer;
 	class cOutput;
+
+	typedef bool (*CUSTOM_CALLBACK)(const sComponent *parentComp, const string *protocol, 
+		const string *init, const string *math, const string *modulation, const vector<string*> &fomats);
+
+
 	
 	class cController2 : public common::cSingleton<cController2>
 	{
@@ -37,6 +42,7 @@ namespace motion
 		virtual bool Stop();
 		virtual bool Update(const float deltaSeconds);
 		void SetOutputFormat(const int outputIndex, const int formatIndex);
+		void CreateCustomModuleCallback(CUSTOM_CALLBACK func);
 
 
 	protected:
@@ -54,6 +60,7 @@ namespace motion
 		vector<cOutput*> m_outputs;
 		motion::cMotionScriptParser m_script;
 		cShmMap<script::sFieldData> m_shmSymbols;
+		CUSTOM_CALLBACK m_customCallback;
 	};
 
 }

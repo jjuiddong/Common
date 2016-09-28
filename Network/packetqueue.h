@@ -44,7 +44,7 @@ namespace network
 
 		struct sHeader
 		{
-			BYTE head[2]; // $@
+			BYTE head[3]; // $@
 			BYTE protocol; // protocol id
 			int length;	// packet length (byte)
 		};

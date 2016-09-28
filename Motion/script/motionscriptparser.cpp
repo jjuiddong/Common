@@ -274,6 +274,10 @@ DEVICE_TYPE::TYPE cMotionScriptParser::GetDeviceType(const string &str)
 	{
 		return DEVICE_TYPE::JOYSTICK;
 	}
+	else 	if (str == "custom")
+	{
+		return DEVICE_TYPE::CUSTOM;
+	}
 	else
 	{
 		dbg::ErrLog("not found device type %s \n", str.c_str());
