@@ -149,21 +149,21 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 		return 0;
 	if (!node->child)
 		return 1; // terminal node, success finish
-	if ('@' == node->name[0]) // link node, excute child node
+	if ('@' == node->attrs["id"][0]) // link node, excute child node
 		return 1;
 
 	int matchType = 0; // template match
-	if (((script.m_matchType == 1) && (node->matchType == -1)) || (node->matchType == 1))
+	if (((script.m_matchType == 1) && (node->attrs["type"].empty())) || (node->attrs["type"] == "featurematch"))
 		matchType = 1; // feature match
-	else if (node->matchType == 2)
+	else if (node->attrs["type"] == "featurematch")
 		matchType = 2; // ocr match
 
-	if (matchType == 2)
+	if (node->attrs["type"] == "ocrmatch")
 	{
 		return executeOcr(arg);
 	}
 
-	const Mat &matObj = loadImage(node->name);
+	const Mat &matObj = loadImage(node->attrs["id"]);
 	if (matObj.empty())
 		return 0;
 
@@ -174,8 +174,9 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 	// roi x,y,w,h
 	cv::Rect roi(0, 0, input.cols, input.rows);
 	if (!node->IsEmptyRoi())
-		roi = { node->roi[0], node->roi[1], node->roi[2], node->roi[3] };
-	if (node->isRelation && parent)
+		sscanf(node->attrs["roi"].c_str(), "%d,%d,%d,%d", &roi.x, &roi.y, &roi.width, &roi.height);
+
+	if ((atoi(node->attrs["relation"].c_str())>0) && parent)
 	{
 		roi.x += parent->matchLoc.x;
 		roi.y += parent->matchLoc.y;
@@ -197,18 +198,22 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 
 	double min=0, max=0;
 	Point left_top;
-	const float maxThreshold = (node->threshold == 0) ? 0.9f : node->threshold;
+	const float mthreshold = (float)atof(node->attrs["threshold"].c_str());
+	const float maxThreshold = (mthreshold <= 0) ? 0.9f : mthreshold;
 	bool isDetect = false;
 
 	if (m_isLog)
-		dbg::Log("executeTree %s, matchType=%d \n", node->name, matchType);
+		dbg::Log("executeTree %s, matchType=%d \n", node->attrs["id"], matchType);
 
 	const Mat *src = &input;
 
 	// channel match
 	if (!node->IsEmptyBgr())
 	{
-		src = &loadScalarImage(inputName, inputImageId, Scalar(node->scalar[0], node->scalar[1], node->scalar[2]), node->scale); // BGR
+		cv::Scalar scalar;
+		sscanf(node->attrs["scalar"].c_str(), "%lf,%lf,%lf", &scalar[0], &scalar[1], &scalar[2]);
+		const float scale = (float)atof(node->attrs["scale"].c_str());
+		src = &loadScalarImage(inputName, inputImageId, scalar, scale); // BGR
 	}
 
 	// hsv match
@@ -248,13 +253,13 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 		}
 
 		if (m_isLog)
-			dbg::Log("%s --- templatematch max=%f, IsDetection = %d \n", node->name, max, isDetect);
+			dbg::Log("%s --- templatematch max=%f, IsDetection = %d \n", node->attrs["id"], max, isDetect);
 	}
 	else if (matchType == 1) // feature match
 	{
 		vector<KeyPoint> *objectKeyPoints, *sceneKeyPoints;
 		Mat *objectDescriotor, *sceneDescriptor;
-		loadDescriptor(node->name, &objectKeyPoints, &objectDescriotor);
+		loadDescriptor(node->attrs["id"], &objectKeyPoints, &objectDescriotor);
 		loadDescriptor(inputName, &sceneKeyPoints, &sceneDescriptor);
 
 		if (!objectKeyPoints || !sceneKeyPoints || !sceneKeyPoints || !sceneDescriptor)
@@ -269,7 +274,7 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 
 			// TODO: feature match roi
 			isDetect = match.Match(*src, *sceneKeyPoints, *sceneDescriptor, matObj,
-				*objectKeyPoints, *objectDescriotor, node->name);
+				*objectKeyPoints, *objectDescriotor, node->attrs["id"]);
 			max = isDetect ? 1 : 0;
 
 			// 매칭 결과 저장
@@ -312,8 +317,9 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	// roi x,y,w,h
 	cv::Rect roi(0, 0, input.cols, input.rows);
 	if (!node->IsEmptyRoi())
-		roi = { node->roi[0], node->roi[1], node->roi[2], node->roi[3] };
-	if (node->isRelation && parent)
+		sscanf(node->attrs["roi"].c_str(), "%d,%d,%d,%d", &roi.x, &roi.y, &roi.width, &roi.height);
+
+	if ((atoi(node->attrs["relation"].c_str())>0) && parent)
 	{
 		roi.x += parent->matchLoc.x;
 		roi.y += parent->matchLoc.y;
@@ -345,8 +351,11 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	else
 		dst = colorSrc.clone();
 
+	Scalar lower, upper;
+	sscanf(node->attrs["hsv0"].c_str(), "%lf,%lf,%lf,%lf,%lf,%lf", &lower[0], &lower[1], &lower[2], &upper[0], &upper[1], &upper[2]);
+
 	cvtColor(dst, dst, CV_BGR2HSV);
-	inRange(dst, Scalar(node->hsv[0][0], node->hsv[0][1], node->hsv[0][2]), Scalar(node->hsv[0][3], node->hsv[0][4], node->hsv[0][5]), dst);
+	inRange(dst, lower, upper, dst);
 	//-------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -360,15 +369,16 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 	const int t1 = timeGetTime();
 	const string srcStr = tess->Recognize(deSkew.m_tessImg);
 	const int t2 = timeGetTime();
-	const string result = tess->Dictionary(node->name, srcStr, maxFitness);
+	const string result = tess->Dictionary(node->attrs["id"], srcStr, maxFitness);
 	const int t3 = timeGetTime();
 
 	dbg::Log2("log2.txt", "%s\n", trim(string(srcStr)).c_str());
 
 	if (m_isLog2)
 	{
-		dbg::Log("tesseract recognition deskew = %d, recog time = %d, dictionary = %d, dict = %s, src = %s, result = %s, maxFitness = %3.3f  \n", 
-			t0_2 - t0_1, t2 - t1, t3 - t2, node->name, srcStr.c_str(), result.c_str(), maxFitness);
+		dbg::Log("tesseract recognition deskew = %d, recog time = %d, dictionary = %d, dict = %s, result = %s, maxFitness = %3.3f  \n", 
+			t0_2 - t0_1, t2 - t1, t3 - t2, node->attrs["id"].c_str(), result.c_str(), maxFitness);
+		dbg::Log("    -src = %s \n", srcStr.c_str());
 	}
 
 	if (t2 - t1 > 200)
@@ -389,10 +399,12 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 
 	// 스트링 테이블이 있다면, 스트링 테이블에 포함된 문자일 때만,
 	// 매칭에 성공한 것을 간주한다.
-	if (node->table)
+	if (!node->attrs["table"].empty())
 	{
+		vector<string> out;
+		tokenizer2(node->attrs["table"], ",", out);
 		isDetect = false;
-		for each (auto &str in *node->table)
+		for each (auto &str in out)
 		{
 			if (str == result)
 			{
@@ -518,8 +530,11 @@ cv::Mat& cMatchProcessor::loadCvtImageAcc(const string &fileName, const int imag
 	{
 		if (!node->IsEmptyHsv(i))
 		{
-			const __int64 key = ((__int64)node->hsv[i][0]) << 16 | ((__int64)node->hsv[i][1]) << 8 | ((__int64)node->hsv[i][2]) |
-				((__int64)node->hsv[i][3]) << 40 | ((__int64)node->hsv[i][4]) << 32 | ((__int64)node->hsv[i][5]) << 24 |
+			int hsv[6];
+			sscanf(node->attrs[ common::format("hsv%d",i)].c_str(), "%d,%d,%d,%d,%d,%d", &hsv[0], &hsv[1], &hsv[2], &hsv[3], &hsv[4], &hsv[5]);
+
+			const __int64 key = ((__int64)hsv[0]) << 16 | ((__int64)hsv[1]) << 8 | ((__int64)hsv[2]) |
+				((__int64)hsv[3]) << 40 | ((__int64)hsv[4]) << 32 | ((__int64)hsv[5]) << 24 |
 				((__int64)imageId << 48);
 			keys[keyCnt++] = key;
 		}
@@ -529,8 +544,11 @@ cv::Mat& cMatchProcessor::loadCvtImageAcc(const string &fileName, const int imag
 	{
 		if (!node->IsEmptyHls(i))
 		{
-			const __int64 key = ((__int64)node->hls[i][0]) << 16 | ((__int64)node->hls[i][1]) << 8 | ((__int64)node->hls[i][2]) |
-				((__int64)node->hls[i][3]) << 40 | ((__int64)node->hls[i][4]) << 32 | ((__int64)node->hls[i][5]) << 24 |
+			int hls[6];
+			sscanf(node->attrs[common::format("hls%d", i)].c_str(), "%d,%d,%d,%d,%d,%d", &hls[0], &hls[1], &hls[2], &hls[3], &hls[4], &hls[5]);
+
+			const __int64 key = ((__int64)hls[0]) << 16 | ((__int64)hls[1]) << 8 | ((__int64)hls[2]) |
+				((__int64)hls[3]) << 40 | ((__int64)hls[4]) << 32 | ((__int64)hls[5]) << 24 |
 				((__int64)imageId << 48);
 			keys[keyCnt++] = key;
 		}
@@ -557,11 +575,12 @@ cv::Mat& cMatchProcessor::loadCvtImageAcc(const string &fileName, const int imag
 				if (!hsv.data)
 					cvtColor(src, hsv, CV_BGR2HSV);
 
+				const string key = common::format("hsv%d", i);
+				Scalar lower, upper;
+				sscanf(node->attrs[key].c_str(), "%lf,%lf,%lf,%lf,%lf,%lf", &lower[0], &lower[1], &lower[2], &upper[0], &upper[1], &upper[2]);
+
 				Mat tmp;
-				inRange(hsv
-					, Scalar(node->hsv[i][0], node->hsv[i][1], node->hsv[i][2])
-					, Scalar(node->hsv[i][3], node->hsv[i][4], node->hsv[i][5])
-					, tmp);
+				inRange(hsv, lower, upper, tmp);
 
 				if (!dst)
 				{
@@ -584,11 +603,12 @@ cv::Mat& cMatchProcessor::loadCvtImageAcc(const string &fileName, const int imag
 				if (!hls.data)
 					cvtColor(src, hls, CV_BGR2HLS);
 
+				const string key = common::format("hls%d", i);
+				Scalar lower, upper;
+				sscanf(node->attrs[key].c_str(), "%lf,%lf,%lf,%lf,%lf,%lf", &lower[0], &lower[1], &lower[2], &upper[0], &upper[1], &upper[2]);
+
 				Mat tmp;
-				inRange(hls
-					, Scalar(node->hls[i][0], node->hls[i][1], node->hls[i][2])
-					, Scalar(node->hls[i][3], node->hls[i][4], node->hls[i][5])
-					, tmp);
+				inRange(hls, lower, upper, tmp);
 
 				if (!dst)
 				{

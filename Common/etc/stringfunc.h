@@ -20,5 +20,7 @@ namespace common
 
 	void tokenizer(const string &str, const string &delimeter, const string &ignoreStr, OUT vector<string> &out);
 	void wtokenizer(const wstring &str, const wstring &delimeter, const wstring &ignoreStr, OUT vector<wstring> &out);
+
+	void tokenizer2(const string &str, const string &delimeters, OUT vector<string> &out);
 }
 

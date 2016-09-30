@@ -537,21 +537,22 @@ bool cSimpleMatchScript::UpdateMatchResult(OUT cv::Mat &dst)
 		{
 			// Matching Rect 출력
 			cRectContour rect;
-			if (m_matchScript->m_nodeTable[i]->matchType == 0) // TemplateMatch
-			{
-				rect.Init(m_matchResult[m_curIdx].m_data[i].matchRect);
-				rect.Draw(dst, Scalar(0, 0, 255), 2);
-			}
-			else // Feature Match
+			if ((m_matchScript->m_nodeTable[i]->attrs["type"] == "featurematch") // Feature Match, ocrmatch
+				|| (m_matchScript->m_nodeTable[i]->attrs["type"] == "ocrmatch"))
 			{
 				vector<cv::Point> pts(m_matchResult[m_curIdx].m_data[i].matchRect2, 
 					m_matchResult[m_curIdx].m_data[i].matchRect2 + 4);
 				rect.Init(pts);
 				rect.Draw(dst, Scalar(0, 0, 255), 2);
 			}
+			else // TemplateMatch
+			{
+				rect.Init(m_matchResult[m_curIdx].m_data[i].matchRect);
+				rect.Draw(dst, Scalar(0, 0, 255), 2);
+			}
 
 			// 매칭된 이미지 경로 출력
-			putText(dst, m_matchScript->m_nodeTable[i]->name, rect.m_contours[0] + Point(0, 30), 1, 2.f, Scalar(0, 0, 255), 2);
+			putText(dst, m_matchScript->m_nodeTable[i]->attrs["id"], rect.m_contours[0] + Point(0, 30), 1, 2.f, Scalar(0, 0, 255), 2);
 			putText(dst, common::format("time=%d", timeGetTime() - m_matchResult[m_curIdx].m_beginTime).c_str(), Point(0, 60), 1, 2.f, Scalar(255, 255, 255), 2);
 		}
 	}

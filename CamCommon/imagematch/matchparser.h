@@ -33,7 +33,7 @@ namespace cvproc {
 			virtual ~cParser2();
 			bool Read(const string &fileName);
 			void Clear();
-			string GetSymbol(const string &symbol);
+			string GetSymbol(const string &symbol, const bool recursive=false, const int index=-1);
 			int GetSymbolType(const string &symbol);
 			vector<string>* GetSymbol2(const string &symbol);
 			bool SetSymbol(const string &key, const string data);
@@ -51,11 +51,15 @@ namespace cvproc {
 			const char* number();
 			char op();
 			char comma();
+			bool match(const char c);
 			int assigned(const char *var);
 			bool assigned_list(const sParseTree *node);
+			void attr_list(sParseTree *current);
+			int attrs(const string &str, OUT string &out);
+			string parse_attrs_symbol(const string &values);
 			void collectTree(const sParseTree *current, set<sParseTree*> &out) const;
 			void removeTree(const sParseTree *current) const;
-			sParseTree* cloneTree(const sParseTree *current) const;
+			//sParseTree* cloneTree(const sParseTree *current) const;
 			sParseTree* tree(sParseTree *current, const int depth);
 
 

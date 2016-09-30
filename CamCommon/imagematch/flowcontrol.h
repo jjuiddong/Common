@@ -63,9 +63,9 @@ namespace cvproc {
 			bool TreeMatch(cGraphScript::sNode *current, const cv::Mat &img, OUT sTreeMatchData &out, 
 				const int loopCnt=-1);
 			int CheckMenuUpandDown(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
-			int GetNextMenuCount(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
+			int GetNextMenuCount(cGraphScript::sNode *current, cGraphScript::sNode *next);
 			int CheckNextMenuIndex(const cGraphScript::sNode *current, const cGraphScript::sNode *next);
-			int CheckNextMenuIndex(const cGraphScript::sNode *current, const string &selectMenuId, 
+			int CheckNextMenuIndex(cGraphScript::sNode *current, const string &selectMenuId, 
 				const cGraphScript::sNode *next);
 			STATE Delay(const float delaySeconds, const STATE nextState);
 			string GenerateInputID();

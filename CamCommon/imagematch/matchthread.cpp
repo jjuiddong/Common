@@ -137,7 +137,7 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 					node->result = 2;
 					nodeResults[node->id] = 2;
 					matchResult->m_result = 1;
-					matchResult->m_resultStr = node->name;
+					matchResult->m_resultStr = node->attrs["id"];
 
 					if (matchResult->m_traverseType == 0) // if match success return
 						break; // success, loop terminate
@@ -151,7 +151,7 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 					child->result = 2;
 					nodeResults[node->id] = 2;
 					matchResult->m_result = 1;
-					matchResult->m_resultStr = child->name;
+					matchResult->m_resultStr = child->attrs["id"];
 
 					if (matchResult->m_traverseType == 0) // if match success return
 						break; // success, loop terminate
@@ -185,7 +185,7 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 						node->result = 2;
 						nodeResults[node->id] = 2;
 						matchResult->m_result = 1;
-						matchResult->m_resultStr = node->name;
+						matchResult->m_resultStr = node->attrs["id"];
 
 						if (matchResult->m_traverseType == 0) // if match success return
 							break; // success, loop terminate
@@ -201,7 +201,7 @@ unsigned __stdcall MatchThreadMain(void *ptr)
 			}
 			else
 			{
-				if ('@' == node->name[0]) // link node
+				if ('@' == node->attrs["id"][0]) // link node
 				{
 					sParseTree *child = node->child;
 					if (child)
@@ -285,14 +285,14 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 	q.reserve(16);
 	q.push_back( ItemType(NULL, matchResult.m_nodeLabel->child) );
 
-	const sParseTree *mostFitnessNode = NULL;
+	sParseTree *mostFitnessNode = NULL;
 	double max = -FLT_MAX;
 	while (!q.empty())
 	{
 		ItemType item = q.back();
 		q.pop_back();
 		const sParseTree *parent = item.first;
-		const sParseTree *node = item.second;
+		sParseTree *node = (sParseTree*)item.second;
 
 		if (visitNode[node->id])
 			continue;
@@ -307,7 +307,7 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 			parentCount[node->id] = parentCount[parent->id]; // 부모 노드 갯수 상속
 		}
 
-		if (('@' != node->name[0])) // 링크노드가 아닐때만 처리한다.
+		if (('@' != node->attrs["id"][0])) // 링크노드가 아닐때만 처리한다.
 		{
 			++parentCount[node->id];
 			fitness[node->id] += matchResult.m_data[node->id].max;
@@ -342,14 +342,14 @@ const sParseTree* FindMostFitnessNode(const cMatchResult &matchResult, OUT strin
 
 	if (mostFitnessNode->child && !mostFitnessNode->child->child)
 	{
-		if (string("return_parent") == mostFitnessNode->child->name)
+		if (string("return_parent") == mostFitnessNode->child->attrs["id"])
 			resultStr = matchResult.m_data[mostFitnessNode->id].str;
 		else
-			resultStr = mostFitnessNode->child->name;
+			resultStr = mostFitnessNode->child->attrs["id"];
 	}
 	else
 	{
-		resultStr = mostFitnessNode->name;
+		resultStr = mostFitnessNode->attrs["id"];
 	}
 
 	return mostFitnessNode;

@@ -25,57 +25,33 @@ void cMatchScript2::build(sParseTree *parent, sParseTree *prev, sParseTree *curr
 {
 	RET(!current);
 
-	vector<string> attribs;
-	const bool isSymbolCode = buildAttributes(current, current->line, attribs) > 0;
+// 	vector<string> attribs;
+// 	const bool isSymbolCode = buildAttributes(current, current->line, attribs) > 0;
 
 	// check tree label node link
 	// only link node,  paren==null is head node
-	if ((current->type == 0) && !attribs.empty() && parent)
+	if ((current->type == 0) && parent)
 	{
-		if (const sParseTree *linkNode = FindTreeLabel(attribs[0])) // 링크노드 일경우.
+		if (const sParseTree *linkNode = FindTreeLabel(current->attrs["id"])) // 링크노드 일경우.
 		{
-			// 추가된 심볼로 파스트리를 생성한다. 빌드가 끝나면, 추가된 심볼테이블은 제거한다.
-			// 파스트리는 링크가 아닌, 새로 생성 되는 것이다.
-			if (isSymbolCode)
-			{
-				sParseTree *node = m_parser.cloneTree(linkNode);
-				node->next = current->next;
-				SAFE_DELETE(current);
-				if (prev)
-					prev->next = node;
-				else
-					parent->child = node;
-
-				setTreeAttribute(node, attribs);
-
-				// 새로 추가된 트리는, 기존 링크 트리와 구분짓기 위해 이름을 바꾼다.
-				strcat_s(node->name, "_clone");
-
-				build(node, NULL, node->child);
-				m_parser.RemoveSymbolTable(); // 자식 노드까지 심볼테이블을 적용하고, 이후에는 제거한다.
-
-				build(parent, node, node->next);
-				return;
-			}
+			// 링크노드의 클론을 만들어 추가한다.
+			//sParseTree *node = new sParseTree;
+			//memcpy(node, linkNode, sizeof(sParseTree));
+			sParseTree *node = linkNode->clone(false);
+			node->next = current->next;
+			SAFE_DELETE(current);
+			if (prev)
+				prev->next = node;
 			else
-			{
-				// 링크노드의 클론을 만들어 추가한다.
-				sParseTree *node = new sParseTree;
-				memcpy(node, linkNode, sizeof(sParseTree));
-				node->next = current->next;
-				SAFE_DELETE(current);
-				if (prev)
-					prev->next = node;
-				else
-					parent->child = node;
+				parent->child = node;
 
-				build(parent, node, node->next);
-				return;
-			}
+			build(parent, node, node->next);
+			return;
 		}
 	}
 
-	setTreeAttribute(current, attribs);
+	//setTreeAttribute(current, attribs);
+	current->id = m_treeId++;
 
 	build(current, NULL, current->child);
 	build(parent, current, current->next);
@@ -168,95 +144,95 @@ void cMatchScript2::setTreeAttribute(sParseTree *node, vector<string> &attribs)
 	int hlsCnt = 0;
 
 	// check match type
-	node->matchType = -1; // defautl value is -1
+//	node->matchType = -1; // defautl value is -1
 
 	// check threshold
-	for (int i = 0; i < (int)attribs.size(); ++i)
-	{
-		const int pos1 = attribs[i].find("featurematch");
-		const int pos2 = attribs[i].find("templatematch");
-		const int pos3 = attribs[i].find("ocrmatch");
-		if ((string::npos != pos1) || (string::npos != pos2) || (string::npos != pos3))
-		{
-			if (string::npos != pos1)
-				node->matchType = 1;
-			if (string::npos != pos2)
-				node->matchType = 0;
-			if (string::npos != pos3)
-				node->matchType = 2;
-			rmIdices.push_back(i);
-		}
-		else if (string::npos != attribs[i].find("threshold_"))
-		{
-			// threshold 값 설정
-			const int valPos = attribs[i].find("_");
-			const float threshold = (float)atof(attribs[i].substr(valPos + 1).c_str());
-			node->threshold = threshold;
-			rmIdices.push_back(i);
-		}
-		else if (string::npos != attribs[i].find("scalar_"))
-		{
-			// scalar_255_0_255_1.5
-			const int valPos = attribs[i].find("_");
-			sscanf(attribs[i].c_str(), "scalar_%d_%d_%d_%f", &node->scalar[0], &node->scalar[1], &node->scalar[2], &node->scale);
-			rmIdices.push_back(i);
-		}
-		else if (string::npos != attribs[i].find("hsv_"))
-		{
-			// hsv_40_40_255_120_255_255
-			if (hsvCnt < 3)
-			{
-				sscanf(attribs[i].c_str(), "hsv_%d_%d_%d_%d_%d_%d", &node->hsv[hsvCnt][0], &node->hsv[hsvCnt][1], &node->hsv[hsvCnt][2],
-					&node->hsv[hsvCnt][3], &node->hsv[hsvCnt][4], &node->hsv[hsvCnt][5]);
-			}
-			++hsvCnt;
-			rmIdices.push_back(i);
-		}
-		else if (string::npos != attribs[i].find("hls_"))
-		{
-			// hls_40_40_255_120_255_255
-			if (hlsCnt < 3)
-			{
-				sscanf(attribs[i].c_str(), "hls_%d_%d_%d_%d_%d_%d", &node->hls[hlsCnt][0], &node->hls[hlsCnt][1], &node->hls[hlsCnt][2],
-					&node->hls[hlsCnt][3], &node->hls[hlsCnt][4], &node->hls[hlsCnt][5]);
-			}
-			++hlsCnt;
-			rmIdices.push_back(i);
-		}
-		else if (vector<string> *table = m_parser.GetSymbol2(attribs[i]))
-		{
-			// string table 설정
-			node->table = table;
-			rmIdices.push_back(i);
-		}
-	}
-
-	strcpy_s(node->name, attribs[0].c_str());
-
-	for (int i = rmIdices.size() - 1; i >= 0; --i)
-		rotatepopvector(attribs, rmIdices[i]);
-
-	if (node->type == 0) // tree
-	{
-		if (attribs.size() >= 5)
-		{
-			for (int i = 1; i < 5; ++i)
-				node->roi[i - 1] = atoi(attribs[i].c_str());
-		}
-		if (attribs.size() >= 6)
-		{
-			if (attribs[5] == "+")
-				node->isRelation = true;
-		}
-	}
-	else if (node->type == 1) // exec
-	{
-		if (attribs.size() >= 2)
-		{
-			strcat_s(node->name, " ");
-			strcat_s(node->name, attribs[1].c_str());
-		}
-	}
+// 	for (int i = 0; i < (int)attribs.size(); ++i)
+// 	{
+// 		const int pos1 = attribs[i].find("featurematch");
+// 		const int pos2 = attribs[i].find("templatematch");
+// 		const int pos3 = attribs[i].find("ocrmatch");
+// 		if ((string::npos != pos1) || (string::npos != pos2) || (string::npos != pos3))
+// 		{
+// 			if (string::npos != pos1)
+// 				node->matchType = 1;
+// 			if (string::npos != pos2)
+// 				node->matchType = 0;
+// 			if (string::npos != pos3)
+// 				node->matchType = 2;
+// 			rmIdices.push_back(i);
+// 		}
+// 		else if (string::npos != attribs[i].find("threshold_"))
+// 		{
+// 			// threshold 값 설정
+// 			const int valPos = attribs[i].find("_");
+// 			const float threshold = (float)atof(attribs[i].substr(valPos + 1).c_str());
+// 			node->threshold = threshold;
+// 			rmIdices.push_back(i);
+// 		}
+// 		else if (string::npos != attribs[i].find("scalar_"))
+// 		{
+// 			// scalar_255_0_255_1.5
+// 			const int valPos = attribs[i].find("_");
+// 			sscanf(attribs[i].c_str(), "scalar_%d_%d_%d_%f", &node->scalar[0], &node->scalar[1], &node->scalar[2], &node->scale);
+// 			rmIdices.push_back(i);
+// 		}
+// 		else if (string::npos != attribs[i].find("hsv_"))
+// 		{
+// 			// hsv_40_40_255_120_255_255
+// 			if (hsvCnt < 3)
+// 			{
+// 				sscanf(attribs[i].c_str(), "hsv_%d_%d_%d_%d_%d_%d", &node->hsv[hsvCnt][0], &node->hsv[hsvCnt][1], &node->hsv[hsvCnt][2],
+// 					&node->hsv[hsvCnt][3], &node->hsv[hsvCnt][4], &node->hsv[hsvCnt][5]);
+// 			}
+// 			++hsvCnt;
+// 			rmIdices.push_back(i);
+// 		}
+// 		else if (string::npos != attribs[i].find("hls_"))
+// 		{
+// 			// hls_40_40_255_120_255_255
+// 			if (hlsCnt < 3)
+// 			{
+// 				sscanf(attribs[i].c_str(), "hls_%d_%d_%d_%d_%d_%d", &node->hls[hlsCnt][0], &node->hls[hlsCnt][1], &node->hls[hlsCnt][2],
+// 					&node->hls[hlsCnt][3], &node->hls[hlsCnt][4], &node->hls[hlsCnt][5]);
+// 			}
+// 			++hlsCnt;
+// 			rmIdices.push_back(i);
+// 		}
+// 		else if (vector<string> *table = m_parser.GetSymbol2(attribs[i]))
+// 		{
+// 			// string table 설정
+// 			node->table = table;
+// 			rmIdices.push_back(i);
+// 		}
+// 	}
+// 
+// 	strcpy_s(node->name, attribs[0].c_str());
+// 
+// 	for (int i = rmIdices.size() - 1; i >= 0; --i)
+// 		rotatepopvector(attribs, rmIdices[i]);
+// 
+// 	if (node->type == 0) // tree
+// 	{
+// 		if (attribs.size() >= 5)
+// 		{
+// 			for (int i = 1; i < 5; ++i)
+// 				node->roi[i - 1] = atoi(attribs[i].c_str());
+// 		}
+// 		if (attribs.size() >= 6)
+// 		{
+// 			if (attribs[5] == "+")
+// 				node->isRelation = true;
+// 		}
+// 	}
+// 	else if (node->type == 1) // exec
+// 	{
+// 		if (attribs.size() >= 2)
+// 		{
+// 			strcat_s(node->name, " ");
+// 			strcat_s(node->name, attribs[1].c_str());
+// 		}
+// 	}
 
 }
 
@@ -269,7 +245,7 @@ void cMatchScript2::GetCloneMatchingArea(const Mat &input, const string &inputNa
 	if (matScene.empty())
 		return;
 
-	const Mat &matObj = cMatchProcessor::Get()->loadImage(node->name);
+	const Mat &matObj = cMatchProcessor::Get()->loadImage(node->attrs["id"]);
 	if (matObj.empty())
 		return;
 
@@ -282,7 +258,10 @@ void cMatchScript2::GetCloneMatchingArea(const Mat &input, const string &inputNa
 	// channel match
 	if (!node->IsEmptyBgr())
 	{
-		src = &cMatchProcessor::Get()->loadScalarImage(inputName, inputImageId, Scalar(node->scalar[0], node->scalar[1], node->scalar[2]), node->scale); // BGR
+		cv::Scalar scalar;
+		sscanf(node->attrs["scalar"].c_str(), "%lf,%lf,%lf", &scalar[0], &scalar[1], &scalar[2]);
+		const float scale = (float)atof(node->attrs["scale"].c_str());
+		src = &cMatchProcessor::Get()->loadScalarImage(inputName, inputImageId, scalar, scale); // BGR
 	}
 
 	// hsv match
@@ -294,7 +273,7 @@ void cMatchScript2::GetCloneMatchingArea(const Mat &input, const string &inputNa
 	if (!src->data)
 		return;// fail
 
-	const bool isFeatureMatch = ((m_matchType == 1) && (node->matchType == -1)) || (node->matchType == 1);
+	const bool isFeatureMatch = ((m_matchType == 1) && (node->attrs["type"].empty())) || (node->attrs["type"] == "featurematch");
 	if (!isFeatureMatch) // --> templatematch
 	{
 		Point left_top = node->matchLoc;
@@ -309,7 +288,7 @@ void cMatchScript2::Exec()
 	sParseTree *node = m_parser.m_execRoot;
 	while (node)
 	{
-		stringstream ss(node->name);
+		stringstream ss(node->attrs["id"]);
 		string label, file;
 		ss >> label >> file;
 		if (label.empty() || file.empty())
@@ -346,16 +325,16 @@ bool cMatchScript2::Read(const string &fileName)
 
 	// head node들의 next 링크를 모두 제거한다. 독립적으로 작동하는 트리를 만들기 위해서다.
 	vector<sParseTree*> headNodes; // 트리 헤드노드들을 순서대로 처리하기 위해서 만듬
-	sParseTree *node = m_parser.cloneTree(m_parser.m_treeRoot); // tree copy
+	sParseTree *node = (m_parser.m_treeRoot)? m_parser.m_treeRoot->clone() : NULL; // tree copy
 	while (node)
 	{
-		if ('@' != node->line[0])
+		if ('@' != node->attrs["id"][0])
 		{
 			MessageBoxA(NULL, "Error!! ImageMatchScript LabelNode Name must start \'@\' ", "Error", MB_OK);
 			return false;
 		}
 
-		m_treeLabelTable[node->line] = node;
+		m_treeLabelTable[node->attrs["id"]] = node;
 		headNodes.push_back(node);
 		sParseTree *next = node->next;
 		node->next = NULL; // tree label node에는 자식만 연결된 상태로 등록된다. next는 없다.

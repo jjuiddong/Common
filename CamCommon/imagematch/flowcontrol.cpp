@@ -166,7 +166,7 @@ cFlowControl::STATE cFlowControl::OnCaptureMenu(const cv::Mat &img, OUT int &key
 // img 를 인식해, 현재 씬을 판단하고, 목표 씬까지 이동한다.
 cFlowControl::STATE cFlowControl::OnProc(const cv::Mat &img, OUT int &key)
 {
-	if (m_nextNode && m_nextNode->noProc)
+	if (m_nextNode && (m_nextNode->attrs["noproc"] == "1"))
 		return NextStep(img, m_nextNode, key);
 
 	if (m_detectNode && m_nextNode && (m_detectNode->sceneId == m_nextNode->sceneId))
@@ -256,7 +256,7 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 	{ // 경로 출력
 		dbg::Log("path[] \n");
 		for each (auto &node in m_path)
-			dbg::Log("\t - nod id = %s \n", node->id.c_str());
+			dbg::Log("\t - nod id = %s \n", node->attrs["id"].c_str());
 	}
 
 	// 다음 씬까지 이동을 위한 키 선택
@@ -299,8 +299,16 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 		}
 		else if (nextMenuCount == 1) // 다음 메뉴가 하나밖에 없는 경우..
 		{
-			key = (m_nextNode->key) ? m_nextNode->key : VK_RETURN;
-			Delay(m_nextNode->delay, CAPTURE);
+			if (m_nextNode->attrs["key"] == "esc")
+				key = VK_ESCAPE;
+			else if (m_nextNode->attrs["key"] == "enter")
+				key = VK_RETURN;
+			else if (m_nextNode->attrs["key"] == "no")
+				key = -1;
+			else
+				key = VK_RETURN;
+
+			Delay((float)atof(m_nextNode->attrs["delay"].c_str()), CAPTURE);
 		}
 		else if (nextMenuIdx >= 0)
 		{
@@ -328,7 +336,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 		node = m_flowScript.m_root;
 
 	cMatchResult &matchResult = GetMatchResult();
-	const string label = node->tag.empty() ? node->id : node->tag;
+	const string label = node->attrs["tag"].empty() ? node->attrs["id"] : node->attrs["tag"];
 	matchResult.Init(&m_matchScript, img, "", 0,
 		(sParseTree*)m_matchScript.FindTreeLabel(string("@") + label + "_menu"),
 		true, true);
@@ -338,7 +346,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 	if (m_isLog)
 	{
 		dbg::Log("cFlowControl::OnMenuDetect label = %s, result = %s \n", label.c_str(), matchResult.m_resultStr.c_str());
-		dbg::Log("\t- next node = %s \n", m_nextNode->id.c_str());
+		dbg::Log("\t- next node = %s \n", m_nextNode->attrs["id"].c_str());
 	}
 
 	if ((matchResult.m_result <= 0) || matchResult.m_resultStr.empty())
@@ -349,7 +357,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 
 	const bool isSkipCapture = m_detectNode->sceneId == m_nextNode->sceneId;
 	const string selectMenuId = matchResult.m_resultStr;
-	if (selectMenuId == m_nextNode->id)
+	if (selectMenuId == m_nextNode->attrs["id"])
 	{
 		// 다음으로 넘어갈 메뉴를 선택하고 있는 상태
 		// 엔터키를 눌러 다음 씬으로 넘어간다.
@@ -362,7 +370,7 @@ cFlowControl::STATE cFlowControl::OnMenuDetect(const cv::Mat &img, OUT int &key)
 			key = VK_RETURN;
 		}
 
-		return Delay(m_nextNode->delay, CAPTURE);
+		return Delay((float)atof(m_nextNode->attrs["delay"].c_str()), CAPTURE);
 	}
 	else
 	{
@@ -407,12 +415,12 @@ cFlowControl::STATE cFlowControl::OnMenu(const cv::Mat &img, OUT int &key)
 		if (m_currentMenuIdx < m_nextMenuIdx)
 		{
 			++m_currentMenuIdx;
-			key = (m_detectNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_RIGHT : VK_DOWN;
+			key = ((m_detectNode->attrs["sidemenu"]=="1") || (m_nextNode->attrs["sidesel"] == "1")) ? VK_RIGHT : VK_DOWN;
 		}
 		else
 		{
 			--m_currentMenuIdx;
-			key = (m_detectNode->isSideMenu || m_nextNode->isSideSubmenu) ? VK_LEFT : VK_UP;
+			key = ((m_detectNode->attrs["sidemenu"] == "1") || (m_nextNode->attrs["sidesel"] == "1")) ? VK_LEFT : VK_UP;
 		}
 
 		//return Delay(0.1f, MENU_MOVE);
@@ -612,7 +620,7 @@ bool cFlowControl::TreeMatch(cGraphScript::sNode *current, const cv::Mat &img,
 			continue;
 
 		cMatchResult &matchResult = GetMatchResult();
-		const string label = node->tag.empty() ? node->id : node->tag;
+		const string label = node->attrs["tag"].empty() ? node->attrs["id"] : node->attrs["tag"];
 		matchResult.Init(&m_matchScript, img, inputName, 0,
 			(sParseTree*)m_matchScript.FindTreeLabel(string("@") + label),
 			true, true);
@@ -686,8 +694,8 @@ int cFlowControl::CheckMenuUpandDown(
 
 // 현재 노드에서 다음노드로 넘어갈 때 선택해야 할, 분기 메뉴 갯수를 리턴한다.
 int cFlowControl::GetNextMenuCount(
-	const cGraphScript::sNode *current, 
-	const cGraphScript::sNode *next)
+	cGraphScript::sNode *current, 
+	cGraphScript::sNode *next)
 {
 	// menu down
 	bool isMenuDown = false;
@@ -696,14 +704,14 @@ int cFlowControl::GetNextMenuCount(
 	{
 		if (p == next)
 			isMenuDown = true;
-		if (!p->isAuto && !p->isNoMenu)
+		if ((p->attrs["auto"] != "1") && (p->attrs["nomenu"] != "1"))
 			++cnt1;
 	}
 	if (isMenuDown)
 	{
 		// 엔터키로 다음 씬으로 넘어갈 때는, 메뉴가 하나만 있는 것처럼 작동하게 한다.
 		// 이 때, 다음 씬은 메뉴에 나타나지 않는 속성이어야 한다.
-		if (current->isEnterChild && next->isNoMenu) 
+		if ((current->attrs["enterchild"]=="1") && (next->attrs["nomenu"] == "1"))
 			return 1;
 		return cnt1;
 	}
@@ -715,7 +723,7 @@ int cFlowControl::GetNextMenuCount(
 	{
 		if (p == next)
 			isMenuUp = true;
-		if (!p->isAuto)
+		if (p->attrs["auto"] != "1")
 			++cnt2;
 	}
 	if (isMenuUp)
@@ -727,7 +735,8 @@ int cFlowControl::GetNextMenuCount(
 
 // node 
 // 음수이면, 아래에서 위로 올라가거나, 오른쪽에서 왼쪽으로 이동하는 메뉴를 뜻한다.
-int cFlowControl::CheckNextMenuIndex(const cGraphScript::sNode *current, 
+int cFlowControl::CheckNextMenuIndex(
+	const cGraphScript::sNode *current, 
 	const cGraphScript::sNode *next)
 {
 	RETV(!current || !next, 0);
@@ -758,7 +767,7 @@ int cFlowControl::CheckNextMenuIndex(const cGraphScript::sNode *current,
 
 // 음수이면, 아래에서 위로 올라가거나, 오른쪽에서 왼쪽으로 이동하는 메뉴를 뜻한다.
 int cFlowControl::CheckNextMenuIndex(
-	const cGraphScript::sNode *current,
+	cGraphScript::sNode *current,
 	const string &selectMenuId,
 	const cGraphScript::sNode *next)
 {
@@ -780,7 +789,7 @@ int cFlowControl::CheckNextMenuIndex(
 	int currentMenuIndex = 0;
 	for each (auto p in current->out)
 	{
-		if (p->id == selectMenuId)
+		if (p->attrs["id"] == selectMenuId)
 		{
 			check2 = true;
 			break;
@@ -793,7 +802,7 @@ int cFlowControl::CheckNextMenuIndex(
 
 	const int moveCnt = targetMenuIndex - currentMenuIndex;
 
-	if (current->isCircularMenu 
+	if ((current->attrs["circular"] == "1")
 		&& (abs(moveCnt - (int)current->out.size()) < abs(moveCnt)))
 	{
 		// 거꾸로 돌아간다.

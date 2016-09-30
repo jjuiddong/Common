@@ -29,221 +29,48 @@ bool cGraphScript::Read(const string &fileName)
 }
 
 
-void cGraphScript::buildAttributes(const sParseTree *node, const string &str, vector<string> &attributes)
-{
-	m_parser.m_lineStr = (char*)str.c_str();
-	while (1)
-	{
-		const char *pid = m_parser.id();
-		const char *pnum = (!*pid) ? m_parser.number() : NULL;
-
-		if (*pid)
-		{
-			const string symb = m_parser.GetSymbol(pid);
-			if (symb.empty())
-			{
-				attributes.push_back(pid);
-			}
-			else
-			{
-				char *old = m_parser.m_lineStr;
-				buildAttributes(node, symb, attributes);
-				m_parser.m_lineStr = old;
-			}
-		}
-		else if (*pnum)
-		{
-			attributes.push_back(pnum);
-		}
-		else
-		{
-			dbg::ErrLog("line {%d} error!! tree attribute fail [%s]\n", node->lineNum, str.c_str());
-			m_parser.m_isError = true;
-			break;
-		}
-
-		// comma check
-		m_parser.m_lineStr = m_parser.passBlank(m_parser.m_lineStr);
-		if (!m_parser.m_lineStr)
-			break;
-		if (*m_parser.m_lineStr == ',')
-			++m_parser.m_lineStr;
-	}
-}
-
-
-// id,1 : 자식 노드에서 현재 노드로 올라올 수 없다. no upper traverse
-void cGraphScript::setTreeAttribute(sParseTree *node, vector<string> &attribs)
-{
-	if (attribs.empty())
-		return;
-
-	strcpy_s(node->name, attribs[0].c_str());
-
-	// check delay
-	node->delay = 0.5f; // default
-
-	// 첫번째 속성값은 node id 이므로 무시된다.
-	for (int i = 1; i < (int)attribs.size(); ++i)
-	{
-		if (string::npos != attribs[i].find("delay_"))
-		{
-			// delay_num, delay  값 설정
-			const int valPos = attribs[i].find("_");
-			const float delay = (float)atof(attribs[i].substr(valPos + 1).c_str());
-			node->delay = delay;
-		}
-		else if (string::npos != attribs[i].find("tag_"))
-		{
-			// tag_id, tag 값 설정
-			const int valPos = attribs[i].find("_");
-			const string tag = attribs[i].substr(valPos + 1);
-			strcpy_s(node->tag, tag.c_str());
-		}
-		else if (string::npos != attribs[i].find("noproc"))
-		{
-			// noproc
-			node->noProc = true;
-		}
-		else if (string::npos != attribs[i].find("noup"))
-		{
-			// noup
-			node->noUpperTraverse = true;
-		}
-		else if (string::npos != attribs[i].find("auto"))
-		{
-			// auto
-			node->isAuto = true;
-		}
-		else if (string::npos != attribs[i].find("key"))
-		{
-			// key_id 값 설정
-			const int valPos = attribs[i].find("_");
-			const string keyboard = attribs[i].substr(valPos + 1);
-			if (keyboard == "esc")
-				node->key = VK_ESCAPE;
-			else if (keyboard == "enter")
-				node->key = VK_RETURN;
-			else if (keyboard == "no")
-				node->key = -1;
-		}
-		else if (string::npos != attribs[i].find("sidemenu"))
-		{
-			// sidemenu
-			node->isSideMenu = true;
-		}
-		else if (string::npos != attribs[i].find("enterchild"))
-		{
-			// enterchild
-			node->isEnterChild = true;
-		}
-		else if (string::npos != attribs[i].find("nomenu"))
-		{
-			// nomenu
-			node->isNoMenu = true;
-		}
-		else if (string::npos != attribs[i].find("sidesel"))
-		{
-			// sidesel
-			node->isSideSubmenu = true;
-		}
-		else if (string::npos != attribs[i].find("circular"))
-		{
-			// circular
-			node->isCircularMenu = true;
-		}
-		else if (string::npos != attribs[i].find("sceneid_"))
-		{
-			// sceneid_~~
-			// sceneid_inherit 부모 노드로 부터 상속받는다. 동일한 ID 를 가짐.
-			// sceneid_child_inherit, 현재 노드의 Scene ID를 자식 노드에게 상속시킨다.
-			if (attribs[i] == "sceneid_inherit")
-			{
-				node->isSceneIdInherit = true;
-			}
-			else if (attribs[i] == "sceneid_child_inherit")
-			{
-				node->isSceneIdChildInherit = true;
-			}
-			else
-			{
-				const int valPos = attribs[i].find("_");
-				const int id = atoi(attribs[i].substr(valPos + 1).c_str());
-				node->sceneId = id;
-			}
-		}
-	}
-
-}
-
-
 cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current, sNode *parentNode)
 {
 	RETV(!current, NULL);
 
-	vector<string> attribs;
-	buildAttributes(current, current->line, attribs);
-	setTreeAttribute(current, attribs);
+	if (current->attrs["delay"].empty())
+		current->attrs["delay"] = "0.5"; // default
 
-	sNode *linkNode = FindParent(parentNode, current->name);
-	sNode *headNode = FindHead(current->name);
+	sNode *linkNode = FindParent(parentNode, current->attrs["id"]);
+	sNode *headNode = FindHead(current->attrs["id"]);
 	sNode *srcNode = (headNode) ? headNode : linkNode;
 
 	if (current->child && srcNode && !headNode)
 	{
-		dbg::ErrLog("duplicate node id = [%s] \n", current->name);
+		dbg::ErrLog("duplicate node id = [%s] \n", current->attrs["id"].c_str());
 		return NULL;
 	}
 
 	sNode *newNode = srcNode;
 
 	// parent setting node
-	if (string("parent") == current->name)
+	if (string("parent") == current->attrs["id"])
 	{
 		if (parentNode)
 		{
 			// node name을 제외한 모든 속성들을 설정한다.
-			parentNode->tag = current->tag;
-			parentNode->delay = current->delay;
-			parentNode->noProc = current->noProc;
-			parentNode->isAuto = current->isAuto;
-			parentNode->isSideMenu = current->isSideMenu;
-			parentNode->key = current->key;
-			parentNode->noUpperTraverse = current->noUpperTraverse;
-			parentNode->isEnterChild = current->isEnterChild;
-			parentNode->isNoMenu = current->isNoMenu;
-			parentNode->isSideSubmenu = current->isSideSubmenu;
-			parentNode->isSceneIdInherit = current->isSceneIdInherit;
-			parentNode->isSceneIdChildInherit = current->isSceneIdChildInherit;
-			parentNode->isCircularMenu = current->isCircularMenu;
-
-			parentNode->sceneId = (current->sceneId == 0) ? m_sceneIdGen++ : current->sceneId;
+			const string tmpId = parentNode->attrs["id"];
+			parentNode->attrs = current->attrs;
+			parentNode->attrs["id"] = tmpId;
+			parentNode->sceneId = (current->attrs["sceneid"].empty())? m_sceneIdGen++ : atoi(current->attrs["sceneid"].c_str());
 		}
 	} 
 	else if (!newNode)
 	{
 		newNode = new sNode;
-		newNode->id = current->name;
-		newNode->tag = current->tag;
-		newNode->delay = current->delay;
-		newNode->noProc = current->noProc;
-		newNode->isAuto = current->isAuto;
-		newNode->isSideMenu = current->isSideMenu;
-		newNode->key = current->key;
-		newNode->noUpperTraverse = current->noUpperTraverse;
-		newNode->isEnterChild = current->isEnterChild;
-		newNode->isNoMenu = current->isNoMenu;
-		newNode->isSideSubmenu = current->isSideSubmenu;
-		newNode->isSceneIdInherit = current->isSceneIdInherit;
-		newNode->isSceneIdChildInherit = current->isSceneIdChildInherit;
-		newNode->isCircularMenu = current->isCircularMenu;
-		newNode->sceneId = current->sceneId;
+		newNode->attrs = current->attrs;
+		newNode->sceneId = atoi(current->attrs["sceneid"].c_str());
 
 		if (parentNode)
 		{
- 			if (current->isSceneIdInherit) 
+ 			if (current->attrs["sceneid_inherit"] == "1") 
 				newNode->sceneId = parentNode->sceneId ;
-			if (parentNode->isSceneIdChildInherit)
+			if (parentNode->attrs["sceneid_child_inherit"] == "1")
 				newNode->sceneId = parentNode->sceneId;
 		}
 
@@ -281,11 +108,11 @@ cGraphScript::sNode* cGraphScript::build(sParseTree *parent, sParseTree *current
 
 		// 부모가 sidesel 속성을 가질 경우, child 도 모두 side sel 속성을 가지게 한다.
 		// 그리고 부모의 sidesel 속성은 제거된다.
-		if (newNode && newNode->isSideSubmenu)
+		if (newNode && (newNode->attrs["sidesel"] == "1"))
 		{
-			newNode->isSideSubmenu = false;
+			newNode->attrs["sidesel"] = "0";
 			for each (auto next in newNode->out)
-				next->isSideSubmenu = true;
+				next->attrs["sidesel"] = "1";
 		}
 
 		build(parent, current->next, parentNode);
@@ -314,14 +141,14 @@ cGraphScript::sNode* cGraphScript::FindParentRec(sNode *current, const string &i
 {
 	RETV(!current, NULL);
 
-	if (current->id == id)
+	if (current->attrs["id"] == id)
 		return current;
 
 	for each (auto node in current->in)
 	{
 		if (node->check) // already visit node
 			continue;
-		if (node->id == id)
+		if (node->attrs["id"] == id)
 			return node;
 		node->check = true;
 		if (sNode *p = FindParentRec(node, id))
@@ -349,7 +176,7 @@ cGraphScript::sNode* cGraphScript::Find(const string &id)
 {
 	for each (auto &node in m_nodes)
 	{
-		if (node->id == id)
+		if (node->attrs["id"] == id)
 			return node;
 	}
 	return NULL;
@@ -375,7 +202,7 @@ cGraphScript::sNode* cGraphScript::FindHead(const string &id)
 {
 	for each (auto &node in m_heads)
 	{
-		if (node->id == id)
+		if (node->attrs["id"] == id)
 			return node;
 	}
 	return NULL;
@@ -414,19 +241,19 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 	path1.push_back(current);
 	path2.push_back(current);
 
-	if (current->id == id)
+	if (current->attrs["id"] == id)
 		return true;
 
-	if (!current->noUpperTraverse)
+	if (current->attrs["noup"] != "1")
 	{
 		for each (auto node in current->in)
 		{
 			if (node->check) // already visit node
 				continue;
-			if (node->isAuto) // 일정시간이 지나야 나오는 씬은, 경로찾기에서 제외시킨다.
+			if (node->attrs["auto"] == "1") // 일정시간이 지나야 나오는 씬은, 경로찾기에서 제외시킨다.
 				continue;
 
-			if (node->id == id)
+			if (node->attrs["id"] == id)
 			{
 				path1.push_back(node);
 				break;
@@ -441,10 +268,10 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 	{
 		if (node->check) // already visit node
 			continue;
-		if (node->isAuto) // 일정시간이 지나야 나오는 씬은, 경로찾기에서 제외시킨다.
+		if (node->attrs["auto"] == "1") // 일정시간이 지나야 나오는 씬은, 경로찾기에서 제외시킨다.
 			continue;
 
-		if (node->id == id)
+		if (node->attrs["id"] == id)
 		{
 			path2.push_back(node);
 			break;
@@ -458,7 +285,7 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 	if (!path1.empty() && !path2.empty())
 	{
 		// 두 경로 모두 목적지에 도착 했다면, 
-		if ((path1.back()->id == id) && (path2.back()->id == id))
+		if ((path1.back()->attrs["id"] == id) && (path2.back()->attrs["id"] == id))
 		{
 			// 더 짧은 경로를 저장한다.
 			if (path1.size() <= path2.size())
@@ -466,28 +293,28 @@ bool cGraphScript::FindRouteRec(sNode*current, const string &id, OUT vector<sNod
 			else
 				std::copy(path2.begin(), path2.end(), std::back_inserter(out));
 		}
-		else if (path1.back()->id == id) // 경로 1만 목적지에 도달했다면
+		else if (path1.back()->attrs["id"] == id) // 경로 1만 목적지에 도달했다면
 		{
 			std::copy(path1.begin(), path1.end(), std::back_inserter(out));
 		}
-		else if(path2.back()->id == id) // 경로 2만 목적지에 도달했다면
+		else if(path2.back()->attrs["id"] == id) // 경로 2만 목적지에 도달했다면
 		{
 			std::copy(path2.begin(), path2.end(), std::back_inserter(out));
 		}
 	}
 	else if (!path1.empty())
 	{
-		if (path1.back()->id == id) // 목적지에 도착했다면.
+		if (path1.back()->attrs["id"] == id) // 목적지에 도착했다면.
 			std::copy(path1.begin(), path1.end(), std::back_inserter(out));
 	}
 	else if (!path2.empty())
 	{
-		if (path2.back()->id == id) // 목적지에 도착했다면.
+		if (path2.back()->attrs["id"] == id) // 목적지에 도착했다면.
 			std::copy(path2.begin(), path2.end(), std::back_inserter(out));
 	}
 
 	// 목적지에 도착했다면 true를 리턴한다.
-	if (!out.empty() && (out.back()->id == id))
+	if (!out.empty() && (out.back()->attrs["id"] == id))
 		return true;
 
 	return false;
@@ -510,7 +337,7 @@ void PrintGraphSub(std::ofstream &ofs, cGraphScript::sNode *current, const int t
 
 	for (int i = 0; i < tab; ++i)
 		ofs << "\t";
-	ofs << current->id << endl;
+	ofs << current->attrs["id"] << endl;
 
 	RET(current->check);
 	

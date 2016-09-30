@@ -165,6 +165,19 @@ char cParser2::comma()
 	return *m_lineStr++;
 }
 
+bool cParser2::match(const char c)
+{
+	m_lineStr = passBlank(m_lineStr);
+	if (!m_lineStr)
+		return NULL;
+	if (c == *m_lineStr)
+	{
+		m_lineStr++;
+		return true;
+	}
+	return false;
+}
+
 int cParser2::assigned(const char *var)
 {
 	m_lineStr = passBlank(m_lineStr);
@@ -329,16 +342,25 @@ void cParser2::removeTree(const sParseTree *current) const
 }
 
 
-sParseTree* cParser2::cloneTree(const sParseTree *current) const
-{
-	RETV(!current, NULL);
-
-	sParseTree*node = new sParseTree;
-	memcpy(node, current, sizeof(sParseTree));
-	node->child = cloneTree(current->child);
-	node->next = cloneTree(current->next);
-	return node;
-}
+// sParseTree* cParser2::cloneTree(const sParseTree *current) const
+// {
+// 	RETV(!current, NULL);
+// 
+// 	sParseTree*node = new sParseTree;
+// 	node->type = current->type;
+// 	node->id = current->id;
+// 	memcpy(node->line, current->line, sizeof(current->line));
+// 	memcpy(node->name, current->name, sizeof(current->name));
+// 	node->attrs = current->attrs;
+// 	node->table = current->table;
+// 	node->child = current->child;
+// 	node->next = current->next;
+// 
+// 	//memcpy(node, current, sizeof(sParseTree));
+// 	node->child = cloneTree(current->child);
+// 	node->next = cloneTree(current->next);
+// 	return node;
+// }
 
 
 sParseTree* cParser2::tree(sParseTree *current, const int depth)
@@ -367,10 +389,11 @@ sParseTree* cParser2::tree(sParseTree *current, const int depth)
 		return NULL; // error
 
 	sParseTree *node = new sParseTree;
-	memset(node, 0, sizeof(sParseTree));
+	//memset(node, 0, sizeof(sParseTree));
 	node->lineNum = m_lineNum;
 	node->depth = cntDepth;
-	strcpy_s(node->line, m_lineStr);
+	attr_list(node);
+	//strcpy_s(node->line, m_lineStr);mage
 
 	sParseTree *reval = NULL;
 	if (cntDepth == depth)
@@ -412,6 +435,113 @@ sParseTree* cParser2::tree(sParseTree *current, const int depth)
 }
 
 
+// aaa, bb, cc, "dd ee"  ff -> aaa, bb, cc, dd ee
+int cParser2::attrs(const string &str, OUT string &out)
+{
+	int i = 0;
+
+	out.reserve(64);
+
+	bool isLoop = true;
+	bool isComma = false;
+	bool isString = false;
+	while (isLoop && str[i])
+	{
+		switch (str[i])
+		{
+		case '"':
+			isString = !isString;
+			break;
+		case ',': // comma
+			if (isString)
+			{
+				out += ',';
+			}
+			else
+			{
+				isComma = true;
+				out += ',';
+			}
+			break;
+		case ' ': // space
+			if (isString)
+			{
+				out += ',';
+			}
+			else
+			{
+				if (!isComma)
+					isLoop = false;
+			}
+			break;
+		default:
+			isComma = false;
+			out += str[i];
+			break;
+		}
+		++i;
+	}
+
+	return i;
+}
+
+
+// attr - list ->  { id=value  }
+void cParser2::attr_list(sParseTree *current)
+{
+	while (1)
+	{
+		const char *pid = id();
+		if (!*pid)
+			break;
+
+		const string key = pid;
+		if (!match('='))
+		{
+			if (!key.empty())
+				current->attrs["id"] = parse_attrs_symbol(key);
+			continue;
+		}
+
+		// aaa, bb, cc  dd -> aaa, bb, cc 
+		string data;
+		m_lineStr += attrs(m_lineStr, data);
+
+		current->attrs[key] = parse_attrs_symbol(data);
+	}
+}
+
+
+// ex) aaa; bbbb cccc ddd; eee
+//		out : aaa,bbb,ccc,ddd,eee
+string cParser2::parse_attrs_symbol(const string &values)
+{
+	vector<string> out;
+	tokenizer2(values, ", ", out);
+
+	string retVar;
+	for each (auto str in out)
+	{
+		const string var = GetSymbol(str, true);
+		if (var.empty())
+		{
+			retVar += str + ",";
+		}
+		else
+		{
+			string data;
+			attrs(var, data);
+			retVar += parse_attrs_symbol(data) + ",";
+		}
+	}
+
+	if (retVar.back() == ',')
+		retVar.pop_back();
+
+	return retVar;
+}
+
+
 // 스크립트를 읽고, 파스트리를 생성한다.
 bool cParser2::Read(const string &fileName)
 {
@@ -437,9 +567,13 @@ bool cParser2::Read(const string &fileName)
 		if (c == ':') // tree head
 		{
 			sParseTree *head = new sParseTree;
-			memset(head, 0, sizeof(sParseTree));
+			//memset(head, 0, sizeof(sParseTree));
 			head->type = 0;
-			strcpy_s(head->line, str);
+			head->attrs["id"] = str;
+//			head->table = NULL;
+// 			head->child = NULL;
+// 			head->next = NULL;
+			//strcpy_s(head->line, str);
 
 			if (!m_treeRoot)
 			{
@@ -466,8 +600,12 @@ bool cParser2::Read(const string &fileName)
 			if (string(str) == "exec")
 			{
 				sParseTree *node = new sParseTree;
-				memset(node, 0, sizeof(sParseTree));
+				//memset(node, 0, sizeof(sParseTree));
 				node->type = 1;
+				node->attrs["id"] = str;
+//				node->table = NULL;
+// 				node->child = NULL;
+// 				node->next = NULL;
 				strcpy_s(node->line, m_lineStr);
 
 				if (!m_execRoot)
@@ -487,7 +625,7 @@ bool cParser2::Read(const string &fileName)
 				cParser2 parser;
 				if (parser.Read(includeFileName))
 				{
-					sParseTree *node = parser.cloneTree(parser.m_treeRoot);
+					sParseTree *node = (parser.m_treeRoot)? parser.m_treeRoot->clone() : NULL;
 
 					if (!m_treeRoot)
 						m_treeRoot = node;
@@ -536,13 +674,21 @@ void cParser2::Clear()
 
 
 // 심볼 데이타 리턴
-string cParser2::GetSymbol(const string &symbol)
+string cParser2::GetSymbol(const string &symbol, const bool recursive, const int index) //recursive = false, index=-1
 {
-	for (int i = m_symbolTree.size()-1; i >= 0; --i)
+	for (int i = (index==-1)? (m_symbolTree.size()-1) : index; i >= 0; --i)
 	{
 		auto it = m_symbolTree[i].find(symbol);
 		if (m_symbolTree[i].end() == it)
 			continue;
+
+		if (recursive)
+		{
+			const string ret = GetSymbol(it->second.str, recursive, i);
+			if (!ret.empty())
+				return ret;
+		}
+
 		return it->second.str;
 	}
 

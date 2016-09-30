@@ -205,3 +205,33 @@ void common::wtokenizer(const wstring &str, const wstring &delimeter, const wstr
 	}
 }
 
+
+// 원본 문자열 str에서 구분자 delimeters 로 분해해서 out 에 저장해서 리턴한다.
+// 이 때 구분 단위는 delimeters 의 한 문자를 기준으로 한다.
+// delimeters 는 저장되지 않는다.
+//
+// ex) tokenizer2( "aaa; bbbb cccc ddd; eee", ", ", out)
+//		out-> aaa bbb ccc ddd eee
+void common::tokenizer2(const string &str, const string &delimeters, OUT vector<string> &out)
+{
+	string tmp = str;
+	int offset = 0;
+
+	while (tmp[offset])
+	{
+		string tok;
+		tok.reserve(32);
+		while (tmp[offset])
+		{
+			if (strchr(delimeters.c_str(), tmp[offset]))
+			{
+				offset++;
+				break;
+			}
+			tok += tmp[offset++];
+		}
+
+		if (!tok.empty())
+			out.push_back(tok);
+	}
+}

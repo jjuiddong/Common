@@ -23,22 +23,9 @@ namespace cvproc {
 			
 			struct sNode
 			{
-				string id;
-				string tag; // 공통 label_id 처리
-				int key; // keyboard
-				bool check; // use traverse node
-				bool noUpperTraverse; // use find route
-				bool noProc; // use traverse node, no match scene
-				bool isAuto; // use traverse node, no keyboard enter menu
-				bool isSideMenu; // use traverse node, side menu operation
-				bool isEnterChild; // use traverse node, enter to next child Scene
-				bool isNoMenu; // use traverse node, does not show menu item
-				bool isSideSubmenu;// use traverse node, left, right sub menu, 자식에게 영향을 미친다.
-				bool isSceneIdInherit;
-				bool isSceneIdChildInherit;
-				bool isCircularMenu;
-				int sceneId;// use traverse node
-				float delay; // use move scene delay time seconds
+ 				bool check; // use traverse node
+ 				int sceneId;// use traverse node
+				map<string, string> attrs;
 				vector<sNode*> out;
 				vector<sNode*> in;
 			};
@@ -59,8 +46,6 @@ namespace cvproc {
 			sNode* FindParent(sNode *current, const string &id);
 			sNode* FindParentRec(sNode *current, const string &id);
 			bool FindRouteRec(sNode*current, const string &id, OUT vector<sNode*> &out);
-			void buildAttributes(const sParseTree *node, const string &str, vector<string> &attributes);
-			void setTreeAttribute(sParseTree *node, vector<string> &attribs);
 
 
 		public:
