@@ -37,11 +37,13 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 	bool isLoop = true;
 	bool isComma = false;
 	bool isString = false;
+	bool isFirst = true;
 	while (isLoop && str[i])
 	{
 		switch (str[i])
 		{
 		case '"':
+			isFirst = false;
 			isString = !isString;
 			break;
 		case ',': // comma
@@ -55,8 +57,15 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 				out += ',';
 			}
 			break;
+
+		case '\r':
+		case '\n':
 		case ' ': // space
-			if (isString)
+			if (isFirst)
+			{
+				// nothing~
+			}
+			else if (isString)
 			{
 				out += ',';
 			}
@@ -67,6 +76,7 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 			}
 			break;
 		default:
+			isFirst = false;
 			isComma = false;
 			out += str[i];
 			break;
