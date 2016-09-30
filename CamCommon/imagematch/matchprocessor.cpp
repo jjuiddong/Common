@@ -53,12 +53,12 @@ cMatchProcessor::cMatchProcessor()
 {
 	if (m_tess.empty())
 	{
-		for (int i = 0; i < 16; ++i)
-		{
-			tess::cTessWrapper *p = new tess::cTessWrapper();
-			p->Init("./", "eng", "dictionary.txt");
-			m_tess.push_back(p);
-		}
+// 		for (int i = 0; i < 16; ++i)
+// 		{
+// 			tess::cTessWrapper *p = new tess::cTessWrapper();
+// 			p->Init("./", "eng", "dictionary.txt");
+// 			m_tess.push_back(p);
+// 		}
 	}
 
 }
@@ -153,9 +153,10 @@ int cMatchProcessor::executeTreeEx(INOUT sExecuteTreeArg &arg)
 		return 1;
 
 	int matchType = 0; // template match
-	if (((script.m_matchType == 1) && (node->attrs["type"].empty())) || (node->attrs["type"] == "featurematch"))
+	if (((script.m_matchType == 1) && (node->attrs["type"].empty())) 
+		|| (node->attrs["type"] == "featurematch"))
 		matchType = 1; // feature match
-	else if (node->attrs["type"] == "featurematch")
+	else if (node->attrs["type"] == "ocrmatch")
 		matchType = 2; // ocr match
 
 	if (node->attrs["type"] == "ocrmatch")
@@ -430,10 +431,10 @@ int cMatchProcessor::executeOcr(INOUT sExecuteTreeArg &arg)
 
 	// 성공이든, 실패든, 매칭된 위치는 저장한다.
 	node->matchLoc = deSkew.m_deSkewPoint1;
-	arg.matchResult->m_data[node->id].matchRect2[0] = deSkew.m_pts[0];
-	arg.matchResult->m_data[node->id].matchRect2[1] = deSkew.m_pts[1];
-	arg.matchResult->m_data[node->id].matchRect2[2] = deSkew.m_pts[2];
-	arg.matchResult->m_data[node->id].matchRect2[3] = deSkew.m_pts[3];
+	arg.matchResult->m_data[node->id].matchRect2[0] = deSkew.m_pts[0] + Point(roi.x, roi.y);
+	arg.matchResult->m_data[node->id].matchRect2[1] = deSkew.m_pts[1] + Point(roi.x, roi.y);
+	arg.matchResult->m_data[node->id].matchRect2[2] = deSkew.m_pts[2] + Point(roi.x, roi.y);
+	arg.matchResult->m_data[node->id].matchRect2[3] = deSkew.m_pts[3] + Point(roi.x, roi.y);
 
 	return isDetect;
 }

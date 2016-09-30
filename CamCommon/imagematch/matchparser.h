@@ -59,7 +59,6 @@ namespace cvproc {
 			string parse_attrs_symbol(const string &values);
 			void collectTree(const sParseTree *current, set<sParseTree*> &out) const;
 			void removeTree(const sParseTree *current) const;
-			//sParseTree* cloneTree(const sParseTree *current) const;
 			sParseTree* tree(sParseTree *current, const int depth);
 
 

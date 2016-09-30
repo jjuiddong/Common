@@ -23,8 +23,10 @@ namespace cvproc {
 		public:
 			cSimpleMatchScript(cMatchScript2 *matchScript);
 			virtual ~cSimpleMatchScript();
+
 			string Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const string &script, 
 				const string &label_select="", const string &capture_select="", const string &tree_label="");
+
 			int IsMatchComplete();
 			bool UpdateMatchResult(OUT cv::Mat &dst);
 			void TerminiateMatch();
@@ -32,13 +34,17 @@ namespace cvproc {
 
 
 		protected:
+			void Parse(const string &script);
 			void NextIndex();
+			int attrs(const string &str, OUT string &out);
+			void attr_list(const string &str);
 
 
 		public:
 			enum STATE { WAIT, BEGIN_MATCH};
 			STATE m_state;
 			cMatchScript2 *m_matchScript;
+			vector<std::pair<string, string>> m_commands;
 			cMatchResult m_matchResult[32];
 			cv::Mat m_src;
 			cv::Mat m_tessImg;

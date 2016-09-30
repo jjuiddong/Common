@@ -246,7 +246,7 @@ bool cParser2::assigned_list(const sParseTree *node)
 		const string symb = id();
 		if (symb.empty())
 		{
-			dbg::ErrLog("line {%d} assigned_list error!! not found id %s \n", node->lineNum, node->line);
+			dbg::ErrLog("line {%d} assigned_list error!! not found id %s \n", node->lineNum, m_lineStr);
 			break;
 		}
 
@@ -254,14 +254,14 @@ bool cParser2::assigned_list(const sParseTree *node)
 
 		if (c != '=')
 		{
-			dbg::ErrLog("line {%d} assigned_list error!! not found '=' %s \n", node->lineNum, node->line);
+			dbg::ErrLog("line {%d} assigned_list error!! not found '=' %s \n", node->lineNum, m_lineStr);
 			break;
 		}
 
 		const string data = id();
 		if (data.empty())
 		{
-			dbg::ErrLog("line {%d} assigned_list error!! not found data %s \n", node->lineNum, node->line);
+			dbg::ErrLog("line {%d} assigned_list error!! not found data %s \n", node->lineNum, m_lineStr);
 			break;
 		}
 
@@ -277,7 +277,7 @@ bool cParser2::assigned_list(const sParseTree *node)
 	m_lineStr = passBlank(m_lineStr);
 	if (*m_lineStr != '}')
 	{ // error 
-		dbg::ErrLog("line {%d} assigned_list error!! not found '}' %s \n", node->lineNum, node->line);
+		dbg::ErrLog("line {%d} assigned_list error!! not found '}' %s \n", node->lineNum, m_lineStr);
 		RemoveSymbolTable();
 		return false;
 	}
@@ -342,27 +342,6 @@ void cParser2::removeTree(const sParseTree *current) const
 }
 
 
-// sParseTree* cParser2::cloneTree(const sParseTree *current) const
-// {
-// 	RETV(!current, NULL);
-// 
-// 	sParseTree*node = new sParseTree;
-// 	node->type = current->type;
-// 	node->id = current->id;
-// 	memcpy(node->line, current->line, sizeof(current->line));
-// 	memcpy(node->name, current->name, sizeof(current->name));
-// 	node->attrs = current->attrs;
-// 	node->table = current->table;
-// 	node->child = current->child;
-// 	node->next = current->next;
-// 
-// 	//memcpy(node, current, sizeof(sParseTree));
-// 	node->child = cloneTree(current->child);
-// 	node->next = cloneTree(current->next);
-// 	return node;
-// }
-
-
 sParseTree* cParser2::tree(sParseTree *current, const int depth)
 {
 	if (!ScanLine())
@@ -389,11 +368,9 @@ sParseTree* cParser2::tree(sParseTree *current, const int depth)
 		return NULL; // error
 
 	sParseTree *node = new sParseTree;
-	//memset(node, 0, sizeof(sParseTree));
 	node->lineNum = m_lineNum;
 	node->depth = cntDepth;
 	attr_list(node);
-	//strcpy_s(node->line, m_lineStr);mage
 
 	sParseTree *reval = NULL;
 	if (cntDepth == depth)
@@ -409,7 +386,7 @@ sParseTree* cParser2::tree(sParseTree *current, const int depth)
 	else if (cntDepth > depth + 1)
 	{
 		// error
-		dbg::ErrLog("line {%d} tree depth error!! %s \n", m_lineNum, node->line);
+		dbg::ErrLog("line {%d} tree depth error!! %s \n", m_lineNum, m_lineStr);
 		return NULL;
 	}
 	else
@@ -567,13 +544,8 @@ bool cParser2::Read(const string &fileName)
 		if (c == ':') // tree head
 		{
 			sParseTree *head = new sParseTree;
-			//memset(head, 0, sizeof(sParseTree));
 			head->type = 0;
 			head->attrs["id"] = str;
-//			head->table = NULL;
-// 			head->child = NULL;
-// 			head->next = NULL;
-			//strcpy_s(head->line, str);
 
 			if (!m_treeRoot)
 			{
@@ -600,13 +572,8 @@ bool cParser2::Read(const string &fileName)
 			if (string(str) == "exec")
 			{
 				sParseTree *node = new sParseTree;
-				//memset(node, 0, sizeof(sParseTree));
 				node->type = 1;
 				node->attrs["id"] = str;
-//				node->table = NULL;
-// 				node->child = NULL;
-// 				node->next = NULL;
-				strcpy_s(node->line, m_lineStr);
 
 				if (!m_execRoot)
 				{
