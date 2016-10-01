@@ -87,6 +87,7 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 	return i;
 }
 
+
 // attr - list ->  { id=value  }
 void cSimpleMatchScript::attr_list(const string &str)
 {
@@ -141,8 +142,9 @@ void cSimpleMatchScript::Parse(const string &script)
 
 
 string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const string &script
-	,const string &label_select, const string &capture_select, const string &tree_label) 
-	// label_select="", capture_select="", tree_label=""
+	,const string &label_select, const string &capture_select, const string &tree_label
+	,const bool showMsg)
+	// label_select="", capture_select="", tree_label="", showMsg=true
 {
 	AutoCSLock cs(m_processCS);
 
@@ -354,6 +356,14 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 				m_src = dst.clone();
 				src = dst.clone();
 			}
+		}
+
+
+		//----------------------------------------------------------------------
+		// Re Load
+		if (cmd == "reload")
+		{
+			dst = src.clone();
 		}
 
 
@@ -632,7 +642,7 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 	}
 
 	const int t2 = timeGetTime();
-	if (dst.data)
+	if (dst.data && showMsg)
 		putText(dst, common::format("time=%d", t2-t1).c_str(), Point(0, 60), 1, 2.f, Scalar(255, 255, 255), 2);
 
 	return errMsg;

@@ -25,7 +25,8 @@ namespace cvproc {
 			virtual ~cSimpleMatchScript();
 
 			string Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const string &script, 
-				const string &label_select="", const string &capture_select="", const string &tree_label="");
+				const string &label_select="", const string &capture_select="", const string &tree_label="", 
+				const bool showMsg=true);
 
 			int IsMatchComplete();
 			bool UpdateMatchResult(OUT cv::Mat &dst);
