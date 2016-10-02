@@ -24,15 +24,8 @@ public:
 	cv::Size m_imageSize;
 	int m_lastRenderTime;
 	Gdiplus::Rect m_bound;
-	Gdiplus::Font m_Font;
-	Gdiplus::SolidBrush m_Brush;
-	Gdiplus::SolidBrush m_grayBrush;
-
-	// double buffering
-	Gdiplus::Bitmap *m_memBmp;
 
 	// rectangle draw
-	bool m_dragImage;
 	bool m_isStartRect;
 	bool m_isClick;
 	CPoint m_clickPos;
@@ -46,6 +39,5 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 };
 

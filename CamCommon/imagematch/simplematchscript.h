@@ -37,9 +37,9 @@ namespace cvproc {
 		protected:
 			void Parse(const string &script);
 			void NextIndex();
+			string pid(const string &str);
 			int attrs(const string &str, OUT string &out);
 			void attr_list(const string &str);
-
 
 		public:
 			enum STATE { WAIT, BEGIN_MATCH};

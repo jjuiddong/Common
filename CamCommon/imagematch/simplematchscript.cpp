@@ -26,6 +26,35 @@ cSimpleMatchScript::~cSimpleMatchScript()
 }
 
 
+// parse id : pid
+// id -> alphabet + {alphabet | number}
+string cSimpleMatchScript::pid(const string &str)
+{
+	if (str.empty())
+		return "";
+
+	string out;
+	out.reserve(64);
+	int i = 0;
+	
+
+	const char *n = strchr(g_strStr, str[i]);
+	if (!n)
+		return out;
+
+	out += str[i++];
+
+	while (1)
+	{
+		const char *n = strchr(g_strStr2, str[i]);
+		if (!n || !*n)
+			break;
+		out += str[i++];
+	}
+
+	return out;
+}
+
 
 // aaa, bb, cc, "dd ee"  ff -> aaa, bb, cc, dd ee
 int cSimpleMatchScript::attrs(const string &str, OUT string &out)
@@ -88,28 +117,43 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 }
 
 
-// attr - list ->  { id=value  }
+// attr - list ->  { id [ = value ] }
 void cSimpleMatchScript::attr_list(const string &str)
 {
-	int offset = 0;
+	string parseStr = str;
 	while (1)
 	{
-		const int pos = str.find("=", offset);
-		if (pos == string::npos)
-			break;
-		
-		string id = str.substr(offset, pos - offset);
+		trim(parseStr);
+
+		string id = pid(parseStr);
 		trim(id);
 		if (id.empty())
 			break;
+		parseStr = parseStr.substr(id.size());
+		trim(parseStr);
 
-		offset = pos + 1; // next '='
+		const uint pos1 = parseStr.find("=");
+		const uint pos2 = MIN(parseStr.find(" "), parseStr.find("\n"));
 
-		// aaa, bb, cc  dd -> aaa, bb, cc 
-		string data;
-		offset += attrs(&str[offset], data);
+		if (pos1 < pos2) // id = data
+		{
+			parseStr = parseStr.substr(pos1 + 1);
+			trim(parseStr);
 
-		m_commands.push_back(pair<string, string>(id, data));
+			// aaa, bb, cc  dd -> aaa, bb, cc 
+			string data;
+			const int offset = attrs(parseStr, data);
+			parseStr = parseStr.substr(offset);
+
+			m_commands.push_back(pair<string, string>(id, data));
+		}
+		else // id or eof
+		{
+			m_commands.push_back(pair<string, string>(id, ""));
+
+			if (pos2 == string::npos)
+				break;
+		}	
 	}
 }
 
@@ -123,7 +167,7 @@ void cSimpleMatchScript::attr_list(const string &str)
 //         - Mat &= Scalar(num1,num2,num3)
 //     - scale=num
 //         - Mat *= num
-//     - gray=0/1
+//     - gray
 //         - gray convert
 //     - hsv=num1,num2,num3,num4,num5,num6
 //         - hsv converting, inRange( Scalar(num1,num2,num3), Scalar(num4,num5,num6) )
@@ -227,18 +271,12 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 		}
 
 		//----------------------------------------------------------------------
-		//     - gray=0/1
-		//         - gray convert
+		//	- gray convert
 		if (cmd == "gray")
 		{
-			int gray = 0;
-			sscanf(param.c_str(), "%d", &gray);
-			if (gray)
-			{
-				if (dst.data && (dst.channels() >= 3))
-					cvtColor(dst, dst, CV_BGR2GRAY);
-				continue;
-			}
+			if (dst.data && (dst.channels() >= 3))
+				cvtColor(dst, dst, CV_BGR2GRAY);
+			continue;
 		}
 
 		//----------------------------------------------------------------------
@@ -281,6 +319,37 @@ string cSimpleMatchScript::Match(INOUT cv::Mat &src, OUT cv::Mat &dst, const str
 					cvtColor(dst, dst, CV_BGR2GRAY);
 				threshold(dst, dst, thresh, 255, CV_THRESH_BINARY_INV);
 				continue;
+			}
+		}
+
+		
+		//----------------------------------------------------------------------
+		// cvt = hsv/hls/bgr
+		if (cmd == "cvt")
+		{
+			if (param == "bgr-hsv")
+			{
+				cvtColor(dst, dst, CV_BGR2HSV);
+			}
+			else if (param == "bgr-hls")
+			{
+				cvtColor(dst, dst, CV_BGR2HLS);
+			}
+			else if (param == "bgr-gray")
+			{
+				cvtColor(dst, dst, CV_BGR2GRAY);
+			}
+			else if (param == "hsv-bgr")
+			{
+				cvtColor(dst, dst, CV_HSV2BGR);
+			}
+			else if (param == "hls-bgr")
+			{
+				cvtColor(dst, dst, CV_HLS2BGR);
+			}
+			else if (param == "gray-bgr")
+			{
+				cvtColor(dst, dst, CV_GRAY2BGR);
 			}
 		}
 
