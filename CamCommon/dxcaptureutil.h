@@ -6,7 +6,6 @@
 
 #include <dshow.h>
 #include <strsafe.h>
-#include <process.h>
 
 #pragma include_alias( "dxtrans.h", "qedit.h" )
 #define __IDxtCompositor_INTERFACE_DEFINED__

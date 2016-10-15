@@ -1,7 +1,6 @@
 
 #include "stdafx.h"
 #include "SerialAsync.h"
-#include <process.h>
 
 using namespace common;
 

@@ -19,8 +19,9 @@ CImageWatchWindow::CImageWatchWindow()
 	, m_gray2Brush(Gdiplus::Color(100, 100, 100))
 	, m_isShowGrid(TRUE)
 	, m_isShowText(TRUE)
-	, m_isShowTextBg(TRUE)
+	, m_isShowTextBg(FALSE)
 	, m_isShowWhite(TRUE)
+	, m_isAutoColor(TRUE)
 {
 	SetScrollSizes(MM_TEXT, CSize(100, 100));
 }
@@ -51,23 +52,6 @@ BOOL CImageWatchWindow::OnEraseBkgnd(CDC* pDC)
 	return TRUE;
 }
 
-void CImageWatchWindow::ShowGrid(const BOOL show)
-{ 
-	m_isShowGrid = show; 
-}
-void CImageWatchWindow::ShowText(const BOOL show)
-{ 
-	m_isShowText = show; 
-}
-void CImageWatchWindow::ShowTextBackground(const BOOL show)
-{
-	m_isShowTextBg = show;
-}
-void CImageWatchWindow::ShowBlackandWhite(const BOOL isWhite)
-{
-	m_isShowWhite = isWhite;
-}
-
 
 // image setting, and render
 void CImageWatchWindow::Render(cv::Mat &image)
@@ -86,7 +70,8 @@ void CImageWatchWindow::Render(cv::Mat &image)
 	//------------------------------------------------
 
 	m_image = image.clone();
-	int size = image.total() * image.elemSize();
+	const int size = image.total() * image.elemSize();
+	const bool isSameImage = (m_bitmap) ? (image.size() == cv::Size(m_bitmap->GetWidth(), m_bitmap->GetHeight())) : false;
 	if (m_imageBytesSize == size)
 	{
 		CGdiPlus::CopyMatToBmp(image, m_bitmap);
@@ -103,20 +88,19 @@ void CImageWatchWindow::Render(cv::Mat &image)
 	if ((cr.Width() == 0) || (cr.Height() == 0))
 		return;
 
-	// 2의 배수가 되게 한다. 확대축소 시 깨짐 방지. (ceil() 올림함수)
-	int rate = (int)ceil((double)m_bitmap->GetWidth() / (double)cr.Width());
-	if (rate <= 0)
-		rate = 1;
-	else if (rate % 2)
-		rate += 1;
+	if (!isSameImage)
+	{
+		// 2의 배수가 되게 한다. 확대축소 시 깨짐 방지. (round() 내림함수)
+		int rate = (int)round((double)m_bitmap->GetWidth() / (double)cr.Width());
+		if (rate <= 1)
+			rate = 1;
+		else if (rate % 2)
+			rate -= 1;
+		m_bound = Gdiplus::RectF(0, 0, (float)m_bitmap->GetWidth() / rate, (float)m_bitmap->GetHeight() / rate);
+		//SetScrollSizes(MM_TEXT, CSize((int)m_bound.Width + cr.Width()*2, (int)m_bound.Height + cr.Height()*2)); // thread not safe
+	}
 
-	m_bound = Gdiplus::Rect(0, 0, m_bitmap->GetWidth() / rate, m_bitmap->GetHeight() / rate);
-
-	CDC *pDC = GetDC();
-	Gdiplus::Graphics g(*pDC);
-	g.DrawImage(m_bitmap, Gdiplus::Rect(0, 0, m_bound.Width, m_bound.Height));
-
-	ReleaseDC(pDC);
+	//RenderZoom(pDC); // thread not safe
 }
 
 
@@ -139,15 +123,18 @@ void CImageWatchWindow::RenderZoom(CDC* pDC)
 	g->SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor); // no interpolation
 	g->SetSmoothingMode(Gdiplus::SmoothingModeNone);
 	g->SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf); // ignore pixel coord.xy / 2
+	g->FillRectangle(&m_grayBrush, Gdiplus::Rect(0, 0, cr.Width(), cr.Height()));
 
-	const Gdiplus::Point scrollPos(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
+	Gdiplus::Point scrollPos(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
 	const float zoomRateX = (float)m_bound.Width / (float)m_bitmap->GetWidth();
 	const float zoomRateY = (float)m_bound.Height / (float)m_bitmap->GetHeight();
 
 	g->DrawImage(m_bitmap,
 		Gdiplus::RectF(0, 0, (float)cr.Width(), (float)cr.Height()),
-		scrollPos.X / zoomRateX, scrollPos.Y / zoomRateY, cr.Width() / zoomRateX, cr.Height() / zoomRateY,
+		scrollPos.X / zoomRateX, scrollPos.Y / zoomRateY, 
+		cr.Width() / zoomRateX, cr.Height() / zoomRateY,
 		Gdiplus::UnitPixel);
+
 
 	if ((zoomRateX > 20.f) && (zoomRateY > 20.f))
 	{
@@ -180,18 +167,37 @@ void CImageWatchWindow::RenderZoom(CDC* pDC)
 			for (; x < cr.Width(); x += incX)
 			{
 				const int xidx = (x + scrollPos.X) / incX;
-				if (xidx < 0)
+				if ((xidx < 0) || (xidx >= m_image.cols))
 					continue;
 
 				y = incY - (scrollPos.Y % incY) - incY;
 				for (; y < cr.Height(); y += incY)
 				{
 					const int yidx = (y + scrollPos.Y) / incY;
-					if (yidx < 0)
+					if ((yidx < 0) || (yidx >= m_image.rows))
 						continue;
 
 					uchar *p = m_image.data + (xidx*m_image.elemSize()) + (m_image.step[0] * yidx);
 					const Gdiplus::Point center(incX / 2 - 10, incY / 2 - 16);
+
+					bool isFontBlack = true;
+					if (m_isAutoColor)
+					{
+						int val = 0;
+						uchar *tmp = p;
+						for (int i = 0; i < m_image.channels(); ++i)
+						{
+							switch (m_image.depth())
+							{
+							case CV_8U:
+							case CV_8S:
+								val += *tmp;
+								++tmp;
+								break;
+							}
+						}
+						isFontBlack = (val / m_image.channels()) > 128;
+					}
 
 					// render pixel data
 					for (int i = 0; i < m_image.channels(); ++i)
@@ -206,8 +212,12 @@ void CImageWatchWindow::RenderZoom(CDC* pDC)
 
 							const wstring str = common::formatw("%d", *p);
 							const Gdiplus::RectF rt((float)(x + center.X), (float)(y + (i * 10) + center.Y), 20,20);
+							Brush *fontBrush = (m_isAutoColor) ?
+								(isFontBlack ? &m_blackBrush : &m_whiteBrush) :
+								(m_isShowWhite ? &m_whiteBrush : &m_blackBrush);
+
 							g->DrawString(str.c_str(), str.length(), &m_smallFont,
-								rt, Gdiplus::StringFormat::GenericDefault(), m_isShowWhite? &m_whiteBrush : &m_blackBrush);
+								rt, Gdiplus::StringFormat::GenericDefault(), fontBrush);
 							++p;
 							break;
 						}
@@ -227,8 +237,13 @@ void CImageWatchWindow::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	SetFocus();
 	SetCapture();
-	m_isClick = true;
-	m_clickPos = point;
+
+	if (m_bitmap)
+	{
+		m_isClick = true;
+		m_clickPos = point;
+	}
+
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
@@ -259,8 +274,8 @@ void CImageWatchWindow::OnMouseMove(UINT nFlags, CPoint point)
 	if (m_bitmap)
 	{
 		const Gdiplus::Point scrollPos(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
-		const float zoomRateX = (float)m_bound.Width / (float)m_bitmap->GetWidth();
-		const float zoomRateY = (float)m_bound.Height / (float)m_bitmap->GetHeight();
+		const float zoomRateX = m_bound.Width / (float)m_bitmap->GetWidth();
+		const float zoomRateY = m_bound.Height / (float)m_bitmap->GetHeight();
 		int xidx = (int)((scrollPos.X + point.x) / zoomRateX);
 		int yidx = (int)((scrollPos.Y + point.y) / zoomRateY);
 		xidx = MAX(0, MIN(m_image.cols - 1, xidx));
@@ -296,10 +311,16 @@ void CImageWatchWindow::OnMouseMove(UINT nFlags, CPoint point)
 
 BOOL CImageWatchWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
+	if (!m_bitmap)
+		return TRUE;
+
 	CRect cr;
 	GetClientRect(cr);
 	// 축소 비율 제한
-	if ((zDelta < 0) && (cr.Width() > m_bound.Width) && (cr.Height() > m_bound.Height))
+	const float rate = m_bound.Width / m_bitmap->GetWidth();
+	if ((zDelta < 0)
+		&& (rate <= 1.f)
+		&& (cr.Width() > (int)m_bound.Width) && (cr.Height() > (int)m_bound.Height))
 	{
 		SetScrollPos(SB_HORZ, 0);
 		SetScrollPos(SB_VERT, 0);
@@ -307,13 +328,13 @@ BOOL CImageWatchWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	}
 
 	// 최대 확대 비율 40x
-	if ((zDelta > 0) && (m_bound.Width / m_bitmap->GetWidth()) > 127)
+	if ((zDelta > 0) && ((m_bound.Width / m_bitmap->GetWidth()) > 127.f))
 		return TRUE;
 
 	ScreenToClient(&pt);
 	CPoint curPos(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
 	curPos += pt;
-	const CSize curSize(m_bound.Width, m_bound.Height);
+	const CSize curSize((int)m_bound.Width, (int)m_bound.Height);
 
 	if (zDelta > 0)
 	{
@@ -326,16 +347,15 @@ BOOL CImageWatchWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		m_bound.Height /= 2;
 	}
 
-	SetScrollSizes(MM_TEXT, CSize(m_bound.Width, m_bound.Height));
+	SetScrollSizes(MM_TEXT, CSize((int)m_bound.Width + cr.Width()*2, (int)m_bound.Height + cr.Height()*2));
 
 	const CPoint target((int)(m_bound.Width * ((float)curPos.x / (float)curSize.cx)),
 		(int)(m_bound.Height * ((float)curPos.y / (float)curSize.cy)));
 
-	const int scrollX = MAX(0, target.x - pt.x);
-	const int scrollY = MAX(0, target.y - pt.y);
-	SetScrollPos(SB_VERT, scrollY);
-	SetScrollPos(SB_HORZ, scrollX);
-
+	CPoint scroll(MAX(0, target.x - pt.x), MAX(0, target.y - pt.y));
+	SetScrollPos(SB_HORZ, scroll.x);
+	SetScrollPos(SB_VERT, scroll.y);
+	
 	InvalidateRect(NULL);
 	return true;
 }

@@ -1,7 +1,6 @@
 
 #include "stdafx.h"
 #include "movie.h"
-#include <process.h>
 
 
 using namespace cv;

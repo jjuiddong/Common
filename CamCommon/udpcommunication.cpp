@@ -1,7 +1,6 @@
 
 #include "stdafx.h"
 #include "udpcommunication.h"
-#include <process.h>
 
 #pragma comment(lib,"ws2_32.lib") //Winsock Library
 

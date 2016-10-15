@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Thread.h"
 #include "Task.h"
-#include <process.h>
 #include <boost/bind.hpp>
 
 using namespace common;

@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "dxcapture.h"
 #include <assert.h>
-#include <process.h>
 #include <mmsystem.h>
 #include <gdiplus.h>
 

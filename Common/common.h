@@ -64,7 +64,9 @@ typedef unsigned int    u_int;
 #include <set>
 #include <queue>
 #include <thread>
+#include <process.h>
 #include <shlwapi.h>
+#include <iterator>
 #include <boost/foreach.hpp>
 
 

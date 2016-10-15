@@ -151,7 +151,7 @@ void cSimpleMatchScript::attr_list(const string &str)
 		{
 			m_commands.push_back(pair<string, string>(id, ""));
 
-			if (pos2 == string::npos)
+			if (parseStr.empty() && (pos2 == string::npos))
 				break;
 		}	
 	}

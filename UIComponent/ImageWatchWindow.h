@@ -15,10 +15,6 @@ public:
 	virtual ~CImageWatchWindow();
 
 	void Render(cv::Mat &image);
-	void ShowGrid(const BOOL show);
-	void ShowText(const BOOL show);
-	void ShowTextBackground(const BOOL show);
-	void ShowBlackandWhite(const BOOL isWhite);
 
 
 protected:
@@ -34,9 +30,10 @@ public:
 	BOOL m_isShowText;
 	BOOL m_isShowTextBg;
 	BOOL m_isShowWhite;
+	BOOL m_isAutoColor;
 
 	int m_imageBytesSize;
-	Gdiplus::Rect m_bound;
+	Gdiplus::RectF m_bound;
 	string m_infoStr;
 
 	Gdiplus::Pen m_blackPen;

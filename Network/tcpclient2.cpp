@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "tcpclient2.h"
 #include <iostream>
-#include <process.h> 
 
 using namespace std;
 using namespace network;
