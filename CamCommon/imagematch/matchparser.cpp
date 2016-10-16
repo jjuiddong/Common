@@ -431,6 +431,7 @@ int cParser2::attrs(const string &str, OUT string &out)
 			isFirst = false;
 			isString = !isString;
 			break;
+
 		case ',': // comma
 			if (isString)
 			{
@@ -452,7 +453,7 @@ int cParser2::attrs(const string &str, OUT string &out)
 			}
 			else if (isString)
 			{
-				out += ',';
+				out += str[i];
 			}
 			else
 			{
@@ -460,6 +461,7 @@ int cParser2::attrs(const string &str, OUT string &out)
 					isLoop = false;
 			}
 			break;
+
 		default:
 			isFirst = false;
 			isComma = false;
@@ -490,7 +492,7 @@ void cParser2::attr_list(sParseTree *current)
 			continue;
 		}
 
-		// aaa, bb, cc  dd -> aaa, bb, cc 
+		// aaa, bb, cc, "dd ee"  ff -> aaa,bb,cc,dd ee
 		string data;
 		m_lineStr += attrs(m_lineStr, data);
 
@@ -499,12 +501,12 @@ void cParser2::attr_list(sParseTree *current)
 }
 
 
-// ex) aaa; bbbb cccc ddd; eee
+// ex) aaa; bbb ccc ddd; eee
 //		out : aaa,bbb,ccc,ddd,eee
 string cParser2::parse_attrs_symbol(const string &values)
 {
 	vector<string> out;
-	tokenizer2(values, ", ", out);
+	tokenizer2(values, ",", out);
 
 	string retVar;
 	for each (auto str in out)

@@ -75,6 +75,7 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 			isFirst = false;
 			isString = !isString;
 			break;
+
 		case ',': // comma
 			if (isString)
 			{
@@ -96,7 +97,7 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 			}
 			else if (isString)
 			{
-				out += ',';
+				out += str[i];
 			}
 			else
 			{
@@ -104,6 +105,7 @@ int cSimpleMatchScript::attrs(const string &str, OUT string &out)
 					isLoop = false;
 			}
 			break;
+
 		default:
 			isFirst = false;
 			isComma = false;
@@ -140,7 +142,7 @@ void cSimpleMatchScript::attr_list(const string &str)
 			parseStr = parseStr.substr(pos1 + 1);
 			trim(parseStr);
 
-			// aaa, bb, cc  dd -> aaa, bb, cc 
+			// aaa, bb, cc  dd -> aaa,bb,cc 
 			string data;
 			const int offset = attrs(parseStr, data);
 			parseStr = parseStr.substr(offset);

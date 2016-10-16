@@ -267,7 +267,7 @@ cFlowControl::STATE cFlowControl::NextStep(const cv::Mat &img, cGraphScript::sNo
 		return m_state;
 	}
 
-	// 씬에 있는 메뉴가 하나 이상일 경우, 메뉴를 선택하는 상태로 넘어간다.
+	// 씬에 있는 메뉴가 두개 이상일 경우, 메뉴를 선택하는 상태로 넘어간다.
 	const bool isSameScene = (m_path[0]->sceneId == m_path[1]->sceneId);
 	const int nextMenuCount = GetNextMenuCount(m_path[0], m_path[1]);
 	const int nextMenuIdx = CheckNextMenuIndex(m_path[0], m_path[1]);

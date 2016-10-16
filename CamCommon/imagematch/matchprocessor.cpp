@@ -53,12 +53,12 @@ cMatchProcessor::cMatchProcessor()
 {
 	if (m_tess.empty())
 	{
-// 		for (int i = 0; i < 16; ++i)
-// 		{
-// 			tess::cTessWrapper *p = new tess::cTessWrapper();
-// 			p->Init("./", "eng", "dictionary.txt");
-// 			m_tess.push_back(p);
-// 		}
+		for (int i = 0; i < 16; ++i)
+		{
+			tess::cTessWrapper *p = new tess::cTessWrapper();
+			p->Init("./", "eng", "dictionary.txt");
+			m_tess.push_back(p);
+		}
 	}
 
 }
