@@ -656,7 +656,9 @@ void cController2::WriteGameResult(const string &gameName, const string &userId,
 }
 
 
-void cController2::WriteGameResultToDB(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
+void cController2::WriteGameResultToDB(
+	const string &dbIP, const int dbPort, const string &dbID, const string &dbPasswd, const string &databaseName,
+	const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
 {
 	using namespace std;
 	using namespace boost::gregorian;
@@ -683,10 +685,11 @@ void cController2::WriteGameResultToDB(const string &gameName, const string &use
 	//ss << ", '" << opt << "' ";
 	ss << ")";
 
-	//dbg::Log("%s \n", ss.str().c_str());
+	dbg::Log("%s \n", ss.str().c_str());
+	dbg::Log("    - %s %d %s %s %s \n", dbIP.c_str(), dbPort, dbID.c_str(), dbPasswd.c_str(), databaseName.c_str());
 
 	MySQLConnection *sqlConn = new MySQLConnection();
-	sqlConn->Connect("192.168.0.4", 3306, "root", "1111", "dirt3");
+	sqlConn->Connect(dbIP, dbPort, dbID, dbPasswd, databaseName);
 	MySQLQuery *sqlQuery = new MySQLQuery(sqlConn, ss.str());
 	sqlQuery->ExecuteQuery();
  	delete sqlQuery;

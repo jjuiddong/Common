@@ -44,7 +44,9 @@ namespace motion
 		void SetOutputFormat(const int outputIndex, const int formatIndex);
 		void CreateCustomModuleCallback(CUSTOM_CALLBACK func);
 		void WriteGameResult(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt);
-		void WriteGameResultToDB(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt);
+		void WriteGameResultToDB(
+			const string &dbIP, const int dbPort, const string &dbID, const string &dbPasswd, const string &databaseName,
+			const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt);
 
 
 	protected:
