@@ -1,10 +1,32 @@
 
 #include "stdafx.h"
 #include "MotionController2.h"
+#include "boost/date_time/gregorian/gregorian.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
+
+
+namespace motion
+{
+	struct sWeeks
+	{
+		string w1; // english
+		string w2; // chineses
+	};
+	sWeeks g_weeks[] = {
+		{ "Mon", "êÅ" },
+		{ "Tue", "ûý" },
+		{ "Wed", "â©" },
+		{ "Thu", "ÙÊ" },
+		{ "Fri", "ÐÝ" },
+		{ "Sat", "÷Ï" },
+		{ "Sun", "ìí" },
+	};
+	const int g_weeksSize = sizeof(g_weeks) / sizeof(sWeeks);
+	map<string, string> g_weeksMap;
+}
 
 
 using namespace motion;
-
 
 cController2::cController2() :
 	m_state(MODULE_STATE::STOP)
@@ -601,4 +623,72 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 	}
 
 	return true;
+}
+
+
+void cController2::WriteGameResult(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
+{
+	using namespace std;
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	if (g_weeksMap.empty())
+	{
+		for (int i = 0; i < g_weeksSize; ++i)
+			g_weeksMap.insert({ g_weeks[i].w1, g_weeks[i].w2 });
+	}
+
+	const date curDate = second_clock::local_time().date(); // today date
+	time_t time = std::time(nullptr);
+	std::tm tm;
+	localtime_s(&tm, &time);
+
+	ofstream excelFile;
+	excelFile.open("game.csv", ios_base::app);
+
+	excelFile << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+	excelFile << "\t";
+	excelFile << curDate.day_of_week();
+	excelFile << "\t";
+	excelFile << g_weeksMap[curDate.day_of_week().as_short_string()];
+	excelFile << "\t" << gameName << "\t" << userId << "\t" << trackName << "\t" << lapTime << "\t" << lank << endl;
+	excelFile.close();
+}
+
+
+void cController2::WriteGameResultToDB(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
+{
+	using namespace std;
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	if (g_weeksMap.empty())
+	{
+		for (int i = 0; i < g_weeksSize; ++i)
+			g_weeksMap.insert({ g_weeks[i].w1, g_weeks[i].w2 });
+	}
+
+	const date curDate = second_clock::local_time().date(); // today date
+	time_t time = std::time(nullptr);
+	std::tm tm;
+	localtime_s(&tm, &time);
+
+	stringstream ss;
+	ss << "INSERT INTO gameresult(user_id, track, date, race_time, rank) VALUE(";
+	ss << "'" << userId << "'";
+	ss << ", '" << trackName << "'";
+	ss << ", '" << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << "'";
+	ss << ", '" << (int)lapTime << "'";
+	ss << ", '" << lank << "'";
+	//ss << ", '" << opt << "' ";
+	ss << ")";
+
+	//dbg::Log("%s \n", ss.str().c_str());
+
+	MySQLConnection *sqlConn = new MySQLConnection();
+	sqlConn->Connect("192.168.0.4", 3306, "root", "1111", "dirt3");
+	MySQLQuery *sqlQuery = new MySQLQuery(sqlConn, ss.str());
+	sqlQuery->ExecuteQuery();
+ 	delete sqlQuery;
+ 	delete sqlConn;
 }

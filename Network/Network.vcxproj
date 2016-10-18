@@ -277,6 +277,7 @@
     <ClInclude Include="packetqueue.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="session.h" />
+    <ClInclude Include="sql\mysqlquery.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tcpclient.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="launcher.cpp" />
     <ClCompile Include="packetqueue.cpp" />
     <ClCompile Include="session.cpp" />
+    <ClCompile Include="sql\mysqlquery.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

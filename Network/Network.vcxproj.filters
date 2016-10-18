@@ -12,6 +12,9 @@
     <Filter Include="FtpClient">
       <UniqueIdentifier>{74e3f8bc-ffd5-4c76-b784-e0d1170cb435}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sql">
+      <UniqueIdentifier>{bffce601-8562-44b6-ba6c-8b71d982d7c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -74,6 +77,9 @@
     <ClInclude Include="tcpclient2.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="sql\mysqlquery.h">
+      <Filter>sql</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -117,6 +123,9 @@
     </ClCompile>
     <ClCompile Include="tcpclient2.cpp">
       <Filter>헤더 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="sql\mysqlquery.cpp">
+      <Filter>sql</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
