@@ -28,3 +28,6 @@ protected:
 	string symbol(string &src);
 	string str(string &src);
 };
+
+
+void ParsePlotInputStringFormat(const string &str, OUT vector<cPlotInputParser> &out);
