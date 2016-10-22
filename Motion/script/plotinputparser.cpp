@@ -97,6 +97,71 @@ string cPlotInputParser::Execute()
 }
 
 
+// write binary data
+// return value : length of buffer
+int cPlotInputParser::ExecuteBinary(BYTE *buffer, const int bufferLen)
+{
+	using namespace script;
+
+	RETV(!m_stmt, 0);
+
+	int i = 0;
+
+	plotinputscript::sStatement *p = m_stmt;
+	while (p && (i < bufferLen))
+	{
+		if (!p->symbol.empty())
+		{
+			auto it = g_symbols.find(p->symbol);
+			if (g_symbols.end() != it)
+			{
+				int cpSize = 0;
+				switch (it->second.type)
+				{
+				case FIELD_TYPE::T_BOOL:
+					cpSize = sizeof(it->second.bVal);
+					break;
+				case FIELD_TYPE::T_SHORT:
+				case FIELD_TYPE::T_INT:
+					cpSize = sizeof(it->second.iVal);
+					break;
+				case FIELD_TYPE::T_UINT:
+					cpSize = sizeof(it->second.uVal);
+					break;
+				case FIELD_TYPE::T_FLOAT:
+					cpSize = sizeof(it->second.fVal);
+					break;
+				case FIELD_TYPE::T_DOUBLE:
+					cpSize = sizeof(it->second.dVal);
+					break;
+				default:
+					cpSize = 0;
+					break;
+				}
+
+				if ((cpSize > 0) && (i+cpSize < bufferLen))
+					memcpy(buffer+i, it->second.buff, cpSize);
+				i += cpSize;
+			}
+			else
+			{
+				if (i + 4 < bufferLen)
+					*(int*)(buffer + i) = 0xcdcdcdcd;
+				i += 4;
+			}
+		}
+
+		if ((int)p->str.size() + i < bufferLen)
+			memcpy(buffer + i, p->str.c_str(), p->str.size());
+
+		i += p->str.size();
+		p = p->next;
+	}
+
+	return i;
+}
+
+
 // {[symbol] + [string]}
 plotinputscript::sStatement* cPlotInputParser::statement(string &src)
 {

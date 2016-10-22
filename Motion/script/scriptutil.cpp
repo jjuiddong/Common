@@ -12,7 +12,7 @@ namespace script
 	const char *g_strStr2 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@$_1234567890";
 	const int g_strLen2 = 65;
 
-	map<string, sFieldData> g_symbols;
+	map<string, sFieldData> g_symbols; //{key, value} , key=variable name in script, value=data
 	//cShmMap<script::sFieldData> g_symbols;
 	bool g_isLog = false; // true 일 경우, 자세한 로그를 남긴다.
 }

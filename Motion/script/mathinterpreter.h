@@ -1,5 +1,5 @@
 //
-// Mixing 명령어 실행기
+// Mixing math command interpreter
 //
 #pragma once
 

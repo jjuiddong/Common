@@ -16,6 +16,7 @@ public:
 	bool Read(const string &fileName);
 	bool ParseStr(const string &source);
 	string Execute();
+	int ExecuteBinary(BYTE *buffer, const int bufferLen);
 
 
 protected:
