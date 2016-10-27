@@ -115,7 +115,7 @@ cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const string 
 
 	if (sRawMeshGroup *meshes = LoadModel(fileName))
 	{
-		BOOST_FOREACH (auto &rawMesh, meshes->meshes)
+		for each (auto &rawMesh in meshes->meshes)
 		{
 			if (meshName == rawMesh.name)
 			{
@@ -304,35 +304,35 @@ string cResourceManager::FindFile( const string &fileName )
 void cResourceManager::Clear()
 {
 	// remove raw mesh
-	BOOST_FOREACH (auto kv, m_meshes)
+	for each (auto kv in m_meshes)
 	{
 		delete kv.second;
 	}
 	m_meshes.clear();
 
 	// remove texture
-	BOOST_FOREACH (auto kv, m_textures)
+	for each (auto kv in m_textures)
 	{
 		delete kv.second;
 	}
 	m_textures.clear();
 
 	// remove raw ani
-	BOOST_FOREACH (auto kv, m_anies)
+	for each (auto kv in m_anies)
 	{
 		delete kv.second;
 	}
 	m_anies.clear();
 
 	// remove shader
-	BOOST_FOREACH (auto kv, m_shaders)
+	for each (auto kv in m_shaders)
 	{
 		delete kv.second;
 	}
 	m_shaders.clear();
 
 	// remove mesh buffer
-	BOOST_FOREACH (auto kv, m_mesheBuffers)
+	for each (auto kv in m_mesheBuffers)
 	{
 		delete kv.second;
 	}
@@ -369,8 +369,8 @@ void cResourceManager::ReloadFile()
 	// 이 기능이 제대로 동작하려면, 전체 리셋이 필요하다.
 	// 지워지 메모리를 참조하는 경우가 발생한다.
 
-	//BOOST_FOREACH (auto kv, m_meshes)
+	//for each (auto kv, m_meshes)
 	//	m_reLoadFile.insert(kv.first);
-	//BOOST_FOREACH (auto kv, m_anies)
+	//for each (auto kv, m_anies)
 	//	m_reLoadFile.insert(kv.first);
 }

@@ -399,9 +399,6 @@
     <ProjectReference Include="..\Network\Network.vcxproj">
       <Project>{a202aa06-f0ee-4b05-86de-da63b9f146d4}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Tess\Tess.vcxproj">
-      <Project>{47690dcf-2b63-432d-ad3a-a2d2ff775b2c}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

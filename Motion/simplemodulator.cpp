@@ -17,13 +17,6 @@ void cSimpleModulator::InitDefault()
 	m_incTime = 0;
 	m_totalIncTime = 0;
 
-	m_isSplineEnable = false;
-
-	m_splinePlotSamplingRate = 10;
-	m_splineInterpolationRate = 10;
-
-	m_motionviewSplineSamplingRate = 2;
-	m_motionviewSplineInterpolationRate = 2;
 	m_motionviewTimeScaling = 1;
 	m_motionviewStartDelay = 0;
 

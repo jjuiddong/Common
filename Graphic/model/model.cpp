@@ -66,7 +66,7 @@ bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TY
 
 	// 메쉬 생성.
 	int id = 0;
-	BOOST_FOREACH (auto &mesh, rawMeshes->meshes)
+	for each (auto &mesh in rawMeshes->meshes)
 	{
 		cMesh *p = NULL;
 		if (MODEL_TYPE::SKIN == m_type)
@@ -129,7 +129,7 @@ bool cModel::SetAnimation( const string &aniFileName,
 
 bool cModel::Update(const float deltaSeconds)
 {
-	BOOST_FOREACH (auto node, m_meshes)
+	for each (auto node in m_meshes)
 		node->Update(deltaSeconds);
 
 	if (m_bone)
@@ -180,7 +180,7 @@ void cModel::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 	if (m_isRenderMesh)
 	{
 		const Matrix44 tm = m_TM * parentTm;
-		BOOST_FOREACH (auto node, m_meshes)
+		for each (auto node in m_meshes)
 			node->RenderShadow(renderer, viewProj, lightPos, lightDir, tm);
 	}
 }
@@ -205,7 +205,7 @@ void cModel::UpdateShadow(cRenderer &renderer)
 // remove all data
 void cModel::Clear()
 {
-	BOOST_FOREACH (auto mesh, m_meshes)
+	for each (auto mesh in m_meshes)
 	{
 		SAFE_DELETE(mesh);
 	}
@@ -219,7 +219,7 @@ void cModel::Clear()
 // 메쉬를 찾아서 리턴한다.
 cMesh* cModel::FindMesh(const string &meshName)
 {
-	BOOST_FOREACH (auto &mesh, m_meshes)
+	for each (auto &mesh in m_meshes)
 	{
 		if (mesh->GetName() == meshName)
 			return (cMesh*)mesh;
@@ -233,7 +233,7 @@ bool cModel::SharePalette(vector<Matrix44> *palette)
 {
 	RETV(m_type != MODEL_TYPE::SKIN, false);
 
-	BOOST_FOREACH (auto &mesh, m_meshes)
+	for each (auto &mesh in m_meshes)
 	{
 		if (cSkinnedMesh *skinMesh = dynamic_cast<cSkinnedMesh*>(mesh))
 		{
@@ -266,7 +266,7 @@ void cModel::UpdateCollisionBox()
 cBoundingBox* cModel::GetCollisionBox(cRenderer &renderer)
 {
 	sMinMax mm;
-	BOOST_FOREACH (auto &mesh, m_meshes)
+	for each (auto &mesh in m_meshes)
 	{
 		if (const cBoundingBox *box = mesh->GetBoundingBox())
 		{
@@ -317,7 +317,7 @@ bool cModel::Pick(const Vector3 &orig, const Vector3 &dir)
 
 cMesh* cModel::GetMesh(const string &name)
 {
-	BOOST_FOREACH (auto &mesh, m_meshes)
+	for each (auto &mesh in m_meshes)
 	{
 		if (mesh->GetName() == name)
 			return mesh;
@@ -338,7 +338,7 @@ void cModel::SetShader(cShader *shader)
 {
 	__super::SetShader(shader);
 
-	BOOST_FOREACH (auto node, m_meshes)
+	for each (auto node in m_meshes)
 		node->SetShader(shader);
 }
 

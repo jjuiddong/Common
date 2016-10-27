@@ -19,7 +19,7 @@ public:
 	const Quaternion& GetRotation() const;
 
 
-protected:
+public:
 	graphic::cCube2 m_mesh[6];
 	Vector3 m_locate;
 	Quaternion m_rotate;

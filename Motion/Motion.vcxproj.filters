@@ -7,14 +7,12 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="motion.h" />
-    <ClInclude Include="spline.h" />
     <ClInclude Include="modulator.h" />
     <ClInclude Include="mixingconfig.h" />
     <ClInclude Include="motionwavemodulator.h" />
     <ClInclude Include="motionmonitorconfig.h" />
     <ClInclude Include="simplemodulator.h" />
     <ClInclude Include="motionwave.h" />
-    <ClInclude Include="vitconmotionsim2.h" />
     <ClInclude Include="script\mathinterpreter.h">
       <Filter>script</Filter>
     </ClInclude>
@@ -39,8 +37,6 @@
     <ClInclude Include="script\scriptutil.h">
       <Filter>script</Filter>
     </ClInclude>
-    <ClInclude Include="vitconmotionsim.h" />
-    <ClInclude Include="MotionController.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="udpinput.h" />
     <ClInclude Include="motiondef.h" />
@@ -62,22 +58,18 @@
     </ClInclude>
     <ClInclude Include="simplemodule.h" />
     <ClInclude Include="module.h" />
-    <ClInclude Include="vitconmotionsim3.h" />
-    <ClInclude Include="motion_export.h" />
     <ClInclude Include="joypad.h" />
     <ClInclude Include="joystickinput.h" />
     <ClInclude Include="amplitudemodule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="spline.cpp" />
     <ClCompile Include="modulator.cpp" />
     <ClCompile Include="mixingconfig.cpp" />
     <ClCompile Include="motionwavemodulator.cpp" />
     <ClCompile Include="motionmonitorconfig.cpp" />
     <ClCompile Include="simplemodulator.cpp" />
     <ClCompile Include="motionwave.cpp" />
-    <ClCompile Include="vitconmotionsim2.cpp" />
     <ClCompile Include="script\mathinterpreter.cpp">
       <Filter>script</Filter>
     </ClCompile>
@@ -102,8 +94,6 @@
     <ClCompile Include="script\scriptutil.cpp">
       <Filter>script</Filter>
     </ClCompile>
-    <ClCompile Include="vitconmotionsim.cpp" />
-    <ClCompile Include="MotionController.cpp" />
     <ClCompile Include="udpinput.cpp" />
     <ClCompile Include="serialoutput.cpp" />
     <ClCompile Include="normalmixer.cpp" />
@@ -120,8 +110,6 @@
       <Filter>script</Filter>
     </ClCompile>
     <ClCompile Include="simplemodule.cpp" />
-    <ClCompile Include="vitconmotionsim3.cpp" />
-    <ClCompile Include="motion_export.cpp" />
     <ClCompile Include="joypad.cpp" />
     <ClCompile Include="joystickinput.cpp" />
     <ClCompile Include="amplitudemodule.cpp" />

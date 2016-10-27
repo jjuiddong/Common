@@ -195,12 +195,6 @@ void cModulator::Update(const float deltaSeconds, const float x)
 	const float v = m_axis.value[1];
 	m_axis.value[2] = (v * v * m_axis.a) + (v * m_axis.b) + m_axis.c;
 
-
-	//---------------------------------------------------------------------------------------
-	// Spline
-	if (m_spline.IsEnable())
-		m_spline.AddPoint(m_incTime, Vector2(m_totalIncTime, m_axis.value[2]));
-
 	m_incTime = 0;
 
 }

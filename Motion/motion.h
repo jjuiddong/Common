@@ -6,12 +6,10 @@
 
 #pragma once
 
-#include <d3d9.h>
-#include <d3dx9.h>
 
 #include "../Common/common.h"
 #include "../Network/network.h"
-#include "../CamCommon/camcommon.h"
+//#include "../CamCommon/camcommon.h"
 using namespace common;
 
 
@@ -33,20 +31,15 @@ namespace VITCON_SER
 
 // Motion
 #include "mixingconfig.h"
-#include "spline.h"
 #include "modulator.h"
 #include "motionwavemodulator.h"
 #include "motionmonitorconfig.h"
 #include "simplemodulator.h"
 #include "motionwave.h"
-#include "vitconmotionsim.h"
-#include "vitconmotionsim2.h"
-#include "vitconmotionsim3.h"
 #include "joypad.h"
 
 
 #include "script/script.h"
-#include "MotionController.h"
 
 #include "udpinput.h"
 #include "normalmixer.h"

@@ -34,10 +34,6 @@ namespace network {
 		BUFFER_LENGTH = 1024,
 	};
 
-// 	struct sFD_Set : fd_set {
-// 		SOCKET socket_array[FD_SETSIZE];		// fd_array[] 소켓에 해당하는 netid 값
-// 	};
-
 }
 
 
@@ -50,6 +46,6 @@ namespace network {
 #include "tcpclient.h"
 #include "tcpclient2.h"
 #include "FtpClient/FTPClient.h"
-#include "sql/mysqlquery.h"
+//#include "sql/mysqlquery.h"
 
-#pragma comment(lib, "libmysql.lib")
+//#pragma comment(lib, "libmysql.lib")

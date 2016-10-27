@@ -1,6 +1,12 @@
 //
 // Mixing math command interpreter
 //
+//
+// 2016-10-25
+//		- quat2roll(x,y,z,w)
+//		- quat2pitch(x,y,z,w)
+//		- quat2yaw(x,y,z,w)
+//
 #pragma once
 
 #include "scriptutil.h"

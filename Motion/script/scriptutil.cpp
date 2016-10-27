@@ -208,3 +208,18 @@ float script::number(string &src)
 // string script::fmt(string &src)
 // {	
 // }
+
+
+
+// change little endian -> big endian
+void script::bigEndian(BYTE *buffer, const int size)
+{
+	// big endian
+	int i = 0, k = size - 1;
+	while (i < k)
+	{
+		std::swap(buffer[i], buffer[k]);
+		++i;
+		--k;
+	}
+}

@@ -84,7 +84,7 @@ void cBoneMgr::SetAnimationRec( cBoneNode *node, const sRawAniGroup &rawAnies, c
 		}
 	}
 
-	BOOST_FOREACH (auto p, node->GetChildren())
+	for each (auto p in node->GetChildren())
 	{
 		SetAnimationRec((cBoneNode*)p, rawAnies, nAniFrame, isLoop, isBlend);
 	}
@@ -93,7 +93,7 @@ void cBoneMgr::SetAnimationRec( cBoneNode *node, const sRawAniGroup &rawAnies, c
 
 void cBoneMgr::SetCurrentAnimationFrame(const int curFrame)
 {
-	BOOST_FOREACH (auto p, m_bones)
+	for each (auto p in m_bones)
 	{
 		if (p)
 			p->SetCurrentFrame(curFrame);
@@ -188,9 +188,9 @@ void cBoneMgr::CreateBoundingBox(cRenderer &renderer, const sRawMeshGroup &rawMe
 	SetBoundingBoxIndex(m_root, boneIndices);
 
 
-	BOOST_FOREACH (const sRawMesh &mesh, rawMeshes.meshes)
+	for each (const sRawMesh &mesh in rawMeshes.meshes)
 	{
-		BOOST_FOREACH (const sVertexWeight &weight, mesh.weights)
+		for each (const sVertexWeight &weight in mesh.weights)
 		{
 			const int vtxIdx = weight.vtxIdx;
 
@@ -247,7 +247,7 @@ void cBoneMgr::SetBoundingBoxIndex(cBoneNode *node, OUT map<int, int> &boneIndic
 		nextBoneIdx = boneIdx;
 	}
 
-	BOOST_FOREACH (auto &child, node->GetChildren())
+	for each (auto &child in node->GetChildren())
 		SetBoundingBoxIndex((cBoneNode*)child, boneIndices, nextBoneIdx);
 }
 
@@ -255,7 +255,7 @@ void cBoneMgr::SetBoundingBoxIndex(cBoneNode *node, OUT map<int, int> &boneIndic
 // 애니메이션 옵션 설정.
 void cBoneMgr::SetAnimationOption(DWORD option)
 {
-	BOOST_FOREACH (auto &bone, m_bones)
+	for each (auto &bone in m_bones)
 		bone->GetTrack()->SetAnimationOption(option);
 }
 
@@ -264,6 +264,6 @@ void cBoneMgr::SetAnimationOption(DWORD option)
 // 애니메이션 하지 않고 행렬만 업데이트 된다.
 void cBoneMgr::UpdatePalette()
 {
-	BOOST_FOREACH (auto &bone, m_bones)
+	for each (auto &bone in m_bones)
 		bone->UpdateAccTM();
 }

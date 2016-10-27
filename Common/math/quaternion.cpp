@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "Math.h"
-#include <D3dx9math.h>
+//#include <D3dx9math.h>
 
 using namespace common;
 
@@ -94,7 +94,7 @@ Quaternion Quaternion::Interpolate( const Quaternion& qNext, const float fTime )
 Matrix44 Quaternion::GetMatrix() const
 {
 	Matrix44 m;
-/*
+
 	float X = x;
 	float Y = y;
 	float Z = z;
@@ -125,8 +125,8 @@ Matrix44 Quaternion::GetMatrix() const
 	m._14 = m._24 = m._34 = 0.0f;
 	m._41 = m._42 = m._43 = 0.0f;
 	m._44 = 1.0f;
-*/
-	D3DXMatrixRotationQuaternion( (D3DXMATRIX*)&m, (D3DXQUATERNION*)this );
+/**/
+	//D3DXMatrixRotationQuaternion( (D3DXMATRIX*)&m, (D3DXQUATERNION*)this );
 	return m;
 } //Quaternion::GetMatrix4
 
@@ -340,10 +340,10 @@ void Quaternion::Euler2(const Vector3& v)
 	*/
 Vector3 Quaternion::Euler(void) const 
 {
-	float euler[ 3];
-	const static float PI_OVER_2 = MATH_PI * 0.5f;
-	const static float EPSILON = MATH_EPSILON;
-	float sqw, sqx, sqy, sqz;
+	double euler[ 3];
+	const static double PI_OVER_2 = MATH_PI * 0.5f;
+	const static double EPSILON = MATH_EPSILON2;
+	double sqw, sqx, sqy, sqz;
 
 	// quick conversion to Euler angles to give tilt to user
 	sqw = w*w;
@@ -351,10 +351,10 @@ Vector3 Quaternion::Euler(void) const
 	sqy = y*y;
 	sqz = z*z;
 
-	euler[1] = asin(2.0f * (w*y - x*z));
+	euler[1] = asin( clamp(-1, 1, 2.0f * (w*y - x*z)) );
 	if (PI_OVER_2 - fabs(euler[1]) > EPSILON) 
 	{
-		euler[2] = atan2(2.0f * (x*y + w*z),
+		euler[2] = atan2( 2.0f * (x*y + w*z),
 			sqx - sqy - sqz + sqw);
 		euler[0] = atan2(2.0f * (w*x + y*z),
 			sqw - sqx - sqy + sqz);
@@ -371,5 +371,25 @@ Vector3 Quaternion::Euler(void) const
 			euler[2] = MATH_PI - euler[2];
 	}
 
-	return Vector3(euler[0], euler[1], euler[2]);
+	return Vector3((float)euler[0], (float)euler[1], (float)euler[2]);
+
+
+
+// 	double roll, pitch, yaw;
+// 
+// 	double ysqr = y * y;
+// 	double t0 = -2.0f * (ysqr + z * z) + 1.0f;
+// 	double t1 = +2.0f * (x * y - w * z);
+// 	double t2 = -2.0f * (x * z + w * y);
+// 	double t3 = +2.0f * (y * z - w * x);
+// 	double t4 = -2.0f * (x * x + ysqr) + 1.0f;
+// 
+// 	t2 = t2 > 1.0f ? 1.0f : t2;
+// 	t2 = t2 < -1.0f ? -1.0f : t2;
+// 
+// 	pitch = std::asin(t2);
+// 	roll = std::atan2(t3, t4);
+// 	yaw = std::atan2(t1, t0);
+// 
+// 	return Vector3((float)roll, (float)pitch, (float)yaw);
 }

@@ -34,7 +34,6 @@ public:
 	bool Read(const string &fileName);
 	bool Write(const string &fileName);
 	void Make(const int samplingRate, const int samplingCount, const sMotionData &data);
-	void MakeSpline(const int samplingRate, const int interpolationRate);
 	bool Insert(const cMotionWave &src, const int insertIndex, const int size=-1);
 	bool Remove(const int removeIndex, const int size);
 

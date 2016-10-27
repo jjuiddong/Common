@@ -6,7 +6,7 @@
 
 #include <windows.h>
 #include <iostream>
-#include <mysql.h>
+//#include <mysql.h>
 #include <stdint.h>
 #include <string>
 #include <algorithm>

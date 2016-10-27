@@ -61,17 +61,7 @@ public:
 	sAxisOption m_axis;
 	bool m_firstLoop; // 처음 계산시 true
 
-	// Spline계산을 위해 4포인트의 값을 저장한다.
-	cSpline m_spline;
-
-	// spline
-	bool m_isSplineEnable;
-	int m_splinePlotSamplingRate;
-	int m_splineInterpolationRate;
-
 	// motion wave
-	int m_motionviewSplineSamplingRate;
-	int m_motionviewSplineInterpolationRate;
 	float m_motionviewTimeScaling;
 	int m_motionviewStartDelay;
 

@@ -29,6 +29,6 @@ void cSerialObservable::RemoveObserver(iSerialObserver* observer)
 
 void cSerialObservable::NotifyObserver(char *buffer)
 {
-	BOOST_FOREACH(auto &observer, m_observers)
+	for each (auto &observer in m_observers)
 		observer->UpdateSerial(buffer);
 }

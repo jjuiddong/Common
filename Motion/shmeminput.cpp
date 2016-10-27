@@ -20,11 +20,12 @@ cShmemInput::~cShmemInput()
 
 
 // 클래스 초기화
-bool cShmemInput::Init(const int startIndex, const int memSize, const string &sharedMemoryName,
+bool cShmemInput::Init(const int startIndex, const int memSize, const string &sharedMemoryName, const bool isBigEndian,
 	const string &protocolCmd, const string &cmd, const string &modulatorScript)
 {
 	m_startIndex = startIndex;
 	m_memorySize = memSize;
+	m_isBigEndian = isBigEndian;
 
 	if (!CreateSharedMem(sharedMemoryName))
 		return false;
@@ -41,11 +42,12 @@ bool cShmemInput::Init(const int startIndex, const int memSize, const string &sh
 }
 
 
-bool cShmemInput::Init2(const int startIndex, const int memSize, const string &sharedMemoryName,
+bool cShmemInput::Init2(const int startIndex, const int memSize, const string &sharedMemoryName, const bool isBigEndian,
 	const string &protocolScriptFileName,const string &cmdScriptFileName, const string &modulatorScriptFileName)
 {
 	m_startIndex = startIndex;
 	m_memorySize = memSize;
+	m_isBigEndian = isBigEndian;
 
 	if (!CreateSharedMem(sharedMemoryName))
 		return false;
@@ -162,8 +164,11 @@ void cShmemInput::ParseSharedMem(const BYTE *buffer, const int bufferLen)
 
 		script::sFieldData data;
 		ZeroMemory(data.buff, sizeof(data));
-		memcpy(data.buff, pmem, MIN(field.bytes, sizeof(data)));
+		memcpy(data.buff, pmem, min(field.bytes, sizeof(data.buff)));
 		data.type = field.type;
+
+		if (m_isBigEndian)
+			script::bigEndian((BYTE*)data.buff, min(field.bytes, sizeof(data.buff)));
 
 		const string id = format("$%d", i + m_startIndex); // $1 ,$2, $3 ~
 		const string oldId = format("@%d", i + m_startIndex); // @1, @2, @3 ~

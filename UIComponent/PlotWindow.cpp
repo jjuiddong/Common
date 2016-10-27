@@ -494,14 +494,14 @@ void CPlotWindow::SetPlotXY(const float x, const float y, const int plotIndex) /
 	if (plot.headIdx == plot.tailIdx)
 		plot.headIdx = ++plot.headIdx % plot.xy.size();
 
-	m_maxX = MAX(x, m_maxX);
-	m_minX = MIN(x, m_minX);
-	m_maxY = MAX(y, m_maxY);
-	m_minY = MIN(y, m_minY);
+	m_maxX = max(x, m_maxX);
+	m_minX = min(x, m_minX);
+	m_maxY = max(y, m_maxY);
+	m_minY = min(y, m_minY);
 
 	if (m_centerY != FLT_MIN)
 	{
-		const float cy = MAX(abs(m_maxY - m_centerY), abs(m_minY - m_centerY));
+		const float cy = max(abs(m_maxY - m_centerY), abs(m_minY - m_centerY));
 		m_maxY = m_centerY + cy;
 		m_minY = m_centerY - cy;		
 	}

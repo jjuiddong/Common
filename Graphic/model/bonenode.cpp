@@ -55,7 +55,7 @@ bool cBoneNode::Update(const float deltaSeconds)
 {
 	if (m_id < 0)
 	{ // 최상위 루트 노드일 때는 애니메이션 처리를 하지 않는다.
-		BOOST_FOREACH (auto p, m_children)
+		for each (auto p in m_children)
 			p->Update(deltaSeconds);
 		return true;
 	}
@@ -73,7 +73,7 @@ bool cBoneNode::Update(const float deltaSeconds)
 	}
 
 	// 자식 노드 애니메이션 처리.
-	BOOST_FOREACH (auto p, m_children)
+	for each (auto p in m_children)
 		p->Update(deltaSeconds);
 
 	return true;
@@ -91,7 +91,7 @@ void cBoneNode::Render(cRenderer &renderer, const Matrix44 &parentTm)
 	else
 		m_mesh->Render(renderer, parentTm);
 
-	BOOST_FOREACH (auto p, m_children)
+	for each (auto p in m_children)
 		p->Render( renderer, parentTm );
 }
 

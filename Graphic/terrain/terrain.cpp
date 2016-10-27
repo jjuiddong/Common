@@ -332,7 +332,7 @@ void cTerrain::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44
 // Á¤Àû ¸ðµ¨ Ãâ·Â
 void cTerrain::RenderRigidModels(cRenderer &renderer, const Matrix44 &tm)
 {
-	BOOST_FOREACH (auto model, m_rigids)
+	for each (auto model in m_rigids)
 	{
 		model->Render(renderer, tm);
 	}
@@ -445,7 +445,7 @@ bool cTerrain::Pick(const Vector3 &orig, const Vector3 &dir, OUT Vector3 &out)
 // ¸ðµ¨ ÇÇÅ·.
 cModel* cTerrain::PickModel(const Vector3 &orig, const Vector3 &dir)
 {
-	BOOST_FOREACH (auto &model, m_rigids)
+	for each (auto &model in m_rigids)
 	{
 		if (model->Pick(orig, dir))
 			return model;
@@ -461,7 +461,7 @@ void cTerrain::Clear()
 	m_heightMapFileName.clear();
 	m_grid.Clear();
 
-	BOOST_FOREACH (auto model, m_rigids)
+	for each (auto model in m_rigids)
 	{
 		SAFE_DELETE(model);
 	}
@@ -502,7 +502,7 @@ cModel* cTerrain::AddRigidModel(cRenderer &renderer, const string &fileName)
 // Á¤Àû ¸ðµ¨ Ã£±â.
 cModel* cTerrain::FindRigidModel(const int id)
 {
-	BOOST_FOREACH (auto model, m_rigids)
+	for each (auto model in m_rigids)
 	{
 		if (model->GetId() == id)
 			return model;

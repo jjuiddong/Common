@@ -281,7 +281,7 @@ bool importer::ReadRawMeshFileV11( const string &fileName, OUT sRawMeshGroup &ra
 		ReadMeshInfoV11(fin, rawMeshes.meshes.back());
 
 		// material id 로 material 구조체 초기화.
-		BOOST_FOREACH (auto &mtrlId, rawMeshes.meshes.back().mtrlIds)
+		for each (auto &mtrlId in rawMeshes.meshes.back().mtrlIds)
 		{
 			rawMeshes.meshes.back().mtrls.push_back( rawMeshes.mtrls[ mtrlId] );
 		}
@@ -338,7 +338,7 @@ bool importer::ReadRawMeshFileV13( const string &fileName, OUT sRawMeshGroup &ra
 		ReadMeshInfoV11(fin, rawMeshes.meshes.back());
 
 		// material id 로 material 구조체 초기화.
-		BOOST_FOREACH (auto &mtrlId, rawMeshes.meshes.back().mtrlIds)
+		for each (auto &mtrlId in rawMeshes.meshes.back().mtrlIds)
 		{
 			rawMeshes.meshes.back().mtrls.push_back( rawMeshes.mtrls[ mtrlId] );
 		}
@@ -394,7 +394,7 @@ bool importer::ReadRawMeshFileV15( const string &fileName, OUT sRawMeshGroup &ra
 		ReadMeshInfoV11(fin, rawMeshes.meshes.back());
 
 		// material id 로 material 구조체 초기화.
-		BOOST_FOREACH (auto &mtrlId, rawMeshes.meshes.back().mtrlIds)
+		for each (auto &mtrlId in rawMeshes.meshes.back().mtrlIds)
 		{
 			rawMeshes.meshes.back().mtrls.push_back( rawMeshes.mtrls[ mtrlId] );
 		}
@@ -450,7 +450,7 @@ bool importer::ReadRawMeshFileV19( const string &fileName, OUT sRawMeshGroup &ra
 		ReadMeshInfoV11(fin, rawMeshes.meshes.back());
 
 		// material id 로 material 구조체 초기화.
-		BOOST_FOREACH (auto &mtrlId, rawMeshes.meshes.back().mtrlIds)
+		for each (auto &mtrlId in rawMeshes.meshes.back().mtrlIds)
 		{
 			rawMeshes.meshes.back().mtrls.push_back( rawMeshes.mtrls[ mtrlId] );
 		}
@@ -507,7 +507,7 @@ bool importer::ReadRawMeshFileV20( const string &fileName, OUT sRawMeshGroup &ra
 		ReadMeshInfoV11(fin, rawMeshes.meshes.back());
 
 		// material id 로 material 구조체 초기화.
-		BOOST_FOREACH (auto &mtrlId, rawMeshes.meshes.back().mtrlIds)
+		for each (auto &mtrlId in rawMeshes.meshes.back().mtrlIds)
 		{
 			rawMeshes.meshes.back().mtrls.push_back( rawMeshes.mtrls[ mtrlId] );
 		}

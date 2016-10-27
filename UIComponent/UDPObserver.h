@@ -53,6 +53,6 @@ inline void cUDPObservable::RemoveUDPObserver(iUDPObserver* observer)
 
 inline void cUDPObservable::NotifyUDPObserver(const char *buffer, const int bufferLen)
 {
-	BOOST_FOREACH(auto &observer, m_udpObservers)
+	for each(auto &observer in m_udpObservers)
 		observer->UpdateUDP(buffer, bufferLen);
 }

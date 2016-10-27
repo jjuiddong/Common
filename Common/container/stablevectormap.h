@@ -56,7 +56,7 @@ namespace common
 			if (m_RmKeys.empty())
 				return true;
 
-			BOOST_FOREACH(KeyType key, m_RmKeys)
+			for each (KeyType key in m_RmKeys)
 			{
 				VectorMap::remove(key);
 			}

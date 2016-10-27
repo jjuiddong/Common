@@ -302,6 +302,77 @@ void cController2::CreateCustomModuleCallback(CUSTOM_CALLBACK func)
 }
 
 
+void cController2::WriteGameResult(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
+{
+	using namespace std;
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	if (g_weeksMap.empty())
+	{
+		for (int i = 0; i < g_weeksSize; ++i)
+			g_weeksMap.insert({ g_weeks[i].w1, g_weeks[i].w2 });
+	}
+
+	const date curDate = second_clock::local_time().date(); // today date
+	time_t time = std::time(nullptr);
+	std::tm tm;
+	localtime_s(&tm, &time);
+
+	ofstream excelFile;
+	excelFile.open("game.csv", ios_base::app);
+
+	excelFile << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+	excelFile << "\t";
+	excelFile << curDate.day_of_week();
+	excelFile << "\t";
+	excelFile << g_weeksMap[curDate.day_of_week().as_short_string()];
+	excelFile << "\t" << gameName << "\t" << userId << "\t" << trackName << "\t" << lapTime << "\t" << lank << endl;
+	excelFile.close();
+}
+
+
+void cController2::WriteGameResultToDB(
+	const string &dbIP, const int dbPort, const string &dbID, const string &dbPasswd, const string &databaseName,
+	const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
+{
+	using namespace std;
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	if (g_weeksMap.empty())
+	{
+		for (int i = 0; i < g_weeksSize; ++i)
+			g_weeksMap.insert({ g_weeks[i].w1, g_weeks[i].w2 });
+	}
+
+	const date curDate = second_clock::local_time().date(); // today date
+	time_t time = std::time(nullptr);
+	std::tm tm;
+	localtime_s(&tm, &time);
+
+	stringstream ss;
+	ss << "INSERT INTO gameresult(user_id, track, date, race_time, rank) VALUE(";
+	ss << "'" << userId << "'";
+	ss << ", '" << trackName << "'";
+	ss << ", '" << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << "'";
+	ss << ", '" << (int)lapTime << "'";
+	ss << ", '" << lank << "'";
+	//ss << ", '" << opt << "' ";
+	ss << ")";
+
+	dbg::Log("%s \n", ss.str().c_str());
+	dbg::Log("    - %s %d %s %s %s \n", dbIP.c_str(), dbPort, dbID.c_str(), dbPasswd.c_str(), databaseName.c_str());
+
+	// 	MySQLConnection *sqlConn = new MySQLConnection();
+	// 	sqlConn->Connect(dbIP, dbPort, dbID, dbPasswd, databaseName);
+	// 	MySQLQuery *sqlQuery = new MySQLQuery(sqlConn, ss.str());
+	// 	sqlQuery->ExecuteQuery();
+	//  	delete sqlQuery;
+	//  	delete sqlConn;
+}
+
+
 bool cController2::CreateComponent(const sComponent *parentComp)
 {
 	RETV(!parentComp, false);
@@ -474,6 +545,7 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 
 		int startIndex = 1001;
 		int memorySize = 1024;
+		bool isBigEndian = false;
 		if (parentComp->cmd)
 		{
 			const string strStartIndex = parentComp->cmd->values["startindex"];
@@ -481,9 +553,12 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 
 			const string strMemorySize = parentComp->cmd->values["memsize"];
 			memorySize = (strMemorySize.empty()) ? 1001 : atoi(strMemorySize.c_str());
+
+			const string strBigEndian = parentComp->cmd->values["bigendian"];
+			isBigEndian = (strBigEndian.empty()) ? false : ( atoi(strBigEndian.c_str())>0) ;
 		}
 
-		if (shmInput->Init(startIndex, memorySize, shmName, strProtocol ? *strProtocol : "",
+		if (shmInput->Init(startIndex, memorySize, shmName, isBigEndian, strProtocol ? *strProtocol : "",
 			strMath ? *strMath : "", strModulation ? *strModulation : ""))
 		{
 			AddInput(shmInput);
@@ -625,73 +700,3 @@ bool cController2::CreateComponent(const sComponent *parentComp)
 	return true;
 }
 
-
-void cController2::WriteGameResult(const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
-{
-	using namespace std;
-	using namespace boost::gregorian;
-	using namespace boost::posix_time;
-
-	if (g_weeksMap.empty())
-	{
-		for (int i = 0; i < g_weeksSize; ++i)
-			g_weeksMap.insert({ g_weeks[i].w1, g_weeks[i].w2 });
-	}
-
-	const date curDate = second_clock::local_time().date(); // today date
-	time_t time = std::time(nullptr);
-	std::tm tm;
-	localtime_s(&tm, &time);
-
-	ofstream excelFile;
-	excelFile.open("game.csv", ios_base::app);
-
-	excelFile << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
-	excelFile << "\t";
-	excelFile << curDate.day_of_week();
-	excelFile << "\t";
-	excelFile << g_weeksMap[curDate.day_of_week().as_short_string()];
-	excelFile << "\t" << gameName << "\t" << userId << "\t" << trackName << "\t" << lapTime << "\t" << lank << endl;
-	excelFile.close();
-}
-
-
-void cController2::WriteGameResultToDB(
-	const string &dbIP, const int dbPort, const string &dbID, const string &dbPasswd, const string &databaseName,
-	const string &gameName, const string &userId, const string &trackName, const float lapTime, const int lank, const int opt)
-{
-	using namespace std;
-	using namespace boost::gregorian;
-	using namespace boost::posix_time;
-
-	if (g_weeksMap.empty())
-	{
-		for (int i = 0; i < g_weeksSize; ++i)
-			g_weeksMap.insert({ g_weeks[i].w1, g_weeks[i].w2 });
-	}
-
-	const date curDate = second_clock::local_time().date(); // today date
-	time_t time = std::time(nullptr);
-	std::tm tm;
-	localtime_s(&tm, &time);
-
-	stringstream ss;
-	ss << "INSERT INTO gameresult(user_id, track, date, race_time, rank) VALUE(";
-	ss << "'" << userId << "'";
-	ss << ", '" << trackName << "'";
-	ss << ", '" << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << "'";
-	ss << ", '" << (int)lapTime << "'";
-	ss << ", '" << lank << "'";
-	//ss << ", '" << opt << "' ";
-	ss << ")";
-
-	dbg::Log("%s \n", ss.str().c_str());
-	dbg::Log("    - %s %d %s %s %s \n", dbIP.c_str(), dbPort, dbID.c_str(), dbPasswd.c_str(), databaseName.c_str());
-
-	MySQLConnection *sqlConn = new MySQLConnection();
-	sqlConn->Connect(dbIP, dbPort, dbID, dbPasswd, databaseName);
-	MySQLQuery *sqlQuery = new MySQLQuery(sqlConn, ss.str());
-	sqlQuery->ExecuteQuery();
- 	delete sqlQuery;
- 	delete sqlConn;
-}

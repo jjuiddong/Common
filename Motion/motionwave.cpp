@@ -255,7 +255,7 @@ bool cMotionWave::Play(const float deltaSeconds, sMotionData &out)
 		m_playIncTime += deltaSeconds;
 
 		float s = m_playIncTime / m_samplingTime;
-		s = MIN(s, 1); // saturation
+		s = min(s, 1); // saturation
 
 		if (m_playIndex < (int)m_wave.size())
 		{
@@ -301,82 +301,6 @@ void cMotionWave::Make(const int samplingRate, const int samplingCount, const sM
 	{
 		m_wave.push_back(data);
 	}
-}
-
-
-// 스플라인 곡선으로 만든다.
-// samplingRate 크기당 하나의 샘플링 구간으로 간주한다.
-// 각 샘플링 구간당 interpolationRate 크기만큼 샘플링이 추가된다.
-void cMotionWave::MakeSpline(const int samplingRate, const int interpolationRate)
-{
-	const int MAX_AXIS = 4;
-
-	cSpline spline[MAX_AXIS]; // yaw, pitch, roll, heave
-	for (int i = 0; i < MAX_AXIS; ++i)
-		spline[i].Init(true, samplingRate, interpolationRate);
-
-	// 임시 저장할 메모리를 생성한다.
-	vector<sMotionData> splineWave;
-	const int resSize = (m_wave.size() / samplingRate) * interpolationRate;
-	splineWave.reserve(resSize);
-
-	// 스플라인 곡선을 계산하고 결과를 splineWave에 저장한다.
-	for (u_int i = 0; i < m_wave.size(); i += samplingRate)
-	{
-		const float t = m_samplingTime * i;
-
-		const Vector2 yaw(t, m_wave[i].yaw);
-		const Vector2 pitch(t, m_wave[i].pitch);
-		const Vector2 roll(t, m_wave[i].roll);
-		const Vector2 heave(t, m_wave[i].heave);
-		spline[0].AddPoint(yaw);
-		spline[1].AddPoint(pitch);
-		spline[2].AddPoint(roll);
-		spline[3].AddPoint(heave);
-
-		bool ret = true;
-		vector<Vector2> out[MAX_AXIS];
-		for (int k = 0; k < MAX_AXIS; ++k)
-			ret = spline[k].GetInterpolations(0, 1, out[k]) && ret;
-
-		if (ret)
-		{
-			for (u_int m = 0; m < out[0].size(); ++m)
-			{
-				sMotionData data;
-				data.yaw = out[0][m].y;
-				data.pitch = out[1][m].y;
-				data.roll = out[2][m].y;
-				data.heave = out[3][m].y;
-				splineWave.push_back(data);
-			}
-		}
-		else
-		{
-			// 스플라인 곡선 계산시 첫번째,두번째 샘플링 값은 계산하지 못하는 문제가 있어,
-			// 원본 정보를 그대로 저장하는 것으로 이 문제를 해결했다.
-			if (spline[0].GetStoreCount() <= 2)
-			{
-				sMotionData data;
-				data.yaw = m_wave[i].yaw;
-				data.pitch = m_wave[i].pitch;
-				data.roll = m_wave[i].roll;
-				data.heave = m_wave[i].heave;
-
-				for (int m = 0; m < interpolationRate; ++m)
-				{
-					splineWave.push_back(data);
-				}
-			}
-
-		}
-	}
-
-	// 스플라인 곡선 계산이 모두 끝났다면, 정보를 업데이트 한다.
-	m_wave = splineWave;
-	m_samplingRate /= samplingRate;
-	m_samplingRate *= interpolationRate;
-	m_samplingTime = 1.f / (float)m_samplingRate;
 }
 
 

@@ -103,7 +103,7 @@ void cCollisionManager::UpdateCollisionBoxRec( sCollisionNode *obj )
 
 	if (obj->pobj)
 		obj->pobj->UpdateCollisionBox();
-	BOOST_FOREACH (auto &node, obj->GetChildren())
+	for each (auto &node in obj->GetChildren())
 		UpdateCollisionBoxRec((sCollisionNode*)node);
 }
 
@@ -150,13 +150,13 @@ void cCollisionManager::CollisionTestRec(
 	}
 	
 
-	BOOST_FOREACH (cNode *p1, node1->GetChildren())
+	for each (cNode *p1 in node1->GetChildren())
 	{
 		sCollisionNode *collisionNode1 = (sCollisionNode*)p1;
 		if (!collisionNode1->pobj->IsTest(testNum))
 			continue;
 
-		BOOST_FOREACH (cNode *p2, node2->GetChildren())
+		for each (cNode *p2 in node2->GetChildren())
 		{
 			sCollisionNode *collisionNode2 = (sCollisionNode*)p2;
 			if (!collisionNode2->pobj->IsTest(testNum))
@@ -198,7 +198,7 @@ void cCollisionManager::CollisionTestNode1Loop(
 		return;
 	}
 
-	BOOST_FOREACH (cNode *p2, node2->GetChildren())
+	for each (cNode *p2 in node2->GetChildren())
 	{
 		sCollisionNode *collisionNode = (sCollisionNode*)p2;
 		if (!collisionNode->pobj->IsTest(testNum))
@@ -227,7 +227,7 @@ void cCollisionManager::CollisionTestNode2Loop(
 		return;
 	}
 
-	BOOST_FOREACH (cNode *p1, node1->GetChildren())
+	for each (cNode *p1 in node1->GetChildren())
 	{
 		sCollisionNode *collisionNode = (sCollisionNode*)p1;
 		if (!collisionNode->pobj->IsTest(testNum))

@@ -75,7 +75,7 @@ void cSkinnedMesh::ApplyPalette(cRenderer &renderer)
 
 	if (BYTE *vertices = (BYTE*)vtxBuffer.Lock())
 	{
-		BOOST_FOREACH (const sVertexWeight &weight, m_rawMesh.weights)
+		for each (const sVertexWeight &weight in m_rawMesh.weights)
 		{
 			const int vtxIdx = weight.vtxIdx;
 			Vector3 p(0,0,0);

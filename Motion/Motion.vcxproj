@@ -157,10 +157,8 @@
     <ClInclude Include="mixingconfig.h" />
     <ClInclude Include="modulator.h" />
     <ClInclude Include="module.h" />
-    <ClInclude Include="motion_export.h" />
     <ClInclude Include="simplemodule.h" />
     <ClInclude Include="motion.h" />
-    <ClInclude Include="MotionController.h" />
     <ClInclude Include="motioncontroller2.h" />
     <ClInclude Include="motiondef.h" />
     <ClInclude Include="motionmonitorconfig.h" />
@@ -182,14 +180,10 @@
     <ClInclude Include="serialoutput.h" />
     <ClInclude Include="shmeminput.h" />
     <ClInclude Include="simplemodulator.h" />
-    <ClInclude Include="spline.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="udpinput.h" />
     <ClInclude Include="udpoutput.h" />
-    <ClInclude Include="vitconmotionsim.h" />
-    <ClInclude Include="vitconmotionsim2.h" />
-    <ClInclude Include="vitconmotionsim3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="amplitudemodule.cpp" />
@@ -197,9 +191,7 @@
     <ClCompile Include="joystickinput.cpp" />
     <ClCompile Include="mixingconfig.cpp" />
     <ClCompile Include="modulator.cpp" />
-    <ClCompile Include="motion_export.cpp" />
     <ClCompile Include="simplemodule.cpp" />
-    <ClCompile Include="MotionController.cpp" />
     <ClCompile Include="motioncontroller2.cpp" />
     <ClCompile Include="motionmonitorconfig.cpp" />
     <ClCompile Include="motionwave.cpp" />
@@ -219,7 +211,6 @@
     <ClCompile Include="serialoutput.cpp" />
     <ClCompile Include="shmeminput.cpp" />
     <ClCompile Include="simplemodulator.cpp" />
-    <ClCompile Include="spline.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">Create</PrecompiledHeader>
@@ -228,14 +219,8 @@
     </ClCompile>
     <ClCompile Include="udpinput.cpp" />
     <ClCompile Include="udpoutput.cpp" />
-    <ClCompile Include="vitconmotionsim.cpp" />
-    <ClCompile Include="vitconmotionsim2.cpp" />
-    <ClCompile Include="vitconmotionsim3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CamCommon\CamCommon.vcxproj">
-      <Project>{5fb1736a-e9fb-448c-8a8a-4c30a90cd87c}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>

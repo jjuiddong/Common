@@ -58,5 +58,6 @@ namespace script
 	string id(string &src);
 	string line(string &src);
 	float number(string &src);
+	void bigEndian(BYTE *buffer, const int size);
 
 }

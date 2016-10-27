@@ -56,13 +56,13 @@ inline void cUpdateObservable::RemoveUpdateObserver(iUpdateObserver* observer)
 
 inline void cUpdateObservable::NotifyUpdateObserver(const float deltaSeconds)
 {
-	BOOST_FOREACH(auto &observer, m_updatObservers)
+	for each (auto &observer in m_updatObservers)
 		observer->Update(deltaSeconds);
 }
 
 inline bool cUpdateObservable::NotifyInitObserver()
 {
-	BOOST_FOREACH(auto &observer, m_updatObservers)
+	for each(auto &observer in m_updatObservers)
 	{
 		if (!observer->Init())
 			return false;

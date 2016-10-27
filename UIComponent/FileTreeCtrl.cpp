@@ -86,7 +86,7 @@ void CFileTreeCtrl::Update(const string &directoryPath, const list<string> &extL
 	else
 	{
 		list<string> fileList;
-		BOOST_FOREACH (string &name, files)
+		for each(auto name in files)
 		{
 			if (string::npos != common::GetFileName(name).find(serchStr))
 				fileList.push_back(name);
@@ -147,7 +147,7 @@ CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fi
 void CFileTreeCtrl::DeleteTreeNode(sTreeNode *node)
 {
 	RET(!node);
-	BOOST_FOREACH (auto &child, node->children)
+	for each (auto &child in node->children)
 		DeleteTreeNode(child.second);
 	delete node;
 }
