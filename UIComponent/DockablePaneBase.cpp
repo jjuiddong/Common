@@ -2,11 +2,9 @@
 //
 
 #include "stdafx.h"
-//#include "CubeMonitor.h"
 #include "DockablePaneBase.h"
 #include "DockablePaneChildView.h"
 #include "controller.h"
-//#include "SerialCommunication.h"
 
 
 // CDockablePaneBase

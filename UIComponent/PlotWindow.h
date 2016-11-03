@@ -19,9 +19,6 @@ public:
 #endif
 #endif
 
-// 	bool SetPlot(const float x_range, const float y_range,
-// 		const float x_visble_range, const float y_visible_range, const DWORD flags,
-// 		const int plotCount = 1, const string &name = "", const plot::MODE &mode = plot::NORMAL, const int lineWidth = 1);
 	bool SetPlot(const plot::SPlotInfo &info);
 
 	void SetPlotXY(const float x, const float y, const int plotIndex = 0);

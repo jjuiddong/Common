@@ -58,15 +58,23 @@ float cModulator::GetManufactureValue(const float x0, const float x1,
 	float diff = (x1 - x0);
 	if (abs(x1 - x0) > option.maxDifference)
 	{
-		if (x1 * x0 < 0)
-		{// 극성이 다를 때.. 즉 limit 값을 넘겼을 때..
-			// limit 를 넘긴 값을 보정한다.
+		if (abs(option.range - (MATH_PI * 2)) < 0.1f) // circular dynamics
+		{
+			if (x1 * x0 < 0)
+			{// 극성이 다를 때.. 즉 limit 값을 넘겼을 때..
+				// limit 를 넘긴 값을 보정한다.
 
-			float newDiff = option.range - abs(x1 - x0);
-			if (x1 > 0)
-				newDiff = -newDiff;
+				float newDiff = option.range - abs(x1 - x0);
+				if (x1 > 0)
+					newDiff = -newDiff;
 
-			diff = newDiff * option.Kp;
+				diff = newDiff * option.Kp;
+			}
+		}
+		else
+		{
+			// noise data
+			diff = diff * option.maxDifferenceProportion;
 		}
 	}
 

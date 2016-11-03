@@ -58,7 +58,6 @@ void CPlotWindow::OnDraw(CDC* pDC)
 	CRect cr;
 	GetClientRect(cr);
 
-
 	CDC memDC;
 	CBitmap *pOldBitmap;
 	memDC.CreateCompatibleDC(pDC);
@@ -70,20 +69,6 @@ void CPlotWindow::OnDraw(CDC* pDC)
 	}
 
 	pOldBitmap = memDC.SelectObject(&m_Bitmap);
-	//memDC.PatBlt(0, 0, rect.Width(), rect.Height(), WHITENESS); // 흰색으로 초기화
-	// 메모리 DC에 그리기
-	//DrawImage(&memDC);
-	// 메모리 DC를 화면 DC에 고속 복사
-	//pDC->BitBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, SRCCOPY);
-
-	// 	memDC.SelectObject(pOldBitmap);
-	// 	memDC.DeleteDC();
-	// 	bitmap.DeleteObject(
-
-
-
-
-
 
 	// background black
 	memDC.SelectObject(m_blackBrush);
@@ -296,59 +281,6 @@ void CPlotWindow::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-// CPlotWindow message handlers
-// bool CPlotWindow::SetPlot(const float x_range, const float y_range,
-// 	const float x_visble_range, const float y_visible_range, const DWORD flags,
-// 	const int plotCount, const string &name, const MODE &mode, const int lineWidth)  
-// 	// plotCount=1, name="", mode=NORMAL, lineWidth=1
-// {
-// 	m_xRange = x_range;
-// 	m_yRange = y_range;
-// 	m_xVisibleRange = x_visble_range;
-// 	m_yVisibleRange = y_visible_range;
-// 	m_flags = flags;
-// 	m_mode = mode;
-// 	m_name = common::str2wstr(name).c_str();
-// 
-// 	m_plots.resize(plotCount);
-// 	for (u_int i = 0; i < m_plots.size(); ++i)
-// 	{
-// 		m_plots[i].xy.resize(2048, Vector2(0.f, 0.f));
-// 		m_plots[i].headIdx = 0;
-// 		m_plots[i].tailIdx = 0;
-// 		m_plots[i].renderStartIndex = 0;
-// 
-// 		m_plots[i].splineTemp.resize(2048, Vector2(0.f, 0.f));
-// 		m_plots[i].spHeadIdx = 0;
-// 		m_plots[i].spTailIdx = 0;
-// 	}
-// 
-// 	m_maxX = -FLT_MAX;
-// 	m_minX = FLT_MAX;
-// 
-// 	if (0 == m_yRange)
-// 	{
-// 		m_maxY = -FLT_MAX;
-// 		m_minY = FLT_MAX;
-// 	}
-// 	else
-// 	{
-// 		m_maxY = m_yRange/2;
-// 		m_minY = -m_yRange/2;
-// 	}
-// 
-// 	m_scaleY = 1.f;
-// 	m_startTime = 0;
-// 	m_updateTime = 0;
-// 
-// 	for (int i = 0; i < 4; ++i)
-// 	{
-// 		m_plotPens[i].DeleteObject();
-// 		m_plotPens[i].CreatePen(0, lineWidth, g_penColors[i]);
-// 	}
-// 
-// 	return true;
-// }
 bool CPlotWindow::SetPlot(const plot::SPlotInfo &info)
 {
 	m_isDrawPlot = true;

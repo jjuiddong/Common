@@ -246,9 +246,6 @@ void CMultiPlotWindow::CalcGraphWindowSize()
 // Plot Command Editor 의 명령어 문자열을 가져와 실행한다.
 void CMultiPlotWindow::ProcessPlotCommand(const CString &str, const int plotCount)
 {
-	// 명령어 텍스트 가져옴.
-// 	CString str;
-// 	m_CommandEditor.GetWindowText(str);
 	wstring wstr = (LPCTSTR)str;
 
 	// plot1, string1, plot2, string2 ~~ 순서대로 읽어온다. 없다면 종료.
@@ -285,10 +282,6 @@ void CMultiPlotWindow::ProcessPlotCommand(const CString &str, const int plotCoun
 
 		// 그래프 설정.
 		wnd->SetPlot(plotInfos[i]);
-// 		wnd->SetPlot(
-// 			plotInfos[i].xRange, plotInfos[i].yRange,
-// 			plotInfos[i].xVisibleRange, plotInfos[i].yVisibleRange, plotInfos[i].flags,
-// 			plotInfos[i].plotCount, plotInfos[i].name, plotInfos[i].mode, plotInfos[i].lineWidth);
 
 		// 그래프 파싱 스트링 설정.
 		m_plotWindows[i].scanString = plotInfos[i].scanString;
