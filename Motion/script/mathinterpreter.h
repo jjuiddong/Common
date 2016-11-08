@@ -26,9 +26,17 @@ namespace mathscript
 
 
 	protected:
+		// Grammar
+		// assignedstmt -> id = expr
+		// expr -> term [+|-] expr
+		// term -> dterm * term
+		// dterm -> factor / factor | factor
+		// factor -> id | number | (expr) | function
+
 		float assignstmt(const sAssignStmt *p);
 		float expr(const sExpr*p);
 		float term(const sTerm *p);
+		float dterm(const sDTerm *p);
 		float factor(const sFactor *p);
 		float func(const sFunc *p);
 	};

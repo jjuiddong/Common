@@ -8,6 +8,7 @@ namespace mathscript
 	//-----------------------------------------------------------------------------------------
 	// Mixing Command Parser 
 	struct sFactor;
+	struct sDTerm;
 
 	namespace OP_MULTI {
 		enum TYPE {
@@ -33,10 +34,16 @@ namespace mathscript
 
 	struct sTerm
 	{
+		sDTerm *dterm;
+		OP_MULTI::TYPE op;
+		sTerm *term;
+	};
+
+	struct sDTerm
+	{
 		sFactor *factor1;
 		OP_MULTI::TYPE op;
-		//sFactor *factor2;
-		sTerm *term;
+		sFactor *factor2;
 	};
 
 	struct sExpr
@@ -86,6 +93,7 @@ namespace mathscript
 	void rm_assignstmt(sAssignStmt *p);
 	void rm_factor(sFactor *p);
 	void rm_term(sTerm *p);
+	void rm_dterm(sDTerm *p);
 	void rm_expr(sExpr *p);
 	void rm_func(sFunc*p);
 	void rm_exprlist(sExprList *p);

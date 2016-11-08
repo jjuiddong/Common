@@ -32,10 +32,19 @@ void mathscript::rm_factor(sFactor *p)
 void mathscript::rm_term(sTerm *p)
 {
 	RET(!p);
-	rm_factor(p->factor1);
+	rm_dterm(p->dterm);
 	rm_term(p->term);
 	delete p;
 }
+
+void mathscript::rm_dterm(sDTerm *p)
+{
+	RET(!p);
+	rm_factor(p->factor1);
+	rm_factor(p->factor2);
+	delete p;
+}
+
 
 void mathscript::rm_expr(sExpr *p)
 {

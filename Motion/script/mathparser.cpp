@@ -128,13 +128,13 @@ sExpr* cMathParser::expression(string &src)
 }
 
 
-//term -> factor */ term | factor
+//- term -> dterm * term | dterm
 sTerm* cMathParser::term(string &src)
 {
 	trim(src);
 
 	sTerm *t = new sTerm({});
-	t->factor1 = factor(src);
+	t->dterm = dterm(src);
 	trim(src);
 
 	if (check(src, '*'))
@@ -143,11 +143,26 @@ sTerm* cMathParser::term(string &src)
 		t->op = OP_MULTI::MULTI;
 		t->term = term(src);
 	}
-	else if (check(src, '/'))
+
+	return t;
+}
+
+
+//- dterm -> factor / factor | factor
+sDTerm* cMathParser::dterm(string &src)
+{
+	trim(src);
+
+	sDTerm *t = new sDTerm({});
+	t->factor1 = factor(src);
+	t->factor2 = NULL;
+	trim(src);
+
+	if (check(src, '/'))
 	{
 		match(src, '/');
 		t->op = OP_MULTI::DIVIDE;
-		t->term = term(src);
+		t->factor2 = factor(src);
 	}
 
 	return t;

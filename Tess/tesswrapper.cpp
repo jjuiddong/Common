@@ -10,11 +10,8 @@ using namespace tesseract;
 
 
 #ifdef _DEBUG
-	#pragma comment(lib, "opencv_core310d.lib")
 	#pragma comment(lib, "tesseract305d.lib")
 #else
-	#pragma comment(lib, "opencv_core310.lib")
-	#pragma comment(lib, "opencv_highgui310.lib")
 	#pragma comment(lib, "tesseract305.lib")
 #endif
 
