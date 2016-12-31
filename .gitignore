@@ -269,3 +269,5 @@ Lib/Motion/Release_DLL/MotionDLL.iobj
 .idea/
 *.sln.iml
 
+*.lib
+
