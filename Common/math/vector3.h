@@ -14,6 +14,7 @@ namespace common
 
 		bool IsEmpty() const;
 		float Length() const;
+		float Length2() const;
 		float LengthRoughly(const Vector3 &rhs) const;
 		Vector3 Normal() const;
 		void Normalize();
@@ -33,6 +34,13 @@ namespace common
 
 		Vector3 operator * ( const Matrix44& rhs ) const;
 		Vector3& operator *= ( const Matrix44& rhs );
+
+		bool operator == (const Vector3 &rhs) const
+		{
+			return (abs(x - rhs.x) < MATH_EPSILON2) &&
+				(abs(y - rhs.y) < MATH_EPSILON2) &&
+				(abs(z - rhs.z) < MATH_EPSILON2);
+		}
 
 		template <class T>
 		Vector3 operator * ( T t ) const {

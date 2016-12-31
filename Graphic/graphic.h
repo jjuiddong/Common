@@ -33,6 +33,7 @@ using namespace common;
 #include "base/grid2.h"
 #include "base/box.h"
 #include "base/line.h"
+#include "base/line2.h"
 #include "base/line2d.h"
 #include "base/cube.h"
 #include "base/cube2.h"

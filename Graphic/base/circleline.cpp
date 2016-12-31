@@ -30,7 +30,6 @@ bool cCircleLine::Create(cRenderer &renderer, const Vector3 &center, const float
 		Vector3 p1(cosf(angle) * radius, sinf(angle) * radius, 0);
 
 		m_lines[i].SetLine(renderer, p0, p1, width);
-		m_lines[i].GetMaterial().InitBlack();
 		p0 = p1;
 	}
 

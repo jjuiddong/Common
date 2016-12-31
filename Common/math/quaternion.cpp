@@ -308,7 +308,7 @@ void Quaternion::Euler(const Vector3& v)
 /**
 * @brief Computes the quaternion that is equivalent to a given
 * euler angle rotation.
-* @param euler A 3-vector in order:  roll-yaw-pitch.
+* @param euler A 3-vector in order:  roll-yaw-pitch
 * 인자 v의 각 성분은 radian 값이어야 한다.
 * http://ai.stanford.edu/~acoates/quaternion.h
 */

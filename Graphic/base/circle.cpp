@@ -28,7 +28,7 @@ bool cCircle::Create(cRenderer &renderer, const Vector3 &center, const float rad
 		const float inc = MATH_PI * 2.f / (float)(slice-1);
 		for (int i=0; i < slice; ++i)
 		{
-			vertices[ i+1].p = Vector3(cosf(inc*i) * radius, sinf(inc*i) * radius, 0);
+			vertices[ i+1].p = center + Vector3(cosf(inc*i) * radius, sinf(inc*i) * radius, 0);
 			vertices[ i+1].c = D3DCOLOR_XRGB(255,255,255);
 		}
 	}
@@ -43,12 +43,13 @@ void cCircle::Render(cRenderer &renderer)
 {
 	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&m_tm);
 
-	DWORD lighting;
-	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, FALSE);
+	//DWORD lighting;
+	//renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
+	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+	//renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, FALSE);
+	m_mtrl.Bind(renderer);
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevice()->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, m_vtxBuff.GetVertexCount());
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, TRUE);
+	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
+	//renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, TRUE);
 }

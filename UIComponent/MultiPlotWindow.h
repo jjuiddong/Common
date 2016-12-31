@@ -17,6 +17,27 @@
 // vector%d  = 100		미리 메모리를 잡을 벡터 크기 (아주 큰 벡터크기가 필요할 때 쓰인다.)
 //
 //
+// Sample
+//plot1 = 0, 0, 0, 0, 0
+//string1 = %f;
+//centery1 = 0
+//name1 = A
+//
+//plot2 = 0, 0, 0, 0, 0
+//string2 = %*f; %f;
+//centery2 = 0
+//name2 = X
+//
+//plot3 = 0, 0, 0, 0, 0
+//string3 = %*f; %*f; %f;
+//centery3 = 0
+//name3 = Y
+//
+//plot4 = 0, 0, 0, 0, 0
+//string4 = %*f; %*f; %*f; %f;
+//centery4 = 0
+//name4 = Z
+//
 #pragma once
 
 #include "PlotGlobal.h"

@@ -17,4 +17,5 @@ namespace common
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, const int flags=0);
 	bool FindFile( const string &findName, const string &searchPath, string &out  );
 
+	bool IsFileExist(const string &fileName);
 }

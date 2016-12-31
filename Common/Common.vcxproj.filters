@@ -118,6 +118,12 @@
     <ClInclude Include="thread\threaddef.h">
       <Filter>thread</Filter>
     </ClInclude>
+    <ClInclude Include="etc\FastMemLoader.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vector.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -189,6 +195,12 @@
     </ClCompile>
     <ClCompile Include="thread\thread.cpp">
       <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\FastMemLoader.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="math\vector.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

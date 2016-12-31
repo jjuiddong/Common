@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "MultiPlotWindow.h"
+#include "PlotWindow.h"
 
 using namespace plot;
 

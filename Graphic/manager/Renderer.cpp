@@ -102,7 +102,7 @@ void cRenderer::RenderGrid()
 	static int gridSize = 0;
 	if (m_grid.empty())
 	{
-		MakeGrid(50, 64, D3DXCOLOR(0.8f,0.8f,0.8f,1), m_grid);
+		MakeGrid(10, 64, D3DXCOLOR(0.8f,0.8f,0.8f,1), m_grid);
 		gridSize = m_grid.size() / 2;
 	}
 
@@ -198,7 +198,7 @@ void cRenderer::MakeAxis( const float length, DWORD xcolor, DWORD ycolor, DWORD 
 	out.push_back(v);
 
 	// y axis
-	v.p = Vector3( 0.f, 0.f, 0.f );
+	v.p = Vector3( 0.f, 0.001f, 0.f );
 	v.c = ycolor;
 	out.push_back(v);
 

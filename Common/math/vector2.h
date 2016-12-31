@@ -19,6 +19,11 @@ namespace common
 		Vector2& operator *= ( const Vector2& rhs );
 		Vector2& operator /= ( const Vector2& rhs );
 
+		bool operator == (const Vector2& rhs) const
+		{
+			return (x == rhs.x) && (y == rhs.y);
+		}
+
 		template <class T>
 		Vector2 operator * ( T t ) const {
 			return Vector2(x*t, y*t);

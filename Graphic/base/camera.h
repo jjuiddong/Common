@@ -15,6 +15,7 @@ namespace graphic
 
 		void Init(cRenderer *renderer);
 		void Update();
+		void Render(cRenderer &renderer);
 
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
@@ -52,6 +53,8 @@ namespace graphic
 		Vector3 GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy, Vector3 &orig, Vector3 &dir);
 
+		void UpdateParameterFromViewMatrix();
+
 
 	protected:
 		void UpdateViewMatrix();
@@ -65,6 +68,7 @@ namespace graphic
 		Matrix44 m_view; // 카메라 행렬.
 		Matrix44 m_proj; // 투영 행렬.
 		Matrix44 m_viewProj; // m_view X m_proj
+		cLine m_lines[3]; // Front, Up, Right
 		cRenderer *m_renderer;
 	};
 

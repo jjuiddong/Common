@@ -15,8 +15,8 @@ namespace graphic
 	struct sVertexPoint
 	{
 		Vector3 p;
-		DWORD c;
 		float size;
+		DWORD c;
 		enum {FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_PSIZE};
 	};
 

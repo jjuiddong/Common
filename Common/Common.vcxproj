@@ -38,6 +38,7 @@
     <ProjectGuid>{EF9CA22D-0C8F-42E9-AB66-98BC1A640F10}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Common</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -132,6 +133,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
@@ -156,7 +159,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -234,7 +237,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -289,6 +292,7 @@
     <ClInclude Include="etc\config.h" />
     <ClInclude Include="etc\date.h" />
     <ClInclude Include="etc\dbg.h" />
+    <ClInclude Include="etc\FastMemLoader.h" />
     <ClInclude Include="etc\filepath.h" />
     <ClInclude Include="etc\genid.h" />
     <ClInclude Include="etc\inifile.h" />
@@ -310,6 +314,7 @@
     <ClInclude Include="math\quaternion.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\triangle.h" />
+    <ClInclude Include="math\vector.h" />
     <ClInclude Include="math\vector2.h" />
     <ClInclude Include="math\vector3.h" />
     <ClInclude Include="math\vector4.h" />
@@ -324,6 +329,7 @@
     <ClCompile Include="etc\BufferedSerial.cpp" />
     <ClCompile Include="etc\config.cpp" />
     <ClCompile Include="etc\dbg.cpp" />
+    <ClCompile Include="etc\FastMemLoader.cpp" />
     <ClCompile Include="etc\filepath.cpp" />
     <ClCompile Include="etc\genid.cpp" />
     <ClCompile Include="etc\inifile.cpp" />
@@ -340,6 +346,7 @@
     <ClCompile Include="math\quaternion.cpp" />
     <ClCompile Include="math\ray.cpp" />
     <ClCompile Include="math\triangle.cpp" />
+    <ClCompile Include="math\vector.cpp" />
     <ClCompile Include="math\vector2.cpp" />
     <ClCompile Include="math\vector3.cpp" />
     <ClCompile Include="math\vector4.cpp" />

@@ -5,6 +5,11 @@
 using namespace common;
 
 
+bool Vector4::IsEmpty() const
+{
+	return (x == 0) && (y == 0) && (z == 0) && (w == 0);
+}
+
 Vector4 Vector4::operator * ( const float & rhs ) const
 {
 	return Vector4(x*rhs, y*rhs, z*rhs, w*rhs);

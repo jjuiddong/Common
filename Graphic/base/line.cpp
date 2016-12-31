@@ -6,36 +6,40 @@ using namespace graphic;
 
 cLine::cLine()
 {
-	m_material.InitWhite();
 }
 
 cLine::cLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width)
 {
 	SetLine(renderer, p0, p1, width);
-	m_material.InitWhite();
 }
 
 
 void cLine::Render(cRenderer &renderer, const Matrix44 &tm)//tm = Matrix44::Identity
 {
+	DWORD lighting;
+	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
+	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+
 	Matrix44 m = m_tm * tm;
 
 	renderer.GetDevice()->SetTransform( D3DTS_WORLD, (D3DXMATRIX*)&m );
-	m_material.Bind(renderer);
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
 		m_vtxBuff.GetVertexCount(), 0, 12);
+
+	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
 }
 
 
-void cLine::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width)
+void cLine::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width
+	, const D3DCOLOR color) //color=0
 {
 	m_p0 = p0;
 	m_p1 = p1;
 	m_width = width;
 
-	InitCube(renderer);
+	InitCube(renderer, color);
 
 	Vector3 v = p1 - p0;
 	const float len = v.Length();
@@ -52,7 +56,8 @@ void cLine::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, c
 }
 
 
-void cLine::InitCube(cRenderer &renderer)
+void cLine::InitCube(cRenderer &renderer, const D3DCOLOR color)
+//color = 0
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
@@ -68,6 +73,15 @@ void cLine::InitCube(cRenderer &renderer)
 		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
+	Vector3 norms[6] = {
+		Vector3(0,0,-1), // front
+		Vector3(0,0,1),  // back
+		Vector3(0,1,0),  // top
+		Vector3(0,-1,0), // bottom
+		Vector3(-1,0, 0),  // left
+		Vector3(1,0, 0),  // right
+	};
+
 	WORD indices[36] = {
 		// front
 		0, 3, 2,
@@ -95,8 +109,11 @@ void cLine::InitCube(cRenderer &renderer)
 	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
 	WORD *ibuff = (WORD*)m_idxBuff.Lock();
 
-	for (int i=0; i < 8; ++i)
+	for (int i = 0; i < 8; ++i)
+	{
 		vbuff[ i].p = vertices[ i];
+		vbuff[ i].c = color;
+	}
 
 	for (int i=0; i < 36; ++i)
 		ibuff[ i] = indices[ i];

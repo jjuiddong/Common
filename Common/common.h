@@ -29,6 +29,9 @@
 #ifndef SAFE_RELEASE2
 #define SAFE_RELEASE2(p) {if (p) { p->release(); p=NULL;} }
 #endif
+#ifndef DX_SAFE_RELEASE
+#define DX_SAFE_RELEASE(p) {if (p) { p->Release(); p=NULL;} }
+#endif
 
 #ifndef IN
 #define IN
@@ -104,6 +107,8 @@ using std::wstringstream;
 #include "etc/date.h"
 #include "etc/inifile.h"
 #include "etc/shmmem.h"
+#include "etc/fastmemloader.h"
+
 
 // #pragma comment( lib, "d3d9.lib" )
 // #pragma comment( lib, "d3dx9.lib" )

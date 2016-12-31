@@ -69,6 +69,18 @@ void cCamera::Update()
 }
 
 
+// Rendering Camera Position, Direction
+void cCamera::Render(cRenderer &renderer)
+{
+	m_lines[0].SetLine(renderer, m_eyePos, m_eyePos + GetRight(), 0.1f, D3DCOLOR_XRGB(255,0,0) );
+	m_lines[1].SetLine(renderer, m_eyePos, m_eyePos + GetUpVector(), 0.1f, D3DCOLOR_XRGB(0, 255, 0));
+	m_lines[2].SetLine(renderer, m_eyePos, m_eyePos + GetDirection(), 0.1f, D3DCOLOR_XRGB(0, 0, 255));
+
+	for (auto &line : m_lines)
+		line.Render(renderer);
+}
+
+
 void cCamera::UpdateViewMatrix()
 {
 	RET(!m_renderer);
@@ -77,6 +89,21 @@ void cCamera::UpdateViewMatrix()
 	if (m_renderer->GetDevice())
 		m_renderer->GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
 }
+
+
+// ViewMatrix 로 eyePos, lookAt, up 을 계산한다.
+void cCamera::UpdateParameterFromViewMatrix()
+{
+	const Vector3 right(m_view._11, m_view._21, m_view._31);
+	const Vector3 up(m_view._12, m_view._22, m_view._32 );
+	const Vector3 dir(m_view._13, m_view._23, m_view._33);
+	const Vector3 pos = m_view.Inverse().GetPosition();
+	
+	m_eyePos = pos;
+	m_up = up;
+	m_lookAt = dir * 100 + pos;
+}
+
 
 void cCamera::UpdateProjectionMatrix()
 {

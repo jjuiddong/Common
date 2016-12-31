@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "FilePath.h"
 #include <shlwapi.h> // 이 헤더 파일에 FilePath에 관련된 함수들이 많다. 잘 이용해보자.
+#include <io.h>
 #pragma comment(lib, "shlwapi")
 
 
@@ -310,4 +311,10 @@ bool common::FindFile( const string &findName, const string &searchPath, string 
 	FindClose(hFind);
 
 	return !out.empty();
+}
+
+
+bool common::IsFileExist(const string &fileName)
+{
+	return _access_s(fileName.c_str(), 0) == 0;
 }

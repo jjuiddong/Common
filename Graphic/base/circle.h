@@ -14,9 +14,10 @@ namespace graphic
 		void Render(cRenderer &renderer);
 
 
-	private:
+	public:
 		float m_radius;
 		Matrix44 m_tm;
+		cMaterial m_mtrl;
 		cVertexBuffer m_vtxBuff;
 	};
 

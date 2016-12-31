@@ -17,6 +17,7 @@ const double MATH_EPSILON2 = 0.0000000001f;//1.0e-10;
 #include <vector>
 using std::vector;
 
+#include "vector.h"
 #include "vector2.h"
 #include "vector3.h"
 #include "vector4.h"

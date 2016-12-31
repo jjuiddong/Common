@@ -146,7 +146,7 @@ namespace graphic
 	inline float cTerrain::GetHeightFactor() const { return m_heightFactor; }
 	inline vector<cModel*>& cTerrain::GetRigidModels() { return m_rigids; }
 	inline bool cTerrain::IsLoaded() const { return m_grid.GetRowCellCount() > 0; }
-	inline int cTerrain::GetLayerCount() const { return m_layer.size(); }
+	inline int cTerrain::GetLayerCount() const { return (int)m_layer.size(); }
 	inline const sSplatLayer& cTerrain::GetLayer(int layer) const { return m_layer[ layer]; }
 	inline cTexture& cTerrain::GetAlphaTexture() { return m_alphaTexture; }
 	inline const string& cTerrain::GetHeightMapFileName() const { return m_heightMapFileName; }

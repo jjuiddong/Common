@@ -24,9 +24,13 @@ namespace graphic
 		void Bind(cRenderer &renderer) const;
 		void Clear();
 
+		void RenderTriangleList(cRenderer &renderer);
 		void RenderTriangleStrip(cRenderer &renderer );
 		void RenderLineStrip(cRenderer &renderer );
+		void RenderLineList(cRenderer &renderer);
+		void RenderLineList2(cRenderer &renderer);
 		void RenderPointList(cRenderer &renderer, const int count = 0);
+		void RenderPointList2(cRenderer &renderer, const int count = 0);
 
 		DWORD GetFVF() const;
 		int GetSizeOfVertex() const;
