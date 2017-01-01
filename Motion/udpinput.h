@@ -33,7 +33,7 @@ namespace motion
 		int m_startIndex;
 		network::cUDPServer m_udpSvr;
 		cProtocolParser m_protocolParser;
-		cMathParser m_mathParser;
+		mathscript::cMathParser m_mathParser;
 		mathscript::cMathInterpreter m_matInterpreter;
 		cMotionWaveModulator m_modulator;
 	};

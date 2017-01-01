@@ -34,7 +34,7 @@ namespace motion
 
 	public:
 		Vector3 m_prevAxis; // previews roll, pitch, yaw
-		cMathParser m_mathParser;
+		mathscript::cMathParser m_mathParser;
 		mathscript::cMathInterpreter m_matInterpreter;
 		cSimpleModulator m_modulator;
 	};

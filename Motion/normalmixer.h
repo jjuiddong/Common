@@ -26,8 +26,8 @@ namespace motion
 
 
 	public:
-		cMathParser m_initParser;
-		cMathParser m_mixerParser;
+		mathscript::cMathParser m_initParser;
+		mathscript::cMathParser m_mixerParser;
 		mathscript::cMathInterpreter m_mixerInterpreter;
 	};
 

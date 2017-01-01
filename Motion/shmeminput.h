@@ -43,7 +43,7 @@ namespace motion
 		int m_memorySize;
 		bool m_isBigEndian;
 		cProtocolParser m_protocolParser;
-		cMathParser m_cmdParser;
+		mathscript::cMathParser m_cmdParser;
 		mathscript::cMathInterpreter m_cmdInterpreter;
 		cMotionWaveModulator m_modulator;
 	};

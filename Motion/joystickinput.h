@@ -31,7 +31,7 @@ namespace motion
 		DEVICE m_device;
 		HWND m_hWnd;
 		cJoyPad m_joyPad;
-		cMathParser m_mathParser;
+		mathscript::cMathParser m_mathParser;
 		mathscript::cMathInterpreter m_matInterpreter;
 		cMotionWaveModulator m_modulator;
 	};

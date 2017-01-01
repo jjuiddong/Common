@@ -26,7 +26,7 @@ namespace motion
 	public:
 		string m_inputValue;
 		string m_outputValue;
-		cMathParser m_mathParser;
+		mathscript::cMathParser m_mathParser;
 		mathscript::cMathInterpreter m_matInterpreter;
 		cSimpleModulator m_modulator;
 	};
