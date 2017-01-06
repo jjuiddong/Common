@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "UIUtiltity.h"
+#include "UIUtility.h"
 #include <sstream>
 
 using namespace uiutil;

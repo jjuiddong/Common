@@ -133,15 +133,22 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 		{
 			const string fileName = fd.cFileName;
 
-			auto it = findExt.begin();
-			while (findExt.end() != it)
+			if (findExt.empty())
 			{
-				if (CompareExtendName(fileName.c_str() , (int)fileName.length(), it->c_str()))
+				out.push_back(searchPath + fileName);
+			}
+			else
+			{
+				auto it = findExt.begin();
+				while (findExt.end() != it)
 				{
-					out.push_back( searchPath + fileName );
-					break;
+					if (CompareExtendName(fileName.c_str() , (int)fileName.length(), it->c_str()))
+					{
+						out.push_back( searchPath + fileName );
+						break;
+					}
+					++it;
 				}
-				++it;
 			}
 		}
 
@@ -176,15 +183,23 @@ bool CollectFilesRaw(const list<string> &findExt, const string &searchPath,
 		{
 			const string fileName = fd.cFileName;
 
-			auto it = findExt.begin();
-			while (findExt.end() != it)
+			if (findExt.empty())
 			{
-				if (common::CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
+				//out.push_back(searchPath + fileName);
+				out.push_back(std::pair<FILETIME, string>(fd.ftLastWriteTime, searchPath + fileName));
+			}
+			else
+			{
+				auto it = findExt.begin();
+				while (findExt.end() != it)
 				{
-					out.push_back(std::pair<FILETIME,string>(fd.ftLastWriteTime, searchPath + fileName) );
-					break;
+					if (common::CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
+					{
+						out.push_back(std::pair<FILETIME, string>(fd.ftLastWriteTime, searchPath + fileName));
+						break;
+					}
+					++it;
 				}
-				++it;
 			}
 		}
 

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "FileTreeCtrl.h"
-#include "UIUtiltity.h"
+#include "UIUtility.h"
 
 
 CImageList *CFileTreeCtrl::m_imageList = NULL;
@@ -111,11 +111,11 @@ CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fi
 		sTreeNode *node = rootNode;
 		for each (auto &name in strs)
 		{
-			auto it = node->children.find(name);
-			if (node->children.end() ==  it)
+			auto it = node->children2.find(name);
+			if (node->children2.end() ==  it)
 			{
 				sTreeNode *t = new sTreeNode;
-				node->children[ name] = t;
+				//node->children2[ name] = t;
 
 				// 확장자가 없다면, 폴더라고 간주한다.
 				// 확장자는 3개보다 같거나 작아야 한다.
