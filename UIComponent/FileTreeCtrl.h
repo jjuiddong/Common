@@ -27,6 +27,7 @@ protected:
 	struct sTreeNode 
 	{
 		map<string, sTreeNode*> children;
+		VectorMap<string, sTreeNode*> children2;
 		list< std::pair<string, sTreeNode*> > childrenFiles;
 	};
 
