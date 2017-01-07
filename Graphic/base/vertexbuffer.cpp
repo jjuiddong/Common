@@ -198,7 +198,7 @@ void cVertexBuffer::RenderLineList2(cRenderer &renderer)
 {
 	RET(!m_pVtxBuff);
 
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
+	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
 
 	DWORD lighting;
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
@@ -227,7 +227,7 @@ void cVertexBuffer::RenderPointList2(cRenderer &renderer, const int count) // co
 	renderer.GetDevice()->SetRenderState(D3DRS_POINTSCALE_B, FtoDW(0.0f));
 	renderer.GetDevice()->SetRenderState(D3DRS_POINTSCALE_C, FtoDW(1.0f));
 
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
+	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
 
 	Bind(renderer);
 	renderer.GetDevice()->DrawPrimitive(D3DPT_POINTLIST, 0, (count == 0) ? m_vertexCount : count);
