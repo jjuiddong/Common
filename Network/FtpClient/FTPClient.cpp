@@ -618,7 +618,8 @@ bool CFTPClient::NameList(const tstring& strPath, TStringVector& vstrFileList, b
    tstring strLine;
    outputStream.SetStartPosition();
    while( outputStream.GetNextLine(strLine) )
-      vstrFileList.push_back(strPath + strLine.c_str());
+	   vstrFileList.push_back(strLine.c_str()); // jjuiddong, 2017-01-07
+      //vstrFileList.push_back(strPath + strLine.c_str());
 
    return true;
 }

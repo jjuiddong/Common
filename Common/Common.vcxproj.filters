@@ -202,6 +202,9 @@
     <ClCompile Include="math\vector.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="etc\date.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">

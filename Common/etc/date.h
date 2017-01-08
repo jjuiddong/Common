@@ -4,10 +4,6 @@
 #pragma once
 
 
-//#include "boost/date_time/gregorian/gregorian.hpp"
-//#include "boost/date_time/posix_time/posix_time.hpp"
-
-
 namespace common
 {
 // 	using namespace boost::gregorian;
@@ -44,5 +40,6 @@ namespace common
 	// 현재 시간
 	//date d2 = second_clock::local_time().date();
 
+	string GetCurrentDateTime();
+	
 }
-

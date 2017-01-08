@@ -178,22 +178,26 @@ public:
 
    static std::string& ConvertToString(const tstring& strIn, std::string& strOut)
    {
-   #ifdef _UNICODE
-	  if( strIn.size() == 0 )
-	  {
-		 strOut.clear();
-	  }
-	  else
-	  {
-		 //size_t retSize;
-		 strOut.resize(strIn.size());
-		 wcstombs(&*strOut.begin(), strIn.c_str(), strOut.size());
-		 //wcstombs_s(&retSize, &*strOut.begin(), strOut.size(), strIn.c_str(), _TRUNCATE);
-	  }
-   #else
-	  strOut = strIn;
-   #endif
-	  return strOut;
+	   // jjuiddong
+	   strOut = common::wstr2str(strIn);
+	   return strOut;
+
+   //#ifdef _UNICODE
+	  //if( strIn.size() == 0 )
+	  //{
+		 //strOut.clear();
+	  //}
+	  //else
+	  //{
+		 ////size_t retSize;
+		 //strOut.resize(strIn.size());
+		 //wcstombs(&*strOut.begin(), strIn.c_str(), strOut.size());
+		 ////wcstombs_s(&retSize, &*strOut.begin(), strOut.size(), strIn.c_str(), _TRUNCATE);
+	  //}
+   //#else
+	  //strOut = strIn;
+   //#endif
+	  //return strOut;
    }
 
    static tstring ConvertToTString(const char* szIn)
@@ -204,22 +208,26 @@ public:
 
    static tstring& ConvertToTString(const char* szIn, tstring& strOut)
    {
-   #ifdef _UNICODE
-	  if( strlen(szIn) == 0 )
-	  {
-		 strOut.clear();
-	  }
-	  else
-	  {
-		 //size_t retSize;
-		 strOut.resize(strlen(szIn));
-		 mbstowcs(&*strOut.begin(), szIn, strOut.size());
-		 //mbstowcs_s(&retSize, &*strOut.begin(), strOut.size(), szIn, _TRUNCATE);
-	  }
-   #else
-	  strOut = szIn;
-   #endif
-	  return strOut;
+	   // jjuiddong
+	   strOut = common::str2wstr(szIn);
+	   return strOut;
+
+   //#ifdef _UNICODE
+	  //if( strlen(szIn) == 0 )
+	  //{
+		 //strOut.clear();
+	  //}
+	  //else
+	  //{
+		 ////size_t retSize;
+		 //strOut.resize(strlen(szIn));
+		 //mbstowcs(&*strOut.begin(), szIn, strOut.size());
+		 ////mbstowcs_s(&retSize, &*strOut.begin(), strOut.size(), szIn, _TRUNCATE);
+	  //}
+   //#else
+	  //strOut = szIn;
+   //#endif
+	  //return strOut;
    }
 };
 

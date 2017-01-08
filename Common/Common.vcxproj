@@ -396,6 +396,7 @@
   <ItemGroup>
     <ClCompile Include="etc\BufferedSerial.cpp" />
     <ClCompile Include="etc\config.cpp" />
+    <ClCompile Include="etc\date.cpp" />
     <ClCompile Include="etc\dbg.cpp" />
     <ClCompile Include="etc\FastMemLoader.cpp" />
     <ClCompile Include="etc\filepath.cpp" />

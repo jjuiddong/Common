@@ -10,12 +10,27 @@ namespace common
 	string GetFileName(const string &fileName);
 	string GetFileNameExceptExt(const string &fileName);
 	string RelativePathTo(const string &pathFrom, const string &pathTo);
+	wstring RelativePathToW(const wstring &pathFrom, const wstring &pathTo);
 	bool IsRelativePath(const string &path);
-	
+	string DeleteCurrentPath(const string &fileName);
+
+
 
 	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out );
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, const int flags=0);
 	bool FindFile( const string &findName, const string &searchPath, string &out  );
 
 	bool IsFileExist(const string &fileName);
+
+	struct sFolderNode
+	{
+		map<string, sFolderNode*> children;
+		list< std::pair<string, sFolderNode*> > childrenFiles; // for Display Order of Folder and Files
+		int data; // special data
+	};
+	sFolderNode* CreateFolderNode(const list<string> &fileList);
+	void DeleteFolderNode(sFolderNode *node);
+
+	int FileOperationFunc(unsigned int func, const string &to, const string &from);
+
 }

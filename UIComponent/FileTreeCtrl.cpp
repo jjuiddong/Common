@@ -48,7 +48,7 @@ void CFileTreeCtrl::Update(const list<string> &fileList)
 
 	SetImageList(m_imageList, TVSIL_NORMAL);
 
-	sTreeNode *rootNode = GenerateTreeNode(fileList);
+	sTreeNode *rootNode = CreateTreeNode(fileList);
 	GenerateTreeItem(NULL, rootNode);	
 	Expand(GetRootItem(), TVE_EXPAND);
 
@@ -99,7 +99,7 @@ void CFileTreeCtrl::Update(const string &directoryPath, const list<string> &extL
 
 // sTreeNode 생성한다.
 // 폴더는 파일보다 위에 있게 한다.
-CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fileList)
+CFileTreeCtrl::sTreeNode* CFileTreeCtrl::CreateTreeNode(const list<string> &fileList)
 {
 	sTreeNode *rootNode = new sTreeNode;
 
@@ -109,25 +109,23 @@ CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fi
 		common::tokenizer( str, "/", ".", strs);
 
 		sTreeNode *node = rootNode;
-		for each (auto &name in strs)
+		for (u_int i=0; i < strs.size(); ++i)
 		{
-			auto it = node->children2.find(name);
-			if (node->children2.end() ==  it)
+			const string name = strs[i];
+			auto it = node->children.find(name);
+			if (node->children.end() ==  it)
 			{
 				sTreeNode *t = new sTreeNode;
-				//node->children2[ name] = t;
+				node->children[ name] = t;
 
-				// 확장자가 없다면, 폴더라고 간주한다.
-				// 확장자는 3개보다 같거나 작아야 한다.
-				const int pos = name.find_last_of('.');
- 				if ((string::npos == pos) || ((int)name.size() - 4 > pos))
+				if (i == (strs.size()-1)) // Last String Is FileName
  				{
- 					// 폴더는 파일 리스트에서 상위로 이동한다.
-					node->childrenFiles.push_front(std::pair<string, sTreeNode*>(name, t));
+					node->childrenFiles.push_back(std::pair<string, sTreeNode*>(name, t));
  				}
 				else
 				{
-					node->childrenFiles.push_back(std::pair<string, sTreeNode*>(name, t));
+ 					// 폴더는 파일 리스트에서 상위로 이동한다.
+					node->childrenFiles.push_front(std::pair<string, sTreeNode*>(name, t));
 				}
 
 				node = t;
@@ -137,6 +135,41 @@ CFileTreeCtrl::sTreeNode* CFileTreeCtrl::GenerateTreeNode(const list<string> &fi
 				node = it->second;
 			}
 		}	
+	}
+
+	return rootNode;
+}
+
+
+// Only Generate Folder Node
+CFileTreeCtrl::sTreeNode* CFileTreeCtrl::CreateFolderNode(const list<string> &fileList)
+{
+	sTreeNode *rootNode = new sTreeNode;
+
+	for each (auto &str in fileList)
+	{
+		vector<string> strs;
+		common::tokenizer(str, "/", ".", strs);
+
+		sTreeNode *node = rootNode;
+		for (u_int i = 0; i < strs.size(); ++i)
+		{
+			if (i == (strs.size() - 1)) // Last String Is FileName, then Ignored
+				continue;
+
+			const string name = strs[i];
+			auto it = node->children.find(name);
+			if (node->children.end() == it)
+			{
+				sTreeNode *t = new sTreeNode;
+				node->children[name] = t;
+				node = t;
+			}
+			else
+			{
+				node = it->second;
+			}
+		}
 	}
 
 	return rootNode;

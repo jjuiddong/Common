@@ -3,6 +3,7 @@
 #include "FilePath.h"
 #include <shlwapi.h> // 이 헤더 파일에 FilePath에 관련된 함수들이 많다. 잘 이용해보자.
 #include <io.h>
+#include <Shellapi.h>
 #pragma comment(lib, "shlwapi")
 
 
@@ -46,12 +47,12 @@ string common::GetFullFileName(const string &fileName)
 		char curDir[ MAX_PATH];
 		GetCurrentDirectoryA(MAX_PATH, curDir);
 		const string path = string(curDir) + "/" + fileName;
-		GetFullPathNameA(path.c_str(), (DWORD)path.size(), dstFileName, NULL);
+		GetFullPathNameA(path.c_str(), MAX_PATH, dstFileName, NULL);
 	}
 	else
 	{
-		//GetFullPathNameA(fileName.c_str(), fileName.size(), dstFileName, NULL);
-		return fileName;
+		GetFullPathNameA(fileName.c_str(), MAX_PATH, dstFileName, NULL);
+		return dstFileName;
 	}
 
 	return dstFileName;
@@ -91,8 +92,18 @@ string common::RelativePathTo(const string &pathFrom, const string &pathTo)
 {
 	char szOut[ MAX_PATH];
 
-	PathRelativePathToA(szOut, 
-		pathFrom.c_str(), FILE_ATTRIBUTE_DIRECTORY, 
+	const BOOL result = PathRelativePathToA(szOut,
+		pathFrom.c_str(), FILE_ATTRIBUTE_DIRECTORY,
+		pathTo.c_str(), FILE_ATTRIBUTE_NORMAL);
+
+	return szOut;
+}
+wstring common::RelativePathToW(const wstring &pathFrom, const wstring &pathTo)
+{
+	wchar_t szOut[MAX_PATH];
+
+	const BOOL result = PathRelativePathTo(szOut,
+		pathFrom.c_str(), FILE_ATTRIBUTE_DIRECTORY,
 		pathTo.c_str(), FILE_ATTRIBUTE_NORMAL);
 
 	return szOut;
@@ -104,6 +115,20 @@ bool common::IsRelativePath(const string &path)
 {
 	return PathIsRelativeA(path.c_str())? true : false;
 }
+
+
+// ./dir1/dir2/file.ext  ==>  dir1/dir2/file.ext
+string common::DeleteCurrentPath(const string &fileName)
+{
+	const int pos = fileName.find(".\\");
+	if (pos == 0)
+	{
+		return DeleteCurrentPath(fileName.substr(2));
+	}
+
+	return fileName;
+}
+
 
 
 //-----------------------------------------------------------------------------//
@@ -332,4 +357,81 @@ bool common::FindFile( const string &findName, const string &searchPath, string 
 bool common::IsFileExist(const string &fileName)
 {
 	return _access_s(fileName.c_str(), 0) == 0;
+}
+
+
+// Create Folder Tree,  from fileList
+// fileList : fileName list
+// Must Delete return value by DeleteFolderNode()
+//
+// root - child1
+//					- child1-1
+//			- child2
+//					- child2-1
+//
+common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
+{
+	sFolderNode *rootNode = new sFolderNode;
+
+	for each (auto &str in fileList)
+	{
+		vector<string> strs;
+		common::tokenizer(str, "/", ".", strs);
+
+		sFolderNode *node = rootNode;
+		for (u_int i = 0; i < strs.size(); ++i)
+		{
+			if (i == (strs.size() - 1)) // Last String Is FileName, then Ignored
+				continue;
+
+			const string name = strs[i];
+			auto it = node->children.find(name);
+			if (node->children.end() == it)
+			{
+				sFolderNode *t = new sFolderNode;
+				node->children[name] = t;
+				node = t;
+			}
+			else
+			{
+				node = it->second;
+			}
+		}
+	}
+
+	return rootNode;
+}
+
+
+void common::DeleteFolderNode(sFolderNode *node)
+{
+	RET(!node);
+	for each (auto &child in node->children)
+		DeleteFolderNode(child.second);
+	delete node;
+}
+
+
+// https://msdn.microsoft.com/ko-kr/library/windows/desktop/bb759795(v=vs.85).aspx
+// File Copy, Delete, Rename, Move Operation
+// func : FO_COPY, FO_DELETE, FO_MOVE, FO_RENAME
+int common::FileOperationFunc(unsigned int func, const string &to, const string &from)
+{
+	char dst[MAX_PATH];
+	strcpy_s(dst, to.c_str());
+	dst[to.size() + 1] = NULL; // double NULL
+
+	char src[MAX_PATH];
+	strcpy_s(src, from.c_str());
+	src[from.size() + 1] = NULL; // double NULL
+
+	SHFILEOPSTRUCTA s;
+	ZeroMemory(&s, sizeof(s));
+	s.hwnd = NULL;
+	s.wFunc = func;
+	s.fFlags = FOF_NO_UI;
+	s.pTo = dst;
+	s.pFrom = src;
+	s.lpszProgressTitle = NULL;
+	return SHFileOperationA(&s);
 }
