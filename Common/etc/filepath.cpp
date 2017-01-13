@@ -5,6 +5,8 @@
 #include <io.h>
 #include <Shellapi.h>
 #pragma comment(lib, "shlwapi")
+//#include <sys/types.h>  
+#include <sys/stat.h>
 
 
 namespace common {
@@ -34,6 +36,14 @@ string common::GetFileExt(const string &fileName)
 {
 	char *ext = PathFindExtensionA(fileName.c_str());
 	return ext;
+}
+
+string common::RemoveFileExt(const string &fileName)
+{
+	char tmp[MAX_PATH] = { NULL, };
+	strcpy_s(tmp, fileName.c_str());
+	PathRemoveExtensionA(tmp);
+	return tmp;
 }
 
 
@@ -129,6 +139,14 @@ string common::DeleteCurrentPath(const string &fileName)
 	return fileName;
 }
 
+
+__int64  common::FileSize(const string &fileName)
+{
+	struct __stat64 buf;
+	if (_stat64(fileName.c_str(), &buf) != 0)
+		return -1; // error, could use errno to find out more
+	return buf.st_size;
+}
 
 
 //-----------------------------------------------------------------------------//
