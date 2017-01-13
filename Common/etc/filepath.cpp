@@ -68,6 +68,29 @@ string common::GetFullFileName(const string &fileName)
 	return dstFileName;
 }
 
+// dir1/dir2// ==> dir1/dir2/
+string common::CheckDirectoryPath(const string &fileName)
+{
+	if (fileName.empty())
+	{
+		return fileName;
+	}
+	else if ((int)fileName.size() >= 2)
+	{
+		const char c1 = fileName[fileName.size() - 1];
+		const char c2 = fileName[fileName.size() - 2];
+		if (((c1 == '/') || (c1 == '\\')) &&
+			((c2 == '/') || (c2 == '\\')))
+		{
+			string temp = fileName;
+			temp.pop_back();
+			return CheckDirectoryPath(temp);
+		}
+	}
+
+	return fileName;
+}
+
 
 /**
  @brief fileName의 디렉토리 경로를 제외한 파일이름과 확장자를 리턴한다.
@@ -158,9 +181,21 @@ __int64  common::FileSize(const string &fileName)
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out)
+// isRelativePath=false
 {
+	string modifySearchPath;
+	if (!searchPath.empty() &&
+		(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath.empty() ? "" : searchPath + "\\";
+	}
+
 	WIN32_FIND_DATAA fd;
-	const string searchDir = searchPath + "*.*";
+	const string searchDir = modifySearchPath + "*.*";
 	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
 
 	while (1)
@@ -169,7 +204,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				CollectFiles( findExt, searchPath + string(fd.cFileName) + "/", out ); 
+				CollectFiles( findExt, modifySearchPath + string(fd.cFileName) + "/", out);
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
@@ -178,7 +213,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 			if (findExt.empty())
 			{
-				out.push_back(searchPath + fileName);
+				out.push_back(modifySearchPath + fileName);
 			}
 			else
 			{
@@ -187,7 +222,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 				{
 					if (CompareExtendName(fileName.c_str() , (int)fileName.length(), it->c_str()))
 					{
-						out.push_back( searchPath + fileName );
+						out.push_back(modifySearchPath + fileName );
 						break;
 					}
 					++it;
@@ -203,6 +238,67 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 	
 	return true;
 }
+
+// same CollectFiles() function
+// return  Relative Path
+bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out)
+{
+	string modifySearchPath;
+	if (!searchPath.empty() &&
+		(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath.empty()? "" : searchPath + "\\";
+	}
+
+	WIN32_FIND_DATAA fd;
+	const string searchDir = modifySearchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
+			{
+				CollectFiles2(findExt, modifySearchPath + string(fd.cFileName) + "/", relativePath, out);
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			const string fileName = fd.cFileName;
+
+			if (findExt.empty())
+			{
+				out.push_back(  DeleteCurrentPath(RelativePathTo(relativePath, modifySearchPath + fileName)) );
+			}
+			else
+			{
+				auto it = findExt.begin();
+				while (findExt.end() != it)
+				{
+					if (CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
+					{
+						out.push_back(DeleteCurrentPath(RelativePathTo(relativePath, modifySearchPath + fileName)));
+						break;
+					}
+					++it;
+				}
+			}
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
 
 
 // 파일명과 날짜 정보를 저장해 리턴한다.

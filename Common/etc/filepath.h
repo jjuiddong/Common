@@ -15,10 +15,12 @@ namespace common
 	string DeleteCurrentPath(const string &fileName);
 	__int64 FileSize(const string &fileName);
 	string RemoveFileExt(const string &fileName);
+	string CheckDirectoryPath(const string &fileName);
 
 
 
-	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out );
+	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out);
+	bool CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out);
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, const int flags=0);
 	bool FindFile( const string &findName, const string &searchPath, string &out  );
 
