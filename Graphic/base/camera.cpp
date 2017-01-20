@@ -319,3 +319,17 @@ void cCamera::GetRay(const int windowWidth, const int windowHeight,
 	orig.y = m._42;
 	orig.z = m._43;
 }
+
+
+// return camera position, shadow matrix
+void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt)
+{
+	view = GetViewMatrix();
+	proj = GetProjectionMatrix();
+
+	D3DXMATRIX mTT = D3DXMATRIX(0.5f, 0.0f, 0.0f, 0.0f
+		, 0.0f, -0.5f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, 0.5f, 0.5f, 0.0f, 1.0f);
+	tt = *(Matrix44*)&mTT;
+}

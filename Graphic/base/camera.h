@@ -34,6 +34,9 @@ namespace graphic
 		Vector3 GetRight() const;
 		float GetDistance() const; // lookAt - eyePos 사이 거리.
 
+		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt);
+
+
 		// LookAt 이 이동한다.
 		void Pitch( const float radian );
 		void Yaw( const float radian );

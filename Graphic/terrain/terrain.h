@@ -116,7 +116,7 @@ namespace graphic
 		bool AddLayer();
 
 
-	protected:
+	public:
 		cSkyBox2 m_skybox;
 		cWater m_water;
 		bool m_isRenderWater; // default: true

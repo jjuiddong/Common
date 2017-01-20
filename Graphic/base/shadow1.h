@@ -23,7 +23,7 @@ namespace graphic
 		void RenderShadowMap(cRenderer &renderer);
 
 
-	private:
+	public:
 		cSurface2 m_surface;
 	};
 
