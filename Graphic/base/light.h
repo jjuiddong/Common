@@ -20,7 +20,7 @@ namespace graphic
 		};
 
 		void Init(TYPE type, 
-			const Vector4 &ambient = Vector4(1,1,1,1),
+			const Vector4 &ambient = Vector4(0.2f,0.2f,0.2f,1),
 			const Vector4 &diffuse = Vector4(1,1,1,1),
 			const Vector4 &specular = Vector4(1,1,1,1),
 			const Vector3 &direction = Vector3(0,-1,0));
@@ -30,7 +30,7 @@ namespace graphic
 		void SetPosition( const Vector3 &pos );
 		const Vector3& GetPosition() const;
 
-		void Bind(cRenderer &renderer, int lightIndex) const;
+		void Bind(cRenderer &renderer, int lightIndex);
 		void Bind(cShader &shader) const;
 
 		void GetShadowMatrix( const Vector3 &modelPos, 

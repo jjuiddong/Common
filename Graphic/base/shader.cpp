@@ -55,17 +55,26 @@ bool cShader::Create(cRenderer &renderer, const string &fileName, const string &
 	}
 
 	m_fileName = fileName;
-	m_hTechnique = m_effect->GetTechniqueByName( technique.c_str() );
+	SetTechnique(technique);
+	//m_hTechnique = m_effect->GetTechniqueByName( technique.c_str() );
 
 	return true;
 }
 
 
-void cShader::Begin()
+void cShader::SetTechnique(const string &technique) 
 {
-	RET(!m_effect);
-	m_effect->Begin(NULL, 0);
-	m_effect->SetTechnique( m_hTechnique );
+	m_hTechnique = m_effect->GetTechniqueByName(technique.c_str());
+}
+
+
+int cShader::Begin()
+{
+	RETV(!m_effect, 0);
+	u_int passCount = 0;
+	m_effect->SetTechnique(m_hTechnique);
+	m_effect->Begin(&passCount, 0);
+	return passCount;
 }
 
 
@@ -284,4 +293,3 @@ D3DXHANDLE cShader::GetValueHandle(const string &key)
 	RETV(!m_effect, NULL);
 	return m_effect->GetParameterByName(NULL, key.c_str());
 }
-

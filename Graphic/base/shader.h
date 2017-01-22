@@ -13,10 +13,11 @@ namespace graphic
 		virtual ~cShader();
 
 		bool Create(cRenderer &renderer, const string &fileName, const string &technique, const bool showMsgBox = true);
-		void Begin();
+		int Begin();
 		void BeginPass(int pass=-1);
 		void EndPass();
 		void End();
+		void SetTechnique(const string &technique);
 
 		void SetInt(const string &key, const int val );
 		void SetMatrix(const string &key, const Matrix44 &mat);
@@ -43,6 +44,7 @@ namespace graphic
 		LPD3DXEFFECT GetEffect() { return m_effect; }
 		void SetRenderPass(int pass);
 		int GetRenderPass() const;
+		int GetPassCount();
 		D3DXHANDLE GetValueHandle(const string &key);
 		const string& GetFileName() const;
 

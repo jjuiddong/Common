@@ -7,15 +7,6 @@
 using namespace graphic;
 
 
-// 렌더러 초기화.
-// bool graphic::InitRenderer(cRenderer &renderer,	HWND hWnd, const int width, const int height)
-// {
-// 	if (!renderer.CreateDirectX(hWnd, width, height))
-// 		return false;
-// 
-// 	return true;
-// }
-
 void graphic::ReleaseRenderer()
 {
 	//cRenderer::Release();

@@ -1,6 +1,7 @@
 // 정육면체를 표현하는 클래스.
 // 조명 효과를 넣을 수 있는 모델이다.
 // Vertext + Normal + Texture UV 로 표현된다.
+// Only VertexBuffer
 #pragma once
 
 

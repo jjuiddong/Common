@@ -205,6 +205,9 @@
     <ClInclude Include="base\line2.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\cube3.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -389,6 +392,9 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\line2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube3.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
