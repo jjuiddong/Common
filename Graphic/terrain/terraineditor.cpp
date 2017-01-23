@@ -13,8 +13,8 @@ cTerrainEditor::cTerrainEditor(cRenderer &renderer)
 {
 	InitLayer(renderer);
 
-	//m_shader.Create( "./media/shader/hlsl_terrain_splatting.fx", "TShader" );
-	m_emptyTexture.Create(renderer, "./media/texture/emptyTexture.png" );
+	//m_shader.Create( "../media/shader/hlsl_terrain_splatting.fx", "TShader" );
+	m_emptyTexture.Create(renderer, "../media/texture/emptyTexture.png" );
 }
 
 cTerrainEditor::~cTerrainEditor()
@@ -111,7 +111,7 @@ bool cTerrainEditor::WriteTRNFile(const string &fileName)
 bool cTerrainEditor::WriteTerrainTextureToPNGFile(cRenderer &renderer, const string &fileName)
 {
 	cShader shader;
-	shader.Create(renderer, "./media/shader/hlsl_terrain_splatting_texture_write.fx", "TShader" );
+	shader.Create(renderer, "../media/shader/hlsl_terrain_splatting_texture_write.fx", "TShader" );
 
 	cSurface surface;
 	surface.CreateRenderTarget(renderer, 512, 512);

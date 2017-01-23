@@ -9,7 +9,7 @@ using namespace graphic;
 
 
 cResourceManager::cResourceManager() :
-	m_mediaDirectory("./media/")
+	m_mediaDirectory("../media/")
 {
 
 }
@@ -203,7 +203,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 }
 
 // 텍스쳐 로딩.
-// fileName 에 해당하는 파일이 없다면, "./media/" + dirPath  경로에서 파일을 찾는다.
+// fileName 에 해당하는 파일이 없다면, "../media/" + dirPath  경로에서 파일을 찾는다.
 cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2)
 	//isSizePow2=true
 {

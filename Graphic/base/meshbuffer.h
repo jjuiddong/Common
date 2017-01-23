@@ -35,7 +35,7 @@ namespace graphic
 		void CreateAttributes(const sRawMesh &rawMesh);
 
 
-	private:
+	public:
 		vector<sAttribute> m_attributes;
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;

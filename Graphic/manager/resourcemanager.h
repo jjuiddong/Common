@@ -51,7 +51,7 @@ namespace graphic
 		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
 		map<string, cTexture*> m_textures; // key = fileName
 		map<string, cShader*> m_shaders; // key = fileName
-		string m_mediaDirectory; // default : ./media/
+		string m_mediaDirectory; // default : ../media/
 		set<string> m_reLoadFile;
 	};
 
