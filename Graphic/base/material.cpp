@@ -56,6 +56,12 @@ void cMaterial::InitBlack()
 }
 
 
+void cMaterial::InitGray()
+{
+	Init(Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(0, 0, 0, 1));
+}
+
+
 void cMaterial::InitRed()
 {
 	Init(Vector4(1,0,0,1), Vector4(1,0,0,1), Vector4(1,0,0,1));

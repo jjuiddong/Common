@@ -21,6 +21,7 @@ namespace graphic
 		void SetCube(cRenderer &renderer, const cCube3 &cube);
 		const float Length() const; // length(min - max)
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
 
 
 	public:
@@ -30,6 +31,7 @@ namespace graphic
 		Vector3 m_max;
 		Matrix44 m_tm;
 		cMaterial m_mtrl;
+		cTexture *m_tex;// reference
 	};
 
 

@@ -6,6 +6,7 @@ using namespace graphic;
 
 
 cCube3::cCube3()
+	: m_tex(NULL)
 {
 }
 
@@ -185,4 +186,35 @@ void cCube3::Render(cRenderer &renderer, const Matrix44 &tm)
 	m_idxBuff.Bind(renderer);
 	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
 		m_vtxBuff.GetVertexCount(), 0, 12);
+}
+
+
+void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
+{
+	const cLight &mainLight = cLightManager::Get()->GetMainLight();
+	mainLight.Bind(shader);
+	shader.SetVector("vEyePos", cMainCamera::Get()->GetEyePos());
+
+	shader.SetMatrix("mWorld", m_tm*tm);
+	if (m_tex)
+		m_tex->Bind(shader, "colorMapTexture");
+	
+	m_mtrl.Bind(shader);
+	shader.SetMatrix("mVP", GetMainCamera()->GetViewProjectionMatrix());
+
+	const int passCount = shader.Begin();
+	for (int i = 0; i < passCount; ++i)
+	{
+		shader.BeginPass(i);
+		shader.CommitChanges();
+
+		m_vtxBuff.Bind(renderer);
+		m_idxBuff.Bind(renderer);
+		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+			m_vtxBuff.GetVertexCount(), 0, 12);
+
+		shader.EndPass();
+	}
+	shader.End();
+
 }

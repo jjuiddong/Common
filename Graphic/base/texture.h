@@ -35,6 +35,7 @@ namespace graphic
 		IDirect3DTexture9 *m_texture;
 		D3DXIMAGE_INFO m_imageInfo;
 		string m_fileName;
+		bool m_isReferenceMode;
 	};
 
 

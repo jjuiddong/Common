@@ -50,6 +50,7 @@ using namespace common;
 #include "base/text.h"
 #include "base/quad.h"
 #include "base/billboard.h"
+#include "base/xfilemesh.h"
 
 #include "model/node.h"
 

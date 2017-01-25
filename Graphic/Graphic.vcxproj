@@ -369,6 +369,7 @@
     <ClInclude Include="base\vertexbuffer.h" />
     <ClInclude Include="base\vertexdeclaration.h" />
     <ClInclude Include="base\vertexformat.h" />
+    <ClInclude Include="base\xfilemesh.h" />
     <ClInclude Include="character\archebladecharacter.h" />
     <ClInclude Include="character\character.h" />
     <ClInclude Include="character\characteranalyzer.h" />
@@ -439,6 +440,7 @@
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
     <ClCompile Include="base\vertexdeclaration.cpp" />
+    <ClCompile Include="base\xfilemesh.cpp" />
     <ClCompile Include="character\archebladecharacter.cpp" />
     <ClCompile Include="character\character.cpp" />
     <ClCompile Include="character\characteranalyzer.cpp" />

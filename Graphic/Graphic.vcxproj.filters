@@ -208,6 +208,9 @@
     <ClInclude Include="base\cube3.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\xfilemesh.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -395,6 +398,9 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\cube3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\xfilemesh.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

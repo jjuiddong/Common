@@ -68,7 +68,6 @@ void cSkinnedMesh::ApplyPalette(cRenderer &renderer)
 		SetMeshBuffer(m_skinnMeshBuffer);
 	}
 
-
 	cVertexBuffer &vtxBuffer = m_skinnMeshBuffer->GetVertexBuffer();
 	const int pos_offset = vtxBuffer.GetOffset(D3DDECLUSAGE_POSITION);
 	const int normal_offset = vtxBuffer.GetOffset(D3DDECLUSAGE_NORMAL);

@@ -28,6 +28,7 @@ namespace graphic
 
 		void InitWhite();
 		void InitBlack();
+		void InitGray();
 		void InitRed();
 		void InitBlue();
 		void InitGreen();

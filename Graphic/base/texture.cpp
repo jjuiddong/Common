@@ -8,6 +8,7 @@ using namespace graphic;
 
 cTexture::cTexture() :
 	m_texture(NULL)
+	, m_isReferenceMode(false)
 {
 }
 
