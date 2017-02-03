@@ -216,5 +216,4 @@ void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &
 		shader.EndPass();
 	}
 	shader.End();
-
 }

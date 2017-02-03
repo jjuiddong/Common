@@ -64,6 +64,7 @@ bool cShader::Create(cRenderer &renderer, const string &fileName, const string &
 
 void cShader::SetTechnique(const string &technique) 
 {
+	RET(!m_effect);
 	m_hTechnique = m_effect->GetTechniqueByName(technique.c_str());
 }
 
