@@ -129,17 +129,20 @@ void cMesh::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &p
 	const cLight &mainLight = cLightManager::Get()->GetMainLight();
 	mainLight.Bind(shader);
 
-	shader.SetMatrix( "mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-	shader.SetVector( "vEyePos", cMainCamera::Get()->GetEyePos());
+	//shader.SetMatrix( "mVP", cMainCamera::Get()->GetViewProjectionMatrix());
+	//shader.SetVector("vEyePos", cMainCamera::Get()->GetEyePos());
+	shader.SetMatrix("g_mView", cMainCamera::Get()->GetViewMatrix());
+	shader.SetMatrix("g_mProj", cMainCamera::Get()->GetProjectionMatrix());
+	shader.SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
 
 	if (m_buffers->GetAttributes().empty())
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
-		shader.SetMatrix("mWorld", tm);
+		shader.SetMatrix("g_mWorld", tm);
 		
 		Matrix44 wit = tm.Inverse();
 		wit.Transpose();
-		shader.SetMatrix("mWIT", wit);
+		shader.SetMatrix("g_mWIT", wit);
 
 		const bool isNormalMapping = (!m_normalMap.empty()) && 
 			(m_normalMap[ 0] && m_normalMap[ 0]->GetTexture());
@@ -179,11 +182,11 @@ void cMesh::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &p
 	else
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
-		shader.SetMatrix("mWorld", tm);
+		shader.SetMatrix("g_mWorld", tm);
 
 		Matrix44 wit = tm.Inverse();
 		wit.Transpose();
-		shader.SetMatrix("mWIT", wit);
+		shader.SetMatrix("g_mWIT", wit);
 
 		shader.Begin();
 

@@ -114,7 +114,7 @@ void cShader::SetMatrix(const string &key, const Matrix44 &mat)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrix( key.c_str(), (D3DXMATRIX*)&mat)))
 	{
-		MessageBoxA( NULL, "cShader::SetMatrix Error", "ERROR", MB_OK);
+		MessageBoxA(NULL, format("cShader::SetMatrix [%s] Error", key.c_str()).c_str(), "ERROR", MB_OK);
 	}
 }
 
@@ -210,7 +210,7 @@ void cShader::SetMatrix(D3DXHANDLE handle, const Matrix44 &mat)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrix(handle, (D3DXMATRIX*)&mat)))
 	{
-		MessageBoxA( NULL, "cShader::SetMatrix Error", "ERROR", MB_OK);
+		MessageBoxA( NULL, format("cShader::SetMatrix [%s] Error", (char*)handle).c_str(), "ERROR", MB_OK);
 	}
 }
 
