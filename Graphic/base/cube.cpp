@@ -154,3 +154,27 @@ void cCube::Render(cRenderer &renderer, const Matrix44 &tm)
 	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, fillMode);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
 }
+
+
+void cCube::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
+{
+	const cLight &mainLight = cLightManager::Get()->GetMainLight();
+	mainLight.Bind(shader);
+	shader.SetVector("vEyePos", cMainCamera::Get()->GetEyePos());
+	shader.SetMatrix("mWorld", m_tm*tm);
+	shader.SetMatrix("mVP", GetMainCamera()->GetViewProjectionMatrix());
+	shader.CommitChanges();
+
+	const int passCount = shader.Begin();
+	for (int i = 0; i < passCount; ++i)
+	{
+		shader.BeginPass(i);
+		m_vtxBuff.Bind(renderer);
+		m_idxBuff.Bind(renderer);
+		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+			m_vtxBuff.GetVertexCount(), 0, 12);
+		shader.EndPass();
+	}
+	shader.End();
+}
+

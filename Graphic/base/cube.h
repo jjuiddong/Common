@@ -14,6 +14,7 @@ namespace graphic
 		cCube();
 		cCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 
+		void InitCube(cRenderer &renderer);
 		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 		void SetCube(cRenderer &renderer, const cCube &cube);
 		void SetTransform( const Matrix44 &tm );
@@ -24,10 +25,7 @@ namespace graphic
 		const float Length() const; // length(min - max)
 
 		void Render(cRenderer &renderer, const Matrix44 &tm);
-
-
-	protected:
-		void InitCube(cRenderer &renderer);
+		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
 
 
 	protected:
