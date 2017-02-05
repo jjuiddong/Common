@@ -52,4 +52,31 @@ namespace common
 			seq.push_back(ty);
 	}
 
+
+	// idx 위치의 아이템을 제거하고, 마지막에 있는 아이템을 넣는다.
+	template <class Seq>
+	void popvector(Seq &seq, const unsigned int idx)
+	{
+		if ((seq.size() - 1) == idx)
+		{
+			seq.pop_back();
+		}
+		else if (seq.size() > idx)
+		{
+			seq[idx] = seq[seq.size() - 1];
+			seq.pop_back();
+		}
+	}
+
+	template <class Seq>
+	void popvector2(Seq &seq, const typename Seq::value_type &ty)
+	{
+		if (seq.empty())
+			return;
+
+		for (int i = (int)seq.size()-1; i >= 0; --i)
+			if (seq[i] == ty)
+				popvector(seq, i);
+	}
+
 }

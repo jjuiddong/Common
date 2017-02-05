@@ -82,7 +82,7 @@ BOOL Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT,
 
 	float fInvDet = 1.0F / fDet;
 
-	if (pfT)	*pfT = vEdge2.DotProduct( vQ ) * fInvDet;
+	if (pfT) *pfT = vEdge2.DotProduct( vQ ) * fInvDet;
 	if (pfU) *pfU = u * fInvDet;
 	if (pfV) *pfV = v * fInvDet;
 
