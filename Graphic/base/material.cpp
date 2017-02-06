@@ -110,3 +110,73 @@ void cMaterial::Bind(cShader &shader)
 	shader.SetVector( hSpecular, *(Vector4*)&m_mtrl.Specular);
 	shader.SetFloat( hSineness, m_mtrl.Power);
 }
+
+
+string cMaterial::DiffuseColor()
+{
+	string str = common::format("Diffuse  R=%f G=%f B=%f A=%f ",
+		m_mtrl.Diffuse.r, m_mtrl.Diffuse.g, m_mtrl.Diffuse.b, m_mtrl.Diffuse.a);
+
+	string color = SpecialColor(m_mtrl.Diffuse.r, m_mtrl.Diffuse.g, m_mtrl.Diffuse.b);
+
+	if (!color.empty())
+		str += " (" + color + ")";
+	return str;
+}
+
+string cMaterial::AmbientColor()
+{
+	string str = common::format("Ambient  R=%f G=%f B=%f A=%f ",
+		m_mtrl.Ambient.r, m_mtrl.Ambient.g, m_mtrl.Ambient.b, m_mtrl.Ambient.a);
+
+	string color = SpecialColor(m_mtrl.Ambient.r, m_mtrl.Ambient.g, m_mtrl.Ambient.b);
+
+	if (!color.empty())
+		str += " (" + color + ")";
+	return str;
+}
+
+string cMaterial::SpecularColor()
+{
+	string str = common::format("Specular  R=%f G=%f B=%f A=%f ",
+		m_mtrl.Specular.r, m_mtrl.Specular.g, m_mtrl.Specular.b, m_mtrl.Specular.a);
+
+	string color = SpecialColor(m_mtrl.Specular.r, m_mtrl.Specular.g, m_mtrl.Specular.b);
+
+	if (!color.empty())
+		str += " (" + color + ")";
+
+	return str;
+}
+
+string cMaterial::EmissiveColor()
+{
+	string str = common::format("Emissive  R=%f G=%f B=%f A=%f ",
+		m_mtrl.Emissive.r, m_mtrl.Emissive.g, m_mtrl.Emissive.b, m_mtrl.Emissive.a);
+
+	string color = SpecialColor(m_mtrl.Emissive.r, m_mtrl.Emissive.g, m_mtrl.Emissive.b);
+
+	if (!color.empty())
+		str += " (" + color + ")";
+
+	return str;
+}
+
+
+// return Special Color Name
+// r,g,b = 0 ~ 1
+string cMaterial::SpecialColor(const float r, const float g, const float b)
+{
+	string color;
+	if ((r == 1) && (g == 1) && (b == 1))
+		color = "White";
+	else if ((r == 0) && (g == 0) && (b == 0))
+		color = "Black";
+	else if ((r == 1) && (g == 0) && (b == 0))
+		color = "Red";
+	else if ((r == 0) && (g == 1) && (b == 0))
+		color = "Green";
+	else if ((r == 0) && (g == 0) && (b == 1))
+		color = "Blue";
+	return color;
+}

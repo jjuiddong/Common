@@ -25,7 +25,6 @@ cRenderer::cRenderer() :
 ,	m_elapseTime(0)
 ,	m_fps(0)
 {
-
 }
 
 cRenderer::~cRenderer()
@@ -236,4 +235,18 @@ void cRenderer::Present()
 void cRenderer::EndScene()
 {
 	GetDevice()->EndScene();
+}
+
+
+void cRenderer::SetCullMode(const D3DCULL cull)
+{
+	GetDevice()->SetRenderState(D3DRS_CULLMODE, cull);
+}
+void cRenderer::SetFillMode(const D3DFILLMODE mode)
+{
+	GetDevice()->SetRenderState(D3DRS_FILLMODE, mode);
+}
+void cRenderer::SetNormalizeNormals(const bool value)
+{
+	GetDevice()->SetRenderState(D3DRS_NORMALIZENORMALS, value? TRUE : FALSE);
 }

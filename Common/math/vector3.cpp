@@ -177,3 +177,23 @@ Vector3 Vector3::Interpolate( const Vector3 &v, const float alpha) const
 		y + (alpha * ( v.y - y ) ),
 		z + (alpha * ( v.z - z ) ) );
 }
+
+
+Vector3 Vector3::Minimum(const Vector3 &rhs)
+{
+	Vector3 v;
+	v.x = min(x, rhs.x);
+	v.y = min(y, rhs.y);
+	v.z = min(z, rhs.z);
+	return v;
+}
+
+
+Vector3 Vector3::Maximum(const Vector3 &rhs)
+{
+	Vector3 v;
+	v.x = max(x, rhs.x);
+	v.y = max(y, rhs.y);
+	v.z = max(z, rhs.z);
+	return v;
+}

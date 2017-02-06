@@ -55,6 +55,7 @@ using namespace common;
 #include "model/node.h"
 
 #include "base/shadow1.h"
+#include "base/shadowvolume.h"
 
 
 #include "collision/collision.h"

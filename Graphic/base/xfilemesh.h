@@ -23,6 +23,7 @@ namespace graphic
 
 	protected:
 		HRESULT CreateMaterials(const string &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials);
+		void InitBoundingBox();
 		
 
 	public:
@@ -32,6 +33,7 @@ namespace graphic
 		int m_facesCount;
 		int m_materialsCount;
 		int m_stride;
+		cBoundingBox m_boundingBox;
 		cShader *m_shader; // reference
 		cMaterial* m_materials;
 		cTexture** m_textures; // reference texture

@@ -35,7 +35,14 @@ namespace graphic
 		void Bind(cRenderer &renderer);
 		void Bind(cShader &shader);
 
+		string DiffuseColor();
+		string AmbientColor();
+		string SpecularColor();
+		string EmissiveColor();
+		string SpecialColor(const float r, const float g, const float b);
 
+
+	public:
 		D3DMATERIAL9 m_mtrl;
 	};
 

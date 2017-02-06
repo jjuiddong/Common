@@ -62,13 +62,15 @@ bool cXFileMesh::Create(cRenderer &renderer, const string &fileName)
 	//m_mesh->GetDeclaration(decl);
 	//m_renderer.GetDevice()->CreateVertexDeclaration(decl, &m_pDecl);
 
+	InitBoundingBox();
+
 	return true;
 }
 
 
 HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials)
 {
-	common::dbg::Print("CreateMaterials %d --------- \n", dwNumMaterials);
+	//common::dbg::Print("CreateMaterials %d --------- \n", dwNumMaterials);
 
 	m_materialsCount = dwNumMaterials;
 	if (d3dxMtrls && m_materialsCount > 0)
@@ -87,11 +89,11 @@ HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer,
 			if (d3dxMtrls[i].pTextureFilename)
 			{
 				string textureFileName = common::GetFilePathExceptFileName(filePath) + "/" + d3dxMtrls[i].pTextureFilename;
-				common::dbg::Print("texture file name = %s\n", textureFileName.c_str());
+				//common::dbg::Print("texture file name = %s\n", textureFileName.c_str());
 				m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, textureFileName);
 				if (m_textures[i])
 				{
-					common::dbg::Print("\t- Loading Error!! texture file name = %s\n", textureFileName.c_str());
+					//common::dbg::Print("\t- Loading Error!! texture file name = %s\n", textureFileName.c_str());
 				}
 			}
 			else
@@ -101,6 +103,31 @@ HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer,
 		}
 	}
 	return S_OK;
+}
+
+
+void cXFileMesh::InitBoundingBox()
+{
+	if (!m_mesh)
+		return;
+
+	Vector3 minP = Vector3::Max;
+	Vector3 maxP = Vector3::Min;
+	const int stride = m_mesh->GetNumBytesPerVertex();
+	const int vertexCount = m_mesh->GetNumVertices();
+
+	BYTE *pvtx = NULL;
+	m_mesh->LockVertexBuffer(0, (void**)&pvtx);
+	for (int i = 0; i < vertexCount; ++i)
+	{
+		Vector3 p = *(Vector3*)pvtx;
+		minP = minP.Minimum(p);
+		maxP = maxP.Maximum(p);
+		pvtx += stride;
+	}
+	m_mesh->UnlockVertexBuffer();
+
+	m_boundingBox.SetBoundingBox(minP, maxP);
 }
 
 
