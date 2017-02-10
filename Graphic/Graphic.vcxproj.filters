@@ -214,6 +214,12 @@
     <ClInclude Include="base\shadowvolume.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="model\model2.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\mesh2.h">
+      <Filter>model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -408,6 +414,12 @@
     </ClCompile>
     <ClCompile Include="base\shadowvolume.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="model\model2.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\mesh2.cpp">
+      <Filter>model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -710,8 +710,8 @@ bool importer::ReadVertexIndexNormal( std::ifstream &fin, OUT sRawMesh &rawMesh 
 	int vtxSize;
 	fin >> vtx >> eq >> vtxSize;
 
-	if (vtxSize <= 0)
-		return  false;
+	//if (vtxSize <= 0)
+	//	return  false;
 
 	rawMesh.vertices.reserve(vtxSize + vtxSize/2);
 

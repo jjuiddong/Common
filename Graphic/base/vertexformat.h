@@ -96,4 +96,21 @@ namespace graphic
 			D3DFVF_NORMAL | D3DFVF_TEX1)};
 	};
 
+
+	// vertex skinning
+	// using texcoord, ksm file format
+	struct sVertexNormTexSkin3
+	{
+		Vector3 p;
+		Vector3 n;
+		float u, v;
+		float weights[3];
+		BYTE matrixIndices[4];
+
+		enum {
+			FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2 |
+			D3DFVF_TEXCOORDSIZE2(0) |		// texture
+				D3DFVF_TEXCOORDSIZE4(1)) 	// blend weight
+		};	// blend indices
+	};
 }

@@ -47,24 +47,100 @@ sRawMeshGroup* cResourceManager::LoadModel( const string &fileName )
 		}
 	}
 
-	// 메쉬 이름 설정 fileName + meshName
-	// 메터리얼 설정.
-	BOOST_FOREACH (auto &mesh, meshes->meshes)
-	{
-		mesh.name = fileName + "::" + mesh.name;
-		if (mesh.mtrlId >= 0)
-		{
-			mesh.mtrl = meshes->mtrls[ mesh.mtrlId];
-		}
-	}
-
-	m_meshes[ fileName] = meshes;
+	LoadModel(meshes);
 	return meshes;
 
 error:
 	delete meshes;
 	dbg::ErrLog("Error!! LoadModel() [%s] \n", fileName.c_str());
 	return NULL;
+}
+
+
+// 외부에서 로딩한 메쉬를 저장한다.
+bool cResourceManager::LoadModel(sRawMeshGroup *meshes)
+{
+	RETV(!meshes, false);
+
+	if (sRawMeshGroup *data = FindModel(meshes->name))
+		return false;
+
+	// 메쉬 이름 설정 fileName::meshName
+	for (u_int i = 0; i < meshes->meshes.size(); ++i)// auto &mesh : meshes->meshes)
+	{
+		sRawMesh &mesh = meshes->meshes[i];
+
+		mesh.name = meshes->name + "::" + mesh.name;
+		if (mesh.mtrlId >= 0)
+		{ // 메터리얼 설정.
+			mesh.mtrl = meshes->mtrls[mesh.mtrlId];
+		}
+	}
+
+	m_meshes[meshes->name] = meshes;
+	return true;
+}
+
+
+// load model file
+sRawMeshGroup2* cResourceManager::LoadModel2(const string &fileName)
+{
+	RETV(fileName.empty(), NULL);
+
+	if (sRawMeshGroup2 *data = FindModel2(fileName))
+		return data;
+
+	sRawMeshGroup2 *meshes = new sRawMeshGroup2;
+	meshes->name = fileName;
+
+	//if (!importer::ReadRawMeshFile(fileName, *meshes))
+	//{
+	//	string newPath;
+	//	if (common::FindFile(fileName, m_mediaDirectory, newPath))
+	//	{
+	//		if (!importer::ReadRawMeshFile(newPath, *meshes))
+	//		{
+	//			goto error;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		goto error;
+	//	}
+	//}
+
+	LoadModel2(meshes);
+	return meshes;
+
+//error:
+//	delete meshes;
+//	dbg::ErrLog("Error!! LoadModel2() [%s] \n", fileName.c_str());
+//	return NULL;
+}
+
+
+// 외부에서 로딩한 메쉬를 저장한다.
+bool cResourceManager::LoadModel2(sRawMeshGroup2 *meshes)
+{
+	RETV(!meshes, false);
+
+	if (sRawMeshGroup2 *data = FindModel2(meshes->name))
+		return false;
+
+	// 메쉬 이름 설정 fileName::meshName
+	for (u_int i = 0; i < meshes->meshes.size(); ++i)
+	{
+		sRawMesh2 &mesh = meshes->meshes[i];
+
+		mesh.name = meshes->name + "::" + mesh.name;
+		//if (mesh.mtrlId >= 0)
+		//{ // 메터리얼 설정.
+		//	//mesh.mtrl = meshes->mtrls[mesh.mtrlId];
+		//}
+	}
+
+	m_meshes2[meshes->name] = meshes;
+	return true;
 }
 
 
@@ -95,12 +171,22 @@ sRawAniGroup* cResourceManager::LoadAnimation( const string &fileName )
 		}
 	}
 
-	m_anies[ fileName] = anies;
+	LoadAnimation(anies);
 	return anies;
 
 error:
 	delete anies;
 	return NULL;
+}
+
+
+// Register Animation Information
+bool cResourceManager::LoadAnimation(sRawAniGroup *anies)
+{
+	RETV(!anies, false);
+
+	m_anies[anies->name] = anies;
+	return true;
 }
 
 
@@ -130,6 +216,18 @@ cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const string 
 }
 
 
+// rawMesh 정보로 MeshBuffer를 생성한다.
+cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh)
+{
+	if (cMeshBuffer *data = FindMeshBuffer(rawMesh.name))
+		return data;
+
+	cMeshBuffer *buffer = new cMeshBuffer(renderer, rawMesh);
+	m_mesheBuffers[rawMesh.name] = buffer;
+	return buffer;
+}
+
+
 // meshName으로 메쉬버퍼를 찾아 리턴한다.
 cMeshBuffer* cResourceManager::FindMeshBuffer( const string &meshName )
 {
@@ -156,6 +254,16 @@ sRawMeshGroup* cResourceManager::FindModel( const string &fileName )
 	//	return NULL;
 	//}
 
+	return it->second;
+}
+
+
+// find model data
+sRawMeshGroup2* cResourceManager::FindModel2(const string &fileName)
+{
+	auto it = m_meshes2.find(fileName);
+	if (m_meshes2.end() == it)
+		return NULL; // not exist
 	return it->second;
 }
 
@@ -309,6 +417,13 @@ void cResourceManager::Clear()
 		delete kv.second;
 	}
 	m_meshes.clear();
+
+	// remove raw mesh2
+	for each (auto kv in m_meshes2)
+	{
+		delete kv.second;
+	}
+	m_meshes2.clear();
 
 	// remove texture
 	for each (auto kv in m_textures)

@@ -390,7 +390,9 @@
     <ClInclude Include="model\bonemgr.h" />
     <ClInclude Include="model\bonenode.h" />
     <ClInclude Include="model\mesh.h" />
+    <ClInclude Include="model\mesh2.h" />
     <ClInclude Include="model\model.h" />
+    <ClInclude Include="model\model2.h" />
     <ClInclude Include="model\node.h" />
     <ClInclude Include="model\rawani.h" />
     <ClInclude Include="model\rawmesh.h" />
@@ -460,7 +462,9 @@
     <ClCompile Include="model\bonemgr.cpp" />
     <ClCompile Include="model\bonenode.cpp" />
     <ClCompile Include="model\mesh.cpp" />
+    <ClCompile Include="model\mesh2.cpp" />
     <ClCompile Include="model\model.cpp" />
+    <ClCompile Include="model\model2.cpp" />
     <ClCompile Include="model\node.cpp" />
     <ClCompile Include="model\rawmesh.cpp" />
     <ClCompile Include="model\rigidmesh.cpp" />

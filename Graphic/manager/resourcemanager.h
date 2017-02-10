@@ -22,7 +22,11 @@ namespace graphic
 		virtual ~cResourceManager();
 		
 		sRawMeshGroup* LoadModel( const string &fileName );
+		bool LoadModel(sRawMeshGroup *meshes);
+		sRawMeshGroup2* LoadModel2(const string &fileName);
+		bool LoadModel2(sRawMeshGroup2 *meshes);
 		sRawAniGroup* LoadAnimation( const string &fileName );
+		bool LoadAnimation(sRawAniGroup *anies);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const string &meshName);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true);
@@ -30,6 +34,7 @@ namespace graphic
 		cShader* LoadShader(cRenderer &renderer, const string &fileName);
 
 		sRawMeshGroup* FindModel( const string &fileName );
+		sRawMeshGroup2* FindModel2(const string &fileName);
 		sRawAniGroup* FindAnimation( const string &fileName );
 		cMeshBuffer* FindMeshBuffer( const string &meshName );
 		cTexture* FindTexture( const string &fileName );
@@ -47,6 +52,7 @@ namespace graphic
 
 	private:
 		map<string, sRawMeshGroup*> m_meshes; // key = fileName
+		map<string, sRawMeshGroup2*> m_meshes2; // key = fileName
 		map<string, sRawAniGroup*> m_anies;	// key = fileName
 		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
 		map<string, cTexture*> m_textures; // key = fileName

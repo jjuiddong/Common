@@ -32,7 +32,8 @@ cModel::~cModel()
 }
 
 
-bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type)
+bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type
+	,const bool isLoadShader)
 	// type = MODEL_TYPE::AUTO
 {
 	sRawMeshGroup *rawMeshes = cResourceManager::Get()->LoadModel(modelName);
@@ -82,15 +83,13 @@ bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TY
 			m_meshes.push_back(p);
 	}
 	
-	if (MODEL_TYPE::RIGID == m_type)
+	if (isLoadShader)
 	{
-		SetShader( cResourceManager::Get()->LoadShader(renderer, "hlsl_rigid_phong.fx") );
+		if (MODEL_TYPE::RIGID == m_type)
+			SetShader( cResourceManager::Get()->LoadShader(renderer, "hlsl_rigid_phong.fx") );
+		else
+			SetShader(cResourceManager::Get()->LoadShader(renderer, "hlsl_skinning_using_texcoord_unlit.fx"));
 	}
-	else
-	{
-		SetShader(cResourceManager::Get()->LoadShader(renderer, "hlsl_skinning_using_texcoord_unlit.fx"));
-	}
-
 
 	// 모델 충돌 박스를 생성한다.
 	GetCollisionBox(renderer);
@@ -119,7 +118,7 @@ bool cModel::SetAnimation( const string &aniFileName,
 	{
 		for (u_int i=0; i < m_meshes.size(); ++i)
 		{
-			((cRigidMesh*)m_meshes[ i])->LoadAnimation(rawAnies->anies[0]);
+			((cRigidMesh*)m_meshes[ i])->LoadAnimation(rawAnies->anies[i]);
 		}
 	}
 

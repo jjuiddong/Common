@@ -8,35 +8,84 @@ using namespace uiutil;
 
 
 // 모든 트리노드를 펼친다.
-void ExpandAll(CTreeCtrl &treeCtrl)
+//void ExpandAll(CTreeCtrl &treeCtrl)
+//{
+//	HTREEITEM hRoot = treeCtrl.GetRootItem();
+//	vector<HTREEITEM> items;
+//	items.reserve(treeCtrl.GetCount());
+//
+//	items.push_back(hRoot);
+//
+//	while (!items.empty())
+//	{
+//		HTREEITEM hItem = items.back();
+//		items.pop_back();
+//		treeCtrl.Expand(hItem, TVE_EXPAND);
+//
+//		HTREEITEM hfirstChild = treeCtrl.GetChildItem(hItem);
+//		if (hfirstChild)
+//		{
+//			items.push_back(hfirstChild);
+//
+//			while (HTREEITEM hNextItem = treeCtrl.GetNextSiblingItem(hfirstChild))
+//			{
+//				items.push_back(hNextItem);
+//				hfirstChild = hNextItem;
+//			}
+//		}
+//	}
+//
+//	treeCtrl.SelectSetFirstVisible(hRoot);
+//}
+
+HTREEITEM GetNextTreeItem(const CTreeCtrl& treeCtrl, HTREEITEM hItem)
 {
-	HTREEITEM hRoot = treeCtrl.GetRootItem();
-	vector<HTREEITEM> items;
-	items.reserve(treeCtrl.GetCount());
-
-	items.push_back(hRoot);
-
-	while (!items.empty())
+	// has this item got any children
+	if (treeCtrl.ItemHasChildren(hItem))
 	{
-		HTREEITEM hItem = items.back();
-		items.pop_back();
-		treeCtrl.Expand(hItem, TVE_EXPAND);
-
-		HTREEITEM hfirstChild = treeCtrl.GetChildItem(hItem);
-		if (hfirstChild)
-		{
-			items.push_back(hfirstChild);
-
-			while (HTREEITEM hNextItem = treeCtrl.GetNextSiblingItem(hfirstChild))
-			{
-				items.push_back(hNextItem);
-				hfirstChild = hNextItem;
-			}
-		}
+		return treeCtrl.GetNextItem(hItem, TVGN_CHILD);
 	}
-
-	treeCtrl.SelectSetFirstVisible(hRoot);
+	else if (treeCtrl.GetNextItem(hItem, TVGN_NEXT) != NULL)
+	{
+		// the next item at this level
+		return treeCtrl.GetNextItem(hItem, TVGN_NEXT);
+	}
+	else
+	{
+		// return the next item after our parent
+		hItem = treeCtrl.GetParentItem(hItem);
+		if (hItem == NULL)
+		{
+			// no parent
+			return NULL;
+		}
+		while (treeCtrl.GetNextItem(hItem, TVGN_NEXT) == NULL)
+		{
+			hItem = treeCtrl.GetParentItem(hItem);
+			if (!hItem)
+				break;
+		}
+		// next item that follows our parent
+		return treeCtrl.GetNextItem(hItem, TVGN_NEXT);
+	}
 }
+
+
+void ExpandAll(CTreeCtrl& treeCtrl)
+{
+	HTREEITEM hRootItem = treeCtrl.GetRootItem();
+	HTREEITEM hItem = hRootItem;
+	while (hItem)
+	{
+		if (treeCtrl.ItemHasChildren(hItem))
+		{
+			treeCtrl.Expand(hItem, TVE_EXPAND);
+		}
+		hItem = GetNextTreeItem(treeCtrl, hItem);
+	}
+}
+
+
 
 
 HTREEITEM FindTree( CTreeCtrl &treeCtrl, const wstring &findText )
