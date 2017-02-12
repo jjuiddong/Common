@@ -12,6 +12,7 @@ namespace graphic
 	public:
 		cMeshBuffer();
 		cMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
+		cMeshBuffer(cRenderer &renderer, const sRawMesh2 &rawMesh);
 		cMeshBuffer(cRenderer &renderer, const sRawBone &rawBone);
 
 		void Bind(cRenderer &renderer);
@@ -27,11 +28,25 @@ namespace graphic
 
 
 	protected:
-		void CreateMesh(cRenderer &renderer, const vector<Vector3> &vertices,
+		void CreateMesh(cRenderer &renderer, const sRawMesh &rawMesh);
+		void CreateMesh(cRenderer &renderer, const sRawMesh2 &rawMesh);
+		
+		void CreateMesh(cRenderer &renderer, 
+			const vector<Vector3> &vertices,
 			const vector<Vector3> &normals, 
 			const vector<Vector3> &tex,
 			const vector<int> &indices);
-		void CreateMesh(cRenderer &renderer, const sRawMesh &rawMesh);
+
+		void CreateMesh(cRenderer &renderer,
+			const cVertexDeclaration &decl,
+			const vector<Vector3> &vertices,
+			const vector<Vector3> &normals,
+			const vector<Vector3> &tex,
+			const vector<Vector3> &tangent,
+			const vector<Vector3> &binormal,
+			const vector<sVertexWeight> &weights,
+			const vector<int> &indices);
+
 		void CreateAttributes(const sRawMesh &rawMesh);
 
 
@@ -40,6 +55,7 @@ namespace graphic
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 		int m_offset;
+		bool m_isSkinned; // skinning vertex
 		cBoundingBox m_boundingBox;
 	};
 

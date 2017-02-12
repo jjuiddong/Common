@@ -214,11 +214,17 @@
     <ClInclude Include="base\shadowvolume.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="model\model2.h">
-      <Filter>model</Filter>
+    <ClInclude Include="model_collada\mesh2.h">
+      <Filter>model_collada</Filter>
     </ClInclude>
-    <ClInclude Include="model\mesh2.h">
-      <Filter>model</Filter>
+    <ClInclude Include="model_collada\model2.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\node2.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\bone2.h">
+      <Filter>model_collada</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -415,11 +421,17 @@
     <ClCompile Include="base\shadowvolume.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="model\model2.cpp">
-      <Filter>model</Filter>
+    <ClCompile Include="model_collada\mesh2.cpp">
+      <Filter>model_collada</Filter>
     </ClCompile>
-    <ClCompile Include="model\mesh2.cpp">
-      <Filter>model</Filter>
+    <ClCompile Include="model_collada\model2.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\node2.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\bone2.cpp">
+      <Filter>model_collada</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -452,6 +464,9 @@
     </Filter>
     <Filter Include="particle">
       <UniqueIdentifier>{0aebf8d1-0270-4f98-a8af-2291a0e72bb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model_collada">
+      <UniqueIdentifier>{b757e010-fd66-401f-bb9d-b6fd13760be2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

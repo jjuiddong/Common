@@ -70,13 +70,15 @@ using namespace common;
 #include "model/track.h"
 #include "model/blendtrack.h"
 #include "model/mesh.h"
-#include "model/mesh2.h"
 #include "model/rigidmesh.h"
 #include "model/skinnedmesh.h"
 #include "model/model.h"
-#include "model/model2.h"
 #include "model/bonemgr.h"
 #include "model/bonenode.h"
+
+//#include "model_collada/node2.h"
+//#include "model_collada/mesh2.h"
+//#include "model_collada/model2.h"
 
 #include "character/character.h"
 

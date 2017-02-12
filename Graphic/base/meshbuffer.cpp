@@ -8,18 +8,30 @@ using namespace graphic;
 
 cMeshBuffer::cMeshBuffer()
 :	m_offset(0)
+, m_isSkinned(false)
 {
 }
 
 cMeshBuffer::cMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh)
 :	m_offset(0)
+, m_isSkinned(false)
 {
 	CreateMesh(renderer, rawMesh);
 	CreateAttributes(rawMesh);
 }
 
+cMeshBuffer::cMeshBuffer(cRenderer &renderer, const sRawMesh2 &rawMesh)
+	: m_offset(0)
+	, m_isSkinned(false)
+{
+	CreateMesh(renderer, rawMesh);
+	//CreateAttributes(rawMesh);
+}
+
+
 cMeshBuffer::cMeshBuffer(cRenderer &renderer, const sRawBone &rawBone)
 :	m_offset(0)
+, m_isSkinned(false)
 {
 	CreateMesh(renderer, rawBone.vertices, rawBone.normals, rawBone.tex, rawBone.indices);
 }
@@ -32,7 +44,8 @@ void cMeshBuffer::Bind(cRenderer &renderer)
 }
 
 
-void cMeshBuffer::CreateMesh(cRenderer &renderer, const vector<Vector3> &vertices,
+void cMeshBuffer::CreateMesh(cRenderer &renderer, 
+	const vector<Vector3> &vertices,
 	const vector<Vector3> &normals, 
 	const vector<Vector3> &tex,
 	const vector<int> &indices)
@@ -78,96 +91,239 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer, const vector<Vector3> &vertice
 
 void cMeshBuffer::CreateMesh(cRenderer &renderer, const sRawMesh &rawMesh)
 {
-	const bool isTexture = !rawMesh.tex.empty();
-
 	cVertexDeclaration decl;
 	decl.Create( rawMesh );
 
+	CreateMesh(renderer,
+		decl,
+		rawMesh.vertices,
+		rawMesh.normals,
+		rawMesh.tex,
+		rawMesh.tangent,
+		rawMesh.binormal,
+		rawMesh.weights,
+		rawMesh.indices
+	);
+
+	//// 버텍스 버퍼 생성
+	//if (m_vtxBuff.Create(renderer, rawMesh.vertices.size(), decl.GetElementSize(), decl))
+	//{
+	//	if (BYTE* pv = (BYTE*)m_vtxBuff.Lock())
+	//	{
+	//		sMinMax minMax;
+	//		const int pos_offset = decl.GetOffset(D3DDECLUSAGE_POSITION);
+	//		for (u_int i = 0; i < rawMesh.vertices.size(); i++)
+	//		{
+	//			BYTE *vertices = pv + (decl.GetElementSize() * i);
+	//			Vector3 *position = (Vector3*)(vertices + pos_offset);
+	//			*position = rawMesh.vertices[ i];
+	//			minMax.Update(rawMesh.vertices[ i]);
+	//		}
+	//		// 경계박스 초기화.
+	//		m_boundingBox.SetBoundingBox(minMax._min, minMax._max);
+
+	//		// normal
+	//		const int norm_offset = decl.GetOffset(D3DDECLUSAGE_NORMAL);
+	//		for (u_int i = 0; i < rawMesh.normals.size(); i++)
+	//		{
+	//			BYTE *vertices = pv + (decl.GetElementSize() * i);
+	//			Vector3 *normal = (Vector3*)(vertices + norm_offset);
+	//			*normal = rawMesh.normals[ i];
+	//		}
+
+	//		// texture
+	//		const int tex_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD);
+	//		for (u_int i = 0; i < rawMesh.tex.size(); i++)
+	//		{
+	//			BYTE *vertices = pv + (decl.GetElementSize() * i);
+	//			Vector2 *tex = (Vector2*)(vertices + tex_offset);
+	//			tex->x = rawMesh.tex[ i].x;
+	//			tex->y = rawMesh.tex[ i].y;
+	//		}
+
+	//		// tagent
+	//		const int tangent_offset = decl.GetOffset(D3DDECLUSAGE_TANGENT);
+	//		for (u_int i = 0; i < rawMesh.tangent.size(); i++)
+	//		{
+	//			BYTE *vertices = pv + (decl.GetElementSize() * i);
+	//			Vector3 *tangent = (Vector3*)(vertices + tangent_offset);
+	//			*tangent = rawMesh.tangent[ i];
+	//		}
+
+	//		// binormal
+	//		const int binormal_offset = decl.GetOffset(D3DDECLUSAGE_BINORMAL);
+	//		for (u_int i = 0; i < rawMesh.binormal.size(); i++)
+	//		{
+	//			BYTE *vertices = pv + (decl.GetElementSize() * i);
+	//			Vector3 *binormal = (Vector3*)(vertices + binormal_offset);
+	//			*binormal = rawMesh.binormal[ i];
+	//		}
+
+	//		// bone weight
+	//		const int blendWeight_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD, 1);
+	//		const int blendIndices_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD, 2);
+	//		for (u_int i = 0; i < rawMesh.weights.size(); i++)
+	//		{
+	//			BYTE *vertices = pv + (decl.GetElementSize() * i);
+	//			float *vtxWeight = (float*)(vertices + blendWeight_offset); // float4
+	//			float *vtxIndices = (float*)(vertices + blendIndices_offset); // float4
+	//			
+	//			const sVertexWeight &weight = rawMesh.weights[ i];
+	//			const int vtxIdx = weight.vtxIdx;
+
+	//			ZeroMemory(vtxWeight, sizeof(float)*4);
+	//			ZeroMemory(vtxIndices,  sizeof(float)*4);
+	//			//pv[ vtxIdx].matrixIndices = 0;
+
+	//			for (int k=0; (k < weight.size) && (k < 4); ++k)
+	//			{
+	//				const sWeight *w = &weight.w[ k];
+	//				if (k < 3)
+	//				{
+	//					vtxWeight[ k] = w->weight;
+	//				}
+	//				else // k == 3 (마지막 가중치)
+	//				{
+	//					vtxWeight[ k] = 
+	//						1.f - (vtxWeight[ 0] +vtxWeight[ 1] + vtxWeight[ 2]);
+	//				}
+
+	//				vtxIndices[ k] = (float)w->bone;
+	//				//const int boneIdx = (w->bone << (8*(3-k)));
+	//				//pv[ vtxIdx].matrixIndices |= boneIdx;
+	//			}
+	//		}
+
+	//		m_vtxBuff.Unlock();
+	//	}
+	//}	
+
+	//// 인덱스 버퍼 생성.
+	//if (m_idxBuff.Create(renderer, rawMesh.indices.size()))
+	//{
+	//	WORD *pi = (WORD*)m_idxBuff.Lock();
+	//	for (u_int i = 0; i < rawMesh.indices.size(); ++i)
+	//		pi[ i] = rawMesh.indices[ i];
+	//	m_idxBuff.Unlock();
+	//}
+}
+
+void cMeshBuffer::CreateMesh(cRenderer &renderer, const sRawMesh2 &rawMesh)
+{
+	cVertexDeclaration decl;
+	decl.Create(rawMesh);
+
+	CreateMesh(renderer,
+		decl,
+		rawMesh.vertices,
+		rawMesh.normals,
+		rawMesh.tex,
+		rawMesh.tangent,
+		rawMesh.binormal,
+		rawMesh.weights,
+		rawMesh.indices
+	);
+}
+
+
+// Create Mesh
+void cMeshBuffer::CreateMesh(cRenderer &renderer,
+	const cVertexDeclaration &decl,
+	const vector<Vector3> &vertices,
+	const vector<Vector3> &normals,
+	const vector<Vector3> &tex,
+	const vector<Vector3> &tangent,
+	const vector<Vector3> &binormal,
+	const vector<sVertexWeight> &weights,
+	const vector<int> &indices)
+{
+	const bool isTexture = !tex.empty();
 
 	// 버텍스 버퍼 생성
-	if (m_vtxBuff.Create(renderer, rawMesh.vertices.size(), decl.GetElementSize(), decl))
+	if (m_vtxBuff.Create(renderer, vertices.size(), decl.GetElementSize(), decl))
 	{
 		if (BYTE* pv = (BYTE*)m_vtxBuff.Lock())
 		{
 			sMinMax minMax;
 			const int pos_offset = decl.GetOffset(D3DDECLUSAGE_POSITION);
-			for (u_int i = 0; i < rawMesh.vertices.size(); i++)
+			for (u_int i = 0; i < vertices.size(); i++)
 			{
-				BYTE *vertices = pv + (decl.GetElementSize() * i);
-				Vector3 *position = (Vector3*)(vertices + pos_offset);
-				*position = rawMesh.vertices[ i];
-				minMax.Update(rawMesh.vertices[ i]);
+				BYTE *p = pv + (decl.GetElementSize() * i);
+				Vector3 *position = (Vector3*)(p + pos_offset);
+				*position = vertices[i];
+				minMax.Update(vertices[i]);
 			}
 			// 경계박스 초기화.
 			m_boundingBox.SetBoundingBox(minMax._min, minMax._max);
 
 			// normal
 			const int norm_offset = decl.GetOffset(D3DDECLUSAGE_NORMAL);
-			for (u_int i = 0; i < rawMesh.normals.size(); i++)
+			for (u_int i = 0; i < normals.size(); i++)
 			{
-				BYTE *vertices = pv + (decl.GetElementSize() * i);
-				Vector3 *normal = (Vector3*)(vertices + norm_offset);
-				*normal = rawMesh.normals[ i];
+				BYTE *p = pv + (decl.GetElementSize() * i);
+				Vector3 *pn = (Vector3*)(p + norm_offset);
+				*pn = normals[i];
 			}
 
 			// texture
 			const int tex_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD);
-			for (u_int i = 0; i < rawMesh.tex.size(); i++)
+			for (u_int i = 0; i < tex.size(); i++)
 			{
-				BYTE *vertices = pv + (decl.GetElementSize() * i);
-				Vector2 *tex = (Vector2*)(vertices + tex_offset);
-				tex->x = rawMesh.tex[ i].x;
-				tex->y = rawMesh.tex[ i].y;
+				BYTE *p = pv + (decl.GetElementSize() * i);
+				Vector2 *pt = (Vector2*)(p + tex_offset);
+				pt->x = tex[i].x;
+				pt->y = tex[i].y;
 			}
 
 			// tagent
 			const int tangent_offset = decl.GetOffset(D3DDECLUSAGE_TANGENT);
-			for (u_int i = 0; i < rawMesh.tangent.size(); i++)
+			for (u_int i = 0; i < tangent.size(); i++)
 			{
-				BYTE *vertices = pv + (decl.GetElementSize() * i);
-				Vector3 *tangent = (Vector3*)(vertices + tangent_offset);
-				*tangent = rawMesh.tangent[ i];
+				BYTE *p = pv + (decl.GetElementSize() * i);
+				Vector3 *pt = (Vector3*)(p + tangent_offset);
+				*pt = tangent[i];
 			}
 
 			// binormal
 			const int binormal_offset = decl.GetOffset(D3DDECLUSAGE_BINORMAL);
-			for (u_int i = 0; i < rawMesh.binormal.size(); i++)
+			for (u_int i = 0; i < binormal.size(); i++)
 			{
-				BYTE *vertices = pv + (decl.GetElementSize() * i);
-				Vector3 *binormal = (Vector3*)(vertices + binormal_offset);
-				*binormal = rawMesh.binormal[ i];
+				BYTE *p = pv + (decl.GetElementSize() * i);
+				Vector3 *pb = (Vector3*)(p + binormal_offset);
+				*pb = binormal[i];
 			}
 
 			// bone weight
+			m_isSkinned = !weights.empty();
 			const int blendWeight_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD, 1);
 			const int blendIndices_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD, 2);
-			for (u_int i = 0; i < rawMesh.weights.size(); i++)
+			for (u_int i = 0; i < weights.size(); i++)
 			{
-				BYTE *vertices = pv + (decl.GetElementSize() * i);
-				float *vtxWeight = (float*)(vertices + blendWeight_offset); // float4
-				float *vtxIndices = (float*)(vertices + blendIndices_offset); // float4
-				
-				const sVertexWeight &weight = rawMesh.weights[ i];
+				BYTE *p = pv + (decl.GetElementSize() * i);
+				float *vtxWeight = (float*)(p + blendWeight_offset); // float4
+				float *vtxIndices = (float*)(p + blendIndices_offset); // float4
+
+				const sVertexWeight &weight = weights[i];
 				const int vtxIdx = weight.vtxIdx;
 
-				ZeroMemory(vtxWeight, sizeof(float)*4);
-				ZeroMemory(vtxIndices,  sizeof(float)*4);
+				ZeroMemory(vtxWeight, sizeof(float) * 4);
+				ZeroMemory(vtxIndices, sizeof(float) * 4);
 				//pv[ vtxIdx].matrixIndices = 0;
 
-				for (int k=0; (k < weight.size) && (k < 4); ++k)
+				for (int k = 0; (k < weight.size) && (k < 4); ++k)
 				{
-					const sWeight *w = &weight.w[ k];
+					const sWeight *w = &weight.w[k];
 					if (k < 3)
 					{
-						vtxWeight[ k] = w->weight;
+						vtxWeight[k] = w->weight;
 					}
 					else // k == 3 (마지막 가중치)
 					{
-						vtxWeight[ k] = 
-							1.f - (vtxWeight[ 0] +vtxWeight[ 1] + vtxWeight[ 2]);
+						vtxWeight[k] =
+							1.f - (vtxWeight[0] + vtxWeight[1] + vtxWeight[2]);
 					}
 
-					vtxIndices[ k] = (float)w->bone;
+					vtxIndices[k] = (float)w->bone;
 					//const int boneIdx = (w->bone << (8*(3-k)));
 					//pv[ vtxIdx].matrixIndices |= boneIdx;
 				}
@@ -175,14 +331,14 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer, const sRawMesh &rawMesh)
 
 			m_vtxBuff.Unlock();
 		}
-	}	
+	}
 
 	// 인덱스 버퍼 생성.
-	if (m_idxBuff.Create(renderer, rawMesh.indices.size()))
+	if (m_idxBuff.Create(renderer, indices.size()))
 	{
 		WORD *pi = (WORD*)m_idxBuff.Lock();
-		for (u_int i = 0; i < rawMesh.indices.size(); ++i)
-			pi[ i] = rawMesh.indices[ i];
+		for (u_int i = 0; i < indices.size(); ++i)
+			pi[i] = indices[i];
 		m_idxBuff.Unlock();
 	}
 }

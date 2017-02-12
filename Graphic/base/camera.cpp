@@ -86,6 +86,16 @@ void cCamera::UpdateViewMatrix()
 	RET(!m_renderer);
 
 	m_view.SetView2(m_eyePos, m_lookAt, m_up);
+
+	// Update Up Vector
+	Vector3 dir = m_lookAt - m_eyePos;
+	dir.Normalize();
+	Vector3 right = m_up.CrossProduct(dir);
+	right.Normalize();
+	m_up = dir.CrossProduct(right);
+	m_up.Normalize();
+	//
+
 	if (m_renderer->GetDevice())
 		m_renderer->GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
 }

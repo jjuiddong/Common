@@ -13,12 +13,24 @@ namespace graphic
 		virtual ~cVertexDeclaration();
 
 		bool Create(const sRawMesh &rawMesh );
-		int GetOffset( const BYTE usage, const BYTE usageIndex=0 );
+		bool Create(const sRawMesh2 &rawMesh);
+		int GetOffset( const BYTE usage, const BYTE usageIndex=0 ) const;
 		const vector<D3DVERTEXELEMENT9>& GetDecl() const;
 		int GetElementSize() const;
 
 
-	private:
+	protected:
+		void CreateDecl(
+			const vector<Vector3> &vertices,
+			const vector<Vector3> &normals,
+			const vector<Vector3> &tex,
+			const vector<Vector3> &tangent,
+			const vector<Vector3> &binormal,
+			const vector<sVertexWeight> &weights
+			);
+
+
+	public:
 		vector<D3DVERTEXELEMENT9> m_decl;
 		int m_elementSize;
 	};

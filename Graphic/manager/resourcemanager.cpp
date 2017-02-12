@@ -127,17 +127,17 @@ bool cResourceManager::LoadModel2(sRawMeshGroup2 *meshes)
 	if (sRawMeshGroup2 *data = FindModel2(meshes->name))
 		return false;
 
-	// 메쉬 이름 설정 fileName::meshName
-	for (u_int i = 0; i < meshes->meshes.size(); ++i)
-	{
-		sRawMesh2 &mesh = meshes->meshes[i];
+	//// 메쉬 이름 설정 fileName::meshName
+	//for (u_int i = 0; i < meshes->meshes.size(); ++i)
+	//{
+	//	sRawMesh2 &mesh = meshes->meshes[i];
 
-		mesh.name = meshes->name + "::" + mesh.name;
-		//if (mesh.mtrlId >= 0)
-		//{ // 메터리얼 설정.
-		//	//mesh.mtrl = meshes->mtrls[mesh.mtrlId];
-		//}
-	}
+	//	mesh.name = meshes->name + "::" + mesh.name;
+	//	//if (mesh.mtrlId >= 0)
+	//	//{ // 메터리얼 설정.
+	//	//	//mesh.mtrl = meshes->mtrls[mesh.mtrlId];
+	//	//}
+	//}
 
 	m_meshes2[meshes->name] = meshes;
 	return true;

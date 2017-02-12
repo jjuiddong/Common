@@ -97,26 +97,33 @@ namespace graphic
 	// Collada Format Version
 	struct sRawMesh2
 	{
-		string name;	// filename::mesh name
 		vector<Vector3> vertices;
 		vector<Vector3> normals; // vertex 갯수만큼 저장된다.
 		vector<Vector3> tangent; // vertex 갯수만큼 저장된다.
 		vector<Vector3> binormal; // vertex 갯수만큼 저장된다.
-		vector<Vector3> tex;
+		vector<Vector3> tex; // vertex 갯수만큼 저장된다.
 		vector<int> indices;
 		vector<sAttribute> attributes;
 		vector<sVertexWeight> weights;
 		vector<sRawBone> bones;
 		sMaterial mtrl;
-		vector<sRawMesh2*> children;
+	};
+
+	struct sRawNode
+	{
+		int id;
+		string name;
+		Matrix44 localTm;
+		vector<sRawMesh2> meshes;
+		vector<sRawNode> children;
 	};
 
 	// 모델하나의 정보를 저장하는 자료구조.
 	struct sRawMeshGroup2
 	{
 		string name;
-		vector<sRawMesh2*> meshes;
-		vector<sMaterial> mtrls;
+		int nodeCount;
+		sRawNode root;
 	};
 
 }
