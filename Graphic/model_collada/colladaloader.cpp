@@ -445,7 +445,7 @@ void cColladaLoader::CreateAnimation()
 
 		m_rawAnies = new sRawAniGroup;
 		m_rawAnies->type = sRawAniGroup::BONE_ANI;
-		m_rawAnies->name = m_fileName + "::" + sourceAnimation->mName.data;
+		m_rawAnies->name = GetFileName(m_fileName) + "::" + sourceAnimation->mName.data;
 		m_rawAnies->anies.resize(m_rawMeshes->bones.size());
 
 		for (UINT a = 0; a < sourceAnimation->mNumChannels; a++)

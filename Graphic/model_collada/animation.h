@@ -15,12 +15,7 @@ namespace graphic
 
 
 	public:
-		//const sRawAniGroup *m_rawAnies; // reference
-		//const sRawAniGroup *m_rawAnies2; // reference
 		cSkeleton *m_skeleton; // reference
-		//vector<cAnimationNode> m_anies;
-		//vector<cAnimationNode> m_anies2;
-		
 		vector<vector<cAnimationNode>> m_anies;
 
 		bool m_isMergeAni;
