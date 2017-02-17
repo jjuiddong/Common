@@ -214,16 +214,22 @@
     <ClInclude Include="base\shadowvolume.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="model_collada\skeleton.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\animation.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\animationnode.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
     <ClInclude Include="model_collada\mesh2.h">
       <Filter>model_collada</Filter>
     </ClInclude>
     <ClInclude Include="model_collada\model2.h">
       <Filter>model_collada</Filter>
     </ClInclude>
-    <ClInclude Include="model_collada\node2.h">
-      <Filter>model_collada</Filter>
-    </ClInclude>
-    <ClInclude Include="model_collada\bone2.h">
+    <ClInclude Include="model_collada\colladaloader.h">
       <Filter>model_collada</Filter>
     </ClInclude>
   </ItemGroup>
@@ -421,16 +427,22 @@
     <ClCompile Include="base\shadowvolume.cpp">
       <Filter>base</Filter>
     </ClCompile>
+    <ClCompile Include="model_collada\skeleton.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\animation.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\animationnode.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
     <ClCompile Include="model_collada\mesh2.cpp">
       <Filter>model_collada</Filter>
     </ClCompile>
     <ClCompile Include="model_collada\model2.cpp">
       <Filter>model_collada</Filter>
     </ClCompile>
-    <ClCompile Include="model_collada\node2.cpp">
-      <Filter>model_collada</Filter>
-    </ClCompile>
-    <ClCompile Include="model_collada\bone2.cpp">
+    <ClCompile Include="model_collada\colladaloader.cpp">
       <Filter>model_collada</Filter>
     </ClCompile>
   </ItemGroup>

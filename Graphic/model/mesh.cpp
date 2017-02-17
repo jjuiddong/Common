@@ -10,6 +10,7 @@ cMesh::cMesh(cRenderer &renderer, const int id, const sRawMesh &rawMesh) :
 ,	m_buffers(NULL)
 ,	m_isBoneMesh(false)
 {
+	m_localTM = rawMesh.localTm;
 	CreateMaterials(renderer, rawMesh);
 
 	m_buffers = cResourceManager::Get()->LoadMeshBuffer(renderer, rawMesh.name);
@@ -88,13 +89,6 @@ void cMesh::Render(cRenderer &renderer, const Matrix44 &parentTm)
 	RET(!IsRender());
 	RET(!m_buffers);
 
-	//if (m_shader)
-	//{
-	//	RenderShader(*m_shader, parentTm);
-	//	return;
-	//}
-
-
 	if (m_buffers->GetAttributes().empty())
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
@@ -130,7 +124,6 @@ void cMesh::Render(cRenderer &renderer, const Matrix44 &parentTm)
 				m_buffers->GetAttributes()[ i].faceCount);
 		}
 	}
-
 }
 
 
@@ -259,17 +252,17 @@ void cMesh::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 	const cLight &mainLight = cLightManager::Get()->GetMainLight();
 	mainLight.Bind(*m_shader);
 
-	m_shader->SetMatrix( "mVP", viewProj);
-	m_shader->SetVector( "vEyePos", lightPos);
+	m_shader->SetMatrix( "g_mVP", viewProj);
+	m_shader->SetVector( "g_vEyePos", lightPos);
 
 	if (m_buffers->GetAttributes().empty())
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
-		m_shader->SetMatrix("mWorld", tm);
+		m_shader->SetMatrix("g_mWorld", tm);
 
 		Matrix44 wit = tm.Inverse();
 		wit.Transpose();
-		m_shader->SetMatrix("mWIT", wit);
+		m_shader->SetMatrix("g_mWIT", wit);
 
 		m_buffers->Bind(renderer);
 
@@ -287,11 +280,11 @@ void cMesh::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 	else
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
-		m_shader->SetMatrix("mWorld", tm);
+		m_shader->SetMatrix("g_mWorld", tm);
 
 		Matrix44 wit = tm.Inverse();
 		wit.Transpose();
-		m_shader->SetMatrix("mWIT", wit);
+		m_shader->SetMatrix("g_mWIT", wit);
 
 		m_shader->Begin();
 

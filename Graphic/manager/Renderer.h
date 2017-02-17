@@ -26,7 +26,7 @@ namespace graphic
 		void SetCullMode(const D3DCULL cull);
 		void SetFillMode(const D3DFILLMODE mode);
 		void SetNormalizeNormals(const bool value);
-
+		void SetAlphaBlend(const bool value);
 
 	protected:
 		void MakeGrid( const float width, const int count, DWORD color, vector<sVertexDiffuse> &out );

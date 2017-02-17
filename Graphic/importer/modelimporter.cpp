@@ -98,6 +98,7 @@ bool importer::ReadRawMeshFile( const string &fileName, OUT sRawMeshGroup &rawMe
 	else 
 	{
 		::MessageBoxA(NULL, "지원하지 않는 포맷 입니다.", "Error", MB_OK);
+		return false;
 	}
 
 	return true;

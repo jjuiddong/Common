@@ -119,10 +119,10 @@ bool cBoneMgr::Update(const float deltaSeconds)
 
 
 // ½ºÄÌ·¹Åæ Ãâ·Â.
-void cBoneMgr::Render(cRenderer &renderer, const Matrix44 &parentTm)
+void cBoneMgr::Render(cRenderer &renderer, const Matrix44 &tm)
 {
 	RET(!m_root);
-	m_root->Render(renderer, parentTm);
+	m_root->Render(renderer, tm);
 }
 
 //void cBoneMgr::RenderShader(cShader &shader, const Matrix44 &parentTm)

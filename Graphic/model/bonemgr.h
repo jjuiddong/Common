@@ -16,7 +16,7 @@ namespace graphic
 			const bool isLoop=false, const bool isBlend=true);
 
 		bool Update(const float deltaSeconds);
-		void Render(cRenderer &renderer, const Matrix44 &parentTm);
+		void Render(cRenderer &renderer, const Matrix44 &tm);
 		//void RenderShader(cShader &shader, const Matrix44 &parentTm);
 
 		void UpdatePalette();

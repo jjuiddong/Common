@@ -54,6 +54,7 @@ namespace graphic
 		int id;
 		int parentId;
 		string name;
+		Matrix44 offset; // collada
 		Matrix44 localTm;
 		Matrix44 worldTm;
 
@@ -68,6 +69,7 @@ namespace graphic
 	struct sRawMesh
 	{
 		string name;	// filename::mesh name
+		Matrix44 localTm;
 		vector<Vector3> vertices;
 		vector<Vector3> normals; // vertex 갯수만큼 저장된다.
 		vector<Vector3> tangent; // vertex 갯수만큼 저장된다.
@@ -95,8 +97,25 @@ namespace graphic
 
 	//------------------------------------------------------------------------------------------------------
 	// Collada Format Version
+	struct sRawBone2
+	{
+		int id;
+		int parentId;
+		string name;
+		Matrix44 localTm;
+		Matrix44 offsetTm;
+	};
+
+	struct sMeshBone
+	{
+		int id; // global bone palette id
+		string name;
+		Matrix44 offsetTm;
+	};
+
 	struct sRawMesh2
 	{
+		string name;
 		vector<Vector3> vertices;
 		vector<Vector3> normals; // vertex 갯수만큼 저장된다.
 		vector<Vector3> tangent; // vertex 갯수만큼 저장된다.
@@ -104,26 +123,20 @@ namespace graphic
 		vector<Vector3> tex; // vertex 갯수만큼 저장된다.
 		vector<int> indices;
 		vector<sAttribute> attributes;
-		vector<sVertexWeight> weights;
-		vector<sRawBone> bones;
+		vector<sVertexWeight> weights; // vertex 갯수만큼 저장된다.
+		vector<sMeshBone> bones;
 		sMaterial mtrl;
-	};
-
-	struct sRawNode
-	{
-		int id;
-		string name;
 		Matrix44 localTm;
-		vector<sRawMesh2> meshes;
-		vector<sRawNode> children;
 	};
 
-	// 모델하나의 정보를 저장하는 자료구조.
 	struct sRawMeshGroup2
 	{
 		string name;
-		int nodeCount;
-		sRawNode root;
+		string animationName; // set by Resource Manager
+		vector<sRawMesh2> meshes;
+		vector<sRawBone2> bones;
 	};
+	//------------------------------------------------------------------------------------------------------
+
 
 }

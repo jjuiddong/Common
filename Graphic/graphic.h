@@ -76,9 +76,12 @@ using namespace common;
 #include "model/bonemgr.h"
 #include "model/bonenode.h"
 
-//#include "model_collada/node2.h"
-//#include "model_collada/mesh2.h"
-//#include "model_collada/model2.h"
+#include "model_collada/skeleton.h"
+#include "model_collada/animationnode.h"
+#include "model_collada/animation.h"
+#include "model_collada/mesh2.h"
+#include "model_collada/model2.h"
+#include "model_collada/colladaloader.h"
 
 #include "character/character.h"
 

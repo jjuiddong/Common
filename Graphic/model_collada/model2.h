@@ -1,12 +1,12 @@
 //
-// 2017-02-10, jjuiddong
-// collada export model
+// 2017-02-16, jjuiddong
+// collada model
+// collada architecture model
 //
 #pragma once
 
-#include "node2.h"
 
-namespace graphic 
+namespace graphic
 {
 
 	class cModel2
@@ -14,11 +14,10 @@ namespace graphic
 	public:
 		cModel2();
 		virtual ~cModel2();
-
-		virtual bool Create(cRenderer &renderer, const string &modelName,
-			MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO, const bool isLoadShader = true);
-		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		bool Create(cRenderer &renderer, const string &fileName);
+		bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		bool Update(const float deltaSeconds);
+		void SetAnimation(const string &animationName, const bool isMerge=false);
 		void Clear();
 
 
@@ -27,9 +26,11 @@ namespace graphic
 
 
 	public:
-		cNode2 *m_root;
-		vector<Matrix44> m_tmPalette; // cNode2 id is Index
+		vector<cMesh2*> m_meshes;
+		cSkeleton m_skeleton;
+		cAnimation m_animation;
 		cBoundingBox m_boundingBox;
+		string m_storedAnimationName;
 	};
 
 }

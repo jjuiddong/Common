@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "mesh2.h"
-#include "bone2.h"
+#include "skeleton.h"
 
 using namespace graphic;
 
@@ -9,7 +9,7 @@ using namespace graphic;
 cMesh2::cMesh2()
 	: m_buffers(NULL)
 	, m_skinnedBuffers(NULL)
-	, m_tmPalette(NULL)
+	, m_skeleton(NULL)
 {
 }
 
@@ -20,27 +20,21 @@ cMesh2::~cMesh2()
 
 
 // Create Mesh
-bool cMesh2::Create(cRenderer &renderer, const sRawMesh2 mesh, vector<Matrix44> *tmPalette)
+bool cMesh2::Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skeleton)
 {
 	Clear();
 
-	m_tmPalette = tmPalette;
+	m_name = mesh.name;
+	m_skeleton = skeleton;
+	m_bones = mesh.bones;
+	m_localTm = mesh.localTm;
 
 	CreateMaterials(renderer, mesh);
 	
 	m_buffers = new cMeshBuffer(renderer, mesh);
 
-	// Create Bone
-	m_bones.reserve(mesh.bones.size());
-	for (auto &bone : mesh.bones)
-	{
-		cBoneNode2 *p = new cBoneNode2();
-		p->Create(bone);
-		m_bones.push_back(p);
-	}
-
 	// Create Skinned Mesh
-	if (m_buffers->m_isSkinned && !m_bones.empty())
+	if (skeleton && m_buffers->m_isSkinned)
 		m_skinnedBuffers = new cMeshBuffer(renderer, mesh);
 
 	return true;
@@ -75,8 +69,8 @@ void cMesh2::Render(cRenderer &renderer, const Matrix44 &tm)
 {
 	RET(!m_buffers);
 
-	//const Matrix44 m = m_localTM * m_aniTM * m_TM * tm;
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&tm);
+	const Matrix44 m = m_localTm * tm;
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&m);
 
 	if (!m_mtrls.empty())
 		m_mtrls[0].Bind(renderer);
@@ -105,6 +99,8 @@ bool cMesh2::Update(const float deltaSeconds)
 	{
 		cVertexBuffer &srcVtxBuffer = m_buffers->GetVertexBuffer();
 		cVertexBuffer &dstVtxBuffer = m_skinnedBuffers->GetVertexBuffer();
+		vector<Matrix44> &tmPalette = m_skeleton->m_tmPose;
+
 		const int pos_offset = srcVtxBuffer.GetOffset(D3DDECLUSAGE_POSITION);
 		const int normal_offset = srcVtxBuffer.GetOffset(D3DDECLUSAGE_NORMAL);
 		const int blendWeight_offset = srcVtxBuffer.GetOffset(D3DDECLUSAGE_TEXCOORD, 1);
@@ -124,23 +120,18 @@ bool cMesh2::Update(const float deltaSeconds)
 			float *weight = (float*)(src + (i*stride) + blendWeight_offset);
 			float *boneIndices = (float*)(src + (i*stride) + blendIndices_offset);
 
-			const Matrix44 &m0 = (*m_tmPalette)[(int)boneIndices[0]];
-			const Matrix44 &m1 = (*m_tmPalette)[(int)boneIndices[1]];
-			const Matrix44 &m2 = (*m_tmPalette)[(int)boneIndices[2]];
-			const Matrix44 &m3 = (*m_tmPalette)[(int)boneIndices[3]];
-
-			const Vector3 p1 = (p * m0) * weight[0];
-			const Vector3 p2 = (p * m1) * weight[1];
-			const Vector3 p3 = (p * m2) * weight[2];
-			const Vector3 p4 = (p * m3) * weight[3];
-
-			const Vector3 n1 = n.MultiplyNormal(m0) * weight[0];
-			const Vector3 n2 = n.MultiplyNormal(m1) * weight[1];
-			const Vector3 n3 = n.MultiplyNormal(m2) * weight[2];
-			const Vector3 n4 = n.MultiplyNormal(m3) * weight[3];
-
-			p_ = p1 + p2 + p3 + p4;
-			n_ = n1 + n2 + n3 + n4;
+			p_ = Vector3(0, 0, 0);
+			n_ = Vector3(0, 0, 0);
+			for (u_int k = 0; k < m_bones.size(); ++k)
+			{
+				const Matrix44 &m = tmPalette[m_bones[(int)boneIndices[k]].id];
+				const Matrix44 &offset = m_bones[(int)boneIndices[k]].offsetTm;
+				const Matrix44 tm = offset * m;
+				const Vector3 p1 = (p * tm) * weight[k];
+				const Vector3 n1 = n.MultiplyNormal(tm) * weight[k];
+				p_ += p1;
+				n_ += n1;
+			}
 		}		
 
 		srcVtxBuffer.Unlock();
@@ -161,8 +152,4 @@ void cMesh2::Clear()
 	m_normalMap.clear();
 	m_specularMap.clear();
 	m_selfIllumMap.clear();
-
-	for (auto &p : m_bones)
-		delete p;
-	m_bones.clear();
 }

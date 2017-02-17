@@ -90,58 +90,45 @@ sRawMeshGroup2* cResourceManager::LoadModel2(const string &fileName)
 	if (sRawMeshGroup2 *data = FindModel2(fileName))
 		return data;
 
-	sRawMeshGroup2 *meshes = new sRawMeshGroup2;
-	meshes->name = fileName;
+	cColladaLoader loader;
+	if (!loader.Create(fileName))
+		return NULL;
 
-	//if (!importer::ReadRawMeshFile(fileName, *meshes))
-	//{
-	//	string newPath;
-	//	if (common::FindFile(fileName, m_mediaDirectory, newPath))
-	//	{
-	//		if (!importer::ReadRawMeshFile(newPath, *meshes))
-	//		{
-	//			goto error;
-	//		}
-	//	}
-	//	else
-	//	{
-	//		goto error;
-	//	}
-	//}
+	if (loader.m_rawMeshes)
+		m_meshes2[fileName] = loader.m_rawMeshes;
+	if (loader.m_rawAnies)
+	{
+		loader.m_rawMeshes->animationName = loader.m_rawAnies->name;
+		m_anies[loader.m_rawAnies->name] = loader.m_rawAnies;
+	}
 
-	LoadModel2(meshes);
-	return meshes;
-
-//error:
-//	delete meshes;
-//	dbg::ErrLog("Error!! LoadModel2() [%s] \n", fileName.c_str());
-//	return NULL;
+	return loader.m_rawMeshes;
 }
 
 
 // 외부에서 로딩한 메쉬를 저장한다.
-bool cResourceManager::LoadModel2(sRawMeshGroup2 *meshes)
-{
-	RETV(!meshes, false);
-
-	if (sRawMeshGroup2 *data = FindModel2(meshes->name))
-		return false;
-
-	//// 메쉬 이름 설정 fileName::meshName
-	//for (u_int i = 0; i < meshes->meshes.size(); ++i)
-	//{
-	//	sRawMesh2 &mesh = meshes->meshes[i];
-
-	//	mesh.name = meshes->name + "::" + mesh.name;
-	//	//if (mesh.mtrlId >= 0)
-	//	//{ // 메터리얼 설정.
-	//	//	//mesh.mtrl = meshes->mtrls[mesh.mtrlId];
-	//	//}
-	//}
-
-	m_meshes2[meshes->name] = meshes;
-	return true;
-}
+//bool cResourceManager::LoadModel2(sRawMeshGroup2 *meshes)
+//{
+//	RETV(!meshes, false);
+//
+//	if (sRawMeshGroup2 *data = FindModel2(meshes->name))
+//		return false;
+//
+//	//// 메쉬 이름 설정 fileName::meshName
+//	//for (u_int i = 0; i < meshes->meshes.size(); ++i)
+//	//{
+//	//	sRawMesh2 &mesh = meshes->meshes[i];
+//
+//	//	mesh.name = meshes->name + "::" + mesh.name;
+//	//	//if (mesh.mtrlId >= 0)
+//	//	//{ // 메터리얼 설정.
+//	//	//	//mesh.mtrl = meshes->mtrls[mesh.mtrlId];
+//	//	//}
+//	//}
+//
+//	m_meshes2[meshes->name] = meshes;
+//	return true;
+//}
 
 
 // 애니메이션 파일 로딩.
@@ -419,11 +406,11 @@ void cResourceManager::Clear()
 	m_meshes.clear();
 
 	// remove raw mesh2
-	for each (auto kv in m_meshes2)
-	{
-		delete kv.second;
-	}
-	m_meshes2.clear();
+	//for each (auto kv in m_meshes2)
+	//{
+	//	delete kv.second;
+	//}
+	//m_meshes2.clear();
 
 	// remove texture
 	for each (auto kv in m_textures)

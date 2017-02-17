@@ -88,7 +88,11 @@ bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TY
 		if (MODEL_TYPE::RIGID == m_type)
 			SetShader( cResourceManager::Get()->LoadShader(renderer, "hlsl_rigid_phong.fx") );
 		else
-			SetShader(cResourceManager::Get()->LoadShader(renderer, "hlsl_skinning_using_texcoord_unlit.fx"));
+		{
+
+		}
+			//SetShader(cResourceManager::Get()->LoadShader(renderer, "hlsl_skinning_using_texcoord_sc2.fx"));
+			//SetShader(cResourceManager::Get()->LoadShader(renderer, "hlsl_skinning_using_texcoord_unlit.fx"));
 	}
 
 	// 모델 충돌 박스를 생성한다.

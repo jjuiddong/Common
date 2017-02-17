@@ -250,3 +250,7 @@ void cRenderer::SetNormalizeNormals(const bool value)
 {
 	GetDevice()->SetRenderState(D3DRS_NORMALIZENORMALS, value? TRUE : FALSE);
 }
+void cRenderer::SetAlphaBlend(const bool value)
+{
+	GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, value ? TRUE : FALSE);
+}

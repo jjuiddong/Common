@@ -17,7 +17,7 @@ namespace graphic
 			const int totalAniFrame, const bool isLoop=false, const bool isBlend=true );
 
 		virtual bool Update(const float deltaSeconds) override;
-		virtual void Render(cRenderer &renderer, const Matrix44 &parentTm) override;
+		virtual void Render(cRenderer &renderer, const Matrix44 &tm) override;
 
 		void SetAccTM(const Matrix44 &mat);
 		const Matrix44& GetAccTM() const;

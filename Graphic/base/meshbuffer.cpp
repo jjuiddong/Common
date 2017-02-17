@@ -208,6 +208,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer, const sRawMesh &rawMesh)
 	//}
 }
 
+
 void cMeshBuffer::CreateMesh(cRenderer &renderer, const sRawMesh2 &rawMesh)
 {
 	cVertexDeclaration decl;

@@ -15,6 +15,9 @@ cBoneNode::cBoneNode(cRenderer &renderer, const int id, vector<Matrix44> &palett
 	m_offset = rawBone.worldTm.Inverse();
 	m_localTM = rawBone.localTm;
 
+	//m_offset = rawBone.worldTm;
+	//m_localTM = Matrix44::Identity;
+
 	m_track = new cBlendTrack();
 
 	// debug 용
@@ -81,18 +84,18 @@ bool cBoneNode::Update(const float deltaSeconds)
 
 
 // 뼈 노드 출력
-void cBoneNode::Render(cRenderer &renderer, const Matrix44 &parentTm)
+void cBoneNode::Render(cRenderer &renderer, const Matrix44 &tm)
 {
 	RET(!m_mesh);
 
 	// 본 노드 메쉬는 world 좌표계로 되어있기 때문에 그냥 그리면 된다.
 	if (m_track)
-		m_mesh->Render(renderer, m_offset * m_accTM * parentTm);
+		m_mesh->Render(renderer, m_offset * m_accTM * tm);
 	else
-		m_mesh->Render(renderer, parentTm);
+		m_mesh->Render(renderer, tm);
 
 	for each (auto p in m_children)
-		p->Render( renderer, parentTm );
+		p->Render( renderer, tm);
 }
 
 

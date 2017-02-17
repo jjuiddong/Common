@@ -182,6 +182,7 @@
       <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)AssImp\include\assimp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -273,6 +274,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)AssImp\include\assimp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -397,10 +399,12 @@
     <ClInclude Include="model\rigidmesh.h" />
     <ClInclude Include="model\skinnedmesh.h" />
     <ClInclude Include="model\track.h" />
-    <ClInclude Include="model_collada\bone2.h" />
+    <ClInclude Include="model_collada\animation.h" />
+    <ClInclude Include="model_collada\animationnode.h" />
+    <ClInclude Include="model_collada\colladaloader.h" />
     <ClInclude Include="model_collada\mesh2.h" />
     <ClInclude Include="model_collada\model2.h" />
-    <ClInclude Include="model_collada\node2.h" />
+    <ClInclude Include="model_collada\skeleton.h" />
     <ClInclude Include="particle\particles.h" />
     <ClInclude Include="particle\snow.h" />
     <ClInclude Include="sprite\sprite.h" />
@@ -470,10 +474,12 @@
     <ClCompile Include="model\rigidmesh.cpp" />
     <ClCompile Include="model\skinnedmesh.cpp" />
     <ClCompile Include="model\track.cpp" />
-    <ClCompile Include="model_collada\bone2.cpp" />
+    <ClCompile Include="model_collada\animation.cpp" />
+    <ClCompile Include="model_collada\animationnode.cpp" />
+    <ClCompile Include="model_collada\colladaloader.cpp" />
     <ClCompile Include="model_collada\mesh2.cpp" />
     <ClCompile Include="model_collada\model2.cpp" />
-    <ClCompile Include="model_collada\node2.cpp" />
+    <ClCompile Include="model_collada\skeleton.cpp" />
     <ClCompile Include="particle\particles.cpp" />
     <ClCompile Include="particle\snow.cpp" />
     <ClCompile Include="sprite\sprite.cpp" />
