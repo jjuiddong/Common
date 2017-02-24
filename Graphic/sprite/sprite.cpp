@@ -4,96 +4,71 @@
 
 using namespace graphic;
 
+cSprite cSprite::NullSprite;
 
-cSprite::cSprite(LPD3DXSPRITE sprite, const int id, const string &name) : 
-	cNode(id, name)
-,	m_sprite(sprite)
-,	m_texture(NULL)
-,	m_pos(Vector3(0,0,0))
-,	m_scale(Vector3(1,1,1))
-,	m_color(D3DCOLOR_XRGB(255,255,255))
+
+cSprite::cSprite()
+	: m_p(NULL)
 {
-	::SetRect(&m_rect, 0, 0, 0, 0);
 }
 
 cSprite::~cSprite()
 {
-
+	Clear();
 }
 
 
-void cSprite::SetTexture(cRenderer &renderer, const string &fileName)
+bool cSprite::Create(cRenderer &renderer)
 {
-	m_texture = cResourceManager::Get()->LoadTexture(renderer, fileName, false);
-	if (m_texture)
-	{
-		//if (::IsRectEmpty(&m_rect))
-		{
-			m_rect.SetWidth(m_texture->GetImageInfo().Width);
-			m_rect.SetHeight(m_texture->GetImageInfo().Height);
-		}		
-	}
+	Clear();
+
+	const HRESULT hr = D3DXCreateSprite(renderer.GetDevice(), &m_p);
+	if (FAILED(hr))
+		return false;
+
+	return true;
 }
 
 
-void cSprite::SetCenter(const Vector3 &center) // x,y = 0~1
+void cSprite::Render(cTexture &texture, const sRect &rect, const Vector3 &center, const D3DCOLOR color, 
+	const Matrix44 &tm)
+// tm = Matrix44::Identity
 {
-	m_center = Vector3(m_rect.Width()*center.x, m_rect.Height()*center.y, 0);
+	RET(!m_p);
+	
+	m_p->SetTransform((D3DXMATRIX*)&tm);
+	m_p->Draw(texture.GetTexture(), &rect, (D3DXVECTOR3*)&center, NULL, color);
 }
 
 
-void cSprite::Render(cRenderer &renderer, const Matrix44 &parentTm)
+void cSprite::Begin()
 {
-	RET(!m_sprite);
-
-	Matrix44 S, T;
-	S.SetScale(m_scale);
-	T.SetTranslate(m_pos);
-
-	m_accTM = T * parentTm;
-	Matrix44 tm = S * m_accTM;
-
-	if (m_texture)
-	{
-		m_sprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
-		renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_BORDER);
-		renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_BORDER);
-
-		m_sprite->SetTransform((D3DXMATRIX*)&tm);
-		m_sprite->Draw(m_texture->GetTexture(), &m_rect, (D3DXVECTOR3*)&m_center, 
-			NULL, m_color);
-		m_sprite->End();
-	}
-
-	// 자식노드들의 Render를 호출한다.
-	cNode::Render(renderer, m_accTM);
+	RET(!m_p);
+	m_p->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 }
 
 
-// screen pixel 좌표 pos 값이 스프라이트 안에 있다면 true를 리턴한다.
-bool cSprite::IsContain(const Vector2 &pos)
+void cSprite::End()
 {
-	Vector3 leftTop(0,0,0);
-	Vector3 rightBottom = Vector3((float)m_rect.Width(), (float)m_rect.Height(), 0);
-
-	Matrix44 S;
-	S.SetScale(m_scale);
-	Matrix44 C;
-	C.SetTranslate(-m_center);
-	Matrix44 tm = S * C * m_accTM;
-	leftTop *= tm;
-	rightBottom *= tm;
-
-	return ((leftTop.x <= pos.x) &&
-		(leftTop.y <= pos.y) &&
-		(rightBottom.x >= pos.x) &&
-		(rightBottom.y >= pos.y));
+	RET(!m_p);
+	m_p->End();
 }
 
 
 void cSprite::Clear()
 {
-	m_texture = NULL;
+	SAFE_RELEASE(m_p);
+}
+
+void cSprite::LostDevice()
+{
+	if (m_p)
+		m_p->OnLostDevice();
 }
 
 
+void cSprite::ResetDevice(cRenderer &renderer)
+{
+	if (m_p)
+		m_p->OnResetDevice();
+}

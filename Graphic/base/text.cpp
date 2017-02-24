@@ -64,3 +64,17 @@ void cText::Clear()
 {
 	SAFE_RELEASE(m_font);
 }
+
+
+void cText::LostDevice()
+{
+	if (m_font)
+		m_font->OnLostDevice();
+}
+
+
+void cText::ResetDevice(cRenderer &renderer)
+{
+	if (m_font)
+		m_font->OnResetDevice();
+}

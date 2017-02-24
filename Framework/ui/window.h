@@ -10,10 +10,10 @@ namespace framework
 {
 
 	class cWindow : public framework::cEventHandler
-							, public graphic::cSprite
+							, public graphic::cSprite2
 	{
 	public:
-		cWindow(LPD3DXSPRITE sprite, const int id, const string &name="window");
+		cWindow(graphic::cSprite &sprite, const int id, const string &name="window");
 		virtual ~cWindow();
 
 		virtual bool Init(graphic::cRenderer &renderer);
@@ -21,9 +21,12 @@ namespace framework
 		virtual void Render(graphic::cRenderer &renderer, const Matrix44 &parentTm) override;
 		virtual bool MessageProc( UINT message, WPARAM wParam, LPARAM lParam);
 
+
 	protected:
 		bool DispatchEvent( cEvent &event );
 
+
+	public:
 		bool m_isVisible;
 	};
 

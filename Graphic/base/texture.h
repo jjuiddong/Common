@@ -24,6 +24,8 @@ namespace graphic
 		IDirect3DTexture9* GetTexture();
 		const D3DXIMAGE_INFO& GetImageInfo() const;
 		const string& GetTextureName() const;
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 		void Clear();
 		
 

@@ -14,7 +14,8 @@ cLine::cLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const fl
 }
 
 
-void cLine::Render(cRenderer &renderer, const Matrix44 &tm)//tm = Matrix44::Identity
+void cLine::Render(cRenderer &renderer, const Matrix44 &tm)
+//tm = Matrix44::Identity
 {
 	DWORD lighting;
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
@@ -29,6 +30,23 @@ void cLine::Render(cRenderer &renderer, const Matrix44 &tm)//tm = Matrix44::Iden
 		m_vtxBuff.GetVertexCount(), 0, 12);
 
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
+}
+
+
+void cLine::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
+//tm = Matrix44::Identity
+{
+	const cLight &mainLight = cLightManager::Get()->GetMainLight();
+	mainLight.Bind(shader);
+	shader.SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
+
+	shader.SetMatrix("g_mWorld", m_tm*tm);
+	shader.SetMatrix("g_mVP", GetMainCamera()->GetViewProjectionMatrix());
+
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+		m_vtxBuff.GetVertexCount(), 0, 12);
 }
 
 

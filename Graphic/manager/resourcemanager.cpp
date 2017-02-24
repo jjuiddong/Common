@@ -328,10 +328,20 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 
 
 // 셰이더 로딩.
-cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileName)
+cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileName, const bool isReload)
+// isReload=false
 {
 	if (cShader *p = FindShader(fileName))
-		return p;
+	{
+		if (isReload)
+		{
+			delete p;
+		}
+		else
+		{
+			return p;
+		}
+	}
 
 	cShader *shader = new cShader();
 	if (!shader->Create(renderer, fileName, "TShader", false))
@@ -406,11 +416,11 @@ void cResourceManager::Clear()
 	m_meshes.clear();
 
 	// remove raw mesh2
-	//for each (auto kv in m_meshes2)
-	//{
-	//	delete kv.second;
-	//}
-	//m_meshes2.clear();
+	for each (auto kv in m_meshes2)
+	{
+		delete kv.second;
+	}
+	m_meshes2.clear();
 
 	// remove texture
 	for each (auto kv in m_textures)
@@ -469,10 +479,29 @@ void cResourceManager::ReloadFile()
 {
 	// 일단 기능 끔.
 	// 이 기능이 제대로 동작하려면, 전체 리셋이 필요하다.
-	// 지워지 메모리를 참조하는 경우가 발생한다.
+	// 지워진 메모리를 참조하는 경우가 발생한다.
 
 	//for each (auto kv, m_meshes)
 	//	m_reLoadFile.insert(kv.first);
 	//for each (auto kv, m_anies)
 	//	m_reLoadFile.insert(kv.first);
 }
+
+
+void cResourceManager::LostDevice()
+{
+	for (auto &p : m_textures)
+		p.second->LostDevice();
+	for (auto &p : m_shaders)
+		p.second->LostDevice();
+}
+
+
+void cResourceManager::ResetDevice(cRenderer &renderer)
+{
+	for (auto &p : m_textures)
+		p.second->ResetDevice(renderer);
+	for (auto &p : m_shaders)
+		p.second->ResetDevice(renderer);
+}
+

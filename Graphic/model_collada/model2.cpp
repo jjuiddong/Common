@@ -5,6 +5,7 @@
 using namespace graphic;
 
 cModel2::cModel2()
+	: m_shader(NULL)
 {
 }
 
@@ -40,8 +41,19 @@ bool cModel2::Create(cRenderer &renderer, const string &fileName)
 
 bool cModel2::Render(cRenderer &renderer, const Matrix44 &tm)
 {
-	for (auto &mesh : m_meshes)
-		mesh->Render(renderer, tm);
+	if (m_shader)
+	{
+		for (auto &mesh : m_meshes)
+			mesh->RenderShader(renderer, m_shader, tm);
+
+		if (m_shader->m_isReload)
+			m_shader->m_isReload = false;
+	}
+	else
+	{
+		for (auto &mesh : m_meshes)
+			mesh->Render(renderer, tm);
+	}
 
 	return true;
 }
@@ -86,4 +98,12 @@ void cModel2::Clear()
 	for (auto &mesh : m_meshes)
 		delete mesh;
 	m_meshes.clear();
+
+	m_shader = NULL;
+}
+
+
+void cModel2::SetShader(cShader *shader) 
+{
+	m_shader = shader;
 }

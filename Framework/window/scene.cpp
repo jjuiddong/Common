@@ -7,7 +7,7 @@ using namespace framework;
 
 
 cScene::cScene(const int id, const string &scenName)
-	: cWindow(NULL, id, scenName)
+	: cWindow(cSprite::NullSprite, id, scenName)
 {
 }
 

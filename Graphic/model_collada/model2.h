@@ -18,6 +18,7 @@ namespace graphic
 		bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		bool Update(const float deltaSeconds);
 		void SetAnimation(const string &animationName, const bool isMerge=false);
+		void SetShader(cShader *shader);
 		void Clear();
 
 
@@ -31,6 +32,7 @@ namespace graphic
 		cAnimation m_animation;
 		cBoundingBox m_boundingBox;
 		string m_storedAnimationName;
+		cShader *m_shader; // reference
 	};
 
 }

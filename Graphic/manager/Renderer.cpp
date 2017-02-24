@@ -36,12 +36,15 @@ cRenderer::~cRenderer()
 // DirectX Device 객체 생성.
 bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height)
 {
-	if (!InitDirectX(hWnd, width, height, m_pDevice))
+	if (!InitDirectX(hWnd, width, height, m_params, m_pDevice))
 		return false;
 
+	m_width = width;
+	m_height = height;
+
 	m_textFps.Create(*this);
-	m_textFps.SetPos(10, 10);
-	m_textFps.SetColor(D3DXCOLOR(1,1,1,1));
+	m_textFps.SetPos(0, 0);
+	m_textFps.SetColor(D3DXCOLOR(0,0,0,1));
 
 	m_hWnd = hWnd;
 	return true;
@@ -209,6 +212,12 @@ void cRenderer::MakeAxis( const float length, DWORD xcolor, DWORD ycolor, DWORD 
 
 bool cRenderer::ClearScene()
 {
+	HRESULT hr = GetDevice()->TestCooperativeLevel();
+	if (hr == D3DERR_DEVICELOST)
+		return false;
+	else if (hr == D3DERR_DEVICENOTRESET)// reset상황.				
+		return false;
+
 	if (SUCCEEDED(GetDevice()->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL,
 		D3DCOLOR_XRGB(150, 150, 150), 1.0f, 0)))
@@ -235,6 +244,70 @@ void cRenderer::Present()
 void cRenderer::EndScene()
 {
 	GetDevice()->EndScene();
+}
+
+
+bool cRenderer::CheckResetDevice(const int width, const int height)
+{
+	if ((m_params.BackBufferWidth == width) && (m_params.BackBufferHeight == height))
+		return false;
+	return true;
+}
+
+
+bool cRenderer::ResetDevice(const int width, const int height)
+{
+	if (!CheckResetDevice(width, height))
+		return false;
+
+	cResourceManager::Get()->LostDevice();
+	m_textFps.LostDevice();
+
+	m_width = width;
+	m_height = height;
+	m_params.BackBufferWidth = width;
+	m_params.BackBufferHeight = height;
+
+	HRESULT hr = GetDevice()->Reset(&m_params);
+	if (FAILED(hr))
+	{
+		switch (hr)
+		{
+		//장치를 손실했지만 리셋하지 못했고 그래서 랜더링 불가
+		case D3DERR_DEVICELOST:
+			OutputDebugStringA("OnResetDevice 장치를 손실했지만 리셋하지 못했고 그래서 랜더링 불가 \n");
+			break;
+			//내부 드라이버 에러,어플리케이션은 이 메세지 일때 일반적으로 셧다운된다.
+		case D3DERR_DRIVERINTERNALERROR:
+			OutputDebugStringA("OnResetDevice 드라이버 내부 에러,어플리케이션은 이 메세지 일때 일반적으로 셧다운된다.");
+			break;
+			//부적절한 호출이다. 파라메터가 잘못일수도 있고..
+		case D3DERR_INVALIDCALL:
+			OutputDebugStringA("OnResetDevice 부적절한 호출. 파라메터가 잘못된경우.. ");
+			break;
+			//디스플레이 메모리가 충분하지 않음
+		case D3DERR_OUTOFVIDEOMEMORY:
+			OutputDebugStringA("OnResetDevice 디스플레이 메모리가 충분하지 않음 \n");
+			break;
+			//Direct3D가 이호출에 대한 메모리 확보를 못햇다.
+		case E_OUTOFMEMORY:
+			OutputDebugStringA("OnResetDevice Direct3D가 이호출에 대한 메모리 확보를 못햇다. \n");
+			break;
+		}
+		Sleep(10);
+		return false;
+	}
+
+	const Vector3 lookAt = GetMainCamera()->GetLookAt();
+	const Vector3 eyePos = GetMainCamera()->GetEyePos();
+	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
+	GetMainCamera()->SetProjection( GetMainCamera()->m_fov, GetMainCamera()->m_aspect,
+		GetMainCamera()->m_nearPlane, GetMainCamera()->m_farPlane);
+	GetMainCamera()->SetViewPort(width, height);
+
+	cResourceManager::Get()->ResetDevice(*this);
+
+	return true;
 }
 
 

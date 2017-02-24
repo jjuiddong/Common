@@ -1,48 +1,31 @@
+//
+// 2017-02-23, jjuiddong
+// Management LPD3DXSPRITE
+//
 #pragma once
 
 
 namespace graphic
 {
 
-	class cSprite : public cNode
+	class cSprite
 	{
 	public:
-		cSprite(LPD3DXSPRITE sprite, const int id, const string &name="sprite");
+		cSprite();
 		virtual ~cSprite();
-
-		void SetTexture(cRenderer &renderer, const string &fileName);
-		virtual void Render(cRenderer &renderer, const Matrix44 &parentTm) override;
-		void SetCenter(const Vector3 &center); // x,y = 0~1
-		void SetPos(const Vector3 &pos);
-		const Vector3& GetPos() const;
-		void SetScale(const Vector3 &scale);
-		const Vector3& GetScale() const;
-		void SetRect(const sRect &rect);
-		const sRect& GetRect() const;
-		cTexture* GetTexture();
-
-		bool IsContain(const Vector2 &pos);		
-
+		bool Create(cRenderer &renderer);
+		void Begin();
+		void Render(cTexture &texture, const sRect &rect, const Vector3 &center, 
+			const D3DCOLOR color, const Matrix44 &tm = Matrix44::Identity);
+		void End();
+		void LostDevice();
+		void ResetDevice(graphic::cRenderer &renderer);
 		void Clear();
 
 
-	private:
-		LPD3DXSPRITE m_sprite; // reference
-		cTexture *m_texture; // reference
-		Vector3 m_center;	// x,y = 0~1, default : 0,0
-		Vector3 m_pos; // pixel coordinate
-		Vector3 m_scale;
-		sRect m_rect; // pixel coordinate
-		DWORD m_color;
-		Matrix44 m_accTM;
+	public:
+		LPD3DXSPRITE m_p;
+		static cSprite NullSprite;
 	};
 
-
-	inline void cSprite::SetPos(const Vector3 &pos) { m_pos = pos; } 
-	inline const Vector3& cSprite::GetPos() const { return m_pos; }
-	inline void cSprite::SetScale(const Vector3 &scale) { m_scale = scale; }
-	inline const Vector3& cSprite::GetScale() const { return m_scale; }
-	inline void cSprite::SetRect(const sRect &rect) { m_rect = rect; }
-	inline const sRect& cSprite::GetRect() const { return m_rect; }
-	inline cTexture* cSprite::GetTexture() { return m_texture; }
 }

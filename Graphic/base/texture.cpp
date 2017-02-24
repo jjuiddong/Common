@@ -81,6 +81,8 @@ bool cTexture::CreateEx(cRenderer &renderer, const string &fileName)
 	{
 		return false;
 	}
+
+	m_fileName = fileName;
 	
 	return true;
 }
@@ -133,4 +135,19 @@ bool cTexture::WritePNGFile( const string &fileName )
 		return false;
 	}
 	return true;
+}
+
+
+void cTexture::LostDevice()
+{
+	RET(!m_texture);
+	SAFE_RELEASE(m_texture);
+}
+
+
+void cTexture::ResetDevice(cRenderer &renderer)
+{
+	RET(m_fileName.empty());
+	SAFE_RELEASE(m_texture);
+	Create(renderer, string(m_fileName));	
 }

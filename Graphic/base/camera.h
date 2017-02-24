@@ -16,9 +16,11 @@ namespace graphic
 		void Init(cRenderer *renderer);
 		void Update();
 		void Render(cRenderer &renderer);
+		void Bind(cShader &shader);
 
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
+		void SetViewPort(const int width, const int height);
 		void SetEyePos(const Vector3 &eye);
 		void SetLookAt(const Vector3 &lookAt);
 		void SetUpVector(const Vector3 &up);
@@ -64,7 +66,7 @@ namespace graphic
 		void UpdateProjectionMatrix();
 
 
-	private:
+	public:
 		Vector3 m_eyePos;
 		Vector3 m_lookAt;
 		Vector3 m_up;
@@ -72,6 +74,12 @@ namespace graphic
 		Matrix44 m_proj; // 투영 행렬.
 		Matrix44 m_viewProj; // m_view X m_proj
 		cLine m_lines[3]; // Front, Up, Right
+		float m_fov;
+		float m_aspect;
+		float m_nearPlane;
+		float m_farPlane;
+		int m_width; // ViewPort
+		int m_height; // ViewPort
 		cRenderer *m_renderer;
 	};
 

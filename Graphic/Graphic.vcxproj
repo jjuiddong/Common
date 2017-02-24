@@ -356,6 +356,7 @@
     <ClInclude Include="base\line.h" />
     <ClInclude Include="base\line2.h" />
     <ClInclude Include="base\line2d.h" />
+    <ClInclude Include="base\line3.h" />
     <ClInclude Include="base\material.h" />
     <ClInclude Include="base\meshbuffer.h" />
     <ClInclude Include="base\quad.h" />
@@ -408,6 +409,7 @@
     <ClInclude Include="particle\particles.h" />
     <ClInclude Include="particle\snow.h" />
     <ClInclude Include="sprite\sprite.h" />
+    <ClInclude Include="sprite\sprite2.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="terrain\terrainexporter.h" />
@@ -435,6 +437,7 @@
     <ClCompile Include="base\line.cpp" />
     <ClCompile Include="base\line2.cpp" />
     <ClCompile Include="base\line2d.cpp" />
+    <ClCompile Include="base\line3.cpp" />
     <ClCompile Include="base\material.cpp" />
     <ClCompile Include="base\meshbuffer.cpp" />
     <ClCompile Include="base\quad.cpp" />
@@ -483,6 +486,7 @@
     <ClCompile Include="particle\particles.cpp" />
     <ClCompile Include="particle\snow.cpp" />
     <ClCompile Include="sprite\sprite.cpp" />
+    <ClCompile Include="sprite\sprite2.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_MD|Win32'">Create</PrecompiledHeader>

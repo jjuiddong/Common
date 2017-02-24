@@ -13,6 +13,8 @@ namespace graphic
 		void Update(const float elpaseT);
 		LPDIRECT3DDEVICE9 GetDevice();
 		HWND GetHwnd() const;
+		bool CheckResetDevice(const int width, const int height);
+		bool ResetDevice(const int width, const int height);
 
 		bool ClearScene();
 		void BeginScene();
@@ -28,25 +30,25 @@ namespace graphic
 		void SetNormalizeNormals(const bool value);
 		void SetAlphaBlend(const bool value);
 
+
 	protected:
 		void MakeGrid( const float width, const int count, DWORD color, vector<sVertexDiffuse> &out );
 		void MakeAxis( const float length, DWORD xcolor, DWORD ycolor, DWORD zcolor, vector<sVertexDiffuse> &out );
 
 
 	private:
-		LPDIRECT3DDEVICE9 m_pDevice;
 		HWND m_hWnd;
+		LPDIRECT3DDEVICE9 m_pDevice;
+		D3DPRESENT_PARAMETERS m_params;
+		int m_width;
+		int m_height;
 
-		// Grid
+
 		vector<sVertexDiffuse> m_grid;
-
-		// Axis
 		vector<sVertexDiffuse> m_axis;
 
 		// Display FPS 
 		cText m_textFps;
-		//ID3DXFont *m_font;
-		//string m_fpsText;
 		float m_elapseTime;
 		int m_fps;
 	};

@@ -69,6 +69,73 @@ int FindEdgeInMappingTable(int nV1, int nV2, CEdgeMapping* pMapping, int nCount)
 }
 
 
+bool cShadowVolume::Create(cRenderer &renderer, cVertexBuffer &vtxBuff, cIndexBuffer &idxBuff
+	, const Matrix44 &tm)
+	// tm = Matrix44::Identity
+{
+	HRESULT hr = S_OK;
+	ID3DXMesh *pInputMesh = NULL;
+
+	const D3DVERTEXELEMENT9 Decl[3] =
+	{
+		{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+		{ 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
+		D3DDECL_END()
+	};
+
+	//--------------------------------------------------------------------------------------------//
+	// Copy Cube to Mesh
+	sVertexNorm *pvtx = NULL;
+	DWORD *pidx = NULL;
+
+	hr = D3DXCreateMesh(idxBuff.GetFaceCount(), vtxBuff.GetVertexCount(), 
+		D3DXMESH_32BIT, Decl, renderer.GetDevice(), &pInputMesh);
+	if (FAILED(hr))
+		return false;
+
+	pInputMesh->LockVertexBuffer(0, (void**)&pvtx);
+	pInputMesh->LockIndexBuffer(0, (void**)&pidx);
+	if (!pvtx || !pidx)
+		return false;
+
+	const BYTE *psrcVtx = (BYTE*)vtxBuff.Lock();
+	const WORD *psrcIdx = (WORD*)idxBuff.Lock();
+
+	const int pos_offset = 0;
+	const int normal_offset = 12;
+	const int stride = vtxBuff.GetSizeOfVertex();
+
+	for (int i = 0; i < vtxBuff.GetVertexCount(); ++i)
+	{
+		//pvtx->p = *(Vector3*)(psrcVtx + pos_offset);
+		//pvtx->n = *(Vector3*)(psrcVtx + normal_offset);
+
+		Vector3 p = *(Vector3*)(psrcVtx + pos_offset);
+		Vector3 n = *(Vector3*)(psrcVtx + normal_offset);
+		pvtx->p = p * tm;
+		pvtx->n = n.MultiplyNormal(tm);
+
+		psrcVtx += stride;
+		++pvtx;
+	}
+
+	for (int i = 0; i < idxBuff.GetFaceCount()*3; ++i)
+		*pidx++ = *psrcIdx++;
+
+	idxBuff.Unlock();
+	vtxBuff.Unlock();
+
+	pInputMesh->UnlockIndexBuffer();
+	pInputMesh->UnlockVertexBuffer();
+	//--------------------------------------------------------------------------------------------//
+
+	Create(renderer, pInputMesh);
+
+	SAFE_RELEASE(pInputMesh);
+
+	return true;
+}
+
 
 // Create Shadow Mesh
 bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
@@ -552,7 +619,7 @@ cleanup:
 		ID3DXMesh* pFinalMesh;
 		hr = D3DXCreateMesh(nNextIndex / 3,  // Exact number of faces
 			(pInputMesh->GetNumFaces() + nNumMaps) * 3,
-			D3DXMESH_WRITEONLY | (bNeed32Bit ? D3DXMESH_32BIT : 0),
+			D3DXMESH_MANAGED | D3DXMESH_WRITEONLY | (bNeed32Bit ? D3DXMESH_32BIT : 0),
 			sVertex::Decl,
 			renderer.GetDevice(),
 			&pFinalMesh);
@@ -615,4 +682,14 @@ void cShadowVolume::Render(graphic::cRenderer &renderer)
 {
 	if (m_mesh)
 		m_mesh->DrawSubset(0);
+}
+
+
+void cShadowVolume::LostDevice()
+{
+}
+
+
+void cShadowVolume::ResetDevice(cRenderer &renderer)
+{
 }

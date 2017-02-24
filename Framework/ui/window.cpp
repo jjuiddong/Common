@@ -3,10 +3,10 @@
 #include "window.h"
 
 using namespace framework;
+using namespace graphic;
 
-
-cWindow::cWindow(LPD3DXSPRITE sprite, const int id, const string &name) : // name="window"
-	graphic::cSprite(sprite, id, name)
+cWindow::cWindow(cSprite &sprite, const int id, const string &name) : // name="window"
+	cSprite2(sprite, id, name)
 ,	m_isVisible(true)
 {
 }
@@ -16,7 +16,7 @@ cWindow::~cWindow()
 }
 
 
-bool cWindow::Init(graphic::cRenderer &renderer)
+bool cWindow::Init(cRenderer &renderer)
 {
 	// 파생클래스에서 구현한다.
 	return true;
@@ -25,13 +25,13 @@ bool cWindow::Init(graphic::cRenderer &renderer)
 
 bool cWindow::Update(const float deltaSeconds)
 {
-	return graphic::cSprite::Update(deltaSeconds);
+	return cSprite2::Update(deltaSeconds);
 }
 
 
-void cWindow::Render(graphic::cRenderer &renderer, const Matrix44 &parentTm)
+void cWindow::Render(cRenderer &renderer, const Matrix44 &parentTm)
 {
-	graphic::cSprite::Render(renderer, parentTm);
+	cSprite2::Render(renderer, parentTm);
 }
 
 

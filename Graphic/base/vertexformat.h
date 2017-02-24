@@ -31,6 +31,13 @@ namespace graphic
 		enum {FVF = D3DFVF_XYZ | D3DFVF_TEX1 };
 	};
 
+	struct sVertexNorm
+	{
+		Vector3 p;
+		Vector3 n;
+
+		enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL};
+	};
 
 	struct sVertexNormDiffuse
 	{

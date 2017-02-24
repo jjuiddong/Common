@@ -34,6 +34,7 @@ using namespace common;
 #include "base/box.h"
 #include "base/line.h"
 #include "base/line2.h"
+#include "base/line3.h"
 #include "base/line2d.h"
 #include "base/cube.h"
 #include "base/cube2.h"
@@ -86,6 +87,7 @@ using namespace common;
 #include "character/character.h"
 
 #include "sprite/sprite.h"
+#include "sprite/sprite2.h"
 
 #include "terrain/rawterrain.h"
 #include "terrain/water.h"

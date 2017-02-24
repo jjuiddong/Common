@@ -22,6 +22,8 @@ namespace graphic
 		const float Length() const; // length(min - max)
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 
 
 	public:

@@ -69,6 +69,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		cGameMain::Get()->Exit();
 		PostQuitMessage(0);
 		break;
+
+	case WM_ERASEBKGND:
+		return 0;
+
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -167,7 +171,7 @@ void cGameMain::Run()
 
 		Update(t);
 		Render(t);
-		Sleep(1);
+		//Sleep(1);
 	}
 }
 

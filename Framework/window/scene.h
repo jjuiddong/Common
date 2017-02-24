@@ -19,9 +19,6 @@ namespace framework
 
 		virtual void Show() {}
 		virtual void Hide() {}
-
-
-	public:
 	};
 
 }

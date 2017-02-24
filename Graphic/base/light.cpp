@@ -95,15 +95,15 @@ void cLight::Bind(cShader &shader)  const
 	static D3DXHANDLE hTheta = NULL;
 	static D3DXHANDLE hPhi = NULL;
 
-	if (oldPtr != &shader)
+	if ((oldPtr != &shader) || shader.m_isReload)
 	{
-		hDir = shader.GetValueHandle("light.dir");
-		hPos = shader.GetValueHandle("light.pos");
-		hAmbient = shader.GetValueHandle("light.ambient");
-		hDiffuse = shader.GetValueHandle("light.diffuse");
-		hSpecular = shader.GetValueHandle("light.specular");
-		hTheta = shader.GetValueHandle("light.spotInnerCone");
-		hPhi = shader.GetValueHandle("light.spotOuterCone");
+		hDir = shader.GetValueHandle("g_light.dir");
+		hPos = shader.GetValueHandle("g_light.pos");
+		hAmbient = shader.GetValueHandle("g_light.ambient");
+		hDiffuse = shader.GetValueHandle("g_light.diffuse");
+		hSpecular = shader.GetValueHandle("g_light.specular");
+		hTheta = shader.GetValueHandle("g_light.spotInnerCone");
+		hPhi = shader.GetValueHandle("g_light.spotOuterCone");
 
 		oldPtr = &shader;
 	}

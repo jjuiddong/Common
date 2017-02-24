@@ -5,7 +5,8 @@
 using namespace graphic;
 
 
-bool graphic::InitDirectX(HWND hWnd, const int width, const int height, OUT LPDIRECT3DDEVICE9 &pDevice )
+bool graphic::InitDirectX(HWND hWnd, const int width, const int height, 
+	OUT D3DPRESENT_PARAMETERS &param, OUT LPDIRECT3DDEVICE9 &pDevice )
 {
 	LPDIRECT3D9 d3d9;
 	d3d9 = Direct3DCreate9( D3D_SDK_VERSION );
@@ -44,7 +45,9 @@ bool graphic::InitDirectX(HWND hWnd, const int width, const int height, OUT LPDI
 	d3dpp.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;	//화면 주사율 ( 그냥 D3DPRESENT_RATE_DEFAULT 모니터 주사율과 동일시 )
 	d3dpp.hDeviceWindow = hWnd;					//Device 가 출력될 윈도우 핸들
 	d3dpp.MultiSampleQuality = 0;						//멀티 샘플링 질
-	d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;		//멀티 샘플링 타입 
+	d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;		//멀티 샘플링 타입 
+	//d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;		//멀티 샘플링 타입 
+	//d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;	//화면 전송 간격 ( 그냥 D3DPRESENT_INTERVAL_ONE 모니터 주사율과 동일시 )
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;	//화면 스왑 체인 방식
 	d3dpp.Windowed = true;						//윈도우 모드냐? ( 이게 false 면 풀스크린 된다! )
@@ -71,5 +74,6 @@ bool graphic::InitDirectX(HWND hWnd, const int width, const int height, OUT LPDI
 	//디바이스 생성 성공
 	d3d9->Release(); // Deivce 를 만들었으니 넌 더이상 필요없다 ( 사라져라! )
 	d3d9 = NULL;
+	param = d3dpp;
 	return true;
 }

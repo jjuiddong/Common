@@ -29,9 +29,11 @@ namespace graphic
 		void InitWhite();
 		void InitBlack();
 		void InitGray();
+		void InitGray2();
 		void InitRed();
 		void InitBlue();
 		void InitGreen();
+		void InitYellow();
 		void Bind(cRenderer &renderer);
 		void Bind(cShader &shader);
 

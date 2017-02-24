@@ -160,9 +160,9 @@ void cCube::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &t
 {
 	const cLight &mainLight = cLightManager::Get()->GetMainLight();
 	mainLight.Bind(shader);
-	shader.SetVector("vEyePos", cMainCamera::Get()->GetEyePos());
-	shader.SetMatrix("mWorld", m_tm*tm);
-	shader.SetMatrix("mVP", GetMainCamera()->GetViewProjectionMatrix());
+	shader.SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
+	shader.SetMatrix("g_mWorld", m_tm*tm);
+	shader.SetMatrix("g_mVP", GetMainCamera()->GetViewProjectionMatrix());
 	shader.CommitChanges();
 
 	const int passCount = shader.Begin();

@@ -22,6 +22,8 @@ namespace graphic
 		const sRect& GetPos() const;
 		void SetColor(const DWORD color);
 		DWORD GetColor() const;
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 
 		void Render();
 

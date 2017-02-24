@@ -232,6 +232,12 @@
     <ClInclude Include="model_collada\colladaloader.h">
       <Filter>model_collada</Filter>
     </ClInclude>
+    <ClInclude Include="base\line3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite\sprite2.h">
+      <Filter>sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -444,6 +450,12 @@
     </ClCompile>
     <ClCompile Include="model_collada\colladaloader.cpp">
       <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite\sprite2.cpp">
+      <Filter>sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

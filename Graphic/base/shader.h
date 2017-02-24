@@ -19,6 +19,7 @@ namespace graphic
 		void End();
 		void SetTechnique(const string &technique);
 
+		void SetBool(const string &key, const bool val);
 		void SetInt(const string &key, const int val );
 		void SetMatrix(const string &key, const Matrix44 &mat);
 		void SetTexture(const string &key, cTexture &texture);
@@ -29,7 +30,9 @@ namespace graphic
 		void SetVector(const string &key, const Vector3 &vec );
 		void SetVector(const string &key, const Vector4 &vec );
 		void SetMatrixArray(const string &key, const Matrix44 *mat, const int count );
+		void SetIntArray(const string &key, const int *array, const int count);
 
+		void SetBool(D3DXHANDLE handle, const bool val);
 		void SetInt(D3DXHANDLE handle, const int val );
 		void SetMatrix(D3DXHANDLE handle, const Matrix44 &mat);
 		void SetTexture(D3DXHANDLE handle, cTexture &texture);
@@ -39,6 +42,7 @@ namespace graphic
 		void SetVector(D3DXHANDLE handle, const Vector3 &vec );
 		void SetVector(D3DXHANDLE handle, const Vector4 &vec );
 		void SetMatrixArray(D3DXHANDLE handle, const Matrix44 *mat, const int count );
+		void SetIntArray(D3DXHANDLE handle, const int *array, const int count);
 
 		void CommitChanges();
 		LPD3DXEFFECT GetEffect() { return m_effect; }
@@ -47,6 +51,8 @@ namespace graphic
 		int GetPassCount();
 		D3DXHANDLE GetValueHandle(const string &key);
 		const string& GetFileName() const;
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 
 
 	public:
@@ -54,6 +60,9 @@ namespace graphic
 		D3DXHANDLE m_hTechnique;
 		int m_renderPass; // default = 0;
 		string m_fileName;
+		string m_technique;
+		bool m_isShowMsgBox;
+		bool m_isReload;
 	};
 
 

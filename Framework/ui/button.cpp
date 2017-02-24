@@ -6,15 +6,13 @@
 using namespace framework;
 
 
-cButton::cButton(LPD3DXSPRITE sprite, const int id, const string &name) : //name=button
+cButton::cButton(graphic::cSprite &sprite, const int id, const string &name) : //name=button
 	cWindow(sprite, id, name)
 {
-
 }
 
 cButton::~cButton()
 {
-
 }
 
 

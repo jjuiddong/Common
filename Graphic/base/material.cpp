@@ -62,6 +62,12 @@ void cMaterial::InitGray()
 }
 
 
+void cMaterial::InitGray2()
+{
+	Init(Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0, 0, 0, 1));
+}
+
+
 void cMaterial::InitRed()
 {
 	Init(Vector4(1,0,0,1), Vector4(1,0,0,1), Vector4(1,0,0,1));
@@ -79,6 +85,12 @@ void cMaterial::InitGreen()
 	Init(Vector4(0, 1, 0, 1), Vector4(0, 1, 0, 1), Vector4(0, 1, 0, 1));
 }
 
+
+void cMaterial::InitYellow()
+{
+	Init(Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1));
+}
+
 void cMaterial::Bind(cRenderer &renderer)
 {
 	renderer.GetDevice()->SetMaterial(&m_mtrl);
@@ -93,13 +105,13 @@ void cMaterial::Bind(cShader &shader)
 	static D3DXHANDLE hSpecular = NULL;
 	static D3DXHANDLE hSineness = NULL;
 
-	if (oldPtr != &shader)
+	if ((oldPtr != &shader) || shader.m_isReload)
 	{
-		hAmbient = shader.GetValueHandle("material.ambient");
-		hDiffuse = shader.GetValueHandle("material.diffuse");
-		hEmissive = shader.GetValueHandle("material.emissive");
-		hSpecular = shader.GetValueHandle("material.specular");
-		hSineness = shader.GetValueHandle("material.shininess");
+		hAmbient = shader.GetValueHandle("g_material.ambient");
+		hDiffuse = shader.GetValueHandle("g_material.diffuse");
+		hEmissive = shader.GetValueHandle("g_material.emissive");
+		hSpecular = shader.GetValueHandle("g_material.specular");
+		hSineness = shader.GetValueHandle("g_material.shininess");
 
 		oldPtr = &shader;
 	}

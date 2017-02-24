@@ -11,6 +11,8 @@ cCamera::cCamera() :
 ,	m_lookAt(0,0,0)
 ,	m_up(0,1,0)
 , m_renderer(NULL)
+, m_width(0)
+, m_height(0)
 {
 	UpdateViewMatrix();
 
@@ -42,6 +44,10 @@ void cCamera::SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vect
 
 void cCamera::SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane)
 {
+	m_fov = fov;
+	m_aspect = aspect;
+	m_nearPlane = nearPlane;
+	m_farPlane = farPlane;
 	m_proj.SetProjection(fov, aspect, nearPlane, farPlane);
 	UpdateProjectionMatrix();
 }
@@ -78,6 +84,16 @@ void cCamera::Render(cRenderer &renderer)
 
 	for (auto &line : m_lines)
 		line.Render(renderer);
+}
+
+
+// shader bind
+void cCamera::Bind(cShader &shader)
+{
+	shader.SetMatrix("g_mView", m_view);
+	shader.SetMatrix("g_mProj", m_proj);
+	shader.SetMatrix("g_mVP", m_view * m_proj);
+	shader.SetVector("g_vEyePos", m_eyePos);
 }
 
 
@@ -342,4 +358,11 @@ void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix
 		, 0.0f, 0.0f, 1.0f, 0.0f
 		, 0.5f, 0.5f, 0.0f, 1.0f);
 	tt = *(Matrix44*)&mTT;
+}
+
+
+void cCamera::SetViewPort(const int width, const int height)
+{
+	m_width = width;
+	m_height = height;
 }

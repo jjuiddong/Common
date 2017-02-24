@@ -31,7 +31,7 @@ namespace graphic
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true);
 		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true);
-		cShader* LoadShader(cRenderer &renderer, const string &fileName);
+		cShader* LoadShader(cRenderer &renderer, const string &fileName, const bool isReload=false);
 
 		sRawMeshGroup* FindModel( const string &fileName );
 		sRawMeshGroup2* FindModel2(const string &fileName);
@@ -45,6 +45,8 @@ namespace graphic
 		const string& GetMediaDirectory() const;
 		string GetRelativePathToMedia( const string &fileName );
 		void ReloadFile();
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 		void Clear();
 
 		RESOURCE_TYPE::TYPE GetFileKind( const string &fileName );
