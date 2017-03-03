@@ -107,9 +107,6 @@ bool cShadowVolume::Create(cRenderer &renderer, cVertexBuffer &vtxBuff, cIndexBu
 
 	for (int i = 0; i < vtxBuff.GetVertexCount(); ++i)
 	{
-		//pvtx->p = *(Vector3*)(psrcVtx + pos_offset);
-		//pvtx->n = *(Vector3*)(psrcVtx + normal_offset);
-
 		Vector3 p = *(Vector3*)(psrcVtx + pos_offset);
 		Vector3 n = *(Vector3*)(psrcVtx + normal_offset);
 		pvtx->p = p * tm;

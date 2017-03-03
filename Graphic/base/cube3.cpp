@@ -191,16 +191,11 @@ void cCube3::Render(cRenderer &renderer, const Matrix44 &tm)
 
 void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 {
-	//const cLight &mainLight = cLightManager::Get()->GetMainLight();
-	//mainLight.Bind(shader);
-	//shader.SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
-
 	shader.SetMatrix("g_mWorld", m_tm*tm);
 	if (m_tex)
 		m_tex->Bind(shader, "g_colorMapTexture");
 	
 	m_mtrl.Bind(shader);
-	//shader.SetMatrix("g_mVP", GetMainCamera()->GetViewProjectionMatrix());
 
 	const int passCount = shader.Begin();
 	for (int i = 0; i < passCount; ++i)
@@ -216,14 +211,4 @@ void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &
 		shader.EndPass();
 	}
 	shader.End();
-}
-
-
-void cCube3::LostDevice()
-{
-}
-
-
-void cCube3::ResetDevice(cRenderer &renderer)
-{
 }

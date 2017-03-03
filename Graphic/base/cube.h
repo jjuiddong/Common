@@ -28,7 +28,7 @@ namespace graphic
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
 
 
-	protected:
+	public:
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 		Vector3 m_min;

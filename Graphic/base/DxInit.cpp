@@ -57,7 +57,7 @@ bool graphic::InitDirectX(HWND hWnd, const int width, const int height,
 		D3DADAPTER_DEFAULT,					//주 디스플레이 그래픽 카드 그냥 D3DADAPTER_DEFAULT
 		D3DDEVTYPE_HAL,						//디바이스타입 설정 그냥 D3DDEVTYPE_HAL
 		hWnd,								//디바이스를 사용할 윈도우 핸들
-		vertexProcessing,					//정점 처리 방식에 대한 플레그
+		vertexProcessing | D3DCREATE_MULTITHREADED,					//정점 처리 방식에 대한 플레그
 		&d3dpp,								//앞에서 정의한 D3DPRESENT_PARAMETERS 구조체 포인터
 		&pDevice							//얻어올 디바이스 더블포인터
 		)))
