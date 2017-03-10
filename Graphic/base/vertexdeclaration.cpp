@@ -15,6 +15,33 @@ cVertexDeclaration::~cVertexDeclaration()
 }
 
 
+bool cVertexDeclaration::Create(const D3DVERTEXELEMENT9 decl[])
+{
+	m_decl.clear();
+
+	int size = 0;
+	for (int i = 0; i < 128; ++i)
+	{
+		if (D3DDECLTYPE_UNUSED == decl[i].Type)
+			break;
+
+		m_decl.push_back(decl[i]);
+
+		switch (decl[i].Type)
+		{
+		case D3DDECLTYPE_FLOAT1: size = decl[i].Offset + sizeof(float) * 1; break;
+		case D3DDECLTYPE_FLOAT2: size = decl[i].Offset + sizeof(float) * 2; break;
+		case D3DDECLTYPE_FLOAT3: size = decl[i].Offset + sizeof(float)*3; break;
+		case D3DDECLTYPE_FLOAT4: size = decl[i].Offset + sizeof(float) * 4; break;
+		case D3DDECLTYPE_D3DCOLOR: size = decl[i].Offset + sizeof(DWORD); break;
+		}
+	}
+
+	m_elementSize = size;
+	return true;
+}
+
+
 bool cVertexDeclaration::Create(const sRawMesh &rawMesh )
 {
 	CreateDecl(rawMesh.vertices,

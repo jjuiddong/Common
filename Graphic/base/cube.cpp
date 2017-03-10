@@ -32,6 +32,36 @@ void cCube::InitCube(cRenderer &renderer)
 		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
+	Vector3 normals[6] = {
+		Vector3(0,0,-1), // front
+		Vector3(0,0,1), // back
+		Vector3(0,1,0), // top
+		Vector3(0,-1,0), // bottom
+		Vector3(-1,0,0), // left
+		Vector3(1,0,0) // right
+	};
+
+	int normalIndices[36] = {
+		// front
+		0, 0, 0,
+		0 ,0, 0,
+		// back
+		1, 1, 1,
+		1, 1, 1,
+		// top
+		2, 2, 2,
+		2, 2, 2,
+		// bottom
+		3, 3, 3,
+		3, 3, 3,
+		// left
+		4, 4, 4,
+		4, 4, 4,
+		// right
+		5, 5, 5,
+		5, 5, 5,
+	};
+
 	WORD indices[36] = {
 		// front
 		0, 3, 2,
@@ -53,23 +83,29 @@ void cCube::InitCube(cRenderer &renderer)
 		1, 5, 7,
 	};
 
-	m_vtxBuff.Create(renderer, 8, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
+	m_vtxBuff.Create(renderer, 36, sizeof(sVertexNormDiffuse), sVertexNormDiffuse::FVF);
 	m_idxBuff.Create(renderer, 12);
 
-	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
-	WORD *ibuff = (WORD*)m_idxBuff.Lock();
-
-	for (int i=0; i < 8; ++i)
+	if (sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock())
 	{
-		vbuff[ i].p = vertices[ i];
-		vbuff[ i].c = 0;
+		for (int i = 0; i < 36; ++i)
+		{
+			vbuff[i].p = vertices[indices[i]];
+			vbuff[i].n = normals[normalIndices[i]];
+			vbuff[i].c = 0;
+		}
+		m_vtxBuff.Unlock();
 	}
 
-	for (int i=0; i < 36; ++i)
-		ibuff[ i] = indices[ i];
+	if (WORD *p = (WORD*)m_idxBuff.Lock())
+	{
+		for (int i = 0; i < 36; ++i)
+			*p++ = i;
+		m_idxBuff.Unlock();
+	}
 
-	m_vtxBuff.Unlock();
-	m_idxBuff.Unlock();
+	m_min = Vector3(-1, -1, -1);
+	m_max = Vector3(1, 1, 1);
 }
 
 
@@ -78,30 +114,25 @@ void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMa
 	if (m_vtxBuff.GetVertexCount() <= 0)
 		InitCube(renderer);
 
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
-	//   2 --- 3
-	//
-	// min = index 2
-	// max = index 5
+	const Vector3 center = (vMin + vMax) / 2.f;
+	const Vector3 v1 = vMin - vMax;
+	const Vector3 v2 = m_max - m_min;
+	Vector3 scale(sqrt(v1.x*v1.x) / sqrt(v2.x*v2.x),
+		sqrt(v1.y*v1.y) / sqrt(v2.y*v2.y),
+		sqrt(v1.z*v1.z) / sqrt(v2.z*v2.z));
 
-	Vector3 vertices[8] = {
-		Vector3(vMin.x, vMax.y, vMin.z), 
-		Vector3(vMax.x, vMax.y, vMin.z), 
-		Vector3(vMin.x, vMin.y, vMin.z), 
-		Vector3(vMax.x, vMin.y, vMin.z),
-		Vector3(vMin.x, vMax.y, vMax.z), 
-		Vector3(vMax.x, vMax.y, vMax.z),
-		Vector3(vMin.x, vMin.y, vMax.z), 
-		Vector3(vMax.x, vMin.y, vMax.z),
-	};
+	Matrix44 S;
+	S.SetScale(scale);
+	Matrix44 T;
+	T.SetTranslate(center);
+	Matrix44 tm = S * T;
 
-	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
-	for (int i=0; i < 8; ++i)
-		vbuff[ i].p = vertices[ i];
+	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
+	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
+	{
+		vbuff[i].p *= tm;
+		vbuff[i].n = vbuff[i].n.MultiplyNormal(tm);
+	}
 	m_vtxBuff.Unlock();
 
 	m_min = vMin;
@@ -118,7 +149,7 @@ void cCube::SetCube(cRenderer &renderer, const cCube &cube)
 
 void cCube::SetColor( DWORD color )
 {
-	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
+	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
 	for (int i=0; i < m_vtxBuff.GetVertexCount(); ++i)
 	{
 		vbuff[ i].c = color;
@@ -156,19 +187,29 @@ void cCube::Render(cRenderer &renderer, const Matrix44 &tm)
 }
 
 
+void cCube::RenderSolid(cRenderer &renderer, const Matrix44 &tm)
+{
+	renderer.GetDevice()->SetTexture(0, NULL);
+
+	Matrix44 mat = m_tm * tm;
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+		m_vtxBuff.GetVertexCount(), 0, 12);
+}
+
+
 void cCube::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 {
-	const cLight &mainLight = cLightManager::Get()->GetMainLight();
-	mainLight.Bind(shader);
-	shader.SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
 	shader.SetMatrix("g_mWorld", m_tm*tm);
-	shader.SetMatrix("g_mVP", GetMainCamera()->GetViewProjectionMatrix());
-	shader.CommitChanges();
 
 	const int passCount = shader.Begin();
 	for (int i = 0; i < passCount; ++i)
 	{
 		shader.BeginPass(i);
+		shader.CommitChanges();
+
 		m_vtxBuff.Bind(renderer);
 		m_idxBuff.Bind(renderer);
 		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
@@ -177,3 +218,11 @@ void cCube::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &t
 	}
 	shader.End();
 }
+
+
+void cCube::RenderShader(cRenderer &renderer, const Matrix44 &tm)
+{
+	if (m_shader)
+		RenderShader(renderer, *m_shader, tm);
+}
+

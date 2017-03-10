@@ -1,6 +1,6 @@
 // 정육면체를 표현하는 클래스.
 // 조명 효과를 넣을 수 있는 모델이다.
-// Vertext + Normal + Texture UV 로 표현된다.
+// Vertext + Normal + Diffuse + Texture UV 로 표현된다.
 // VertexBuffer + IndexBuffer
 #pragma once
 
@@ -10,18 +10,21 @@ namespace graphic
 
 	class cRenderer;
 
-	class cCube3
+	class cCube3 : public cShaderRenderer
 	{
 	public:
 		cCube3();
 		cCube3(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 
 		void InitCube(cRenderer &renderer);
+		void InitCube2(cRenderer &renderer);
 		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 		void SetCube(cRenderer &renderer, const cCube3 &cube);
 		const float Length() const; // length(min - max)
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
+		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
+		void SetColor(const DWORD color);
 
 
 	public:

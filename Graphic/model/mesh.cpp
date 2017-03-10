@@ -274,8 +274,8 @@ void cMesh::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 			m_buffers->GetVertexBuffer().GetVertexCount(), 0, 
 			m_buffers->GetIndexBuffer().GetFaceCount());
 
-		m_shader->End();
 		m_shader->EndPass();
+		m_shader->End();
 	}
 	else
 	{

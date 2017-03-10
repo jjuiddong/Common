@@ -110,3 +110,19 @@ void cSurface2::Clear()
 	SAFE_RELEASE(m_rts);
 	SAFE_RELEASE(m_surface);
 }
+
+
+void cSurface2::LostDevice()
+{
+	Clear();
+}
+
+
+void cSurface2::ResetDevice(cRenderer &renderer)
+{
+	if (m_width > 0)
+	{
+		Create(renderer, m_width, m_height, m_mipLevels,
+			m_texFormat, m_useDepthBuffer, m_depthFormat, m_viewPort, m_autoGenMips);
+	}
+}

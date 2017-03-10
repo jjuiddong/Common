@@ -57,6 +57,16 @@ namespace graphic
 		enum {FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1 };
 	};
 
+	struct sVertexNormDiffuseTex
+	{
+		Vector3 p;
+		Vector3 n;
+		DWORD c;
+		float u, v;
+
+		enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1 };
+	};
+
 	// 스키닝 + 범프 매핑
 	struct sVertexNTBTex
 	{

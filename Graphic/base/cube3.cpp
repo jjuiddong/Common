@@ -111,10 +111,10 @@ void cCube3::InitCube(cRenderer &renderer)
 		1, 5, 7,
 	};
 
-	m_vtxBuff.Create(renderer, 36, sizeof(sVertexNormTex), sVertexNormTex::FVF);
+	m_vtxBuff.Create(renderer, 36, sizeof(sVertexNormDiffuseTex), sVertexNormDiffuseTex::FVF);
 	m_idxBuff.Create(renderer, 12);
 
-	if (sVertexNormTex *vbuff = (sVertexNormTex*)m_vtxBuff.Lock())
+	if (sVertexNormDiffuseTex *vbuff = (sVertexNormDiffuseTex*)m_vtxBuff.Lock())
 	{
 		for (int i = 0; i < 36; ++i)
 		{
@@ -122,6 +122,141 @@ void cCube3::InitCube(cRenderer &renderer)
 			vbuff[i].n = normals[normalIndices[i]];
 			vbuff[i].u = uv[uvIndices[i]].x;
 			vbuff[i].v = uv[uvIndices[i]].y;
+		}
+		m_vtxBuff.Unlock();
+	}
+
+	if (WORD *p = (WORD*)m_idxBuff.Lock())
+	{
+		for (int i = 0; i < 36; ++i)
+			*p++ = i;
+		m_idxBuff.Unlock();
+	}
+
+	m_min = Vector3(-1, -1, -1);
+	m_max = Vector3(1, 1, 1);
+
+	m_mtrl.InitWhite();
+}
+
+
+
+void cCube3::InitCube2(cRenderer &renderer)
+{
+	if (m_vtxBuff.GetVertexCount() > 0)
+		return;
+
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	Vector3 vertices[24] = {
+		Vector3(-1.f, 1.f, -1.f),
+		Vector3(1.f, -1.f, -1.f),
+		Vector3(-1.f, -1.f, -1.f),
+		Vector3(1.f, 1.f, -1.f),
+		Vector3(-1.f, -1.f, -1.f),
+		Vector3(1.f, -1.f, 1.f),
+		Vector3(-1.f, -1.f, 1.f),
+		Vector3(1.f, -1.f, -1.f),
+		Vector3(-1.f, -1.f, 1.f),
+		Vector3(1.f, 1.f, 1.f),
+		Vector3(-1.f, 1.f, 1.f),
+		Vector3(1.f, -1.f, 1.f),
+		Vector3(-1.f, 1.f, 1.f),
+		Vector3(1.f, 1.f, -1.f),
+		Vector3(-1.f, 1.f, -1.f),
+		Vector3(1.f, 1.f, 1.f),
+		Vector3(-1.f, -1.f, 1.f),
+		Vector3(-1.f, 1.f, -1.f),
+		Vector3(-1.f, -1.f, -1.f),
+		Vector3(-1.f, 1.f, 1.f),
+		Vector3(1.f, -1.f, 1.f),
+		Vector3(1.f, 1.f, -1.f),
+		Vector3(1.f, 1.f, 1.f),
+		Vector3(1.f, -1.f, -1.f),
+	};
+	Vector3 normals[24] = {
+		Vector3(0.f, 0.006981f, -0.999976f),
+		Vector3(0.f, 0.006981f, -0.999976f),
+		Vector3(0.f, 0.006981f, -0.999976f),
+		Vector3(0.f, 0.006981f, -0.999976f),
+		Vector3(0.013529f, -0.999884f, -0.006981f),
+		Vector3(0.013529f, -0.999884f, -0.006981f),
+		Vector3(0.013529f, -0.999884f, -0.006981f),
+		Vector3(0.013529f, -0.999884f, -0.006981f),
+		Vector3(0.f, -0.006981f, 0.999976f),
+		Vector3(0.f, -0.006981f, 0.999976f),
+		Vector3(0.f, -0.006981f, 0.999976f),
+		Vector3(0.f, -0.006981f, 0.999976f),
+		Vector3(-0.013529f, 0.999884f, 0.006981f),
+		Vector3(-0.013529f, 0.999884f, 0.006981f),
+		Vector3(-0.013529f, 0.999884f, 0.006981f),
+		Vector3(-0.013529f, 0.999884f, 0.006981f),
+		Vector3(-0.999908f, -0.013529f, -9.4e-05f),
+		Vector3(-0.999908f, -0.013529f, -9.4e-05f),
+		Vector3(-0.999908f, -0.013529f, -9.4e-05f),
+		Vector3(-0.999908f, -0.013529f, -9.4e-05f),
+		Vector3(0.999908f, 0.013529f, 9.4e-05f),
+		Vector3(0.999908f, 0.013529f, 9.4e-05f),
+		Vector3(0.999908f, 0.013529f, 9.4e-05f),
+		Vector3(0.999908f, 0.013529f, 9.4e-05f),
+	};
+	Vector2 uv[24] = {
+		Vector2(0.278796f, 0.399099f),
+		Vector2(0.008789f, 0.598055f),
+		Vector2(0.008789f, 0.399099f),
+		Vector2(0.278796f, 0.598055f),
+		Vector2(0.987252f, 0.399099f),
+		Vector2(0.768028f, 0.598055f),
+		Vector2(0.768028f, 0.399099f),
+		Vector2(0.987252f, 0.598055f),
+		Vector2(0.768028f, 0.399099f),
+		Vector2(0.49802f, 0.598055f),
+		Vector2(0.49802f, 0.399099f),
+		Vector2(0.768028f, 0.598055f),
+		Vector2(0.49802f, 0.399099f),
+		Vector2(0.278796f, 0.598055f),
+		Vector2(0.278796f, 0.399099f),
+		Vector2(0.49802f, 0.598055f),
+		Vector2(0.49802f, 0.198324f),
+		Vector2(0.278796f, 0.399099f),
+		Vector2(0.278796f, 0.198324f),
+		Vector2(0.49802f, 0.399099f),
+		Vector2(0.49802f, 0.79883f),
+		Vector2(0.278796f, 0.598055f),
+		Vector2(0.49802f, 0.598055f),
+		Vector2(0.278796f, 0.79883f),
+	};
+	WORD indices[36] = {
+		0, 1, 2,
+		1, 0, 3,
+		4, 5, 6,
+		5, 4, 7,
+		8, 9, 10,
+		9, 8, 11,
+		12, 13, 14,
+		13, 12, 15,
+		16, 17, 18,
+		17, 16, 19,
+		20, 21, 22,
+		21, 20, 23,
+	};
+
+	m_vtxBuff.Create(renderer, 36, sizeof(sVertexNormDiffuseTex), sVertexNormDiffuseTex::FVF);
+	m_idxBuff.Create(renderer, 12);
+
+	if (sVertexNormDiffuseTex *vbuff = (sVertexNormDiffuseTex*)m_vtxBuff.Lock())
+	{
+		for (int i = 0; i < 36; ++i)
+		{
+			vbuff[i].p = vertices[indices[i]];
+			vbuff[i].n = normals[indices[i]];
+			vbuff[i].u = uv[indices[i]].x;
+			vbuff[i].v = uv[indices[i]].y;
 		}
 		m_vtxBuff.Unlock();
 	}
@@ -158,7 +293,7 @@ void cCube3::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vM
 	T.SetTranslate(center);
 	Matrix44 tm = S * T;
 
-	sVertexNormTex *vbuff = (sVertexNormTex*)m_vtxBuff.Lock();
+	sVertexNormDiffuseTex *vbuff = (sVertexNormDiffuseTex*)m_vtxBuff.Lock();
 	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
 		vbuff[i].p *= tm;
 	m_vtxBuff.Unlock();
@@ -200,7 +335,7 @@ void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &
 	const int passCount = shader.Begin();
 	for (int i = 0; i < passCount; ++i)
 	{
-		shader.BeginPass(0);
+		shader.BeginPass(i);
 		shader.CommitChanges();
 
 		m_vtxBuff.Bind(renderer);
@@ -211,4 +346,20 @@ void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &
 		shader.EndPass();
 	}
 	shader.End();
+}
+
+
+void cCube3::RenderShader(cRenderer &renderer, const Matrix44 &tm)
+{
+	if (m_shader)
+		RenderShader(renderer, *m_shader, tm);
+}
+
+
+void cCube3::SetColor(const DWORD color)
+{
+	sVertexNormDiffuseTex *vbuff = (sVertexNormDiffuseTex*)m_vtxBuff.Lock();
+	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
+		vbuff[i].c = color;
+	m_vtxBuff.Unlock();
 }

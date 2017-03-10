@@ -97,19 +97,23 @@ void cCamera::Bind(cShader &shader)
 }
 
 
-void cCamera::UpdateViewMatrix()
+void cCamera::UpdateViewMatrix(const bool updateUp)
+// updateUp = true
 {
 	RET(!m_renderer);
 
 	m_view.SetView2(m_eyePos, m_lookAt, m_up);
 
 	// Update Up Vector
-	Vector3 dir = m_lookAt - m_eyePos;
-	dir.Normalize();
-	Vector3 right = m_up.CrossProduct(dir);
-	right.Normalize();
-	m_up = dir.CrossProduct(right);
-	m_up.Normalize();
+	if (updateUp)
+	{
+		Vector3 dir = m_lookAt - m_eyePos;
+		dir.Normalize();
+		Vector3 right = m_up.CrossProduct(dir);
+		right.Normalize();
+		m_up = dir.CrossProduct(right);
+		m_up.Normalize();
+	}
 	//
 
 	if (m_renderer->GetDevice())
@@ -193,7 +197,8 @@ void cCamera::Roll( const float radian )
 
 
 // Right 축으로 회전한다.
-void cCamera::Pitch2( const float radian )
+void cCamera::Pitch2( const float radian, const bool updateUp)
+// updateUp = true
 {
 	RET(radian == 0);
 
@@ -205,12 +210,13 @@ void cCamera::Pitch2( const float radian )
 	v *= mat;
 	m_eyePos = m_lookAt + v;
 
-	UpdateViewMatrix();
+	UpdateViewMatrix(updateUp);
 }
 
 
 // Up 축으로 회전한다.
-void cCamera::Yaw2( const float radian )
+void cCamera::Yaw2( const float radian, const bool updateUp)
+// updateUp = true
 {
 	RET(radian == 0);
 
@@ -222,12 +228,13 @@ void cCamera::Yaw2( const float radian )
 	v *= mat;
 	m_eyePos = m_lookAt + v;
 
-	UpdateViewMatrix();
+	UpdateViewMatrix(updateUp);
 }
 
 
 // Direction 축으로 회전한다.
-void cCamera::Roll2( const float radian )
+void cCamera::Roll2( const float radian, const bool updateUp)
+// updateUp = true
 {
 	RET(radian == 0);
 
@@ -239,7 +246,19 @@ void cCamera::Roll2( const float radian )
 	v *= mat;
 	m_lookAt = m_eyePos + v;
 
-	UpdateViewMatrix();	
+	UpdateViewMatrix(updateUp);
+}
+
+
+void cCamera::KeepHorizontal()
+{
+	Vector3 dir = m_lookAt - m_eyePos;
+	dir.Normalize();
+	Vector3 right = Vector3(0, 1, 0).CrossProduct(dir);
+	right.Normalize();
+	Vector3 up = dir.CrossProduct(right);
+	up.Normalize();
+	m_up = up;
 }
 
 
@@ -247,6 +266,17 @@ void cCamera::Roll2( const float radian )
 void cCamera::MoveFront( const float len )
 {
 	const Vector3 dir = GetDirection();
+	m_lookAt += dir * len;
+	m_eyePos += dir * len;
+	UpdateViewMatrix();
+}
+
+
+void cCamera::MoveFrontHorizontal(const float len)
+{
+	Vector3 dir = GetDirection();
+	dir.y = 0;
+	dir.Normalize();
 	m_lookAt += dir * len;
 	m_eyePos += dir * len;
 	UpdateViewMatrix();
@@ -283,10 +313,11 @@ void cCamera::MoveAxis( const Vector3 &dir, const float len )
 
 
 // lookAt 은 고정된채로 eyePos 를 이동한다.
-void cCamera::Zoom( const float len )
+void cCamera::Zoom( const float len)
 {
 	const Vector3 dir = GetDirection();
 	m_eyePos += dir * len;
+	m_lookAt += dir * len;
 	UpdateViewMatrix();
 }
 

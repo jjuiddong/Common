@@ -27,9 +27,14 @@ namespace common
 	//returns a 0 ~ 1
 	inline double randfloat2() 
 	{ 
-		return (rand()) / (RAND_MAX + 1.0); 
+		return (double)rand() / (RAND_MAX + 1.0f); 
 	}
 
+	//returns a 0 ~ 1
+	inline float randfloat3()
+	{
+		return ((float)rand() / (float)(RAND_MAX + 1.0f));
+	}
 
 	// 0 ~ +1 random float
 	// 소수점 3 째 자리 까지 랜덤.

@@ -20,8 +20,9 @@ cXFileMesh::~cXFileMesh()
 }
 
 
-bool cXFileMesh::Create(cRenderer &renderer, const string &fileName)
+bool cXFileMesh::Create(cRenderer &renderer, const string &fileName, const bool isShadow)
 {
+	m_fileName = fileName;
 	LPD3DXBUFFER pAdjacencyBuffer = NULL;
 	LPD3DXBUFFER pMtrlBuffer = NULL;
 	HRESULT hr;
@@ -29,7 +30,7 @@ bool cXFileMesh::Create(cRenderer &renderer, const string &fileName)
 	Clear();
 
 	// Load the mesh
-	if (FAILED(hr = D3DXLoadMeshFromXA(fileName.c_str(), D3DXMESH_MANAGED, renderer.GetDevice(),
+	if (FAILED(hr = D3DXLoadMeshFromXA(fileName.c_str(), D3DXMESH_32BIT | D3DXMESH_MANAGED, renderer.GetDevice(),
 		&pAdjacencyBuffer, &pMtrlBuffer, NULL,
 		(DWORD*)&m_materialsCount, &m_mesh)))
 	{
@@ -63,6 +64,9 @@ bool cXFileMesh::Create(cRenderer &renderer, const string &fileName)
 	//m_renderer.GetDevice()->CreateVertexDeclaration(decl, &m_pDecl);
 
 	InitBoundingBox();
+
+	if (isShadow)
+		m_shadow.Create(renderer, m_mesh);
 
 	return true;
 }
@@ -149,16 +153,16 @@ void cXFileMesh::Render(cRenderer &renderer)
 			m_shader->BeginPass(i);
 			for (int i = 0; i < m_materialsCount; i++)
 			{
-				const cLight &mainLight = cLightManager::Get()->GetMainLight();
-				mainLight.Bind(*m_shader);
-				m_shader->SetVector("vEyePos", cMainCamera::Get()->GetEyePos());
+				//const cLight &mainLight = cLightManager::Get()->GetMainLight();
+				//mainLight.Bind(*m_shader);
+				//m_shader->SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
 
 				m_materials[i].Bind(*m_shader);
 
 				if (m_textures[i])
-					m_textures[i]->Bind(*m_shader, "colorMapTexture");
+					m_textures[i]->Bind(*m_shader, "g_colorMapTexture");
 
-				m_shader->SetMatrix("mWorld", m_tm);
+				m_shader->SetMatrix("g_mWorld", m_tm);
 				m_shader->CommitChanges();
 				m_mesh->DrawSubset(i);
 			}
@@ -176,8 +180,26 @@ void cXFileMesh::Render(cRenderer &renderer)
 			if (m_textures[i])
 				m_textures[i]->Bind(renderer, 0);
 			m_mesh->DrawSubset(i);
-		}	
+		}
 	}
+}
+
+
+void cXFileMesh::RenderShadow(cRenderer &renderer)
+{
+	RET(!m_shadow.m_mesh);
+
+	m_shader->SetMatrix("g_mWorld", Matrix44::Identity);
+
+	const int passCnt = m_shader->Begin();
+	for (int i = 0; i < passCnt; ++i)
+	{
+		m_shader->BeginPass(i);
+		m_shader->CommitChanges();
+		m_shadow.Render(renderer);
+		m_shader->EndPass();
+	}
+	m_shader->End();
 }
 
 

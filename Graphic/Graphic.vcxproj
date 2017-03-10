@@ -361,7 +361,9 @@
     <ClInclude Include="base\meshbuffer.h" />
     <ClInclude Include="base\quad.h" />
     <ClInclude Include="base\shader.h" />
+    <ClInclude Include="base\shaderrenderer.h" />
     <ClInclude Include="base\shadow1.h" />
+    <ClInclude Include="base\shadowrenderer.h" />
     <ClInclude Include="base\shadowvolume.h" />
     <ClInclude Include="base\skybox.h" />
     <ClInclude Include="base\skybox2.h" />

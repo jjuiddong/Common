@@ -14,6 +14,7 @@ namespace graphic
 
 		bool Create(const sRawMesh &rawMesh );
 		bool Create(const sRawMesh2 &rawMesh);
+		bool Create(const D3DVERTEXELEMENT9 decl[]);
 		int GetOffset( const BYTE usage, const BYTE usageIndex=0 ) const;
 		const vector<D3DVERTEXELEMENT9>& GetDecl() const;
 		int GetElementSize() const;

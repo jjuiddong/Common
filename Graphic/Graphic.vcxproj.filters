@@ -238,6 +238,12 @@
     <ClInclude Include="sprite\sprite2.h">
       <Filter>sprite</Filter>
     </ClInclude>
+    <ClInclude Include="base\shaderrenderer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shadowrenderer.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

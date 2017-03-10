@@ -16,6 +16,8 @@ namespace graphic
 		void SetTransform( const Matrix44 &tm );
 		bool Collision( cBoundingBox &box );
 		bool Pick(const Vector3 &orig, const Vector3 &dir);
+		bool Pick2(const Vector3 &orig, const Vector3 &dir, float *pfT, float *pfU, float *pfV);
+		bool Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistance);
 		float Length() const;
 		Vector3 Center() const;
 

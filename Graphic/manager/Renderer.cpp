@@ -301,7 +301,8 @@ bool cRenderer::ResetDevice(const int width, const int height)
 	const Vector3 lookAt = GetMainCamera()->GetLookAt();
 	const Vector3 eyePos = GetMainCamera()->GetEyePos();
 	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
-	GetMainCamera()->SetProjection( GetMainCamera()->m_fov, GetMainCamera()->m_aspect,
+	GetMainCamera()->SetProjection(GetMainCamera()->m_fov,
+		(float)width / (float)height,
 		GetMainCamera()->m_nearPlane, GetMainCamera()->m_farPlane);
 	GetMainCamera()->SetViewPort(width, height);
 

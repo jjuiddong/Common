@@ -27,6 +27,27 @@ void cLine2::Render(cRenderer &renderer, const Matrix44 &tm)//tm = Matrix44::Ide
 }
 
 
+void cLine2::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
+//tm = Matrix44::Identity
+{
+	shader.SetMatrix("g_mWorld", m_tm*tm);
+
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+	shader.CommitChanges();
+
+	const int passCount = shader.Begin();
+	for (int i = 0; i < passCount; ++i)
+	{
+		shader.BeginPass(0);
+		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+			m_vtxBuff.GetVertexCount(), 0, 12);
+		shader.EndPass();
+	}
+	shader.End();
+}
+
+
 void cLine2::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width)
 {
 	m_p0 = p0;
@@ -119,6 +140,7 @@ void cLine2::InitCube(cRenderer &renderer)
 	};
 
 	m_vtxBuff.Create(renderer, 36, sizeof(sVertexNormDiffuse), sVertexNormDiffuse::FVF);
+	m_idxBuff.Create(renderer, 12);
 	if (sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock())
 	{
 		for (int i = 0; i < 36; ++i)
@@ -129,4 +151,22 @@ void cLine2::InitCube(cRenderer &renderer)
 		}
 		m_vtxBuff.Unlock();
 	}
+
+	if (WORD *p = (WORD*)m_idxBuff.Lock())
+	{
+		for (int i = 0; i < 36; ++i)
+			*p++ = i;
+		m_idxBuff.Unlock();
+	}
+}
+
+
+void cLine2::SetColor(DWORD color)
+{
+	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
+	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
+	{
+		vbuff[i].c = color;
+	}
+	m_vtxBuff.Unlock();
 }

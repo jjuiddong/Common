@@ -1,5 +1,5 @@
 // 정육면체를 표현하는 클래스.
-// Vertext + Diffuse 로 표현된다.
+// Vertext + Normal + Diffuse 로 표현된다.
 // VertexBuffer + IndexBuffer
 #pragma once
 
@@ -8,7 +8,7 @@ namespace graphic
 {
 	class cRenderer;
 
-	class cCube
+	class cCube : public cShaderRenderer
 	{
 	public:
 		cCube();
@@ -25,7 +25,9 @@ namespace graphic
 		const float Length() const; // length(min - max)
 
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		void RenderSolid(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
+		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 
 
 	public:

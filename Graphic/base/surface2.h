@@ -20,6 +20,8 @@ namespace graphic
 		void Begin();
 		void End();
 		void Render(cRenderer &renderer, const int index = 1);
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 		void Clear();
 
 		bool IsLoaded() const;

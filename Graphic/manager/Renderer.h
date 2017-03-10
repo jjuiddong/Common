@@ -36,7 +36,7 @@ namespace graphic
 		void MakeAxis( const float length, DWORD xcolor, DWORD ycolor, DWORD zcolor, vector<sVertexDiffuse> &out );
 
 
-	private:
+	public:
 		HWND m_hWnd;
 		LPDIRECT3DDEVICE9 m_pDevice;
 		D3DPRESENT_PARAMETERS m_params;

@@ -45,11 +45,13 @@ namespace graphic
 		void Roll( const float radian );
 
 		// EyePos 가 이동한다.
-		void Pitch2( const float radian );
-		void Yaw2( const float radian );
-		void Roll2( const float radian );
+		void Pitch2( const float radian, const bool updateUp = true);
+		void Yaw2( const float radian, const bool updateUp = true);
+		void Roll2( const float radian, const bool updateUp = true);
+		void KeepHorizontal();
 
 		void MoveFront( const float len );
+		void MoveFrontHorizontal(const float len);
 		void MoveUp( const float len );
 		void MoveRight( const float len );
 		void MoveAxis( const Vector3 &dir, const float len );
@@ -59,10 +61,10 @@ namespace graphic
 		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy, Vector3 &orig, Vector3 &dir);
 
 		void UpdateParameterFromViewMatrix();
+		void UpdateViewMatrix(const bool updateUp=true);
 
 
 	protected:
-		void UpdateViewMatrix();
 		void UpdateProjectionMatrix();
 
 

@@ -36,13 +36,23 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cNode &node)
 	cLightManager::Get()->GetMainLight().GetShadowMatrix(
 		pos, lightPos, view, proj, tt );
 
-	m_surface.Begin();
+	Begin(renderer);
+	node.RenderShadow(renderer, view*proj, lightPos, Vector3(0,-1,0), Matrix44::Identity);
+	End();
+}
 
+
+void cShadow1::Begin(cRenderer &renderer)
+{
+	m_surface.Begin();
 	renderer.GetDevice()->Clear(0, NULL
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
 		, 0x00000000, 1.0f, 0L);
+}
 
-	node.RenderShadow(renderer, view*proj, lightPos, Vector3(0,-1,0), Matrix44::Identity);
+
+void cShadow1::End()
+{
 	m_surface.End();
 }
 
@@ -51,4 +61,16 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cNode &node)
 void cShadow1::RenderShadowMap(cRenderer &renderer)
 {
 	m_surface.Render(renderer);
+}
+
+
+void cShadow1::LostDevice()
+{
+	m_surface.LostDevice();
+}
+
+
+void cShadow1::ResetDevice(graphic::cRenderer &renderer)
+{
+	m_surface.ResetDevice(renderer);
 }

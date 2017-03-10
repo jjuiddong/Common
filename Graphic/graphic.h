@@ -21,6 +21,8 @@ using namespace common;
 #include "model/rawani.h"
 #include "collision/boundingbox.h"
 
+#include "base/shaderrenderer.h"
+#include "base/shadowrenderer.h"
 #include "base/material.h"
 #include "base/light.h"
 #include "base/vertexdeclaration.h"
@@ -51,12 +53,13 @@ using namespace common;
 #include "base/text.h"
 #include "base/quad.h"
 #include "base/billboard.h"
-#include "base/xfilemesh.h"
 
 #include "model/node.h"
 
 #include "base/shadow1.h"
 #include "base/shadowvolume.h"
+
+#include "base/xfilemesh.h"
 
 
 #include "collision/collision.h"

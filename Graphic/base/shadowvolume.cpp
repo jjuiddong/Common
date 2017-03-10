@@ -152,8 +152,10 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 	//Vertices: ABCDEF
 	//Adjacency : -1-0--
 	//Point - reps : 012215
+	const int faceCnt = pInputMesh->GetNumFaces();
+	const int vtxCnt = pInputMesh->GetNumVertices();
 	DWORD* pdwAdj = new DWORD[3 * pInputMesh->GetNumFaces()];
-	DWORD* pdwPtRep = new DWORD[pInputMesh->GetNumVertices()];
+	DWORD* pdwPtRep = new DWORD[ pInputMesh->GetNumVertices()];
 
 	hr = pInputMesh->GenerateAdjacency(ADJACENCY_EPSILON, pdwAdj);
 	if (FAILED(hr))
@@ -162,8 +164,8 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 	pInputMesh->ConvertAdjacencyToPointReps(pdwAdj, pdwPtRep);
 	delete[] pdwAdj;
 
-	pInputMesh->LockVertexBuffer(0, (LPVOID*)&pvtx);
-	pInputMesh->LockIndexBuffer(0, (LPVOID*)&pidx);
+	hr = pInputMesh->LockVertexBuffer(0, (LPVOID*)&pvtx);
+	hr = pInputMesh->LockIndexBuffer(0, (LPVOID*)&pidx);
 	if (!pvtx || !pidx)
 		return false;
 
@@ -190,8 +192,8 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 	if (FAILED(hr))
 		goto cleanup;
 
-	pNewMesh->LockVertexBuffer(0, (LPVOID*)&pNewVBData);
-	pNewMesh->LockIndexBuffer(0, (LPVOID*)&pdwNewIBData);
+	hr = pNewMesh->LockVertexBuffer(0, (LPVOID*)&pNewVBData);
+	hr = pNewMesh->LockIndexBuffer(0, (LPVOID*)&pdwNewIBData);
 
 	// nNextIndex is the array index in IB that the next vertex index value
 	// will be store at.

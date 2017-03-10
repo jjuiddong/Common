@@ -14,9 +14,10 @@ namespace graphic
 		cXFileMesh();
 		virtual ~cXFileMesh();
 
-		bool Create(cRenderer &renderer, const string &fileName);
+		bool Create(cRenderer &renderer, const string &fileName, const bool isShadow=false);
 		bool Update(const float deltaSeconds);
 		void Render(cRenderer &renderer);
+		void RenderShadow(cRenderer &renderer);
 		void SetShader(cShader *shader);
 		bool IsLoad();
 		void Clear();
@@ -28,6 +29,7 @@ namespace graphic
 		
 
 	public:
+		string m_fileName;
 		ID3DXMesh *m_mesh;
 		Matrix44 m_tm;
 		int m_verticesCount;
@@ -38,6 +40,7 @@ namespace graphic
 		cShader *m_shader; // reference
 		cMaterial* m_materials;
 		cTexture** m_textures; // reference texture
+		cShadowVolume m_shadow;
 	};
 
 

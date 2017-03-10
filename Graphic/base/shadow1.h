@@ -15,9 +15,13 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const int textureWidth, const int textureHeight);
 		void UpdateShadow(cRenderer &renderer, cNode &node);
+		void Begin(cRenderer &renderer);
+		void End();
 		IDirect3DTexture9* GetTexture();
 		const IDirect3DTexture9* GetTexture() const;
 		bool IsLoaded() const;
+		void LostDevice();
+		void ResetDevice(graphic::cRenderer &renderer);
 
 		// 디버깅용 함수.
 		void RenderShadowMap(cRenderer &renderer);
