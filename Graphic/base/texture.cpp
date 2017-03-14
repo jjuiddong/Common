@@ -138,6 +138,50 @@ bool cTexture::WritePNGFile( const string &fileName )
 }
 
 
+// Render Text String on Texture
+void cTexture::TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color)
+{
+	RET(!m_texture);
+
+	IDirect3DSurface9* ppSurface = NULL;
+	HDC mDC = NULL;
+	if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
+	{
+		if (ppSurface->GetDC(&mDC) == D3D_OK)
+		{
+			SelectObject(mDC, font.m_font);
+			SetTextColor(mDC, color);
+			SetBkMode(mDC, TRANSPARENT);
+			TextOutA(mDC, x, y, text.c_str(), text.size());
+			ppSurface->ReleaseDC(mDC);
+		}
+		ppSurface->Release();
+	}
+}
+
+
+// Render Text String on Texture
+void cTexture::DrawText(cFontGdi &font, const string &text, const sRect &rect, const DWORD color)
+{
+	RET(!m_texture);	
+
+	IDirect3DSurface9* ppSurface = NULL;
+	HDC mDC = NULL;
+	if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
+	{
+		if (ppSurface->GetDC(&mDC) == D3D_OK)
+		{
+			SelectObject(mDC, font.m_font);
+			SetTextColor(mDC, color);
+			SetBkMode(mDC, TRANSPARENT);
+			::DrawTextA(mDC, text.c_str(), -1, (RECT*)&rect, DT_CENTER | DT_WORDBREAK);
+			ppSurface->ReleaseDC(mDC);
+		}
+		ppSurface->Release();
+	}
+}
+
+
 void cTexture::LostDevice()
 {
 	RET(!m_texture);

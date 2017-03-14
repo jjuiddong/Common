@@ -10,7 +10,7 @@ namespace graphic
 
 	class cRenderer;
 
-	class cCube3 : public cShaderRenderer
+	class cCube3 : public iShaderRenderer
 	{
 	public:
 		cCube3();

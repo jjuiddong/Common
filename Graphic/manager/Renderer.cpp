@@ -13,6 +13,9 @@ void graphic::ReleaseRenderer()
 	cResourceManager::Release();
 	cMainCamera::Release();
 	cLightManager::Release();
+	cFontManager::Release();
+	cPickManager::Release();
+	cInputManager::Release();
 }
 
 

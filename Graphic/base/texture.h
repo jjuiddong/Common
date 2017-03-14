@@ -24,6 +24,8 @@ namespace graphic
 		IDirect3DTexture9* GetTexture();
 		const D3DXIMAGE_INFO& GetImageInfo() const;
 		const string& GetTextureName() const;
+		void TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color);
+		void DrawText(cFontGdi &font, const string &text, const sRect &rect, const DWORD color);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
@@ -33,7 +35,7 @@ namespace graphic
 		bool CreateEx(cRenderer &renderer, const string &fileName);
 
 
-	private:
+	public:
 		IDirect3DTexture9 *m_texture;
 		D3DXIMAGE_INFO m_imageInfo;
 		string m_fileName;

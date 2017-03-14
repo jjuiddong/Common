@@ -10,8 +10,8 @@ cText::cText()
 	: m_font(NULL)
 ,	m_color(D3DXCOLOR(1,1,1,1))
 ,	m_rect(0,0,100,100)
+,	m_sprite(NULL)
 {
-
 }
 
 cText::cText(cRenderer &renderer, const string &text, const int x, const int y,
@@ -33,7 +33,7 @@ cText::~cText()
 
 
 // 텍스트 생성.
-bool cText::Create(cRenderer &renderer, const int fontSize, const bool isBold, const string &fontName)
+bool cText::Create(cRenderer &renderer, const int fontSize, const bool isBold, const string &fontName, cSprite *sprite)
 	// fontSize=18, isBold=true, fontName=굴림
 {
 	Clear();
@@ -47,6 +47,8 @@ bool cText::Create(cRenderer &renderer, const int fontSize, const bool isBold, c
 	if (FAILED(hr))
 		return false;
 
+	m_sprite = sprite;
+
 	return true;
 }
 
@@ -56,13 +58,23 @@ void cText::Render()
 {
 	RET(!m_font);
 
-	m_font->DrawTextA( NULL, m_text.c_str(), -1, &m_rect, DT_NOCLIP, m_color);
+	if (m_sprite)
+	{
+		m_sprite->Begin();
+		m_font->DrawTextA(m_sprite->m_p, m_text.c_str(), -1, &m_rect, DT_NOCLIP, m_color);
+		m_sprite->End();
+	}
+	else
+	{
+		m_font->DrawTextA( NULL, m_text.c_str(), -1, &m_rect, DT_NOCLIP, m_color);
+	}
 }
 
 
 void cText::Clear()
 {
 	SAFE_RELEASE(m_font);
+	m_sprite = NULL;
 }
 
 

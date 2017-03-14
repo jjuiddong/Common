@@ -25,7 +25,7 @@ namespace graphic
 		cTexture* GetTexture();
 
 
-	private:
+	public:
 		cVertexBuffer m_vtxBuff;
 		cMaterial m_material;
 		cTexture *m_texture; // reference

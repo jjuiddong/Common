@@ -10,11 +10,11 @@ namespace graphic
 	class cShader;
 	class cRenderer;
 
-	interface cShaderRenderer
+	interface iShaderRenderer
 	{
 	public:
-		cShaderRenderer() : m_shader(NULL) {}
-		virtual ~cShaderRenderer() {}
+		iShaderRenderer() : m_shader(NULL) {}
+		virtual ~iShaderRenderer() {}
 
 		void SetShader(cShader *shader) { m_shader = shader;  }
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) = 0;

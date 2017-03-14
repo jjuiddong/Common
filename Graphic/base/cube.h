@@ -8,7 +8,7 @@ namespace graphic
 {
 	class cRenderer;
 
-	class cCube : public cShaderRenderer
+	class cCube : public iShaderRenderer
 	{
 	public:
 		cCube();

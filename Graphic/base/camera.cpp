@@ -329,6 +329,12 @@ float cCamera::GetDistance() const
 }
 
 
+Vector3 cCamera::GetScreenPos(const Vector3& vPos)
+{
+	return GetScreenPos(m_width, m_height, vPos);
+}
+
+
 Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos)
 {
 // 	Vector3 point = vPos * m_view * m_proj;
@@ -351,6 +357,12 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 		(const D3DXMATRIX*)&world);
 
 	return point;
+}
+
+
+void cCamera::GetRay(const int sx, const int sy, Vector3 &orig, Vector3 &dir)
+{
+	GetRay(m_width, m_height, sx, sy, orig, dir);
 }
 
 

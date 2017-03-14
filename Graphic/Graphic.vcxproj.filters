@@ -244,6 +244,24 @@
     <ClInclude Include="base\shadowrenderer.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\fontgdi.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\fontmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\pickable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\pickmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="input\input.h">
+      <Filter>input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -463,6 +481,21 @@
     <ClCompile Include="sprite\sprite2.cpp">
       <Filter>sprite</Filter>
     </ClCompile>
+    <ClCompile Include="base\fontgdi.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\fontmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\pickmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="input\input.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="model">
@@ -497,6 +530,12 @@
     </Filter>
     <Filter Include="model_collada">
       <UniqueIdentifier>{b757e010-fd66-401f-bb9d-b6fd13760be2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{cafc74f3-0fec-4905-96bf-9d31fe9839ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{40621073-f5af-428b-9f1d-bebe58e28cbb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

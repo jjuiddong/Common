@@ -20,9 +20,12 @@ using namespace common;
 #include "model/rawmesh.h"
 #include "model/rawani.h"
 #include "collision/boundingbox.h"
+#include "interface/pickable.h"
+
 
 #include "base/shaderrenderer.h"
 #include "base/shadowrenderer.h"
+#include "base/fontgdi.h"
 #include "base/material.h"
 #include "base/light.h"
 #include "base/vertexdeclaration.h"
@@ -50,8 +53,9 @@ using namespace common;
 #include "base/surface2.h"
 #include "base/circle.h"
 #include "base/circleline.h"
-#include "base/text.h"
 #include "base/quad.h"
+#include "base/text.h"
+#include "base/text3d.h"
 #include "base/billboard.h"
 
 #include "model/node.h"
@@ -105,6 +109,9 @@ using namespace common;
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
 #include "manager/lightmanager.h"
+#include "manager/fontmanager.h"
+#include "manager/pickmanager.h"
+#include "input/input.h"
 
 
 #pragma comment( lib, "d3d9.lib" )

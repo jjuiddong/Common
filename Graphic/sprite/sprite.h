@@ -7,7 +7,6 @@
 
 namespace graphic
 {
-
 	class cSprite
 	{
 	public:
