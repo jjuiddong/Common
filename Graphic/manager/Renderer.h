@@ -29,6 +29,7 @@ namespace graphic
 		void SetFillMode(const D3DFILLMODE mode);
 		void SetNormalizeNormals(const bool value);
 		void SetAlphaBlend(const bool value);
+		void SetZEnable(const bool value);
 
 
 	protected:

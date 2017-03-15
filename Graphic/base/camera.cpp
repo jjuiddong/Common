@@ -5,7 +5,6 @@
 
 using namespace graphic;
 
-
 cCamera::cCamera() :
 	m_eyePos(0,100,-100)
 ,	m_lookAt(0,0,0)
@@ -13,6 +12,8 @@ cCamera::cCamera() :
 , m_renderer(NULL)
 , m_width(0)
 , m_height(0)
+, m_state(eState::STOP)
+, m_velocity(200)
 {
 	UpdateViewMatrix();
 
@@ -69,9 +70,42 @@ Vector3 cCamera::GetRight() const
 }
 
 
-void cCamera::Update()
+void cCamera::Update(const float deltaSeconds)
 {
-	
+	RET(eState::STOP == m_state);
+
+	int check = 0;
+	Vector3 posDir = m_movePos - m_eyePos;
+	const float len = posDir.Length();
+	if (len > 0.5f)
+	{
+		posDir.Normalize();
+		m_eyePos += posDir * max(1.f, len * 0.02f);
+	}
+	else
+	{
+		++check;
+	}
+
+	Vector3 lookDir = m_moveLookAt - m_lookAt;
+	const float len2 = lookDir.Length();
+	if (len2 > 0.5f)
+	{
+		lookDir.Normalize();
+		m_lookAt += lookDir * m_velocity * deltaSeconds; // len2 * 0.03f;
+	}
+	else
+	{
+		++check;
+	}
+
+	if (check >= 2)
+	{
+		m_state = eState::STOP;
+	}
+
+	KeepHorizontal();
+	UpdateViewMatrix();	
 }
 
 
@@ -259,6 +293,20 @@ void cCamera::KeepHorizontal()
 	Vector3 up = dir.CrossProduct(right);
 	up.Normalize();
 	m_up = up;
+}
+
+
+void cCamera::Move(const Vector3 &pos, const Vector3 &dir)
+{
+	m_movePos = pos;
+	m_moveLookAt = m_movePos + dir * 10;
+
+	Vector3 dir1 = m_moveLookAt - m_eyePos;
+	Vector3 dir2 = (m_lookAt - m_eyePos).Normal() * dir1.Length();
+	m_lookAt = m_eyePos + dir2;
+	UpdateViewMatrix();
+
+	m_state = eState::MOVE;
 }
 
 

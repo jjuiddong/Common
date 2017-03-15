@@ -35,6 +35,8 @@ namespace graphic
 		cIndexBuffer m_idxBuff;
 		Vector3 m_min;
 		Vector3 m_max;
+		Vector3 m_scale;
+		Vector3 m_pos;
 		Matrix44 m_tm;
 	};	
 

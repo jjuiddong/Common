@@ -6,6 +6,7 @@ using namespace graphic;
 
 
 cCube::cCube()
+	: m_scale(1)
 {
 }
 
@@ -127,16 +128,19 @@ void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMa
 	T.SetTranslate(center);
 	Matrix44 tm = S * T;
 
-	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
-	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
-	{
-		vbuff[i].p *= tm;
-		vbuff[i].n = vbuff[i].n.MultiplyNormal(tm);
-	}
-	m_vtxBuff.Unlock();
-
+	m_tm = tm;
+	m_scale = scale;
+	m_pos = center;
 	m_min = vMin;
 	m_max = vMax;
+
+	//sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
+	//for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
+	//{
+	//	vbuff[i].p *= tm;
+	//	vbuff[i].n = vbuff[i].n.MultiplyNormal(tm);
+	//}
+	//m_vtxBuff.Unlock();
 }
 
 
@@ -151,9 +155,7 @@ void cCube::SetColor( DWORD color )
 {
 	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
 	for (int i=0; i < m_vtxBuff.GetVertexCount(); ++i)
-	{
 		vbuff[ i].c = color;
-	}
 	m_vtxBuff.Unlock();
 }
 
@@ -189,10 +191,9 @@ void cCube::Render(cRenderer &renderer, const Matrix44 &tm)
 
 void cCube::RenderSolid(cRenderer &renderer, const Matrix44 &tm)
 {
-	renderer.GetDevice()->SetTexture(0, NULL);
-
 	Matrix44 mat = m_tm * tm;
 	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
+	renderer.GetDevice()->SetTexture(0, NULL);
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
@@ -209,7 +210,6 @@ void cCube::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &t
 	{
 		shader.BeginPass(i);
 		shader.CommitChanges();
-
 		m_vtxBuff.Bind(renderer);
 		m_idxBuff.Bind(renderer);
 		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,

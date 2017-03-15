@@ -331,3 +331,8 @@ void cRenderer::SetAlphaBlend(const bool value)
 {
 	GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, value ? TRUE : FALSE);
 }
+
+void cRenderer::SetZEnable(const bool value)
+{
+	GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
+}

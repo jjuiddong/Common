@@ -178,6 +178,12 @@ void Matrix44::SetProjection(	const float fov, const float aspect, const float n
 }
 
 
+void	Matrix44::SetProjectionOrthogonal(const float fov, const float aspect)
+{
+	// nothing~
+}
+
+
 Quaternion Matrix44::GetQuaternion() const
 {
 	Quaternion q;

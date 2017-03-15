@@ -14,7 +14,7 @@ namespace graphic
 		virtual ~cCamera();
 
 		void Init(cRenderer *renderer);
-		void Update();
+		void Update(const float deltaSeconds);
 		void Render(cRenderer &renderer);
 		void Bind(cShader &shader);
 
@@ -50,6 +50,7 @@ namespace graphic
 		void Roll2( const float radian, const bool updateUp = true);
 		void KeepHorizontal();
 
+		void Move(const Vector3 &pos, const Vector3 &dir);
 		void MoveFront( const float len );
 		void MoveFrontHorizontal(const float len);
 		void MoveUp( const float len );
@@ -71,6 +72,9 @@ namespace graphic
 
 
 	public:
+		struct eState { enum Enum { STOP, MOVE}; };
+
+		eState::Enum m_state;
 		Vector3 m_eyePos;
 		Vector3 m_lookAt;
 		Vector3 m_up;
@@ -85,6 +89,11 @@ namespace graphic
 		int m_width; // ViewPort
 		int m_height; // ViewPort
 		cRenderer *m_renderer;
+
+		// Animation
+		Vector3 m_movePos;
+		Vector3 m_moveLookAt;
+		float m_velocity;
 	};
 
 
