@@ -13,6 +13,7 @@ namespace graphic
 		virtual ~cShader();
 
 		bool Create(cRenderer &renderer, const string &fileName, const string &technique, const bool showMsgBox = true);
+		bool Reload(cRenderer &renderer);
 		int Begin();
 		void BeginPass(int pass=-1);
 		void EndPass();
@@ -53,6 +54,7 @@ namespace graphic
 		const string& GetFileName() const;
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
+		void Clear();
 
 
 	public:

@@ -44,6 +44,11 @@ namespace common
 				(abs(z - rhs.z) < MATH_EPSILON2);
 		}
 
+		bool operator != (const Vector3 &rhs) const
+		{
+			return !(operator==(rhs));
+		}
+
 		template <class T>
 		Vector3 operator * ( T t ) const {
 			return Vector3(x*t, y*t, z*t);

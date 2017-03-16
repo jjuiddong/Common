@@ -18,6 +18,7 @@ namespace graphic
 		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 		void SetCube(cRenderer &renderer, const cCube &cube);
 		void SetTransform( const Matrix44 &tm );
+		void ReCalcTransform();
 		void SetColor( DWORD color);
 		const Matrix44& GetTransform() const;
 		const Vector3& GetMin() const;
@@ -33,11 +34,11 @@ namespace graphic
 	public:
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
-		Vector3 m_min;
-		Vector3 m_max;
 		Vector3 m_scale;
 		Vector3 m_pos;
 		Matrix44 m_tm;
+		Vector3 m_min;
+		Vector3 m_max;
 	};	
 
 

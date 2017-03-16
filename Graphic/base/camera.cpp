@@ -13,7 +13,6 @@ cCamera::cCamera() :
 , m_width(0)
 , m_height(0)
 , m_state(eState::STOP)
-, m_velocity(200)
 {
 	UpdateViewMatrix();
 
@@ -73,26 +72,48 @@ Vector3 cCamera::GetRight() const
 void cCamera::Update(const float deltaSeconds)
 {
 	RET(eState::STOP == m_state);
+	if (m_mover.empty())
+	{
+		m_state = eState::STOP;
+		return;
+	}
 
+	// PID
+	const float Ki = 8.f;
+	const float Kd = 5.f;
+	const sCamMoving &mover = m_mover.front();
+
+	// eyepos move
 	int check = 0;
-	Vector3 posDir = m_movePos - m_eyePos;
+	static Vector3 oldPosDir;
+	Vector3 posDir = mover.eyePos - m_eyePos;
 	const float len = posDir.Length();
 	if (len > 0.5f)
 	{
-		posDir.Normalize();
-		m_eyePos += posDir * max(1.f, len * 0.02f);
+		Vector3 dv;
+		if (!oldPosDir.IsEmpty())
+			dv = posDir - oldPosDir;
+		oldPosDir = posDir;
+
+		m_eyePos += posDir * deltaSeconds * Ki + (dv * deltaSeconds * Kd);
 	}
 	else
 	{
 		++check;
 	}
 
-	Vector3 lookDir = m_moveLookAt - m_lookAt;
+	// lookat move
+	static Vector3 oldLookAtDir;
+	Vector3 lookDir = mover.lookAt - m_lookAt;
 	const float len2 = lookDir.Length();
 	if (len2 > 0.5f)
 	{
-		lookDir.Normalize();
-		m_lookAt += lookDir * m_velocity * deltaSeconds; // len2 * 0.03f;
+		Vector3 dv;
+		if (!oldLookAtDir.IsEmpty())
+			dv = lookDir - oldLookAtDir;
+		oldLookAtDir = lookDir;
+
+		m_lookAt += lookDir * deltaSeconds * Ki + (dv * deltaSeconds * Kd);
 	}
 	else
 	{
@@ -100,9 +121,7 @@ void cCamera::Update(const float deltaSeconds)
 	}
 
 	if (check >= 2)
-	{
-		m_state = eState::STOP;
-	}
+		rotatepopvector(m_mover, 0);
 
 	KeepHorizontal();
 	UpdateViewMatrix();	
@@ -296,16 +315,42 @@ void cCamera::KeepHorizontal()
 }
 
 
-void cCamera::Move(const Vector3 &pos, const Vector3 &dir)
+void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt)
 {
-	m_movePos = pos;
-	m_moveLookAt = m_movePos + dir * 10;
+	// Initialize mover vector
+	m_mover.clear();
 
-	Vector3 dir1 = m_moveLookAt - m_eyePos;
-	Vector3 dir2 = (m_lookAt - m_eyePos).Normal() * dir1.Length();
-	m_lookAt = m_eyePos + dir2;
-	UpdateViewMatrix();
+	sCamMoving info;
+	info.eyePos = eyePos;
+	info.lookAt = lookAt;
 
+	const float eyePosVelocity = (eyePos - m_eyePos).Length();
+	const float lookAtVelocity = (lookAt - m_lookAt).Length();
+
+	info.velocityLookAt = lookAtVelocity;
+	info.velocityPos = eyePosVelocity;
+
+	m_mover.push_back(info);
+	m_state = eState::MOVE;
+}
+
+
+void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
+{
+	sCamMoving info;
+	info.eyePos = eyePos;
+	info.lookAt = lookAt;
+
+	Vector3 curEyePos = (m_mover.empty()) ? m_eyePos : m_mover.back().eyePos;
+	Vector3 curLookAt = (m_mover.empty()) ? m_lookAt : m_mover.back().lookAt;
+
+	const float eyePosVelocity = (eyePos - curEyePos).Length();
+	const float lookAtVelocity = (lookAt - curLookAt).Length();
+
+	info.velocityLookAt = lookAtVelocity;
+	info.velocityPos = eyePosVelocity;
+
+	m_mover.push_back(info);
 	m_state = eState::MOVE;
 }
 

@@ -24,6 +24,7 @@ namespace graphic
 		cBoundingBox& operator=(const cCube &cube);
 
 
+	public:
 		Vector3 m_min;
 		Vector3 m_max;
 		Matrix44 m_tm;

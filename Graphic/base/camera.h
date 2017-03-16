@@ -50,7 +50,8 @@ namespace graphic
 		void Roll2( const float radian, const bool updateUp = true);
 		void KeepHorizontal();
 
-		void Move(const Vector3 &pos, const Vector3 &dir);
+		void Move(const Vector3 &eyePos, const Vector3 &lookAt);
+		void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt);
 		void MoveFront( const float len );
 		void MoveFrontHorizontal(const float len);
 		void MoveUp( const float len );
@@ -91,9 +92,14 @@ namespace graphic
 		cRenderer *m_renderer;
 
 		// Animation
-		Vector3 m_movePos;
-		Vector3 m_moveLookAt;
-		float m_velocity;
+		struct sCamMoving
+		{
+			Vector3 eyePos;
+			Vector3 lookAt;
+			float velocityPos;
+			float velocityLookAt;
+		};
+		vector<sCamMoving> m_mover;
 	};
 
 

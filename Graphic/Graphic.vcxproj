@@ -362,9 +362,7 @@
     <ClInclude Include="base\meshbuffer.h" />
     <ClInclude Include="base\quad.h" />
     <ClInclude Include="base\shader.h" />
-    <ClInclude Include="base\shaderrenderer.h" />
     <ClInclude Include="base\shadow1.h" />
-    <ClInclude Include="base\shadowrenderer.h" />
     <ClInclude Include="base\shadowvolume.h" />
     <ClInclude Include="base\skybox.h" />
     <ClInclude Include="base\skybox2.h" />
@@ -391,6 +389,9 @@
     <ClInclude Include="importer\modelimporter.h" />
     <ClInclude Include="input\input.h" />
     <ClInclude Include="interface\pickable.h" />
+    <ClInclude Include="interface\renderable.h" />
+    <ClInclude Include="interface\shaderrenderer.h" />
+    <ClInclude Include="interface\shadowrenderer.h" />
     <ClInclude Include="manager\fontmanager.h" />
     <ClInclude Include="manager\lightmanager.h" />
     <ClInclude Include="manager\maincamera.h" />

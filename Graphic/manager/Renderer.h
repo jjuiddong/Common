@@ -1,4 +1,9 @@
+//
+// jjuiddong
+// Renderer
+//
 #pragma once
+
 
 namespace graphic
 {
@@ -15,6 +20,8 @@ namespace graphic
 		HWND GetHwnd() const;
 		bool CheckResetDevice(const int width, const int height);
 		bool ResetDevice(const int width, const int height);
+		void AddPostRender(iRenderable *obj, const int opt=0);
+
 
 		bool ClearScene();
 		void BeginScene();
@@ -31,6 +38,8 @@ namespace graphic
 		void SetAlphaBlend(const bool value);
 		void SetZEnable(const bool value);
 
+		D3DFILLMODE GetFillMode();
+
 
 	protected:
 		void MakeGrid( const float width, const int count, DWORD color, vector<sVertexDiffuse> &out );
@@ -44,7 +53,12 @@ namespace graphic
 		int m_width;
 		int m_height;
 
-
+		struct sRenderObj
+		{
+			int opt;
+			iRenderable *obj;
+		};
+		vector<sRenderObj> m_postRender;
 		vector<sVertexDiffuse> m_grid;
 		vector<sVertexDiffuse> m_axis;
 

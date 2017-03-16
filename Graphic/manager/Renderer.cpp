@@ -28,6 +28,7 @@ cRenderer::cRenderer() :
 ,	m_elapseTime(0)
 ,	m_fps(0)
 {
+	m_postRender.reserve(128);
 }
 
 cRenderer::~cRenderer()
@@ -246,6 +247,11 @@ void cRenderer::Present()
 
 void cRenderer::EndScene()
 {
+	// Post Render Object
+	for (auto &p : m_postRender)
+		p.obj->Render(*this, p.opt);
+	m_postRender.clear();
+
 	GetDevice()->EndScene();
 }
 
@@ -315,6 +321,13 @@ bool cRenderer::ResetDevice(const int width, const int height)
 }
 
 
+void cRenderer::AddPostRender(iRenderable *obj, const int opt)
+// opt=0
+{
+	m_postRender.push_back({ opt, obj });
+}
+
+
 void cRenderer::SetCullMode(const D3DCULL cull)
 {
 	GetDevice()->SetRenderState(D3DRS_CULLMODE, cull);
@@ -335,4 +348,12 @@ void cRenderer::SetAlphaBlend(const bool value)
 void cRenderer::SetZEnable(const bool value)
 {
 	GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
+}
+
+
+D3DFILLMODE cRenderer::GetFillMode()
+{
+	DWORD value;
+	GetDevice()->GetRenderState(D3DRS_FILLMODE, &value);
+	return (D3DFILLMODE)value;
 }

@@ -20,11 +20,13 @@ using namespace common;
 #include "model/rawmesh.h"
 #include "model/rawani.h"
 #include "collision/boundingbox.h"
+
 #include "interface/pickable.h"
+#include "interface/renderable.h"
+#include "interface/shaderrenderer.h"
+#include "interface/shadowrenderer.h"
 
 
-#include "base/shaderrenderer.h"
-#include "base/shadowrenderer.h"
 #include "base/fontgdi.h"
 #include "base/material.h"
 #include "base/light.h"

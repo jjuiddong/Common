@@ -238,12 +238,6 @@
     <ClInclude Include="sprite\sprite2.h">
       <Filter>sprite</Filter>
     </ClInclude>
-    <ClInclude Include="base\shaderrenderer.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="base\shadowrenderer.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="base\fontgdi.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -261,6 +255,15 @@
     </ClInclude>
     <ClInclude Include="input\input.h">
       <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\renderable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\shaderrenderer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\shadowrenderer.h">
+      <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

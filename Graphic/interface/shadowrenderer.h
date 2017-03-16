@@ -16,7 +16,7 @@ namespace graphic
 		iShadowRenderer() : m_shadowShader(NULL) {}
 		virtual ~iShadowRenderer() {}
 
-		void SetShadowShader(cShader *shader) { m_shadowShader = shader; }
+		virtual void SetShadowShader(cShader *shader) { m_shadowShader = shader; }
 		virtual void RenderShadow(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) = 0;
 
 

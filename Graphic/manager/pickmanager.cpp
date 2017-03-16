@@ -6,6 +6,7 @@ using namespace graphic;
 
 
 cPickManager::cPickManager()
+	: m_mode(ePickMode::SINGLE)
 {
 }
 
@@ -37,10 +38,55 @@ void cPickManager::Update(const float deltaSeconds)
 	Vector3 orig, dir;
 	cMainCamera::Get()->GetRay(cInputManager::Get()->m_mousePt.x, cInputManager::Get()->m_mousePt.y, orig, dir);
 
-	for (auto &obj : m_objects)
+	if (ePickMode::SINGLE == m_mode)
 	{
-		if (obj->Pick(orig, dir))
-			obj->OnPicking(); // Trigger Event
+		vector<iPickable*> objs;
+		for (auto &obj : m_objects)
+		{
+			if (obj->IsPickEnable())
+				if (obj->Pick(orig, dir))
+					objs.push_back(obj);
+		}
+
+		RET(objs.empty());
+
+		if (objs.size() == 1)
+		{
+			objs[0]->OnPicking(); // Trigger Event
+			return;
+		}
+
+		vector<float> lens;
+		for (auto &obj : objs)
+		{
+			float d = 0;
+			if (obj->Pick2(orig, dir, &d))
+				lens.push_back(d);
+		}
+
+		RET(lens.empty());
+
+		// Find Most Nearest object
+		float distance = lens[0];
+		int idx = 0;
+		for (u_int i = 1; i < lens.size(); ++i)
+		{
+			if (distance > lens[i])
+			{
+				idx = i;
+			}
+		}
+
+		objs[idx]->OnPicking(); // Trigger Event
+	}
+	else
+	{
+		for (auto &obj : m_objects)
+		{
+			if (obj->IsPickEnable())
+				if (obj->Pick(orig, dir))
+					obj->OnPicking(); // Trigger Event
+		}
 	}
 }
 
@@ -48,4 +94,10 @@ void cPickManager::Update(const float deltaSeconds)
 void cPickManager::Clear()
 {
 	m_objects.clear();
+}
+
+
+void cPickManager::SetMode(const ePickMode::Enum mode)
+{
+	m_mode = mode;
 }

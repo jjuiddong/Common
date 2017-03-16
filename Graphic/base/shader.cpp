@@ -18,12 +18,14 @@ cShader::cShader() :
 
 cShader::~cShader()
 {
-	SAFE_RELEASE(m_effect);
+	Clear();
 }
 
 
 bool cShader::Create(cRenderer &renderer, const string &fileName, const string &technique, const bool showMsgBox)//showMsgBox=true
 {
+	Clear();
+
 	// 쉐이더 파일 읽기
 	HRESULT hr;
 	LPD3DXBUFFER pErr;
@@ -63,6 +65,12 @@ bool cShader::Create(cRenderer &renderer, const string &fileName, const string &
 	//m_hTechnique = m_effect->GetTechniqueByName( technique.c_str() );
 
 	return true;
+}
+
+
+bool cShader::Reload(cRenderer &renderer)
+{
+	return Create(renderer, m_fileName, m_technique, m_isShowMsgBox);
 }
 
 
@@ -348,4 +356,10 @@ void cShader::ResetDevice(cRenderer &renderer)
 {
 	RET(m_fileName.empty());
 	Create(renderer, m_fileName, m_technique, m_isShowMsgBox);
+}
+
+
+void cShader::Clear()
+{
+	SAFE_RELEASE(m_effect);
 }
