@@ -45,19 +45,26 @@ namespace graphic
 		void Roll( const float radian );
 
 		// EyePos 가 이동한다.
-		void Pitch2( const float radian, const bool updateUp = true);
-		void Yaw2( const float radian, const bool updateUp = true);
-		void Roll2( const float radian, const bool updateUp = true);
+		void Pitch2( const float radian);
+		void Yaw2( const float radian);
+		void Roll2( const float radian);
+
+		void Pitch3(const float radian, const Vector3 &target);
+		void Yaw3(const float radian, const Vector3 &target);
+		void Roll3(const float radian, const Vector3 &target);
+
 		void KeepHorizontal();
 
 		void Move(const Vector3 &eyePos, const Vector3 &lookAt);
 		void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt);
+		void MoveCancel();
 		void MoveFront( const float len );
 		void MoveFrontHorizontal(const float len);
 		void MoveUp( const float len );
 		void MoveRight( const float len );
 		void MoveAxis( const Vector3 &dir, const float len );
 		void Zoom( const float len );
+		void Zoom( const Vector3 &dir, const float len);
 
 		Vector3 GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 		Vector3 GetScreenPos(const Vector3& vPos);

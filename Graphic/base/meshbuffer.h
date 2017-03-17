@@ -14,6 +14,7 @@ namespace graphic
 		cMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cMeshBuffer(cRenderer &renderer, const sRawMesh2 &rawMesh);
 		cMeshBuffer(cRenderer &renderer, const sRawBone &rawBone);
+		virtual ~cMeshBuffer();
 
 		void Bind(cRenderer &renderer);
 		void Render(cRenderer &renderer, const int faceStart = 0, const int faceCount = 0);
@@ -25,6 +26,7 @@ namespace graphic
 		const cBoundingBox& GetBoundingBox() const;
 		void SetOffset(const int offset);
 		int GetOffset() const;
+		void Clear();
 
 
 	protected:

@@ -37,6 +37,12 @@ cMeshBuffer::cMeshBuffer(cRenderer &renderer, const sRawBone &rawBone)
 }
 
 
+cMeshBuffer::~cMeshBuffer()
+{
+	Clear();
+}
+
+
 void cMeshBuffer::Bind(cRenderer &renderer)
 {
 	m_idxBuff.Bind(renderer);
@@ -374,4 +380,12 @@ void cMeshBuffer::Render(cRenderer &renderer, const int faceStart, const int fac
 		m_vtxBuff.GetVertexCount(), 
 		faceStart, 
 		(faceCount==0)? m_idxBuff.GetFaceCount() : faceCount );
+}
+
+
+void cMeshBuffer::Clear()
+{
+	m_attributes.clear();
+	m_vtxBuff.Clear();
+	m_idxBuff.Clear();
 }

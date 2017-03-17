@@ -158,15 +158,15 @@ void cCamera::UpdateViewMatrix(const bool updateUp)
 	m_view.SetView2(m_eyePos, m_lookAt, m_up);
 
 	// Update Up Vector
-	if (updateUp)
-	{
-		Vector3 dir = m_lookAt - m_eyePos;
-		dir.Normalize();
-		Vector3 right = m_up.CrossProduct(dir);
-		right.Normalize();
-		m_up = dir.CrossProduct(right);
-		m_up.Normalize();
-	}
+	//if (updateUp)
+	//{
+	//	Vector3 dir = m_lookAt - m_eyePos;
+	//	dir.Normalize();
+	//	Vector3 right = m_up.CrossProduct(dir);
+	//	right.Normalize();
+	//	m_up = dir.CrossProduct(right);
+	//	m_up.Normalize();
+	//}
 	//
 
 	if (m_renderer->GetDevice())
@@ -250,8 +250,7 @@ void cCamera::Roll( const float radian )
 
 
 // Right 축으로 회전한다.
-void cCamera::Pitch2( const float radian, const bool updateUp)
-// updateUp = true
+void cCamera::Pitch2( const float radian)
 {
 	RET(radian == 0);
 
@@ -261,15 +260,22 @@ void cCamera::Pitch2( const float radian, const bool updateUp)
 
 	Vector3 v = m_eyePos - m_lookAt;
 	v *= mat;
-	m_eyePos = m_lookAt + v;
+	Vector3 eyePos = m_lookAt + v;
 
-	UpdateViewMatrix(updateUp);
+	Vector3 dir = m_lookAt - eyePos;
+	dir.Normalize();
+
+	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
+		return;
+
+	m_eyePos = eyePos;
+
+	UpdateViewMatrix();
 }
 
 
 // Up 축으로 회전한다.
-void cCamera::Yaw2( const float radian, const bool updateUp)
-// updateUp = true
+void cCamera::Yaw2( const float radian)
 {
 	RET(radian == 0);
 
@@ -281,13 +287,12 @@ void cCamera::Yaw2( const float radian, const bool updateUp)
 	v *= mat;
 	m_eyePos = m_lookAt + v;
 
-	UpdateViewMatrix(updateUp);
+	UpdateViewMatrix();
 }
 
 
 // Direction 축으로 회전한다.
-void cCamera::Roll2( const float radian, const bool updateUp)
-// updateUp = true
+void cCamera::Roll2( const float radian)
 {
 	RET(radian == 0);
 
@@ -299,7 +304,55 @@ void cCamera::Roll2( const float radian, const bool updateUp)
 	v *= mat;
 	m_lookAt = m_eyePos + v;
 
-	UpdateViewMatrix(updateUp);
+	UpdateViewMatrix();
+}
+
+
+void cCamera::Pitch3(const float radian, const Vector3 &target)
+{
+	RET(radian == 0);
+
+	const Vector3 axis = GetRight();
+	const Quaternion q(axis, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_eyePos - target;
+	v *= mat;
+	m_eyePos = target + v;
+
+	UpdateViewMatrix();
+}
+
+
+void cCamera::Yaw3(const float radian, const Vector3 &target)
+{
+	RET(radian == 0);
+
+	const Vector3 axis = GetUpVector();
+	const Quaternion q(axis, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_eyePos - target;
+	v *= mat;
+	m_eyePos = target + v;
+
+	UpdateViewMatrix();
+}
+
+
+void cCamera::Roll3(const float radian, const Vector3 &target)
+{
+	RET(radian == 0);
+
+	//const Vector3 axis = GetDirection();
+	//const Quaternion q(axis, radian);
+	//const Matrix44 mat = q.GetMatrix();
+
+	//Vector3 v = target - m_eyePos;
+	//v *= mat;
+	//target = m_eyePos + v;
+
+	//UpdateViewMatrix();
 }
 
 
@@ -352,6 +405,12 @@ void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
 
 	m_mover.push_back(info);
 	m_state = eState::MOVE;
+}
+
+
+void cCamera::MoveCancel()
+{
+	m_state = eState::STOP;
 }
 
 
@@ -408,7 +467,11 @@ void cCamera::MoveAxis( const Vector3 &dir, const float len )
 // lookAt 은 고정된채로 eyePos 를 이동한다.
 void cCamera::Zoom( const float len)
 {
-	const Vector3 dir = GetDirection();
+	Zoom(GetDirection(), len);
+}
+
+void cCamera::Zoom(const Vector3 &dir, const float len)
+{
 	m_eyePos += dir * len;
 	m_lookAt += dir * len;
 	UpdateViewMatrix();
