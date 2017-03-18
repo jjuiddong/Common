@@ -271,23 +271,22 @@ void cGrid2::RenderLinelist(cRenderer &renderer)
 
 void cGrid2::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 {
-	shader.SetMatrix( "mWorld", tm);
-	Matrix44 tmInvs = tm.Inverse();
-	tmInvs.Transpose();
-	shader.SetMatrix( "mWIT", tmInvs);
+	shader.SetMatrix("g_mWorld", tm);
 
 	m_mtrl.Bind(shader);
-	m_tex.Bind(shader, "colorMapTexture");
+	m_tex.Bind(shader, "g_colorMapTexture");
 
-	shader.Begin();
-	shader.BeginPass();
-
-	m_vtxBuff.Bind(renderer);
-	m_idxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_vtxBuff.GetVertexCount(),
-		0, m_idxBuff.GetFaceCount());
-
-	shader.EndPass();
+	const int passCnt = shader.Begin();
+	for (int i = 0; i < passCnt; ++i)
+	{
+		shader.BeginPass(i);
+		shader.CommitChanges();
+		m_vtxBuff.Bind(renderer);
+		m_idxBuff.Bind(renderer);
+		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_vtxBuff.GetVertexCount(),
+			0, m_idxBuff.GetFaceCount());
+		shader.EndPass();
+	}
 	shader.End();
 }
 

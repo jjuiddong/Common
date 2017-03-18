@@ -118,6 +118,7 @@ void cShader::SetBool(const string &key, const bool val)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetBool(key.c_str(), val)))
 	{
+		assert(0);
 		MessageBoxA(NULL, "cShader::SetBool Error", "ERROR", MB_OK);
 	}
 }
@@ -127,6 +128,7 @@ void cShader::SetInt(const string &key, const int val )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetInt( key.c_str(), val)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetInt Error", "ERROR", MB_OK);
 	}	
 }
@@ -136,6 +138,7 @@ void cShader::SetMatrix(const string &key, const Matrix44 &mat)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrix( key.c_str(), (D3DXMATRIX*)&mat)))
 	{
+		assert(0);
 		MessageBoxA(NULL, format("cShader::SetMatrix [%s] Error", key.c_str()).c_str(), "ERROR", MB_OK);
 	}
 }
@@ -146,6 +149,7 @@ void cShader::SetTexture(const string &key, cTexture &texture)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture( key.c_str(), texture.GetTexture())))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
@@ -154,6 +158,7 @@ void cShader::SetTexture(const string &key, IDirect3DTexture9 *texture)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture( key.c_str(), texture)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
@@ -163,6 +168,7 @@ void cShader::SetTexture(const string &key, IDirect3DCubeTexture9 *texture)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture( key.c_str(), texture)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
@@ -172,6 +178,7 @@ void cShader::SetFloat(const string &key, float val)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetFloat( key.c_str(), val)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetFloat Error", "ERROR", MB_OK);
 	}	
 }
@@ -182,6 +189,7 @@ void cShader::SetVector(const string &key, const Vector2 &vec )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector( key.c_str(), &D3DXVECTOR4(vec.x, vec.y, 0, 1.f))))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetVector Error", "ERROR", MB_OK);
 	}	
 }
@@ -192,6 +200,7 @@ void cShader::SetVector(const string &key, const Vector3 &vec )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector( key.c_str(), &D3DXVECTOR4(vec.x, vec.y, vec.z, 1.f))))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetVector Error", "ERROR", MB_OK);
 	}	
 }
@@ -202,6 +211,7 @@ void cShader::SetVector(const string &key, const Vector4 &vec )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector( key.c_str(), &D3DXVECTOR4(vec.x, vec.y, vec.z, vec.w))))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetVector Error", "ERROR", MB_OK);
 	}	
 }
@@ -212,6 +222,7 @@ void cShader::SetMatrixArray(const string &key, const Matrix44 *mat, const int c
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrixArray(key.c_str(), (D3DXMATRIX*)mat, count)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetMatrixArray Error", "ERROR", MB_OK);
 	}
 }
@@ -222,6 +233,7 @@ void cShader::SetIntArray(const string &key, const int *array, const int count)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetIntArray(key.c_str(), array, count)))
 	{
+		assert(0);
 		MessageBoxA(NULL, "cShader::SetIntArray Error", "ERROR", MB_OK);
 	}
 }
@@ -232,6 +244,7 @@ void cShader::SetBool(D3DXHANDLE handle, const bool val)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetBool(handle, val)))
 	{
+		assert(0);
 		MessageBoxA(NULL, "cShader::SetInt Error", "ERROR", MB_OK);
 	}
 }
@@ -241,6 +254,7 @@ void cShader::SetInt(D3DXHANDLE handle, const int val )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetInt(handle, val)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetInt Error", "ERROR", MB_OK);
 	}	
 }
@@ -250,6 +264,7 @@ void cShader::SetMatrix(D3DXHANDLE handle, const Matrix44 &mat)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrix(handle, (D3DXMATRIX*)&mat)))
 	{
+		assert(0);
 		MessageBoxA( NULL, format("cShader::SetMatrix [%s] Error", (char*)handle).c_str(), "ERROR", MB_OK);
 	}
 }
@@ -260,6 +275,7 @@ void cShader::SetTexture(D3DXHANDLE handle, cTexture &texture)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture(handle, texture.GetTexture())))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
@@ -268,6 +284,7 @@ void cShader::SetTexture(D3DXHANDLE handle, IDirect3DTexture9 *texture)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture(handle, texture)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
@@ -277,6 +294,7 @@ void cShader::SetFloat(D3DXHANDLE handle, float val)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetFloat(handle, val)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetFloat Error", "ERROR", MB_OK);
 	}	
 }
@@ -287,6 +305,7 @@ void cShader::SetVector(D3DXHANDLE handle, const Vector2 &vec )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector(handle, &D3DXVECTOR4(vec.x, vec.y, 0, 1.f))))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetVector Error", "ERROR", MB_OK);
 	}	
 }
@@ -297,6 +316,7 @@ void cShader::SetVector(D3DXHANDLE handle, const Vector3 &vec )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector(handle, &D3DXVECTOR4(vec.x, vec.y, vec.z, 1.f))))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetVector Error", "ERROR", MB_OK);
 	}	
 }
@@ -307,6 +327,7 @@ void cShader::SetVector(D3DXHANDLE handle, const Vector4 &vec )
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector(handle, &D3DXVECTOR4(vec.x, vec.y, vec.z, vec.w))))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetVector Error", "ERROR", MB_OK);
 	}	
 }
@@ -317,6 +338,7 @@ void cShader::SetMatrixArray(D3DXHANDLE handle, const Matrix44 *mat, const int c
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrixArray(handle, (D3DXMATRIX*)mat, count)))
 	{
+		assert(0);
 		MessageBoxA( NULL, "cShader::SetMatrixArray Error", "ERROR", MB_OK);
 	}
 }
@@ -327,6 +349,7 @@ void cShader::SetIntArray(D3DXHANDLE handle, const int *array, const int count)
 	RET(!m_effect);
 	if (FAILED(m_effect->SetIntArray(handle, array, count)))
 	{
+		assert(0);
 		MessageBoxA(NULL, "cShader::SetIntArray Error", "ERROR", MB_OK);
 	}
 }

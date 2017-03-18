@@ -23,7 +23,7 @@ namespace graphic
 		void HighlightBone(cRenderer &renderer, const string &boneName);
 
 
-	private:
+	public:
 		cCharacter *m_character; // reference
 		cCube m_selectBoneCube;
 		cBoneNode *m_selectBone;

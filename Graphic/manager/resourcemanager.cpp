@@ -366,7 +366,7 @@ cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileNam
 		}
 	}
 
-	m_shaders[ fileName] = shader;
+	m_shaders[ GetFileName(fileName)] = shader;
 	return shader;
 }
 
@@ -384,7 +384,7 @@ cTexture* cResourceManager::FindTexture( const string &fileName )
 // ¼ÎÀÌ´õ Ã£±â.
 cShader* cResourceManager::FindShader( const string &fileName )
 {
-	auto it = m_shaders.find(fileName);
+	auto it = m_shaders.find(GetFileName(fileName));
 	if (m_shaders.end() == it)
 		return NULL; // not exist
 	return it->second;

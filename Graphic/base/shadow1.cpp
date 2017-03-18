@@ -36,6 +36,12 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cNode &node)
 	cLightManager::Get()->GetMainLight().GetShadowMatrix(
 		pos, lightPos, view, proj, tt );
 
+	if (node.m_shader)
+	{
+		node.m_shader->SetMatrix("g_mView", view);
+		node.m_shader->SetMatrix("g_mProj", proj);
+	}
+
 	Begin(renderer);
 	node.RenderShadow(renderer, view*proj, lightPos, Vector3(0,-1,0), Matrix44::Identity);
 	End();

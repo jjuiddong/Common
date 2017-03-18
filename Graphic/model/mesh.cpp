@@ -133,24 +133,11 @@ void cMesh::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &p
 	RET(!IsRender());
 	RET(!m_buffers);
 
-	const cLight &mainLight = cLightManager::Get()->GetMainLight();
-	mainLight.Bind(shader);
-
-	//shader.SetMatrix( "mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-	//shader.SetVector("vEyePos", cMainCamera::Get()->GetEyePos());
-	shader.SetMatrix("g_mView", cMainCamera::Get()->GetViewMatrix());
-	shader.SetMatrix("g_mProj", cMainCamera::Get()->GetProjectionMatrix());
-	shader.SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
-
 	if (m_buffers->GetAttributes().empty())
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
 		shader.SetMatrix("g_mWorld", tm);
 		
-		Matrix44 wit = tm.Inverse();
-		wit.Transpose();
-		shader.SetMatrix("g_mWIT", wit);
-
 		const bool isNormalMapping = (!m_normalMap.empty()) && 
 			(m_normalMap[ 0] && m_normalMap[ 0]->GetTexture());
 
@@ -163,13 +150,13 @@ void cMesh::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &p
 		if (!m_mtrls.empty())
 			m_mtrls[ 0].Bind(shader);
 		if (!m_colorMap.empty())
-			m_colorMap[ 0]->Bind(shader, "colorMapTexture");
+			m_colorMap[ 0]->Bind(shader, "g_colorMapTexture");
 		if (isNormalMapping)
-			m_normalMap[ 0]->Bind(shader, "normalMapTexture");
+			m_normalMap[ 0]->Bind(shader, "g_normalMapTexture");
 		if (isSpecularMapping)
-			m_specularMap[ 0]->Bind(shader, "specularMapTexture");
+			m_specularMap[ 0]->Bind(shader, "g_specularMapTexture");
 		if (isSelfIllumMapping)
-			m_selfIllumMap[ 0]->Bind(shader, "selfIllumMapTexture");
+			m_selfIllumMap[ 0]->Bind(shader, "g_selfIllumMapTexture");
 
 		shader.SetRenderPass(isNormalMapping? 4 : 0);
 
@@ -177,23 +164,20 @@ void cMesh::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &p
 
 		shader.Begin();
 		shader.BeginPass();
+		shader.CommitChanges();
 
 		renderer.GetDevice()->DrawIndexedPrimitive( 
 			D3DPT_TRIANGLELIST, 0, 0, 
 			m_buffers->GetVertexBuffer().GetVertexCount(), 0, 
 			m_buffers->GetIndexBuffer().GetFaceCount());
 
-		shader.End();
 		shader.EndPass();
+		shader.End();
 	}
 	else
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
 		shader.SetMatrix("g_mWorld", tm);
-
-		Matrix44 wit = tm.Inverse();
-		wit.Transpose();
-		shader.SetMatrix("g_mWIT", wit);
 
 		shader.Begin();
 
@@ -216,13 +200,13 @@ void cMesh::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &p
 
 			m_mtrls[ mtrlId].Bind(shader);
 			if (m_colorMap[ mtrlId])
-				m_colorMap[ mtrlId]->Bind(shader, "colorMapTexture");
+				m_colorMap[ mtrlId]->Bind(shader, "g_colorMapTexture");
 			if (isNormalMapping)
-				m_normalMap[ mtrlId]->Bind(shader, "normalMapTexture");
+				m_normalMap[ mtrlId]->Bind(shader, "g_normalMapTexture");
 			if (isSpecularMapping)
-				m_specularMap[ mtrlId]->Bind(shader, "specularMapTexture");
+				m_specularMap[ mtrlId]->Bind(shader, "g_specularMapTexture");
 			if (isSelfIllumMapping)
-				m_selfIllumMap[ mtrlId]->Bind(shader, "selfIllumMapTexture");
+				m_selfIllumMap[ mtrlId]->Bind(shader, "g_selfIllumMapTexture");
 
 			shader.SetRenderPass(isNormalMapping? 4 : 0);
 
@@ -249,20 +233,13 @@ void cMesh::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 	RET(!m_shader);
 	RET(!m_buffers);
 
-	const cLight &mainLight = cLightManager::Get()->GetMainLight();
-	mainLight.Bind(*m_shader);
-
-	m_shader->SetMatrix( "g_mVP", viewProj);
-	m_shader->SetVector( "g_vEyePos", lightPos);
+	//const cLight &mainLight = cLightManager::Get()->GetMainLight();
+	//mainLight.Bind(*m_shader);
 
 	if (m_buffers->GetAttributes().empty())
 	{
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
 		m_shader->SetMatrix("g_mWorld", tm);
-
-		Matrix44 wit = tm.Inverse();
-		wit.Transpose();
-		m_shader->SetMatrix("g_mWIT", wit);
 
 		m_buffers->Bind(renderer);
 
@@ -282,9 +259,9 @@ void cMesh::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 		const Matrix44 tm = m_localTM * m_aniTM * m_TM * parentTm;
 		m_shader->SetMatrix("g_mWorld", tm);
 
-		Matrix44 wit = tm.Inverse();
-		wit.Transpose();
-		m_shader->SetMatrix("g_mWIT", wit);
+		//Matrix44 wit = tm.Inverse();
+		//wit.Transpose();
+		//m_shader->SetMatrix("g_mWIT", wit);
 
 		m_shader->Begin();
 

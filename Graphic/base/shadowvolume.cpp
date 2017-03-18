@@ -4,6 +4,27 @@
 
 using namespace graphic;
 
+namespace graphic
+{
+	struct CEdgeMapping
+	{
+		int m_anOldEdge[2];  // vertex index of the original edge
+		int m_aanNewEdge[2][2]; // vertex indexes of the new edge
+								// First subscript = index of the new edge
+								// Second subscript = index of the vertex for the edge
+	public:
+		CEdgeMapping()
+		{
+			FillMemory(m_anOldEdge, sizeof(m_anOldEdge), -1);
+			FillMemory(m_aanNewEdge, sizeof(m_aanNewEdge), -1);
+		}
+	};
+
+	int FindEdgeInMappingTable(int nV1, int nV2, CEdgeMapping* pMapping, int nCount);
+}
+
+#define ADJACENCY_EPSILON 0.0001f
+
 
 cShadowVolume::cShadowVolume()
 	: m_mesh(NULL)
@@ -23,22 +44,6 @@ const D3DVERTEXELEMENT9 cShadowVolume::sVertex::Decl[3] =
 	D3DDECL_END()
 };
 
-struct CEdgeMapping
-{
-	int m_anOldEdge[2];  // vertex index of the original edge
-	int m_aanNewEdge[2][2]; // vertex indexes of the new edge
-							// First subscript = index of the new edge
-							// Second subscript = index of the vertex for the edge
-
-public:
-	CEdgeMapping()
-	{
-		FillMemory(m_anOldEdge, sizeof(m_anOldEdge), -1);
-		FillMemory(m_aanNewEdge, sizeof(m_aanNewEdge), -1);
-	}
-};
-
-#define ADJACENCY_EPSILON 0.0001f
 
 
 //--------------------------------------------------------------------------------------
@@ -49,7 +54,7 @@ public:
 // nCount is the number of elements in the array.
 // The function returns -1 if an available entry cannot be found.  In reality,
 // this should never happens as we should have allocated enough memory.
-int FindEdgeInMappingTable(int nV1, int nV2, CEdgeMapping* pMapping, int nCount)
+int graphic::FindEdgeInMappingTable(int nV1, int nV2, CEdgeMapping* pMapping, int nCount)
 {
 	for (int i = 0; i < nCount; ++i)
 	{
@@ -552,7 +557,7 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 
 							// Modify mapping entry i2 to reflect the third edge
 							// of the newly added face.
-
+							
 							if (pMapping[i2].m_anOldEdge[0] == pMapping[i].m_anOldEdge[1])
 							{
 								pMapping[i2].m_anOldEdge[0] = pMapping[i].m_anOldEdge[0];
