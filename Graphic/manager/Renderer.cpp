@@ -48,7 +48,8 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height)
 
 	m_textFps.Create(*this);
 	m_textFps.SetPos(0, 0);
-	m_textFps.SetColor(D3DXCOLOR(0,0,0,1));
+	//m_textFps.SetColor(D3DXCOLOR(0,0,0,1));
+	m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
 
 	m_hWnd = hWnd;
 	return true;

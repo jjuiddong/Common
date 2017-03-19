@@ -9,17 +9,28 @@ using namespace graphic;
 
 
 
-cTerrainEditor::cTerrainEditor(cRenderer &renderer)
+//cTerrainEditor::cTerrainEditor(cRenderer &renderer)
+cTerrainEditor::cTerrainEditor()
 {
-	InitLayer(renderer);
+	//InitLayer(renderer);
 
 	//m_shader.Create( "../media/shader/hlsl_terrain_splatting.fx", "TShader" );
-	m_emptyTexture.Create(renderer, "../media/texture/emptyTexture.png" );
+	//m_emptyTexture.Create(renderer, "../media/texture/emptyTexture.png" );
 }
 
 cTerrainEditor::~cTerrainEditor()
 {
+}
 
+
+bool cTerrainEditor::Init(cRenderer &renderer)
+{
+	InitLayer(renderer);
+
+	//m_shader->Create(renderer, "../media/shader/hlsl_terrain_splatting.fx", "TShader" );
+	//m_emptyTexture.Create(renderer, "../media/texture/emptyTexture.png" );
+
+	return true;
 }
 
 

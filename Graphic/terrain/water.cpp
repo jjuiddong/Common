@@ -80,7 +80,7 @@ bool cWater::Create(cRenderer &renderer)
 	dirW.Normalize();
 	m_initInfo.dirLight.m_light.Ambient = D3DXCOLOR(0.8f,0.8f,0.8f,1);
 	m_initInfo.dirLight.Bind(m_shader);
-	m_shader.SetVector("light.dirW", dirW);
+	m_shader.SetVector("g_light.dirW", dirW);
 
 	m_initInfo.mtrl.m_mtrl.Ambient = D3DXCOLOR(0.4f,0.4f,0.4f,1);
 	m_initInfo.mtrl.m_mtrl.Specular = D3DXCOLOR(0.6f,0.6f,0.6f,0.6f);
@@ -97,7 +97,7 @@ bool cWater::Create(cRenderer &renderer)
 
 void cWater::Render(cRenderer &renderer)
 {
-	m_shader.SetMatrix("mVP", cMainCamera::Get()->GetViewProjectionMatrix());
+	m_shader.SetMatrix("g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
 	cLightManager::Get()->GetMainLight().Bind(m_shader);
 
 	m_shader.SetMatrix(m_hWVP, m_initInfo.toWorld*cMainCamera::Get()->GetViewProjectionMatrix());

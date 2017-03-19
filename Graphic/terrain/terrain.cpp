@@ -273,9 +273,9 @@ void cTerrain::Render(cRenderer &renderer)
 		// RenderShader() 함수에서 mVP 를 초기화 하면 깜빡거리는 현상이 나타나서
 		// Render() 함수에서 일괄적으로 초기화하게 했다.
 		cLightManager::Get()->GetMainLight().Bind(*m_shader);
-		m_shader->SetMatrix( "mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-		m_shader->SetVector( "vEyePos", cMainCamera::Get()->GetEyePos());
-		m_shader->SetVector( "vFog", Vector3(1.f, 10000.f, 0)); // near, far
+		m_shader->SetMatrix( "g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
+		m_shader->SetVector( "g_vEyePos", cMainCamera::Get()->GetEyePos());
+		m_shader->SetVector( "g_vFog", Vector3(1.f, 10000.f, 0)); // near, far
 
 		m_skybox.Render(renderer);
 		RenderShader(renderer, *m_shader);
@@ -325,7 +325,21 @@ void cTerrain::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44
 
 	if (m_isShowModel)
 		RenderRigidModels(renderer, tm);
-	m_grid.RenderShader(renderer, shader, tm);
+
+
+	shader.SetMatrix("g_mWorld", tm);
+	m_grid.m_mtrl.Bind(shader);
+	m_grid.m_tex.Bind(shader, "g_colorMapTexture");
+	const int passCnt = shader.Begin();
+	shader.BeginPass();
+	shader.CommitChanges();
+	m_grid.m_vtxBuff.Bind(renderer);
+	m_grid.m_idxBuff.Bind(renderer);
+	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 
+		m_grid.m_vtxBuff.GetVertexCount(), 0, m_grid.m_idxBuff.GetFaceCount());
+	shader.EndPass();
+	shader.End();
+	//m_grid.RenderShader(renderer, shader, tm);
 }
 
 

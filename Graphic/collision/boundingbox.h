@@ -1,3 +1,6 @@
+// 
+// OBB (Oriendted Bounding Box)
+//
 #pragma once
 
 
@@ -5,8 +8,6 @@ namespace graphic
 {
 	class cCube;
 
-
-	// OBB 충돌박스.
 	class cBoundingBox
 	{
 	public:

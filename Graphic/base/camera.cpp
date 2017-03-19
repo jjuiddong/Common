@@ -145,6 +145,7 @@ void cCamera::Bind(cShader &shader)
 {
 	shader.SetMatrix("g_mView", m_view);
 	shader.SetMatrix("g_mProj", m_proj);
+	shader.SetMatrix("g_mVP", m_view * m_proj);
 	shader.SetVector("g_vEyePos", m_eyePos);
 }
 

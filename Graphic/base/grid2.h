@@ -42,7 +42,7 @@ namespace graphic
 		cMaterial& GetMaterial();		
 
 
-	private:
+	public:
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 		cTexture m_tex;

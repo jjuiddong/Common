@@ -5,7 +5,8 @@
 
 using namespace graphic;
 
-cTerrainCursor::cTerrainCursor(cRenderer &renderer) :
+//cTerrainCursor::cTerrainCursor(cRenderer &renderer) :
+cTerrainCursor::cTerrainCursor() :
 	m_innerRadius(10)
 ,	m_outerRadius(60)
 ,	m_innerAlpha(1.f)
@@ -15,8 +16,8 @@ cTerrainCursor::cTerrainCursor(cRenderer &renderer) :
 ,	m_editMode(TERRAIN_EDIT_MODE::NONE)
 ,	m_brushSpeed(20.f)
 {
-	m_innerCircle.Create( renderer, CURSOR_VERTEX_COUNT, sizeof(sVertexDiffuse), sVertexDiffuse::FVF );
-	m_outerCircle.Create( renderer, CURSOR_VERTEX_COUNT, sizeof(sVertexDiffuse), sVertexDiffuse::FVF );	
+	//m_innerCircle.Create( renderer, CURSOR_VERTEX_COUNT, sizeof(sVertexDiffuse), sVertexDiffuse::FVF );
+	//m_outerCircle.Create( renderer, CURSOR_VERTEX_COUNT, sizeof(sVertexDiffuse), sVertexDiffuse::FVF );	
 }
 
 
@@ -26,9 +27,18 @@ cTerrainCursor::~cTerrainCursor()
 }
 
 
+bool cTerrainCursor::Init(cRenderer &renderer)
+{
+	m_innerCircle.Create( renderer, CURSOR_VERTEX_COUNT, sizeof(sVertexDiffuse), sVertexDiffuse::FVF );
+	m_outerCircle.Create( renderer, CURSOR_VERTEX_COUNT, sizeof(sVertexDiffuse), sVertexDiffuse::FVF );	
+
+	return true;
+}
+
+
 void cTerrainCursor::RenderTerrainBrush(cRenderer &renderer)
 {
-	//m_innerCircle.RenderLineStrip();
+	m_innerCircle.RenderLineStrip(renderer);
 	m_outerCircle.RenderLineStrip(renderer);
 }
 
@@ -53,6 +63,7 @@ void cTerrainCursor::UpdateCursor( graphic::cTerrain &terrain,  const Vector3 &c
 
 	sVertexDiffuse *innerVertices = (sVertexDiffuse*)m_innerCircle.Lock();	
 	sVertexDiffuse *outerVertices = (sVertexDiffuse*)m_outerCircle.Lock();	
+	RET(!innerVertices || !outerVertices);
 	
 	float angle = 0.f;
 	int index = 0;

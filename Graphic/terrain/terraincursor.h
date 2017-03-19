@@ -23,9 +23,11 @@ namespace graphic
 
 
 	public:
-		cTerrainCursor(cRenderer &renderer);
+		//cTerrainCursor(cRenderer &renderer);
+		cTerrainCursor();
 		virtual ~cTerrainCursor(void);
 
+		bool Init(cRenderer &renderer);
 		void RenderBrush(cRenderer &renderer);
 		void RenderModel(cRenderer &renderer);
 		void RenderTerrainBrush(cRenderer &renderer);

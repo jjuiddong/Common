@@ -6,7 +6,6 @@
 
 namespace graphic
 {
-
 	// cGrid 클래스를 파일에 저장하고 로드할 때 사용된다.
 	struct sGridBinary
 	{
@@ -19,12 +18,9 @@ namespace graphic
 		float *heightMap; // (rowCellCount+1) * (colCellCount+1) 개수 만큰 저장된다.
 									 // 높이 값을 저장한다.
 	};
-
 }
 
-
 using namespace graphic;
-
 
 
 cGrid2::cGrid2() :
