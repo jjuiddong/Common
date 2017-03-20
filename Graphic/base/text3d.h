@@ -15,8 +15,8 @@ namespace graphic
 		cText3d();
 		virtual ~cText3d();
 
-		bool Create(cRenderer &renderer, cFontGdi *font, const int width, const int height,
-			const int textWidth=128, const int textHeight=64);
+		bool Create(cRenderer &renderer, cFontGdi *font, const BILLBOARD_TYPE::TYPE type, 
+			const int width, const int height, const int textWidth=128, const int textHeight=64);
 		bool SetText(const Matrix44 &tm, const string &text, const DWORD color);
 		bool SetTextRect(const Matrix44 &tm, const string &text, const DWORD color, const sRect &rect);
 		void Render(cRenderer &renderer);
@@ -26,7 +26,7 @@ namespace graphic
 	public:
 		cFontGdi *m_font;
 		cTexture m_texture;
-		cQuad m_quad;
+		cBillboard m_quad;
 		DWORD m_color;
 	};
 

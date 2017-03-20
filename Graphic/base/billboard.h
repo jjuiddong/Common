@@ -10,6 +10,7 @@ namespace graphic
 	namespace BILLBOARD_TYPE {
 		enum TYPE
 		{
+			NONE,
 			Y_AXIS,		// Y 축으로만 회전한다.
 			ALL_AXIS,	// 모든 축이 회전한다.
 		};

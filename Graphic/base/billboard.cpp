@@ -32,23 +32,35 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 void cBillboard::Render(cRenderer &renderer)
 {
 	Matrix44 mat;
-	const Matrix44 view = cMainCamera::Get()->GetViewMatrix();
 
 	switch (m_type)
 	{
+	case BILLBOARD_TYPE::NONE:
+		break;
+
 	case BILLBOARD_TYPE::Y_AXIS:
+	{
 		// Y축 빌보드 행렬을 계산한다.
+		Matrix44 view;
+		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), Vector3(0, -1, 0));
+
 		mat._11 = view._11;
 		mat._13 = view._13;
 		mat._31 = view._31;
 		mat._33 = view._33;
+	}
 		break;
 
 	case BILLBOARD_TYPE::ALL_AXIS:
+	{
 		// 모든 축에서 빌보드 행렬을 계산한다.
+		Matrix44 view;
+		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), Vector3(0, -1, 0));
+
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
-		break;
+	}
+	break;
 	}
 
 	Matrix44 T;

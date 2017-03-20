@@ -30,6 +30,8 @@ namespace graphic
 	public:
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
+		Vector3 m_scale;
+		Vector3 m_pos;
 		Vector3 m_min;
 		Vector3 m_max;
 		Matrix44 m_tm;

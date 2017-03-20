@@ -94,6 +94,8 @@ namespace graphic
 		float m_aspect;
 		float m_nearPlane;
 		float m_farPlane;
+		int m_oldWidth;
+		int m_oldHeight;
 		int m_width; // ViewPort
 		int m_height; // ViewPort
 		cRenderer *m_renderer;

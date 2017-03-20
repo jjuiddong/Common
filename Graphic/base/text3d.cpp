@@ -14,17 +14,18 @@ cText3d::~cText3d()
 }
 
 
-bool cText3d::Create(cRenderer &renderer, cFontGdi *font, const int width, const int height,
-	const int textWidth, const int textHeight)
+bool cText3d::Create(cRenderer &renderer, cFontGdi *font, const BILLBOARD_TYPE::TYPE type, 
+	const int width, const int height, const int textWidth, const int textHeight)
 	//textWidth = 128
 	//textHeight = 64
 {
 	if (!m_texture.Create(renderer, textWidth, textHeight, D3DFMT_A8R8G8B8))
 		return false;
 
-	if (!m_quad.Create(renderer, (float)width, (float)height, Vector3(0, 0, 0)))
+	if (!m_quad.Create(renderer, type, (float)width, (float)height, Vector3(0, 0, 0)))
 		return false;
 
+	m_quad.m_texture = &m_texture;
 	m_font = font;
 	return true;
 }
@@ -74,23 +75,11 @@ void cText3d::FillTexture(const DWORD color)
 
 void cText3d::Render(cRenderer &renderer)
 {
-	renderer.SetCullMode(D3DCULL_NONE);
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&m_quad.m_tm);
-	m_quad.m_material.Bind(renderer);
-	m_texture.Bind(renderer, 0);
-
-	renderer.GetDevice()->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TFACTOR);
-
 	// AlphaBlending
 	// src, dest inverse alpha
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
-
-	m_quad.m_vtxBuff.RenderTriangleStrip(renderer);
+	m_quad.Render(renderer);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	renderer.SetCullMode(D3DCULL_CCW);
 }
-

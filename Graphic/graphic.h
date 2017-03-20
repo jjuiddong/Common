@@ -56,9 +56,9 @@ using namespace common;
 #include "base/circle.h"
 #include "base/circleline.h"
 #include "base/quad.h"
+#include "base/billboard.h"
 #include "base/text.h"
 #include "base/text3d.h"
-#include "base/billboard.h"
 
 #include "model/node.h"
 
@@ -119,4 +119,9 @@ using namespace common;
 #pragma comment( lib, "d3d9.lib" )
 #pragma comment( lib, "d3dx9.lib" )
 #pragma comment( lib, "gdiplus.lib" ) 
-#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+
+#ifdef _DEBUG
+	#pragma comment( lib, "assimp-vc140-mtd.lib" ) 
+#else
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+#endif

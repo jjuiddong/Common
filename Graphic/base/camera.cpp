@@ -10,6 +10,8 @@ cCamera::cCamera() :
 ,	m_lookAt(0,0,0)
 ,	m_up(0,1,0)
 , m_renderer(NULL)
+, m_oldWidth(0)
+, m_oldHeight(0)
 , m_width(0)
 , m_height(0)
 , m_state(eState::STOP)
@@ -562,6 +564,8 @@ void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix
 
 void cCamera::SetViewPort(const int width, const int height)
 {
+	m_oldWidth = m_width;
+	m_oldHeight = m_height;
 	m_width = width;
 	m_height = height;
 }

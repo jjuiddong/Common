@@ -15,7 +15,7 @@ namespace graphic
 		bool Create(cRenderer &renderer, const float width, const float height, const Vector3 &pos,
 			const string &textureFileName = "", const bool isSizePow2 = true);
 
-		void Render(cRenderer &renderer);
+		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void RenderLine(cRenderer &renderer);
 
 		void SetTransform( const Matrix44 &tm );
