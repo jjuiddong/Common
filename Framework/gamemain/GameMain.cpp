@@ -19,7 +19,8 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 int framework::FrameWorkWinMain(HINSTANCE hInstance, 
 	HINSTANCE hPrevInstance, 
 	LPSTR lpCmdLine, 
-	int nCmdShow)
+	int nCmdShow,
+	const bool dualMonitor)
 {
 	//if (!memmonitor::Init(memmonitor::INNER_PROCESS,hInstance,"config_memmonitor.json" ))
 	//{
@@ -30,7 +31,8 @@ int framework::FrameWorkWinMain(HINSTANCE hInstance,
 		cGameMain::Get()->GetWindowName(), 
 		cGameMain::Get()->GetWindowRect(), 
 		nCmdShow,
-		WndProc);
+		WndProc, 
+		dualMonitor);
 
 	if (hWnd == NULL)
 		return 0;

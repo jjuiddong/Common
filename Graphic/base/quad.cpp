@@ -86,9 +86,23 @@ void cQuad::Render(cRenderer &renderer, const Matrix44 &tm)
 	//renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
 
 	m_vtxBuff.RenderTriangleStrip(renderer);
-	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 }
 
+
+void cQuad::RenderFactor(cRenderer &renderer, const Matrix44 &tm)
+// tm = Matrix44::Identity
+{
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm * tm));
+	m_material.Bind(renderer);
+	if (m_texture)
+		m_texture->Bind(renderer, 0);
+
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TFACTOR);
+
+	m_vtxBuff.RenderTriangleStrip(renderer);
+}
 
 void cQuad::RenderLine(cRenderer &renderer)
 {

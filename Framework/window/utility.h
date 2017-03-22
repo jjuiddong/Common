@@ -10,6 +10,8 @@ namespace framework
 		const wstring &windowName, 
 		const RECT &windowRect,
 		int nCmdShow,
-		WNDPROC WndProc);
+		WNDPROC WndProc,
+		const bool dualMonitor = true
+	);
 
 }

@@ -28,8 +28,7 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 }
 
 
-// 화면에 출력.
-void cBillboard::Render(cRenderer &renderer)
+void cBillboard::Rotate()
 {
 	Matrix44 mat;
 
@@ -49,13 +48,13 @@ void cBillboard::Render(cRenderer &renderer)
 		mat._31 = view._31;
 		mat._33 = view._33;
 	}
-		break;
+	break;
 
 	case BILLBOARD_TYPE::ALL_AXIS:
 	{
 		// 모든 축에서 빌보드 행렬을 계산한다.
 		Matrix44 view;
-		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), Vector3(0, -1, 0));
+		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), Vector3(0, 1, 0));
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
@@ -66,5 +65,19 @@ void cBillboard::Render(cRenderer &renderer)
 	Matrix44 T;
 	T.SetTranslate(GetTransform().GetPosition());
 	SetTransform(mat.Transpose() * T);
+}
+
+
+// 화면에 출력.
+void cBillboard::Render(cRenderer &renderer)
+{
+	Rotate();
 	__super::Render(renderer);
+}
+
+
+void cBillboard::RenderFactor(cRenderer &renderer)
+{
+	Rotate();
+	__super::RenderFactor(renderer);
 }

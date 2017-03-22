@@ -24,6 +24,21 @@
 	}
 
 
+#define INIT_FRAMEWORK2(frameWorkClassName, dualMonitor) \
+	framework::cGameMain* framework::CreateFrameWork()\
+	{\
+		return new frameWorkClassName();\
+	}\
+	\
+	int APIENTRY WinMain(HINSTANCE hInstance, \
+		HINSTANCE hPrevInstance, \
+		LPSTR lpCmdLine, \
+		int nCmdShow)\
+	{\
+		framework::FrameWorkWinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow, dualMonitor);\
+	}
+
+
 
 // Include
 #include "ui/uidef.h"

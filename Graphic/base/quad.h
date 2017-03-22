@@ -16,6 +16,7 @@ namespace graphic
 			const string &textureFileName = "", const bool isSizePow2 = true);
 
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		void RenderFactor(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void RenderLine(cRenderer &renderer);
 
 		void SetTransform( const Matrix44 &tm );

@@ -20,7 +20,7 @@ namespace graphic
 		void SetMode(const ePickMode::Enum mode);
 		bool Add(iPickable *obj);
 		bool Remove(iPickable *obj);
-		void Update(const float deltaSeconds);
+		bool Update(const float deltaSeconds);
 		void Clear();
 
 

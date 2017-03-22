@@ -33,7 +33,7 @@ bool cPickManager::Remove(iPickable *obj)
 }
 
 
-void cPickManager::Update(const float deltaSeconds)
+bool cPickManager::Update(const float deltaSeconds)
 {
 	Vector3 orig, dir;
 	cMainCamera::Get()->GetRay(cInputManager::Get()->m_mousePt.x, cInputManager::Get()->m_mousePt.y, orig, dir);
@@ -48,12 +48,12 @@ void cPickManager::Update(const float deltaSeconds)
 					objs.push_back(obj);
 		}
 
-		RET(objs.empty());
+		RETV(objs.empty(), false);
 
 		if (objs.size() == 1)
 		{
 			objs[0]->OnPicking(); // Trigger Event
-			return;
+			return true;
 		}
 
 		vector<float> lens;
@@ -64,7 +64,7 @@ void cPickManager::Update(const float deltaSeconds)
 				lens.push_back(d);
 		}
 
-		RET(lens.empty());
+		RETV(lens.empty(), false);
 
 		// Find Most Nearest object
 		float distance = lens[0];
@@ -88,6 +88,8 @@ void cPickManager::Update(const float deltaSeconds)
 					obj->OnPicking(); // Trigger Event
 		}
 	}
+
+	return true;
 }
 
 

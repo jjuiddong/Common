@@ -69,7 +69,8 @@ namespace framework
 	int FrameWorkWinMain(HINSTANCE hInstance, 
 		HINSTANCE hPrevInstance, 
 		LPSTR lpCmdLine, 
-		int nCmdShow);
+		int nCmdShow,
+		const bool dualMonitor=false);
 
 	// 프레임워크 인스턴스를 생성한다. 반드시 이 함수를 구현해야 한다.
 	cGameMain* CreateFrameWork();

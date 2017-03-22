@@ -77,9 +77,12 @@ void cText3d::Render(cRenderer &renderer)
 {
 	// AlphaBlending
 	// src, dest inverse alpha
+	//renderer.SetCullMode(D3DCULL_NONE);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
-	m_quad.Render(renderer);
+	renderer.GetDevice()->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
+	m_quad.RenderFactor(renderer);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	//renderer.SetCullMode(D3DCULL_CCW);
 }
