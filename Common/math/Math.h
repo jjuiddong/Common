@@ -1,5 +1,9 @@
 #pragma once
 
+// Direct3D 9 Math Library
+#define USE_D3DX_MATH
+
+
 
 const float MATH_PI = 3.141592654f;
 const float MATH_EPSILON = 0.0005f;//1.0e-5;

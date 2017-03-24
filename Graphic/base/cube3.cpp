@@ -330,7 +330,19 @@ void cCube3::Render(cRenderer &renderer, const Matrix44 &tm)
 
 void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 {
-	shader.SetMatrix("g_mWorld", m_tm*tm);
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
+
+	const Matrix44 transform = m_tm*tm;
+	shader.SetMatrix("g_mWorld", transform);
+
+	{
+		Matrix44 mWIT = transform;
+		mWIT.SetPosition(Vector3(0, 0, 0));
+		mWIT.Inverse2();
+		mWIT.Transpose();
+		shader.SetMatrix("g_mWIT", mWIT);
+	}
+
 	if (m_tex)
 		m_tex->Bind(shader, "g_colorMapTexture");
 	

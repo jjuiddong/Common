@@ -1,7 +1,11 @@
 
 #include "stdafx.h"
 #include "math.h"
-//#include <d3dx9.h>
+
+#ifdef USE_D3DX_MATH
+	#include <d3dx9.h>
+#endif
+
 
 using namespace common;
 
@@ -81,6 +85,11 @@ void	Matrix44::SetScale( const Vector3& scale)
 
 Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 {
+#ifdef USE_D3DX_MATH
+	Matrix44 matrix;
+	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
+	return matrix;
+#else
 	Matrix44 matrix;
 	ZeroMemory( &matrix, sizeof( matrix ) );
 
@@ -94,13 +103,19 @@ Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 			}
 		}
 	}
-
 	return matrix;
+#endif // USE_D3DX_MATH
 }
 
 
 Matrix44& Matrix44::operator *= ( const Matrix44& rhs )
 {
+#ifdef USE_D3DX_MATH
+	Matrix44 matrix;
+	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
+	*this = matrix;
+	return *this;
+#else
 	Matrix44 matrix;
 	ZeroMemory( &matrix, sizeof( matrix ) );
 
@@ -114,9 +129,9 @@ Matrix44& Matrix44::operator *= ( const Matrix44& rhs )
 			}
 		}
 	}
-
 	*this = matrix;
 	return *this;
+#endif // USE_D3DX_MATH
 }
 
 
@@ -186,8 +201,13 @@ void	Matrix44::SetProjectionOrthogonal(const float fov, const float aspect)
 
 Quaternion Matrix44::GetQuaternion() const
 {
+#ifdef USE_D3DX_MATH
+	 	Vector3 s, t;
+		Quaternion q;
+	 	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
+		return q;
+#else
 	Quaternion q;
-
 	float fTr = _11 + _22 + _33 + _44;
 
 	if( fTr >= 1.0F )	// w >= 0.5
@@ -220,11 +240,8 @@ Quaternion Matrix44::GetQuaternion() const
 		q.z = v[2];
 		q.w = ( m[k][j] - m[j][k] ) / ( 2.0F * s );
 	}
-	
-// 	Vector3 s, t;
-// 	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
-
 	return q;
+#endif // USE_D3DX_MATH
 }
 
 
@@ -457,65 +474,96 @@ static void Matrix4x4_Inverse( const float b[][4], float a[][4] )
 } //Matrix44x4_Invert
 
 
-// 역행렬을 리턴한다.
-Matrix44 Matrix44::Inverse() const
+void Matrix44::InverseMatrix(Matrix44 &out) const
 {
-	//Matrix44 matInverse;
-	//D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
-	//return matInverse;
+	Matrix44 &matInverse = out;
 
-	Matrix44		matInverse;
-
-	if( fabs( _44 - 1.0F ) > 0.001F )
+	if (fabs(_44 - 1.0F) > 0.001F)
 	{
-		Matrix4x4_Inverse( this->m, matInverse.m );
-		return matInverse;
+		Matrix4x4_Inverse(this->m, matInverse.m);
+		return;
 	} //if
 
-	if( fabs( _14 ) > 0.001F || fabs( _24 ) > 0.001F || fabs( _34 ) > 0.001F )
+	if (fabs(_14) > 0.001F || fabs(_24) > 0.001F || fabs(_34) > 0.001F)
 	{
-		Matrix4x4_Inverse( this->m, matInverse.m );
-		return matInverse;
+		Matrix4x4_Inverse(this->m, matInverse.m);
+		return;
 	} //if
 
-	float det =   _11 * ( _22 * _33 - _23 * _32 )
-		- _12 * ( _21 * _33 - _23 * _31 )
-		+ _13 * ( _21 * _32 - _22 * _31 );
+	float det = _11 * (_22 * _33 - _23 * _32)
+		- _12 * (_21 * _33 - _23 * _31)
+		+ _13 * (_21 * _32 - _22 * _31);
 
-	if( ABS( det ) < MATH_EPSILON )
+	if (ABS(det) < MATH_EPSILON)
 	{
-		Matrix4x4_Inverse( this->m, matInverse.m );
-		return matInverse;
+		Matrix4x4_Inverse(this->m, matInverse.m);
+		return;
 	} //if
 
 	det = 1.0F / det;
 
-	matInverse._11 =  det * ( _22 * _33 - _23 * _32 );
-	matInverse._12 = -det * ( _12 * _33 - _13 * _32 );
-	matInverse._13 =  det * ( _12 * _23 - _13 * _22 );
+	matInverse._11 = det * (_22 * _33 - _23 * _32);
+	matInverse._12 = -det * (_12 * _33 - _13 * _32);
+	matInverse._13 = det * (_12 * _23 - _13 * _22);
 	matInverse._14 = 0.0F;
 
-	matInverse._21 = -det * ( _21 * _33 - _23 * _31 );
-	matInverse._22 =  det * ( _11 * _33 - _13 * _31 );
-	matInverse._23 = -det * ( _11 * _23 - _13 * _21 );
+	matInverse._21 = -det * (_21 * _33 - _23 * _31);
+	matInverse._22 = det * (_11 * _33 - _13 * _31);
+	matInverse._23 = -det * (_11 * _23 - _13 * _21);
 	matInverse._24 = 0.0F;
 
-	matInverse._31 =  det * ( _21 * _32 - _22 * _31 );
-	matInverse._32 = -det * ( _11 * _32 - _12 * _31 );
-	matInverse._33 =  det * ( _11 * _22 - _12 * _21 );
+	matInverse._31 = det * (_21 * _32 - _22 * _31);
+	matInverse._32 = -det * (_11 * _32 - _12 * _31);
+	matInverse._33 = det * (_11 * _22 - _12 * _21);
 	matInverse._34 = 0.0F;
 
-	matInverse._41 = -( _41 * matInverse._11 + _42 * matInverse._21 + _43 * matInverse._31 );
-	matInverse._42 = -( _41 * matInverse._12 + _42 * matInverse._22 + _43 * matInverse._32 );
-	matInverse._43 = -( _41 * matInverse._13 + _42 * matInverse._23 + _43 * matInverse._33 );
+	matInverse._41 = -(_41 * matInverse._11 + _42 * matInverse._21 + _43 * matInverse._31);
+	matInverse._42 = -(_41 * matInverse._12 + _42 * matInverse._22 + _43 * matInverse._32);
+	matInverse._43 = -(_41 * matInverse._13 + _42 * matInverse._23 + _43 * matInverse._33);
 	matInverse._44 = 1.0F;
-
-	return matInverse;
 }
+
+
+// 역행렬을 리턴한다.
+Matrix44 Matrix44::Inverse() const
+{
+#ifdef USE_D3DX_MATH
+	Matrix44 matInverse;
+	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
+	return matInverse;
+
+#else
+	Matrix44 matInverse;
+	InverseMatrix(matInverse);
+	return matInverse;
+#endif // USE_D3DX_MATH
+}
+
+
+Matrix44& Matrix44::Inverse2()
+{
+#ifdef USE_D3DX_MATH
+	Matrix44 matInverse;
+	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
+	*this = matInverse;
+#else
+	Matrix44 matInverse;
+	InverseMatrix(matInverse);
+	*this = matInverse;
+#endif // USE_D3DX_MATH
+
+	return *this;
+}
+
 
 // 전치행렬을 만든다.
 Matrix44& Matrix44::Transpose()
 {
+#ifdef USE_D3DX_MATH
+	Matrix44 m;
+	D3DXMatrixTranspose((D3DXMATRIX*)&m, (D3DXMATRIX*)this);
+	*this = m;
+#else
 	Matrix44 m;
 	m._11 = _11;
 	m._12 = _21;
@@ -534,6 +582,8 @@ Matrix44& Matrix44::Transpose()
 	m._43 = _34;
 	m._44 = _44;
 	*this = m;
+#endif // USE_D3DX_MATH
+
 	return *this;
 }
 

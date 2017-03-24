@@ -40,6 +40,8 @@ namespace common
 		void	SetProjectionOrthogonal(const float fov, const float aspect);
 		Quaternion GetQuaternion() const;
 		Matrix44 Inverse() const;
+		Matrix44& Inverse2();
+		void InverseMatrix(Matrix44 &out) const;
 		Matrix44& Transpose();
 
 		Matrix44 operator * ( const Matrix44& rhs ) const;
