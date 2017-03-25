@@ -273,8 +273,11 @@ void cTerrain::Render(cRenderer &renderer)
 		// RenderShader() 함수에서 mVP 를 초기화 하면 깜빡거리는 현상이 나타나서
 		// Render() 함수에서 일괄적으로 초기화하게 했다.
 		cLightManager::Get()->GetMainLight().Bind(*m_shader);
-		m_shader->SetMatrix( "g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-		m_shader->SetVector( "g_vEyePos", cMainCamera::Get()->GetEyePos());
+		GetMainCamera()->Bind(*m_shader);
+
+		//m_shader->SetMatrix( "g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
+		//m_shader->SetVector( "g_vEyePos", cMainCamera::Get()->GetEyePos());
+		//cMainCamera::Get()->Bind(*m_shader);
 		m_shader->SetVector( "g_vFog", Vector3(1.f, 10000.f, 0)); // near, far
 
 		m_skybox.Render(renderer);
@@ -309,8 +312,8 @@ void cTerrain::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44
 	}
 	else
 	{
-		shader.SetTexture( "SplattingAlphaMap", m_alphaTexture );
-		shader.SetFloat( "alphaUVFactor", GetTextureUVFactor() );
+		shader.SetTexture( "g_SplattingAlphaMap", m_alphaTexture );
+		shader.SetFloat( "g_alphaUVFactor", GetTextureUVFactor() );
 
 		const string texName[] = {"Tex1", "Tex2", "Tex3", "Tex4" };
 		for (u_int i=0; i < m_layer.size(); ++i)
