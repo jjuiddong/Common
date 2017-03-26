@@ -48,9 +48,16 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 	m_mtrls.push_back(cMaterial());
 	m_mtrls.back().Init(rawMesh.mtrl);
 
-	if (!rawMesh.mtrl.texture.empty())
+	if (rawMesh.mtrl.texture.empty())
+	{
+		m_colorMap.push_back(
+			cResourceManager::Get()->LoadTexture(renderer, "", "white.dds"));
+	}
+	else
+	{
 		m_colorMap.push_back(
 			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.texture));
+	}
 
 	if (!rawMesh.mtrl.bumpMap.empty())
 		m_normalMap.push_back(
@@ -99,7 +106,7 @@ void cMesh2::Render(cRenderer &renderer, const Matrix44 &tm)
 void cMesh2::RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &tm)
 {
 	RET(!shader);
-	RET(m_bones.empty());
+	//RET(m_bones.empty());
 
 	if (!m_mtrls.empty())
 		m_mtrls[0].Bind(*shader);
@@ -107,7 +114,7 @@ void cMesh2::RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &
 	shader->SetMatrix("g_mWorld", m_localTm * tm);
 
 	if (!m_colorMap.empty())
-		shader->SetTexture("colorMapTexture", *m_colorMap[0]);
+		shader->SetTexture("g_colorMapTexture", *m_colorMap[0]);
 
 	// Set Skinning Information
 	for (u_int i = 0; i < m_bones.size(); ++i)
@@ -116,17 +123,16 @@ void cMesh2::RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &
 		shader->SetMatrixArray("g_mPalette", (Matrix44*)&m_tmPose[0], m_tmPose.size());
 	//
 
-	shader->CommitChanges();
 	const int passCount = shader->Begin();
 	for (int i = 0; i < passCount; ++i)
 	{
 		shader->BeginPass(i);
 		m_buffers->Bind(renderer);
+		shader->CommitChanges();
 		m_buffers->Render(renderer);
 		shader->EndPass();
 	}
 	shader->End();
-
 }
 
 
@@ -165,7 +171,8 @@ void cMesh2::Skinning()
 
 		p_ = Vector3(0, 0, 0);
 		n_ = Vector3(0, 0, 0);
-		for (u_int k = 0; k < m_bones.size(); ++k)
+		//for (u_int k = 0; k < m_bones.size(); ++k)
+		for (u_int k = 0; k < 4; ++k)
 		{
 			const Matrix44 &m = tmPalette[m_bones[(int)boneIndices[k]].id];
 			const Matrix44 &offset = m_bones[(int)boneIndices[k]].offsetTm;

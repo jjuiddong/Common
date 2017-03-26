@@ -22,9 +22,19 @@ bool cModel2::Create(cRenderer &renderer, const string &fileName)
 	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadModel2(fileName);
 	RETV(!rawMeshes, false);
 
+	m_fileName = fileName;
 	m_storedAnimationName = rawMeshes->animationName;
+	m_shader = cResourceManager::Get()->LoadShader(renderer, "hlsl_collada.fx");
 
-	m_skeleton.Create(rawMeshes->bones);
+	if (rawMeshes->bones.empty())
+	{
+		m_shader->SetTechnique("Rigid");
+	}
+	else
+	{
+		m_shader->SetTechnique("Skinning");
+		m_skeleton.Create(rawMeshes->bones);
+	}
 
 	for (auto &mesh : rawMeshes->meshes)
 	{
@@ -40,11 +50,17 @@ bool cModel2::Create(cRenderer &renderer, const string &fileName)
 
 
 bool cModel2::Render(cRenderer &renderer, const Matrix44 &tm)
+// tm = Matrix44:Identity
 {
+	const Matrix44 transform = m_tm * tm;
+
 	if (m_shader)
 	{
+		GetMainCamera()->Bind(*m_shader);
+		GetMainLight().Bind(*m_shader);
+
 		for (auto &mesh : m_meshes)
-			mesh->RenderShader(renderer, m_shader, tm);
+			mesh->RenderShader(renderer, m_shader, transform);
 
 		if (m_shader->m_isReload)
 			m_shader->m_isReload = false;
@@ -52,7 +68,7 @@ bool cModel2::Render(cRenderer &renderer, const Matrix44 &tm)
 	else
 	{
 		for (auto &mesh : m_meshes)
-			mesh->Render(renderer, tm);
+			mesh->Render(renderer, transform);
 	}
 
 	return true;

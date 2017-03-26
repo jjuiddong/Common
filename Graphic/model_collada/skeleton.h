@@ -1,3 +1,6 @@
+//
+// 2017-03-25, jjuiddong
+//
 #pragma once
 
 namespace graphic
@@ -16,7 +19,7 @@ namespace graphic
 		vector<Matrix44> m_tmOffset;
 		vector<Matrix44> m_tmAni;
 		vector<Matrix44> m_tmPose;
-		vector<sRawBone2> m_bones2;
+		vector<sRawBone2> m_bones;
 	};
 
 }

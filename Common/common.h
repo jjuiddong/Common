@@ -108,7 +108,7 @@ using std::wstringstream;
 #include "etc/inifile.h"
 #include "etc/shmmem.h"
 #include "etc/fastmemloader.h"
-
+#include "etc/path.h"
 
 // #pragma comment( lib, "d3d9.lib" )
 // #pragma comment( lib, "d3dx9.lib" )

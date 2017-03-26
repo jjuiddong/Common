@@ -18,8 +18,8 @@ namespace graphic
 		void Update(const float elpaseT);
 		LPDIRECT3DDEVICE9 GetDevice();
 		HWND GetHwnd() const;
-		bool CheckResetDevice(const int width, const int height);
-		bool ResetDevice(const int width, const int height);
+		bool CheckResetDevice(const int width=0, const int height=0);
+		bool ResetDevice(const int width=0, const int height=0);
 		void AddPostRender(iRenderable *obj, const int opt=0);
 
 

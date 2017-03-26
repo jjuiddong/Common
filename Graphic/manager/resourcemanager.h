@@ -45,6 +45,7 @@ namespace graphic
 		const string& GetMediaDirectory() const;
 		string GetRelativePathToMedia( const string &fileName );
 		void ReloadFile();
+		void ReloadShader(cRenderer &renderer);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();

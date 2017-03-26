@@ -260,25 +260,57 @@ void cRenderer::EndScene()
 
 
 bool cRenderer::CheckResetDevice(const int width, const int height)
+// width=0
+// height=0
 {
-	if ((m_params.BackBufferWidth == width) && (m_params.BackBufferHeight == height))
+	int w, h;
+	if ((width == 0) || (height == 0))
+	{
+		sRect cr;
+		GetClientRect(m_hWnd, &cr);
+		w = cr.Width();
+		h = cr.Height();
+	}
+	else
+	{
+		w = width;
+		h = height;
+	}
+
+	if ((m_params.BackBufferWidth == w) && (m_params.BackBufferHeight == h))
 		return false;
 	return true;
 }
 
 
 bool cRenderer::ResetDevice(const int width, const int height)
+// width=0
+// height=0
 {
-	if (!CheckResetDevice(width, height))
+	int w, h;
+	if ((width == 0) || (height == 0))
+	{
+		sRect cr;
+		GetClientRect(m_hWnd, &cr);
+		w = cr.Width();
+		h = cr.Height();
+	}
+	else
+	{
+		w = width;
+		h = height;
+	}
+
+	if (!CheckResetDevice(w, h))
 		return false;
 
 	cResourceManager::Get()->LostDevice();
 	m_textFps.LostDevice();
 
-	m_width = width;
-	m_height = height;
-	m_params.BackBufferWidth = width;
-	m_params.BackBufferHeight = height;
+	m_width = w;
+	m_height = h;
+	m_params.BackBufferWidth = w;
+	m_params.BackBufferHeight = h;
 
 	HRESULT hr = GetDevice()->Reset(&m_params);
 	if (FAILED(hr))
@@ -314,9 +346,9 @@ bool cRenderer::ResetDevice(const int width, const int height)
 	const Vector3 eyePos = GetMainCamera()->GetEyePos();
 	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
 	GetMainCamera()->SetProjection(GetMainCamera()->m_fov,
-		(float)width / (float)height,
+		(float)w / (float)h,
 		GetMainCamera()->m_nearPlane, GetMainCamera()->m_farPlane);
-	GetMainCamera()->SetViewPort(width, height);
+	GetMainCamera()->SetViewPort(w, h);
 
 	cResourceManager::Get()->ResetDevice(*this);
 

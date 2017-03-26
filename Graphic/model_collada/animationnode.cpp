@@ -6,8 +6,7 @@ using namespace graphic;
 
 
 cAnimationNode::cAnimationNode(const sRawAni *rawAni)
-	: m_incTime(0)
-	, m_rawAni(rawAni)
+	: m_rawAni(rawAni)
 {
 }
 
@@ -16,24 +15,23 @@ cAnimationNode::~cAnimationNode()
 }
 
 
-bool cAnimationNode::GetAnimationResult(const float deltaSeconds, OUT Matrix44 &out)
+bool cAnimationNode::GetAnimationResult(const float curTime, OUT Matrix44 &out)
 {
 	RETV(!m_rawAni, false);
 	RETV(m_rawAni->start == m_rawAni->end, false);
 
-	m_incTime += deltaSeconds;
-
-	if (m_rawAni->end < m_incTime)
-		m_incTime = m_rawAni->start;
+	float t = curTime;
+	if (m_rawAni->end < curTime)
+		t = m_rawAni->start;
 
 	Vector3 pos(0,0,0);
-	GetPosKey(m_incTime, pos);
+	GetPosKey(t, pos);
 
 	Quaternion q(0,0,0,1);
-	GetRotKey(m_incTime, q);
+	GetRotKey(t, q);
 
 	Vector3 scale(1,1,1);
-	GetScaleKey(m_incTime, scale);
+	GetScaleKey(t, scale);
 
 	Matrix44 T;
 	T.SetPosition(pos);

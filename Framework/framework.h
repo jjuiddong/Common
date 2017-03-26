@@ -48,3 +48,7 @@
 #include "ui/button.h"
 
 #include "window/scene.h"
+
+#include "external\imgui\imgui.h"
+#include "external/imgui/imgui_impl_dx9.h"
+

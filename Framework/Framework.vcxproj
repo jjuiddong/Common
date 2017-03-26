@@ -337,6 +337,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="external\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imgui_impl_dx9.h" />
+    <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\stb_rect_pack.h" />
+    <ClInclude Include="external\imgui\stb_textedit.h" />
+    <ClInclude Include="external\imgui\stb_truetype.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="gamemain\GameMain.h" />
     <ClInclude Include="stdafx.h" />
@@ -350,6 +357,10 @@
     <ClInclude Include="window\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_impl_dx9.cpp" />
     <ClCompile Include="gamemain\GameMain.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

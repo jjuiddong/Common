@@ -13,7 +13,7 @@ namespace graphic
 		cAnimationNode(const sRawAni *rawAni);
 		virtual ~cAnimationNode();
 
-		bool GetAnimationResult(const float deltaSeconds, OUT Matrix44 &out);
+		bool GetAnimationResult(const float curTime, OUT Matrix44 &out);
 
 
 	protected:
@@ -24,7 +24,6 @@ namespace graphic
 
 	public:
 		const sRawAni *m_rawAni; // reference
-		float m_incTime;
 	};
 
 }

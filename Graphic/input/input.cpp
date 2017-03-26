@@ -32,7 +32,6 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-
 	case WM_LBUTTONDOWN:
 	{
 		const int curT = GetTickCount();
@@ -65,7 +64,6 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MBUTTONDOWN: m_mBtnDown = true; break;
 	case WM_MBUTTONUP: m_mBtnDown = false; break;
 	}
-	
 }
 
 

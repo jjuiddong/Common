@@ -58,6 +58,8 @@ namespace graphic
 		void Move(const Vector3 &eyePos, const Vector3 &lookAt);
 		void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt);
 		void MoveCancel();
+		void Move(const cBoundingBox &bbox);
+
 		void MoveFront( const float len );
 		void MoveFrontHorizontal(const float len);
 		void MoveUp( const float len );

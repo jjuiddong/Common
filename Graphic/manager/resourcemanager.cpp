@@ -11,7 +11,6 @@ using namespace graphic;
 cResourceManager::cResourceManager() :
 	m_mediaDirectory("../media/")
 {
-
 }
 
 cResourceManager::~cResourceManager()
@@ -82,7 +81,7 @@ bool cResourceManager::LoadModel(sRawMeshGroup *meshes)
 }
 
 
-// load model file
+// load collada model file
 sRawMeshGroup2* cResourceManager::LoadModel2(const string &fileName)
 {
 	RETV(fileName.empty(), NULL);
@@ -275,7 +274,8 @@ sRawAniGroup* cResourceManager::FindAnimation( const string &fileName )
 
 
 // 텍스쳐 로딩.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2)//isSizePow2=true
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileName, 
+	const bool isSizePow2)//isSizePow2=true
 {
 	if (cTexture *p = FindTexture(fileName))
 		return p;
@@ -288,18 +288,30 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 		{
 			if (!texture->Create(renderer, newPath, isSizePow2))
 			{
-				delete texture;
-				return false;
+				// last load white.dds texture
+				if (!texture->Create(renderer, "texture/white.dds", isSizePow2))
+				{
+					delete texture;
+					return false;
+				}
 			}
 		}
 	}
+
+	// last load white.dds texture
+	if (!texture->m_texture)
+	{
+		texture->Create(renderer, m_mediaDirectory + "/texture/white.dds", isSizePow2);
+	}
+
 	m_textures[ fileName] = texture;
 	return texture;
 }
 
 // 텍스쳐 로딩.
 // fileName 에 해당하는 파일이 없다면, "../media/" + dirPath  경로에서 파일을 찾는다.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2)
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPath, 
+	const string &fileName, const bool isSizePow2)
 	//isSizePow2=true
 {
 	if (cTexture *p = FindTexture(fileName))
@@ -313,7 +325,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 		if (searchPath.empty())
 			searchPath = ".";
 
-		if (common::FindFile(fileName, searchPath + "/", newPath))
+		if (common::FindFile(GetFileName(fileName), searchPath + "/", newPath))
 		{
 			if (!texture->Create(renderer, newPath, isSizePow2))
 			{
@@ -322,6 +334,13 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 			}
 		}
 	}
+
+	// last load white.dds texture
+	if (!texture->m_texture)
+	{
+		texture->Create(renderer, m_mediaDirectory + "/texture/white.dds", isSizePow2);
+	}
+
 	m_textures[ fileName] = texture;
 	return texture;
 }
@@ -485,6 +504,13 @@ void cResourceManager::ReloadFile()
 	//	m_reLoadFile.insert(kv.first);
 	//for each (auto kv, m_anies)
 	//	m_reLoadFile.insert(kv.first);
+}
+
+
+void cResourceManager::ReloadShader(cRenderer &renderer)
+{
+	for (auto p : m_shaders)
+		p.second->Reload(renderer);
 }
 
 

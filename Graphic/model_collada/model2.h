@@ -27,12 +27,14 @@ namespace graphic
 
 
 	public:
+		cFilePath m_fileName;
 		vector<cMesh2*> m_meshes;
 		cSkeleton m_skeleton;
 		cAnimation m_animation;
 		cBoundingBox m_boundingBox;
 		string m_storedAnimationName;
 		cShader *m_shader; // reference
+		Matrix44 m_tm;
 	};
 
 }

@@ -318,9 +318,17 @@ void cCamera::Pitch3(const float radian, const Vector3 &target)
 	const Quaternion q(axis, radian);
 	const Matrix44 mat = q.GetMatrix();
 
-	Vector3 v = m_eyePos - target;
-	v *= mat;
-	m_eyePos = target + v;
+	{
+		Vector3 v = m_eyePos - target;
+		v *= mat;
+		m_eyePos = target + v;
+	}
+
+	{
+		Vector3 v = m_lookAt - target;
+		v *= mat;
+		m_lookAt = target + v;
+	}
 
 	UpdateViewMatrix();
 }
@@ -334,9 +342,17 @@ void cCamera::Yaw3(const float radian, const Vector3 &target)
 	const Quaternion q(axis, radian);
 	const Matrix44 mat = q.GetMatrix();
 
-	Vector3 v = m_eyePos - target;
-	v *= mat;
-	m_eyePos = target + v;
+	{
+		Vector3 v = m_eyePos - target;
+		v *= mat;
+		m_eyePos = target + v;
+	}
+
+	{
+		Vector3 v = m_lookAt - target;
+		v *= mat;
+		m_lookAt = target + v;
+	}
 
 	UpdateViewMatrix();
 }
@@ -434,6 +450,13 @@ void cCamera::MoveFrontHorizontal(const float len)
 	m_lookAt += dir * len;
 	m_eyePos += dir * len;
 	UpdateViewMatrix();
+}
+
+
+void cCamera::Move(const cBoundingBox &bbox)
+{
+	Vector3 pos = bbox.m_max + (bbox.m_max - bbox.Center()) * 3.f;
+	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
 }
 
 

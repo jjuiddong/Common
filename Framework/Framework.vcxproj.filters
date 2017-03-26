@@ -28,6 +28,27 @@
     <ClInclude Include="window\scene.h">
       <Filter>window</Filter>
     </ClInclude>
+    <ClInclude Include="external\imgui\imconfig.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_internal.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_rect_pack.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_textedit.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_truetype.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_impl_dx9.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -52,6 +73,18 @@
     <ClCompile Include="window\scene.cpp">
       <Filter>window</Filter>
     </ClCompile>
+    <ClCompile Include="external\imgui\imgui.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_demo.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_draw.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_impl_dx9.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="window">
@@ -62,6 +95,12 @@
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{a1752ec0-64f1-4a72-8737-9ce6eee11e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{cb77cb84-9551-4589-9ad0-f6e2c0ef3725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\imgui">
+      <UniqueIdentifier>{9730768b-0764-45e7-8e7c-8c29523cd670}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

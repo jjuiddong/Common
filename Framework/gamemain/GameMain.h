@@ -40,8 +40,8 @@ namespace framework
 
 	protected:
 		virtual bool OnInit() { return true; }
-		virtual void OnUpdate(const float elapseT) {}
-		virtual void OnRender(const float elapseT) {}
+		virtual void OnUpdate(const float deltaSeconds) {}
+		virtual void OnRender(const float deltaSeconds) {}
 		virtual void OnShutdown() {}
 		virtual void OnMessageProc(UINT message, WPARAM wParam, LPARAM lParam) {}
 

@@ -368,6 +368,7 @@
     <ClInclude Include="etc\memorypool.h" />
     <ClInclude Include="etc\observer.h" />
     <ClInclude Include="etc\observer2.h" />
+    <ClInclude Include="etc\path.h" />
     <ClInclude Include="etc\rand.h" />
     <ClInclude Include="etc\rect.h" />
     <ClInclude Include="etc\Serial.h" />
@@ -405,6 +406,7 @@
     <ClCompile Include="etc\ip.cpp" />
     <ClCompile Include="etc\observer.cpp" />
     <ClCompile Include="etc\observer2.cpp" />
+    <ClCompile Include="etc\path.cpp" />
     <ClCompile Include="etc\rect.cpp" />
     <ClCompile Include="etc\Serial.cpp" />
     <ClCompile Include="etc\SerialAsync.cpp" />
