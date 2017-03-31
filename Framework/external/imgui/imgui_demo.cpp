@@ -1665,7 +1665,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
         ImGui::SliderFloat("GrabRounding", &style.GrabRounding, 0.0f, 16.0f, "%.0f");
         ImGui::Text("Alignment");
         ImGui::SliderFloat2("WindowTitleAlign", (float*)&style.WindowTitleAlign, 0.0f, 1.0f, "%.2f");
-        ImGui::SliderFloat2("ButtonTextAlign", (float*)&style.ButtonTextAlign, 0.0f, 1.0f, "%.2f"); ImGui::SameLine(); ShowHelpMarker("Alignment applies when a button is larger than its text content.");
+        //ImGui::SliderFloat2("ButtonTextAlign", (float*)&style.ButtonTextAlign, 0.0f, 1.0f, "%.2f"); ImGui::SameLine(); ShowHelpMarker("Alignment applies when a button is larger than its text content.");
         ImGui::TreePop();
     }
 
@@ -1692,12 +1692,12 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
         ImGui::SameLine(); ImGui::PushItemWidth(120); ImGui::Combo("##output_type", &output_dest, "To Clipboard\0To TTY\0"); ImGui::PopItemWidth();
         ImGui::SameLine(); ImGui::Checkbox("Only Modified Fields", &output_only_modified);
 
-        static ImGuiColorEditMode edit_mode = ImGuiColorEditMode_RGB;
-        ImGui::RadioButton("RGB", &edit_mode, ImGuiColorEditMode_RGB);
-        ImGui::SameLine();
-        ImGui::RadioButton("HSV", &edit_mode, ImGuiColorEditMode_HSV);
-        ImGui::SameLine();
-        ImGui::RadioButton("HEX", &edit_mode, ImGuiColorEditMode_HEX);
+        //static ImGuiColorEditMode edit_mode = ImGuiColorEditMode_RGB;
+        //ImGui::RadioButton("RGB", &edit_mode, ImGuiColorEditMode_RGB);
+        //ImGui::SameLine();
+        //ImGui::RadioButton("HSV", &edit_mode, ImGuiColorEditMode_HSV);
+        //ImGui::SameLine();
+        //ImGui::RadioButton("HEX", &edit_mode, ImGuiColorEditMode_HEX);
         //ImGui::Text("Tip: Click on colored square to change edit mode.");
 
         static ImGuiTextFilter filter;
@@ -1705,7 +1705,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 
         ImGui::BeginChild("#colors", ImVec2(0, 300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         ImGui::PushItemWidth(-160);
-        ImGui::ColorEditMode(edit_mode);
+        //ImGui::ColorEditMode(edit_mode);
         for (int i = 0; i < ImGuiCol_COUNT; i++)
         {
             const char* name = ImGui::GetStyleColName(i);
@@ -1741,7 +1741,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
             ImFont* font = atlas->Fonts[i];
             ImGui::BulletText("Font %d: \'%s\', %.2f px, %d glyphs", i, font->ConfigData ? font->ConfigData[0].Name : "", font->FontSize, font->Glyphs.Size);
             ImGui::TreePush((void*)(intptr_t)i);
-            ImGui::SameLine(); if (ImGui::SmallButton("Set as default")) ImGui::GetIO().FontDefault = font;
+            //ImGui::SameLine(); if (ImGui::SmallButton("Set as default")) ImGui::GetIO().FontDefault = font;
             ImGui::PushFont(font);
             ImGui::Text("The quick brown fox jumps over the lazy dog");
             ImGui::PopFont();
@@ -1751,7 +1751,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
                 ImGui::SameLine(); ShowHelpMarker("Note than the default embedded font is NOT meant to be scaled.\n\nFont are currently rendered into bitmaps at a given size at the time of building the atlas. You may oversample them to get some flexibility with scaling. You can also render at multiple sizes and select which one to use at runtime.\n\n(Glimmer of hope: the atlas system should hopefully be rewritten in the future to make scaling more natural and automatic.)");
                 ImGui::Text("Ascent: %f, Descent: %f, Height: %f", font->Ascent, font->Descent, font->Ascent - font->Descent);
                 ImGui::Text("Fallback character: '%c' (%d)", font->FallbackChar, font->FallbackChar);
-                ImGui::Text("Texture surface: %d pixels (approx)", font->MetricsTotalSurface);
+                //ImGui::Text("Texture surface: %d pixels (approx)", font->MetricsTotalSurface);
                 for (int config_i = 0; config_i < font->ConfigDataCount; config_i++)
                 {
                     ImFontConfig* cfg = &font->ConfigData[config_i];

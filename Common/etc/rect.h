@@ -18,6 +18,8 @@ namespace common
 
 		int Width() const;
 		int Height() const;
+
+		sRect& operator=(const RECT &rhs);
 	};
 
 }

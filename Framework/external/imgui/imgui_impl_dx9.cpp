@@ -9,6 +9,7 @@
 #include "stdafx.h"
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
+#include "imgui_internal.h"
 
 // DirectX
 #include <d3d9.h>
@@ -16,14 +17,14 @@
 #include <dinput.h>
 
 // Data
-static HWND                     g_hWnd = 0;
-static INT64                    g_Time = 0;
-static INT64                    g_TicksPerSecond = 0;
-static LPDIRECT3DDEVICE9        g_pd3dDevice = NULL;
-static LPDIRECT3DVERTEXBUFFER9  g_pVB = NULL;
-static LPDIRECT3DINDEXBUFFER9   g_pIB = NULL;
-static LPDIRECT3DTEXTURE9       g_FontTexture = NULL;
-static int                      g_VertexBufferSize = 5000, g_IndexBufferSize = 10000;
+//static HWND                     g_hWnd = 0;
+//static INT64                    g_Time = 0;
+//static INT64                    g_TicksPerSecond = 0;
+//static LPDIRECT3DDEVICE9        g_pd3dDevice = NULL;
+//static LPDIRECT3DVERTEXBUFFER9  g_pVB = NULL;
+//static LPDIRECT3DINDEXBUFFER9   g_pIB = NULL;
+//static LPDIRECT3DTEXTURE9       g_FontTexture = NULL;
+//static int                      g_VertexBufferSize = 5000, g_IndexBufferSize = 10000;
 
 struct CUSTOMVERTEX
 {
@@ -33,10 +34,29 @@ struct CUSTOMVERTEX
 };
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
+cImGui::cImGui()
+	: m_context(NULL)
+{
+
+
+}
+
+cImGui::~cImGui()
+{
+}
+
+
+void cImGui::Render()
+{
+	ImGuiContext *context = ImGui::GetCurrentContext();
+	RenderDrawLists(&context->RenderDrawData);
+}
+
+
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 // If text or lines are blurry when integrating ImGui in your engine:
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-void ImGui_ImplDX9_RenderDrawLists(ImDrawData* draw_data)
+void cImGui::RenderDrawLists( ImDrawData* draw_data)
 {
     // Avoid rendering when minimized
     ImGuiIO& io = ImGui::GetIO();
@@ -160,7 +180,8 @@ void ImGui_ImplDX9_RenderDrawLists(ImDrawData* draw_data)
                 const RECT r = { (LONG)pcmd->ClipRect.x, (LONG)pcmd->ClipRect.y, (LONG)pcmd->ClipRect.z, (LONG)pcmd->ClipRect.w };
                 g_pd3dDevice->SetTexture(0, (LPDIRECT3DTEXTURE9)pcmd->TextureId);
                 g_pd3dDevice->SetScissorRect(&r);
-                g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, vtx_offset, 0, (UINT)cmd_list->VtxBuffer.Size, idx_offset, pcmd->ElemCount/3);
+                g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, vtx_offset, 0, 
+					(UINT)cmd_list->VtxBuffer.Size, idx_offset, pcmd->ElemCount/3);
             }
             idx_offset += pcmd->ElemCount;
         }
@@ -172,7 +193,7 @@ void ImGui_ImplDX9_RenderDrawLists(ImDrawData* draw_data)
     d3d9_state_block->Release();
 }
 
-IMGUI_API LRESULT ImGui_ImplDX9_WndProcHandler(HWND, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT cImGui::WndProcHandler(HWND, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     ImGuiIO& io = ImGui::GetIO();
     switch (msg)
@@ -219,7 +240,7 @@ IMGUI_API LRESULT ImGui_ImplDX9_WndProcHandler(HWND, UINT msg, WPARAM wParam, LP
     return 0;
 }
 
-bool    ImGui_ImplDX9_Init(void* hwnd, IDirect3DDevice9* device)
+bool  cImGui::Init(void* hwnd, IDirect3DDevice9* device)
 {
     g_hWnd = (HWND)hwnd;
     g_pd3dDevice = device;
@@ -250,21 +271,27 @@ bool    ImGui_ImplDX9_Init(void* hwnd, IDirect3DDevice9* device)
     io.KeyMap[ImGuiKey_Y] = 'Y';
     io.KeyMap[ImGuiKey_Z] = 'Z';
 
-    io.RenderDrawListsFn = ImGui_ImplDX9_RenderDrawLists;   // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+    //io.RenderDrawListsFn = RenderDrawLists;   // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
     io.ImeWindowHandle = g_hWnd;
+	//io.imGuiData = this;
+	//io.imGuis.push_back(this);
+
+	m_context = ImGui::CreateContext();
+	m_context->IO.Fonts = &m_FontAtlas;
 
     return true;
 }
 
-void ImGui_ImplDX9_Shutdown()
+
+void cImGui::Shutdown()
 {
-    ImGui_ImplDX9_InvalidateDeviceObjects();
+    InvalidateDeviceObjects();
     ImGui::Shutdown();
     g_pd3dDevice = NULL;
     g_hWnd = 0;
 }
 
-static bool ImGui_ImplDX9_CreateFontsTexture()
+bool cImGui::CreateFontsTexture()
 {
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();
@@ -289,16 +316,16 @@ static bool ImGui_ImplDX9_CreateFontsTexture()
     return true;
 }
 
-bool ImGui_ImplDX9_CreateDeviceObjects()
+bool cImGui::CreateDeviceObjects()
 {
     if (!g_pd3dDevice)
         return false;
-    if (!ImGui_ImplDX9_CreateFontsTexture())
+    if (!CreateFontsTexture())
         return false;
     return true;
 }
 
-void ImGui_ImplDX9_InvalidateDeviceObjects()
+void cImGui::InvalidateDeviceObjects()
 {
     if (!g_pd3dDevice)
         return;
@@ -320,10 +347,10 @@ void ImGui_ImplDX9_InvalidateDeviceObjects()
     g_FontTexture = NULL;
 }
 
-void ImGui_ImplDX9_NewFrame()
+void cImGui::NewFrame()
 {
     if (!g_FontTexture)
-        ImGui_ImplDX9_CreateDeviceObjects();
+        CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
 
@@ -354,4 +381,23 @@ void ImGui_ImplDX9_NewFrame()
 
     // Start the frame
     ImGui::NewFrame();
+}
+
+using namespace ImGui;
+
+void cImGui::SetContext()
+{
+	ImGuiContext *pContext = m_context;
+
+	//ImGuiContext* prevContext = ImGui::GetCurrentContext();
+	//if (prevContext != nullptr && prevContext != pContext)
+	//{
+	//	std::memcpy(&pContext->Style, &prevContext->Style, sizeof(ImGuiStyle));
+	//	std::memcpy(&pContext->IO.KeyMap, &prevContext->IO.KeyMap, sizeof(prevContext->IO.KeyMap));
+	//	std::memcpy(&pContext->MouseCursorData, &prevContext->MouseCursorData, sizeof(pContext->MouseCursorData));
+	//	pContext->IO.IniFilename = prevContext->IO.IniFilename;
+	//	pContext->IO.RenderDrawListsFn = prevContext->IO.RenderDrawListsFn;
+	//	pContext->Initialized = prevContext->Initialized;
+	//}
+	ImGui::SetCurrentContext(pContext);
 }

@@ -51,3 +51,13 @@ void sRect::SetHeight(const int height)
 {
 	*this = Rect(left, top, right, height);
 }
+
+
+sRect& sRect::operator=(const RECT &rhs)
+{
+	left = rhs.left;
+	right = rhs.right;
+	top = rhs.top;
+	bottom = rhs.bottom;
+	return *this;
+}

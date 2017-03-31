@@ -50,7 +50,7 @@ namespace framework
 		STATE m_state;
 		HWND m_hWnd;
 		wstring m_windowName;
-		RECT m_windowRect;
+		sRect m_windowRect;
 		graphic::cRenderer m_renderer;
 		cScene *m_currentScene;
 		map<int, cScene*> m_scenes;
