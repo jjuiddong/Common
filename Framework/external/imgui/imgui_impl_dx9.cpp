@@ -48,6 +48,8 @@ cImGui::~cImGui()
 
 void cImGui::Render()
 {
+	ImGui::Render();
+
 	ImGuiContext *context = ImGui::GetCurrentContext();
 	RenderDrawLists(&context->RenderDrawData);
 }
@@ -389,15 +391,21 @@ void cImGui::SetContext()
 {
 	ImGuiContext *pContext = m_context;
 
-	//ImGuiContext* prevContext = ImGui::GetCurrentContext();
-	//if (prevContext != nullptr && prevContext != pContext)
-	//{
-	//	std::memcpy(&pContext->Style, &prevContext->Style, sizeof(ImGuiStyle));
-	//	std::memcpy(&pContext->IO.KeyMap, &prevContext->IO.KeyMap, sizeof(prevContext->IO.KeyMap));
-	//	std::memcpy(&pContext->MouseCursorData, &prevContext->MouseCursorData, sizeof(pContext->MouseCursorData));
-	//	pContext->IO.IniFilename = prevContext->IO.IniFilename;
-	//	pContext->IO.RenderDrawListsFn = prevContext->IO.RenderDrawListsFn;
-	//	pContext->Initialized = prevContext->Initialized;
-	//}
+	ImGuiContext* prevContext = ImGui::GetCurrentContext();
+	if (prevContext != nullptr && prevContext != pContext)
+	{
+		std::memcpy(&pContext->Style, &prevContext->Style, sizeof(ImGuiStyle));
+		std::memcpy(&pContext->IO.KeyMap, &prevContext->IO.KeyMap, sizeof(prevContext->IO.KeyMap));
+		std::memcpy(&pContext->MouseCursorData, &prevContext->MouseCursorData, sizeof(pContext->MouseCursorData));
+		pContext->IO.IniFilename = prevContext->IO.IniFilename;
+		pContext->IO.RenderDrawListsFn = prevContext->IO.RenderDrawListsFn;
+		pContext->Initialized = prevContext->Initialized;
+	}
 	ImGui::SetCurrentContext(pContext);
+}
+
+
+void cImGui::SetNullContext()
+{
+	ImGui::SetCurrentContext(nullptr);
 }

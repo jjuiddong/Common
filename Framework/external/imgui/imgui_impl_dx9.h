@@ -43,6 +43,7 @@ public:
 	void RenderDrawLists(ImDrawData* draw_data);
 	bool CreateFontsTexture();
 	void SetContext();
+	void SetNullContext();
 	
 
 public:
