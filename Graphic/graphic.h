@@ -28,6 +28,7 @@ using namespace common;
 
 
 #include "base/fontgdi.h"
+#include "base/viewport.h"
 #include "base/material.h"
 #include "base/light.h"
 #include "base/vertexdeclaration.h"

@@ -265,6 +265,9 @@
     <ClInclude Include="interface\shadowrenderer.h">
       <Filter>interface</Filter>
     </ClInclude>
+    <ClInclude Include="base\viewport.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -498,6 +501,9 @@
     </ClCompile>
     <ClCompile Include="input\input.cpp">
       <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="base\viewport.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

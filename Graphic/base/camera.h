@@ -17,6 +17,7 @@ namespace graphic
 		void Update(const float deltaSeconds);
 		void Render(cRenderer &renderer);
 		void Bind(cShader &shader);
+		void Bind(cRenderer &renderer);
 
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);

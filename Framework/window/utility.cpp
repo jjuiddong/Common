@@ -14,25 +14,21 @@ HWND framework::InitWindow(HINSTANCE hInstance, const wstring &windowName, const
 	const int WIDTH = windowRect.right - windowRect.left;
 	const int HEIGHT = windowRect.bottom - windowRect.top;
 
-	//윈도우 클레스 정보 생성
-	//내가 이러한 윈도를 만들겠다 라는 정보
 	WNDCLASS WndClass;
-	WndClass.cbClsExtra = 0;			//윈도우에서 사용하는 여분의 메모리설정( 그냥 0 이다  신경쓰지말자 )
-	WndClass.cbWndExtra = 0;			//윈도우에서 사용하는 여분의 메모리설정( 그냥 0 이다  신경쓰지말자 )
-	WndClass.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);		//윈도우 배경색상
-	WndClass.hCursor = LoadCursor( NULL, IDC_ARROW );			//윈도우의 커서모양 결정
-	WndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );		//윈도우아이콘모양 결정
-	WndClass.hInstance = hInstance;				//프로그램인스턴스핸들 
-	WndClass.lpfnWndProc = (WNDPROC)WndProc;			//윈도우 프로시져 함수 포인터
-	WndClass.lpszMenuName = NULL;						//메뉴이름 없으면 NULL
-	WndClass.lpszClassName = windowName.c_str();				//지금 작성하고 있는 윈도우 클레스의 이름
+	WndClass.cbClsExtra = 0;
+	WndClass.cbWndExtra = 0;
+	WndClass.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+	WndClass.hCursor = LoadCursor( NULL, IDC_ARROW );
+	WndClass.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+	WndClass.hInstance = hInstance;
+	WndClass.lpfnWndProc = (WNDPROC)WndProc;
+	WndClass.lpszMenuName = NULL;
+	WndClass.lpszClassName = windowName.c_str();
 	//WndClass.style	 = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;	//윈도우 그리기 방식 설정 ( 사이즈가 변경될때 화면갱신 CS_HREDRAW | CS_VREDRAW )
-	WndClass.style = CS_HREDRAW | CS_VREDRAW;	//윈도우 그리기 방식 설정 ( 사이즈가 변경될때 화면갱신 CS_HREDRAW | CS_VREDRAW )
+	WndClass.style = CS_HREDRAW | CS_VREDRAW;
 
-	//위에서 작성한 윈도우 클레스정보 등록
 	RegisterClass( &WndClass );
 
-	//윈도우 생성
 	HWND hWnd = CreateWindow(
 		windowName.c_str(),
 		windowName.c_str(),

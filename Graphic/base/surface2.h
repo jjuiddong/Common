@@ -13,13 +13,16 @@ namespace graphic
 		cSurface2();
 		virtual ~cSurface2();
 
-		bool Create(cRenderer &renderer, int width, int height, int mipLevels,
-			D3DFORMAT texFormat, bool useDepthBuffer,
-			D3DFORMAT depthFormat, D3DVIEWPORT9& viewport, bool autoGenMips);
+		bool Create(cRenderer &renderer, 
+			const cViewport &viewPort, int mipLevels,
+			D3DFORMAT texFormat= D3DFMT_X8R8G8B8, bool useDepthBuffer=true,
+			D3DFORMAT depthFormat= D3DFMT_D24S8, bool autoGenMips=true,
+			HANDLE *handle=NULL);
 
 		void Begin();
 		void End();
 		void Render(cRenderer &renderer, const int index = 1);
+		void RenderFull(cRenderer &renderer);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
@@ -29,18 +32,16 @@ namespace graphic
 		const IDirect3DTexture9* GetTexture() const;
 
 
-	private:
+	public:
 		IDirect3DTexture9 *m_texture;
 		ID3DXRenderToSurface *m_rts;
 		IDirect3DSurface9 *m_surface;
 
-		int m_width;
-		int m_height;
 		int m_mipLevels;
 		D3DFORMAT m_texFormat;
 		bool m_useDepthBuffer;
 		D3DFORMAT m_depthFormat;
-		D3DVIEWPORT9 m_viewPort;
+		cViewport m_viewPort;
 		bool m_autoGenMips;
 	};
 

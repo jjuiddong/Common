@@ -108,6 +108,34 @@ void cTexture::Unbind(cRenderer &renderer, const int stage)
 }
 
 
+void cTexture::Render2D(cRenderer &renderer)
+{
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, ToDxM(Matrix44::Identity));
+	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
+	typedef struct { FLOAT p[4]; FLOAT tu, tv; } TVERTEX;
+	TVERTEX Vertex[4] = {
+		// x  y  z rhw tu tv
+		{ 0, 0, 0, 1, 0, 0, },
+		{ (float)m_imageInfo.Width, 0,0, 1, 1, 0, },
+		{ (float)m_imageInfo.Width, (float)m_imageInfo.Height, 1, 1, 1, 1},
+		{ 0, (float)m_imageInfo.Height,0, 1, 0, 1, },
+	};
+	renderer.GetDevice()->SetTexture(0, m_texture);
+	renderer.GetDevice()->SetVertexShader(NULL);
+	renderer.GetDevice()->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
+	renderer.GetDevice()->SetPixelShader(NULL);
+	renderer.GetDevice()->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Vertex, sizeof(TVERTEX));
+}
+
+
 void cTexture::Lock(D3DLOCKED_RECT &out)
 {
 	m_texture->LockRect( 0, &out, NULL, 0 );

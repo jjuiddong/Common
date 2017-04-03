@@ -2,14 +2,13 @@
 #include "stdafx.h"
 #include "GameMain.h"
 #include <MMSystem.h>
+#include <chrono>
+#include <thread>
 #include "../window/utility.h"
 
 //#include "../../wxMemMonitorLib/wxMemMonitor.h"
 //MEMORYMONITOR_INNER_PROCESS();
-
-
 using namespace framework;
-
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -124,13 +123,7 @@ bool cGameMain::Init(HWND hWnd)
 	m_state = INIT;
 	m_hWnd = hWnd;
 
-// 	if (!graphic::InitRenderer(hWnd, 
-// 		m_windowRect.right-m_windowRect.left,
-// 		m_windowRect.bottom-m_windowRect.top))
-// 		return false;
-	if (!m_renderer.CreateDirectX(hWnd,
-		m_windowRect.right - m_windowRect.left, 
-		m_windowRect.bottom - m_windowRect.top))
+	if (!m_renderer.CreateDirectX(hWnd, m_windowRect.Width(), m_windowRect.Height()))
 	{
 		return false;
 	}
@@ -151,6 +144,8 @@ void cGameMain::ShutDown()
 
 void cGameMain::Run()
 {
+	using namespace std::chrono_literals;
+
 	m_state = RUN; // Framework ½ÇÇà
 
 	MSG msg;
@@ -173,7 +168,8 @@ void cGameMain::Run()
 
 		Update(t);
 		Render(t);
-		//Sleep(1);
+		//Sleep(1)
+		//std::this_thread::sleep_for(1ms);
 	}
 }
 

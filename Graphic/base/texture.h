@@ -19,6 +19,7 @@ namespace graphic
 		void Bind(cRenderer &renderer, const int stage);
 		void Bind(cShader &shader, const string &key);
 		void Unbind(cRenderer &renderer, const int stage);
+		void Render2D(cRenderer &renderer);
 		void Lock(D3DLOCKED_RECT &out);
 		void Unlock();
 		IDirect3DTexture9* GetTexture();

@@ -46,7 +46,7 @@ namespace framework
 		virtual void OnMessageProc(UINT message, WPARAM wParam, LPARAM lParam) {}
 
 
-	protected:
+	public:
 		STATE m_state;
 		HWND m_hWnd;
 		wstring m_windowName;

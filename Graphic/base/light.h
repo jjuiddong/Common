@@ -30,7 +30,7 @@ namespace graphic
 		void SetPosition( const Vector3 &pos );
 		const Vector3& GetPosition() const;
 
-		void Bind(cRenderer &renderer, int lightIndex);
+		void Bind(cRenderer &renderer, int lightIndex=0);
 		void Bind(cShader &shader) const;
 
 		void GetShadowMatrix( const Vector3 &modelPos, 
@@ -38,6 +38,7 @@ namespace graphic
 			OUT Matrix44 &tt );
 
 
+	public:
 		D3DLIGHT9 m_light;
 	};
 

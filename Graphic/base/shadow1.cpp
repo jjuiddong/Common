@@ -17,9 +17,10 @@ cShadow1::~cShadow1()
 // 그림자 클래스 생성.
 bool cShadow1::Create(cRenderer &renderer, const int textureWidth, const int textureHeight)
 {
-	D3DVIEWPORT9 viewport = {0, 0, (DWORD)textureWidth, (DWORD)textureHeight, 0.0f, 1.0f};
-	return m_surface.Create(renderer, textureWidth, textureHeight, 1, 
-		D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, viewport, true);
+	cViewport viewport;
+	viewport.Create(0, 0, (DWORD)textureWidth, (DWORD)textureHeight, 0.0f, 1.0f);
+	return m_surface.Create(renderer, viewport, 1, 
+		D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
 }
 
 

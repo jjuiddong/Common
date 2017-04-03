@@ -8,13 +8,14 @@
 namespace graphic
 {
 
-	class cRenderer// : public common::cSingleton<cRenderer>
+	class cRenderer
 	{
 	public:
 		cRenderer();
 		virtual ~cRenderer();
 
-		bool CreateDirectX(HWND hWnd, const int width, const int height);
+		bool CreateDirectX(HWND hWnd, const int width, const int height,
+			const UINT adapter= D3DADAPTER_DEFAULT);
 		void Update(const float elpaseT);
 		LPDIRECT3DDEVICE9 GetDevice();
 		HWND GetHwnd() const;
@@ -31,6 +32,8 @@ namespace graphic
 		void RenderAxis();
 		void RenderFPS();
 		void RenderGrid();
+
+		void SetLightEnable(const int light, const bool enable);
 
 		void SetCullMode(const D3DCULL cull);
 		void SetFillMode(const D3DFILLMODE mode);
@@ -50,8 +53,9 @@ namespace graphic
 		HWND m_hWnd;
 		LPDIRECT3DDEVICE9 m_pDevice;
 		D3DPRESENT_PARAMETERS m_params;
-		int m_width;
-		int m_height;
+		cViewport m_viewPort;
+		//int m_width;
+		//int m_height;
 
 		struct sRenderObj
 		{

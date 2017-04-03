@@ -9,7 +9,6 @@ using namespace graphic;
 
 void graphic::ReleaseRenderer()
 {
-	//cRenderer::Release();
 	cResourceManager::Release();
 	cMainCamera::Release();
 	cLightManager::Release();
@@ -38,13 +37,15 @@ cRenderer::~cRenderer()
 
 
 // DirectX Device 객체 생성.
-bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height)
+bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height, 
+	const UINT adapter) // D3DADAPTER_DEFAULT
 {
-	if (!InitDirectX(hWnd, width, height, m_params, m_pDevice))
+	if (!InitDirectX(hWnd, width, height, adapter, m_params, m_pDevice))
 		return false;
 
-	m_width = width;
-	m_height = height;
+	m_viewPort.Create(0, 0, width, height);
+	//m_width = width;
+	//m_height = height;
 
 	m_textFps.Create(*this);
 	m_textFps.SetPos(0, 0);
@@ -63,7 +64,6 @@ void cRenderer::RenderAxis()
 
 	if (m_axis.empty())
 		MakeAxis(500.f,  D3DXCOLOR(1,0,0,0),  D3DXCOLOR(0,1,0,0),  D3DXCOLOR(0,0,1,0), m_axis);
-
 
 	// 가장 위에 출력되기 위해서 zbuffer 를 끈다.
 	//m_pDevice->SetRenderState(D3DRS_ZENABLE, 0);
@@ -307,8 +307,10 @@ bool cRenderer::ResetDevice(const int width, const int height)
 	cResourceManager::Get()->LostDevice();
 	m_textFps.LostDevice();
 
-	m_width = w;
-	m_height = h;
+	//m_width = w;
+	//m_height = h;
+	m_viewPort.m_vp.Width = w;
+	m_viewPort.m_vp.Height = h;
 	m_params.BackBufferWidth = w;
 	m_params.BackBufferHeight = h;
 
@@ -362,7 +364,10 @@ void cRenderer::AddPostRender(iRenderable *obj, const int opt)
 	m_postRender.push_back({ opt, obj });
 }
 
-
+void cRenderer::SetLightEnable(const int light, const bool enable)
+{
+	GetDevice()->LightEnable(light, enable);
+}
 void cRenderer::SetCullMode(const D3DCULL cull)
 {
 	GetDevice()->SetRenderState(D3DRS_CULLMODE, cull);

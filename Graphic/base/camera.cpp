@@ -152,6 +152,13 @@ void cCamera::Bind(cShader &shader)
 }
 
 
+void cCamera::Bind(cRenderer &renderer)
+{
+	renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
+	renderer.GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
+}
+
+
 void cCamera::UpdateViewMatrix(const bool updateUp)
 // updateUp = true
 {
