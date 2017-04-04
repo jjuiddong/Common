@@ -35,6 +35,7 @@ bool cTexture::Create(cRenderer &renderer, const string &fileName, bool isSizePo
 		{
 			m_imageInfo.Width = desc.Width;
 			m_imageInfo.Height = desc.Height;
+			m_imageInfo.Format = desc.Format;
 		}
 	}
 	else
@@ -61,6 +62,7 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height, co
 
 	m_imageInfo.Width = width;
 	m_imageInfo.Height = height;
+	m_imageInfo.Format = format;
 	return true;
 }
 
@@ -136,9 +138,58 @@ void cTexture::Render2D(cRenderer &renderer)
 }
 
 
-void cTexture::Lock(D3DLOCKED_RECT &out)
+void cTexture::CopyFrom(cTexture &src)
 {
+	if ((m_imageInfo.Height != src.m_imageInfo.Height)
+		|| (m_imageInfo.Width != src.m_imageInfo.Width))
+		return;
+
+	D3DLOCKED_RECT slock;
+	if (src.Lock(slock))
+	{
+		D3DLOCKED_RECT dlock;
+		if (Lock(dlock))
+		{
+			memcpy(dlock.pBits, slock.pBits, slock.Pitch * src.m_imageInfo.Height);
+			Unlock();
+		}
+		src.Unlock();
+	}
+}
+
+
+void cTexture::CopyFrom(IDirect3DTexture9 *src)
+{
+	RET(!src);
+
+	D3DSURFACE_DESC desc;
+	if (FAILED(src->GetLevelDesc(0, &desc)))
+		return;
+
+	// Check If Texture Match Width - Height
+	if ((m_imageInfo.Height != desc.Height)
+		|| (m_imageInfo.Width != desc.Width))
+		return;
+
+	D3DLOCKED_RECT slock;
+	if (SUCCEEDED(src->LockRect(0, &slock, NULL, 0)))
+	{
+		D3DLOCKED_RECT dlock;
+		if (Lock(dlock))
+		{
+			memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
+			Unlock();
+		}
+		src->UnlockRect(0);
+	}
+}
+
+
+bool cTexture::Lock(D3DLOCKED_RECT &out)
+{
+	RETV(!m_texture, false);
 	m_texture->LockRect( 0, &out, NULL, 0 );
+	return true;
 }
 
 
@@ -219,7 +270,14 @@ void cTexture::LostDevice()
 
 void cTexture::ResetDevice(cRenderer &renderer)
 {
-	RET(m_fileName.empty());
 	SAFE_RELEASE(m_texture);
-	Create(renderer, string(m_fileName));	
+
+	if (m_fileName.empty())
+	{
+		Create(renderer, m_imageInfo.Width, m_imageInfo.Height, m_imageInfo.Format);
+	}
+	else
+	{
+		Create(renderer, m_fileName);	
+	}
 }

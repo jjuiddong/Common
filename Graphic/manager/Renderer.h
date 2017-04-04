@@ -54,8 +54,6 @@ namespace graphic
 		LPDIRECT3DDEVICE9 m_pDevice;
 		D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
-		//int m_width;
-		//int m_height;
 
 		struct sRenderObj
 		{

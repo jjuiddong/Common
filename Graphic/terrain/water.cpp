@@ -50,8 +50,8 @@ bool cWater::Create(cRenderer &renderer)
 	const int  height = 512;
 	cViewport vp;
 	vp.Create(0, 0, width, height, 0.0f, 1.0f);
-	m_reflectMap.Create(renderer, vp, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
-	m_refractMap.Create(renderer, vp, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
+	m_reflectMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
+	m_refractMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
 
 	m_shader.Create(renderer, cResourceManager::Get()->FindFile("water.fx"), "WaterTech");
 	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, 64, 8.f, 0.f);

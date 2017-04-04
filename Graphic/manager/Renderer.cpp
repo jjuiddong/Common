@@ -44,8 +44,6 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height,
 		return false;
 
 	m_viewPort.Create(0, 0, width, height);
-	//m_width = width;
-	//m_height = height;
 
 	m_textFps.Create(*this);
 	m_textFps.SetPos(0, 0);
@@ -226,7 +224,7 @@ bool cRenderer::ClearScene()
 	if (SUCCEEDED(GetDevice()->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL,
 		//D3DCOLOR_XRGB(150, 150, 150), 
-		D3DCOLOR_ARGB(0, 66, 75, 121),
+		D3DCOLOR_ARGB(255, 66, 75, 121),
 		1.0f, 0)))
 	{
 		return true;
@@ -307,8 +305,6 @@ bool cRenderer::ResetDevice(const int width, const int height)
 	cResourceManager::Get()->LostDevice();
 	m_textFps.LostDevice();
 
-	//m_width = w;
-	//m_height = h;
 	m_viewPort.m_vp.Width = w;
 	m_viewPort.m_vp.Height = h;
 	m_params.BackBufferWidth = w;
@@ -344,13 +340,10 @@ bool cRenderer::ResetDevice(const int width, const int height)
 		return false;
 	}
 
-	const Vector3 lookAt = GetMainCamera()->GetLookAt();
-	const Vector3 eyePos = GetMainCamera()->GetEyePos();
-	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
-	GetMainCamera()->SetProjection(GetMainCamera()->m_fov,
-		(float)w / (float)h,
-		GetMainCamera()->m_nearPlane, GetMainCamera()->m_farPlane);
-	GetMainCamera()->SetViewPort(w, h);
+	//const Vector3 lookAt = GetMainCamera()->GetLookAt();
+	//const Vector3 eyePos = GetMainCamera()->GetEyePos();
+	//GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
+	//GetMainCamera()->SetViewPort(w, h);
 
 	cResourceManager::Get()->ResetDevice(*this);
 

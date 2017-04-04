@@ -14,10 +14,11 @@ namespace graphic
 		virtual ~cSurface2();
 
 		bool Create(cRenderer &renderer, 
-			const cViewport &viewPort, int mipLevels,
+			//const cViewport &viewPort, 
+			const int width, const int height, int mipLevels,
 			D3DFORMAT texFormat= D3DFMT_X8R8G8B8, bool useDepthBuffer=true,
 			D3DFORMAT depthFormat= D3DFMT_D24S8, bool autoGenMips=true,
-			HANDLE *handle=NULL);
+			HANDLE *handle=NULL, const float minZ=1.f, const float maxZ=10000.f);
 
 		void Begin();
 		void End();
@@ -41,7 +42,9 @@ namespace graphic
 		D3DFORMAT m_texFormat;
 		bool m_useDepthBuffer;
 		D3DFORMAT m_depthFormat;
-		cViewport m_viewPort;
+		int m_width;
+		int m_height;
+		D3DVIEWPORT9 m_vp;
 		bool m_autoGenMips;
 	};
 

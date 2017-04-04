@@ -598,4 +598,8 @@ void cCamera::SetViewPort(const int width, const int height)
 	m_oldHeight = m_height;
 	m_width = width;
 	m_height = height;
+
+	SetProjection(m_fov,
+		(float)width / (float)height,
+		m_nearPlane, m_farPlane);
 }

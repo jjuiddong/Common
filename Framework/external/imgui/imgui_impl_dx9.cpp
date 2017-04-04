@@ -320,6 +320,8 @@ bool cImGui::CreateFontsTexture()
 
 bool cImGui::CreateDeviceObjects()
 {
+	SetContext();
+
     if (!g_pd3dDevice)
         return false;
     if (!CreateFontsTexture())
@@ -329,6 +331,8 @@ bool cImGui::CreateDeviceObjects()
 
 void cImGui::InvalidateDeviceObjects()
 {
+	SetContext();
+
     if (!g_pd3dDevice)
         return;
     if (g_pVB)
@@ -389,6 +393,9 @@ using namespace ImGui;
 
 void cImGui::SetContext()
 {
+	if (!m_context)
+		return;
+
 	ImGuiContext *pContext = m_context;
 
 	ImGuiContext* prevContext = ImGui::GetCurrentContext();

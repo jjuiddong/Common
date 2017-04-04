@@ -7,10 +7,12 @@ using namespace graphic;
 
 cSurface2::cSurface2()
 	: m_texture(NULL)
-,	m_rts(NULL)
-,	m_surface(NULL)
-,	m_mipLevels(0)
-,	m_autoGenMips(0)
+	, m_rts(NULL)
+	, m_surface(NULL)
+	, m_mipLevels(0)
+	, m_width(0)
+	, m_height(0)
+	, m_autoGenMips(0)
 {
 }
 
@@ -20,26 +22,37 @@ cSurface2::~cSurface2()
 }
 
 
-bool cSurface2::Create(cRenderer &renderer, const cViewport &viewPort, 
-	int mipLevels, 
+bool cSurface2::Create(cRenderer &renderer, 
+	const int width, const int height, int mipLevels, 
 	D3DFORMAT texFormat,  // D3DFMT_X8R8G8B8
 	bool useDepthBuffer, // true
 	D3DFORMAT depthFormat, //D3DFMT_D24S8
-	bool autoGenMips,
-	HANDLE *handle) // NULL
+	bool autoGenMips, // true
+	HANDLE *handle, // NULL
+	const float minZ, // 1.f, 
+	const float maxZ // 10000.f
+	) 
 {
 	m_mipLevels = mipLevels;
 	m_texFormat = texFormat;
 	m_useDepthBuffer = useDepthBuffer;
 	m_depthFormat = depthFormat;
-	m_viewPort = viewPort;
+	m_width = width;
+	m_height = height;
+	m_vp.X = 0;
+	m_vp.Y = 0;
+	m_vp.Width = width;
+	m_vp.Height = height;
+	m_vp.MinZ = minZ;
+	m_vp.MaxZ = maxZ;
+
 	m_autoGenMips = autoGenMips;
 
 	UINT usage = 0;// D3DUSAGE_RENDERTARGET;
 	if(m_autoGenMips)
 		usage |= D3DUSAGE_AUTOGENMIPMAP;
 
-	if (FAILED(renderer.GetDevice()->CreateTexture(viewPort.m_vp.Width, viewPort.m_vp.Height, mipLevels,
+	if (FAILED(renderer.GetDevice()->CreateTexture(width, height, mipLevels,
 		usage, texFormat,
 		//(handle)? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT,
 		D3DPOOL_MANAGED,
@@ -50,8 +63,7 @@ bool cSurface2::Create(cRenderer &renderer, const cViewport &viewPort,
 	}
 
 	if (FAILED(D3DXCreateRenderToSurface(renderer.GetDevice(), 
-		viewPort.m_vp.Width, viewPort.m_vp.Height, texFormat,
-		useDepthBuffer, depthFormat, &m_rts)))
+		width, height, texFormat, useDepthBuffer, depthFormat, &m_rts)))
 	{
 		return false;
 	}
@@ -68,7 +80,7 @@ bool cSurface2::Create(cRenderer &renderer, const cViewport &viewPort,
 void cSurface2::Begin()
 {
 	RET(!m_rts);
-	m_rts->BeginScene(m_surface, &m_viewPort.m_vp);
+	m_rts->BeginScene(m_surface, &m_vp);
 }
 
 
@@ -125,9 +137,9 @@ void cSurface2::RenderFull(cRenderer &renderer)
 	TVERTEX Vertex[4] = {
 		// x  y  z rhw tu tv
 		{ 0, 0, 0, 1, 0, 0, },
-		{ (float)m_viewPort.m_vp.Width, 0,0, 1, 1, 0, },
-		{ (float)m_viewPort.m_vp.Width, (float)m_viewPort.m_vp.Height, 1, 1, 1, 1},
-		{ 0, (float)m_viewPort.m_vp.Height,0, 1, 0, 1, },
+		{ (float)m_width, 0,0, 1, 1, 0, },
+		{ (float)m_width, (float)m_height, 1, 1, 1, 1},
+		{ 0, (float)m_height,0, 1, 0, 1, },
 	};
 	renderer.GetDevice()->SetTexture(0, m_texture);
 	renderer.GetDevice()->SetVertexShader(NULL);
@@ -152,9 +164,9 @@ void cSurface2::LostDevice()
 
 void cSurface2::ResetDevice(cRenderer &renderer)
 {
-	if (m_viewPort.m_vp.Width > 0)
+	if (m_width > 0)
 	{
-		Create(renderer, m_viewPort, m_mipLevels,
+		Create(renderer, m_width, m_height, m_mipLevels,
 			m_texFormat, m_useDepthBuffer, m_depthFormat, m_autoGenMips);
 	}
 }
