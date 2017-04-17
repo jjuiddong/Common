@@ -20,6 +20,7 @@ namespace common
 		int Height() const;
 
 		sRect& operator=(const RECT &rhs);
+		bool operator==(const sRect &rhs);
 	};
 
 }

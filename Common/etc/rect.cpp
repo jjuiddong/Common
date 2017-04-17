@@ -61,3 +61,12 @@ sRect& sRect::operator=(const RECT &rhs)
 	bottom = rhs.bottom;
 	return *this;
 }
+
+
+bool sRect::operator==(const sRect &rhs)
+{
+	return (left == rhs.left)
+		&& (right == rhs.right)
+		&& (top == rhs.top)
+		&& (bottom == rhs.bottom);
+}

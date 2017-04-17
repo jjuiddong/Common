@@ -60,8 +60,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
-    <IncludePath>C:\wxWidgets-3.0.2\include\msvc\wx;C:\wxWidgets-3.0.2\include\msvc;D:\Project\assimp\include\assimp;D:\Project\SFML-2.4.2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Project\assimp\build\Debug;D:\Project\SFML-2.4.2\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\wxWidgets-3.0.2\include\msvc\wx;C:\wxWidgets-3.0.2\include\msvc;D:\Project\assimp\include\assimp;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Project\assimp\build\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MD|Win32'">
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>

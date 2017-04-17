@@ -56,3 +56,10 @@ Vector4& Vector4::operator *= ( Matrix44& rhs )
 	*this = v;
 	return *this;
 }
+
+
+Vector4 Vector4::operator - (const Vector4& rhs) const
+{
+	return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+}
+
