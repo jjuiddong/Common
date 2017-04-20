@@ -30,14 +30,14 @@ bool cSprite::Create(cRenderer &renderer)
 }
 
 
-void cSprite::Render(cTexture &texture, const sRect &rect, const Vector3 &center, const D3DCOLOR color, 
+void cSprite::Render(cTexture &texture, const sRecti &rect, const Vector3 &center, const D3DCOLOR color, 
 	const Matrix44 &tm)
 // tm = Matrix44::Identity
 {
 	RET(!m_p);
 	
 	m_p->SetTransform((D3DXMATRIX*)&tm);
-	m_p->Draw(texture.GetTexture(), &rect, (D3DXVECTOR3*)&center, NULL, color);
+	m_p->Draw(texture.GetTexture(), (RECT*)&rect, (D3DXVECTOR3*)&center, NULL, color);
 }
 
 

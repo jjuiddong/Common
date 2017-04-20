@@ -28,7 +28,7 @@ namespace graphic
 		const D3DXIMAGE_INFO& GetImageInfo() const;
 		const string& GetTextureName() const;
 		void TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color);
-		void DrawText(cFontGdi &font, const string &text, const sRect &rect, const DWORD color);
+		void DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();

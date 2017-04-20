@@ -19,6 +19,7 @@ namespace common
 		Vector4 operator * ( const float & rhs ) const;
 		Vector4 operator * ( const Matrix44& rhs ) const;
 		Vector4 operator- (const Vector4 &rhs) const;
+		Vector4 operator+ (const Vector4 &rhs) const;
 		Vector4& operator *= ( Matrix44& rhs );
 	};
 }

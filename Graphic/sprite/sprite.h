@@ -14,7 +14,7 @@ namespace graphic
 		virtual ~cSprite();
 		bool Create(cRenderer &renderer);
 		void Begin();
-		void Render(cTexture &texture, const sRect &rect, const Vector3 &center, 
+		void Render(cTexture &texture, const sRecti &rect, const Vector3 &center, 
 			const D3DCOLOR color, const Matrix44 &tm = Matrix44::Identity);
 		void End();
 		void LostDevice();

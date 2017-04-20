@@ -22,7 +22,7 @@ namespace graphic
 		const string& GetText() const;
 		void SetPos(const int x, const int y);
 		void SetPos(const float x, const float y);
-		const sRect& GetPos() const;
+		const sRecti& GetPos() const;
 		void SetColor(const DWORD color);
 		DWORD GetColor() const;
 		void LostDevice();
@@ -35,7 +35,7 @@ namespace graphic
 		ID3DXFont *m_font;
 		cSprite *m_sprite;
 		string m_text;
-		sRect m_rect;
+		sRecti m_rect;
 		DWORD m_color;
 	};
 
@@ -48,5 +48,5 @@ namespace graphic
 	inline DWORD cText::GetColor() const { return m_color; }
 	inline void cText::SetPos(const int x, const int y) { m_rect.SetX(x), m_rect.SetY(y); }
 	inline void cText::SetPos(const float x, const float y) { m_rect.SetX((int)x), m_rect.SetY((int)y); }
-	inline const sRect& cText::GetPos() const { return m_rect; }
+	inline const sRecti& cText::GetPos() const { return m_rect; }
 }

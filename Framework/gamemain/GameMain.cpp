@@ -28,7 +28,7 @@ int framework::FrameWorkWinMain(HINSTANCE hInstance,
 
 	const HWND hWnd = InitWindow(hInstance, 
 		cGameMain::Get()->GetWindowName(), 
-		cGameMain::Get()->GetWindowRect(), 
+		cGameMain::Get()->GetWindowRect(),
 		nCmdShow,
 		WndProc, 
 		dualMonitor);
@@ -213,7 +213,7 @@ const wstring& cGameMain::GetWindowName()
 {
 	return m_windowName;
 }
-const RECT& cGameMain::GetWindowRect()
+sRecti cGameMain::GetWindowRect()
 {
 	return m_windowRect;
 }

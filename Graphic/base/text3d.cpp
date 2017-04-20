@@ -44,7 +44,7 @@ bool cText3d::SetText(const Matrix44 &tm, const string &text, const DWORD color)
 }
 
 
-bool cText3d::SetTextRect(const Matrix44 &tm, const string &text, const DWORD color, const sRect &rect)
+bool cText3d::SetTextRect(const Matrix44 &tm, const string &text, const DWORD color, const sRecti &rect)
 {
 	RETV(!m_font, false);
 

@@ -5,7 +5,7 @@
 using namespace framework;
 
 
-HWND framework::InitWindow(HINSTANCE hInstance, const wstring &windowName, const RECT &windowRect, int nCmdShow, WNDPROC WndProc,
+HWND framework::InitWindow(HINSTANCE hInstance, const wstring &windowName, const sRecti &windowRect, int nCmdShow, WNDPROC WndProc,
 	const bool dualMonitor)
 	// dualMonitor=false
 {

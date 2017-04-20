@@ -34,7 +34,7 @@ namespace framework
 		bool ChangeScene(const int sceneId);
 
 		const wstring& GetWindowName();
-		const RECT& GetWindowRect();		
+		sRecti GetWindowRect();		
 		void MessageProc( UINT message, WPARAM wParam, LPARAM lParam);
 
 
@@ -50,7 +50,7 @@ namespace framework
 		STATE m_state;
 		HWND m_hWnd;
 		wstring m_windowName;
-		sRect m_windowRect;
+		sRecti m_windowRect;
 		graphic::cRenderer m_renderer;
 		cScene *m_currentScene;
 		map<int, cScene*> m_scenes;

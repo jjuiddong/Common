@@ -61,12 +61,12 @@ void cText::Render()
 	if (m_sprite)
 	{
 		m_sprite->Begin();
-		m_font->DrawTextA(m_sprite->m_p, m_text.c_str(), -1, &m_rect, DT_NOCLIP, m_color);
+		m_font->DrawTextA(m_sprite->m_p, m_text.c_str(), -1, (RECT*)&m_rect, DT_NOCLIP, m_color);
 		m_sprite->End();
 	}
 	else
 	{
-		m_font->DrawTextA( NULL, m_text.c_str(), -1, &m_rect, DT_NOCLIP, m_color);
+		m_font->DrawTextA( NULL, m_text.c_str(), -1, (RECT*)&m_rect, DT_NOCLIP, m_color);
 	}
 }
 

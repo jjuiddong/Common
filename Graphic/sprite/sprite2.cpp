@@ -13,7 +13,7 @@ cSprite2::cSprite2(cSprite &sprite, const int id, const string &name) :
 	, m_scale(Vector3(1, 1, 1))
 	, m_color(D3DCOLOR_XRGB(255, 255, 255))
 {
-	::SetRect(&m_rect, 0, 0, 0, 0);
+	m_rect = sRecti(0, 0, 0, 0);
 }
 
 cSprite2::~cSprite2()

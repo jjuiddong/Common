@@ -28,7 +28,7 @@ namespace graphic
 		Vector3 m_center;	// x,y = 0~1, default : 0,0
 		Vector3 m_pos; // pixel coordinate
 		Vector3 m_scale;
-		sRect m_rect; // pixel coordinate
+		sRecti m_rect; // pixel coordinate
 		D3DCOLOR m_color;
 		Matrix44 m_accTM;
 	};

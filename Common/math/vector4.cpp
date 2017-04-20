@@ -63,3 +63,8 @@ Vector4 Vector4::operator - (const Vector4& rhs) const
 	return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
 }
 
+Vector4 Vector4::operator + (const Vector4& rhs) const
+{
+	return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+}
+

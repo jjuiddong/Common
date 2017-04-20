@@ -240,7 +240,7 @@ void cTexture::TextOut(cFontGdi &font, const string &text, const int x, const in
 
 
 // Render Text String on Texture
-void cTexture::DrawText(cFontGdi &font, const string &text, const sRect &rect, const DWORD color)
+void cTexture::DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color)
 {
 	RET(!m_texture);	
 

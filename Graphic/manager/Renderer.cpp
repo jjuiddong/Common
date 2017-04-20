@@ -264,8 +264,8 @@ bool cRenderer::CheckResetDevice(const int width, const int height)
 	int w, h;
 	if ((width == 0) || (height == 0))
 	{
-		sRect cr;
-		GetClientRect(m_hWnd, &cr);
+		sRecti cr;
+		GetClientRect(m_hWnd, (RECT*)&cr);
 		w = cr.Width();
 		h = cr.Height();
 	}
@@ -288,8 +288,8 @@ bool cRenderer::ResetDevice(const int width, const int height)
 	int w, h;
 	if ((width == 0) || (height == 0))
 	{
-		sRect cr;
-		GetClientRect(m_hWnd, &cr);
+		sRecti cr;
+		GetClientRect(m_hWnd, (RECT*)&cr);
 		w = cr.Width();
 		h = cr.Height();
 	}
