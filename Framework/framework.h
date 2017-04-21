@@ -49,6 +49,6 @@
 
 #include "window/scene.h"
 
-#include "external\imgui\imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "external/imgui/imgui.h"
 #include "external/imgui/imgui_impl_dx9.h"
-
