@@ -1,5 +1,5 @@
 
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "button.h"
 
 
@@ -7,7 +7,7 @@ using namespace framework;
 
 
 cButton::cButton(graphic::cSprite &sprite, const int id, const string &name) : //name=button
-	cWindow(sprite, id, name)
+	cWindow2(sprite, id, name)
 {
 }
 

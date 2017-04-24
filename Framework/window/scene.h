@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../ui/window.h"
+#include "../ui/window2.h"
 
 
 namespace framework
 {
 
-	class cScene : public cWindow
+	class cScene : public cWindow2
 	{
 	public:
 		cScene(const int id, const string &scenName="scene");

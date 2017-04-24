@@ -40,9 +40,6 @@
     <ClInclude Include="etc\observer.h">
       <Filter>Etc</Filter>
     </ClInclude>
-    <ClInclude Include="etc\rect.h">
-      <Filter>Etc</Filter>
-    </ClInclude>
     <ClInclude Include="math\triangle.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -121,10 +118,13 @@
     <ClInclude Include="etc\FastMemLoader.h">
       <Filter>Etc</Filter>
     </ClInclude>
-    <ClInclude Include="math\vector.h">
+    <ClInclude Include="etc\path.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vectortype.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="etc\path.h">
+    <ClInclude Include="etc\recttype.h">
       <Filter>Etc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -152,9 +152,6 @@
       <Filter>Etc</Filter>
     </ClCompile>
     <ClCompile Include="etc\observer.cpp">
-      <Filter>Etc</Filter>
-    </ClCompile>
-    <ClCompile Include="etc\rect.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
     <ClCompile Include="math\triangle.cpp">
@@ -202,13 +199,16 @@
     <ClCompile Include="etc\FastMemLoader.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
-    <ClCompile Include="math\vector.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
     <ClCompile Include="etc\date.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
     <ClCompile Include="etc\path.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="math\vectortype.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\recttype.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>

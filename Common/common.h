@@ -94,7 +94,7 @@ using std::wstringstream;
 #include "etc/dbg.h"
 #include "etc/observer.h"
 #include "etc/observer2.h"
-#include "etc/rect.h"
+#include "etc/recttype.h"
 #include "etc/genid.h"
 #include "etc/memorypool.h"
 #include "etc/rand.h"

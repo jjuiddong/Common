@@ -1,5 +1,5 @@
 
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "GameMain.h"
 #include <MMSystem.h>
 #include <chrono>

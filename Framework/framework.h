@@ -44,11 +44,15 @@
 #include "ui/uidef.h"
 #include "ui/event.h"
 #include "ui/eventhandler.h"
-#include "ui/window.h"
+#include "ui/window2.h"
 #include "ui/button.h"
 
 #include "window/scene.h"
 
+// ImGui
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "external/imgui/imgui.h"
 #include "external/imgui/imgui_impl_dx9.h"
+
+// SFML
+#include "external/sfml/include/SFML/Window.hpp"

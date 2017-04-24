@@ -6,7 +6,7 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_internal.h"
@@ -401,9 +401,9 @@ void cImGui::SetContext()
 	ImGuiContext* prevContext = ImGui::GetCurrentContext();
 	if (prevContext != nullptr && prevContext != pContext)
 	{
-		std::memcpy(&pContext->Style, &prevContext->Style, sizeof(ImGuiStyle));
-		std::memcpy(&pContext->IO.KeyMap, &prevContext->IO.KeyMap, sizeof(prevContext->IO.KeyMap));
-		std::memcpy(&pContext->MouseCursorData, &prevContext->MouseCursorData, sizeof(pContext->MouseCursorData));
+		memcpy(&pContext->Style, &prevContext->Style, sizeof(ImGuiStyle));
+		memcpy(&pContext->IO.KeyMap, &prevContext->IO.KeyMap, sizeof(prevContext->IO.KeyMap));
+		memcpy(&pContext->MouseCursorData, &prevContext->MouseCursorData, sizeof(pContext->MouseCursorData));
 		pContext->IO.IniFilename = prevContext->IO.IniFilename;
 		pContext->IO.RenderDrawListsFn = prevContext->IO.RenderDrawListsFn;
 		pContext->Initialized = prevContext->Initialized;

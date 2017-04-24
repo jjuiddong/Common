@@ -180,7 +180,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -195,13 +195,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MD|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>D:\Project\Common\Framework\external\sfml\src\;D:\Project\Common\Framework\external\sfml\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -344,6 +345,45 @@
     <ClInclude Include="external\imgui\stb_rect_pack.h" />
     <ClInclude Include="external\imgui\stb_textedit.h" />
     <ClInclude Include="external\imgui\stb_truetype.h" />
+    <ClInclude Include="external\sfml\include\SFML\Config.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Clock.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Err.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Lock.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Mutex.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\NonCopyable.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Sleep.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\String.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Time.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Utf.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Vector2.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Vector3.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Event.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Export.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Joystick.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Keyboard.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Mouse.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Sensor.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Touch.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\VideoMode.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Window.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowHandle.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowStyle.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\ClockImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\MutexImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\SleepImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\InputImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickManager.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorManager.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\VideoModeImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\InputImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\SensorImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\WindowImpl.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="gamemain\GameMain.h" />
     <ClInclude Include="stdafx.h" />
@@ -352,7 +392,7 @@
     <ClInclude Include="ui\event.h" />
     <ClInclude Include="ui\eventhandler.h" />
     <ClInclude Include="ui\uidef.h" />
-    <ClInclude Include="ui\window.h" />
+    <ClInclude Include="ui\window2.h" />
     <ClInclude Include="window\scene.h" />
     <ClInclude Include="window\utility.h" />
   </ItemGroup>
@@ -361,6 +401,31 @@
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_impl_dx9.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Clock.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Err.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Lock.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Mutex.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Sleep.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\String.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Time.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\ClockImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\MutexImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\SleepImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Joystick.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\JoystickManager.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Keyboard.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Mouse.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Sensor.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\SensorManager.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Touch.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\VideoMode.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\InputImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\SensorImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\VideoModeImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Window.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\WindowImpl.cpp" />
     <ClCompile Include="gamemain\GameMain.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -377,7 +442,7 @@
     <ClCompile Include="ui\button.cpp" />
     <ClCompile Include="ui\event.cpp" />
     <ClCompile Include="ui\eventhandler.cpp" />
-    <ClCompile Include="ui\window.cpp" />
+    <ClCompile Include="ui\window2.cpp" />
     <ClCompile Include="window\scene.cpp" />
     <ClCompile Include="window\utility.cpp" />
   </ItemGroup>

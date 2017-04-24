@@ -4,7 +4,7 @@
 namespace framework
 {
 
-	class cButton : public cWindow
+	class cButton : public cWindow2
 	{
 	public:
 		cButton(graphic::cSprite &sprite, const int id, const string &name="button");

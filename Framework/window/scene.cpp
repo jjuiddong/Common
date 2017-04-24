@@ -1,5 +1,5 @@
 
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "scene.h"
 
 using namespace graphic;
@@ -7,7 +7,7 @@ using namespace framework;
 
 
 cScene::cScene(const int id, const string &scenName)
-	: cWindow(cSprite::NullSprite, id, scenName)
+	: cWindow2(cSprite::NullSprite, id, scenName)
 {
 }
 

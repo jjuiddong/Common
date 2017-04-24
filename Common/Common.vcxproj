@@ -370,7 +370,7 @@
     <ClInclude Include="etc\observer2.h" />
     <ClInclude Include="etc\path.h" />
     <ClInclude Include="etc\rand.h" />
-    <ClInclude Include="etc\rect.h" />
+    <ClInclude Include="etc\recttype.h" />
     <ClInclude Include="etc\Serial.h" />
     <ClInclude Include="etc\SerialAsync.h" />
     <ClInclude Include="etc\shmmem.h" />
@@ -383,7 +383,7 @@
     <ClInclude Include="math\quaternion.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\triangle.h" />
-    <ClInclude Include="math\vector.h" />
+    <ClInclude Include="math\vectortype.h" />
     <ClInclude Include="math\vector2.h" />
     <ClInclude Include="math\vector3.h" />
     <ClInclude Include="math\vector4.h" />
@@ -407,7 +407,7 @@
     <ClCompile Include="etc\observer.cpp" />
     <ClCompile Include="etc\observer2.cpp" />
     <ClCompile Include="etc\path.cpp" />
-    <ClCompile Include="etc\rect.cpp" />
+    <ClCompile Include="etc\recttype.cpp" />
     <ClCompile Include="etc\Serial.cpp" />
     <ClCompile Include="etc\SerialAsync.cpp" />
     <ClCompile Include="etc\shmmem.cpp" />
@@ -417,7 +417,7 @@
     <ClCompile Include="math\quaternion.cpp" />
     <ClCompile Include="math\ray.cpp" />
     <ClCompile Include="math\triangle.cpp" />
-    <ClCompile Include="math\vector.cpp" />
+    <ClCompile Include="math\vectortype.cpp" />
     <ClCompile Include="math\vector2.cpp" />
     <ClCompile Include="math\vector3.cpp" />
     <ClCompile Include="math\vector4.cpp" />

@@ -10,9 +10,6 @@
     <ClInclude Include="window\utility.h">
       <Filter>window</Filter>
     </ClInclude>
-    <ClInclude Include="ui\window.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\button.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -49,6 +46,126 @@
     <ClInclude Include="external\imgui\imgui_impl_dx9.h">
       <Filter>external\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System.hpp">
+      <Filter>external\sfml</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window.hpp">
+      <Filter>external\sfml</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Config.hpp">
+      <Filter>external\sfml</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Event.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Export.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Joystick.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Keyboard.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Mouse.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Sensor.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Touch.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\VideoMode.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Window.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowHandle.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowStyle.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Err.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\NonCopyable.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Utf.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\SensorImpl.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\InputImpl.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\WindowImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\InputImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickManager.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorManager.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\VideoModeImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Vector2.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Vector3.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\window2.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\String.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Time.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Clock.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Sleep.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\ClockImpl.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\SleepImpl.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\MutexImpl.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Mutex.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Lock.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -57,9 +174,6 @@
     </ClCompile>
     <ClCompile Include="window\utility.cpp">
       <Filter>window</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\window.cpp">
-      <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ui\button.cpp">
       <Filter>ui</Filter>
@@ -85,6 +199,84 @@
     <ClCompile Include="external\imgui\imgui_impl_dx9.cpp">
       <Filter>external\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\VideoModeImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\InputImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\SensorImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\WindowImpl.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Joystick.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\JoystickManager.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Keyboard.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Mouse.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Sensor.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\SensorManager.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Touch.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\VideoMode.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Window.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\window2.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\String.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Time.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Clock.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Sleep.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Err.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\ClockImpl.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\SleepImpl.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\MutexImpl.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Mutex.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Lock.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="window">
@@ -101,6 +293,18 @@
     </Filter>
     <Filter Include="external\imgui">
       <UniqueIdentifier>{9730768b-0764-45e7-8e7c-8c29523cd670}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml">
+      <UniqueIdentifier>{6c1a6692-16d4-49fd-8c85-856dd35f87fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml\system">
+      <UniqueIdentifier>{b32e10df-28b8-4a65-b663-064c6c38f15f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml\Window">
+      <UniqueIdentifier>{4b279289-1afa-4fb2-8675-4d0611dfbb6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml\Window\Win32">
+      <UniqueIdentifier>{bc550adb-c487-45ff-91eb-c272e72fe193}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
