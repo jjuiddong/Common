@@ -166,6 +166,21 @@
     <ClInclude Include="external\sfml\include\SFML\System\Lock.hpp">
       <Filter>external\sfml\system</Filter>
     </ClInclude>
+    <ClInclude Include="gamemain\gamemain2.h">
+      <Filter>gamemain</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dockwindow.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dock.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dockmanager.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\renderwindow.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -276,6 +291,18 @@
     </ClCompile>
     <ClCompile Include="external\sfml\src\SFML\System\Lock.cpp">
       <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="gamemain\gamemain2.cpp">
+      <Filter>gamemain</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\dockwindow.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\dockmanager.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\renderwindow.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

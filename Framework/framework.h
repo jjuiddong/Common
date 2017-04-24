@@ -39,6 +39,21 @@
 	}
 
 
+#define INIT_FRAMEWORK3(frameWorkClassName) \
+	framework::cGameMain2* framework::CreateFrameWork2()\
+	{\
+		return new frameWorkClassName();\
+	}\
+	\
+	int APIENTRY WinMain(HINSTANCE hInstance, \
+		HINSTANCE hPrevInstance, \
+		LPSTR lpCmdLine, \
+		int nCmdShow)\
+	{\
+		framework::FrameWorkWinMain2(hInstance, hPrevInstance, lpCmdLine, nCmdShow);\
+	}
+
+
 
 // Include
 #include "ui/uidef.h"
