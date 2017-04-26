@@ -92,7 +92,9 @@ HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer,
 			m_materials[i].m_mtrl = d3dxMtrls[i].MatD3D;
 			if (d3dxMtrls[i].pTextureFilename)
 			{
-				string textureFileName = common::GetFilePathExceptFileName(filePath) + "/" + d3dxMtrls[i].pTextureFilename;
+				//string textureFileName = common::GetFilePathExceptFileName(filePath) + "/" + d3dxMtrls[i].pTextureFilename;
+				string textureFileName = common::GetFilePathExceptFileName(common::GetFullFileName(filePath)) + 
+					"/" + d3dxMtrls[i].pTextureFilename;
 				//common::dbg::Print("texture file name = %s\n", textureFileName.c_str());
 				m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, textureFileName);
 				if (m_textures[i])
@@ -141,9 +143,12 @@ bool cXFileMesh::Update(const float deltaSeconds)
 }
 
 
-void cXFileMesh::Render(cRenderer &renderer)
+void cXFileMesh::Render(cRenderer &renderer
+	, const Matrix44 &tm) // = Matrix44::Identity
 {
 	RET(!m_mesh);
+
+	const Matrix44 transform = m_tm * tm;
 
 	if (m_shader)
 	{
@@ -162,7 +167,7 @@ void cXFileMesh::Render(cRenderer &renderer)
 				if (m_textures[i])
 					m_textures[i]->Bind(*m_shader, "g_colorMapTexture");
 
-				m_shader->SetMatrix("g_mWorld", m_tm);
+				m_shader->SetMatrix("g_mWorld", transform);
 				m_shader->CommitChanges();
 				m_mesh->DrawSubset(i);
 			}
@@ -172,7 +177,7 @@ void cXFileMesh::Render(cRenderer &renderer)
 	}
 	else
 	{
-		renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&m_tm);
+		renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&transform);
 
 		for (int i = 0; i < m_materialsCount; i++)
 		{

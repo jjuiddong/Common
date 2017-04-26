@@ -28,14 +28,15 @@ namespace framework
 		virtual void Render() {}
 		virtual void RenderTab();
 		virtual bool RemoveTab(cDockWindow *tab);
-		virtual void LostDevice() {}
-		virtual void ResetDevice(graphic::cRenderer *shared = NULL) {}
+		virtual void LostDevice();
+		virtual void ResetDevice(graphic::cRenderer *shared = NULL);
 		void CalcWindowSize(cDockWindow *dock);
 		void CalcResizeWindow(const sRectf &rect);
 		void CalcResizeWindow(const int deltaSize);
 		bool IsInSizerSpace(const Vector2 &pos);
 		eDockSizingType::Enum GetDockSizingType();
 		void SetBindState(const bool enable=true);
+		void ClearConnection();
 		void Clear();
 
 
@@ -44,6 +45,8 @@ namespace framework
 		bool Merge(cDockWindow *udock);
 		cDockWindow* UndockTab();
 		eDockType::Enum render_dock_slot_preview(const ImVec2& mouse_pos, const ImVec2& cPos, const ImVec2& cSize);
+		virtual void OnLostDevice() {}
+		virtual void OnResetDevice(graphic::cRenderer *shared) {}
 
 
 	public:

@@ -16,7 +16,7 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const string &fileName, const bool isShadow=false);
 		bool Update(const float deltaSeconds);
-		void Render(cRenderer &renderer);
+		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void RenderShadow(cRenderer &renderer);
 		void SetShader(cShader *shader);
 		bool IsLoad();

@@ -27,7 +27,7 @@ cRenderWindow::cRenderWindow()
 	: m_sharedRenderer(NULL)
 	, m_state(eState::NORMAL)
 	, m_isVisible(true)
-	, m_isThread(false)
+	, m_isThread(true)
 	, m_isThreadLoop(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
@@ -38,11 +38,7 @@ cRenderWindow::cRenderWindow()
 
 cRenderWindow::~cRenderWindow()
 {
-	m_gui.Shutdown();
-
-	m_isThreadLoop = false;
-	if (m_thread.joinable())
-		m_thread.join();
+	Clear();
 }
 
 
@@ -138,7 +134,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 	if (m_dock)
 		m_dock->Update(deltaSeconds);
 
-	DragAndDrop(deltaSeconds);
+	MouseProc(deltaSeconds);
 
 	m_renderer.Update(deltaSeconds);
 
@@ -146,7 +142,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 }
 
 
-void cRenderWindow::DragAndDrop(const float deltaSeconds)
+void cRenderWindow::MouseProc(const float deltaSeconds)
 {
 	const Vector2 pos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 	switch (m_state)
@@ -154,13 +150,24 @@ void cRenderWindow::DragAndDrop(const float deltaSeconds)
 	case eState::NORMAL:
 	{
 		cDockWindow *sizerWnd = UpdateCursor();
-		if (ImGui::IsMouseDown(0) && sizerWnd)
+		if (ImGui::IsMouseDown(0))
 		{
-			m_state = eState::SIZE;
-			m_ptMouse = pos;
-			m_sizingWindow = sizerWnd;
+			if (sizerWnd)
+			{
+				m_state = eState::SIZE;
+				m_ptMouse = pos;
+				m_sizingWindow = sizerWnd;
+			}
+			else
+			{
+				m_state = eState::NORMAL_DOWN;
+			}
 		}
+	}
+	break;
 
+	case eState::NORMAL_DOWN:
+	{
 		if (ImGui::IsMouseReleased(0))
 		{
 			m_state = eState::NORMAL;
@@ -271,6 +278,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_sharedRenderer->GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 			m_gui.Render();
 			m_sharedRenderer->EndScene();
+			m_sharedRenderer->Present();
 		}
 		m_surf.End();
 
@@ -312,7 +320,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_gui.Render();
 
 			m_renderer.EndScene();
-			m_renderer.Present();
+			//m_renderer.Present();
 		}
 
 		OnPostRender(deltaSeconds);
@@ -330,6 +338,9 @@ void cRenderWindow::LostDevice()
 	m_gui.InvalidateDeviceObjects();
 	m_surf.LostDevice();
 	m_texture.LostDevice();
+
+	if (m_dock)
+		m_dock->LostDevice();
 
 	OnLostDevice();
 }
@@ -349,6 +360,9 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 	m_texture.m_imageInfo.Width = width;
 	m_texture.m_imageInfo.Height = height;
 	m_texture.ResetDevice(m_renderer);
+
+	if (m_dock)
+		m_dock->ResetDevice(shared);
 
 	if (m_isThread)
 	{
@@ -491,4 +505,19 @@ void cRenderWindow::WakeUp(const string &title, const int width, const int heigh
 	m_thread = std::thread(RenderProc, this);
 
 	setVisible(true);
+}
+
+
+void cRenderWindow::Clear()
+{
+	m_gui.Shutdown();
+
+	m_isThreadLoop = false;
+	if (m_thread.joinable())
+		m_thread.join();
+
+	// Delete All Docking Window
+	if (m_dock)
+		m_dock->Clear();
+	m_dock = NULL;
 }

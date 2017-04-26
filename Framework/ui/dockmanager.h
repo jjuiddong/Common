@@ -38,7 +38,6 @@ namespace framework
 
 	public:
 		vector<cRenderWindow*> m_windows;
-		vector<cDockWindow*> m_docks;
 		vector<cRenderWindow*> m_poolWindow;
 		vector<cDockWindow*> m_poolDock;
 		vector<cRenderWindow*> m_rmWindows;

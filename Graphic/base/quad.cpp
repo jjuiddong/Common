@@ -90,6 +90,34 @@ void cQuad::Render(cRenderer &renderer, const Matrix44 &tm)
 }
 
 
+void cQuad::RenderAlpha(cRenderer &renderer, const Matrix44 &tm)
+// tm = Matrix44::Identity
+{
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm * tm));
+	m_material.Bind(renderer);
+	if (m_texture)
+		m_texture->Bind(renderer, 0);
+
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+	
+	// AlphaBlending
+	renderer.SetCullMode(D3DCULL_CCW);
+	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	m_vtxBuff.RenderTriangleStrip(renderer);
+	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+}
+
+
 void cQuad::RenderFactor(cRenderer &renderer, const Matrix44 &tm)
 // tm = Matrix44::Identity
 {

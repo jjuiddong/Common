@@ -268,7 +268,10 @@ cMeshBuffer* cMeshBuffer::Clone()
 
 
 // Ãâ·Â. 
-void cMeshBuffer::Render(cRenderer &renderer, const int faceStart, const int faceCount)
+void cMeshBuffer::Render(cRenderer &renderer
+	, const int faceStart	// =0
+	, const int faceCount	// =0
+)
 	//faceStart=0, faceCount=0
 {
 	renderer.GetDevice()->DrawIndexedPrimitive( 

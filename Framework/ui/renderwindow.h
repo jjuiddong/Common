@@ -20,7 +20,6 @@ namespace framework
 		virtual bool Create(const string &title, const int width, const int height, graphic::cRenderer *shared=NULL);
 		virtual void Update(const float deltaSeconds);
 		virtual void Render(const float deltaSeconds);
-		virtual void DragAndDrop(const float deltaSeconds);
 		virtual void OnUpdate(const float deltaSeconds) {}
 		virtual void OnRender(const float deltaSeconds) {}
 		virtual void OnPreRender(const float deltaSeconds) {}
@@ -35,10 +34,12 @@ namespace framework
 		void SetDragBindState();
 		void SetFinishDragBindState();
 		bool IsDragState();
+		void Clear();
 
 
 	protected:
 		virtual void DefaultEventProc(const sf::Event &evt);
+		virtual void MouseProc(const float deltaSeconds);
 		cDockWindow* UpdateCursor();
 		virtual void OnLostDevice() {}
 		virtual void OnResetDevice(graphic::cRenderer *shared) {}
@@ -48,6 +49,7 @@ namespace framework
 		struct eState {
 			enum Enum {
 				NORMAL,
+				NORMAL_DOWN,
 				SIZE,
 				DRAG,
 				DRAG_BIND,

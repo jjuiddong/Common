@@ -755,7 +755,29 @@ void cDockWindow::SetBindState(const bool enable) // enable = true;
 }
 
 
-void cDockWindow::Clear()
+void cDockWindow::LostDevice()
+{
+	OnLostDevice();
+
+	if (m_lower)
+		m_lower->LostDevice();
+	if (m_upper)
+		m_upper->LostDevice();
+}
+
+
+void cDockWindow::ResetDevice(graphic::cRenderer *shared)//= NULL
+{
+	OnResetDevice(shared);
+
+	if (m_lower)
+		m_lower->ResetDevice(shared);
+	if (m_upper)
+		m_upper->ResetDevice(shared);
+}
+
+
+void cDockWindow::ClearConnection()
 {
 	m_lower = NULL;
 	m_upper = NULL;
@@ -763,3 +785,28 @@ void cDockWindow::Clear()
 	m_owner = NULL;
 	m_tabs.clear();
 }
+
+
+// Delete All Connection Docking Window
+void cDockWindow::Clear()
+{
+	for (auto &p : m_tabs)
+	{
+		p->Clear();
+		delete p;
+	}
+	m_tabs.clear();
+
+	if (m_lower)
+	{
+		m_lower->Clear();
+		SAFE_DELETE(m_lower);
+	}
+
+	if (m_upper)
+	{
+		m_upper->Clear();
+		SAFE_DELETE(m_upper);
+	}
+}
+

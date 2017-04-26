@@ -3,17 +3,13 @@
 #include "gamemain2.h"
 #include <MMSystem.h>
 #include <chrono>
-#include <thread>
 #include "../window/utility.h"
 #include "../ui/dockmanager.h"
 #include "../ui/renderwindow.h"
 
 using namespace framework;
 
-
-//------------------------------------------------------------------------
-// WindowMain ÇÔ¼ö
-//------------------------------------------------------------------------
+// Window Main Function
 int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine,

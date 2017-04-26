@@ -42,4 +42,5 @@ namespace framework
 
 	// 프레임워크 인스턴스를 생성한다. 반드시 이 함수를 구현해야 한다.
 	cGameMain2* CreateFrameWork2();
+
 }

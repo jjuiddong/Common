@@ -73,10 +73,10 @@ cDockWindow* cDockManager::NewDockWindow()
 }
 
 
-// deAllocation cDockWindow Object
+// DeAllocation cDockWindow Object
 void cDockManager::DeleteDockWindow(cDockWindow *p)
 {
-	p->Clear();
+	p->ClearConnection();
 	m_poolDock.push_back(p);
 }
 
@@ -95,15 +95,13 @@ void cDockManager::UpdateRender(const float deltaSeconds)
 		p->Render(deltaSeconds);
 	}
 
+	// Dock, Undock Process
 	if (m_dockTarget && m_dragWindow)
 	{
 		cDockWindow *src = m_dragWindow->m_dock;
 		src->Undock(false);
 		m_dockTarget->Dock(m_dockSlot, src);
 	}
-
-	//for (auto &p : m_windows)
-	//	p->DragAndDrop(deltaSeconds);
 }
 
 void cDockManager::UpdateModified()
@@ -140,10 +138,6 @@ void cDockManager::Clear()
 		delete p;
 	m_poolWindow.clear();
 
-	for (auto &p : m_docks)
-		delete p;
-	m_docks.clear();
-
 	for (auto &p : m_poolDock)
 		delete p;
 	m_poolDock.clear();
@@ -161,12 +155,6 @@ void cDockManager::SetDragState(cRenderWindow *drag
 	else
 	{
 		m_dragWindow = drag;
-		//if (m_dockTarget)
-		//{
-		//	cDockWindow *src = drag->m_dock;
-		//	src->Undock(false);
-		//	m_dockTarget->Dock(m_dockSlot, src);
-		//}
 	}
 
 	for (auto &p : m_windows)
@@ -197,9 +185,6 @@ void cDockManager::LostDevice()
 	for (auto &p : m_poolWindow)
 		p->LostDevice();
 
-	for (auto &p : m_docks)
-		p->LostDevice();
-
 	for (auto &p : m_poolDock)
 		p->LostDevice();
 }
@@ -214,9 +199,6 @@ void cDockManager::ResetDevice(cRenderer *shared) // =NULL
 	}
 
 	for (auto &p : m_poolWindow)
-		p->ResetDevice(shared);
-
-	for (auto &p : m_docks)
 		p->ResetDevice(shared);
 
 	for (auto &p : m_poolDock)

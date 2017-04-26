@@ -108,8 +108,11 @@ bool cBoundingBox::Collision( cBoundingBox &box )
 
 // 피킹 되었다면 true를 리턴한다.
 // orig, dir : ray 값.
-bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir)
+bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
+, const Matrix44 &tm // = Matrix44::Identity
+)
 {
+	const Matrix44 transform = m_tm * tm;
 	Vector3 vertices[8] = {
 		Vector3(m_max.x, m_max.y, m_min.z),
 		Vector3(m_min.x, m_max.y, m_min.z),
@@ -121,7 +124,7 @@ bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir)
 		Vector3(m_min.x, m_min.y, m_max.z),
 	};
 	for (u_int i=0; i < 8; ++i)
-		vertices[ i] *= m_tm;
+		vertices[ i] *= transform;
 
 	//       3-----2
 	//      /|      /|
@@ -254,8 +257,11 @@ bool cBoundingBox::Pick2(const Vector3 &orig, const Vector3 &dir, float *pfT, fl
 
 // 피킹 되었다면 true를 리턴한다.
 // orig, dir : ray 값.
-bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistance)
+bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistance
+	, const Matrix44 &tm //= Matrix44::Identity
+)
 {
+	const Matrix44 transform = m_tm * tm;
 	Vector3 vertices[8] = {
 		Vector3(m_max.x, m_max.y, m_min.z),
 		Vector3(m_min.x, m_max.y, m_min.z),
@@ -267,7 +273,7 @@ bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistan
 		Vector3(m_min.x, m_min.y, m_max.z),
 	};
 	for (u_int i = 0; i < 8; ++i)
-		vertices[i] *= m_tm;
+		vertices[i] *= transform;
 
 	//       3-----2
 	//      /|      /|
@@ -346,4 +352,20 @@ cBoundingBox& cBoundingBox::operator=(const cCube &cube)
 Vector3 cBoundingBox::Center() const
 {
 	return (m_max+m_min)/2.f;
+}
+
+
+void cBoundingBox::Scale(const Vector3 &scale)
+{
+	Vector3 center = Center();
+	m_max -= center;
+	m_min -= center;
+
+	Matrix44 scaleT;
+	scaleT.SetScale(scale);
+	m_min *= scaleT;
+	m_max *= scaleT;
+	
+	m_min += center;
+	m_max += center;
 }
