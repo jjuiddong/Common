@@ -6,7 +6,7 @@
 namespace graphic
 {
 
-	class cQuad
+	class cQuad : public graphic::iShaderRenderer
 	{
 	public:
 		cQuad();
@@ -18,6 +18,7 @@ namespace graphic
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void RenderAlpha(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void RenderFactor(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		void RenderLine(cRenderer &renderer);
 
 		void SetTransform( const Matrix44 &tm );

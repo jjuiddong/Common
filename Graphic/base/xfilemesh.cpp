@@ -220,3 +220,28 @@ bool cXFileMesh::IsLoad()
 {
 	return m_mesh ? true : false;
 }
+
+
+
+//-------------------------------------------------------------------------------------------------------
+bool cXFileModel::Create(cRenderer &renderer, const string &fileName, const bool isShadow)
+{
+	m_mesh = cResourceManager::Get()->LoadXFile(renderer, fileName);
+
+	return true;
+}
+
+
+void cXFileModel::Render(cRenderer &renderer, const Matrix44 &tm)
+{
+	if (m_mesh)
+		m_mesh->Render(renderer, m_tm * tm);
+}
+
+
+void cXFileModel::SetShader(cShader *shader)
+{
+	if (m_mesh)
+		m_mesh->SetShader(shader);
+}
+

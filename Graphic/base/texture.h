@@ -29,6 +29,7 @@ namespace graphic
 		const string& GetTextureName() const;
 		void TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color);
 		void DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color);
+		bool IsLoaded();
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
@@ -43,6 +44,7 @@ namespace graphic
 		D3DXIMAGE_INFO m_imageInfo;
 		string m_fileName;
 		bool m_isReferenceMode;
+		bool m_customTexture; // using LostDevice, ResetDevice
 	};
 
 

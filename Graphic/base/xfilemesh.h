@@ -43,6 +43,22 @@ namespace graphic
 		cShadowVolume m_shadow;
 	};
 
+	inline void cXFileMesh::SetShader(cShader *shader) { m_shader = shader; }
 
-	inline void cXFileMesh::SetShader(cShader *shader) { m_shader = shader;  }
+
+	class cXFileModel
+	{
+	public:
+		cXFileModel() : m_mesh(NULL) {}
+		virtual ~cXFileModel() {}
+		bool Create(cRenderer &renderer, const string &fileName, const bool isShadow = false);
+		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		void SetShader(cShader *shader);
+
+
+	public:
+		cXFileMesh *m_mesh;
+		Matrix44 m_tm;
+	};
+
 }

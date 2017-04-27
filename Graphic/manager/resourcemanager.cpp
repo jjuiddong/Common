@@ -105,6 +105,26 @@ sRawMeshGroup2* cResourceManager::LoadModel2(const string &fileName)
 }
 
 
+
+cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileName)
+{
+	auto it = m_meshes3.find(fileName);
+	if (m_meshes3.end() != it)
+		return it->second;
+
+	cXFileMesh *mesh = new cXFileMesh;
+	if (!mesh->Create(renderer, fileName))
+	{
+		delete mesh;
+		return NULL;
+	}
+
+	m_meshes3[fileName] = mesh;
+
+	return mesh;
+}
+
+
 // 외부에서 로딩한 메쉬를 저장한다.
 //bool cResourceManager::LoadModel2(sRawMeshGroup2 *meshes)
 //{
@@ -274,75 +294,199 @@ sRawAniGroup* cResourceManager::FindAnimation( const string &fileName )
 
 
 // 텍스쳐 로딩.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileName, 
-	const bool isSizePow2)//isSizePow2=true
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileName
+	,  const bool isSizePow2 //=true
+	, const bool isRecursive //= true
+)
 {
+	const string whiteTexture = "model/white.dds";
+
 	if (cTexture *p = FindTexture(fileName))
 		return p;
 
-	cTexture *texture = new cTexture();
-	if (!texture->Create(renderer, fileName, isSizePow2))
+	string key = fileName;
+	cTexture *texture = NULL;// new cTexture();
+
+	//if (!texture->Create(renderer, fileName, isSizePow2))
+	if (common::IsFileExist(fileName))
+	{
+		texture = new cTexture();
+		if (!texture->Create(renderer, fileName, isSizePow2))
+		{
+			if (fileName == whiteTexture) // this file must loaded
+				assert(0);
+		}
+	}
+	else
 	{
 		string newPath;
 		if (common::FindFile(fileName, m_mediaDirectory, newPath))
 		{
-			if (!texture->Create(renderer, newPath, isSizePow2))
+			if (isRecursive)
 			{
-				// last load white.dds texture
-				if (!texture->Create(renderer, "texture/white.dds", isSizePow2))
+				if (texture = cResourceManager::LoadTexture(renderer, newPath, isSizePow2, false))
+					return texture;
+			}
+			else
+			{
+				//cTexture *texture = NULL;// new cTexture();
+				if (common::IsFileExist(newPath))
 				{
-					delete texture;
-					return false;
+					key = newPath;
+					texture = new cTexture();
+					if (!texture->Create(renderer, newPath, isSizePow2))
+					{
+						if (newPath == whiteTexture) // this file must loaded
+							assert(0);
+					}
+
+
+					//{
+						// last load white.dds texture
+						//if (!texture->Create(renderer, "model/white.dds", isSizePow2))
+						//{
+						//delete texture;
+						//return false;
+						//}
+						//texture = cResourceManager::LoadTexture(renderer, "model/white.dds", false);
+					//}
 				}
+
+				//if (!texture->Create(renderer, newPath, isSizePow2))
+				//{
+				//	// last load white.dds texture
+				//	//if (!texture->Create(renderer, "model/white.dds", isSizePow2))
+				//	//{
+				//		delete texture;
+				//		//return false;
+				//	//}
+				//	texture = cResourceManager::LoadTexture(renderer, "model/white.dds", false);
+				//}
 			}
 		}
 	}
 
-	// last load white.dds texture
-	if (!texture->m_texture)
+	if (texture && texture->IsLoaded())
 	{
-		texture->Create(renderer, m_mediaDirectory + "/texture/white.dds", isSizePow2);
+		m_textures[key] = texture;
+		return texture;
+	}
+	else
+	{
+		// load error
+		if (!texture)
+		{  // Not Exist File
+			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+		}
+
+		// last load white.dds texture
+		if (!texture->IsLoaded())
+		{ // File Exist, but Load Error
+			delete texture;
+			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+		}
 	}
 
-	m_textures[ fileName] = texture;
-	return texture;
+	return NULL;
 }
+
 
 // 텍스쳐 로딩.
 // fileName 에 해당하는 파일이 없다면, "../media/" + dirPath  경로에서 파일을 찾는다.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPath, 
-	const string &fileName, const bool isSizePow2)
-	//isSizePow2=true
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName
+	, const bool isSizePow2 //= true
+	, const bool isRecursive //= true
+)	
 {
+	const string whiteTexture = "model/white.dds";
+
 	if (cTexture *p = FindTexture(fileName))
 		return p;
 
-	cTexture *texture = new cTexture();
-	if (!texture->Create(renderer, fileName, isSizePow2))
+	string key = fileName;
+	cTexture *texture = NULL;// new cTexture();
+	if (common::IsFileExist(fileName))
+	{
+		texture = new cTexture();
+		texture->Create(renderer, fileName, isSizePow2);
+	}
+	else
 	{
 		string newPath;
 		string searchPath = m_mediaDirectory + dirPath;
 		if (searchPath.empty())
 			searchPath = ".";
 
+		key = newPath;
 		if (common::FindFile(GetFileName(fileName), searchPath + "/", newPath))
 		{
-			if (!texture->Create(renderer, newPath, isSizePow2))
+			if (isRecursive)
 			{
-				delete texture;
-				return false;
+				if (texture = cResourceManager::LoadTexture(renderer, newPath, isSizePow2, false))
+					return texture;
+			}
+			else
+			{
+				if (common::IsFileExist(newPath))
+				{
+					texture = new cTexture();
+					texture->Create(renderer, newPath, isSizePow2);
+				}
 			}
 		}
 	}
 
-	// last load white.dds texture
-	if (!texture->m_texture)
+	if (texture && texture->IsLoaded())
 	{
-		texture->Create(renderer, m_mediaDirectory + "/texture/white.dds", isSizePow2);
+		m_textures[key] = texture;
+		return texture;
+	}
+	else
+	{
+		// load error
+		if (!texture)
+		{  // Not Exist File
+			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+		}
+
+		// last load white.dds texture
+		if (!texture->IsLoaded())
+		{ // File Exist, but Load Error
+			delete texture;
+			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+		}
 	}
 
-	m_textures[ fileName] = texture;
-	return texture;
+	return NULL;
+
+
+	//if (!texture->Create(renderer, fileName, isSizePow2))
+	//{
+	//	string newPath;
+	//	string searchPath = m_mediaDirectory + dirPath;
+	//	if (searchPath.empty())
+	//		searchPath = ".";
+
+	//	if (common::FindFile(GetFileName(fileName), searchPath + "/", newPath))
+	//	{
+	//		if (!texture->Create(renderer, newPath, isSizePow2))
+	//		{
+	//			delete texture;
+	//			return false;
+	//		}
+	//	}
+	//}
+
+	//// last load white.dds texture
+	//if (!texture->m_texture)
+	//{
+	//	delete texture;
+	//	texture = cResourceManager::LoadTexture(renderer, "model/white.dds");
+	//	//texture->Create(renderer, m_mediaDirectory + "/texture/white.dds", isSizePow2);
+	//}
+
+	//m_textures[ fileName] = texture;
+	//return texture;
 }
 
 
@@ -440,6 +584,14 @@ void cResourceManager::Clear()
 		delete kv.second;
 	}
 	m_meshes2.clear();
+
+	// remove raw mesh2
+	for each (auto kv in m_meshes3)
+	{
+		delete kv.second;
+	}
+	m_meshes3.clear();
+
 
 	// remove texture
 	for each (auto kv in m_textures)

@@ -13,6 +13,7 @@ namespace graphic
 	struct sRawMesh;
 	struct sRawAni;
 	struct sRawBone;
+	class cXFileMesh;
 
 
 	class cResourceManager : public common::cSingleton<cResourceManager>
@@ -25,12 +26,13 @@ namespace graphic
 		bool LoadModel(sRawMeshGroup *meshes);
 		sRawMeshGroup2* LoadModel2(const string &fileName);
 		bool LoadModel2(sRawMeshGroup2 *meshes);
+		cXFileMesh* LoadXFile(cRenderer &renderer, const string &fileName);
 		sRawAniGroup* LoadAnimation( const string &fileName );
 		bool LoadAnimation(sRawAniGroup *anies);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const string &meshName);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
-		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true);
-		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true);
+		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
+		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cShader* LoadShader(cRenderer &renderer, const string &fileName, const bool isReload=false);
 
 		sRawMeshGroup* FindModel( const string &fileName );
@@ -56,6 +58,7 @@ namespace graphic
 	private:
 		map<string, sRawMeshGroup*> m_meshes; // key = fileName
 		map<string, sRawMeshGroup2*> m_meshes2; // key = fileName
+		map<string, cXFileMesh*> m_meshes3; // key = fileName
 		map<string, sRawAniGroup*> m_anies;	// key = fileName
 		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
 		map<string, cTexture*> m_textures; // key = fileName

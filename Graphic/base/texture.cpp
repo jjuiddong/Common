@@ -9,6 +9,7 @@ using namespace graphic;
 cTexture::cTexture() :
 	m_texture(NULL)
 	, m_isReferenceMode(false)
+	, m_customTexture(false)
 {
 }
 
@@ -60,6 +61,7 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height, co
 	memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
 	m_texture->UnlockRect( 0 );
 
+	m_customTexture = true;
 	m_imageInfo.Width = width;
 	m_imageInfo.Height = height;
 	m_imageInfo.Format = format;
@@ -266,12 +268,16 @@ void cTexture::DrawText(cFontGdi &font, const string &text, const sRecti &rect, 
 void cTexture::LostDevice()
 {
 	RET(!m_texture);
-	SAFE_RELEASE(m_texture);
+	
+	if (m_customTexture)
+		SAFE_RELEASE(m_texture);
 }
 
 
 void cTexture::ResetDevice(cRenderer &renderer)
 {
+	RET(!m_customTexture);
+
 	SAFE_RELEASE(m_texture);
 
 	if (m_fileName.empty())
@@ -280,6 +286,12 @@ void cTexture::ResetDevice(cRenderer &renderer)
 	}
 	else
 	{
-		Create(renderer, m_fileName);	
+		Create(renderer, string(m_fileName));
 	}
+}
+
+
+bool cTexture::IsLoaded()
+{
+	return m_texture? true : false;
 }

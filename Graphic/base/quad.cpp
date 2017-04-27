@@ -104,8 +104,8 @@ void cQuad::RenderAlpha(cRenderer &renderer, const Matrix44 &tm)
 
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 	
 	// AlphaBlending
 	renderer.SetCullMode(D3DCULL_CCW);
@@ -132,6 +132,7 @@ void cQuad::RenderFactor(cRenderer &renderer, const Matrix44 &tm)
 	m_vtxBuff.RenderTriangleStrip(renderer);
 }
 
+
 void cQuad::RenderLine(cRenderer &renderer)
 {
 	DWORD flag;
@@ -139,4 +140,28 @@ void cQuad::RenderLine(cRenderer &renderer)
 	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	Render(renderer);
 	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, flag);
+}
+
+
+void cQuad::RenderShader(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	RET(!m_shader);
+
+	const Matrix44 transform = m_tm * tm;
+
+	const int pass = m_shader->Begin();
+	for (int i = 0; i < pass; ++i)
+	{
+		m_shader->BeginPass(i);
+		m_shader->SetMatrix("g_mWorld", transform);
+		if (m_texture)
+			m_texture->Bind(*m_shader, "g_colorMapTexture");
+
+		m_shader->CommitChanges();
+		m_vtxBuff.RenderTriangleStrip(renderer);
+		m_shader->EndPass();
+	}
+	m_shader->End();
 }

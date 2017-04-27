@@ -129,7 +129,7 @@ void cRenderer::Update(const float elapseT)
 	m_elapseTime += elapseT;
 	if( 1.f <= m_elapseTime )
 	{
-		m_textFps.SetText(format("fps: %d", m_fps));
+		//m_textFps.SetText(format("fps: %d", m_fps));
 		m_fps = 0;
 		m_elapseTime = 0;
 	}
@@ -340,10 +340,10 @@ bool cRenderer::ResetDevice(const int width, const int height)
 		return false;
 	}
 
-	//const Vector3 lookAt = GetMainCamera()->GetLookAt();
-	//const Vector3 eyePos = GetMainCamera()->GetEyePos();
-	//GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
-	//GetMainCamera()->SetViewPort(w, h);
+	const Vector3 lookAt = GetMainCamera()->GetLookAt();
+	const Vector3 eyePos = GetMainCamera()->GetEyePos();
+	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
+	GetMainCamera()->SetViewPort(w, h);
 
 	cResourceManager::Get()->ResetDevice(*this);
 

@@ -42,7 +42,9 @@ bool graphic::InitDirectX(HWND hWnd, const int width, const int height, const UI
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		hWnd,
-		vertexProcessing | D3DCREATE_MULTITHREADED,
+		vertexProcessing 
+		| D3DCREATE_MULTITHREADED
+		,
 		&d3dpp,
 		&pDevice
 		)))
