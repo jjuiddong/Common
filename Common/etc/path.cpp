@@ -8,6 +8,11 @@ cFilePath::cFilePath()
 {
 }
 
+cFilePath::cFilePath(const char *filePath)
+{
+	SetFilePath(string(filePath));
+}
+
 cFilePath::cFilePath(const string &filePath)
 {
 	SetFilePath(filePath);
@@ -42,6 +47,9 @@ string cFilePath::GetFullFileName() const
 }
 
 
+// contain dot
+// .x
+// .dae
 string cFilePath::GetFileExt() const
 {
 	return common::GetFileExt(m_filePath);
@@ -93,6 +101,13 @@ cFilePath::operator string ()
 cFilePath::operator const char *()
 {
 	return m_filePath.c_str();
+}
+
+
+cFilePath& cFilePath::operator=(const char *rhs)
+{
+	m_filePath = rhs;
+	return *this;
 }
 
 

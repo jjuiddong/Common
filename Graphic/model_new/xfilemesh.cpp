@@ -8,7 +8,6 @@ using namespace graphic;
 
 cXFileMesh::cXFileMesh()
 	: m_mesh(NULL)
-	, m_shader(NULL)
 	, m_materials(NULL)
 	, m_textures(NULL)
 {
@@ -20,48 +19,59 @@ cXFileMesh::~cXFileMesh()
 }
 
 
-bool cXFileMesh::Create(cRenderer &renderer, const string &fileName, const bool isShadow)
+bool cXFileMesh::Create(cRenderer &renderer, const string &fileName
+	, const bool isShadow // = false
+	, const bool isOptimize //= false
+)
 {
-	m_fileName = fileName;
+	//m_fileName = fileName;
 	LPD3DXBUFFER pAdjacencyBuffer = NULL;
 	LPD3DXBUFFER pMtrlBuffer = NULL;
 	HRESULT hr;
 
 	Clear();
 
-	// Load the mesh
-	if (FAILED(hr = D3DXLoadMeshFromXA(fileName.c_str(), D3DXMESH_32BIT | D3DXMESH_MANAGED, renderer.GetDevice(),
-		&pAdjacencyBuffer, &pMtrlBuffer, NULL,
-		(DWORD*)&m_materialsCount, &m_mesh)))
+	if (isOptimize)
 	{
-		return false;
-	}
+		// Load the mesh
+		if (FAILED(hr = D3DXLoadMeshFromXA(fileName.c_str(), D3DXMESH_32BIT | D3DXMESH_MANAGED, renderer.GetDevice(),
+			&pAdjacencyBuffer, &pMtrlBuffer, NULL,
+			(DWORD*)&m_materialsCount, &m_mesh)))
+		{
+			return false;
+		}
 
-	// Optimize the mesh for performance
-	if (FAILED(hr = m_mesh->OptimizeInplace(
-		D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-		(DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL)))
-	{
+		// Optimize the mesh for performance
+		if (FAILED(hr = m_mesh->OptimizeInplace(
+			D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+			(DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL)))
+		{
+			SAFE_RELEASE(pAdjacencyBuffer);
+			SAFE_RELEASE(pMtrlBuffer);
+			return false;
+		}
+
 		SAFE_RELEASE(pAdjacencyBuffer);
-		SAFE_RELEASE(pMtrlBuffer);
-		return false;
+	}
+	else
+	{
+		// Load the mesh
+		if (FAILED(hr = D3DXLoadMeshFromXA(fileName.c_str(), D3DXMESH_32BIT | D3DXMESH_MANAGED, renderer.GetDevice(),
+			NULL, &pMtrlBuffer, NULL,
+			(DWORD*)&m_materialsCount, &m_mesh)))
+		{
+			return false;
+		}
 	}
 
 	D3DXMATERIAL* d3dxMtrls = (D3DXMATERIAL*)pMtrlBuffer->GetBufferPointer();
 	hr = CreateMaterials(fileName, renderer, d3dxMtrls, m_materialsCount);
 
-	SAFE_RELEASE(pAdjacencyBuffer);
 	SAFE_RELEASE(pMtrlBuffer);
 
-	// Extract data from m_pMesh for easy access
-	//D3DVERTEXELEMENT9 decl[MAX_FVF_DECL_SIZE];
 	m_verticesCount = m_mesh->GetNumVertices();
 	m_facesCount = m_mesh->GetNumFaces();
 	m_stride = m_mesh->GetNumBytesPerVertex();
-	//m_mesh->GetIndexBuffer(&m_pIB);
-	//m_mesh->GetVertexBuffer(&m_pVB);
-	//m_mesh->GetDeclaration(decl);
-	//m_renderer.GetDevice()->CreateVertexDeclaration(decl, &m_pDecl);
 
 	InitBoundingBox();
 
@@ -143,68 +153,66 @@ bool cXFileMesh::Update(const float deltaSeconds)
 }
 
 
+void cXFileMesh::RenderShader(cRenderer &renderer
+	, cShader &shader
+	, const Matrix44 &tm) // = Matrix44::Identity
+{
+	RET(!m_mesh);
+
+	shader.SetMatrix("g_mWorld", tm);
+
+	const int passCount = shader.Begin();
+	for (int i = 0; i < passCount; ++i)
+	{
+		shader.BeginPass(i);
+		for (int i = 0; i < m_materialsCount; i++)
+		{
+			m_materials[i].Bind(shader);
+
+			if (m_textures[i])
+				m_textures[i]->Bind(shader, "g_colorMapTexture");
+
+			shader.CommitChanges();
+			m_mesh->DrawSubset(i);
+		}
+		shader.EndPass();
+	}
+	shader.End();
+}
+
+
 void cXFileMesh::Render(cRenderer &renderer
 	, const Matrix44 &tm) // = Matrix44::Identity
 {
 	RET(!m_mesh);
 
-	const Matrix44 transform = m_tm * tm;
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&tm);
 
-	if (m_shader)
+	for (int i = 0; i < m_materialsCount; i++)
 	{
-		const int passCount = m_shader->Begin();
-		for (int i = 0; i < passCount; ++i)
-		{
-			m_shader->BeginPass(i);
-			for (int i = 0; i < m_materialsCount; i++)
-			{
-				//const cLight &mainLight = cLightManager::Get()->GetMainLight();
-				//mainLight.Bind(*m_shader);
-				//m_shader->SetVector("g_vEyePos", cMainCamera::Get()->GetEyePos());
-
-				m_materials[i].Bind(*m_shader);
-
-				if (m_textures[i])
-					m_textures[i]->Bind(*m_shader, "g_colorMapTexture");
-
-				m_shader->SetMatrix("g_mWorld", transform);
-				m_shader->CommitChanges();
-				m_mesh->DrawSubset(i);
-			}
-			m_shader->EndPass();
-		}
-		m_shader->End();
-	}
-	else
-	{
-		renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&transform);
-
-		for (int i = 0; i < m_materialsCount; i++)
-		{
-			m_materials[i].Bind(renderer);
-			if (m_textures[i])
-				m_textures[i]->Bind(renderer, 0);
-			m_mesh->DrawSubset(i);
-		}
+		m_materials[i].Bind(renderer);
+		if (m_textures[i])
+			m_textures[i]->Bind(renderer, 0);
+		m_mesh->DrawSubset(i);
 	}
 }
 
 
-void cXFileMesh::RenderShadow(cRenderer &renderer)
+void cXFileMesh::RenderShadow(cRenderer &renderer, cShader &shader)
 {
 	RET(!m_shadow.m_mesh);
 
-	m_shader->SetMatrix("g_mWorld", Matrix44::Identity);
+	shader.SetMatrix("g_mWorld", Matrix44::Identity);
 
-	const int passCnt = m_shader->Begin();
+	const int passCnt = shader.Begin();
 	for (int i = 0; i < passCnt; ++i)
 	{
-		m_shader->BeginPass(i);
-		m_shader->CommitChanges();
+		shader.BeginPass(i);
+		shader.CommitChanges();
 		m_shadow.Render(renderer);
-		m_shader->EndPass();
+		shader.EndPass();
 	}
-	m_shader->End();
+	shader.End();
 }
 
 
@@ -219,29 +227,5 @@ void cXFileMesh::Clear()
 bool cXFileMesh::IsLoad()
 {
 	return m_mesh ? true : false;
-}
-
-
-
-//-------------------------------------------------------------------------------------------------------
-bool cXFileModel::Create(cRenderer &renderer, const string &fileName, const bool isShadow)
-{
-	m_mesh = cResourceManager::Get()->LoadXFile(renderer, fileName);
-
-	return true;
-}
-
-
-void cXFileModel::Render(cRenderer &renderer, const Matrix44 &tm)
-{
-	if (m_mesh)
-		m_mesh->Render(renderer, m_tm * tm);
-}
-
-
-void cXFileModel::SetShader(cShader *shader)
-{
-	if (m_mesh)
-		m_mesh->SetShader(shader);
 }
 

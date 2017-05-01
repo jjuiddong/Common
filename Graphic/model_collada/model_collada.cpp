@@ -1,38 +1,33 @@
 
 #include "stdafx.h"
-#include "model2.h"
+#include "model_collada.h"
 
 using namespace graphic;
 
-cModel2::cModel2()
-	: m_shader(NULL)
+cColladaModel::cColladaModel()
+	: m_isSkinning(false)
 {
 }
 
-cModel2::~cModel2()
+cColladaModel::~cColladaModel()
 {
 	Clear();
 }
 
 
-bool cModel2::Create(cRenderer &renderer, const string &fileName)
+bool cColladaModel::Create(cRenderer &renderer, const string &fileName)
 {
 	Clear();
 
 	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadModel2(fileName);
 	RETV(!rawMeshes, false);
 
-	m_fileName = fileName;
+	//m_fileName = fileName;
 	m_storedAnimationName = rawMeshes->animationName;
-	m_shader = cResourceManager::Get()->LoadShader(renderer, "hlsl_collada.fx");
 
-	if (rawMeshes->bones.empty())
+	m_isSkinning = !rawMeshes->bones.empty();
+	if (!rawMeshes->bones.empty())
 	{
-		m_shader->SetTechnique("Rigid");
-	}
-	else
-	{
-		m_shader->SetTechnique("Skinning");
 		m_skeleton.Create(rawMeshes->bones);
 	}
 
@@ -49,33 +44,36 @@ bool cModel2::Create(cRenderer &renderer, const string &fileName)
 }
 
 
-bool cModel2::Render(cRenderer &renderer, const Matrix44 &tm)
+bool cColladaModel::Render(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 // tm = Matrix44:Identity
 {
-	const Matrix44 transform = m_tm * tm;
+	for (auto &mesh : m_meshes)
+		mesh->RenderShader(renderer, &shader, tm);
 
-	if (m_shader)
-	{
-		GetMainCamera()->Bind(*m_shader);
-		GetMainLight().Bind(*m_shader);
+	//const Matrix44 transform = m_tm * tm;
 
-		for (auto &mesh : m_meshes)
-			mesh->RenderShader(renderer, m_shader, transform);
+	//if (m_shader)
+	//{
+	//	GetMainCamera()->Bind(*m_shader);
+	//	GetMainLight().Bind(*m_shader);
 
-		if (m_shader->m_isReload)
-			m_shader->m_isReload = false;
-	}
-	else
-	{
-		for (auto &mesh : m_meshes)
-			mesh->Render(renderer, transform);
-	}
+	//	for (auto &mesh : m_meshes)
+	//		mesh->RenderShader(renderer, m_shader, transform);
+
+	//	if (m_shader->m_isReload)
+	//		m_shader->m_isReload = false;
+	//}
+	//else
+	//{
+	//	for (auto &mesh : m_meshes)
+	//		mesh->Render(renderer, transform);
+	//}
 
 	return true;
 }
 
 
-bool cModel2::Update(const float deltaSeconds)
+bool cColladaModel::Update(const float deltaSeconds)
 {
 	m_animation.Update(deltaSeconds);
 
@@ -86,7 +84,7 @@ bool cModel2::Update(const float deltaSeconds)
 }
 
 
-void cModel2::UpdateBoundingBox()
+void cColladaModel::UpdateBoundingBox()
 {
 	sMinMax mm;
 	for each (auto &mesh in m_meshes)
@@ -101,7 +99,7 @@ void cModel2::UpdateBoundingBox()
 }
 
 
-void cModel2::SetAnimation(const string &animationName, const bool isMerge)
+void cColladaModel::SetAnimation(const string &animationName, const bool isMerge)
 // isMerge = false
 {
 	if (sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName))
@@ -109,17 +107,17 @@ void cModel2::SetAnimation(const string &animationName, const bool isMerge)
 }
 
 
-void cModel2::Clear()
+void cColladaModel::Clear()
 {
 	for (auto &mesh : m_meshes)
 		delete mesh;
 	m_meshes.clear();
 
-	m_shader = NULL;
+	//m_shader = NULL;
 }
 
 
-void cModel2::SetShader(cShader *shader) 
-{
-	m_shader = shader;
-}
+//void cColladaModel::SetShader(cShader *shader) 
+//{
+//	m_shader = shader;
+//}

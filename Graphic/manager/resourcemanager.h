@@ -14,6 +14,7 @@ namespace graphic
 	struct sRawAni;
 	struct sRawBone;
 	class cXFileMesh;
+	class cColladaModel;
 
 
 	class cResourceManager : public common::cSingleton<cResourceManager>
@@ -27,6 +28,8 @@ namespace graphic
 		sRawMeshGroup2* LoadModel2(const string &fileName);
 		bool LoadModel2(sRawMeshGroup2 *meshes);
 		cXFileMesh* LoadXFile(cRenderer &renderer, const string &fileName);
+		cColladaModel * LoadColladaModel(cRenderer &renderer, const string &fileName);
+
 		sRawAniGroup* LoadAnimation( const string &fileName );
 		bool LoadAnimation(sRawAniGroup *anies);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const string &meshName);
@@ -37,6 +40,9 @@ namespace graphic
 
 		sRawMeshGroup* FindModel( const string &fileName );
 		sRawMeshGroup2* FindModel2(const string &fileName);
+		cXFileMesh* FindXFile(const string &fileName);
+		cColladaModel * FindColladaModel(const string &fileName);
+
 		sRawAniGroup* FindAnimation( const string &fileName );
 		cMeshBuffer* FindMeshBuffer( const string &meshName );
 		cTexture* FindTexture( const string &fileName );
@@ -59,6 +65,7 @@ namespace graphic
 		map<string, sRawMeshGroup*> m_meshes; // key = fileName
 		map<string, sRawMeshGroup2*> m_meshes2; // key = fileName
 		map<string, cXFileMesh*> m_meshes3; // key = fileName
+		map<string, cColladaModel*> m_colladaModels; // key = fileName		
 		map<string, sRawAniGroup*> m_anies;	// key = fileName
 		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
 		map<string, cTexture*> m_textures; // key = fileName

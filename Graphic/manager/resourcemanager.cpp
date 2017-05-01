@@ -3,6 +3,7 @@
 #include "resourcemanager.h"
 #include "../importer/modelimporter.h"
 #include "../base/material.h"
+#include "../model_collada/model_collada.h"
 
 
 using namespace graphic;
@@ -105,12 +106,10 @@ sRawMeshGroup2* cResourceManager::LoadModel2(const string &fileName)
 }
 
 
-
 cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileName)
 {
-	auto it = m_meshes3.find(fileName);
-	if (m_meshes3.end() != it)
-		return it->second;
+	if (cXFileMesh *p = FindXFile(fileName))
+		return p;
 
 	cXFileMesh *mesh = new cXFileMesh;
 	if (!mesh->Create(renderer, fileName))
@@ -120,8 +119,24 @@ cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileN
 	}
 
 	m_meshes3[fileName] = mesh;
-
 	return mesh;
+}
+
+
+cColladaModel * cResourceManager::LoadColladaModel(cRenderer &renderer, const string &fileName)
+{
+	if (cColladaModel *p = FindColladaModel(fileName))
+		return p;
+
+	cColladaModel *model = new cColladaModel;
+	if (!model->Create(renderer, fileName))
+	{
+		delete model;
+		return NULL;
+	}
+
+	m_colladaModels[fileName] = model;
+	return model;
 }
 
 
@@ -271,6 +286,24 @@ sRawMeshGroup2* cResourceManager::FindModel2(const string &fileName)
 	if (m_meshes2.end() == it)
 		return NULL; // not exist
 	return it->second;
+}
+
+
+cXFileMesh* cResourceManager::FindXFile(const string &fileName)
+{
+	auto it = m_meshes3.find(fileName);
+	if (m_meshes3.end() != it)
+		return it->second;
+	return NULL;
+}
+
+
+cColladaModel * cResourceManager::FindColladaModel(const string &fileName)
+{
+	auto it = m_colladaModels.find(fileName);
+	if (m_colladaModels.end() != it)
+		return it->second;
+	return NULL;
 }
 
 
@@ -585,12 +618,19 @@ void cResourceManager::Clear()
 	}
 	m_meshes2.clear();
 
-	// remove raw mesh2
+	// remove raw mesh3
 	for each (auto kv in m_meshes3)
 	{
 		delete kv.second;
 	}
 	m_meshes3.clear();
+
+	// remove raw collada models
+	for each (auto kv in m_colladaModels)
+	{
+		delete kv.second;
+	}
+	m_colladaModels.clear();
 
 
 	// remove texture

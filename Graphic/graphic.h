@@ -66,7 +66,7 @@ using namespace common;
 #include "base/shadow1.h"
 #include "base/shadowvolume.h"
 
-#include "base/xfilemesh.h"
+//#include "base/xfilemesh.h"
 
 
 #include "collision/collision.h"
@@ -91,8 +91,14 @@ using namespace common;
 #include "model_collada/animationnode.h"
 #include "model_collada/animation.h"
 #include "model_collada/mesh2.h"
-#include "model_collada/model2.h"
+#include "model_collada/model_collada.h"
 #include "model_collada/colladaloader.h"
+
+
+#include "model_new/xfilemesh.h"
+#include "model_new/xfilemodel.h"
+#include "model_new/model2.h"
+
 
 #include "character/character.h"
 

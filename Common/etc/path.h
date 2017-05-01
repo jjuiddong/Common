@@ -12,6 +12,7 @@ namespace common
 	{
 	public:
 		cFilePath();
+		cFilePath(const char *rhs);
 		cFilePath(const string &filePath);
 		virtual ~cFilePath();
 
@@ -29,6 +30,7 @@ namespace common
 
 		explicit operator string ();
 		explicit operator const char *();
+		cFilePath& operator=(const char *rhs);
 		cFilePath& operator=(const string &rhs);
 		cFilePath& operator=(const cFilePath &rhs);
 
