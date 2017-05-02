@@ -280,24 +280,22 @@ void cCube3::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vM
 	if (m_vtxBuff.GetVertexCount() <= 0)
 		InitCube(renderer);
 
+	SetCube(vMin, vMax);
+}
+
+
+void cCube3::SetCube(const Vector3 &vMin, const Vector3 &vMax)
+{
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
 	const Vector3 v2 = m_max - m_min;
 	Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
-	//Vector3 scale(sqrt(v1.x*v1.x) / sqrt(v2.x*v2.x),
-	//	sqrt(v1.y*v1.y) / sqrt(v2.y*v2.y),
-	//	sqrt(v1.z*v1.z) / sqrt(v2.z*v2.z));
 
 	Matrix44 S;
 	S.SetScale(scale);
 	Matrix44 T;
 	T.SetTranslate(center);
 	Matrix44 tm = S * T;
-
-	//sVertexNormDiffuseTex *vbuff = (sVertexNormDiffuseTex*)m_vtxBuff.Lock();
-	//for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
-	//	vbuff[i].p *= tm;
-	//m_vtxBuff.Unlock();
 
 	m_tm = tm;
 	m_scale = scale;
@@ -307,9 +305,22 @@ void cCube3::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vM
 }
 
 
+void cCube3::SetCube(const cBoundingBox &bbox)
+{
+	SetCube(bbox.m_min, bbox.m_max);
+}
+
+
 void cCube3::SetCube(cRenderer &renderer, const cCube3 &cube)
 {
 	SetCube(renderer, cube.m_min, cube.m_max);
+	m_tm = cube.m_tm;
+}
+
+
+void cCube3::SetCube(const cCube3 &cube)
+{
+	SetCube(cube.m_min, cube.m_max);
 	m_tm = cube.m_tm;
 }
 

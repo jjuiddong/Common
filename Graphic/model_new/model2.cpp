@@ -8,7 +8,6 @@ using namespace graphic;
 cModel2::cModel2()
 	: m_colladaModel(NULL)
 	, m_xModel(NULL)
-	, m_shader(NULL)
 {
 }
 
@@ -19,7 +18,10 @@ cModel2::~cModel2()
 
 
 // check collada file, xfile
-bool cModel2::Create(cRenderer &renderer, const cFilePath &fileName)
+bool cModel2::Create(cRenderer &renderer, const cFilePath &fileName
+	, const cFilePath &shaderName //= ""
+	, const string &techniqueName //= ""
+)
 {
 	Clear();
 
@@ -29,9 +31,10 @@ bool cModel2::Create(cRenderer &renderer, const cFilePath &fileName)
 	if (isXFile)
 	{
 		m_xModel = cResourceManager::Get()->LoadXFile(renderer, fileName.c_str());
-		m_shader = cResourceManager::Get()->LoadShader(renderer, "hlsl_xfile.fx");
+		m_shader = cResourceManager::Get()->LoadShader(renderer, 
+			shaderName.empty()? "hlsl_xfile.fx" : shaderName.c_str() );
 		if (m_shader)
-			m_shader->SetTechnique("Scene_NoShadow");
+			m_shader->SetTechnique(techniqueName.empty()? "Scene_NoShadow" : techniqueName);
 
 		if (m_xModel)
 		{
@@ -41,7 +44,11 @@ bool cModel2::Create(cRenderer &renderer, const cFilePath &fileName)
 	else // Collada file
 	{
 		m_colladaModel = cResourceManager::Get()->LoadColladaModel(renderer, fileName.c_str());
-		m_shader = cResourceManager::Get()->LoadShader(renderer, "hlsl_collada.fx");
+		m_shader = cResourceManager::Get()->LoadShader(renderer, 
+			shaderName.empty()? "hlsl_collada.fx" : shaderName.c_str());
+
+		if (m_shader)
+			m_shader->SetTechnique(techniqueName.empty() ? "Scene" : techniqueName);
 
 		if (m_colladaModel)
 		{
@@ -75,8 +82,8 @@ void cModel2::RenderShader(cRenderer &renderer
 {
 	RET(!m_shader);
 
-	GetMainCamera()->Bind(*m_shader);
-	GetMainLight().Bind(*m_shader);
+	//GetMainCamera()->Bind(*m_shader);
+	//GetMainLight().Bind(*m_shader);
 
 	const Matrix44 transform = m_tm * tm;
 

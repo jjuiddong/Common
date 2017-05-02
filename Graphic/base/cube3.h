@@ -19,7 +19,10 @@ namespace graphic
 		void InitCube(cRenderer &renderer);
 		void InitCube2(cRenderer &renderer);
 		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
+		void SetCube(const Vector3 &vMin, const Vector3 &vMax);
 		void SetCube(cRenderer &renderer, const cCube3 &cube);
+		void SetCube(const cCube3 &cube);
+		void SetCube(const cBoundingBox &bbox);
 		const float Length() const; // length(min - max)
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);

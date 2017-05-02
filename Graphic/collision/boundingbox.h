@@ -33,6 +33,5 @@ namespace graphic
 	};
 
 
-	// length(m_min, m_max)
 	inline float cBoundingBox::Length() const { return (m_min - m_max).Length(); }
 }

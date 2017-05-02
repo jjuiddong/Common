@@ -27,6 +27,8 @@ namespace common
 		__int64 GetFileSize() const;
 		const char* c_str() const;
 		void CheckPath();
+		bool empty() const;
+
 
 		explicit operator string ();
 		explicit operator const char *();

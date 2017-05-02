@@ -104,6 +104,12 @@ cFilePath::operator const char *()
 }
 
 
+bool cFilePath::empty() const
+{
+	return m_filePath.empty();
+}
+
+
 cFilePath& cFilePath::operator=(const char *rhs)
 {
 	m_filePath = rhs;

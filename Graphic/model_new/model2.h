@@ -17,7 +17,7 @@ namespace graphic
 		cModel2();
 		virtual ~cModel2();
 
-		bool Create(cRenderer &renderer, const cFilePath &fileName);
+		bool Create(cRenderer &renderer, const cFilePath &fileName, const cFilePath &shaderName="", const string &techniqueName="");
 		bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		bool Update(const float deltaSeconds);
@@ -33,7 +33,6 @@ namespace graphic
 		Matrix44 m_tm;
 		string m_animationName;
 		cBoundingBox m_boundingBox;
-		cShader *m_shader; // reference
 		cShadowVolume m_shadow;
 	};
 
