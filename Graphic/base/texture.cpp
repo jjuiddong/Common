@@ -269,14 +269,14 @@ void cTexture::LostDevice()
 {
 	RET(!m_texture);
 	
-	if (m_customTexture)
+	//if (m_customTexture)
 		SAFE_RELEASE(m_texture);
 }
 
 
 void cTexture::ResetDevice(cRenderer &renderer)
 {
-	RET(!m_customTexture);
+	//RET(!m_customTexture);
 
 	SAFE_RELEASE(m_texture);
 

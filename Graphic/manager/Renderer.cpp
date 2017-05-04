@@ -281,9 +281,11 @@ bool cRenderer::CheckResetDevice(const int width, const int height)
 }
 
 
-bool cRenderer::ResetDevice(const int width, const int height)
-// width=0
-// height=0
+bool cRenderer::ResetDevice(
+	const int width //=0
+	, const int height //=0
+	, const bool forceReset //=false
+)
 {
 	int w, h;
 	if ((width == 0) || (height == 0))
@@ -299,7 +301,7 @@ bool cRenderer::ResetDevice(const int width, const int height)
 		h = height;
 	}
 
-	if (!CheckResetDevice(w, h))
+	if (!forceReset && !CheckResetDevice(w, h))
 		return false;
 
 	cResourceManager::Get()->LostDevice();

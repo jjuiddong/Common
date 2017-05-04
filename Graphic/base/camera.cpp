@@ -17,7 +17,6 @@ cCamera::cCamera() :
 , m_state(eState::STOP)
 {
 	UpdateViewMatrix();
-
 }
 
 cCamera::cCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up) :
@@ -145,10 +144,9 @@ void cCamera::Render(cRenderer &renderer)
 // shader bind
 void cCamera::Bind(cShader &shader)
 {
-	shader.SetMatrix("g_mView", m_view);
-	shader.SetMatrix("g_mProj", m_proj);
-	//shader.SetMatrix("g_mVP", m_view * m_proj);
-	shader.SetVector("g_vEyePos", m_eyePos);
+	shader.SetCameraView(m_view);
+	shader.SetCameraProj(m_proj);
+	shader.SetCameraEyePos(m_eyePos);
 }
 
 

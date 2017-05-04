@@ -23,12 +23,23 @@ namespace graphic
 		cResourceManager();
 		virtual ~cResourceManager();
 		
-		sRawMeshGroup* LoadModel( const string &fileName );
-		bool LoadModel(sRawMeshGroup *meshes);
-		sRawMeshGroup2* LoadModel2(const string &fileName);
-		bool LoadModel2(sRawMeshGroup2 *meshes);
+		sRawMeshGroup* LoadRawMesh( const string &fileName );
+		bool InsertRawMesh(sRawMeshGroup *meshes);
+		sRawMeshGroup2* LoadRawMesh2(const string &fileName);
+
 		cXFileMesh* LoadXFile(cRenderer &renderer, const string &fileName);
 		cColladaModel * LoadColladaModel(cRenderer &renderer, const string &fileName);
+
+		std::pair<bool, cXFileMesh*> LoadXFileParallel(cRenderer &renderer, const string &fileName);
+		void InsertXFileModel(const string &fileName, cXFileMesh *p);
+
+		std::pair<bool, cColladaModel*> LoadColladaModelParallel(cRenderer &renderer, const string &fileName);
+		void InsertColladaModel(const string &fileName, cColladaModel *p);
+
+		cShadowVolume* LoadShadow(cRenderer &renderer, const string &fileName);
+		std::pair<bool, cShadowVolume*> LoadShadowParallel(cRenderer &renderer, const string &fileName);
+		void InsertShadow(const string &fileName, cShadowVolume *p);
+
 
 		sRawAniGroup* LoadAnimation( const string &fileName );
 		bool LoadAnimation(sRawAniGroup *anies);
@@ -42,6 +53,7 @@ namespace graphic
 		sRawMeshGroup2* FindModel2(const string &fileName);
 		cXFileMesh* FindXFile(const string &fileName);
 		cColladaModel * FindColladaModel(const string &fileName);
+		cShadowVolume* FindShadow(const string &fileName);
 
 		sRawAniGroup* FindAnimation( const string &fileName );
 		cMeshBuffer* FindMeshBuffer( const string &meshName );
@@ -62,16 +74,24 @@ namespace graphic
 
 
 	private:
+		CriticalSection m_cs;
+		CriticalSection m_csShadow;
+
 		map<string, sRawMeshGroup*> m_meshes; // key = fileName
 		map<string, sRawMeshGroup2*> m_meshes2; // key = fileName
-		map<string, cXFileMesh*> m_meshes3; // key = fileName
-		map<string, cColladaModel*> m_colladaModels; // key = fileName		
+		map<string, cXFileMesh*> m_xfiles; // key = fileName
+		map<string, cColladaModel*> m_colladaModels; // key = fileName
+		map<string, cShadowVolume*> m_shadows; // key = fileName
+
 		map<string, sRawAniGroup*> m_anies;	// key = fileName
 		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
 		map<string, cTexture*> m_textures; // key = fileName
 		map<string, cShader*> m_shaders; // key = fileName
 		string m_mediaDirectory; // default : ../media/
 		set<string> m_reLoadFile;
+
+		cThread m_loadThread;
+		int m_loadId;
 	};
 
 

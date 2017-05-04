@@ -36,7 +36,7 @@ bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TY
 	,const bool isLoadShader)
 	// type = MODEL_TYPE::AUTO
 {
-	sRawMeshGroup *rawMeshes = cResourceManager::Get()->LoadModel(modelName);
+	sRawMeshGroup *rawMeshes = cResourceManager::Get()->LoadRawMesh(modelName);
 	RETV(!rawMeshes, false);
 
 	Clear();

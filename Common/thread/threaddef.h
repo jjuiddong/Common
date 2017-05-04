@@ -9,8 +9,6 @@ namespace common
 {
 
 	class cTask;
-	typedef std::list<cTask*> TaskList;
-	typedef TaskList::iterator TaskItor;
 
 	// 쓰레드와 로직간의 주고 받는 메세지 정의
 	typedef struct _SExternalMsg
@@ -28,9 +26,6 @@ namespace common
 		}
 
 	} SExternalMsg;
-
-	typedef std::list<SExternalMsg> ExternalMsgList;
-	typedef ExternalMsgList::iterator ExternalMsgItor;
 
 	
 	namespace threadmsg

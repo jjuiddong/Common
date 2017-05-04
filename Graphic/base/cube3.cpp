@@ -116,10 +116,12 @@ void cCube3::InitCube(cRenderer &renderer)
 
 	if (sVertexNormDiffuseTex *vbuff = (sVertexNormDiffuseTex*)m_vtxBuff.Lock())
 	{
+		const DWORD color = D3DCOLOR_XRGB(200, 200, 200);
 		for (int i = 0; i < 36; ++i)
 		{
 			vbuff[i].p = vertices[indices[i]];
 			vbuff[i].n = normals[normalIndices[i]];
+			vbuff[i].c = color;
 			vbuff[i].u = uv[uvIndices[i]].x;
 			vbuff[i].v = uv[uvIndices[i]].y;
 		}
@@ -137,6 +139,9 @@ void cCube3::InitCube(cRenderer &renderer)
 	m_max = Vector3(1, 1, 1);
 
 	m_mtrl.InitWhite();
+
+	if (!m_tex)
+		m_tex = cResourceManager::Get()->LoadTexture(renderer, "model/white.dds");
 }
 
 

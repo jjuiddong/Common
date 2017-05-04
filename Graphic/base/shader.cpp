@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "shader.h"
 
-
 using namespace graphic;
 
 
@@ -10,8 +9,23 @@ cShader::cShader() :
 	m_effect(NULL) 
 ,	m_hTechnique(NULL)
 ,	m_renderPass(0)
-, m_isReload(false)
 , m_isShowMsgBox(false)
+, m_lightDir(NULL)
+, m_lightPos(NULL)
+, m_lightAmbient(NULL)
+, m_lightDiffuse(NULL)
+, m_lightSpecular(NULL)
+, m_lightTheta(NULL)
+, m_lightPhi(NULL)
+, m_cameraView(NULL)
+, m_cameraProj(NULL)
+, m_cameraViewProj(NULL)
+, m_cameraEyePos(NULL)
+, m_mtrlAmbient(NULL)
+, m_mtrlDiffuse(NULL)
+, m_mtrlEmissive(NULL)
+, m_mtrlSpecular(NULL)
+, m_mtrlShininess(NULL)
 {
 }
 
@@ -22,34 +36,28 @@ cShader::~cShader()
 }
 
 
-bool cShader::Create(cRenderer &renderer, const string &fileName, const string &technique, const bool showMsgBox)//showMsgBox=true
+bool cShader::Create(cRenderer &renderer, const string &fileName
+	, const string &technique
+	, const bool showMsgBox//=true
+)
 {
 	Clear();
 
-	// 쉐이더 파일 읽기
 	HRESULT hr;
 	LPD3DXBUFFER pErr;
-	if (FAILED(hr = D3DXCreateEffectFromFileA(
-		renderer.GetDevice(), // IDirect3DDevice9 포인터
-		fileName.c_str(), // 이펙트 파일명 포인터
-		NULL,	// 전처리기 포인터
-		NULL,	// 옵션 인터페이스 포인터
-		D3DXSHADER_DEBUG , // D3DXSHADER 식별 컴파일 옵션
-		NULL,	// 공유 인수로 사용하는 ID3DXEffectPool 오브젝트 포인터
-		&m_effect, // 컴파일된 이펙트 파일이 저장될 버퍼
-		&pErr // 컴파일 에러가 저장될 버퍼
-		))) 
+	if (FAILED(hr = D3DXCreateEffectFromFileA(renderer.GetDevice(), fileName.c_str(), NULL,
+		NULL, D3DXSHADER_DEBUG, NULL, &m_effect, &pErr))) 
 	{
 		if (pErr)
 		{
-//			dbg::ErrLog("cShader::Create Error pErr!=NULL\n");
+			dbg::ErrLog("cShader::Create Error pErr!=NULL\n");
 			MessageBoxA( NULL, (LPCSTR)pErr->GetBufferPointer(), "ERROR", MB_OK);
 		}
 		else
 		{
-// 			dbg::ErrLog("cShader::Create Error pErr==NULL [%s], device=%x \n", 
-// 				fileName.c_str(), renderer.GetDevice());
-			string msg = fileName + " 파일이 존재하지 않습니다.";
+ 			dbg::ErrLog("cShader::Create Error pErr==NULL [%s], device=%x \n", 
+ 				fileName.c_str(), renderer.GetDevice());
+			string msg = fileName + " Not Exist File";
 			if (showMsgBox)
 				MessageBoxA( NULL, msg.c_str(), "ERROR", MB_OK);
 		}
@@ -58,11 +66,28 @@ bool cShader::Create(cRenderer &renderer, const string &fileName, const string &
 		return false;
 	}
 
-	m_isReload = true;
 	m_fileName = fileName;
 	m_isShowMsgBox = showMsgBox;
 	SetTechnique(technique);
-	//m_hTechnique = m_effect->GetTechniqueByName( technique.c_str() );
+
+	m_lightDir = NULL;
+	m_lightPos = NULL;
+	m_lightAmbient = NULL;
+	m_lightDiffuse = NULL;
+	m_lightSpecular = NULL;
+	m_lightTheta = NULL;
+	m_lightPhi = NULL;
+
+	m_cameraView = NULL;
+	m_cameraProj = NULL;
+	m_cameraViewProj = NULL;
+	m_cameraEyePos = NULL;
+
+	m_mtrlAmbient = NULL;
+	m_mtrlDiffuse = NULL;
+	m_mtrlEmissive = NULL;
+	m_mtrlSpecular = NULL;
+	m_mtrlShininess = NULL;
 
 	return true;
 }

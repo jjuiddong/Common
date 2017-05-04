@@ -81,12 +81,12 @@ bool cShadowVolume::Create(cRenderer &renderer, cVertexBuffer &vtxBuff, cIndexBu
 	HRESULT hr = S_OK;
 	ID3DXMesh *pInputMesh = NULL;
 
-	const D3DVERTEXELEMENT9 Decl[3] =
-	{
-		{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
-		{ 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
-		D3DDECL_END()
-	};
+	//const D3DVERTEXELEMENT9 Decl[3] =
+	//{
+	//	{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+	//	{ 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
+	//	D3DDECL_END()
+	//};
 
 	//--------------------------------------------------------------------------------------------//
 	// Copy Cube to Mesh
@@ -94,7 +94,7 @@ bool cShadowVolume::Create(cRenderer &renderer, cVertexBuffer &vtxBuff, cIndexBu
 	DWORD *pidx = NULL;
 
 	hr = D3DXCreateMesh(idxBuff.GetFaceCount(), vtxBuff.GetVertexCount(), 
-		D3DXMESH_32BIT, Decl, renderer.GetDevice(), &pInputMesh);
+		D3DXMESH_32BIT, sVertex::Decl, renderer.GetDevice(), &pInputMesh);
 	if (FAILED(hr))
 		return false;
 
@@ -139,28 +139,32 @@ bool cShadowVolume::Create(cRenderer &renderer, cVertexBuffer &vtxBuff, cIndexBu
 }
 
 
-// Create Shadow Mesh
-bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
+bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh
+	, const bool isParallel //= false
+)
 {
+	RETV(!mesh, false);
+
 	HRESULT hr = S_OK;
-	ID3DXMesh *pInputMesh = mesh;
-	cShadowVolume::sVertex *pvtx = NULL;
-	DWORD *pidx = NULL;
+	ID3DXMesh *pInputMesh = NULL;
+
+	// Convert the input mesh to a format same as the output mesh using 32-bit index.
+	hr = mesh->CloneMesh(D3DXMESH_32BIT, sVertex::Decl, renderer.GetDevice(), &pInputMesh);
+	if (FAILED(hr))
+		return false;
 
 	//--------------------------------------------------------------------------------------------//
 	//https://www.gamedev.net/topic/146017-convertadjacencytopointreps/
 	//-- - CD-- -
 	//-- / || \--
-	//- A- || -F -
-	//-- \ || / --
+	//- A - || -F -
+	//--\ || / --
 	//-- - BE-- -
 	//Vertices: ABCDEF
 	//Adjacency : -1-0--
 	//Point - reps : 012215
-	const int faceCnt = pInputMesh->GetNumFaces();
-	const int vtxCnt = pInputMesh->GetNumVertices();
 	DWORD* pdwAdj = new DWORD[3 * pInputMesh->GetNumFaces()];
-	DWORD* pdwPtRep = new DWORD[ pInputMesh->GetNumVertices()];
+	DWORD* pdwPtRep = new DWORD[pInputMesh->GetNumVertices()];
 
 	hr = pInputMesh->GenerateAdjacency(ADJACENCY_EPSILON, pdwAdj);
 	if (FAILED(hr))
@@ -168,6 +172,9 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 
 	pInputMesh->ConvertAdjacencyToPointReps(pdwAdj, pdwPtRep);
 	delete[] pdwAdj;
+
+	sVertex *pvtx = NULL;
+	DWORD *pidx = NULL;
 
 	hr = pInputMesh->LockVertexBuffer(0, (LPVOID*)&pvtx);
 	hr = pInputMesh->LockIndexBuffer(0, (LPVOID*)&pidx);
@@ -186,10 +193,10 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 
 	int nNumMaps = 0;  // Number of entries that exist in pMapping
 
-	// Create a new mesh
+					   // Create a new mesh
 	hr = D3DXCreateMesh(pInputMesh->GetNumFaces() + dwNumEdges * 2,
 		pInputMesh->GetNumFaces() * 3,
-		D3DXMESH_32BIT,
+		D3DXMESH_MANAGED | D3DXMESH_32BIT,
 		sVertex::Decl,
 		renderer.GetDevice(),
 		&pNewMesh);
@@ -394,8 +401,6 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 		}
 	}
 
-	// not apply patch vertex
-	nNumMaps = 0;
 
 	// Now the entries in the edge mapping table represent
 	// non-shared edges.  What they mean is that the original
@@ -414,7 +419,7 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 	// Make enough room in IB for the face and up to 3 quads for each patching face
 	hr = D3DXCreateMesh(nNextIndex / 3 + nNumMaps * 7,
 		(pInputMesh->GetNumFaces() + nNumMaps) * 3,
-		D3DXMESH_32BIT,
+		D3DXMESH_MANAGED | D3DXMESH_32BIT,
 		sVertex::Decl,
 		renderer.GetDevice(),
 		&pPatchMesh);
@@ -446,7 +451,6 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 
 	// Replace pNewMesh with the updated one.  Then the code
 	// can continue working with the pNewMesh pointer.
-
 
 	pNewMesh->UnlockVertexBuffer();
 	pNewMesh->UnlockIndexBuffer();
@@ -557,7 +561,7 @@ bool cShadowVolume::Create(cRenderer &renderer, ID3DXMesh *mesh)
 
 							// Modify mapping entry i2 to reflect the third edge
 							// of the newly added face.
-							
+
 							if (pMapping[i2].m_anOldEdge[0] == pMapping[i].m_anOldEdge[1])
 							{
 								pMapping[i2].m_anOldEdge[0] = pMapping[i].m_anOldEdge[0];
@@ -676,7 +680,8 @@ cleanup:
 
 	delete[] pdwPtRep;
 	delete[] pMapping;
-	//pInputMesh->Release();
+
+	pInputMesh->Release();
 
 	return true;
 }

@@ -4,6 +4,7 @@
 #include "../importer/modelimporter.h"
 #include "../base/material.h"
 #include "../model_collada/model_collada.h"
+#include "task_resource.h"
 
 
 using namespace graphic;
@@ -11,6 +12,7 @@ using namespace graphic;
 
 cResourceManager::cResourceManager() :
 	m_mediaDirectory("../media/")
+	, m_loadId(0)
 {
 }
 
@@ -21,7 +23,7 @@ cResourceManager::~cResourceManager()
 
 
 // load model file
-sRawMeshGroup* cResourceManager::LoadModel( const string &fileName )
+sRawMeshGroup* cResourceManager::LoadRawMesh( const string &fileName )
 {
 	RETV(fileName.empty(), NULL);
 
@@ -47,18 +49,18 @@ sRawMeshGroup* cResourceManager::LoadModel( const string &fileName )
 		}
 	}
 
-	LoadModel(meshes);
+	InsertRawMesh(meshes);
 	return meshes;
 
 error:
 	delete meshes;
-	dbg::ErrLog("Error!! LoadModel() [%s] \n", fileName.c_str());
+	dbg::ErrLog("Error!! LoadRawMesh() [%s] \n", fileName.c_str());
 	return NULL;
 }
 
 
 // 외부에서 로딩한 메쉬를 저장한다.
-bool cResourceManager::LoadModel(sRawMeshGroup *meshes)
+bool cResourceManager::InsertRawMesh(sRawMeshGroup *meshes)
 {
 	RETV(!meshes, false);
 
@@ -83,7 +85,7 @@ bool cResourceManager::LoadModel(sRawMeshGroup *meshes)
 
 
 // load collada model file
-sRawMeshGroup2* cResourceManager::LoadModel2(const string &fileName)
+sRawMeshGroup2* cResourceManager::LoadRawMesh2(const string &fileName)
 {
 	RETV(fileName.empty(), NULL);
 
@@ -112,22 +114,47 @@ cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileN
 		return p;
 
 	cXFileMesh *mesh = new cXFileMesh;
-	if (!mesh->Create(renderer, fileName))
+	if (!mesh->Create(renderer, fileName, false, true))
 	{
 		delete mesh;
 		return NULL;
 	}
 
-	m_meshes3[fileName] = mesh;
+	m_xfiles[fileName] = mesh;
 	return mesh;
 }
 
 
-cColladaModel * cResourceManager::LoadColladaModel(cRenderer &renderer, const string &fileName)
+std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &renderer, const string &fileName)
+{
+	if (cXFileMesh *p = FindXFile(fileName))
+		return{ true, p };
+
+	m_loadThread.AddTask(new cTaskXFileLoader(++m_loadId, &renderer, fileName));
+	if (!m_loadThread.IsRun())
+		m_loadThread.Start();
+
+	AutoCSLock cs(m_cs);
+	m_xfiles[fileName] = NULL;
+	return{ true, NULL };
+}
+
+
+void cResourceManager::InsertXFileModel(const string &fileName, cXFileMesh *p)
+{
+	AutoCSLock cs(m_cs);
+	m_xfiles[fileName] = p;
+}
+
+
+cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
+	, const string &fileName
+)
 {
 	if (cColladaModel *p = FindColladaModel(fileName))
 		return p;
 
+	AutoCSLock cs(m_cs);
 	cColladaModel *model = new cColladaModel;
 	if (!model->Create(renderer, fileName))
 	{
@@ -140,29 +167,108 @@ cColladaModel * cResourceManager::LoadColladaModel(cRenderer &renderer, const st
 }
 
 
-// 외부에서 로딩한 메쉬를 저장한다.
-//bool cResourceManager::LoadModel2(sRawMeshGroup2 *meshes)
-//{
-//	RETV(!meshes, false);
-//
-//	if (sRawMeshGroup2 *data = FindModel2(meshes->name))
-//		return false;
-//
-//	//// 메쉬 이름 설정 fileName::meshName
-//	//for (u_int i = 0; i < meshes->meshes.size(); ++i)
-//	//{
-//	//	sRawMesh2 &mesh = meshes->meshes[i];
-//
-//	//	mesh.name = meshes->name + "::" + mesh.name;
-//	//	//if (mesh.mtrlId >= 0)
-//	//	//{ // 메터리얼 설정.
-//	//	//	//mesh.mtrl = meshes->mtrls[mesh.mtrlId];
-//	//	//}
-//	//}
-//
-//	m_meshes2[meshes->name] = meshes;
-//	return true;
-//}
+// Load Parallel Collada file
+std::pair<bool, cColladaModel*> cResourceManager::LoadColladaModelParallel(cRenderer &renderer, const string &fileName)
+{
+	if (cColladaModel *p = FindColladaModel(fileName))
+		return{ true, p };
+
+	m_loadThread.AddTask( new cTaskColladaLoader(++m_loadId, &renderer, fileName) );
+	if (!m_loadThread.IsRun())
+		m_loadThread.Start();
+
+	AutoCSLock cs(m_cs);
+	m_colladaModels[fileName] = NULL;
+	return{ true, NULL };
+}
+
+
+// Set Model Pointer If Finish Parallel Load 
+void cResourceManager::InsertColladaModel(const string &fileName, cColladaModel *p)
+{
+	AutoCSLock cs(m_cs);
+	m_colladaModels[fileName] = p;
+}
+
+
+cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const string &fileName)
+{
+	if (cShadowVolume *p = FindShadow(fileName))
+		return p;
+
+	cShadowVolume *shadow = NULL;
+	cColladaModel *collada = FindColladaModel(fileName);
+	cXFileMesh *xfile = FindXFile(fileName);
+	if (!collada && !xfile)
+		return NULL;
+	if (collada && xfile)
+	{
+		assert(0);
+		return NULL;
+	}
+
+	if (collada)
+	{
+		shadow = new cShadowVolume();
+		if (!collada->m_meshes.empty())
+		{
+			cMesh2 *mesh = collada->m_meshes[0];
+			if (!shadow->Create(renderer, mesh->m_buffers->m_vtxBuff, mesh->m_buffers->m_idxBuff))
+			{
+				SAFE_DELETE(shadow);
+			}
+		}
+	}
+	else if (xfile)
+	{
+		shadow = new cShadowVolume();
+		if (!shadow->Create(renderer, xfile->m_mesh, false))
+		{
+			SAFE_DELETE(shadow);
+		}
+	}
+
+	AutoCSLock cs(m_csShadow);
+	m_shadows[fileName] = shadow;
+	return shadow;
+}
+
+
+std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &renderer
+	, const string &fileName
+)
+{
+	if (cShadowVolume *p = FindShadow(fileName))
+		return{ true, p };
+
+	cColladaModel *collada = FindColladaModel(fileName);
+	cXFileMesh *xfile = FindXFile(fileName);
+	if (!collada && !xfile)
+		return{ false, NULL };
+	if (collada && xfile)
+	{
+		assert(0);
+		return{ false, NULL };
+	}
+
+	{
+		AutoCSLock cs(m_csShadow);
+		m_shadows[fileName] = NULL;
+	}
+
+	m_loadThread.AddTask(new cTaskShadowLoader(++m_loadId, &renderer, fileName, collada, xfile));
+	if (!m_loadThread.IsRun())
+		m_loadThread.Start();
+
+	return{ true, NULL };
+}
+
+
+void cResourceManager::InsertShadow(const string &fileName, cShadowVolume *p)
+{
+	AutoCSLock cs(m_csShadow);
+	m_shadows[fileName] = p;
+}
 
 
 // 애니메이션 파일 로딩.
@@ -220,7 +326,7 @@ cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const string 
 	string fileName = meshName;
 	fileName.erase(meshName.find("::"));
 
-	if (sRawMeshGroup *meshes = LoadModel(fileName))
+	if (sRawMeshGroup *meshes = LoadRawMesh(fileName))
 	{
 		for each (auto &rawMesh in meshes->meshes)
 		{
@@ -291,8 +397,10 @@ sRawMeshGroup2* cResourceManager::FindModel2(const string &fileName)
 
 cXFileMesh* cResourceManager::FindXFile(const string &fileName)
 {
-	auto it = m_meshes3.find(fileName);
-	if (m_meshes3.end() != it)
+	AutoCSLock cs(m_cs);
+
+	auto it = m_xfiles.find(fileName);
+	if (m_xfiles.end() != it)
 		return it->second;
 	return NULL;
 }
@@ -300,8 +408,19 @@ cXFileMesh* cResourceManager::FindXFile(const string &fileName)
 
 cColladaModel * cResourceManager::FindColladaModel(const string &fileName)
 {
+	AutoCSLock cs(m_cs);
 	auto it = m_colladaModels.find(fileName);
 	if (m_colladaModels.end() != it)
+		return it->second;
+	return NULL;
+}
+
+
+cShadowVolume* cResourceManager::FindShadow(const string &fileName)
+{
+	AutoCSLock cs(m_csShadow);
+	auto it = m_shadows.find(fileName);
+	if (m_shadows.end() != it)
 		return it->second;
 	return NULL;
 }
@@ -618,20 +737,35 @@ void cResourceManager::Clear()
 	}
 	m_meshes2.clear();
 
-	// remove raw mesh3
-	for each (auto kv in m_meshes3)
+	// remove raw m_xfiles
 	{
-		delete kv.second;
+		AutoCSLock cs(m_cs);
+		for each (auto kv in m_xfiles)
+		{
+			delete kv.second;
+		}
+		m_xfiles.clear();
 	}
-	m_meshes3.clear();
 
 	// remove raw collada models
-	for each (auto kv in m_colladaModels)
 	{
-		delete kv.second;
+		AutoCSLock cs(m_cs);
+		for each (auto kv in m_colladaModels)
+		{
+			delete kv.second;
+		}
+		m_colladaModels.clear();
 	}
-	m_colladaModels.clear();
 
+	// remove shadow
+	{
+		AutoCSLock cs(m_csShadow);
+		for each (auto kv in m_shadows)
+		{
+			delete kv.second;
+		}
+		m_shadows.clear();
+	}
 
 	// remove texture
 	for each (auto kv in m_textures)

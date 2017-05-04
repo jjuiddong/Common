@@ -102,19 +102,17 @@ HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer,
 			m_materials[i].m_mtrl = d3dxMtrls[i].MatD3D;
 			if (d3dxMtrls[i].pTextureFilename)
 			{
-				//string textureFileName = common::GetFilePathExceptFileName(filePath) + "/" + d3dxMtrls[i].pTextureFilename;
 				string textureFileName = common::GetFilePathExceptFileName(common::GetFullFileName(filePath)) + 
 					"/" + d3dxMtrls[i].pTextureFilename;
-				//common::dbg::Print("texture file name = %s\n", textureFileName.c_str());
 				m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, textureFileName);
 				if (m_textures[i])
 				{
-					//common::dbg::Print("\t- Loading Error!! texture file name = %s\n", textureFileName.c_str());
+					dbg::ErrLog("Texture Loading Error!! texture file name = %s\n", textureFileName.c_str());
 				}
 			}
 			else
 			{
-				m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, "whitetex.dds");
+				m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, "model/white.dds");
 			}
 		}
 	}

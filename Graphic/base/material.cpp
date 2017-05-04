@@ -98,29 +98,11 @@ void cMaterial::Bind(cRenderer &renderer)
 
 void cMaterial::Bind(cShader &shader)
 {
-	static cShader *oldPtr = NULL;
-	static D3DXHANDLE hAmbient = NULL;
-	static D3DXHANDLE hDiffuse = NULL;
-	static D3DXHANDLE hEmissive = NULL;
-	static D3DXHANDLE hSpecular = NULL;
-	static D3DXHANDLE hSineness = NULL;
-
-	if ((oldPtr != &shader) || shader.m_isReload)
-	{
-		hAmbient = shader.GetValueHandle("g_material.ambient");
-		hDiffuse = shader.GetValueHandle("g_material.diffuse");
-		hEmissive = shader.GetValueHandle("g_material.emissive");
-		hSpecular = shader.GetValueHandle("g_material.specular");
-		hSineness = shader.GetValueHandle("g_material.shininess");
-
-		oldPtr = &shader;
-	}
-
-	shader.SetVector(hAmbient, *(Vector4*)&m_mtrl.Ambient);
-	shader.SetVector( hDiffuse, *(Vector4*)&m_mtrl.Diffuse);
-	shader.SetVector( hEmissive, *(Vector4*)&m_mtrl.Emissive);
-	shader.SetVector( hSpecular, *(Vector4*)&m_mtrl.Specular);
-	shader.SetFloat( hSineness, m_mtrl.Power);
+	shader.SetMaterialAmbient(*(Vector4*)&m_mtrl.Ambient);
+	shader.SetMaterialDiffuse(*(Vector4*)&m_mtrl.Diffuse);
+	shader.SetMaterialEmissive(*(Vector4*)&m_mtrl.Emissive);
+	shader.SetMaterialSpecular(*(Vector4*)&m_mtrl.Specular);
+	shader.SetMaterialShininess(m_mtrl.Power);
 }
 
 

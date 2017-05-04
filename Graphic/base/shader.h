@@ -1,10 +1,61 @@
+//
+// 2017-05-03, jjuiddong
 // 쉐이더 클래스
 // LPD3DXEFFECT 인터페이스를 쉽게사용하기 위해 만들어짐.
+//
 #pragma once
 
 
 namespace graphic
 {
+
+#define SHADER_SETFLOAT_MACRO(funcname, key, handle)\
+	D3DXHANDLE handle=NULL;\
+	void funcname(const float &val)\
+	{\
+		RET(!m_effect);\
+		if (!handle)\
+			handle = m_effect->GetParameterByName(NULL, key);\
+		if (FAILED(m_effect->SetFloat(handle, val)))\
+		{\
+			assert(0);\
+			MessageBoxA(NULL, \
+				format("cShader::"#funcname" [%s] Error", key).c_str(), "ERROR", MB_OK);\
+		}\
+	}
+
+
+#define SHADER_SETVECTOR_MACRO(funcname, key, handle)\
+	D3DXHANDLE handle=NULL;\
+	void funcname(const Vector3 &vec)\
+	{\
+		RET(!m_effect);\
+		if (!handle)\
+			handle = m_effect->GetParameterByName(NULL, key);\
+		if (FAILED(m_effect->SetVector(handle, &D3DXVECTOR4(vec.x, vec.y, vec.z, 1))))\
+		{\
+			assert(0);\
+			MessageBoxA(NULL, \
+				format("cShader::"#funcname" [%s] Error", key).c_str(), "ERROR", MB_OK);\
+		}\
+	}
+
+#define SHADER_SETMATRIX_MACRO(funcname, key, handle)\
+	D3DXHANDLE handle=NULL;\
+	void funcname(const Matrix44 &mat)\
+	{\
+		RET(!m_effect);\
+		if (!handle)\
+			handle = m_effect->GetParameterByName(NULL, key);\
+		if (FAILED(m_effect->SetMatrix(handle, (D3DXMATRIX*)&mat)))\
+		{\
+			assert(0);\
+			MessageBoxA(NULL, \
+				format("cShader::"#funcname" [%s] Error", key).c_str(), "ERROR", MB_OK);\
+		}\
+	}
+
+
 
 	class cShader
 	{
@@ -12,7 +63,8 @@ namespace graphic
 		cShader();
 		virtual ~cShader();
 
-		bool Create(cRenderer &renderer, const string &fileName, const string &technique, const bool showMsgBox = true);
+		bool Create(cRenderer &renderer, const string &fileName, 
+			const string &technique, const bool showMsgBox = true );
 		bool Reload(cRenderer &renderer);
 		int Begin();
 		void BeginPass(int pass=-1);
@@ -49,12 +101,34 @@ namespace graphic
 		LPD3DXEFFECT GetEffect() { return m_effect; }
 		void SetRenderPass(int pass);
 		int GetRenderPass() const;
-		int GetPassCount();
 		D3DXHANDLE GetValueHandle(const string &key);
 		const string& GetFileName() const;
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
+
+
+		// Light
+		SHADER_SETVECTOR_MACRO(SetLightDir, "g_light.dir", m_lightDir);
+		SHADER_SETVECTOR_MACRO(SetLightPos, "g_light.pos", m_lightPos);
+		SHADER_SETVECTOR_MACRO(SetLightAmbient, "g_light.ambient", m_lightAmbient);
+		SHADER_SETVECTOR_MACRO(SetLightDiffuse, "g_light.diffuse", m_lightDiffuse);
+		SHADER_SETVECTOR_MACRO(SetLightSpecular, "g_light.specular", m_lightSpecular);
+		SHADER_SETFLOAT_MACRO(SetLightTheta, "g_light.spotInnerCone", m_lightTheta);
+		SHADER_SETFLOAT_MACRO(SetLightPhi, "g_light.spotOuterCone", m_lightPhi);
+
+		// Camera
+		SHADER_SETMATRIX_MACRO(SetCameraView, "g_mView", m_cameraView);
+		SHADER_SETMATRIX_MACRO(SetCameraProj, "g_mProj", m_cameraProj);
+		SHADER_SETMATRIX_MACRO(SetCameraViewProj, "g_mVP", m_cameraViewProj);
+		SHADER_SETVECTOR_MACRO(SetCameraEyePos, "g_vEyePos", m_cameraEyePos);
+
+		// Material
+		SHADER_SETVECTOR_MACRO(SetMaterialAmbient, "g_material.ambient", m_mtrlAmbient);
+		SHADER_SETVECTOR_MACRO(SetMaterialDiffuse, "g_material.diffuse", m_mtrlDiffuse);
+		SHADER_SETVECTOR_MACRO(SetMaterialEmissive, "g_material.emissive", m_mtrlEmissive);
+		SHADER_SETVECTOR_MACRO(SetMaterialSpecular, "g_material.specular", m_mtrlSpecular);
+		SHADER_SETFLOAT_MACRO(SetMaterialShininess, "g_material.shininess", m_mtrlShininess);
 
 
 	public:
@@ -64,7 +138,6 @@ namespace graphic
 		string m_fileName;
 		string m_technique;
 		bool m_isShowMsgBox;
-		bool m_isReload;
 	};
 
 

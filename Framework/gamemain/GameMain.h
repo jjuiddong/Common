@@ -43,6 +43,7 @@ namespace framework
 		virtual void OnUpdate(const float deltaSeconds) {}
 		virtual void OnRender(const float deltaSeconds) {}
 		virtual void OnShutdown() {}
+		virtual void OnDeviceLost() {}
 		virtual void OnMessageProc(UINT message, WPARAM wParam, LPARAM lParam) {}
 
 

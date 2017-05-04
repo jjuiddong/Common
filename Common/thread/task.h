@@ -7,7 +7,8 @@
 //
 // 2016-06-06
 //		- refactoring
-//
+// 2017-05-03
+//		- refactoring
 //------------------------------------------------------------------------
 #pragma once
 
@@ -16,26 +17,18 @@
 
 namespace common
 {
+
 	class cThread;
 	class cTask
 	{
 	public:
-		cTask(int id, const std::string &name="");
-		virtual ~cTask() {}
-
-		enum RUN_RESULT
-		{
-			RR_END,			// 태스크 종료
-			RR_CONTINUE,	// 태스크 계속실행
+		struct eRunResult {
+			enum Enum { END, CONTINUE };
 		};
 
-		int GetId() const;
-		const std::string& GetName() const;
-		void	SetThread(cThread *p);
-		cThread* GetThread();
-
-		// overriding
-		virtual RUN_RESULT	Run() { return RR_END; }
+		cTask(int id, const std::string &name="");
+		virtual ~cTask() {}
+		virtual eRunResult::Enum Run() { return eRunResult::END; }
 		virtual void MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added ) {}
 
 
@@ -46,10 +39,6 @@ namespace common
 	};
 
 	inline cTask::cTask(int id, const std::string &name) : m_Id(id), m_pThread(NULL), m_Name(name) { }
-	inline int cTask::GetId() const { return m_Id; }
-	inline const std::string& cTask::GetName() const { return m_Name; }
-	inline void	 cTask::SetThread(cThread *p) { m_pThread = p; }
-	inline cThread* cTask::GetThread() { return m_pThread; }
 
 
 	// list<CTask*>에서 CTask를 찾는 객체
@@ -59,7 +48,7 @@ namespace common
 		IsTask(int taskId):m_id(taskId) {}
 		int m_id;
 		bool operator ()(cTask *t) const
-			{ return (t->GetId() == m_id); }
+			{ return (t->m_Id == m_id); }
 	};
 
 }

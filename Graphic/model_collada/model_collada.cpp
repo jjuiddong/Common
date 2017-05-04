@@ -19,7 +19,7 @@ bool cColladaModel::Create(cRenderer &renderer, const string &fileName)
 {
 	Clear();
 
-	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadModel2(fileName);
+	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadRawMesh2(fileName);
 	RETV(!rawMeshes, false);
 
 	//m_fileName = fileName;

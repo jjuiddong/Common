@@ -38,5 +38,6 @@ namespace graphic
 		cMaterial* m_materials;
 		cTexture** m_textures; // reference 
 		cShadowVolume m_shadow;
+		Matrix44 m_tm;
 	};
 }

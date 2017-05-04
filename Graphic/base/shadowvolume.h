@@ -21,7 +21,7 @@ namespace graphic
 		cShadowVolume();
 		virtual ~cShadowVolume();
 
-		bool Create(cRenderer &renderer, ID3DXMesh *mesh);
+		bool Create(cRenderer &renderer, ID3DXMesh *mesh, const bool isParallel=false);
 		bool Create(cRenderer &renderer, cVertexBuffer &vtxBuff, cIndexBuffer &idxBuff, const Matrix44 &tm=Matrix44::Identity);
 		void Render(cRenderer &renderer);
 		void LostDevice();

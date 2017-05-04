@@ -195,6 +195,10 @@ void cGameMain::Render(const float deltaSeconds)
 
 		OnRender(deltaSeconds);
 	}
+	else
+	{
+		OnDeviceLost();
+	}
 }
 
 

@@ -398,6 +398,7 @@
     <ClInclude Include="manager\pickmanager.h" />
     <ClInclude Include="manager\Renderer.h" />
     <ClInclude Include="manager\resourcemanager.h" />
+    <ClInclude Include="manager\task_resource.h" />
     <ClInclude Include="model\blendtrack.h" />
     <ClInclude Include="model\bonemgr.h" />
     <ClInclude Include="model\bonenode.h" />

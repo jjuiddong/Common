@@ -6,13 +6,10 @@ using namespace graphic;
 
 cLight::cLight()
 {
-
 }
-
 
 cLight::~cLight()
 {
-
 }
 
 
@@ -87,34 +84,11 @@ void cLight::Bind(cRenderer &renderer,
 // 셰이더 변수에 라이팅에 관련된 변수를 초기화 한다.
 void cLight::Bind(cShader &shader)  const
 {
-	static cShader *oldPtr = NULL;
-	static D3DXHANDLE hDir = NULL;
-	static D3DXHANDLE hPos = NULL;
-	static D3DXHANDLE hAmbient = NULL;
-	static D3DXHANDLE hDiffuse = NULL;
-	static D3DXHANDLE hSpecular = NULL;
-	static D3DXHANDLE hTheta = NULL;
-	static D3DXHANDLE hPhi = NULL;
-
-	if ((oldPtr != &shader) || shader.m_isReload)
-	{
-		hDir = shader.GetValueHandle("g_light.dir");
-		hPos = shader.GetValueHandle("g_light.pos");
-		hAmbient = shader.GetValueHandle("g_light.ambient");
-		hDiffuse = shader.GetValueHandle("g_light.diffuse");
-		hSpecular = shader.GetValueHandle("g_light.specular");
-		hTheta = shader.GetValueHandle("g_light.spotInnerCone");
-		hPhi = shader.GetValueHandle("g_light.spotOuterCone");
-
-		oldPtr = &shader;
-	}
-
-	shader.SetVector( hDir, *(Vector3*)&m_light.Direction);
-	shader.SetVector( hPos, *(Vector3*)&m_light.Position);
-	shader.SetVector( hAmbient, *(Vector4*)&m_light.Ambient);
-	shader.SetVector( hDiffuse, *(Vector4*)&m_light.Diffuse);
-	shader.SetVector( hSpecular, *(Vector4*)&m_light.Specular);
-	shader.SetFloat( hTheta, m_light.Theta);
-	shader.SetFloat( hPhi, m_light.Phi);
-	//shader.SetFloat( "light.radius", m_light.r);
+	shader.SetLightDir(*(Vector3*)&m_light.Direction);
+	shader.SetLightPos(*(Vector3*)&m_light.Position);
+	shader.SetLightAmbient(*(Vector4*)&m_light.Ambient);
+	shader.SetLightDiffuse(*(Vector4*)&m_light.Diffuse);
+	shader.SetLightSpecular(*(Vector4*)&m_light.Specular);
+	shader.SetLightTheta(m_light.Theta);
+	shader.SetLightPhi(m_light.Phi);
 }

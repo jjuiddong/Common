@@ -89,11 +89,12 @@ void cCube::InitCube(cRenderer &renderer)
 
 	if (sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock())
 	{
+		const DWORD color = D3DCOLOR_XRGB(200, 200, 200);
 		for (int i = 0; i < 36; ++i)
 		{
 			vbuff[i].p = vertices[indices[i]];
 			vbuff[i].n = normals[normalIndices[i]];
-			vbuff[i].c = 0;
+			vbuff[i].c = color;
 		}
 		m_vtxBuff.Unlock();
 	}
