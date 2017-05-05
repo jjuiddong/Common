@@ -353,8 +353,8 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 
 	m_camera.SetViewPort(width, height);
 	m_gui.CreateDeviceObjects();
-	m_surf.m_width = width;
-	m_surf.m_height = height;
+	m_surf.m_vp.Width = width;
+	m_surf.m_vp.Height = height;
 	m_surf.ResetDevice((shared)? *shared : m_renderer);
 	
 	m_texture.m_imageInfo.Width = width;

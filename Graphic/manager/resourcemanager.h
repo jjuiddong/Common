@@ -47,6 +47,7 @@ namespace graphic
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
 		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cShader* LoadShader(cRenderer &renderer, const string &fileName, const bool isReload=false);
 
 		sRawMeshGroup* FindModel( const string &fileName );
@@ -58,6 +59,7 @@ namespace graphic
 		sRawAniGroup* FindAnimation( const string &fileName );
 		cMeshBuffer* FindMeshBuffer( const string &meshName );
 		cTexture* FindTexture( const string &fileName );
+		cCubeTexture* FindCubeTexture(const string &fileName);
 		cShader * FindShader(const string &fileName);
 		string FindFile( const string &fileName );
 
@@ -86,6 +88,7 @@ namespace graphic
 		map<string, sRawAniGroup*> m_anies;	// key = fileName
 		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
 		map<string, cTexture*> m_textures; // key = fileName
+		map<string, cCubeTexture*> m_cubeTextures; // key = fileName
 		map<string, cShader*> m_shaders; // key = fileName
 		string m_mediaDirectory; // default : ../media/
 		set<string> m_reLoadFile;

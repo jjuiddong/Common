@@ -76,6 +76,7 @@ namespace graphic
 		void SetInt(const string &key, const int val );
 		void SetMatrix(const string &key, const Matrix44 &mat);
 		void SetTexture(const string &key, cTexture &texture);
+		void SetCubeTexture(const string &key, cCubeTexture &texture);
 		void SetTexture(const string &key, IDirect3DTexture9 *texture);
 		void SetTexture(const string &key, IDirect3DCubeTexture9 *texture);
 		void SetFloat(const string &key, float val);
@@ -132,7 +133,8 @@ namespace graphic
 
 
 	public:
-		LPD3DXEFFECT m_effect;
+		//LPD3DXEFFECT m_effect;
+		ID3DXEffect *m_effect;
 		D3DXHANDLE m_hTechnique;
 		int m_renderPass; // default = 0;
 		string m_fileName;

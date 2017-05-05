@@ -47,27 +47,15 @@ bool cColladaModel::Create(cRenderer &renderer, const string &fileName)
 bool cColladaModel::Render(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 // tm = Matrix44:Identity
 {
-	for (auto &mesh : m_meshes)
-		mesh->RenderShader(renderer, &shader, tm);
-
-	//const Matrix44 transform = m_tm * tm;
-
-	//if (m_shader)
-	//{
-	//	GetMainCamera()->Bind(*m_shader);
-	//	GetMainLight().Bind(*m_shader);
-
-	//	for (auto &mesh : m_meshes)
-	//		mesh->RenderShader(renderer, m_shader, transform);
-
-	//	if (m_shader->m_isReload)
-	//		m_shader->m_isReload = false;
-	//}
-	//else
-	//{
-	//	for (auto &mesh : m_meshes)
-	//		mesh->Render(renderer, transform);
-	//}
+	const int passCount = shader.Begin();
+	for (int i = 0; i < passCount; ++i)
+	{
+		shader.BeginPass(i);
+		for (auto &mesh : m_meshes)
+			mesh->RenderShader(renderer, &shader, tm);
+		shader.EndPass();
+	}
+	shader.End();
 
 	return true;
 }

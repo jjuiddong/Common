@@ -7,17 +7,22 @@ using namespace graphic;
 
 cCube3::cCube3()
 	: m_tex(NULL)
+	, m_uvFactor(1.f)
 {
 }
 
-cCube3::cCube3(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+cCube3::cCube3(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax
+	, const float uvFactor //= 1.f
+)
 {
-	InitCube(renderer);
-	SetCube(renderer, vMin, vMax);
+	InitCube(renderer, uvFactor);
+	SetCube(renderer, vMin, vMax, uvFactor);
 }
 
 
-void cCube3::InitCube(cRenderer &renderer)
+void cCube3::InitCube(cRenderer &renderer
+	, const float uvFactor //= 1.f
+)
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
@@ -138,6 +143,7 @@ void cCube3::InitCube(cRenderer &renderer)
 	m_min = Vector3(-1, -1, -1);
 	m_max = Vector3(1, 1, 1);
 
+	m_uvFactor = uvFactor;
 	m_mtrl.InitWhite();
 
 	if (!m_tex)
@@ -146,7 +152,9 @@ void cCube3::InitCube(cRenderer &renderer)
 
 
 
-void cCube3::InitCube2(cRenderer &renderer)
+void cCube3::InitCube2(cRenderer &renderer
+	, const float uvFactor //= 1.f
+)
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
@@ -275,21 +283,26 @@ void cCube3::InitCube2(cRenderer &renderer)
 
 	m_min = Vector3(-1, -1, -1);
 	m_max = Vector3(1, 1, 1);
+	m_uvFactor = uvFactor;
 
 	m_mtrl.InitWhite();
 }
 
 
-void cCube3::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+void cCube3::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax
+	, const float uvFactor //= 1.f
+)
 {
 	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitCube(renderer);
+		InitCube(renderer, uvFactor);
 
-	SetCube(vMin, vMax);
+	SetCube(vMin, vMax, uvFactor);
 }
 
 
-void cCube3::SetCube(const Vector3 &vMin, const Vector3 &vMax)
+void cCube3::SetCube(const Vector3 &vMin, const Vector3 &vMax
+	, const float uvFactor //= 1.f
+)
 {
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
@@ -307,18 +320,21 @@ void cCube3::SetCube(const Vector3 &vMin, const Vector3 &vMax)
 	m_pos = center;
 	m_min = vMin;
 	m_max = vMax;
+	m_uvFactor = uvFactor;
 }
 
 
-void cCube3::SetCube(const cBoundingBox &bbox)
+void cCube3::SetCube(const cBoundingBox &bbox
+	, const float uvFactor //= 1.f
+)
 {
-	SetCube(bbox.m_min, bbox.m_max);
+	SetCube(bbox.m_min, bbox.m_max, uvFactor);
 }
 
 
 void cCube3::SetCube(cRenderer &renderer, const cCube3 &cube)
 {
-	SetCube(renderer, cube.m_min, cube.m_max);
+	SetCube(renderer, cube.m_min, cube.m_max, cube.m_uvFactor);
 	m_tm = cube.m_tm;
 }
 
@@ -350,6 +366,7 @@ void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &
 
 	const Matrix44 transform = m_tm*tm;
 	shader.SetMatrix("g_mWorld", transform);
+	shader.SetFloat("g_uvFactor", m_uvFactor);
 
 	{
 		Matrix44 mWIT = transform;

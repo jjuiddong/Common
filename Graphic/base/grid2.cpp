@@ -38,8 +38,12 @@ cGrid2::~cGrid2()
 }
 
 
-void cGrid2::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize,
-	const float textureUVFactor, const float offsetY)
+void cGrid2::Create(cRenderer &renderer
+	, const int rowCellCount
+	, const int colCellCount
+	, const float cellSize
+	,const float textureUVFactor
+	, const float offsetY)
 {
 	// init member
 	m_rowCellCount = rowCellCount;

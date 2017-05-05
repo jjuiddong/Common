@@ -295,7 +295,7 @@ void cTerrain::Render(cRenderer &renderer)
 void cTerrain::Move(const float elapseTime)
 {
 	if (m_isRenderWater)
-		m_water.Move(elapseTime);
+		m_water.Update(elapseTime);
 }
 
 

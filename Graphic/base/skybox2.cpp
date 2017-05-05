@@ -14,7 +14,6 @@ cSkyBox2::cSkyBox2()
 cSkyBox2::~cSkyBox2()
 {
 	SAFE_RELEASE(m_sphere);
-	SAFE_RELEASE(m_envMap);
 }
 
 
@@ -27,40 +26,38 @@ bool cSkyBox2::Create(cRenderer &renderer, const string &skyboxFileName, const f
 		return false;
 	}
 
-	if (FAILED(D3DXCreateCubeTextureFromFileA(renderer.GetDevice(), 
-		skyboxFileName.c_str(), &m_envMap)))
-	{
+	m_envMap = cResourceManager::Get()->LoadCubeTexture(renderer, skyboxFileName);
+	if (!m_envMap)
 		return false;
-	}
 
-	if (!m_shader.Create(renderer, cResourceManager::Get()->FindFile("sky.fx"), "SkyTech"))
-	{
+	m_shader = cResourceManager::Get()->LoadShader(renderer, "sky.fx");
+	if (!m_shader)
 		return false;
-	}
+	m_shader->SetTechnique("SkyTech");
 
 	m_radius = radius;
-	m_hWVP = m_shader.GetValueHandle("gWVP");
-	m_hEnvMap = m_shader.GetValueHandle("gEnvMap");
-
-	m_shader.SetTexture("gEnvMap", m_envMap);
 	return true;
 }
 
 
-void cSkyBox2::Render(cRenderer &renderer, const Matrix44 &tm)//tm = Matrix44::Identity
+void cSkyBox2::Render(cRenderer &renderer
+	, const Matrix44 &tm//= Matrix44::Identity
+)
 {
 	RET(!m_sphere);
+	RET(!m_shader);
 
 	Matrix44 world;
 	world.SetTranslate( cMainCamera::Get()->GetEyePos() );
 	world = world * tm * cMainCamera::Get()->GetViewProjectionMatrix();
 
-	m_shader.SetMatrix(m_hWVP, world);
+	m_shader->SetMatrix("gWVP", world);
+	m_envMap->Bind(*m_shader, "gEnvMap");
 
-	m_shader.Begin();
-	m_shader.BeginPass();
+	m_shader->Begin();
+	m_shader->BeginPass();
 	m_sphere->DrawSubset(0);
-	m_shader.EndPass();
-	m_shader.End();
+	m_shader->EndPass();
+	m_shader->End();
 }
 

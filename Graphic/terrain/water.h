@@ -9,6 +9,26 @@ namespace graphic
 
 	class cWater
 	{
+	public:
+		cWater();
+		virtual ~cWater();
+
+		bool Create(cRenderer &renderer);
+		virtual void Render(cRenderer &renderer);
+		virtual void Update(const float elapseTime);
+
+		void BeginRefractScene();
+		void EndRefractScene();
+		void BeginReflectScene();
+		void EndReflectScene();
+		void SetRenderReflectMap(const bool enable);
+		bool IstRenderReflectMap() const;
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
+		void UpdateShader();
+
+
+	public:
 		struct sInitInfo
 		{
 			cLight dirLight;
@@ -17,6 +37,7 @@ namespace graphic
 			int vertCols;
 			float dx;
 			float dz;
+			float uvFactor;
 			string waveMapFilename0;
 			string waveMapFilename1;
 			Vector2 waveMapVelocity0;
@@ -28,42 +49,25 @@ namespace graphic
 			Matrix44 toWorld;
 		};
 
-	public:
-		cWater();
-		virtual ~cWater();
-
-		bool Create(cRenderer &renderer);
-		virtual void Render(cRenderer &renderer);
-		virtual void Move(const float elapseTime);
-
-		void BeginRefractScene();
-		void EndRefractScene();
-		void BeginReflectScene();
-		void EndReflectScene();
-		void SetRenderReflectMap(const bool enable);
-		bool IstRenderReflectMap() const;
-
-
-	private:
 		sInitInfo m_initInfo;
 		cSurface2 m_reflectMap;
 		cSurface2 m_refractMap;
 		cGrid2 m_grid;
-		cShader m_shader;
-		cTexture m_waveMap0;
-		cTexture m_waveMap1;
+		cShader *m_shader; // reference
+		cTexture *m_waveMap0; // reference
+		cTexture *m_waveMap1; // reference
 		Vector2 m_waveMapOffset0;
 		Vector2 m_waveMapOffset1;
 		bool m_isRenderSurface;
 
-		D3DXHANDLE m_hWVP;
-		D3DXHANDLE m_hLight;
-		D3DXHANDLE m_hMtrl;
-		D3DXHANDLE m_hEyePosW;
-		D3DXHANDLE m_hWaveMapOffset0;
-		D3DXHANDLE m_hWaveMapOffset1;
-		D3DXHANDLE m_hReflectMap;
-		D3DXHANDLE m_hRefractMap;
+		//D3DXHANDLE m_hWVP;
+		//D3DXHANDLE m_hLight;
+		//D3DXHANDLE m_hMtrl;
+		//D3DXHANDLE m_hEyePosW;
+		//D3DXHANDLE m_hWaveMapOffset0;
+		//D3DXHANDLE m_hWaveMapOffset1;
+		//D3DXHANDLE m_hReflectMap;
+		//D3DXHANDLE m_hRefractMap;
 	};
 
 	

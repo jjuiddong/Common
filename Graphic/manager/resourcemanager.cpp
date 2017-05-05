@@ -457,13 +457,22 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 		return p;
 
 	string key = fileName;
-	cTexture *texture = NULL;// new cTexture();
+	const string composeMediaFileName = m_mediaDirectory + fileName;
+	cTexture *texture = NULL;
 
-	//if (!texture->Create(renderer, fileName, isSizePow2))
 	if (common::IsFileExist(fileName))
 	{
 		texture = new cTexture();
 		if (!texture->Create(renderer, fileName, isSizePow2))
+		{
+			if (fileName == whiteTexture) // this file must loaded
+				assert(0);
+		}
+	}
+	else if (common::IsFileExist(composeMediaFileName))
+	{
+		texture = new cTexture();
+		if (!texture->Create(renderer, composeMediaFileName, isSizePow2))
 		{
 			if (fileName == whiteTexture) // this file must loaded
 				assert(0);
@@ -491,29 +500,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 						if (newPath == whiteTexture) // this file must loaded
 							assert(0);
 					}
-
-
-					//{
-						// last load white.dds texture
-						//if (!texture->Create(renderer, "model/white.dds", isSizePow2))
-						//{
-						//delete texture;
-						//return false;
-						//}
-						//texture = cResourceManager::LoadTexture(renderer, "model/white.dds", false);
-					//}
 				}
-
-				//if (!texture->Create(renderer, newPath, isSizePow2))
-				//{
-				//	// last load white.dds texture
-				//	//if (!texture->Create(renderer, "model/white.dds", isSizePow2))
-				//	//{
-				//		delete texture;
-				//		//return false;
-				//	//}
-				//	texture = cResourceManager::LoadTexture(renderer, "model/white.dds", false);
-				//}
 			}
 		}
 	}
@@ -537,6 +524,74 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 			delete texture;
 			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
 		}
+	}
+
+	return NULL;
+}
+
+
+// 텍스쳐 로딩.
+cCubeTexture* cResourceManager::LoadCubeTexture(cRenderer &renderer, const string &fileName
+	, const bool isSizePow2 //=true
+	, const bool isRecursive //= true
+)
+{
+	if (cCubeTexture *p = FindCubeTexture(fileName))
+		return p;
+
+	string key = fileName;
+	const string composeMediaFileName = m_mediaDirectory + fileName;
+	cCubeTexture *texture = NULL;
+
+	if (common::IsFileExist(fileName))
+	{
+		texture = new cCubeTexture();
+		if (!texture->Create(renderer, fileName))
+		{
+			dbg::ErrLog("Err LoadCubeTexture %s \n", fileName.c_str());
+			//assert(0);
+		}
+	}
+	else if (common::IsFileExist(composeMediaFileName))
+	{
+		texture = new cCubeTexture();
+		if (!texture->Create(renderer, composeMediaFileName))
+		{
+			dbg::ErrLog("Err LoadCubeTexture %s \n", composeMediaFileName.c_str());
+			//assert(0);
+		}
+	}
+	else
+	{
+		string newPath;
+		if (common::FindFile(fileName, m_mediaDirectory, newPath))
+		{
+			if (isRecursive)
+			{
+				if (texture = cResourceManager::LoadCubeTexture(renderer, newPath, isSizePow2, false))
+					return texture;
+			}
+			else
+			{
+				//cTexture *texture = NULL;// new cTexture();
+				if (common::IsFileExist(newPath))
+				{
+					key = newPath;
+					texture = new cCubeTexture();
+					if (!texture->Create(renderer, newPath))
+					{
+						dbg::ErrLog("Err LoadCubeTexture %s \n", newPath.c_str());
+						//assert(0);
+					}
+				}
+			}
+		}
+	}
+
+	if (texture && texture->IsLoaded())
+	{
+		m_cubeTextures[key] = texture;
+		return texture;
 	}
 
 	return NULL;
@@ -696,6 +751,15 @@ cTexture* cResourceManager::FindTexture( const string &fileName )
 }
 
 
+cCubeTexture* cResourceManager::FindCubeTexture(const string &fileName)
+{
+	auto it = m_cubeTextures.find(fileName);
+	if (m_cubeTextures.end() == it)
+		return NULL; // not exist
+	return it->second;
+}
+
+
 // 셰이더 찾기.
 cShader* cResourceManager::FindShader( const string &fileName )
 {
@@ -774,6 +838,14 @@ void cResourceManager::Clear()
 	}
 	m_textures.clear();
 
+	// remove cube texture
+	for each (auto kv in m_cubeTextures)
+	{
+		delete kv.second;
+	}
+	m_cubeTextures.clear();
+
+
 	// remove raw ani
 	for each (auto kv in m_anies)
 	{
@@ -844,6 +916,8 @@ void cResourceManager::LostDevice()
 {
 	for (auto &p : m_textures)
 		p.second->LostDevice();
+	for (auto &p : m_cubeTextures)
+		p.second->LostDevice();
 	for (auto &p : m_shaders)
 		p.second->LostDevice();
 }
@@ -852,6 +926,8 @@ void cResourceManager::LostDevice()
 void cResourceManager::ResetDevice(cRenderer &renderer)
 {
 	for (auto &p : m_textures)
+		p.second->ResetDevice(renderer);
+	for (auto &p : m_cubeTextures)
 		p.second->ResetDevice(renderer);
 	for (auto &p : m_shaders)
 		p.second->ResetDevice(renderer);

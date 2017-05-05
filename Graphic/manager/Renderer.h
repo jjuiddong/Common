@@ -42,6 +42,7 @@ namespace graphic
 		void SetZEnable(const bool value);
 
 		D3DFILLMODE GetFillMode();
+		D3DCULL GetCullMode();
 
 
 	protected:

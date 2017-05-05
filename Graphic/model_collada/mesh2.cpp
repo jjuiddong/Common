@@ -110,7 +110,7 @@ void cMesh2::RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &
 
 	if (!m_mtrls.empty())
 		m_mtrls[0].Bind(*shader);
-	
+
 	shader->SetMatrix("g_mWorld", m_localTm * tm);
 
 	if (!m_colorMap.empty())
@@ -118,21 +118,42 @@ void cMesh2::RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &
 
 	// Set Skinning Information
 	for (u_int i = 0; i < m_bones.size(); ++i)
-		m_tmPose[i] = m_bones[i].offsetTm * m_skeleton->m_tmPose[ m_bones[i].id];
+		m_tmPose[i] = m_bones[i].offsetTm * m_skeleton->m_tmPose[m_bones[i].id];
 	if (!m_tmPose.empty())
 		shader->SetMatrixArray("g_mPalette", (Matrix44*)&m_tmPose[0], m_tmPose.size());
 	//
 
-	const int passCount = shader->Begin();
-	for (int i = 0; i < passCount; ++i)
-	{
-		shader->BeginPass(i);
-		m_buffers->Bind(renderer);
-		shader->CommitChanges();
-		m_buffers->Render(renderer);
-		shader->EndPass();
-	}
-	shader->End();
+	shader->CommitChanges();
+	m_buffers->Bind(renderer);
+	m_buffers->Render(renderer);
+
+
+
+	//if (!m_mtrls.empty())
+	//	m_mtrls[0].Bind(*shader);
+	//
+	//shader->SetMatrix("g_mWorld", m_localTm * tm);
+
+	//if (!m_colorMap.empty())
+	//	shader->SetTexture("g_colorMapTexture", *m_colorMap[0]);
+
+	//// Set Skinning Information
+	//for (u_int i = 0; i < m_bones.size(); ++i)
+	//	m_tmPose[i] = m_bones[i].offsetTm * m_skeleton->m_tmPose[ m_bones[i].id];
+	//if (!m_tmPose.empty())
+	//	shader->SetMatrixArray("g_mPalette", (Matrix44*)&m_tmPose[0], m_tmPose.size());
+	////
+
+	//const int passCount = shader->Begin();
+	//for (int i = 0; i < passCount; ++i)
+	//{
+	//	shader->BeginPass(i);
+	//	m_buffers->Bind(renderer);
+	//	shader->CommitChanges();
+	//	m_buffers->Render(renderer);
+	//	shader->EndPass();
+	//}
+	//shader->End();
 }
 
 

@@ -21,10 +21,8 @@ namespace graphic
 	private:
 		ID3DXMesh* m_sphere;
 		float m_radius;
-		IDirect3DCubeTexture9* m_envMap;
-		cShader m_shader;
-		D3DXHANDLE m_hEnvMap;
-		D3DXHANDLE m_hWVP;
+		cCubeTexture *m_envMap;
+		cShader *m_shader; // reference
 	};
 
 }

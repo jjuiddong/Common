@@ -178,6 +178,15 @@ void cShader::SetTexture(const string &key, cTexture &texture)
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
+void cShader::SetCubeTexture(const string &key, cCubeTexture &texture)
+{
+	RET(!m_effect);
+	if (FAILED(m_effect->SetTexture(key.c_str(), texture.m_texture)))
+	{
+		assert(0);
+		MessageBoxA(NULL, "cShader::SetCubeTexture Error", "ERROR", MB_OK);
+	}
+}
 void cShader::SetTexture(const string &key, IDirect3DTexture9 *texture)
 {
 	RET(!m_effect);
@@ -396,14 +405,16 @@ D3DXHANDLE cShader::GetValueHandle(const string &key)
 
 void cShader::LostDevice()
 {
-	SAFE_RELEASE(m_effect);
+	//SAFE_RELEASE(m_effect);
+	m_effect->OnLostDevice();
 }
 
 
 void cShader::ResetDevice(cRenderer &renderer)
 {
 	RET(m_fileName.empty());
-	Create(renderer, m_fileName, m_technique, m_isShowMsgBox);
+	m_effect->OnResetDevice();
+	//Create(renderer, m_fileName, m_technique, m_isShowMsgBox);
 }
 
 

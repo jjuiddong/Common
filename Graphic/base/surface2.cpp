@@ -10,10 +10,9 @@ cSurface2::cSurface2()
 	, m_rts(NULL)
 	, m_surface(NULL)
 	, m_mipLevels(0)
-	, m_width(0)
-	, m_height(0)
 	, m_autoGenMips(0)
 {
+	ZeroMemory(&m_vp, sizeof(m_vp));
 }
 
 cSurface2::~cSurface2()
@@ -37,8 +36,6 @@ bool cSurface2::Create(cRenderer &renderer,
 	m_texFormat = texFormat;
 	m_useDepthBuffer = useDepthBuffer;
 	m_depthFormat = depthFormat;
-	m_width = width;
-	m_height = height;
 	m_vp.X = 0;
 	m_vp.Y = 0;
 	m_vp.Width = width;
@@ -103,7 +100,8 @@ void cSurface2::Render(cRenderer &renderer, const int index) // index=1
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	const float scale = 128.0f;
+	//const float scale = 128.0f;
+	const float scale = 256.f;
 	typedef struct {FLOAT p[4]; FLOAT tu, tv;} TVERTEX;
 
 	TVERTEX Vertex[4] = {
@@ -137,9 +135,9 @@ void cSurface2::RenderFull(cRenderer &renderer)
 	TVERTEX Vertex[4] = {
 		// x  y  z rhw tu tv
 		{ 0, 0, 0, 1, 0, 0, },
-		{ (float)m_width, 0,0, 1, 1, 0, },
-		{ (float)m_width, (float)m_height, 1, 1, 1, 1},
-		{ 0, (float)m_height,0, 1, 0, 1, },
+		{ (float)m_vp.Width, 0,0, 1, 1, 0, },
+		{ (float)m_vp.Width, (float)m_vp.Height, 1, 1, 1, 1},
+		{ 0, (float)m_vp.Height,0, 1, 0, 1, },
 	};
 	renderer.GetDevice()->SetTexture(0, m_texture);
 	renderer.GetDevice()->SetVertexShader(NULL);
@@ -147,6 +145,13 @@ void cSurface2::RenderFull(cRenderer &renderer)
 	renderer.GetDevice()->SetPixelShader(NULL);
 	renderer.GetDevice()->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Vertex, sizeof(TVERTEX));
 }
+
+
+void cSurface2::Bind(cShader &shader, const string &key)
+{
+	shader.SetTexture(key, m_texture);
+}
+
 
 void cSurface2::Clear()
 {
@@ -164,9 +169,10 @@ void cSurface2::LostDevice()
 
 void cSurface2::ResetDevice(cRenderer &renderer)
 {
-	if (m_width > 0)
+	if (m_vp.Width > 0)
 	{
-		Create(renderer, m_width, m_height, m_mipLevels,
-			m_texFormat, m_useDepthBuffer, m_depthFormat, m_autoGenMips);
+		Create(renderer, m_vp.Width, m_vp.Height, m_mipLevels,
+			m_texFormat, m_useDepthBuffer, m_depthFormat, m_autoGenMips, 
+			NULL, m_vp.MinZ, m_vp.MaxZ);
 	}
 }

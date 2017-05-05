@@ -24,6 +24,7 @@ namespace graphic
 		void End();
 		void Render(cRenderer &renderer, const int index = 1);
 		void RenderFull(cRenderer &renderer);
+		void Bind(cShader &shader, const string &key);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
@@ -42,10 +43,8 @@ namespace graphic
 		D3DFORMAT m_texFormat;
 		bool m_useDepthBuffer;
 		D3DFORMAT m_depthFormat;
-		int m_width;
-		int m_height;
-		D3DVIEWPORT9 m_vp;
 		bool m_autoGenMips;
+		D3DVIEWPORT9 m_vp;
 	};
 
 

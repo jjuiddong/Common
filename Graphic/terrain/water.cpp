@@ -18,6 +18,7 @@ cWater::cWater()
 	waterInitInfo.vertCols = 64;
 	waterInitInfo.dx = 1.0f;
 	waterInitInfo.dz = 1.0f;
+	waterInitInfo.uvFactor = 8.f;
 	waterInitInfo.waveMapFilename0 = "wave0.dds";
 	waterInitInfo.waveMapFilename1 = "wave1.dds";
 	waterInitInfo.waveMapVelocity0 = Vector2(0.09f, 0.06f);
@@ -48,49 +49,39 @@ bool cWater::Create(cRenderer &renderer)
 
 	const int width = 512;
 	const int  height = 512;
-	cViewport vp;
-	vp.Create(0, 0, width, height, 0.0f, 1.0f);
-	m_reflectMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
-	m_refractMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
+	m_reflectMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true, NULL, 0.f, 1.f);
+	m_refractMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true, NULL, 0.f, 1.f);
 
-	m_shader.Create(renderer, cResourceManager::Get()->FindFile("water.fx"), "WaterTech");
-	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, 64, 8.f, 0.f);
-	m_grid.GetTexture().Create(renderer, cResourceManager::Get()->FindFile("whitetex.dds"));
+	m_shader = cResourceManager::Get()->LoadShader(renderer, "water.fx");
+	if (!m_shader)
+		return false;
 
-	m_waveMap0.Create(renderer, cResourceManager::Get()->FindFile(m_initInfo.waveMapFilename0));
-	m_waveMap1.Create(renderer, cResourceManager::Get()->FindFile(m_initInfo.waveMapFilename1) );
+	m_shader->SetTechnique("WaterTech");
 
-	m_hWVP = m_shader.GetValueHandle( "gWVP");
-	m_hEyePosW = m_shader.GetValueHandle( "gEyePosW");
-	m_hLight = m_shader.GetValueHandle( "gLight");
-	m_hMtrl = m_shader.GetValueHandle( "gMtrl");
-	m_hWaveMapOffset0 = m_shader.GetValueHandle( "gWaveMapOffset0");
-	m_hWaveMapOffset1 = m_shader.GetValueHandle( "gWaveMapOffset1");
-	m_hReflectMap = m_shader.GetValueHandle( "gReflectMap");
-	m_hRefractMap = m_shader.GetValueHandle( "gRefractMap");
+	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, 64, m_initInfo.uvFactor, 0.f);
+	m_grid.GetTexture().Create(renderer, cResourceManager::Get()->FindFile("white.dds"));
 
+	m_waveMap0 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename0);
+	m_waveMap1 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename1);
+	if (!m_waveMap0 || !m_waveMap1)
+		return false;
 
-	// We don't need to set these every frame since they do not change
-	m_shader.SetMatrix("gWorld", m_initInfo.toWorld);
-	Matrix44 worldInv = m_initInfo.toWorld.Inverse();
-	m_shader.SetMatrix("gWorldInv", worldInv);
-	m_shader.SetTexture("gWaveMap0", m_waveMap0);
-	m_shader.SetTexture("gWaveMap1", m_waveMap1);
+	//m_hWVP = m_shader->GetValueHandle( "gWVP");
+	//m_hEyePosW = m_shader->GetValueHandle( "gEyePosW");
+	//m_hLight = m_shader->GetValueHandle( "gLight");
+	//m_hMtrl = m_shader->GetValueHandle( "gMtrl");
+	//m_hWaveMapOffset0 = m_shader->GetValueHandle( "gWaveMapOffset0");
+	//m_hWaveMapOffset1 = m_shader->GetValueHandle( "gWaveMapOffset1");
+	//m_hReflectMap = m_shader->GetValueHandle( "gReflectMap");
+	//m_hRefractMap = m_shader->GetValueHandle( "gRefractMap");
 
-	Vector3 dirW(0.0f, -1.0f, -3.0f);
-	dirW.Normalize();
-	m_initInfo.dirLight.m_light.Ambient = D3DXCOLOR(0.8f,0.8f,0.8f,1);
-	m_initInfo.dirLight.Bind(m_shader);
-	m_shader.SetVector("g_light.dirW", dirW);
+	m_initInfo.dirLight.m_light.Ambient = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1);
 
-	m_initInfo.mtrl.m_mtrl.Ambient = D3DXCOLOR(0.4f,0.4f,0.4f,1);
-	m_initInfo.mtrl.m_mtrl.Specular = D3DXCOLOR(0.6f,0.6f,0.6f,0.6f);
+	m_initInfo.mtrl.m_mtrl.Ambient = D3DXCOLOR(0.4f, 0.4f, 0.4f, 1);
+	m_initInfo.mtrl.m_mtrl.Specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
 	m_initInfo.mtrl.m_mtrl.Power = 200;
-	m_initInfo.mtrl.Bind(m_shader);
 
-	m_shader.SetFloat("gRefractBias", m_initInfo.refractBias);
-	m_shader.SetFloat("gRefractPower", m_initInfo.refractPower);
-	m_shader.SetVector("gRippleScale", m_initInfo.rippleScale);
+	UpdateShader();
 
 	return true;
 }
@@ -98,17 +89,15 @@ bool cWater::Create(cRenderer &renderer)
 
 void cWater::Render(cRenderer &renderer)
 {
-	m_shader.SetMatrix("g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-	cLightManager::Get()->GetMainLight().Bind(m_shader);
+	cLightManager::Get()->GetMainLight().Bind(*m_shader);
 
-	m_shader.SetMatrix(m_hWVP, m_initInfo.toWorld*cMainCamera::Get()->GetViewProjectionMatrix());
-	m_shader.SetVector(m_hEyePosW, cMainCamera::Get()->GetEyePos());
-	m_shader.SetVector(m_hWaveMapOffset0, m_waveMapOffset0);
-	m_shader.SetVector(m_hWaveMapOffset1, m_waveMapOffset1);
-	m_shader.SetTexture(m_hReflectMap, m_reflectMap.GetTexture());
-	m_shader.SetTexture(m_hRefractMap, m_refractMap.GetTexture());
+	m_shader->SetMatrix("g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
+	m_shader->SetMatrix("gWVP", m_initInfo.toWorld*cMainCamera::Get()->GetViewProjectionMatrix());
+	m_shader->SetVector("gEyePosW", cMainCamera::Get()->GetEyePos());
+	m_shader->SetVector("gWaveMapOffset0", m_waveMapOffset0);
+	m_shader->SetVector("gWaveMapOffset1", m_waveMapOffset1);
 
-	m_grid.RenderShader(renderer, m_shader);
+	m_grid.RenderShader(renderer, *m_shader);
 
 	// µð¹ö±ë¿ë.
 	if (m_isRenderSurface)
@@ -119,7 +108,7 @@ void cWater::Render(cRenderer &renderer)
 }
 
 
-void cWater::Move(const float elapseTime)
+void cWater::Update(const float elapseTime)
 {
 	// Update texture coordinate offsets.  These offsets are added to the
 	// texture coordinates in the vertex shader to animate them.
@@ -159,4 +148,45 @@ void cWater::BeginReflectScene()
 void cWater::EndReflectScene()
 {
 	m_reflectMap.End();
+}
+
+
+void cWater::LostDevice()
+{
+	m_reflectMap.LostDevice();
+	m_refractMap.LostDevice();
+}
+
+
+void cWater::ResetDevice(cRenderer &renderer)
+{
+	m_reflectMap.ResetDevice(renderer);
+	m_refractMap.ResetDevice(renderer);
+
+	UpdateShader();
+}
+
+
+void cWater::UpdateShader() 
+{
+	// We don't need to set these every frame since they do not change
+	m_shader->SetMatrix("gWorld", m_initInfo.toWorld);
+	Matrix44 worldInv = m_initInfo.toWorld.Inverse();
+	m_shader->SetMatrix("gWorldInv", worldInv);
+
+	m_waveMap0->Bind(*m_shader, "gWaveMap0");
+	m_waveMap1->Bind(*m_shader, "gWaveMap1");
+	m_reflectMap.Bind(*m_shader, "gReflectMap");
+	m_refractMap.Bind(*m_shader, "gRefractMap");
+
+	Vector3 dirW(0.0f, -1.0f, -3.0f);
+	dirW.Normalize();
+	m_initInfo.dirLight.Bind(*m_shader);
+	m_shader->SetVector("g_light.dirW", dirW);
+
+	m_initInfo.mtrl.Bind(*m_shader);
+
+	m_shader->SetFloat("gRefractBias", m_initInfo.refractBias);
+	m_shader->SetFloat("gRefractPower", m_initInfo.refractPower);
+	m_shader->SetVector("gRippleScale", m_initInfo.rippleScale);
 }

@@ -277,6 +277,9 @@
     <ClInclude Include="manager\task_resource.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="base\texturecube.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -519,6 +522,9 @@
     </ClCompile>
     <ClCompile Include="model_new\model2.cpp">
       <Filter>model_new</Filter>
+    </ClCompile>
+    <ClCompile Include="base\texturecube.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

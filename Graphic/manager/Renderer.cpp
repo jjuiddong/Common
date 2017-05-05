@@ -385,10 +385,16 @@ void cRenderer::SetZEnable(const bool value)
 	GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
 }
 
-
 D3DFILLMODE cRenderer::GetFillMode()
 {
 	DWORD value;
 	GetDevice()->GetRenderState(D3DRS_FILLMODE, &value);
 	return (D3DFILLMODE)value;
+}
+
+D3DCULL cRenderer::GetCullMode()
+{
+	DWORD value;
+	GetDevice()->GetRenderState(D3DRS_CULLMODE, &value);
+	return (D3DCULL)value;
 }

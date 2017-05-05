@@ -14,15 +14,16 @@ namespace graphic
 	{
 	public:
 		cCube3();
-		cCube3(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
+		cCube3(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax
+			, const float uvFactor=1.f);
 
-		void InitCube(cRenderer &renderer);
-		void InitCube2(cRenderer &renderer);
-		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
-		void SetCube(const Vector3 &vMin, const Vector3 &vMax);
+		void InitCube(cRenderer &renderer, const float uvFactor = 1.f);
+		void InitCube2(cRenderer &renderer, const float uvFactor = 1.f);
+		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax, const float uvFactor = 1.f);
+		void SetCube(const Vector3 &vMin, const Vector3 &vMax, const float uvFactor = 1.f);
 		void SetCube(cRenderer &renderer, const cCube3 &cube);
 		void SetCube(const cCube3 &cube);
-		void SetCube(const cBoundingBox &bbox);
+		void SetCube(const cBoundingBox &bbox, const float uvFactor = 1.f);
 		const float Length() const; // length(min - max)
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
@@ -39,6 +40,7 @@ namespace graphic
 		Vector3 m_max;
 		Matrix44 m_tm;
 		cMaterial m_mtrl;
+		float m_uvFactor;
 		cTexture *m_tex;// reference
 	};
 
