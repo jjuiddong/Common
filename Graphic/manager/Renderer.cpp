@@ -384,6 +384,10 @@ void cRenderer::SetZEnable(const bool value)
 {
 	GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
 }
+void cRenderer::SetZFunc(const D3DCMPFUNC value)
+{
+	GetDevice()->SetRenderState(D3DRS_ZFUNC, value);
+}
 
 D3DFILLMODE cRenderer::GetFillMode()
 {

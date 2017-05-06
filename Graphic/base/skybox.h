@@ -13,6 +13,7 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const string &textureFilePath);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 
 
 	protected:
@@ -23,6 +24,7 @@ namespace graphic
 		enum {FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, MAX_FACE};
 		cVertexBuffer m_vtxBuff;
 		cTexture m_textures[ MAX_FACE];
+		cShader *m_shader; // reference
 	};
 
 

@@ -448,11 +448,8 @@ bool common::FindFile( const string &findName, const string &searchPath, string 
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
 		{
 			string fileName = fd.cFileName;
-			//dbg::Log("%s\n", fd.cFileName);
 			if (lowerCase(fileName) == lowerCase(GetFileName(findName)))
 			{
-			//if (fileName == GetFileName(findName))
-			//{
 				out = searchPath + GetFileName(findName);
 				break;
 			}

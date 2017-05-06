@@ -6,7 +6,7 @@
 namespace graphic
 {
 
-	class cGrid2
+	class cGrid2 : public graphic::iShaderRenderer
 	{
 	public:
 		cGrid2();
@@ -20,6 +20,7 @@ namespace graphic
 		void Render(cRenderer &renderer,  const Matrix44 &tm = Matrix44::Identity, const int stage=0);
 		void RenderLinelist(cRenderer &renderer);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
+		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 
 		void SetTextureUVFactor(const float textureUVFactor);
 		float GetTextureUVFactor() const;

@@ -40,6 +40,7 @@ namespace graphic
 		void SetNormalizeNormals(const bool value);
 		void SetAlphaBlend(const bool value);
 		void SetZEnable(const bool value);
+		void SetZFunc(const D3DCMPFUNC value);
 
 		D3DFILLMODE GetFillMode();
 		D3DCULL GetCullMode();

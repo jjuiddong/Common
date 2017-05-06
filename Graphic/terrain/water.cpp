@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cWater::cWater()
-	: m_isRenderSurface(false)
+	: m_isRenderSurface(true)
 {
 	Matrix44 mWaterWorld;
 	mWaterWorld.SetTranslate(Vector3(0,10,0));

@@ -291,6 +291,32 @@ void cGrid2::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &
 }
 
 
+void cGrid2::RenderShader(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	RET(!m_shader);
+
+	m_shader->SetMatrix("g_mWorld", tm);
+
+	m_mtrl.Bind(*m_shader);
+	m_tex.Bind(*m_shader, "g_colorMapTexture");
+
+	const int passCnt = m_shader->Begin();
+	for (int i = 0; i < passCnt; ++i)
+	{
+		m_shader->BeginPass(i);
+		m_shader->CommitChanges();
+		m_vtxBuff.Bind(renderer);
+		m_idxBuff.Bind(renderer);
+		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_vtxBuff.GetVertexCount(),
+			0, m_idxBuff.GetFaceCount());
+		m_shader->EndPass();
+	}
+	m_shader->End();
+}
+
+
 // 법선 벡터를 다시 계산한다.
 void cGrid2::CalculateNormals()
 {

@@ -48,7 +48,7 @@ namespace graphic
 		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
 		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
-		cShader* LoadShader(cRenderer &renderer, const string &fileName, const bool isReload=false);
+		cShader* LoadShader(cRenderer &renderer, const string &fileName);
 
 		sRawMeshGroup* FindModel( const string &fileName );
 		sRawMeshGroup2* FindModel2(const string &fileName);
@@ -62,11 +62,12 @@ namespace graphic
 		cCubeTexture* FindCubeTexture(const string &fileName);
 		cShader * FindShader(const string &fileName);
 		string FindFile( const string &fileName );
+		string GetResourceFilePath(const string &fileName);
+
 
 		void SetMediaDirectory( const string &path );
 		const string& GetMediaDirectory() const;
 		string GetRelativePathToMedia( const string &fileName );
-		void ReloadFile();
 		void ReloadShader(cRenderer &renderer);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
@@ -91,7 +92,6 @@ namespace graphic
 		map<string, cCubeTexture*> m_cubeTextures; // key = fileName
 		map<string, cShader*> m_shaders; // key = fileName
 		string m_mediaDirectory; // default : ../media/
-		set<string> m_reLoadFile;
 
 		cThread m_loadThread;
 		int m_loadId;

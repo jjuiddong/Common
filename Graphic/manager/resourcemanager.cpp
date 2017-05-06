@@ -30,31 +30,24 @@ sRawMeshGroup* cResourceManager::LoadRawMesh( const string &fileName )
 	if (sRawMeshGroup *data = FindModel(fileName))
 		return data;
 
-	sRawMeshGroup *meshes = new sRawMeshGroup;
+	sRawMeshGroup *meshes = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
+	meshes = new sRawMeshGroup;
 	meshes->name = fileName;
 
-	if (!importer::ReadRawMeshFile(fileName, *meshes))
-	{
-		string newPath;
-		if (common::FindFile(fileName, m_mediaDirectory, newPath))
-		{
-			if (!importer::ReadRawMeshFile(newPath, *meshes))
-			{
-				goto error;
-			}
-		}
-		else
-		{
-			goto error;
-		}
-	}
+	if (!importer::ReadRawMeshFile(resourcePath, *meshes))
+		goto error;
 
 	InsertRawMesh(meshes);
 	return meshes;
 
+
 error:
-	delete meshes;
-	dbg::ErrLog("Error!! LoadRawMesh() [%s] \n", fileName.c_str());
+	dbg::ErrLog("Err LoadRawMesh %s \n", fileName.c_str());
+	SAFE_DELETE(meshes);
 	return NULL;
 }
 
@@ -68,7 +61,7 @@ bool cResourceManager::InsertRawMesh(sRawMeshGroup *meshes)
 		return false;
 
 	// 메쉬 이름 설정 fileName::meshName
-	for (u_int i = 0; i < meshes->meshes.size(); ++i)// auto &mesh : meshes->meshes)
+	for (u_int i = 0; i < meshes->meshes.size(); ++i)
 	{
 		sRawMesh &mesh = meshes->meshes[i];
 
@@ -93,8 +86,12 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh2(const string &fileName)
 		return data;
 
 	cColladaLoader loader;
-	if (!loader.Create(fileName))
-		return NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
+	if (!loader.Create(resourcePath))
+		goto error;
 
 	if (loader.m_rawMeshes)
 		m_meshes2[fileName] = loader.m_rawMeshes;
@@ -103,8 +100,12 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh2(const string &fileName)
 		loader.m_rawMeshes->animationName = loader.m_rawAnies->name;
 		m_anies[loader.m_rawAnies->name] = loader.m_rawAnies;
 	}
-
 	return loader.m_rawMeshes;
+
+
+error:
+	dbg::ErrLog("Err LoadRawMesh2 %s \n", fileName.c_str());
+	return NULL;
 }
 
 
@@ -113,15 +114,23 @@ cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileN
 	if (cXFileMesh *p = FindXFile(fileName))
 		return p;
 
-	cXFileMesh *mesh = new cXFileMesh;
-	if (!mesh->Create(renderer, fileName, false, true))
-	{
-		delete mesh;
-		return NULL;
-	}
+	cXFileMesh *mesh = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
+	mesh = new cXFileMesh;
+	if (!mesh->Create(renderer, resourcePath, false, true))
+		goto error;
 
 	m_xfiles[fileName] = mesh;
 	return mesh;
+
+
+error:
+	dbg::ErrLog("Err LoadXFile %s \n", fileName.c_str());
+	SAFE_DELETE(mesh);
+	return NULL;
 }
 
 
@@ -130,13 +139,24 @@ std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &rend
 	if (cXFileMesh *p = FindXFile(fileName))
 		return{ true, p };
 
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
 	m_loadThread.AddTask(new cTaskXFileLoader(++m_loadId, &renderer, fileName));
 	if (!m_loadThread.IsRun())
 		m_loadThread.Start();
 
-	AutoCSLock cs(m_cs);
-	m_xfiles[fileName] = NULL;
-	return{ true, NULL };
+	{
+		AutoCSLock cs(m_cs);
+		m_xfiles[fileName] = NULL;
+		return{ true, NULL };
+	}
+
+
+error:
+	dbg::ErrLog("Err LoadXFileParallel %s \n", fileName.c_str());
+	return{ false, NULL };
 }
 
 
@@ -147,6 +167,7 @@ void cResourceManager::InsertXFileModel(const string &fileName, cXFileMesh *p)
 }
 
 
+// Load Collada Model
 cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
 	, const string &fileName
 )
@@ -154,16 +175,26 @@ cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
 	if (cColladaModel *p = FindColladaModel(fileName))
 		return p;
 
-	AutoCSLock cs(m_cs);
-	cColladaModel *model = new cColladaModel;
-	if (!model->Create(renderer, fileName))
+	cColladaModel *model = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
 	{
-		delete model;
-		return NULL;
+		AutoCSLock cs(m_cs);
+		model = new cColladaModel;
+		if (!model->Create(renderer, resourcePath))
+			goto error;
+		
+		m_colladaModels[fileName] = model;
+		return model;
 	}
 
-	m_colladaModels[fileName] = model;
-	return model;
+
+error:
+	dbg::ErrLog("Err LoadColladaModel %s \n", fileName.c_str());
+	SAFE_DELETE(model);
+	return NULL;
 }
 
 
@@ -173,13 +204,24 @@ std::pair<bool, cColladaModel*> cResourceManager::LoadColladaModelParallel(cRend
 	if (cColladaModel *p = FindColladaModel(fileName))
 		return{ true, p };
 
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
 	m_loadThread.AddTask( new cTaskColladaLoader(++m_loadId, &renderer, fileName) );
 	if (!m_loadThread.IsRun())
 		m_loadThread.Start();
 
-	AutoCSLock cs(m_cs);
-	m_colladaModels[fileName] = NULL;
-	return{ true, NULL };
+	{
+		AutoCSLock cs(m_cs);
+		m_colladaModels[fileName] = NULL;
+		return{ true, NULL };
+	}
+
+
+error:
+	dbg::ErrLog("Err LoadColladaModelParallel %s \n", fileName.c_str());
+	return{ false, NULL };
 }
 
 
@@ -279,30 +321,24 @@ sRawAniGroup* cResourceManager::LoadAnimation( const string &fileName )
 	if (sRawAniGroup *data = FindAnimation(fileName))
 		return data;
 
-	sRawAniGroup *anies = new sRawAniGroup;
+	sRawAniGroup *anies = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
+	anies = new sRawAniGroup;
 	anies->name = fileName;
 
 	if (!importer::ReadRawAnimationFile(fileName, *anies))
-	{
-		string newPath;
-		if (common::FindFile(fileName, m_mediaDirectory, newPath))
-		{
-			if (!importer::ReadRawAnimationFile(newPath, *anies))
-			{
-				goto error;
-			}
-		}
-		else
-		{
-			goto error;
-		}
-	}
+		goto error;
 
 	LoadAnimation(anies);
 	return anies;
 
+
 error:
-	delete anies;
+	dbg::ErrLog("Err LoadAnimation %s \n", fileName.c_str());
+	SAFE_DELETE(anies);
 	return NULL;
 }
 
@@ -373,14 +409,6 @@ sRawMeshGroup* cResourceManager::FindModel( const string &fileName )
 	if (m_meshes.end() == it)
 		return NULL; // not exist
 
-	//if (m_reLoadFile.end() != m_reLoadFile.find(fileName))
-	//{ // 리로드할 파일이라면 제거하고 없는 것 처럼 처리한다.
-	//	delete it->second;
-	//	m_meshes.erase(fileName);
-	//	m_reLoadFile.erase(fileName);
-	//	return NULL;
-	//}
-
 	return it->second;
 }
 
@@ -432,15 +460,6 @@ sRawAniGroup* cResourceManager::FindAnimation( const string &fileName )
 	auto it = m_anies.find(fileName);
 	if (m_anies.end() == it)
 		return NULL; // not exist
-
-	//if (m_reLoadFile.end() != m_reLoadFile.find(fileName))
-	//{ // 리로드할 파일이라면 제거하고 없는 것 처럼 처리한다.
-	//	delete it->second;
-	//	m_meshes.erase(fileName);
-	//	m_reLoadFile.erase(fileName);
-	//	return NULL;
-	//}
-
 	return it->second;
 }
 
@@ -456,58 +475,24 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 	if (cTexture *p = FindTexture(fileName))
 		return p;
 
-	string key = fileName;
-	const string composeMediaFileName = m_mediaDirectory + fileName;
 	cTexture *texture = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
 
-	if (common::IsFileExist(fileName))
+	texture = new cTexture();
+	if (!texture->Create(renderer, resourcePath, isSizePow2))
 	{
-		texture = new cTexture();
-		if (!texture->Create(renderer, fileName, isSizePow2))
+		if (fileName == whiteTexture) // this file must loaded
 		{
-			if (fileName == whiteTexture) // this file must loaded
-				assert(0);
-		}
-	}
-	else if (common::IsFileExist(composeMediaFileName))
-	{
-		texture = new cTexture();
-		if (!texture->Create(renderer, composeMediaFileName, isSizePow2))
-		{
-			if (fileName == whiteTexture) // this file must loaded
-				assert(0);
-		}
-	}
-	else
-	{
-		string newPath;
-		if (common::FindFile(fileName, m_mediaDirectory, newPath))
-		{
-			if (isRecursive)
-			{
-				if (texture = cResourceManager::LoadTexture(renderer, newPath, isSizePow2, false))
-					return texture;
-			}
-			else
-			{
-				//cTexture *texture = NULL;// new cTexture();
-				if (common::IsFileExist(newPath))
-				{
-					key = newPath;
-					texture = new cTexture();
-					if (!texture->Create(renderer, newPath, isSizePow2))
-					{
-						if (newPath == whiteTexture) // this file must loaded
-							assert(0);
-					}
-				}
-			}
+			assert(0);
+			goto error;
 		}
 	}
 
 	if (texture && texture->IsLoaded())
 	{
-		m_textures[key] = texture;
+		m_textures[fileName] = texture;
 		return texture;
 	}
 	else
@@ -526,6 +511,10 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 		}
 	}
 
+
+error:
+	dbg::ErrLog("Err LoadTexture %s \n", fileName.c_str());
+	SAFE_DELETE(texture);
 	return NULL;
 }
 
@@ -539,61 +528,25 @@ cCubeTexture* cResourceManager::LoadCubeTexture(cRenderer &renderer, const strin
 	if (cCubeTexture *p = FindCubeTexture(fileName))
 		return p;
 
-	string key = fileName;
-	const string composeMediaFileName = m_mediaDirectory + fileName;
 	cCubeTexture *texture = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
 
-	if (common::IsFileExist(fileName))
-	{
-		texture = new cCubeTexture();
-		if (!texture->Create(renderer, fileName))
-		{
-			dbg::ErrLog("Err LoadCubeTexture %s \n", fileName.c_str());
-			//assert(0);
-		}
-	}
-	else if (common::IsFileExist(composeMediaFileName))
-	{
-		texture = new cCubeTexture();
-		if (!texture->Create(renderer, composeMediaFileName))
-		{
-			dbg::ErrLog("Err LoadCubeTexture %s \n", composeMediaFileName.c_str());
-			//assert(0);
-		}
-	}
-	else
-	{
-		string newPath;
-		if (common::FindFile(fileName, m_mediaDirectory, newPath))
-		{
-			if (isRecursive)
-			{
-				if (texture = cResourceManager::LoadCubeTexture(renderer, newPath, isSizePow2, false))
-					return texture;
-			}
-			else
-			{
-				//cTexture *texture = NULL;// new cTexture();
-				if (common::IsFileExist(newPath))
-				{
-					key = newPath;
-					texture = new cCubeTexture();
-					if (!texture->Create(renderer, newPath))
-					{
-						dbg::ErrLog("Err LoadCubeTexture %s \n", newPath.c_str());
-						//assert(0);
-					}
-				}
-			}
-		}
-	}
+	texture = new cCubeTexture();
+	if (!texture->Create(renderer, resourcePath))
+		goto error;
 
 	if (texture && texture->IsLoaded())
 	{
-		m_cubeTextures[key] = texture;
+		m_cubeTextures[fileName] = texture;
 		return texture;
 	}
 
+
+error:
+	dbg::ErrLog("Err LoadCubeTexture %s \n", fileName.c_str());
+	SAFE_DELETE(texture);
 	return NULL;
 }
 
@@ -665,79 +618,36 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 	}
 
 	return NULL;
-
-
-	//if (!texture->Create(renderer, fileName, isSizePow2))
-	//{
-	//	string newPath;
-	//	string searchPath = m_mediaDirectory + dirPath;
-	//	if (searchPath.empty())
-	//		searchPath = ".";
-
-	//	if (common::FindFile(GetFileName(fileName), searchPath + "/", newPath))
-	//	{
-	//		if (!texture->Create(renderer, newPath, isSizePow2))
-	//		{
-	//			delete texture;
-	//			return false;
-	//		}
-	//	}
-	//}
-
-	//// last load white.dds texture
-	//if (!texture->m_texture)
-	//{
-	//	delete texture;
-	//	texture = cResourceManager::LoadTexture(renderer, "model/white.dds");
-	//	//texture->Create(renderer, m_mediaDirectory + "/texture/white.dds", isSizePow2);
-	//}
-
-	//m_textures[ fileName] = texture;
-	//return texture;
 }
 
 
 // 셰이더 로딩.
-cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileName, const bool isReload)
+cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileName)
 // isReload=false
 {
 	if (cShader *p = FindShader(fileName))
-	{
-		if (isReload)
-		{
-			delete p;
-		}
-		else
-		{
-			return p;
-		}
-	}
+		return p;
 
-	cShader *shader = new cShader();
-	if (!shader->Create(renderer, fileName, "TShader", false))
-	{
-		string newPath;
-		string searchPath = m_mediaDirectory;
-		if (searchPath.empty())
-			searchPath = "./";
+	cShader *shader = NULL;
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
 
-		if (common::FindFile(fileName, searchPath, newPath))
-		{
-			if (!shader->Create(renderer, newPath, "TShader"))
-			{
-				delete shader;
-				return NULL; // 실패 종료.
-			}
-		}
-		else
-		{
-			string msg = fileName + " 파일이 존재하지 않습니다.";
-			MessageBoxA( NULL, msg.c_str(), "ERROR", MB_OK);
-		}
-	}
+	shader = new cShader();
+	if (!shader->Create(renderer, resourcePath, "TShader", false))
+		goto error;
 
-	m_shaders[ GetFileName(fileName)] = shader;
+	if (shader)
+		m_shaders[ GetFileName(fileName)] = shader;
 	return shader;
+
+
+error:
+	string msg = string("Error LoadShader ") + fileName + " 파일이 존재하지 않습니다.";
+	MessageBoxA(NULL, msg.c_str(), "ERROR", MB_OK);
+	dbg::ErrLog("%s\n", msg.c_str());
+	SAFE_DELETE(shader);
+	return NULL;
 }
 
 
@@ -779,8 +689,34 @@ string cResourceManager::FindFile( const string &fileName )
 	{
 		return newPath;
 	}
-
 	return ""; //empty string
+}
+
+
+// media 폴더내에 fileName이 있으면, 경로를 리턴한다.
+string cResourceManager::GetResourceFilePath(const string &fileName)
+{
+	if (common::IsFileExist(fileName))
+	{
+		return fileName;
+	}
+	else
+	{
+		const string composeMediaFileName = m_mediaDirectory + fileName;
+		if (common::IsFileExist(composeMediaFileName))
+		{
+			return composeMediaFileName;
+		}
+		else
+		{
+			string newPath;
+			if (common::FindFile(fileName, m_mediaDirectory, newPath))
+			{
+				return newPath;
+			}
+		}
+	}
+	return "";
 }
 
 
@@ -887,21 +823,6 @@ string cResourceManager::GetRelativePathToMedia( const string &fileName )
 	const string fullFileName = common::GetFullFileName(fileName);
 	const string relatePath = common::RelativePathTo( mediaFullPath, fullFileName);
 	return relatePath;
-}
-
-
-// 이미 로딩된 파일을 재사용하지 않고, 다시 로드한다.
-// 메쉬, 애니메이션만 해당된다.
-void cResourceManager::ReloadFile()
-{
-	// 일단 기능 끔.
-	// 이 기능이 제대로 동작하려면, 전체 리셋이 필요하다.
-	// 지워진 메모리를 참조하는 경우가 발생한다.
-
-	//for each (auto kv, m_meshes)
-	//	m_reLoadFile.insert(kv.first);
-	//for each (auto kv, m_anies)
-	//	m_reLoadFile.insert(kv.first);
 }
 
 

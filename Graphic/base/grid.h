@@ -1,3 +1,7 @@
+//
+// 2017-05-06, jjuiddong
+// VertexFormat = Point + Color
+//
 #pragma once
 
 namespace graphic

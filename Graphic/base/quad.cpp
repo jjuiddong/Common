@@ -22,9 +22,10 @@ cQuad::~cQuad()
 // width, height : Äõµå Å©±â
 // pos : Äõµå À§Ä¡
 bool cQuad::Create(cRenderer &renderer, const float width, const float height,
-	const Vector3 &pos, 
-	const string &textureFileName, // = " "
-	const bool isSizePow2 // = true
+	const Vector3 &pos 
+	, const string &textureFileName // = " "
+	, const bool isSizePow2 // = true
+	, const bool isVert //= true
 	)
 {
 	if (m_vtxBuff.GetVertexCount() <= 0)
@@ -35,10 +36,20 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	sVertexTex *vertices = (sVertexTex*)m_vtxBuff.Lock();
 	RETV(!vertices, false);
 
-	vertices[ 0].p = Vector3(-width/2.f, height/2.f, 0);
-	vertices[ 1].p = Vector3(width/2.f, height/2.f, 0);
-	vertices[ 2].p = Vector3(-width/2.f,-height/2.f, 0);
-	vertices[ 3].p = Vector3(width/2.f,- height/2.f, 0);
+	if (isVert)
+	{
+		vertices[ 0].p = Vector3(-width/2.f, height/2.f, 0);
+		vertices[ 1].p = Vector3(width/2.f, height/2.f, 0);
+		vertices[ 2].p = Vector3(-width/2.f,-height/2.f, 0);
+		vertices[ 3].p = Vector3(width/2.f,- height/2.f, 0);
+	}
+	else
+	{
+		vertices[0].p = Vector3(-width / 2.f, 0, height / 2.f);
+		vertices[1].p = Vector3(width / 2.f, 0, height / 2.f);
+		vertices[2].p = Vector3(-width / 2.f, 0, -height / 2.f);
+		vertices[3].p = Vector3(width / 2.f, 0, -height / 2.f);
+	}
 
 	//vertices[ 0].n = Vector3(0, 0, -1);
 	//vertices[ 1].n = Vector3(0, 0, -1);

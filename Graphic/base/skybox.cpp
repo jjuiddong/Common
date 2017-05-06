@@ -22,8 +22,14 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 {
 	string textureFileName[] = 
 	{
-		"skybox_front.jpg", "skybox_back.jpg", "skybox_left.jpg", 
-		"skybox_right.jpg", "skybox_top.jpg", "skybox_bottom.jpg"
+		//"skybox_front.jpg", "skybox_back.jpg", "skybox_left.jpg", 
+		//"skybox_right.jpg", "skybox_top.jpg", "skybox_bottom.jpg"
+		"ThickCloudsWaterFront2048.png", 
+		"ThickCloudsWaterBack2048.png",
+		"ThickCloudsWaterRight2048.png",
+		"ThickCloudsWaterLeft2048.png",
+		"ThickCloudsWaterUp2048.png",
+		"ThickCloudsWaterDown2048.png",
 	};
 
 	for (int i=0; i < MAX_FACE; ++i)
@@ -34,6 +40,11 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 
 	if (!CreateVertexBuffer(renderer))
 		return false;
+
+	m_shader = cResourceManager::Get()->LoadShader(renderer, "cube2.fx");
+	if (!m_shader)
+		return false;
+	m_shader->SetTechnique("SkyTech");
 
 	return true;
 }
@@ -110,8 +121,11 @@ bool  cSkyBox::CreateVertexBuffer(cRenderer &renderer)
 //------------------------------------------------------------------------
 void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 {
+	renderer.SetCullMode(D3DCULL_NONE);
 	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	//renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	renderer.GetDevice()->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
+
 	DWORD lighting, fogEnable;
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
 	renderer.GetDevice()->GetRenderState(D3DRS_FOGENABLE, &fogEnable);
@@ -119,7 +133,6 @@ void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 	renderer.GetDevice()->SetRenderState(D3DRS_FOGENABLE, FALSE);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-
 
 	//mat matView, matViewSave, matWorld;
 	Matrix44 matView, matViewSave, matWorld;
@@ -134,19 +147,26 @@ void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 	m_vtxBuff.Bind(renderer);
 	for (int i = 0 ; i < MAX_FACE; i++)
 	{
-		//GetDevice()->SetSamplerState( 0, D3DSAMP_ADDRESSU,  D3DTADDRESS_WRAP);
-		//GetDevice()->SetSamplerState( 0, D3DSAMP_ADDRESSV,  D3DTADDRESS_WRAP);
-
 		m_textures[ i].Bind(renderer, 0);
 		renderer.GetDevice()->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
 	}
 
 	renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DXMATRIX*)&matViewSave);
 
-
+	renderer.SetCullMode(D3DCULL_CCW);
+	renderer.GetDevice()->SetTexture(0, NULL);
+	renderer.GetDevice()->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	//renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
 	renderer.GetDevice()->SetRenderState(D3DRS_FOGENABLE, fogEnable);
 }
 
+
+void cSkyBox::RenderShader(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	RET(!m_shader);
+	// Nothing~
+}
