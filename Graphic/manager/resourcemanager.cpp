@@ -495,26 +495,13 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 		m_textures[fileName] = texture;
 		return texture;
 	}
-	else
-	{
-		// load error
-		if (!texture)
-		{  // Not Exist File
-			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
-		}
-
-		// last load white.dds texture
-		if (!texture->IsLoaded())
-		{ // File Exist, but Load Error
-			delete texture;
-			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
-		}
-	}
 
 
 error:
-	dbg::ErrLog("Err LoadTexture %s \n", fileName.c_str());
+	dbg::ErrLog("Error LoadTexture1 %s \n", fileName.c_str());
 	SAFE_DELETE(texture);
+	if (isRecursive)
+		return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
 	return NULL;
 }
 

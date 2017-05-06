@@ -64,7 +64,7 @@ namespace graphic
 				goto error;
 
 			cXFileMesh *mesh = new cXFileMesh;
-			if (!mesh->Create(*m_renderer, resourcePath, false, false))
+			if (!mesh->Create(*m_renderer, resourcePath, false, true))
 				goto error;
 
 			cResourceManager::Get()->InsertXFileModel(m_fileName, mesh);

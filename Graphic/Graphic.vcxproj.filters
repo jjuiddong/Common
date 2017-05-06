@@ -280,6 +280,9 @@
     <ClInclude Include="base\texturecube.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\grid3.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -524,6 +527,9 @@
       <Filter>model_new</Filter>
     </ClCompile>
     <ClCompile Include="base\texturecube.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\grid3.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

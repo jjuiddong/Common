@@ -23,7 +23,7 @@ namespace graphic
 	private:
 		enum {FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, MAX_FACE};
 		cVertexBuffer m_vtxBuff;
-		cTexture m_textures[ MAX_FACE];
+		cTexture *m_textures[ MAX_FACE];
 		cShader *m_shader; // reference
 	};
 

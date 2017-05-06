@@ -7,6 +7,7 @@ using namespace graphic;
 
 cSkyBox::cSkyBox()
 {
+	ZeroMemory(m_textures, sizeof(m_textures));
 }
 
 cSkyBox::~cSkyBox()
@@ -24,6 +25,7 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 	{
 		//"skybox_front.jpg", "skybox_back.jpg", "skybox_left.jpg", 
 		//"skybox_right.jpg", "skybox_top.jpg", "skybox_bottom.jpg"
+
 		"ThickCloudsWaterFront2048.png", 
 		"ThickCloudsWaterBack2048.png",
 		"ThickCloudsWaterRight2048.png",
@@ -35,7 +37,7 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 	for (int i=0; i < MAX_FACE; ++i)
 	{
 		const string fileName = textureFilePath + "/" + textureFileName[ i];
-		m_textures[ i].Create( renderer, fileName );
+		m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, fileName);
 	}
 
 	if (!CreateVertexBuffer(renderer))
@@ -147,7 +149,8 @@ void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 	m_vtxBuff.Bind(renderer);
 	for (int i = 0 ; i < MAX_FACE; i++)
 	{
-		m_textures[ i].Bind(renderer, 0);
+		if (m_textures[i])
+			m_textures[ i]->Bind(renderer, 0);
 		renderer.GetDevice()->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
 	}
 

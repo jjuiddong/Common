@@ -64,7 +64,32 @@ bool cXFileMesh::Create(cRenderer &renderer, const string &fileName
 		}
 	}
 
+	D3DVERTEXELEMENT9 elems[MAX_FVF_DECL_SIZE];
+	if (FAILED(m_mesh->GetDeclaration(elems)))
+		return false;
+
+	bool hasNormals = false;
+	D3DVERTEXELEMENT9 term = D3DDECL_END();
+	for (int i = 0; i < MAX_FVF_DECL_SIZE; ++i)
+	{
+		// Did we reach D3DDECL_END() {0xFF,0,D3DDECLTYPE_UNUSED, 0,0,0}?
+		if (elems[i].Stream == 0xff)
+			break;
+
+		if (elems[i].Type == D3DDECLTYPE_FLOAT3 &&
+			elems[i].Usage == D3DDECLUSAGE_NORMAL &&
+			elems[i].UsageIndex == 0)
+		{
+			hasNormals = true;
+			break;
+		}
+	}
+
+	if (hasNormals == false)
+		D3DXComputeNormals(m_mesh, 0);
+
 	D3DXMATERIAL* d3dxMtrls = (D3DXMATERIAL*)pMtrlBuffer->GetBufferPointer();
+	int n = pMtrlBuffer->GetBufferSize();
 	hr = CreateMaterials(fileName, renderer, d3dxMtrls, m_materialsCount);
 
 	SAFE_RELEASE(pMtrlBuffer);
@@ -84,8 +109,6 @@ bool cXFileMesh::Create(cRenderer &renderer, const string &fileName
 
 HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials)
 {
-	//common::dbg::Print("CreateMaterials %d --------- \n", dwNumMaterials);
-
 	m_materialsCount = dwNumMaterials;
 	if (d3dxMtrls && m_materialsCount > 0)
 	{
@@ -105,10 +128,6 @@ HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer,
 				string textureFileName = common::GetFilePathExceptFileName(common::GetFullFileName(filePath)) + 
 					"/" + d3dxMtrls[i].pTextureFilename;
 				m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, textureFileName);
-				if (m_textures[i])
-				{
-					dbg::ErrLog("Texture Loading Error!! texture file name = %s\n", textureFileName.c_str());
-				}
 			}
 			else
 			{

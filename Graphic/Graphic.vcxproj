@@ -352,6 +352,7 @@
     <ClInclude Include="base\graphicdef.h" />
     <ClInclude Include="base\grid.h" />
     <ClInclude Include="base\grid2.h" />
+    <ClInclude Include="base\grid3.h" />
     <ClInclude Include="base\indexbuffer.h" />
     <ClInclude Include="base\light.h" />
     <ClInclude Include="base\line.h" />
@@ -447,6 +448,7 @@
     <ClCompile Include="base\fontgdi.cpp" />
     <ClCompile Include="base\grid.cpp" />
     <ClCompile Include="base\grid2.cpp" />
+    <ClCompile Include="base\grid3.cpp" />
     <ClCompile Include="base\indexbuffer.cpp" />
     <ClCompile Include="base\light.cpp" />
     <ClCompile Include="base\line.cpp" />

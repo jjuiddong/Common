@@ -34,7 +34,6 @@ cGrid2::cGrid2() :
 
 cGrid2::~cGrid2()
 {
-
 }
 
 

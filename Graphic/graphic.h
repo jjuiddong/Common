@@ -40,6 +40,7 @@ using namespace common;
 #include "base/vertexformat.h"
 #include "base/grid.h"
 #include "base/grid2.h"
+#include "base/grid3.h"
 #include "base/box.h"
 #include "base/line.h"
 #include "base/line2.h"
