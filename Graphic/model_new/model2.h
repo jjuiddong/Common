@@ -10,6 +10,7 @@ namespace graphic
 {
 	class cColladaModel;
 	class cXFileMesh;
+	class cShadowMap;
 
 	class cModel2 : public iShaderRenderer
 							, public iShadowRenderer
@@ -59,7 +60,8 @@ namespace graphic
 
 		eState::Enum m_state;
 		cFilePath m_fileName;
-		bool m_isShadow;
+		bool m_isShadow; // shadow volume
+		bool m_isShadow2; // shadow map
 		cColladaModel *m_colladaModel;
 		cXFileMesh *m_xModel;
 		string m_shaderName;
@@ -67,7 +69,8 @@ namespace graphic
 		Matrix44 m_tm;
 		string m_animationName;
 		cBoundingBox m_boundingBox;
-		cShadowVolume *m_shadow;
+		cShadowVolume *m_shadow; // reference
+		cShadowMap *m_shadowMap; // reference
 	};
 
 }

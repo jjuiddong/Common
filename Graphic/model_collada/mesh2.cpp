@@ -51,7 +51,7 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 	if (rawMesh.mtrl.texture.empty())
 	{
 		m_colorMap.push_back(
-			cResourceManager::Get()->LoadTexture(renderer, "", "white.dds"));
+			cResourceManager::Get()->LoadTexture(renderer, "", g_defaultTexture));
 	}
 	else
 	{

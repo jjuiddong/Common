@@ -13,6 +13,9 @@ using namespace common;
 
 //#include "../wxMemMonitorLib/wxMemMonitor.h" // debug library
 
+static const string g_defaultTexture = "white.dds";
+
+
 #include "../ai/ai.h"
 
 
@@ -66,6 +69,7 @@ using namespace common;
 #include "model/node.h"
 
 #include "base/shadow1.h"
+#include "base/shadowmap.h"
 #include "base/shadowvolume.h"
 
 //#include "base/xfilemesh.h"
@@ -129,7 +133,7 @@ using namespace common;
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	#pragma comment( lib, "assimp-vc140-mtd.lib" ) 
-#else
 	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+#else
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

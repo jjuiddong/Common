@@ -54,6 +54,17 @@ void cCamera::SetProjection(const float fov, const float aspect, const float nea
 }
 
 
+void cCamera::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
+{
+	//m_fov = fov;
+	m_aspect = height / width;
+	m_nearPlane = nearPlane;
+	m_farPlane = farPlane;
+	m_proj.SetProjectionOrthogonal(width, height, nearPlane, farPlane);
+	UpdateProjectionMatrix();
+}
+
+
 // Direction 단위 벡터를 리턴한다.
 Vector3 cCamera::GetDirection() const 
 {

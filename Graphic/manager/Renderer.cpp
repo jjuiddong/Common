@@ -129,7 +129,7 @@ void cRenderer::Update(const float elapseT)
 	m_elapseTime += elapseT;
 	if( 1.f <= m_elapseTime )
 	{
-		//m_textFps.SetText(format("fps: %d", m_fps));
+		m_textFps.SetText(format("fps: %d", m_fps));
 		m_fps = 0;
 		m_elapseTime = 0;
 	}

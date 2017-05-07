@@ -21,6 +21,7 @@ namespace graphic
 
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
+		void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
 		void SetViewPort(const int width, const int height);
 		void SetEyePos(const Vector3 &eye);
 		void SetLookAt(const Vector3 &lookAt);

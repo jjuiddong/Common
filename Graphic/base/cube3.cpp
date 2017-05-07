@@ -147,9 +147,8 @@ void cCube3::InitCube(cRenderer &renderer
 	m_mtrl.InitWhite();
 
 	if (!m_tex)
-		m_tex = cResourceManager::Get()->LoadTexture(renderer, "model/white.dds");
+		m_tex = cResourceManager::Get()->LoadTexture(renderer, g_defaultTexture);
 }
-
 
 
 void cCube3::InitCube2(cRenderer &renderer

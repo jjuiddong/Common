@@ -128,7 +128,7 @@ bool cGameMain::Init(HWND hWnd)
 		return false;
 	}
 
-	graphic::cResourceManager::Get()->LoadTexture(m_renderer, "model/white.dds");
+	graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
 	
 	if (!OnInit())
 		return false;

@@ -111,8 +111,9 @@ error:
 
 cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileName)
 {
-	if (cXFileMesh *p = FindXFile(fileName))
-		return p;
+	auto result = FindXFile(fileName);
+	if (result.first)
+		return result.second;
 
 	cXFileMesh *mesh = NULL;
 	const string resourcePath = GetResourceFilePath(fileName);
@@ -136,8 +137,10 @@ error:
 
 std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &renderer, const string &fileName)
 {
-	if (cXFileMesh *p = FindXFile(fileName))
-		return{ true, p };
+	auto result = FindXFile(fileName);
+	if (result.first)
+		return{ true, result.second };
+
 
 	const string resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
@@ -235,12 +238,13 @@ void cResourceManager::InsertColladaModel(const string &fileName, cColladaModel 
 
 cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const string &fileName)
 {
-	if (cShadowVolume *p = FindShadow(fileName))
-		return p;
+	auto result = FindShadow(fileName);
+	if (result.first)
+		return result.second;
 
 	cShadowVolume *shadow = NULL;
 	cColladaModel *collada = FindColladaModel(fileName);
-	cXFileMesh *xfile = FindXFile(fileName);
+	cXFileMesh *xfile = FindXFile(fileName).second;
 	if (!collada && !xfile)
 		return NULL;
 	if (collada && xfile)
@@ -280,11 +284,12 @@ std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &
 	, const string &fileName
 )
 {
-	if (cShadowVolume *p = FindShadow(fileName))
-		return{ true, p };
+	auto result = FindShadow(fileName);
+	if (result.first)
+		return{ true, result.second };
 
 	cColladaModel *collada = FindColladaModel(fileName);
-	cXFileMesh *xfile = FindXFile(fileName);
+	cXFileMesh *xfile = FindXFile(fileName).second;
 	if (!collada && !xfile)
 		return{ false, NULL };
 	if (collada && xfile)
@@ -423,14 +428,17 @@ sRawMeshGroup2* cResourceManager::FindModel2(const string &fileName)
 }
 
 
-cXFileMesh* cResourceManager::FindXFile(const string &fileName)
+// 파일이 없다면 false를 리턴한다.
+// 파일이 있다면 true를 리턴한다.
+// 데이타는 NULL이 될 수 있다.
+std::pair<bool, cXFileMesh*> cResourceManager::FindXFile(const string &fileName)
 {
 	AutoCSLock cs(m_cs);
 
 	auto it = m_xfiles.find(fileName);
 	if (m_xfiles.end() != it)
-		return it->second;
-	return NULL;
+		return{ true, it->second };
+	return{ false, NULL };
 }
 
 
@@ -444,13 +452,13 @@ cColladaModel * cResourceManager::FindColladaModel(const string &fileName)
 }
 
 
-cShadowVolume* cResourceManager::FindShadow(const string &fileName)
+std::pair<bool, cShadowVolume*> cResourceManager::FindShadow(const string &fileName)
 {
 	AutoCSLock cs(m_csShadow);
 	auto it = m_shadows.find(fileName);
 	if (m_shadows.end() != it)
-		return it->second;
-	return NULL;
+		return{ true, it->second };
+	return{ false, NULL };
 }
 
 
@@ -470,8 +478,6 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 	, const bool isRecursive //= true
 )
 {
-	const string whiteTexture = "model/white.dds";
-
 	if (cTexture *p = FindTexture(fileName))
 		return p;
 
@@ -483,7 +489,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 	texture = new cTexture();
 	if (!texture->Create(renderer, resourcePath, isSizePow2))
 	{
-		if (fileName == whiteTexture) // this file must loaded
+		if (fileName == g_defaultTexture) // this file must loaded
 		{
 			assert(0);
 			goto error;
@@ -501,7 +507,7 @@ error:
 	dbg::ErrLog("Error LoadTexture1 %s \n", fileName.c_str());
 	SAFE_DELETE(texture);
 	if (isRecursive)
-		return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+		return cResourceManager::LoadTexture(renderer, g_defaultTexture, isSizePow2, false);
 	return NULL;
 }
 
@@ -545,8 +551,6 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 	, const bool isRecursive //= true
 )	
 {
-	const string whiteTexture = "model/white.dds";
-
 	if (cTexture *p = FindTexture(fileName))
 		return p;
 
@@ -593,17 +597,50 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 		// load error
 		if (!texture)
 		{  // Not Exist File
-			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+			return cResourceManager::LoadTexture(renderer, g_defaultTexture, isSizePow2, false);
 		}
 
-		// last load white.dds texture
+		// last load g_defaultTexture texture
 		if (!texture->IsLoaded())
 		{ // File Exist, but Load Error
 			delete texture;
-			return cResourceManager::LoadTexture(renderer, whiteTexture, isSizePow2, false);
+			return cResourceManager::LoadTexture(renderer, g_defaultTexture, isSizePow2, false);
 		}
 	}
 
+	return NULL;
+}
+
+
+// 텍스쳐 로딩.
+// fileName 에 해당하는 파일이 없다면, dirPath  경로에서 파일을 찾는다.
+cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const string &dirPath, const string &fileName
+	, const bool isSizePow2 //= true
+	, const bool isRecursive //= true
+)
+{
+	if (cTexture *p = FindTexture(fileName))
+		return p;
+
+	cTexture *texture = NULL;
+	const string resourcePath = GetResourceFilePath(dirPath, fileName);
+	if (resourcePath.empty())
+		goto error;
+
+	texture = new cTexture();
+	if (!texture->Create(renderer, resourcePath, isSizePow2))
+		goto error;
+
+	if (texture)
+		m_textures[fileName] = texture;
+	return texture;
+
+
+error:
+	dbg::ErrLog("Error LoadTexture2 %s \n", fileName.c_str());
+	SAFE_DELETE(texture);
+	if (isRecursive)
+		return cResourceManager::LoadTexture(renderer, g_defaultTexture, isSizePow2, false);
 	return NULL;
 }
 
@@ -698,6 +735,40 @@ string cResourceManager::GetResourceFilePath(const string &fileName)
 		{
 			string newPath;
 			if (common::FindFile(fileName, m_mediaDirectory, newPath))
+			{
+				return newPath;
+			}
+		}
+	}
+	return "";
+}
+
+
+// dir 폴더내에 fileName이 있으면, 경로를 리턴한다.
+// 하위 5단계의 디렉토리까지만 검사한다.
+string cResourceManager::GetResourceFilePath(const string &dir, const string &fileName)
+{
+	if (common::IsFileExist(fileName))
+	{
+		return fileName;
+	}
+	else
+	{
+		const string composeMediaFileName = dir + fileName;
+		if (common::IsFileExist(composeMediaFileName))
+		{
+			return composeMediaFileName;
+		}
+		else
+		{
+			string newPath;
+			string searchPath = dir;
+			if (searchPath.empty())
+				searchPath = ".";
+			if ((searchPath.back() != '/') || (searchPath.back() != '\\'))
+				searchPath += "/";
+
+			if (common::FindFile(fileName, searchPath, newPath, 5))
 			{
 				return newPath;
 			}

@@ -193,9 +193,9 @@ void Matrix44::SetProjection(	const float fov, const float aspect, const float n
 }
 
 
-void	Matrix44::SetProjectionOrthogonal(const float fov, const float aspect)
+void	Matrix44::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
 {
-	// nothing~
+	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
 }
 
 

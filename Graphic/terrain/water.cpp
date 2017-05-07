@@ -59,7 +59,7 @@ bool cWater::Create(cRenderer &renderer)
 	m_shader->SetTechnique("WaterTech");
 
 	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, 64, m_initInfo.uvFactor, 0.f);
-	m_grid.GetTexture().Create(renderer, cResourceManager::Get()->FindFile("white.dds"));
+	m_grid.GetTexture().Create(renderer, cResourceManager::Get()->FindFile(g_defaultTexture));
 
 	m_waveMap0 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename0);
 	m_waveMap1 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename1);

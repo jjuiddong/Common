@@ -34,7 +34,7 @@ namespace framework
 		bool ChangeScene(const int sceneId);
 
 		const wstring& GetWindowName();
-		sRecti GetWindowRect();		
+		common::sRecti GetWindowRect();		
 		void MessageProc( UINT message, WPARAM wParam, LPARAM lParam);
 
 

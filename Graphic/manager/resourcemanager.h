@@ -47,14 +47,15 @@ namespace graphic
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
 		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		cTexture* LoadTexture2(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cShader* LoadShader(cRenderer &renderer, const string &fileName);
 
 		sRawMeshGroup* FindModel( const string &fileName );
 		sRawMeshGroup2* FindModel2(const string &fileName);
-		cXFileMesh* FindXFile(const string &fileName);
+		std::pair<bool, cXFileMesh*> FindXFile(const string &fileName);
 		cColladaModel * FindColladaModel(const string &fileName);
-		cShadowVolume* FindShadow(const string &fileName);
+		std::pair<bool, cShadowVolume*> FindShadow(const string &fileName);
 
 		sRawAniGroup* FindAnimation( const string &fileName );
 		cMeshBuffer* FindMeshBuffer( const string &meshName );
@@ -63,6 +64,7 @@ namespace graphic
 		cShader * FindShader(const string &fileName);
 		string FindFile( const string &fileName );
 		string GetResourceFilePath(const string &fileName);
+		string GetResourceFilePath(const string &dir, const string &fileName);
 
 
 		void SetMediaDirectory( const string &path );

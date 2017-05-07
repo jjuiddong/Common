@@ -47,6 +47,36 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cNode &node)
 }
 
 
+void cShadow1::UpdateShadow(cRenderer &renderer, cModel2 &model)
+{
+	RET(!m_surface.IsLoaded());
+
+	const Vector3 pos = model.m_tm.GetPosition();
+
+	// 전역 광원으로 부터 그림자 생성에 필요한 정보를 얻어온다.
+	Vector3 lightPos;
+	Matrix44 view, proj, tt;
+	cLightManager::Get()->GetMainLight().GetShadowMatrix(
+		pos, lightPos, view, proj, tt);
+
+	if (model.m_shader)
+	{
+		model.m_shader->SetMatrix("g_mView", view);
+		model.m_shader->SetMatrix("g_mProj", proj);
+	}
+
+	Begin(renderer);
+	model.RenderShader(renderer);
+	End();
+}
+
+
+void cShadow1::Bind(cShader &shader, const string &key)
+{
+
+}
+
+
 void cShadow1::Begin(cRenderer &renderer)
 {
 	m_surface.Begin();

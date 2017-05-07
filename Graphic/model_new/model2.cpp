@@ -10,7 +10,9 @@ cModel2::cModel2()
 	, m_xModel(NULL)
 	, m_state(eState::NORMAL)
 	, m_shadow(NULL)
+	, m_shadowMap(NULL)
 	, m_isShadow(false)
+	, m_isShadow2(false)
 {
 }
 
@@ -91,6 +93,9 @@ void cModel2::RenderShader(cRenderer &renderer
 
 	const Matrix44 transform = m_tm * tm;
 
+	if (m_isShadow2 && m_shadowMap && m_shader)
+		m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
+
 	if (m_colladaModel)
 	{
 		m_colladaModel->Render(renderer, *m_shader, transform);
@@ -170,7 +175,7 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 
 	case eState::LOAD_PARALLEL_XFILE:
 	{
-		m_xModel = cResourceManager::Get()->FindXFile(m_fileName.c_str());
+		m_xModel = cResourceManager::Get()->FindXFile(m_fileName.c_str()).second;
 		if (m_xModel) // Parallel Load Finish
 		{
 			InitModel(renderer);
@@ -212,7 +217,7 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 	case eState::LOAD_PARALLEL_COLLADA_SHADOW:
 	case eState::LOAD_PARALLEL_XFILE_SHADOW:
 	{
-		m_shadow = cResourceManager::Get()->FindShadow(m_fileName.c_str());
+		m_shadow = cResourceManager::Get()->FindShadow(m_fileName.c_str()).second;
 		if (m_shadow)
 		{
 			m_state = eState::NORMAL; // no finish event

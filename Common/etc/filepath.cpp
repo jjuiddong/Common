@@ -429,8 +429,17 @@ bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLe
 
 // searchPath 디렉토리 안에서 findName 의 파일이름을 가진 파일이 있다면 해당 경로를
 // out 에 저장하고 true 를 리턴한다.
-bool common::FindFile( const string &findName, const string &searchPath, string &out  )
+// depth 크기만큼 하위 디렉토리를 검색한다.  -1이면 끝까지 검색한다.
+bool common::FindFile( const string &findName, const string &searchPath, string &out
+	, const int depth //= -1
+)
 {
+	if (depth == 0)
+		return false;
+
+	string lowerCaseFindFileName = findName;
+	lowerCase(lowerCaseFindFileName);
+
 	WIN32_FIND_DATAA fd;
 	const string searchDir = searchPath + "*.*";
 	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
@@ -441,14 +450,16 @@ bool common::FindFile( const string &findName, const string &searchPath, string 
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				if (FindFile( findName, searchPath + string(fd.cFileName) + "/", out ))
+				if (FindFile( findName, searchPath + string(fd.cFileName) + "/", out, depth-1 ))
 					break;
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
 		{
 			string fileName = fd.cFileName;
-			if (lowerCase(fileName) == lowerCase(GetFileName(findName)))
+			// 속도가 느려져서 주석처리함, GetFileName()호출은 외부에서 할 것
+			//if (lowerCase(fileName) == lowerCase(GetFileName(findName)))
+			if (lowerCase(fileName) == lowerCaseFindFileName)
 			{
 				out = searchPath + GetFileName(findName);
 				break;

@@ -22,7 +22,7 @@ namespace common
 	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out);
 	bool CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out);
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, const int flags=0);
-	bool FindFile( const string &findName, const string &searchPath, string &out  );
+	bool FindFile( const string &findName, const string &searchPath, string &out, const int depth=-1);
 
 	bool IsFileExist(const string &fileName);
 
