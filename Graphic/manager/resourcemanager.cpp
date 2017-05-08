@@ -5,6 +5,7 @@
 #include "../base/material.h"
 #include "../model_collada/model_collada.h"
 #include "task_resource.h"
+#include "../importer/parallelloader.h"
 
 
 using namespace graphic;
@@ -19,6 +20,30 @@ cResourceManager::cResourceManager() :
 cResourceManager::~cResourceManager()
 {
 	Clear();
+}
+
+
+void cResourceManager::Update(const float deltaSeconds)
+{
+	// Check Parallel Loader 
+	int cnt = 0;
+	cParallelLoader *tmp[4] = { NULL, NULL, NULL, NULL };
+
+	for (auto &p : m_ploaders)
+	{
+		if (p->Update(deltaSeconds))
+			tmp[cnt++] = p;
+		if (cnt >= 4)
+			break;
+	}
+
+	for (int i = 0; i < cnt; ++i)
+	{
+		common::popvector2(m_ploaders, tmp[i]);
+		delete tmp[i];
+	}
+	//
+
 }
 
 
@@ -146,9 +171,7 @@ std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &rend
 	if (resourcePath.empty())
 		goto error;
 
-	m_loadThread.AddTask(new cTaskXFileLoader(++m_loadId, &renderer, fileName));
-	if (!m_loadThread.IsRun())
-		m_loadThread.Start();
+	AddTask(new cTaskXFileLoader(0, &renderer, fileName));
 
 	{
 		AutoCSLock cs(m_cs);
@@ -175,8 +198,9 @@ cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
 	, const string &fileName
 )
 {
-	if (cColladaModel *p = FindColladaModel(fileName))
-		return p;
+	auto result = FindColladaModel(fileName);
+	if (result.first)
+		return result.second;
 
 	cColladaModel *model = NULL;
 	const string resourcePath = GetResourceFilePath(fileName);
@@ -204,16 +228,15 @@ error:
 // Load Parallel Collada file
 std::pair<bool, cColladaModel*> cResourceManager::LoadColladaModelParallel(cRenderer &renderer, const string &fileName)
 {
-	if (cColladaModel *p = FindColladaModel(fileName))
-		return{ true, p };
+	auto result = FindColladaModel(fileName);
+	if (result.first)
+		return{ true, result.second };
 
 	const string resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
-	m_loadThread.AddTask( new cTaskColladaLoader(++m_loadId, &renderer, fileName) );
-	if (!m_loadThread.IsRun())
-		m_loadThread.Start();
+	AddTask( new cTaskColladaLoader(0, &renderer, fileName) );
 
 	{
 		AutoCSLock cs(m_cs);
@@ -243,7 +266,7 @@ cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const string &f
 		return result.second;
 
 	cShadowVolume *shadow = NULL;
-	cColladaModel *collada = FindColladaModel(fileName);
+	cColladaModel *collada = FindColladaModel(fileName).second;
 	cXFileMesh *xfile = FindXFile(fileName).second;
 	if (!collada && !xfile)
 		return NULL;
@@ -288,7 +311,7 @@ std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &
 	if (result.first)
 		return{ true, result.second };
 
-	cColladaModel *collada = FindColladaModel(fileName);
+	cColladaModel *collada = FindColladaModel(fileName).second;
 	cXFileMesh *xfile = FindXFile(fileName).second;
 	if (!collada && !xfile)
 		return{ false, NULL };
@@ -303,10 +326,8 @@ std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &
 		m_shadows[fileName] = NULL;
 	}
 
-	m_loadThread.AddTask(new cTaskShadowLoader(++m_loadId, &renderer, fileName, collada, xfile));
-	if (!m_loadThread.IsRun())
-		m_loadThread.Start();
-
+	AddTask(new cTaskShadowLoader(0, &renderer, fileName, collada, xfile));
+	
 	return{ true, NULL };
 }
 
@@ -442,13 +463,13 @@ std::pair<bool, cXFileMesh*> cResourceManager::FindXFile(const string &fileName)
 }
 
 
-cColladaModel * cResourceManager::FindColladaModel(const string &fileName)
+std::pair<bool, cColladaModel*> cResourceManager::FindColladaModel(const string &fileName)
 {
 	AutoCSLock cs(m_cs);
 	auto it = m_colladaModels.find(fileName);
 	if (m_colladaModels.end() != it)
-		return it->second;
-	return NULL;
+		return{ true, it->second };
+	return{ false, NULL };
 }
 
 
@@ -478,8 +499,9 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 	, const bool isRecursive //= true
 )
 {
-	if (cTexture *p = FindTexture(fileName))
-		return p;
+	auto result = FindTexture(fileName);
+	if (result.first)
+		return result.second;
 
 	cTexture *texture = NULL;
 	const string resourcePath = GetResourceFilePath(fileName);
@@ -498,6 +520,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 
 	if (texture && texture->IsLoaded())
 	{
+		AutoCSLock cs(m_cs);
 		m_textures[fileName] = texture;
 		return texture;
 	}
@@ -509,6 +532,41 @@ error:
 	if (isRecursive)
 		return cResourceManager::LoadTexture(renderer, g_defaultTexture, isSizePow2, false);
 	return NULL;
+}
+
+
+// Parallel Load Texture
+cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const string &fileName
+	, const bool isSizePow2 //= true
+)
+{
+	auto result = FindTexture(fileName);
+	if (result.first)
+		return result.second;
+
+	const string resourcePath = GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+	
+	AddTask(new cTaskTextureLoader(0, &renderer, fileName, isSizePow2));
+
+	{
+		AutoCSLock cs(m_cs);
+		m_textures[fileName] = NULL;
+		return NULL;
+	}
+
+
+error:
+	dbg::ErrLog("Error LoadTextureParallel %s \n", fileName.c_str());
+	return NULL;
+}
+
+
+void cResourceManager::InsertTexture(const string &fileName, cTexture *p)
+{
+	AutoCSLock cs(m_cs);
+	m_textures[fileName] = p;
 }
 
 
@@ -551,11 +609,12 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 	, const bool isRecursive //= true
 )	
 {
-	if (cTexture *p = FindTexture(fileName))
-		return p;
+	auto result = FindTexture(fileName);
+	if (result.first)
+		return result.second;
 
 	string key = fileName;
-	cTexture *texture = NULL;// new cTexture();
+	cTexture *texture = NULL;
 	if (common::IsFileExist(fileName))
 	{
 		texture = new cTexture();
@@ -589,6 +648,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 
 	if (texture && texture->IsLoaded())
 	{
+		AutoCSLock cs(m_cs);
 		m_textures[key] = texture;
 		return texture;
 	}
@@ -619,8 +679,9 @@ cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const string &dirP
 	, const bool isRecursive //= true
 )
 {
-	if (cTexture *p = FindTexture(fileName))
-		return p;
+	auto result = FindTexture(fileName);
+	if (result.first)
+		return result.second;
 
 	cTexture *texture = NULL;
 	const string resourcePath = GetResourceFilePath(dirPath, fileName);
@@ -632,7 +693,11 @@ cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const string &dirP
 		goto error;
 
 	if (texture)
+	{
+		AutoCSLock cs(m_cs);
 		m_textures[fileName] = texture;
+	}
+
 	return texture;
 
 
@@ -676,12 +741,13 @@ error:
 
 
 // 텍스쳐 찾기.
-cTexture* cResourceManager::FindTexture( const string &fileName )
+std::pair<bool,cTexture*> cResourceManager::FindTexture( const string &fileName )
 {
+	AutoCSLock cs(m_cs);
 	auto it = m_textures.find(fileName);
 	if (m_textures.end() == it)
-		return NULL; // not exist
-	return it->second;
+		return{ false, NULL }; // not exist
+	return{ true, it->second };
 }
 
 
@@ -715,6 +781,22 @@ string cResourceManager::FindFile( const string &fileName )
 	}
 	return ""; //empty string
 }
+
+
+void cResourceManager::AddParallelLoader(cParallelLoader *p)
+{
+	m_ploaders.push_back(p);
+}
+
+
+void cResourceManager::AddTask(cTask *task)
+{
+	task->m_Id = ++m_loadId;
+	m_loadThread.AddTask(task);
+	if (!m_loadThread.IsRun())
+		m_loadThread.Start();
+}
+
 
 
 // media 폴더내에 fileName이 있으면, 경로를 리턴한다.
@@ -826,11 +908,14 @@ void cResourceManager::Clear()
 	}
 
 	// remove texture
-	for each (auto kv in m_textures)
 	{
-		delete kv.second;
+		AutoCSLock cs(m_cs);
+		for each (auto kv in m_textures)
+		{
+			delete kv.second;
+		}
+		m_textures.clear();
 	}
-	m_textures.clear();
 
 	// remove cube texture
 	for each (auto kv in m_cubeTextures)
@@ -893,8 +978,13 @@ void cResourceManager::ReloadShader(cRenderer &renderer)
 
 void cResourceManager::LostDevice()
 {
-	for (auto &p : m_textures)
-		p.second->LostDevice();
+	{
+		AutoCSLock cs(m_cs);
+		for (auto &p : m_textures)
+			if (p.second)
+				p.second->LostDevice();
+	}
+
 	for (auto &p : m_cubeTextures)
 		p.second->LostDevice();
 	for (auto &p : m_shaders)
@@ -904,8 +994,13 @@ void cResourceManager::LostDevice()
 
 void cResourceManager::ResetDevice(cRenderer &renderer)
 {
-	for (auto &p : m_textures)
-		p.second->ResetDevice(renderer);
+	{
+		AutoCSLock cs(m_cs);
+		for (auto &p : m_textures)
+			if (p.second)
+				p.second->ResetDevice(renderer);
+	}
+
 	for (auto &p : m_cubeTextures)
 		p.second->ResetDevice(renderer);
 	for (auto &p : m_shaders)

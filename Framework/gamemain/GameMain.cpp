@@ -182,6 +182,9 @@ void cGameMain::Update(const float deltaSeconds)
 		m_currentScene->Update(deltaSeconds);
 
 	m_renderer.Update(deltaSeconds);
+
+	graphic::cResourceManager::Get()->Update(deltaSeconds);
+
 	OnUpdate(deltaSeconds);
 }
 

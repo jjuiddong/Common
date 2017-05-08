@@ -137,4 +137,58 @@ namespace graphic
 		cXFileMesh *m_xfile;
 	};
 
+
+	//-----------------------------------------------------------------------------------------------
+	class cTaskTextureLoader : public common::cTask
+	{
+	public:
+		cTaskTextureLoader(int id, cRenderer *renderer, const std::string &fileName, const bool isSizePow2)
+			: cTask(id, "cTaskTextureLoader")
+			, m_renderer(renderer)
+			, m_isSizePow2(isSizePow2)
+			, m_fileName(fileName) {
+		}
+		virtual ~cTaskTextureLoader() {
+		}
+
+		virtual eRunResult::Enum Run()
+		{
+			const string resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
+			if (resourcePath.empty())
+				goto error;
+
+			cTexture *texture = new cTexture();
+			if (!texture->Create(*m_renderer, resourcePath, m_isSizePow2))
+			{
+				if (resourcePath == g_defaultTexture) // this file must loaded
+				{
+					assert(0);
+					goto error;
+				}
+			}
+
+			if (texture && texture->IsLoaded())
+			{
+				cResourceManager::Get()->InsertTexture(m_fileName, texture);
+				return eRunResult::END;
+			}
+			else
+			{
+				cResourceManager::Get()->InsertTexture(m_fileName,
+					cResourceManager::Get()->LoadTexture(*m_renderer, g_defaultTexture, m_isSizePow2, false));
+			}
+
+
+		error:
+			dbg::ErrLog("Error cTaskTextureLoader %s \n", m_fileName.c_str());
+			SAFE_DELETE(texture);
+			return eRunResult::END;
+		}
+
+		string m_fileName;
+		bool m_isSizePow2;
+		cRenderer *m_renderer;
+	};
+
+
 }

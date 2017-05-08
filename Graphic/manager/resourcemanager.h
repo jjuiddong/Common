@@ -15,6 +15,7 @@ namespace graphic
 	struct sRawBone;
 	class cXFileMesh;
 	class cColladaModel;
+	class cParallelLoader;
 
 
 	class cResourceManager : public common::cSingleton<cResourceManager>
@@ -22,6 +23,8 @@ namespace graphic
 	public:
 		cResourceManager();
 		virtual ~cResourceManager();
+
+		void Update(const float deltaSeconds);
 		
 		sRawMeshGroup* LoadRawMesh( const string &fileName );
 		bool InsertRawMesh(sRawMeshGroup *meshes);
@@ -48,29 +51,35 @@ namespace graphic
 		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
 		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cTexture* LoadTexture2(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		cTexture* LoadTextureParallel(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true);
+		void InsertTexture(const string &fileName, cTexture *p);
+
 		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cShader* LoadShader(cRenderer &renderer, const string &fileName);
 
 		sRawMeshGroup* FindModel( const string &fileName );
 		sRawMeshGroup2* FindModel2(const string &fileName);
 		std::pair<bool, cXFileMesh*> FindXFile(const string &fileName);
-		cColladaModel * FindColladaModel(const string &fileName);
+		std::pair<bool, cColladaModel*> FindColladaModel(const string &fileName);
 		std::pair<bool, cShadowVolume*> FindShadow(const string &fileName);
 
 		sRawAniGroup* FindAnimation( const string &fileName );
 		cMeshBuffer* FindMeshBuffer( const string &meshName );
-		cTexture* FindTexture( const string &fileName );
+		std::pair<bool, cTexture*> FindTexture( const string &fileName );
 		cCubeTexture* FindCubeTexture(const string &fileName);
 		cShader * FindShader(const string &fileName);
 		string FindFile( const string &fileName );
-		string GetResourceFilePath(const string &fileName);
-		string GetResourceFilePath(const string &dir, const string &fileName);
+
+		void AddParallelLoader(cParallelLoader *p);
+		void AddTask(cTask *task);
 
 
 		void SetMediaDirectory( const string &path );
 		const string& GetMediaDirectory() const;
 		string GetRelativePathToMedia( const string &fileName );
 		void ReloadShader(cRenderer &renderer);
+		string GetResourceFilePath(const string &fileName);
+		string GetResourceFilePath(const string &dir, const string &fileName);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
@@ -94,6 +103,8 @@ namespace graphic
 		map<string, cCubeTexture*> m_cubeTextures; // key = fileName
 		map<string, cShader*> m_shaders; // key = fileName
 		string m_mediaDirectory; // default : ../media/
+
+		vector<cParallelLoader*> m_ploaders;
 
 		cThread m_loadThread;
 		int m_loadId;

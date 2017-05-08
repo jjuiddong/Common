@@ -155,7 +155,7 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 	{
 	case eState::LOAD_PARALLEL_COLLADA:
 	{
-		m_colladaModel = cResourceManager::Get()->FindColladaModel(m_fileName.c_str());
+		m_colladaModel = cResourceManager::Get()->FindColladaModel(m_fileName.c_str()).second;
 		if (m_colladaModel) // Parallel Load Finish
 		{
 			InitModel(renderer);

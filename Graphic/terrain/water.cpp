@@ -6,19 +6,23 @@ using namespace graphic;
 
 
 cWater::cWater()
-	: m_isRenderSurface(true)
+	: m_isRenderSurface(false)
+	, m_isFirstUpdateShader(true)
 {
 	Matrix44 mWaterWorld;
-	mWaterWorld.SetTranslate(Vector3(0,10,0));
+	//mWaterWorld.SetTranslate(Vector3(0,10,0));
+	mWaterWorld.SetTranslate(Vector3(0, 0, 0));
 
 	sInitInfo waterInitInfo;
 	waterInitInfo.dirLight.Init(cLight::LIGHT_DIRECTIONAL);
 	waterInitInfo.mtrl.InitWhite();
 	waterInitInfo.vertRows = 64;
 	waterInitInfo.vertCols = 64;
+	waterInitInfo.cellSize = 64.f;
 	waterInitInfo.dx = 1.0f;
 	waterInitInfo.dz = 1.0f;
 	waterInitInfo.uvFactor = 8.f;
+	waterInitInfo.yOffset = 0.f;
 	waterInitInfo.waveMapFilename0 = "wave0.dds";
 	waterInitInfo.waveMapFilename1 = "wave1.dds";
 	waterInitInfo.waveMapVelocity0 = Vector2(0.09f, 0.06f);
@@ -58,13 +62,23 @@ bool cWater::Create(cRenderer &renderer)
 
 	m_shader->SetTechnique("WaterTech");
 
-	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, 64, m_initInfo.uvFactor, 0.f);
+	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize
+		, m_initInfo.uvFactor, m_initInfo.yOffset);
 	m_grid.GetTexture().Create(renderer, cResourceManager::Get()->FindFile(g_defaultTexture));
 
-	m_waveMap0 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename0);
-	m_waveMap1 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename1);
-	if (!m_waveMap0 || !m_waveMap1)
-		return false;
+	m_waveMap0 = cResourceManager::Get()->LoadTextureParallel(renderer, m_initInfo.waveMapFilename0);
+	m_waveMap1 = cResourceManager::Get()->LoadTextureParallel(renderer, m_initInfo.waveMapFilename1);
+	cResourceManager::Get()->AddParallelLoader(
+		new cParallelLoader(cParallelLoader::eType::TEXTURE, m_initInfo.waveMapFilename0
+			, (void**)&m_waveMap0));
+	cResourceManager::Get()->AddParallelLoader(
+		new cParallelLoader(cParallelLoader::eType::TEXTURE, m_initInfo.waveMapFilename1
+			, (void**)&m_waveMap1));
+
+	//m_waveMap0 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename0);
+	//m_waveMap1 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename1);
+	//if (!m_waveMap0 || !m_waveMap1)
+	//	return false;
 
 	//m_hWVP = m_shader->GetValueHandle( "gWVP");
 	//m_hEyePosW = m_shader->GetValueHandle( "gEyePosW");
@@ -110,6 +124,12 @@ void cWater::Render(cRenderer &renderer)
 
 void cWater::Update(const float elapseTime)
 {
+	if (m_isFirstUpdateShader && m_waveMap0 && m_waveMap1)
+	{
+		UpdateShader();
+		m_isFirstUpdateShader = false;
+	}
+
 	// Update texture coordinate offsets.  These offsets are added to the
 	// texture coordinates in the vertex shader to animate them.
 	m_waveMapOffset0 += m_initInfo.waveMapVelocity0 * elapseTime;
@@ -174,8 +194,10 @@ void cWater::UpdateShader()
 	Matrix44 worldInv = m_initInfo.toWorld.Inverse();
 	m_shader->SetMatrix("gWorldInv", worldInv);
 
-	m_waveMap0->Bind(*m_shader, "gWaveMap0");
-	m_waveMap1->Bind(*m_shader, "gWaveMap1");
+	if (m_waveMap0)
+		m_waveMap0->Bind(*m_shader, "gWaveMap0");
+	if (m_waveMap1)
+		m_waveMap1->Bind(*m_shader, "gWaveMap1");
 	m_reflectMap.Bind(*m_shader, "gReflectMap");
 	m_refractMap.Bind(*m_shader, "gRefractMap");
 

@@ -361,7 +361,7 @@ void cCube3::Render(cRenderer &renderer, const Matrix44 &tm)
 
 void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 {
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
+	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
 
 	const Matrix44 transform = m_tm*tm;
 	shader.SetMatrix("g_mWorld", transform);

@@ -119,7 +119,6 @@ static const string g_defaultTexture = "white.dds";
 #include "terrain/terrainimporter.h"
 #include "terrain/terrainexporter.h"
 
-
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
@@ -128,12 +127,14 @@ static const string g_defaultTexture = "white.dds";
 #include "manager/pickmanager.h"
 #include "input/input.h"
 
+#include "importer/parallelloader.h"
+
 #pragma comment( lib, "d3d9.lib" )
 #pragma comment( lib, "d3dx9.lib" )
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
 	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

@@ -363,6 +363,7 @@
     <ClInclude Include="base\meshbuffer.h" />
     <ClInclude Include="base\quad.h" />
     <ClInclude Include="base\shader.h" />
+    <ClInclude Include="base\shaderdef.h" />
     <ClInclude Include="base\shadow1.h" />
     <ClInclude Include="base\shadowmap.h" />
     <ClInclude Include="base\shadowvolume.h" />
@@ -390,6 +391,7 @@
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="graphic.h" />
     <ClInclude Include="importer\modelimporter.h" />
+    <ClInclude Include="importer\parallelloader.h" />
     <ClInclude Include="input\input.h" />
     <ClInclude Include="interface\pickable.h" />
     <ClInclude Include="interface\renderable.h" />
@@ -484,6 +486,7 @@
     <ClCompile Include="collision\collisionmanager.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="importer\modelimporter.cpp" />
+    <ClCompile Include="importer\parallelloader.cpp" />
     <ClCompile Include="input\input.cpp" />
     <ClCompile Include="manager\fontmanager.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />

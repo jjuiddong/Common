@@ -35,9 +35,11 @@ namespace graphic
 			cMaterial mtrl;
 			int vertRows;
 			int vertCols;
+			float cellSize;
 			float dx;
 			float dz;
 			float uvFactor;
+			float yOffset;
 			string waveMapFilename0;
 			string waveMapFilename1;
 			Vector2 waveMapVelocity0;
@@ -59,6 +61,7 @@ namespace graphic
 		Vector2 m_waveMapOffset0;
 		Vector2 m_waveMapOffset1;
 		bool m_isRenderSurface;
+		bool m_isFirstUpdateShader;
 
 		//D3DXHANDLE m_hWVP;
 		//D3DXHANDLE m_hLight;

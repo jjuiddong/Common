@@ -31,8 +31,8 @@ bool graphic::InitDirectX(HWND hWnd, const int width, const int height, const UI
 	d3dpp.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
 	d3dpp.hDeviceWindow = hWnd;
 	d3dpp.MultiSampleQuality = 0;
-	//d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
-	d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
+	d3dpp.MultiSampleType = D3DMULTISAMPLE_8_SAMPLES;
+	//d3dpp.MultiSampleType = D3DMULTISAMPLE_4_SAMPLES;
 	//d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;

@@ -137,10 +137,16 @@ void cQuad::RenderFactor(cRenderer &renderer, const Matrix44 &tm)
 	if (m_texture)
 		m_texture->Bind(renderer, 0);
 
+	DWORD op, arg1;
+	renderer.GetDevice()->GetTextureStageState(0, D3DTSS_COLOROP, &op);
+	renderer.GetDevice()->GetTextureStageState(0, D3DTSS_COLORARG1, &arg1);
 	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TFACTOR);
 
 	m_vtxBuff.RenderTriangleStrip(renderer);
+
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, op);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, arg1);
 }
 
 
@@ -169,6 +175,8 @@ void cQuad::RenderShader(cRenderer &renderer
 		m_shader->SetMatrix("g_mWorld", transform);
 		if (m_texture)
 			m_texture->Bind(*m_shader, "g_colorMapTexture");
+		else
+			m_shader->SetTexture("g_colorMapTexture", NULL);
 
 		m_shader->CommitChanges();
 		m_vtxBuff.RenderTriangleStrip(renderer);

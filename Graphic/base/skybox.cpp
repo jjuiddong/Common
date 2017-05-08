@@ -15,10 +15,8 @@ cSkyBox::~cSkyBox()
 }
 
 
-//------------------------------------------------------------------------
 // textureFilePath : 이 파일 경로에 skybox_top, skybox_front, skybox_back, 
 //				skybox_left, skybox_right, skybox_bottom.jpg 파일이 있어야 한다.
-//------------------------------------------------------------------------
 bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 {
 	string textureFileName[] = 
@@ -37,13 +35,15 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 	for (int i=0; i < MAX_FACE; ++i)
 	{
 		const string fileName = textureFilePath + "/" + textureFileName[ i];
-		m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, fileName);
+		//m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, fileName);
+		m_textures[i] = cResourceManager::Get()->LoadTextureParallel(renderer, fileName);
+		cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE, fileName, (void**)&m_textures[i]) );
 	}
 
 	if (!CreateVertexBuffer(renderer))
 		return false;
 
-	m_shader = cResourceManager::Get()->LoadShader(renderer, "cube2.fx");
+	m_shader = cResourceManager::Get()->LoadShader(renderer, "cube3.fx");
 	if (!m_shader)
 		return false;
 	m_shader->SetTechnique("SkyTech");
@@ -147,6 +147,8 @@ void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 
 	// render
 	m_vtxBuff.Bind(renderer);
+	renderer.GetDevice()->SetTexture(0, NULL);
+
 	for (int i = 0 ; i < MAX_FACE; i++)
 	{
 		if (m_textures[i])

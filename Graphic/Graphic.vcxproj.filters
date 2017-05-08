@@ -286,6 +286,12 @@
     <ClInclude Include="base\shadowmap.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\shaderdef.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\parallelloader.h">
+      <Filter>importer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -537,6 +543,9 @@
     </ClCompile>
     <ClCompile Include="base\shadowmap.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="importer\parallelloader.cpp">
+      <Filter>importer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
