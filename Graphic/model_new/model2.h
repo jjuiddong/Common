@@ -70,7 +70,7 @@ namespace graphic
 		string m_animationName;
 		cBoundingBox m_boundingBox;
 		cShadowVolume *m_shadow; // reference
-		cShadowMap *m_shadowMap; // reference
+		cShadow2 *m_shadowMap; // reference
 	};
 
 }

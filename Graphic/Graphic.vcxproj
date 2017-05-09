@@ -365,6 +365,7 @@
     <ClInclude Include="base\shader.h" />
     <ClInclude Include="base\shaderdef.h" />
     <ClInclude Include="base\shadow1.h" />
+    <ClInclude Include="base\shadow2.h" />
     <ClInclude Include="base\shadowmap.h" />
     <ClInclude Include="base\shadowvolume.h" />
     <ClInclude Include="base\skybox.h" />
@@ -372,6 +373,7 @@
     <ClInclude Include="base\sphere.h" />
     <ClInclude Include="base\surface.h" />
     <ClInclude Include="base\surface2.h" />
+    <ClInclude Include="base\surface3.h" />
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d.h" />
     <ClInclude Include="base\texture.h" />
@@ -463,6 +465,7 @@
     <ClCompile Include="base\quad.cpp" />
     <ClCompile Include="base\shader.cpp" />
     <ClCompile Include="base\shadow1.cpp" />
+    <ClCompile Include="base\shadow2.cpp" />
     <ClCompile Include="base\shadowmap.cpp" />
     <ClCompile Include="base\shadowvolume.cpp" />
     <ClCompile Include="base\skybox.cpp" />
@@ -470,6 +473,7 @@
     <ClCompile Include="base\sphere.cpp" />
     <ClCompile Include="base\surface.cpp" />
     <ClCompile Include="base\surface2.cpp" />
+    <ClCompile Include="base\surface3.cpp" />
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d.cpp" />
     <ClCompile Include="base\texture.cpp" />

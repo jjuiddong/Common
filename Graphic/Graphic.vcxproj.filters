@@ -292,6 +292,12 @@
     <ClInclude Include="importer\parallelloader.h">
       <Filter>importer</Filter>
     </ClInclude>
+    <ClInclude Include="base\shadow2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\surface3.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -546,6 +552,12 @@
     </ClCompile>
     <ClCompile Include="importer\parallelloader.cpp">
       <Filter>importer</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shadow2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\surface3.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

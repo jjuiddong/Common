@@ -65,7 +65,8 @@ void cLight::GetShadowMatrix( const Vector3 &modelPos,
 	view.SetView2( lightPos, modelPos, Vector3(0,1,0));
 
 	//proj.SetProjection( D3DX_PI/8.f, 1, 0.1f, 10000);
-	proj.SetProjectionOrthogonal(30, 30, 0.1f, 10000);
+	//proj.SetProjectionOrthogonal(30, 30, 0.1f, 10000);
+	proj.SetProjectionOrthogonal(30, 30, 0.1f, 100.f);
 
 	D3DXMATRIX mTT= D3DXMATRIX(0.5f, 0.0f, 0.0f, 0.0f
 		, 0.0f,-0.5f, 0.0f, 0.0f

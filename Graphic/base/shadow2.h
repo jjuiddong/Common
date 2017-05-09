@@ -1,24 +1,25 @@
 //
-// 2017-05-09, jjuiddong refactoring
-// Shadow Map
-// Direct3D9 ShadowMap Sample Reference
+// 2017-05-07, jjuiddong refactoring
+// Upgrade Shadow1
+// Multiple Model Shadow Map
 //
 #pragma once
 
 
 namespace graphic
 {
+	class cModel2;
 
-	class cShadowMap
+	class cShadow2
 	{
 	public:
-		cShadowMap();
-		virtual ~cShadowMap();
+		cShadow2();
+		virtual ~cShadow2();
 
 		bool Create(cRenderer &renderer, const int textureWidth, const int textureHeight);
 		void Bind(cShader &shader, const string &key);
 		void Begin(cRenderer &renderer);
-		void End(cRenderer &renderer);
+		void End();
 		bool IsLoaded() const;
 		void LostDevice();
 		void ResetDevice(graphic::cRenderer &renderer);
@@ -28,7 +29,9 @@ namespace graphic
 
 
 	public:
-		cSurface3 m_surface;
+		cSurface2 m_surface;
 	};
 
+
+	inline bool cShadow2::IsLoaded() const { return m_surface.IsLoaded(); }
 }

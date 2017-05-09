@@ -59,6 +59,7 @@ static const string g_defaultTexture = "white.dds";
 #include "base/sphere.h"
 #include "base/surface.h"
 #include "base/surface2.h"
+#include "base/surface3.h"
 #include "base/circle.h"
 #include "base/circleline.h"
 #include "base/quad.h"
@@ -69,6 +70,7 @@ static const string g_defaultTexture = "white.dds";
 #include "model/node.h"
 
 #include "base/shadow1.h"
+#include "base/shadow2.h"
 #include "base/shadowmap.h"
 #include "base/shadowvolume.h"
 
@@ -134,7 +136,7 @@ static const string g_defaultTexture = "white.dds";
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
 	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

@@ -2,8 +2,8 @@
 #include "stdafx.h"
 #include "shadowmap.h"
 
-using namespace graphic;
 
+using namespace graphic;
 
 cShadowMap::cShadowMap()
 {
@@ -14,37 +14,15 @@ cShadowMap::~cShadowMap()
 }
 
 
-// 그림자 클래스 생성.
 bool cShadowMap::Create(cRenderer &renderer, const int textureWidth, const int textureHeight)
 {
-	return m_surface.Create(renderer, textureWidth, textureHeight, 1,
-		D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true);
+	return m_surface.Create(renderer, textureWidth, textureHeight, 1
+		, D3DFMT_R32F
+		, true
+		, D3DFMT_D24X8
+		, false
+	, NULL, 0.1f, 100.f);
 }
-
-
-// 그림자 텍스쳐를 업데이트 한다.
-//void cShadowMap::UpdateShadow(cRenderer &renderer, cNode &node)
-//{
-//	RET(!m_surface.IsLoaded());
-//
-//	const Vector3 pos = node.GetTransform().GetPosition();
-//
-//	// 전역 광원으로 부터 그림자 생성에 필요한 정보를 얻어온다.
-//	Vector3 lightPos;
-//	Matrix44 view, proj, tt;
-//	cLightManager::Get()->GetMainLight().GetShadowMatrix(
-//		pos, lightPos, view, proj, tt);
-//
-//	if (node.m_shader)
-//	{
-//		node.m_shader->SetMatrix("g_mView", view);
-//		node.m_shader->SetMatrix("g_mProj", proj);
-//	}
-//
-//	Begin(renderer);
-//	node.RenderShadow(renderer, view*proj, lightPos, Vector3(0, -1, 0), Matrix44::Identity);
-//	End();
-//}
 
 
 void cShadowMap::Bind(cShader &shader, const string &key)
@@ -55,23 +33,22 @@ void cShadowMap::Bind(cShader &shader, const string &key)
 
 void cShadowMap::Begin(cRenderer &renderer)
 {
-	m_surface.Begin();
+	m_surface.Begin( renderer);
 	renderer.GetDevice()->Clear(0, NULL
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
-		, 0x00000000, 1.0f, 0L);
+		, 0x000000ff, 1.0f, 0L);
 }
 
 
-void cShadowMap::End()
+void cShadowMap::End(cRenderer &renderer)
 {
-	m_surface.End();
+	m_surface.End(renderer);
 }
 
 
-// 그림자 맵 출력. (디버깅용)
-void cShadowMap::RenderShadowMap(cRenderer &renderer)
+bool cShadowMap::IsLoaded() const
 {
-	m_surface.Render(renderer);
+	return m_surface.IsLoaded();
 }
 
 
@@ -84,4 +61,11 @@ void cShadowMap::LostDevice()
 void cShadowMap::ResetDevice(graphic::cRenderer &renderer)
 {
 	m_surface.ResetDevice(renderer);
+}
+
+
+// 디버깅용 함수.
+void cShadowMap::RenderShadowMap(cRenderer &renderer)
+{
+	m_surface.Render(renderer);
 }
