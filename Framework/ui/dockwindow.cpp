@@ -425,9 +425,9 @@ void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 			ImVec2((float)m_rect.Width()-3, (float)m_rect.Height() - 35), false,
 			ImGuiWindowFlags_AlwaysUseWindowPadding);
 		if (m_selectTab == 0)
-			Render();
+			OnRender();
 		else if ((int)m_tabs.size() > m_selectTab-1)
-			m_tabs[m_selectTab-1]->Render();
+			m_tabs[m_selectTab-1]->OnRender();
 
 		if (m_isBind)
 		{
@@ -520,6 +520,27 @@ void cDockWindow::RenderTab()
 	}
 
 	ImGui::PopStyleVar();
+}
+
+
+void cDockWindow::PreRender()
+{
+	if (m_lower)
+	{
+		m_lower->PreRender();
+	}
+	else
+	{
+		if (m_selectTab == 0)
+			OnPreRender();
+		else if ((int)m_tabs.size() > m_selectTab - 1)
+			m_tabs[m_selectTab - 1]->PreRender();
+	}
+
+	if (m_upper)
+	{
+		m_upper->PreRender();
+	}
 }
 
 
@@ -784,6 +805,27 @@ void cDockWindow::ClearConnection()
 	m_parent = NULL;
 	m_owner = NULL;
 	m_tabs.clear();
+}
+
+
+void cDockWindow::DefaultEventProc(const sf::Event &evt)
+{
+	if (m_lower)
+	{
+		m_lower->DefaultEventProc(evt);
+	}
+	else
+	{
+		if (m_selectTab == 0)
+			OnEventProc(evt);
+		else if ((int)m_tabs.size() > m_selectTab - 1)
+			m_tabs[m_selectTab - 1]->DefaultEventProc(evt);
+	}
+
+	if (m_upper)
+	{
+		m_upper->DefaultEventProc(evt);
+	}
 }
 
 

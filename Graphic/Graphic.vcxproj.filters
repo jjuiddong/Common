@@ -247,9 +247,6 @@
     <ClInclude Include="manager\pickmanager.h">
       <Filter>manager</Filter>
     </ClInclude>
-    <ClInclude Include="input\input.h">
-      <Filter>input</Filter>
-    </ClInclude>
     <ClInclude Include="interface\renderable.h">
       <Filter>interface</Filter>
     </ClInclude>
@@ -523,9 +520,6 @@
     <ClCompile Include="manager\pickmanager.cpp">
       <Filter>manager</Filter>
     </ClCompile>
-    <ClCompile Include="input\input.cpp">
-      <Filter>input</Filter>
-    </ClCompile>
     <ClCompile Include="base\viewport.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -596,9 +590,6 @@
     </Filter>
     <Filter Include="interface">
       <UniqueIdentifier>{cafc74f3-0fec-4905-96bf-9d31fe9839ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="input">
-      <UniqueIdentifier>{40621073-f5af-428b-9f1d-bebe58e28cbb}</UniqueIdentifier>
     </Filter>
     <Filter Include="model_new">
       <UniqueIdentifier>{44c36359-2c87-4070-bd69-0e19e4359d07}</UniqueIdentifier>

@@ -25,7 +25,11 @@ namespace framework
 		virtual bool Undock(cDockWindow *dock);
 		void RenderDock(const Vector2 &pos= Vector2(0, 0));
 		virtual void Update(const float deltaSeconds);
-		virtual void Render() {}
+		virtual void PreRender();
+		virtual void OnRender() {}
+		virtual void OnPreRender() {}
+		virtual void DefaultEventProc(const sf::Event &evt);
+		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void RenderTab();
 		virtual bool RemoveTab(cDockWindow *tab);
 		virtual void LostDevice();

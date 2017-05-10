@@ -394,7 +394,6 @@
     <ClInclude Include="graphic.h" />
     <ClInclude Include="importer\modelimporter.h" />
     <ClInclude Include="importer\parallelloader.h" />
-    <ClInclude Include="input\input.h" />
     <ClInclude Include="interface\pickable.h" />
     <ClInclude Include="interface\renderable.h" />
     <ClInclude Include="interface\shaderrenderer.h" />
@@ -491,7 +490,6 @@
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="importer\modelimporter.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />
-    <ClCompile Include="input\input.cpp" />
     <ClCompile Include="manager\fontmanager.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />
     <ClCompile Include="manager\maincamera.cpp" />

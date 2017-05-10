@@ -19,6 +19,7 @@ namespace framework
 
 		virtual bool Create(const string &title, const int width, const int height, graphic::cRenderer *shared=NULL);
 		virtual void Update(const float deltaSeconds);
+		virtual void PreRender(const float deltaSeconds);
 		virtual void Render(const float deltaSeconds);
 		virtual void OnUpdate(const float deltaSeconds) {}
 		virtual void OnRender(const float deltaSeconds) {}

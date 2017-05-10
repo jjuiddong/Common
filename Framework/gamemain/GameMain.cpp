@@ -140,6 +140,7 @@ bool cGameMain::Init(HWND hWnd)
 void cGameMain::ShutDown()
 {
 	OnShutdown();
+	cInputManager::Release();
 	graphic::ReleaseRenderer();
 }
 
@@ -200,7 +201,7 @@ void cGameMain::Render(const float deltaSeconds)
 	}
 	else
 	{
-		OnDeviceLost();
+		OnLostDevice();
 	}
 }
 

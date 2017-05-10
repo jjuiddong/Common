@@ -71,3 +71,6 @@
 
 // SFML
 #include "external/sfml/include/SFML/Window.hpp"
+
+
+#include "input/input.h"

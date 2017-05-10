@@ -5,7 +5,7 @@
 #pragma once
 
 
-namespace graphic
+namespace framework
 {
 
 	class cInputManager : public common::cSingleton<cInputManager>
@@ -15,6 +15,7 @@ namespace graphic
 		virtual ~cInputManager();
 		void Update(const float deltaSeconds);
 		void MouseProc(UINT message, WPARAM wParam, LPARAM lParam);
+		void MouseProc(const sf::Event &evt);
 		bool IsClick();
 
 

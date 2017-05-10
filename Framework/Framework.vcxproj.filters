@@ -181,6 +181,9 @@
     <ClInclude Include="ui\renderwindow.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="input\input.h">
+      <Filter>input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -304,6 +307,9 @@
     <ClCompile Include="ui\renderwindow.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="input\input.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="window">
@@ -332,6 +338,9 @@
     </Filter>
     <Filter Include="external\sfml\Window\Win32">
       <UniqueIdentifier>{bc550adb-c487-45ff-91eb-c272e72fe193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{75b4b9f6-05a2-4055-a8c6-3797626ffb02}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

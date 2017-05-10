@@ -24,14 +24,15 @@ cSurface3::~cSurface3()
 
 
 bool cSurface3::Create(cRenderer &renderer,
-	const int width, const int height, int mipLevels,
-	D3DFORMAT texFormat,  // D3DFMT_X8R8G8B8
-	bool useDepthBuffer, // true
-	D3DFORMAT depthFormat, //D3DFMT_D24S8
-	bool autoGenMips, // true
-	HANDLE *handle, // NULL
-	const float minZ, // 1.f, 
-	const float maxZ // 10000.f
+	const int width, const int height, int mipLevels
+	, D3DFORMAT texFormat  // D3DFMT_X8R8G8B8
+	, bool useDepthBuffer // true
+	, D3DFORMAT depthFormat //D3DFMT_D24S8
+	, bool autoGenMips // true
+	, HANDLE *handle // NULL
+	, const float minZ // 1.f, 
+	, const float maxZ // 10000.f
+	, const D3DMULTISAMPLE_TYPE sampleType // D3DMULTISAMPLE_NONE
 )
 {
 	m_mipLevels = mipLevels;
@@ -65,7 +66,7 @@ bool cSurface3::Create(cRenderer &renderer,
 	if (FAILED(renderer.GetDevice()->CreateDepthStencilSurface(width,
 			height,
 			depthFormat,
-			D3DMULTISAMPLE_NONE,
+			sampleType,
 			0,
 			TRUE,
 			&m_pDSShadow,
@@ -93,7 +94,7 @@ bool cSurface3::Create(cRenderer &renderer,
 
 void cSurface3::Begin(cRenderer &renderer)
 {
-	//RET(!m_rts);
+	RET(!m_texture);
 	//m_rts->BeginScene(m_surface, &m_vp);
 
 	m_oldRt = NULL;
@@ -113,13 +114,13 @@ void cSurface3::Begin(cRenderer &renderer)
 
 void cSurface3::End(cRenderer &renderer)
 {
-	//RET(!m_rts);
+	RET(!m_texture);
 	//m_rts->EndScene(D3DX_FILTER_NONE);
 
 	if (m_oldDs)
 	{
 		renderer.GetDevice()->SetDepthStencilSurface(m_oldDs);
-		m_oldDs->Release();
+		SAFE_RELEASE(m_oldDs);
 	}
 	renderer.GetDevice()->SetRenderTarget(0, m_oldRt);
 	SAFE_RELEASE(m_oldRt);

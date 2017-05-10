@@ -96,9 +96,19 @@ cGameMain2::~cGameMain2()
 
 bool cGameMain2::Init()
 {
+	m_hWnd = getSystemHandle();
+	graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
+
 	if (!OnInit())
 		return false;
 	return true;
+}
+
+
+void cGameMain2::Update(const float deltaSeconds)
+{
+	__super::Update(deltaSeconds);
+	graphic::cResourceManager::Get()->Update(deltaSeconds);
 }
 
 

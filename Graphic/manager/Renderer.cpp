@@ -14,7 +14,6 @@ void graphic::ReleaseRenderer()
 	cLightManager::Release();
 	cFontManager::Release();
 	cPickManager::Release();
-	cInputManager::Release();
 }
 
 

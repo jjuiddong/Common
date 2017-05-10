@@ -19,7 +19,8 @@ namespace graphic
 			const int width, const int height, int mipLevels,
 			D3DFORMAT texFormat = D3DFMT_X8R8G8B8, bool useDepthBuffer = true,
 			D3DFORMAT depthFormat = D3DFMT_D24S8, bool autoGenMips = true,
-			HANDLE *handle = NULL, const float minZ = 1.f, const float maxZ = 10000.f);
+			HANDLE *handle = NULL, const float minZ = 1.f, const float maxZ = 10000.f
+			, const D3DMULTISAMPLE_TYPE sampleType = D3DMULTISAMPLE_NONE);
 
 		void Begin(cRenderer &renderer);
 		void End(cRenderer &renderer);

@@ -17,8 +17,9 @@ namespace framework
 		virtual ~cGameMain2();
 
 		virtual bool Init();
-		virtual void Exit();
+		virtual void Update(const float deltaSeconds) override;
 		virtual void DefaultEventProc(const sf::Event &evt) override;
+		virtual void Exit();
 
 
 	protected:
@@ -29,6 +30,7 @@ namespace framework
 
 
 	public:
+		HWND m_hWnd;
 		wstring m_windowName;
 		sRecti m_windowRect;
 	};

@@ -88,7 +88,7 @@ bool cRenderWindow::Create(const string &title, const int width, const int heigh
 
 	m_gui.SetContext();
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/Roboto-Medium.ttf", 16);
+	io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/Roboto-Medium.ttf", 18);
 
 	if (m_isThread)
 	{
@@ -246,6 +246,9 @@ void cRenderWindow::Render(const float deltaSeconds)
 	RET(!isOpen());
 	RET(!m_isVisible);
 
+	if (m_dock)
+		m_dock->PreRender();	
+
 	m_gui.SetContext();
 	m_gui.NewFrame();
 
@@ -278,7 +281,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_sharedRenderer->GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 			m_gui.Render();
 			m_sharedRenderer->EndScene();
-			m_sharedRenderer->Present();
+			//m_sharedRenderer->Present();
 		}
 		m_surf.End();
 
@@ -308,7 +311,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 		m_camera.Bind(m_renderer);
 		m_light.Bind(m_renderer, 0);
 
-		OnPreRender(deltaSeconds);
+		PreRender(deltaSeconds);
 
 		if (m_renderer.ClearScene())
 		{
@@ -320,12 +323,24 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_gui.Render();
 
 			m_renderer.EndScene();
-			//m_renderer.Present();
+			m_renderer.Present();
+		}
+		else
+		{
+			// Device Lost
 		}
 
 		OnPostRender(deltaSeconds);
 	}
+}
 
+
+void cRenderWindow::PreRender(const float deltaSeconds)
+{
+
+
+
+	OnPreRender(deltaSeconds);
 }
 
 
@@ -376,6 +391,9 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 
 void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
+	if (m_dock)
+		m_dock->DefaultEventProc(evt);
+
 	ImGuiIO& io = ImGui::GetIO();
 	switch (evt.type)
 	{

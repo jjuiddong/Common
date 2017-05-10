@@ -127,7 +127,6 @@ static const string g_defaultTexture = "white.dds";
 #include "manager/lightmanager.h"
 #include "manager/fontmanager.h"
 #include "manager/pickmanager.h"
-#include "input/input.h"
 
 #include "importer/parallelloader.h"
 
@@ -136,7 +135,7 @@ static const string g_defaultTexture = "white.dds";
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
 	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

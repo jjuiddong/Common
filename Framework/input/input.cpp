@@ -1,8 +1,8 @@
 
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "input.h"
 
-using namespace graphic;
+using namespace framework;
 
 
 cInputManager::cInputManager()
@@ -63,6 +63,59 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONUP: m_rBtnDown = false; break;
 	case WM_MBUTTONDOWN: m_mBtnDown = true; break;
 	case WM_MBUTTONUP: m_mBtnDown = false; break;
+	}
+}
+
+
+void cInputManager::MouseProc(const sf::Event &evt)
+{
+	switch (evt.type)
+	{
+	case sf::Event::MouseButtonPressed:
+		switch (evt.mouseButton.button)
+		{
+		case sf::Mouse::Left:
+		{
+			const int curT = GetTickCount();
+			if ((curT - m_clickTime) < 300) // Double Click Check
+			{
+				m_lBtnDbClick = true;
+				m_dbClickTime = curT;
+			}
+
+			if (curT - m_dbClickTime > 200)
+			{
+				m_lBtnDown = true;
+				m_clickTime = curT;
+			}
+		}
+		break;
+		case sf::Mouse::Right:
+			m_rBtnDown = true;
+			break;
+		}
+		break;
+
+	case sf::Event::MouseButtonReleased:
+		switch (evt.mouseButton.button)
+		{
+		case sf::Mouse::Left:
+		{
+			const int curT = GetTickCount();
+			if (curT - m_dbClickTime > 200)
+			{
+				m_lBtnDown = false;
+			}
+		}
+		break;
+		case sf::Mouse::Right:
+			m_rBtnDown = false;
+			break;
+		}
+		break;
+
+	case sf::Event::MouseMoved:
+		break;
 	}
 }
 
