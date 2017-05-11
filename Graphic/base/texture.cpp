@@ -130,9 +130,9 @@ void cTexture::Render2D(cRenderer &renderer)
 	TVERTEX Vertex[4] = {
 		// x  y  z rhw tu tv
 		{ 0, 0, 0, 1, 0, 0, },
-		{ (float)m_imageInfo.Width, 0,0, 1, 1, 0, },
-		{ (float)m_imageInfo.Width, (float)m_imageInfo.Height, 1, 1, 1, 1},
-		{ 0, (float)m_imageInfo.Height,0, 1, 0, 1, },
+		{ (float)m_imageInfo.Width-1, 0,0, 1, 1, 0, },
+		{ (float)m_imageInfo.Width-1, (float)m_imageInfo.Height-1, 1, 1, 1, 1},
+		{ 0, (float)m_imageInfo.Height-1,0, 1, 0, 1, },
 	};
 	renderer.GetDevice()->SetTexture(0, m_texture);
 	renderer.GetDevice()->SetVertexShader(NULL);

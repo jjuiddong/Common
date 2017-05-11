@@ -204,3 +204,16 @@ void cDockManager::ResetDevice(cRenderer *shared) // =NULL
 	for (auto &p : m_poolDock)
 		p->ResetDevice(shared);
 }
+
+
+cRenderWindow* cDockManager::GetMainWindow()
+{
+	return m_mainWindow;
+}
+
+
+graphic::cRenderer* cDockManager::GetMainRenderer()
+{
+	RETV(!m_mainWindow, NULL);
+	return &m_mainWindow->m_renderer;
+}

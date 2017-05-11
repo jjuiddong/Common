@@ -166,7 +166,7 @@ bool cDockWindow::Undock(const bool newWindow) // = true
 		window->m_dock = this;
 		m_parent = NULL;
 		m_owner = window;
-		CalcResizeWindow(sRectf(0, 0, (float)width, (float)height));
+		CalcResizeWindow(0, sRectf(0, 0, (float)width, (float)height));
 		oldGui->SetContext();
 		window->requestFocus();
 		window->SetDragState();
@@ -302,7 +302,7 @@ bool cDockWindow::Merge(cDockWindow *dock)
 		return false;
 	}
 
-	dock->CalcResizeWindow(rect);
+	dock->CalcResizeWindow(1, rect);
 	return true;
 }
 
@@ -546,7 +546,14 @@ void cDockWindow::PreRender()
 
 void cDockWindow::Update(const float deltaSeconds)
 {
-	// Nothing~
+	OnUpdate(deltaSeconds);
+
+	if (m_lower)
+		m_lower->Update(deltaSeconds);
+	for (auto &p : m_tabs)
+		p->Update(deltaSeconds);
+	if (m_upper)
+		m_upper->Update(deltaSeconds);
 }
 
 
@@ -603,13 +610,15 @@ void cDockWindow::CalcWindowSize(cDockWindow *dock)
 		break;
 	}
 
-	CalcResizeWindow(rect1);
-	dock->CalcResizeWindow(rect2);
+	CalcResizeWindow(1, rect1);
+	dock->CalcResizeWindow(1, rect2);
+
+	OnResize(1, rect1);
 }
 
 
 // Update Window size, from already setting width/height rate
-void cDockWindow::CalcResizeWindow(const sRectf &rect)
+void cDockWindow::CalcResizeWindow(const int opt, const sRectf &rect)
 {
 	if (m_rect == rect)
 		return;
@@ -632,7 +641,7 @@ void cDockWindow::CalcResizeWindow(const sRectf &rect)
 		v3.w = (v3.w / h) * nh; // bottom
 		Vector4 v4 = v3 + v0;
 		sRectf nr(v4.x, v4.y, v4.z, v4.w);
-		m_lower->CalcResizeWindow(nr);
+		m_lower->CalcResizeWindow(opt, nr);
 	}
 
 	if (m_upper)
@@ -646,17 +655,20 @@ void cDockWindow::CalcResizeWindow(const sRectf &rect)
 		v3.w = (v3.w / h) * nh; // bottom
 		Vector4 v4 = v3 + v0;
 		sRectf nr(v4.x, v4.y, v4.z, v4.w);
-		m_upper->CalcResizeWindow(nr);
+		m_upper->CalcResizeWindow(opt, nr);
 	}
 
 	m_rect = rect;
 
 	for (auto &p : m_tabs)
-		p->m_rect = rect;
+		p->CalcResizeWindow(opt, rect);
+		//p->m_rect = rect;
+
+	OnResize(opt, rect);
 }
 
 
-void cDockWindow::CalcResizeWindow(const int deltaSize)
+void cDockWindow::CalcResizeWindow(const int opt, const int deltaSize)
 {
 	RET(m_state != eDockState::VIRTUAL);
 	RET(!m_lower || !m_upper);
@@ -701,8 +713,8 @@ void cDockWindow::CalcResizeWindow(const int deltaSize)
 	default: assert(0);
 	}
 	
-	m_lower->CalcResizeWindow(rect1);
-	m_upper->CalcResizeWindow(rect2);
+	m_lower->CalcResizeWindow(opt, rect1);
+	m_upper->CalcResizeWindow(opt, rect2);
 }
 
 
@@ -782,6 +794,8 @@ void cDockWindow::LostDevice()
 
 	if (m_lower)
 		m_lower->LostDevice();
+	for (auto &p : m_tabs)
+		p->LostDevice();
 	if (m_upper)
 		m_upper->LostDevice();
 }
@@ -793,6 +807,8 @@ void cDockWindow::ResetDevice(graphic::cRenderer *shared)//= NULL
 
 	if (m_lower)
 		m_lower->ResetDevice(shared);
+	for (auto &p : m_tabs)
+		p->ResetDevice(shared);
 	if (m_upper)
 		m_upper->ResetDevice(shared);
 }

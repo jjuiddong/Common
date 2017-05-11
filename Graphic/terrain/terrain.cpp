@@ -234,7 +234,7 @@ void cTerrain::PreRender(cRenderer &renderer)
 	Plane waterPlaneW = waterPlaneL * WInvTrans;
 
 	// Reflection plane in homogeneous clip space.
-	Matrix44 WVPInvTrans = (waterWorld * cMainCamera::Get()->GetViewProjectionMatrix()).Inverse();
+	Matrix44 WVPInvTrans = (waterWorld * GetMainCamera()->GetViewProjectionMatrix()).Inverse();
 	WVPInvTrans.Transpose();
 	Plane waterPlaneH = waterPlaneL * WVPInvTrans;
 
@@ -275,9 +275,9 @@ void cTerrain::Render(cRenderer &renderer)
 		cLightManager::Get()->GetMainLight().Bind(*m_shader);
 		GetMainCamera()->Bind(*m_shader);
 
-		//m_shader->SetMatrix( "g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-		//m_shader->SetVector( "g_vEyePos", cMainCamera::Get()->GetEyePos());
-		//cMainCamera::Get()->Bind(*m_shader);
+		//m_shader->SetMatrix( "g_mVP", GetMainCamera()->GetViewProjectionMatrix());
+		//m_shader->SetVector( "g_vEyePos", GetMainCamera()->GetEyePos());
+		//GetMainCamera()->Bind(*m_shader);
 		m_shader->SetVector( "g_vFog", Vector3(1.f, 10000.f, 0)); // near, far
 
 		m_skybox.Render(renderer);

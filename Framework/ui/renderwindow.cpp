@@ -27,7 +27,7 @@ cRenderWindow::cRenderWindow()
 	: m_sharedRenderer(NULL)
 	, m_state(eState::NORMAL)
 	, m_isVisible(true)
-	, m_isThread(true)
+	, m_isThread(false)
 	, m_isThreadLoop(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
@@ -181,7 +181,7 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 		if (m_sizingWindow)
 		{
 			Vector2 delta = pos - m_ptMouse;
-			m_sizingWindow->CalcResizeWindow((m_sizingWindow->GetDockSizingType() == eDockSizingType::VERTICAL) ? (int)delta.y : (int)delta.x);
+			m_sizingWindow->CalcResizeWindow(1, (m_sizingWindow->GetDockSizingType() == eDockSizingType::VERTICAL) ? (int)delta.y : (int)delta.x);
 			m_ptMouse = pos;
 		}
 
@@ -337,9 +337,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 
 void cRenderWindow::PreRender(const float deltaSeconds)
 {
-
-
-
+	
 	OnPreRender(deltaSeconds);
 }
 
@@ -433,11 +431,13 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		if (m_renderer.CheckResetDevice())
 		{
 			LostDevice();
-			m_renderer.ResetDevice();
+
+			const bool restResource = (cDockManager::Get()->m_mainWindow == this);
+			m_renderer.ResetDevice(0, 0, false, restResource);
 
 			sRectf rect(0, 0, (float)evt.size.width, (float)evt.size.height);
 			if (m_dock)
-				m_dock->CalcResizeWindow(rect);
+				m_dock->CalcResizeWindow(0, rect);
 
 			ResetDevice(m_sharedRenderer);
 		}

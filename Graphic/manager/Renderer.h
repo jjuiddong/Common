@@ -20,9 +20,9 @@ namespace graphic
 		LPDIRECT3DDEVICE9 GetDevice();
 		HWND GetHwnd() const;
 		bool CheckResetDevice(const int width=0, const int height=0);
-		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false);
+		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false
+			, const bool resetResource=true);
 		void AddPostRender(iRenderable *obj, const int opt=0);
-
 
 		bool ClearScene();
 		void BeginScene();

@@ -48,8 +48,8 @@ void cSkyBox2::Render(cRenderer &renderer
 	RET(!m_shader);
 
 	Matrix44 world;
-	world.SetTranslate( cMainCamera::Get()->GetEyePos() );
-	world = world * tm * cMainCamera::Get()->GetViewProjectionMatrix();
+	world.SetTranslate(GetMainCamera()->GetEyePos() );
+	world = world * tm * GetMainCamera()->GetViewProjectionMatrix();
 
 	m_shader->SetMatrix("gWVP", world);
 	m_envMap->Bind(*m_shader, "gEnvMap");

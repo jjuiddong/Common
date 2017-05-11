@@ -28,6 +28,9 @@ namespace framework
 		void Clear();
 		void SetDragState(cRenderWindow *drag, const bool isDragStart=true);
 		void SetDragTarget(cDockWindow *target, eDockType::Enum dockSlot);
+		cRenderWindow* GetMainWindow();
+		graphic::cRenderer* GetMainRenderer();
+
 		void LostDevice();
 		void ResetDevice(graphic::cRenderer *shared = NULL);
 
@@ -49,4 +52,7 @@ namespace framework
 		eDockType::Enum m_dockSlot;
 	};
 
+
+	inline cRenderWindow* GetMainWindow() { return cDockManager::Get()->GetMainWindow(); }
+	inline graphic::cRenderer* GetMainRenderer() { return cDockManager::Get()->GetMainRenderer(); }
 }

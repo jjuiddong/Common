@@ -17,29 +17,26 @@ namespace framework
 		cDockWindow();
 		virtual ~cDockWindow();
 
-		virtual bool Create(const eDockState::Enum state, const eDockType::Enum type, 
+		virtual bool Create(const eDockState::Enum state, const eDockType::Enum type,
 			cRenderWindow *owner, cDockWindow *parent);
-		virtual bool Dock(const eDockType::Enum type, 
+		virtual bool Dock(const eDockType::Enum type,
 			cDockWindow *child);
-		virtual bool Undock(const bool newWindow=true);
+		virtual bool Undock(const bool newWindow = true);
 		virtual bool Undock(cDockWindow *dock);
-		void RenderDock(const Vector2 &pos= Vector2(0, 0));
+		void RenderDock(const Vector2 &pos = Vector2(0, 0));
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender();
-		virtual void OnRender() {}
-		virtual void OnPreRender() {}
 		virtual void DefaultEventProc(const sf::Event &evt);
-		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void RenderTab();
 		virtual bool RemoveTab(cDockWindow *tab);
 		virtual void LostDevice();
 		virtual void ResetDevice(graphic::cRenderer *shared = NULL);
 		void CalcWindowSize(cDockWindow *dock);
-		void CalcResizeWindow(const sRectf &rect);
-		void CalcResizeWindow(const int deltaSize);
+		void CalcResizeWindow(const int opt, const sRectf &rect);
+		void CalcResizeWindow(const int opt, const int deltaSize);
 		bool IsInSizerSpace(const Vector2 &pos);
 		eDockSizingType::Enum GetDockSizingType();
-		void SetBindState(const bool enable=true);
+		void SetBindState(const bool enable = true);
 		void ClearConnection();
 		void Clear();
 
@@ -49,6 +46,12 @@ namespace framework
 		bool Merge(cDockWindow *udock);
 		cDockWindow* UndockTab();
 		eDockType::Enum render_dock_slot_preview(const ImVec2& mouse_pos, const ImVec2& cPos, const ImVec2& cSize);
+
+		virtual void OnUpdate(const float deltaSeconds) {}
+		virtual void OnRender() {}
+		virtual void OnPreRender() {}
+		virtual void OnResize(const int opt, const sRectf rect) {}
+		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void OnLostDevice() {}
 		virtual void OnResetDevice(graphic::cRenderer *shared) {}
 

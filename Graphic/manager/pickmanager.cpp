@@ -36,7 +36,7 @@ bool cPickManager::Remove(iPickable *obj)
 bool cPickManager::Update(const float deltaSeconds, const POINT &mousePt)
 {
 	Vector3 orig, dir;
-	cMainCamera::Get()->GetRay(mousePt.x, mousePt.y, orig, dir);
+	GetMainCamera()->GetRay(mousePt.x, mousePt.y, orig, dir);
 
 	if (ePickMode::SINGLE == m_mode)
 	{

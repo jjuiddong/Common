@@ -284,6 +284,7 @@ bool cRenderer::ResetDevice(
 	const int width //=0
 	, const int height //=0
 	, const bool forceReset //=false
+	, const bool resetResource //= true
 )
 {
 	int w, h;
@@ -303,7 +304,9 @@ bool cRenderer::ResetDevice(
 	if (!forceReset && !CheckResetDevice(w, h))
 		return false;
 
-	cResourceManager::Get()->LostDevice();
+	if (resetResource)
+		cResourceManager::Get()->LostDevice();
+
 	m_textFps.LostDevice();
 
 	m_viewPort.m_vp.Width = w;
@@ -346,7 +349,8 @@ bool cRenderer::ResetDevice(
 	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
 	GetMainCamera()->SetViewPort(w, h);
 
-	cResourceManager::Get()->ResetDevice(*this);
+	if (resetResource)
+		cResourceManager::Get()->ResetDevice(*this);
 
 	return true;
 }

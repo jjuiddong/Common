@@ -23,10 +23,10 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 
 	srand((int)timeGetTime());
 
+	cDockManager::Get()->InsertMainRenderWindow(gameMain);
+
 	if (!gameMain->Init())
 		return 0;
-
-	cDockManager::Get()->InsertMainRenderWindow(gameMain);
 
 	using namespace std::chrono_literals;
 	int oldT = timeGetTime();
@@ -125,13 +125,16 @@ void cGameMain2::Exit()
 }
 
 
-void cGameMain2::OnLostDevice()
+void cGameMain2::LostDevice()
 {
+	__super::LostDevice();
 	cDockManager::Get()->LostDevice();
 }
 
 
-void cGameMain2::OnResetDevice(graphic::cRenderer *shared)
+void cGameMain2::ResetDevice(graphic::cRenderer *shared // = NULL
+)
 {
+	__super::ResetDevice(shared);
 	cDockManager::Get()->ResetDevice(&m_renderer);
 }

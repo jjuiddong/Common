@@ -105,9 +105,9 @@ void cWater::Render(cRenderer &renderer)
 {
 	cLightManager::Get()->GetMainLight().Bind(*m_shader);
 
-	m_shader->SetMatrix("g_mVP", cMainCamera::Get()->GetViewProjectionMatrix());
-	m_shader->SetMatrix("gWVP", m_initInfo.toWorld*cMainCamera::Get()->GetViewProjectionMatrix());
-	m_shader->SetVector("gEyePosW", cMainCamera::Get()->GetEyePos());
+	m_shader->SetMatrix("g_mVP", GetMainCamera()->GetViewProjectionMatrix());
+	m_shader->SetMatrix("gWVP", m_initInfo.toWorld*GetMainCamera()->GetViewProjectionMatrix());
+	m_shader->SetVector("gEyePosW", GetMainCamera()->GetEyePos());
 	m_shader->SetVector("gWaveMapOffset0", m_waveMapOffset0);
 	m_shader->SetVector("gWaveMapOffset1", m_waveMapOffset1);
 
