@@ -50,39 +50,6 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 }
 
 
-//LRESULT CALLBACK WndProc2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//	cGameMain2::Get()->MessageProc(message, wParam, lParam);
-//
-//	switch (message)
-//	{
-//	case WM_KEYDOWN:
-//		switch (wParam)
-//		{
-//		case VK_ESCAPE:
-//			DestroyWindow(hWnd);
-//			break;
-//		case VK_RETURN:
-//			break;
-//		}
-//		break;
-//
-//	case WM_DESTROY:
-//		cGameMain2::Get()->Exit();
-//		PostQuitMessage(0);
-//		break;
-//
-//	case WM_ERASEBKGND:
-//		return 0;
-//
-//	default:
-//		return DefWindowProc(hWnd, message, wParam, lParam);
-//	}
-//	return 0;
-//}
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 cGameMain2::cGameMain2()
 {
@@ -109,13 +76,6 @@ void cGameMain2::Update(const float deltaSeconds)
 {
 	__super::Update(deltaSeconds);
 	graphic::cResourceManager::Get()->Update(deltaSeconds);
-}
-
-
-void cGameMain2::DefaultEventProc(const sf::Event &evt)
-{
-	__super::DefaultEventProc(evt);
-	OnEventProc(evt);
 }
 
 

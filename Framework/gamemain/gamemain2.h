@@ -18,7 +18,6 @@ namespace framework
 
 		virtual bool Init();
 		virtual void Update(const float deltaSeconds) override;
-		virtual void DefaultEventProc(const sf::Event &evt) override;
 		virtual void LostDevice() override;
 		virtual void ResetDevice(graphic::cRenderer *shared = NULL) override;
 		virtual void Exit();
@@ -26,7 +25,6 @@ namespace framework
 
 	protected:
 		virtual bool OnInit() { return true; }
-		virtual void OnEventProc(const sf::Event &evt) {}
 
 
 	public:

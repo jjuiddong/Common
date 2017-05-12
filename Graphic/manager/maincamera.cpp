@@ -24,6 +24,9 @@ cMainCamera::~cMainCamera()
 void cMainCamera::PushCamera(cCamera *cam)
 {
 	m_cams.push_back(cam);
+
+	if (m_cams.size() > 10)
+		assert(0);
 }
 
 

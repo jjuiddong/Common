@@ -17,7 +17,7 @@ void RenderProc(cRenderWindow *wnd)
 
 	while (wnd->m_isThreadLoop && wnd->isOpen())
 	{
-		wnd->m_texture.CopyFrom(wnd->m_surf.m_texture);
+		wnd->m_backBuffer.CopyFrom(wnd->m_sharedSurf.m_texture);
 		std::this_thread::sleep_for(20ms);
 	}
 }
@@ -28,10 +28,12 @@ cRenderWindow::cRenderWindow()
 	, m_state(eState::NORMAL)
 	, m_isVisible(true)
 	, m_isThread(false)
+	, m_isRequestResetDevice(false)
 	, m_isThreadLoop(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
 	, m_isDrag(false)
+	, m_isResize(false)
 	, m_cursorType(eDockSizingType::NONE)
 {
 }
@@ -75,15 +77,15 @@ bool cRenderWindow::Create(const string &title, const int width, const int heigh
 	{
 		m_sharedRenderer = shared;
 		m_gui.Init(getSystemHandle(), shared->GetDevice());
-		m_texture.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
-		m_surf.Create(*shared, width, height, 1);
+		m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
+		m_sharedSurf.Create(*shared, width, height, 1);
 	}
 	else
 	{
 		m_sharedRenderer = NULL;
 		m_gui.Init(getSystemHandle(), m_renderer.GetDevice());
-		m_texture.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
-		m_surf.Create(m_renderer, width, height, 1);
+		m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
+		m_sharedSurf.Create(m_renderer, width, height, 1);
 	}
 
 	m_gui.SetContext();
@@ -130,6 +132,29 @@ void cRenderWindow::Update(const float deltaSeconds)
 {
 	RET(!isOpen());
 	RET(!m_isVisible);
+
+	if (m_isRequestResetDevice)
+	{
+		ChangeDevice();
+		m_isRequestResetDevice = false;
+	}
+
+	// Check Resize End
+	if (m_isResize)
+	{
+		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
+		{
+			m_isResize = false;
+			if (m_renderer.CheckResetDevice())
+			{
+				sf::Vector2u size = getSize();
+				ChangeDevice(size.x, size.y);
+
+				if (m_dock)
+					m_dock->ResizeEnd(eDockResize::RENDER_WINDOW, m_dock->m_rect);
+			}
+		}
+	}
 
 	if (m_dock)
 		m_dock->Update(deltaSeconds);
@@ -181,13 +206,15 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 		if (m_sizingWindow)
 		{
 			Vector2 delta = pos - m_ptMouse;
-			m_sizingWindow->CalcResizeWindow(1, (m_sizingWindow->GetDockSizingType() == eDockSizingType::VERTICAL) ? (int)delta.y : (int)delta.x);
+			m_sizingWindow->CalcResizeWindow(eDockResize::DOCK_WINDOW, (m_sizingWindow->GetDockSizingType() == eDockSizingType::VERTICAL) ? (int)delta.y : (int)delta.x);
 			m_ptMouse = pos;
 		}
 
 		if (ImGui::IsMouseReleased(0))
 		{
 			m_state = eState::NORMAL;
+			if (m_sizingWindow)
+				m_sizingWindow->ResizeEnd(eDockResize::DOCK_WINDOW, m_sizingWindow->m_rect);
 			m_sizingWindow = NULL;
 		}
 	}
@@ -274,7 +301,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 	if (m_sharedRenderer)
 	{
 		m_camera.Bind(*m_sharedRenderer);
-		m_surf.Begin();
+		m_sharedSurf.Begin();
 		if (m_sharedRenderer->ClearScene())
 		{
 			m_sharedRenderer->BeginScene();
@@ -283,10 +310,10 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_sharedRenderer->EndScene();
 			//m_sharedRenderer->Present();
 		}
-		m_surf.End();
+		m_sharedSurf.End();
 
 		if (!m_isThread)
-			m_texture.CopyFrom(m_surf.m_texture);
+			m_backBuffer.CopyFrom(m_sharedSurf.m_texture);
 
 		m_camera.Bind(m_renderer);
 		m_light.Bind(m_renderer, 0);
@@ -299,7 +326,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 
 			OnRender(deltaSeconds);
 
-			m_texture.Render2D(m_renderer);
+			m_backBuffer.Render2D(m_renderer);
 
 			m_renderer.EndScene();
 			m_renderer.Present();
@@ -322,6 +349,8 @@ void cRenderWindow::Render(const float deltaSeconds)
 		
 			m_gui.Render();
 
+			OnPostRender(deltaSeconds);
+
 			m_renderer.EndScene();
 			m_renderer.Present();
 		}
@@ -329,8 +358,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 		{
 			// Device Lost
 		}
-
-		OnPostRender(deltaSeconds);
 	}
 }
 
@@ -349,8 +376,8 @@ void cRenderWindow::LostDevice()
 		m_thread.join();
 
 	m_gui.InvalidateDeviceObjects();
-	m_surf.LostDevice();
-	m_texture.LostDevice();
+	m_sharedSurf.LostDevice();
+	m_backBuffer.LostDevice();
 
 	if (m_dock)
 		m_dock->LostDevice();
@@ -366,13 +393,13 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 
 	m_camera.SetViewPort(width, height);
 	m_gui.CreateDeviceObjects();
-	m_surf.m_vp.Width = width;
-	m_surf.m_vp.Height = height;
-	m_surf.ResetDevice((shared)? *shared : m_renderer);
+	m_sharedSurf.m_vp.Width = width;
+	m_sharedSurf.m_vp.Height = height;
+	m_sharedSurf.ResetDevice((shared)? *shared : m_renderer);
 	
-	m_texture.m_imageInfo.Width = width;
-	m_texture.m_imageInfo.Height = height;
-	m_texture.ResetDevice(m_renderer);
+	m_backBuffer.m_imageInfo.Width = width;
+	m_backBuffer.m_imageInfo.Height = height;
+	m_backBuffer.ResetDevice(m_renderer);
 
 	if (m_dock)
 		m_dock->ResetDevice(shared);
@@ -389,6 +416,8 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 
 void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
+	OnEventProc(evt);
+
 	if (m_dock)
 		m_dock->DefaultEventProc(evt);
 
@@ -423,24 +452,17 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		}
 		break;
 
-		//case sf::Event::MouseWheel:
-		//	break;
+	case sf::Event::MouseWheelMoved:
+		io.MouseWheel += evt.mouseWheel.delta > 0 ? +1.0f : -1.0f;
+		break;
 
 	case sf::Event::Resized:
 	{
-		if (m_renderer.CheckResetDevice())
-		{
-			LostDevice();
-
-			const bool restResource = (cDockManager::Get()->m_mainWindow == this);
-			m_renderer.ResetDevice(0, 0, false, restResource);
-
-			sRectf rect(0, 0, (float)evt.size.width, (float)evt.size.height);
-			if (m_dock)
-				m_dock->CalcResizeWindow(0, rect);
-
-			ResetDevice(m_sharedRenderer);
-		}
+		m_isResize = true;
+		//if (m_renderer.CheckResetDevice())
+		//{
+		//	ChangeDevice(evt.size.width, evt.size.height);
+		//}
 	}
 	break;
 	}
@@ -523,6 +545,30 @@ void cRenderWindow::WakeUp(const string &title, const int width, const int heigh
 	m_thread = std::thread(RenderProc, this);
 
 	setVisible(true);
+}
+
+
+void cRenderWindow::ChangeDevice(
+	const int width //=0
+	, const int height //=0)
+)
+{
+	LostDevice();
+
+	const bool restResource = (cDockManager::Get()->m_mainWindow == this);
+	m_renderer.ResetDevice(0, 0, false, restResource);
+
+	sRectf rect(0, 0, (float)((width==0)? getSize().x : width), (float)((height==0)? getSize().y : height));
+	if (m_dock)
+		m_dock->CalcResizeWindow(eDockResize::RENDER_WINDOW, rect);
+
+	ResetDevice(m_sharedRenderer);
+}
+
+
+void cRenderWindow::RequestResetDeviceNextFrame()
+{
+	m_isRequestResetDevice = true;
 }
 
 

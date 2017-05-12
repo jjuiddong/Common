@@ -39,4 +39,12 @@ namespace framework
 		};
 	};
 
+	struct eDockResize
+	{
+		enum Enum
+		{
+			RENDER_WINDOW, DOCK_WINDOW
+		};
+	};
+
 }

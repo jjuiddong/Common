@@ -37,8 +37,10 @@ bool eDockType::IsOpposite(const Enum &type1, const Enum &type2)
 
 
 
-cDockWindow::cDockWindow()
+cDockWindow::cDockWindow(const string &name //=""
+)
 	: m_state(eDockState::DOCK)
+	, m_name(name)
 	, m_isBind(false)
 	, m_dockType(eDockType::TOP)
 	, m_owner(NULL)
@@ -48,7 +50,7 @@ cDockWindow::cDockWindow()
 	, m_rect(0,0,0,0)
 	, m_selectTab(0)
 {
-	m_name = format("dock%d", s_id++);
+	//m_name = format("dock%d", s_id++);
 }
 
 cDockWindow::~cDockWindow()
@@ -58,7 +60,9 @@ cDockWindow::~cDockWindow()
 
 
 bool cDockWindow::Create(const eDockState::Enum state, const eDockType::Enum type,
-	cRenderWindow *owner, cDockWindow *parent)
+	cRenderWindow *owner, cDockWindow *parent
+	, const float windowSize//=0.5f
+)
 {
 	m_state = state;
 	m_dockType = type;
@@ -79,15 +83,17 @@ bool cDockWindow::Create(const eDockState::Enum state, const eDockType::Enum typ
 	if (parent)
 	{
 		if (state == eDockState::DOCK)
-			parent->Dock(type, this);
+			parent->Dock(type, this, windowSize);
 	}
 
 	return true;
 }
 
 
-bool cDockWindow::Dock(const eDockType::Enum type, 
-	cDockWindow *child)
+bool cDockWindow::Dock(const eDockType::Enum type
+	, cDockWindow *child
+	, const float windowSize //= 0.5f
+)
 {
 	if (this == child)
 		return false;
@@ -99,6 +105,8 @@ bool cDockWindow::Dock(const eDockType::Enum type,
 		child->m_dockType = m_dockType;
 		child->m_rect = m_rect;
 		m_tabs.push_back(child);
+
+		ResizeEnd(eDockResize::DOCK_WINDOW, m_rect);
 		return true;
 	}
 
@@ -132,7 +140,7 @@ bool cDockWindow::Dock(const eDockType::Enum type,
 	child->m_owner = m_owner;
 	child->m_parent = dock;
 	child->m_dockType = type;
-	CalcWindowSize(child);
+	CalcWindowSize(child, windowSize);
 
 	return true;
 }
@@ -166,10 +174,11 @@ bool cDockWindow::Undock(const bool newWindow) // = true
 		window->m_dock = this;
 		m_parent = NULL;
 		m_owner = window;
-		CalcResizeWindow(0, sRectf(0, 0, (float)width, (float)height));
+		CalcResizeWindow(eDockResize::RENDER_WINDOW, sRectf(0, 0, (float)width, (float)height));
 		oldGui->SetContext();
 		window->requestFocus();
 		window->SetDragState();
+		window->RequestResetDeviceNextFrame();
 	}
 	else
 	{
@@ -228,6 +237,7 @@ bool cDockWindow::Undock(cDockWindow *udock)
 		udock->Merge(showWnd);
 		showWnd->m_dockType = m_dockType;
 		SetParentDockPtr(showWnd);
+		showWnd->OnResizeEnd(eDockResize::DOCK_WINDOW, showWnd->m_rect);
 		cDockManager::Get()->DeleteDockWindow(this);
 	}
 	else
@@ -302,7 +312,7 @@ bool cDockWindow::Merge(cDockWindow *dock)
 		return false;
 	}
 
-	dock->CalcResizeWindow(1, rect);
+	dock->CalcResizeWindow(eDockResize::DOCK_WINDOW, rect);
 	return true;
 }
 
@@ -438,6 +448,9 @@ void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 			if ((mouse_pos.x > screen_cursor_pos.x && mouse_pos.x < (screen_cursor_pos.x + size.x)) &&
 				(mouse_pos.y > screen_cursor_pos.y && mouse_pos.y < (screen_cursor_pos.y + size.y)))
 			{
+				// todo: cliprect bugfix
+				ImGui::SetScrollY(ImGui::GetScrollY() + ImGui::GetWindowSize().y);
+
 				ImGui::BeginChild("##dockSlotPreview");
 				ImGui::PushClipRect(ImVec2(), ImGui::GetIO().DisplaySize, false);
 				eDockType::Enum dock_slot = render_dock_slot_preview(cursor_pos, screen_cursor_pos, ImVec2(m_rect.Width(), m_rect.Height()));
@@ -557,7 +570,9 @@ void cDockWindow::Update(const float deltaSeconds)
 }
 
 
-void cDockWindow::CalcWindowSize(cDockWindow *dock)
+void cDockWindow::CalcWindowSize(cDockWindow *dock
+	, const float windowSize //= 0.5f
+)
 {
 	RET(!dock);
 
@@ -569,39 +584,29 @@ void cDockWindow::CalcWindowSize(cDockWindow *dock)
 	switch (dock->m_dockType)
 	{
 	case 	eDockType::TAB:
-	{
 		rect1 = sRectf(x, y, x + size.x, y + size.y);
 		rect2 = sRectf(x, y, x + size.x, y + size.y);
-	}
-	break;
+		break;
 
 	case eDockType::LEFT:
-	{
-		rect1 = sRectf(x + size.x / 2, y, x+size.x, y+size.y);
-		rect2 = sRectf(x, y, x+size.x/2, y+size.y);
-	}
-	break;
+		rect1 = sRectf(x + size.x *windowSize, y, x+size.x, y+size.y);
+		rect2 = sRectf(x, y, x+size.x*windowSize, y+size.y);
+		break;
 
 	case eDockType::RIGHT:
-	{
-		rect1 = sRectf(x, y, x + size.x / 2, y + size.y);
-		rect2 = sRectf(x + size.x / 2, y, x + size.x, y + size.y);
-	}
-	break;
+		rect1 = sRectf(x, y, x + size.x *(1-windowSize), y + size.y);
+		rect2 = sRectf(x + size.x *(1-windowSize), y, x + size.x, y + size.y);
+		break;
 
 	case eDockType::TOP:
-	{
-		rect1 = sRectf(x, y + size.y / 2, x + size.x, y + size.y);
-		rect2 = sRectf(x, y, x + size.x, y + size.y / 2);
-	}
-	break;
+		rect1 = sRectf(x, y + size.y *windowSize, x + size.x, y + size.y);
+		rect2 = sRectf(x, y, x + size.x, y + size.y *windowSize);
+		break;
 
 	case eDockType::BOTTOM:
-	{
-		rect1 = sRectf(x, y, x + size.x, y + size.y / 2);
-		rect2 = sRectf(x, y + size.y / 2, x + size.x, y + size.y);
-	}
-	break;
+		rect1 = sRectf(x, y, x + size.x, y + size.y *(1-windowSize));
+		rect2 = sRectf(x, y + size.y *(1-windowSize), x + size.x, y + size.y);
+		break;
 
 	case eDockType::LEFT_MOST:
 	case eDockType::TOP_MOST:
@@ -610,15 +615,16 @@ void cDockWindow::CalcWindowSize(cDockWindow *dock)
 		break;
 	}
 
-	CalcResizeWindow(1, rect1);
-	dock->CalcResizeWindow(1, rect2);
+	CalcResizeWindow(eDockResize::DOCK_WINDOW, rect1);
+	dock->CalcResizeWindow(eDockResize::DOCK_WINDOW, rect2);
 
-	OnResize(1, rect1);
+	OnResizeEnd(eDockResize::DOCK_WINDOW, rect1);
+	dock->OnResizeEnd(eDockResize::DOCK_WINDOW, rect1);
 }
 
 
 // Update Window size, from already setting width/height rate
-void cDockWindow::CalcResizeWindow(const int opt, const sRectf &rect)
+void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const sRectf &rect)
 {
 	if (m_rect == rect)
 		return;
@@ -641,7 +647,7 @@ void cDockWindow::CalcResizeWindow(const int opt, const sRectf &rect)
 		v3.w = (v3.w / h) * nh; // bottom
 		Vector4 v4 = v3 + v0;
 		sRectf nr(v4.x, v4.y, v4.z, v4.w);
-		m_lower->CalcResizeWindow(opt, nr);
+		m_lower->CalcResizeWindow(type, nr);
 	}
 
 	if (m_upper)
@@ -655,20 +661,20 @@ void cDockWindow::CalcResizeWindow(const int opt, const sRectf &rect)
 		v3.w = (v3.w / h) * nh; // bottom
 		Vector4 v4 = v3 + v0;
 		sRectf nr(v4.x, v4.y, v4.z, v4.w);
-		m_upper->CalcResizeWindow(opt, nr);
+		m_upper->CalcResizeWindow(type, nr);
 	}
 
 	m_rect = rect;
 
 	for (auto &p : m_tabs)
-		p->CalcResizeWindow(opt, rect);
+		p->CalcResizeWindow(type, rect);
 		//p->m_rect = rect;
 
-	OnResize(opt, rect);
+	OnResize(type, rect);
 }
 
 
-void cDockWindow::CalcResizeWindow(const int opt, const int deltaSize)
+void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const int deltaSize)
 {
 	RET(m_state != eDockState::VIRTUAL);
 	RET(!m_lower || !m_upper);
@@ -713,8 +719,8 @@ void cDockWindow::CalcResizeWindow(const int opt, const int deltaSize)
 	default: assert(0);
 	}
 	
-	m_lower->CalcResizeWindow(opt, rect1);
-	m_upper->CalcResizeWindow(opt, rect2);
+	m_lower->CalcResizeWindow(type, rect1);
+	m_upper->CalcResizeWindow(type, rect2);
 }
 
 
@@ -729,6 +735,19 @@ bool cDockWindow::RemoveTab(cDockWindow *tab)
 
 	m_selectTab = 0;
 	return true;
+}
+
+
+void cDockWindow::ResizeEnd(const eDockResize::Enum type, const sRectf &rect)
+{
+	OnResizeEnd(type, rect);
+
+	if (m_lower)
+		m_lower->ResizeEnd(type, rect);
+	for (auto &p : m_tabs)
+		p->ResizeEnd(type, rect);
+	if (m_upper)
+		m_upper->ResizeEnd(type, rect);
 }
 
 
@@ -826,6 +845,9 @@ void cDockWindow::ClearConnection()
 
 void cDockWindow::DefaultEventProc(const sf::Event &evt)
 {
+	if (!CheckEventTarget(evt))
+		return;
+
 	if (m_lower)
 	{
 		m_lower->DefaultEventProc(evt);
@@ -842,6 +864,35 @@ void cDockWindow::DefaultEventProc(const sf::Event &evt)
 	{
 		m_upper->DefaultEventProc(evt);
 	}
+}
+
+
+bool cDockWindow::CheckEventTarget(const sf::Event &evt)
+{
+	switch (evt.type)
+	{
+	case sf::Event::MouseButtonPressed:
+	{
+		POINT pos = { evt.mouseButton.x, evt.mouseButton.y };
+		if (!m_rect.IsIn((float)pos.x, (float)pos.y))
+			return false;
+	}
+	break;
+
+	case sf::Event::MouseWheelMoved:
+	{
+		POINT pos = { evt.mouseWheel.x, evt.mouseWheel.y };
+		if (!m_rect.IsIn((float)pos.x, (float)pos.y))
+			return false;
+	}
+	break;
+
+	case sf::Event::MouseMoved:
+	case sf::Event::MouseButtonReleased:
+		break;
+	}
+
+	return true;
 }
 
 
