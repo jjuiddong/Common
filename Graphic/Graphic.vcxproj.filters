@@ -295,6 +295,24 @@
     <ClInclude Include="base\surface3.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="terrain\terrain2.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\tile.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgbox.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgsphere.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgarrow.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -553,6 +571,24 @@
     <ClCompile Include="base\surface3.cpp">
       <Filter>base</Filter>
     </ClCompile>
+    <ClCompile Include="terrain\terrain2.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\tile.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgbox.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgsphere.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgarrow.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="model">
@@ -593,6 +629,9 @@
     </Filter>
     <Filter Include="model_new">
       <UniqueIdentifier>{44c36359-2c87-4070-bd69-0e19e4359d07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dbg">
+      <UniqueIdentifier>{1794bca9-9897-4cf7-8fc7-d9e2e575ef67}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

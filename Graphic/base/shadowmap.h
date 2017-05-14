@@ -24,7 +24,7 @@ namespace graphic
 		void ResetDevice(graphic::cRenderer &renderer);
 
 		// 디버깅용 함수.
-		void RenderShadowMap(cRenderer &renderer);
+		void RenderShadowMap(cRenderer &renderer, const int index = 1);
 
 
 	public:

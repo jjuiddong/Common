@@ -391,6 +391,10 @@
     <ClInclude Include="collision\collision.h" />
     <ClInclude Include="collision\collisionmanager.h" />
     <ClInclude Include="collision\frustum.h" />
+    <ClInclude Include="dbg\dbgarrow.h" />
+    <ClInclude Include="dbg\dbgbox.h" />
+    <ClInclude Include="dbg\dbgline.h" />
+    <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic.h" />
     <ClInclude Include="importer\modelimporter.h" />
     <ClInclude Include="importer\parallelloader.h" />
@@ -431,12 +435,14 @@
     <ClInclude Include="sprite\sprite2.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="terrain\terrain2.h" />
     <ClInclude Include="terrain\terrainexporter.h" />
     <ClInclude Include="terrain\terrainimporter.h" />
     <ClInclude Include="terrain\rawterrain.h" />
     <ClInclude Include="terrain\terrain.h" />
     <ClInclude Include="terrain\terraincursor.h" />
     <ClInclude Include="terrain\terraineditor.h" />
+    <ClInclude Include="terrain\tile.h" />
     <ClInclude Include="terrain\water.h" />
   </ItemGroup>
   <ItemGroup>
@@ -488,6 +494,10 @@
     <ClCompile Include="collision\boundingbox.cpp" />
     <ClCompile Include="collision\collisionmanager.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
+    <ClCompile Include="dbg\dbgarrow.cpp" />
+    <ClCompile Include="dbg\dbgbox.cpp" />
+    <ClCompile Include="dbg\dbgline.cpp" />
+    <ClCompile Include="dbg\dbgsphere.cpp" />
     <ClCompile Include="importer\modelimporter.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />
     <ClCompile Include="manager\fontmanager.cpp" />
@@ -531,11 +541,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="terrain\terrain2.cpp" />
     <ClCompile Include="terrain\terrainexporter.cpp" />
     <ClCompile Include="terrain\terrainimporter.cpp" />
     <ClCompile Include="terrain\terrain.cpp" />
     <ClCompile Include="terrain\terraincursor.cpp" />
     <ClCompile Include="terrain\terraineditor.cpp" />
+    <ClCompile Include="terrain\tile.cpp" />
     <ClCompile Include="terrain\water.cpp" />
   </ItemGroup>
   <ItemGroup>

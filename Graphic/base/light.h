@@ -36,6 +36,9 @@ namespace graphic
 		void GetShadowMatrix( const Vector3 &modelPos, 
 			OUT Vector3 &lightPos, OUT Matrix44 &view, OUT Matrix44 &proj, 
 			OUT Matrix44 &tt );
+		void GetShadowMatrix(const Vector3 &lightPos, OUT Matrix44 &view
+			, OUT Matrix44 &proj, OUT Matrix44 &tt);
+		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt);
 
 
 	public:

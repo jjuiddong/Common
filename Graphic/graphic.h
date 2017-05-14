@@ -130,12 +130,18 @@ static const string g_defaultTexture = "white.dds";
 
 #include "importer/parallelloader.h"
 
+#include "dbg/dbgbox.h"
+#include "dbg/dbgsphere.h"
+#include "dbg/dbgline.h"
+#include "dbg/dbgarrow.h"
+
+
 #pragma comment( lib, "d3d9.lib" )
 #pragma comment( lib, "d3dx9.lib" )
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

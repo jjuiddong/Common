@@ -36,7 +36,7 @@ void cShadowMap::Begin(cRenderer &renderer)
 	m_surface.Begin( renderer);
 	renderer.GetDevice()->Clear(0, NULL
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
-		, 0x000000ff, 1.0f, 0L);
+		, 0xffffffff, 1.0f, 0L);
 }
 
 
@@ -65,7 +65,9 @@ void cShadowMap::ResetDevice(graphic::cRenderer &renderer)
 
 
 // 디버깅용 함수.
-void cShadowMap::RenderShadowMap(cRenderer &renderer)
+void cShadowMap::RenderShadowMap(cRenderer &renderer
+	, const int index //=1
+)
 {
-	m_surface.Render(renderer);
+	m_surface.Render(renderer, index);
 }

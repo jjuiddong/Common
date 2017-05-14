@@ -37,13 +37,14 @@ bool cFrustum::Create(cRenderer &renderer, const Matrix44 &matViewProj)
 	// 역행렬( Matrix_view * Matrix_Proj )^-1를 양변에 곱하면
 	// Vertex_최종 * 역행렬( Matrix_view * Matrix_Proj )^-1 = Vertex_World 가 된다.
 	// 그러므로, m_Vtx * matInv = Vertex_world가 되어, 월드좌표계의 프러스텀 좌표를 얻을 수 있다.
-	sVertexDiffuse *vertices = (sVertexDiffuse*)m_vtxBuff.Lock();
+	sVertexNormDiffuse *vertices = (sVertexNormDiffuse*)m_vtxBuff.Lock();
 	RETV(!vertices, false);
 
 	m_fullCheck = false;
 
-	for (int i = 0; i < 8; i++)
-		vertices[ i].p *= matInv;
+	m_tm = matInv;
+	//for (int i = 0; i < 8; i++)
+	//	vertices[ i].p *= matInv;
 
 	// 2번과 5번은 프러스텀중 near평면의 좌측상단과 우측하단이므로, 둘의 좌표를 더해서 2로 나누면
 	// 카메라의 좌표를 얻을 수 있다.(정확히 일치하는 것은 아니다.)
@@ -68,7 +69,7 @@ bool cFrustum::Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_
 {
 	SetCube(renderer, _min, _max);
 
-	sVertexDiffuse *vertices = (sVertexDiffuse*)m_vtxBuff.Lock();
+	sVertexNormDiffuse *vertices = (sVertexNormDiffuse*)m_vtxBuff.Lock();
 	RETV(!vertices, false);
 
 	m_fullCheck = true;
@@ -116,7 +117,6 @@ bool cFrustum::IsIn( const Vector3 &point )
 //-----------------------------------------------------------------------------//
 bool cFrustum::IsInSphere( const Vector3 &point, float radius )
 {
-
 	for (int i=0; i < 6; ++i)
 	{
 		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
@@ -197,5 +197,4 @@ void cFrustum::Render(cRenderer &renderer)
 
 	//GetDevice()->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 	//GetDevice()->SetRenderState( D3DRS_LIGHTING, FALSE );
-
 }

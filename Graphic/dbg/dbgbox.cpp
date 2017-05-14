@@ -1,23 +1,22 @@
 
 #include "stdafx.h"
-#include "cube.h"
+#include "dbgbox.h"
 
 using namespace graphic;
 
 
-cCube::cCube()
-	: m_scale(1)
+cDbgBox::cDbgBox()
 {
 }
 
-cCube::cCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+cDbgBox::cDbgBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
 {
-	InitCube(renderer);
-	SetCube(renderer, vMin, vMax);
+	InitBox(renderer);
+	SetBox(renderer, vMin, vMax);
 }
 
 
-void cCube::InitCube(cRenderer &renderer)
+void cDbgBox::InitBox(cRenderer &renderer)
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
@@ -30,10 +29,7 @@ void cCube::InitCube(cRenderer &renderer)
 	//   2 --- 3
 	//
 	Vector3 vertices[8] = {
-		//Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
-		//Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
-
-		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
 	Vector3 normals[6] = {
@@ -114,15 +110,15 @@ void cCube::InitCube(cRenderer &renderer)
 }
 
 
-void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
 {
 	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitCube(renderer);
+		InitBox(renderer);
 
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
 	const Vector3 v2 = m_max - m_min;
-	Vector3 scale(abs(v1.x)/2, abs(v1.y)/2, abs(v1.z)/2);
+	Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
 
 	Matrix44 S;
 	S.SetScale(scale);
@@ -131,32 +127,21 @@ void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMa
 	Matrix44 tm = S * T;
 
 	m_tm = tm;
-	m_scale = scale;
-	m_pos = center;
 	m_min = vMin;
 	m_max = vMax;
 }
 
 
-void cCube::SetCube(cRenderer &renderer, const cCube &cube)
-{
-	SetCube(renderer, cube.GetMin(), cube.GetMax());
-	m_tm = cube.GetTransform();
-}
-
-
-void cCube::SetColor( DWORD color )
+void cDbgBox::SetColor(DWORD color)
 {
 	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
-	for (int i=0; i < m_vtxBuff.GetVertexCount(); ++i)
-		vbuff[ i].c = color;
+	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
+		vbuff[i].c = color;
 	m_vtxBuff.Unlock();
 }
 
 
-void cCube::Render(cRenderer &renderer
-	, const Matrix44 &tm //=Matrix44::Identity
-)
+void cDbgBox::Render(cRenderer &renderer, const Matrix44 &tm)
 {
 	RET(m_vtxBuff.GetVertexCount() <= 0);
 
@@ -168,10 +153,10 @@ void cCube::Render(cRenderer &renderer
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lightMode);
 
 	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, FALSE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	renderer.GetDevice()->SetTexture(0, NULL);
-	
+
 	Matrix44 mat = m_tm * tm;
 	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
 	m_vtxBuff.Bind(renderer);
@@ -184,57 +169,3 @@ void cCube::Render(cRenderer &renderer
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
 }
 
-
-void cCube::RenderSolid(cRenderer &renderer
-	, const Matrix44 &tm//=Matrix44::Identity
-)
-{
-	Matrix44 mat = m_tm * tm;
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
-	renderer.GetDevice()->SetTexture(0, NULL);
-	m_vtxBuff.Bind(renderer);
-	m_idxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
-		m_vtxBuff.GetVertexCount(), 0, 12);
-}
-
-
-void cCube::RenderShader(cRenderer &renderer, cShader &shader
-	, const Matrix44 &tm//=Matrix44::Identity
-)
-{
-	shader.SetMatrix("g_mWorld", m_tm*tm);
-
-	const int passCount = shader.Begin();
-	for (int i = 0; i < passCount; ++i)
-	{
-		shader.BeginPass(i);
-		shader.CommitChanges();
-		m_vtxBuff.Bind(renderer);
-		m_idxBuff.Bind(renderer);
-		renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
-			m_vtxBuff.GetVertexCount(), 0, 12);
-		shader.EndPass();
-	}
-	shader.End();
-}
-
-
-void cCube::RenderShader(cRenderer &renderer
-	, const Matrix44 &tm//=Matrix44::Identity
-)
-{
-	if (m_shader)
-		RenderShader(renderer, *m_shader, tm);
-}
-
-
-void cCube::ReCalcTransform()
-{
-	Matrix44 S;
-	S.SetScale(m_scale);
-	Matrix44 T;
-	T.SetTranslate(m_pos);
-	Matrix44 tm = S * T;
-	m_tm = tm;
-}

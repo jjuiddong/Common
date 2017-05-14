@@ -38,7 +38,7 @@ namespace common
 			*this = sRect1(left, y, right, y + Height());
 		}	
 		void SetWidth(const T width) {
-			*this = sRect1(left, top, width, Height());
+			*this = Rect(left, top, width, Height());
 		}
 		void SetHeight(const T height) {
 			*this = sRect1(left, top, right, height);
@@ -48,6 +48,9 @@ namespace common
 		}
 		T Height() const {
 			return abs(bottom - top);
+		}
+		Vector2 Center() const {
+			return Vector2((float)(left + right)*0.5f, (float)(top + bottom)*0.5f);
 		}
 
 		sRect1 operator-(const sRect1 &rhs) {

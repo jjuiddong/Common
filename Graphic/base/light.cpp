@@ -66,10 +66,45 @@ void cLight::GetShadowMatrix( const Vector3 &modelPos,
 
 	//proj.SetProjection( D3DX_PI/8.f, 1, 0.1f, 10000);
 	//proj.SetProjectionOrthogonal(30, 30, 0.1f, 10000);
-	proj.SetProjectionOrthogonal(30, 30, 0.1f, 100.f);
+	proj.SetProjectionOrthogonal(50, 50, 0.1f, 10000.f);
 
 	D3DXMATRIX mTT= D3DXMATRIX(0.5f, 0.0f, 0.0f, 0.0f
 		, 0.0f,-0.5f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, 0.5f, 0.5f, 0.0f, 1.0f);
+	tt = *(Matrix44*)&mTT;
+}
+
+
+// 임시로 지정된 lightPos 를 기준으로 그림자 행렬을 만든다.
+// lightPos는 저장되지 않는다.
+void cLight::GetShadowMatrix(const Vector3 &lightPos, OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt)
+{
+	Vector3 dir = *(Vector3*)&m_light.Direction;
+	Vector3 modelPos = dir * 10 + lightPos;
+
+	view.SetView2(lightPos, modelPos, Vector3(0, 1, 0));
+	proj.SetProjectionOrthogonal(40, 40, 0.1f, 10000.f);
+
+	D3DXMATRIX mTT = D3DXMATRIX(0.5f, 0.0f, 0.0f, 0.0f
+		, 0.0f, -0.5f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, 0.5f, 0.5f, 0.0f, 1.0f);
+	tt = *(Matrix44*)&mTT;
+}
+
+
+void cLight::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt)
+{
+	Vector3 lightPos = *(Vector3*)&m_light.Position;
+	Vector3 dir = *(Vector3*)&m_light.Direction;
+	Vector3 modelPos = dir * 10 + lightPos;
+
+	view.SetView2(lightPos, modelPos, Vector3(0, 1, 0));
+	proj.SetProjectionOrthogonal(80, 80, 0.1f, 10000.f);
+
+	D3DXMATRIX mTT = D3DXMATRIX(0.5f, 0.0f, 0.0f, 0.0f
+		, 0.0f, -0.5f, 0.0f, 0.0f
 		, 0.0f, 0.0f, 1.0f, 0.0f
 		, 0.5f, 0.5f, 0.0f, 1.0f);
 	tt = *(Matrix44*)&mTT;
