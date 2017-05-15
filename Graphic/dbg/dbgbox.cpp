@@ -11,7 +11,6 @@ cDbgBox::cDbgBox()
 
 cDbgBox::cDbgBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
 {
-	InitBox(renderer);
 	SetBox(renderer, vMin, vMax);
 }
 
@@ -32,35 +31,24 @@ void cDbgBox::InitBox(cRenderer &renderer)
 		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
-	Vector3 normals[6] = {
-		Vector3(0,0,-1), // front
-		Vector3(0,0,1), // back
-		Vector3(0,1,0), // top
-		Vector3(0,-1,0), // bottom
-		Vector3(-1,0,0), // left
-		Vector3(1,0,0) // right
-	};
 
-	int normalIndices[36] = {
-		// front
-		0, 0, 0,
-		0 ,0, 0,
-		// back
-		1, 1, 1,
-		1, 1, 1,
-		// top
-		2, 2, 2,
-		2, 2, 2,
-		// bottom
-		3, 3, 3,
-		3, 3, 3,
-		// left
-		4, 4, 4,
-		4, 4, 4,
-		// right
-		5, 5, 5,
-		5, 5, 5,
-	};
+	InitBox(renderer, vertices);
+}
+
+
+void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
+{
+	if (m_vtxBuff.GetVertexCount() > 0)
+		return;
+
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	// vertices
 
 	WORD indices[36] = {
 		// front
@@ -83,16 +71,15 @@ void cDbgBox::InitBox(cRenderer &renderer)
 		1, 5, 7,
 	};
 
-	m_vtxBuff.Create(renderer, 36, sizeof(sVertexNormDiffuse), sVertexNormDiffuse::FVF);
+	m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
 	m_idxBuff.Create(renderer, 12);
 
-	if (sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock())
+	if (sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock())
 	{
 		const DWORD color = D3DCOLOR_XRGB(200, 200, 200);
 		for (int i = 0; i < 36; ++i)
 		{
 			vbuff[i].p = vertices[indices[i]];
-			vbuff[i].n = normals[normalIndices[i]];
 			vbuff[i].c = color;
 		}
 		m_vtxBuff.Unlock();
@@ -134,14 +121,16 @@ void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vM
 
 void cDbgBox::SetColor(DWORD color)
 {
-	sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
+	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
 	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
 		vbuff[i].c = color;
 	m_vtxBuff.Unlock();
 }
 
 
-void cDbgBox::Render(cRenderer &renderer, const Matrix44 &tm)
+void cDbgBox::Render(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
 {
 	RET(m_vtxBuff.GetVertexCount() <= 0);
 

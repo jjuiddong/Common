@@ -30,12 +30,10 @@ void cCube::InitCube(cRenderer &renderer)
 	//   2 --- 3
 	//
 	Vector3 vertices[8] = {
-		//Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
-		//Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
-
-		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
+
 	Vector3 normals[6] = {
 		Vector3(0,0,-1), // front
 		Vector3(0,0,1), // back

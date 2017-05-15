@@ -29,7 +29,6 @@ static const string g_defaultTexture = "white.dds";
 #include "interface/shaderrenderer.h"
 #include "interface/shadowrenderer.h"
 
-
 #include "base/fontgdi.h"
 #include "base/viewport.h"
 #include "base/material.h"
@@ -74,12 +73,19 @@ static const string g_defaultTexture = "white.dds";
 #include "base/shadowmap.h"
 #include "base/shadowvolume.h"
 
-//#include "base/xfilemesh.h"
-
-
 #include "collision/collision.h"
 #include "collision/collisionmanager.h"
 #include "collision/frustum.h"
+
+
+#include "dbg/dbgbox.h"
+#include "dbg/dbgsphere.h"
+#include "dbg/dbgline.h"
+#include "dbg/dbgarrow.h"
+#include "dbg/dbgfrustum.h"
+
+//#include "base/xfilemesh.h"
+
 
 
 #include "particle/particles.h"
@@ -130,10 +136,6 @@ static const string g_defaultTexture = "white.dds";
 
 #include "importer/parallelloader.h"
 
-#include "dbg/dbgbox.h"
-#include "dbg/dbgsphere.h"
-#include "dbg/dbgline.h"
-#include "dbg/dbgarrow.h"
 
 
 #pragma comment( lib, "d3d9.lib" )
@@ -141,7 +143,7 @@ static const string g_defaultTexture = "white.dds";
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

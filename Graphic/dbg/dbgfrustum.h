@@ -1,4 +1,7 @@
+//
+// 2017-05-15, jjuiddong
 // 절두체 클래스.
+//
 #pragma once
 
 
@@ -6,19 +9,18 @@ namespace graphic
 {
 	class cRenderer;
 
-	class cFrustum
+	class cDbgFrustum : public cDbgBox
 	{
 	public:
-		cFrustum();
-		virtual ~cFrustum();
+		cDbgFrustum();
+		virtual ~cDbgFrustum();
 
 		bool Create(cRenderer &renderer, const Matrix44 &matViewProj);
 		bool Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_max);
-		bool IsIn( const Vector3 &point );
-		bool IsInSphere( const Vector3 &point, float radius );
-		const Vector3& GetPos() const;
-		vector<Plane>& GetPlanes();
-		
+		bool IsIn(const Vector3 &point);
+		bool IsInSphere(const Vector3 &point, float radius);
+		void Render(cRenderer &renderer);
+
 
 	public:
 		bool m_fullCheck;	// IsIn, IsInSphere 함수 호출시 체크범위 default : false
@@ -26,7 +28,4 @@ namespace graphic
 		Vector3 m_pos; // 절두체 위치
 	};
 
-
-	inline const Vector3& cFrustum::GetPos() const { return m_pos; }
-	inline vector<Plane>& cFrustum::GetPlanes() { return m_plane; }
 }

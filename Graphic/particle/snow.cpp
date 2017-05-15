@@ -59,6 +59,6 @@ void cSnow::Render(cRenderer &renderer)
 {
 	cParticles::Render(renderer);
 
-	if (m_isRenderFrustum)
-		m_frustum.Render(renderer);
+	//if (m_isRenderFrustum)
+	//	m_frustum.Render(renderer);
 }
