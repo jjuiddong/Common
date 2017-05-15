@@ -19,6 +19,7 @@ namespace graphic
 		void Update(cRenderer &renderer, const float deltaSeconds);
 		void PreRender(cRenderer &renderer);
 		void Render(cRenderer &renderer);
+		void CullingTest(const cFrustum &frustum, const bool isModel=true);
 		bool AddTile(cTile *model);
 		bool RemoveTile(cTile *model);
 		void Clear();

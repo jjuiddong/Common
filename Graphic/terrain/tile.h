@@ -18,6 +18,7 @@ namespace graphic
 		void Update(cRenderer &renderer, const float deltaSeconds);
 		void PreRender(cRenderer &renderer);
 		void Render(cRenderer &renderer);
+		void CullingTest(const cFrustum &frustum, const bool isModel = true);
 		bool AddModel(cModel2 *model);
 		bool RemoveModel(cModel2 *model);
 		void Clear();
@@ -25,6 +26,7 @@ namespace graphic
 
 	public:
 		bool m_isShadow;
+		bool m_isCulling; // Out of Frustum = true
 		cGrid3 m_ground;
 		cLight m_light;
 		Matrix44 m_tm;

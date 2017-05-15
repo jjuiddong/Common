@@ -7,6 +7,7 @@ using namespace graphic;
 
 cModel2::cModel2()
 	: m_colladaModel(NULL)
+	, m_isShow(true)
 	, m_xModel(NULL)
 	, m_state(eState::NORMAL)
 	, m_shadow(NULL)
@@ -80,6 +81,7 @@ bool cModel2::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RETV(!m_isShow, false);
 	// nothing~
 	return true;
 }
@@ -89,6 +91,7 @@ void cModel2::RenderShader(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isShow);
 	RET(!m_shader);
 
 	const Matrix44 transform = m_tm * tm;
@@ -111,6 +114,7 @@ void cModel2::RenderShadow(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isShow);
 	RET(!m_shadow);
 	RET(!m_shadowShader);
 

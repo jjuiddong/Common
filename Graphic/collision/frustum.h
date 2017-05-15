@@ -12,10 +12,11 @@ namespace graphic
 		cFrustum();
 		virtual ~cFrustum();
 
-		bool Create(cRenderer &renderer, const Matrix44 &matViewProj);
-		bool Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_max);
-		bool IsIn( const Vector3 &point );
-		bool IsInSphere( const Vector3 &point, float radius );
+		bool SetFrustum(const Matrix44 &matViewProj);
+		bool SetFrustum(const Vector3 &_min, const Vector3 &_max);
+		bool IsIn( const Vector3 &point ) const;
+		bool IsInSphere( const Vector3 &point, float radius ) const;
+		bool IsInBox(const cBoundingBox &bbox) const;
 		const Vector3& GetPos() const;
 		vector<Plane>& GetPlanes();
 		

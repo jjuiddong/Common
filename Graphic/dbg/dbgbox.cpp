@@ -38,9 +38,6 @@ void cDbgBox::InitBox(cRenderer &renderer)
 
 void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 {
-	if (m_vtxBuff.GetVertexCount() > 0)
-		return;
-
 	//        4 --- 5
 	//      / |  |  /|
 	//   0 --- 1   |
@@ -71,8 +68,11 @@ void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 		1, 5, 7,
 	};
 
-	m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
-	m_idxBuff.Create(renderer, 12);
+	if (m_vtxBuff.GetVertexCount() <= 0)
+	{
+		m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
+		m_idxBuff.Create(renderer, 12);
+	}
 
 	if (sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock())
 	{

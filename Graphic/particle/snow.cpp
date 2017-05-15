@@ -20,7 +20,7 @@ cSnow::~cSnow()
 bool cSnow::Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_max, 
 	const int particleCount )
 {
-	m_frustum.Create(renderer, _min, _max);
+	m_frustum.SetFrustum(_min, _max);
 
 	cParticles::Create( renderer,  "particle.bmp", particleCount );
 	m_numToRelease = 8;

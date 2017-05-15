@@ -38,6 +38,15 @@ void cTerrain2::Render(cRenderer &renderer)
 }
 
 
+void cTerrain2::CullingTest(const cFrustum &frustum
+	, const bool isModel //= true
+)
+{
+	for (auto &p : m_tiles)
+		p->CullingTest(frustum, isModel);
+}
+
+
 bool cTerrain2::AddTile(cTile *tile)
 {
 	auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);

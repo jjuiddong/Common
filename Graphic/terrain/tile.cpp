@@ -7,6 +7,7 @@ using namespace graphic;
 
 cTile::cTile()
 	: m_isShadow(true)
+	, m_isCulling(false)
 {
 }
 
@@ -17,7 +18,7 @@ cTile::~cTile()
 
 
 bool cTile::Create(cRenderer &renderer, sRectf &rect
-	, const float y//=0
+	, const float y //=0
 )
 {
 	const float cellSize = rect.Width() / 2.f;
@@ -35,6 +36,9 @@ bool cTile::Create(cRenderer &renderer, sRectf &rect
 	const Vector3 lightPos = Vector3(1, -1, 1).Normal() * -35.f + lightLookat;
 	m_light.SetPosition(lightPos);
 	m_light.SetDirection((lightLookat - lightPos).Normal());
+
+	m_boundingBox.SetBoundingBox(Vector3(rect.left, 0, rect.top)
+		, Vector3(rect.right, 20, rect.bottom));
 
 	m_shadowMap.Create(renderer, 800, 800);
 
@@ -59,6 +63,7 @@ void cTile::Update(cRenderer &renderer, const float deltaSeconds)
 void cTile::PreRender(cRenderer &renderer)
 {
 	RET(!m_isShadow);
+	RET(m_isCulling);
 
 	Matrix44 view, proj, tt;
 	m_light.GetShadowMatrix(view, proj, tt);
@@ -84,6 +89,8 @@ void cTile::PreRender(cRenderer &renderer)
 
 void cTile::Render(cRenderer &renderer)
 {
+	RET(m_isCulling);
+
 	const Vector3 lightPos = GetMainLight().GetPosition() * GetMainCamera()->GetViewMatrix();
 	const Vector3 lightDir = GetMainLight().GetDirection().MultiplyNormal(GetMainCamera()->GetViewMatrix());
 
@@ -102,6 +109,34 @@ void cTile::Render(cRenderer &renderer)
 	m_dbgTile.Render(renderer);
 	m_dbgLight.Render(renderer);
 	m_shadowMap.RenderShadowMap(renderer, 2);
+}
+
+
+void cTile::CullingTest(const cFrustum &frustum
+	, const bool isModel //= true
+)
+{
+	if (frustum.IsInBox(m_boundingBox))
+	{
+		//m_dbgTile.SetColor(D3DCOLOR_XRGB(255, 0, 0));
+		m_isCulling = false;
+
+		if (isModel)
+		{
+			for (auto &p : m_models)
+				p->m_isShow = frustum.IsIn(p->m_tm.GetPosition());
+		}
+		else
+		{
+			for (auto &p : m_models)
+				p->m_isShow = true;
+		}
+	}
+	else
+	{
+		//m_dbgTile.SetColor(D3DCOLOR_XRGB(255, 255, 255));
+		m_isCulling = true;
+	}
 }
 
 

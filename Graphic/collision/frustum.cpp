@@ -22,7 +22,7 @@ cFrustum::~cFrustum()
 //-----------------------------------------------------------------------------//
 // 카메라(view) * 프로젝션(projection)행렬을 입력받아 6개의 평면을 만든다.
 //-----------------------------------------------------------------------------//
-bool cFrustum::Create(cRenderer &renderer, const Matrix44 &matViewProj)
+bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 {
 	//        4 --- 5
 	//      / |  |  /|
@@ -71,7 +71,7 @@ bool cFrustum::Create(cRenderer &renderer, const Matrix44 &matViewProj)
 //-----------------------------------------------------------------------------//
 // 정육면체의 minimum pos 와 maximum pos 로 절두체를 만든다.
 //-----------------------------------------------------------------------------//
-bool cFrustum::Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_max)
+bool cFrustum::SetFrustum(const Vector3 &_min, const Vector3 &_max)
 {
 	//sVertexDiffuse *vertices = (sVertexDiffuse*)m_vtxBuff.Lock();
 	//RETV(!vertices, false);
@@ -98,7 +98,7 @@ bool cFrustum::Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_
 //-----------------------------------------------------------------------------//
 // 한점 point가 프러스텀안에 있으면 TRUE를 반환, 아니면 FALSE를 반환한다.
 //-----------------------------------------------------------------------------//
-bool cFrustum::IsIn( const Vector3 &point )
+bool cFrustum::IsIn( const Vector3 &point ) const
 {
 	for (int i=0; i < 6; ++i)
 	{
@@ -119,7 +119,7 @@ bool cFrustum::IsIn( const Vector3 &point )
 // 중심(point)와 반지름(radius)를 갖는 경계구(bounding sphere)가 프러스텀안에 있으면
 // TRUE를 반환, 아니면 FALSE를 반환한다.
 //-----------------------------------------------------------------------------//
-bool cFrustum::IsInSphere( const Vector3 &point, float radius )
+bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
 {
 	for (int i=0; i < 6; ++i)
 	{
@@ -134,4 +134,27 @@ bool cFrustum::IsInSphere( const Vector3 &point, float radius )
 	}
 
 	return true;
+}
+
+
+bool cFrustum::IsInBox(const cBoundingBox &bbox) const
+{
+	const Vector3 vertices[] = {
+		bbox.m_min
+		, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_min.z)
+		, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_min.z)
+		, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
+		, bbox.m_max
+		, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
+		, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_max.z)
+		, Vector3(bbox.m_max.x, bbox.m_max.y, bbox.m_min.z)
+	};
+
+	for (int i = 0; i < 8; ++i)
+	{
+		if (IsIn(vertices[i]))
+			return true;
+	}
+
+	return false;
 }

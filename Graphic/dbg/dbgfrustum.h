@@ -9,7 +9,7 @@ namespace graphic
 {
 	class cRenderer;
 
-	class cDbgFrustum : public cDbgBox
+	class cDbgFrustum : public cFrustum
 	{
 	public:
 		cDbgFrustum();
@@ -17,13 +17,13 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const Matrix44 &matViewProj);
 		bool Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_max);
-		bool IsIn(const Vector3 &point);
-		bool IsInSphere(const Vector3 &point, float radius);
+		void SetFrustum(cRenderer &renderer, const Matrix44 &matViewProj);
 		void Render(cRenderer &renderer);
 
 
 	public:
 		bool m_fullCheck;	// IsIn, IsInSphere 함수 호출시 체크범위 default : false
+		cDbgBox m_box;
 		vector<Plane> m_plane;	// frustum의 6개 평면
 		Vector3 m_pos; // 절두체 위치
 	};

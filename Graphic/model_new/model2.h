@@ -60,6 +60,7 @@ namespace graphic
 
 		eState::Enum m_state;
 		cFilePath m_fileName;
+		bool m_isShow;
 		bool m_isShadow; // shadow volume
 		bool m_isShadow2; // shadow map
 		cColladaModel *m_colladaModel;
