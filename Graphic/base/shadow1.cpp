@@ -43,7 +43,7 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cNode &node)
 
 	Begin(renderer);
 	node.RenderShadow(renderer, view*proj, lightPos, Vector3(0,-1,0), Matrix44::Identity);
-	End();
+	End(renderer);
 }
 
 
@@ -67,7 +67,7 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cModel2 &model)
 
 	Begin(renderer);
 	model.RenderShader(renderer);
-	End();
+	End(renderer);
 }
 
 
@@ -79,16 +79,16 @@ void cShadow1::Bind(cShader &shader, const string &key)
 
 void cShadow1::Begin(cRenderer &renderer)
 {
-	m_surface.Begin();
+	m_surface.Begin(renderer);
 	renderer.GetDevice()->Clear(0, NULL
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
 		, 0x00000000, 1.0f, 0L);
 }
 
 
-void cShadow1::End()
+void cShadow1::End(cRenderer &renderer)
 {
-	m_surface.End();
+	m_surface.End(renderer);
 }
 
 

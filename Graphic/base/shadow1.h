@@ -23,7 +23,7 @@ namespace graphic
 		void UpdateShadow(cRenderer &renderer, cModel2 &model);
 		void Bind(cShader &shader, const string &key);
 		void Begin(cRenderer &renderer);
-		void End();
+		void End(cRenderer &renderer);
 		IDirect3DTexture9* GetTexture();
 		const IDirect3DTexture9* GetTexture() const;
 		bool IsLoaded() const;

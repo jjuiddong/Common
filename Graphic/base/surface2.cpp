@@ -69,19 +69,19 @@ bool cSurface2::Create(cRenderer &renderer,
 	{
 		return false;
 	}
-
+	
 	return true;
 }
 
 
-void cSurface2::Begin()
+void cSurface2::Begin(cRenderer &renderer)
 {
 	RET(!m_rts);
 	m_rts->BeginScene(m_surface, &m_vp);
 }
 
 
-void cSurface2::End()
+void cSurface2::End(cRenderer &renderer)
 {
 	RET(!m_rts);
 	m_rts->EndScene(D3DX_FILTER_NONE);

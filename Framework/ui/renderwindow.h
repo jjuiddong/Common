@@ -36,6 +36,7 @@ namespace framework
 
 
 	protected:
+		void RenderTitleBar();
 		virtual void DefaultEventProc(const sf::Event &evt);
 		virtual void MouseProc(const float deltaSeconds);
 		cDockWindow* UpdateCursor();
@@ -65,17 +66,19 @@ namespace framework
 		bool m_isVisible;
 		bool m_isDrag;
 		bool m_isRequestResetDevice;
+		string m_title;
 		graphic::cCamera m_camera;
 		graphic::cLight m_light;
 		graphic::cRenderer m_renderer;
 		graphic::cRenderer *m_sharedRenderer;
 		cImGui m_gui;
 		graphic::cTexture m_backBuffer;
-		graphic::cSurface2 m_sharedSurf;
+		graphic::cSurface3 m_sharedSurf;
 		cDockWindow *m_dock;
 
 		bool m_isResize; // Check ReSize End
-		Vector2 m_ptMouse;
+		Vector2 m_mousePos;
+		ImVec2 m_clickPos;
 		cDockWindow *m_sizingWindow;
 		eDockSizingType::Enum m_cursorType;
 

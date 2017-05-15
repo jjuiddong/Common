@@ -20,8 +20,8 @@ namespace graphic
 			D3DFORMAT depthFormat= D3DFMT_D24S8, bool autoGenMips=true,
 			HANDLE *handle=NULL, const float minZ=1.f, const float maxZ=10000.f);
 
-		void Begin();
-		void End();
+		void Begin(cRenderer &renderer);
+		void End(cRenderer &renderer);
 		void Render(cRenderer &renderer, const int index = 1);
 		void RenderFull(cRenderer &renderer);
 		void Bind(cShader &shader, const string &key);

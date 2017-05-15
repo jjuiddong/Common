@@ -419,14 +419,16 @@ eDockType::Enum cDockWindow::render_dock_slot_preview(const ImVec2& mouse_pos, c
 void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 	) 
 {
+	const int captionH = 60;
+
 	if (m_lower)
 	{
 		m_lower->RenderDock();
 	}
 	else
 	{
-		Vector2 npos = pos + Vector2((float)m_rect.left, (float)m_rect.top);
-		ImGui::SetCursorPos(ImVec2(pos.x + m_rect.left, pos.y + m_rect.top));
+		Vector2 npos = pos + Vector2((float)m_rect.left, (float)m_rect.top+ captionH);
+		ImGui::SetCursorPos(ImVec2(pos.x + m_rect.left, pos.y + m_rect.top+ captionH));
 		RenderTab();
 		npos.y += 32;
 		ImGui::SetCursorPos(ImVec2(npos.x, npos.y));
@@ -505,7 +507,8 @@ void cDockWindow::RenderTab()
 
 		if (ImGui::IsItemActive() && !m_owner->IsDragState())
 		{
-			const float delta = ImGui::GetCursorScreenPos().y - ImGui::GetIO().MousePos.y;
+			//const float delta = ImGui::GetCursorScreenPos().y - ImGui::GetIO().MousePos.y;
+			const float delta = m_owner->m_clickPos.y - ImGui::GetIO().MousePos.y;
 			if (!m_parent && !m_upper && !m_lower && m_tabs.empty())
 			{ // SingleTab DockWindow
 				if (delta < -2 || delta > 2)

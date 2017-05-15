@@ -7,8 +7,6 @@ using namespace graphic;
 
 cSurface3::cSurface3()
 	: m_texture(NULL)
-	//, m_rts(NULL)
-	//, m_surface(NULL)
 	, m_mipLevels(0)
 	, m_autoGenMips(0)
 	, m_oldRt(NULL)
@@ -75,19 +73,6 @@ bool cSurface3::Create(cRenderer &renderer,
 		return false;
 	}
 
-
-
-	//if (FAILED(D3DXCreateRenderToSurface(renderer.GetDevice(),
-	//	width, height, texFormat, useDepthBuffer, depthFormat, &m_rts)))
-	//{
-	//	return false;
-	//}
-
-	//if (FAILED(m_texture->GetSurfaceLevel(0, &m_surface)))
-	//{
-	//	return false;
-	//}
-
 	return true;
 }
 
@@ -95,7 +80,6 @@ bool cSurface3::Create(cRenderer &renderer,
 void cSurface3::Begin(cRenderer &renderer)
 {
 	RET(!m_texture);
-	//m_rts->BeginScene(m_surface, &m_vp);
 
 	m_oldRt = NULL;
 	renderer.GetDevice()->GetRenderTarget(0, &m_oldRt);
@@ -115,7 +99,6 @@ void cSurface3::Begin(cRenderer &renderer)
 void cSurface3::End(cRenderer &renderer)
 {
 	RET(!m_texture);
-	//m_rts->EndScene(D3DX_FILTER_NONE);
 
 	if (m_oldDs)
 	{
@@ -166,17 +149,23 @@ void cSurface3::RenderFull(cRenderer &renderer)
 	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 
+	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
+	const float width = (float)m_vp.Width;
+	const float height = (float)m_vp.Height;
 
 	typedef struct { FLOAT p[4]; FLOAT tu, tv; } TVERTEX;
 	TVERTEX Vertex[4] = {
 		// x  y  z rhw tu tv
 		{ 0, 0, 0, 1, 0, 0, },
-		{ (float)m_vp.Width, 0,0, 1, 1, 0, },
-		{ (float)m_vp.Width, (float)m_vp.Height, 1, 1, 1, 1 },
-		{ 0, (float)m_vp.Height,0, 1, 0, 1, },
+		{ (float)width, 0,0, 1, 1, 0, },
+		{ (float)width, (float)height, 1, 1, 1, 1 },
+		{ 0, (float)height,0, 1, 0, 1, },
 	};
 	renderer.GetDevice()->SetTexture(0, m_texture);
 	renderer.GetDevice()->SetVertexShader(NULL);
@@ -196,8 +185,6 @@ void cSurface3::Clear()
 {
 	SAFE_RELEASE(m_texture);
 	SAFE_RELEASE(m_pDSShadow);
-	//SAFE_RELEASE(m_rts);
-	//SAFE_RELEASE(m_surface);
 }
 
 

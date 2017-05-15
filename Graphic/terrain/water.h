@@ -17,10 +17,10 @@ namespace graphic
 		virtual void Render(cRenderer &renderer);
 		virtual void Update(const float elapseTime);
 
-		void BeginRefractScene();
-		void EndRefractScene();
-		void BeginReflectScene();
-		void EndReflectScene();
+		void BeginRefractScene(cRenderer &renderer);
+		void EndRefractScene(cRenderer &renderer);
+		void BeginReflectScene(cRenderer &renderer);
+		void EndReflectScene(cRenderer &renderer);
 		void SetRenderReflectMap(const bool enable);
 		bool IstRenderReflectMap() const;
 		void LostDevice();

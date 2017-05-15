@@ -55,6 +55,7 @@ bool cRenderWindow::Create(const string &title, const int width, const int heigh
 		return false;
 	}
 
+	m_title = title;
 	m_camera.Init(&m_renderer);
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	m_camera.SetProjection(D3DX_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
@@ -180,7 +181,7 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 			if (sizerWnd)
 			{
 				m_state = eState::SIZE;
-				m_ptMouse = pos;
+				m_mousePos = pos;
 				m_sizingWindow = sizerWnd;
 			}
 			else
@@ -205,9 +206,9 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 	{
 		if (m_sizingWindow)
 		{
-			Vector2 delta = pos - m_ptMouse;
+			Vector2 delta = pos - m_mousePos;
 			m_sizingWindow->CalcResizeWindow(eDockResize::DOCK_WINDOW, (m_sizingWindow->GetDockSizingType() == eDockSizingType::VERTICAL) ? (int)delta.y : (int)delta.x);
-			m_ptMouse = pos;
+			m_mousePos = pos;
 		}
 
 		if (ImGui::IsMouseReleased(0))
@@ -285,6 +286,8 @@ void cRenderWindow::Render(const float deltaSeconds)
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(size.x), static_cast<float>(size.y)));
 
+		RenderTitleBar();
+
 		const ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoTitleBar
 			| ImGuiWindowFlags_NoResize
@@ -301,7 +304,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 	if (m_sharedRenderer)
 	{
 		m_camera.Bind(*m_sharedRenderer);
-		m_sharedSurf.Begin();
+		m_sharedSurf.Begin(m_renderer);
 		if (m_sharedRenderer->ClearScene())
 		{
 			m_sharedRenderer->BeginScene();
@@ -310,7 +313,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_sharedRenderer->EndScene();
 			//m_sharedRenderer->Present();
 		}
-		m_sharedSurf.End();
+		m_sharedSurf.End(m_renderer);
 
 		if (!m_isThread)
 			m_backBuffer.CopyFrom(m_sharedSurf.m_texture);
@@ -359,6 +362,46 @@ void cRenderWindow::Render(const float deltaSeconds)
 			// Device Lost
 		}
 	}
+}
+
+
+void cRenderWindow::RenderTitleBar()
+{
+	const ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoTitleBar
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoScrollbar
+		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoBringToFrontOnFocus
+		| ImGuiWindowFlags_NoFocusOnAppearing
+		;
+	ImGui::Begin("", NULL, flags);
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(14.0f, 3.0f));
+	ImVec4 childBg = ImGui::GetStyle().Colors[ImGuiCol_ChildWindowBg];
+
+	ImGui::PushStyleColor(ImGuiCol_Button, childBg);
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, childBg);
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, childBg);
+
+	ImVec2 pos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(ImVec2(0, 0));
+	ImVec2 pos2 = ImGui::GetCursorPos();
+
+	ImGui::Button(m_title.c_str(), ImVec2((float)getSize().x-150, 37));
+	if (ImGui::IsItemActive())
+	{
+		int a = 0;
+	}
+	ImGui::PopStyleColor(3);
+
+	ImGui::SameLine(); ImGui::Button("-", ImVec2(37, 37)); 
+	ImGui::SameLine(); ImGui::Button("+", ImVec2(37, 37));
+	ImGui::SameLine(); ImGui::Button("X", ImVec2(37, 37));
+
+	ImGui::PopStyleVar(1);
+	ImGui::End();
 }
 
 
@@ -437,7 +480,11 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 	case sf::Event::MouseButtonPressed:
 		switch (evt.mouseButton.button)
 		{
-		case sf::Mouse::Left: io.MouseDown[0] = true; break;
+		case sf::Mouse::Left: {
+			m_clickPos = ImVec2((float)evt.mouseButton.x, (float)evt.mouseButton.y);
+			io.MouseDown[0] = true;
+		}
+			break;
 		case sf::Mouse::Right: io.MouseDown[1] = true; break;
 		case sf::Mouse::Middle: io.MouseDown[2] = true; break;
 		}

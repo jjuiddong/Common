@@ -242,10 +242,10 @@ void cTerrain::PreRender(cRenderer &renderer)
 	renderer.GetDevice()->SetClipPlane(0, (float*)f);
 	renderer.GetDevice()->SetRenderState(D3DRS_CLIPPLANEENABLE, 1);
 
-	m_water.BeginRefractScene();
+	m_water.BeginRefractScene(renderer);
 	m_skybox.Render(renderer);
 	RenderShader(renderer, *m_shader);
-	m_water.EndRefractScene();
+	m_water.EndRefractScene(renderer);
 
 	// Seems like we need to reset these due to a driver bug.  It works
 	// correctly without these next two lines in the REF and another 
@@ -254,11 +254,11 @@ void cTerrain::PreRender(cRenderer &renderer)
 	renderer.GetDevice()->SetRenderState(D3DRS_CLIPPLANEENABLE, 1);
 	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
-	m_water.BeginReflectScene();
+	m_water.BeginReflectScene(renderer);
 	Matrix44 reflectMatrix = waterPlaneW.GetReflectMatrix();
 	m_skybox.Render(renderer, reflectMatrix);
 	RenderShader(renderer, *m_shader, reflectMatrix);
-	m_water.EndReflectScene();
+	m_water.EndReflectScene(renderer);
 
 	renderer.GetDevice()->SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
 	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);

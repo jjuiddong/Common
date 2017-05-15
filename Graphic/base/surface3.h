@@ -39,12 +39,8 @@ namespace graphic
 	public:
 		IDirect3DTexture9 *m_texture;
 		IDirect3DSurface9 *m_pDSShadow;
-		//ID3DXRenderToSurface *m_rts;
-		//IDirect3DSurface9 *m_surface;
-
-		IDirect3DSurface9 *m_oldRt;
-		IDirect3DSurface9 *m_oldDs;
-
+		IDirect3DSurface9 *m_oldRt; // reference
+		IDirect3DSurface9 *m_oldDs; // reference
 
 		int m_mipLevels;
 		D3DFORMAT m_texFormat;

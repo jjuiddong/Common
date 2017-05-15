@@ -147,27 +147,27 @@ void cWater::Update(const float elapseTime)
 		m_waveMapOffset1.y = 0.0f;
 }
 
-void cWater::BeginRefractScene()
+void cWater::BeginRefractScene(cRenderer &renderer)
 {
-	m_refractMap.Begin();
+	m_refractMap.Begin(renderer);
 }
 
 
-void cWater::EndRefractScene()
+void cWater::EndRefractScene(cRenderer &renderer)
 {
-	m_refractMap.End();
+	m_refractMap.End(renderer);
 }
 
 
-void cWater::BeginReflectScene()
+void cWater::BeginReflectScene(cRenderer &renderer)
 {
-	m_reflectMap.Begin();
+	m_reflectMap.Begin(renderer);
 }
 
 
-void cWater::EndReflectScene()
+void cWater::EndReflectScene(cRenderer &renderer)
 {
-	m_reflectMap.End();
+	m_reflectMap.End(renderer);
 }
 
 
@@ -189,6 +189,8 @@ void cWater::ResetDevice(cRenderer &renderer)
 
 void cWater::UpdateShader() 
 {
+	RET(!m_shader);
+
 	// We don't need to set these every frame since they do not change
 	m_shader->SetMatrix("gWorld", m_initInfo.toWorld);
 	Matrix44 worldInv = m_initInfo.toWorld.Inverse();

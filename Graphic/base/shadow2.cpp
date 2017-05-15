@@ -55,16 +55,16 @@ void cShadow2::Bind(cShader &shader, const string &key)
 
 void cShadow2::Begin(cRenderer &renderer)
 {
-	m_surface.Begin();
+	m_surface.Begin(renderer);
 	renderer.GetDevice()->Clear(0, NULL
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
 		, 0x00000000, 1.0f, 0L);
 }
 
 
-void cShadow2::End()
+void cShadow2::End(cRenderer &renderer)
 {
-	m_surface.End();
+	m_surface.End(renderer);
 }
 
 
