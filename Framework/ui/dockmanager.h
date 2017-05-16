@@ -27,10 +27,12 @@ namespace framework
 		void UpdateRender(const float deltaSeconds);
 		void Clear();
 		void SetDragState(cRenderWindow *drag, const bool isDragStart=true);
-		void SetDragTarget(cDockWindow *target, eDockType::Enum dockSlot);
+		void SetMoveState(cRenderWindow *drag, const bool isMove=true);
+		void SetDragTarget(cDockWindow *target);
 		cRenderWindow* GetMainWindow();
 		graphic::cRenderer* GetMainRenderer();
-
+		bool IsDragState();
+		bool IsMoveState();
 		void LostDevice();
 		void ResetDevice(graphic::cRenderer *shared = NULL);
 
@@ -40,6 +42,15 @@ namespace framework
 
 
 	public:
+		struct eState {
+			enum Enum {
+				NORMAL,
+				MOVE,
+				DRAG,
+				DRAG_END,
+		};};
+
+		eState::Enum m_state;
 		vector<cRenderWindow*> m_windows;
 		vector<cRenderWindow*> m_poolWindow;
 		vector<cDockWindow*> m_poolDock;
@@ -49,7 +60,6 @@ namespace framework
 		cRenderWindow *m_mainWindow;
 		cDockWindow *m_dockTarget;
 		cRenderWindow *m_dragWindow;
-		eDockType::Enum m_dockSlot;
 	};
 
 

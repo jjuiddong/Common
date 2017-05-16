@@ -17,9 +17,11 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	const bool dualMonitor)
 {
 	cGameMain2* gameMain = CreateFrameWork2();
-	gameMain->Create(wstr2str(gameMain->m_windowName), 
-		gameMain->m_windowRect.Width(), 
-		gameMain->m_windowRect.Height());
+	gameMain->Create(wstr2str(gameMain->m_windowName) 
+		, gameMain->m_windowRect.Width() 
+		, gameMain->m_windowRect.Height()
+		, NULL
+		, false);
 
 	srand((int)timeGetTime());
 

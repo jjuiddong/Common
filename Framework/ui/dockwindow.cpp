@@ -49,6 +49,7 @@ cDockWindow::cDockWindow(const string &name //=""
 	, m_parent(NULL)
 	, m_rect(0,0,0,0)
 	, m_selectTab(0)
+	, m_dragSlot(eDockType::NONE)
 {
 	//m_name = format("dock%d", s_id++);
 }
@@ -76,7 +77,7 @@ bool cDockWindow::Create(const eDockState::Enum state, const eDockType::Enum typ
 			owner->m_dock = this;
 
 			const sf::Vector2u size = m_owner->getSize();
-			m_rect = sRectf(0, 0, (float)size.x, (float)size.y);
+			m_rect = sRectf(0, TITLEBAR_HEIGHT2, (float)size.x, (float)size.y);
 		}
 	}
 
@@ -419,16 +420,14 @@ eDockType::Enum cDockWindow::render_dock_slot_preview(const ImVec2& mouse_pos, c
 void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 	) 
 {
-	const int captionH = 60;
-
 	if (m_lower)
 	{
 		m_lower->RenderDock();
 	}
 	else
 	{
-		Vector2 npos = pos + Vector2((float)m_rect.left, (float)m_rect.top+ captionH);
-		ImGui::SetCursorPos(ImVec2(pos.x + m_rect.left, pos.y + m_rect.top+ captionH));
+		Vector2 npos = pos + Vector2(m_rect.left, m_rect.top);
+		ImGui::SetCursorPos(ImVec2(pos.x + m_rect.left, pos.y + m_rect.top));
 		RenderTab();
 		npos.y += 32;
 		ImGui::SetCursorPos(ImVec2(npos.x, npos.y));
@@ -455,13 +454,13 @@ void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 
 				ImGui::BeginChild("##dockSlotPreview");
 				ImGui::PushClipRect(ImVec2(), ImGui::GetIO().DisplaySize, false);
-				eDockType::Enum dock_slot = render_dock_slot_preview(cursor_pos, screen_cursor_pos, ImVec2(m_rect.Width(), m_rect.Height()));
+				m_dragSlot = render_dock_slot_preview(cursor_pos, screen_cursor_pos, ImVec2(m_rect.Width(), m_rect.Height()));
 				ImGui::PopClipRect();
 				ImGui::EndChild();
 
-				if (dock_slot != eDockType::NONE)
+				if (m_dragSlot != eDockType::NONE)
 				{
-					cDockManager::Get()->SetDragTarget(this, dock_slot);
+					cDockManager::Get()->SetDragTarget(this);
 				}
 			}
 		}
@@ -505,9 +504,9 @@ void cDockWindow::RenderTab()
 			m_selectTab = i;
 		}
 
-		if (ImGui::IsItemActive() && !m_owner->IsDragState())
+		if (ImGui::IsItemActive() && 
+			!cDockManager::Get()->IsDragState() && !cDockManager::Get()->IsMoveState())
 		{
-			//const float delta = ImGui::GetCursorScreenPos().y - ImGui::GetIO().MousePos.y;
 			const float delta = m_owner->m_clickPos.y - ImGui::GetIO().MousePos.y;
 			if (!m_parent && !m_upper && !m_lower && m_tabs.empty())
 			{ // SingleTab DockWindow

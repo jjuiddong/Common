@@ -11,6 +11,7 @@ using namespace framework;
 cDockManager::cDockManager()
 	: m_dockTarget(NULL)
 	, m_mainWindow(NULL)
+	, m_state(eState::NORMAL)
 {
 }
 
@@ -35,7 +36,7 @@ cRenderWindow* cDockManager::NewRenderWindow(const string &title, const int widt
 	if (m_poolWindow.empty())
 	{
 		window = new cRenderWindow();
-		window->Create(title, width, height, shared);
+		window->Create(title, width, height, shared, false);
 	}
 	else
 	{
@@ -85,9 +86,6 @@ void cDockManager::UpdateRender(const float deltaSeconds)
 {
 	UpdateModified();
 
-	m_dockTarget = NULL; // this must be here!!
-	m_dragWindow = NULL;
-
 	for (auto &p : m_windows)
 	{
 		p->TranslateEvent();
@@ -95,12 +93,19 @@ void cDockManager::UpdateRender(const float deltaSeconds)
 		p->Render(deltaSeconds);
 	}
 
-	// Dock, Undock Process
-	if (m_dockTarget && m_dragWindow)
+	// Docking Window Process
+	if (eState::DRAG_END == m_state)
 	{
-		cDockWindow *src = m_dragWindow->m_dock;
-		src->Undock(false);
-		m_dockTarget->Dock(m_dockSlot, src);
+		if (m_dockTarget && m_dragWindow && (m_dockTarget->m_dragSlot != eDockType::NONE))
+		{
+			cDockWindow *src = m_dragWindow->m_dock;
+			src->Undock(false);
+			m_dockTarget->Dock(m_dockTarget->m_dragSlot, src);
+		}
+
+		m_dockTarget = NULL;
+		m_dragWindow = NULL;
+		m_state = eState::NORMAL;
 	}
 }
 
@@ -144,17 +149,28 @@ void cDockManager::Clear()
 }
 
 
+void cDockManager::SetMoveState(cRenderWindow *drag
+	, const bool isMove //= true
+)
+{
+	m_state = isMove ? eState::MOVE : eState::NORMAL;
+}
+
+
 void cDockManager::SetDragState(cRenderWindow *drag
-	, const bool isDragStart) // = true
+	, const bool isDragStart // = true
+)
 {
 	if (isDragStart)
 	{
 		dbg::Print("start drag\n");
 		m_dockTarget = NULL;
+		m_state = eState::DRAG;
 	}
 	else
 	{
 		m_dragWindow = drag;
+		m_state = eState::DRAG_END;
 	}
 
 	for (auto &p : m_windows)
@@ -167,10 +183,21 @@ void cDockManager::SetDragState(cRenderWindow *drag
 }
 
 
-void cDockManager::SetDragTarget(cDockWindow *dock, eDockType::Enum dockSlot)
+void cDockManager::SetDragTarget(cDockWindow *dock)
 {
 	m_dockTarget = dock;
-	m_dockSlot = dockSlot;
+}
+
+
+bool cDockManager::IsDragState()
+{
+	return m_state == eState::DRAG;
+}
+
+
+bool cDockManager::IsMoveState()
+{
+	return m_state == eState::MOVE;
 }
 
 

@@ -71,6 +71,7 @@ namespace framework
 		int m_selectTab;
 		string m_name;
 		sRectf m_rect;
+		eDockType::Enum m_dragSlot; // using drag dock window
 		static int s_id;
 	};
 

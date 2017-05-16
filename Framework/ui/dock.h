@@ -35,7 +35,11 @@ namespace framework
 	{
 		enum Enum
 		{
-			NONE, VERTICAL, HORIZONTAL,
+			NONE
+			, VERTICAL
+			, HORIZONTAL
+			, TOPLEFT_BTTOMRIGHT
+			, BOTTOMLEFT_TOPRIGHT
 		};
 	};
 
@@ -46,5 +50,9 @@ namespace framework
 			RENDER_WINDOW, DOCK_WINDOW
 		};
 	};
+
+
+	const float TITLEBAR_HEIGHT = 37.f;
+	const float TITLEBAR_HEIGHT2 = TITLEBAR_HEIGHT + 3.f; // add frame gap
 
 }

@@ -117,7 +117,7 @@ void Window::create(VideoMode mode, const String& title, Uint32 style
         }
     }
 
-    // Check validity of style according to the underlying platform
+	// Check validity of style according to the underlying platform
     #if defined(SFML_SYSTEM_IOS) || defined(SFML_SYSTEM_ANDROID)
         if (style & Style::Fullscreen)
             style &= ~Style::Titlebar;

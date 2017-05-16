@@ -17,7 +17,8 @@ namespace framework
 		cRenderWindow();
 		virtual ~cRenderWindow();
 
-		virtual bool Create(const string &title, const int width, const int height, graphic::cRenderer *shared=NULL);
+		virtual bool Create(const string &title, const int width, const int height
+			, graphic::cRenderer *shared=NULL, bool isTitleBar= true);
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender(const float deltaSeconds);
 		virtual void Render(const float deltaSeconds);
@@ -32,14 +33,16 @@ namespace framework
 		void SetDragBindState();
 		void SetFinishDragBindState();
 		bool IsDragState();
+		bool IsMoveState();
 		void Clear();
 
 
 	protected:
 		void RenderTitleBar();
+		void Resize();
 		virtual void DefaultEventProc(const sf::Event &evt);
 		virtual void MouseProc(const float deltaSeconds);
-		cDockWindow* UpdateCursor();
+		std::pair<bool, cDockWindow*> UpdateCursor();
 		void ChangeDevice(const int width = 0, const int height = 0);
 
 		virtual void OnUpdate(const float deltaSeconds) {}
@@ -55,10 +58,26 @@ namespace framework
 		struct eState {
 			enum Enum {
 				NORMAL,
-				NORMAL_DOWN,
+				NORMAL_DOWN, // docking, resize bugfix
+				WINDOW_RESIZE,
 				SIZE,
 				DRAG,
+				MOVE,
 				DRAG_BIND,
+			};
+		};
+
+		struct eResizeCursor {
+			enum Enum {
+				NONE,
+				LEFT,
+				TOP,
+				RIGHT,
+				BOTTOM,
+				LEFT_TOP,
+				RIGHT_TOP,
+				LEFT_BOTTOM,
+				RIGHT_BOTTOM,
 			};
 		};
 
@@ -78,9 +97,11 @@ namespace framework
 
 		bool m_isResize; // Check ReSize End
 		Vector2 m_mousePos;
-		ImVec2 m_clickPos;
+		Vector2 m_clickPos;
+		POINT m_resizeClickPos; // mouse screen position
 		cDockWindow *m_sizingWindow;
 		eDockSizingType::Enum m_cursorType;
+		eResizeCursor::Enum m_resizeCursor;
 
 		bool m_isThread;
 		bool m_isThreadLoop;
