@@ -75,6 +75,9 @@ void cTile::PreRender(cRenderer &renderer)
 	m_shadowMap.Begin(renderer);
 	for (auto &p : m_models)
 	{
+		if (!p->m_isShadow)
+			continue;
+
 		cShader *shader = p->m_shader;
 		shader->SetTechnique("ShadowMap");
 		m_shadowMap.Bind(*shader, "g_shadowMapTexture");
@@ -118,13 +121,16 @@ void cTile::CullingTest(const cFrustum &frustum
 {
 	if (frustum.IsInBox(m_boundingBox))
 	{
-		//m_dbgTile.SetColor(D3DCOLOR_XRGB(255, 0, 0));
 		m_isCulling = false;
 
 		if (isModel)
 		{
 			for (auto &p : m_models)
+			{
 				p->m_isShow = frustum.IsIn(p->m_tm.GetPosition());
+				if (p->m_isShow)
+					p->m_isShadow = p->m_tm.GetPosition().LengthRoughly(frustum.m_pos) < 10000;
+			}
 		}
 		else
 		{
@@ -134,7 +140,6 @@ void cTile::CullingTest(const cFrustum &frustum
 	}
 	else
 	{
-		//m_dbgTile.SetColor(D3DCOLOR_XRGB(255, 255, 255));
 		m_isCulling = true;
 	}
 }

@@ -128,11 +128,14 @@ void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 	//renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 	renderer.GetDevice()->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
 
+
 	DWORD lighting, fogEnable;
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
 	renderer.GetDevice()->GetRenderState(D3DRS_FOGENABLE, &fogEnable);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	renderer.GetDevice()->SetRenderState(D3DRS_FOGENABLE, FALSE);
+	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+	renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
