@@ -150,6 +150,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
 		{
 			m_isResize = false;
+			m_state = eState::NORMAL;
 			if (m_renderer.CheckResetDevice())
 			{
 				sf::Vector2u size = getSize();
