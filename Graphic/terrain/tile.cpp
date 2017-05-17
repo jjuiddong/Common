@@ -8,6 +8,7 @@ using namespace graphic;
 cTile::cTile()
 	: m_isShadow(true)
 	, m_isCulling(false)
+	, m_isDbgRender(true)
 {
 }
 
@@ -23,6 +24,9 @@ bool cTile::Create(cRenderer &renderer, sRectf &rect
 {
 	const float cellSize = rect.Width() / 2.f;
 	m_ground.Create(renderer, 2, 2, cellSize, 1, y);
+	m_ground.m_tex = cResourceManager::Get()->LoadTexture(renderer, "../media/terrain/¹Ù´Ú.jpg");
+	m_ground.SetShader(cResourceManager::Get()->LoadShader(renderer, "cube3.fx"));
+	m_ground.m_shader->SetFloat("g_uvFactor", 8.f);
 	
 	Matrix44 T;
 	T.SetPosition(Vector3(rect.left+cellSize, 0, rect.top + cellSize));
@@ -70,8 +74,6 @@ void cTile::PreRender(cRenderer &renderer)
 	Matrix44 mWVPT = view * proj * tt;
 	m_viewtoLightProj = GetMainCamera()->GetViewMatrix().Inverse() * view * proj;
 
-	//m_ground.Render(renderer, m_tm);
-
 	m_shadowMap.Begin(renderer);
 	for (auto &p : m_models)
 	{
@@ -97,21 +99,33 @@ void cTile::Render(cRenderer &renderer)
 	const Vector3 lightPos = GetMainLight().GetPosition() * GetMainCamera()->GetViewMatrix();
 	const Vector3 lightDir = GetMainLight().GetDirection().MultiplyNormal(GetMainCamera()->GetViewMatrix());
 
-	//m_ground.Render(renderer, m_tm);
-	for (auto &p : m_models)
+	m_ground.m_shader->SetTechnique("Scene_ShadowMap");
+	m_ground.m_shader->SetVector("g_vLightPos", lightPos);
+	m_ground.m_shader->SetVector("g_vLightDir", lightDir);
+	m_ground.m_shader->SetMatrix("g_mViewToLightProj", m_viewtoLightProj);
+	m_shadowMap.Bind(*m_ground.m_shader, "g_shadowMapTexture");
+
+	m_ground.RenderShader(renderer, m_tm);
+
+	if (!m_models.empty())
 	{
-		cShader *shader = p->m_shader;
+		cShader *shader = m_models[0]->m_shader;
 		shader->SetTechnique("Scene_ShadowMap");
 		shader->SetVector("g_vLightPos", lightPos);
 		shader->SetVector("g_vLightDir", lightDir);
 		shader->SetMatrix("g_mViewToLightProj", m_viewtoLightProj);
 		m_shadowMap.Bind(*shader, "g_shadowMapTexture");
-		p->RenderShader(renderer);
 	}
 
-	m_dbgTile.Render(renderer);
-	m_dbgLight.Render(renderer);
-	m_shadowMap.RenderShadowMap(renderer, 2);
+	for (auto &p : m_models)
+		p->RenderShader(renderer);
+
+	if (m_isDbgRender)
+	{
+		m_dbgTile.Render(renderer);
+		m_dbgLight.Render(renderer);
+		m_shadowMap.RenderShadowMap(renderer, 2);
+	}
 }
 
 

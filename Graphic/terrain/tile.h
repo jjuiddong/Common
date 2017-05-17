@@ -27,6 +27,7 @@ namespace graphic
 	public:
 		bool m_isShadow;
 		bool m_isCulling; // Out of Frustum = true
+		bool m_isDbgRender;
 		cGrid3 m_ground;
 		cLight m_light;
 		Matrix44 m_tm;

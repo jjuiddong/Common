@@ -69,6 +69,13 @@ bool cTerrain2::RemoveTile(cTile *tile)
 }
 
 
+void cTerrain2::SetDbgRendering(const bool isRender)
+{
+	for (auto &p : m_tiles)
+		p->m_isDbgRender = isRender;
+}
+
+
 void cTerrain2::Clear()
 {
 	for (auto &p : m_tiles)
