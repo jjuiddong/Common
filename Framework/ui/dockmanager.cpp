@@ -175,7 +175,7 @@ void cDockManager::SetDragState(cRenderWindow *drag
 
 	for (auto &p : m_windows)
 	{
-		if (!isDragStart)
+		if (!isDragStart && (drag != p))
 			p->SetFinishDragBindState();
 		else if (drag != p)
 			p->SetDragBindState();

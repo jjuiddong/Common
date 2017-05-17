@@ -27,13 +27,12 @@ cRenderWindow::cRenderWindow()
 	: m_sharedRenderer(NULL)
 	, m_state(eState::NORMAL)
 	, m_isVisible(true)
-	, m_isThread(false)
+	, m_isThread(true)
 	, m_isRequestResetDevice(false)
 	, m_isThreadLoop(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
-	, m_isDrag(false)
-	, m_isResize(false)
+	, m_isFullScreen(false)
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
 {
@@ -144,22 +143,10 @@ void cRenderWindow::Update(const float deltaSeconds)
 	}
 
 	// Check Resize End
-	if (m_isResize)
+	if (eState::WINDOW_RESIZE == m_state)
 	{
-		// Mouse Left Button Up
-		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
-		{
-			m_isResize = false;
-			m_state = eState::NORMAL;
-			if (m_renderer.CheckResetDevice())
-			{
-				sf::Vector2u size = getSize();
-				ChangeDevice(size.x, size.y);
-
-				if (m_dock)
-					m_dock->ResizeEnd(eDockResize::RENDER_WINDOW, m_dock->m_rect);
-			}
-		}
+		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // Mouse Left Button Up, state change bug fix
+			ChangeState(eState::NORMAL, 8);
 	}
 
 	if (m_dock)
@@ -185,20 +172,20 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 		{
 			if (result.first)
 			{ // Resize Render Window
-				m_state = eState::WINDOW_RESIZE;
+				ChangeState(eState::WINDOW_RESIZE);
 				GetCursorPos(&m_resizeClickPos);
 			}
 			else
 			{ // Reize Docking Window 
 				if (result.second)
 				{
-					m_state = eState::SIZE;
+					ChangeState(eState::DOCK_SIZE);
 					m_mousePos = pos;
 					m_sizingWindow = result.second;
 				}
 				else
 				{
-					m_state = eState::NORMAL_DOWN;
+					ChangeState(eState::NORMAL_DOWN);
 				}
 			}
 		}
@@ -206,10 +193,12 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 	break;
 
 	case eState::NORMAL_DOWN:
+	case eState::NORMAL_DOWN_ETC:
+	case eState::NORMAL_DOWN_TITLE:
 	{
 		if (ImGui::IsMouseReleased(0))
 		{
-			m_state = eState::NORMAL;
+			ChangeState(eState::NORMAL, 1);
 			m_sizingWindow = NULL;
 		}
 	}
@@ -219,7 +208,7 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 		Resize();
 		break;
 
-	case eState::SIZE:
+	case eState::DOCK_SIZE:
 	{
 		if (m_sizingWindow)
 		{
@@ -231,7 +220,7 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 
 		if (ImGui::IsMouseReleased(0))
 		{
-			m_state = eState::NORMAL;
+			ChangeState(eState::NORMAL, 2);
 			if (m_sizingWindow)
 				m_sizingWindow->ResizeEnd(eDockResize::DOCK_WINDOW, m_sizingWindow->m_rect);
 			m_sizingWindow = NULL;
@@ -246,11 +235,7 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 		setPosition(sf::Vector2i((int)mousePos.x - 30, (int)mousePos.y - 60));
 
 		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
-		{
-			m_state = eState::NORMAL;
-			setAlpha(1.f);
-			cDockManager::Get()->SetDragState(this, false);
-		}
+			ChangeState(eState::NORMAL, 3);
 	}
 	break;
 
@@ -317,15 +302,91 @@ void cRenderWindow::Resize()
 	default: break; // NONE
 	}
 
-	m_isResize = true;
 	setSize(sf::Vector2u(winSize.x, winSize.y));
 	setPosition(sf::Vector2i(winPos.x, winPos.y));
 
-	// Mouse Left Button Up
-	if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) 
+	if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000))  // Mouse Left Button Up
 	{
-		m_state = eState::NORMAL;
+		ChangeState(eState::NORMAL, 4);
 	}
+}
+
+
+void cRenderWindow::ChangeState( const eState::Enum nextState
+	, const int option //=0
+)
+{
+	if (m_state == nextState)
+		return;
+
+	switch (m_state)
+	{
+	case eState::NORMAL:
+	case eState::NORMAL_DOWN:
+	case eState::NORMAL_DOWN_ETC:
+	case eState::NORMAL_DOWN_TITLE:
+		break;
+
+	case eState::WINDOW_RESIZE:
+		if (m_renderer.CheckResetDevice())
+		{
+			sf::Vector2u size = getSize();
+			ChangeDevice(size.x, size.y);
+			if (m_dock)
+				m_dock->ResizeEnd(eDockResize::RENDER_WINDOW, m_dock->m_rect);
+		}
+		break;
+
+	case eState::DOCK_SIZE:
+		break;
+
+	case eState::DRAG:
+		setAlpha(1.f);
+		cDockManager::Get()->SetDragState(this, false);
+		break;
+
+	case eState::MOVE:
+		cDockManager::Get()->SetMoveState(this, false);
+		break;
+
+	case eState::DRAG_BIND:
+		if (m_dock)
+			m_dock->SetBindState(false);
+		break;
+	}
+
+	switch (nextState)
+	{
+	case eState::NORMAL:
+	case eState::NORMAL_DOWN:
+	case eState::NORMAL_DOWN_ETC:
+	case eState::NORMAL_DOWN_TITLE:
+	case eState::WINDOW_RESIZE:
+	case eState::DOCK_SIZE:
+		break;
+
+	case eState::DRAG:
+		if (m_isFullScreen)
+			ShowWindow(getSystemHandle(), SW_RESTORE);
+
+		setAlpha(0.3f);
+		cDockManager::Get()->SetDragState(this);
+		break;
+
+	case eState::MOVE:
+		cDockManager::Get()->SetMoveState(this, true);
+		break;
+
+	case eState::DRAG_BIND:
+		if (m_dock)
+			m_dock->SetBindState(true);
+		break;
+	}
+
+	dbg::Log("RenderWindow::ChangeState, window=%s, cur=%s, next=%s, opt=%d\n"
+		, m_title.c_str(), GetStateString(m_state), GetStateString(nextState), option);
+
+	m_state = nextState;
 }
 
 
@@ -344,15 +405,19 @@ std::pair<bool, cDockWindow*> cRenderWindow::UpdateCursor()
 	const Vector2 size((float)getSize().x, (float)getSize().y);
 	const Vector2 delta = size - pos;
 	
-	if ((delta.x < 10) && (delta.y < 10)) resizeCursor = eResizeCursor::RIGHT_BOTTOM;
-	else if((delta.x > size.x-10) && (delta.y > size.y - 10)) resizeCursor = eResizeCursor::LEFT_TOP;
-	else if ((delta.x < 10) && (delta.y > size.y - 10)) resizeCursor = eResizeCursor::RIGHT_TOP;
-	else if ((delta.x > size.x - 10) && (delta.y < 10)) resizeCursor = eResizeCursor::LEFT_BOTTOM;
-	else if (delta.x < 10) resizeCursor = eResizeCursor::RIGHT;
-	else if (delta.x > size.x-10) resizeCursor = eResizeCursor::LEFT;
-	else if (delta.y < 10) resizeCursor = eResizeCursor::BOTTOM;
-	else if (delta.y > size.y - 10) resizeCursor = eResizeCursor::TOP;
-	else
+	if (!m_isFullScreen) // Only Check Normal Window
+	{
+		if ((delta.x < 10) && (delta.y < 10)) resizeCursor = eResizeCursor::RIGHT_BOTTOM;
+		else if((delta.x > size.x-10) && (delta.y > size.y - 10)) resizeCursor = eResizeCursor::LEFT_TOP;
+		else if ((delta.x < 10) && (delta.y > size.y - 10)) resizeCursor = eResizeCursor::RIGHT_TOP;
+		else if ((delta.x > size.x - 10) && (delta.y < 10)) resizeCursor = eResizeCursor::LEFT_BOTTOM;
+		else if (delta.x < 10) resizeCursor = eResizeCursor::RIGHT;
+		else if (delta.x > size.x-10) resizeCursor = eResizeCursor::LEFT;
+		else if (delta.y < 10) resizeCursor = eResizeCursor::BOTTOM;
+		else if (delta.y > size.y - 10) resizeCursor = eResizeCursor::TOP;
+	}
+
+	if (eResizeCursor::NONE == resizeCursor)
 	{
 		isWindowResize = false;
 		sizerWnd = GetSizerTargetWindow(pos);
@@ -404,7 +469,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 {
 	RET(!isOpen());
 	RET(!m_isVisible);
-	if (m_isResize)
+	if (eState::WINDOW_RESIZE == m_state)
 	{ // Only Refresh and Return
 		m_renderer.Present();
 		return;
@@ -447,7 +512,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 			m_sharedRenderer->GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 			m_gui.Render();
 			m_sharedRenderer->EndScene();
-			//m_sharedRenderer->Present();
 		}
 		m_sharedSurf.End(m_renderer);
 
@@ -516,37 +580,34 @@ void cRenderWindow::RenderTitleBar()
 	ImGui::Begin("", NULL, flags);
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(14.0f, 3.0f));
-	ImVec4 childBg = ImGui::GetStyle().Colors[ImGuiCol_ChildWindowBg];
+	const ImVec4 childBg = ImGui::GetStyle().Colors[ImGuiCol_ChildWindowBg];
 
 	ImGui::PushStyleColor(ImGuiCol_Button, childBg);
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, childBg);
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, childBg);
 
-	ImVec2 pos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(0, 0));
-	ImVec2 pos2 = ImGui::GetCursorPos();
-
+	ImGui::SetCursorPos(ImVec2(0, 1));
 	ImGui::Button(m_title.c_str(), ImVec2((float)getSize().x-150, TITLEBAR_HEIGHT));
 
 	// TitleBar Click?
-	if (ImGui::IsMouseDown(0) && !cDockManager::Get()->IsDragState()
-		&& (m_state != eState::WINDOW_RESIZE)
-		&& (ImGui::IsItemHovered() || cDockManager::Get()->IsMoveState()))
+	if (ImGui::IsMouseDown(0) 
+		&& ((ImGui::IsItemHovered() && (eState::NORMAL_DOWN == m_state))
+			|| cDockManager::Get()->IsMoveState())
+		)
 	{
-		if (ImGui::IsMouseDoubleClicked(0))
+		if (ImGui::IsMouseDoubleClicked(0)) // Double Click, Maximize Window
 		{
-			m_state = eState::NORMAL;
-			cDockManager::Get()->SetMoveState(this, false);
+			ChangeState(eState::NORMAL, 5);
 			ImGui::GetIO().MouseDown[0] = false; // maximize window move bug fix
 
 			WINDOWPLACEMENT wndPl;
 			GetWindowPlacement(getSystemHandle(), &wndPl);
 			ShowWindow(getSystemHandle(), (wndPl.showCmd == SW_MAXIMIZE) ? SW_RESTORE : SW_MAXIMIZE);
+			m_isFullScreen = (wndPl.showCmd != SW_MAXIMIZE);
 		}
-		else
+		else if (!m_isFullScreen)
 		{
-			m_state = eState::MOVE;
-			cDockManager::Get()->SetMoveState(this, true);
+			ChangeState(eState::MOVE);
 
 			// TitleBar Click and Move
 			POINT mousePos;
@@ -563,8 +624,11 @@ void cRenderWindow::RenderTitleBar()
 		// TitleBar Click Release?
 		if (IsMoveState() && !ImGui::IsMouseDown(0))
 		{
-			m_state = eState::NORMAL;
-			cDockManager::Get()->SetMoveState(this, false);
+			ChangeState(eState::NORMAL, 6);
+		}
+		else if (eState::NORMAL_DOWN == m_state)
+		{
+			ChangeState(eState::NORMAL_DOWN_ETC);
 		}
 	}
 
@@ -580,8 +644,9 @@ void cRenderWindow::RenderTitleBar()
 	if (ImGui::Button("+", ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT))) // Maximize Button
 	{
 		WINDOWPLACEMENT wndPl;
-		GetWindowPlacement(getSystemHandle(), &wndPl);
+		GetWindowPlacement(getSystemHandle(), &wndPl); // Toggle Maximize or Restore
 		ShowWindow(getSystemHandle(), (wndPl.showCmd==SW_MAXIMIZE)? SW_RESTORE : SW_MAXIMIZE);
+		m_isFullScreen = (wndPl.showCmd != SW_MAXIMIZE);
 	}
 
 	ImGui::SameLine(); 
@@ -597,7 +662,7 @@ void cRenderWindow::RenderTitleBar()
 
 void cRenderWindow::PreRender(const float deltaSeconds)
 {
-	
+	// Nothing~
 	OnPreRender(deltaSeconds);
 }
 
@@ -695,11 +760,14 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 
 	case sf::Event::Resized:
 	{
-		m_isResize = true;
-		//if (m_renderer.CheckResetDevice())
-		//{
-		//	ChangeDevice(evt.size.width, evt.size.height);
-		//}
+		// Special Size Event Process
+		if ((eState::WINDOW_RESIZE != m_state) && m_renderer.CheckResetDevice())
+		{
+			ChangeDevice(evt.size.width, evt.size.height);
+
+			if (m_dock)
+				m_dock->ResizeEnd(eDockResize::RENDER_WINDOW, m_dock->m_rect);
+		}
 	}
 	break;
 	}
@@ -736,25 +804,19 @@ cDockWindow* cRenderWindow::GetSizerTargetWindow(const Vector2 &mousePt)
 
 void cRenderWindow::SetDragState()
 {
-	m_state = eState::DRAG;
-	setAlpha(0.3f);
-	cDockManager::Get()->SetDragState(this);
+	ChangeState(eState::DRAG);
 }
 
 
 void cRenderWindow::SetDragBindState()
 {
-	m_state = eState::DRAG_BIND;
-	if (m_dock)
-		m_dock->SetBindState(true);
+	ChangeState(eState::DRAG_BIND);
 }
 
 
 void cRenderWindow::SetFinishDragBindState()
 {
-	m_state = eState::NORMAL;
-	if (m_dock)
-		m_dock->SetBindState(false);
+	ChangeState(eState::NORMAL, 7);
 }
 
 
@@ -782,12 +844,22 @@ void cRenderWindow::Sleep()
 
 void cRenderWindow::WakeUp(const string &title, const int width, const int height)
 {
+	ChangeState(eState::NORMAL, 9);
+
 	m_title = string(" - ") + title + string(" - ");
 	setTitle(title);
 	setSize(sf::Vector2u((u_int)width, (u_int)height));
-	m_isResize = false;
-	m_isThreadLoop = true;
-	m_thread = std::thread(RenderProc, this);
+	m_isFullScreen = false;
+
+	if (m_isThread)
+	{
+		m_isThreadLoop = false;
+		if (m_thread.joinable())
+			m_thread.join();
+
+		m_isThreadLoop = true;
+		m_thread = std::thread(RenderProc, this);
+	}
 
 	setVisible(true);
 }
@@ -803,7 +875,7 @@ void cRenderWindow::ChangeDevice(
 	const bool restResource = (cDockManager::Get()->m_mainWindow == this);
 	m_renderer.ResetDevice(0, 0, false, restResource);
 
-	sRectf rect(0, TITLEBAR_HEIGHT2, (float)((width==0)? getSize().x : width), (float)((height==0)? getSize().y : height));
+	const sRectf rect(0, TITLEBAR_HEIGHT2, (float)((width==0)? getSize().x : width), (float)((height==0)? getSize().y : height));
 	if (m_dock)
 		m_dock->CalcResizeWindow(eDockResize::RENDER_WINDOW, rect);
 
@@ -829,4 +901,22 @@ void cRenderWindow::Clear()
 	if (m_dock)
 		m_dock->Clear();
 	m_dock = NULL;
+}
+
+
+const char* cRenderWindow::GetStateString(const eState::Enum state)
+{
+	switch (state)
+	{
+	case eState::NORMAL: return "Normal";
+	case eState::NORMAL_DOWN: return "Normal_Down";
+	case eState::NORMAL_DOWN_TITLE: return "Normal_Title";
+	case eState::NORMAL_DOWN_ETC: return "Normal_Etc";
+	case eState::WINDOW_RESIZE: return "Window_Resize";
+	case eState::DOCK_SIZE: return "Resize";
+	case eState::DRAG: return "Drag";
+	case eState::MOVE: return "Move";
+	case eState::DRAG_BIND: return "Drag_Bind";
+	default: assert(0); return "None";
+	}
 }

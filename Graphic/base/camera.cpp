@@ -283,6 +283,7 @@ void cCamera::Pitch2( const float radian)
 	Vector3 dir = m_lookAt - eyePos;
 	dir.Normalize();
 
+	// Vertical Direction BugFix
 	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
 		return;
 

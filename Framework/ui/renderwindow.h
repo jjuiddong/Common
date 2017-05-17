@@ -14,6 +14,34 @@ namespace framework
 	class cRenderWindow : public sf::Window
 	{
 	public:
+		struct eState {
+			enum Enum {
+				NORMAL,
+				NORMAL_DOWN, // docking, resize bugfix
+				NORMAL_DOWN_TITLE, // titlebar click
+				NORMAL_DOWN_ETC, // mouse down, exceptra
+				WINDOW_RESIZE,
+				DOCK_SIZE, // docking window sizing
+				DRAG,
+				MOVE,
+				DRAG_BIND,
+			};
+		};
+
+		struct eResizeCursor {
+			enum Enum {
+				NONE,
+				LEFT,
+				TOP,
+				RIGHT,
+				BOTTOM,
+				LEFT_TOP,
+				RIGHT_TOP,
+				LEFT_BOTTOM,
+				RIGHT_BOTTOM,
+			};
+		};
+
 		cRenderWindow();
 		virtual ~cRenderWindow();
 
@@ -40,6 +68,8 @@ namespace framework
 	protected:
 		void RenderTitleBar();
 		void Resize();
+		void ChangeState(const eState::Enum nextState, const int option=0);
+		const char* GetStateString(const eState::Enum state);
 		virtual void DefaultEventProc(const sf::Event &evt);
 		virtual void MouseProc(const float deltaSeconds);
 		std::pair<bool, cDockWindow*> UpdateCursor();
@@ -55,35 +85,9 @@ namespace framework
 
 
 	public:
-		struct eState {
-			enum Enum {
-				NORMAL,
-				NORMAL_DOWN, // docking, resize bugfix
-				WINDOW_RESIZE,
-				SIZE,
-				DRAG,
-				MOVE,
-				DRAG_BIND,
-			};
-		};
-
-		struct eResizeCursor {
-			enum Enum {
-				NONE,
-				LEFT,
-				TOP,
-				RIGHT,
-				BOTTOM,
-				LEFT_TOP,
-				RIGHT_TOP,
-				LEFT_BOTTOM,
-				RIGHT_BOTTOM,
-			};
-		};
-
 		eState::Enum m_state;
 		bool m_isVisible;
-		bool m_isDrag;
+		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
 		string m_title;
 		graphic::cCamera m_camera;
@@ -95,7 +99,6 @@ namespace framework
 		graphic::cSurface3 m_sharedSurf;
 		cDockWindow *m_dock;
 
-		bool m_isResize; // Check ReSize End
 		Vector2 m_mousePos;
 		Vector2 m_clickPos;
 		POINT m_resizeClickPos; // mouse screen position
