@@ -16,18 +16,29 @@ namespace graphic
 		cTerrain2();
 		virtual ~cTerrain2();
 
+		bool Create(cRenderer &renderer, const sRectf &rect);
 		void Update(cRenderer &renderer, const float deltaSeconds);
 		void PreRender(cRenderer &renderer);
 		void Render(cRenderer &renderer);
+		void UpdateShader(cRenderer &renderer);
 		void CullingTest(const cFrustum &frustum, const bool isModel=true);
 		bool AddTile(cTile *model);
+		cTile* FindTile(const string &name);
 		bool RemoveTile(cTile *model);
 		void SetDbgRendering(const bool isRender);
+		void LostDevice();
+		void ResetDevice(cRenderer &renderer);
 		void Clear();
 
 
 	public:
-		vector<cTile*> m_tiles;		
+		vector<cTile*> m_tiles;
+		map<string, cTile*> m_tilemap; // reference
+		cLight m_light;
+		cShadowMap m_shadowMap;
+
+		cDbgArrow m_dbgLight;
+		cDbgFrustum m_dbgLightFrustum;
 	};
 
 }

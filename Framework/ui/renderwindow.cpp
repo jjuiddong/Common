@@ -97,6 +97,7 @@ bool cRenderWindow::Create(const string &title, const int width, const int heigh
 
 	if (m_isThread)
 	{
+		m_isThreadLoop = false;
 		if (m_thread.joinable())
 			m_thread.join();
 
@@ -475,8 +476,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 		return;
 	}
 
-	if (m_dock)
-		m_dock->PreRender();	
+	PreRender(deltaSeconds);
 
 	m_gui.SetContext();
 	m_gui.NewFrame();
@@ -521,7 +521,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 		m_camera.Bind(m_renderer);
 		m_light.Bind(m_renderer, 0);
 
-		OnPreRender(deltaSeconds);
 		if (m_renderer.ClearScene())
 		{
 			m_renderer.BeginScene();
@@ -531,17 +530,18 @@ void cRenderWindow::Render(const float deltaSeconds)
 
 			m_backBuffer.Render2D(m_renderer);
 
+			//OnPostRender(deltaSeconds);
+
 			m_renderer.EndScene();
 			m_renderer.Present();
 		}
-		OnPostRender(deltaSeconds);
 	}
 	else
 	{
 		m_camera.Bind(m_renderer);
 		m_light.Bind(m_renderer, 0);
 
-		PreRender(deltaSeconds);
+		//PreRender(deltaSeconds);
 
 		if (m_renderer.ClearScene())
 		{
@@ -552,7 +552,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 
 			m_gui.Render();
 
-			OnPostRender(deltaSeconds);
+			//OnPostRender(deltaSeconds);
 
 			m_renderer.EndScene();
 			m_renderer.Present();
@@ -562,6 +562,8 @@ void cRenderWindow::Render(const float deltaSeconds)
 			// Device Lost
 		}
 	}
+
+	PostRender(deltaSeconds);
 }
 
 
@@ -662,8 +664,19 @@ void cRenderWindow::RenderTitleBar()
 
 void cRenderWindow::PreRender(const float deltaSeconds)
 {
-	// Nothing~
+	if (m_dock)
+		m_dock->PreRender();
+
 	OnPreRender(deltaSeconds);
+}
+
+
+void cRenderWindow::PostRender(const float deltaSeconds)
+{
+	if (m_dock)
+		m_dock->PostRender();
+
+	OnPostRender(deltaSeconds);
 }
 
 

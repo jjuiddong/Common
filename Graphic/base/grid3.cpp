@@ -25,8 +25,11 @@ void cGrid3::Create(cRenderer &renderer
 	, const int rowCellCount
 	, const int colCellCount
 	, const float cellSize
-	, const float textureUVFactor
-	, const float offsetY)
+	, const float textureUVFactor // = 8.f
+	, const float offsetY //= 0
+	, const Vector2 &uv0 //= Vector2(0, 0)
+	, const Vector2 &uv1 //= Vector2(1, 1)
+)
 {
 	// init member
 	m_rowCellCount = rowCellCount;
@@ -48,8 +51,10 @@ void cGrid3::Create(cRenderer &renderer
 		const float endx = startx + cellSize*colCellCount;
 		const float endy = starty - cellSize*rowCellCount;
 
-		const float uCoordIncrementSize = 1.0f / (float)colCellCount * textureUVFactor;
-		const float vCoordIncrementSize = 1.0f / (float)rowCellCount * textureUVFactor;
+		//const float uCoordIncrementSize = 1.0f / (float)colCellCount * textureUVFactor;
+		//const float vCoordIncrementSize = 1.0f / (float)rowCellCount * textureUVFactor;
+		const float uCoordIncrementSize = (uv1.x - uv0.x) / (float)colCellCount * textureUVFactor;
+		const float vCoordIncrementSize = (uv1.y - uv0.y) / (float)rowCellCount * textureUVFactor;
 
 		int i = 0;
 		for (float y = starty; y >= endy; y -= cellSize, ++i)
@@ -60,8 +65,8 @@ void cGrid3::Create(cRenderer &renderer
 				int index = (i * colVtxCnt) + k;
 				vertices[index].p = Vector3(x, offsetY, y);
 				vertices[index].n = Vector3(0, 1, 0);
-				vertices[index].u = (float)k*uCoordIncrementSize;
-				vertices[index].v = (float)i*vCoordIncrementSize;
+				vertices[index].u = uv0.x + (float)k*uCoordIncrementSize;
+				vertices[index].v = uv0.y + (float)i*vCoordIncrementSize;
 			}
 		}
 		m_vtxBuff.Unlock();

@@ -31,6 +31,18 @@ namespace graphic
 		enum {FVF = D3DFVF_XYZ | D3DFVF_TEX1 };
 	};
 
+
+	struct sVertexTexRhw
+	{
+		Vector4 p;
+		float u, v;
+
+		sVertexTexRhw() {}
+		sVertexTexRhw(float x0, float y0, float z0, float w0, float u0, float v0) : p(x0, y0, z0, w0), u(u0), v(v0) {}
+		enum { FVF = D3DFVF_XYZRHW | D3DFVF_TEX1 };
+	};
+
+
 	struct sVertexNorm
 	{
 		Vector3 p;

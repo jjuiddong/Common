@@ -559,6 +559,27 @@ void cDockWindow::PreRender()
 }
 
 
+void cDockWindow::PostRender()
+{
+	if (m_lower)
+	{
+		m_lower->PostRender();
+	}
+	else
+	{
+		if (m_selectTab == 0)
+			OnPostRender();
+		else if ((int)m_tabs.size() > m_selectTab - 1)
+			m_tabs[m_selectTab - 1]->PostRender();
+	}
+
+	if (m_upper)
+	{
+		m_upper->PostRender();
+	}
+}
+
+
 void cDockWindow::Update(const float deltaSeconds)
 {
 	OnUpdate(deltaSeconds);

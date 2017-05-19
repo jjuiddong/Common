@@ -122,6 +122,8 @@ static const string g_defaultTexture = "white.dds";
 #include "terrain/rawterrain.h"
 #include "terrain/water.h"
 #include "terrain/terrain.h"
+#include "terrain/terrain2.h"
+#include "terrain/tile.h"
 #include "terrain/terraincursor.h"
 #include "terrain/terraineditor.h"
 #include "terrain/terrainimporter.h"
@@ -143,7 +145,7 @@ static const string g_defaultTexture = "white.dds";
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

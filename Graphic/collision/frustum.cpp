@@ -139,22 +139,24 @@ bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
 
 bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 {
-	const Vector3 vertices[] = {
-		bbox.m_min
-		, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_min.z)
-		, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_min.z)
-		, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
-		, bbox.m_max
-		, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
-		, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_max.z)
-		, Vector3(bbox.m_max.x, bbox.m_max.y, bbox.m_min.z)
-	};
+	//const Vector3 vertices[] = {
+	//	bbox.m_min
+	//	, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_min.z)
+	//	, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_min.z)
+	//	, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
+	//	, bbox.m_max
+	//	, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
+	//	, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_max.z)
+	//	, Vector3(bbox.m_max.x, bbox.m_max.y, bbox.m_min.z)
+	//};
 
-	for (int i = 0; i < 8; ++i)
-	{
-		if (IsIn(vertices[i]))
-			return true;
-	}
+	//for (int i = 0; i < 8; ++i)
+	//{
+	//	if (IsIn(vertices[i]))
+	//		return true;
+	//}
 
-	return false;
+	Vector3 size = bbox.m_max - bbox.m_min;
+	const float radius = size.Length() * 0.5f;
+	return IsInSphere(bbox.Center(), radius);
 }

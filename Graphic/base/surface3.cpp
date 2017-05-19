@@ -73,6 +73,18 @@ bool cSurface3::Create(cRenderer &renderer,
 		return false;
 	}
 
+	//m_vtxBuff.Create(renderer, 6, sizeof(sVertexTexRhw), sVertexTexRhw::FVF);
+	//if (sVertexTexRhw *p = (sVertexTexRhw*)m_vtxBuff.Lock())
+	//{
+	//	*p++ = { 0, 0, 0, 1, 0, 0, };
+	//	*p++ = { (float)width, 0,0, 1, 1, 0, };
+	//	*p++ = { (float)width, (float)height, 1, 1, 1, 1 };
+	//	*p++ = { 0, 0, 0, 1, 0, 0, };
+	//	*p++ = { (float)width, (float)height, 1, 1, 1, 1 };
+	//	*p++ = { 0, (float)height,0, 1, 0, 1, };
+	//	m_vtxBuff.Unlock();
+	//}
+
 	return true;
 }
 
@@ -149,9 +161,6 @@ void cSurface3::RenderFull(cRenderer &renderer)
 	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);

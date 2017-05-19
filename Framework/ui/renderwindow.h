@@ -49,6 +49,7 @@ namespace framework
 			, graphic::cRenderer *shared=NULL, bool isTitleBar= true);
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender(const float deltaSeconds);
+		virtual void PostRender(const float deltaSeconds);
 		virtual void Render(const float deltaSeconds);
 		virtual bool TranslateEvent();
 		virtual void LostDevice();

@@ -48,6 +48,7 @@ namespace graphic
 		D3DFORMAT m_depthFormat;
 		bool m_autoGenMips;
 		D3DVIEWPORT9 m_vp;
+		//cVertexBuffer m_vtxBuff;
 	};
 
 

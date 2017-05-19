@@ -15,8 +15,9 @@ namespace graphic
 		cGrid3();
 		virtual ~cGrid3();
 
-		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize,
-			const float textureUVFactor = 8.f, const float offsetY = 0.f);
+		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
+			, const float textureUVFactor = 8.f, const float offsetY = 0.f
+			, const Vector2 &uv0=Vector2(0,0), const Vector2 &uv1 = Vector2(1, 1));
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int stage = 0);
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		void RenderLinelist(cRenderer &renderer);
