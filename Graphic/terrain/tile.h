@@ -46,7 +46,7 @@ namespace graphic
 		Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
 		//cShadowMap m_shadowMap;
 
-		cDbgBox m_dbgTile;
+		cDbgBox2 m_dbgTile;
 		//cDbgArrow m_dbgLight;
 		//cDbgFrustum m_dbgLightFrustum;
 		int m_dbgIdx; // Surface Rendering Index

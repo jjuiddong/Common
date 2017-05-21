@@ -560,14 +560,20 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 }
 
 
-void cCamera::GetRay(const int sx, const int sy, Vector3 &orig, Vector3 &dir)
+void cCamera::GetRay(OUT Vector3 &orig, OUT Vector3 &dir)
+{
+	GetRay(m_width, m_height, m_width/2, m_height/2, orig, dir);
+}
+
+
+void cCamera::GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
 {
 	GetRay(m_width, m_height, sx, sy, orig, dir);
 }
 
 
 void cCamera::GetRay(const int windowWidth, const int windowHeight, 
-	const int sx, const int sy, Vector3 &orig, Vector3 &dir)
+	const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
 {
 	const float x = ((sx * 2.0f / windowWidth) - 1.0f);
 	const float y = -((sy * 2.0f / windowHeight) - 1.0f);

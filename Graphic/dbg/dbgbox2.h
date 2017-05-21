@@ -1,8 +1,8 @@
 //
-// 2017-05-13, jjuiddong
+// 2017-05-20, jjuiddong
 // Debug Box 
 //		- Vertext + Diffuse 로 표현된다.
-//		- Triangle Render
+//		- Line Render
 //
 #pragma once
 
@@ -11,11 +11,11 @@ namespace graphic
 {
 	class cRenderer;
 
-	class cDbgBox
+	class cDbgBox2
 	{
 	public:
-		cDbgBox();
-		cDbgBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
+		cDbgBox2();
+		cDbgBox2(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 
 		void InitBox(cRenderer &renderer);
 		void InitBox(cRenderer &renderer, Vector3 vertices[8]);

@@ -99,8 +99,8 @@ void cTile::PreRender(cRenderer &renderer, cShadowMap &shadowMap)
 	shadowMap.Begin(renderer);
 	for (auto &p : m_models)
 	{
-		//if (!p->m_isShadow)
-		//	continue;
+		if (!p->m_isShadow)
+			continue;
   		p->RenderShader(renderer);
 	}
 	shadowMap.End(renderer);

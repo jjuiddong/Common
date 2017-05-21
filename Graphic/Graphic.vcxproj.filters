@@ -316,6 +316,9 @@
     <ClInclude Include="dbg\dbgfrustum.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgbox2.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -593,6 +596,9 @@
       <Filter>dbg</Filter>
     </ClCompile>
     <ClCompile Include="dbg\dbgfrustum.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgbox2.cpp">
       <Filter>dbg</Filter>
     </ClCompile>
   </ItemGroup>

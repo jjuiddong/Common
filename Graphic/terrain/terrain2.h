@@ -21,7 +21,7 @@ namespace graphic
 		void PreRender(cRenderer &renderer);
 		void Render(cRenderer &renderer);
 		void UpdateShader(cRenderer &renderer);
-		void CullingTest(const cFrustum &frustum, const bool isModel=true);
+		void CullingTest(cRenderer &renderer, cCamera &camera, const bool isModel=true);
 		bool AddTile(cTile *model);
 		cTile* FindTile(const string &name);
 		bool RemoveTile(cTile *model);
@@ -35,9 +35,11 @@ namespace graphic
 		vector<cTile*> m_tiles;
 		map<string, cTile*> m_tilemap; // reference
 		cLight m_light;
+		cDbgFrustum m_frustum;
 		cShadowMap m_shadowMap;
 
 		cDbgArrow m_dbgLight;
+		cLine m_dbgPlane;
 		cDbgFrustum m_dbgLightFrustum;
 	};
 

@@ -1,21 +1,21 @@
 
 #include "stdafx.h"
-#include "dbgbox.h"
+#include "dbgbox2.h"
 
 using namespace graphic;
 
 
-cDbgBox::cDbgBox()
+cDbgBox2::cDbgBox2()
 {
 }
 
-cDbgBox::cDbgBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+cDbgBox2::cDbgBox2(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
 {
 	SetBox(renderer, vMin, vMax);
 }
 
 
-void cDbgBox::InitBox(cRenderer &renderer)
+void cDbgBox2::InitBox(cRenderer &renderer)
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
@@ -36,7 +36,7 @@ void cDbgBox::InitBox(cRenderer &renderer)
 }
 
 
-void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
+void cDbgBox2::InitBox(cRenderer &renderer, Vector3 vertices[8])
 {
 	//        4 --- 5
 	//      / |  |  /|
@@ -47,39 +47,31 @@ void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 	//
 	// vertices
 
-	WORD indices[36] = {
+	WORD indices[24] = {
 		// front
-		0, 3, 2,
-		0 ,1, 3,
+		0, 1, 1, 3, 3, 2, 2, 0,
 		// back
-		5, 6, 7,
-		5, 4, 6,
+		4, 5, 5, 7, 7, 6, 6, 4, 
 		// top
-		4, 1, 0,
-		4, 5, 1,
+		0, 4, 1, 5, 
 		// bottom
-		2, 7, 6,
-		2, 3, 7,
+		2, 6, 3, 7
 		// left
-		4, 2, 6,
-		4, 0, 2,
 		// right
-		1, 7, 3,
-		1, 5, 7,
 	};
 
 	if (m_vtxBuff.GetVertexCount() <= 0)
 	{
-		m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
-		m_idxBuff.Create(renderer, 12);
+		m_vtxBuff.Create(renderer, 8, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
+		m_idxBuff.Create2(renderer, 12, 2);
 	}
 
 	if (sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock())
 	{
 		const DWORD color = D3DCOLOR_XRGB(200, 200, 200);
-		for (int i = 0; i < 36; ++i)
+		for (int i = 0; i < 8; ++i)
 		{
-			vbuff[i].p = vertices[indices[i]];
+			vbuff[i].p = vertices[i];
 			vbuff[i].c = color;
 		}
 		m_vtxBuff.Unlock();
@@ -87,8 +79,8 @@ void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 
 	if (WORD *p = (WORD*)m_idxBuff.Lock())
 	{
-		for (int i = 0; i < 36; ++i)
-			*p++ = i;
+		for (int i = 0; i < 24; ++i)
+			*p++ = indices[i];
 		m_idxBuff.Unlock();
 	}
 
@@ -97,7 +89,7 @@ void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 }
 
 
-void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+void cDbgBox2::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
 {
 	if (m_vtxBuff.GetVertexCount() <= 0)
 		InitBox(renderer);
@@ -119,7 +111,7 @@ void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vM
 }
 
 
-void cDbgBox::SetColor(DWORD color)
+void cDbgBox2::SetColor(DWORD color)
 {
 	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
 	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
@@ -129,7 +121,7 @@ void cDbgBox::SetColor(DWORD color)
 
 
 // Render Box using Triangle
-void cDbgBox::Render(cRenderer &renderer
+void cDbgBox2::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
@@ -151,7 +143,7 @@ void cDbgBox::Render(cRenderer &renderer
 	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0,
 		m_vtxBuff.GetVertexCount(), 0, 12);
 
 	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, cullMode);

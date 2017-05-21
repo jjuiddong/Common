@@ -35,6 +35,25 @@ bool cIndexBuffer::Create(cRenderer &renderer, int faceCount)
 }
 
 
+bool cIndexBuffer::Create2(cRenderer &renderer
+	, const int primitiveCount, const int primitiveSize)
+{
+	SAFE_RELEASE(m_pIdxBuff);
+
+	if (FAILED(renderer.GetDevice()->CreateIndexBuffer(primitiveCount * primitiveSize * sizeof(WORD),
+		D3DUSAGE_WRITEONLY,
+		D3DFMT_INDEX16,
+		D3DPOOL_MANAGED,
+		&m_pIdxBuff, NULL)))
+	{
+		return false;
+	}
+
+	m_faceCount = primitiveCount;
+	return true;
+}
+
+
 void* cIndexBuffer::Lock()
 {
 	RETV(!m_pIdxBuff, NULL);
@@ -64,7 +83,6 @@ void cIndexBuffer::Clear()
 }
 
 
-//cIndexBuffer& cIndexBuffer::operator=(cIndexBuffer &rhs)
 void cIndexBuffer::Set(cRenderer &renderer, cIndexBuffer &rhs)
 {
 	if (this != &rhs)
@@ -84,5 +102,4 @@ void cIndexBuffer::Set(cRenderer &renderer, cIndexBuffer &rhs)
 			}
 		}
 	}
-	//return *this;
 }

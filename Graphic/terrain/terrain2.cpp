@@ -19,6 +19,9 @@ cTerrain2::~cTerrain2()
 
 bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 {
+	m_frustum.Create(renderer, GetMainCamera()->GetViewProjectionMatrix());
+	m_frustum.m_fullCheck = true;
+
 	m_light.Init(cLight::LIGHT_DIRECTIONAL,
 		Vector4(0.2f, 0.2f, 0.2f, 1), Vector4(0.9f, 0.9f, 0.9f, 1),
 		Vector4(0.2f, 0.2f, 0.2f, 1));
@@ -38,6 +41,7 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 	Matrix44 view, proj, tt;
 	m_light.GetShadowMatrix(view, proj, tt);
 	m_dbgLightFrustum.Create(renderer, view * proj);
+	m_dbgPlane.SetLine(renderer, Vector3(0, 0, 0), Vector3(0, 30, 0), 0.2f);
 
 	return true;
 }
@@ -65,6 +69,8 @@ void cTerrain2::Render(cRenderer &renderer)
 
 	//m_dbgLight.Render(renderer);
 	//m_dbgLightFrustum.Render(renderer);
+	m_dbgPlane.Render(renderer);
+	m_frustum.RenderShader(renderer);
 }
 
 
@@ -76,15 +82,29 @@ void cTerrain2::UpdateShader(cRenderer &renderer)
 	GetMainCamera()->Bind(*shader);
 	GetMainLight().Bind(*shader);
 	//m_shader->SetVector("g_vEyePos", GetMainCamera()->GetEyePos());
+
+	GetMainCamera()->Bind(*m_frustum.m_shader);
 }
 
 
-void cTerrain2::CullingTest(const cFrustum &frustum
+void cTerrain2::CullingTest(
+	cRenderer &renderer
+	, cCamera &camera
 	, const bool isModel //= true
 )
 {
+	m_frustum.SetFrustum(renderer, camera.GetViewProjectionMatrix());
+
 	for (auto &p : m_tiles)
-		p->CullingTest(frustum, isModel);
+		p->CullingTest(m_frustum, isModel);
+
+	Vector3 orig, dir;
+	const int x = camera.m_width / 2;
+	const int y = (int)(camera.m_height * 0.8f);
+	camera.GetRay(x, y, orig, dir);
+	Plane ground(Vector3(0, 1, 0), 0);
+	Vector3 pos = ground.Pick(orig, dir);
+	m_dbgPlane.SetLine(renderer, pos, pos + Vector3(0, 1, 0) * 10, 0.2f);
 }
 
 

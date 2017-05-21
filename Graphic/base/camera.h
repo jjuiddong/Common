@@ -72,8 +72,10 @@ namespace graphic
 
 		Vector3 GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 		Vector3 GetScreenPos(const Vector3& vPos);
-		void GetRay(const int sx, const int sy, Vector3 &orig, Vector3 &dir);
-		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy, Vector3 &orig, Vector3 &dir);
+		void GetRay(OUT Vector3 &orig, OUT Vector3 &dir);
+		void GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir);
+		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy
+			, OUT Vector3 &orig, OUT Vector3 &dir);
 
 		void UpdateParameterFromViewMatrix();
 		void UpdateViewMatrix(const bool updateUp=true);

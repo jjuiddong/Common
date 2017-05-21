@@ -79,6 +79,7 @@ static const string g_defaultTexture = "white.dds";
 
 
 #include "dbg/dbgbox.h"
+#include "dbg/dbgbox2.h"
 #include "dbg/dbgsphere.h"
 #include "dbg/dbgline.h"
 #include "dbg/dbgarrow.h"
@@ -145,7 +146,7 @@ static const string g_defaultTexture = "white.dds";
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

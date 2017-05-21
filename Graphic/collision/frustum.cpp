@@ -46,7 +46,7 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 	// 역행렬( Matrix_view * Matrix_Proj )^-1를 양변에 곱하면
 	// Vertex_최종 * 역행렬( Matrix_view * Matrix_Proj )^-1 = Vertex_World 가 된다.
 	// 그러므로, m_Vtx * matInv = Vertex_world가 되어, 월드좌표계의 프러스텀 좌표를 얻을 수 있다.
-	m_fullCheck = false;
+	//m_fullCheck = false;
 
 	for (int i = 0; i < 8; i++)
 		vertices[i] *= matInv;

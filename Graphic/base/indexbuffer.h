@@ -14,6 +14,7 @@ namespace graphic
 		virtual ~cIndexBuffer();
 
 		bool Create(cRenderer &renderer, int faceCount);
+		bool Create2(cRenderer &renderer, const int primitiveCount, const int primitiveSize);
 		void* Lock();
 		void Unlock();
 		void Bind(cRenderer &renderer) const;
