@@ -7,6 +7,7 @@ using namespace graphic;
 
 cCamera::cCamera() :
 	m_eyePos(0,100,-100)
+,	 m_isOrthogonal(false)
 ,	m_lookAt(0,0,0)
 ,	m_up(0,1,0)
 , m_renderer(NULL)
@@ -45,6 +46,7 @@ void cCamera::SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vect
 
 void cCamera::SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane)
 {
+	m_isOrthogonal = false;
 	m_fov = fov;
 	m_aspect = aspect;
 	m_nearPlane = nearPlane;
@@ -57,6 +59,7 @@ void cCamera::SetProjection(const float fov, const float aspect, const float nea
 void cCamera::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
 {
 	//m_fov = fov;
+	m_isOrthogonal = true;
 	m_aspect = height / width;
 	m_nearPlane = nearPlane;
 	m_farPlane = farPlane;
@@ -617,7 +620,14 @@ void cCamera::SetViewPort(const int width, const int height)
 	m_width = width;
 	m_height = height;
 
-	SetProjection(m_fov,
-		(float)width / (float)height,
-		m_nearPlane, m_farPlane);
+	if (m_isOrthogonal)
+	{
+		SetProjectionOrthogonal((float)width, (float)height
+			, m_nearPlane, m_farPlane);
+	}
+	else
+	{
+		SetProjection(m_fov, (float)width / (float)height
+			, m_nearPlane, m_farPlane);
+	}
 }

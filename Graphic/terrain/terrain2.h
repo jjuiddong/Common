@@ -18,8 +18,8 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const sRectf &rect);
 		void Update(cRenderer &renderer, const float deltaSeconds);
-		void PreRender(cRenderer &renderer);
-		void Render(cRenderer &renderer);
+		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void UpdateShader(cRenderer &renderer);
 		void CullingTest(cRenderer &renderer, cCamera &camera, const bool isModel=true);
 		bool AddTile(cTile *model);
@@ -32,12 +32,20 @@ namespace graphic
 
 
 	public:
+		cLight m_light;
+		cCamera m_lightCam;
+		cDbgFrustum m_frustum;
 		vector<cTile*> m_tiles;
 		map<string, cTile*> m_tilemap; // reference
-		cLight m_light;
-		cDbgFrustum m_frustum;
+
+		// Shadow
+		Matrix44 m_VPT; // ShadowMap Transform, = light view x light proj x uv transform
+		Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
+		cSurface2 m_shadowSurf;
 		cShadowMap m_shadowMap;
 
+		// Debug
+		bool m_isShowShadowMap;
 		cDbgArrow m_dbgLight;
 		cLine m_dbgPlane;
 		cDbgFrustum m_dbgLightFrustum;

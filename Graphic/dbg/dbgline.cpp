@@ -46,11 +46,18 @@ void cDbgLine::Render(cRenderer &renderer, const Matrix44 &tm)
 void cDbgLine::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width
 	, const D3DCOLOR color) //color=0
 {
+	InitCube(renderer, color);
+	SetLine(p0, p1, width, color);
+}
+
+
+void cDbgLine::SetLine(const Vector3 &p0, const Vector3 &p1, const float width
+	, const D3DCOLOR color //= 0
+)
+{
 	m_p0 = p0;
 	m_p1 = p1;
 	m_width = width;
-
-	InitCube(renderer, color);
 
 	Vector3 v = p1 - p0;
 	const float len = v.Length();

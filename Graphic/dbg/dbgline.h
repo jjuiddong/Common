@@ -16,6 +16,7 @@ namespace graphic
 		cDbgLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width);
 
 		void SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width, const D3DCOLOR color = 0);
+		void SetLine(const Vector3 &p0, const Vector3 &p1, const float width, const D3DCOLOR color = 0);
 		void InitCube(cRenderer &renderer, const D3DCOLOR color = 0);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 

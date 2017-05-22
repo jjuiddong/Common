@@ -65,7 +65,7 @@ void cShadowMap::ResetDevice(graphic::cRenderer &renderer)
 
 
 // 디버깅용 함수.
-void cShadowMap::RenderShadowMap(cRenderer &renderer
+void cShadowMap::Render(cRenderer &renderer
 	, const int index //=1
 )
 {

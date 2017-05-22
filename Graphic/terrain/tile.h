@@ -21,8 +21,10 @@ namespace graphic
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
 			, const int dbgIdx = 2);
 		void Update(cRenderer &renderer, const float deltaSeconds);
-		void PreRender(cRenderer &renderer, cShadowMap &shadowMap);
-		void Render(cRenderer &rendererm, cShadowMap *shadowMap=NULL);
+		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		void Render(cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &mLVP,
+			cShadowMap *shadowMap = NULL, const Matrix44 &tm = Matrix44::Identity);
 		float CullingTest(const cFrustum &frustum, const bool isModel = true);
 		bool AddModel(cModel2 *model);
 		bool RemoveModel(cModel2 *model);
@@ -37,18 +39,14 @@ namespace graphic
 		bool m_isDbgRender;
 		string m_name;
 		cGrid3 m_ground;
-		//cLight m_light;
 		Matrix44 m_tm;
 		cBoundingBox m_boundingBox;
 		vector<cModel2*> m_models;
 		
-		Matrix44 m_VPT; // ShadowMap Transform, = light view x light proj x uv transform
-		Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
-		//cShadowMap m_shadowMap;
+		//Matrix44 m_VPT; // ShadowMap Transform, = light view x light proj x uv transform
+		//Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
 
 		cDbgBox2 m_dbgTile;
-		//cDbgArrow m_dbgLight;
-		//cDbgFrustum m_dbgLightFrustum;
 		int m_dbgIdx; // Surface Rendering Index
 	};
 

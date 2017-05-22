@@ -89,6 +89,7 @@ namespace graphic
 		struct eState { enum Enum { STOP, MOVE}; };
 
 		eState::Enum m_state;
+		bool m_isOrthogonal;
 		Vector3 m_eyePos;
 		Vector3 m_lookAt;
 		Vector3 m_up;

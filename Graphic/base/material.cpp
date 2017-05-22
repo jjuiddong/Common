@@ -67,6 +67,15 @@ void cMaterial::InitGray2()
 	Init(Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0, 0, 0, 1));
 }
 
+void cMaterial::InitGray3()
+{
+	Init(Vector4(0.3f, 0.3f, 0.3f, 1), Vector4(0.7f, 0.7f, 0.7f, 1), Vector4(1, 1, 1, 1));
+}
+
+void cMaterial::InitXFile()
+{
+	Init(Vector4(0.f, 0.f, 0.f, 1), Vector4(1.f, 1.f, 1.f, 1), Vector4(1, 1, 1, 1));
+}
 
 void cMaterial::InitRed()
 {

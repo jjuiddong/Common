@@ -17,6 +17,13 @@ namespace graphic
 			const int width=1024, const int height=768, 
 			const float minZ=1.f, const float maxZ=10000.f);
 
+		int GetX() const;
+		int GetY() const;
+		float GetMinZ() const;
+		float GetMaxZ() const;
+		int GetWidth() const;
+		int GetHeight() const;
+
 
 	public:
 		D3DVIEWPORT9 m_vp;

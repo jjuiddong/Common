@@ -16,6 +16,7 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
 		void Render(cRenderer &renderer);
+		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
 
 
 	public:

@@ -34,3 +34,22 @@ bool cViewport::Create(const int x, const int y, const int width, const int heig
 	return true;
 }
 
+
+int cViewport::GetX() const {
+	return (int)m_vp.X;
+}
+int cViewport::GetY() const {
+	return (int)m_vp.Y;
+}
+float cViewport::GetMinZ() const {
+	return m_vp.MinZ;
+}
+float cViewport::GetMaxZ() const {
+	return m_vp.MaxZ;
+}
+int cViewport::GetWidth() const {
+	return (int)m_vp.Width;
+}
+int cViewport::GetHeight() const {
+	return (int)m_vp.Height;
+}
