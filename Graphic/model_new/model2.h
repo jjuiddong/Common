@@ -31,10 +31,12 @@ namespace graphic
 		virtual void RenderShadow(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		virtual void SetShader(cShader *shader) override;
 		virtual void SetShadowShader(cShader *shader) override;
-		bool Update(cRenderer &renderer, const float deltaSeconds);
+		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
+		virtual void LostDevice() {}
+		virtual void ResetDevice(graphic::cRenderer &renderer) {}
+		virtual void Clear();
 		void SetAnimation(const string &animationName, const bool isMerge = false);
 		bool IsLoadFinish();
-		void Clear();
 
 
 	protected:

@@ -19,7 +19,7 @@ namespace graphic
 			, const sRectf &rect
 			, const float y=0, const float uvFactor=1.f
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
-			, const int dbgIdx = 2);
+			);
 		void Update(cRenderer &renderer, const float deltaSeconds);
 		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
@@ -42,12 +42,9 @@ namespace graphic
 		Matrix44 m_tm;
 		cBoundingBox m_boundingBox;
 		vector<cModel2*> m_models;
+		set<cShader*> m_shaders;
 		
-		//Matrix44 m_VPT; // ShadowMap Transform, = light view x light proj x uv transform
-		//Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
-
 		cDbgBox2 m_dbgTile;
-		int m_dbgIdx; // Surface Rendering Index
 	};
 
 }

@@ -16,19 +16,20 @@ namespace graphic
 		cTerrain2();
 		virtual ~cTerrain2();
 
-		bool Create(cRenderer &renderer, const sRectf &rect);
-		void Update(cRenderer &renderer, const float deltaSeconds);
-		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		virtual bool Create(cRenderer &renderer, const sRectf &rect);
+		virtual void Update(cRenderer &renderer, const float deltaSeconds);
+		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		virtual void LostDevice();
+		virtual void ResetDevice(cRenderer &renderer);
+		virtual void Clear();
+
 		void UpdateShader(cRenderer &renderer);
 		void CullingTest(cRenderer &renderer, cCamera &camera, const bool isModel=true);
 		bool AddTile(cTile *model);
 		cTile* FindTile(const string &name);
 		bool RemoveTile(cTile *model);
 		void SetDbgRendering(const bool isRender);
-		void LostDevice();
-		void ResetDevice(cRenderer &renderer);
-		void Clear();
 
 
 	public:
@@ -44,8 +45,8 @@ namespace graphic
 		cSurface2 m_shadowSurf;
 		cShadowMap m_shadowMap;
 
-		// Debug
-		bool m_isShowShadowMap;
+		// Debug Display
+		bool m_isShowDebug;
 		cDbgArrow m_dbgLight;
 		cLine m_dbgPlane;
 		cDbgFrustum m_dbgLightFrustum;

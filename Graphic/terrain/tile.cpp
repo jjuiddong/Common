@@ -8,8 +8,7 @@ using namespace graphic;
 cTile::cTile()
 	: m_isShadow(true)
 	, m_isCulling(false)
-	, m_isDbgRender(true)
-	, m_dbgIdx(2)
+	, m_isDbgRender(false)
 {
 }
 
@@ -26,7 +25,6 @@ bool cTile::Create(cRenderer &renderer
 	, const float uvFactor //= 1.f,
 	, const Vector2 &uv0 //= Vector2(0, 0)
 	, const Vector2 &uv1 //= Vector2(1, 1)
-	, const int dbgIdx //=2
 )
 {
 	m_name = name;
@@ -44,16 +42,8 @@ bool cTile::Create(cRenderer &renderer
 	m_boundingBox.SetBoundingBox(Vector3(rect.left, 0, rect.top)
 		, Vector3(rect.right, 20, rect.bottom));
 
-	//m_shadowMap.Create(renderer, 800, 800);
-
 	m_dbgTile.SetBox(renderer, Vector3(rect.left, 0, rect.top)
 		, Vector3(rect.right, 20, rect.bottom));
-
-	//const Vector3 p0 = lightPos;// Vector3(center.x, 20, center.y);
-	//const Vector3 p1 = (lightLookat - lightPos).Normal() * 3 + p0;
-	//m_dbgLight.Create(renderer, p0, p1, 0.5F);
-
-	m_dbgIdx = dbgIdx;
 
 	return true;
 }
@@ -73,15 +63,11 @@ void cTile::PreRender(cRenderer &renderer
 	RET(!m_isShadow);
 	RET(m_isCulling);
 
-	//m_VPT = view * proj * tt;
-	//m_LVP = view * proj;
 	cCamera *cam = GetMainCamera();
 
-	if (!m_models.empty())
+	for (auto &shader : m_shaders)
 	{
-		cShader *shader = m_models[0]->m_shader;
 		shader->SetTechnique("ShadowMap");
-		//shader->SetTechnique("Scene_NoShadow");
 		shader->SetMatrix("g_mView", cam->GetViewMatrix());
 		shader->SetMatrix("g_mProj", cam->GetProjectionMatrix());
 	}
@@ -105,11 +91,8 @@ void cTile::Render(cRenderer &renderer
 
 	m_ground.RenderShader(renderer, m_tm * tm);
 
-	if (!m_models.empty())
-	{
-		cShader *shader = m_models[0]->m_shader;
+	for (auto &shader : m_shaders)
 		shader->SetTechnique("Scene_NoShadow");
-	}
 
 	for (auto &p : m_models)
 		p->RenderShader(renderer, tm);
@@ -139,9 +122,8 @@ void cTile::Render( cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &m
 
 	m_ground.RenderShader(renderer, m_tm * tm);
 
-	if (!m_models.empty())
+	for (auto &shader : m_shaders)
 	{
-		cShader *shader = m_models[0]->m_shader;
 		shader->SetTechnique("Scene_ShadowMap");
 		shader->SetMatrix("g_mVPT", mVPT);
 		shader->SetMatrix("g_mLVP", mLVP);
@@ -172,7 +154,10 @@ float cTile::CullingTest(const cFrustum &frustum
 			{
 				p->m_isShow = frustum.IsIn(p->m_tm.GetPosition());
 				if (p->m_isShow)
-					p->m_isShadow = p->m_tm.GetPosition().LengthRoughly(frustum.m_pos) < 100000;
+				{
+					const Vector3 pos = p->m_boundingBox.Center() * p->m_tm;
+					p->m_isShadow = pos.LengthRoughly(frustum.m_pos) < 100000;
+				}
 			}
 		}
 		else
@@ -197,6 +182,10 @@ bool cTile::AddModel(cModel2 *model)
 		return false; // Already Exist
 
 	m_models.push_back(model);
+
+	if (model->m_shader)
+		m_shaders.insert(model->m_shader);
+
 	return true;
 }
 
@@ -208,19 +197,18 @@ bool cTile::RemoveModel(cModel2 *model)
 		return false; // Not Exist
 
 	common::popvector2(m_models, model);
+	m_shaders.erase(model->m_shader);
 	return true;
 }
 
 
 void cTile::LostDevice()
 {
-	//m_shadowMap.LostDevice();
 }
 
 
 void cTile::ResetDevice(cRenderer &renderer)
 {
-	//m_shadowMap.ResetDevice(renderer);
 }
 
 
