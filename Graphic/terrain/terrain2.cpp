@@ -45,12 +45,12 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 	m_dbgLightFrustum.Create(renderer, view * proj);
 	m_dbgPlane.SetLine(renderer, Vector3(0, 0, 0), Vector3(0, 30, 0), 0.1f);
 
-	const int shadowWidth = 2048;
-	const int shadowHeight = 2048;
+	const int shadowWidth = 1024;
+	const int shadowHeight = 1024;
 	m_lightCam.Init(&renderer);
 	m_lightCam.SetCamera(lightPos, lightLookat, Vector3(0, 1, 0));
 	m_lightCam.SetProjectionOrthogonal((float)shadowWidth, (float)shadowHeight, 0.1f, 1000.0f);
-	m_lightCam.SetViewPort(200, 200);
+	m_lightCam.SetViewPort(100, 100);
 
 	return true;
 }
@@ -88,9 +88,9 @@ void cTerrain2::Render(cRenderer &renderer
 	{
 		m_shadowMap.Render(renderer);
 		m_dbgLight.Render(renderer);
-		//m_dbgPlane.Render(renderer);
+		m_dbgPlane.Render(renderer);
 		//m_frustum.RenderShader(renderer);
-		//m_dbgLightFrustum.RenderShader(renderer);
+		m_dbgLightFrustum.RenderShader(renderer);
 	}
 }
 
@@ -134,7 +134,7 @@ void cTerrain2::CullingTest(
 	m_lightCam.SetEyePos(lightPos);
 	m_lightCam.SetLookAt(lightPos + lightDir*10.f);
 
-	const int w = (int)common::clamp(30, 400, orig.y * 3.3f);
+	const int w = (int)common::clamp(30, 200, orig.y * 3.3f);
 	m_lightCam.SetViewPort(w, w);
 
 	Matrix44 view, proj, tt;

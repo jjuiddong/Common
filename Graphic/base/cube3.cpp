@@ -305,7 +305,6 @@ void cCube3::SetCube(const Vector3 &vMin, const Vector3 &vMax
 {
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
-	const Vector3 v2 = m_max - m_min;
 	Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
 
 	Matrix44 S;
@@ -361,8 +360,6 @@ void cCube3::Render(cRenderer &renderer, const Matrix44 &tm)
 
 void cCube3::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
 {
-	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
-
 	const Matrix44 transform = m_tm*tm;
 	shader.SetMatrix("g_mWorld", transform);
 	shader.SetFloat("g_uvFactor", m_uvFactor);

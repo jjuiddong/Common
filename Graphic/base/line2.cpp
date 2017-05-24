@@ -74,7 +74,7 @@ void cLine2::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, 
 void cLine2::InitCube(cRenderer &renderer)
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
-		return;
+		return; // Already Created
 
 
 	//        4 --- 5

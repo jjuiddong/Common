@@ -14,6 +14,7 @@ namespace graphic
 		cBoundingBox();
 		cBoundingBox(const cCube &cube);
 		void SetBoundingBox(const Vector3 &vMin, const Vector3 &vMax );
+		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
 		void SetTransform( const Matrix44 &tm );
 		bool Collision( cBoundingBox &box );
 		bool Pick(const Vector3 &orig, const Vector3 &dir, const Matrix44 &tm = Matrix44::Identity);
