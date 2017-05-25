@@ -30,9 +30,11 @@ namespace graphic
 		cTile* FindTile(const string &name);
 		bool RemoveTile(cTile *model);
 		void SetDbgRendering(const bool isRender);
+		void SetShadowRendering(const bool isRender);
 
 
 	public:
+		bool m_isShadow;
 		cLight m_light;
 		cCamera m_lightCam;
 		cDbgFrustum m_frustum;

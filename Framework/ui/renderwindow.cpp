@@ -541,8 +541,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 		m_camera.Bind(m_renderer);
 		m_light.Bind(m_renderer, 0);
 
-		//PreRender(deltaSeconds);
-
 		if (m_renderer.ClearScene())
 		{
 			m_renderer.BeginScene();
@@ -552,14 +550,12 @@ void cRenderWindow::Render(const float deltaSeconds)
 
 			m_gui.Render();
 
-			//OnPostRender(deltaSeconds);
-
 			m_renderer.EndScene();
 			m_renderer.Present();
 		}
 		else
 		{
-			// Device Lost
+			ChangeDevice(0, 0, true);
 		}
 	}
 
@@ -880,13 +876,14 @@ void cRenderWindow::WakeUp(const string &title, const int width, const int heigh
 
 void cRenderWindow::ChangeDevice(
 	const int width //=0
-	, const int height //=0)
+	, const int height //=0
+	, const bool forceReset //=false
 )
 {
 	LostDevice();
 
 	const bool restResource = (cDockManager::Get()->m_mainWindow == this);
-	m_renderer.ResetDevice(0, 0, false, restResource);
+	m_renderer.ResetDevice(0, 0, forceReset, restResource);
 
 	const sRectf rect(0, TITLEBAR_HEIGHT2, (float)((width==0)? getSize().x : width), (float)((height==0)? getSize().y : height));
 	if (m_dock)

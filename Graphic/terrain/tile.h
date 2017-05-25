@@ -34,8 +34,8 @@ namespace graphic
 
 
 	public:
+		bool m_isShow;
 		bool m_isShadow;
-		bool m_isCulling; // Out of Frustum = true
 		bool m_isDbgRender;
 		string m_name;
 		cGrid3 m_ground;

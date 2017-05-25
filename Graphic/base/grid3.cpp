@@ -175,6 +175,8 @@ void cGrid3::RenderShader(cRenderer &renderer
 	m_mtrl.Bind(*m_shader);
 	if (m_tex)
 		m_tex->Bind(*m_shader, "g_colorMapTexture");
+	else
+		m_shader->SetTexture("g_colorMapTexture", NULL);
 
 	const int passCnt = m_shader->Begin();
 	for (int i = 0; i < passCnt; ++i)

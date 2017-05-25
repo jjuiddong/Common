@@ -7,7 +7,7 @@ using namespace graphic;
 
 cTile::cTile()
 	: m_isShadow(true)
-	, m_isCulling(false)
+	, m_isShow(true)
 	, m_isDbgRender(false)
 {
 }
@@ -61,7 +61,7 @@ void cTile::PreRender(cRenderer &renderer
 )
 {
 	RET(!m_isShadow);
-	RET(m_isCulling);
+	RET(!m_isShow);
 
 	cCamera *cam = GetMainCamera();
 
@@ -85,7 +85,7 @@ void cTile::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	RET(m_isCulling);
+	RET(!m_isShow);
 
 	m_ground.m_shader->SetTechnique("Scene_NoShadow");
 
@@ -107,28 +107,35 @@ void cTile::Render( cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &m
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	RET(m_isCulling);
+	RET(!m_isShow);
 
-	if (shadowMap)
+	if (m_isShadow && shadowMap)
 	{
+		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
 		m_ground.m_shader->SetMatrix("g_mVPT", mVPT);
 		m_ground.m_shader->SetMatrix("g_mLVP", mLVP);
-	}
-
-	m_ground.m_shader->SetTechnique("Scene_ShadowMap");
-
-	if (shadowMap)
 		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
+	}
+	else
+	{
+		m_ground.m_shader->SetTechnique("Scene_NoShadow");
+	}
 
 	m_ground.RenderShader(renderer, m_tm * tm);
 
 	for (auto &shader : m_shaders)
 	{
-		shader->SetTechnique("Scene_ShadowMap");
-		shader->SetMatrix("g_mVPT", mVPT);
-		shader->SetMatrix("g_mLVP", mLVP);
-		if (shadowMap)
+		if (m_isShadow && shadowMap)
+		{
+			shader->SetTechnique("Scene_ShadowMap");
+			shader->SetMatrix("g_mVPT", mVPT);
+			shader->SetMatrix("g_mLVP", mLVP);
 			shadowMap->Bind(*shader, "g_shadowMapTexture");
+		}
+		else
+		{
+			shader->SetTechnique("Scene_NoShadow");
+		}
 	}
 
 	for (auto &p : m_models)
@@ -146,7 +153,7 @@ float cTile::CullingTest(const cFrustum &frustum
 {
 	if (frustum.IsInBox(m_boundingBox))
 	{
-		m_isCulling = false;
+		m_isShow = true;
 
 		if (isModel)
 		{
@@ -168,7 +175,7 @@ float cTile::CullingTest(const cFrustum &frustum
 	}
 	else
 	{
-		m_isCulling = true;
+		m_isShow = false;
 	}
 
 	return frustum.m_pos.LengthRoughly(m_boundingBox.Center());

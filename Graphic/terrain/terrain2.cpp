@@ -9,6 +9,7 @@ using namespace graphic;
 
 cTerrain2::cTerrain2()
 	: m_isShowDebug(false)
+	, m_isShadow(true)
 {
 }
 
@@ -186,6 +187,13 @@ void cTerrain2::SetDbgRendering(const bool isRender)
 
 	for (auto &p : m_tiles)
 		p->m_isDbgRender = isRender;
+}
+
+
+void cTerrain2::SetShadowRendering(const bool isRender)
+{
+	for (auto &p : m_tiles)
+		p->m_isShadow = isRender;
 }
 
 
