@@ -388,6 +388,7 @@
     <ClInclude Include="character\sc2character.h" />
     <ClInclude Include="character\teracharacter.h" />
     <ClInclude Include="collision\boundingbox.h" />
+    <ClInclude Include="collision\boundingsphere.h" />
     <ClInclude Include="collision\collision.h" />
     <ClInclude Include="collision\collisionmanager.h" />
     <ClInclude Include="collision\frustum.h" />

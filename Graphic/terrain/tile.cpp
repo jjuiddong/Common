@@ -76,7 +76,8 @@ void cTile::PreRender(cRenderer &renderer
 	{
 		if (!p->m_isShadow)
 			continue;
-  		p->RenderShader(renderer);
+		if (p->m_isShow)
+  			p->RenderShader(renderer);
 	}
 }
 
@@ -95,7 +96,8 @@ void cTile::Render(cRenderer &renderer
 		shader->SetTechnique("Scene_NoShadow");
 
 	for (auto &p : m_models)
-		p->RenderShader(renderer, tm);
+		if (p->m_isShow)
+			p->RenderShader(renderer, tm);
 
 	if (m_isDbgRender)
 		m_dbgTile.Render(renderer, tm);
@@ -139,7 +141,8 @@ void cTile::Render( cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &m
 	}
 
 	for (auto &p : m_models)
-		p->RenderShader(renderer, tm);
+		if (p->m_isShow)
+			p->RenderShader(renderer, tm);
 
 	if (m_isDbgRender)
 		m_dbgTile.Render(renderer, tm);
@@ -159,7 +162,7 @@ float cTile::CullingTest(const cFrustum &frustum
 		{
 			for (auto &p : m_models)
 			{
-				p->m_isShow = frustum.IsIn(p->m_tm.GetPosition());
+				p->m_isShow = frustum.IsInSphere(p->m_boundingSphere);
 				if (p->m_isShow)
 				{
 					const Vector3 pos = p->m_boundingBox.Center() * p->m_tm;

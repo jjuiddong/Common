@@ -319,6 +319,9 @@
     <ClInclude Include="dbg\dbgbox2.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="collision\boundingsphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

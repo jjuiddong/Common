@@ -14,6 +14,7 @@ cModel2::cModel2()
 	, m_shadowMap(NULL)
 	, m_isShadow(false)
 	, m_isShadow2(false)
+	, m_cullType(D3DCULL_CCW)
 {
 }
 
@@ -93,6 +94,8 @@ void cModel2::RenderShader(cRenderer &renderer
 {
 	RET(!m_isShow);
 	RET(!m_shader);
+
+	renderer.SetCullMode(m_cullType);
 
 	const Matrix44 transform = m_tm * tm;
 
@@ -250,6 +253,7 @@ void cModel2::InitModel(cRenderer &renderer)
 	{
 		m_animationName = m_colladaModel->m_storedAnimationName;
 		m_boundingBox = m_colladaModel->m_boundingBox;
+		m_boundingSphere.Set(m_colladaModel->m_boundingBox, m_tm);
 
 		SetShader( m_colladaModel->m_isSkinning ?
 			cResourceManager::Get()->LoadShader(renderer, m_shaderName.empty() ? "collada_skin.fx" : m_shaderName)
@@ -266,6 +270,7 @@ void cModel2::InitModel(cRenderer &renderer)
 	if (m_xModel)
 	{
 		m_boundingBox = m_xModel->m_boundingBox;
+		m_boundingSphere.Set(m_xModel->m_boundingBox, m_tm);
 
 		SetShader(cResourceManager::Get()->LoadShader(renderer,
 			m_shaderName.empty() ? "xfile.fx" : m_shaderName.c_str())
@@ -312,3 +317,10 @@ void cModel2::SetShadowShader(cShader *shader)
 	__super::SetShader(shader);
 	__super::SetShadowShader(shader);
 }
+
+
+void cModel2::CalcBoundingSphere()
+{
+	m_boundingSphere.Set(m_boundingBox, m_tm);
+}
+

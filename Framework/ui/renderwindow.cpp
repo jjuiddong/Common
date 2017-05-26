@@ -733,7 +733,18 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 	{
 	case sf::Event::KeyPressed:
 		if (evt.key.code < 256)
-			io.KeysDown[evt.key.code] = 1;
+			io.KeysDown[KeyboardToAscii(evt.key.code)] = 1;
+		break;
+
+	case sf::Event::KeyReleased:
+		if (evt.key.code < 256)
+			io.KeysDown[KeyboardToAscii(evt.key.code)] = 0;
+		break;
+
+	case sf::Event::TextEntered:
+		// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+		if (evt.text.unicode> 0 && evt.text.unicode< 0x10000)
+			io.AddInputCharacter((unsigned short)evt.text.unicode);
 		break;
 
 	case sf::Event::MouseMoved:
@@ -764,7 +775,8 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		break;
 
 	case sf::Event::MouseWheelMoved:
-		io.MouseWheel += evt.mouseWheel.delta > 0 ? +1.0f : -1.0f;
+	//case sf::Event::MouseWheelScrolled:
+		io.MouseWheel += evt.mouseWheel.delta >= 0 ? +1.0f : -1.0f;
 		break;
 
 	case sf::Event::Resized:
@@ -779,6 +791,26 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		}
 	}
 	break;
+	}
+}
+
+
+unsigned char cRenderWindow::KeyboardToAscii(const sf::Keyboard::Key key)
+{
+	switch (key)
+	{
+	case sf::Keyboard::BackSpace: return 0x08;
+	case sf::Keyboard::Delete: return 0x2e;
+	case sf::Keyboard::Left: return 0x25;
+	case sf::Keyboard::Up: return 0x26;
+	case sf::Keyboard::Right: return 0x27;
+	case sf::Keyboard::Down: return 0x28;
+	case sf::Keyboard::Home: return 0x24;
+	case sf::Keyboard::End: return 0x23;
+	case sf::Keyboard::V: return 'V'; // copy and paste
+	case sf::Keyboard::C: return 'C'; // copy and paste
+	default:
+		return 0;
 	}
 }
 

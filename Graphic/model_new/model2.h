@@ -37,6 +37,7 @@ namespace graphic
 		virtual void Clear();
 		void SetAnimation(const string &animationName, const bool isMerge = false);
 		bool IsLoadFinish();
+		void CalcBoundingSphere();
 
 
 	protected:
@@ -65,6 +66,7 @@ namespace graphic
 		bool m_isShow;
 		bool m_isShadow; // shadow volume
 		bool m_isShadow2; // shadow map
+		D3DCULL m_cullType; // default : CCW
 		cColladaModel *m_colladaModel;
 		cXFileMesh *m_xModel;
 		string m_shaderName;
@@ -72,6 +74,7 @@ namespace graphic
 		Matrix44 m_tm;
 		string m_animationName;
 		cBoundingBox m_boundingBox;
+		cBoundingSphere m_boundingSphere;
 		cShadowVolume *m_shadow; // reference
 		cShadow2 *m_shadowMap; // reference
 	};

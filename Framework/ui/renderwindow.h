@@ -75,6 +75,7 @@ namespace framework
 		virtual void MouseProc(const float deltaSeconds);
 		std::pair<bool, cDockWindow*> UpdateCursor();
 		void ChangeDevice(const int width = 0, const int height = 0, const bool forceReset=false);
+		unsigned char KeyboardToAscii(const sf::Keyboard::Key key);
 
 		virtual void OnUpdate(const float deltaSeconds) {}
 		virtual void OnRender(const float deltaSeconds) {}

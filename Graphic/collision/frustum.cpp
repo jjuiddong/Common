@@ -137,6 +137,12 @@ bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
 }
 
 
+bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
+{
+	return IsInSphere(sphere.m_pos, sphere.m_radius);
+}
+
+
 bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 {
 	//const Vector3 vertices[] = {
