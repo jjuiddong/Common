@@ -196,7 +196,12 @@ void Matrix44::SetProjection(	const float fov, const float aspect, const float n
 void	Matrix44::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
 {
 	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
-	//D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, 0, width, height, 0, nearPlane, farPlane);
+}
+
+
+void	Matrix44::SetProjectionOrthogonal(const float left, const float right, const float top, const float bottom, const float nearPlane, const float farPlane)
+{
+	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, bottom, top, nearPlane, farPlane);
 }
 
 

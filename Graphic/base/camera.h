@@ -39,6 +39,7 @@ namespace graphic
 		float GetDistance() const; // lookAt - eyePos 사이 거리.
 
 		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt);
+		void FitFrustum(const cCamera &camera, const float farPlaneRate =1.f);
 
 
 		// LookAt 이 이동한다.

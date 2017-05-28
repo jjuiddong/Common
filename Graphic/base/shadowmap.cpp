@@ -37,7 +37,8 @@ void cShadowMap::Begin(cRenderer &renderer)
 	m_surface.Begin( renderer);
 	renderer.GetDevice()->Clear(0, NULL
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
-		, *(DWORD*)&maxFlt// 0xffffffff
+		//, *(DWORD*)&maxFlt
+		, 0xffffffff
 		, 1.0f, 0L);
 }
 

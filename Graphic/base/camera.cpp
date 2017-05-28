@@ -613,6 +613,64 @@ void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix
 }
 
 
+// use ShadowMap, Calc Light Camera Projection
+// Light Camera is Orthogonal Projection
+// this class is Light Camera instance
+void cCamera::FitFrustum(const cCamera &camera
+	, const float farPlaneRate//= 1.f
+)
+{
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	Vector3 vertices[8] = {
+		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	};
+
+	// Camera View Space
+	Matrix44 oldProj;
+	oldProj.SetProjection(camera.m_fov, camera.m_aspect, camera.m_nearPlane, camera.m_farPlane * farPlaneRate);
+	Matrix44 matInv = (camera.m_view * oldProj).Inverse();
+	for (int i = 0; i < 8; i++)
+		vertices[i] *= matInv;
+
+	Vector3 center(0, 0, 0);
+	for (int i = 0; i < 8; ++i)
+		center += vertices[i];
+	center /= 8.f;
+
+	const float distFromCenter = 500;
+	const Vector3 pos = center - (GetDirection()*distFromCenter);
+	Matrix44 newView;
+	newView.SetView2(pos, center, Vector3(0, 1, 0));
+
+	// Light View Space
+	for (int i = 0; i < 8; i++)
+		vertices[i] *= newView;
+
+	sMinMax mm;
+	for each (auto &v in vertices)
+		mm.Update(v);
+
+	Matrix44 newProj;
+	newProj.SetProjectionOrthogonal(
+		mm._min.x, mm._max.x,
+		mm._min.y, mm._max.y,
+		mm._min.z, mm._max.z);
+
+	m_eyePos = pos;
+	m_lookAt = center;
+	m_view = newView;
+	m_proj = newProj;
+	m_viewProj = newView * newProj;
+}
+
+
 void cCamera::SetViewPort(const int width, const int height)
 {
 	m_oldWidth = m_width;

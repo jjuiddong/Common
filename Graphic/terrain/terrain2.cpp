@@ -8,7 +8,7 @@ using namespace graphic;
 
 
 cTerrain2::cTerrain2()
-	: m_isShowDebug(false)
+	: m_isShowDebug(true)
 	, m_isShadow(true)
 {
 }
@@ -52,6 +52,8 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 	m_lightCam.SetCamera(lightPos, lightLookat, Vector3(0, 1, 0));
 	m_lightCam.SetProjectionOrthogonal((float)shadowWidth, (float)shadowHeight, 0.1f, 1000.0f);
 	m_lightCam.SetViewPort(100, 100);
+
+
 
 	return true;
 }
@@ -132,18 +134,16 @@ void cTerrain2::CullingTest(
 	const Vector3 lightPos = pos + Vector3(0, 1, 0) * 10 + lightDir*-30.f
 		+ Vector3(dir.x, 0, dir.z).Normal() * 10;
 	m_light.SetPosition(lightPos);
-	m_lightCam.SetEyePos(lightPos);
-	m_lightCam.SetLookAt(lightPos + lightDir*10.f);
 
-	const int w = (int)common::clamp(30, 200, orig.y * 3.3f);
-	m_lightCam.SetViewPort(w, w);
+	const float f = common::clamp(0.05f, 1.f, orig.y * 0.005f);
+	m_lightCam.FitFrustum(camera, f);
 
 	Matrix44 view, proj, tt;
 	m_lightCam.GetShadowMatrix(view, proj, tt);
 	m_VPT = view * proj * tt;
 	m_LVP = view * proj;
 
-	m_dbgLight.SetDirection(lightPos, lightPos + lightDir*1.f, 0.5f);
+	m_dbgLight.SetDirection(m_lightCam.GetEyePos(), m_lightCam.GetEyePos() + lightDir*1.f, 0.5f);
 	m_dbgLightFrustum.Create(renderer, m_lightCam.GetViewProjectionMatrix());
 }
 
