@@ -23,7 +23,11 @@ namespace graphic
 		void Update(cRenderer &renderer, const float deltaSeconds);
 		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		void Render(cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &mLVP,
+		void Render(cRenderer &renderer
+			, const Matrix44 &mVPT, const Matrix44 &mLVP, const Matrix44 &mLV, 
+			cShadowMap *shadowMap = NULL, const Matrix44 &tm = Matrix44::Identity);
+		void Render2(cRenderer &renderer
+			, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT,
 			cShadowMap *shadowMap = NULL, const Matrix44 &tm = Matrix44::Identity);
 		float CullingTest(const cFrustum &frustum, const bool isModel = true);
 		bool AddModel(cModel2 *model);

@@ -644,7 +644,8 @@ void cCamera::FitFrustum(const cCamera &camera
 		center += vertices[i];
 	center /= 8.f;
 
-	const float distFromCenter = 500;
+	//const float distFromCenter = 500;
+	const float distFromCenter = 50;
 	const Vector3 pos = center - (GetDirection()*distFromCenter);
 	Matrix44 newView;
 	newView.SetView2(pos, center, Vector3(0, 1, 0));
@@ -667,6 +668,8 @@ void cCamera::FitFrustum(const cCamera &camera
 	m_lookAt = center;
 	m_view = newView;
 	m_proj = newProj;
+	m_nearPlane = mm._min.z;
+	m_farPlane = mm._max.z;
 	m_viewProj = newView * newProj;
 }
 

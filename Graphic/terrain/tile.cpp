@@ -104,7 +104,8 @@ void cTile::Render(cRenderer &renderer
 }
 
 
-void cTile::Render( cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &mLVP
+void cTile::Render( cRenderer &renderer
+	, const Matrix44 &mVPT, const Matrix44 &mLVP , const Matrix44 &mLV
 	, cShadowMap *shadowMap //= NULL
 	, const Matrix44 &tm //= Matrix44::Identity
 )
@@ -116,6 +117,7 @@ void cTile::Render( cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &m
 		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
 		m_ground.m_shader->SetMatrix("g_mVPT", mVPT);
 		m_ground.m_shader->SetMatrix("g_mLVP", mLVP);
+		m_ground.m_shader->SetMatrix("g_mLV", mLV);
 		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
 	}
 	else
@@ -132,6 +134,55 @@ void cTile::Render( cRenderer &renderer, const Matrix44 &mVPT, const Matrix44 &m
 			shader->SetTechnique("Scene_ShadowMap");
 			shader->SetMatrix("g_mVPT", mVPT);
 			shader->SetMatrix("g_mLVP", mLVP);
+			shader->SetMatrix("g_mLV", mLV);
+			shadowMap->Bind(*shader, "g_shadowMapTexture");
+		}
+		else
+		{
+			shader->SetTechnique("Scene_NoShadow");
+		}
+	}
+
+	for (auto &p : m_models)
+		if (p->m_isShow)
+			p->RenderShader(renderer, tm);
+
+	if (m_isDbgRender)
+		m_dbgTile.Render(renderer, tm);
+}
+
+
+void cTile::Render2(cRenderer &renderer
+	, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
+	, cShadowMap *shadowMap //= NULL
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	RET(!m_isShow);
+
+	if (m_isShadow && shadowMap)
+	{
+		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
+		m_ground.m_shader->SetMatrix("g_mLightView", mLightView);
+		m_ground.m_shader->SetMatrix("g_mLightProj", mLightProj);
+		m_ground.m_shader->SetMatrix("g_mLightTT", mLightTT);
+		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
+	}
+	else
+	{
+		m_ground.m_shader->SetTechnique("Scene_NoShadow");
+	}
+
+	m_ground.RenderShader(renderer, m_tm * tm);
+
+	for (auto &shader : m_shaders)
+	{
+		if (m_isShadow && shadowMap)
+		{
+			shader->SetTechnique("Scene_ShadowMap");
+			shader->SetMatrix("g_mLightView", mLightView);
+			shader->SetMatrix("g_mLightProj", mLightProj);
+			shader->SetMatrix("g_mLightTT", mLightTT);
 			shadowMap->Bind(*shader, "g_shadowMapTexture");
 		}
 		else

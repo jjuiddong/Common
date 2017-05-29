@@ -39,6 +39,7 @@ void cShadowMap::Begin(cRenderer &renderer)
 		, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER
 		//, *(DWORD*)&maxFlt
 		, 0xffffffff
+		//, 0
 		, 1.0f, 0L);
 }
 
