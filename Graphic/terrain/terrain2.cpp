@@ -8,7 +8,7 @@ using namespace graphic;
 
 
 cTerrain2::cTerrain2()
-	: m_isShowDebug(false)
+	: m_isShowDebug(true)
 	, m_isShadow(true)
 {
 }
@@ -83,8 +83,8 @@ void cTerrain2::Render(cRenderer &renderer
 {
 	UpdateShader(renderer);
 	for (auto &p : m_tiles)
-		p->Render(renderer, m_VPT, m_LVP, m_LV, &m_shadowMap, tm);
-		//p->Render2(renderer, m_lightView, m_lightProj, m_lightTT, &m_shadowMap, tm);
+		//p->Render(renderer, m_VPT, m_LVP, &m_shadowMap, tm);
+		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT, &m_shadowMap, tm);
 
 	if (m_isShowDebug)
 	{
@@ -136,7 +136,8 @@ void cTerrain2::CullingTest(
 
 	//const float f = common::clamp(0.05f, 1.f, orig.y * 0.005f);
 	const float len = (pos- orig).Length();
-	const float f = common::clamp(0.0003f, 1.f, len * 0.000015f);
+	//const float f = common::clamp(0.0003f, 1.f, len * 0.000015f);
+	const float f = common::clamp(0.003f, 1.f, len * 0.00015f);
 	m_lightCam.FitFrustum(camera, f);
 
 	Matrix44 view, proj, tt;
@@ -144,9 +145,9 @@ void cTerrain2::CullingTest(
 	m_VPT = view * proj * tt;
 	m_LVP = view * proj;
 	m_LV = view;
-	//m_lightView = view;
-	//m_lightProj = proj;
-	//m_lightTT = tt;
+	m_lightView = view;
+	m_lightProj = proj;
+	m_lightTT = tt;
 
 	m_dbgLight.SetDirection(m_lightCam.GetEyePos(), m_lightCam.GetEyePos() + lightDir*1.f, 0.5f);
 	m_dbgLightFrustum.Create(renderer, m_lightCam.GetViewProjectionMatrix());

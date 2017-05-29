@@ -45,9 +45,9 @@ namespace graphic
 		Matrix44 m_VPT; // ShadowMap Transform, = light view x light proj x uv transform
 		Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
 		Matrix44 m_LV; // ShadowMap Transform, Light View Projection, = light view
-		//Matrix44 m_lightView;
-		//Matrix44 m_lightProj;
-		//Matrix44 m_lightTT;
+		Matrix44 m_lightView;
+		Matrix44 m_lightProj;
+		Matrix44 m_lightTT;
 		cSurface2 m_shadowSurf;
 		cShadowMap m_shadowMap;
 

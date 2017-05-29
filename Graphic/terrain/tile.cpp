@@ -105,7 +105,7 @@ void cTile::Render(cRenderer &renderer
 
 
 void cTile::Render( cRenderer &renderer
-	, const Matrix44 &mVPT, const Matrix44 &mLVP , const Matrix44 &mLV
+	, const Matrix44 &mVPT, const Matrix44 &mLVP 
 	, cShadowMap *shadowMap //= NULL
 	, const Matrix44 &tm //= Matrix44::Identity
 )
@@ -117,7 +117,6 @@ void cTile::Render( cRenderer &renderer
 		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
 		m_ground.m_shader->SetMatrix("g_mVPT", mVPT);
 		m_ground.m_shader->SetMatrix("g_mLVP", mLVP);
-		m_ground.m_shader->SetMatrix("g_mLV", mLV);
 		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
 	}
 	else
@@ -134,7 +133,6 @@ void cTile::Render( cRenderer &renderer
 			shader->SetTechnique("Scene_ShadowMap");
 			shader->SetMatrix("g_mVPT", mVPT);
 			shader->SetMatrix("g_mLVP", mLVP);
-			shader->SetMatrix("g_mLV", mLV);
 			shadowMap->Bind(*shader, "g_shadowMapTexture");
 		}
 		else
