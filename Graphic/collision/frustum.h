@@ -24,8 +24,9 @@ namespace graphic
 
 	public:
 		bool m_fullCheck;	// IsIn, IsInSphere 함수 호출시 체크범위 default : false
-		vector<Plane> m_plane;	// frustum의 6개 평면
+		vector<Plane> m_plane; // frustum의 6개 평면
 		Vector3 m_pos; // Position, near plane center
+		float m_epsilon; // 프러스텀에 정확하게 포함되지 않더라도, 약간의 여분을 주어서 프러스텀에 포함시키기 위한 값, default : 5 
 	};
 
 

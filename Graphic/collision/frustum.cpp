@@ -4,13 +4,13 @@
 
 using namespace graphic;
 
-// 프러스텀에 정확하게 포함되지 않더라도, 약간의 여분을 주어서 프러스텀에 포함시키기 위한 값
-#define PLANE_EPSILON		5.0f
+//#define PLANE_EPSILON		5.0f
 
 
 cFrustum::cFrustum()
 :	m_fullCheck(false)
 ,	m_plane(6) // 절두체 평면 6개
+, m_epsilon(5.f)
 {
 }
 
@@ -73,24 +73,31 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 //-----------------------------------------------------------------------------//
 bool cFrustum::SetFrustum(const Vector3 &_min, const Vector3 &_max)
 {
-	//sVertexDiffuse *vertices = (sVertexDiffuse*)m_vtxBuff.Lock();
-	//RETV(!vertices, false);
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	Vector3 vertices[8] = {
+		Vector3(_min.x, _max.y, _min.z), Vector3(_max.x,_max.y,_min.z), Vector3(_min.x,_min.y,_min.z), Vector3(_max.x,_min.y,_min.z),
+		Vector3(_min.x, _max.y, _max.z), Vector3(_max.x,_max.y,_max.z), Vector3(_min.x,_min.y,_max.z), Vector3(_max.x,_min.y,_max.z),
+	};
 
-	//m_fullCheck = true;
+	m_fullCheck = true;
 
-	//m_pos = (_min + _max) / 2.0f;
+	m_pos = (_min + _max) / 2.0f;
 
-	//// 얻어진 월드좌표로 프러스텀 평면을 만든다
-	//// 벡터가 프러스텀 안쪽에서 바깥쪽으로 나가는 평면들이다.
-	//m_plane[0].Init( vertices[ 0].p, vertices[ 1].p, vertices[ 2].p );	// 근 평면(near)
-	//m_plane[1].Init( vertices[ 0].p, vertices[ 4].p, vertices[ 1].p );	// 윗 평면(top)
-	//m_plane[2].Init( vertices[ 2].p, vertices[ 3].p, vertices[ 6].p );	// 아래 평면(bottom)
+	// 얻어진 월드좌표로 프러스텀 평면을 만든다
+	// 벡터가 프러스텀 안쪽에서 바깥쪽으로 나가는 평면들이다.
+	m_plane[0].Init(vertices[0], vertices[1], vertices[2]);	// 근 평면(near)
+	m_plane[1].Init(vertices[0], vertices[4], vertices[1]);	// 위 평면(up)
+	m_plane[2].Init(vertices[2], vertices[3], vertices[7]);	// 아래 평면(down)
+	m_plane[3].Init(vertices[4], vertices[6], vertices[5]);	// 원 평면(far)
+	m_plane[4].Init(vertices[0], vertices[2], vertices[6]);	// 좌 평면(left)
+	m_plane[5].Init(vertices[1], vertices[5], vertices[7]);	// 우 평면(right)
 
-	//m_plane[3].Init( vertices[ 4].p, vertices[ 6].p, vertices[ 7].p );	// 원 평면(far)
-	//m_plane[4].Init( vertices[ 0].p, vertices[ 2].p, vertices[ 6].p );	// 좌 평면(left)
-	//m_plane[5].Init( vertices[ 1].p, vertices[ 5].p, vertices[ 7].p );	// 우 평면(right)
-
-	//m_vtxBuff.Unlock();
 	return true;
 }
 
@@ -107,7 +114,7 @@ bool cFrustum::IsIn( const Vector3 &point ) const
 			continue;
 
 		const float dist = m_plane[ i].Distance( point );
-		if (dist > PLANE_EPSILON) 
+		if (dist > m_epsilon)
 			return false;
 	}
 
@@ -129,7 +136,7 @@ bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
 
 		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
 		const float dist = m_plane[ i].Distance( point );
-		if (dist > (radius+PLANE_EPSILON)) 
+		if (dist > (radius+ m_epsilon))
 			return false;
 	}
 

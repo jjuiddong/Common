@@ -296,6 +296,33 @@ void cCamera::Pitch2( const float radian)
 }
 
 
+// Right 축으로 회전한다.
+void cCamera::Pitch2(const float radian, const Vector3 &up)
+{
+	RET(radian == 0);
+
+	const Vector3 right = up.CrossProduct(GetDirection()).Normal();
+	const Quaternion q(right, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_eyePos - m_lookAt;
+	v *= mat;
+	Vector3 eyePos = m_lookAt + v;
+
+	Vector3 dir = m_lookAt - eyePos;
+	dir.Normalize();
+
+	// Vertical Direction BugFix
+	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
+		return;
+
+	m_eyePos = eyePos;
+	m_up = up;
+
+	UpdateViewMatrix();
+}
+
+
 // Up 축으로 회전한다.
 void cCamera::Yaw2( const float radian)
 {
@@ -308,6 +335,23 @@ void cCamera::Yaw2( const float radian)
 	Vector3 v = m_eyePos - m_lookAt;
 	v *= mat;
 	m_eyePos = m_lookAt + v;
+
+	UpdateViewMatrix();
+}
+
+
+// Up 축으로 회전한다.
+void cCamera::Yaw2(const float radian, const Vector3 &up)
+{
+	RET(radian == 0);
+
+	const Quaternion q(up, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_eyePos - m_lookAt;
+	v *= mat;
+	m_eyePos = m_lookAt + v;
+	m_up = up;
 
 	UpdateViewMatrix();
 }
@@ -391,6 +435,68 @@ void cCamera::Roll3(const float radian, const Vector3 &target)
 	//target = m_eyePos + v;
 
 	//UpdateViewMatrix();
+}
+
+
+void cCamera::Yaw4(const float radian, const Vector3 &up, const Vector3 &target)
+{
+	RET(radian == 0);
+
+	const Quaternion q(up, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	{
+		Vector3 v = m_eyePos - target;
+		v *= mat;
+		m_eyePos = target + v;
+	}
+
+	{
+		Vector3 v = m_lookAt - target;
+		v *= mat;
+		m_lookAt = target + v;
+	}
+
+	m_up = up;
+
+	UpdateViewMatrix();
+}
+
+
+void cCamera::Pitch4(const float radian, const Vector3 &up, const Vector3 &target)
+{
+	RET(radian == 0);
+
+	const Vector3 right = up.CrossProduct(GetDirection()).Normal();
+	const Quaternion q(right, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 eyePos;
+	{
+		Vector3 v = m_eyePos - target;
+		v *= mat;
+		eyePos = target + v;
+	}
+
+	Vector3 lookAt;
+	{
+		Vector3 v = m_lookAt - target;
+		v *= mat;
+		lookAt = target + v;
+	}
+
+	Vector3 dir = lookAt - eyePos;
+	dir.Normalize();
+
+	// Vertical Direction BugFix
+	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
+		return;
+
+	m_lookAt = lookAt;
+	m_eyePos = eyePos;
+	m_up = up;
+
+	UpdateViewMatrix();
 }
 
 
@@ -596,6 +702,8 @@ void cCamera::GetRay(const int windowWidth, const int windowHeight,
 	orig.x = m._41;
 	orig.y = m._42;
 	orig.z = m._43;
+
+	orig += (dir * 1);
 }
 
 

@@ -49,12 +49,17 @@ namespace graphic
 
 		// EyePos 가 이동한다.
 		void Pitch2( const float radian);
+		void Pitch2(const float radian, const Vector3 &up);
 		void Yaw2( const float radian);
+		void Yaw2(const float radian, const Vector3 &up);
 		void Roll2( const float radian);
 
 		void Pitch3(const float radian, const Vector3 &target);
 		void Yaw3(const float radian, const Vector3 &target);
 		void Roll3(const float radian, const Vector3 &target);
+
+		void Yaw4(const float radian, const Vector3 &up, const Vector3 &target);
+		void Pitch4(const float radian, const Vector3 &up, const Vector3 &target);
 
 		void KeepHorizontal();
 

@@ -8,7 +8,7 @@ using namespace graphic;
 
 
 cTerrain2::cTerrain2()
-	: m_isShowDebug(true)
+	: m_isShowDebug(false)
 	, m_isShadow(true)
 {
 }
@@ -83,8 +83,8 @@ void cTerrain2::Render(cRenderer &renderer
 {
 	UpdateShader(renderer);
 	for (auto &p : m_tiles)
-		//p->Render(renderer, m_VPT, m_LVP, &m_shadowMap, tm);
 		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT, &m_shadowMap, tm);
+		//p->Render(renderer, m_VPT, m_LVP, &m_shadowMap, tm);
 
 	if (m_isShowDebug)
 	{
@@ -136,8 +136,8 @@ void cTerrain2::CullingTest(
 
 	//const float f = common::clamp(0.05f, 1.f, orig.y * 0.005f);
 	const float len = (pos- orig).Length();
-	//const float f = common::clamp(0.0003f, 1.f, len * 0.000015f);
-	const float f = common::clamp(0.003f, 1.f, len * 0.00015f);
+	const float f = common::clamp(0.0003f, 1.f, len * 0.000015f);
+	//const float f = common::clamp(0.003f, 1.f, len * 0.00015f);
 	m_lightCam.FitFrustum(camera, f);
 
 	Matrix44 view, proj, tt;
