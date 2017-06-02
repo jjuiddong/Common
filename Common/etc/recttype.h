@@ -82,9 +82,19 @@ namespace common
 		T left, top, right, bottom;
 	};
 
+	typedef sRect1<LONG> sRecti;
+	typedef sRect1<float> sRectf;
+
 
 
 	//---------------------------------------------------------------------
-	typedef sRect1<LONG> sRecti;
-	typedef sRect1<float> sRectf;
+	template <class T>
+	struct sSize
+	{
+		int w, h;
+	};
+
+	typedef sSize<LONG> sSizei;
+	typedef sSize<float> sSizef;
+
 }

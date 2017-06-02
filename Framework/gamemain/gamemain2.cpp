@@ -45,8 +45,8 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		//std::this_thread::sleep_for(1ms);
 	}
 
-	cDockManager::Release();
 	graphic::ReleaseRenderer();
+	cDockManager::Release();
 
 	return 0;
 }

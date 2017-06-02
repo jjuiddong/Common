@@ -269,6 +269,7 @@ void cCube3::InitCube2(cRenderer &renderer
 			vbuff[i].n = normals[indices[i]];
 			vbuff[i].u = uv[indices[i]].x;
 			vbuff[i].v = uv[indices[i]].y;
+			vbuff[i].c = D3DCOLOR_ARGB(0, 0, 0, 0);
 		}
 		m_vtxBuff.Unlock();
 	}

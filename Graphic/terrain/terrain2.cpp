@@ -84,7 +84,6 @@ void cTerrain2::Render(cRenderer &renderer
 	UpdateShader(renderer);
 	for (auto &p : m_tiles)
 		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT, &m_shadowMap, tm);
-		//p->Render(renderer, m_VPT, m_LVP, &m_shadowMap, tm);
 
 	if (m_isShowDebug)
 	{
@@ -172,6 +171,15 @@ cTile* cTerrain2::FindTile(const string &name)
 	if (it == m_tilemap.end())
 		return NULL;
 	return it->second;
+}
+
+
+cModel2* cTerrain2::FindModel(const int modelId)
+{
+	for (auto &p : m_tiles)
+		if (auto r = p->FindModel(modelId))
+			return r;
+	return NULL;
 }
 
 

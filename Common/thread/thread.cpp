@@ -55,6 +55,8 @@ void cThread::Start()
 //------------------------------------------------------------------------
 void cThread::Terminate(const int milliSeconds) //milliSeconds = -1
 {
+	RET(!m_hThread);
+
 	m_state = eState::END;
 	DWORD timeOutTime = (milliSeconds>=0)? milliSeconds : INFINITE;
 	WaitForSingleObject(m_hThread, timeOutTime);
@@ -191,39 +193,6 @@ cTask*	cThread::GetTask(const int taskId)
 
 
 //------------------------------------------------------------------------
-// 동적으로 생성된 클래스 제거
-//------------------------------------------------------------------------
-void cThread::Clear()
-{
-	{
-		AutoCSLock cs(m_taskCS);
-		auto it = m_tasks.begin();
-		while (m_tasks.end() != it)
-		{
-			cTask *p = *it++;
-			delete p;
-		}
-		m_tasks.clear();
-	}
-
-	{
-		AutoCSLock cs(m_containerCS);
-		for (auto &p : m_addTasks)
-			delete p;
-		m_addTasks.clear();
-	}
-
-	{
-		AutoCSLock cs2(m_msgCS);
-		m_threadMsgs.clear();
-		m_externalMsgs.clear();
-	}
-
-	CloseHandle(m_hThread);
-}
-
-
-//------------------------------------------------------------------------
 // 쓰레드 실행
 // Task를 실행시킨다.
 //------------------------------------------------------------------------
@@ -241,7 +210,7 @@ void cThread::Run()
 		{
 			AutoCSLock cs(m_taskCS);
 			auto it = m_tasks.begin();
-			while (m_tasks.end() != it)
+			while ((eState::RUN == m_state) && (m_tasks.end() != it))
 			{
 				cTask *task = *it;
 				if (cTask::eRunResult::END == task->Run())
@@ -368,4 +337,38 @@ void	cThread::MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPA
 bool cThread::IsRun()
 {
 	return m_state == eState::RUN;
+}
+
+
+
+//------------------------------------------------------------------------
+// 쓰레드 종료, 동적으로 생성된 변수 제거
+//------------------------------------------------------------------------
+void cThread::Clear()
+{
+	Terminate(INFINITE);
+
+	{
+		AutoCSLock cs(m_containerCS);
+		for (auto &p : m_addTasks)
+			delete p;
+		m_addTasks.clear();
+	}
+
+	{
+		AutoCSLock cs(m_taskCS);
+		auto it = m_tasks.begin();
+		while (m_tasks.end() != it)
+		{
+			cTask *p = *it++;
+			delete p;
+		}
+		m_tasks.clear();
+	}
+
+	{
+		AutoCSLock cs2(m_msgCS);
+		m_threadMsgs.clear();
+		m_externalMsgs.clear();
+	}
 }

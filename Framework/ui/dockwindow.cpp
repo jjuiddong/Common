@@ -12,61 +12,38 @@ using namespace framework;
 int cDockWindow::s_id = 1;
 
 
-eDockType::Enum eDockType::GetOpposite(const Enum &type)
-{
-	switch (type)
-	{
-	case TAB: return TAB;
-	case LEFT: return RIGHT;
-	case TOP:  return BOTTOM;
-	case RIGHT: return LEFT;
-	case BOTTOM: return TOP;
-	case LEFT_MOST: return RIGHT_MOST;
-	case TOP_MOST: return BOTTOM_MOST;
-	case RIGHT_MOST: return LEFT_MOST;
-	case BOTTOM_MOST: return TOP_MOST;
-	default: assert(0);
-	}
-	return TAB;
-}
-
-bool eDockType::IsOpposite(const Enum &type1, const Enum &type2)
-{
-	return (GetOpposite(type1) == type2);
-}
-
-
-
 cDockWindow::cDockWindow(const string &name //=""
+//	, const sDockSizingOption &sizingOpt //= defaultSizingOption
 )
 	: m_state(eDockState::DOCK)
 	, m_name(name)
 	, m_isBind(false)
-	, m_dockType(eDockType::TOP)
+	, m_dockSlot(eDockSlot::TOP)
 	, m_owner(NULL)
 	, m_lower(NULL)
 	, m_upper(NULL)
 	, m_parent(NULL)
 	, m_rect(0,0,0,0)
 	, m_selectTab(0)
-	, m_dragSlot(eDockType::NONE)
+	, m_dragSlot(eDockSlot::NONE)
+//	, m_sizingOption(sizingOpt)
 {
-	//m_name = format("dock%d", s_id++);
 }
 
 cDockWindow::~cDockWindow()
 {
-	// delete all docking window
+	Clear();
 }
 
 
-bool cDockWindow::Create(const eDockState::Enum state, const eDockType::Enum type,
+bool cDockWindow::Create(const eDockState::Enum state, const eDockSlot::Enum type,
 	cRenderWindow *owner, cDockWindow *parent
 	, const float windowSize//=0.5f
+	//, const sDockSizingOption &sizingOpt //= defaultSizingOption
 )
 {
 	m_state = state;
-	m_dockType = type;
+	m_dockSlot = type;
 	m_owner = owner;
 	m_parent = parent;
 
@@ -91,19 +68,20 @@ bool cDockWindow::Create(const eDockState::Enum state, const eDockType::Enum typ
 }
 
 
-bool cDockWindow::Dock(const eDockType::Enum type
+bool cDockWindow::Dock(const eDockSlot::Enum type
 	, cDockWindow *child
 	, const float windowSize //= 0.5f
+	//, const sDockSizingOption &sizingOpt //= defaultSizingOption
 )
 {
 	if (this == child)
 		return false;
 
-	if (eDockType::TAB == type)
+	if (eDockSlot::TAB == type)
 	{
 		child->m_owner = m_owner;
 		child->m_parent = this;
-		child->m_dockType = m_dockType;
+		child->m_dockSlot = m_dockSlot;
 		child->m_rect = m_rect;
 		m_tabs.push_back(child);
 
@@ -113,21 +91,21 @@ bool cDockWindow::Dock(const eDockType::Enum type
 
 	cDockWindow *dock = cDockManager::Get()->NewDockWindow();
 	dock->m_state = eDockState::VIRTUAL;
-	dock->m_dockType = m_dockType;
+	dock->m_dockSlot = m_dockSlot;
 	dock->m_rect = m_rect;
 	dock->m_owner = m_owner;
 
-	m_dockType = eDockType::GetOpposite(type);
+	m_dockSlot = eDockSlot::GetOpposite(type);
 	switch (type)
 	{
-	case eDockType::LEFT:
-	case eDockType::TOP:
+	case eDockSlot::LEFT:
+	case eDockSlot::TOP:
 		dock->m_lower = child;
 		dock->m_upper = this;
 		break;
 
-	case eDockType::RIGHT:
-	case eDockType::BOTTOM:
+	case eDockSlot::RIGHT:
+	case eDockSlot::BOTTOM:
 		dock->m_lower = this;
 		dock->m_upper = child;
 		break;
@@ -140,7 +118,7 @@ bool cDockWindow::Dock(const eDockType::Enum type
 	m_parent = dock;
 	child->m_owner = m_owner;
 	child->m_parent = dock;
-	child->m_dockType = type;
+	child->m_dockSlot = type;
 	CalcWindowSize(child, windowSize);
 
 	return true;
@@ -236,9 +214,9 @@ bool cDockWindow::Undock(cDockWindow *udock)
 		}
 
 		udock->Merge(showWnd);
-		showWnd->m_dockType = m_dockType;
+		showWnd->m_dockSlot = m_dockSlot;
 		SetParentDockPtr(showWnd);
-		showWnd->OnResizeEnd(eDockResize::DOCK_WINDOW, showWnd->m_rect);
+		showWnd->ResizeEnd(eDockResize::DOCK_WINDOW, showWnd->m_rect);
 		cDockManager::Get()->DeleteDockWindow(this);
 	}
 	else
@@ -255,11 +233,6 @@ bool cDockWindow::Undock(cDockWindow *udock)
 		}
 	}
 
-	//// todo : remove rmWnd class
-	//rmWnd->m_lower = NULL;
-	//rmWnd->m_upper = NULL;
-	//rmWnd->m_tabs.clear();
-
 	return true;
 }
 
@@ -274,7 +247,7 @@ cDockWindow* cDockWindow::UndockTab()
 	common::popvector(m_tabs, 0);
 
 	showWnd->m_parent = m_parent;
-	showWnd->m_dockType = m_dockType;
+	showWnd->m_dockSlot = m_dockSlot;
 	showWnd->m_lower = m_lower;
 	showWnd->m_upper = m_upper;
 	showWnd->m_tabs = m_tabs;
@@ -291,16 +264,16 @@ cDockWindow* cDockWindow::UndockTab()
 bool cDockWindow::Merge(cDockWindow *dock)
 {
 	sRectf rect;
-	if (((m_dockType == eDockType::LEFT) && (dock->m_dockType == eDockType::RIGHT))
-		|| ((m_dockType == eDockType::RIGHT) && (dock->m_dockType == eDockType::LEFT)))
+	if (((m_dockSlot == eDockSlot::LEFT) && (dock->m_dockSlot == eDockSlot::RIGHT))
+		|| ((m_dockSlot == eDockSlot::RIGHT) && (dock->m_dockSlot == eDockSlot::LEFT)))
 	{
 		rect = sRectf(min(m_rect.left, dock->m_rect.left)
 			, m_rect.top
 			, max(m_rect.right, dock->m_rect.right)
 			, m_rect.bottom);
 	}
-	else if (((m_dockType == eDockType::TOP) && (dock->m_dockType == eDockType::BOTTOM))
-		|| ((m_dockType == eDockType::BOTTOM) && (dock->m_dockType == eDockType::TOP)))
+	else if (((m_dockSlot == eDockSlot::TOP) && (dock->m_dockSlot == eDockSlot::BOTTOM))
+		|| ((m_dockSlot == eDockSlot::BOTTOM) && (dock->m_dockSlot == eDockSlot::TOP)))
 	{
 		rect = sRectf(m_rect.left
 			, min(m_rect.top, dock->m_rect.top)
@@ -352,28 +325,28 @@ void cDockWindow::SetParentDockPtr(cDockWindow *dock)
 
 
 using namespace ImGui;
-ImRect getSlotRect(ImRect parent_rect, eDockType::Enum dock_slot)
+ImRect getSlotRect(ImRect parent_rect, eDockSlot::Enum dock_slot)
 {
 	ImVec2 size = parent_rect.Max - parent_rect.Min;
 	ImVec2 center = parent_rect.Min + size * 0.5f;
 	switch (dock_slot)
 	{
 	default: return ImRect(center - ImVec2(20, 20), center + ImVec2(20, 20));
-	case eDockType::TOP: return ImRect(center + ImVec2(-20, -50), center + ImVec2(20, -30));
-	case eDockType::RIGHT: return ImRect(center + ImVec2(30, -20), center + ImVec2(50, 20));
-	case eDockType::BOTTOM: return ImRect(center + ImVec2(-20, +30), center + ImVec2(20, 50));
-	case eDockType::LEFT: return ImRect(center + ImVec2(-50, -20), center + ImVec2(-30, 20));
+	case eDockSlot::TOP: return ImRect(center + ImVec2(-20, -50), center + ImVec2(20, -30));
+	case eDockSlot::RIGHT: return ImRect(center + ImVec2(30, -20), center + ImVec2(50, 20));
+	case eDockSlot::BOTTOM: return ImRect(center + ImVec2(-20, +30), center + ImVec2(20, 50));
+	case eDockSlot::LEFT: return ImRect(center + ImVec2(-50, -20), center + ImVec2(-30, 20));
 	}
 }
 
 
-eDockType::Enum cDockWindow::render_dock_slot_preview(const ImVec2& mouse_pos, const ImVec2& cPos, const ImVec2& cSize)
+eDockSlot::Enum cDockWindow::render_dock_slot_preview(const ImVec2& mouse_pos, const ImVec2& cPos, const ImVec2& cSize)
 {
-	eDockType::Enum dock_slot = eDockType::NONE;
+	eDockSlot::Enum dock_slot = eDockSlot::NONE;
 
 	ImRect rect{ cPos, cPos + cSize };
 
-	auto checkSlot = [&mouse_pos](ImRect rect, eDockType::Enum slot) -> bool
+	auto checkSlot = [&mouse_pos](ImRect rect, eDockSlot::Enum slot) -> bool
 	{
 		auto slotRect = getSlotRect(rect, slot);
 		ImGui::GetWindowDrawList()->AddRectFilled(
@@ -383,34 +356,34 @@ eDockType::Enum cDockWindow::render_dock_slot_preview(const ImVec2& mouse_pos, c
 		return slotRect.Contains(mouse_pos);
 	};
 
-	if (checkSlot(rect, eDockType::TAB))
+	if (checkSlot(rect, eDockSlot::TAB))
 	{
 		ImGui::GetWindowDrawList()->AddRectFilled(cPos, ImVec2(cPos.x + cSize.x, cPos.y + cSize.y), ImGui::ColorConvertFloat4ToU32(ImVec4(0.4f, 0.4f, 0.4f, 0.5f)));//tab
-		dock_slot = eDockType::TAB;
+		dock_slot = eDockSlot::TAB;
 	}
 
-	if (checkSlot(rect, eDockType::LEFT))
+	if (checkSlot(rect, eDockSlot::LEFT))
 	{
 		ImGui::GetWindowDrawList()->AddRectFilled(cPos, ImVec2(cPos.x + (cSize.x / 2.0f), cPos.y + cSize.y), ImGui::ColorConvertFloat4ToU32(ImVec4(0.4f, 0.4f, 0.4f, 0.5f)));//tab
-		dock_slot = eDockType::LEFT;
+		dock_slot = eDockSlot::LEFT;
 	}
 
-	if (checkSlot(rect, eDockType::RIGHT))
+	if (checkSlot(rect, eDockSlot::RIGHT))
 	{
 		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(cPos.x + (cSize.x / 2.0f), cPos.y), ImVec2(cPos.x + cSize.x, cPos.y + cSize.y), ImGui::ColorConvertFloat4ToU32(ImVec4(0.4f, 0.4f, 0.4f, 0.5f)));//tab
-		dock_slot = eDockType::RIGHT;
+		dock_slot = eDockSlot::RIGHT;
 	}
 
-	if (checkSlot(rect, eDockType::TOP))
+	if (checkSlot(rect, eDockSlot::TOP))
 	{
 		ImGui::GetWindowDrawList()->AddRectFilled(cPos, ImVec2(cPos.x + cSize.x, cPos.y + (cSize.y / 2.0f)), ImGui::ColorConvertFloat4ToU32(ImVec4(0.4f, 0.4f, 0.4f, 0.5f)));//tab
-		dock_slot = eDockType::TOP;
+		dock_slot = eDockSlot::TOP;
 	}
 
-	if (checkSlot(rect, eDockType::BOTTOM))
+	if (checkSlot(rect, eDockSlot::BOTTOM))
 	{
 		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(cPos.x, cPos.y + (cSize.y / 2.0f)), ImVec2(cPos.x + cSize.x, cPos.y + cSize.y), ImGui::ColorConvertFloat4ToU32(ImVec4(0.4f, 0.4f, 0.4f, 0.5f)));//tab
-		dock_slot = eDockType::BOTTOM;
+		dock_slot = eDockSlot::BOTTOM;
 	}
 
 	return dock_slot;
@@ -449,7 +422,7 @@ void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 			if ((mouse_pos.x > screen_cursor_pos.x && mouse_pos.x < (screen_cursor_pos.x + size.x)) &&
 				(mouse_pos.y > screen_cursor_pos.y && mouse_pos.y < (screen_cursor_pos.y + size.y)))
 			{
-				// todo: cliprect bugfix
+				// todo: cliprect bugfix, only scroll work cliprect
 				ImGui::SetScrollY(ImGui::GetScrollY() + ImGui::GetWindowSize().y);
 
 				ImGui::BeginChild("##dockSlotPreview");
@@ -458,7 +431,7 @@ void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 				ImGui::PopClipRect();
 				ImGui::EndChild();
 
-				if (m_dragSlot != eDockType::NONE)
+				if (m_dragSlot != eDockSlot::NONE)
 				{
 					cDockManager::Get()->SetDragTarget(this);
 				}
@@ -595,6 +568,7 @@ void cDockWindow::Update(const float deltaSeconds)
 
 void cDockWindow::CalcWindowSize(cDockWindow *dock
 	, const float windowSize //= 0.5f
+	//, const sDockSizingOption &sizingOpt //= defaultSizingOption
 )
 {
 	RET(!dock);
@@ -604,37 +578,37 @@ void cDockWindow::CalcWindowSize(cDockWindow *dock
 	const float y = m_rect.top;
 	sRectf rect1, rect2;
 
-	switch (dock->m_dockType)
+	switch (dock->m_dockSlot)
 	{
-	case 	eDockType::TAB:
+	case 	eDockSlot::TAB:
 		rect1 = sRectf(x, y, x + size.x, y + size.y);
 		rect2 = sRectf(x, y, x + size.x, y + size.y);
 		break;
 
-	case eDockType::LEFT:
+	case eDockSlot::LEFT:
 		rect1 = sRectf(x + size.x *windowSize, y, x+size.x, y+size.y);
 		rect2 = sRectf(x, y, x+size.x*windowSize, y+size.y);
 		break;
 
-	case eDockType::RIGHT:
+	case eDockSlot::RIGHT:
 		rect1 = sRectf(x, y, x + size.x *(1-windowSize), y + size.y);
 		rect2 = sRectf(x + size.x *(1-windowSize), y, x + size.x, y + size.y);
 		break;
 
-	case eDockType::TOP:
+	case eDockSlot::TOP:
 		rect1 = sRectf(x, y + size.y *windowSize, x + size.x, y + size.y);
 		rect2 = sRectf(x, y, x + size.x, y + size.y *windowSize);
 		break;
 
-	case eDockType::BOTTOM:
+	case eDockSlot::BOTTOM:
 		rect1 = sRectf(x, y, x + size.x, y + size.y *(1-windowSize));
 		rect2 = sRectf(x, y + size.y *(1-windowSize), x + size.x, y + size.y);
 		break;
 
-	case eDockType::LEFT_MOST:
-	case eDockType::TOP_MOST:
-	case eDockType::RIGHT_MOST:
-	case eDockType::BOTTOM_MOST:
+	case eDockSlot::LEFT_MOST:
+	case eDockSlot::TOP_MOST:
+	case eDockSlot::RIGHT_MOST:
+	case eDockSlot::BOTTOM_MOST:
 		break;
 	}
 
@@ -642,12 +616,57 @@ void cDockWindow::CalcWindowSize(cDockWindow *dock
 	dock->CalcResizeWindow(eDockResize::DOCK_WINDOW, rect2);
 
 	OnResizeEnd(eDockResize::DOCK_WINDOW, rect1);
-	dock->OnResizeEnd(eDockResize::DOCK_WINDOW, rect1);
+	dock->OnResizeEnd(eDockResize::DOCK_WINDOW, rect2);
 }
 
 
 // Update Window size, from already setting width/height rate
+// Only Change Lower Window, Upper Window Is Fixed
 void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const sRectf &rect)
+{
+	if (m_rect == rect)
+		return;
+
+	const float w = m_rect.Width();
+	const float h = m_rect.Height();
+	const float nw = rect.Width();
+	const float nh = rect.Height();
+	Vector4 v0(rect.left, rect.top, rect.left, rect.top);
+	Vector4 v1(m_rect.left, m_rect.top, m_rect.left, m_rect.top);
+
+	if (m_upper && m_lower)
+	{
+		const float upperW = (m_upper->m_rect.Width() > nw) ? nw : m_upper->m_rect.Width();
+		const float upperH = (m_upper->m_rect.Height() > nh) ? nh : m_upper->m_rect.Height();
+
+		switch (m_lower->m_dockSlot)
+		{
+		case eDockSlot::LEFT: m_lower->CalcResizeWindow(type, sRectf(rect.left, rect.top, rect.left + nw - upperW, rect.bottom)); break;
+		case eDockSlot::TOP: m_lower->CalcResizeWindow(type, sRectf(rect.left, rect.top, rect.right, rect.top + nh - upperH)); break;
+			break;
+		default: assert(0); break;
+		}
+
+		switch (m_upper->m_dockSlot)
+		{
+		case eDockSlot::RIGHT: m_upper->CalcResizeWindow(type, sRectf(rect.left + nw - upperW, rect.top, rect.right, rect.bottom)); break;
+		case eDockSlot::BOTTOM: m_upper->CalcResizeWindow(type, sRectf(rect.left, rect.top + nh - upperH, rect.right, rect.bottom)); break;
+			break;
+		default: assert(0); break;
+		}
+	}
+	
+	m_rect = rect;
+
+	for (auto &p : m_tabs)
+		p->CalcResizeWindow(type, rect);
+
+	OnResize(type, rect);
+}
+
+
+// Update Window size, from already setting width/height rate
+void cDockWindow::CalcResizeWindowRate(const eDockResize::Enum type, const sRectf &rect)
 {
 	if (m_rect == rect)
 		return;
@@ -670,7 +689,7 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const sRectf &r
 		v3.w = (v3.w / h) * nh; // bottom
 		Vector4 v4 = v3 + v0;
 		sRectf nr(v4.x, v4.y, v4.z, v4.w);
-		m_lower->CalcResizeWindow(type, nr);
+		m_lower->CalcResizeWindowRate(type, nr);
 	}
 
 	if (m_upper)
@@ -684,14 +703,13 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const sRectf &r
 		v3.w = (v3.w / h) * nh; // bottom
 		Vector4 v4 = v3 + v0;
 		sRectf nr(v4.x, v4.y, v4.z, v4.w);
-		m_upper->CalcResizeWindow(type, nr);
+		m_upper->CalcResizeWindowRate(type, nr);
 	}
 
 	m_rect = rect;
 
 	for (auto &p : m_tabs)
-		p->CalcResizeWindow(type, rect);
-		//p->m_rect = rect;
+		p->CalcResizeWindowRate(type, rect);
 
 	OnResize(type, rect);
 }
@@ -707,10 +725,10 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const int delta
 
 	sRectf rect1 = m_lower->m_rect;
 	sRectf rect2 = m_upper->m_rect;
-	const eDockType::Enum dockType = m_lower->m_dockType;
+	const eDockSlot::Enum dockType = m_lower->m_dockSlot;
 	switch (dockType)
 	{
-	case eDockType::LEFT:
+	case eDockSlot::LEFT:
 		rect1.right += (float)deltaSize;
 		rect2.left += (float)deltaSize;
 
@@ -720,7 +738,7 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const int delta
 		rect2.left = min(m_rect.right - minCx, rect2.left);
 		break;
 
-	case eDockType::TOP:
+	case eDockSlot::TOP:
 		rect1.bottom += (float)deltaSize;
 		rect2.top += (float)deltaSize;
 
@@ -730,15 +748,15 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const int delta
 		rect2.top = min(m_rect.bottom - minCy, rect2.top);
 		break;
 
-	case eDockType::RIGHT:
-	case eDockType::BOTTOM:
+	case eDockSlot::RIGHT:
+	case eDockSlot::BOTTOM:
 		assert(0); // never reach this code
 		break;
 
-	case eDockType::LEFT_MOST:
-	case eDockType::RIGHT_MOST:
-	case eDockType::TOP_MOST:
-	case eDockType::BOTTOM_MOST:
+	case eDockSlot::LEFT_MOST:
+	case eDockSlot::RIGHT_MOST:
+	case eDockSlot::TOP_MOST:
+	case eDockSlot::BOTTOM_MOST:
 	default: assert(0);
 	}
 	
@@ -747,12 +765,12 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const int delta
 }
 
 
+// 탭에서 빠진 윈도우는 외부에서 메모리를 제거한다.
 bool cDockWindow::RemoveTab(cDockWindow *tab)
 {
 	RETV(!tab, false);
 	RETV(m_tabs.empty(), false);
 
-	// todo : remove dock window
 	if (!common::removevector(m_tabs, tab))
 		return false;
 
@@ -781,10 +799,10 @@ bool cDockWindow::IsInSizerSpace(const Vector2 &pos)
 	const float SPACE = 10;
 
 	sRectf rect;
-	const eDockType::Enum dockType = m_lower->m_dockType;
+	const eDockSlot::Enum dockType = m_lower->m_dockSlot;
 	switch (dockType)
 	{
-	case eDockType::LEFT:
+	case eDockSlot::LEFT:
 		rect = sRectf(m_lower->m_rect.right - SPACE
 			, m_rect.top
 			, m_lower->m_rect.right + SPACE
@@ -792,7 +810,7 @@ bool cDockWindow::IsInSizerSpace(const Vector2 &pos)
 		);
 		break;
 
-	case eDockType::TOP:
+	case eDockSlot::TOP:
 		rect = sRectf(m_rect.left
 			, m_lower->m_rect.bottom - SPACE
 			, m_rect.right
@@ -809,11 +827,11 @@ bool cDockWindow::IsInSizerSpace(const Vector2 &pos)
 
 eDockSizingType::Enum cDockWindow::GetDockSizingType()
 {
-	const eDockType::Enum dockType = m_lower->m_dockType;
+	const eDockSlot::Enum dockType = m_lower->m_dockSlot;
 	switch (dockType)
 	{
-	case eDockType::LEFT: return eDockSizingType::HORIZONTAL;
-	case eDockType::TOP: return eDockSizingType::VERTICAL;
+	case eDockSlot::LEFT: return eDockSizingType::HORIZONTAL;
+	case eDockSlot::TOP: return eDockSizingType::VERTICAL;
 	default: break;
 	}
 	return eDockSizingType::NONE;
@@ -923,22 +941,9 @@ bool cDockWindow::CheckEventTarget(const sf::Event &evt)
 void cDockWindow::Clear()
 {
 	for (auto &p : m_tabs)
-	{
-		p->Clear();
-		delete p;
-	}
+		SAFE_DELETE(p);
 	m_tabs.clear();
 
-	if (m_lower)
-	{
-		m_lower->Clear();
-		SAFE_DELETE(m_lower);
-	}
-
-	if (m_upper)
-	{
-		m_upper->Clear();
-		SAFE_DELETE(m_upper);
-	}
+	SAFE_DELETE(m_lower);
+	SAFE_DELETE(m_upper);
 }
-

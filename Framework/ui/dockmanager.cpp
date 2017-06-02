@@ -96,7 +96,7 @@ void cDockManager::UpdateRender(const float deltaSeconds)
 	// Docking Window Process
 	if (eState::DRAG_END == m_state)
 	{
-		if (m_dockTarget && m_dragWindow && (m_dockTarget->m_dragSlot != eDockType::NONE))
+		if (m_dockTarget && m_dragWindow && (m_dockTarget->m_dragSlot != eDockSlot::NONE))
 		{
 			cDockWindow *src = m_dragWindow->m_dock;
 			src->Undock(false);

@@ -19,7 +19,9 @@ namespace graphic
 		cModel2();
 		virtual ~cModel2();
 
-		bool Create(cRenderer &renderer, const cFilePath &fileName
+		bool Create(cRenderer &renderer 
+			, const int id 
+			, const cFilePath &fileName
 			, const cFilePath &shaderName=""
 			, const string &techniqueName=""
 			, const bool isParallel=false
@@ -61,6 +63,8 @@ namespace graphic
 			};
 		};
 
+
+		int m_id;
 		eState::Enum m_state;
 		cFilePath m_fileName;
 		bool m_isShow;

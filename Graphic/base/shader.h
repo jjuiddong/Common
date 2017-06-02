@@ -62,6 +62,15 @@ namespace graphic
 		void Clear();
 
 
+	public:
+		ID3DXEffect *m_effect;
+		D3DXHANDLE m_hTechnique;
+		int m_renderPass; // default = 0;
+		string m_fileName;
+		string m_technique;
+		bool m_isShowMsgBox;
+
+
 		// Light
 		SHADER_SETVECTOR_MACRO(SetLightDir, "g_light.dir", m_lightDir);
 		SHADER_SETVECTOR_MACRO(SetLightPos, "g_light.pos", m_lightPos);
@@ -83,15 +92,6 @@ namespace graphic
 		SHADER_SETVECTOR_MACRO(SetMaterialEmissive, "g_material.emissive", m_mtrlEmissive);
 		SHADER_SETVECTOR_MACRO(SetMaterialSpecular, "g_material.specular", m_mtrlSpecular);
 		SHADER_SETFLOAT_MACRO(SetMaterialShininess, "g_material.shininess", m_mtrlShininess);
-
-
-	public:
-		ID3DXEffect *m_effect;
-		D3DXHANDLE m_hTechnique;
-		int m_renderPass; // default = 0;
-		string m_fileName;
-		string m_technique;
-		bool m_isShowMsgBox;
 	};
 
 

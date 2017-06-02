@@ -14,13 +14,21 @@ namespace framework
 	class cDockWindow
 	{
 	public:
-		cDockWindow(const string &name="");
+		cDockWindow(const string &name = "");// , const sDockSizingOption &sizingOpt = defaultSizingOption);
 		virtual ~cDockWindow();
 
-		virtual bool Create(const eDockState::Enum state, const eDockType::Enum type,
-			cRenderWindow *owner, cDockWindow *parent, const float windowSize=0.5f);
-		virtual bool Dock(const eDockType::Enum type,
-			cDockWindow *child, const float windowSize=0.5f);
+		virtual bool Create(const eDockState::Enum state, const eDockSlot::Enum type,
+			cRenderWindow *owner, cDockWindow *parent
+			, const float windowSize=0.5f
+			//, const sDockSizingOption &sizingOpt = defaultSizingOption
+		);
+
+		virtual bool Dock(const eDockSlot::Enum type,
+			cDockWindow *child
+			, const float windowSize=0.5f
+			//, const sDockSizingOption &sizingOpt = defaultSizingOption
+		);
+
 		virtual bool Undock(const bool newWindow = true);
 		virtual bool Undock(cDockWindow *dock);
 		void RenderDock(const Vector2 &pos = Vector2(0, 0));
@@ -33,8 +41,13 @@ namespace framework
 		virtual void ResizeEnd(const eDockResize::Enum type, const sRectf &rect);
 		virtual void LostDevice();
 		virtual void ResetDevice(graphic::cRenderer *shared = NULL);
-		void CalcWindowSize(cDockWindow *dock, const float floatwindowSize = 0.5f);
+		void CalcWindowSize(cDockWindow *dock
+			, const float floatwindowSize = 0.5f
+			//, const sDockSizingOption &sizingOpt = defaultSizingOption
+		);
+
 		void CalcResizeWindow(const eDockResize::Enum type, const sRectf &rect);
+		void CalcResizeWindowRate(const eDockResize::Enum type, const sRectf &rect);
 		void CalcResizeWindow(const eDockResize::Enum type, const int deltaSize);
 		bool IsInSizerSpace(const Vector2 &pos);
 		eDockSizingType::Enum GetDockSizingType();
@@ -47,7 +60,7 @@ namespace framework
 		void SetParentDockPtr(cDockWindow *dock);
 		bool Merge(cDockWindow *udock);
 		cDockWindow* UndockTab();
-		eDockType::Enum render_dock_slot_preview(const ImVec2& mouse_pos, const ImVec2& cPos, const ImVec2& cSize);
+		eDockSlot::Enum render_dock_slot_preview(const ImVec2& mouse_pos, const ImVec2& cPos, const ImVec2& cSize);
 		bool CheckEventTarget(const sf::Event &evt);
 
 		virtual void OnUpdate(const float deltaSeconds) {}
@@ -64,7 +77,7 @@ namespace framework
 	public:
 		bool m_isBind;
 		eDockState::Enum m_state;
-		eDockType::Enum m_dockType;
+		eDockSlot::Enum m_dockSlot;
 		cRenderWindow *m_owner;
 		cDockWindow *m_lower; // only availible for VIRTUAL state
 		cDockWindow *m_upper; // only availible for VIRTUAL state
@@ -73,7 +86,7 @@ namespace framework
 		int m_selectTab;
 		string m_name;
 		sRectf m_rect;
-		eDockType::Enum m_dragSlot; // using drag dock window
+		eDockSlot::Enum m_dragSlot; // using drag dock window
 		static int s_id;
 	};
 

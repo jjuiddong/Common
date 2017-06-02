@@ -863,6 +863,8 @@ string cResourceManager::GetResourceFilePath(const string &dir, const string &fi
 // remove all data
 void cResourceManager::Clear()
 {
+	m_loadThread.Clear();
+
 	// remove raw mesh
 	for each (auto kv in m_meshes)
 	{

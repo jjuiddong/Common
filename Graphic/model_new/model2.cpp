@@ -6,7 +6,8 @@
 using namespace graphic;
 
 cModel2::cModel2()
-	: m_colladaModel(NULL)
+	: m_id(0)
+	, m_colladaModel(NULL)
 	, m_isShow(true)
 	, m_xModel(NULL)
 	, m_state(eState::NORMAL)
@@ -25,7 +26,9 @@ cModel2::~cModel2()
 
 
 // check collada file, xfile
-bool cModel2::Create(cRenderer &renderer, const cFilePath &fileName
+bool cModel2::Create(cRenderer &renderer
+	, const int id
+	, const cFilePath &fileName
 	, const cFilePath &shaderName //= ""
 	, const string &techniqueName //= ""
 	, const bool isParallel //= false
@@ -34,6 +37,7 @@ bool cModel2::Create(cRenderer &renderer, const cFilePath &fileName
 {
 	Clear();
 
+	m_id = id;
 	m_fileName = fileName;
 	m_shaderName = shaderName.c_str();
 	m_techniqueName = techniqueName;

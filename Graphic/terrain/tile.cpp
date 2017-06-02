@@ -249,6 +249,15 @@ bool cTile::AddModel(cModel2 *model)
 }
 
 
+cModel2* cTile::FindModel(const int modelId)
+{
+	for (auto &p : m_models)
+		if (modelId == p->m_id)
+			return p;
+	return NULL;
+}
+
+
 bool cTile::RemoveModel(cModel2 *model)
 {
 	auto it = std::find(m_models.begin(), m_models.end(), model);

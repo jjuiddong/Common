@@ -32,6 +32,7 @@ namespace graphic
 		float CullingTest(const cFrustum &frustum, const bool isModel = true);
 		bool AddModel(cModel2 *model);
 		bool RemoveModel(cModel2 *model);
+		cModel2* FindModel(const int modelId);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();

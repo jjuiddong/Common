@@ -940,9 +940,7 @@ void cRenderWindow::Clear()
 		m_thread.join();
 
 	// Delete All Docking Window
-	if (m_dock)
-		m_dock->Clear();
-	m_dock = NULL;
+	SAFE_DELETE(m_dock);
 }
 
 

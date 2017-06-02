@@ -18,7 +18,7 @@ namespace framework
 		};
 	};
 
-	struct eDockType
+	struct eDockSlot
 	{
 		enum Enum
 		{
@@ -27,9 +27,31 @@ namespace framework
 			LEFT_MOST, TOP_MOST, RIGHT_MOST, BOTTOM_MOST,
 		};
 
-		static Enum GetOpposite(const Enum &type);
-		static bool IsOpposite(const Enum &type1, const Enum &type2);
+		static Enum GetOpposite(const Enum &type)
+		{
+			switch (type)
+			{
+			case TAB: return TAB;
+			case LEFT: return RIGHT;
+			case TOP:  return BOTTOM;
+			case RIGHT: return LEFT;
+			case BOTTOM: return TOP;
+			case LEFT_MOST: return RIGHT_MOST;
+			case TOP_MOST: return BOTTOM_MOST;
+			case RIGHT_MOST: return LEFT_MOST;
+			case BOTTOM_MOST: return TOP_MOST;
+			default: assert(0);
+			}
+			return TAB;
+		}
+
+		static bool IsOpposite(const Enum &type1, const Enum &type2)
+		{
+			return (GetOpposite(type1) == type2);
+		}
 	};
+
+
 
 	struct eDockSizingType
 	{

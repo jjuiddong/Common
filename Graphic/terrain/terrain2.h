@@ -28,6 +28,7 @@ namespace graphic
 		void CullingTest(cRenderer &renderer, cCamera &camera, const bool isModel=true);
 		bool AddTile(cTile *model);
 		cTile* FindTile(const string &name);
+		cModel2* FindModel(const int modelId);
 		bool RemoveTile(cTile *model);
 		void SetDbgRendering(const bool isRender);
 		void SetShadowRendering(const bool isRender);

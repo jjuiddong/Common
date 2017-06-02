@@ -320,11 +320,17 @@ bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistan
 	};
 
 	int tri[12];
+	float triLen[12];
 	int n = 0;
 	for (int i = 0; i < 12; ++i)
 	{
-		if (triangle[i].Intersect(orig, dir))
-			tri[n++] = i;
+		float len = 0;
+		if (triangle[i].Intersect(orig, dir, &len))
+		{
+			tri[n] = i;
+			triLen[n] = len;
+			++n;
+		}
 	}
 
 	if (n <= 0)
@@ -333,7 +339,7 @@ bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistan
 	if (n == 1)
 	{
 		if (pDistance)
-			*pDistance = triangle[tri[0]].Distance(orig);
+			*pDistance = triLen[0];
 		return true;
 	}
 
@@ -341,11 +347,11 @@ bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistan
 	float nearLen = triangle[tri[0]].Distance(orig);
 	for (int i = 1; i < n; ++i)
 	{
-		const float len = triangle[tri[i]].Distance(orig);
-		if (nearLen > len)
+		//const float len = triangle[tri[i]].Distance(orig);
+		if (nearLen > triLen[i])
 		{
 			nearTri = tri[i];
-			nearLen = len;
+			nearLen = triLen[i];
 		}
 	}
 
