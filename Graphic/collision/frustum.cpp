@@ -4,9 +4,6 @@
 
 using namespace graphic;
 
-//#define PLANE_EPSILON		5.0f
-
-
 cFrustum::cFrustum()
 :	m_fullCheck(false)
 ,	m_plane(6) // 절두체 평면 6개
@@ -63,6 +60,8 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 	m_plane[3].Init( vertices[ 4], vertices[ 6], vertices[ 5] );	// 원 평면(far)
 	m_plane[4].Init( vertices[ 0], vertices[ 2], vertices[ 6] );	// 좌 평면(left)
 	m_plane[5].Init( vertices[ 1], vertices[ 5], vertices[ 7] );	// 우 평면(right)
+
+	m_viewProj = matViewProj;
 
 	return TRUE;
 }
@@ -172,4 +171,94 @@ bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 	Vector3 size = bbox.m_max - bbox.m_min;
 	const float radius = size.Length() * 0.5f;
 	return IsInSphere(bbox.Center(), radius);
+}
+
+
+// Split Frustum
+// f : 0 ~ 1
+void cFrustum::Split2(cCamera &cam, const float f1, const float f2
+	, cFrustum &out1, cFrustum &out2)
+{
+	const float oldNearPlane = cam.m_nearPlane;
+	const float oldFarPlane = cam.m_farPlane;
+	const float far1 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f1);
+	const float far2 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f2); 
+
+	cam.ReCalcProjection(cam.m_nearPlane, far1);
+	out1.SetFrustum(cam.GetViewProjectionMatrix());
+	
+	cam.ReCalcProjection(far1, far2);
+	out2.SetFrustum(cam.GetViewProjectionMatrix());
+
+	// recovery
+	cam.ReCalcProjection(oldNearPlane, oldFarPlane);
+}
+
+
+// Split Frustum
+// f : 0 ~ 1
+void cFrustum::Split3(cCamera &cam, const float f1, const float f2, const float f3
+	, cFrustum &out1, cFrustum &out2, cFrustum &out3)
+{
+	const float oldNearPlane = cam.m_nearPlane;
+	const float oldFarPlane = cam.m_farPlane;
+	const float far1 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f1);
+	const float far2 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f2);
+	const float far3 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f3);
+
+	cam.ReCalcProjection(cam.m_nearPlane, far1);
+	out1.SetFrustum(cam.GetViewProjectionMatrix());
+
+	cam.ReCalcProjection(far1, far2);
+	out2.SetFrustum(cam.GetViewProjectionMatrix());
+
+	cam.ReCalcProjection(far2, far3);
+	out3.SetFrustum(cam.GetViewProjectionMatrix());
+
+	// recovery
+	cam.ReCalcProjection(oldNearPlane, oldFarPlane);
+}
+
+
+// return Frustum & Plane Collision Vertex
+// Plane is Usually Ground Plane
+void cFrustum::GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertices[4]) const
+{
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	Vector3 vertices[8] = {
+		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	};
+	Matrix44 matInv = m_viewProj.Inverse();
+	for (int i = 0; i < 8; ++i)
+		vertices[i] *= matInv;
+
+	// Far Plane
+	Vector3 p0, p1;
+	if (plane.LineCross(vertices[0], vertices[4], &p0) == 0)
+		p0 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	if (plane.LineCross(vertices[1], vertices[5], &p1) == 0)
+		p1 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	Vector3 p4 = plane.Pick(vertices[4], (vertices[6] - vertices[4]).Normal());
+	Vector3 p5 = plane.Pick(vertices[5], (vertices[7] - vertices[5]).Normal());
+
+	// Near Plane
+	Vector3 p2, p3;
+	if (plane.LineCross(vertices[3], vertices[7], &p2) == 0)
+		p2 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	if (plane.LineCross(vertices[2], vertices[6], &p3) == 0)
+		p3 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	Vector3 p6 = plane.Pick(vertices[1], (vertices[3] - vertices[1]).Normal());
+	Vector3 p7 = plane.Pick(vertices[0], (vertices[2] - vertices[0]).Normal());
+
+	outVertices[0] = (m_pos.LengthRoughly(p0) < m_pos.LengthRoughly(p4)) ? p0 : p4;
+	outVertices[1] = (m_pos.LengthRoughly(p1) < m_pos.LengthRoughly(p5)) ? p1 : p5;
+	outVertices[2] = (m_pos.LengthRoughly(p2) < m_pos.LengthRoughly(p6)) ? p2 : p6;
+	outVertices[3] = (m_pos.LengthRoughly(p3) < m_pos.LengthRoughly(p7)) ? p3 : p7;
 }

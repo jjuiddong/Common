@@ -4,8 +4,8 @@
 
 namespace graphic
 {
-
 	class cRenderer;
+
 	class cCamera
 	{
 	public:
@@ -22,6 +22,7 @@ namespace graphic
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
 		void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
+		void ReCalcProjection(const float nearPlane, const float farPlane);
 		void SetViewPort(const int width, const int height);
 		void SetEyePos(const Vector3 &eye);
 		void SetLookAt(const Vector3 &lookAt);
@@ -40,6 +41,8 @@ namespace graphic
 
 		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt);
 		void FitFrustum(const cCamera &camera, const float farPlaneRate =1.f);
+		void FitFrustum(const Matrix44 &matViewProj);
+		void FitQuad(const Vector3 vertices[4]);
 
 
 		// LookAt 이 이동한다.

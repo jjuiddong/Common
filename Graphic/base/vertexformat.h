@@ -4,6 +4,13 @@
 namespace graphic
 {
 
+	struct sVertex
+	{
+		Vector3 p;
+		enum { FVF = D3DFVF_XYZ};
+	};
+
+
 	struct sVertexDiffuse
 	{
 		Vector3 p;

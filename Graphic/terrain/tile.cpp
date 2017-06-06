@@ -161,10 +161,10 @@ void cTile::Render2(cRenderer &renderer
 	if (m_isShadow && shadowMap)
 	{
 		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
-		m_ground.m_shader->SetMatrix("g_mLightView", mLightView);
-		m_ground.m_shader->SetMatrix("g_mLightProj", mLightProj);
-		m_ground.m_shader->SetMatrix("g_mLightTT", mLightTT);
-		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
+		m_ground.m_shader->SetMatrix("g_mLightView1", mLightView);
+		m_ground.m_shader->SetMatrix("g_mLightProj1", mLightProj);
+		m_ground.m_shader->SetMatrix("g_mLightTT1", mLightTT);
+		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture1");
 	}
 	else
 	{
@@ -178,10 +178,70 @@ void cTile::Render2(cRenderer &renderer
 		if (m_isShadow && shadowMap)
 		{
 			shader->SetTechnique("Scene_ShadowMap");
-			shader->SetMatrix("g_mLightView", mLightView);
-			shader->SetMatrix("g_mLightProj", mLightProj);
-			shader->SetMatrix("g_mLightTT", mLightTT);
-			shadowMap->Bind(*shader, "g_shadowMapTexture");
+			shader->SetMatrix("g_mLightView1", mLightView);
+			shader->SetMatrix("g_mLightProj1", mLightProj);
+			shader->SetMatrix("g_mLightTT1", mLightTT);
+			shadowMap->Bind(*shader, "g_shadowMapTexture1");
+		}
+		else
+		{
+			shader->SetTechnique("Scene_NoShadow");
+		}
+	}
+
+	for (auto &p : m_models)
+		if (p->m_isShow)
+			p->RenderShader(renderer, tm);
+
+	if (m_isDbgRender)
+		m_dbgTile.Render(renderer, tm);
+}
+
+
+void cTile::Render2(cRenderer &renderer
+	, const Matrix44 *mLightView, const Matrix44 *mLightProj, const Matrix44 *mLightTT,
+	cShadowMap *shadowMap, const int shadowMapCount
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	RET(!m_isShow);
+
+	char *varShadowMap[] = { "g_shadowMapTexture1", "g_shadowMapTexture2", "g_shadowMapTexture3" };
+	char *varLightView[] = { "g_mLightView1", "g_mLightView2", "g_mLightView3" };
+	char *varLightProj[] = { "g_mLightProj1", "g_mLightProj2", "g_mLightProj3" };
+	char *varLightTT[] = { "g_mLightTT1", "g_mLightTT2", "g_mLightTT3" };
+
+	if (m_isShadow && shadowMap)
+	{
+		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
+
+		for (int i = 0; i < shadowMapCount; ++i)
+		{
+			m_ground.m_shader->SetMatrix(varLightView[i], mLightView[i]);
+			m_ground.m_shader->SetMatrix(varLightProj[i], mLightProj[i]);
+			m_ground.m_shader->SetMatrix(varLightTT[i], mLightTT[i]);
+			shadowMap[i].Bind(*m_ground.m_shader, varShadowMap[i]);
+		}
+	}
+	else
+	{
+		m_ground.m_shader->SetTechnique("Scene_NoShadow");
+	}
+
+	m_ground.RenderShader(renderer, m_tm * tm);
+
+	for (auto &shader : m_shaders)
+	{
+		if (m_isShadow && shadowMap)
+		{
+			shader->SetTechnique("Scene_ShadowMap");
+			for (int i = 0; i < shadowMapCount; ++i)
+			{
+				shader->SetMatrix(varLightView[i], mLightView[i]);
+				shader->SetMatrix(varLightProj[i], mLightProj[i]);
+				shader->SetMatrix(varLightTT[i], mLightTT[i]);
+				shadowMap[i].Bind(*shader, varShadowMap[i]);
+			}
 		}
 		else
 		{

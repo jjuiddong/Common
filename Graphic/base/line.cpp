@@ -14,6 +14,12 @@ cLine::cLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const fl
 }
 
 
+void cLine::Create(cRenderer &renderer)
+{
+	InitCube(renderer);
+}
+
+
 void cLine::Render(cRenderer &renderer, const Matrix44 &tm)
 //tm = Matrix44::Identity
 {
@@ -51,26 +57,43 @@ void cLine::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &t
 
 
 void cLine::SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width
-	, const D3DCOLOR color) //color=0
+	, const D3DCOLOR color //=0
+)
+{
+	InitCube(renderer, color);
+	SetLine(p0, p1, width);
+}
+
+
+void cLine::SetLine(const Vector3 &p0, const Vector3 &p1, const float width)
 {
 	m_p0 = p0;
 	m_p1 = p1;
 	m_width = width;
-
-	InitCube(renderer, color);
 
 	Vector3 v = p1 - p0;
 	const float len = v.Length();
 	v.Normalize();
 
 	Matrix44 matS;
-	matS.SetScale(Vector3(width, width, len/2.f));
+	matS.SetScale(Vector3(width, width, len / 2.f));
 
 	Matrix44 matT;
-	matT.SetTranslate( (p0 + p1) / 2.f );
+	matT.SetTranslate((p0 + p1) / 2.f);
 
-	Quaternion q(Vector3(0,0,1), v);
+	Quaternion q(Vector3(0, 0, 1), v);
 	m_tm = matS * q.GetMatrix() * matT;
+}
+
+
+void cLine::SetColor(const DWORD color)
+{
+	if (sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock())
+	{
+		for (int i = 0; i < 8; ++i)
+			vbuff[i].c = color;
+		m_vtxBuff.Unlock();
+	}
 }
 
 

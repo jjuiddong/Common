@@ -18,8 +18,10 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const Matrix44 &matViewProj);
 		bool Create(cRenderer &renderer, const Vector3 &_min, const Vector3 &_max);
-		void SetFrustum(cRenderer &renderer, const Matrix44 &matViewProj);
 		void Render(cRenderer &renderer);
+
+		bool SetFrustum(cRenderer &renderer, const Matrix44 &matViewProj);
+		virtual bool SetFrustum(const Matrix44 &matViewProj) override;
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 
 

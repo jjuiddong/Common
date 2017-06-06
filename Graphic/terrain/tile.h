@@ -20,15 +20,26 @@ namespace graphic
 			, const float y=0, const float uvFactor=1.f
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
 			);
+
 		void Update(cRenderer &renderer, const float deltaSeconds);
 		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		
 		void Render(cRenderer &renderer
-			, const Matrix44 &mVPT, const Matrix44 &mLVP,  
-			cShadowMap *shadowMap = NULL, const Matrix44 &tm = Matrix44::Identity);
+			, const Matrix44 &mVPT, const Matrix44 &mLVP
+			, cShadowMap *shadowMap = NULL
+			, const Matrix44 &tm = Matrix44::Identity);
+
 		void Render2(cRenderer &renderer
-			, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT,
-			cShadowMap *shadowMap = NULL, const Matrix44 &tm = Matrix44::Identity);
+			, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
+			, cShadowMap *shadowMap = NULL
+			, const Matrix44 &tm = Matrix44::Identity);
+
+		void Render2(cRenderer &renderer
+			, const Matrix44 *mLightView, const Matrix44 *mLightProj, const Matrix44 *mLightTT
+			, cShadowMap *shadowMap=NULL, const int shadowMapCount=0
+			, const Matrix44 &tm = Matrix44::Identity);
+
 		float CullingTest(const cFrustum &frustum, const bool isModel = true);
 		bool AddModel(cModel2 *model);
 		bool RemoveModel(cModel2 *model);

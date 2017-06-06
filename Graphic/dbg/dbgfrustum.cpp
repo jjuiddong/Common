@@ -37,7 +37,14 @@ bool cDbgFrustum::Create(cRenderer &renderer, const Vector3 &_min, const Vector3
 }
 
 
-void cDbgFrustum::SetFrustum(cRenderer &renderer, const Matrix44 &matViewProj)
+bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Matrix44 &matViewProj)
+{
+	m_box.InitBox(renderer);
+	return SetFrustum(matViewProj);
+}
+
+
+bool cDbgFrustum::SetFrustum(const Matrix44 &matViewProj)
 {
 	cFrustum::SetFrustum(matViewProj);
 
@@ -60,7 +67,9 @@ void cDbgFrustum::SetFrustum(cRenderer &renderer, const Matrix44 &matViewProj)
 	for (int i = 0; i < 8; i++)
 		vertices[i] *= matInv;
 
-	m_box.InitBox(renderer, vertices);	
+	m_box.SetBox(vertices);
+
+	return true;
 }
 
 

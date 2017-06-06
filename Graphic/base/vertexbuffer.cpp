@@ -160,6 +160,7 @@ void cVertexBuffer::Bind(cRenderer &renderer) const
 }
 
 
+inline DWORD FtoDW(FLOAT f) { return *((DWORD*)&f); }
 void cVertexBuffer::RenderLineStrip(cRenderer &renderer)
 {
 	RET(!m_pVtxBuff);
@@ -170,6 +171,15 @@ void cVertexBuffer::RenderLineStrip(cRenderer &renderer)
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, FALSE);
+
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSPRITEENABLE, TRUE);
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSCALEENABLE, TRUE);
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSIZE_MAX, FtoDW(10));
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSIZE_MIN, FtoDW(1.0f));
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSCALE_A, FtoDW(0.0f));
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSCALE_B, FtoDW(0.0f));
+	renderer.GetDevice()->SetRenderState(D3DRS_POINTSCALE_C, FtoDW(1.0f));
+
 	Bind(renderer);
 	renderer.GetDevice()->DrawPrimitive(D3DPT_LINESTRIP, 0, m_vertexCount - 1);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
@@ -198,8 +208,6 @@ void cVertexBuffer::RenderLineList2(cRenderer &renderer)
 {
 	RET(!m_pVtxBuff);
 
-	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&Matrix44::Identity);
-
 	DWORD lighting;
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -209,7 +217,6 @@ void cVertexBuffer::RenderLineList2(cRenderer &renderer)
 }
 
 
-inline DWORD FtoDW(FLOAT f) { return *((DWORD*)&f); }
 void cVertexBuffer::RenderPointList2(cRenderer &renderer, const int count) // count=0
 {
 	RET(!m_pVtxBuff);

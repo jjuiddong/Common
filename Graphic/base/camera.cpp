@@ -63,8 +63,23 @@ void cCamera::SetProjectionOrthogonal(const float width, const float height, con
 	m_aspect = height / width;
 	m_nearPlane = nearPlane;
 	m_farPlane = farPlane;
+	m_width = (int)width;
+	m_height = (int)height;
 	m_proj.SetProjectionOrthogonal(width, height, nearPlane, farPlane);
 	UpdateProjectionMatrix();
+}
+
+
+void cCamera::ReCalcProjection(const float nearPlane, const float farPlane)
+{
+	if (m_isOrthogonal)
+	{
+		SetProjectionOrthogonal((float)m_width, (float)m_height, nearPlane, farPlane);
+	}
+	else
+	{
+		SetProjection(m_fov, m_aspect, nearPlane, farPlane);
+	}
 }
 
 
@@ -728,6 +743,18 @@ void cCamera::FitFrustum(const cCamera &camera
 	, const float farPlaneRate//= 1.f
 )
 {
+	// Camera View Space
+	Matrix44 oldProj;
+	oldProj.SetProjection(camera.m_fov, camera.m_aspect, camera.m_nearPlane, camera.m_farPlane * farPlaneRate);
+	FitFrustum(camera.m_view * oldProj);
+}
+
+
+// use ShadowMap, Calc Light Camera Projection
+// Light Camera is Orthogonal Projection
+// this class is Light Camera instance
+void cCamera::FitFrustum(const Matrix44 &matViewProj)
+{
 	//        4 --- 5
 	//      / |  |  /|
 	//   0 --- 1   |
@@ -741,9 +768,7 @@ void cCamera::FitFrustum(const cCamera &camera
 	};
 
 	// Camera View Space
-	Matrix44 oldProj;
-	oldProj.SetProjection(camera.m_fov, camera.m_aspect, camera.m_nearPlane, camera.m_farPlane * farPlaneRate);
-	Matrix44 matInv = (camera.m_view * oldProj).Inverse();
+	Matrix44 matInv = matViewProj.Inverse();
 	for (int i = 0; i < 8; i++)
 		vertices[i] *= matInv;
 
@@ -764,6 +789,44 @@ void cCamera::FitFrustum(const cCamera &camera
 
 	sMinMax mm;
 	for each (auto &v in vertices)
+		mm.Update(v);
+
+	Matrix44 newProj;
+	newProj.SetProjectionOrthogonal(
+		mm._min.x, mm._max.x,
+		mm._min.y, mm._max.y,
+		mm._min.z, mm._max.z);
+
+	m_eyePos = pos;
+	m_lookAt = center;
+	m_view = newView;
+	m_proj = newProj;
+	m_nearPlane = mm._min.z;
+	m_farPlane = mm._max.z;
+	m_viewProj = newView * newProj;
+}
+
+
+void cCamera::FitQuad(const Vector3 vertices[4])
+{
+	Vector3 center(0, 0, 0);
+	for (int i = 0; i < 4; ++i)
+		center += vertices[i];
+	center /= 4.f;
+
+	//const float distFromCenter = 500;
+	const float distFromCenter = 50;
+	const Vector3 pos = center - (GetDirection()*distFromCenter);
+	Matrix44 newView;
+	newView.SetView2(pos, center, Vector3(0, 1, 0));
+
+	// Light View Space
+	Vector3 quad[4];
+	for (int i = 0; i < 4; i++)
+		quad[i] = vertices[i] * newView;
+
+	sMinMax mm;
+	for each (auto &v in quad)
 		mm.Update(v);
 
 	Matrix44 newProj;

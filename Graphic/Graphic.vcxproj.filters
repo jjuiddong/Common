@@ -322,6 +322,12 @@
     <ClInclude Include="collision\boundingsphere.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgquad.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgquad2.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -602,6 +608,12 @@
       <Filter>dbg</Filter>
     </ClCompile>
     <ClCompile Include="dbg\dbgbox2.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgquad.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgquad2.cpp">
       <Filter>dbg</Filter>
     </ClCompile>
   </ItemGroup>

@@ -20,6 +20,9 @@ void cDbgBox::InitBox(cRenderer &renderer)
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
 
+	m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
+	m_idxBuff.Create(renderer, 12);
+
 	//        4 --- 5
 	//      / |  |  /|
 	//   0 --- 1   |
@@ -32,12 +35,64 @@ void cDbgBox::InitBox(cRenderer &renderer)
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
 
-	InitBox(renderer, vertices);
+	SetBox(vertices);
+
+	WORD indices[36] = {
+		// front
+		0, 3, 2,
+		0 ,1, 3,
+		// back
+		5, 6, 7,
+		5, 4, 6,
+		// top
+		4, 1, 0,
+		4, 5, 1,
+		// bottom
+		2, 7, 6,
+		2, 3, 7,
+		// left
+		4, 2, 6,
+		4, 0, 2,
+		// right
+		1, 7, 3,
+		1, 5, 7,
+	};
+
+	if (WORD *p = (WORD*)m_idxBuff.Lock())
+	{
+		for (int i = 0; i < 36; ++i)
+			*p++ = i;
+		m_idxBuff.Unlock();
+	}
+
+	m_min = Vector3(-1, -1, -1);
+	m_max = Vector3(1, 1, 1);
 }
 
 
 void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 {
+	if (m_vtxBuff.GetVertexCount() <= 0)
+		InitBox(renderer);
+
+	SetBox(vertices);
+}
+
+
+void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+{
+	if (m_vtxBuff.GetVertexCount() <= 0)
+		InitBox(renderer);
+
+	SetBox(vMin, vMax);
+}
+
+
+void cDbgBox::SetBox(Vector3 vertices[8])
+{
+	if (m_vtxBuff.GetVertexCount() <= 0)
+		return;
+
 	//        4 --- 5
 	//      / |  |  /|
 	//   0 --- 1   |
@@ -68,12 +123,6 @@ void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 		1, 5, 7,
 	};
 
-	if (m_vtxBuff.GetVertexCount() <= 0)
-	{
-		m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
-		m_idxBuff.Create(renderer, 12);
-	}
-
 	if (sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock())
 	{
 		const DWORD color = D3DCOLOR_XRGB(200, 200, 200);
@@ -84,24 +133,11 @@ void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
 		}
 		m_vtxBuff.Unlock();
 	}
-
-	if (WORD *p = (WORD*)m_idxBuff.Lock())
-	{
-		for (int i = 0; i < 36; ++i)
-			*p++ = i;
-		m_idxBuff.Unlock();
-	}
-
-	m_min = Vector3(-1, -1, -1);
-	m_max = Vector3(1, 1, 1);
 }
 
 
-void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+void cDbgBox::SetBox(const Vector3 &vMin, const Vector3 &vMax)
 {
-	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitBox(renderer);
-
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
 	const Vector3 v2 = m_max - m_min;
