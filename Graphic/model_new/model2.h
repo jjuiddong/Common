@@ -67,9 +67,11 @@ namespace graphic
 		int m_id;
 		eState::Enum m_state;
 		cFilePath m_fileName;
+		bool m_isEnable; // if false, not show
 		bool m_isShow;
 		bool m_isShadow; // shadow volume
 		bool m_isShadow2; // shadow map
+		int m_flags;
 		D3DCULL m_cullType; // default : CCW
 		cColladaModel *m_colladaModel;
 		cXFileMesh *m_xModel;

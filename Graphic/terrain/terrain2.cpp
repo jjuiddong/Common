@@ -135,8 +135,8 @@ void cTerrain2::CullingTest(
 
 	//const float f = common::clamp(0.05f, 1.f, orig.y * 0.005f);
 	const float len = (pos- orig).Length();
-	//const float f = common::clamp(0.0003f, 1.f, len * 0.000015f);
-	const float f = common::clamp(0.003f, 1.f, len * 0.00015f);
+	const float f = common::clamp(0.0003f, 1.f, len * 0.000015f);
+	//const float f = common::clamp(0.003f, 1.f, len * 0.00015f);
 	m_lightCam[shadowMapIdx].FitFrustum(camera, f);
 
 	Matrix44 view, proj, tt;

@@ -14,42 +14,51 @@ namespace graphic
 		cTile();
 		virtual ~cTile();
 
-		bool Create(cRenderer &renderer
+		virtual bool Create(cRenderer &renderer
 			, const string &name
 			, const sRectf &rect
 			, const float y=0, const float uvFactor=1.f
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
 			);
 
-		void Update(cRenderer &renderer, const float deltaSeconds);
-		void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual bool Create(cRenderer &renderer
+			, const string &name
+			, const float width, const float height
+			, const Matrix44 &tm
+			, const float y = 0, const float uvFactor = 1.f
+			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
+		);
+
+		virtual void Update(cRenderer &renderer, const float deltaSeconds);
+		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		
-		void Render(cRenderer &renderer
+		virtual void Render(cRenderer &renderer
 			, const Matrix44 &mVPT, const Matrix44 &mLVP
 			, cShadowMap *shadowMap = NULL
 			, const Matrix44 &tm = Matrix44::Identity);
 
-		void Render2(cRenderer &renderer
+		virtual void Render2(cRenderer &renderer
 			, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
 			, cShadowMap *shadowMap = NULL
 			, const Matrix44 &tm = Matrix44::Identity);
 
-		void Render2(cRenderer &renderer
+		virtual void Render2(cRenderer &renderer
 			, const Matrix44 *mLightView, const Matrix44 *mLightProj, const Matrix44 *mLightTT
 			, cShadowMap *shadowMap=NULL, const int shadowMapCount=0
 			, const Matrix44 &tm = Matrix44::Identity);
 
-		float CullingTest(const cFrustum &frustum, const bool isModel = true);
-		bool AddModel(cModel2 *model);
-		bool RemoveModel(cModel2 *model);
-		cModel2* FindModel(const int modelId);
-		void LostDevice();
-		void ResetDevice(cRenderer &renderer);
-		void Clear();
+		virtual float CullingTest(const cFrustum &frustum, const bool isModel = true);
+		virtual bool AddModel(cModel2 *model);
+		virtual bool RemoveModel(cModel2 *model);
+		virtual cModel2* FindModel(const int modelId);
+		virtual void LostDevice();
+		virtual void ResetDevice(cRenderer &renderer);
+		virtual void Clear();
 
 
 	public:
+		bool m_isEnable;
 		bool m_isShow;
 		bool m_isShadow;
 		bool m_isDbgRender;

@@ -374,7 +374,7 @@ cBoundingBox& cBoundingBox::operator=(const cCube &cube)
 // 경계박스 중점을 리턴한다.
 Vector3 cBoundingBox::Center() const
 {
-	return (m_max+m_min)/2.f;
+	return ((m_max+m_min) /2.f) * m_tm;
 }
 
 

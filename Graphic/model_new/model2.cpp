@@ -7,6 +7,7 @@ using namespace graphic;
 
 cModel2::cModel2()
 	: m_id(0)
+	, m_isEnable(true)
 	, m_colladaModel(NULL)
 	, m_isShow(true)
 	, m_xModel(NULL)

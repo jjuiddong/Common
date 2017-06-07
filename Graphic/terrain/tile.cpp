@@ -7,6 +7,7 @@ using namespace graphic;
 
 cTile::cTile()
 	: m_isShadow(true)
+	, m_isEnable(true)
 	, m_isShow(true)
 	, m_isDbgRender(false)
 {
@@ -49,6 +50,41 @@ bool cTile::Create(cRenderer &renderer
 }
 
 
+bool cTile::Create(cRenderer &renderer
+	, const string &name
+	, const float width, const float height
+	, const Matrix44 &tm
+	, const float y //= 0
+	, const float uvFactor //= 1.f
+	, const Vector2 &uv0 //= Vector2(0, 0)
+	, const Vector2 &uv1 //= Vector2(1, 1)
+)
+{
+	m_name = name;
+
+	const float cellSize = width / 2.f;
+	m_ground.Create(renderer, 2, 2, cellSize, 1, y, uv0, uv1);
+	m_ground.SetShader(cResourceManager::Get()->LoadShader(renderer, "tile.fx"));
+	m_ground.m_shader->SetFloat("g_uvFactor", uvFactor);
+	m_ground.m_mtrl.InitXFile();
+
+	//Matrix44 T;
+	//T.SetPosition(Vector3(rect.left + cellSize, 0, rect.top + cellSize));
+	//m_tm = T;
+	m_tm = tm;
+
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0)
+		, Vector3(width, 20, height));
+	m_boundingBox.m_tm *= tm;
+
+	m_dbgTile.SetBox(renderer, Vector3(0, 0, 0)
+		, Vector3(width, 20, height));
+	m_dbgTile.m_tm *= tm;
+
+	return true;
+}
+
+
 void cTile::Update(cRenderer &renderer, const float deltaSeconds)
 {
 	for (auto &p : m_models)
@@ -61,6 +97,7 @@ void cTile::PreRender(cRenderer &renderer
 )
 {
 	RET(!m_isShadow);
+	RET(!m_isEnable);
 	RET(!m_isShow);
 
 	cCamera *cam = GetMainCamera();
@@ -76,7 +113,7 @@ void cTile::PreRender(cRenderer &renderer
 	{
 		if (!p->m_isShadow)
 			continue;
-		if (p->m_isShow)
+		if (p->m_isShow && p->m_isEnable)
   			p->RenderShader(renderer);
 	}
 }
@@ -86,6 +123,7 @@ void cTile::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isEnable);
 	RET(!m_isShow);
 
 	m_ground.m_shader->SetTechnique("Scene_NoShadow");
@@ -96,7 +134,7 @@ void cTile::Render(cRenderer &renderer
 		shader->SetTechnique("Scene_NoShadow");
 
 	for (auto &p : m_models)
-		if (p->m_isShow)
+		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
 
 	if (m_isDbgRender)
@@ -110,6 +148,7 @@ void cTile::Render( cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isEnable);
 	RET(!m_isShow);
 
 	if (m_isShadow && shadowMap)
@@ -142,7 +181,7 @@ void cTile::Render( cRenderer &renderer
 	}
 
 	for (auto &p : m_models)
-		if (p->m_isShow)
+		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
 
 	if (m_isDbgRender)
@@ -156,6 +195,7 @@ void cTile::Render2(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isEnable);
 	RET(!m_isShow);
 
 	if (m_isShadow && shadowMap)
@@ -190,7 +230,7 @@ void cTile::Render2(cRenderer &renderer
 	}
 
 	for (auto &p : m_models)
-		if (p->m_isShow)
+		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
 
 	if (m_isDbgRender)
@@ -204,6 +244,7 @@ void cTile::Render2(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isEnable);
 	RET(!m_isShow);
 
 	char *varShadowMap[] = { "g_shadowMapTexture1", "g_shadowMapTexture2", "g_shadowMapTexture3" };
@@ -250,7 +291,7 @@ void cTile::Render2(cRenderer &renderer
 	}
 
 	for (auto &p : m_models)
-		if (p->m_isShow)
+		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
 
 	if (m_isDbgRender)
@@ -258,7 +299,7 @@ void cTile::Render2(cRenderer &renderer
 }
 
 
-// return frustum cent to tile length
+// return frustum center to tile length
 float cTile::CullingTest(const cFrustum &frustum
 	, const bool isModel //= true
 )
@@ -271,11 +312,15 @@ float cTile::CullingTest(const cFrustum &frustum
 		{
 			for (auto &p : m_models)
 			{
+				if (!p->m_isEnable)
+					continue;
+
 				p->m_isShow = frustum.IsInSphere(p->m_boundingSphere);
 				if (p->m_isShow)
 				{
 					const Vector3 pos = p->m_boundingBox.Center() * p->m_tm;
-					p->m_isShadow = pos.LengthRoughly(frustum.m_pos) < 100000;
+					//p->m_isShadow = pos.LengthRoughly(frustum.m_pos) < 100000;
+					p->m_isShadow = true;// pos.LengthRoughly(frustum.m_pos) < 100000000;
 				}
 			}
 		}
