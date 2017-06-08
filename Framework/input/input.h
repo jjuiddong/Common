@@ -16,7 +16,6 @@ namespace framework
 		void Update(const float deltaSeconds);
 		void MouseProc(UINT message, WPARAM wParam, LPARAM lParam);
 		void MouseProc(const sf::Event &evt);
-		void SetMouseOffset(const POINT &offset);
 		bool IsClick();
 
 

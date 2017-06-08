@@ -929,6 +929,13 @@ bool cDockWindow::CheckEventTarget(const sf::Event &evt)
 	break;
 
 	case sf::Event::MouseMoved:
+	{
+		POINT pos = { evt.mouseMove.x, evt.mouseMove.y };
+		if (!m_rect.IsIn((float)pos.x, (float)pos.y))
+			return false;
+	}
+	break;
+
 	case sf::Event::MouseButtonReleased:
 		break;
 	}
