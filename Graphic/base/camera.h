@@ -31,7 +31,7 @@ namespace graphic
 		void SetProjectionMatrix(const Matrix44 &proj);
 		const Vector3& GetEyePos() const;
 		const Vector3& GetLookAt() const;
-		const Vector3& GetUpVector() const;
+		Vector3 GetUpVector() const;
 		const Matrix44& GetViewMatrix() const;
 		const Matrix44& GetProjectionMatrix() const;
 		const Matrix44& GetViewProjectionMatrix();
@@ -136,7 +136,7 @@ namespace graphic
 	inline void cCamera::SetProjectionMatrix(const Matrix44 &proj) { m_proj = proj; UpdateProjectionMatrix(); }
 	inline const Vector3& cCamera::GetEyePos() const { return m_eyePos; }
 	inline const Vector3& cCamera::GetLookAt() const { return m_lookAt; }
-	inline const Vector3& cCamera::GetUpVector() const { return m_up; }
+	//inline const Vector3& cCamera::GetUpVector() const { return m_up; }
 	inline const Matrix44& cCamera::GetViewMatrix() const { return m_view; }
 	inline const Matrix44& cCamera::GetProjectionMatrix() const { return m_proj; }
 	inline const Matrix44& cCamera::GetViewProjectionMatrix() { m_viewProj = m_view * m_proj; return m_viewProj; }		 

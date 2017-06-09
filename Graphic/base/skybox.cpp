@@ -30,6 +30,13 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 		"ThickCloudsWaterLeft2048.png",
 		"ThickCloudsWaterUp2048.png",
 		"ThickCloudsWaterDown2048.png",
+
+		//"blueclear2_front.png", 
+		//"blueclear2_back.png",
+		//"blueclear2_left.png",
+		//"blueclear2_right.png",
+		//"blueclear2_top.png",
+		//"blueclear2_bottom.png",
 	};
 
 	for (int i=0; i < MAX_FACE; ++i)

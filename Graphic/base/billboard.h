@@ -11,8 +11,9 @@ namespace graphic
 		enum TYPE
 		{
 			NONE,
-			Y_AXIS,		// Y 축으로만 회전한다.
-			ALL_AXIS,	// 모든 축이 회전한다.
+			Y_AXIS,		// Y Axis Rotation
+			ALL_AXIS,	// X-Y-Z Axis Rotation
+			ALL_AXIS_Z, // X-Y-Z Axis Rotation and Z Axis is Up
 		};
 	};
 

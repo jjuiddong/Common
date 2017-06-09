@@ -863,3 +863,9 @@ void cCamera::SetViewPort(const int width, const int height)
 			, m_nearPlane, m_farPlane);
 	}
 }
+
+
+Vector3 cCamera::GetUpVector() const 
+{ 
+	return GetDirection().CrossProduct(GetRight()).Normal();
+}

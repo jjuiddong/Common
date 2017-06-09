@@ -912,10 +912,13 @@ void cResourceManager::Clear()
 	// remove texture
 	{
 		AutoCSLock cs(m_cs);
+		cTexture *defaultTex = m_textures[g_defaultTexture];
 		for each (auto kv in m_textures)
 		{
-			delete kv.second;
+			if (kv.second != defaultTex)
+				delete kv.second;
 		}
+		SAFE_DELETE(defaultTex);
 		m_textures.clear();
 	}
 

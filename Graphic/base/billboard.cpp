@@ -60,6 +60,17 @@ void cBillboard::Rotate()
 		mat._41 = mat._42 = mat._43 = 0;
 	}
 	break;
+
+	case BILLBOARD_TYPE::ALL_AXIS_Z:
+	{
+		// 모든 축에서 빌보드 행렬을 계산한다.
+		Matrix44 view;
+		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), GetMainCamera()->GetUpVector());
+
+		mat = view;
+		mat._41 = mat._42 = mat._43 = 0;
+	}
+	break;
 	}
 
 	Matrix44 T;
