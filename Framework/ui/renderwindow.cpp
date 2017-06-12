@@ -150,6 +150,28 @@ void cRenderWindow::Update(const float deltaSeconds)
 			ChangeState(eState::NORMAL, 8);
 	}
 
+	// Maximize Window HotKey
+	// Win + Up Arrow
+	if ((GetAsyncKeyState(VK_LWIN) & 0x8000) && (GetAsyncKeyState(VK_UP) & 0x8000))
+	{
+		WINDOWPLACEMENT wndPl;
+		GetWindowPlacement(getSystemHandle(), &wndPl); // Toggle Maximize or Restore
+		if (wndPl.showCmd != SW_MAXIMIZE)
+		{
+			ShowWindow(getSystemHandle(), SW_MAXIMIZE);
+			m_isFullScreen = true;
+		}
+	}
+
+	// Restore Window HotKey
+	// Win + Down Arrow
+	if ((GetAsyncKeyState(VK_LWIN) & 0x8000) && (GetAsyncKeyState(VK_DOWN) & 0x8000))
+	{
+		// Treaky Code, only change m_isFullScreen Flag
+		// Best Work is Restore Event Handling
+		m_isFullScreen = false;
+	}
+
 	if (m_dock)
 		m_dock->Update(deltaSeconds);
 
@@ -809,6 +831,8 @@ unsigned char cRenderWindow::KeyboardToAscii(const sf::Keyboard::Key key)
 	case sf::Keyboard::End: return 0x23;
 	case sf::Keyboard::V: return 'V'; // copy and paste
 	case sf::Keyboard::C: return 'C'; // copy and paste
+	case sf::Keyboard::LSystem: return VK_LWIN;
+	case sf::Keyboard::RSystem: return VK_RWIN;
 	default:
 		return 0;
 	}

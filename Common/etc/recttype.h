@@ -91,10 +91,22 @@ namespace common
 	template <class T>
 	struct sSize
 	{
-		int w, h;
+		T w, h;
 	};
 
 	typedef sSize<LONG> sSizei;
 	typedef sSize<float> sSizef;
 
+
+	//---------------------------------------------------------------------
+	template <class T>
+	struct typeVector2
+	{
+		T x,y;
+
+		typeVector2() :x(0), y(0) {}
+		typeVector2(const T _x, const T _y) : x(_x), y(_y) {}
+	};
+
+	typedef typeVector2<int> Vector2i;
 }

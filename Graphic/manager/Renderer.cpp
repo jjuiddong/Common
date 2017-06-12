@@ -223,7 +223,9 @@ bool cRenderer::ClearScene()
 	if (SUCCEEDED(GetDevice()->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL,
 		//D3DCOLOR_XRGB(150, 150, 150), 
-		D3DCOLOR_ARGB(255, 66, 75, 121),
+		//D3DCOLOR_ARGB(255, 66, 75, 121), // Blue
+		//D3DCOLOR_ARGB(255, 216, 233, 240), // Sky Blue
+		D3DCOLOR_ARGB(255, 50, 50, 50), // UI Gray
 		1.0f, 0)))
 	{
 		return true;
