@@ -112,15 +112,12 @@ void cCube::InitCube(cRenderer &renderer)
 }
 
 
-void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+void cCube::SetCube(const Vector3 &vMin, const Vector3 &vMax)
 {
-	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitCube(renderer);
-
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
 	const Vector3 v2 = m_max - m_min;
-	Vector3 scale(abs(v1.x)/2, abs(v1.y)/2, abs(v1.z)/2);
+	Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
 
 	Matrix44 S;
 	S.SetScale(scale);
@@ -133,6 +130,14 @@ void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMa
 	m_pos = center;
 	m_min = vMin;
 	m_max = vMax;
+}
+
+
+void cCube::SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+{
+	if (m_vtxBuff.GetVertexCount() <= 0)
+		InitCube(renderer);
+	SetCube(vMin, vMax);
 }
 
 

@@ -125,8 +125,12 @@ bool cFrustum::IsIn( const Vector3 &point ) const
 // 중심(point)와 반지름(radius)를 갖는 경계구(bounding sphere)가 프러스텀안에 있으면
 // TRUE를 반환, 아니면 FALSE를 반환한다.
 //-----------------------------------------------------------------------------//
-bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
+bool cFrustum::IsInSphere( const Vector3 &point, float radius
+	, const Matrix44 &tm //= Matrix44::Identity
+) const
 {
+	const Vector3 pos = point * tm;
+
 	for (int i=0; i < 6; ++i)
 	{
 		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
@@ -134,7 +138,7 @@ bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
 			continue;
 
 		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
-		const float dist = m_plane[ i].Distance( point );
+		const float dist = m_plane[ i].Distance( pos );
 		if (dist > (radius+ m_epsilon))
 			return false;
 	}
@@ -143,9 +147,11 @@ bool cFrustum::IsInSphere( const Vector3 &point, float radius ) const
 }
 
 
-bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
+bool cFrustum::IsInSphere(const cBoundingSphere &sphere
+	, const Matrix44 &tm //= Matrix44::Identity
+) const
 {
-	return IsInSphere(sphere.m_pos, sphere.m_radius);
+	return IsInSphere(sphere.m_pos, sphere.m_radius, tm);
 }
 
 

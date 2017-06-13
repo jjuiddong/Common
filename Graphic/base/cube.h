@@ -15,6 +15,7 @@ namespace graphic
 		cCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 
 		void InitCube(cRenderer &renderer);
+		void SetCube(const Vector3 &vMin, const Vector3 &vMax);
 		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 		void SetCube(cRenderer &renderer, const cCube &cube);
 		void SetTransform( const Matrix44 &tm );

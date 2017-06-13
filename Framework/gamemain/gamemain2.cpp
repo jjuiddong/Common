@@ -23,7 +23,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		, NULL
 		, false);
 
-	srand((int)timeGetTime());
+	common::initrand();
 
 	cDockManager::Get()->InsertMainRenderWindow(gameMain);
 

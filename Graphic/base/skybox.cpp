@@ -23,20 +23,24 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 	{
 		//"skybox_front.jpg", "skybox_back.jpg", "skybox_left.jpg", 
 		//"skybox_right.jpg", "skybox_top.jpg", "skybox_bottom.jpg"
-
-		"ThickCloudsWaterFront2048.png", 
-		"ThickCloudsWaterBack2048.png",
-		"ThickCloudsWaterRight2048.png",
-		"ThickCloudsWaterLeft2048.png",
-		"ThickCloudsWaterUp2048.png",
-		"ThickCloudsWaterDown2048.png",
-
+		//"ThickCloudsWaterFront2048.png", 
+		//"ThickCloudsWaterBack2048.png",
+		//"ThickCloudsWaterRight2048.png",
+		//"ThickCloudsWaterLeft2048.png",
+		//"ThickCloudsWaterUp2048.png",
+		//"ThickCloudsWaterDown2048.png",
 		//"blueclear2_front.png", 
 		//"blueclear2_back.png",
 		//"blueclear2_left.png",
 		//"blueclear2_right.png",
 		//"blueclear2_top.png",
 		//"blueclear2_bottom.png",
+		"cloud161_front.png", 
+		"cloud161_back.png",
+		"cloud161_left.png",
+		"cloud161_right.png",
+		"cloud161_top.png",
+		"cloud161_bottom.png",
 	};
 
 	for (int i=0; i < MAX_FACE; ++i)
@@ -134,7 +138,6 @@ void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
 	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 	//renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 	renderer.GetDevice()->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
-
 
 	DWORD lighting, fogEnable;
 	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);

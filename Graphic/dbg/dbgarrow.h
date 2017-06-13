@@ -15,7 +15,7 @@ namespace graphic
 		virtual ~cDbgArrow();
 
 		bool Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
-		void Render(cRenderer &renderer);
+		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
 
 
