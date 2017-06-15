@@ -392,3 +392,13 @@ void cBoundingBox::Scale(const Vector3 &scale)
 	m_min += center;
 	m_max += center;
 }
+
+
+// return x,y,z dimension
+Vector3 cBoundingBox::GetDimension()
+{
+	return Vector3(
+		abs(m_min.x - m_max.x)
+		, abs(m_min.y - m_max.y)
+		, abs(m_min.z - m_max.z));
+}

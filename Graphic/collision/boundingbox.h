@@ -23,6 +23,7 @@ namespace graphic
 		float Length() const;
 		Vector3 Center() const;
 		void Scale(const Vector3 &scale);
+		Vector3 GetDimension();
 
 		cBoundingBox& operator=(const cCube &cube);
 
