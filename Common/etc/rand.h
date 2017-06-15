@@ -11,11 +11,20 @@ namespace common
 		srand((unsigned)time(NULL) );
 	}
 
+
 	//returns a random integer between x and y
 	inline int randint(int x, int y) 
 	{ 
 		return rand() % (y - x + 1) + x; 
 	}
+
+	//returns a random bool
+	// percentageOfTrue : 0 ~ 1
+	inline bool randbool(const float percentageOfTrue)
+	{
+		return randint(0, 100) < (int)(100 * percentageOfTrue);
+	}
+
 
 	// -1 ~ +1 random float
 	// 소수점 3 째 자리 까지 랜덤.

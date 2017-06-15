@@ -52,7 +52,7 @@ bool cTile::Create(cRenderer &renderer
 
 bool cTile::Create(cRenderer &renderer
 	, const string &name
-	, const float width, const float height
+	, const Vector3 &dim
 	, const Matrix44 &tm
 	, const float y //= 0
 	, const float uvFactor //= 1.f
@@ -62,7 +62,7 @@ bool cTile::Create(cRenderer &renderer
 {
 	m_name = name;
 
-	const float cellSize = width / 2.f;
+	const float cellSize = dim.x / 2.f;
 	m_ground.Create(renderer, 2, 2, cellSize, 1, y, uv0, uv1);
 	m_ground.SetShader(cResourceManager::Get()->LoadShader(renderer, "tile.fx"));
 	m_ground.m_shader->SetFloat("g_uvFactor", uvFactor);
@@ -73,12 +73,10 @@ bool cTile::Create(cRenderer &renderer
 	//m_tm = T;
 	m_tm = tm;
 
-	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0)
-		, Vector3(width, 20, height));
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), dim);
 	m_boundingBox.m_tm *= tm;
 
-	m_dbgTile.SetBox(renderer, Vector3(0, 0, 0)
-		, Vector3(width, 20, height));
+	m_dbgTile.SetBox(renderer, Vector3(0, 0, 0), dim);
 	m_dbgTile.m_tm *= tm;
 
 	return true;

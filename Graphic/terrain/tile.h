@@ -23,7 +23,7 @@ namespace graphic
 
 		virtual bool Create(cRenderer &renderer
 			, const string &name
-			, const float width, const float height
+			, const Vector3 &dim
 			, const Matrix44 &tm
 			, const float y = 0, const float uvFactor = 1.f
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)

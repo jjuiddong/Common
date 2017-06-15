@@ -829,6 +829,7 @@ unsigned char cRenderWindow::KeyboardToAscii(const sf::Keyboard::Key key)
 	case sf::Keyboard::Down: return 0x28;
 	case sf::Keyboard::Home: return 0x24;
 	case sf::Keyboard::End: return 0x23;
+	case sf::Keyboard::Return: return VK_RETURN;
 	case sf::Keyboard::V: return 'V'; // copy and paste
 	case sf::Keyboard::C: return 'C'; // copy and paste
 	case sf::Keyboard::LSystem: return VK_LWIN;

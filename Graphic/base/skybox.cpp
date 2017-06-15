@@ -35,12 +35,13 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 		//"blueclear2_right.png",
 		//"blueclear2_top.png",
 		//"blueclear2_bottom.png",
-		"cloud161_front.png", 
-		"cloud161_back.png",
-		"cloud161_left.png",
-		"cloud161_right.png",
-		"cloud161_top.png",
-		"cloud161_bottom.png",
+
+		"cloud161_front.dds", 
+		"cloud161_back.dds",
+		"cloud161_left.dds",
+		"cloud161_right.dds",
+		"cloud161_top.dds",
+		"cloud161_bottom.dds",
 	};
 
 	for (int i=0; i < MAX_FACE; ++i)
