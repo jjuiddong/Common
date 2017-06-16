@@ -19,8 +19,11 @@ namespace graphic
 
 		void InitCube(cRenderer &renderer, const float uvFactor = 1.f);
 		void InitCube2(cRenderer &renderer, const float uvFactor = 1.f);
+		void InitCube2(cRenderer &renderer, Vector3 vertices[8], const float uvFactor = 1.f);
+		void InitCube3(cRenderer &renderer, Vector3 vertices[24], const float uvFactor = 1.f);
 		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax, const float uvFactor = 1.f);
 		void SetCube(const Vector3 &vMin, const Vector3 &vMax, const float uvFactor = 1.f);
+		void SetCube2(const Vector3 &vMin, const Vector3 &vMax, const float uvFactor = 1.f);
 		void SetCube(cRenderer &renderer, const cCube3 &cube);
 		void SetCube(const cCube3 &cube);
 		void SetCube(const cBoundingBox &bbox, const float uvFactor = 1.f);

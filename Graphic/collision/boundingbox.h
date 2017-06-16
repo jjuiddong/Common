@@ -1,5 +1,6 @@
 // 
 // OBB (Oriendted Bounding Box)
+//	min + max + matrix44
 //
 #pragma once
 
@@ -22,6 +23,7 @@ namespace graphic
 		bool Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistance, const Matrix44 &tm = Matrix44::Identity);
 		float Length() const;
 		Vector3 Center() const;
+		Vector3 Center2() const;
 		void Scale(const Vector3 &scale);
 		Vector3 GetDimension();
 

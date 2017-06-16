@@ -377,10 +377,16 @@ Vector3 cBoundingBox::Center() const
 	return ((m_max+m_min) /2.f) * m_tm;
 }
 
+// Ignore Tm
+Vector3 cBoundingBox::Center2() const
+{
+	return ((m_max + m_min) / 2.f);
+}
+
 
 void cBoundingBox::Scale(const Vector3 &scale)
 {
-	Vector3 center = Center();
+	Vector3 center = (m_max + m_min) / 2.f;
 	m_max -= center;
 	m_min -= center;
 

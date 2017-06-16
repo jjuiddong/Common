@@ -328,6 +328,9 @@
     <ClInclude Include="dbg\dbgquad2.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="collision\boundingbox2.h">
+      <Filter>collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -615,6 +618,9 @@
     </ClCompile>
     <ClCompile Include="dbg\dbgquad2.cpp">
       <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox2.cpp">
+      <Filter>collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

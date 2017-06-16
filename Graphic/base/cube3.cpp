@@ -151,6 +151,26 @@ void cCube3::InitCube(cRenderer &renderer
 }
 
 
+
+void cCube3::InitCube2(cRenderer &renderer, Vector3 vertices[8]
+	, const float uvFactor //= 1.f
+)
+{
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	//Vector3 vertices2[24] = {
+	//	vertices[0], vertices[1], vertices[2]
+	//	vertices[0], vertices[1], vertices[2]
+	//};
+	//InitCube3(renderer, vertices2, uvFactor);
+}
+
+
 void cCube3::InitCube2(cRenderer &renderer
 	, const float uvFactor //= 1.f
 )
@@ -166,14 +186,14 @@ void cCube3::InitCube2(cRenderer &renderer
 	//   2 --- 3
 	//
 	Vector3 vertices[24] = {
-		Vector3(-1.f, 1.f, -1.f),
-		Vector3(1.f, -1.f, -1.f),
-		Vector3(-1.f, -1.f, -1.f),
-		Vector3(1.f, 1.f, -1.f),
-		Vector3(-1.f, -1.f, -1.f),
-		Vector3(1.f, -1.f, 1.f),
-		Vector3(-1.f, -1.f, 1.f),
-		Vector3(1.f, -1.f, -1.f),
+		Vector3(-1.f, 1.f, -1.f),//0
+		Vector3(1.f, -1.f, -1.f),//3
+		Vector3(-1.f, -1.f, -1.f),//2
+		Vector3(1.f, 1.f, -1.f),//1
+		Vector3(-1.f, -1.f, -1.f),//2
+		Vector3(1.f, -1.f, 1.f),// 7
+		Vector3(-1.f, -1.f, 1.f),//6
+		Vector3(1.f, -1.f, -1.f),//3
 		Vector3(-1.f, -1.f, 1.f),
 		Vector3(1.f, 1.f, 1.f),
 		Vector3(-1.f, 1.f, 1.f),
@@ -191,6 +211,27 @@ void cCube3::InitCube2(cRenderer &renderer
 		Vector3(1.f, 1.f, 1.f),
 		Vector3(1.f, -1.f, -1.f),
 	};
+
+	InitCube3(renderer, vertices, uvFactor);
+}
+
+
+
+void cCube3::InitCube3(cRenderer &renderer
+	, Vector3 vertices[24]
+	, const float uvFactor //= 1.f
+)
+{
+	if (m_vtxBuff.GetVertexCount() > 0)
+		return;
+
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
 	Vector3 normals[24] = {
 		Vector3(0.f, 0.006981f, -0.999976f),
 		Vector3(0.f, 0.006981f, -0.999976f),
@@ -317,6 +358,19 @@ void cCube3::SetCube(const Vector3 &vMin, const Vector3 &vMax
 	m_tm = tm;
 	m_scale = scale;
 	m_pos = center;
+	m_min = vMin;
+	m_max = vMax;
+	m_uvFactor = uvFactor;
+}
+
+
+// Not Use Matrix44
+void cCube3::SetCube2(const Vector3 &vMin, const Vector3 &vMax
+	, const float uvFactor //= 1.f
+)
+{
+
+
 	m_min = vMin;
 	m_max = vMax;
 	m_uvFactor = uvFactor;

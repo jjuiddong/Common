@@ -23,6 +23,7 @@ static const string g_defaultTexture = "white.dds";
 #include "model/rawmesh.h"
 #include "model/rawani.h"
 #include "collision/boundingbox.h"
+#include "collision/boundingbox2.h"
 #include "collision/boundingsphere.h"
 
 #include "interface/pickable.h"
