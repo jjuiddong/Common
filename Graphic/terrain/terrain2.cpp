@@ -22,8 +22,10 @@ cTerrain2::~cTerrain2()
 bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 {
 	const Vector2 center = rect.Center();
+	//const Vector3 lightLookat = Vector3(center.x, 0, center.y);
+	//const Vector3 lightPos = Vector3(1, -1, 1).Normal() * -400.f + lightLookat;
 	const Vector3 lightLookat = Vector3(center.x, 0, center.y);
-	const Vector3 lightPos = Vector3(1, -1, 1).Normal() * -400.f + lightLookat;
+	const Vector3 lightPos = GetMainLight().GetDirection()	* -400.f + lightLookat;
 
 	const Vector3 p0 = lightPos;
 	const Vector3 p1 = (lightLookat - lightPos).Normal() * 3 + p0;

@@ -134,8 +134,8 @@ void cSurface3::Render(cRenderer &renderer, const int index) // index=1
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_NONE);
 	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	//const float scale = 128.0f;
-	const float scale = 256.f;
+	const float scale = 128.0f;
+	//const float scale = 256.f;
 	typedef struct { FLOAT p[4]; FLOAT tu, tv; } TVERTEX;
 
 	TVERTEX Vertex[4] = {

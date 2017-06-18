@@ -814,8 +814,8 @@ void cCamera::FitQuad(const Vector3 vertices[4])
 		center += vertices[i];
 	center /= 4.f;
 
-	//const float distFromCenter = 500;
-	const float distFromCenter = 50;
+	const float distFromCenter = 500;
+	//const float distFromCenter = 50;
 	const Vector3 pos = center - (GetDirection()*distFromCenter);
 	Matrix44 newView;
 	newView.SetView2(pos, center, Vector3(0, 1, 0));
@@ -833,7 +833,7 @@ void cCamera::FitQuad(const Vector3 vertices[4])
 	newProj.SetProjectionOrthogonal(
 		mm._min.x, mm._max.x,
 		mm._min.y, mm._max.y,
-		mm._min.z, mm._max.z);
+		mm._min.z-100, mm._max.z+100);
 
 	m_eyePos = pos;
 	m_lookAt = center;
