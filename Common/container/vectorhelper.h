@@ -42,6 +42,13 @@ namespace common
 			std::rotate(seq.rbegin(), seq.rbegin() + 1, seq.rend());
 	}
 
+	template <class Seq>
+	void rotateright2(Seq &seq, const unsigned int idx)
+	{
+		if (seq.size() > 1)
+			std::rotate(seq.begin()+idx, seq.end() - 1, seq.end());
+	}
+
 
 	template <class T>
 	void putvector(std::vector<T> &seq, size_t putIdx, const T &ty)

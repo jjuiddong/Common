@@ -29,6 +29,9 @@
     <ClInclude Include="control\object.h">
       <Filter>control</Filter>
     </ClInclude>
+    <ClInclude Include="path\pathfinder.h">
+      <Filter>path</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -37,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="control\aimain.cpp">
       <Filter>control</Filter>
+    </ClCompile>
+    <ClCompile Include="path\pathfinder.cpp">
+      <Filter>path</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +54,9 @@
     </Filter>
     <Filter Include="control">
       <UniqueIdentifier>{3ea91d00-f0eb-4336-bde9-1b6a00d82f7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="path">
+      <UniqueIdentifier>{71014204-69ef-4664-b2af-bfa365804b83}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
