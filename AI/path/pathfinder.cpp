@@ -37,7 +37,7 @@ bool cPathFinder::RemoveVertex(const int index)
 }
 
 
-int cPathFinder::GetNearestVertex(const Vector3 &pos)
+int cPathFinder::GetNearestVertex(const Vector3 &pos) const
 {
 	RETV(m_vertices.empty(), -1);
 
@@ -85,6 +85,8 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 	m_vertices[startIdx].startLen = 0;
 	m_vertices[startIdx].endLen = Distance(start, end);
 
+	int loopCount1 = 0; // debug, loop count
+	int loopCount2 = 0; // debug, insertion count
 	bool isFind = false;
 	while (!candidate.empty())
 	{
@@ -100,7 +102,7 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 			break;
 		}
 
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
 			if (curVtx.edge[i] < 0)
 				break;
@@ -112,7 +114,7 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 				continue;
 
 			nextVtx.check = true;
-			nextVtx.startLen = Distance(start, nextVtx.pos);
+			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos);
 			nextVtx.endLen = Distance(end, nextVtx.pos);
 
 			// sorting candidate
@@ -120,10 +122,14 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 			bool isInsert = false;
 			for (u_int k = 0; k < candidate.size(); ++k)
 			{
+				++loopCount1;
+
 				sVertex &compVtx = m_vertices[candidate[k]];
 				if ((compVtx.endLen + compVtx.startLen) 
 						> (nextVtx.endLen + nextVtx.startLen))
 				{
+					++loopCount2;
+
 					candidate.push_back(nextIdx);
 					common::rotateright2(candidate, k);
 					isInsert = true;
@@ -139,8 +145,10 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 	if (!isFind)
 		return false;
 
+	// tracking end point to start point
 	m_vertices[endIdx].reg = true;
 	out.push_back(end);
+	out.push_back(m_vertices[endIdx].pos);
 
 	int curIdx = endIdx;
 	while (curIdx != startIdx)
@@ -149,7 +157,7 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 
 		float minLen = FLT_MAX;
 		int minIdx = -1;
-		for (u_int i = 0; i < 4; ++i)
+		for (u_int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
 			if (curVtx.edge[i] < 0)
 				break;
@@ -163,8 +171,6 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 			{
 				minIdx = nextIdx;
 			}
-			//else if ((nextVtx.startLen+ nextVtx.endLen)
-			//	< (m_vertices[minIdx].startLen + m_vertices[minIdx].endLen))
 			else if ((nextVtx.startLen) < (m_vertices[minIdx].startLen))
 			{
 				minIdx = nextIdx;
@@ -186,7 +192,7 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 
 
 // Manhatan Distance
-float cPathFinder::Distance(const Vector3 &p0, const Vector3 &p1)
+float cPathFinder::Distance(const Vector3 &p0, const Vector3 &p1) const
 {
 	return abs(p0.x - p1.x) + abs(p0.y - p1.y) + abs(p0.z - p1.z);
 }

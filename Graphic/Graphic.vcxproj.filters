@@ -331,6 +331,9 @@
     <ClInclude Include="collision\boundingbox2.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbglinelist.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -621,6 +624,9 @@
     </ClCompile>
     <ClCompile Include="collision\boundingbox2.cpp">
       <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbglinelist.cpp">
+      <Filter>dbg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

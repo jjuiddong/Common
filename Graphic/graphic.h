@@ -84,6 +84,7 @@ static const string g_defaultTexture = "white.dds";
 #include "dbg/dbgbox2.h"
 #include "dbg/dbgsphere.h"
 #include "dbg/dbgline.h"
+#include "dbg/dbglinelist.h"
 #include "dbg/dbgarrow.h"
 #include "dbg/dbgfrustum.h"
 #include "dbg/dbgquad.h"

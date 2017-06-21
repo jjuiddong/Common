@@ -21,3 +21,4 @@ using namespace common;
 
 #include "action/move.h"
 
+#include "path\pathfinder.h"

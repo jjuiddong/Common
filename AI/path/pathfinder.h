@@ -10,8 +10,10 @@ namespace ai
 
 	struct sVertex
 	{
+		enum {MAX_EDGE = 5};
+
 		Vector3 pos;
-		int edge[4];
+		int edge[MAX_EDGE];
 		bool visit;
 		bool check;
 		bool reg;
@@ -29,11 +31,11 @@ namespace ai
 		bool RemoveVertex(const int index);
 		bool Find(const Vector3 &start, const Vector3 &end,
 			OUT vector<Vector3> &out);
-		int GetNearestVertex(const Vector3 &pos);
+		int GetNearestVertex(const Vector3 &pos) const;
 
 
 	protected:
-		float Distance(const Vector3 &p0, const Vector3 &p1);
+		float Distance(const Vector3 &p0, const Vector3 &p1) const;
 
 
 	public:
