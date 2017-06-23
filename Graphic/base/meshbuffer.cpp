@@ -284,6 +284,12 @@ void cMeshBuffer::Render(cRenderer &renderer
 }
 
 
+bool cMeshBuffer::IsLoaded()
+{
+	return m_vtxBuff.GetVertexCount() > 0;
+}
+
+
 void cMeshBuffer::Clear()
 {
 	m_attributes.clear();

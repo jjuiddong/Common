@@ -69,6 +69,7 @@ namespace graphic
 		cFilePath m_fileName;
 		bool m_isEnable; // if false, not show
 		bool m_isShow;
+		bool m_isShadowEnable;
 		bool m_isShadow; // shadow volume
 		bool m_isShadow2; // shadow map
 		int m_flags;

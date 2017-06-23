@@ -26,6 +26,7 @@ namespace graphic
 		const cBoundingBox& GetBoundingBox() const;
 		void SetOffset(const int offset);
 		int GetOffset() const;
+		bool IsLoaded();
 		void Clear();
 
 

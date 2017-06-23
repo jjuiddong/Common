@@ -19,6 +19,11 @@ namespace ai
 		bool reg;
 		float startLen;
 		float endLen;
+
+		sVertex() {
+			for (int i = 0; i < MAX_EDGE; ++i)
+				edge[i] = -1;
+		}
 	};
 
 	class cPathFinder

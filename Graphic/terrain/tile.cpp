@@ -6,7 +6,8 @@ using namespace graphic;
 
 
 cTile::cTile()
-	: m_isShadow(true)
+	: m_id(common::GenerateId())
+	, m_isShadow(true)
 	, m_isEnable(true)
 	, m_isShow(true)
 	, m_isDbgRender(false)
@@ -87,6 +88,9 @@ void cTile::Update(cRenderer &renderer, const float deltaSeconds)
 {
 	for (auto &p : m_models)
 		p->Update(renderer, deltaSeconds);
+
+	for (auto &p : m_children)
+		p->Update(renderer, deltaSeconds);
 }
 
 
@@ -116,6 +120,9 @@ void cTile::PreRender(cRenderer &renderer
 		if (p->m_isShow && p->m_isEnable)
   			p->RenderShader(renderer, transform);
 	}
+
+	for (auto &p : m_children)
+		p->PreRender(renderer, tm);
 }
 
 
@@ -137,8 +144,11 @@ void cTile::Render(cRenderer &renderer
 		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
 
-	if (m_isDbgRender)
-		m_dbgTile.Render(renderer, tm);
+	for (auto &p : m_children)
+		p->Render(renderer, tm);
+
+	//if (m_isDbgRender)
+	//	m_dbgTile.Render(renderer, tm);
 }
 
 
@@ -183,6 +193,9 @@ void cTile::Render( cRenderer &renderer
 	for (auto &p : m_models)
 		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
+
+	for (auto &p : m_children)
+		p->Render(renderer, mVPT, mLVP, shadowMap, tm);
 
 	if (m_isDbgRender)
 		m_dbgTile.Render(renderer, tm);
@@ -232,6 +245,9 @@ void cTile::Render2(cRenderer &renderer
 	for (auto &p : m_models)
 		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, tm);
+
+	for (auto &p : m_children)
+		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, tm);
 
 	if (m_isDbgRender)
 		m_dbgTile.Render(renderer, tm);
@@ -295,6 +311,18 @@ void cTile::Render2(cRenderer &renderer
 		if (p->m_isShow && p->m_isEnable)
 			p->RenderShader(renderer, transform);
 
+	for (auto &p : m_children)
+		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, shadowMapCount, tm);
+
+	//if (m_isDbgRender)
+	//	m_dbgTile.Render(renderer, tm);
+}
+
+
+void cTile::DebugRender(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
 	if (m_isDbgRender)
 		m_dbgTile.Render(renderer, tm);
 }
@@ -317,11 +345,10 @@ float cTile::CullingTest(const cFrustum &frustum
 					continue;
 
 				p->m_isShow = frustum.IsInSphere(p->m_boundingSphere, m_tm);
-				if (p->m_isShow)
+				if (p->m_isShow && p->m_isShadowEnable)
 				{
 					const Vector3 pos = p->m_boundingBox.Center() * p->m_tm;
-					//p->m_isShadow = pos.LengthRoughly(frustum.m_pos) < 100000;
-					p->m_isShadow = true;// pos.LengthRoughly(frustum.m_pos) < 100000000;
+					p->m_isShadow = true;
 				}
 			}
 		}
@@ -335,6 +362,9 @@ float cTile::CullingTest(const cFrustum &frustum
 	{
 		m_isShow = false;
 	}
+
+	for (auto &p : m_children)
+		p->CullingTest(frustum, isModel);
 
 	return frustum.m_pos.LengthRoughly(m_boundingBox.Center());
 }
@@ -376,13 +406,39 @@ bool cTile::RemoveModel(cModel2 *model)
 }
 
 
+bool cTile::AddChild(cTile *tile)
+{
+	// todo : check same id
+	m_children.push_back(tile);
+	return true;
+}
+
+
+bool cTile::RemoveChild(const int id)
+{
+	// todo : remove
+	return true;
+}
+
+
+cTile* cTile::FindChild(const int id)
+{
+	// todo : find
+	return NULL;
+}
+
+
 void cTile::LostDevice()
 {
+	for (auto &p : m_children)
+		p->LostDevice();
 }
 
 
 void cTile::ResetDevice(cRenderer &renderer)
 {
+	for (auto &p : m_children)
+		p->ResetDevice(renderer);
 }
 
 
@@ -391,4 +447,8 @@ void cTile::Clear()
 	for (auto &p : m_models)
 		delete p;
 	m_models.clear();
+
+	for (auto &p : m_children)
+		delete p;
+	m_children.clear();
 }

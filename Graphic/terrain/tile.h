@@ -48,27 +48,34 @@ namespace graphic
 			, cShadowMap *shadowMap=NULL, const int shadowMapCount=0
 			, const Matrix44 &tm = Matrix44::Identity);
 
+		virtual void DebugRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+
 		virtual float CullingTest(const cFrustum &frustum, const bool isModel = true);
 		virtual bool AddModel(cModel2 *model);
 		virtual bool RemoveModel(cModel2 *model);
 		virtual cModel2* FindModel(const int modelId);
+		virtual bool AddChild(cTile *tile);
+		virtual bool RemoveChild(const int id);
+		virtual cTile* FindChild(const int id);
 		virtual void LostDevice();
 		virtual void ResetDevice(cRenderer &renderer);
 		virtual void Clear();
 
 
 	public:
-		bool m_isEnable;
-		bool m_isShow;
-		bool m_isShadow;
-		bool m_isDbgRender;
+		int m_id;
 		string m_name;
 		cGrid3 m_ground;
 		Matrix44 m_tm;
 		cBoundingBox m_boundingBox;
 		vector<cModel2*> m_models;
 		set<cShader*> m_shaders;
-		
+		vector<cTile*> m_children;
+		bool m_isEnable;
+		bool m_isShow;
+		bool m_isShadow;
+		bool m_isDbgRender;
+	
 		cDbgBox2 m_dbgTile;
 	};
 
