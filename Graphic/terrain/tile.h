@@ -31,22 +31,24 @@ namespace graphic
 
 		virtual void Update(cRenderer &renderer, const float deltaSeconds);
 		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		virtual void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		
-		virtual void Render(cRenderer &renderer
-			, const Matrix44 &mVPT, const Matrix44 &mLVP
-			, cShadowMap *shadowMap = NULL
-			, const Matrix44 &tm = Matrix44::Identity);
 
-		virtual void Render2(cRenderer &renderer
-			, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
-			, cShadowMap *shadowMap = NULL
-			, const Matrix44 &tm = Matrix44::Identity);
+		//virtual void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		
+		//virtual void Render(cRenderer &renderer
+		//	, const Matrix44 &mVPT, const Matrix44 &mLVP
+		//	, cShadowMap *shadowMap = NULL
+		//	, const Matrix44 &tm = Matrix44::Identity);
+
+		//virtual void Render2(cRenderer &renderer
+		//	, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
+		//	, cShadowMap *shadowMap = NULL
+		//	, const Matrix44 &tm = Matrix44::Identity);
 
 		virtual void Render2(cRenderer &renderer
 			, const Matrix44 *mLightView, const Matrix44 *mLightProj, const Matrix44 *mLightTT
 			, cShadowMap *shadowMap=NULL, const int shadowMapCount=0
-			, const Matrix44 &tm = Matrix44::Identity);
+			, const Matrix44 &tm = Matrix44::Identity
+			, const int flags = 1);
 
 		virtual void DebugRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 

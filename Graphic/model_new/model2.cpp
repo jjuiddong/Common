@@ -18,6 +18,8 @@ cModel2::cModel2()
 	, m_isShadow(false)
 	, m_isShadow2(false)
 	, m_cullType(D3DCULL_CCW)
+	, m_isAlphablend(false)
+	, m_flags(1)
 {
 }
 

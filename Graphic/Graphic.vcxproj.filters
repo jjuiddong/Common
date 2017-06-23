@@ -334,6 +334,9 @@
     <ClInclude Include="dbg\dbglinelist.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="base\text3d2.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -627,6 +630,9 @@
     </ClCompile>
     <ClCompile Include="dbg\dbglinelist.cpp">
       <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d2.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

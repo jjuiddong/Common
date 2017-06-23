@@ -126,138 +126,136 @@ void cTile::PreRender(cRenderer &renderer
 }
 
 
-void cTile::Render(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
-)
-{
-	RET(!m_isEnable);
-	RET(!m_isShow);
-
-	m_ground.m_shader->SetTechnique("Scene_NoShadow");
-
-	m_ground.RenderShader(renderer, m_tm * tm);
-
-	for (auto &shader : m_shaders)
-		shader->SetTechnique("Scene_NoShadow");
-
-	for (auto &p : m_models)
-		if (p->m_isShow && p->m_isEnable)
-			p->RenderShader(renderer, tm);
-
-	for (auto &p : m_children)
-		p->Render(renderer, tm);
-
-	//if (m_isDbgRender)
-	//	m_dbgTile.Render(renderer, tm);
-}
+//void cTile::Render(cRenderer &renderer
+//	, const Matrix44 &tm //= Matrix44::Identity
+//)
+//{
+//	RET(!m_isEnable);
+//	RET(!m_isShow);
+//
+//	m_ground.m_shader->SetTechnique("Scene_NoShadow");
+//
+//	m_ground.RenderShader(renderer, m_tm * tm);
+//
+//	for (auto &shader : m_shaders)
+//		shader->SetTechnique("Scene_NoShadow");
+//
+//	for (auto &p : m_models)
+//		if (p->m_isShow && p->m_isEnable)
+//			p->RenderShader(renderer, tm);
+//
+//	for (auto &p : m_children)
+//		p->Render(renderer, tm);
+//}
 
 
-void cTile::Render( cRenderer &renderer
-	, const Matrix44 &mVPT, const Matrix44 &mLVP 
-	, cShadowMap *shadowMap //= NULL
-	, const Matrix44 &tm //= Matrix44::Identity
-)
-{
-	RET(!m_isEnable);
-	RET(!m_isShow);
+//void cTile::Render( cRenderer &renderer
+//	, const Matrix44 &mVPT, const Matrix44 &mLVP 
+//	, cShadowMap *shadowMap //= NULL
+//	, const Matrix44 &tm //= Matrix44::Identity
+//)
+//{
+//	RET(!m_isEnable);
+//	RET(!m_isShow);
+//
+//	if (m_isShadow && shadowMap)
+//	{
+//		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
+//		m_ground.m_shader->SetMatrix("g_mVPT", mVPT);
+//		m_ground.m_shader->SetMatrix("g_mLVP", mLVP);
+//		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
+//	}
+//	else
+//	{
+//		m_ground.m_shader->SetTechnique("Scene_NoShadow");
+//	}
+//
+//	m_ground.RenderShader(renderer, m_tm * tm);
+//
+//	for (auto &shader : m_shaders)
+//	{
+//		if (m_isShadow && shadowMap)
+//		{
+//			shader->SetTechnique("Scene_ShadowMap");
+//			shader->SetMatrix("g_mVPT", mVPT);
+//			shader->SetMatrix("g_mLVP", mLVP);
+//			shadowMap->Bind(*shader, "g_shadowMapTexture");
+//		}
+//		else
+//		{
+//			shader->SetTechnique("Scene_NoShadow");
+//		}
+//	}
+//
+//	for (auto &p : m_models)
+//		if (p->m_isShow && p->m_isEnable)
+//			p->RenderShader(renderer, tm);
+//
+//	for (auto &p : m_children)
+//		p->Render(renderer, mVPT, mLVP, shadowMap, tm);
+//
+//	if (m_isDbgRender)
+//		m_dbgTile.Render(renderer, tm);
+//}
 
-	if (m_isShadow && shadowMap)
-	{
-		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
-		m_ground.m_shader->SetMatrix("g_mVPT", mVPT);
-		m_ground.m_shader->SetMatrix("g_mLVP", mLVP);
-		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture");
-	}
-	else
-	{
-		m_ground.m_shader->SetTechnique("Scene_NoShadow");
-	}
 
-	m_ground.RenderShader(renderer, m_tm * tm);
-
-	for (auto &shader : m_shaders)
-	{
-		if (m_isShadow && shadowMap)
-		{
-			shader->SetTechnique("Scene_ShadowMap");
-			shader->SetMatrix("g_mVPT", mVPT);
-			shader->SetMatrix("g_mLVP", mLVP);
-			shadowMap->Bind(*shader, "g_shadowMapTexture");
-		}
-		else
-		{
-			shader->SetTechnique("Scene_NoShadow");
-		}
-	}
-
-	for (auto &p : m_models)
-		if (p->m_isShow && p->m_isEnable)
-			p->RenderShader(renderer, tm);
-
-	for (auto &p : m_children)
-		p->Render(renderer, mVPT, mLVP, shadowMap, tm);
-
-	if (m_isDbgRender)
-		m_dbgTile.Render(renderer, tm);
-}
-
-
-void cTile::Render2(cRenderer &renderer
-	, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
-	, cShadowMap *shadowMap //= NULL
-	, const Matrix44 &tm //= Matrix44::Identity
-)
-{
-	RET(!m_isEnable);
-	RET(!m_isShow);
-
-	if (m_isShadow && shadowMap)
-	{
-		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
-		m_ground.m_shader->SetMatrix("g_mLightView1", mLightView);
-		m_ground.m_shader->SetMatrix("g_mLightProj1", mLightProj);
-		m_ground.m_shader->SetMatrix("g_mLightTT1", mLightTT);
-		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture1");
-	}
-	else
-	{
-		m_ground.m_shader->SetTechnique("Scene_NoShadow");
-	}
-
-	m_ground.RenderShader(renderer, m_tm * tm);
-
-	for (auto &shader : m_shaders)
-	{
-		if (m_isShadow && shadowMap)
-		{
-			shader->SetTechnique("Scene_ShadowMap");
-			shader->SetMatrix("g_mLightView1", mLightView);
-			shader->SetMatrix("g_mLightProj1", mLightProj);
-			shader->SetMatrix("g_mLightTT1", mLightTT);
-			shadowMap->Bind(*shader, "g_shadowMapTexture1");
-		}
-		else
-		{
-			shader->SetTechnique("Scene_NoShadow");
-		}
-	}
-
-	for (auto &p : m_models)
-		if (p->m_isShow && p->m_isEnable)
-			p->RenderShader(renderer, tm);
-
-	for (auto &p : m_children)
-		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, tm);
-
-	if (m_isDbgRender)
-		m_dbgTile.Render(renderer, tm);
-}
+//void cTile::Render2(cRenderer &renderer
+//	, const Matrix44 &mLightView, const Matrix44 &mLightProj, const Matrix44 &mLightTT
+//	, cShadowMap *shadowMap //= NULL
+//	, const Matrix44 &tm //= Matrix44::Identity
+//)
+//{
+//	RET(!m_isEnable);
+//	RET(!m_isShow);
+//
+//	if (m_isShadow && shadowMap)
+//	{
+//		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
+//		m_ground.m_shader->SetMatrix("g_mLightView1", mLightView);
+//		m_ground.m_shader->SetMatrix("g_mLightProj1", mLightProj);
+//		m_ground.m_shader->SetMatrix("g_mLightTT1", mLightTT);
+//		shadowMap->Bind(*m_ground.m_shader, "g_shadowMapTexture1");
+//	}
+//	else
+//	{
+//		m_ground.m_shader->SetTechnique("Scene_NoShadow");
+//	}
+//
+//	m_ground.RenderShader(renderer, m_tm * tm);
+//
+//	for (auto &shader : m_shaders)
+//	{
+//		if (m_isShadow && shadowMap)
+//		{
+//			shader->SetTechnique("Scene_ShadowMap");
+//			shader->SetMatrix("g_mLightView1", mLightView);
+//			shader->SetMatrix("g_mLightProj1", mLightProj);
+//			shader->SetMatrix("g_mLightTT1", mLightTT);
+//			shadowMap->Bind(*shader, "g_shadowMapTexture1");
+//		}
+//		else
+//		{
+//			shader->SetTechnique("Scene_NoShadow");
+//		}
+//	}
+//
+//	for (auto &p : m_models)
+//		if (p->m_isShow && p->m_isEnable)
+//			p->RenderShader(renderer, tm);
+//
+//	for (auto &p : m_children)
+//		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, tm);
+//
+//	if (m_isDbgRender)
+//		m_dbgTile.Render(renderer, tm);
+//}
 
 
 void cTile::Render2(cRenderer &renderer
 	, const Matrix44 *mLightView, const Matrix44 *mLightProj, const Matrix44 *mLightTT,
 	cShadowMap *shadowMap, const int shadowMapCount
 	, const Matrix44 &tm //= Matrix44::Identity
+	, const int flags //= 1
 )
 {
 	RET(!m_isEnable);
@@ -308,14 +306,11 @@ void cTile::Render2(cRenderer &renderer
 	}
 
 	for (auto &p : m_models)
-		if (p->m_isShow && p->m_isEnable)
+		if (p->m_isShow && p->m_isEnable && (flags & p->m_flags))
 			p->RenderShader(renderer, transform);
 
 	for (auto &p : m_children)
-		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, shadowMapCount, tm);
-
-	//if (m_isDbgRender)
-	//	m_dbgTile.Render(renderer, tm);
+		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, shadowMapCount, tm, flags);
 }
 
 

@@ -376,6 +376,7 @@
     <ClInclude Include="base\surface3.h" />
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d.h" />
+    <ClInclude Include="base\text3d2.h" />
     <ClInclude Include="base\texture.h" />
     <ClInclude Include="base\texturecube.h" />
     <ClInclude Include="base\vertexbuffer.h" />
@@ -488,6 +489,7 @@
     <ClCompile Include="base\surface3.cpp" />
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d.cpp" />
+    <ClCompile Include="base\text3d2.cpp" />
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\texturecube.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />

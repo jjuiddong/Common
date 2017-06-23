@@ -28,7 +28,8 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 }
 
 
-void cBillboard::Rotate()
+void cBillboard::Rotate(const Vector3 &parentPos //= Vector3(0, 0, 0)
+)
 {
 	Matrix44 mat;
 
@@ -41,7 +42,7 @@ void cBillboard::Rotate()
 	{
 		// Y축 빌보드 행렬을 계산한다.
 		Matrix44 view;
-		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), Vector3(0, -1, 0));
+		view.SetView2(m_tm.GetPosition()+ parentPos, GetMainCamera()->GetEyePos(), Vector3(0, -1, 0));
 
 		mat._11 = view._11;
 		mat._13 = view._13;
@@ -54,7 +55,7 @@ void cBillboard::Rotate()
 	{
 		// 모든 축에서 빌보드 행렬을 계산한다.
 		Matrix44 view;
-		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), Vector3(0, 1, 0));
+		view.SetView2(m_tm.GetPosition()+ parentPos, GetMainCamera()->GetEyePos(), Vector3(0, 1, 0));
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
@@ -65,7 +66,7 @@ void cBillboard::Rotate()
 	{
 		// 모든 축에서 빌보드 행렬을 계산한다.
 		Matrix44 view;
-		view.SetView2(m_tm.GetPosition(), GetMainCamera()->GetEyePos(), GetMainCamera()->GetUpVector());
+		view.SetView2(m_tm.GetPosition()+ parentPos, GetMainCamera()->GetEyePos(), GetMainCamera()->GetUpVector());
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
@@ -80,15 +81,24 @@ void cBillboard::Rotate()
 
 
 // 화면에 출력.
-void cBillboard::Render(cRenderer &renderer)
+void cBillboard::Render(cRenderer &renderer
+	, const Vector3 &parentPos //= Vector3(0, 0, 0)
+)
 {
-	Rotate();
-	__super::Render(renderer);
+	Rotate(parentPos);
+	Matrix44 tm;
+	tm.SetPosition(parentPos);
+	__super::Render(renderer, tm);
 }
 
 
-void cBillboard::RenderFactor(cRenderer &renderer)
+void cBillboard::RenderFactor(cRenderer &renderer
+	, const Vector3 &parentPos //= Vector3(0, 0, 0)
+)
 {
-	Rotate();
-	__super::RenderFactor(renderer);
+	Rotate(parentPos);
+
+	Matrix44 tm;
+	tm.SetPosition(parentPos);
+	__super::RenderFactor(renderer, tm);
 }

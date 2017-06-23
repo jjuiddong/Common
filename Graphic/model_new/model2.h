@@ -72,7 +72,8 @@ namespace graphic
 		bool m_isShadowEnable;
 		bool m_isShadow; // shadow volume
 		bool m_isShadow2; // shadow map
-		int m_flags;
+		bool m_isAlphablend;
+		int m_flags; // default:1
 		D3DCULL m_cullType; // default : CCW
 		cColladaModel *m_colladaModel;
 		cXFileMesh *m_xModel;

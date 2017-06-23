@@ -73,7 +73,9 @@ void cText3d::FillTexture(const DWORD color)
 }
 
 
-void cText3d::Render(cRenderer &renderer)
+void cText3d::Render(cRenderer &renderer
+	, const Vector3 &parentPos //= Vector3(0, 0, 0)
+)
 {
 	// AlphaBlending
 	// src, dest inverse alpha
@@ -82,7 +84,7 @@ void cText3d::Render(cRenderer &renderer)
 	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
-	m_quad.RenderFactor(renderer);
+	m_quad.RenderFactor(renderer, parentPos);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	//renderer.SetCullMode(D3DCULL_CCW);
 }

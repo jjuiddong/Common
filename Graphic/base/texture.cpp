@@ -191,6 +191,7 @@ void cTexture::CopyFrom(IDirect3DTexture9 *src)
 
 bool cTexture::Lock(D3DLOCKED_RECT &out)
 {
+	out.pBits = NULL;
 	RETV(!m_texture, false);
 	m_texture->LockRect( 0, &out, NULL, 0 );
 	return true;

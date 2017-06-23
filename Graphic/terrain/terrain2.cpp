@@ -80,9 +80,20 @@ void cTerrain2::Render(cRenderer &renderer
 )
 {
 	UpdateShader(renderer);
+
 	for (auto &p : m_tiles)
 		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
-			, m_shadowMap, SHADOWMAP_COUNT, tm);
+			, m_shadowMap, SHADOWMAP_COUNT, tm, 0x1);
+
+	// Alphablending 1 (Camera)
+	for (auto &p : m_tiles)
+		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
+			, m_shadowMap, SHADOWMAP_COUNT, tm, 0x8);
+
+	// Alphablending 2 (Transparent Wall)
+	for (auto &p : m_tiles)
+		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
+			, m_shadowMap, SHADOWMAP_COUNT, tm, 0x4);
 
 	if (m_isShowDebug)
 	{

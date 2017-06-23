@@ -67,6 +67,7 @@ static const string g_defaultTexture = "white.dds";
 #include "base/billboard.h"
 #include "base/text.h"
 #include "base/text3d.h"
+#include "base/text3d2.h"
 
 #include "model/node.h"
 

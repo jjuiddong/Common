@@ -19,7 +19,7 @@ namespace graphic
 			const int width, const int height, const int textWidth=128, const int textHeight=64);
 		bool SetText(const Matrix44 &tm, const string &text, const DWORD color);
 		bool SetTextRect(const Matrix44 &tm, const string &text, const DWORD color, const sRecti &rect);
-		void Render(cRenderer &renderer);
+		void Render(cRenderer &renderer, const Vector3 &parentPos=Vector3(0,0,0));
 		void FillTexture(const DWORD color);
 
 
