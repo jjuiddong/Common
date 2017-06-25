@@ -31,6 +31,7 @@ static const string g_defaultTexture = "white.dds";
 #include "interface/shaderrenderer.h"
 #include "interface/shadowrenderer.h"
 
+#include "base/color.h"
 #include "base/fontgdi.h"
 #include "base/viewport.h"
 #include "base/material.h"
@@ -152,7 +153,7 @@ static const string g_defaultTexture = "white.dds";
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #ifdef _DEBUG
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
-	//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

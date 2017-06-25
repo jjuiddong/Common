@@ -337,6 +337,9 @@
     <ClInclude Include="base\text3d2.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\color.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -632,6 +635,9 @@
       <Filter>dbg</Filter>
     </ClCompile>
     <ClCompile Include="base\text3d2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\color.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

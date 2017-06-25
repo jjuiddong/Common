@@ -344,6 +344,7 @@
     <ClInclude Include="base\camera.h" />
     <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\circleline.h" />
+    <ClInclude Include="base\color.h" />
     <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\cube2.h" />
     <ClInclude Include="base\cube3.h" />
@@ -459,6 +460,7 @@
     <ClCompile Include="base\camera.cpp" />
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\circleline.cpp" />
+    <ClCompile Include="base\color.cpp" />
     <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\cube2.cpp" />
     <ClCompile Include="base\cube3.cpp" />

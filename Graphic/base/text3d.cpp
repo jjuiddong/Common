@@ -35,6 +35,7 @@ bool cText3d::SetText(const Matrix44 &tm, const string &text, const DWORD color)
 {
 	RETV(!m_font, false);
 
+	m_text = text;
 	m_quad.m_tm = tm;
 	m_color = color;
 	FillTexture(color);
@@ -49,9 +50,18 @@ bool cText3d::SetTextRect(const Matrix44 &tm, const string &text, const DWORD co
 	RETV(!m_font, false);
 
 	m_quad.m_tm = tm;
-	m_color = color;
-	FillTexture(color);
-	m_texture.DrawText(*m_font, text, rect, color);
+
+	if (m_color != color)
+	{
+		m_color = color;
+		FillTexture(color);
+	}
+
+	if (m_text != text)
+	{
+		m_texture.DrawText(*m_font, text, rect, color);
+		m_text = text;
+	}
 
 	return true;
 }

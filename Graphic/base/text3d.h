@@ -24,6 +24,7 @@ namespace graphic
 
 
 	public:
+		string m_text;
 		cFontGdi *m_font;
 		cTexture m_texture;
 		cBillboard m_quad;
