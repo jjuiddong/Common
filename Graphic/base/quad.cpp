@@ -71,6 +71,7 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 		m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName, isSizePow2);
 
 	m_tm.SetTranslate(pos);
+	//m_tm.pos = pos;
 
 	return true;
 }
@@ -104,7 +105,7 @@ void cQuad::Render(cRenderer &renderer, const Matrix44 &tm)
 void cQuad::RenderAlpha(cRenderer &renderer, const Matrix44 &tm)
 // tm = Matrix44::Identity
 {
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm * tm));
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm* tm));
 	m_material.Bind(renderer);
 	if (m_texture)
 		m_texture->Bind(renderer, 0);

@@ -27,8 +27,6 @@ namespace graphic
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		void RenderLine(cRenderer &renderer);
 
-		void SetTransform( const Matrix44 &tm );
-		const Matrix44& GetTransform() const;
 		cMaterial& GetMaterial();
 		cVertexBuffer& GetVertexBuffer();
 		cTexture* GetTexture();
@@ -44,7 +42,5 @@ namespace graphic
 
 	inline cMaterial& cQuad::GetMaterial() { return m_material; }
 	inline cVertexBuffer& cQuad::GetVertexBuffer() { return m_vtxBuff; }
-	inline void cQuad::SetTransform( const Matrix44 &tm ) { m_tm = tm; }
-	inline const Matrix44& cQuad::GetTransform() const { return m_tm; }
 	inline cTexture* cQuad::GetTexture() { return m_texture; }
 }

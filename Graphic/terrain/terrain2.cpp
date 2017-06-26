@@ -109,6 +109,36 @@ void cTerrain2::Render(cRenderer &renderer
 }
 
 
+void cTerrain2::RenderOption(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+	, const int option //= 0x1
+)
+{
+	for (auto &p : m_tiles)
+		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
+			, m_shadowMap, SHADOWMAP_COUNT, tm, option);
+}
+
+
+void cTerrain2::RenderDebug(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	if (m_isShowDebug)
+	{
+		for (int i = 0; i < SHADOWMAP_COUNT; ++i)
+		{
+			m_shadowMap[i].Render(renderer, i + 1);
+			//m_frustum[i].RenderShader(renderer);
+			//m_dbgLightFrustum[i].RenderShader(renderer);
+		}
+		m_dbgLight.Render(renderer);
+		m_dbgPlane.Render(renderer);
+	}
+}
+
+
+
 void cTerrain2::UpdateShader(cRenderer &renderer)
 {
 	RET(m_tiles.empty());

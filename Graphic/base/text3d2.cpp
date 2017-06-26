@@ -78,9 +78,7 @@ bool cText3d2::SetTextRect(cRenderer &renderer, const Matrix44 &tm, const string
 }
 
 
-void cText3d2::Render(cRenderer &renderer
-	, const Vector3 &parentPos //= Vector3(0, 0, 0)
-)
+void cText3d2::Render(cRenderer &renderer)
 {
 	// AlphaBlending
 	// src, dest inverse alpha
@@ -89,7 +87,7 @@ void cText3d2::Render(cRenderer &renderer
 	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
-	m_quad.Render(renderer, parentPos);
+	m_quad.Render(renderer);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	//renderer.SetCullMode(D3DCULL_CCW);
 }

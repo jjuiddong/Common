@@ -382,6 +382,7 @@
     <ClInclude Include="math\plane.h" />
     <ClInclude Include="math\quaternion.h" />
     <ClInclude Include="math\ray.h" />
+    <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\triangle.h" />
     <ClInclude Include="math\vectortype.h" />
     <ClInclude Include="math\vector2.h" />
@@ -416,6 +417,7 @@
     <ClCompile Include="math\plane.cpp" />
     <ClCompile Include="math\quaternion.cpp" />
     <ClCompile Include="math\ray.cpp" />
+    <ClCompile Include="math\transform.cpp" />
     <ClCompile Include="math\triangle.cpp" />
     <ClCompile Include="math\vectortype.cpp" />
     <ClCompile Include="math\vector2.cpp" />

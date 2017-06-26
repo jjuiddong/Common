@@ -27,8 +27,8 @@ using std::vector;
 #include "vector4.h"
 #include "matrix44.h"
 #include "quaternion.h"
+#include "transform.h"
 #include "triangle.h"
 #include "plane.h"
 #include "ray.h"
-
 #include "mathutility.h"

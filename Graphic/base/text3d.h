@@ -18,8 +18,12 @@ namespace graphic
 		bool Create(cRenderer &renderer, cFontGdi *font, const BILLBOARD_TYPE::TYPE type, 
 			const int width, const int height, const int textWidth=128, const int textHeight=64);
 		bool SetText(const Matrix44 &tm, const string &text, const DWORD color);
-		bool SetTextRect(const Matrix44 &tm, const string &text, const DWORD color, const sRecti &rect);
-		void Render(cRenderer &renderer, const Vector3 &parentPos=Vector3(0,0,0));
+		bool SetTextRect(
+			//const Matrix44 &tm
+			const Transform &tm
+			, const string &text, const DWORD color
+			, const BILLBOARD_TYPE::TYPE type, const sRecti &rect);
+		void Render(cRenderer &renderer);
 		void FillTexture(const DWORD color);
 
 

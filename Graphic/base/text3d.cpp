@@ -45,20 +45,22 @@ bool cText3d::SetText(const Matrix44 &tm, const string &text, const DWORD color)
 }
 
 
-bool cText3d::SetTextRect(const Matrix44 &tm, const string &text, const DWORD color, const sRecti &rect)
+bool cText3d::SetTextRect(
+	//const Matrix44 &tm
+	const Transform &tm
+	, const string &text, const DWORD color
+	, const BILLBOARD_TYPE::TYPE type
+	, const sRecti &rect)
 {
 	RETV(!m_font, false);
 
-	m_quad.m_tm = tm;
+	m_quad.m_type = type;
+	m_quad.m_transform = tm;
 
-	if (m_color != color)
+	if ((m_color != color) || (m_text != text))
 	{
 		m_color = color;
 		FillTexture(color);
-	}
-
-	if (m_text != text)
-	{
 		m_texture.DrawText(*m_font, text, rect, color);
 		m_text = text;
 	}
@@ -83,9 +85,7 @@ void cText3d::FillTexture(const DWORD color)
 }
 
 
-void cText3d::Render(cRenderer &renderer
-	, const Vector3 &parentPos //= Vector3(0, 0, 0)
-)
+void cText3d::Render(cRenderer &renderer)
 {
 	// AlphaBlending
 	// src, dest inverse alpha
@@ -94,7 +94,7 @@ void cText3d::Render(cRenderer &renderer
 	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
-	m_quad.RenderFactor(renderer, parentPos);
+	m_quad.RenderFactor(renderer);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	//renderer.SetCullMode(D3DCULL_CCW);
 }

@@ -21,6 +21,8 @@ namespace graphic
 		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity
 			, const int shadowMapIdx=0);
 		virtual void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		virtual void RenderOption(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int option=0x1);
+		virtual void RenderDebug(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		virtual void LostDevice();
 		virtual void ResetDevice(cRenderer &renderer);
 		virtual void Clear();
