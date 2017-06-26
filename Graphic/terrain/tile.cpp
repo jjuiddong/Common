@@ -41,11 +41,17 @@ bool cTile::Create(cRenderer &renderer
 	T.SetPosition(Vector3(rect.left+cellSize, 0, rect.top + cellSize));
 	m_tm = T;
 
-	m_boundingBox.SetBoundingBox(Vector3(rect.left, 0, rect.top)
-		, Vector3(rect.right, 20, rect.bottom));
+	//m_boundingBox.SetBoundingBox(Vector3(rect.left, 0, rect.top)
+	//	, Vector3(rect.right, 20, rect.bottom));
 
-	m_dbgTile.SetBox(renderer, Vector3(rect.left, 0, rect.top)
-		, Vector3(rect.right, 20, rect.bottom));
+	//m_dbgTile.SetBox(renderer, Vector3(rect.left, 0, rect.top)
+	//	, Vector3(rect.right, 20, rect.bottom));
+
+	m_boundingBox.SetBoundingBox(Vector3(-cellSize, 0, -cellSize)
+		, Vector3(cellSize, 20, cellSize));
+
+	m_dbgTile.SetBox(renderer, Vector3(-cellSize, 0, -cellSize)
+		, Vector3(cellSize, 20, cellSize));
 
 	return true;
 }
@@ -69,16 +75,13 @@ bool cTile::Create(cRenderer &renderer
 	m_ground.m_shader->SetFloat("g_uvFactor", uvFactor);
 	m_ground.m_mtrl.InitXFile();
 
-	//Matrix44 T;
-	//T.SetPosition(Vector3(rect.left + cellSize, 0, rect.top + cellSize));
-	//m_tm = T;
 	m_tm = tm;
 
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), dim);
-	m_boundingBox.m_tm *= tm;
+	//m_boundingBox.m_tm *= tm;
 
 	m_dbgTile.SetBox(renderer, Vector3(0, 0, 0), dim);
-	m_dbgTile.m_tm *= tm;
+	//m_dbgTile.m_tm *= tm;
 
 	return true;
 }
@@ -311,6 +314,9 @@ void cTile::Render2(cRenderer &renderer
 
 	for (auto &p : m_children)
 		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, shadowMapCount, tm, flags);
+
+	if (flags & 0x1)
+		DebugRender(renderer, transform);
 }
 
 
@@ -328,7 +334,9 @@ float cTile::CullingTest(const cFrustum &frustum
 	, const bool isModel //= true
 )
 {
-	if (frustum.IsInBox(m_boundingBox))
+	RETV(!m_isEnable, false);
+
+	if (frustum.IsInBox(m_boundingBox, m_tm))
 	{
 		m_isShow = true;
 
@@ -342,7 +350,7 @@ float cTile::CullingTest(const cFrustum &frustum
 				p->m_isShow = frustum.IsInSphere(p->m_boundingSphere, m_tm);
 				if (p->m_isShow && p->m_isShadowEnable)
 				{
-					const Vector3 pos = p->m_boundingBox.Center() * p->m_tm;
+					//const Vector3 pos = p->m_boundingBox.Center() * p->m_tm * m_tm;
 					p->m_isShadow = true;
 				}
 			}

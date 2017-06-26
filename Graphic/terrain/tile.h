@@ -69,7 +69,7 @@ namespace graphic
 		string m_name;
 		cGrid3 m_ground;
 		Matrix44 m_tm;
-		cBoundingBox m_boundingBox;
+		cBoundingBox m_boundingBox; // Local Space
 		vector<cModel2*> m_models;
 		set<cShader*> m_shaders;
 		vector<cTile*> m_children;

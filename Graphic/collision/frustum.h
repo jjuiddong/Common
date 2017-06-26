@@ -17,7 +17,7 @@ namespace graphic
 		bool IsIn( const Vector3 &point ) const;
 		bool IsInSphere( const Vector3 &point, float radius, const Matrix44 &tm = Matrix44::Identity ) const;
 		bool IsInSphere(const cBoundingSphere &sphere, const Matrix44 &tm = Matrix44::Identity) const;
-		bool IsInBox(const cBoundingBox &bbox) const;
+		bool IsInBox(const cBoundingBox &bbox, const Matrix44 &tm = Matrix44::Identity) const;
 		const Vector3& GetPos() const;
 		vector<Plane>& GetPlanes();
 		

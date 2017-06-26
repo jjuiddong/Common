@@ -155,7 +155,9 @@ bool cFrustum::IsInSphere(const cBoundingSphere &sphere
 }
 
 
-bool cFrustum::IsInBox(const cBoundingBox &bbox) const
+bool cFrustum::IsInBox(const cBoundingBox &bbox
+	, const Matrix44 &tm //= Matrix44::Identity
+) const
 {
 	//const Vector3 vertices[] = {
 	//	bbox.m_min
@@ -176,7 +178,7 @@ bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 
 	Vector3 size = bbox.m_max - bbox.m_min;
 	const float radius = size.Length() * 0.5f;
-	return IsInSphere(bbox.Center(), radius);
+	return IsInSphere(bbox.Center() * tm, radius);
 }
 
 

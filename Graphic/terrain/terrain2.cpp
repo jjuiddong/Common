@@ -292,7 +292,12 @@ void cTerrain2::SetDbgRendering(const bool isRender)
 	m_isShowDebug = isRender;
 
 	for (auto &p : m_tiles)
+	{
 		p->m_isDbgRender = isRender;
+
+		for (auto &ch : p->m_children)
+			ch->m_isDbgRender = isRender;
+	}
 }
 
 
