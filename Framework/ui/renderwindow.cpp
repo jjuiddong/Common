@@ -152,7 +152,8 @@ void cRenderWindow::Update(const float deltaSeconds)
 
 	// Maximize Window HotKey
 	// Win + Up Arrow
-	if ((GetAsyncKeyState(VK_LWIN) & 0x8000) && (GetAsyncKeyState(VK_UP) & 0x8000))
+	if (((GetAsyncKeyState(VK_LCONTROL) & 0x8000) || (GetAsyncKeyState(VK_LWIN) & 0x8000)) 
+		&& (GetAsyncKeyState(VK_UP) & 0x8000))
 	{
 		WINDOWPLACEMENT wndPl;
 		GetWindowPlacement(getSystemHandle(), &wndPl); // Toggle Maximize or Restore

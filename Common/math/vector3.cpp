@@ -156,6 +156,17 @@ Vector3 Vector3::MultiplyNormal( const Matrix44& rhs ) const
 }
 
 
+// no normalize
+Vector3 Vector3::MultiplyNormal2(const Matrix44& rhs) const
+{
+	Vector3 v;
+	v.x = x * rhs._11 + y * rhs._21 + z * rhs._31;
+	v.y = x * rhs._12 + y * rhs._22 + z * rhs._32;
+	v.z = x * rhs._13 + y * rhs._23 + z * rhs._33;
+	return v;
+}
+
+
 float Vector3::DotProduct( const Vector3& v ) const
 {
 	return x * v.x + y * v.y + z * v.z;
