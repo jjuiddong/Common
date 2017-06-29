@@ -32,11 +32,14 @@ namespace ai
 		cPathFinder();
 		virtual ~cPathFinder();
 		bool Create(const int vertexCount);
+		bool Read(const string &fileName);
+		bool Write(const string &fileName);
 		bool AddVertex(const sVertex &vtx);
 		bool RemoveVertex(const int index);
 		bool Find(const Vector3 &start, const Vector3 &end,
 			OUT vector<Vector3> &out);
 		int GetNearestVertex(const Vector3 &pos) const;
+		void Clear();
 
 
 	protected:
