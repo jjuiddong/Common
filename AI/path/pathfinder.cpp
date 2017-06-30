@@ -3,7 +3,6 @@
 #include "pathfinder.h"
 
 
-
 using namespace ai;
 
 
@@ -53,13 +52,31 @@ bool cPathFinder::Read(const string &fileName)
 		case 1:
 		{
 			ss >> token;
-			assert(!strcmp(token, "pos"));
-			ss >> vtx.pos.x >> vtx.pos.y >> vtx.pos.z;
+			assert(!strcmp(token, "type"));
+			ss >> vtx.type;
 			state = 2;
 		}
 		break;
 
 		case 2:
+		{
+			ss >> token;
+			assert(!strcmp(token, "pos"));
+			ss >> vtx.pos.x >> vtx.pos.y >> vtx.pos.z;
+			state = 3;
+		}
+		break;
+
+		case 3:
+		{
+			ss >> token;
+			assert(!strcmp(token, "dir"));
+			ss >> vtx.dir.x >> vtx.dir.y >> vtx.dir.z;
+			state = 4;
+		}
+		break;
+
+		case 4:
 		{
 			ss >> token;
 			assert(!strcmp(token, "edge"));
@@ -86,7 +103,9 @@ bool cPathFinder::Read(const string &fileName)
 
 // Write Format
 // Vertex
+// type 1
 //	pos 1 1 1
+//	dir 0 0 1
 //	edge 0 1 2
 bool cPathFinder::Write(const string &fileName)
 {
@@ -98,7 +117,9 @@ bool cPathFinder::Write(const string &fileName)
 	for (auto &v : m_vertices)
 	{
 		ofs << "Vertex" << endl;
+		ofs << "\ttype " << v.type << endl;
 		ofs << "\tpos " << v.pos.x << " " << v.pos.y << " " << v.pos.z << endl;
+		ofs << "\tdir " << v.dir.x << " " << v.dir.y << " " << v.dir.z << endl;
 		ofs << "\tedge ";
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
@@ -117,6 +138,68 @@ bool cPathFinder::AddVertex(const sVertex &vtx)
 {
 	m_vertices.push_back(vtx);
 	return true;
+}
+
+
+bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
+{
+	RETV(vtxIdx < 0, false);
+	RETV((int)m_vertices.size() <= vtxIdx, false);
+	RETV(vtxIdx == addEdgeIdx, false);
+
+	ai::sVertex &vtx = m_vertices[vtxIdx];
+
+	bool isAlreadyExist = false;
+	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	{
+		if (0 > vtx.edge[i])
+			break;
+
+		if (addEdgeIdx == vtx.edge[i])
+		{
+			isAlreadyExist = true;
+			break;
+		}
+	}
+
+	RETV(isAlreadyExist, false);
+
+	// push back
+	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	{
+		if (0 > vtx.edge[i])
+		{
+			vtx.edge[i] = addEdgeIdx;
+			return true;			
+		}
+	}
+
+	return false;
+}
+
+
+bool cPathFinder::RemoveEdge(const int vtxIdx, const int removeEdgeIdx)
+{
+	RETV(vtxIdx < 0, false);
+	RETV((int)m_vertices.size() <= vtxIdx, false);
+
+	ai::sVertex &vtx = m_vertices[vtxIdx];
+
+	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	{
+		if (0 > vtx.edge[i])
+			break;
+
+		if (removeEdgeIdx == vtx.edge[i])
+		{
+			for (int k = i; k < ai::sVertex::MAX_EDGE - 1; ++k)
+				vtx.edge[k] = vtx.edge[k + 1];
+			vtx.edge[ai::sVertex::MAX_EDGE - 1] = -1;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

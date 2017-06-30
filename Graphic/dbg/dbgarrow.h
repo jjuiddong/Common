@@ -20,7 +20,8 @@ namespace graphic
 
 
 	public:
-		cDbgSphere m_head;
+		//cDbgSphere m_head;
+		cPyramid m_head;
 		cDbgLine m_body;
 	};
 

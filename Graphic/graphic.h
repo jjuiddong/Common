@@ -47,6 +47,7 @@ static const string g_defaultTexture = "white.dds";
 #include "base/grid2.h"
 #include "base/grid3.h"
 #include "base/box.h"
+#include "base/pyramid.h"
 #include "base/line.h"
 #include "base/line2.h"
 #include "base/line3.h"

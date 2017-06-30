@@ -1,7 +1,7 @@
 //
 // 2017-05-13, jjuiddong
 // Debug Box 
-//		- Vertext + Diffuse 로 표현된다.
+//		- Vertex = Position + Diffuse 로 표현된다.
 //		- Triangle Render
 //
 #pragma once
