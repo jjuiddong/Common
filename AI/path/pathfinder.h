@@ -12,9 +12,8 @@ namespace ai
 	{
 		enum {MAX_EDGE = 5};
 
-		int type;
+		int type; //0:path point, 1:destination1, 2:destination2
 		Vector3 pos;
-		Vector3 dir;
 		int edge[MAX_EDGE];
 		bool visit;
 		bool check;
@@ -22,7 +21,8 @@ namespace ai
 		float startLen;
 		float endLen;
 
-		sVertex():type(0), dir(1,0,0) {
+		sVertex():type(0)
+		{
 			for (int i = 0; i < MAX_EDGE; ++i)
 				edge[i] = -1;
 		}
@@ -39,6 +39,7 @@ namespace ai
 		bool AddVertex(const sVertex &vtx);
 		bool AddEdge(const int vtxIdx, const int addEdgeIdx);
 		bool RemoveEdge(const int vtxIdx, const int removeEdgeIdx);
+		bool RemoveEdgeEachOther(const int vtxIdx, const int removeEdgeIdx);
 		bool RemoveVertex(const int index);
 		bool Find(const Vector3 &start, const Vector3 &end,
 			OUT vector<Vector3> &out);

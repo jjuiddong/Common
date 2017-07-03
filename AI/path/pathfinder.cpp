@@ -71,7 +71,7 @@ bool cPathFinder::Read(const string &fileName)
 		{
 			ss >> token;
 			assert(!strcmp(token, "dir"));
-			ss >> vtx.dir.x >> vtx.dir.y >> vtx.dir.z;
+			//ss >> vtx.dir.x >> vtx.dir.y >> vtx.dir.z;
 			state = 4;
 		}
 		break;
@@ -119,7 +119,8 @@ bool cPathFinder::Write(const string &fileName)
 		ofs << "Vertex" << endl;
 		ofs << "\ttype " << v.type << endl;
 		ofs << "\tpos " << v.pos.x << " " << v.pos.y << " " << v.pos.z << endl;
-		ofs << "\tdir " << v.dir.x << " " << v.dir.y << " " << v.dir.z << endl;
+		//ofs << "\tdir " << v.dir.x << " " << v.dir.y << " " << v.dir.z << endl;
+		ofs << "\tdir " << 0 << " " << 0 << " " << 0 << endl;
 		ofs << "\tedge ";
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
@@ -178,6 +179,17 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 }
 
 
+
+// remove edge vtxIdx <-> removeEdgeIdx
+bool cPathFinder::RemoveEdgeEachOther(const int vtxIdx, const int removeEdgeIdx)
+{
+	RemoveEdge(vtxIdx, removeEdgeIdx);
+	RemoveEdge(removeEdgeIdx, vtxIdx);
+	return true;
+}
+
+
+// remove edge vtxIdx -> removeEdgeIdx
 bool cPathFinder::RemoveEdge(const int vtxIdx, const int removeEdgeIdx)
 {
 	RETV(vtxIdx < 0, false);

@@ -17,6 +17,7 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const int maxLines, const DWORD color=0);
 		bool AddLine(const Vector3 &p0, const Vector3 &p1);
+		bool AddNextPoint(const Vector3 &p0);
 		void SetColor(const DWORD color);
 		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		void ClearLines();

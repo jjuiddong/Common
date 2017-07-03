@@ -21,6 +21,7 @@ bool cDbgLineList::Create(cRenderer &renderer, const int maxLines
 	, const DWORD color //= 0
 )
 {
+	m_color = color;
 	m_lineCount = 0;
 	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
 
@@ -40,6 +41,35 @@ bool cDbgLineList::AddLine(const Vector3 &p0, const Vector3 &p1)
 		p[m_lineCount+1].p = p1;
 		p[m_lineCount+1].c = m_color;
 		
+		m_lineCount += 2;
+		m_vtxBuff.Unlock();
+	}
+
+	return true;
+}
+
+
+bool cDbgLineList::AddNextPoint(const Vector3 &p0)
+{
+	if (m_vtxBuff.GetVertexCount() <= (m_lineCount + 1))
+		return false; // full buffer
+
+	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock())
+	{
+		if (m_lineCount <= 0)
+		{
+			p[0].p = p0;
+			p[0].c = m_color;
+		}
+		else
+		{
+			p[m_lineCount].p = p[m_lineCount-1].p;
+			p[m_lineCount].c = m_color;
+		}
+
+		p[m_lineCount + 1].p = p0;
+		p[m_lineCount + 1].c = m_color;
+
 		m_lineCount += 2;
 		m_vtxBuff.Unlock();
 	}
