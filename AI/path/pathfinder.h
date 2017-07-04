@@ -16,8 +16,6 @@ namespace ai
 		Vector3 pos;
 		int edge[MAX_EDGE];
 		bool visit;
-		bool check;
-		bool reg;
 		float startLen;
 		float endLen;
 

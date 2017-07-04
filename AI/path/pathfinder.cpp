@@ -283,15 +283,13 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 	for (auto &vtx : m_vertices)
 	{
 		vtx.visit = false;
-		vtx.check = false;
-		vtx.reg = false;
 	}
 
+	map<int, int> parents; // child id, parent id
 	vector<int> candidate;
 	candidate.reserve(m_vertices.size());
 	candidate.push_back(startIdx);
 	m_vertices[startIdx].visit = true;
-	m_vertices[startIdx].check = true;
 	m_vertices[startIdx].startLen = 0;
 	m_vertices[startIdx].endLen = Distance(start, end);
 
@@ -320,12 +318,12 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 			const int nextIdx = curVtx.edge[i];
 			sVertex &nextVtx = m_vertices[nextIdx];
 
-			if (nextVtx.visit || nextVtx.check)
+			if (nextVtx.visit)
 				continue;
 
-			nextVtx.check = true;
 			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos);
 			nextVtx.endLen = Distance(end, nextVtx.pos);
+			parents[nextIdx] = curIdx;
 
 			// sorting candidate
 			// value = minimum( startLen + endLen )
@@ -356,43 +354,18 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 		return false;
 
 	// tracking end point to start point
-	m_vertices[endIdx].reg = true;
 	out.push_back(end);
 	out.push_back(m_vertices[endIdx].pos);
 
 	int curIdx = endIdx;
 	while (curIdx != startIdx)
 	{
-		sVertex &curVtx = m_vertices[curIdx];
-
-		float minLen = FLT_MAX;
-		int minIdx = -1;
-		for (u_int i = 0; i < sVertex::MAX_EDGE; ++i)
-		{
-			if (curVtx.edge[i] < 0)
-				break;
-
-			const int nextIdx = curVtx.edge[i];
-			sVertex &nextVtx = m_vertices[nextIdx];
-			if (!nextVtx.visit || !nextVtx.check || nextVtx.reg)
-				continue;
-
-			if (minIdx < 0)
-			{
-				minIdx = nextIdx;
-			}
-			else if ((nextVtx.startLen) < (m_vertices[minIdx].startLen))
-			{
-				minIdx = nextIdx;
-			}
-		}
-
-		if (minIdx < 0)
+		auto it = parents.find(curIdx);
+		if (parents.end() == it)
 			break; // error occur
-
-		m_vertices[minIdx].reg = true;
-		out.push_back(m_vertices[minIdx].pos);
-		curIdx = minIdx;
+		const int parentIdx = it->second;
+		out.push_back(m_vertices[parentIdx].pos);
+		curIdx = parentIdx;
 	}
 
 	std::reverse(out.begin(), out.end());
