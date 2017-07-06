@@ -7,6 +7,7 @@ using namespace graphic;
 
 cSurface3::cSurface3()
 	: m_texture(NULL)
+	, m_pDSShadow(NULL)
 	, m_mipLevels(0)
 	, m_autoGenMips(0)
 	, m_oldRt(NULL)
@@ -33,6 +34,8 @@ bool cSurface3::Create(cRenderer &renderer,
 	, const D3DMULTISAMPLE_TYPE sampleType // D3DMULTISAMPLE_NONE
 )
 {
+	Clear();
+
 	m_mipLevels = mipLevels;
 	m_texFormat = texFormat;
 	m_useDepthBuffer = useDepthBuffer;

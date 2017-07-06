@@ -596,9 +596,14 @@ void cCamera::MoveFrontHorizontal(const float len)
 
 void cCamera::Move(const cBoundingBox &bbox)
 {
-	Vector3 dir = (bbox.m_min - bbox.Center()) * 5.f;
-	Vector3 pos = dir + bbox.m_min;
-	pos.y = bbox.m_max.y;
+	//const Vector3 dir = (bbox.m_min - bbox.Center()) * 2.f;
+	//Vector3 pos = dir + bbox.m_min;
+	//pos.y = bbox.m_max.y * 1.5f;
+
+	const Vector3 dim = bbox.GetDimension();
+	const float m = max(dim.x, max(dim.y, dim.z)) * 1.5f;
+	Vector3 pos(-m, m, -m);
+
 	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
 }
 

@@ -93,6 +93,7 @@ void cGrid::Render(cRenderer &renderer)
 void cGrid::RenderLinelist(cRenderer &renderer)
 {
 	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+	renderer.GetDevice()->SetTexture(0, NULL);
 
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);

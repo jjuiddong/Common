@@ -25,7 +25,7 @@ namespace graphic
 		Vector3 Center() const;
 		Vector3 Center2() const;
 		void Scale(const Vector3 &scale);
-		Vector3 GetDimension();
+		Vector3 GetDimension() const;
 
 		cBoundingBox& operator=(const cCube &cube);
 

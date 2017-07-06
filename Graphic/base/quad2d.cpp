@@ -42,9 +42,10 @@ void cQuad2D::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_texture);
+
 	m_material.Bind(renderer);
-	if (m_texture)
-		m_texture->Bind(renderer, 0);
+	m_texture->Bind(renderer, 0);
 
 	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
@@ -56,6 +57,8 @@ void cQuad2D::Render(cRenderer &renderer
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 	m_vtxBuff.RenderTriangleStrip(renderer);
+
+	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 }
 
 

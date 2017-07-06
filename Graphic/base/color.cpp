@@ -10,6 +10,29 @@ cColor::cColor()
 {
 }
 
+cColor::cColor(const float r, const float g, const float b
+	, const float a //= 1.f
+)
+{
+	SetColor(r, g, b, a);
+}
+
+cColor::cColor(const BYTE r, const BYTE g, const BYTE b
+	, const BYTE a //= 255
+)
+{
+	SetColor(r, g, b, a);
+}
+
+cColor::cColor(const Vector3 &color)
+{
+	SetColor(color);
+}
+cColor::cColor(const Vector4 &color)
+{
+	SetColor(color);
+}
+
 cColor::~cColor()
 {
 }
@@ -46,3 +69,8 @@ void cColor::SetColor(const Vector4 &color)
 	SetColor(color.x, color.y, color.z, color.w);
 }
 
+
+cColor::operator DWORD ()
+{
+	return m_color;
+}

@@ -319,8 +319,8 @@ void cTile::Render2(cRenderer &renderer
 	for (auto &p : m_children)
 		p->Render2(renderer, mLightView, mLightProj, mLightTT, shadowMap, shadowMapCount, tm, flags);
 
-	if (flags & 0x1)
-		DebugRender(renderer, transform);
+	if ((flags & 0x1) && m_isDbgRender)
+		DebugRender(renderer);
 }
 
 
@@ -328,8 +328,7 @@ void cTile::DebugRender(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	if (m_isDbgRender)
-		m_dbgTile.Render(renderer, tm);
+	m_dbgTile.Render(renderer, m_tm * tm);
 }
 
 

@@ -332,3 +332,11 @@ void cModel2::CalcBoundingSphere()
 	m_boundingSphere.Set(m_boundingBox, m_tm);
 }
 
+
+void cModel2::UpdateShader(cRenderer &renderer)
+{
+	RET(!m_shader);
+
+	GetMainCamera()->Bind(*m_shader);
+	GetMainLight().Bind(*m_shader);
+}

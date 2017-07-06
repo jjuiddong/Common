@@ -401,7 +401,7 @@ void cBoundingBox::Scale(const Vector3 &scale)
 
 
 // return x,y,z dimension
-Vector3 cBoundingBox::GetDimension()
+Vector3 cBoundingBox::GetDimension() const 
 {
 	return Vector3(
 		abs(m_min.x - m_max.x)

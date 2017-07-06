@@ -35,11 +35,12 @@ namespace graphic
 		virtual void SetShadowShader(cShader *shader) override;
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
 		virtual void LostDevice() {}
-		virtual void ResetDevice(graphic::cRenderer &renderer) {}
+		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
 		void SetAnimation(const string &animationName, const bool isMerge = false);
 		bool IsLoadFinish();
 		void CalcBoundingSphere();
+		void UpdateShader(cRenderer &renderer);
 
 
 	protected:
