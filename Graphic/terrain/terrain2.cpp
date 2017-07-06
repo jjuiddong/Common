@@ -184,9 +184,6 @@ void cTerrain2::CullingTest(
 
 	Matrix44 view, proj, tt;
 	m_lightCam[shadowMapIdx].GetShadowMatrix(view, proj, tt);
-	//m_VPT = view * proj * tt;
-	//m_LVP = view * proj;
-	//m_LV = view;
 	m_lightView[ shadowMapIdx] = view;
 	m_lightProj[ shadowMapIdx] = proj;
 	m_lightTT[ shadowMapIdx] = tt;
@@ -217,9 +214,6 @@ void cTerrain2::CullingTest(cRenderer &renderer
 
 	Matrix44 view, proj, tt;
 	m_lightCam[shadowMapIdx].GetShadowMatrix(view, proj, tt);
-	//m_VPT = view * proj * tt;
-	//m_LVP = view * proj;
-	//m_LV = view;
 	m_lightView[ shadowMapIdx] = view;
 	m_lightProj[ shadowMapIdx] = proj;
 	m_lightTT[ shadowMapIdx] = tt;
@@ -253,6 +247,7 @@ bool cTerrain2::AddTile(cTile *tile)
 
 	m_tiles.push_back(tile);
 	m_tilemap[tile->m_name] = tile;
+	m_tilemap2[tile->m_id] = tile;
 	return true;
 }
 
@@ -261,6 +256,15 @@ cTile* cTerrain2::FindTile(const string &name)
 {
 	auto it = m_tilemap.find(name);
 	if (it == m_tilemap.end())
+		return NULL;
+	return it->second;
+}
+
+
+cTile* cTerrain2::FindTile(const int id)
+{
+	auto it = m_tilemap2.find(id);
+	if (it == m_tilemap2.end())
 		return NULL;
 	return it->second;
 }
@@ -283,6 +287,7 @@ bool cTerrain2::RemoveTile(cTile *tile)
 
 	common::popvector2(m_tiles, tile);
 	m_tilemap.erase(tile->m_name);
+	m_tilemap2.erase(tile->m_id);
 	return true;
 }
 
@@ -331,4 +336,7 @@ void cTerrain2::Clear()
 	for (auto &p : m_tiles)
 		delete p;
 	m_tiles.clear();
+
+	m_tilemap.clear();
+	m_tilemap2.clear();
 }

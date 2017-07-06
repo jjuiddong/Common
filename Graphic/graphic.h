@@ -66,6 +66,7 @@ static const string g_defaultTexture = "white.dds";
 #include "base/circle.h"
 #include "base/circleline.h"
 #include "base/quad.h"
+#include "base/quad2d.h"
 #include "base/billboard.h"
 #include "base/text.h"
 #include "base/text3d.h"

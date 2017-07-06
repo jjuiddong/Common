@@ -266,6 +266,18 @@ void cTexture::DrawText(cFontGdi &font, const string &text, const sRecti &rect, 
 }
 
 
+int cTexture::Width()
+{
+	return m_imageInfo.Width;
+}
+
+
+int cTexture::Height()
+{
+	return m_imageInfo.Height;
+}
+
+
 void cTexture::LostDevice()
 {
 	RET(!m_texture);

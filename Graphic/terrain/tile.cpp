@@ -21,6 +21,7 @@ cTile::~cTile()
 
 
 bool cTile::Create(cRenderer &renderer
+	, const int id
 	, const string &name
 	, const sRectf &rect
 	, const float y //=0
@@ -29,6 +30,7 @@ bool cTile::Create(cRenderer &renderer
 	, const Vector2 &uv1 //= Vector2(1, 1)
 )
 {
+	m_id = id;
 	m_name = name;
 
 	const float cellSize = rect.Width() / 2.f;
@@ -58,6 +60,7 @@ bool cTile::Create(cRenderer &renderer
 
 
 bool cTile::Create(cRenderer &renderer
+	, const int id
 	, const string &name
 	, const Vector3 &dim
 	, const Matrix44 &tm
@@ -67,6 +70,7 @@ bool cTile::Create(cRenderer &renderer
 	, const Vector2 &uv1 //= Vector2(1, 1)
 )
 {
+	m_id = id;
 	m_name = name;
 
 	const float cellSize = dim.x / 2.f;

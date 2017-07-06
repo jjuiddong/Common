@@ -30,6 +30,8 @@ namespace graphic
 		void TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color);
 		void DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color);
 		bool IsLoaded();
+		int Width();
+		int Height();
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();

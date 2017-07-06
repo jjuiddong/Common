@@ -19,16 +19,10 @@ cSkyBox::~cSkyBox()
 //				skybox_left, skybox_right, skybox_bottom.jpg 파일이 있어야 한다.
 bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 {
-	string textureFileName[] = 
+	char *textureFileName2[] = 
 	{
 		//"skybox_front.jpg", "skybox_back.jpg", "skybox_left.jpg", 
 		//"skybox_right.jpg", "skybox_top.jpg", "skybox_bottom.jpg"
-		//"ThickCloudsWaterFront2048.png", 
-		//"ThickCloudsWaterBack2048.png",
-		//"ThickCloudsWaterRight2048.png",
-		//"ThickCloudsWaterLeft2048.png",
-		//"ThickCloudsWaterUp2048.png",
-		//"ThickCloudsWaterDown2048.png",
 		//"blueclear2_front.png", 
 		//"blueclear2_back.png",
 		//"blueclear2_left.png",
@@ -44,12 +38,34 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 		"cloud161_bottom.dds",
 	};
 
-	for (int i=0; i < MAX_FACE; ++i)
+	return Create(renderer, textureFilePath, textureFileName2);
+}
+
+
+bool cSkyBox::Create2(cRenderer &renderer, const string &textureFilePath)
+{	
+	char *textureFileName1[] =
 	{
-		const string fileName = textureFilePath + "/" + textureFileName[ i];
-		//m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, fileName);
+		"ThickCloudsWaterFront2048.png", 
+		"ThickCloudsWaterBack2048.png",
+		"ThickCloudsWaterRight2048.png",
+		"ThickCloudsWaterLeft2048.png",
+		"ThickCloudsWaterUp2048.png",
+		"ThickCloudsWaterDown2048.png",
+	};
+	return Create(renderer, textureFilePath, textureFileName1);
+}
+
+
+bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath,
+	char *skyboxTextureNames[6])
+{
+	for (int i = 0; i < MAX_FACE; ++i)
+	{
+		const string fileName = textureFilePath + "/" + skyboxTextureNames[i];
 		m_textures[i] = cResourceManager::Get()->LoadTextureParallel(renderer, fileName);
-		cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE, fileName, (void**)&m_textures[i]) );
+		cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
+			, fileName, (void**)&m_textures[i]));
 	}
 
 	if (!CreateVertexBuffer(renderer))

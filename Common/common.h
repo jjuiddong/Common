@@ -87,6 +87,7 @@ using std::wstringstream;
 #include "container/vectorhelper.h"
 #include "container/shmmap.h"
 #include "container/vectormap.h"
+#include "container/simplestring.h"
 #include "math/Math.h"
 #include "etc/singleton.h"
 #include "etc/filepath.h"

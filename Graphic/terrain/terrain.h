@@ -72,7 +72,7 @@ namespace graphic
 
 
 		//-----------------------------------------------------------------------------
-		// Terrain Infomation
+		// Terrain Information
 		int GetRowCellCount() const;
 		int GetColCellCount() const;
 		float GetCellSize() const;

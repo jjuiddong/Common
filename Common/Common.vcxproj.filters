@@ -130,6 +130,9 @@
     <ClInclude Include="math\transform.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="container\simplestring.h">
+      <Filter>container</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

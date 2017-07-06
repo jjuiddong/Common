@@ -36,6 +36,7 @@ namespace graphic
 
 		bool AddTile(cTile *model);
 		cTile* FindTile(const string &name);
+		cTile* FindTile(const int id);
 		cModel2* FindModel(const int modelId);
 		bool RemoveTile(cTile *model);
 		void SetDbgRendering(const bool isRender);
@@ -46,6 +47,7 @@ namespace graphic
 		bool m_isShadow;
 		vector<cTile*> m_tiles;
 		map<string, cTile*> m_tilemap; // reference
+		map<int, cTile*> m_tilemap2; // reference
 
 		// ShadowMap
 		enum { SHADOWMAP_COUNT=3 };
@@ -55,10 +57,6 @@ namespace graphic
 		Matrix44 m_lightProj[ SHADOWMAP_COUNT];
 		Matrix44 m_lightTT[ SHADOWMAP_COUNT];
 		cShadowMap m_shadowMap[ SHADOWMAP_COUNT];
-
-		//Matrix44 m_VPT; // ShadowMap Transform, = light view x light proj x uv transform
-		//Matrix44 m_LVP; // ShadowMap Transform, Light View Projection, = light view x light proj
-		//Matrix44 m_LV; // ShadowMap Transform, Light View Projection, = light view
 
 		// Debug Display
 		bool m_isShowDebug;

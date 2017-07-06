@@ -15,6 +15,7 @@ namespace graphic
 		virtual ~cTile();
 
 		virtual bool Create(cRenderer &renderer
+			, const int id
 			, const string &name
 			, const sRectf &rect
 			, const float y=0, const float uvFactor=1.f
@@ -22,6 +23,7 @@ namespace graphic
 			);
 
 		virtual bool Create(cRenderer &renderer
+			, const int id
 			, const string &name
 			, const Vector3 &dim
 			, const Matrix44 &tm

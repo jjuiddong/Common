@@ -343,6 +343,9 @@
     <ClInclude Include="base\pyramid.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\quad2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -644,6 +647,9 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\pyramid.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad2d.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
