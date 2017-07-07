@@ -16,20 +16,20 @@ namespace graphic
 		cShader();
 		virtual ~cShader();
 
-		bool Create(cRenderer &renderer, const string &fileName, 
-			const string &technique, const bool showMsgBox = true );
+		bool Create(cRenderer &renderer, const StrPath &fileName,
+			const Str32 &technique, const bool showMsgBox = true );
 		bool Reload(cRenderer &renderer);
 		int Begin();
 		void BeginPass(int pass=-1);
 		void EndPass();
 		void End();
-		void SetTechnique(const string &technique);
+		void SetTechnique(const Str32 &technique);
 
 		void SetBool(const string &key, const bool val);
 		void SetInt(const string &key, const int val );
 		void SetMatrix(const string &key, const Matrix44 &mat);
 		void SetTexture(const string &key, cTexture &texture);
-		void SetCubeTexture(const string &key, cCubeTexture &texture);
+		void SetCubeTexture(const Str32 &key, cCubeTexture &texture);
 		void SetTexture(const string &key, IDirect3DTexture9 *texture);
 		void SetTexture(const string &key, IDirect3DCubeTexture9 *texture);
 		void SetFloat(const string &key, float val);
@@ -56,7 +56,7 @@ namespace graphic
 		void SetRenderPass(int pass);
 		int GetRenderPass() const;
 		D3DXHANDLE GetValueHandle(const string &key);
-		const string& GetFileName() const;
+		const StrPath& GetFileName() const;
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
@@ -66,8 +66,8 @@ namespace graphic
 		ID3DXEffect *m_effect;
 		D3DXHANDLE m_hTechnique;
 		int m_renderPass; // default = 0;
-		string m_fileName;
-		string m_technique;
+		StrPath m_fileName;
+		Str32 m_technique;
 		bool m_isShowMsgBox;
 
 
@@ -97,5 +97,5 @@ namespace graphic
 
 	inline void cShader::SetRenderPass(int pass) { m_renderPass = pass; }
 	inline int cShader::GetRenderPass() const { return m_renderPass; }
-	inline const string& cShader::GetFileName() const { return m_fileName; }
+	inline const StrPath& cShader::GetFileName() const { return m_fileName; }
 }

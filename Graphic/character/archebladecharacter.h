@@ -12,7 +12,7 @@ namespace graphic
 		cArchebladeCharacter(const int id);
 		virtual ~cArchebladeCharacter();
 
-		virtual bool Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO
+		virtual bool Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO
 			, const bool isLoadShader = true) override;
 		void LoadWeapon(cRenderer &renderer, const string &fileName);
 		virtual bool Update(const float deltaSeconds) override;

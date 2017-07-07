@@ -9,11 +9,11 @@ using namespace std;
 
 
 // 파일경로의 역슬래쉬를 슬래쉬로 바꾼다.
-string ConvertRS2S(const string &str)
+StrPath ConvertRS2S(const StrPath &str)
 {
-	string tmp = str;
+	string tmp = str.c_str();
 	common::replaceAll(tmp, "\\", "/");
-	return tmp;
+	return tmp.c_str();
 }
 
 
@@ -33,9 +33,9 @@ bool exporter::WriteRawTerrainFile( const string &fileName, const sRawTerrain &t
 	of << "\t\"colCellCount\" : " << terrain.colCellCount << "," << endl;
 	of << "\t\"cellSize\" : " << terrain.cellSize << "," << endl;
 	of << "\t\"heightMapStyle\" : " << terrain.heightMapStyle <<  "," << endl;
-	of << "\t\"heightMap\" : " << "\"" << ConvertRS2S(terrain.heightMap) << "\"," << endl;
-	of << "\t\"bg texture\" : " << "\"" << ConvertRS2S(terrain.bgTexture) << "\"," << endl;
-	of << "\t\"alpha texture\" : " << "\"" << ConvertRS2S(terrain.alphaTexture) << "\"," << endl;
+	of << "\t\"heightMap\" : " << "\"" << ConvertRS2S(terrain.heightMap).c_str() << "\"," << endl;
+	of << "\t\"bg texture\" : " << "\"" << ConvertRS2S(terrain.bgTexture).c_str() << "\"," << endl;
+	of << "\t\"alpha texture\" : " << "\"" << ConvertRS2S(terrain.alphaTexture).c_str() << "\"," << endl;
 	of << "\t\"alpha texture width\" : " << terrain.alphaTextureWidth << "," << endl;
 	of << "\t\"alpha texture height\" : " << terrain.alphaTextureHeight << "," << endl;
 	of << "\t\"texture factor\" : " << terrain.textureFactor << "," << endl;
@@ -46,7 +46,7 @@ bool exporter::WriteRawTerrainFile( const string &fileName, const sRawTerrain &t
 	for (int i=0; i < 4; ++i)
 	{
 		of << "\t\t{" << endl;
-		of << "\t\t\t\"texture\" : " << "\"" << ConvertRS2S(terrain.layer[ i].texture) << "\"" << endl;
+		of << "\t\t\t\"texture\" : " << "\"" << ConvertRS2S(terrain.layer[ i].texture).c_str() << "\"" << endl;
 		of << "\t\t}"; 
 		if (i < 3)
 			of << ",";
@@ -59,7 +59,7 @@ bool exporter::WriteRawTerrainFile( const string &fileName, const sRawTerrain &t
 	for (u_int i=0; i < terrain.models.size(); ++i)
 	{
 		of << "\t\t{" << endl;
-		of << "\t\t\t\"filename\" : " << "\"" << ConvertRS2S(terrain.models[ i].fileName)
+		of << "\t\t\t\"filename\" : " << "\"" << ConvertRS2S(terrain.models[ i].fileName).c_str()
 			<< "\"," << endl;
 		of << "\t\t\t\"tm1\" : " << "\"" << 
 			terrain.models[ i].tm._11 << " " << terrain.models[ i].tm._12 << " " << 

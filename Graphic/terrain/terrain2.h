@@ -35,7 +35,7 @@ namespace graphic
 		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true);
 
 		bool AddTile(cTile *model);
-		cTile* FindTile(const string &name);
+		cTile* FindTile(const Str64 &name);
 		cTile* FindTile(const int id);
 		cModel2* FindModel(const int modelId);
 		bool RemoveTile(cTile *model);
@@ -46,7 +46,7 @@ namespace graphic
 	public:
 		bool m_isShadow;
 		vector<cTile*> m_tiles;
-		map<string, cTile*> m_tilemap; // reference
+		map<hashcode, cTile*> m_tilemap; // reference
 		map<int, cTile*> m_tilemap2; // reference
 
 		// ShadowMap

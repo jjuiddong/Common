@@ -14,7 +14,7 @@ namespace graphic
 		cSkyBox2();
 		virtual ~cSkyBox2();
 
-		bool Create(cRenderer &renderer, const string &skyboxFileName, const float radius);
+		bool Create(cRenderer &renderer, const StrPath &skyboxFileName, const float radius);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 
 	

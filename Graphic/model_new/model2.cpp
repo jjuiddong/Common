@@ -32,9 +32,9 @@ cModel2::~cModel2()
 // check collada file, xfile
 bool cModel2::Create(cRenderer &renderer
 	, const int id
-	, const cFilePath &fileName
-	, const cFilePath &shaderName //= ""
-	, const string &techniqueName //= ""
+	, const StrPath &fileName
+	, const StrPath &shaderName //= ""
+	, const Str32 &techniqueName //= ""
 	, const bool isParallel //= false
 	, const bool isShadow //= false
 )
@@ -43,11 +43,11 @@ bool cModel2::Create(cRenderer &renderer
 
 	m_id = id;
 	m_fileName = fileName;
-	m_shaderName = shaderName.c_str();
+	m_shaderName = shaderName;
 	m_techniqueName = techniqueName;
 	m_isShadow = isShadow;
 
-	const string ext = fileName.GetFileExt();
+	const Str16 ext = fileName.GetFileExt();
 	const bool isXFile =  (ext == ".x") || (ext == ".X");
 
 	if (isXFile) // Load XFile
@@ -100,6 +100,7 @@ void cModel2::RenderShader(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	RET(!m_isEnable);
 	RET(!m_isShow);
 	RET(!m_shader);
 
@@ -290,7 +291,7 @@ void cModel2::InitModel(cRenderer &renderer)
 }
 
 
-void cModel2::SetAnimation(const string &animationName
+void cModel2::SetAnimation(const Str64 &animationName
 	, const bool isMerge //= false
 )
 {

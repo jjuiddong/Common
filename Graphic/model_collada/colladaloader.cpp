@@ -18,7 +18,7 @@ cColladaLoader::~cColladaLoader()
 }
 
 
-bool cColladaLoader::Create(const string &fileName)
+bool cColladaLoader::Create(const StrPath &fileName)
 {
 	m_rawMeshes = new sRawMeshGroup2;
 	m_rawMeshes->name = fileName;
@@ -26,7 +26,7 @@ bool cColladaLoader::Create(const string &fileName)
 	// Create the importer
 	Assimp::Importer importer;
 
-	m_aiScene = importer.ReadFile(fileName,
+	m_aiScene = importer.ReadFile(fileName.c_str(),
 		aiProcess_JoinIdenticalVertices |		// join identical vertices/ optimize indexing
 		aiProcess_ValidateDataStructure |		// perform a full validation of the loader's output
 		aiProcess_ImproveCacheLocality |		// improve the cache locality of the output vertices
@@ -445,7 +445,7 @@ void cColladaLoader::CreateAnimation()
 
 		m_rawAnies = new sRawAniGroup;
 		m_rawAnies->type = sRawAniGroup::BONE_ANI;
-		m_rawAnies->name = GetFileName(m_fileName) + "::" + sourceAnimation->mName.data;
+		m_rawAnies->name = string(m_fileName.GetFileName()) + "::" + sourceAnimation->mName.data;
 		m_rawAnies->anies.resize(m_rawMeshes->bones.size());
 
 		for (UINT a = 0; a < sourceAnimation->mNumChannels; a++)

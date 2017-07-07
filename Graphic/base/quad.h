@@ -17,7 +17,7 @@ namespace graphic
 		virtual ~cQuad();
 
 		bool Create(cRenderer &renderer, const float width, const float height, const Vector3 &pos
-			, const string &textureFileName = ""
+			, const StrPath &textureFileName = ""
 			, const bool isSizePow2 = true
 			, const bool isVert = true);
 

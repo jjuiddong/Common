@@ -21,9 +21,9 @@ namespace graphic
 
 		bool Create(cRenderer &renderer 
 			, const int id 
-			, const cFilePath &fileName
-			, const cFilePath &shaderName=""
-			, const string &techniqueName=""
+			, const StrPath &fileName
+			, const StrPath &shaderName=""
+			, const Str32 &techniqueName=""
 			, const bool isParallel=false
 			, const bool isShadow=false
 		);
@@ -37,7 +37,7 @@ namespace graphic
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
-		void SetAnimation(const string &animationName, const bool isMerge = false);
+		void SetAnimation(const Str64 &animationName, const bool isMerge = false);
 		bool IsLoadFinish();
 		void CalcBoundingSphere();
 		void UpdateShader(cRenderer &renderer);
@@ -67,7 +67,7 @@ namespace graphic
 
 		int m_id;
 		eState::Enum m_state;
-		cFilePath m_fileName;
+		StrPath m_fileName;
 		bool m_isEnable; // if false, not show
 		bool m_isShow;
 		bool m_isShadowEnable;
@@ -78,10 +78,11 @@ namespace graphic
 		D3DCULL m_cullType; // default : CCW
 		cColladaModel *m_colladaModel;
 		cXFileMesh *m_xModel;
-		string m_shaderName;
-		string m_techniqueName;
+		StrPath m_shaderName;
+		Str32 m_techniqueName;
 		Matrix44 m_tm;
-		string m_animationName;
+		Transform m_transform;
+		Str64 m_animationName;
 		cBoundingBox m_boundingBox;
 		cBoundingSphere m_boundingSphere;
 		cShadowVolume *m_shadow; // reference

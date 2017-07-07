@@ -68,7 +68,7 @@ namespace graphic
 
 	struct sRawMesh
 	{
-		string name;	// filename::mesh name
+		StrPath name;	// filename::mesh name
 		Matrix44 localTm;
 		vector<Vector3> vertices;
 		vector<Vector3> normals; // vertex 갯수만큼 저장된다.
@@ -88,7 +88,7 @@ namespace graphic
 	// 모델하나의 정보를 저장하는 자료구조.
 	struct sRawMeshGroup
 	{
-		string name;
+		StrPath name;
 		vector<sMaterial> mtrls;
 		vector<sRawMesh> meshes;
 		vector<sRawBone> bones;
@@ -131,8 +131,8 @@ namespace graphic
 
 	struct sRawMeshGroup2
 	{
-		string name;
-		string animationName; // set by Resource Manager
+		StrPath name;
+		Str64 animationName; // set by Resource Manager
 		vector<sRawMesh2> meshes;
 		vector<sRawBone2> bones;
 	};

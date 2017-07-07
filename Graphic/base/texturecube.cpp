@@ -16,7 +16,7 @@ cCubeTexture::~cCubeTexture()
 }
 
 
-bool cCubeTexture::Create(cRenderer &renderer, const string &fileName)
+bool cCubeTexture::Create(cRenderer &renderer, const StrPath &fileName)
 {
 	Clear();
 
@@ -32,7 +32,7 @@ bool cCubeTexture::Create(cRenderer &renderer, const string &fileName)
 }
 
 
-void cCubeTexture::Bind(cShader &shader, const string &key)
+void cCubeTexture::Bind(cShader &shader, const Str32 &key)
 {
 	shader.SetCubeTexture(key, *this);
 }
@@ -62,5 +62,5 @@ void cCubeTexture::ResetDevice(cRenderer &renderer)
 	SAFE_RELEASE(m_texture);
 
 	if (!m_fileName.empty())
-		Create(renderer, string(m_fileName));
+		Create(renderer, m_fileName);
 }

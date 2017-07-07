@@ -193,10 +193,10 @@ bool cGrid2::WriteFile(const string &fileName)
 // 파일로부터 정보를 가져와 Grid 클래스를 생성한다.
 // GRD 포맷이어야 한다. 
 // 현재는 version 1만 지원한다.
-bool cGrid2::CreateFromFile(cRenderer &renderer, const string &fileName)
+bool cGrid2::CreateFromFile(cRenderer &renderer, const StrPath &fileName)
 {
 	using namespace std;
-	ifstream ifs(fileName, ios_base::binary | ios_base::in);
+	ifstream ifs(fileName.c_str(), ios_base::binary | ios_base::in);
 	if (!ifs.is_open())
 		return false;
 

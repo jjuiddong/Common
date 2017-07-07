@@ -6,7 +6,7 @@ namespace graphic
 
 	struct sRawTerrrainModel
 	{
-		string fileName;
+		StrPath fileName;
 		Matrix44 tm;
 	};
 
@@ -22,9 +22,9 @@ namespace graphic
 		int rowCellCount;
 		float cellSize;
 		int heightMapStyle; // 0=heightMap, 1=grid format
-		string heightMap;
-		string bgTexture;
-		string alphaTexture;
+		StrPath heightMap;
+		StrPath bgTexture;
+		StrPath alphaTexture;
 		int alphaTextureWidth;
 		int alphaTextureHeight;
 		float textureFactor;

@@ -106,7 +106,7 @@ bool importer::ReadRawMeshFile( const string &fileName, OUT sRawMeshGroup &rawMe
 
 
 // load animation file
-bool importer::ReadRawAnimationFile( const string &fileName, OUT sRawAniGroup &rawAni )
+bool importer::ReadRawAnimationFile( const StrPath &fileName, OUT sRawAniGroup &rawAni )
 {
 	using namespace std;
 	ifstream fin(fileName.c_str());
@@ -124,18 +124,18 @@ bool importer::ReadRawAnimationFile( const string &fileName, OUT sRawAniGroup &r
 		|| (version == "EXPORTER_V15")
 		)
 	{
-		ReadRawAnimationFileV9(fileName, rawAni);
+		ReadRawAnimationFileV9(fileName.c_str(), rawAni);
 	}
 	else if ((version == "EXPORTER_V16"))
 	{
-		ReadRawAnimationFileV16(fileName, rawAni);
+		ReadRawAnimationFileV16(fileName.c_str(), rawAni);
 	}
 	else if ((version == "EXPORTER_V17")
 		|| (version == "EXPORTER_V18")
 		|| (version == "EXPORTER_V19")
 		|| (version == "EXPORTER_V20"))
 	{
-		ReadRawAnimationFileV17(fileName, rawAni);
+		ReadRawAnimationFileV17(fileName.c_str(), rawAni);
 	}
 	else
 	{

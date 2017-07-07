@@ -17,7 +17,7 @@ cSkyBox2::~cSkyBox2()
 }
 
 
-bool cSkyBox2::Create(cRenderer &renderer, const string &skyboxFileName, const float radius)
+bool cSkyBox2::Create(cRenderer &renderer, const StrPath &skyboxFileName, const float radius)
 {
 	RETV(m_sphere, true);// 이미 생성되었다면 리턴.
 

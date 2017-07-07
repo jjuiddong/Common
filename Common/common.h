@@ -53,6 +53,7 @@
 
 
 typedef unsigned int    u_int;
+typedef unsigned int	hashcode;
 
 
 // 포함 파일들.
@@ -71,6 +72,7 @@ typedef unsigned int    u_int;
 #include <shlwapi.h>
 #include <iterator>
 #include <boost/foreach.hpp>
+#include <boost\functional\hash.hpp>
 
 
 using std::string;

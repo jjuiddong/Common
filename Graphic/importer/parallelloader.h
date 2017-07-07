@@ -28,7 +28,7 @@ namespace graphic
 		{
 		}
 
-		cParallelLoader(const eType::Enum type, const string &key, void **ptr)
+		cParallelLoader(const eType::Enum type, const StrPath &key, void **ptr)
 			: m_type(type)
 			, m_key(key)
 			, m_ptr(ptr) // this memory pointer is only use heap pointer, not stack pointer
@@ -86,7 +86,7 @@ namespace graphic
 
 	public:
 		eType::Enum m_type;
-		string m_key;
+		StrPath m_key;
 		void **m_ptr;
 		float m_incTime;
 	};

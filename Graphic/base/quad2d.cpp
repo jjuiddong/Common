@@ -22,7 +22,7 @@ cQuad2D::~cQuad2D()
 bool cQuad2D::Create(cRenderer &renderer
 	, const float x, const float y
 	, const float width, const float height
-	, const string &textureFileName // = " "
+	, const StrPath &textureFileName // = " "
 	, const bool isSizePow2 // = true
 )
 {

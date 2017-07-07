@@ -28,7 +28,7 @@ namespace graphic
 
 		cColladaLoader();
 		virtual ~cColladaLoader();
-		bool Create(const string &fileName);
+		bool Create(const StrPath &fileName);
 
 
 	protected:
@@ -54,7 +54,7 @@ namespace graphic
 		int m_numAnimations;
 		bool m_hasAnimations;
 
-		string m_fileName;
+		StrPath m_fileName;
 		map<string, aiBone*> m_aiBones;
 		vector<SkeletonNode> m_fullHierarchy;
 		vector<SkeletonNode> m_reducedHierarchy;

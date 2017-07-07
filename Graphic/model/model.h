@@ -13,7 +13,7 @@ namespace graphic
 		cModel(const int id);
 		virtual ~cModel();
 
-		virtual bool Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO, const bool isLoadShader=true);
+		virtual bool Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO, const bool isLoadShader=true);
 		virtual bool Update(const float deltaSeconds) override;
 		virtual void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity) override;
 		virtual void RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
@@ -23,7 +23,7 @@ namespace graphic
 
 		// Model Infomations
 		MODEL_TYPE::TYPE GetModelType() const;
-		const string& GetFileName() const;
+		const StrPath& GetFileName() const;
 		cMesh* GetMesh(const string &name);
 		cMesh* GetMesh(const int idx);
 		const sTransform& GetToolTransform() const;
@@ -67,7 +67,7 @@ namespace graphic
 
 
 	public:
-		string m_fileName; //model 파일 명.
+		StrPath m_fileName; //model 파일 명.
 		MODEL_TYPE::TYPE m_type;
 		vector<cMesh*> m_meshes;
 		cBoneMgr *m_bone;
@@ -89,7 +89,7 @@ namespace graphic
 	inline MODEL_TYPE::TYPE cModel::GetModelType() const { return m_type; }
 	inline cBoneMgr* cModel::GetBoneMgr() { return m_bone; }
 	inline sRawAniGroup* cModel::GetCurrentAnimation() { return m_curAni; }
-	inline const string& cModel::GetFileName() const { return m_fileName; }
+	inline const StrPath& cModel::GetFileName() const { return m_fileName; }
 	inline const sTransform& cModel::GetToolTransform() const { return m_transform; }
 
 	inline cShadow1& cModel::GetShadow() { return m_shadow; }

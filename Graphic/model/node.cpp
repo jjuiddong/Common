@@ -5,7 +5,7 @@
 using namespace graphic;
 
 
-cNode::cNode( const int id, const string &name) : 
+cNode::cNode( const int id, const StrPath &name) :
 	m_id(id)
 ,	m_name(name)
 ,	m_parent(NULL)

@@ -22,7 +22,7 @@ cTile::~cTile()
 
 bool cTile::Create(cRenderer &renderer
 	, const int id
-	, const string &name
+	, const Str64 &name
 	, const sRectf &rect
 	, const float y //=0
 	, const float uvFactor //= 1.f,
@@ -61,7 +61,7 @@ bool cTile::Create(cRenderer &renderer
 
 bool cTile::Create(cRenderer &renderer
 	, const int id
-	, const string &name
+	, const Str64 &name
 	, const Vector3 &dim
 	, const Matrix44 &tm
 	, const float y //= 0

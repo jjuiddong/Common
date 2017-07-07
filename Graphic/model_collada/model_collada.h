@@ -14,10 +14,10 @@ namespace graphic
 	public:
 		cColladaModel();
 		virtual ~cColladaModel();
-		bool Create(cRenderer &renderer, const string &fileName);
+		bool Create(cRenderer &renderer, const StrPath &fileName);
 		bool Render(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
 		bool Update(const float deltaSeconds);
-		void SetAnimation(const string &animationName, const bool isMerge=false);
+		void SetAnimation(const Str64 &animationName, const bool isMerge=false);
 		void Clear();
 
 
@@ -31,7 +31,7 @@ namespace graphic
 		cSkeleton m_skeleton;
 		cAnimation m_animation;
 		cBoundingBox m_boundingBox;
-		string m_storedAnimationName;
+		Str64 m_storedAnimationName;
 	};
 
 }

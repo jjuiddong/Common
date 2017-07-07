@@ -246,15 +246,16 @@ bool cTerrain2::AddTile(cTile *tile)
 		return false; // Already Exist
 
 	m_tiles.push_back(tile);
-	m_tilemap[tile->m_name] = tile;
+	m_tilemap[tile->m_name.GetHashCode()] = tile;
 	m_tilemap2[tile->m_id] = tile;
 	return true;
 }
 
 
-cTile* cTerrain2::FindTile(const string &name)
+cTile* cTerrain2::FindTile(const Str64 &name)
 {
-	auto it = m_tilemap.find(name);
+	const hashcode hcode = name.GetHashCode();
+	auto it = m_tilemap.find(hcode);
 	if (it == m_tilemap.end())
 		return NULL;
 	return it->second;
@@ -286,7 +287,7 @@ bool cTerrain2::RemoveTile(cTile *tile)
 		return false; // Not Exist
 
 	common::popvector2(m_tiles, tile);
-	m_tilemap.erase(tile->m_name);
+	m_tilemap.erase(tile->m_name.GetHashCode());
 	m_tilemap2.erase(tile->m_id);
 	return true;
 }

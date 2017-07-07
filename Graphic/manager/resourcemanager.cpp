@@ -48,7 +48,7 @@ void cResourceManager::Update(const float deltaSeconds)
 
 
 // load model file
-sRawMeshGroup* cResourceManager::LoadRawMesh( const string &fileName )
+sRawMeshGroup* cResourceManager::LoadRawMesh( const StrPath &fileName )
 {
 	RETV(fileName.empty(), NULL);
 
@@ -56,14 +56,14 @@ sRawMeshGroup* cResourceManager::LoadRawMesh( const string &fileName )
 		return data;
 
 	sRawMeshGroup *meshes = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
 	meshes = new sRawMeshGroup;
 	meshes->name = fileName;
 
-	if (!importer::ReadRawMeshFile(resourcePath, *meshes))
+	if (!importer::ReadRawMeshFile(resourcePath.c_str(), *meshes))
 		goto error;
 
 	InsertRawMesh(meshes);
@@ -97,13 +97,13 @@ bool cResourceManager::InsertRawMesh(sRawMeshGroup *meshes)
 		}
 	}
 
-	m_meshes[meshes->name] = meshes;
+	m_meshes[meshes->name.GetHashCode()] = meshes;
 	return true;
 }
 
 
 // load collada model file
-sRawMeshGroup2* cResourceManager::LoadRawMesh2(const string &fileName)
+sRawMeshGroup2* cResourceManager::LoadRawMesh2(const StrPath &fileName)
 {
 	RETV(fileName.empty(), NULL);
 
@@ -111,7 +111,7 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh2(const string &fileName)
 		return data;
 
 	cColladaLoader loader;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -119,11 +119,11 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh2(const string &fileName)
 		goto error;
 
 	if (loader.m_rawMeshes)
-		m_meshes2[fileName] = loader.m_rawMeshes;
+		m_meshes2[fileName.GetHashCode()] = loader.m_rawMeshes;
 	if (loader.m_rawAnies)
 	{
 		loader.m_rawMeshes->animationName = loader.m_rawAnies->name;
-		m_anies[loader.m_rawAnies->name] = loader.m_rawAnies;
+		m_anies[loader.m_rawAnies->name.GetHashCode()] = loader.m_rawAnies;
 	}
 	return loader.m_rawMeshes;
 
@@ -134,14 +134,14 @@ error:
 }
 
 
-cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileName)
+cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const StrPath &fileName)
 {
 	auto result = FindXFile(fileName);
 	if (result.first)
 		return result.second;
 
 	cXFileMesh *mesh = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -149,7 +149,7 @@ cXFileMesh* cResourceManager::LoadXFile(cRenderer &renderer, const string &fileN
 	if (!mesh->Create(renderer, resourcePath, false, true))
 		goto error;
 
-	m_xfiles[fileName] = mesh;
+	m_xfiles[fileName.GetHashCode()] = mesh;
 	return mesh;
 
 
@@ -160,14 +160,14 @@ error:
 }
 
 
-std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &renderer, const string &fileName)
+std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &renderer, const StrPath &fileName)
 {
 	auto result = FindXFile(fileName);
 	if (result.first)
 		return{ true, result.second };
 
 
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -175,7 +175,7 @@ std::pair<bool, cXFileMesh*> cResourceManager::LoadXFileParallel(cRenderer &rend
 
 	{
 		AutoCSLock cs(m_cs);
-		m_xfiles[fileName] = NULL;
+		m_xfiles[fileName.GetHashCode()] = NULL;
 		return{ true, NULL };
 	}
 
@@ -186,16 +186,16 @@ error:
 }
 
 
-void cResourceManager::InsertXFileModel(const string &fileName, cXFileMesh *p)
+void cResourceManager::InsertXFileModel(const StrPath &fileName, cXFileMesh *p)
 {
 	AutoCSLock cs(m_cs);
-	m_xfiles[fileName] = p;
+	m_xfiles[fileName.GetHashCode()] = p;
 }
 
 
 // Load Collada Model
 cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
-	, const string &fileName
+	, const StrPath &fileName
 )
 {
 	auto result = FindColladaModel(fileName);
@@ -203,7 +203,7 @@ cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
 		return result.second;
 
 	cColladaModel *model = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -213,7 +213,7 @@ cColladaModel* cResourceManager::LoadColladaModel( cRenderer &renderer
 		if (!model->Create(renderer, resourcePath))
 			goto error;
 		
-		m_colladaModels[fileName] = model;
+		m_colladaModels[fileName.GetHashCode()] = model;
 		return model;
 	}
 
@@ -226,13 +226,13 @@ error:
 
 
 // Load Parallel Collada file
-std::pair<bool, cColladaModel*> cResourceManager::LoadColladaModelParallel(cRenderer &renderer, const string &fileName)
+std::pair<bool, cColladaModel*> cResourceManager::LoadColladaModelParallel(cRenderer &renderer, const StrPath &fileName)
 {
 	auto result = FindColladaModel(fileName);
 	if (result.first)
 		return{ true, result.second };
 
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -240,7 +240,7 @@ std::pair<bool, cColladaModel*> cResourceManager::LoadColladaModelParallel(cRend
 
 	{
 		AutoCSLock cs(m_cs);
-		m_colladaModels[fileName] = NULL;
+		m_colladaModels[fileName.GetHashCode()] = NULL;
 		return{ true, NULL };
 	}
 
@@ -252,14 +252,14 @@ error:
 
 
 // Set Model Pointer If Finish Parallel Load 
-void cResourceManager::InsertColladaModel(const string &fileName, cColladaModel *p)
+void cResourceManager::InsertColladaModel(const StrPath &fileName, cColladaModel *p)
 {
 	AutoCSLock cs(m_cs);
-	m_colladaModels[fileName] = p;
+	m_colladaModels[fileName.GetHashCode()] = p;
 }
 
 
-cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const string &fileName)
+cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const StrPath &fileName)
 {
 	auto result = FindShadow(fileName);
 	if (result.first)
@@ -298,13 +298,13 @@ cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const string &f
 	}
 
 	AutoCSLock cs(m_csShadow);
-	m_shadows[fileName] = shadow;
+	m_shadows[fileName.GetHashCode()] = shadow;
 	return shadow;
 }
 
 
 std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &renderer
-	, const string &fileName
+	, const StrPath &fileName
 )
 {
 	auto result = FindShadow(fileName);
@@ -323,7 +323,7 @@ std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &
 
 	{
 		AutoCSLock cs(m_csShadow);
-		m_shadows[fileName] = NULL;
+		m_shadows[fileName.GetHashCode()] = NULL;
 	}
 
 	AddTask(new cTaskShadowLoader(0, &renderer, fileName, collada, xfile));
@@ -332,15 +332,15 @@ std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &
 }
 
 
-void cResourceManager::InsertShadow(const string &fileName, cShadowVolume *p)
+void cResourceManager::InsertShadow(const StrPath &fileName, cShadowVolume *p)
 {
 	AutoCSLock cs(m_csShadow);
-	m_shadows[fileName] = p;
+	m_shadows[fileName.GetHashCode()] = p;
 }
 
 
 // 애니메이션 파일 로딩.
-sRawAniGroup* cResourceManager::LoadAnimation( const string &fileName )
+sRawAniGroup* cResourceManager::LoadAnimation( const StrPath &fileName )
 {
 	RETV(fileName.empty(), NULL);
 
@@ -348,12 +348,12 @@ sRawAniGroup* cResourceManager::LoadAnimation( const string &fileName )
 		return data;
 
 	sRawAniGroup *anies = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
 	anies = new sRawAniGroup;
-	anies->name = fileName;
+	anies->name = Str64(fileName.c_str());
 
 	if (!importer::ReadRawAnimationFile(fileName, *anies))
 		goto error;
@@ -374,28 +374,29 @@ bool cResourceManager::LoadAnimation(sRawAniGroup *anies)
 {
 	RETV(!anies, false);
 
-	m_anies[anies->name] = anies;
+	m_anies[anies->name.GetHashCode()] = anies;
 	return true;
 }
 
 
 // meshName에 해당하는 메쉬버퍼를 리턴한다.
-cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const string &meshName)
+cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const StrPath &meshName)
 {
 	if (cMeshBuffer *data = FindMeshBuffer(meshName))
 		return data;
 
-	string fileName = meshName;
-	fileName.erase(meshName.find("::"));
+	string fileName = meshName.c_str();
+	//fileName.erase(meshName.find("::"));
+	fileName.erase(fileName.find("::"));
 
-	if (sRawMeshGroup *meshes = LoadRawMesh(fileName))
+	if (sRawMeshGroup *meshes = LoadRawMesh(fileName.c_str()))
 	{
 		for each (auto &rawMesh in meshes->meshes)
 		{
 			if (meshName == rawMesh.name)
 			{
 				cMeshBuffer *buffer = new cMeshBuffer(renderer, rawMesh);
-				m_mesheBuffers[ meshName] = buffer;
+				m_mesheBuffers[ meshName.GetHashCode()] = buffer;
 				return buffer;
 			}
 		}
@@ -412,15 +413,15 @@ cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const sRawMes
 		return data;
 
 	cMeshBuffer *buffer = new cMeshBuffer(renderer, rawMesh);
-	m_mesheBuffers[rawMesh.name] = buffer;
+	m_mesheBuffers[rawMesh.name.GetHashCode()] = buffer;
 	return buffer;
 }
 
 
 // meshName으로 메쉬버퍼를 찾아 리턴한다.
-cMeshBuffer* cResourceManager::FindMeshBuffer( const string &meshName )
+cMeshBuffer* cResourceManager::FindMeshBuffer( const StrPath &meshName )
 {
-	auto it = m_mesheBuffers.find(meshName);
+	auto it = m_mesheBuffers.find(meshName.GetHashCode());
 	if (m_mesheBuffers.end() == it)
 		return NULL; // not exist
 
@@ -429,9 +430,9 @@ cMeshBuffer* cResourceManager::FindMeshBuffer( const string &meshName )
 
 
 // find model data
-sRawMeshGroup* cResourceManager::FindModel( const string &fileName )
+sRawMeshGroup* cResourceManager::FindModel( const StrPath &fileName )
 {
-	auto it = m_meshes.find(fileName);
+	auto it = m_meshes.find(fileName.GetHashCode());
 	if (m_meshes.end() == it)
 		return NULL; // not exist
 
@@ -440,9 +441,9 @@ sRawMeshGroup* cResourceManager::FindModel( const string &fileName )
 
 
 // find model data
-sRawMeshGroup2* cResourceManager::FindModel2(const string &fileName)
+sRawMeshGroup2* cResourceManager::FindModel2(const StrPath &fileName)
 {
-	auto it = m_meshes2.find(fileName);
+	auto it = m_meshes2.find(fileName.GetHashCode());
 	if (m_meshes2.end() == it)
 		return NULL; // not exist
 	return it->second;
@@ -452,31 +453,31 @@ sRawMeshGroup2* cResourceManager::FindModel2(const string &fileName)
 // 파일이 없다면 false를 리턴한다.
 // 파일이 있다면 true를 리턴한다.
 // 데이타는 NULL이 될 수 있다.
-std::pair<bool, cXFileMesh*> cResourceManager::FindXFile(const string &fileName)
+std::pair<bool, cXFileMesh*> cResourceManager::FindXFile(const StrPath &fileName)
 {
 	AutoCSLock cs(m_cs);
 
-	auto it = m_xfiles.find(fileName);
+	auto it = m_xfiles.find(fileName.GetHashCode());
 	if (m_xfiles.end() != it)
 		return{ true, it->second };
 	return{ false, NULL };
 }
 
 
-std::pair<bool, cColladaModel*> cResourceManager::FindColladaModel(const string &fileName)
+std::pair<bool, cColladaModel*> cResourceManager::FindColladaModel(const StrPath &fileName)
 {
 	AutoCSLock cs(m_cs);
-	auto it = m_colladaModels.find(fileName);
+	auto it = m_colladaModels.find(fileName.GetHashCode());
 	if (m_colladaModels.end() != it)
 		return{ true, it->second };
 	return{ false, NULL };
 }
 
 
-std::pair<bool, cShadowVolume*> cResourceManager::FindShadow(const string &fileName)
+std::pair<bool, cShadowVolume*> cResourceManager::FindShadow(const StrPath &fileName)
 {
 	AutoCSLock cs(m_csShadow);
-	auto it = m_shadows.find(fileName);
+	auto it = m_shadows.find(fileName.GetHashCode());
 	if (m_shadows.end() != it)
 		return{ true, it->second };
 	return{ false, NULL };
@@ -484,9 +485,9 @@ std::pair<bool, cShadowVolume*> cResourceManager::FindShadow(const string &fileN
 
 
 // find animation data
-sRawAniGroup* cResourceManager::FindAnimation( const string &fileName )
+sRawAniGroup* cResourceManager::FindAnimation( const StrPath &fileName )
 {
-	auto it = m_anies.find(fileName);
+	auto it = m_anies.find(fileName.GetHashCode());
 	if (m_anies.end() == it)
 		return NULL; // not exist
 	return it->second;
@@ -494,7 +495,7 @@ sRawAniGroup* cResourceManager::FindAnimation( const string &fileName )
 
 
 // 텍스쳐 로딩.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileName
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &fileName
 	,  const bool isSizePow2 //=true
 	, const bool isRecursive //= true
 )
@@ -504,7 +505,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 		return result.second;
 
 	cTexture *texture = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -521,7 +522,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &fileN
 	if (texture && texture->IsLoaded())
 	{
 		AutoCSLock cs(m_cs);
-		m_textures[fileName] = texture;
+		m_textures[fileName.GetHashCode()] = texture;
 		return texture;
 	}
 
@@ -536,7 +537,7 @@ error:
 
 
 // Parallel Load Texture
-cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const string &fileName
+cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const StrPath &fileName
 	, const bool isSizePow2 //= true
 )
 {
@@ -544,7 +545,7 @@ cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const strin
 	if (result.first)
 		return result.second;
 
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 	
@@ -552,7 +553,7 @@ cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const strin
 
 	{
 		AutoCSLock cs(m_cs);
-		m_textures[fileName] = NULL;
+		m_textures[fileName.GetHashCode()] = NULL;
 		return NULL;
 	}
 
@@ -563,15 +564,15 @@ error:
 }
 
 
-void cResourceManager::InsertTexture(const string &fileName, cTexture *p)
+void cResourceManager::InsertTexture(const StrPath &fileName, cTexture *p)
 {
 	AutoCSLock cs(m_cs);
-	m_textures[fileName] = p;
+	m_textures[fileName.GetHashCode()] = p;
 }
 
 
 // 텍스쳐 로딩.
-cCubeTexture* cResourceManager::LoadCubeTexture(cRenderer &renderer, const string &fileName
+cCubeTexture* cResourceManager::LoadCubeTexture(cRenderer &renderer, const StrPath &fileName
 	, const bool isSizePow2 //=true
 	, const bool isRecursive //= true
 )
@@ -580,7 +581,7 @@ cCubeTexture* cResourceManager::LoadCubeTexture(cRenderer &renderer, const strin
 		return p;
 
 	cCubeTexture *texture = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -590,7 +591,7 @@ cCubeTexture* cResourceManager::LoadCubeTexture(cRenderer &renderer, const strin
 
 	if (texture && texture->IsLoaded())
 	{
-		m_cubeTextures[fileName] = texture;
+		m_cubeTextures[fileName.GetHashCode()] = texture;
 		return texture;
 	}
 
@@ -604,7 +605,7 @@ error:
 
 // 텍스쳐 로딩.
 // fileName 에 해당하는 파일이 없다면, "../media/" + dirPath  경로에서 파일을 찾는다.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName
 	, const bool isSizePow2 //= true
 	, const bool isRecursive //= true
 )	
@@ -613,7 +614,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 	if (result.first)
 		return result.second;
 
-	string key = fileName;
+	StrPath key = fileName;
 	cTexture *texture = NULL;
 	if (common::IsFileExist(fileName))
 	{
@@ -622,13 +623,13 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 	}
 	else
 	{
-		string newPath;
-		string searchPath = m_mediaDirectory + dirPath;
+		StrPath newPath;
+		StrPath searchPath = m_mediaDirectory + dirPath;
 		if (searchPath.empty())
 			searchPath = ".";
 
 		key = newPath;
-		if (common::FindFile(GetFileName(fileName), searchPath + "/", newPath))
+		if (common::FindFile(fileName.GetFileName(), searchPath + "/", newPath))
 		{
 			if (isRecursive)
 			{
@@ -649,7 +650,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 	if (texture && texture->IsLoaded())
 	{
 		AutoCSLock cs(m_cs);
-		m_textures[key] = texture;
+		m_textures[key.GetHashCode()] = texture;
 		return texture;
 	}
 	else
@@ -674,7 +675,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const string &dirPa
 
 // 텍스쳐 로딩.
 // fileName 에 해당하는 파일이 없다면, dirPath  경로에서 파일을 찾는다.
-cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const string &dirPath, const string &fileName
+cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName
 	, const bool isSizePow2 //= true
 	, const bool isRecursive //= true
 )
@@ -684,7 +685,7 @@ cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const string &dirP
 		return result.second;
 
 	cTexture *texture = NULL;
-	const string resourcePath = GetResourceFilePath(dirPath, fileName);
+	const StrPath resourcePath = GetResourceFilePath(dirPath, fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -695,7 +696,7 @@ cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const string &dirP
 	if (texture)
 	{
 		AutoCSLock cs(m_cs);
-		m_textures[fileName] = texture;
+		m_textures[fileName.GetHashCode()] = texture;
 	}
 
 	return texture;
@@ -711,14 +712,14 @@ error:
 
 
 // 셰이더 로딩.
-cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileName)
+cShader* cResourceManager::LoadShader(cRenderer &renderer, const StrPath &fileName)
 // isReload=false
 {
 	if (cShader *p = FindShader(fileName))
 		return p;
 
 	cShader *shader = NULL;
-	const string resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName);
 	if (resourcePath.empty())
 		goto error;
 
@@ -727,12 +728,12 @@ cShader* cResourceManager::LoadShader(cRenderer &renderer, const string &fileNam
 		goto error;
 
 	if (shader)
-		m_shaders[ GetFileName(fileName)] = shader;
+		m_shaders[ StrPath(fileName.GetFileName()).GetHashCode()] = shader;
 	return shader;
 
 
 error:
-	string msg = string("Error LoadShader ") + fileName + " 파일이 존재하지 않습니다.";
+	StrPath msg = StrPath("Error LoadShader ") + fileName + " 파일이 존재하지 않습니다.";
 	MessageBoxA(NULL, msg.c_str(), "ERROR", MB_OK);
 	dbg::ErrLog("%s\n", msg.c_str());
 	SAFE_DELETE(shader);
@@ -741,19 +742,19 @@ error:
 
 
 // 텍스쳐 찾기.
-std::pair<bool,cTexture*> cResourceManager::FindTexture( const string &fileName )
+std::pair<bool,cTexture*> cResourceManager::FindTexture( const StrPath &fileName )
 {
 	AutoCSLock cs(m_cs);
-	auto it = m_textures.find(fileName);
+	auto it = m_textures.find(fileName.GetHashCode());
 	if (m_textures.end() == it)
 		return{ false, NULL }; // not exist
 	return{ true, it->second };
 }
 
 
-cCubeTexture* cResourceManager::FindCubeTexture(const string &fileName)
+cCubeTexture* cResourceManager::FindCubeTexture(const StrPath &fileName)
 {
-	auto it = m_cubeTextures.find(fileName);
+	auto it = m_cubeTextures.find(fileName.GetHashCode());
 	if (m_cubeTextures.end() == it)
 		return NULL; // not exist
 	return it->second;
@@ -761,9 +762,9 @@ cCubeTexture* cResourceManager::FindCubeTexture(const string &fileName)
 
 
 // 셰이더 찾기.
-cShader* cResourceManager::FindShader( const string &fileName )
+cShader* cResourceManager::FindShader( const StrPath &fileName )
 {
-	auto it = m_shaders.find(GetFileName(fileName));
+	auto it = m_shaders.find(StrPath(fileName.GetFileName()).GetHashCode());
 	if (m_shaders.end() == it)
 		return NULL; // not exist
 	return it->second;
@@ -772,9 +773,9 @@ cShader* cResourceManager::FindShader( const string &fileName )
 
 // media 폴더내에 fileName 에 해당하는 파일이 존재한다면,
 // 전체 경로를 리턴한다. 파일을 찾을 때는 파일이름만 비교한다.
-string cResourceManager::FindFile( const string &fileName )
+StrPath cResourceManager::FindFile( const StrPath &fileName )
 {
-	string newPath;
+	StrPath newPath;
 	if (common::FindFile(fileName, m_mediaDirectory, newPath))
 	{
 		return newPath;
@@ -800,22 +801,22 @@ void cResourceManager::AddTask(cTask *task)
 
 
 // media 폴더내에 fileName이 있으면, 경로를 리턴한다.
-string cResourceManager::GetResourceFilePath(const string &fileName)
+StrPath cResourceManager::GetResourceFilePath(const StrPath &fileName)
 {
-	if (common::IsFileExist(fileName))
+	if (fileName.IsFileExist())
 	{
 		return fileName;
 	}
 	else
 	{
-		const string composeMediaFileName = m_mediaDirectory + fileName;
-		if (common::IsFileExist(composeMediaFileName))
+		const StrPath composeMediaFileName = m_mediaDirectory + fileName;
+		if (composeMediaFileName.IsFileExist())
 		{
 			return composeMediaFileName;
 		}
 		else
 		{
-			string newPath;
+			StrPath newPath;
 			if (common::FindFile(fileName, m_mediaDirectory, newPath))
 			{
 				return newPath;
@@ -828,7 +829,7 @@ string cResourceManager::GetResourceFilePath(const string &fileName)
 
 // dir 폴더내에 fileName이 있으면, 경로를 리턴한다.
 // 하위 5단계의 디렉토리까지만 검사한다.
-string cResourceManager::GetResourceFilePath(const string &dir, const string &fileName)
+StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath &fileName)
 {
 	if (common::IsFileExist(fileName))
 	{
@@ -836,15 +837,15 @@ string cResourceManager::GetResourceFilePath(const string &dir, const string &fi
 	}
 	else
 	{
-		const string composeMediaFileName = dir + fileName;
-		if (common::IsFileExist(composeMediaFileName))
+		const StrPath composeMediaFileName = dir + fileName;
+		if (composeMediaFileName.IsFileExist())
 		{
 			return composeMediaFileName;
 		}
 		else
 		{
-			string newPath;
-			string searchPath = dir;
+			StrPath newPath;
+			StrPath searchPath = dir;
 			if (searchPath.empty())
 				searchPath = ".";
 			if ((searchPath.back() != '/') || (searchPath.back() != '\\'))
@@ -912,7 +913,7 @@ void cResourceManager::Clear()
 	// remove texture
 	{
 		AutoCSLock cs(m_cs);
-		cTexture *defaultTex = m_textures[g_defaultTexture];
+		cTexture *defaultTex = m_textures[g_defaultTexture.GetHashCode()];
 		for each (auto kv in m_textures)
 		{
 			if (kv.second != defaultTex)
@@ -954,9 +955,9 @@ void cResourceManager::Clear()
 
 
 // 파일 종류를 리턴한다.
-RESOURCE_TYPE::TYPE cResourceManager::GetFileKind( const string &fileName )
+RESOURCE_TYPE::TYPE cResourceManager::GetFileKind( const StrPath &fileName )
 {
-	return importer::GetFileKind(fileName);
+	return importer::GetFileKind(fileName.c_str());
 }
 
 
@@ -965,11 +966,9 @@ RESOURCE_TYPE::TYPE cResourceManager::GetFileKind( const string &fileName )
 // media : c:/project/media,  
 // fileName : c:/project/media/terrain/file.txt
 // result = ./terrain/file.txt
-string cResourceManager::GetRelativePathToMedia( const string &fileName )
+StrPath cResourceManager::GetRelativePathToMedia( const StrPath &fileName )
 {
-	const string mediaFullPath = common::GetFullFileName(m_mediaDirectory);
-	const string fullFileName = common::GetFullFileName(fileName);
-	const string relatePath = common::RelativePathTo( mediaFullPath, fullFileName);
+	const StrPath relatePath = common::RelativePathTo(m_mediaDirectory.GetFullFileName(), fileName.GetFullFileName());
 	return relatePath;
 }
 

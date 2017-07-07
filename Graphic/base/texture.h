@@ -12,9 +12,9 @@ namespace graphic
 		cTexture();
 		virtual ~cTexture();
 
-		bool Create(cRenderer &renderer, const string &fileName, bool isSizePow2 = true);
+		bool Create(cRenderer &renderer, const StrPath &fileName, bool isSizePow2 = true);
 		bool Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format);
-		bool WritePNGFile( const string &fileName );
+		bool WritePNGFile( const StrPath &fileName );
 
 		void Bind(cRenderer &renderer, const int stage);
 		void Bind(cShader &shader, const string &key);
@@ -26,7 +26,7 @@ namespace graphic
 		void Unlock();
 		IDirect3DTexture9* GetTexture();
 		const D3DXIMAGE_INFO& GetImageInfo() const;
-		const string& GetTextureName() const;
+		const StrPath& GetTextureName() const;
 		void TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color);
 		void DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color);
 		bool IsLoaded();
@@ -38,13 +38,13 @@ namespace graphic
 		
 
 	protected:
-		bool CreateEx(cRenderer &renderer, const string &fileName);
+		bool CreateEx(cRenderer &renderer, const StrPath &fileName);
 
 
 	public:
 		IDirect3DTexture9 *m_texture;
 		D3DXIMAGE_INFO m_imageInfo;
-		string m_fileName;
+		StrPath m_fileName;
 		bool m_isReferenceMode;
 		bool m_customTexture; // using LostDevice, ResetDevice
 	};
@@ -52,5 +52,5 @@ namespace graphic
 
 	inline IDirect3DTexture9* cTexture::GetTexture() { return m_texture; }
 	inline const D3DXIMAGE_INFO& cTexture::GetImageInfo() const { return m_imageInfo; }
-	inline const string& cTexture::GetTextureName() const { return m_fileName; }
+	inline const StrPath& cTexture::GetTextureName() const { return m_fileName; }
 }

@@ -26,83 +26,83 @@ namespace graphic
 
 		void Update(const float deltaSeconds);
 		
-		sRawMeshGroup* LoadRawMesh( const string &fileName );
+		sRawMeshGroup* LoadRawMesh( const StrPath &fileName );
 		bool InsertRawMesh(sRawMeshGroup *meshes);
-		sRawMeshGroup2* LoadRawMesh2(const string &fileName);
+		sRawMeshGroup2* LoadRawMesh2(const StrPath &fileName);
 
-		cXFileMesh* LoadXFile(cRenderer &renderer, const string &fileName);
-		cColladaModel * LoadColladaModel(cRenderer &renderer, const string &fileName);
+		cXFileMesh* LoadXFile(cRenderer &renderer, const StrPath &fileName);
+		cColladaModel * LoadColladaModel(cRenderer &renderer, const StrPath &fileName);
 
-		std::pair<bool, cXFileMesh*> LoadXFileParallel(cRenderer &renderer, const string &fileName);
-		void InsertXFileModel(const string &fileName, cXFileMesh *p);
+		std::pair<bool, cXFileMesh*> LoadXFileParallel(cRenderer &renderer, const StrPath &fileName);
+		void InsertXFileModel(const StrPath &fileName, cXFileMesh *p);
 
-		std::pair<bool, cColladaModel*> LoadColladaModelParallel(cRenderer &renderer, const string &fileName);
-		void InsertColladaModel(const string &fileName, cColladaModel *p);
+		std::pair<bool, cColladaModel*> LoadColladaModelParallel(cRenderer &renderer, const StrPath &fileName);
+		void InsertColladaModel(const StrPath &fileName, cColladaModel *p);
 
-		cShadowVolume* LoadShadow(cRenderer &renderer, const string &fileName);
-		std::pair<bool, cShadowVolume*> LoadShadowParallel(cRenderer &renderer, const string &fileName);
-		void InsertShadow(const string &fileName, cShadowVolume *p);
+		cShadowVolume* LoadShadow(cRenderer &renderer, const StrPath &fileName);
+		std::pair<bool, cShadowVolume*> LoadShadowParallel(cRenderer &renderer, const StrPath &fileName);
+		void InsertShadow(const StrPath &fileName, cShadowVolume *p);
 
 
-		sRawAniGroup* LoadAnimation( const string &fileName );
+		sRawAniGroup* LoadAnimation( const StrPath &fileName );
 		bool LoadAnimation(sRawAniGroup *anies);
-		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const string &meshName);
+		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const StrPath &meshName);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
-		cTexture* LoadTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
-		cTexture* LoadTexture(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
-		cTexture* LoadTexture2(cRenderer &renderer, const string &dirPath, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
-		cTexture* LoadTextureParallel(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true);
-		void InsertTexture(const string &fileName, cTexture *p);
+		cTexture* LoadTexture(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
+		cTexture* LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		cTexture* LoadTexture2(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		cTexture* LoadTextureParallel(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true);
+		void InsertTexture(const StrPath &fileName, cTexture *p);
 
-		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const string &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
-		cShader* LoadShader(cRenderer &renderer, const string &fileName);
+		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		cShader* LoadShader(cRenderer &renderer, const StrPath &fileName);
 
-		sRawMeshGroup* FindModel( const string &fileName );
-		sRawMeshGroup2* FindModel2(const string &fileName);
-		std::pair<bool, cXFileMesh*> FindXFile(const string &fileName);
-		std::pair<bool, cColladaModel*> FindColladaModel(const string &fileName);
-		std::pair<bool, cShadowVolume*> FindShadow(const string &fileName);
+		sRawMeshGroup* FindModel( const StrPath &fileName );
+		sRawMeshGroup2* FindModel2(const StrPath &fileName);
+		std::pair<bool, cXFileMesh*> FindXFile(const StrPath &fileName);
+		std::pair<bool, cColladaModel*> FindColladaModel(const StrPath &fileName);
+		std::pair<bool, cShadowVolume*> FindShadow(const StrPath &fileName);
 
-		sRawAniGroup* FindAnimation( const string &fileName );
-		cMeshBuffer* FindMeshBuffer( const string &meshName );
-		std::pair<bool, cTexture*> FindTexture( const string &fileName );
-		cCubeTexture* FindCubeTexture(const string &fileName);
-		cShader * FindShader(const string &fileName);
-		string FindFile( const string &fileName );
+		sRawAniGroup* FindAnimation( const StrPath &fileName );
+		cMeshBuffer* FindMeshBuffer( const StrPath &meshName );
+		std::pair<bool, cTexture*> FindTexture( const StrPath &fileName );
+		cCubeTexture* FindCubeTexture(const StrPath &fileName);
+		cShader * FindShader(const StrPath &fileName);
+		StrPath FindFile( const StrPath &fileName );
 
 		void AddParallelLoader(cParallelLoader *p);
 		void AddTask(cTask *task);
 
 
-		void SetMediaDirectory( const string &path );
-		const string& GetMediaDirectory() const;
-		string GetRelativePathToMedia( const string &fileName );
+		void SetMediaDirectory( const StrPath &path );
+		const StrPath& GetMediaDirectory() const;
+		StrPath GetRelativePathToMedia( const StrPath &fileName );
 		void ReloadShader(cRenderer &renderer);
-		string GetResourceFilePath(const string &fileName);
-		string GetResourceFilePath(const string &dir, const string &fileName);
+		StrPath GetResourceFilePath(const StrPath &fileName);
+		StrPath GetResourceFilePath(const StrPath &dir, const StrPath &fileName);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
 
-		RESOURCE_TYPE::TYPE GetFileKind( const string &fileName );
+		RESOURCE_TYPE::TYPE GetFileKind( const StrPath &fileName );
 
 
 	private:
 		CriticalSection m_cs;
 		CriticalSection m_csShadow;
 
-		map<string, sRawMeshGroup*> m_meshes; // key = fileName
-		map<string, sRawMeshGroup2*> m_meshes2; // key = fileName
-		map<string, cXFileMesh*> m_xfiles; // key = fileName
-		map<string, cColladaModel*> m_colladaModels; // key = fileName
-		map<string, cShadowVolume*> m_shadows; // key = fileName
+		map<hashcode, sRawMeshGroup*> m_meshes; // key = fileName
+		map<hashcode, sRawMeshGroup2*> m_meshes2; // key = fileName
+		map<hashcode, cXFileMesh*> m_xfiles; // key = fileName
+		map<hashcode, cColladaModel*> m_colladaModels; // key = fileName
+		map<hashcode, cShadowVolume*> m_shadows; // key = fileName
 
-		map<string, sRawAniGroup*> m_anies;	// key = fileName
-		map<string, cMeshBuffer*> m_mesheBuffers; // key = meshName
-		map<string, cTexture*> m_textures; // key = fileName
-		map<string, cCubeTexture*> m_cubeTextures; // key = fileName
-		map<string, cShader*> m_shaders; // key = fileName
-		string m_mediaDirectory; // default : ../media/
+		map<hashcode, sRawAniGroup*> m_anies;	// key = fileName
+		map<hashcode, cMeshBuffer*> m_mesheBuffers; // key = meshName
+		map<hashcode, cTexture*> m_textures; // key = fileName
+		map<hashcode, cCubeTexture*> m_cubeTextures; // key = fileName
+		map<hashcode, cShader*> m_shaders; // key = fileName
+		StrPath m_mediaDirectory; // default : ../media/
 
 		vector<cParallelLoader*> m_ploaders;
 
@@ -111,6 +111,6 @@ namespace graphic
 	};
 
 
-	inline void cResourceManager::SetMediaDirectory( const string &path ) { m_mediaDirectory = path; }
-	inline const string& cResourceManager::GetMediaDirectory() const { return m_mediaDirectory; }
+	inline void cResourceManager::SetMediaDirectory( const StrPath &path ) { m_mediaDirectory = path; }
+	inline const StrPath& cResourceManager::GetMediaDirectory() const { return m_mediaDirectory; }
 }

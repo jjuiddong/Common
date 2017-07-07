@@ -13,7 +13,7 @@ using namespace common;
 
 //#include "../wxMemMonitorLib/wxMemMonitor.h" // debug library
 
-static const string g_defaultTexture = "white.dds";
+static const StrPath g_defaultTexture = "white.dds";
 
 
 #include "../ai/ai.h"

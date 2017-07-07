@@ -14,7 +14,7 @@ namespace graphic
 		cXFileMesh();
 		virtual ~cXFileMesh();
 
-		bool Create(cRenderer &renderer, const string &fileName, const bool isShadow=false, const bool isOptimize=false);
+		bool Create(cRenderer &renderer, const StrPath &fileName, const bool isShadow=false, const bool isOptimize=false);
 		bool Update(const float deltaSeconds);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
@@ -24,7 +24,7 @@ namespace graphic
 
 
 	protected:
-		HRESULT CreateMaterials(const string &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials);
+		HRESULT CreateMaterials(const StrPath &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials);
 		void InitBoundingBox();
 		
 

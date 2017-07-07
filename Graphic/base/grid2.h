@@ -14,7 +14,7 @@ namespace graphic
 
 		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize,
 			const float textureUVFactor=8.f, const float offsetY=0.f);
-		bool CreateFromFile(cRenderer &renderer, const string &fileName);
+		bool CreateFromFile(cRenderer &renderer, const StrPath &fileName);
 		bool WriteFile(const string &fileName);
 
 		void Render(cRenderer &renderer,  const Matrix44 &tm = Matrix44::Identity, const int stage=0);

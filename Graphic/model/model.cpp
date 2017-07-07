@@ -32,7 +32,7 @@ cModel::~cModel()
 }
 
 
-bool cModel::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type
+bool cModel::Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type
 	,const bool isLoadShader)
 	// type = MODEL_TYPE::AUTO
 {

@@ -12,7 +12,7 @@ namespace graphic
 	class cTaskColladaLoader : public common::cTask
 	{
 	public:
-		cTaskColladaLoader(int id, cRenderer *renderer, const std::string &fileName)
+		cTaskColladaLoader(int id, cRenderer *renderer, const StrPath &fileName)
 			: cTask(id, "cTaskColladaLoader")
 			, m_renderer(renderer)
 			, m_fileName(fileName) {
@@ -22,7 +22,7 @@ namespace graphic
 
 		virtual eRunResult::Enum Run() 
 		{
-			const string resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
+			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
 			if (resourcePath.empty())
 				goto error;
 
@@ -40,7 +40,7 @@ namespace graphic
 			return eRunResult::END;
 		}
 
-		string m_fileName;
+		StrPath m_fileName;
 		cRenderer *m_renderer;
 	};
 
@@ -49,7 +49,7 @@ namespace graphic
 	class cTaskXFileLoader : public common::cTask
 	{
 	public:
-		cTaskXFileLoader(int id, cRenderer *renderer, const std::string &fileName)
+		cTaskXFileLoader(int id, cRenderer *renderer, const StrPath &fileName)
 			: cTask(id, "cTaskXFileLoader")
 			, m_renderer(renderer)
 			, m_fileName(fileName) {
@@ -59,7 +59,7 @@ namespace graphic
 
 		virtual eRunResult::Enum Run()
 		{
-			const string resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
+			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
 			if (resourcePath.empty())
 				goto error;
 
@@ -77,7 +77,7 @@ namespace graphic
 			return eRunResult::END;
 		}
 
-		string m_fileName;
+		StrPath m_fileName;
 		cRenderer *m_renderer;
 	};
 
@@ -87,7 +87,7 @@ namespace graphic
 	{
 	public:
 		cTaskShadowLoader(int id, cRenderer *renderer
-			, const std::string &fileName
+			, const StrPath &fileName
 			, cColladaModel *colladaModel
 			, cXFileMesh *xfile
 		)
@@ -131,7 +131,7 @@ namespace graphic
 			return eRunResult::END;
 		}
 
-		string m_fileName;
+		StrPath m_fileName;
 		cRenderer *m_renderer;
 		cColladaModel *m_colladaModel;
 		cXFileMesh *m_xfile;
@@ -142,7 +142,7 @@ namespace graphic
 	class cTaskTextureLoader : public common::cTask
 	{
 	public:
-		cTaskTextureLoader(int id, cRenderer *renderer, const std::string &fileName, const bool isSizePow2)
+		cTaskTextureLoader(int id, cRenderer *renderer, const StrPath &fileName, const bool isSizePow2)
 			: cTask(id, "cTaskTextureLoader")
 			, m_renderer(renderer)
 			, m_isSizePow2(isSizePow2)
@@ -153,7 +153,7 @@ namespace graphic
 
 		virtual eRunResult::Enum Run()
 		{
-			const string resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
+			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
 			if (resourcePath.empty())
 				goto error;
 
@@ -185,7 +185,7 @@ namespace graphic
 			return eRunResult::END;
 		}
 
-		string m_fileName;
+		StrPath m_fileName;
 		bool m_isSizePow2;
 		cRenderer *m_renderer;
 	};

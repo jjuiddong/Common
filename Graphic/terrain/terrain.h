@@ -27,23 +27,23 @@ namespace graphic
 
 		//-----------------------------------------------------------------------------
 		// Create Terrain
-		bool CreateFromTRNFile(cRenderer &renderer, const string &fileName);
+		bool CreateFromTRNFile(cRenderer &renderer, const StrPath &fileName);
 
 		bool CreateFromRawTerrain(cRenderer &renderer, const sRawTerrain &rawTerrain);
 
-		bool CreateFromHeightMap(cRenderer &renderer, const string &heightMapFileName,
-			const string &textureFileName, const float heightFactor=3.f, 
+		bool CreateFromHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
+			const StrPath &textureFileName, const float heightFactor=3.f,
 			const float textureUVFactor=1.f, const int rowCellCount=64, 
 			const int colCellCount=64, const float cellSize=50.f );
 
-		bool CreateFromGRDFormat(cRenderer &renderer, const string &gridFileName,
-			const string &textureFileName, const float heightFactor=3.f, 
+		bool CreateFromGRDFormat(cRenderer &renderer, const StrPath &gridFileName,
+			const StrPath &textureFileName, const float heightFactor=3.f,
 			const float textureUVFactor=1.f );
 
 		bool CreateTerrain(cRenderer &renderer, const int rowCellCount = 64, const int colCellCount = 64,
 			const float cellSize=50.f, const float textureUVFactor=1.f );
 
-		bool CreateTerrainTexture(cRenderer &renderer, const string &textureFileName);
+		bool CreateTerrainTexture(cRenderer &renderer, const StrPath &textureFileName);
 
 		float GetHeight(const float x, const float z);
 		float GetHeightFromRay( const Vector3 &orig, const Vector3 &dir, OUT Vector3 &out );
@@ -56,7 +56,7 @@ namespace graphic
 		//-----------------------------------------------------------------------------
 		// Model
 		cModel* AddRigidModel(cRenderer &renderer, const cModel &model);
-		cModel* AddRigidModel(cRenderer &renderer, const string &fileName);
+		cModel* AddRigidModel(cRenderer &renderer, const StrPath &fileName);
 		cModel* FindRigidModel(const int id);
 		bool RemoveRigidModel(cModel *model, const bool destruct=true);
 		bool RemoveRigidModel(const int id, const bool destruct=true);
@@ -78,10 +78,10 @@ namespace graphic
 		float GetCellSize() const;
 		float GetTerrainWidth() const;
 		float GetTerrainHeight() const;
-		const string& GetTextureName();
+		const StrPath& GetTextureName();
 		float GetTextureUVFactor() const;
 		float GetHeightFactor() const;
-		const string& GetHeightMapFileName() const;
+		const StrPath& GetHeightMapFileName() const;
 
 
 		//-----------------------------------------------------------------------------
@@ -105,8 +105,8 @@ namespace graphic
 		void RenderRigidModels(cRenderer &renderer,  const Matrix44 &tm);
 
 		float GetHeightMapEntry( int row, int col );
-		bool UpdateHeightMap(cRenderer &renderer, const string &heightMapFileName,
-			const string &textureFileName, const float heightFactor );
+		bool UpdateHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
+			const StrPath &textureFileName, const float heightFactor );
 
 		DWORD GetAlphaMask(const int layer);
 
@@ -123,7 +123,7 @@ namespace graphic
 
 		cGrid2 m_grid;
 		float m_heightFactor;
-		string m_heightMapFileName;
+		StrPath m_heightMapFileName;
 		cShader *m_shader; // reference
 
 		// model
@@ -149,7 +149,7 @@ namespace graphic
 	inline int cTerrain::GetLayerCount() const { return (int)m_layer.size(); }
 	inline const sSplatLayer& cTerrain::GetLayer(int layer) const { return m_layer[ layer]; }
 	inline cTexture& cTerrain::GetAlphaTexture() { return m_alphaTexture; }
-	inline const string& cTerrain::GetHeightMapFileName() const { return m_heightMapFileName; }
+	inline const StrPath& cTerrain::GetHeightMapFileName() const { return m_heightMapFileName; }
 	inline void cTerrain::SetRenderWater(const bool enable) { m_isRenderWater = enable; }
 	inline bool cTerrain::IstRenderWater() const { return m_isRenderWater; }
 }

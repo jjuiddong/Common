@@ -19,7 +19,7 @@ cXFileMesh::~cXFileMesh()
 }
 
 
-bool cXFileMesh::Create(cRenderer &renderer, const string &fileName
+bool cXFileMesh::Create(cRenderer &renderer, const StrPath &fileName
 	, const bool isShadow // = false
 	, const bool isOptimize //= false
 )
@@ -107,7 +107,7 @@ bool cXFileMesh::Create(cRenderer &renderer, const string &fileName
 }
 
 
-HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials)
+HRESULT cXFileMesh::CreateMaterials(const StrPath &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials)
 {
 	m_materialsCount = dwNumMaterials;
 	if (d3dxMtrls && m_materialsCount > 0)
@@ -129,10 +129,10 @@ HRESULT cXFileMesh::CreateMaterials(const string &filePath, cRenderer &renderer,
 				//	"/" + d3dxMtrls[i].pTextureFilename;
 				//m_textures[i] = cResourceManager::Get()->LoadTexture(renderer, textureFileName);
 
-				const string dirPath = common::GetFilePathExceptFileName(common::GetFullFileName(filePath));
+				const StrPath dirPath = filePath.GetFullFileName().GetFilePathExceptFileName();
 				//"/" + d3dxMtrls[i].pTextureFilename;
 
-				m_textures[i] = cResourceManager::Get()->LoadTexture2(renderer, dirPath, string(d3dxMtrls[i].pTextureFilename));
+				m_textures[i] = cResourceManager::Get()->LoadTexture2(renderer, dirPath, d3dxMtrls[i].pTextureFilename);
 			}
 			else
 			{

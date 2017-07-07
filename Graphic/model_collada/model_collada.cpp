@@ -15,7 +15,7 @@ cColladaModel::~cColladaModel()
 }
 
 
-bool cColladaModel::Create(cRenderer &renderer, const string &fileName)
+bool cColladaModel::Create(cRenderer &renderer, const StrPath &fileName)
 {
 	Clear();
 
@@ -87,10 +87,10 @@ void cColladaModel::UpdateBoundingBox()
 }
 
 
-void cColladaModel::SetAnimation(const string &animationName, const bool isMerge)
+void cColladaModel::SetAnimation(const Str64 &animationName, const bool isMerge)
 // isMerge = false
 {
-	if (sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName))
+	if (sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName.c_str()))
 		m_animation.Create(*rawAnies, &m_skeleton, isMerge);
 }
 

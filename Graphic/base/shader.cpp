@@ -36,8 +36,8 @@ cShader::~cShader()
 }
 
 
-bool cShader::Create(cRenderer &renderer, const string &fileName
-	, const string &technique
+bool cShader::Create(cRenderer &renderer, const StrPath &fileName
+	, const Str32 &technique
 	, const bool showMsgBox//=true
 )
 {
@@ -57,7 +57,7 @@ bool cShader::Create(cRenderer &renderer, const string &fileName
 		{
  			dbg::ErrLog("cShader::Create Error pErr==NULL [%s], device=%x \n", 
  				fileName.c_str(), renderer.GetDevice());
-			string msg = fileName + " Not Exist File";
+			StrPath msg = fileName + " Not Exist File";
 			if (showMsgBox)
 				MessageBoxA( NULL, msg.c_str(), "ERROR", MB_OK);
 		}
@@ -99,7 +99,7 @@ bool cShader::Reload(cRenderer &renderer)
 }
 
 
-void cShader::SetTechnique(const string &technique) 
+void cShader::SetTechnique(const Str32 &technique) 
 {
 	RET(!m_effect);
 	m_hTechnique = m_effect->GetTechniqueByName(technique.c_str());
@@ -178,7 +178,7 @@ void cShader::SetTexture(const string &key, cTexture &texture)
 		MessageBoxA( NULL, "cShader::SetTexture Error", "ERROR", MB_OK);
 	}
 }
-void cShader::SetCubeTexture(const string &key, cCubeTexture &texture)
+void cShader::SetCubeTexture(const Str32 &key, cCubeTexture &texture)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture(key.c_str(), texture.m_texture)))

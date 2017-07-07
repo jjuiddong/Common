@@ -14,15 +14,15 @@ namespace graphic
 		cCubeTexture();
 		virtual ~cCubeTexture();
 
-		bool Create(cRenderer &renderer, const string &fileName);
-		void Bind(cShader &shader, const string &key);
+		bool Create(cRenderer &renderer, const StrPath &fileName);
+		void Bind(cShader &shader, const Str32 &key);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		bool IsLoaded();
 		void Clear();
 
 
-		string m_fileName;
+		StrPath m_fileName;
 		IDirect3DCubeTexture9 *m_texture;
 	};
 

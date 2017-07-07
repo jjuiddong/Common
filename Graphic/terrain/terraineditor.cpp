@@ -66,8 +66,8 @@ void cTerrainEditor::GenerateRawTerrain( OUT sRawTerrain &out )
 
 	for (u_int i=0; i < m_layer.size(); ++i)
 	{
-		if (m_layer[ i].texture)
-			out.layer[ i].texture = cResourceManager::Get()->GetRelativePathToMedia(m_layer[ i].texture->GetTextureName());
+		//if (m_layer[ i].texture)
+		//	out.layer[ i].texture = cResourceManager::Get()->GetRelativePathToMedia(m_layer[ i].texture->GetTextureName());
 	}
 
 	out.models.reserve( m_rigids.size() );
@@ -314,7 +314,7 @@ void cTerrainEditor::SetHeightFactor(const float heightFactor)
 	if (!IsLoaded())
 		return; // 아직 지형이 로딩되지 않아서 리턴한다.
 	
-	const wstring wfileName = common::str2wstr(m_heightMapFileName);
+	const wstring wfileName = common::str2wstr(m_heightMapFileName.c_str());
 	Bitmap bmp(wfileName.c_str());
 	if (Ok != bmp.GetLastStatus())
 		return;

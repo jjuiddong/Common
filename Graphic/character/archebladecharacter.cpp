@@ -25,7 +25,7 @@ cArchebladeCharacter::~cArchebladeCharacter()
 }
 
 
-bool cArchebladeCharacter::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type
+bool cArchebladeCharacter::Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type
 	, const bool isLoadShader)
 // type = MODEL_TYPE::AUTO
 // isLoadShader = true

@@ -12,7 +12,7 @@ namespace graphic
 		cSc2Character(const int id);
 		virtual ~cSc2Character();
 
-		virtual bool Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO
+		virtual bool Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO
 			, const bool isLoadShader=true) override;
 	};
 

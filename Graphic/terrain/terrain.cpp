@@ -24,10 +24,10 @@ cTerrain::~cTerrain()
 
 
 // *.TRN  파일을 읽어서 지형을 초기화 한다.
-bool cTerrain::CreateFromTRNFile(cRenderer &renderer, const string &fileName)
+bool cTerrain::CreateFromTRNFile(cRenderer &renderer, const StrPath &fileName)
 {
 	sRawTerrain rawTerrain;
-	if (!importer::ReadRawTerrainFile(fileName, rawTerrain))
+	if (!importer::ReadRawTerrainFile(fileName.c_str(), rawTerrain))
 		return false;
 
 	return CreateFromRawTerrain(renderer, rawTerrain);
@@ -39,7 +39,7 @@ bool cTerrain::CreateFromRawTerrain(cRenderer &renderer, const sRawTerrain &rawT
 {
 	Clear();
 
-	const string mediaDir = cResourceManager::Get()->GetMediaDirectory();
+	const StrPath mediaDir = cResourceManager::Get()->GetMediaDirectory();
 
 	if (rawTerrain.heightMapStyle == 0)
 	{
@@ -60,7 +60,7 @@ bool cTerrain::CreateFromRawTerrain(cRenderer &renderer, const sRawTerrain &rawT
 	}
 	else if (rawTerrain.heightMapStyle == 1)
 	{
-		CreateFromGRDFormat(renderer, mediaDir+rawTerrain.heightMap, mediaDir+rawTerrain.bgTexture, 
+		CreateFromGRDFormat(renderer, mediaDir+rawTerrain.heightMap.c_str(), mediaDir+rawTerrain.bgTexture.c_str(),
 			rawTerrain.heightFactor, rawTerrain.textureFactor );
 			//rawTerrain.rowCellCount, rawTerrain.colCellCount, rawTerrain.cellSize );
 	}
@@ -101,8 +101,8 @@ bool cTerrain::CreateFromRawTerrain(cRenderer &renderer, const sRawTerrain &rawT
 }
 
 
-bool cTerrain::CreateFromHeightMap(cRenderer &renderer, const string &heightMapFileName,
-	const string &textureFileName, const float heightFactor, const float textureUVFactor,
+bool cTerrain::CreateFromHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
+	const StrPath &textureFileName, const float heightFactor, const float textureUVFactor,
 	const int rowCellCount, const int colCellCount, const float cellSize)
 	// heightFactor=3.f, textureUVFactor=1.f
 	// rowCellCount=64, colCellCount=64, cellSize=50.f
@@ -115,8 +115,8 @@ bool cTerrain::CreateFromHeightMap(cRenderer &renderer, const string &heightMapF
 
 // Grid 포맷 파일로 지형을 생성한다.
 // GRD 포맷: 그리드의 높이 값을 저장하는 파일 포맷.
-bool cTerrain::CreateFromGRDFormat(cRenderer &renderer, const string &gridFileName,
-	const string &textureFileName, const float heightFactor, const float textureUVFactor )
+bool cTerrain::CreateFromGRDFormat(cRenderer &renderer, const StrPath &gridFileName,
+	const StrPath &textureFileName, const float heightFactor, const float textureUVFactor )
 	// heightFactor=3.f, textureUVFactor=1.f
 	// rowCellCount=64, colCellCount=64, cellSize=50.f
 {
@@ -140,7 +140,7 @@ bool cTerrain::CreateFromGRDFormat(cRenderer &renderer, const string &gridFileNa
 
 
 // 지형 텍스쳐 생성.
-bool cTerrain::CreateTerrainTexture(cRenderer &renderer, const string &textureFileName)
+bool cTerrain::CreateTerrainTexture(cRenderer &renderer, const StrPath &textureFileName)
 {
 	m_grid.GetTexture().Clear();
 	return m_grid.GetTexture().Create(renderer, textureFileName );
@@ -172,13 +172,13 @@ bool cTerrain::CreateTerrain(cRenderer &renderer, const int rowCellCount, const 
 
 // 텍스쳐 파일 정보로 높이 정보를 채운다.
 // m_grid 가 생성된 상태여야 한다.
-bool cTerrain::UpdateHeightMap(cRenderer &renderer, const string &heightMapFileName,
-	const string &textureFileName, const float heightFactor )
+bool cTerrain::UpdateHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
+	const StrPath &textureFileName, const float heightFactor )
 {
 	m_heightFactor = heightFactor;
 	m_heightMapFileName = heightMapFileName;
 
-	const wstring wfileName = common::str2wstr(heightMapFileName);
+	const wstring wfileName = common::str2wstr(heightMapFileName.c_str());
 	Gdiplus::Bitmap bmp(wfileName.c_str());
 	if (Gdiplus::Ok != bmp.GetLastStatus())
 		return false;
@@ -486,7 +486,7 @@ void cTerrain::Clear()
 }
 
 
-const string& cTerrain::GetTextureName()
+const StrPath& cTerrain::GetTextureName()
 {
 	return m_grid.GetTexture().GetTextureName();
 }
@@ -503,7 +503,7 @@ cModel* cTerrain::AddRigidModel(cRenderer &renderer, const cModel &model)
 
 
 // 정적 모델 추가
-cModel* cTerrain::AddRigidModel(cRenderer &renderer, const string &fileName)
+cModel* cTerrain::AddRigidModel(cRenderer &renderer, const StrPath &fileName)
 {
 	cModel *model = new cModel(common::GenerateId());
 	if (!model->Create(renderer, fileName))

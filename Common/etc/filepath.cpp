@@ -131,6 +131,17 @@ string common::RelativePathTo(const string &pathFrom, const string &pathTo)
 
 	return szOut;
 }
+
+common::StrPath common::RelativePathTo(const StrPath &pathFrom, const StrPath &pathTo)
+{
+	StrPath out;
+	const BOOL result = PathRelativePathToA(out.m_str,
+		pathFrom.c_str(), FILE_ATTRIBUTE_DIRECTORY,
+		pathTo.c_str(), FILE_ATTRIBUTE_NORMAL);
+	return out;
+}
+
+
 wstring common::RelativePathToW(const wstring &pathFrom, const wstring &pathTo)
 {
 	wchar_t szOut[MAX_PATH];
@@ -148,6 +159,11 @@ bool common::IsRelativePath(const string &path)
 {
 	return PathIsRelativeA(path.c_str())? true : false;
 }
+bool common::IsRelativePath(const StrPath &path)
+{
+	return PathIsRelativeA(path.c_str()) ? true : false;
+}
+
 
 
 // ./dir1/dir2/file.ext  ==>  dir1/dir2/file.ext
@@ -430,38 +446,38 @@ bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLe
 // searchPath 디렉토리 안에서 findName 의 파일이름을 가진 파일이 있다면 해당 경로를
 // out 에 저장하고 true 를 리턴한다.
 // depth 크기만큼 하위 디렉토리를 검색한다.  -1이면 끝까지 검색한다.
-bool common::FindFile( const string &findName, const string &searchPath, string &out
+bool common::FindFile( const StrPath &findName, const StrPath &searchPath, StrPath &out
 	, const int depth //= -1
 )
 {
 	if (depth == 0)
 		return false;
 
-	string lowerCaseFindFileName = findName;
-	lowerCase(lowerCaseFindFileName);
+	StrPath lowerCaseFindFileName = findName;
+	lowerCaseFindFileName.lowerCase();
 
 	WIN32_FIND_DATAA fd;
-	const string searchDir = searchPath + "*.*";
+	const StrPath searchDir = searchPath + "*.*";
 	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
 
 	while (1)
 	{
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 		{
-			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
+			if (strcmp(".", fd.cFileName) && strcmp("..", fd.cFileName))
 			{
-				if (FindFile( findName, searchPath + string(fd.cFileName) + "/", out, depth-1 ))
+				if (FindFile( findName, searchPath + fd.cFileName + "/", out, depth-1 ))
 					break;
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
 		{
-			string fileName = fd.cFileName;
+			StrPath fileName = fd.cFileName;
 			// 속도가 느려져서 주석처리함, GetFileName()호출은 외부에서 할 것
 			//if (lowerCase(fileName) == lowerCase(GetFileName(findName)))
-			if (lowerCase(fileName) == lowerCaseFindFileName)
+			if (fileName.lowerCase() == lowerCaseFindFileName)
 			{
-				out = searchPath + GetFileName(findName);
+				out = searchPath + findName.GetFileName();
 				break;
 			}
 		}
@@ -477,6 +493,12 @@ bool common::FindFile( const string &findName, const string &searchPath, string 
 
 
 bool common::IsFileExist(const string &fileName)
+{
+	return _access_s(fileName.c_str(), 0) == 0;
+}
+
+
+bool common::IsFileExist(const StrPath &fileName)
 {
 	return _access_s(fileName.c_str(), 0) == 0;
 }

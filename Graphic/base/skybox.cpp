@@ -17,7 +17,7 @@ cSkyBox::~cSkyBox()
 
 // textureFilePath : 이 파일 경로에 skybox_top, skybox_front, skybox_back, 
 //				skybox_left, skybox_right, skybox_bottom.jpg 파일이 있어야 한다.
-bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
+bool cSkyBox::Create(cRenderer &renderer, const StrPath &textureFilePath)
 {
 	char *textureFileName2[] = 
 	{
@@ -42,7 +42,7 @@ bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath)
 }
 
 
-bool cSkyBox::Create2(cRenderer &renderer, const string &textureFilePath)
+bool cSkyBox::Create2(cRenderer &renderer, const StrPath &textureFilePath)
 {	
 	char *textureFileName1[] =
 	{
@@ -57,12 +57,12 @@ bool cSkyBox::Create2(cRenderer &renderer, const string &textureFilePath)
 }
 
 
-bool cSkyBox::Create(cRenderer &renderer, const string &textureFilePath,
+bool cSkyBox::Create(cRenderer &renderer, const StrPath &textureFilePath,
 	char *skyboxTextureNames[6])
 {
 	for (int i = 0; i < MAX_FACE; ++i)
 	{
-		const string fileName = textureFilePath + "/" + skyboxTextureNames[i];
+		const StrPath fileName = textureFilePath + "/" + skyboxTextureNames[i];
 		m_textures[i] = cResourceManager::Get()->LoadTextureParallel(renderer, fileName);
 		cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
 			, fileName, (void**)&m_textures[i]));

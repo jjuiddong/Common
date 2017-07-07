@@ -17,7 +17,7 @@ cSc2Character::~cSc2Character()
 
 
 // 캐릭터 모델 생성.
-bool cSc2Character::Create(cRenderer &renderer, const string &modelName, MODEL_TYPE::TYPE type
+bool cSc2Character::Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type
 	, const bool isLoadShader)
 // type = MODEL_TYPE::AUTO
 // isLoadShader = true;

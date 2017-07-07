@@ -27,7 +27,7 @@ namespace graphic
 
 	struct sRawAni
 	{
-		string name;
+		Str32 name;
 		float start; // frame 단위
 		float end; // frame 단위
 		vector<sKeyPos> pos;
@@ -42,7 +42,7 @@ namespace graphic
 		enum ANITYPE { MESH_ANI, BONE_ANI };
 
 		ANITYPE type;
-		string name;		
+		Str64 name;		
 		vector<sRawAni> anies;
 		vector<sRawBone> bones;
 	};
