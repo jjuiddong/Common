@@ -54,7 +54,7 @@ bool cArchebladeCharacter::Create(cRenderer &renderer, const StrPath &modelName,
 }
 
 
-void cArchebladeCharacter::LoadWeapon(cRenderer &renderer, const string &fileName)
+void cArchebladeCharacter::LoadWeapon(cRenderer &renderer, const StrPath &fileName)
 {
 	m_weaponNode1 = NULL;
 	m_weaponNode2 = NULL;

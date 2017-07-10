@@ -52,7 +52,7 @@ sRawMeshGroup* cResourceManager::LoadRawMesh( const StrPath &fileName )
 {
 	RETV(fileName.empty(), NULL);
 
-	if (sRawMeshGroup *data = FindModel(fileName))
+	if (sRawMeshGroup *data = FindModel(fileName.c_str()))
 		return data;
 
 	sRawMeshGroup *meshes = NULL;
@@ -61,7 +61,7 @@ sRawMeshGroup* cResourceManager::LoadRawMesh( const StrPath &fileName )
 		goto error;
 
 	meshes = new sRawMeshGroup;
-	meshes->name = fileName;
+	meshes->name = fileName.c_str();
 
 	if (!importer::ReadRawMeshFile(resourcePath.c_str(), *meshes))
 		goto error;
@@ -107,7 +107,7 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh2(const StrPath &fileName)
 {
 	RETV(fileName.empty(), NULL);
 
-	if (sRawMeshGroup2 *data = FindModel2(fileName))
+	if (sRawMeshGroup2 *data = FindModel2(fileName.c_str()))
 		return data;
 
 	cColladaLoader loader;
@@ -340,7 +340,7 @@ void cResourceManager::InsertShadow(const StrPath &fileName, cShadowVolume *p)
 
 
 // 애니메이션 파일 로딩.
-sRawAniGroup* cResourceManager::LoadAnimation( const StrPath &fileName )
+sRawAniGroup* cResourceManager::LoadAnimation( const StrId &fileName )
 {
 	RETV(fileName.empty(), NULL);
 
@@ -348,14 +348,14 @@ sRawAniGroup* cResourceManager::LoadAnimation( const StrPath &fileName )
 		return data;
 
 	sRawAniGroup *anies = NULL;
-	const StrPath resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName.c_str());
 	if (resourcePath.empty())
 		goto error;
 
 	anies = new sRawAniGroup;
-	anies->name = Str64(fileName.c_str());
+	anies->name = fileName.c_str();
 
-	if (!importer::ReadRawAnimationFile(fileName, *anies))
+	if (!importer::ReadRawAnimationFile(fileName.c_str(), *anies))
 		goto error;
 
 	LoadAnimation(anies);
@@ -380,14 +380,16 @@ bool cResourceManager::LoadAnimation(sRawAniGroup *anies)
 
 
 // meshName에 해당하는 메쉬버퍼를 리턴한다.
-cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const StrPath &meshName)
+cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const StrId &meshName)
 {
 	if (cMeshBuffer *data = FindMeshBuffer(meshName))
 		return data;
 
-	string fileName = meshName.c_str();
+	//string fileName = meshName.c_str();
 	//fileName.erase(meshName.find("::"));
-	fileName.erase(fileName.find("::"));
+	//fileName.erase(fileName.find("::"));
+	StrId fileName = meshName;
+	fileName.erase("::");
 
 	if (sRawMeshGroup *meshes = LoadRawMesh(fileName.c_str()))
 	{
@@ -419,7 +421,7 @@ cMeshBuffer* cResourceManager::LoadMeshBuffer(cRenderer &renderer, const sRawMes
 
 
 // meshName으로 메쉬버퍼를 찾아 리턴한다.
-cMeshBuffer* cResourceManager::FindMeshBuffer( const StrPath &meshName )
+cMeshBuffer* cResourceManager::FindMeshBuffer( const StrId &meshName )
 {
 	auto it = m_mesheBuffers.find(meshName.GetHashCode());
 	if (m_mesheBuffers.end() == it)
@@ -430,7 +432,7 @@ cMeshBuffer* cResourceManager::FindMeshBuffer( const StrPath &meshName )
 
 
 // find model data
-sRawMeshGroup* cResourceManager::FindModel( const StrPath &fileName )
+sRawMeshGroup* cResourceManager::FindModel( const StrId &fileName )
 {
 	auto it = m_meshes.find(fileName.GetHashCode());
 	if (m_meshes.end() == it)
@@ -441,7 +443,7 @@ sRawMeshGroup* cResourceManager::FindModel( const StrPath &fileName )
 
 
 // find model data
-sRawMeshGroup2* cResourceManager::FindModel2(const StrPath &fileName)
+sRawMeshGroup2* cResourceManager::FindModel2(const StrId &fileName)
 {
 	auto it = m_meshes2.find(fileName.GetHashCode());
 	if (m_meshes2.end() == it)
@@ -485,7 +487,7 @@ std::pair<bool, cShadowVolume*> cResourceManager::FindShadow(const StrPath &file
 
 
 // find animation data
-sRawAniGroup* cResourceManager::FindAnimation( const StrPath &fileName )
+sRawAniGroup* cResourceManager::FindAnimation( const StrId &fileName )
 {
 	auto it = m_anies.find(fileName.GetHashCode());
 	if (m_anies.end() == it)

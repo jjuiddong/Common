@@ -47,7 +47,7 @@ bool cSurface::CreateRenderTarget(cRenderer &renderer, const int width, const in
 
 
 // 파일로 저장.
-bool cSurface::WritePNGFile(const string &fileName)
+bool cSurface::WritePNGFile(const StrPath &fileName)
 {
 	if (FAILED(D3DXSaveTextureToFileA(fileName.c_str(), D3DXIFF_PNG, m_texture, NULL)))
 	{

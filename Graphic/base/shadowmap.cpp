@@ -25,7 +25,7 @@ bool cShadowMap::Create(cRenderer &renderer, const int textureWidth, const int t
 }
 
 
-void cShadowMap::Bind(cShader &shader, const string &key)
+void cShadowMap::Bind(cShader &shader, const Str32 &key)
 {
 	m_surface.Bind(shader, key);
 }

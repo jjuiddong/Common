@@ -25,7 +25,7 @@ namespace graphic
 		cBoneNode* GetRoot();
 		vector<cBoneNode*>& GetAllBoneNode();
 		cBoneNode* FindBone(const int id);
-		cBoneNode* FindBone(const string &name);
+		cBoneNode* FindBone(const Str64 &name);
 		vector<Matrix44>& GetPalette();
 		vector<cCube>& GetBoundingBoxes();
 		void SetAnimationOption(DWORD option);

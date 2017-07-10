@@ -26,7 +26,7 @@ namespace graphic
 		void End(cRenderer &renderer);
 		void Render(cRenderer &renderer, const int index = 1);
 		void RenderFull(cRenderer &renderer);
-		void Bind(cShader &shader, const string &key);
+		void Bind(cShader &shader, const Str32 &key);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
 		void Clear();

@@ -17,7 +17,7 @@ namespace graphic
 		bool WritePNGFile( const StrPath &fileName );
 
 		void Bind(cRenderer &renderer, const int stage);
-		void Bind(cShader &shader, const string &key);
+		void Bind(cShader &shader, const Str32 &key);
 		void Unbind(cRenderer &renderer, const int stage);
 		void Render2D(cRenderer &renderer);
 		void CopyFrom(cTexture &src);
@@ -27,8 +27,8 @@ namespace graphic
 		IDirect3DTexture9* GetTexture();
 		const D3DXIMAGE_INFO& GetImageInfo() const;
 		const StrPath& GetTextureName() const;
-		void TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color);
-		void DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color);
+		void TextOut(cFontGdi &font, const Str128 &text, const int x, const int y, const DWORD color);
+		void DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, const DWORD color);
 		bool IsLoaded();
 		int Width();
 		int Height();

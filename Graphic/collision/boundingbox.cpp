@@ -71,48 +71,51 @@ bool overlaps( float min1, float max1, float min2, float max2 )
 // OBB vs OBB 충돌처리.
 bool cBoundingBox::Collision( cBoundingBox &box )
 {
-	//vector<Vector3> normals(6);
-	Vector3 normals[ 6];
-	normals[ 0] = Vector3(0,1,0).MultiplyNormal(m_tm);
-	normals[ 1] = Vector3(0,0,1).MultiplyNormal(m_tm);
-	normals[ 2] = Vector3(1,0,0).MultiplyNormal(m_tm);
-	normals[ 3] = Vector3(0,1,0).MultiplyNormal(box.m_tm);
-	normals[ 4] = Vector3(0,0,1).MultiplyNormal(box.m_tm);
-	normals[ 5] = Vector3(1,0,0).MultiplyNormal(box.m_tm);
+	return Collision(box, Matrix44::Identity);
+}
+
+bool cBoundingBox::Collision(cBoundingBox &box, const Matrix44 &tm)
+{
+	Matrix44 transform = m_tm * tm;
+	Vector3 normals[6];
+	normals[0] = Vector3(0, 1, 0).MultiplyNormal(transform);
+	normals[1] = Vector3(0, 0, 1).MultiplyNormal(transform);
+	normals[2] = Vector3(1, 0, 0).MultiplyNormal(transform);
+	normals[3] = Vector3(0, 1, 0).MultiplyNormal(box.m_tm);
+	normals[4] = Vector3(0, 0, 1).MultiplyNormal(box.m_tm);
+	normals[5] = Vector3(1, 0, 0).MultiplyNormal(box.m_tm);
 
 	Vector3 vertices1[8] = {
-		Vector3(m_min.x, m_max.y, m_min.z), 
-		Vector3(m_max.x, m_max.y, m_min.z), 
-		Vector3(m_min.x, m_min.y, m_min.z), 
+		Vector3(m_min.x, m_max.y, m_min.z),
+		Vector3(m_max.x, m_max.y, m_min.z),
+		Vector3(m_min.x, m_min.y, m_min.z),
 		Vector3(m_max.x, m_min.y, m_min.z),
-		Vector3(m_min.x, m_max.y, m_max.z), 
+		Vector3(m_min.x, m_max.y, m_max.z),
 		Vector3(m_max.x, m_max.y, m_max.z),
-		Vector3(m_min.x, m_min.y, m_max.z), 
+		Vector3(m_min.x, m_min.y, m_max.z),
 		Vector3(m_max.x, m_min.y, m_max.z),
 	};
-	for (u_int i=0; i < 8; ++i)
-		vertices1[ i] *= m_tm;
-
+	for (u_int i = 0; i < 8; ++i)
+		vertices1[i] *= transform;
 
 	Vector3 vertices2[8] = {
-		Vector3(box.m_min.x, box.m_max.y, box.m_min.z), 
-		Vector3(box.m_max.x, box.m_max.y, box.m_min.z), 
-		Vector3(box.m_min.x, box.m_min.y, box.m_min.z), 
+		Vector3(box.m_min.x, box.m_max.y, box.m_min.z),
+		Vector3(box.m_max.x, box.m_max.y, box.m_min.z),
+		Vector3(box.m_min.x, box.m_min.y, box.m_min.z),
 		Vector3(box.m_max.x, box.m_min.y, box.m_min.z),
-		Vector3(box.m_min.x, box.m_max.y, box.m_max.z), 
+		Vector3(box.m_min.x, box.m_max.y, box.m_max.z),
 		Vector3(box.m_max.x, box.m_max.y, box.m_max.z),
-		Vector3(box.m_min.x, box.m_min.y, box.m_max.z), 
+		Vector3(box.m_min.x, box.m_min.y, box.m_max.z),
 		Vector3(box.m_max.x, box.m_min.y, box.m_max.z),
 	};
-	for (u_int i=0; i < 8; ++i)
-		vertices2[ i] *= box.m_tm;
+	for (u_int i = 0; i < 8; ++i)
+		vertices2[i] *= box.m_tm;
 
-
-	for( u_int i = 0 ; i < 6; i++ )
+	for (u_int i = 0; i < 6; i++)
 	{
-		float shape1Min, shape1Max, shape2Min, shape2Max ;
-		SATtest( normals[ i], vertices1, shape1Min, shape1Max ) ;
-		SATtest( normals[i], vertices2, shape2Min, shape2Max ) ;
+		float shape1Min, shape1Max, shape2Min, shape2Max;
+		SATtest(normals[i], vertices1, shape1Min, shape1Max);
+		SATtest(normals[i], vertices2, shape2Min, shape2Max);
 		if (!overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
 		{
 			return false; // NO INTERSECTION

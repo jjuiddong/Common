@@ -51,7 +51,7 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cModel2 &model)
 {
 	RET(!m_surface.IsLoaded());
 
-	const Vector3 pos = model.m_tm.GetPosition();
+	const Vector3 pos = model.m_transform.pos;
 
 	// 전역 광원으로 부터 그림자 생성에 필요한 정보를 얻어온다.
 	Vector3 lightPos;
@@ -71,7 +71,7 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cModel2 &model)
 }
 
 
-void cShadow1::Bind(cShader &shader, const string &key)
+void cShadow1::Bind(cShader &shader, const Str32 &key)
 {
 
 }

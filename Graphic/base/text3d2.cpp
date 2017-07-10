@@ -37,13 +37,13 @@ bool cText3d2::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 }
 
 
-bool cText3d2::SetText(const Matrix44 &tm, const string &text, const DWORD color)
+bool cText3d2::SetText(const Matrix44 &tm, const Str128 &text, const DWORD color)
 {
 	return true;
 }
 
 
-bool cText3d2::SetTextRect(cRenderer &renderer, const Matrix44 &tm, const string &text, const DWORD color)// , const sRecti &rect)
+bool cText3d2::SetTextRect(cRenderer &renderer, const Matrix44 &tm, const Str128 &text, const DWORD color)// , const sRecti &rect)
 {
 	m_quad.m_tm = tm;
 	m_color = color;

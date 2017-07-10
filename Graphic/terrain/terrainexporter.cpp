@@ -18,9 +18,9 @@ StrPath ConvertRS2S(const StrPath &str)
 
 
 // 지형정보를 json 포맷으로 저장한다.
-bool exporter::WriteRawTerrainFile( const string &fileName, const sRawTerrain &terrain )
+bool exporter::WriteRawTerrainFile( const StrPath &fileName, const sRawTerrain &terrain )
 {
-	ofstream of(fileName);
+	ofstream of(fileName.c_str());
 	if (!of.is_open())
 		return false;
 

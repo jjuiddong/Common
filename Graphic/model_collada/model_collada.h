@@ -31,7 +31,7 @@ namespace graphic
 		cSkeleton m_skeleton;
 		cAnimation m_animation;
 		cBoundingBox m_boundingBox;
-		Str64 m_storedAnimationName;
+		StrId m_storedAnimationName;
 	};
 
 }

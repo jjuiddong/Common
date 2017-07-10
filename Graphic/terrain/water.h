@@ -40,8 +40,8 @@ namespace graphic
 			float dz;
 			float uvFactor;
 			float yOffset;
-			string waveMapFilename0;
-			string waveMapFilename1;
+			StrPath waveMapFilename0;
+			StrPath waveMapFilename1;
 			Vector2 waveMapVelocity0;
 			Vector2 waveMapVelocity1;
 			float texScale;

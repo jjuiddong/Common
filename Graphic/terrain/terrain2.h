@@ -23,6 +23,8 @@ namespace graphic
 		virtual void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
 		virtual void RenderOption(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int option=0x1);
 		virtual void RenderDebug(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual bool Write(const StrPath &fileName);
+		virtual bool Read(const StrPath &fileName);
 		virtual void LostDevice();
 		virtual void ResetDevice(cRenderer &renderer);
 		virtual void Clear();
@@ -45,9 +47,12 @@ namespace graphic
 
 	public:
 		bool m_isShadow;
+		int m_rows;
+		int m_cols;
 		vector<cTile*> m_tiles;
 		map<hashcode, cTile*> m_tilemap; // reference
 		map<int, cTile*> m_tilemap2; // reference
+		set<cShader*> m_shaders; // reference
 
 		// ShadowMap
 		enum { SHADOWMAP_COUNT=3 };

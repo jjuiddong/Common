@@ -5,7 +5,7 @@
 using namespace graphic;
 
 
-cSprite2::cSprite2(cSprite &sprite, const int id, const string &name) :
+cSprite2::cSprite2(cSprite &sprite, const int id, const Str64 &name) :
 	cNode(id, name)
 	, m_sprite(sprite)
 	, m_texture(NULL)
@@ -21,7 +21,7 @@ cSprite2::~cSprite2()
 }
 
 
-void cSprite2::SetTexture(cRenderer &renderer, const string &fileName)
+void cSprite2::SetTexture(cRenderer &renderer, const StrPath &fileName)
 {
 	m_texture = cResourceManager::Get()->LoadTexture(renderer, fileName, false);
 	if (m_texture)

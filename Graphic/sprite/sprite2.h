@@ -10,10 +10,10 @@ namespace graphic
 	class cSprite2 : public cNode
 	{
 	public:
-		cSprite2(cSprite &sprite, const int id, const string &name = "sprite");
+		cSprite2(cSprite &sprite, const int id, const Str64 &name = "sprite");
 		virtual ~cSprite2();
 
-		void SetTexture(cRenderer &renderer, const string &fileName);
+		void SetTexture(cRenderer &renderer, const StrPath &fileName);
 		virtual void Render(cRenderer &renderer, const Matrix44 &parentTm=Matrix44::Identity) override;
 		void SetCenter(const Vector3 &center); // x,y = 0~1
 		bool IsContain(const Vector2 &pos);

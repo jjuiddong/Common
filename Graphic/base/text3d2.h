@@ -18,8 +18,8 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 			const int width, const int height, const int textWidth = 128, const int textHeight = 64);
-		bool SetText(const Matrix44 &tm, const string &text, const DWORD color);
-		bool SetTextRect(cRenderer &renderer, const Matrix44 &tm, const string &text, const DWORD color);// , const sRecti &rect);
+		bool SetText(const Matrix44 &tm, const Str128 &text, const DWORD color);
+		bool SetTextRect(cRenderer &renderer, const Matrix44 &tm, const Str128 &text, const DWORD color);// , const sRecti &rect);
 		void Render(cRenderer &renderer);
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);

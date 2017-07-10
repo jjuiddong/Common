@@ -50,11 +50,11 @@ namespace graphic
 		// brush
 		void EnableEraseMode(const bool erase);
 		bool IsEraseMode() const;
-		void SelectBrushTexture(cRenderer &renderer, const string &fileName);
+		void SelectBrushTexture(cRenderer &renderer, const StrPath &fileName);
 		const cTexture* GetBrushTexture() const;
 
 		// model
-		void SelectModel(cRenderer &renderer, const string &fileName);
+		void SelectModel(cRenderer &renderer, const StrPath &fileName);
 		void SelectModel(cModel *model);
 		const cModel* GetSelectModel() const;
 		void CancelSelectModel();

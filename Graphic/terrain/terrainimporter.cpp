@@ -21,13 +21,12 @@ using namespace graphic::importer;
 
 // 지형 파일을 읽는다.
 // json 포맷으로 저장된 파일을 해석해서 sRawTerrain 구조체에 채워 리턴한다.
-bool importer::ReadRawTerrainFile( const string &fileName, OUT sRawTerrain &out )
+bool importer::ReadRawTerrainFile( const StrPath &fileName, OUT sRawTerrain &out )
 {
 	try
 	{
-
 		ptree props;
-		boost::property_tree::read_json(fileName, props);
+		boost::property_tree::read_json(fileName.c_str(), props);
 
 		const string version = props.get<string>("terrain version");
 

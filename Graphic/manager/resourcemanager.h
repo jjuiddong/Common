@@ -44,9 +44,9 @@ namespace graphic
 		void InsertShadow(const StrPath &fileName, cShadowVolume *p);
 
 
-		sRawAniGroup* LoadAnimation( const StrPath &fileName );
+		sRawAniGroup* LoadAnimation( const StrId &fileName );
 		bool LoadAnimation(sRawAniGroup *anies);
-		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const StrPath &meshName);
+		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const StrId &meshName);
 		cMeshBuffer* LoadMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive=true);
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
@@ -57,14 +57,14 @@ namespace graphic
 		cCubeTexture* LoadCubeTexture(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		cShader* LoadShader(cRenderer &renderer, const StrPath &fileName);
 
-		sRawMeshGroup* FindModel( const StrPath &fileName );
-		sRawMeshGroup2* FindModel2(const StrPath &fileName);
+		sRawMeshGroup* FindModel( const StrId &fileName );
+		sRawMeshGroup2* FindModel2(const StrId &fileName);
 		std::pair<bool, cXFileMesh*> FindXFile(const StrPath &fileName);
 		std::pair<bool, cColladaModel*> FindColladaModel(const StrPath &fileName);
 		std::pair<bool, cShadowVolume*> FindShadow(const StrPath &fileName);
 
-		sRawAniGroup* FindAnimation( const StrPath &fileName );
-		cMeshBuffer* FindMeshBuffer( const StrPath &meshName );
+		sRawAniGroup* FindAnimation( const StrId &fileName );
+		cMeshBuffer* FindMeshBuffer( const StrId &meshName );
 		std::pair<bool, cTexture*> FindTexture( const StrPath &fileName );
 		cCubeTexture* FindCubeTexture(const StrPath &fileName);
 		cShader * FindShader(const StrPath &fileName);

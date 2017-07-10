@@ -101,7 +101,7 @@ void cTexture::Bind(cRenderer &renderer, const int stage)
 }
 
 
-void cTexture::Bind(cShader &shader, const string &key)
+void cTexture::Bind(cShader &shader, const Str32 &key)
 {
 	shader.SetTexture(key, *this);
 }
@@ -223,7 +223,7 @@ bool cTexture::WritePNGFile( const StrPath &fileName )
 
 
 // Render Text String on Texture
-void cTexture::TextOut(cFontGdi &font, const string &text, const int x, const int y, const DWORD color)
+void cTexture::TextOut(cFontGdi &font, const Str128 &text, const int x, const int y, const DWORD color)
 {
 	RET(!m_texture);
 
@@ -245,7 +245,7 @@ void cTexture::TextOut(cFontGdi &font, const string &text, const int x, const in
 
 
 // Render Text String on Texture
-void cTexture::DrawText(cFontGdi &font, const string &text, const sRecti &rect, const DWORD color)
+void cTexture::DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, const DWORD color)
 {
 	RET(!m_texture);	
 

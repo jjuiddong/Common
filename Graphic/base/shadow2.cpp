@@ -47,7 +47,7 @@ bool cShadow2::Create(cRenderer &renderer, const int textureWidth, const int tex
 //}
 
 
-void cShadow2::Bind(cShader &shader, const string &key)
+void cShadow2::Bind(cShader &shader, const Str32 &key)
 {
 	m_surface.Bind(shader, key);
 }

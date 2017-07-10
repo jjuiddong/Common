@@ -7,7 +7,7 @@ namespace graphic
 {
 
 	class cCharacter : public cModel
-								, public ai::iActorInterface<cCharacter>
+					, public ai::iActorInterface<cCharacter>
 	{
 	public:
 		cCharacter(const int id=-1);
@@ -21,14 +21,14 @@ namespace graphic
 
 		// ai interface implement
 		virtual Matrix44& aiGetTransform() override;
-		virtual void aiSetAnimation(const string &animationName) override;
+		virtual void aiSetAnimation(const Str64 &animationName) override;
 
 
 	public:
 		vector<sActionData> m_actions;
 		CHARACTER_ACTION::TYPE m_action;
 		//ai::cActor m_ai;
-		string m_curAniName; // 플레이 중인 애니메이션.
+		Str64 m_curAniName; // 플레이 중인 애니메이션.
 	};
 
 }

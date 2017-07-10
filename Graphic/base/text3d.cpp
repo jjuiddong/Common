@@ -31,7 +31,7 @@ bool cText3d::Create(cRenderer &renderer, cFontGdi *font, const BILLBOARD_TYPE::
 }
 
 
-bool cText3d::SetText(const Matrix44 &tm, const string &text, const DWORD color)
+bool cText3d::SetText(const Matrix44 &tm, const Str128 &text, const DWORD color)
 {
 	RETV(!m_font, false);
 
@@ -48,7 +48,7 @@ bool cText3d::SetText(const Matrix44 &tm, const string &text, const DWORD color)
 bool cText3d::SetTextRect(
 	//const Matrix44 &tm
 	const Transform &tm
-	, const string &text, const DWORD color
+	, const Str128 &text, const DWORD color
 	, const BILLBOARD_TYPE::TYPE type
 	, const sRecti &rect)
 {

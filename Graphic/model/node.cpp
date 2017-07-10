@@ -5,7 +5,7 @@
 using namespace graphic;
 
 
-cNode::cNode( const int id, const StrPath &name) :
+cNode::cNode( const int id, const StrId &name) :
 	m_id(id)
 ,	m_name(name)
 ,	m_parent(NULL)
@@ -50,7 +50,7 @@ const cNode* cNode::FindNode(const int id) const
 
 
 // 자식 노드 중에 name과 같은 노드가 있다면 리턴한다.
-const cNode* cNode::FindNode(const string &name) const
+const cNode* cNode::FindNode(const StrId &name) const
 {
 	if (m_name == name)
 		return this;

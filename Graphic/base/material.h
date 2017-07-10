@@ -39,11 +39,11 @@ namespace graphic
 		void Bind(cRenderer &renderer);
 		void Bind(cShader &shader);
 
-		string DiffuseColor();
-		string AmbientColor();
-		string SpecularColor();
-		string EmissiveColor();
-		string SpecialColor(const float r, const float g, const float b);
+		Str64 DiffuseColor();
+		Str64 AmbientColor();
+		Str64 SpecularColor();
+		Str64 EmissiveColor();
+		Str64 SpecialColor(const float r, const float g, const float b);
 
 
 	public:

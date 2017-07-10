@@ -24,7 +24,7 @@ namespace graphic
 		// Model Infomations
 		MODEL_TYPE::TYPE GetModelType() const;
 		const StrPath& GetFileName() const;
-		cMesh* GetMesh(const string &name);
+		cMesh* GetMesh(const StrId &name);
 		cMesh* GetMesh(const int idx);
 		const sTransform& GetToolTransform() const;
 		void SetToolTransform(const sTransform& tm);
@@ -40,10 +40,10 @@ namespace graphic
 		void SetRenderShadow(const bool show);
 
 		// Animation
-		virtual bool SetAnimation(const string &aniFileNameconst, const int nAniFrame=0,  
+		virtual bool SetAnimation(const StrId &aniFileNameconst, const int nAniFrame=0,  
 			const bool isLoop=false, const bool isBlend=true);
 		cBoneMgr* GetBoneMgr();
-		cMesh* FindMesh(const string &meshName);
+		cMesh* FindMesh(const StrId &meshName);
 		sRawAniGroup* GetCurrentAnimation();
 		bool SharePalette(vector<Matrix44> *palette);
 		virtual void SetShader(cShader *shader) override;

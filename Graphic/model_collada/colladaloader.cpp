@@ -21,7 +21,7 @@ cColladaLoader::~cColladaLoader()
 bool cColladaLoader::Create(const StrPath &fileName)
 {
 	m_rawMeshes = new sRawMeshGroup2;
-	m_rawMeshes->name = fileName;
+	m_rawMeshes->name = fileName.c_str();
 
 	// Create the importer
 	Assimp::Importer importer;
@@ -82,20 +82,20 @@ void cColladaLoader::FindBoneNode()
 		{
 			aiBone* bone = mesh->mBones[b];
 			assert(bone);
-			m_aiBones[bone->mName.data] = bone;
+			m_aiBones[Str64(bone->mName.data).GetHashCode()] = bone;
 		}
 	}
 }
 
 
 void cColladaLoader::CreateSimpleBones(const aiNode* node, int parent,
-	const map<string, aiBone*>& animatedNodes, vector<SkeletonNode>& result) const
+	const map<hashcode, aiBone*>& animatedNodes, vector<SkeletonNode>& result) const
 {
 	if (!node)
 		return;
 
-	string nodeName = string(node->mName.data);
-	map<string, aiBone*>::const_iterator itBone = animatedNodes.find(nodeName);
+	Str64 nodeName = Str64(node->mName.data);
+	map<hashcode, aiBone*>::const_iterator itBone = animatedNodes.find(nodeName.GetHashCode());
 	bool isAnimated = itBone != animatedNodes.end();
 
 	SkeletonNode _n =
@@ -381,21 +381,21 @@ void cColladaLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtr
 		// Diffuse texture
 		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_DIFFUSE(0), &szPath))
 		{
-			string fileName = szPath.data;
+			StrPath fileName = szPath.data;
 			mtrl.texture = fileName;
 		}
 
 		// Normal texture
 		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_NORMALS(0), &szPath))
 		{
-			//string fileName = szPath.data;
+			//StrPath fileName = szPath.data;
 			//mtrl.normalmap = fileName;
 		}
 	}
 }
 
 
-int cColladaLoader::GetBoneId(const string &boneName)
+int cColladaLoader::GetBoneId(const Str64 &boneName)
 {
 	for (u_int i = 0; i < m_reducedHierarchy.size(); ++i)
 	{
@@ -445,12 +445,12 @@ void cColladaLoader::CreateAnimation()
 
 		m_rawAnies = new sRawAniGroup;
 		m_rawAnies->type = sRawAniGroup::BONE_ANI;
-		m_rawAnies->name = string(m_fileName.GetFileName()) + "::" + sourceAnimation->mName.data;
+		m_rawAnies->name = Str64(m_fileName.GetFileName()) + "::" + sourceAnimation->mName.data;
 		m_rawAnies->anies.resize(m_rawMeshes->bones.size());
 
 		for (UINT a = 0; a < sourceAnimation->mNumChannels; a++)
 		{
-			string boneName = sourceAnimation->mChannels[a]->mNodeName.data;
+			Str64 boneName = sourceAnimation->mChannels[a]->mNodeName.data;
 			const int boneId = GetBoneId(boneName);
 			if (boneId < 0)
 				continue;

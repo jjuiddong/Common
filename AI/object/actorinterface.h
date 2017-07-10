@@ -16,7 +16,7 @@ namespace ai
 		virtual ~iActorInterface() {}
 
 		virtual Matrix44& aiGetTransform() { return g_tempMat; }
-		virtual void aiSetAnimation(const string &animationName) {}
+		virtual void aiSetAnimation(const Str64 &animationName) {}
 
 
 	public:

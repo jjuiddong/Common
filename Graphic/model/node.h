@@ -13,10 +13,10 @@ namespace graphic
 	public:
 		enum NODE_TYPE { NONE, BONE, MESH, MODEL };
 
-		cNode( const int id, const StrPath &name="none");
+		cNode( const int id, const StrId &name="none");
 		virtual ~cNode();
 
-		const StrPath& GetName() const;
+		const StrId& GetName() const;
 		int GetId() const;
 		cNode* GetParent();
 
@@ -31,7 +31,7 @@ namespace graphic
 
 		bool InsertChild(cNode *node);
 		const cNode* FindNode(const int id) const;
-		const cNode* FindNode(const string &name) const;
+		const cNode* FindNode(const StrId &name) const;
 		bool RemoveNode(const int id);
 		vector<cNode*>& GetChildren();
 		virtual void Clear();
@@ -49,7 +49,7 @@ namespace graphic
 
 	public:
 		int m_id;
-		StrPath m_name;
+		StrId m_name;
 		cNode *m_parent;
 		vector<cNode*> m_children;
 		NODE_TYPE m_nodeType;
@@ -63,7 +63,7 @@ namespace graphic
 	};
 
 
-	inline const StrPath& cNode::GetName() const { return m_name; }
+	inline const StrId& cNode::GetName() const { return m_name; }
 	inline int cNode::GetId() const { return m_id; }
 	inline cNode* cNode::GetParent() { return m_parent; }
 	inline const Matrix44& cNode::GetTransform() const { return m_TM; }

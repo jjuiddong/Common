@@ -7,6 +7,7 @@ using namespace graphic;
 
 cModel2::cModel2()
 	: m_id(0)
+	, m_name("model")
 	, m_isEnable(true)
 	, m_colladaModel(NULL)
 	, m_isShow(true)
@@ -42,6 +43,7 @@ bool cModel2::Create(cRenderer &renderer
 	Clear();
 
 	m_id = id;
+	m_name = fileName.GetFileNameExceptExt().c_str();
 	m_fileName = fileName;
 	m_shaderName = shaderName;
 	m_techniqueName = techniqueName;
@@ -106,7 +108,7 @@ void cModel2::RenderShader(cRenderer &renderer
 
 	renderer.SetCullMode(m_cullType);
 
-	const Matrix44 transform = m_tm * tm;
+	const Matrix44 transform = m_transform.GetMatrix() * tm;
 
 	if (m_isShadow2 && m_shadowMap && m_shader)
 		m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
@@ -130,7 +132,7 @@ void cModel2::RenderShadow(cRenderer &renderer
 	RET(!m_shadow);
 	RET(!m_shadowShader);
 
-	m_shadowShader->SetMatrix("g_mWorld", m_tm * tm);
+	m_shadowShader->SetMatrix("g_mWorld", m_transform.GetMatrix() * tm);
 	
 	const int pass = m_shadowShader->Begin();
 	for (int i = 0; i < pass; ++i)
@@ -262,7 +264,7 @@ void cModel2::InitModel(cRenderer &renderer)
 	{
 		m_animationName = m_colladaModel->m_storedAnimationName;
 		m_boundingBox = m_colladaModel->m_boundingBox;
-		m_boundingSphere.Set(m_colladaModel->m_boundingBox, m_tm);
+		m_boundingSphere.Set(m_colladaModel->m_boundingBox, m_transform.GetMatrix());
 
 		SetShader( m_colladaModel->m_isSkinning ?
 			cResourceManager::Get()->LoadShader(renderer, m_shaderName.empty() ? "collada_skin.fx" : m_shaderName)
@@ -279,7 +281,7 @@ void cModel2::InitModel(cRenderer &renderer)
 	if (m_xModel)
 	{
 		m_boundingBox = m_xModel->m_boundingBox;
-		m_boundingSphere.Set(m_xModel->m_boundingBox, m_tm);
+		m_boundingSphere.Set(m_xModel->m_boundingBox, m_transform.GetMatrix());
 
 		SetShader(cResourceManager::Get()->LoadShader(renderer,
 			m_shaderName.empty() ? "xfile.fx" : m_shaderName.c_str())
@@ -330,7 +332,7 @@ void cModel2::SetShadowShader(cShader *shader)
 
 void cModel2::CalcBoundingSphere()
 {
-	m_boundingSphere.Set(m_boundingBox, m_tm);
+	m_boundingSphere.Set(m_boundingBox, m_transform.GetMatrix());
 }
 
 

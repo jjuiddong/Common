@@ -27,7 +27,7 @@ namespace graphic {
 
 
 	public:
-		string m_name;
+		StrId m_name;
 		Matrix44 m_localTm;
 		cSkeleton *m_skeleton; // reference
 		vector<cMaterial> m_mtrls;

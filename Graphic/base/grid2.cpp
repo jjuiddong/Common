@@ -149,7 +149,7 @@ void cGrid2::SetTextureUVFactor(const float textureUVFactor)
 // GRD 포맷으로 저장된다.
 // m_rowCellCount. m_colCellCount, m_cellSize, Height  값을 저장한다.
 // Header : GRD
-bool cGrid2::WriteFile(const string &fileName)
+bool cGrid2::WriteFile(const StrPath &fileName)
 {
 	const int vtxCount = GetRowVertexCount() * GetColVertexCount();
 
@@ -175,7 +175,7 @@ bool cGrid2::WriteFile(const string &fileName)
 	
 	// sGridBinary 구조체 파일에 저장.
 	using namespace std;
-	ofstream of(fileName, ios_base::binary | ios_base::out);
+	ofstream of(fileName.c_str(), ios_base::binary | ios_base::out);
 	if (!of.is_open())
 		return false;
 

@@ -1253,7 +1253,7 @@ bool importer::ReadMaterialV13(std::ifstream &fin, const string &fileName, OUT s
 	common::trim(texFilePath);
 	if (!texFilePath.empty())
 	{
-		string  textureFileName = common::GetFilePathExceptFileName(fileName) + "\\" + texFilePath;
+		StrPath textureFileName = GetFilePathExceptFileName(fileName) + "\\" + texFilePath;
 		mtrl.texture = textureFileName;
 	}
 
@@ -1266,7 +1266,7 @@ bool importer::ReadMaterialV13(std::ifstream &fin, const string &fileName, OUT s
 	common::trim(specularFilePath);
 	if (!specularFilePath.empty())
 	{
-		string specularFileName = common::GetFilePathExceptFileName(fileName) + "\\" + specularFilePath;
+		StrPath specularFileName = GetFilePathExceptFileName(fileName) + "\\" + specularFilePath;
 		mtrl.specularMap = specularFileName;
 	}
 
@@ -1279,9 +1279,9 @@ bool importer::ReadMaterialV13(std::ifstream &fin, const string &fileName, OUT s
 	common::trim(bumpFilePath);
 	if (!bumpFilePath.empty())
 	{
-		string  bumpFileName = common::GetFilePathExceptFileName(fileName) + "\\" + bumpFilePath;
+		string bumpFileName = GetFilePathExceptFileName(fileName) + "\\" + bumpFilePath;
+		replaceAll(bumpFileName, ":Normal Bump", "");
 		mtrl.bumpMap = bumpFileName;
-		replaceAll(mtrl.bumpMap, ":Normal Bump", "");
 	}
 
 	return true;
@@ -1355,9 +1355,9 @@ bool importer::ReadMaterialV15(std::ifstream &fin, const string &fileName, OUT s
 	common::trim(bumpFilePath);
 	if (!bumpFilePath.empty())
 	{
-		string  bumpFileName = common::GetFilePathExceptFileName(fileName) + "\\" + bumpFilePath;
+		string bumpFileName = common::GetFilePathExceptFileName(fileName) + "\\" + bumpFilePath;
+		replaceAll(bumpFileName, ":Normal Bump", "");
 		mtrl.bumpMap = bumpFileName;
-		replaceAll(mtrl.bumpMap, ":Normal Bump", "");
 	}
 
 	return true;
@@ -1432,8 +1432,8 @@ bool importer::ReadMaterialV20(std::ifstream &fin, const string &fileName, OUT s
 	if (!bumpFilePath.empty())
 	{
 		string  bumpFileName = common::GetFilePathExceptFileName(fileName) + "\\" + bumpFilePath;
+		replaceAll(bumpFileName, ":Normal Bump", "");
 		mtrl.bumpMap = bumpFileName;
-		replaceAll(mtrl.bumpMap, ":Normal Bump", "");
 	}
 
 

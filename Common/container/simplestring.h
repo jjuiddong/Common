@@ -19,10 +19,14 @@ namespace common
 			memset(m_str, 0, MAX);
 		}
 		String(const char *str) {
-			strcpy_s(m_str, str);
+			const size_t len = min(strlen(str), MAX - 1);
+			strncpy_s(m_str, str, len);
+			m_str[len] = NULL;
 		}
 		String(const std::string &str) {
-			strcpy_s(m_str, str.c_str());
+			const size_t len = min(str.size(), MAX - 1);
+			strncpy_s(m_str, str.c_str(), len);
+			m_str[len] = NULL;
 		}
 
 		virtual ~String() {
@@ -77,19 +81,50 @@ namespace common
 			return str;
 		}
 
+		String GetFileNameExceptExt() const {
+			String str = *this;
+			char *name = PathFindFileNameA(str.m_str);
+			PathRemoveExtensionA(name);
+			return str;
+		}
+
+
 		//------------------------------------------------------------------------------------
 		// STL
 		void erase(const char *str) {
-			// todo:
-			//str.erase(str.find("::"));
+			char *p = (char*)find(str);
+			if (!p || !*p)
+				return;
+
+			std::rotate(p, p + strlen(str), m_str + strlen(m_str));
+			const int len = strlen(m_str) - strlen(str);
+			m_str[len] = NULL;
 		}
 
-		char* find(const char *str) {
+		const char* find(const char *str) const {
+			const char *p = m_str;
+			while (*p)
+			{
+				const char *n = p;
+				const char *c = str;
+				while (*n && *c)
+				{
+					if (*n != *c)
+						break;
+					++n;
+					++c;
+				}
+
+				if (!*c) // found
+					return p;
+
+				++p; // not found
+			}
 			return NULL;
 		}
 
-		char* find(const String &str) {
-			return NULL;
+		const char* find(const String &str) const {
+			return find(str.m_str);
 		}
 
 		char back() {
@@ -118,6 +153,10 @@ namespace common
 		hashcode GetHashCode() const {
 			boost::hash<std::string> string_hash;
 			return string_hash(m_str);
+		}
+
+		size_t size() const {
+			return (size_t)strlen(m_str);
 		}
 
 		void clear() {
@@ -154,20 +193,21 @@ namespace common
 
 
 		String& operator = (const char *str) {
-			strcpy_s(m_str, str);
+			const size_t len = min(strlen(str), MAX - 1);
+			strncpy_s(m_str, str, len);
+			m_str[len] = NULL;
 			return *this;
 		}
 
 		String& operator = (const String &rhs) {
 			if (this != &rhs) {
-				strcpy_s(m_str, rhs.m_str);
+				operator = (rhs.m_str);
 			}
 			return *this;
 		}
 
 		String& operator = (const std::string &rhs) {
-			strcpy_s(m_str, rhs.c_str());
-			return *this;
+			return operator = (rhs.c_str());
 		}
 
 		String operator + (const char *str) const {
@@ -185,25 +225,36 @@ namespace common
 		}
 
 		String& operator += (const char *str) {
-			strcat_s(m_str, str);
+			const size_t len1 = strlen(m_str);
+			if (len1 >= (MAX - 1))
+				return *this;
+
+			const size_t len2 = strlen(str);
+			const size_t cpLen = min(len2, MAX-len1-1);
+			strncat_s(m_str, str, cpLen);
+			m_str[len1 + cpLen] = NULL;		
 			return *this;
 		}
 
 
 		String& operator += (const String &str) {
-			strcat_s(m_str, str.m_str);
+			if (this == &str)
+				return *this;
+
+			const size_t len1 = strlen(m_str);
+			if (len1 >= (MAX - 1))
+				return *this;
+
+			const size_t len2 = strlen(str.m_str);
+			const size_t cpLen = min(len2, MAX - len1 - 1);
+			strncat_s(m_str, str.m_str, cpLen);
+			m_str[len1 + cpLen] = NULL;
 			return *this;
 		}
 
 		bool operator < (const String &rhs) const {
 			return std::strcmp(m_str, rhs.m_str) < 0;
-			//return cmp_str(m_str, rhs.m_str);
 		}
-
-		//bool operator > (const String &rhs) {
-		//	//return std::strcmp(m_str, rhs.m_str) < 0;
-		//	return cmp_str(m_str, rhs.m_str);
-		//}
 
 
 	public:
@@ -215,6 +266,8 @@ namespace common
 	typedef String<16> Str16;
 	typedef String<32> Str32;
 	typedef String<64> Str64;
+	typedef String<64> StrId;
 	typedef String<128> Str128;
-	typedef String<256> StrPath;
+	typedef String<128> StrPath;
+	typedef String<256> StrGlobalPath;
 }

@@ -46,7 +46,7 @@ namespace graphic
 		cParticles();
 		virtual ~cParticles();
 
-		bool Create(cRenderer &renderer, const string &textureFileName, const int maxParticle);
+		bool Create(cRenderer &renderer, const StrPath &textureFileName, const int maxParticle);
 		
 		virtual void Move( const float elapseTime);
 		virtual void Render(cRenderer &renderer);

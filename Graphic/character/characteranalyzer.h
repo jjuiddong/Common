@@ -20,7 +20,7 @@ namespace graphic
 		bool Update(const float deltaSeconds);
 		void Render(cRenderer &renderer,  const Matrix44 &tm);
 
-		void HighlightBone(cRenderer &renderer, const string &boneName);
+		void HighlightBone(cRenderer &renderer, const Str64 &boneName);
 
 
 	public:

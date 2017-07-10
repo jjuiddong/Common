@@ -14,22 +14,22 @@ cFontManager::~cFontManager()
 }
 
 
-cFontGdi* cFontManager::GetFontGdi(const string &name)
+cFontGdi* cFontManager::GetFontGdi(const Str64 &name)
 {
-	auto it = m_fontGdis.find(name);
+	auto it = m_fontGdis.find(name.GetHashCode());
 	if (m_fontGdis.end() == it)
 		return NULL;
 	return it->second;
 }
 
 
-bool cFontManager::AddFontGdi(const string &name, cFontGdi *font)
+bool cFontManager::AddFontGdi(const Str64 &name, cFontGdi *font)
 {
-	auto it = m_fontGdis.find(name);
+	auto it = m_fontGdis.find(name.GetHashCode());
 	if (m_fontGdis.end() != it)
 		return false;
 
-	m_fontGdis[name] = font;
+	m_fontGdis[name.GetHashCode()] = font;
 	return true;
 }
 

@@ -346,6 +346,9 @@
     <ClInclude Include="base\quad2d.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="terrain\terrainloader.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -651,6 +654,9 @@
     </ClCompile>
     <ClCompile Include="base\quad2d.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrainloader.cpp">
+      <Filter>terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

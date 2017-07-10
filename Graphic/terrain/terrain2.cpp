@@ -10,6 +10,8 @@ using namespace graphic;
 cTerrain2::cTerrain2()
 	: m_isShowDebug(false)
 	, m_isShadow(true)
+	, m_rows(0)
+	, m_cols(0)
 {
 }
 
@@ -143,11 +145,18 @@ void cTerrain2::UpdateShader(cRenderer &renderer)
 {
 	RET(m_tiles.empty());
 
-	cShader *shader = m_tiles[0]->m_ground.m_shader;
-	GetMainCamera()->Bind(*shader);
-	GetMainLight().Bind(*shader);
+	cCamera *cam = GetMainCamera();
 
-	GetMainCamera()->Bind(*m_frustum[0].m_shader);
+	cShader *shader = m_tiles[0]->m_ground.m_shader;
+	cam->Bind(*shader);
+	GetMainLight().Bind(*shader);
+	cam->Bind(*m_frustum[0].m_shader);
+
+	for (auto &shader : m_shaders)
+	{
+		GetMainLight().Bind(*shader);
+		cam->Bind(*shader);
+	}		
 }
 
 
@@ -340,4 +349,31 @@ void cTerrain2::Clear()
 
 	m_tilemap.clear();
 	m_tilemap2.clear();
+	m_shaders.clear();
+}
+
+
+//
+// tile width, height, row, col count
+// tile
+//		- pos
+//		- texture
+// model
+//		- filename
+//		- name
+//		- pos
+//		- scale
+//		- rot
+//
+bool cTerrain2::Write(const StrPath &fileName)
+{
+
+	return true;
+}
+
+
+bool cTerrain2::Read(const StrPath &fileName)
+{
+
+	return true;
 }

@@ -453,6 +453,7 @@
     <ClInclude Include="terrain\terrain.h" />
     <ClInclude Include="terrain\terraincursor.h" />
     <ClInclude Include="terrain\terraineditor.h" />
+    <ClInclude Include="terrain\terrainloader.h" />
     <ClInclude Include="terrain\tile.h" />
     <ClInclude Include="terrain\water.h" />
   </ItemGroup>
@@ -568,6 +569,7 @@
     <ClCompile Include="terrain\terrain.cpp" />
     <ClCompile Include="terrain\terraincursor.cpp" />
     <ClCompile Include="terrain\terraineditor.cpp" />
+    <ClCompile Include="terrain\terrainloader.cpp" />
     <ClCompile Include="terrain\tile.cpp" />
     <ClCompile Include="terrain\water.cpp" />
   </ItemGroup>

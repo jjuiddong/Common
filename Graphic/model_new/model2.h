@@ -66,8 +66,9 @@ namespace graphic
 
 
 		int m_id;
-		eState::Enum m_state;
+		StrId m_name;
 		StrPath m_fileName;
+		eState::Enum m_state;
 		bool m_isEnable; // if false, not show
 		bool m_isShow;
 		bool m_isShadowEnable;
@@ -80,9 +81,9 @@ namespace graphic
 		cXFileMesh *m_xModel;
 		StrPath m_shaderName;
 		Str32 m_techniqueName;
-		Matrix44 m_tm;
+		//Matrix44 m_tm;
 		Transform m_transform;
-		Str64 m_animationName;
+		StrId m_animationName;
 		cBoundingBox m_boundingBox;
 		cBoundingSphere m_boundingSphere;
 		cShadowVolume *m_shadow; // reference

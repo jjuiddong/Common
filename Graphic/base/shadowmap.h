@@ -16,7 +16,7 @@ namespace graphic
 		virtual ~cShadowMap();
 
 		bool Create(cRenderer &renderer, const int textureWidth, const int textureHeight);
-		void Bind(cShader &shader, const string &key);
+		void Bind(cShader &shader, const Str32 &key);
 		void Begin(cRenderer &renderer);
 		void End(cRenderer &renderer);
 		bool IsLoaded() const;

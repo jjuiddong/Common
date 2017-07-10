@@ -10,7 +10,7 @@ namespace graphic
 	namespace importer 
 	{
 
-		bool ReadRawTerrainFile( const string &fileName, OUT sRawTerrain &out );
+		bool ReadRawTerrainFile( const StrPath &fileName, OUT sRawTerrain &out );
 
 	}
 

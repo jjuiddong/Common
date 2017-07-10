@@ -63,7 +63,7 @@ bool cTeraCharacter::Create(
 
 
 // 에니메이션
-bool cTeraCharacter::SetAnimation( const string &aniFileName,
+bool cTeraCharacter::SetAnimation( const Str64 &aniFileName,
 	const int nAniFrame, // =0,  
 	const bool isLoop, // =false, 
 	const bool isBlend // =true

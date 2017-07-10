@@ -60,7 +60,7 @@ Matrix44& cCharacter::aiGetTransform()
 }
 
 
-void cCharacter::aiSetAnimation(const string &animationName)
+void cCharacter::aiSetAnimation(const Str64 &animationName)
 {
 	RET(animationName.empty());
 

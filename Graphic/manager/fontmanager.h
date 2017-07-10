@@ -14,13 +14,13 @@ namespace graphic
 	public:
 		cFontManager();
 		virtual ~cFontManager();
-		cFontGdi* GetFontGdi(const string &name);
-		bool AddFontGdi(const string &name, cFontGdi *font);
+		cFontGdi* GetFontGdi(const Str64 &name);
+		bool AddFontGdi(const Str64 &name, cFontGdi *font);
 		void Clear();
 
 
 	public:
-		map<string, cFontGdi*> m_fontGdis;
+		map<hashcode, cFontGdi*> m_fontGdis;
 	};
 
 }

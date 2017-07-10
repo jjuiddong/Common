@@ -21,7 +21,7 @@ namespace graphic
 		bool Create(cRenderer &renderer, const int textureWidth, const int textureHeight);
 		void UpdateShadow(cRenderer &renderer, cNode &node);
 		void UpdateShadow(cRenderer &renderer, cModel2 &model);
-		void Bind(cShader &shader, const string &key);
+		void Bind(cShader &shader, const Str32 &key);
 		void Begin(cRenderer &renderer);
 		void End(cRenderer &renderer);
 		IDirect3DTexture9* GetTexture();

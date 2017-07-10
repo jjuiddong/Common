@@ -103,7 +103,7 @@ bool cModel::Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::T
 
 
 // 애니메이션 시작.
-bool cModel::SetAnimation( const string &aniFileName, 
+bool cModel::SetAnimation( const StrId &aniFileName, 
 	const int nAniFrame, // = 0
 	const bool isLoop, // = false
 	const bool isBlend // = true
@@ -220,7 +220,7 @@ void cModel::Clear()
 
 
 // 메쉬를 찾아서 리턴한다.
-cMesh* cModel::FindMesh(const string &meshName)
+cMesh* cModel::FindMesh(const StrId &meshName)
 {
 	for each (auto &mesh in m_meshes)
 	{
@@ -318,7 +318,7 @@ bool cModel::Pick(const Vector3 &orig, const Vector3 &dir)
 }
 
 
-cMesh* cModel::GetMesh(const string &name)
+cMesh* cModel::GetMesh(const StrId &name)
 {
 	for each (auto &mesh in m_meshes)
 	{

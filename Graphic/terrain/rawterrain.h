@@ -12,7 +12,7 @@ namespace graphic
 
 	struct sRawLayer
 	{
-		string texture;
+		StrPath texture;
 	};
 
 

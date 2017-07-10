@@ -138,7 +138,7 @@ void cShader::End()
 }
 
 
-void cShader::SetBool(const string &key, const bool val)
+void cShader::SetBool(const Str32 &key, const bool val)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetBool(key.c_str(), val)))
@@ -148,7 +148,7 @@ void cShader::SetBool(const string &key, const bool val)
 	}
 }
 
-void cShader::SetInt(const string &key, const int val )
+void cShader::SetInt(const Str32 &key, const int val )
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetInt( key.c_str(), val)))
@@ -158,7 +158,7 @@ void cShader::SetInt(const string &key, const int val )
 	}	
 }
 
-void cShader::SetMatrix(const string &key, const Matrix44 &mat)
+void cShader::SetMatrix(const Str32 &key, const Matrix44 &mat)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrix( key.c_str(), (D3DXMATRIX*)&mat)))
@@ -169,7 +169,7 @@ void cShader::SetMatrix(const string &key, const Matrix44 &mat)
 }
 
 
-void cShader::SetTexture(const string &key, cTexture &texture)
+void cShader::SetTexture(const Str32 &key, cTexture &texture)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture( key.c_str(), texture.GetTexture())))
@@ -187,7 +187,7 @@ void cShader::SetCubeTexture(const Str32 &key, cCubeTexture &texture)
 		MessageBoxA(NULL, "cShader::SetCubeTexture Error", "ERROR", MB_OK);
 	}
 }
-void cShader::SetTexture(const string &key, IDirect3DTexture9 *texture)
+void cShader::SetTexture(const Str32 &key, IDirect3DTexture9 *texture)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture( key.c_str(), texture)))
@@ -197,7 +197,7 @@ void cShader::SetTexture(const string &key, IDirect3DTexture9 *texture)
 	}
 }
 
-void cShader::SetTexture(const string &key, IDirect3DCubeTexture9 *texture)
+void cShader::SetTexture(const Str32 &key, IDirect3DCubeTexture9 *texture)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetTexture( key.c_str(), texture)))
@@ -207,7 +207,7 @@ void cShader::SetTexture(const string &key, IDirect3DCubeTexture9 *texture)
 	}
 }
 
-void cShader::SetFloat(const string &key, float val)
+void cShader::SetFloat(const Str32 &key, float val)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetFloat( key.c_str(), val)))
@@ -218,7 +218,7 @@ void cShader::SetFloat(const string &key, float val)
 }
 
 
-void cShader::SetVector(const string &key, const Vector2 &vec )
+void cShader::SetVector(const Str32 &key, const Vector2 &vec )
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector( key.c_str(), &D3DXVECTOR4(vec.x, vec.y, 0, 1.f))))
@@ -229,7 +229,7 @@ void cShader::SetVector(const string &key, const Vector2 &vec )
 }
 
 
-void cShader::SetVector(const string &key, const Vector3 &vec )
+void cShader::SetVector(const Str32 &key, const Vector3 &vec )
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector( key.c_str(), &D3DXVECTOR4(vec.x, vec.y, vec.z, 1.f))))
@@ -240,7 +240,7 @@ void cShader::SetVector(const string &key, const Vector3 &vec )
 }
 
 
-void cShader::SetVector(const string &key, const Vector4 &vec )
+void cShader::SetVector(const Str32 &key, const Vector4 &vec )
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetVector( key.c_str(), &D3DXVECTOR4(vec.x, vec.y, vec.z, vec.w))))
@@ -251,7 +251,7 @@ void cShader::SetVector(const string &key, const Vector4 &vec )
 }
 
 
-void cShader::SetMatrixArray(const string &key, const Matrix44 *mat, const int count )
+void cShader::SetMatrixArray(const Str32 &key, const Matrix44 *mat, const int count )
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetMatrixArray(key.c_str(), (D3DXMATRIX*)mat, count)))
@@ -262,7 +262,7 @@ void cShader::SetMatrixArray(const string &key, const Matrix44 *mat, const int c
 }
 
 
-void cShader::SetIntArray(const string &key, const int *array, const int count)
+void cShader::SetIntArray(const Str32 &key, const int *array, const int count)
 {
 	RET(!m_effect);
 	if (FAILED(m_effect->SetIntArray(key.c_str(), array, count)))
@@ -396,7 +396,7 @@ void cShader::CommitChanges()
 }
 
 
-D3DXHANDLE cShader::GetValueHandle(const string &key)
+D3DXHANDLE cShader::GetValueHandle(const Str32 &key)
 {
 	RETV(!m_effect, NULL);
 	return m_effect->GetParameterByName(NULL, key.c_str());

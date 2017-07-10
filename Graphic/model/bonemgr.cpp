@@ -153,7 +153,7 @@ cBoneNode* cBoneMgr::FindBone(const int id)
 }
 
 
-cBoneNode* cBoneMgr::FindBone(const string &name)
+cBoneNode* cBoneMgr::FindBone(const Str64 &name)
 {
 	RETV(!m_root, NULL);
 	return (cBoneNode*)m_root->FindNode(name);

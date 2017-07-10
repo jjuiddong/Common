@@ -25,19 +25,19 @@ namespace graphic
 		void End();
 		void SetTechnique(const Str32 &technique);
 
-		void SetBool(const string &key, const bool val);
-		void SetInt(const string &key, const int val );
-		void SetMatrix(const string &key, const Matrix44 &mat);
-		void SetTexture(const string &key, cTexture &texture);
+		void SetBool(const Str32 &key, const bool val);
+		void SetInt(const Str32 &key, const int val );
+		void SetMatrix(const Str32 &key, const Matrix44 &mat);
+		void SetTexture(const Str32 &key, cTexture &texture);
 		void SetCubeTexture(const Str32 &key, cCubeTexture &texture);
-		void SetTexture(const string &key, IDirect3DTexture9 *texture);
-		void SetTexture(const string &key, IDirect3DCubeTexture9 *texture);
-		void SetFloat(const string &key, float val);
-		void SetVector(const string &key, const Vector2 &vec );
-		void SetVector(const string &key, const Vector3 &vec );
-		void SetVector(const string &key, const Vector4 &vec );
-		void SetMatrixArray(const string &key, const Matrix44 *mat, const int count );
-		void SetIntArray(const string &key, const int *array, const int count);
+		void SetTexture(const Str32 &key, IDirect3DTexture9 *texture);
+		void SetTexture(const Str32 &key, IDirect3DCubeTexture9 *texture);
+		void SetFloat(const Str32 &key, float val);
+		void SetVector(const Str32 &key, const Vector2 &vec );
+		void SetVector(const Str32 &key, const Vector3 &vec );
+		void SetVector(const Str32 &key, const Vector4 &vec );
+		void SetMatrixArray(const Str32 &key, const Matrix44 *mat, const int count );
+		void SetIntArray(const Str32 &key, const int *array, const int count);
 
 		void SetBool(D3DXHANDLE handle, const bool val);
 		void SetInt(D3DXHANDLE handle, const int val );
@@ -55,7 +55,7 @@ namespace graphic
 		LPD3DXEFFECT GetEffect() { return m_effect; }
 		void SetRenderPass(int pass);
 		int GetRenderPass() const;
-		D3DXHANDLE GetValueHandle(const string &key);
+		D3DXHANDLE GetValueHandle(const Str32 &key);
 		const StrPath& GetFileName() const;
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);

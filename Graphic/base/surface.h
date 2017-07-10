@@ -14,7 +14,7 @@ namespace graphic
 		virtual ~cSurface();
 
 		bool CreateRenderTarget(cRenderer &renderer, const int width, const int height);
-		bool WritePNGFile(const string &fileName);
+		bool WritePNGFile(const StrPath &fileName);
 
 		void Begin(cRenderer &renderer);
 		void End(cRenderer &renderer);

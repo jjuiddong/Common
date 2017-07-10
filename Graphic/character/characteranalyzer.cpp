@@ -59,7 +59,7 @@ void cCharacterAnalyzer::Render(cRenderer &renderer, const Matrix44 &tm)
 
 // 본을 강조한다.
 // 경계박스로 본을 출력한다.
-void cCharacterAnalyzer::HighlightBone(cRenderer &renderer, const string &boneName)
+void cCharacterAnalyzer::HighlightBone(cRenderer &renderer, const Str64 &boneName)
 {
 	RET(!m_character);
 	cBoneMgr *boneMgr = m_character->GetBoneMgr();

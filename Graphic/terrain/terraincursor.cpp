@@ -108,7 +108,7 @@ void cTerrainCursor::EnableEraseMode(const bool erase)
 
 
 // 텍스쳐 브러쉬를 선택한다.
-void cTerrainCursor::SelectBrushTexture(cRenderer &renderer, const string &fileName)
+void cTerrainCursor::SelectBrushTexture(cRenderer &renderer, const StrPath &fileName)
 {
 	if (fileName.empty())
 	{
@@ -125,7 +125,7 @@ void cTerrainCursor::SelectBrushTexture(cRenderer &renderer, const string &fileN
 
 
 // 모델 선택.
-void cTerrainCursor::SelectModel(cRenderer &renderer, const string &fileName)
+void cTerrainCursor::SelectModel(cRenderer &renderer, const StrPath &fileName)
 {
 	if (m_selectModel)
 	{

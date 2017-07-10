@@ -12,10 +12,10 @@ namespace graphic
 		virtual ~cTerrainEditor();
 
 		bool Init(cRenderer &renderer);
-		bool CreateFromGRDFile(cRenderer &renderer, const string &fileName);
-		bool WriteGRDFile( const string &fileName );
-		bool WriteTRNFile( const string &fileName );
-		bool WriteTerrainTextureToPNGFile( cRenderer &renderer, const string &fileName );
+		bool CreateFromGRDFile(cRenderer &renderer, const StrPath &fileName);
+		bool WriteGRDFile( const StrPath &fileName );
+		bool WriteTRNFile( const StrPath &fileName );
+		bool WriteTerrainTextureToPNGFile( cRenderer &renderer, const StrPath &fileName );
 		void GenerateRawTerrain( OUT sRawTerrain &out );
 
 		void BrushTerrain( const cTerrainCursor &cursor, const float elapseT );

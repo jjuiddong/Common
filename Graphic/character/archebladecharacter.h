@@ -14,7 +14,7 @@ namespace graphic
 
 		virtual bool Create(cRenderer &renderer, const StrPath &modelName, MODEL_TYPE::TYPE type = MODEL_TYPE::AUTO
 			, const bool isLoadShader = true) override;
-		void LoadWeapon(cRenderer &renderer, const string &fileName);
+		void LoadWeapon(cRenderer &renderer, const StrPath &fileName);
 		virtual bool Update(const float deltaSeconds) override;
 		virtual void Render(cRenderer &renderer, const Matrix44 &tm) override;
 

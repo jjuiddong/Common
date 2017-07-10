@@ -36,14 +36,14 @@ bool cTerrainEditor::Init(cRenderer &renderer)
 
 // 지형 정보를 저장한다.  알파 텍스쳐 제외.
 // GRD 포맷으로 저장된다.
-bool cTerrainEditor::WriteGRDFile( const string &fileName )
+bool cTerrainEditor::WriteGRDFile( const StrPath &fileName )
 {
 	return m_grid.WriteFile(fileName);
 }
 
 
 // 지형 파일 로드
-bool cTerrainEditor::CreateFromGRDFile(cRenderer &renderer, const string &fileName)
+bool cTerrainEditor::CreateFromGRDFile(cRenderer &renderer, const StrPath &fileName)
 {
 	return m_grid.CreateFromFile(renderer, fileName);
 }
@@ -83,33 +83,33 @@ void cTerrainEditor::GenerateRawTerrain( OUT sRawTerrain &out )
 
 // 지형 정보를 파일에 저장한다.
 // TRN 포맷으로 저장된다.
-bool cTerrainEditor::WriteTRNFile(const string &fileName)
+bool cTerrainEditor::WriteTRNFile(const StrPath &fileName)
 {
 	sRawTerrain rawTerrain;
 	GenerateRawTerrain(rawTerrain);
 
 	// 지형 정보 저장. (*.GRD)
 	{
-		string name = common::GetFileNameExceptExt(fileName);
+		StrPath name = fileName.GetFileNameExceptExt();
 		name += "_geo.grd";
-		string path = common::GetFilePathExceptFileName(fileName);
+		StrPath path = fileName.GetFilePathExceptFileName();
 		if (!path.empty())
 			path += "\\";
 
-		const string heigtmapFileName = path + name;
+		const StrPath heigtmapFileName = path + name;
 		rawTerrain.heightMap = graphic::cResourceManager::Get()->GetRelativePathToMedia(heigtmapFileName);
 		WriteGRDFile( heigtmapFileName );
 	}
 
 	// 알파 텍스쳐 파일 이름 설정. (*.PNG)
 	{
-		string name = common::GetFileNameExceptExt(fileName);
+		StrPath name = fileName.GetFileNameExceptExt();
 		name += "_alpha.png";
-		string path = common::GetFilePathExceptFileName(fileName);
+		StrPath path = fileName.GetFilePathExceptFileName();
 		if (!path.empty())
 			path += "\\";
 
-		const string alphaTextureFileName = path + name;
+		const StrPath alphaTextureFileName = path + name;
 		rawTerrain.alphaTexture = graphic::cResourceManager::Get()->GetRelativePathToMedia(alphaTextureFileName);
 		m_alphaTexture.WritePNGFile(alphaTextureFileName);
 	}
@@ -119,7 +119,7 @@ bool cTerrainEditor::WriteTRNFile(const string &fileName)
 
 
 // 스플래팅된 최종 지형 텍스쳐를 파일에 저장한다.
-bool cTerrainEditor::WriteTerrainTextureToPNGFile(cRenderer &renderer, const string &fileName)
+bool cTerrainEditor::WriteTerrainTextureToPNGFile(cRenderer &renderer, const StrPath &fileName)
 {
 	cShader shader;
 	shader.Create(renderer, "../media/shader/hlsl_terrain_splatting_texture_write.fx", "TShader" );
@@ -153,7 +153,7 @@ bool cTerrainEditor::WriteTerrainTextureToPNGFile(cRenderer &renderer, const str
 		shader.SetTexture( "SplattingAlphaMap", m_alphaTexture );
 		shader.SetFloat( "alphaUVFactor", GetTextureUVFactor() );
 
-		const string texName[] = {"Tex1", "Tex2", "Tex3", "Tex4" };
+		const char* texName[] = {"Tex1", "Tex2", "Tex3", "Tex4" };
 		for (u_int i=0; i < m_layer.size(); ++i)
 			shader.SetTexture( texName[ i], *m_layer[ i].texture );
 		for (u_int i=m_layer.size(); i < MAX_LAYER; ++i)

@@ -187,7 +187,7 @@ void cSurface3::RenderFull(cRenderer &renderer)
 }
 
 
-void cSurface3::Bind(cShader &shader, const string &key)
+void cSurface3::Bind(cShader &shader, const Str32 &key)
 {
 	shader.SetTexture(key, m_texture);
 }

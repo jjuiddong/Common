@@ -26,7 +26,7 @@ namespace graphic
 		virtual ~cBillboard();
 
 		bool Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type, const float width, const float height,
-			const Vector3 &pos, const string &textureFileName = "", const bool isSizePow2=true);
+			const Vector3 &pos, const StrPath &textureFileName = "", const bool isSizePow2=true);
 		void Render(cRenderer &renderer);
 		void RenderFactor(cRenderer &renderer);
 		void Rotate();

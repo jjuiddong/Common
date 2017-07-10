@@ -18,6 +18,7 @@ namespace graphic
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
 		void SetTransform( const Matrix44 &tm );
 		bool Collision( cBoundingBox &box );
+		bool Collision( cBoundingBox &box, const Matrix44 &tm );
 		bool Pick(const Vector3 &orig, const Vector3 &dir, const Matrix44 &tm = Matrix44::Identity);
 		bool Pick2(const Vector3 &orig, const Vector3 &dir, float *pfT, float *pfU, float *pfV);
 		bool Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistance, const Matrix44 &tm = Matrix44::Identity);

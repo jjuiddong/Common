@@ -18,7 +18,7 @@ cBillboard::~cBillboard()
 // 빌보드 초기화.
 bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	const float width, const float height, 
-	const Vector3 &pos, const string &textureFileName, const bool isSizePow2)
+	const Vector3 &pos, const StrPath &textureFileName, const bool isSizePow2)
 {
 	if (!__super::Create(renderer, width, height, pos, textureFileName, isSizePow2))
 		return false;

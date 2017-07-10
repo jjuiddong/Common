@@ -36,7 +36,7 @@ cParticles::~cParticles()
 // 파티클 초기화.
 // 원본 코드는 D3DPOOL_DEFAULT 플래그를 이용해서 프래임을 높이려고 애쓰는
 // 흔적이 있는데, 테스트 결과 거의 효과가 없어서, 그 부분은 제외 했다.
-bool cParticles::Create(cRenderer &renderer, const string &textureFileName, const int maxParticle)
+bool cParticles::Create(cRenderer &renderer, const StrPath &textureFileName, const int maxParticle)
 {
 	m_vtxBuffer.Create(renderer, maxParticle, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
 	m_particles.resize(maxParticle);

@@ -14,8 +14,8 @@ cText::cText()
 {
 }
 
-cText::cText(cRenderer &renderer, const string &text, const int x, const int y,
-	const DWORD color, const int fontSize, const bool isBold, const string &fontName)
+cText::cText(cRenderer &renderer, const Str128 &text, const int x, const int y,
+	const DWORD color, const int fontSize, const bool isBold, const Str32 &fontName)
 	// fontSize=18, isBold=true, fontName=±¼¸²
 	: m_text(text)
 ,	m_font(NULL)
@@ -33,7 +33,7 @@ cText::~cText()
 
 
 // ÅØ½ºÆ® »ý¼º.
-bool cText::Create(cRenderer &renderer, const int fontSize, const bool isBold, const string &fontName, cSprite *sprite)
+bool cText::Create(cRenderer &renderer, const int fontSize, const bool isBold, const Str32 &fontName, cSprite *sprite)
 	// fontSize=18, isBold=true, fontName=±¼¸²
 {
 	Clear();

@@ -315,7 +315,7 @@ void cTerrain::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44
 		shader.SetTexture( "g_SplattingAlphaMap", m_alphaTexture );
 		shader.SetFloat( "g_alphaUVFactor", GetTextureUVFactor() );
 
-		const string texName[] = {"Tex1", "Tex2", "Tex3", "Tex4" };
+		const char* texName[] = {"Tex1", "Tex2", "Tex3", "Tex4" };
 		for (u_int i=0; i < m_layer.size(); ++i)
 			shader.SetTexture( texName[ i], *m_layer[ i].texture );
 		for (u_int i=m_layer.size(); i < MAX_LAYER; ++i)

@@ -22,7 +22,7 @@ namespace graphic
 			const aiNode* node;
 			const aiBone* bone;
 			int parent;
-			string name;
+			Str64 name;
 			bool used;
 		};
 
@@ -33,7 +33,7 @@ namespace graphic
 
 	protected:
 		void FindBoneNode();
-		void CreateSimpleBones(const aiNode* node, int parent, const map<string, aiBone*>& animatedNodes, 
+		void CreateSimpleBones(const aiNode* node, int parent, const map<hashcode, aiBone*>& animatedNodes, 
 			vector<SkeletonNode>& result) const;
 		void  MarkParents(std::vector<SkeletonNode>& hierarchy) const;
 		void FilterHierarchy(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const;
@@ -43,7 +43,7 @@ namespace graphic
 		void CreateMeshBone(aiNode* node);
 		void CreateNode(aiNode* node);
 		void CreateAnimation();
-		int GetBoneId(const string &boneName);
+		int GetBoneId(const Str64 &boneName);
 
 
 	public:
@@ -55,7 +55,7 @@ namespace graphic
 		bool m_hasAnimations;
 
 		StrPath m_fileName;
-		map<string, aiBone*> m_aiBones;
+		map<hashcode, aiBone*> m_aiBones;
 		vector<SkeletonNode> m_fullHierarchy;
 		vector<SkeletonNode> m_reducedHierarchy;
 		sRawMeshGroup2 *m_rawMeshes;
