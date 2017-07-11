@@ -8,7 +8,8 @@ using namespace graphic;
 
 
 cTerrain2::cTerrain2()
-	: m_isShowDebug(false)
+	: cNode2(common::GenerateId(), "terrain", eNodeType::TERRAIN)
+	, m_isShowDebug(false)
 	, m_isShadow(true)
 	, m_rows(0)
 	, m_cols(0)
@@ -24,8 +25,6 @@ cTerrain2::~cTerrain2()
 bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 {
 	const Vector2 center = rect.Center();
-	//const Vector3 lightLookat = Vector3(center.x, 0, center.y);
-	//const Vector3 lightPos = Vector3(1, -1, 1).Normal() * -400.f + lightLookat;
 	const Vector3 lightLookat = Vector3(center.x, 0, center.y);
 	const Vector3 lightPos = GetMainLight().GetDirection()	* -400.f + lightLookat;
 
@@ -56,10 +55,10 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 }
 
 
-void cTerrain2::Update(cRenderer &renderer, const float deltaSeconds)
+bool cTerrain2::Update(cRenderer &renderer, const float deltaSeconds)
 {
-	for (auto &p : m_tiles)
-		p->Update(renderer, deltaSeconds);
+	__super::Update(renderer, deltaSeconds);
+	return true;
 }
 
 
@@ -77,25 +76,16 @@ void cTerrain2::PreRender(cRenderer &renderer
 }
 
 
-void cTerrain2::Render(cRenderer &renderer
+bool cTerrain2::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
+	, const int flags //= 1
 )
 {
 	UpdateShader(renderer);
 
-	for (auto &p : m_tiles)
-		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
-			, m_shadowMap, SHADOWMAP_COUNT, tm, 0x1);
-
-	// Alphablending 1 (Camera)
-	for (auto &p : m_tiles)
-		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
-			, m_shadowMap, SHADOWMAP_COUNT, tm, 0x8);
-
-	// Alphablending 2 (Transparent Wall)
-	for (auto &p : m_tiles)
-		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
-			, m_shadowMap, SHADOWMAP_COUNT, tm, 0x4);
+	__super::Render(renderer, tm, 0x1);
+	__super::Render(renderer, tm, 0x8); // Alphablending 1 (Camera)
+	__super::Render(renderer, tm, 0x4); // Alphablending 2 (Transparent Wall)
 
 	if (m_isShowDebug)
 	{
@@ -108,6 +98,8 @@ void cTerrain2::Render(cRenderer &renderer
 		m_dbgLight.Render(renderer);
 		m_dbgPlane.Render(renderer);
 	}
+
+	return true;
 }
 
 
@@ -116,9 +108,7 @@ void cTerrain2::RenderOption(cRenderer &renderer
 	, const int option //= 0x1
 )
 {
-	for (auto &p : m_tiles)
-		p->Render2(renderer, m_lightView, m_lightProj, m_lightTT
-			, m_shadowMap, SHADOWMAP_COUNT, tm, option);
+	__super::Render(renderer, tm, option);
 }
 
 
@@ -156,7 +146,11 @@ void cTerrain2::UpdateShader(cRenderer &renderer)
 	{
 		GetMainLight().Bind(*shader);
 		cam->Bind(*shader);
-	}		
+	}
+
+	for (auto &p : m_tiles)
+		p->UpdateShader(m_lightView, m_lightProj, m_lightTT
+			, m_shadowMap, SHADOWMAP_COUNT);
 }
 
 
@@ -170,7 +164,7 @@ void cTerrain2::CullingTest(
 	m_frustum[shadowMapIdx].SetFrustum(renderer, camera.GetViewProjectionMatrix());
 
 	for (auto &p : m_tiles)
-		p->CullingTest(m_frustum[shadowMapIdx], isModel);
+		p->CullingTest(m_frustum[shadowMapIdx], Matrix44::Identity, isModel);
 
 	// Update Light Position, Direction
 	Vector3 orig, dir;
@@ -212,7 +206,7 @@ void cTerrain2::CullingTest(cRenderer &renderer
 )
 {
 	for (auto &p : m_tiles)
-		p->CullingTest(frustum, isModel);
+		p->CullingTest(frustum, Matrix44::Identity, isModel);
 
 	m_frustum[shadowMapIdx].SetFrustum(renderer, frustum.m_viewProj);
 
@@ -244,12 +238,14 @@ void cTerrain2::CullingTestOnly(cRenderer &renderer, cCamera &camera
 	frustum.SetFrustum(camera.GetViewProjectionMatrix());
 
 	for (auto &p : m_tiles)
-		p->CullingTest(frustum, isModel);
+		p->CullingTest(frustum, Matrix44::Identity, isModel);
 }
 
 
 bool cTerrain2::AddTile(cTile *tile)
 {
+	AddChild(tile);
+
 	auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
 	if (m_tiles.end() != it)
 		return false; // Already Exist
@@ -291,6 +287,8 @@ cModel2* cTerrain2::FindModel(const int modelId)
 
 bool cTerrain2::RemoveTile(cTile *tile)
 {
+	RemoveChild(tile);
+
 	auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
 	if (m_tiles.end() == it)
 		return false; // Not Exist
@@ -311,7 +309,7 @@ void cTerrain2::SetDbgRendering(const bool isRender)
 		p->m_isDbgRender = isRender;
 
 		for (auto &ch : p->m_children)
-			ch->m_isDbgRender = isRender;
+			((cTile*)ch)->m_isDbgRender = isRender;
 	}
 }
 
@@ -343,8 +341,8 @@ void cTerrain2::ResetDevice(cRenderer &renderer)
 
 void cTerrain2::Clear()
 {
-	for (auto &p : m_tiles)
-		delete p;
+	__super::Clear();
+
 	m_tiles.clear();
 
 	m_tilemap.clear();
@@ -352,28 +350,3 @@ void cTerrain2::Clear()
 	m_shaders.clear();
 }
 
-
-//
-// tile width, height, row, col count
-// tile
-//		- pos
-//		- texture
-// model
-//		- filename
-//		- name
-//		- pos
-//		- scale
-//		- rot
-//
-bool cTerrain2::Write(const StrPath &fileName)
-{
-
-	return true;
-}
-
-
-bool cTerrain2::Read(const StrPath &fileName)
-{
-
-	return true;
-}

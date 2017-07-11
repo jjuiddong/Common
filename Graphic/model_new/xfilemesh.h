@@ -34,7 +34,7 @@ namespace graphic
 		int m_facesCount;
 		int m_materialsCount;
 		int m_stride;
-		cBoundingBox m_boundingBox;
+		cBoundingBox m_boundingBox; // Local Space
 		cMaterial* m_materials;
 		cTexture** m_textures; // reference 
 		cShadowVolume m_shadow;

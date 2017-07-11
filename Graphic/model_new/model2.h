@@ -12,8 +12,9 @@ namespace graphic
 	class cXFileMesh;
 	class cShadowMap;
 
-	class cModel2 : public iShaderRenderer
-							, public iShadowRenderer
+	class cModel2 : public cNode2
+				, public iShaderRenderer
+				, public iShadowRenderer
 	{
 	public:
 		cModel2();
@@ -28,12 +29,12 @@ namespace graphic
 			, const bool isShadow=false
 		);
 
-		bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int flags=1) override;
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		virtual void RenderShadow(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		virtual void SetShader(cShader *shader) override;
 		virtual void SetShadowShader(cShader *shader) override;
-		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
+		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
@@ -64,27 +65,19 @@ namespace graphic
 			};
 		};
 
-
-		int m_id;
-		StrId m_name;
 		StrPath m_fileName;
+		StrPath m_shaderName;
+		Str32 m_techniqueName;
+		StrId m_animationName;
 		eState::Enum m_state;
-		bool m_isEnable; // if false, not show
-		bool m_isShow;
 		bool m_isShadowEnable;
 		bool m_isShadow; // shadow volume
 		bool m_isShadow2; // shadow map
 		bool m_isAlphablend;
-		int m_flags; // default:1
 		D3DCULL m_cullType; // default : CCW
-		cColladaModel *m_colladaModel;
-		cXFileMesh *m_xModel;
-		StrPath m_shaderName;
-		Str32 m_techniqueName;
-		//Matrix44 m_tm;
-		Transform m_transform;
-		StrId m_animationName;
-		cBoundingBox m_boundingBox;
+		cColladaModel *m_colladaModel; // reference
+		cXFileMesh *m_xModel; // reference
+		cBoundingBox m_boundingBox; // Local Space
 		cBoundingSphere m_boundingSphere;
 		cShadowVolume *m_shadow; // reference
 		cShadow2 *m_shadowMap; // reference

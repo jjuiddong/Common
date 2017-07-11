@@ -49,7 +49,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 			ptree tree;
 
 			tree.put("id", tile->m_id);
-			const Vector3 pos = tile->m_tm.GetPosition();
+			const Vector3 pos = tile->m_transform.pos;
 			tree.put("pos", format<64>("%f %f %f", pos.x, pos.y, pos.z).c_str());
 
 			const float width = abs(tile->m_boundingBox.m_min.x - tile->m_boundingBox.m_max.x);
@@ -66,9 +66,16 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		ptree models;
 		for (auto &tile: m_terrain->m_tiles)
 		{
-			for (auto &model : tile->m_models)
+			for (auto &p : tile->m_children)
 			{
+				if (eNodeType::MODEL != p->m_nodeType)
+					continue;
+
+				cModel2 *model = (cModel2*)p;
+
 				ptree tree;
+
+				model->m_transform.pos += tile->m_transform.pos;
 
 				tree.put("pos", format<64>("%f %f %f"
 					, model->m_transform.pos.x, model->m_transform.pos.y, model->m_transform.pos.z).c_str());
@@ -179,12 +186,12 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				for (auto &tile : m_terrain->m_tiles)
 				{
 					cBoundingBox bbox = model->m_boundingBox;
-					bbox.m_tm = transform.GetMatrix();					
+					bbox.m_tm = transform.GetMatrix();
 
-					if (tile->m_boundingBox.Collision(bbox, tile->m_tm))
+					if (tile->m_boundingBox.Collision(bbox, tile->m_transform.GetMatrix()))
 					{
 						model->m_transform = transform;
-						model->m_transform.pos -= tile->m_tm.GetPosition();
+						model->m_transform.pos -= tile->m_transform.pos;
 						tile->AddModel(model);
 
 						tile->m_shaders.insert(

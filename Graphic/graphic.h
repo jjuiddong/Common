@@ -73,6 +73,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/text3d2.h"
 
 #include "model/node.h"
+#include "model/node2.h"
 
 #include "base/shadow1.h"
 #include "base/shadow2.h"

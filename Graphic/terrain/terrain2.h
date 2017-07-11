@@ -10,21 +10,19 @@ namespace graphic
 {
 
 	class cTile;
-	class cTerrain2
+	class cTerrain2 : public cNode2
 	{
 	public:
 		cTerrain2();
 		virtual ~cTerrain2();
 
 		virtual bool Create(cRenderer &renderer, const sRectf &rect);
-		virtual void Update(cRenderer &renderer, const float deltaSeconds);
+		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity
 			, const int shadowMapIdx=0);
-		virtual void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		virtual bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int flags = 1) override;
 		virtual void RenderOption(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int option=0x1);
 		virtual void RenderDebug(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		virtual bool Write(const StrPath &fileName);
-		virtual bool Read(const StrPath &fileName);
 		virtual void LostDevice();
 		virtual void ResetDevice(cRenderer &renderer);
 		virtual void Clear();
@@ -49,7 +47,7 @@ namespace graphic
 		bool m_isShadow;
 		int m_rows;
 		int m_cols;
-		vector<cTile*> m_tiles;
+		vector<cTile*> m_tiles; // reference
 		map<hashcode, cTile*> m_tilemap; // reference
 		map<int, cTile*> m_tilemap2; // reference
 		set<cShader*> m_shaders; // reference

@@ -6,11 +6,8 @@
 using namespace graphic;
 
 cModel2::cModel2()
-	: m_id(0)
-	, m_name("model")
-	, m_isEnable(true)
+	: cNode2(common::GenerateId(), "model", eNodeType::MODEL)
 	, m_colladaModel(NULL)
-	, m_isShow(true)
 	, m_xModel(NULL)
 	, m_state(eState::NORMAL)
 	, m_shadow(NULL)
@@ -20,7 +17,6 @@ cModel2::cModel2()
 	, m_isShadow2(false)
 	, m_cullType(D3DCULL_CCW)
 	, m_isAlphablend(false)
-	, m_flags(1)
 {
 }
 
@@ -90,21 +86,13 @@ bool cModel2::Create(cRenderer &renderer
 
 bool cModel2::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
+	, const int flags //= 1
 )
 {
+	RETV(!m_isEnable, false);
 	RETV(!m_isShow, false);
-	// nothing~
-	return true;
-}
-
-
-void cModel2::RenderShader(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
-)
-{
-	RET(!m_isEnable);
-	RET(!m_isShow);
-	RET(!m_shader);
+	RETV(!m_shader, false);
+	RETV(!(flags & m_flags), false);
 
 	renderer.SetCullMode(m_cullType);
 
@@ -121,6 +109,36 @@ void cModel2::RenderShader(cRenderer &renderer
 	{
 		m_xModel->RenderShader(renderer, *m_shader, transform);
 	}
+
+	__super::Render(renderer, tm, flags);
+
+	return true;
+}
+
+
+void cModel2::RenderShader(cRenderer &renderer
+	, const Matrix44 &tm //= Matrix44::Identity
+)
+{
+	//RET(!m_isEnable);
+	//RET(!m_isShow);
+	//RET(!m_shader);
+
+	//renderer.SetCullMode(m_cullType);
+
+	//const Matrix44 transform = m_transform.GetMatrix() * tm;
+
+	//if (m_isShadow2 && m_shadowMap && m_shader)
+	//	m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
+
+	//if (m_colladaModel)
+	//{
+	//	m_colladaModel->Render(renderer, *m_shader, transform);
+	//}
+	//else if (m_xModel)
+	//{
+	//	m_xModel->RenderShader(renderer, *m_shader, transform);
+	//}
 }
 
 
@@ -148,6 +166,9 @@ void cModel2::RenderShadow(cRenderer &renderer
 
 bool cModel2::Update(cRenderer &renderer, const float deltaSeconds)
 {
+	RETV(!m_isEnable, false);
+	RETV(!m_isShow, false);
+
 	if (CheckLoadProcess(renderer))
 		return true;
 
@@ -160,6 +181,9 @@ bool cModel2::Update(cRenderer &renderer, const float deltaSeconds)
 	{
 		reval = m_xModel->Update(deltaSeconds);
 	}
+
+	__super::Update(renderer, deltaSeconds);
+
 	return reval;
 }
 

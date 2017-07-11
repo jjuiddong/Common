@@ -110,37 +110,6 @@ void cNode::RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 }
 
 
-
-//// 셰이더 출력, 셰이더는 렌더링하는 객체에서 선택한다.
-//void cNode::RenderShader( const Matrix44 &parentTm )
-//{
-//	for each (auto node, m_children)
-//	{
-//		node->RenderShader(parentTm);
-//	}
-//}
-//
-//
-//// 셰이더를 이용해서 출력한다.
-//void cNode::RenderShader( cShader &shader, const Matrix44 &parentTm )
-//{
-//	for each (auto node, m_children)
-//	{
-//		node->RenderShader(shader, parentTm);
-//	}
-//}
-//
-//
-//// 셰이더를 이용해서 출력한다.
-//void cNode::RenderShadow( cShader &shader, const Matrix44 &parentTm )
-//{
-//	for each (auto node, m_children)
-//	{
-//		node->RenderShadow(shader, parentTm);
-//	}
-//}
-
-
 // 모든 노드를 제거한다.
 void cNode::Clear()
 {

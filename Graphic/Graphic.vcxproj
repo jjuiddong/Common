@@ -426,6 +426,7 @@
     <ClInclude Include="model\mesh.h" />
     <ClInclude Include="model\model.h" />
     <ClInclude Include="model\node.h" />
+    <ClInclude Include="model\node2.h" />
     <ClInclude Include="model\rawani.h" />
     <ClInclude Include="model\rawmesh.h" />
     <ClInclude Include="model\rigidmesh.h" />
@@ -534,6 +535,7 @@
     <ClCompile Include="model\mesh.cpp" />
     <ClCompile Include="model\model.cpp" />
     <ClCompile Include="model\node.cpp" />
+    <ClCompile Include="model\node2.cpp" />
     <ClCompile Include="model\rawmesh.cpp" />
     <ClCompile Include="model\rigidmesh.cpp" />
     <ClCompile Include="model\skinnedmesh.cpp" />

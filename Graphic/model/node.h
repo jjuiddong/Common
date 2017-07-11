@@ -4,6 +4,7 @@
 //
 #pragma once
 
+
 namespace graphic
 {
 	class cRenderer;
@@ -41,10 +42,6 @@ namespace graphic
 		virtual void RenderShadow(cRenderer &renderer, const Matrix44 &viewProj,
 			const Vector3 &lightPos, const Vector3 &lightDir, const Matrix44 &parentTm=Matrix44::Identity);
 		virtual void SetShader(cShader *shader);
-
-		//virtual void RenderShader( const Matrix44 &parentTm );
-		//virtual void RenderShader( cShader &shader, const Matrix44 &parentTm );
-		//virtual void RenderShadow(cShader &shader, const Matrix44 &parentTm);
 
 
 	public:
