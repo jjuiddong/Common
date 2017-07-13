@@ -19,35 +19,6 @@ cDbgSphere::~cDbgSphere()
 }
 
 
-void cDbgSphere::Render(cRenderer &renderer
-	, const Matrix44 &tm //=Matrix44::Identity
-)
-{
-	DWORD cullMode;
-	DWORD fillMode;
-	DWORD lightMode;
-	renderer.GetDevice()->GetRenderState(D3DRS_CULLMODE, &cullMode);
-	renderer.GetDevice()->GetRenderState(D3DRS_FILLMODE, &fillMode);
-	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lightMode);
-
-	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, FALSE);
-	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-	renderer.GetDevice()->SetTexture(0, NULL);
-
-	Matrix44 mat = m_tm * tm;
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
-	m_vtxBuff.Bind(renderer);
-	m_idxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
-		m_vtxBuff.GetVertexCount(), 0, m_idxBuff.GetFaceCount());
-
-	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, cullMode);
-	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, fillMode);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
-}
-
-
 // ±¸ »ý¼º
 void cDbgSphere::Create(cRenderer &renderer, const float radius, const int stacks, const int slices)
 {
@@ -213,3 +184,31 @@ void cDbgSphere::Create(cRenderer &renderer, const float radius, const int stack
 	m_idxBuff.Unlock();
 }
 
+
+void cDbgSphere::Render(cRenderer &renderer
+	, const Matrix44 &tm //=Matrix44::Identity
+)
+{
+	DWORD cullMode;
+	DWORD fillMode;
+	DWORD lightMode;
+	renderer.GetDevice()->GetRenderState(D3DRS_CULLMODE, &cullMode);
+	renderer.GetDevice()->GetRenderState(D3DRS_FILLMODE, &fillMode);
+	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lightMode);
+
+	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, FALSE);
+	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+	renderer.GetDevice()->SetTexture(0, NULL);
+
+	Matrix44 mat = m_transform.GetMatrix() * tm;
+	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+		m_vtxBuff.GetVertexCount(), 0, m_idxBuff.GetFaceCount());
+
+	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, cullMode);
+	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, fillMode);
+	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
+}

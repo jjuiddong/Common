@@ -8,6 +8,7 @@
 namespace graphic
 {
 	class cRenderer;
+	class cFrustum;
 
 	struct eNodeType {
 		enum Enum { NONE, BONE, MESH, MODEL, TERRAIN };
@@ -21,15 +22,18 @@ namespace graphic
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
 		virtual bool Render(cRenderer &renderer, const Matrix44 &parentTm = Matrix44::Identity, const int flags = 1);
-
-		bool AddChild(cNode2 *node);
-		const cNode2* FindNode(const int id) const;
-		const cNode2* FindNode(const StrId &name) const;
-		bool RemoveChild(const int id);
-		bool RemoveChild(cNode2 *rmNode);
+		virtual bool AddChild(cNode2 *node);
+		virtual const cNode2* FindNode(const int id) const;
+		virtual const cNode2* FindNode(const StrId &name) const;
+		virtual bool RemoveChild(const int id, const bool rmInstance=true);
+		virtual bool RemoveChild(cNode2 *rmNode, const bool rmInstance = true);
+		virtual void SetShader(cShader *shader) { m_shader = shader; }
+		virtual void CalcBoundingSphere();
+		virtual float CullingTest(const cFrustum &frustum, const Matrix44 &tm = Matrix44::Identity, const bool isModel = true);
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
+		Matrix44 GetWorldMatrix();
 
 
 	public:
@@ -37,11 +41,16 @@ namespace graphic
 		StrId m_name;
 		bool m_isEnable; // if false, didn't show
 		bool m_isShow;
-		int m_flags; // default:1
+		bool m_isShadowEnable;
+		bool m_isShadow;
+		int m_flags; // default:1 0x1 : visible, 0x2 : building, 0x4:alphablending, 0x8:shadow
 		eNodeType::Enum m_nodeType;
 		cNode2 *m_parent;
 		vector<cNode2*> m_children;
 		Transform m_transform;
+		cShader *m_shader;
+		cBoundingBox m_boundingBox; // Local Space
+		cBoundingSphere m_boundingSphere; // Local Space
 	};
 
 }

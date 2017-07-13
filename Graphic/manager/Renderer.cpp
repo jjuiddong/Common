@@ -25,6 +25,7 @@ cRenderer::cRenderer() :
 	m_pDevice(NULL)
 ,	m_elapseTime(0)
 ,	m_fps(0)
+,	m_isDbgRender(false)
 {
 	m_postRender.reserve(128);
 }
@@ -48,6 +49,11 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height,
 	m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(0,0,0,1));
 	m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
+
+	m_dbgBox.SetBox(*this, Vector3(1, 1, 1)*-0.2f, Vector3(1, 1, 1)*0.2f);
+	m_dbgBox.SetColor(D3DCOLOR_XRGB(255, 0, 0));
+	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
+	m_dbgSphere.Create(*this, 1, 10, 10);
 
 	m_hWnd = hWnd;
 	return true;

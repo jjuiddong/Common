@@ -35,10 +35,10 @@ namespace graphic
 		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true);
 
 		bool AddTile(cTile *model);
-		cTile* FindTile(const Str64 &name);
-		cTile* FindTile(const int id);
-		cModel2* FindModel(const int modelId);
 		bool RemoveTile(cTile *model);
+		//cTile* FindTile(const Str64 &name);
+		//cTile* FindTile(const int id);
+		//cNode2* FindModel(const int modelId);
 		void SetDbgRendering(const bool isRender);
 		void SetShadowRendering(const bool isRender);
 
@@ -66,6 +66,7 @@ namespace graphic
 		cDbgArrow m_dbgLight;
 		cLine m_dbgPlane; // Plane Normal Vector
 		cDbgFrustum m_dbgLightFrustum[SHADOWMAP_COUNT];
+		cDbgSphere m_dbgSphere;
 	};
 
 }

@@ -70,6 +70,12 @@ namespace graphic
 		cText m_textFps;
 		float m_elapseTime;
 		int m_fps;
+
+		// Debug Render
+		bool m_isDbgRender; // Debug Render
+		cDbgBox m_dbgBox;
+		cDbgArrow m_dbgArrow;
+		cDbgSphere m_dbgSphere;
 	};
 
 

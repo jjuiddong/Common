@@ -66,7 +66,7 @@ void cShadow1::UpdateShadow(cRenderer &renderer, cModel2 &model)
 	}
 
 	Begin(renderer);
-	model.RenderShader(renderer);
+	model.Render(renderer);
 	End(renderer);
 }
 

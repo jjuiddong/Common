@@ -13,9 +13,12 @@ cNode2::cNode2(const int id
 	, m_name(name)
 	, m_isEnable(true)
 	, m_isShow(true)
+	, m_isShadowEnable(true)
+	, m_isShadow(true)
 	, m_parent(NULL)
 	, m_nodeType(type)
 	, m_flags(1)
+	, m_shader(NULL)
 {
 }
 
@@ -38,6 +41,14 @@ bool cNode2::Render(cRenderer &renderer
 
 	for (auto &node : m_children)
 		node->Render(renderer, tm, flags);
+
+	// for Debugging
+	if (renderer.m_isDbgRender)
+	{
+		renderer.m_dbgSphere.m_transform.pos = m_boundingSphere.m_pos;
+		renderer.m_dbgSphere.m_transform.scale = Vector3(1, 1, 1) * m_boundingSphere.m_radius;
+		renderer.m_dbgSphere.Render(renderer, tm);
+	}
 
 	return true;
 }
@@ -99,43 +110,91 @@ const cNode2* cNode2::FindNode(const StrId &name) const
 }
 
 // id 노드를 제거한다. 메모리까지 제거된다.
-bool cNode2::RemoveChild(const int id)
+bool cNode2::RemoveChild(const int id
+	, const bool rmInstance //= true
+)
 {
 	for (auto &node : m_children)
 	{
 		if (id == node->m_id)
 		{
-			delete node;
+			if (rmInstance)
+				delete node;
+
 			common::removevector(m_children, node);
 			return true;
 		}
 	}
 
 	for (auto &node : m_children)
-		if (node->RemoveChild(id))
+		if (node->RemoveChild(id, rmInstance))
 			return true;
 
 	return false;
 }
 
 
-bool cNode2::RemoveChild(cNode2 *rmNode)
+bool cNode2::RemoveChild(cNode2 *rmNode
+	, const bool rmInstance //= true
+)
 {
 	for (auto &node : m_children)
 	{
 		if (rmNode->m_id == node->m_id)
 		{
-			delete node;
+			if (rmInstance)
+				delete node;
+
+			rmNode->m_parent = NULL;
 			common::removevector(m_children, node);
 			return true;
 		}
 	}
 
 	for (auto &node : m_children)
-		if (node->RemoveChild(rmNode->m_id))
+		if (node->RemoveChild(rmNode->m_id, rmInstance))
 			return true;
 
 	return false;
+}
+
+
+void cNode2::CalcBoundingSphere()
+{
+	m_boundingSphere.Set(m_boundingBox);
+}
+
+
+float cNode2::CullingTest(const cFrustum &frustum
+	, const Matrix44 &tm //= Matrix44::Identity
+	, const bool isModel //= true
+)
+{
+	RETV(!m_isEnable, false);
+
+	const Matrix44 transform = m_transform.GetMatrix()*tm;
+	if (frustum.IsInSphere(m_boundingSphere, transform))
+	{
+		m_isShow = true;
+		m_isShadow = m_isShadowEnable;
+
+		if (isModel)
+		{
+			for (auto &p : m_children)
+				p->CullingTest(frustum, transform, isModel);
+		}
+		else
+		{
+			for (auto &p : m_children)
+				p->m_isShow = true;
+		}
+	}
+	else
+	{
+		m_isShow = false;
+	}
+
+	return frustum.m_pos.LengthRoughly(m_boundingBox.Center() * transform);
 }
 
 
@@ -149,4 +208,17 @@ void cNode2::Clear()
 	}
 
 	m_children.clear();
+}
+
+
+Matrix44 cNode2::GetWorldMatrix()
+{
+	Matrix44 ret = m_transform.GetMatrix();
+	cNode2 *node = m_parent;
+	while (node)
+	{
+		ret *= node->m_transform.GetMatrix();
+		node = node->m_parent;
+	}
+	return ret;
 }

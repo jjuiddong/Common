@@ -26,7 +26,7 @@ namespace graphic
 		float m_radius;
 		int m_numSlices;
 		int m_numStacks;
-		Matrix44 m_tm;
+		Transform m_transform;
 	};
 
 }

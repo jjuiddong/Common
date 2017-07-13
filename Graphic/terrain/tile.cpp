@@ -6,7 +6,6 @@ using namespace graphic;
 
 cTile::cTile()
 	: cNode2(common::GenerateId(), "tile", eNodeType::TERRAIN)
-	, m_isShadow(true)
 	, m_isDbgRender(false)
 {
 }
@@ -36,9 +35,6 @@ bool cTile::Create(cRenderer &renderer
 	m_ground.m_shader->SetFloat("g_uvFactor", uvFactor);
 	m_ground.m_mtrl.InitXFile();
 	
-	//Matrix44 T;
-	//T.SetPosition(Vector3(rect.left+cellSize, 0, rect.top + cellSize));
-	//m_tm = T;
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
 	const Matrix44 tm = m_transform.GetMatrix();
 
@@ -48,6 +44,8 @@ bool cTile::Create(cRenderer &renderer
 	m_dbgTile.SetBox(renderer, Vector3(-cellSize, 0, -cellSize)
 		, Vector3(cellSize, 20, cellSize));
 
+	CalcBoundingSphere();
+
 	return true;
 }
 
@@ -56,7 +54,6 @@ bool cTile::Create(cRenderer &renderer
 	, const int id
 	, const Str64 &name
 	, const Vector3 &dim
-	//, const Matrix44 &tm
 	, const Transform &transform
 	, const float y //= 0
 	, const float uvFactor //= 1.f
@@ -73,12 +70,14 @@ bool cTile::Create(cRenderer &renderer
 	m_ground.m_shader->SetFloat("g_uvFactor", uvFactor);
 	m_ground.m_mtrl.InitXFile();
 
-	//m_tm = tm;
 	m_transform = transform;
 	const Matrix44 tm = m_transform.GetMatrix();
 
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), dim);
 	m_dbgTile.SetBox(renderer, Vector3(0, 0, 0), dim);
+
+	CalcBoundingSphere();
+	
 	return true;
 }
 
@@ -96,9 +95,12 @@ void cTile::UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj,
 	char *varLightProj[] = { "g_mLightProj1", "g_mLightProj2", "g_mLightProj3" };
 	char *varLightTT[] = { "g_mLightTT1", "g_mLightTT2", "g_mLightTT3" };
 
+	cCamera *cam = GetMainCamera();
+
 	if (m_isShadow && shadowMap)
 	{
 		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
+		cam->Bind(*m_ground.m_shader);
 
 		for (int i = 0; i < shadowMapCount; ++i)
 		{
@@ -115,6 +117,8 @@ void cTile::UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj,
 
 	for (auto &shader : m_shaders)
 	{
+		cam->Bind(*shader);
+
 		if (m_isShadow && shadowMap)
 		{
 			shader->SetTechnique("Scene_ShadowMap");
@@ -155,29 +159,19 @@ void cTile::PreRender(cRenderer &renderer
 	RET(!m_isShow);
 
 	cCamera *cam = GetMainCamera();
-
 	for (auto &shader : m_shaders)
 	{
 		shader->SetTechnique("ShadowMap");
-		shader->SetMatrix("g_mView", cam->GetViewMatrix());
-		shader->SetMatrix("g_mProj", cam->GetProjectionMatrix());
+		cam->Bind(*shader);
 	}
 
 	const Matrix44 transform = m_transform.GetMatrix() * tm;
-
 	for (auto &p : m_children)
 	{
-		if (eNodeType::MODEL == p->m_nodeType)
-		{
-			if (!((cModel2*)p)->m_isShadow)
-				continue;
-			((cModel2*)p)->Render(renderer, transform);
-		}		
+		if (!p->m_isShadow)
+			continue;
+		p->Render(renderer, transform, 0x8 | 0x1); // shadow + visible
 	}
-
-	for (auto &p : m_children)
-		if (eNodeType::TERRAIN == p->m_nodeType)
-			((cTile*)p)->PreRender(renderer, transform);
 }
 
 
@@ -220,29 +214,15 @@ float cTile::CullingTest(const cFrustum &frustum
 
 	const Matrix44 transform = m_transform.GetMatrix()*tm;
 
-	if (frustum.IsInBox(m_boundingBox, transform))
+	if (frustum.IsInSphere(m_boundingSphere, transform))
 	{
 		m_isShow = true;
+		m_isShadow = m_isShadowEnable;
 
 		if (isModel)
 		{
 			for (auto &p : m_children)
-			{
-				if (eNodeType::MODEL != p->m_nodeType)
-					continue;
-
-				if (!p->m_isEnable)
-					continue;
-
-				cModel2 *model = (cModel2*)p;
-
-				model->m_isShow = frustum.IsInSphere(model->m_boundingSphere, transform);
-				if (model->m_isShow && model->m_isShadowEnable)
-				{
-					//const Vector3 pos = p->m_boundingBox.Center() * p->m_tm * m_tm;
-					model->m_isShadow = true;
-				}
-			}
+				p->CullingTest(frustum, transform, isModel);
 		}
 		else
 		{
@@ -255,39 +235,32 @@ float cTile::CullingTest(const cFrustum &frustum
 		m_isShow = false;
 	}
 
-	for (auto &p : m_children)
-	{
-		if (eNodeType::TERRAIN != p->m_nodeType)
-			continue;
-		((cTile*)p)->CullingTest(frustum, transform, isModel);
-	}
-
 	return frustum.m_pos.LengthRoughly(m_boundingBox.Center() * transform);
 }
 
 
-bool cTile::AddModel(cModel2 *model)
+bool cTile::AddChild(cNode2 *node)
 {
-	AddChild(model);
-
-	if (model->m_shader)
-		m_shaders.insert(model->m_shader);
+	if (__super::AddChild(node))
+		if (node->m_shader)
+			m_shaders.insert(node->m_shader);
 
 	return true;
 }
 
 
-cModel2* cTile::FindModel(const int modelId)
+bool cTile::RemoveChild(cNode2 *rmNode
+	, const bool rmInstance //= true
+)
 {
-	return (cModel2*)FindNode(modelId);
+	__super::RemoveChild(rmNode, rmInstance);
+	return true;
 }
 
 
-bool cTile::RemoveModel(cModel2 *model)
+const cNode2* cTile::FindNode(const int id) const
 {
-	RemoveChild(model);
-	m_shaders.erase(model->m_shader);
-	return true;
+	return __super::FindNode(id);
 }
 
 

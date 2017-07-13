@@ -43,6 +43,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		props.add("rows", m_terrain->m_rows);
 		props.add("cols", m_terrain->m_cols);
 	
+		// Write Tile
 		ptree tiles;
 		for (auto &tile : m_terrain->m_tiles)
 		{
@@ -63,27 +64,28 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		}
 		props.add_child("tiles", tiles);
 
+		// Write Model
 		ptree models;
 		for (auto &tile: m_terrain->m_tiles)
 		{
 			for (auto &p : tile->m_children)
 			{
-				if (eNodeType::MODEL != p->m_nodeType)
-					continue;
-
-				cModel2 *model = (cModel2*)p;
-
 				ptree tree;
 
-				model->m_transform.pos += tile->m_transform.pos;
+				const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
 
 				tree.put("pos", format<64>("%f %f %f"
-					, model->m_transform.pos.x, model->m_transform.pos.y, model->m_transform.pos.z).c_str());
+					, worldPos.x, worldPos.y, worldPos.z).c_str());
 				tree.put("scale", format<64>("%f %f %f"
-					, model->m_transform.scale.x, model->m_transform.scale.y, model->m_transform.scale.z).c_str());
+					, p->m_transform.scale.x, p->m_transform.scale.y, p->m_transform.scale.z).c_str());
 				tree.put("rot", format<64>("%f %f %f %f"
-					, model->m_transform.rot.x, model->m_transform.rot.y, model->m_transform.rot.z, model->m_transform.rot.w).c_str());
-				tree.put("filename", model->m_fileName.c_str());
+					, p->m_transform.rot.x, p->m_transform.rot.y, p->m_transform.rot.z, p->m_transform.rot.w).c_str());
+
+				if (eNodeType::MODEL == p->m_nodeType)
+				{
+					if (cModel2 *model = dynamic_cast<cModel2*>(p))
+						tree.put("filename", model->m_fileName.c_str());
+				}
 
 				models.push_back(std::make_pair("", tree));
 			}
@@ -192,7 +194,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					{
 						model->m_transform = transform;
 						model->m_transform.pos -= tile->m_transform.pos;
-						tile->AddModel(model);
+						tile->AddChild(model);
 
 						tile->m_shaders.insert(
 							cResourceManager::Get()->LoadShader(renderer, "../Media/shader/xfile.fx"));
