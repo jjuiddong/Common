@@ -50,6 +50,8 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 			ptree tree;
 
 			tree.put("id", tile->m_id);
+			tree.put("row", tile->m_location.x);
+			tree.put("col", tile->m_location.y);
 			const Vector3 pos = tile->m_transform.pos;
 			tree.put("pos", format<64>("%f %f %f", pos.x, pos.y, pos.z).c_str());
 
@@ -92,6 +94,10 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		}
 		props.add_child("models", models);
 
+		// write backup (copy file)
+		if (fileName.IsFileExist())
+			::CopyFileA(fileName.c_str(), (fileName + ".bak").c_str(), FALSE);
+
 		boost::property_tree::write_json(fileName.c_str(), props);
 	}
 	catch (std::exception &e)
@@ -128,6 +134,10 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			for (ptree::value_type &vt : child_field)
 			{
 				const int id = vt.second.get<int>("id");
+				Vector2i location;
+				location.x = vt.second.get<int>("row");
+				location.y = vt.second.get<int>("col");
+
 				std::stringstream ss(vt.second.get<string>("pos"));
 				Vector3 pos;
 				ss >> pos.x >> pos.y >> pos.z;
@@ -141,14 +151,16 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				const float z = pos.z - tileSize / 2;
 
 				const sRectf rect(x, z, x + tileSize, z + tileSize);
-				tile->Create(renderer, id
-					, fileName.c_str()
+				tile->Create(renderer 
+					, common::GenerateId()
+					, fileName.GetFileNameExceptExt().c_str()
 					, rect
 					, -0.1f
 					, 1
 					, Vector2(0, 0), Vector2(1, 1)
 				);
 
+				tile->m_location = location;
 				tile->m_ground.m_tex = cResourceManager::Get()->LoadTextureParallel(renderer, fileName);
 				if (!tile->m_ground.m_tex)
 					cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE

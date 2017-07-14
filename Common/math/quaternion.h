@@ -46,6 +46,8 @@ namespace common
 		void Euler2(const Vector3& euler);
 		Vector3 Euler() const;
 		void	Normalize();
+
+		float GetRotationAngleXZ();
 	};
 
 }

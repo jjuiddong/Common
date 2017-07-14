@@ -49,8 +49,9 @@ namespace graphic
 
 
 	public:
+		Vector2i m_location; // Tile Location row, col
 		cGrid3 m_ground;
-		set<cShader*> m_shaders;
+		set<cShader*> m_shaders; // reference
 
 		bool m_isDbgRender;	
 		cDbgBox2 m_dbgTile;

@@ -7,6 +7,7 @@ using namespace graphic;
 cTile::cTile()
 	: cNode2(common::GenerateId(), "tile", eNodeType::TERRAIN)
 	, m_isDbgRender(false)
+	, m_location(-1,-1)
 {
 }
 

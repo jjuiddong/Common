@@ -401,3 +401,15 @@ Vector3 Quaternion::Euler(void) const
 // 
 // 	return Vector3((float)roll, (float)pitch, (float)yaw);
 }
+
+
+// return x-z plane
+float Quaternion::GetRotationAngleXZ()
+{
+	const Vector3 v = GetDirection();
+	float angle = v.DotProduct(Vector3(0, 0, -1));
+	float r = acosf(angle);
+	if (v.CrossProduct(Vector3(0, 0, -1)).y < 0)
+		r *= -1.f;
+	return r;
+}

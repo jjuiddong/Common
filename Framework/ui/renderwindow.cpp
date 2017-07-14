@@ -409,8 +409,8 @@ void cRenderWindow::ChangeState( const eState::Enum nextState
 		break;
 	}
 
-	dbg::Log("RenderWindow::ChangeState, window=%s, cur=%s, next=%s, opt=%d\n"
-		, m_title.c_str(), GetStateString(m_state), GetStateString(nextState), option);
+	//dbg::Log("RenderWindow::ChangeState, window=%s, cur=%s, next=%s, opt=%d\n"
+	//	, m_title.c_str(), GetStateString(m_state), GetStateString(nextState), option);
 
 	m_state = nextState;
 }
