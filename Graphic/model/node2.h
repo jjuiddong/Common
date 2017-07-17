@@ -11,8 +11,18 @@ namespace graphic
 	class cFrustum;
 
 	struct eNodeType {
-		enum Enum { NONE, BONE, MESH, MODEL, TERRAIN };
+		enum Enum { NONE, BONE, MESH, MODEL, TEXT, TERRAIN };
 	};
+
+	struct eRenderFlag {
+		enum Enum {
+			NONE = 0x01
+			, BUILDING = 0x02
+			, ALPHABLEND = 0x4
+			, SHADOW = 0x08
+		};
+	};
+
 
 	class cNode2
 	{
@@ -43,7 +53,7 @@ namespace graphic
 		bool m_isShow;
 		bool m_isShadowEnable;
 		bool m_isShadow;
-		int m_flags; // default:1 0x1 : visible, 0x2 : building, 0x4:alphablending, 0x8:shadow
+		int m_flags; // eRenderFlag, default : VISIBLE
 		eNodeType::Enum m_nodeType;
 		cNode2 *m_parent;
 		vector<cNode2*> m_children;

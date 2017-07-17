@@ -26,8 +26,10 @@ cRenderer::cRenderer() :
 ,	m_elapseTime(0)
 ,	m_fps(0)
 ,	m_isDbgRender(false)
+,	m_dbgRenderStyle(0)
 {
-	m_postRender.reserve(128);
+	//m_postRender.reserve(128);
+	m_alphaRender.reserve(256);
 }
 
 cRenderer::~cRenderer()
@@ -255,10 +257,40 @@ void cRenderer::Present()
 
 void cRenderer::EndScene()
 {
-	// Post Render Object
-	for (auto &p : m_postRender)
-		p.obj->Render(*this, p.opt);
-	m_postRender.clear();
+	// AlphaBlending Render
+	// Sorting Camera Position
+	cCamera *cam = GetMainCamera();
+	Vector3 camOrig, camDir;
+	cam->GetRay(camOrig, camDir);
+
+	std::sort(m_alphaRender.begin(), m_alphaRender.end(),
+		[&](const sRenderObj &a, const sRenderObj &b)
+	{
+		float len1 = FLT_MAX, len2 = FLT_MAX;
+		const Vector3 dir1 = (a.p->m_boundingBox.Center()*a.tm - camOrig).Normal();
+		const Vector3 dir2 = (b.p->m_boundingBox.Center()*b.tm - camOrig).Normal();
+
+		{
+			float d1 = FLT_MAX, d2 = FLT_MAX;
+			a.p->m_boundingBox.Pick3(camOrig, dir1, &d1, a.tm);
+			a.p->m_boundingBox.Pick3(camOrig, dir2, &d2, a.tm);
+			len1 = min(d1, d2);
+		}
+
+		{
+			float d1 = FLT_MAX, d2 = FLT_MAX;
+			b.p->m_boundingBox.Pick3(camOrig, dir1, &d1, b.tm);
+			b.p->m_boundingBox.Pick3(camOrig, dir2, &d2, b.tm);
+			len2 = min(d1, d2);
+		}
+
+		return len1 > len2;
+	});
+
+	for (auto &data : m_alphaRender)
+		data.p->Render(*this, data.tm, -1);
+	m_alphaRender.clear();
+	//
 
 	GetDevice()->EndScene();
 }
@@ -364,11 +396,15 @@ bool cRenderer::ResetDevice(
 }
 
 
-void cRenderer::AddPostRender(iRenderable *obj, const int opt)
-// opt=0
+void cRenderer::AddRenderAlpha(cNode2 *node
+	, const Matrix44 &tm // = Matrix44::Identity
+	, const int opt // = 1
+)
 {
-	m_postRender.push_back({ opt, obj });
+	m_alphaRender.push_back({ opt, tm, node });
 }
+
+
 
 void cRenderer::SetLightEnable(const int light, const bool enable)
 {

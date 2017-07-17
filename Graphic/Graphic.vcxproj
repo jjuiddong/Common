@@ -348,6 +348,7 @@
     <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\cube2.h" />
     <ClInclude Include="base\cube3.h" />
+    <ClInclude Include="base\cube4.h" />
     <ClInclude Include="base\dxInit.h" />
     <ClInclude Include="base\fontgdi.h" />
     <ClInclude Include="base\graphicdef.h" />
@@ -380,6 +381,7 @@
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d.h" />
     <ClInclude Include="base\text3d2.h" />
+    <ClInclude Include="base\text3d3.h" />
     <ClInclude Include="base\texture.h" />
     <ClInclude Include="base\texturecube.h" />
     <ClInclude Include="base\vertexbuffer.h" />
@@ -468,6 +470,7 @@
     <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\cube2.cpp" />
     <ClCompile Include="base\cube3.cpp" />
+    <ClCompile Include="base\cube4.cpp" />
     <ClCompile Include="base\dxinit.cpp" />
     <ClCompile Include="base\fontgdi.cpp" />
     <ClCompile Include="base\grid.cpp" />
@@ -498,6 +501,7 @@
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d.cpp" />
     <ClCompile Include="base\text3d2.cpp" />
+    <ClCompile Include="base\text3d3.cpp" />
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\texturecube.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />

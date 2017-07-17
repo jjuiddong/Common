@@ -1,13 +1,16 @@
-
+//
+// refactoring, 2017-07-17
+//	irrlicht 엔진 참조
+//	- inverse
+//
 #pragma once
+
 
 namespace common
 {
 	struct Matrix44;
 	struct Quaternion
 	{
-		float	x, y, z, w;
-
 		Quaternion();
 		Quaternion( const float fX, const float fY, const float fZ, const float fW );
 		Quaternion( const Vector3& vAxis, const float fAngle );
@@ -19,7 +22,7 @@ namespace common
 			return *this;
 		} //operator *=
 
-		Quaternion		operator * ( const Quaternion& q )
+		Quaternion operator * ( const Quaternion& q )
 		{
 			return Quaternion(
 					x * q.w + y * q.z - z * q.y + w * q.x,
@@ -28,7 +31,7 @@ namespace common
 				-x * q.x - y * q.y - z * q.z + w * q.w );
 		} //operator *
 
-		Quaternion		operator * ( const Matrix44& m )
+		Quaternion operator * ( const Matrix44& m )
 		{
 			return *this * m.GetQuaternion();
 		} //operator *
@@ -45,9 +48,13 @@ namespace common
 		void Euler(const Vector3& euler);
 		void Euler2(const Vector3& euler);
 		Vector3 Euler() const;
-		void	Normalize();
+		void Normalize();
+		Quaternion Inverse();
 
 		float GetRotationAngleXZ();
+
+
+		float x, y, z, w;
 	};
 
 }

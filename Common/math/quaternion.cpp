@@ -284,6 +284,13 @@ void Quaternion::Normalize()
 } //Quaternion::Normalize
 
 
+// https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
+Quaternion Quaternion::Inverse()
+{
+	Quaternion q(-x, -y, -z, w);
+	return q;
+}
+
 
 /**
     * @brief Computes the quaternion that is equivalent to a given

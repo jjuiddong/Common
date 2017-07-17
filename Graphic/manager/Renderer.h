@@ -22,7 +22,8 @@ namespace graphic
 		bool CheckResetDevice(const int width=0, const int height=0);
 		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false
 			, const bool resetResource=true);
-		void AddPostRender(iRenderable *obj, const int opt=0);
+		void AddRenderAlpha(cNode2 *node, const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
+
 
 		bool ClearScene();
 		void BeginScene();
@@ -60,11 +61,12 @@ namespace graphic
 		struct sRenderObj
 		{
 			int opt;
-			iRenderable *obj;
+			Matrix44 tm;
+			cNode2 *p;
 		};
-		vector<sRenderObj> m_postRender;
+		vector<sRenderObj> m_alphaRender;
 		vector<sVertexDiffuse> m_grid;
-		vector<sVertexDiffuse> m_axis;
+		vector<sVertexDiffuse> m_axis;		
 
 		// Display FPS 
 		cText m_textFps;
@@ -73,6 +75,7 @@ namespace graphic
 
 		// Debug Render
 		bool m_isDbgRender; // Debug Render
+		int m_dbgRenderStyle; // 0:Sphere, 1:Box
 		cDbgBox m_dbgBox;
 		cDbgArrow m_dbgArrow;
 		cDbgSphere m_dbgSphere;

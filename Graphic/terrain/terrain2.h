@@ -36,9 +36,6 @@ namespace graphic
 
 		bool AddTile(cTile *model);
 		bool RemoveTile(cTile *model);
-		//cTile* FindTile(const Str64 &name);
-		//cTile* FindTile(const int id);
-		//cNode2* FindModel(const int modelId);
 		void SetDbgRendering(const bool isRender);
 		void SetShadowRendering(const bool isRender);
 

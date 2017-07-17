@@ -352,6 +352,12 @@
     <ClInclude Include="model\node2.h">
       <Filter>model</Filter>
     </ClInclude>
+    <ClInclude Include="base\cube4.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d3.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -663,6 +669,12 @@
     </ClCompile>
     <ClCompile Include="model\node2.cpp">
       <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube4.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d3.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

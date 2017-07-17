@@ -84,9 +84,10 @@ bool cTerrain2::Render(cRenderer &renderer
 {
 	UpdateShader(renderer);
 
-	__super::Render(renderer, tm, 0x1);
-	__super::Render(renderer, tm, 0x8); // Alphablending 1 (Camera)
-	__super::Render(renderer, tm, 0x4); // Alphablending 2 (Transparent Wall)
+	//__super::Render(renderer, tm, eRenderFlag::VISIBLE);
+	//__super::Render(renderer, tm, eRenderFlag::SHADOW); // (Camera)
+	//__super::Render(renderer, tm, eRenderFlag::ALPHABLEND); // (Transparent Wall)
+	__super::Render(renderer, tm);
 
 	if (m_isShowDebug)
 	{
@@ -256,34 +257,6 @@ bool cTerrain2::AddTile(cTile *tile)
 	m_tilemap2[tile->m_id] = tile;
 	return true;
 }
-
-//
-//cTile* cTerrain2::FindTile(const Str64 &name)
-//{
-//	const hashcode hcode = name.GetHashCode();
-//	auto it = m_tilemap.find(hcode);
-//	if (it == m_tilemap.end())
-//		return NULL;
-//	return it->second;
-//}
-//
-//
-//cTile* cTerrain2::FindTile(const int id)
-//{
-//	auto it = m_tilemap2.find(id);
-//	if (it == m_tilemap2.end())
-//		return NULL;
-//	return it->second;
-//}
-//
-//
-//cNode2* cTerrain2::FindModel(const int modelId)
-//{
-//	for (auto &p : m_tiles)
-//		if (auto r = p->FindNode(modelId))
-//			return r;
-//	return NULL;
-//}
 
 
 bool cTerrain2::RemoveTile(cTile *tile)

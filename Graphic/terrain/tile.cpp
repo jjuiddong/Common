@@ -102,6 +102,7 @@ void cTile::UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj,
 	{
 		m_ground.m_shader->SetTechnique("Scene_ShadowMap");
 		cam->Bind(*m_ground.m_shader);
+		GetMainLight().Bind(*m_ground.m_shader);
 
 		for (int i = 0; i < shadowMapCount; ++i)
 		{
@@ -119,6 +120,7 @@ void cTile::UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj,
 	for (auto &shader : m_shaders)
 	{
 		cam->Bind(*shader);
+		GetMainLight().Bind(*shader);
 
 		if (m_isShadow && shadowMap)
 		{
@@ -169,9 +171,9 @@ void cTile::PreRender(cRenderer &renderer
 	const Matrix44 transform = m_transform.GetMatrix() * tm;
 	for (auto &p : m_children)
 	{
-		if (!p->m_isShadow)
+		if (!p->m_isShadow || !(p->m_flags & eRenderFlag::SHADOW))
 			continue;
-		p->Render(renderer, transform, 0x8 | 0x1); // shadow + visible
+		p->Render(renderer, transform, eRenderFlag::SHADOW);
 	}
 }
 

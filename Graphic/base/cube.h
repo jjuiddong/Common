@@ -1,5 +1,5 @@
 // 정육면체를 표현하는 클래스.
-// Vertext + Normal + Diffuse 로 표현된다.
+// Vertex = Position + Normal + Diffuse
 // VertexBuffer + IndexBuffer
 #pragma once
 

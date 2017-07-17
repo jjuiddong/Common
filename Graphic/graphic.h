@@ -31,6 +31,9 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "interface/shaderrenderer.h"
 #include "interface/shadowrenderer.h"
 
+#include "model/node.h"
+#include "model/node2.h"
+
 #include "base/color.h"
 #include "base/fontgdi.h"
 #include "base/viewport.h"
@@ -55,6 +58,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/cube.h"
 #include "base/cube2.h"
 #include "base/cube3.h"
+#include "base/cube4.h"
 #include "base/shader.h"
 #include "base/camera.h"
 #include "base/skybox.h"
@@ -71,9 +75,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/text.h"
 #include "base/text3d.h"
 #include "base/text3d2.h"
-
-#include "model/node.h"
-#include "model/node2.h"
+#include "base/text3d3.h"
 
 #include "base/shadow1.h"
 #include "base/shadow2.h"

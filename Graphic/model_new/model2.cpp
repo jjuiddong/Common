@@ -40,6 +40,7 @@ bool cModel2::Create(cRenderer &renderer
 	m_shaderName = shaderName;
 	m_techniqueName = techniqueName;
 	m_isShadow = isShadow;
+	m_flags |= eRenderFlag::SHADOW;
 
 	const Str16 ext = fileName.GetFileExt();
 	const bool isXFile =  (ext == ".x") || (ext == ".X");
@@ -88,7 +89,6 @@ bool cModel2::Render(cRenderer &renderer
 	RETV(!m_isEnable, false);
 	RETV(!m_isShow, false);
 	RETV(!m_shader, false);
-	RETV(!(flags & m_flags), false);
 
 	renderer.SetCullMode(m_cullType);
 

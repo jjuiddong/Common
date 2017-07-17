@@ -12,7 +12,7 @@ namespace graphic
 	class cNode
 	{
 	public:
-		enum NODE_TYPE { NONE, BONE, MESH, MODEL };
+		enum NODE_TYPE { NONE, BONE, MESH, MODEL};
 
 		cNode( const int id, const StrId &name="none");
 		virtual ~cNode();
