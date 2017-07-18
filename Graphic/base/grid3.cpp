@@ -51,8 +51,6 @@ void cGrid3::Create(cRenderer &renderer
 		const float endx = startx + cellSize*colCellCount;
 		const float endy = starty - cellSize*rowCellCount;
 
-		//const float uCoordIncrementSize = 1.0f / (float)colCellCount * textureUVFactor;
-		//const float vCoordIncrementSize = 1.0f / (float)rowCellCount * textureUVFactor;
 		const float uCoordIncrementSize = (uv1.x - uv0.x) / (float)colCellCount * textureUVFactor;
 		const float vCoordIncrementSize = (uv1.y - uv0.y) / (float)rowCellCount * textureUVFactor;
 
@@ -262,6 +260,35 @@ bool cGrid3::Pick(const Vector3 &orig, const Vector3 &dir, Vector3 &out)
 	m_idxBuff.Unlock();
 
 	return !isFirst;
+}
+
+
+void cGrid3::UpdateSize(const float cellSize)
+{
+	// Init Grid
+	const int rowVtxCnt = m_rowCellCount + 1;
+	const int colVtxCnt = m_colCellCount + 1;
+
+	if (sVertexNormTex *vertices = (sVertexNormTex*)m_vtxBuff.Lock())
+	{
+		const float startx = -cellSize*(m_colCellCount / 2);
+		const float starty = cellSize*(m_rowCellCount / 2);
+		const float endx = startx + cellSize*m_colCellCount;
+		const float endy = starty - cellSize*m_rowCellCount;
+
+		int i = 0;
+		for (float y = starty; y >= endy; y -= cellSize, ++i)
+		{
+			int k = 0;
+			for (float x = startx; x <= endx; x += cellSize, ++k)
+			{
+				int index = (i * colVtxCnt) + k;
+				vertices[index].p.x = x;
+				vertices[index].p.z = y;
+			}
+		}
+		m_vtxBuff.Unlock();
+	}
 }
 
 

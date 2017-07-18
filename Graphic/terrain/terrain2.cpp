@@ -84,9 +84,6 @@ bool cTerrain2::Render(cRenderer &renderer
 {
 	UpdateShader(renderer);
 
-	//__super::Render(renderer, tm, eRenderFlag::VISIBLE);
-	//__super::Render(renderer, tm, eRenderFlag::SHADOW); // (Camera)
-	//__super::Render(renderer, tm, eRenderFlag::ALPHABLEND); // (Transparent Wall)
 	__super::Render(renderer, tm);
 
 	if (m_isShowDebug)
@@ -272,6 +269,12 @@ bool cTerrain2::RemoveTile(cTile *tile)
 	m_tilemap2.erase(tile->m_id);
 	return true;
 }
+
+
+//cNode2* cTerrain2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type)
+//{
+//	return NULL;
+//}
 
 
 void cTerrain2::SetDbgRendering(const bool isRender)

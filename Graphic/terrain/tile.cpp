@@ -140,7 +140,7 @@ void cTile::UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj,
 	}
 
 	for (auto &p : m_children)
-		if (eNodeType::TERRAIN == p->m_nodeType)
+		if (eNodeType::TERRAIN == p->m_type)
 			((cTile*)p)->UpdateShader(mLightView, mLightProj, mLightTT, shadowMap, shadowMapCount);
 }
 
@@ -264,6 +264,25 @@ bool cTile::RemoveChild(cNode2 *rmNode
 const cNode2* cTile::FindNode(const int id) const
 {
 	return __super::FindNode(id);
+}
+
+
+void cTile::UpdatePosition(const sRectf &rect)
+{
+	const float cellSize = rect.Width() / 2.f;
+	//m_ground.Create(renderer, 2, 2, cellSize, 1, y, uv0, uv1);
+	m_ground.UpdateSize(cellSize);
+
+	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
+	const Matrix44 tm = m_transform.GetMatrix();
+
+	m_boundingBox.SetBoundingBox(Vector3(-cellSize, 0, -cellSize)
+		, Vector3(cellSize, 20, cellSize));
+
+	m_dbgTile.SetBox(Vector3(-cellSize, 0, -cellSize)
+		, Vector3(cellSize, 20, cellSize));
+
+	CalcBoundingSphere();
 }
 
 

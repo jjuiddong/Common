@@ -155,6 +155,12 @@ void cDbgBox::SetBox(const Vector3 &vMin, const Vector3 &vMax)
 }
 
 
+void cDbgBox::SetBox(const cBoundingBox &bbox)
+{
+	SetBox(bbox.m_min, bbox.m_max);
+}
+
+
 void cDbgBox::SetColor(DWORD color)
 {
 	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();

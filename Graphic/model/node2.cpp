@@ -16,7 +16,7 @@ cNode2::cNode2(const int id
 	, m_isShadowEnable(true)
 	, m_isShadow(true)
 	, m_parent(NULL)
-	, m_nodeType(type)
+	, m_type(type)
 	, m_flags(1)
 	, m_shader(NULL)
 {
@@ -203,6 +203,20 @@ float cNode2::CullingTest(const cFrustum &frustum
 	}
 
 	return frustum.m_pos.LengthRoughly(m_boundingBox.Center() * transform);
+}
+
+
+cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type)
+{
+	if (type == m_type)
+		if (m_boundingBox.Pick(orig, dir, GetWorldMatrix()))
+			return this;
+
+	for (auto &p : m_children)
+		if (cNode2 *n = p->Picking(orig, dir, type))
+			return n;
+
+	return NULL;
 }
 
 

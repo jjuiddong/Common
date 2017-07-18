@@ -42,6 +42,7 @@ namespace graphic
 		virtual bool AddChild(cNode2 *node) override;
 		virtual bool RemoveChild(cNode2 *rmNode, const bool rmInstance = true) override;
 		virtual const cNode2* FindNode(const int id) const override;
+		void UpdatePosition(const sRectf &rect);
 
 		virtual void LostDevice();
 		virtual void ResetDevice(cRenderer &renderer);

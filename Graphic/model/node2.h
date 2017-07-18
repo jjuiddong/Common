@@ -40,6 +40,7 @@ namespace graphic
 		virtual void SetShader(cShader *shader) { m_shader = shader; }
 		virtual void CalcBoundingSphere();
 		virtual float CullingTest(const cFrustum &frustum, const Matrix44 &tm = Matrix44::Identity, const bool isModel = true);
+		virtual cNode2* Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type);
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
@@ -54,7 +55,7 @@ namespace graphic
 		bool m_isShadowEnable;
 		bool m_isShadow;
 		int m_flags; // eRenderFlag, default : VISIBLE
-		eNodeType::Enum m_nodeType;
+		eNodeType::Enum m_type;
 		cNode2 *m_parent;
 		vector<cNode2*> m_children;
 		Transform m_transform;

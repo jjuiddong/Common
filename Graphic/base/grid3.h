@@ -24,6 +24,7 @@ namespace graphic
 		void CalculateNormals();
 		bool Pick(const Vector3 &orig, const Vector3 &dir, Vector3 &out);
 		void SetTextureUVFactor(const float textureUVFactor);
+		void UpdateSize(const float cellSize);
 		void Clear();
 
 

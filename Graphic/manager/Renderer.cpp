@@ -263,29 +263,29 @@ void cRenderer::EndScene()
 	Vector3 camOrig, camDir;
 	cam->GetRay(camOrig, camDir);
 
-	std::sort(m_alphaRender.begin(), m_alphaRender.end(),
-		[&](const sRenderObj &a, const sRenderObj &b)
+	for (int i = 0; i < (int)m_alphaRender.size()-1; ++i)
 	{
-		float len1 = FLT_MAX, len2 = FLT_MAX;
-		const Vector3 dir1 = (a.p->m_boundingBox.Center()*a.tm - camOrig).Normal();
-		const Vector3 dir2 = (b.p->m_boundingBox.Center()*b.tm - camOrig).Normal();
-
+		sRenderObj *a = &m_alphaRender[i];
+		for (int k = i+1; k < (int)m_alphaRender.size(); ++k)
 		{
-			float d1 = FLT_MAX, d2 = FLT_MAX;
-			a.p->m_boundingBox.Pick3(camOrig, dir1, &d1, a.tm);
-			a.p->m_boundingBox.Pick3(camOrig, dir2, &d2, a.tm);
-			len1 = min(d1, d2);
-		}
+			sRenderObj *b = &m_alphaRender[k];
 
-		{
-			float d1 = FLT_MAX, d2 = FLT_MAX;
-			b.p->m_boundingBox.Pick3(camOrig, dir1, &d1, b.tm);
-			b.p->m_boundingBox.Pick3(camOrig, dir2, &d2, b.tm);
-			len2 = min(d1, d2);
-		}
+			float len1 = FLT_MAX, len2 = FLT_MAX;
+			const Vector3 dir1 = (a->p->m_boundingBox.Center()*a->tm - camOrig).Normal();
+			const Vector3 dir2 = (b->p->m_boundingBox.Center()*b->tm - camOrig).Normal();
 
-		return len1 > len2;
-	});
+			if (!a->p->m_boundingBox.Pick3(camOrig, dir2, &len1, a->tm))
+				a->p->m_boundingBox.Pick3(camOrig, dir1, &len1, a->tm);
+
+			if (!b->p->m_boundingBox.Pick3(camOrig, dir1, &len2, b->tm))
+				b->p->m_boundingBox.Pick3(camOrig, dir2, &len2, b->tm);
+			
+			if (len1 < len2)
+				std::swap(*a, *b);
+
+			a = b;
+		}
+	}
 
 	for (auto &data : m_alphaRender)
 		data.p->Render(*this, data.tm, -1);

@@ -22,6 +22,7 @@ namespace graphic
 		void SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
 		void SetBox(Vector3 vertices[8]);
 		void SetBox(const Vector3 &vMin, const Vector3 &vMax);
+		void SetBox(const cBoundingBox &bbox);
 		void SetColor(DWORD color);
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 

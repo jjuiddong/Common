@@ -93,7 +93,13 @@ void cDbgBox2::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &v
 {
 	if (m_vtxBuff.GetVertexCount() <= 0)
 		InitBox(renderer);
+	
+	SetBox(vMin, vMax);
+}
 
+
+void cDbgBox2::SetBox(const Vector3 &vMin, const Vector3 &vMax)
+{
 	const Vector3 center = (vMin + vMax) / 2.f;
 	const Vector3 v1 = vMin - vMax;
 	const Vector3 v2 = m_max - m_min;

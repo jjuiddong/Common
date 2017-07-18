@@ -74,8 +74,9 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 			{
 				ptree tree;
 
-				const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
+				tree.put("name", p->m_name.c_str());
 
+				const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
 				tree.put("pos", format<64>("%f %f %f"
 					, worldPos.x, worldPos.y, worldPos.z).c_str());
 				tree.put("scale", format<64>("%f %f %f"
@@ -83,7 +84,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 				tree.put("rot", format<64>("%f %f %f %f"
 					, p->m_transform.rot.x, p->m_transform.rot.y, p->m_transform.rot.z, p->m_transform.rot.w).c_str());
 
-				if (eNodeType::MODEL == p->m_nodeType)
+				if (eNodeType::MODEL == p->m_type)
 				{
 					if (cModel2 *model = dynamic_cast<cModel2*>(p))
 						tree.put("filename", model->m_fileName.c_str());
@@ -196,7 +197,9 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				cModel2 *model = new cModel2();
 				model->Create(renderer, common::GenerateId()
 					, fileName, "../Media/shader/xfile.fx", "Scene_NoShadow", true);
+				model->m_name = vt.second.get<string>("name");
 
+				// insert model to tile
 				for (auto &tile : m_terrain->m_tiles)
 				{
 					cBoundingBox bbox = model->m_boundingBox;

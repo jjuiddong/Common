@@ -36,6 +36,9 @@ namespace graphic
 
 		bool AddTile(cTile *model);
 		bool RemoveTile(cTile *model);
+
+		//cNode2* Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type);
+
 		void SetDbgRendering(const bool isRender);
 		void SetShadowRendering(const bool isRender);
 
