@@ -23,11 +23,11 @@ bool cPathFinder::Create(const int vertexCount)
 }
 
 
-bool cPathFinder::Read(const string &fileName)
+bool cPathFinder::Read(const StrPath &fileName)
 {
 	Clear();
 
-	std::ifstream ifs(fileName);
+	std::ifstream ifs(fileName.c_str());
 	RETV(!ifs.is_open(), false);
 
 	int state = 0;
@@ -107,11 +107,11 @@ bool cPathFinder::Read(const string &fileName)
 //	pos 1 1 1
 //	dir 0 0 1
 //	edge 0 1 2
-bool cPathFinder::Write(const string &fileName)
+bool cPathFinder::Write(const StrPath &fileName)
 {
 	using namespace std;
 
-	ofstream ofs(fileName);
+	ofstream ofs(fileName.c_str());
 	RETV(!ofs.is_open(), false);
 
 	for (auto &v : m_vertices)

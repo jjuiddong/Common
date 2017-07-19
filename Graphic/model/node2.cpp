@@ -233,7 +233,7 @@ void cNode2::Clear()
 }
 
 
-Matrix44 cNode2::GetWorldMatrix()
+Matrix44 cNode2::GetWorldMatrix() const
 {
 	Matrix44 ret = m_transform.GetMatrix();
 	cNode2 *node = m_parent;

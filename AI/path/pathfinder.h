@@ -32,8 +32,8 @@ namespace ai
 		cPathFinder();
 		virtual ~cPathFinder();
 		bool Create(const int vertexCount);
-		bool Read(const string &fileName);
-		bool Write(const string &fileName);
+		bool Read(const StrPath &fileName);
+		bool Write(const StrPath &fileName);
 		bool AddVertex(const sVertex &vtx);
 		bool AddEdge(const int vtxIdx, const int addEdgeIdx);
 		bool RemoveEdge(const int vtxIdx, const int removeEdgeIdx);

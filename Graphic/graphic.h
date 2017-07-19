@@ -141,6 +141,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "terrain/terraineditor.h"
 #include "terrain/terrainimporter.h"
 #include "terrain/terrainexporter.h"
+#include "terrain/terrainloader.h"
 
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"

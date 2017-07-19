@@ -19,7 +19,7 @@ Transform::Transform()
 
 
 // Scale * Rotation * Traslation
-Matrix44 Transform::GetMatrix()
+Matrix44 Transform::GetMatrix() const
 {
 	Matrix44 S;
 	S.SetScale(scale);

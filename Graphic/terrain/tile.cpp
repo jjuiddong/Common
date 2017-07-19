@@ -72,7 +72,7 @@ bool cTile::Create(cRenderer &renderer
 	m_ground.m_mtrl.InitXFile();
 
 	m_transform = transform;
-	const Matrix44 tm = m_transform.GetMatrix();
+	//const Matrix44 tm = m_transform.GetMatrix();
 
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), dim);
 	m_dbgTile.SetBox(renderer, Vector3(0, 0, 0), dim);

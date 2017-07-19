@@ -12,7 +12,7 @@ namespace common
 	{
 		Transform();
 
-		Matrix44 GetMatrix();
+		Matrix44 GetMatrix() const;
 
 		Vector3 pos;
 		Vector3 scale;

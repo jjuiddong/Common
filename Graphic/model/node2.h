@@ -44,7 +44,7 @@ namespace graphic
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
-		Matrix44 GetWorldMatrix();
+		Matrix44 GetWorldMatrix() const;
 
 
 	public:

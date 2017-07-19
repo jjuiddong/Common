@@ -83,6 +83,9 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 					, p->m_transform.scale.x, p->m_transform.scale.y, p->m_transform.scale.z).c_str());
 				tree.put("rot", format<64>("%f %f %f %f"
 					, p->m_transform.rot.x, p->m_transform.rot.y, p->m_transform.rot.z, p->m_transform.rot.w).c_str());
+				tree.put("boundingbox", format<128>("%f %f %f %f %f %f"
+					, p->m_boundingBox.m_min.x, p->m_boundingBox.m_min.y, p->m_boundingBox.m_min.z
+					, p->m_boundingBox.m_max.x, p->m_boundingBox.m_max.y, p->m_boundingBox.m_max.z).c_str());
 
 				if (eNodeType::MODEL == p->m_type)
 				{
@@ -152,6 +155,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				const float z = pos.z - tileSize / 2;
 
 				const sRectf rect(x, z, x + tileSize, z + tileSize);
+
 				tile->Create(renderer 
 					, common::GenerateId()
 					, fileName.GetFileNameExceptExt().c_str()
@@ -180,6 +184,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			for (ptree::value_type &vt : child_field)
 			{
 				Transform transform;
+				cBoundingBox bbox;
 				{
 					std::stringstream ss(vt.second.get<string>("pos"));
 					ss >> transform.pos.x >> transform.pos.y >> transform.pos.z;
@@ -193,19 +198,28 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					ss >> transform.rot.x >> transform.rot.y >> transform.rot.z >> transform.rot.w;
 				}
 
+				{
+					std::stringstream ss(vt.second.get<string>("boundingbox"));
+					Vector3 _min, _max;
+					ss >> _min.x >> _min.y >> _min.z >> _max.x >> _max.y >> _max.z;					
+					bbox.SetBoundingBox(_min, _max);
+				}
+
 				StrPath fileName = vt.second.get<string>("filename");
 				cModel2 *model = new cModel2();
 				model->Create(renderer, common::GenerateId()
 					, fileName, "../Media/shader/xfile.fx", "Scene_NoShadow", true);
 				model->m_name = vt.second.get<string>("name");
+				model->m_boundingBox = bbox;
 
 				// insert model to tile
+				bool isInsertSuccess = false;
 				for (auto &tile : m_terrain->m_tiles)
 				{
 					cBoundingBox bbox = model->m_boundingBox;
 					bbox.m_tm = transform.GetMatrix();
 
-					if (tile->m_boundingBox.Collision(bbox, tile->m_transform.GetMatrix()))
+					if (tile->m_boundingBox.Collision(bbox, tile->GetWorldMatrix()))
 					{
 						model->m_transform = transform;
 						model->m_transform.pos -= tile->m_transform.pos;
@@ -214,9 +228,12 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 						tile->m_shaders.insert(
 							cResourceManager::Get()->LoadShader(renderer, "../Media/shader/xfile.fx"));
 
+						isInsertSuccess = true;
 						break;
 					}
 				}
+
+				assert(isInsertSuccess);
 			}
 
 			m_terrain->m_shaders.insert(
