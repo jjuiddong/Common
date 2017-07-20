@@ -45,7 +45,7 @@ bool cNode2::Render(cRenderer &renderer
 	// for Debugging
 	if (renderer.m_isDbgRender)
 	{
-		if (0 == renderer.m_dbgRenderStyle)
+		if (0 == renderer.m_dbgRenderStyle) // sphere
 		{
 			renderer.m_dbgSphere.m_transform.pos = m_boundingSphere.m_pos;
 			renderer.m_dbgSphere.m_transform.scale = Vector3(1, 1, 1) * m_boundingSphere.m_radius;
@@ -56,6 +56,9 @@ bool cNode2::Render(cRenderer &renderer
 			renderer.m_dbgBox.SetBox(m_boundingBox.m_min, m_boundingBox.m_max);
 			renderer.m_dbgBox.Render(renderer, tm);
 		}
+
+		renderer.m_dbgAxis.SetAxis(m_boundingBox);
+		renderer.m_dbgAxis.Render(renderer, tm);
 	}
 
 	return true;

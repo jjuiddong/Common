@@ -35,6 +35,7 @@ cTerrainLoader::~cTerrainLoader()
 bool cTerrainLoader::Write(const StrPath &fileName)
 {
 	RETV(!m_terrain, false);
+	RETV(fileName.empty(), false);
 
 	try
 	{

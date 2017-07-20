@@ -66,7 +66,8 @@ namespace graphic
 		};
 		vector<sRenderObj> m_alphaRender;
 		vector<sVertexDiffuse> m_grid;
-		vector<sVertexDiffuse> m_axis;		
+		vector<sVertexDiffuse> m_axis;
+		cTextManager m_textMgr;
 
 		// Display FPS 
 		cText m_textFps;
@@ -79,6 +80,7 @@ namespace graphic
 		cDbgBox m_dbgBox;
 		cDbgArrow m_dbgArrow;
 		cDbgSphere m_dbgSphere;
+		cDbgAxis m_dbgAxis;
 	};
 
 

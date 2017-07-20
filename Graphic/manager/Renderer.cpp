@@ -56,6 +56,7 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height,
 	m_dbgBox.SetColor(D3DCOLOR_XRGB(255, 0, 0));
 	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
 	m_dbgSphere.Create(*this, 1, 10, 10);
+	m_dbgAxis.Create(*this);
 
 	m_hWnd = hWnd;
 	return true;
@@ -257,6 +258,9 @@ void cRenderer::Present()
 
 void cRenderer::EndScene()
 {
+	// Text Render
+	m_textMgr.Render(*this);
+
 	// AlphaBlending Render
 	// Sorting Camera Position
 	cCamera *cam = GetMainCamera();

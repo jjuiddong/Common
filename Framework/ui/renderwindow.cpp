@@ -93,7 +93,8 @@ bool cRenderWindow::Create(const string &title, const int width, const int heigh
 
 	m_gui.SetContext();
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/Roboto-Medium.ttf", 18);
+	//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/Roboto-Medium.ttf", 18, NULL, io.Fonts->GetGlyphRangesKorean());
+	io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, io.Fonts->GetGlyphRangesKorean());
 
 	if (m_isThread)
 	{

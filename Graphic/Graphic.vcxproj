@@ -400,6 +400,7 @@
     <ClInclude Include="collision\collisionmanager.h" />
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="dbg\dbgarrow.h" />
+    <ClInclude Include="dbg\dbgaxis.h" />
     <ClInclude Include="dbg\dbgbox.h" />
     <ClInclude Include="dbg\dbgbox2.h" />
     <ClInclude Include="dbg\dbgfrustum.h" />
@@ -422,6 +423,7 @@
     <ClInclude Include="manager\Renderer.h" />
     <ClInclude Include="manager\resourcemanager.h" />
     <ClInclude Include="manager\task_resource.h" />
+    <ClInclude Include="manager\textmanager.h" />
     <ClInclude Include="model\blendtrack.h" />
     <ClInclude Include="model\bonemgr.h" />
     <ClInclude Include="model\bonenode.h" />
@@ -517,6 +519,7 @@
     <ClCompile Include="collision\collisionmanager.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="dbg\dbgarrow.cpp" />
+    <ClCompile Include="dbg\dbgaxis.cpp" />
     <ClCompile Include="dbg\dbgbox.cpp" />
     <ClCompile Include="dbg\dbgbox2.cpp" />
     <ClCompile Include="dbg\dbgfrustum.cpp" />
@@ -533,6 +536,7 @@
     <ClCompile Include="manager\pickmanager.cpp" />
     <ClCompile Include="manager\Renderer.cpp" />
     <ClCompile Include="manager\resourcemanager.cpp" />
+    <ClCompile Include="manager\textmanager.cpp" />
     <ClCompile Include="model\blendtrack.cpp" />
     <ClCompile Include="model\bonemgr.cpp" />
     <ClCompile Include="model\bonenode.cpp" />

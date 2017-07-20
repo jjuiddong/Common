@@ -50,6 +50,46 @@ namespace common
 			return common::IsFileExist(*this);
 		}
 
+		String convertToString(double num) const {
+			String str;
+			sprintf_s(str.m_str, "%.1f", num);
+			return str;
+		}
+
+		double roundOff(double n) const {
+			double d = n * 100.0f;
+			int i = (int)(d + 0.5);
+			d = (float)i / 100.0f;
+			return d;
+		}
+
+		String convertSize(size_t size) const {
+			static const char *SIZES[] = { "B", "KB", "MB", "GB" };
+			int div = 0;
+			size_t rem = 0;
+
+			while (size >= 1024 && div < (sizeof SIZES / sizeof *SIZES)) {
+				rem = (size % 1024);
+				div++;
+				size /= 1024;
+			}
+
+			double size_d = (float)size + (float)rem / 1024.0;
+			String result = convertToString(roundOff(size_d)) + " " + SIZES[div];
+			return result;
+		}
+
+		__int64 FileSize() const {
+			struct __stat64 buf;
+			if (_stat64(m_str, &buf) != 0)
+				return -1; // error, could use errno to find out more
+			return buf.st_size;
+		}
+
+		String FileSizeStr() const {
+			return convertSize((size_t)FileSize());
+		}
+
 		const char* GetFileExt() const {
 			return PathFindExtensionA(m_str);
 		}

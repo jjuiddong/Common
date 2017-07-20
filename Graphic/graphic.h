@@ -96,6 +96,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "dbg/dbgfrustum.h"
 #include "dbg/dbgquad.h"
 #include "dbg/dbgquad2.h"
+#include "dbg/dbgaxis.h"
 
 //#include "base/xfilemesh.h"
 
@@ -143,6 +144,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "terrain/terrainexporter.h"
 #include "terrain/terrainloader.h"
 
+#include "manager/textmanager.h"
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
