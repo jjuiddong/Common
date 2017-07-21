@@ -69,6 +69,8 @@ namespace graphic
 		vector<sVertexDiffuse> m_axis;
 		cTextManager m_textMgr;
 
+		ULONG_PTR gdiplusToken;
+
 		// Display FPS 
 		cText m_textFps;
 		float m_elapseTime;

@@ -18,6 +18,8 @@ static const StrPath g_defaultTexture = "white.dds";
 
 #include "../ai/ai.h"
 
+#include "textdesigner\PngOutlineText.h"
+
 
 #include "base/graphicdef.h"
 #include "model/rawmesh.h"

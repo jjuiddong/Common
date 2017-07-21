@@ -461,6 +461,26 @@
     <ClInclude Include="terrain\terrainloader.h" />
     <ClInclude Include="terrain\tile.h" />
     <ClInclude Include="terrain\water.h" />
+    <ClInclude Include="textdesigner\BmpOutlineText.h" />
+    <ClInclude Include="textdesigner\Canvas.h" />
+    <ClInclude Include="textdesigner\DiffusedShadowStrategy.h" />
+    <ClInclude Include="textdesigner\DrawGradient.h" />
+    <ClInclude Include="textdesigner\ExtrudeStrategy.h" />
+    <ClInclude Include="textdesigner\GDIPath.h" />
+    <ClInclude Include="textdesigner\IOutlineText.h" />
+    <ClInclude Include="textdesigner\ITextStrategy.h" />
+    <ClInclude Include="textdesigner\MaskColor.h" />
+    <ClInclude Include="textdesigner\NonSystemFontLoader.h" />
+    <ClInclude Include="textdesigner\OutlineText.h" />
+    <ClInclude Include="textdesigner\PngOutlineText.h" />
+    <ClInclude Include="textdesigner\TextDblGlowStrategy.h" />
+    <ClInclude Include="textdesigner\TextDblOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextGlowStrategy.h" />
+    <ClInclude Include="textdesigner\TextGradOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextImplGetHeight.h" />
+    <ClInclude Include="textdesigner\TextNoOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextOutlineStrategy.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\billboard.cpp" />
@@ -582,6 +602,26 @@
     <ClCompile Include="terrain\terrainloader.cpp" />
     <ClCompile Include="terrain\tile.cpp" />
     <ClCompile Include="terrain\water.cpp" />
+    <ClCompile Include="textdesigner\BmpOutlineText.cpp" />
+    <ClCompile Include="textdesigner\Canvas.cpp" />
+    <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp" />
+    <ClCompile Include="textdesigner\DrawGradient.cpp" />
+    <ClCompile Include="textdesigner\ExtrudeStrategy.cpp" />
+    <ClCompile Include="textdesigner\GDIPath.cpp" />
+    <ClCompile Include="textdesigner\IOutlineText.cpp" />
+    <ClCompile Include="textdesigner\ITextStrategy.cpp" />
+    <ClCompile Include="textdesigner\MaskColor.cpp" />
+    <ClCompile Include="textdesigner\NonSystemFontLoader.cpp" />
+    <ClCompile Include="textdesigner\OutlineText.cpp" />
+    <ClCompile Include="textdesigner\PngOutlineText.cpp" />
+    <ClCompile Include="textdesigner\TextDblGlowStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextDblOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextGlowStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextGradOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextImplGetHeight.cpp" />
+    <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextOutlineStrategy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

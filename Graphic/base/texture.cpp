@@ -266,6 +266,98 @@ void cTexture::DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, 
 }
 
 
+// Render Text String on Texture using GdiPlus
+bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText, const sRecti &rect, const DWORD color)
+{
+	using namespace Gdiplus;
+	//Gdiplus::Bitmap* pGraphbmp = new Gdiplus::Bitmap(600, 600, PixelFormat32bppARGB);
+	Graphics* pGraphics = new Graphics(renderer.m_textMgr.m_graphicBuffer.get());
+	if (!pGraphics)
+		return false;
+
+	const int fontSize = 28;
+	pGraphics->SetSmoothingMode(SmoothingModeAntiAlias);
+	pGraphics->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+	pGraphics->SetPageUnit(UnitPixel);
+
+	if (!pGraphics)
+		return false;
+
+	FontFamily fontFamily(L"Arial");
+	StringFormat strformat;
+
+	TextDesigner::PngOutlineText text;
+	text.TextOutline(Color(255, 255, 255), Color(0, 0, 0), 4);
+	text.EnableShadow(false);
+
+	wstring wstr = str2wstr(szText.c_str());
+	float fWidth = 0.0f;
+	float fHeight = 0.0f;
+	text.MeasureString(pGraphics, &fontFamily, FontStyleBold,
+		fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat,
+		NULL, NULL, &fWidth, &fHeight);
+	//std::shared_ptr<Gdiplus::Bitmap> pbmp = std::shared_ptr<Gdiplus::Bitmap>(new Bitmap(fWidth + 8.0f, fHeight + 8.0f, PixelFormat32bppARGB));
+	//if (pbmp == NULL)
+	//	return false;
+
+	std::shared_ptr<Gdiplus::Bitmap> pbmp = renderer.m_textMgr.m_textBuffer;
+	Graphics g(pbmp.get());
+	g.Clear(Gdiplus::Color(0,255,255,255));
+
+	text.SetPngImage(pbmp);
+	text.DrawString(pGraphics, &fontFamily, FontStyleBold,
+		fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat);
+
+	if (pGraphics)
+	{
+		delete pGraphics;
+		pGraphics = NULL;
+	}
+	//if (pGraphbmp)
+	//{
+	//	delete pGraphbmp;
+	//	pGraphbmp = NULL;
+	//}
+
+	Rect rect1(0, 0, pbmp->GetWidth(), pbmp->GetHeight());
+	BitmapData bitmapData;
+	memset(&bitmapData, 0, sizeof(bitmapData));
+	pbmp->LockBits(
+		&rect1,
+		ImageLockModeRead,
+		PixelFormat32bppARGB,
+		&bitmapData);
+
+	int nStride1 = bitmapData.Stride;
+	if (nStride1 < 0)
+		nStride1 = -nStride1;
+	UINT* pixels = (UINT*)bitmapData.Scan0;
+	if (!pixels)
+		return false;
+
+	D3DLOCKED_RECT dlock;
+	if (Lock(dlock))
+	{
+		UINT* dpixels = (UINT*)dlock.pBits;
+
+		for (UINT row = 0; row < bitmapData.Height; ++row)
+		{
+			for (UINT col = 0; col < bitmapData.Width; ++col)
+			{
+				dpixels[row*bitmapData.Width + col] = pixels[row * nStride1 / 4 + col];
+			}
+		}
+
+		//memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
+		Unlock();
+	}
+
+	pbmp->UnlockBits(&bitmapData);
+
+	return true;
+}
+
+
 int cTexture::Width()
 {
 	return m_imageInfo.Width;

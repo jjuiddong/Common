@@ -72,6 +72,31 @@ bool cText3d3::SetTextRect(
 }
 
 
+bool cText3d3::SetTextRect2(
+	cRenderer &renderer
+	, const Transform &tm
+	, const Str128 &text, const DWORD color
+	, const BILLBOARD_TYPE::TYPE type
+	, const sRecti &rect)
+{
+	RETV(!m_font, false);
+
+	m_quad.m_type = type;
+	m_quad.m_transform = tm;
+	// todo: sorting bug
+	//m_boundingBox.SetBoundingBox(tm.pos-Vector3(1,1,1)*0.5f, tm.pos + Vector3(1, 1, 1)*0.5f); 
+
+	if ((m_color != color) || (m_text != text))
+	{
+		m_color = color;
+		m_texture.DrawText2(renderer, text, rect, color);
+		m_text = text;
+	}
+
+	return true;
+}
+
+
 // Set Texture Background Color
 void cText3d3::FillTexture(const DWORD color)
 {
@@ -88,7 +113,7 @@ void cText3d3::FillTexture(const DWORD color)
 }
 
 
-bool cText3d3::Render(cRenderer &renderer
+bool cText3d3::RenderOld(cRenderer &renderer
 	, const Matrix44 &parentTm //= Matrix44::Identity
 	, const int flags //= 1
 )
@@ -101,6 +126,24 @@ bool cText3d3::Render(cRenderer &renderer
 	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
 	renderer.GetDevice()->SetRenderState(D3DRS_TEXTUREFACTOR, m_color);
 	m_quad.RenderFactor(renderer);
+	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	renderer.SetCullMode(D3DCULL_CCW);
+	return true;
+}
+
+
+bool cText3d3::Render(cRenderer &renderer
+	, const Matrix44 &parentTm //= Matrix44::Identity
+	, const int flags //= 1
+)
+{
+	// AlphaBlending
+	// src, dest inverse alpha
+	renderer.SetCullMode(D3DCULL_NONE);
+	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	m_quad.Render(renderer);
 	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	renderer.SetCullMode(D3DCULL_CCW);
 

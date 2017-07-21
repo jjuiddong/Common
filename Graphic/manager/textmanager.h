@@ -20,7 +20,7 @@ namespace graphic
 			, const DWORD color =0
 			, BILLBOARD_TYPE::TYPE type = BILLBOARD_TYPE::Y_AXIS
 			, const Transform &tm = Transform::Identity
-			, const int width=3, const int height=2);
+			, const int width=4, const int height=1);
 		void Render(cRenderer &renderer);
 		void Clear();
 
@@ -47,9 +47,8 @@ namespace graphic
 		};
 
 		sText* GetCacheText(const int id);
-		void SetCommand2Text(sText *text, const sCommand &cmd);
+		void SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd);
 		void GarbageCollection();
-
 
 
 	public:
@@ -65,6 +64,10 @@ namespace graphic
 
 		int m_textureSizeX;
 		int m_textureSizeY;
+
+		// GdiPlus Buffer
+		std::shared_ptr<Gdiplus::Bitmap> m_graphicBuffer;
+		std::shared_ptr<Gdiplus::Bitmap> m_textBuffer;
 	};
 
 }

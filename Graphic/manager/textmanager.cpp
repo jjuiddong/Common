@@ -34,6 +34,9 @@ void cTextManager::Create(const u_int maxTextCount //= 100
 
 	m_textureSizeX = textureSizeX;
 	m_textureSizeY = textureSizeY;
+
+	m_graphicBuffer = std::shared_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(textureSizeX, textureSizeY, PixelFormat32bppARGB));
+	m_textBuffer = std::shared_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(textureSizeX, textureSizeY, PixelFormat32bppARGB));
 }
 
 
@@ -54,14 +57,14 @@ void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128
 	, const DWORD color //= 0
 	, BILLBOARD_TYPE::TYPE type //= BILLBOARD_TYPE::Y_AXIS
 	, const Transform &tm //= Transform::Identity
-	, const int width //=5
-	, const int height//=1
+	, const int width //=3
+	, const int height//=2
 )
 {
 	sText *text = GetCacheText(id);
 	if (text)
 	{
-		text->text.SetTextRect(tm, str, color, type, sRecti(0, 0, m_textureSizeX, m_textureSizeY));
+		text->text.SetTextRect2(renderer, tm, str, color, type, sRecti(0, 0, m_textureSizeX, m_textureSizeY));
 
 		text->used = true;
 
@@ -97,7 +100,7 @@ void cTextManager::Render(cRenderer &renderer)
 		sText *text = GetCacheText(cmd.id);
 		if (text)
 		{
-			SetCommand2Text(text, cmd);
+			SetCommand2Text(renderer, text, cmd);
 
 			isFindEmptyText = true;
 		}
@@ -110,7 +113,7 @@ void cTextManager::Render(cRenderer &renderer)
 					continue;
 			
 				m_cacheMap.erase(text->id);
-				SetCommand2Text(text, cmd);
+				SetCommand2Text(renderer, text, cmd);
 
 				m_renders.push_back(text);
 
@@ -138,7 +141,7 @@ void cTextManager::Render(cRenderer &renderer)
 			text->text.Create(renderer, font, cmd.type, cmd.width, cmd.height, m_textureSizeX, m_textureSizeY);
 			m_buffer.push_back(text);
 
-			SetCommand2Text(text, cmd);
+			SetCommand2Text(renderer, text, cmd);
 
 			m_renders.push_back(text);
 			bufferStartIdx = m_buffer.size();
@@ -174,9 +177,9 @@ void cTextManager::Render(cRenderer &renderer)
 }
 
 
-void cTextManager::SetCommand2Text(sText *text, const sCommand &cmd)
+void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd)
 {
-	text->text.SetTextRect(cmd.tm, cmd.str, cmd.color, cmd.type, sRecti(0, 0, m_textureSizeX, m_textureSizeY));
+	text->text.SetTextRect2(renderer, cmd.tm, cmd.str, cmd.color, cmd.type, sRecti(0, 0, m_textureSizeX, m_textureSizeY));
 
 	text->id = cmd.id;
 	text->used = true;
@@ -232,4 +235,7 @@ void cTextManager::Clear()
 	for (auto &p : m_buffer)
 		delete p;
 	m_buffer.clear();
+
+	m_graphicBuffer = NULL;
+	m_textBuffer = NULL;
 }

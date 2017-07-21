@@ -364,6 +364,66 @@
     <ClInclude Include="manager\textmanager.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="textdesigner\BmpOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\Canvas.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\DiffusedShadowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\DrawGradient.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\ExtrudeStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\GDIPath.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\IOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\ITextStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\MaskColor.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\NonSystemFontLoader.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\OutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\PngOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextDblGlowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextDblOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextGlowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextGradOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextImplGetHeight.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextNoOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -688,6 +748,66 @@
     <ClCompile Include="manager\textmanager.cpp">
       <Filter>manager</Filter>
     </ClCompile>
+    <ClCompile Include="textdesigner\BmpOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\Canvas.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\DrawGradient.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\ExtrudeStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\GDIPath.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\IOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\ITextStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\MaskColor.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\NonSystemFontLoader.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\OutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\PngOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextDblGlowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextDblOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextGlowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextGradOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextImplGetHeight.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="model">
@@ -731,6 +851,9 @@
     </Filter>
     <Filter Include="dbg">
       <UniqueIdentifier>{1794bca9-9897-4cf7-8fc7-d9e2e575ef67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textdesigner">
+      <UniqueIdentifier>{8a113abb-e5b8-4543-ab20-44f1d96fea07}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

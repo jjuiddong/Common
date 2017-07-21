@@ -23,7 +23,13 @@ namespace graphic
 			const Transform &tm
 			, const Str128 &text, const DWORD color
 			, const BILLBOARD_TYPE::TYPE type, const sRecti &rect);
+		bool SetTextRect2(
+			cRenderer &renderer
+			, const Transform &tm
+			, const Str128 &text, const DWORD color
+			, const BILLBOARD_TYPE::TYPE type, const sRecti &rect);
 		virtual bool Render(cRenderer &renderer, const Matrix44 &parentTm = Matrix44::Identity, const int flags = 1) override;
+		bool RenderOld(cRenderer &renderer, const Matrix44 &parentTm = Matrix44::Identity, const int flags = 1);
 		void FillTexture(const DWORD color);
 
 

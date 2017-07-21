@@ -29,6 +29,7 @@ namespace graphic
 		const StrPath& GetTextureName() const;
 		void TextOut(cFontGdi &font, const Str128 &text, const int x, const int y, const DWORD color);
 		void DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, const DWORD color);
+		bool DrawText2(cRenderer &renderer, const Str128 &text, const sRecti &rect, const DWORD color);
 		bool IsLoaded();
 		int Width();
 		int Height();

@@ -34,7 +34,12 @@ cRenderer::cRenderer() :
 
 cRenderer::~cRenderer()
 {
+	m_textMgr.Clear();
+
 	SAFE_RELEASE(m_pDevice);
+
+	// Shutdown GDI+
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 }
 
 
@@ -45,7 +50,14 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height,
 	if (!InitDirectX(hWnd, width, height, adapter, m_params, m_pDevice))
 		return false;
 
+	using namespace Gdiplus;
+	// Initialize GDI+
+	GdiplusStartupInput gdiplusStartupInput;
+	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
 	m_viewPort.Create(0, 0, width, height);
+
+	m_textMgr.Create(256, 256, 64);
 
 	m_textFps.Create(*this);
 	m_textFps.SetPos(0, 0);

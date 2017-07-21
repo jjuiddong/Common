@@ -106,6 +106,12 @@ bool cModel2::Render(cRenderer &renderer
 		m_xModel->RenderShader(renderer, *m_shader, transform);
 	}
 
+	//Transform tm2;
+	//tm2.pos = m_transform.pos + tm.GetPosition();
+	//tm2.pos.y += m_boundingBox.GetDimension().y * m_transform.scale.y + 5;
+	//renderer.m_textMgr.AddTextRender(renderer, m_id, m_name.c_str()
+	//	, D3DXCOLOR(1, 0, 0, 1), BILLBOARD_TYPE::Y_AXIS, tm2);
+
 	__super::Render(renderer, tm, flags);
 
 	return true;

@@ -212,7 +212,7 @@ namespace common
 		}
 		//------------------------------------------------------------------------------------
 
-
+		
 		const char* c_str() const { return (const char*)m_str; }
 
 		bool operator == (const String &rhs) const {
