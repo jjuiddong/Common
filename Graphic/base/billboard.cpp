@@ -51,7 +51,9 @@ void cBillboard::Rotate()
 
 		Matrix44 T;
 		T.SetTranslate(m_transform.pos);
-		m_tm = mat.Transpose() * T;
+		Matrix44 S;
+		S.SetScale(m_transform.scale);
+		m_tm = S * mat.Transpose() * T;
 	}
 	break;
 
@@ -92,26 +94,9 @@ void cBillboard::Rotate()
 		Vector3 pos = m_transform.pos;
 		const float len = (pos - GetMainCamera()->GetEyePos()).Length();
 		const Vector3 scale = m_transform.scale * min(10.f, max(1.f, len / 50.f));
-		//Matrix44 T;
-		//T.SetTranslate(m_transform.pos);
+
 		Matrix44 S;
 		S.SetScale(scale);
-		////mat = S;
-
-		//Matrix44 view;
-		//view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), Vector3(0, 1, 0));
-
-		//view._41 = view._42 = view._43 = 0;
-		////mat._11 = view._11;
-		////mat._13 = view._13;
-		////mat._31 = view._31;
-		////mat._33 = view._33;
-		//
-		////mat._21 = view._21;
-		////mat._23 = view._23;
-
-		//m_tm = view.Transpose() * T;
-
 
 		Matrix44 view;
 		view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), -GetMainCamera()->GetUpVector());

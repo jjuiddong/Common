@@ -17,20 +17,21 @@ namespace graphic
 		virtual ~cText3d3();
 
 		bool Create(cRenderer &renderer, cFontGdi *font, const BILLBOARD_TYPE::TYPE type,
-			const int width, const int height, const int textWidth = 128, const int textHeight = 64);
-		bool SetText(const Matrix44 &tm, const Str128 &text, const DWORD color);
+			const int width, const int height, const int textWidth = 256, const int textHeight = 32);
+		bool SetText(const Matrix44 &tm, const Str128 &text, const cColor &color);
 		bool SetTextRect(
 			const Transform &tm
-			, const Str128 &text, const DWORD color
+			, const Str128 &text, const cColor &color
 			, const BILLBOARD_TYPE::TYPE type, const sRecti &rect);
 		bool SetTextRect2(
 			cRenderer &renderer
 			, const Transform &tm
-			, const Str128 &text, const DWORD color
-			, const BILLBOARD_TYPE::TYPE type, const sRecti &rect);
+			, const Str128 &text
+			, const cColor &color, const cColor &outlineColor
+			, const BILLBOARD_TYPE::TYPE type);
 		virtual bool Render(cRenderer &renderer, const Matrix44 &parentTm = Matrix44::Identity, const int flags = 1) override;
 		bool RenderOld(cRenderer &renderer, const Matrix44 &parentTm = Matrix44::Identity, const int flags = 1);
-		void FillTexture(const DWORD color);
+		void FillTexture(const cColor &color);
 
 
 	public:
@@ -38,7 +39,8 @@ namespace graphic
 		cFontGdi *m_font;
 		cTexture m_texture;
 		cBillboard m_quad;
-		DWORD m_color;
+		//DWORD m_color;
+		cColor m_color;
 	};
 
 }

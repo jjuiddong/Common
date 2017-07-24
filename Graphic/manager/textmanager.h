@@ -14,13 +14,14 @@ namespace graphic
 		cTextManager();
 		virtual ~cTextManager();
 
-		void Create(const u_int maxTextCount = 100, const int textureSizeX=128, const int textureSizeY = 64);
+		void Create(const u_int maxTextCount = 100, const int textureSizeX=256, const int textureSizeY = 32);
 		void NewFrame();
 		void AddTextRender(cRenderer &renderer, const int id, const Str128 &str 
-			, const DWORD color =0
+			, const cColor &color = cColor::WHITE
+			, const cColor &outlineColor = cColor::BLACK
 			, BILLBOARD_TYPE::TYPE type = BILLBOARD_TYPE::Y_AXIS
 			, const Transform &tm = Transform::Identity
-			, const int width=4, const int height=1);
+			, const int width=8, const int height=1);
 		void Render(cRenderer &renderer);
 		void Clear();
 
@@ -40,7 +41,8 @@ namespace graphic
 			int id;
 			char str[MAX_STR];
 			BILLBOARD_TYPE::TYPE type;
-			DWORD color;
+			cColor color;
+			cColor outlineColor;
 			Transform tm;
 			int width;
 			int height;
@@ -52,7 +54,7 @@ namespace graphic
 
 
 	public:
-		enum {TEXTURE_SIZEX=128, TEXTURE_SIZEY = 64};
+		enum {TEXTURE_SIZEX=256, TEXTURE_SIZEY = 32};
 
 		u_int m_maxTextCount;
 		vector<sText*> m_renders; // reference m_buffer

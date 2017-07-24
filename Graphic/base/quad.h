@@ -26,6 +26,7 @@ namespace graphic
 		void RenderFactor(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
 		void RenderLine(cRenderer &renderer);
+		void SetUV(const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb);
 
 		cMaterial& GetMaterial();
 		cVertexBuffer& GetVertexBuffer();

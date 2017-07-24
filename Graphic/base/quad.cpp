@@ -51,11 +51,6 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 		vertices[3].p = Vector3(width / 2.f, 0, -height / 2.f);
 	}
 
-	//vertices[ 0].n = Vector3(0, 0, -1);
-	//vertices[ 1].n = Vector3(0, 0, -1);
-	//vertices[ 2].n = Vector3(0, 0, -1);
-	//vertices[ 3].n = Vector3(0, 0, -1);
-
 	vertices[ 0].u = 0;
 	vertices[ 0].v = 0;
 	vertices[ 1].u = 1;
@@ -184,4 +179,36 @@ void cQuad::RenderShader(cRenderer &renderer
 		m_shader->EndPass();
 	}
 	m_shader->End();
+}
+
+
+// Set UV Position
+// Vector2.xy = {u , v}
+// lt : left top
+// rt : right top
+// lb : left bottom
+// rb : right bottom
+void cQuad::SetUV(const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb)
+{
+	RET(m_vtxBuff.GetVertexCount() <= 0);
+	sVertexTex *vertices = (sVertexTex*)m_vtxBuff.Lock();
+	RET(!vertices);
+
+	// left top
+	vertices[0].u = lt.x;
+	vertices[0].v = lt.y;
+
+	// right top
+	vertices[1].u = rt.x;
+	vertices[1].v = rt.y;
+
+	// left bottom
+	vertices[2].u = lb.x;
+	vertices[2].v = lb.y;
+
+	// right bottom
+	vertices[3].u = rb.x;
+	vertices[3].v = rb.y;
+
+	m_vtxBuff.Unlock();
 }

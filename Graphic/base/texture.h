@@ -1,5 +1,10 @@
 // 텍스쳐 클래스
 // IDirect3DTexture9 인터페이스를 쉽게 사용하기위해 만들어짐.
+//
+// 2017-07-24
+//	- TextDesigner
+//	- https://www.codeproject.com/Articles/42529/Outline-Text
+//
 #pragma once
 
 
@@ -29,7 +34,8 @@ namespace graphic
 		const StrPath& GetTextureName() const;
 		void TextOut(cFontGdi &font, const Str128 &text, const int x, const int y, const DWORD color);
 		void DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, const DWORD color);
-		bool DrawText2(cRenderer &renderer, const Str128 &text, const sRecti &rect, const DWORD color);
+		bool DrawText2(cRenderer &renderer, const Str128 &text, 
+			const cColor &color, const cColor &outlineColor, Vector2 &textSize);
 		bool IsLoaded();
 		int Width();
 		int Height();

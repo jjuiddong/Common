@@ -5,6 +5,11 @@
 using namespace graphic;
 
 
+const cColor cColor::BLACK(0.f, 0.f, 0.f, 1.f);
+const cColor cColor::WHITE(0.f, 0.f, 0.f, 1.f);
+
+
+
 cColor::cColor()
 	: m_color(0)
 {
@@ -70,7 +75,29 @@ void cColor::SetColor(const Vector4 &color)
 }
 
 
+// red-green-blue-alpha : 0 ~ 1
+Vector4 cColor::GetColor() const
+{
+	Vector4 v;
+	v.w = (m_color >> 24) / 255.f; // A
+	v.x = ((m_color >> 16) & 0xFF) / 255.f; // R
+	v.y = ((m_color >> 8) & 0xFF) / 255.f; // G
+	v.z = (m_color & 0xFF) / 255.f; // B
+	return v;
+}
+
+
 cColor::operator DWORD ()
 {
 	return m_color;
+}
+
+
+bool cColor::operator == (const cColor &color) {
+	return m_color == color.m_color;
+}
+
+
+bool cColor::operator != (const cColor &color) {
+	return !(operator==(color));
 }

@@ -267,7 +267,10 @@ void cTexture::DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, 
 
 
 // Render Text String on Texture using GdiPlus
-bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText, const sRecti &rect, const DWORD color)
+// https://www.codeproject.com/Articles/42529/Outline-Text
+bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText
+	, const cColor &color, const cColor &outlineColor
+	, Vector2 &textSize)
 {
 	using namespace Gdiplus;
 	//Gdiplus::Bitmap* pGraphbmp = new Gdiplus::Bitmap(600, 600, PixelFormat32bppARGB);
@@ -287,7 +290,11 @@ bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText, const sRecti
 	StringFormat strformat;
 
 	TextDesigner::PngOutlineText text;
-	text.TextOutline(Color(255, 255, 255), Color(0, 0, 0), 4);
+
+	const Vector4 tColor = color.GetColor();
+	const Vector4 oColor = outlineColor.GetColor();
+	text.TextOutline(Color((int)(tColor.x*255), (int)(tColor.y * 255), (int)(tColor.z * 255))
+		, Color((int)(oColor.x * 255), (int)(oColor.y * 255), (int)(oColor.z * 255)), 4);
 	text.EnableShadow(false);
 
 	wstring wstr = str2wstr(szText.c_str());
@@ -296,7 +303,10 @@ bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText, const sRecti
 	text.MeasureString(pGraphics, &fontFamily, FontStyleBold,
 		fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat,
 		NULL, NULL, &fWidth, &fHeight);
-	//std::shared_ptr<Gdiplus::Bitmap> pbmp = std::shared_ptr<Gdiplus::Bitmap>(new Bitmap(fWidth + 8.0f, fHeight + 8.0f, PixelFormat32bppARGB));
+	textSize.x = fWidth;
+	textSize.y = fHeight;
+	//std::shared_ptr<Gdiplus::Bitmap> pbmp = 
+	//	std::shared_ptr<Gdiplus::Bitmap>(new Bitmap(fWidth + 8.0f, fHeight + 8.0f, PixelFormat32bppARGB));
 	//if (pbmp == NULL)
 	//	return false;
 
@@ -313,11 +323,6 @@ bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText, const sRecti
 		delete pGraphics;
 		pGraphics = NULL;
 	}
-	//if (pGraphbmp)
-	//{
-	//	delete pGraphbmp;
-	//	pGraphbmp = NULL;
-	//}
 
 	Rect rect1(0, 0, pbmp->GetWidth(), pbmp->GetHeight());
 	BitmapData bitmapData;

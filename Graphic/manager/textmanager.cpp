@@ -23,8 +23,8 @@ cTextManager::~cTextManager()
 
 
 void cTextManager::Create(const u_int maxTextCount //= 100
-	, const int textureSizeX //= 128
-	, const int textureSizeY //= 64
+	, const int textureSizeX //= 256
+	, const int textureSizeY //= 32
 )
 {
 	m_maxTextCount = maxTextCount;
@@ -54,17 +54,18 @@ void cTextManager::NewFrame()
 
 
 void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128 &str
-	, const DWORD color //= 0
+	, const cColor &color //= cColor::WHITE
+	, const cColor &outlineColor //= cColor::BLACK
 	, BILLBOARD_TYPE::TYPE type //= BILLBOARD_TYPE::Y_AXIS
 	, const Transform &tm //= Transform::Identity
-	, const int width //=3
-	, const int height//=2
+	, const int width //=8
+	, const int height//=1
 )
 {
 	sText *text = GetCacheText(id);
 	if (text)
 	{
-		text->text.SetTextRect2(renderer, tm, str, color, type, sRecti(0, 0, m_textureSizeX, m_textureSizeY));
+		text->text.SetTextRect2(renderer, tm, str, color, outlineColor, type);
 
 		text->used = true;
 
@@ -81,6 +82,7 @@ void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128
 		strcpy_s(cmd.str, str.c_str());
 		cmd.str[ min(sCommand::MAX_STR - 1, (int)str.size())] = NULL;
 		cmd.color = color;
+		cmd.outlineColor = outlineColor;
 		cmd.type = type;
 		cmd.tm = tm;
 		cmd.width = width;
@@ -179,7 +181,7 @@ void cTextManager::Render(cRenderer &renderer)
 
 void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd)
 {
-	text->text.SetTextRect2(renderer, cmd.tm, cmd.str, cmd.color, cmd.type, sRecti(0, 0, m_textureSizeX, m_textureSizeY));
+	text->text.SetTextRect2(renderer, cmd.tm, cmd.str, cmd.color, cmd.outlineColor, cmd.type);
 
 	text->id = cmd.id;
 	text->used = true;

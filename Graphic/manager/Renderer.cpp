@@ -57,7 +57,7 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height,
 
 	m_viewPort.Create(0, 0, width, height);
 
-	m_textMgr.Create(256, 256, 64);
+	m_textMgr.Create(256);
 
 	m_textFps.Create(*this);
 	m_textFps.SetPos(0, 0);
