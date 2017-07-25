@@ -66,7 +66,7 @@ void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128
 	if (text)
 	{
 		text->text.SetTextRect2(renderer, tm, str, color, outlineColor, type);
-
+		text->space = renderer.GetCurrentAlphaBlendSpace();
 		text->used = true;
 
 		if (m_renderMap.end() == m_renderMap.find(id))
@@ -87,18 +87,20 @@ void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128
 		cmd.tm = tm;
 		cmd.width = width;
 		cmd.height = height;
+		cmd.space = renderer.GetCurrentAlphaBlendSpace();
 		m_cmds.push_back(cmd);
 	}
 }
 
 
-void cTextManager::Render(cRenderer &renderer)
+// Process Command
+void cTextManager::ProcessTextCmd(cRenderer &renderer)
 {
 	u_int bufferStartIdx = 0;
 	for (auto &cmd : m_cmds)
 	{
 		bool isFindEmptyText = false;
-		
+
 		sText *text = GetCacheText(cmd.id);
 		if (text)
 		{
@@ -113,19 +115,19 @@ void cTextManager::Render(cRenderer &renderer)
 				sText *text = m_buffer[i];
 				if ((text->id >= 0) && (text->used))
 					continue;
-			
+
 				m_cacheMap.erase(text->id);
 				SetCommand2Text(renderer, text, cmd);
 
 				m_renders.push_back(text);
 
 				isFindEmptyText = true;
-				bufferStartIdx = i+1; // set search buffer index
+				bufferStartIdx = i + 1; // set search buffer index
 				break;
 			}
 		}
 
-		if (!isFindEmptyText) // not found empty buffer
+		if (!isFindEmptyText) // not found empty buffer, create text
 		{
 			if (m_maxTextCount <= m_buffer.size())
 				break; // buffer full, Finish
@@ -139,7 +141,6 @@ void cTextManager::Render(cRenderer &renderer)
 			}
 
 			sText *text = new sText;
-			//text->text.Create(renderer, font, BILLBOARD_TYPE::Y_AXIS, cmd.width, cmd.height, m_textureSizeX);
 			text->text.Create(renderer, font, cmd.type, cmd.width, cmd.height, m_textureSizeX, m_textureSizeY);
 			m_buffer.push_back(text);
 
@@ -167,14 +168,25 @@ void cTextManager::Render(cRenderer &renderer)
 	for (auto id : rmIds)
 		m_cacheMap.erase(id);
 
-
 	GarbageCollection();
+}
+
+
+void cTextManager::Render(cRenderer &renderer
+	, const bool isSort //= false
+)
+{
+	ProcessTextCmd(renderer);
+
+	if (isSort)
+		Sorting();
 
 	// render
 	//renderer.SetCullMode(D3DCULL_NONE);
 	for (auto &p : m_renders)
-		p->text.Render(renderer);
-		//renderer.AddRenderAlpha(&p->text);
+		//p->text.Render(renderer);
+		//renderer.AddRenderAlpha(&p->text, p->text.m_quad.m_normal, p->text.m_transform.GetMatrix());
+		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_quad.m_normal, p->text.m_transform.GetMatrix());
 	//renderer.SetCullMode(D3DCULL_CCW);
 }
 
@@ -185,6 +197,7 @@ void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sComm
 
 	text->id = cmd.id;
 	text->used = true;
+	text->space = cmd.space;
 	m_cacheMap[cmd.id] = text;
 }
 
@@ -229,6 +242,32 @@ void cTextManager::GarbageCollection()
 			}
 		}
 	}
+}
+
+
+// Text Sorting With Camera Position
+// Descent Distance from Camera
+void cTextManager::Sorting()
+{
+	cCamera *cam = GetMainCamera();
+	Vector3 camOrig, camDir;
+	cam->GetRay(camOrig, camDir);
+
+	std::sort(m_renders.begin(), m_renders.end(), 
+		[&](const sText* a, const sText* b)
+		{
+			const float l1 = a->text.m_transform.pos.LengthRoughly(camOrig);
+			const float l2 = b->text.m_transform.pos.LengthRoughly(camOrig);
+			return l1 > l2;
+		}
+	);
+
+	for (auto &p : m_renders)
+	{
+		const float l1 = p->text.m_transform.pos.LengthRoughly(camOrig);
+		int a = 0;
+	}
+
 }
 
 

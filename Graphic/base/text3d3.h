@@ -39,7 +39,6 @@ namespace graphic
 		cFontGdi *m_font;
 		cTexture m_texture;
 		cBillboard m_quad;
-		//DWORD m_color;
 		cColor m_color;
 	};
 

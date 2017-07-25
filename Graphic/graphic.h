@@ -146,6 +146,25 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "terrain/terrainexporter.h"
 #include "terrain/terrainloader.h"
 
+
+namespace graphic
+{
+	struct sRenderObj
+	{
+		int opt;
+		Vector3 normal;
+		Matrix44 tm;
+		cNode2 *p;
+	};
+
+	struct sAlphaBlendSpace
+	{
+		cBoundingBox bbox;
+		std::vector<sRenderObj> renders;
+	};
+}
+
+
 #include "manager/textmanager.h"
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"

@@ -5,6 +5,20 @@
 using namespace graphic;
 
 
+cNode2::cNode2()
+	: m_id(common::GenerateId())
+	, m_name("none")
+	, m_type(eNodeType::NONE)
+	, m_isEnable(true)
+	, m_isShow(true)
+	, m_isShadowEnable(true)
+	, m_isShadow(true)
+	, m_parent(NULL)
+	, m_flags(1)
+	, m_shader(NULL)
+{
+}
+
 cNode2::cNode2(const int id
 	, const StrId &name // = "none"
 	, const eNodeType::Enum type //= NONE

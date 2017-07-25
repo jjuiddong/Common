@@ -54,6 +54,8 @@ void cBillboard::Rotate()
 		Matrix44 S;
 		S.SetScale(m_transform.scale);
 		m_tm = S * mat.Transpose() * T;
+
+		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
 	}
 	break;
 
@@ -69,6 +71,8 @@ void cBillboard::Rotate()
 		Matrix44 T;
 		T.SetTranslate(m_transform.pos);
 		m_tm = mat.Transpose() * T;
+
+		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
 	}
 	break;
 
@@ -84,6 +88,8 @@ void cBillboard::Rotate()
 		Matrix44 T;
 		T.SetTranslate(m_transform.pos);
 		m_tm = mat.Transpose() * T;
+
+		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
 	}
 	break;
 
@@ -93,22 +99,31 @@ void cBillboard::Rotate()
 		// Fixed Scale Model
 		Vector3 pos = m_transform.pos;
 		const float len = (pos - GetMainCamera()->GetEyePos()).Length();
-		const Vector3 scale = m_transform.scale * min(10.f, max(1.f, len / 50.f));
+		//const Vector3 scale = m_transform.scale * min(10.f, max(1.f, len / 50.f));
+		const Vector3 scale = m_transform.scale * min(2.f, max(1.f, len / 50.f));
 
 		Matrix44 S;
 		S.SetScale(scale);
 
 		Matrix44 view;
-		view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), -GetMainCamera()->GetUpVector());
+		view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), Vector3(0, 1, 0));
+		//view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), -GetMainCamera()->GetUpVector());
 
-		mat._11 = view._11;
-		mat._13 = view._13;
-		mat._31 = view._31;
-		mat._33 = view._33;
+		//mat._11 = view._11;
+		//mat._13 = view._13;
+		//mat._31 = view._31;
+		//mat._33 = view._33;
+		mat = view;
+		mat._41 = mat._42 = mat._43 = 0;
+
+		Matrix44 R;
+		R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
 
 		Matrix44 T;
 		T.SetTranslate(m_transform.pos);
-		m_tm = S * mat.Transpose() * T;
+		m_tm = S * R * mat.Transpose() * T;
+
+		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
 	}
 	break;
 	}

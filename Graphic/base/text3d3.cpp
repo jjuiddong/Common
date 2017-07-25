@@ -31,6 +31,7 @@ bool cText3d3::Create(cRenderer &renderer, cFontGdi *font, const BILLBOARD_TYPE:
 	m_font = font;
 	m_boundingBox.SetBoundingBox(Vector3(-width / 2, -height / 2, 0),
 		Vector3(width / 2, height / 2, 0));
+	CalcBoundingSphere();
 
 	return true;
 }
@@ -60,6 +61,7 @@ bool cText3d3::SetTextRect(
 {
 	RETV(!m_font, false);
 
+	m_transform = tm;
 	m_quad.m_type = type;
 	m_quad.m_transform = tm;
 	// todo: sorting bug
@@ -85,9 +87,15 @@ bool cText3d3::SetTextRect2(
 	, const BILLBOARD_TYPE::TYPE type
 	)
 {
+	m_transform = tm;
 	m_quad.m_type = type;
 	m_quad.m_transform.pos = tm.pos;
 	m_quad.m_transform.rot = tm.rot;
+
+	//const Vector3 dim = m_boundingBox.GetDimension();
+	//m_boundingBox.SetBoundingBox(Vector3(-dim.x / 2, -dim.y/ 2, 0),
+	//	Vector3(dim.x / 2, dim.y/ 2, 0));
+	//CalcBoundingSphere();
 
 	//m_quad.m_transform = tm;
 	// todo: sorting bug

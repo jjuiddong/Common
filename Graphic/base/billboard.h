@@ -35,6 +35,7 @@ namespace graphic
 	public:
 		BILLBOARD_TYPE::TYPE m_type;
 		Transform m_transform;
+		Vector3 m_normal;
 	};
 
 }

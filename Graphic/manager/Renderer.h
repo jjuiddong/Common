@@ -22,7 +22,10 @@ namespace graphic
 		bool CheckResetDevice(const int width=0, const int height=0);
 		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false
 			, const bool resetResource=true);
-		void AddRenderAlpha(cNode2 *node, const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
+		void AddRenderAlpha(cNode2 *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
+		void AddRenderAlpha(sAlphaBlendSpace *space, cNode2 *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
+		void AddAlphaBlendSpace(const cBoundingBox &bbox);
+		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
 
 
 		bool ClearScene();
@@ -58,13 +61,9 @@ namespace graphic
 		D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
 
-		struct sRenderObj
-		{
-			int opt;
-			Matrix44 tm;
-			cNode2 *p;
-		};
-		vector<sRenderObj> m_alphaRender;
+		vector<sAlphaBlendSpace*> m_alphaSpace;
+		vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+
 		vector<sVertexDiffuse> m_grid;
 		vector<sVertexDiffuse> m_axis;
 		cTextManager m_textMgr;

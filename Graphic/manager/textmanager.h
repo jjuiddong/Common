@@ -22,7 +22,9 @@ namespace graphic
 			, BILLBOARD_TYPE::TYPE type = BILLBOARD_TYPE::Y_AXIS
 			, const Transform &tm = Transform::Identity
 			, const int width=8, const int height=1);
-		void Render(cRenderer &renderer);
+		void Render(cRenderer &renderer, const bool isSort=false);
+		void ProcessTextCmd(cRenderer &renderer);
+		void Sorting();
 		void Clear();
 
 
@@ -31,6 +33,7 @@ namespace graphic
 		{
 			int id;
 			bool used;
+			sAlphaBlendSpace *space;
 			cText3d3 text;
 		};
 
@@ -44,6 +47,7 @@ namespace graphic
 			cColor color;
 			cColor outlineColor;
 			Transform tm;
+			sAlphaBlendSpace *space;
 			int width;
 			int height;
 		};

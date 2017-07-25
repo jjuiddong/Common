@@ -27,6 +27,7 @@ namespace graphic
 	class cNode2
 	{
 	public:
+		cNode2();
 		cNode2(const int id, const StrId &name = "none", const eNodeType::Enum type=eNodeType::NONE);
 		virtual ~cNode2();
 
