@@ -45,7 +45,7 @@ namespace framework
 		cRenderWindow();
 		virtual ~cRenderWindow();
 
-		virtual bool Create(const string &title, const int width, const int height
+		virtual bool Create(const StrId &title, const int width, const int height
 			, graphic::cRenderer *shared=NULL, bool isTitleBar= true);
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender(const float deltaSeconds);
@@ -57,12 +57,15 @@ namespace framework
 		cDockWindow* GetSizerTargetWindow(const Vector2 &mousePt);
 		void RequestResetDeviceNextFrame();
 		void Sleep();
-		void WakeUp(const string &title, const int width, const int height);
+		void WakeUp(const StrId &title, const int width, const int height);
 		void SetDragState();
 		void SetDragBindState();
 		void SetFinishDragBindState();
 		bool IsDragState();
 		bool IsMoveState();
+		void SetCapture(cDockWindow *dock);
+		cDockWindow* GetCapture();
+		void ReleaseCapture();
 		void Clear();
 
 
@@ -91,7 +94,7 @@ namespace framework
 		bool m_isVisible;
 		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
-		string m_title;
+		StrId m_title;
 		graphic::cCamera m_camera;
 		graphic::cLight m_light;
 		graphic::cRenderer m_renderer;
@@ -100,6 +103,7 @@ namespace framework
 		graphic::cTexture m_backBuffer;
 		graphic::cSurface3 m_sharedSurf;
 		cDockWindow *m_dock;
+		cDockWindow *m_captureDock;
 
 		Vector2 m_mousePos;
 		Vector2 m_clickPos;

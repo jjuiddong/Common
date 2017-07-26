@@ -29,7 +29,7 @@ void cDockManager::InsertMainRenderWindow(cRenderWindow *main)
 }
 
 
-cRenderWindow* cDockManager::NewRenderWindow(const string &title, const int width, const int height
+cRenderWindow* cDockManager::NewRenderWindow(const StrId &title, const int width, const int height
 	, cRenderer *shared)
 {
 	cRenderWindow *window = NULL;

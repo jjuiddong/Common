@@ -184,9 +184,8 @@ void cTextManager::Render(cRenderer &renderer
 	// render
 	//renderer.SetCullMode(D3DCULL_NONE);
 	for (auto &p : m_renders)
-		//p->text.Render(renderer);
-		//renderer.AddRenderAlpha(&p->text, p->text.m_quad.m_normal, p->text.m_transform.GetMatrix());
 		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_quad.m_normal, p->text.m_transform.GetMatrix());
+		//p->text.Render(renderer);
 	//renderer.SetCullMode(D3DCULL_CCW);
 }
 
@@ -261,13 +260,6 @@ void cTextManager::Sorting()
 			return l1 > l2;
 		}
 	);
-
-	for (auto &p : m_renders)
-	{
-		const float l1 = p->text.m_transform.pos.LengthRoughly(camOrig);
-		int a = 0;
-	}
-
 }
 
 

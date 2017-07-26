@@ -110,11 +110,7 @@ void cRenderer::RenderAxis()
 // FPS Ãâ·Â.
 void cRenderer::RenderFPS()
 {
-	//RET(!m_font);
 	m_textFps.Render();
-	//RECT rc = {10,10,200,200};
-	//m_font->DrawTextA( NULL, m_fpsText.c_str(), -1, &rc,
-	//	DT_NOCLIP, D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
 }
 
 
@@ -280,113 +276,10 @@ void cRenderer::EndScene()
 {
 	// Text Render
 	m_textMgr.Render(*this);
-	//m_textMgr.ProcessTextCmd(*this);
-	//m_textMgr.Sorting();
 
-	// AlphaBlending Render, Sorting Camera Position
-	// Descent Distance from Camera
 	cCamera *cam = GetMainCamera();
 	Vector3 camOrig, camDir;
 	cam->GetRay(camOrig, camDir);
-
-	//std::sort(m_alphaRender.begin(), m_alphaRender.end(),
-	//	[&](const sRenderObj &a, const sRenderObj &b)
-	//	{
-	//		const Vector3 c1 = a.p->m_boundingBox.Center() * a.tm;
-	//		const Vector3 c2 = b.p->m_boundingBox.Center() * b.tm;
-	//		const Plane plane1(a.normal, c1);
-	//		const Plane plane2(b.normal, c2);
-	//		const Vector3 dir1 = (c1 - camOrig).Normal();
-	//		const Vector3 dir2 = (c2 - camOrig).Normal();
-
-	//		Vector3 p1 = plane1.Pick(camOrig, dir2);
-	//		if (a.p->m_boundingSphere.m_radius*2 < (p1 - c1).Length())
-	//			p1 = plane1.Pick(camOrig, dir1);
-
-	//		Vector3 p2 = plane2.Pick(camOrig, dir1);
-	//		if (b.p->m_boundingSphere.m_radius*2 < (p2 - c2).Length())
-	//			p2 = plane2.Pick(camOrig, dir2);
-
-	//		const float l1 = p1.LengthRoughly(camOrig);
-	//		const float l2 = p2.LengthRoughly(camOrig);
-	//		return l1 > l2;
-	//	}
-	//);
-
-	// Add Sorting Text Alphablend (Already Sorted)
-	//auto it1 = m_alphaRender.begin();
-	//auto it2 = m_textMgr.m_renders.begin();
-	//while ((m_alphaRender.end() != it1) || (m_textMgr.m_renders.end() != it2))
-	//{
-	//	if (m_alphaRender.end() == it1)
-	//	{
-	//		while (m_textMgr.m_renders.end() != it2)
-	//			(*it2++)->text.Render(*this);
-	//		break;
-	//	}
-
-	//	if (m_textMgr.m_renders.end() == it2)
-	//	{
-	//		while (m_alphaRender.end() != it1)
-	//		{
-	//			it1->p->Render(*this, it1->tm, -1);
-	//			++it1;
-	//		}
-	//		break;
-	//	}
-
-	//	const sRenderObj &a = *it1;
-	//	cTextManager::sText *b = *it2;
-	//	
-	//	const Vector3 c1 = a.p->m_boundingBox.Center() * a.tm;
-	//	const Vector3 c2 = b->text.m_transform.pos;
-	//	const Plane plane1(a.normal, c1);
-	//	const Vector3 dir1 = (c1 - camOrig).Normal();
-	//	const Vector3 dir2 = (c2 - camOrig).Normal();
-
-	//	Vector3 p1 = plane1.Pick(camOrig, dir2);
-	//	const float len = (p1 - c1).Length();
-	//	if (a.p->m_boundingSphere.m_radius*20 < (p1 - c1).Length())
-	//		p1 = plane1.Pick(camOrig, dir1);
-
-	//	if (p1.LengthRoughly(camOrig) > c2.LengthRoughly(camOrig))
-	//	{
-	//		a.p->Render(*this, a.tm, -1);
-	//		++it1;
-	//	}
-	//	else
-	//	{
-	//		b->text.Render(*this);
-	//		++it2;
-	//	}
-	//}
-
-
-	//for (int i = 0; i < (int)m_alphaRender.size()-1; ++i)
-	//{
-	//	sRenderObj *a = &m_alphaRender[i];
-	//	for (int k = i+1; k < (int)m_alphaRender.size(); ++k)
-	//	{
-	//		sRenderObj *b = &m_alphaRender[k];
-
-	//		float len1 = FLT_MAX, len2 = FLT_MAX;
-	//		const Vector3 dir1 = (a->p->m_boundingBox.Center()*a->tm - camOrig).Normal();
-	//		const Vector3 dir2 = (b->p->m_boundingBox.Center()*b->tm - camOrig).Normal();
-
-	//		if (!a->p->m_boundingBox.Pick3(camOrig, dir2, &len1, a->tm))
-	//			a->p->m_boundingBox.Pick3(camOrig, dir1, &len1, a->tm);
-
-	//		if (!b->p->m_boundingBox.Pick3(camOrig, dir1, &len2, b->tm))
-	//			b->p->m_boundingBox.Pick3(camOrig, dir2, &len2, b->tm);
-	//		
-	//		if (len1 < len2)
-	//			std::swap(*a, *b);
-
-	//		a = b;
-	//	}
-	//}
-	//
-
 
 	// AlphaBlending Render, Sorting Camera Position
 	// Descent Distance from Camera

@@ -35,6 +35,7 @@ cRenderWindow::cRenderWindow()
 	, m_isFullScreen(false)
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
+	, m_captureDock(NULL)
 {
 }
 
@@ -44,7 +45,7 @@ cRenderWindow::~cRenderWindow()
 }
 
 
-bool cRenderWindow::Create(const string &title, const int width, const int height
+bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	, cRenderer *shared // = NULL
 	, bool isTitleBar // = true
 )
@@ -57,7 +58,7 @@ bool cRenderWindow::Create(const string &title, const int width, const int heigh
 		return false;
 	}
 
-	m_title = string(" - ") + title + string(" - ");
+	m_title = StrId(" - ") + title + StrId(" - ");
 	m_camera.Init(&m_renderer);
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	m_camera.SetProjection(D3DX_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
@@ -751,7 +752,9 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
 	OnEventProc(evt);
 
-	if (m_dock)
+	if (m_captureDock)
+		m_captureDock->DefaultEventProc(evt);
+	else if (m_dock)
 		m_dock->DefaultEventProc(evt);
 
 	ImGuiIO& io = ImGui::GetIO();
@@ -914,12 +917,12 @@ void cRenderWindow::Sleep()
 }
 
 
-void cRenderWindow::WakeUp(const string &title, const int width, const int height)
+void cRenderWindow::WakeUp(const StrId &title, const int width, const int height)
 {
 	ChangeState(eState::NORMAL, 9);
 
-	m_title = string(" - ") + title + string(" - ");
-	setTitle(title);
+	m_title = StrId(" - ") + title + StrId(" - ");
+	setTitle(title.c_str());
 	setSize(sf::Vector2u((u_int)width, (u_int)height));
 	m_isFullScreen = false;
 
@@ -959,6 +962,26 @@ void cRenderWindow::ChangeDevice(
 void cRenderWindow::RequestResetDeviceNextFrame()
 {
 	m_isRequestResetDevice = true;
+}
+
+
+void cRenderWindow::SetCapture(cDockWindow *dock)
+{
+	m_captureDock = dock;
+	::SetCapture(getSystemHandle());
+}
+
+
+cDockWindow* cRenderWindow::GetCapture()
+{
+	return m_captureDock;
+}
+
+
+void cRenderWindow::ReleaseCapture()
+{
+	m_captureDock = NULL;
+	::ReleaseCapture();
 }
 
 

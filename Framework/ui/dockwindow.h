@@ -14,7 +14,7 @@ namespace framework
 	class cDockWindow
 	{
 	public:
-		cDockWindow(const string &name = "");// , const sDockSizingOption &sizingOpt = defaultSizingOption);
+		cDockWindow(const StrId &name = "");// , const sDockSizingOption &sizingOpt = defaultSizingOption);
 		virtual ~cDockWindow();
 
 		virtual bool Create(const eDockState::Enum state, const eDockSlot::Enum type,
@@ -52,6 +52,9 @@ namespace framework
 		bool IsInSizerSpace(const Vector2 &pos);
 		eDockSizingType::Enum GetDockSizingType();
 		void SetBindState(const bool enable = true);
+		void SetCapture();
+		cDockWindow* GetCapture();
+		void ReleaseCapture();
 		void ClearConnection();
 		void Clear();
 
@@ -84,7 +87,7 @@ namespace framework
 		cDockWindow *m_parent;
 		vector<cDockWindow*> m_tabs;
 		int m_selectTab;
-		string m_name;
+		StrId m_name;
 		sRectf m_rect;
 		eDockSlot::Enum m_dragSlot; // using drag dock window
 		static int s_id;

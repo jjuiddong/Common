@@ -19,7 +19,7 @@ namespace framework
 		virtual ~cDockManager();
 
 		void InsertMainRenderWindow(cRenderWindow *main);
-		cRenderWindow* NewRenderWindow(const string &title, const int width, const int height
+		cRenderWindow* NewRenderWindow(const StrId &title, const int width, const int height
 			, graphic::cRenderer *shared);
 		void DeleteRenderWindow(cRenderWindow *wnd);
 		cDockWindow* NewDockWindow();

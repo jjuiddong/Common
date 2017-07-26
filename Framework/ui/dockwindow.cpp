@@ -12,7 +12,7 @@ using namespace framework;
 int cDockWindow::s_id = 1;
 
 
-cDockWindow::cDockWindow(const string &name //=""
+cDockWindow::cDockWindow(const StrId &name //=""
 //	, const sDockSizingOption &sizingOpt //= defaultSizingOption
 )
 	: m_state(eDockState::DOCK)
@@ -910,6 +910,9 @@ void cDockWindow::DefaultEventProc(const sf::Event &evt)
 
 bool cDockWindow::CheckEventTarget(const sf::Event &evt)
 {
+	if (GetCapture() == this)
+		return true;
+
 	switch (evt.type)
 	{
 	case sf::Event::MouseButtonPressed:
@@ -941,6 +944,28 @@ bool cDockWindow::CheckEventTarget(const sf::Event &evt)
 	}
 
 	return true;
+}
+
+
+void cDockWindow::SetCapture()
+{
+	if (m_owner)
+		m_owner->SetCapture(this);
+}
+
+
+cDockWindow* cDockWindow::GetCapture()
+{
+	if (m_owner)
+		return m_owner->GetCapture();
+	return NULL;
+}
+
+
+void cDockWindow::ReleaseCapture()
+{
+	if (m_owner)
+		m_owner->ReleaseCapture();
 }
 
 
