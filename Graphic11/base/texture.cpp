@@ -27,17 +27,17 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName, bool isSizeP
 
 	if (isSizePow2)
 	{
-		if (FAILED(D3DXCreateTextureFromFileA(renderer.GetDevice(), fileName.c_str(), &m_texture)))
-			return false;
+		//if (FAILED(D3DXCreateTextureFromFileA(renderer.GetDevice(), fileName.c_str(), &m_texture)))
+		//	return false;
 
-		// 텍스쳐 사이즈 저장.
-		D3DSURFACE_DESC desc;
-		if (SUCCEEDED(m_texture->GetLevelDesc(0, &desc)))
-		{
-			m_imageInfo.Width = desc.Width;
-			m_imageInfo.Height = desc.Height;
-			m_imageInfo.Format = desc.Format;
-		}
+		//// 텍스쳐 사이즈 저장.
+		//D3DSURFACE_DESC desc;
+		//if (SUCCEEDED(m_texture->GetLevelDesc(0, &desc)))
+		//{
+		//	m_imageInfo.Width = desc.Width;
+		//	m_imageInfo.Height = desc.Height;
+		//	m_imageInfo.Format = desc.Format;
+		//}
 	}
 	else
 	{
@@ -52,9 +52,9 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height, co
 {
 	Clear();
 
-	if (FAILED(renderer.GetDevice()->CreateTexture( width, height, 1, 0, format, 
-		D3DPOOL_MANAGED, &m_texture, NULL )))
-		return false;
+	//if (FAILED(renderer.GetDevice()->CreateTexture( width, height, 1, 0, format, 
+	//	D3DPOOL_MANAGED, &m_texture, NULL )))
+	//	return false;
 
 	D3DLOCKED_RECT lockrect;
 	m_texture->LockRect( 0, &lockrect, NULL, 0 );
@@ -74,17 +74,17 @@ bool cTexture::CreateEx(cRenderer &renderer, const StrPath &fileName)
 {
 	Clear();
 
-	if (FAILED(D3DXCreateTextureFromFileExA(
-		renderer.GetDevice(), fileName.c_str(),
-		D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, // option On
-		NULL, NULL, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT,
-		0,
-		&m_imageInfo,
-		NULL,
-		&m_texture)))
-	{
-		return false;
-	}
+	//if (FAILED(D3DXCreateTextureFromFileExA(
+	//	renderer.GetDevice(), fileName.c_str(),
+	//	D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, // option On
+	//	NULL, NULL, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT,
+	//	0,
+	//	&m_imageInfo,
+	//	NULL,
+	//	&m_texture)))
+	//{
+	//	return false;
+	//}
 
 	m_fileName = fileName;
 	
@@ -94,10 +94,10 @@ bool cTexture::CreateEx(cRenderer &renderer, const StrPath &fileName)
 
 void cTexture::Bind(cRenderer &renderer, const int stage)
 {
-	renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
-	renderer.GetDevice()->SetTexture(stage, m_texture);
+	//renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	//renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	//renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+	//renderer.GetDevice()->SetTexture(stage, m_texture);
 }
 
 
@@ -108,37 +108,37 @@ void cTexture::Bind(cShader &shader, const Str32 &key)
 
 void cTexture::Unbind(cRenderer &renderer, const int stage)
 {
-	renderer.GetDevice()->SetTexture(stage, NULL);
+	//renderer.GetDevice()->SetTexture(stage, NULL);
 }
 
 
 void cTexture::Render2D(cRenderer &renderer)
 {
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, ToDxM(Matrix44::Identity));
-	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, ToDxM(Matrix44::Identity));
+	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	//renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+	//renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	//renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
 
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_NONE);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_NONE);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+	////renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	////renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_NONE);
+	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_NONE);
+	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	typedef struct { FLOAT p[4]; FLOAT tu, tv; } TVERTEX;
-	TVERTEX Vertex[4] = {
-		// x  y  z rhw tu tv
-		{ 0, 0, 0, 1, 0, 0, },
-		{ (float)m_imageInfo.Width-1, 0,0, 1, 1, 0, },
-		{ (float)m_imageInfo.Width-1, (float)m_imageInfo.Height-1, 1, 1, 1, 1},
-		{ 0, (float)m_imageInfo.Height-1,0, 1, 0, 1, },
-	};
-	renderer.GetDevice()->SetTexture(0, m_texture);
-	renderer.GetDevice()->SetVertexShader(NULL);
-	renderer.GetDevice()->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-	renderer.GetDevice()->SetPixelShader(NULL);
-	renderer.GetDevice()->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Vertex, sizeof(TVERTEX));
+	//typedef struct { FLOAT p[4]; FLOAT tu, tv; } TVERTEX;
+	//TVERTEX Vertex[4] = {
+	//	// x  y  z rhw tu tv
+	//	{ 0, 0, 0, 1, 0, 0, },
+	//	{ (float)m_imageInfo.Width-1, 0,0, 1, 1, 0, },
+	//	{ (float)m_imageInfo.Width-1, (float)m_imageInfo.Height-1, 1, 1, 1, 1},
+	//	{ 0, (float)m_imageInfo.Height-1,0, 1, 0, 1, },
+	//};
+	//renderer.GetDevice()->SetTexture(0, m_texture);
+	//renderer.GetDevice()->SetVertexShader(NULL);
+	//renderer.GetDevice()->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
+	//renderer.GetDevice()->SetPixelShader(NULL);
+	//renderer.GetDevice()->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Vertex, sizeof(TVERTEX));
 }
 
 
@@ -223,46 +223,46 @@ bool cTexture::WritePNGFile( const StrPath &fileName )
 
 
 // Render Text String on Texture
-void cTexture::TextOut(cFontGdi &font, const Str128 &text, const int x, const int y, const DWORD color)
+void cTexture::TextOut(const Str128 &text, const int x, const int y, const DWORD color)
 {
-	RET(!m_texture);
+	//RET(!m_texture);
 
-	IDirect3DSurface9* ppSurface = NULL;
-	HDC mDC = NULL;
-	if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
-	{
-		if (ppSurface->GetDC(&mDC) == D3D_OK)
-		{
-			SelectObject(mDC, font.m_font);
-			SetTextColor(mDC, color);
-			SetBkMode(mDC, TRANSPARENT);
-			TextOutA(mDC, x, y, text.c_str(), text.size());
-			ppSurface->ReleaseDC(mDC);
-		}
-		ppSurface->Release();
-	}
+	//IDirect3DSurface9* ppSurface = NULL;
+	//HDC mDC = NULL;
+	//if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
+	//{
+	//	if (ppSurface->GetDC(&mDC) == D3D_OK)
+	//	{
+	//		SelectObject(mDC, font.m_font);
+	//		SetTextColor(mDC, color);
+	//		SetBkMode(mDC, TRANSPARENT);
+	//		TextOutA(mDC, x, y, text.c_str(), text.size());
+	//		ppSurface->ReleaseDC(mDC);
+	//	}
+	//	ppSurface->Release();
+	//}
 }
 
 
 // Render Text String on Texture
-void cTexture::DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, const DWORD color)
+void cTexture::DrawText(const Str128 &text, const sRecti &rect, const DWORD color)
 {
-	RET(!m_texture);	
+	//RET(!m_texture);	
 
-	IDirect3DSurface9* ppSurface = NULL;
-	HDC mDC = NULL;
-	if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
-	{
-		if (ppSurface->GetDC(&mDC) == D3D_OK)
-		{
-			SelectObject(mDC, font.m_font);
-			SetTextColor(mDC, color);
-			SetBkMode(mDC, TRANSPARENT);
-			::DrawTextA(mDC, text.c_str(), -1, (RECT*)&rect, DT_CENTER | DT_WORDBREAK);
-			ppSurface->ReleaseDC(mDC);
-		}
-		ppSurface->Release();
-	}
+	//IDirect3DSurface9* ppSurface = NULL;
+	//HDC mDC = NULL;
+	//if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
+	//{
+	//	if (ppSurface->GetDC(&mDC) == D3D_OK)
+	//	{
+	//		SelectObject(mDC, font.m_font);
+	//		SetTextColor(mDC, color);
+	//		SetBkMode(mDC, TRANSPARENT);
+	//		::DrawTextA(mDC, text.c_str(), -1, (RECT*)&rect, DT_CENTER | DT_WORDBREAK);
+	//		ppSurface->ReleaseDC(mDC);
+	//	}
+	//	ppSurface->Release();
+	//}
 }
 
 
@@ -272,92 +272,87 @@ bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText
 	, const cColor &color, const cColor &outlineColor
 	, Vector2 &textSize)
 {
-	using namespace Gdiplus;
-	//Gdiplus::Bitmap* pGraphbmp = new Gdiplus::Bitmap(600, 600, PixelFormat32bppARGB);
-	Graphics* pGraphics = new Graphics(renderer.m_textMgr.m_graphicBuffer.get());
-	if (!pGraphics)
-		return false;
-
-	const int fontSize = 28;
-	pGraphics->SetSmoothingMode(SmoothingModeAntiAlias);
-	pGraphics->SetInterpolationMode(InterpolationModeHighQualityBicubic);
-	pGraphics->SetPageUnit(UnitPixel);
-
-	if (!pGraphics)
-		return false;
-
-	FontFamily fontFamily(L"Arial");
-	StringFormat strformat;
-
-	TextDesigner::PngOutlineText text;
-
-	const Vector4 tColor = color.GetColor();
-	const Vector4 oColor = outlineColor.GetColor();
-	text.TextOutline(Color((int)(tColor.x*255), (int)(tColor.y * 255), (int)(tColor.z * 255))
-		, Color((int)(oColor.x * 255), (int)(oColor.y * 255), (int)(oColor.z * 255)), 4);
-	text.EnableShadow(false);
-
-	wstring wstr = str2wstr(szText.c_str());
-	float fWidth = 0.0f;
-	float fHeight = 0.0f;
-	text.MeasureString(pGraphics, &fontFamily, FontStyleBold,
-		fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat,
-		NULL, NULL, &fWidth, &fHeight);
-	textSize.x = fWidth;
-	textSize.y = fHeight;
-	//std::shared_ptr<Gdiplus::Bitmap> pbmp = 
-	//	std::shared_ptr<Gdiplus::Bitmap>(new Bitmap(fWidth + 8.0f, fHeight + 8.0f, PixelFormat32bppARGB));
-	//if (pbmp == NULL)
+	//using namespace Gdiplus;
+	//Graphics* pGraphics = new Graphics(renderer.m_textMgr.m_graphicBuffer.get());
+	//if (!pGraphics)
 	//	return false;
 
-	std::shared_ptr<Gdiplus::Bitmap> pbmp = renderer.m_textMgr.m_textBuffer;
-	Graphics g(pbmp.get());
-	g.Clear(Gdiplus::Color(0,255,255,255));
+	//const int fontSize = 28;
+	//pGraphics->SetSmoothingMode(SmoothingModeAntiAlias);
+	//pGraphics->SetInterpolationMode(InterpolationModeHighQualityBicubic);
+	//pGraphics->SetPageUnit(UnitPixel);
 
-	text.SetPngImage(pbmp);
-	text.DrawString(pGraphics, &fontFamily, FontStyleBold,
-		fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat);
+	//if (!pGraphics)
+	//	return false;
 
-	if (pGraphics)
-	{
-		delete pGraphics;
-		pGraphics = NULL;
-	}
+	//FontFamily fontFamily(L"Arial");
+	//StringFormat strformat;
 
-	Rect rect1(0, 0, pbmp->GetWidth(), pbmp->GetHeight());
-	BitmapData bitmapData;
-	memset(&bitmapData, 0, sizeof(bitmapData));
-	pbmp->LockBits(
-		&rect1,
-		ImageLockModeRead,
-		PixelFormat32bppARGB,
-		&bitmapData);
+	//TextDesigner::PngOutlineText text;
 
-	int nStride1 = bitmapData.Stride;
-	if (nStride1 < 0)
-		nStride1 = -nStride1;
-	UINT* pixels = (UINT*)bitmapData.Scan0;
-	if (!pixels)
-		return false;
+	//const Vector4 tColor = color.GetColor();
+	//const Vector4 oColor = outlineColor.GetColor();
+	//text.TextOutline(Color((int)(tColor.x*255), (int)(tColor.y * 255), (int)(tColor.z * 255))
+	//	, Color((int)(oColor.x * 255), (int)(oColor.y * 255), (int)(oColor.z * 255)), 4);
+	//text.EnableShadow(false);
 
-	D3DLOCKED_RECT dlock;
-	if (Lock(dlock))
-	{
-		UINT* dpixels = (UINT*)dlock.pBits;
+	//wstring wstr = str2wstr(szText.c_str());
+	//float fWidth = 0.0f;
+	//float fHeight = 0.0f;
+	//text.MeasureString(pGraphics, &fontFamily, FontStyleBold,
+	//	fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat,
+	//	NULL, NULL, &fWidth, &fHeight);
+	//textSize.x = fWidth;
+	//textSize.y = fHeight;
 
-		for (UINT row = 0; row < bitmapData.Height; ++row)
-		{
-			for (UINT col = 0; col < bitmapData.Width; ++col)
-			{
-				dpixels[row*bitmapData.Width + col] = pixels[row * nStride1 / 4 + col];
-			}
-		}
+	//std::shared_ptr<Gdiplus::Bitmap> pbmp = renderer.m_textMgr.m_textBuffer;
+	//Graphics g(pbmp.get());
+	//g.Clear(Gdiplus::Color(0,255,255,255));
 
-		//memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
-		Unlock();
-	}
+	//text.SetPngImage(pbmp);
+	//text.DrawString(pGraphics, &fontFamily, FontStyleBold,
+	//	fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat);
 
-	pbmp->UnlockBits(&bitmapData);
+	//if (pGraphics)
+	//{
+	//	delete pGraphics;
+	//	pGraphics = NULL;
+	//}
+
+	//Rect rect1(0, 0, pbmp->GetWidth(), pbmp->GetHeight());
+	//BitmapData bitmapData;
+	//memset(&bitmapData, 0, sizeof(bitmapData));
+	//pbmp->LockBits(
+	//	&rect1,
+	//	ImageLockModeRead,
+	//	PixelFormat32bppARGB,
+	//	&bitmapData);
+
+	//int nStride1 = bitmapData.Stride;
+	//if (nStride1 < 0)
+	//	nStride1 = -nStride1;
+	//UINT* pixels = (UINT*)bitmapData.Scan0;
+	//if (!pixels)
+	//	return false;
+
+	//D3DLOCKED_RECT dlock;
+	//if (Lock(dlock))
+	//{
+	//	UINT* dpixels = (UINT*)dlock.pBits;
+
+	//	for (UINT row = 0; row < bitmapData.Height; ++row)
+	//	{
+	//		for (UINT col = 0; col < bitmapData.Width; ++col)
+	//		{
+	//			dpixels[row*bitmapData.Width + col] = pixels[row * nStride1 / 4 + col];
+	//		}
+	//	}
+
+	//	//memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
+	//	Unlock();
+	//}
+
+	//pbmp->UnlockBits(&bitmapData);
 
 	return true;
 }

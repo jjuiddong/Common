@@ -17,7 +17,8 @@ namespace graphic
 		bool CreateDirectX(HWND hWnd, const int width, const int height,
 			const UINT adapter= D3DADAPTER_DEFAULT);
 		void Update(const float elpaseT);
-		LPDIRECT3DDEVICE9 GetDevice();
+		ID3D11Device* GetDevice();
+		ID3D11DeviceContext* GetDeviceContext();
 		HWND GetHwnd() const;
 		bool CheckResetDevice(const int width=0, const int height=0);
 		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false
@@ -57,36 +58,42 @@ namespace graphic
 
 	public:
 		HWND m_hWnd;
-		LPDIRECT3DDEVICE9 m_pDevice;
+		ID3D11Device *m_d3dDevice;
+		ID3D11DeviceContext *m_immediateContext;
+		IDXGISwapChain *m_swapChain;
+		ID3D11RenderTargetView *m_renderTargetView;
+
+		//LPDIRECT3DDEVICE9 m_pDevice;
 		D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
 
-		vector<sAlphaBlendSpace*> m_alphaSpace;
-		vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+		//vector<sAlphaBlendSpace*> m_alphaSpace;
+		//vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
 
 		vector<sVertexDiffuse> m_grid;
 		vector<sVertexDiffuse> m_axis;
-		cTextManager m_textMgr;
+		//cTextManager m_textMgr;
 
 		ULONG_PTR gdiplusToken;
 
 		// Display FPS 
-		cText m_textFps;
+		//cText m_textFps;
 		float m_elapseTime;
 		int m_fps;
 
 		// Debug Render
 		bool m_isDbgRender; // Debug Render
 		int m_dbgRenderStyle; // 0:Sphere, 1:Box
-		cDbgBox m_dbgBox;
-		cDbgArrow m_dbgArrow;
-		cDbgSphere m_dbgSphere;
-		cDbgAxis m_dbgAxis;
+		//cDbgBox m_dbgBox;
+		//cDbgArrow m_dbgArrow;
+		//cDbgSphere m_dbgSphere;
+		//cDbgAxis m_dbgAxis;
 	};
 
 
 	// 렌더러 초기화.
 	void ReleaseRenderer();
-	inline LPDIRECT3DDEVICE9 cRenderer::GetDevice() { return m_pDevice; }
+	inline ID3D11Device* cRenderer::GetDevice() { return m_d3dDevice; }
+	inline ID3D11DeviceContext* cRenderer::GetDeviceContext() {return m_immediateContext;}
 	inline HWND cRenderer::GetHwnd() const { return m_hWnd; }
 }

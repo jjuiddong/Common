@@ -604,7 +604,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-//#include "stdafx.h"
+#include "stdafx.h"
 #include "imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_PLACEMENT_NEW

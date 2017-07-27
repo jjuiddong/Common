@@ -6,7 +6,7 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
-//#include "stdafx.h"
+#include "stdafx.h"
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_internal.h"

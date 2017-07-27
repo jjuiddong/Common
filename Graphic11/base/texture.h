@@ -32,8 +32,8 @@ namespace graphic
 		IDirect3DTexture9* GetTexture();
 		const D3DXIMAGE_INFO& GetImageInfo() const;
 		const StrPath& GetTextureName() const;
-		void TextOut(cFontGdi &font, const Str128 &text, const int x, const int y, const DWORD color);
-		void DrawText(cFontGdi &font, const Str128 &text, const sRecti &rect, const DWORD color);
+		void TextOut(const Str128 &text, const int x, const int y, const DWORD color);
+		void DrawText(const Str128 &text, const sRecti &rect, const DWORD color);
 		bool DrawText2(cRenderer &renderer, const Str128 &text, 
 			const cColor &color, const cColor &outlineColor, Vector2 &textSize);
 		bool IsLoaded();

@@ -53,8 +53,8 @@ namespace framework
 		wstring m_windowName;
 		sRecti m_windowRect;
 		graphic::cRenderer m_renderer;
-		cScene *m_currentScene;
-		map<int, cScene*> m_scenes;
+		//cScene *m_currentScene;
+		//map<int, cScene*> m_scenes;
 
 
 	// singleton

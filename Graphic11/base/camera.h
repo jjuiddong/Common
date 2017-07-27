@@ -105,7 +105,7 @@ namespace graphic
 		Matrix44 m_view; // 카메라 행렬.
 		Matrix44 m_proj; // 투영 행렬.
 		Matrix44 m_viewProj; // m_view X m_proj
-		cLine m_lines[3]; // Front, Up, Right
+		//cLine m_lines[3]; // Front, Up, Right
 		float m_fov;
 		float m_aspect;
 		float m_nearPlane;

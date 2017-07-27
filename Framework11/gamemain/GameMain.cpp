@@ -1,5 +1,5 @@
 
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "GameMain.h"
 #include <MMSystem.h>
 #include <chrono>
@@ -87,7 +87,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 cGameMain *cGameMain::m_pInstance = NULL;
 
 cGameMain::cGameMain()
-	: m_currentScene(NULL)
+	//: m_currentScene(NULL)
 {
 
 }
@@ -95,9 +95,9 @@ cGameMain::cGameMain()
 
 cGameMain::~cGameMain()
 {
-	for each (auto &kv in m_scenes)
-		delete kv.second;
-	m_scenes.clear();
+	//for each (auto &kv in m_scenes)
+	//	delete kv.second;
+	//m_scenes.clear();
 }
 
 // singleton function
@@ -128,7 +128,7 @@ bool cGameMain::Init(HWND hWnd)
 		return false;
 	}
 
-	graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
+	//graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
 	
 	if (!OnInit())
 		return false;
@@ -179,12 +179,12 @@ void cGameMain::Run()
 
 void cGameMain::Update(const float deltaSeconds)
 {
-	if (m_currentScene)
-		m_currentScene->Update(deltaSeconds);
+	//if (m_currentScene)
+	//	m_currentScene->Update(deltaSeconds);
 
 	m_renderer.Update(deltaSeconds);
 
-	graphic::cResourceManager::Get()->Update(deltaSeconds);
+	//graphic::cResourceManager::Get()->Update(deltaSeconds);
 
 	OnUpdate(deltaSeconds);
 }
@@ -194,8 +194,8 @@ void cGameMain::Render(const float deltaSeconds)
 {
 	if (m_renderer.ClearScene())
 	{
-		if (m_currentScene)
-			m_currentScene->Render(m_renderer, Matrix44::Identity);
+		//if (m_currentScene)
+		//	m_currentScene->Render(m_renderer, Matrix44::Identity);
 
 		OnRender(deltaSeconds);
 	}
@@ -208,8 +208,8 @@ void cGameMain::Render(const float deltaSeconds)
 
 void	cGameMain::MessageProc( UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (m_currentScene)
-		m_currentScene->MessageProc(message, wParam, lParam);
+	//if (m_currentScene)
+	//	m_currentScene->MessageProc(message, wParam, lParam);
 	OnMessageProc(message, wParam, lParam);
 }
 
@@ -233,56 +233,56 @@ bool cGameMain::InsertScene(cScene *scene)
 {
 	RETV(!scene, false);
 
-	auto it = m_scenes.find(scene->GetId());
-	if (m_scenes.end() != it)
-	{
-		dbg::ErrLog("Insert Scene Error!! Already Exist scene id = %d \n", scene->GetId());
-		return false;
-	}
+	//auto it = m_scenes.find(scene->GetId());
+	//if (m_scenes.end() != it)
+	//{
+	//	dbg::ErrLog("Insert Scene Error!! Already Exist scene id = %d \n", scene->GetId());
+	//	return false;
+	//}
 
-	m_scenes[scene->GetId()] = scene;
+	//m_scenes[scene->GetId()] = scene;
 
-	dbg::Log("Insert Scene id=%d, name=%s \n", scene->GetId(), scene->GetName().c_str());
+	//dbg::Log("Insert Scene id=%d, name=%s \n", scene->GetId(), scene->GetName().c_str());
 	return true;
 }
 
 
 bool cGameMain::RemoveScene(const int sceneId, const bool removeMemory)
 {
-	auto it = m_scenes.find(sceneId);
-	if (m_scenes.end() == it)
-	{
-		dbg::ErrLog("RemoveScene Error!! not found scene id = %d \n", sceneId);
-		return false;
-	}
+	//auto it = m_scenes.find(sceneId);
+	//if (m_scenes.end() == it)
+	//{
+	//	dbg::ErrLog("RemoveScene Error!! not found scene id = %d \n", sceneId);
+	//	return false;
+	//}
 
-	if (removeMemory)
-	{
-		delete m_scenes[sceneId];
-	}
+	//if (removeMemory)
+	//{
+	//	delete m_scenes[sceneId];
+	//}
 
-	m_scenes.erase(it);
+	//m_scenes.erase(it);
 	return true;
 }
 
 
 bool cGameMain::ChangeScene(const int sceneId)
 {
-	auto it = m_scenes.find(sceneId);
-	if (m_scenes.end() == it)
-	{
-		dbg::ErrLog("ChangeScene Error!! not found scene id = %d\n", sceneId);
-		return false;
-	}
+	//auto it = m_scenes.find(sceneId);
+	//if (m_scenes.end() == it)
+	//{
+	//	dbg::ErrLog("ChangeScene Error!! not found scene id = %d\n", sceneId);
+	//	return false;
+	//}
 
-	if (m_currentScene == it->second)
-		return true;
+	//if (m_currentScene == it->second)
+	//	return true;
 
-	if (m_currentScene)
-		m_currentScene->Hide();
+	//if (m_currentScene)
+	//	m_currentScene->Hide();
 
-	m_currentScene = it->second;
-	it->second->Show();
+	//m_currentScene = it->second;
+	//it->second->Show();
 
 	return true;
 }

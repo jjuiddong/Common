@@ -61,18 +61,18 @@ bool cNode2::Render(cRenderer &renderer
 	{
 		if (0 == renderer.m_dbgRenderStyle) // sphere
 		{
-			renderer.m_dbgSphere.m_transform.pos = m_boundingSphere.m_pos;
-			renderer.m_dbgSphere.m_transform.scale = Vector3(1, 1, 1) * m_boundingSphere.m_radius;
-			renderer.m_dbgSphere.Render(renderer, tm);
+			//renderer.m_dbgSphere.m_transform.pos = m_boundingSphere.m_pos;
+			//renderer.m_dbgSphere.m_transform.scale = Vector3(1, 1, 1) * m_boundingSphere.m_radius;
+			//renderer.m_dbgSphere.Render(renderer, tm);
 		}
 		else
 		{
-			renderer.m_dbgBox.SetBox(m_boundingBox.m_min, m_boundingBox.m_max);
-			renderer.m_dbgBox.Render(renderer, tm);
+			//renderer.m_dbgBox.SetBox(m_boundingBox.m_min, m_boundingBox.m_max);
+			//renderer.m_dbgBox.Render(renderer, tm);
 		}
 
-		renderer.m_dbgAxis.SetAxis(m_boundingBox);
-		renderer.m_dbgAxis.Render(renderer, tm);
+		//renderer.m_dbgAxis.SetAxis(m_boundingBox);
+		//renderer.m_dbgAxis.Render(renderer, tm);
 	}
 
 	return true;

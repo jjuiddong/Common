@@ -1,5 +1,8 @@
-// 인덱스 버퍼 클래스
-// LPDIRECT3DINDEXBUFFER9 인터페이스를 쉽게 쓰기 위해 만들어짐.
+//
+// 2017-07-27, jjuiddong
+// Upgrade Dx9 - Dx11
+// IndexBuffer Class
+//
 #pragma once
 
 
@@ -14,6 +17,7 @@ namespace graphic
 		virtual ~cIndexBuffer();
 
 		bool Create(cRenderer &renderer, int faceCount);
+		bool Create(cRenderer &renderer, int faceCount, WORD *indices);
 		bool Create2(cRenderer &renderer, const int primitiveCount, const int primitiveSize);
 		void* Lock();
 		void Unlock();
@@ -22,11 +26,10 @@ namespace graphic
 		void Clear();
 
 		void Set(cRenderer &renderer, cIndexBuffer &rhs);
-		//cIndexBuffer& operator=(cIndexBuffer &rhs);
 
 
 	private:
-		LPDIRECT3DINDEXBUFFER9 m_pIdxBuff; // 인덱스 버퍼
+		ID3D11Buffer *m_idxBuff;
 		int m_faceCount;
 	};
 

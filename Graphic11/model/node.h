@@ -8,6 +8,7 @@
 namespace graphic
 {
 	class cRenderer;
+	class cShader;
 
 	class cNode
 	{

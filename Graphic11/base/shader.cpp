@@ -43,28 +43,28 @@ bool cShader::Create(cRenderer &renderer, const StrPath &fileName
 {
 	Clear();
 
-	HRESULT hr;
-	LPD3DXBUFFER pErr;
-	if (FAILED(hr = D3DXCreateEffectFromFileA(renderer.GetDevice(), fileName.c_str(), NULL,
-		NULL, D3DXSHADER_DEBUG, NULL, &m_effect, &pErr))) 
-	{
-		if (pErr)
-		{
-			dbg::ErrLog("cShader::Create Error pErr!=NULL\n");
-			MessageBoxA( NULL, (LPCSTR)pErr->GetBufferPointer(), "ERROR", MB_OK);
-		}
-		else
-		{
- 			dbg::ErrLog("cShader::Create Error pErr==NULL [%s], device=%x \n", 
- 				fileName.c_str(), renderer.GetDevice());
-			StrPath msg = fileName + " Not Exist File";
-			if (showMsgBox)
-				MessageBoxA( NULL, msg.c_str(), "ERROR", MB_OK);
-		}
+	//HRESULT hr;
+	//LPD3DXBUFFER pErr;
+	//if (FAILED(hr = D3DXCreateEffectFromFileA(renderer.GetDevice(), fileName.c_str(), NULL,
+	//	NULL, D3DXSHADER_DEBUG, NULL, &m_effect, &pErr))) 
+	//{
+	//	if (pErr)
+	//	{
+	//		dbg::ErrLog("cShader::Create Error pErr!=NULL\n");
+	//		MessageBoxA( NULL, (LPCSTR)pErr->GetBufferPointer(), "ERROR", MB_OK);
+	//	}
+	//	else
+	//	{
+ //			dbg::ErrLog("cShader::Create Error pErr==NULL [%s], device=%x \n", 
+ //				fileName.c_str(), renderer.GetDevice());
+	//		StrPath msg = fileName + " Not Exist File";
+	//		if (showMsgBox)
+	//			MessageBoxA( NULL, msg.c_str(), "ERROR", MB_OK);
+	//	}
 
-		//DXTRACE_ERR( "CreateEffectFromFile", hr );
-		return false;
-	}
+	//	//DXTRACE_ERR( "CreateEffectFromFile", hr );
+	//	return false;
+	//}
 
 	m_fileName = fileName;
 	m_isShowMsgBox = showMsgBox;

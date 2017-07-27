@@ -64,10 +64,10 @@
 #include "ui/uidef.h"
 #include "ui/event.h"
 #include "ui/eventhandler.h"
-#include "ui/window2.h"
-#include "ui/button.h"
+//#include "ui/window2.h"
+//#include "ui/button.h"
 
-#include "window/scene.h"
+//#include "window/scene.h"
 
 // ImGui
 #define IMGUI_DEFINE_MATH_OPERATORS

@@ -76,7 +76,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -187,7 +187,6 @@
     <ClInclude Include="input\input.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="ui\button.h" />
     <ClInclude Include="ui\dock.h" />
     <ClInclude Include="ui\dockmanager.h" />
     <ClInclude Include="ui\dockwindow.h" />
@@ -195,8 +194,6 @@
     <ClInclude Include="ui\eventhandler.h" />
     <ClInclude Include="ui\renderwindow.h" />
     <ClInclude Include="ui\uidef.h" />
-    <ClInclude Include="ui\window2.h" />
-    <ClInclude Include="window\scene.h" />
     <ClInclude Include="window\utility.h" />
   </ItemGroup>
   <ItemGroup>
@@ -238,14 +235,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ui\button.cpp" />
     <ClCompile Include="ui\dockmanager.cpp" />
     <ClCompile Include="ui\dockwindow.cpp" />
     <ClCompile Include="ui\event.cpp" />
     <ClCompile Include="ui\eventhandler.cpp" />
     <ClCompile Include="ui\renderwindow.cpp" />
-    <ClCompile Include="ui\window2.cpp" />
-    <ClCompile Include="window\scene.cpp" />
     <ClCompile Include="window\utility.cpp" />
   </ItemGroup>
   <ItemGroup>

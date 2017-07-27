@@ -368,8 +368,8 @@ bool cBoundingBox::Pick3(const Vector3 &orig, const Vector3 &dir, float *pDistan
 // 할당 연산자.
 cBoundingBox& cBoundingBox::operator=(const cCube &cube)
 {
-	SetBoundingBox(cube.GetMin(), cube.GetMax());
-	SetTransform(cube.GetTransform());
+	//SetBoundingBox(cube.GetMin(), cube.GetMax());
+	//SetTransform(cube.GetTransform());
 	return *this;
 }
 

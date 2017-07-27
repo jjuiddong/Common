@@ -1,5 +1,5 @@
 
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "dockwindow.h"
 #include "renderwindow.h"
 #include "dockmanager.h"

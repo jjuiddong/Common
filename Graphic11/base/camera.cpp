@@ -161,12 +161,12 @@ void cCamera::Update(const float deltaSeconds)
 // Rendering Camera Position, Direction
 void cCamera::Render(cRenderer &renderer)
 {
-	m_lines[0].SetLine(renderer, m_eyePos, m_eyePos + GetRight(), 0.1f, D3DCOLOR_XRGB(255,0,0) );
-	m_lines[1].SetLine(renderer, m_eyePos, m_eyePos + GetUpVector(), 0.1f, D3DCOLOR_XRGB(0, 255, 0));
-	m_lines[2].SetLine(renderer, m_eyePos, m_eyePos + GetDirection(), 0.1f, D3DCOLOR_XRGB(0, 0, 255));
+	//m_lines[0].SetLine(renderer, m_eyePos, m_eyePos + GetRight(), 0.1f, D3DCOLOR_XRGB(255,0,0) );
+	//m_lines[1].SetLine(renderer, m_eyePos, m_eyePos + GetUpVector(), 0.1f, D3DCOLOR_XRGB(0, 255, 0));
+	//m_lines[2].SetLine(renderer, m_eyePos, m_eyePos + GetDirection(), 0.1f, D3DCOLOR_XRGB(0, 0, 255));
 
-	for (auto &line : m_lines)
-		line.Render(renderer);
+	//for (auto &line : m_lines)
+	//	line.Render(renderer);
 }
 
 
@@ -181,8 +181,8 @@ void cCamera::Bind(cShader &shader)
 
 void cCamera::Bind(cRenderer &renderer)
 {
-	renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
-	renderer.GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
+	//renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
+	//renderer.GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
 }
 
 
@@ -205,8 +205,8 @@ void cCamera::UpdateViewMatrix(const bool updateUp)
 	//}
 	//
 
-	if (m_renderer->GetDevice())
-		m_renderer->GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
+	//if (m_renderer->GetDevice())
+	//	m_renderer->GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
 }
 
 
@@ -228,8 +228,8 @@ void cCamera::UpdateProjectionMatrix()
 {
 	RET(!m_renderer);
 
-	if (m_renderer->GetDevice())
-		m_renderer->GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
+	//if (m_renderer->GetDevice())
+	//	m_renderer->GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
 }
 
 

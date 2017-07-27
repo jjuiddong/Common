@@ -13,9 +13,12 @@ namespace graphic
 
 	struct sVertexDiffuse
 	{
-		Vector3 p;
-		DWORD c;
-		enum {FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE };
+		//Vector3 p;
+		//DWORD c;
+		//enum {FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE };
+
+		XMFLOAT3 p;
+		XMFLOAT4 c;
 	};
 
 

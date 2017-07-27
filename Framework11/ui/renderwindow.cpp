@@ -1,5 +1,5 @@
 
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "renderwindow.h"
 #include "dockwindow.h"
 #include "dockmanager.h"
@@ -17,7 +17,7 @@ void RenderProc(cRenderWindow *wnd)
 
 	while (wnd->m_isThreadLoop && wnd->isOpen())
 	{
-		wnd->m_backBuffer.CopyFrom(wnd->m_sharedSurf.m_texture);
+		//wnd->m_backBuffer.CopyFrom(wnd->m_sharedSurf.m_texture);
 		std::this_thread::sleep_for(20ms);
 	}
 }
@@ -80,16 +80,16 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	if (shared)
 	{
 		m_sharedRenderer = shared;
-		m_gui.Init(getSystemHandle(), shared->GetDevice());
+		//m_gui.Init(getSystemHandle(), shared->GetDevice());
 		m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
-		m_sharedSurf.Create(*shared, width, height, 1);
+		//m_sharedSurf.Create(*shared, width, height, 1);
 	}
 	else
 	{
 		m_sharedRenderer = NULL;
-		m_gui.Init(getSystemHandle(), m_renderer.GetDevice());
+		//m_gui.Init(getSystemHandle(), m_renderer.GetDevice());
 		m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
-		m_sharedSurf.Create(m_renderer, width, height, 1);
+		//m_sharedSurf.Create(m_renderer, width, height, 1);
 	}
 
 	m_gui.SetContext();
@@ -532,18 +532,18 @@ void cRenderWindow::Render(const float deltaSeconds)
 	if (m_sharedRenderer)
 	{
 		m_camera.Bind(*m_sharedRenderer);
-		m_sharedSurf.Begin(m_renderer);
+		//m_sharedSurf.Begin(m_renderer);
 		if (m_sharedRenderer->ClearScene())
 		{
 			m_sharedRenderer->BeginScene();
-			m_sharedRenderer->GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
+			//m_sharedRenderer->GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 			m_gui.Render();
 			m_sharedRenderer->EndScene();
 		}
-		m_sharedSurf.End(m_renderer);
+		//m_sharedSurf.End(m_renderer);
 
-		if (!m_isThread)
-			m_backBuffer.CopyFrom(m_sharedSurf.m_texture);
+		//if (!m_isThread)
+		//	m_backBuffer.CopyFrom(m_sharedSurf.m_texture);
 
 		m_camera.Bind(m_renderer);
 		m_light.Bind(m_renderer, 0);
@@ -551,13 +551,11 @@ void cRenderWindow::Render(const float deltaSeconds)
 		if (m_renderer.ClearScene())
 		{
 			m_renderer.BeginScene();
-			m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
+			//m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 
 			OnRender(deltaSeconds);
 
 			m_backBuffer.Render2D(m_renderer);
-
-			//OnPostRender(deltaSeconds);
 
 			m_renderer.EndScene();
 			m_renderer.Present();
@@ -571,7 +569,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 		if (m_renderer.ClearScene())
 		{
 			m_renderer.BeginScene();
-			m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
+			//m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 		
 			OnRender(deltaSeconds);
 
@@ -710,7 +708,7 @@ void cRenderWindow::LostDevice()
 		m_thread.join();
 
 	m_gui.InvalidateDeviceObjects();
-	m_sharedSurf.LostDevice();
+	//m_sharedSurf.LostDevice();
 	m_backBuffer.LostDevice();
 
 	if (m_dock)
@@ -727,9 +725,9 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 
 	m_camera.SetViewPort(width, height);
 	m_gui.CreateDeviceObjects();
-	m_sharedSurf.m_vp.Width = width;
-	m_sharedSurf.m_vp.Height = height;
-	m_sharedSurf.ResetDevice((shared)? *shared : m_renderer);
+	//m_sharedSurf.m_vp.Width = width;
+	//m_sharedSurf.m_vp.Height = height;
+	//m_sharedSurf.ResetDevice((shared)? *shared : m_renderer);
 	
 	m_backBuffer.m_imageInfo.Width = width;
 	m_backBuffer.m_imageInfo.Height = height;

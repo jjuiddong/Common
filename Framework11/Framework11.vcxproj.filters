@@ -154,14 +154,8 @@
     <ClInclude Include="input\input.h">
       <Filter>input</Filter>
     </ClInclude>
-    <ClInclude Include="window\scene.h">
-      <Filter>window</Filter>
-    </ClInclude>
     <ClInclude Include="window\utility.h">
       <Filter>window</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\button.h">
-      <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\dock.h">
       <Filter>ui</Filter>
@@ -182,9 +176,6 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\uidef.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\window2.h">
       <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
@@ -289,9 +280,6 @@
     <ClCompile Include="window\utility.cpp">
       <Filter>window</Filter>
     </ClCompile>
-    <ClCompile Include="window\scene.cpp">
-      <Filter>window</Filter>
-    </ClCompile>
     <ClCompile Include="ui\dockmanager.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -305,12 +293,6 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ui\renderwindow.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\window2.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\button.cpp">
       <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>

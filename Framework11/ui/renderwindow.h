@@ -101,7 +101,7 @@ namespace framework
 		graphic::cRenderer *m_sharedRenderer;
 		cImGui m_gui;
 		graphic::cTexture m_backBuffer;
-		graphic::cSurface3 m_sharedSurf;
+		//graphic::cSurface3 m_sharedSurf;
 		cDockWindow *m_dock;
 		cDockWindow *m_captureDock;
 

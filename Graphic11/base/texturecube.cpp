@@ -22,11 +22,11 @@ bool cCubeTexture::Create(cRenderer &renderer, const StrPath &fileName)
 
 	m_fileName = fileName;
 
-	if (FAILED(D3DXCreateCubeTextureFromFileA(renderer.GetDevice(),
-		fileName.c_str(), &m_texture)))
-	{
-		return false;
-	}
+	//if (FAILED(D3DXCreateCubeTextureFromFileA(renderer.GetDevice(),
+	//	fileName.c_str(), &m_texture)))
+	//{
+	//	return false;
+	//}
 
 	return true;
 }

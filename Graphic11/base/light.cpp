@@ -115,7 +115,7 @@ void cLight::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix4
 void cLight::Bind(cRenderer &renderer, 
 	int lightIndex) // 0
 {
-	renderer.GetDevice()->SetLight(lightIndex, &m_light);
+	//renderer.GetDevice()->SetLight(lightIndex, &m_light);
 }
 
 

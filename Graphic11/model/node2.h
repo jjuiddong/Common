@@ -9,6 +9,7 @@ namespace graphic
 {
 	class cRenderer;
 	class cFrustum;
+	class cShader11;
 
 	struct eNodeType {
 		enum Enum { NONE, BONE, MESH, MODEL, TEXT, TERRAIN };
@@ -38,7 +39,7 @@ namespace graphic
 		virtual const cNode2* FindNode(const StrId &name) const;
 		virtual bool RemoveChild(const int id, const bool rmInstance=true);
 		virtual bool RemoveChild(cNode2 *rmNode, const bool rmInstance = true);
-		virtual void SetShader(cShader *shader) { m_shader = shader; }
+		virtual void SetShader(cShader11 *shader) { m_shader = shader; }
 		virtual void CalcBoundingSphere();
 		virtual float CullingTest(const cFrustum &frustum, const Matrix44 &tm = Matrix44::Identity, const bool isModel = true);
 		virtual cNode2* Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type);
@@ -60,7 +61,7 @@ namespace graphic
 		cNode2 *m_parent;
 		vector<cNode2*> m_children;
 		Transform m_transform;
-		cShader *m_shader;
+		cShader11 *m_shader;
 		cBoundingBox m_boundingBox; // Local Space
 		cBoundingSphere m_boundingSphere; // Local Space
 	};
