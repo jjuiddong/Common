@@ -1,0 +1,424 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6E994653-A69C-4BE2-B830-97676E805F29}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Graphic11</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="action\actiondef.h" />
+    <ClInclude Include="base\billboard.h" />
+    <ClInclude Include="base\box.h" />
+    <ClInclude Include="base\camera.h" />
+    <ClInclude Include="base\circle.h" />
+    <ClInclude Include="base\circleline.h" />
+    <ClInclude Include="base\color.h" />
+    <ClInclude Include="base\cube.h" />
+    <ClInclude Include="base\cube2.h" />
+    <ClInclude Include="base\cube3.h" />
+    <ClInclude Include="base\cube4.h" />
+    <ClInclude Include="base\dxInit.h" />
+    <ClInclude Include="base\fontgdi.h" />
+    <ClInclude Include="base\graphicdef.h" />
+    <ClInclude Include="base\grid.h" />
+    <ClInclude Include="base\grid2.h" />
+    <ClInclude Include="base\grid3.h" />
+    <ClInclude Include="base\indexbuffer.h" />
+    <ClInclude Include="base\light.h" />
+    <ClInclude Include="base\line.h" />
+    <ClInclude Include="base\line2.h" />
+    <ClInclude Include="base\line2d.h" />
+    <ClInclude Include="base\line3.h" />
+    <ClInclude Include="base\material.h" />
+    <ClInclude Include="base\meshbuffer.h" />
+    <ClInclude Include="base\pyramid.h" />
+    <ClInclude Include="base\quad.h" />
+    <ClInclude Include="base\quad2d.h" />
+    <ClInclude Include="base\shader.h" />
+    <ClInclude Include="base\shaderdef.h" />
+    <ClInclude Include="base\shadow1.h" />
+    <ClInclude Include="base\shadow2.h" />
+    <ClInclude Include="base\shadowmap.h" />
+    <ClInclude Include="base\shadowvolume.h" />
+    <ClInclude Include="base\skybox.h" />
+    <ClInclude Include="base\skybox2.h" />
+    <ClInclude Include="base\sphere.h" />
+    <ClInclude Include="base\surface.h" />
+    <ClInclude Include="base\surface2.h" />
+    <ClInclude Include="base\surface3.h" />
+    <ClInclude Include="base\text.h" />
+    <ClInclude Include="base\text3d.h" />
+    <ClInclude Include="base\text3d2.h" />
+    <ClInclude Include="base\text3d3.h" />
+    <ClInclude Include="base\texture.h" />
+    <ClInclude Include="base\texturecube.h" />
+    <ClInclude Include="base\vertexbuffer.h" />
+    <ClInclude Include="base\vertexdeclaration.h" />
+    <ClInclude Include="base\vertexformat.h" />
+    <ClInclude Include="base\viewport.h" />
+    <ClInclude Include="character\archebladecharacter.h" />
+    <ClInclude Include="character\character.h" />
+    <ClInclude Include="character\characteranalyzer.h" />
+    <ClInclude Include="character\sc2character.h" />
+    <ClInclude Include="character\teracharacter.h" />
+    <ClInclude Include="collision\boundingbox.h" />
+    <ClInclude Include="collision\boundingbox2.h" />
+    <ClInclude Include="collision\boundingsphere.h" />
+    <ClInclude Include="collision\collision.h" />
+    <ClInclude Include="collision\collisionmanager.h" />
+    <ClInclude Include="collision\frustum.h" />
+    <ClInclude Include="dbg\dbgarrow.h" />
+    <ClInclude Include="dbg\dbgaxis.h" />
+    <ClInclude Include="dbg\dbgbox.h" />
+    <ClInclude Include="dbg\dbgbox2.h" />
+    <ClInclude Include="dbg\dbgfrustum.h" />
+    <ClInclude Include="dbg\dbgline.h" />
+    <ClInclude Include="dbg\dbglinelist.h" />
+    <ClInclude Include="dbg\dbgquad.h" />
+    <ClInclude Include="dbg\dbgquad2.h" />
+    <ClInclude Include="dbg\dbgsphere.h" />
+    <ClInclude Include="graphic11.h" />
+    <ClInclude Include="importer\modelimporter.h" />
+    <ClInclude Include="importer\parallelloader.h" />
+    <ClInclude Include="interface\pickable.h" />
+    <ClInclude Include="interface\renderable.h" />
+    <ClInclude Include="interface\shaderrenderer.h" />
+    <ClInclude Include="interface\shadowrenderer.h" />
+    <ClInclude Include="manager\fontmanager.h" />
+    <ClInclude Include="manager\lightmanager.h" />
+    <ClInclude Include="manager\maincamera.h" />
+    <ClInclude Include="manager\pickmanager.h" />
+    <ClInclude Include="manager\Renderer.h" />
+    <ClInclude Include="manager\resourcemanager.h" />
+    <ClInclude Include="manager\task_resource.h" />
+    <ClInclude Include="manager\textmanager.h" />
+    <ClInclude Include="model\blendtrack.h" />
+    <ClInclude Include="model\bonemgr.h" />
+    <ClInclude Include="model\bonenode.h" />
+    <ClInclude Include="model\mesh.h" />
+    <ClInclude Include="model\model.h" />
+    <ClInclude Include="model\node.h" />
+    <ClInclude Include="model\node2.h" />
+    <ClInclude Include="model\rawani.h" />
+    <ClInclude Include="model\rawmesh.h" />
+    <ClInclude Include="model\rigidmesh.h" />
+    <ClInclude Include="model\skinnedmesh.h" />
+    <ClInclude Include="model\track.h" />
+    <ClInclude Include="model_collada\animation.h" />
+    <ClInclude Include="model_collada\animationnode.h" />
+    <ClInclude Include="model_collada\colladaloader.h" />
+    <ClInclude Include="model_collada\mesh2.h" />
+    <ClInclude Include="model_collada\model_collada.h" />
+    <ClInclude Include="model_collada\skeleton.h" />
+    <ClInclude Include="model_new\model2.h" />
+    <ClInclude Include="model_new\xfilemesh.h" />
+    <ClInclude Include="model_new\xfilemodel.h" />
+    <ClInclude Include="particle\particles.h" />
+    <ClInclude Include="particle\snow.h" />
+    <ClInclude Include="sprite\sprite.h" />
+    <ClInclude Include="sprite\sprite2.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="terrain\rawterrain.h" />
+    <ClInclude Include="terrain\terrain.h" />
+    <ClInclude Include="terrain\terrain2.h" />
+    <ClInclude Include="terrain\terraincursor.h" />
+    <ClInclude Include="terrain\terraineditor.h" />
+    <ClInclude Include="terrain\terrainexporter.h" />
+    <ClInclude Include="terrain\terrainimporter.h" />
+    <ClInclude Include="terrain\terrainloader.h" />
+    <ClInclude Include="terrain\tile.h" />
+    <ClInclude Include="terrain\water.h" />
+    <ClInclude Include="textdesigner\BmpOutlineText.h" />
+    <ClInclude Include="textdesigner\Canvas.h" />
+    <ClInclude Include="textdesigner\DiffusedShadowStrategy.h" />
+    <ClInclude Include="textdesigner\DrawGradient.h" />
+    <ClInclude Include="textdesigner\ExtrudeStrategy.h" />
+    <ClInclude Include="textdesigner\GDIPath.h" />
+    <ClInclude Include="textdesigner\IOutlineText.h" />
+    <ClInclude Include="textdesigner\ITextStrategy.h" />
+    <ClInclude Include="textdesigner\MaskColor.h" />
+    <ClInclude Include="textdesigner\NonSystemFontLoader.h" />
+    <ClInclude Include="textdesigner\OutlineText.h" />
+    <ClInclude Include="textdesigner\PngOutlineText.h" />
+    <ClInclude Include="textdesigner\TextDblGlowStrategy.h" />
+    <ClInclude Include="textdesigner\TextDblOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextGlowStrategy.h" />
+    <ClInclude Include="textdesigner\TextGradOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextImplGetHeight.h" />
+    <ClInclude Include="textdesigner\TextNoOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextOutlineStrategy.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="base\billboard.cpp" />
+    <ClCompile Include="base\box.cpp" />
+    <ClCompile Include="base\camera.cpp" />
+    <ClCompile Include="base\circle.cpp" />
+    <ClCompile Include="base\circleline.cpp" />
+    <ClCompile Include="base\color.cpp" />
+    <ClCompile Include="base\cube.cpp" />
+    <ClCompile Include="base\cube2.cpp" />
+    <ClCompile Include="base\cube3.cpp" />
+    <ClCompile Include="base\cube4.cpp" />
+    <ClCompile Include="base\dxinit.cpp" />
+    <ClCompile Include="base\fontgdi.cpp" />
+    <ClCompile Include="base\grid.cpp" />
+    <ClCompile Include="base\grid2.cpp" />
+    <ClCompile Include="base\grid3.cpp" />
+    <ClCompile Include="base\indexbuffer.cpp" />
+    <ClCompile Include="base\light.cpp" />
+    <ClCompile Include="base\line.cpp" />
+    <ClCompile Include="base\line2.cpp" />
+    <ClCompile Include="base\line2d.cpp" />
+    <ClCompile Include="base\line3.cpp" />
+    <ClCompile Include="base\material.cpp" />
+    <ClCompile Include="base\meshbuffer.cpp" />
+    <ClCompile Include="base\pyramid.cpp" />
+    <ClCompile Include="base\quad.cpp" />
+    <ClCompile Include="base\quad2d.cpp" />
+    <ClCompile Include="base\shader.cpp" />
+    <ClCompile Include="base\shadow1.cpp" />
+    <ClCompile Include="base\shadow2.cpp" />
+    <ClCompile Include="base\shadowmap.cpp" />
+    <ClCompile Include="base\shadowvolume.cpp" />
+    <ClCompile Include="base\skybox.cpp" />
+    <ClCompile Include="base\skybox2.cpp" />
+    <ClCompile Include="base\sphere.cpp" />
+    <ClCompile Include="base\surface.cpp" />
+    <ClCompile Include="base\surface2.cpp" />
+    <ClCompile Include="base\surface3.cpp" />
+    <ClCompile Include="base\text.cpp" />
+    <ClCompile Include="base\text3d.cpp" />
+    <ClCompile Include="base\text3d2.cpp" />
+    <ClCompile Include="base\text3d3.cpp" />
+    <ClCompile Include="base\texture.cpp" />
+    <ClCompile Include="base\texturecube.cpp" />
+    <ClCompile Include="base\vertexbuffer.cpp" />
+    <ClCompile Include="base\vertexdeclaration.cpp" />
+    <ClCompile Include="base\viewport.cpp" />
+    <ClCompile Include="character\archebladecharacter.cpp" />
+    <ClCompile Include="character\character.cpp" />
+    <ClCompile Include="character\characteranalyzer.cpp" />
+    <ClCompile Include="character\sc2character.cpp" />
+    <ClCompile Include="character\teracharacter.cpp" />
+    <ClCompile Include="collision\boundingbox.cpp" />
+    <ClCompile Include="collision\boundingbox2.cpp" />
+    <ClCompile Include="collision\collisionmanager.cpp" />
+    <ClCompile Include="collision\frustum.cpp" />
+    <ClCompile Include="dbg\dbgarrow.cpp" />
+    <ClCompile Include="dbg\dbgaxis.cpp" />
+    <ClCompile Include="dbg\dbgbox.cpp" />
+    <ClCompile Include="dbg\dbgbox2.cpp" />
+    <ClCompile Include="dbg\dbgfrustum.cpp" />
+    <ClCompile Include="dbg\dbgline.cpp" />
+    <ClCompile Include="dbg\dbglinelist.cpp" />
+    <ClCompile Include="dbg\dbgquad.cpp" />
+    <ClCompile Include="dbg\dbgquad2.cpp" />
+    <ClCompile Include="dbg\dbgsphere.cpp" />
+    <ClCompile Include="importer\modelimporter.cpp" />
+    <ClCompile Include="importer\parallelloader.cpp" />
+    <ClCompile Include="manager\fontmanager.cpp" />
+    <ClCompile Include="manager\lightmanager.cpp" />
+    <ClCompile Include="manager\maincamera.cpp" />
+    <ClCompile Include="manager\pickmanager.cpp" />
+    <ClCompile Include="manager\Renderer.cpp" />
+    <ClCompile Include="manager\resourcemanager.cpp" />
+    <ClCompile Include="manager\textmanager.cpp" />
+    <ClCompile Include="model\blendtrack.cpp" />
+    <ClCompile Include="model\bonemgr.cpp" />
+    <ClCompile Include="model\bonenode.cpp" />
+    <ClCompile Include="model\mesh.cpp" />
+    <ClCompile Include="model\model.cpp" />
+    <ClCompile Include="model\node.cpp" />
+    <ClCompile Include="model\node2.cpp" />
+    <ClCompile Include="model\rawmesh.cpp" />
+    <ClCompile Include="model\rigidmesh.cpp" />
+    <ClCompile Include="model\skinnedmesh.cpp" />
+    <ClCompile Include="model\track.cpp" />
+    <ClCompile Include="model_collada\animation.cpp" />
+    <ClCompile Include="model_collada\animationnode.cpp" />
+    <ClCompile Include="model_collada\colladaloader.cpp" />
+    <ClCompile Include="model_collada\mesh2.cpp" />
+    <ClCompile Include="model_collada\model_collada.cpp" />
+    <ClCompile Include="model_collada\skeleton.cpp" />
+    <ClCompile Include="model_new\model2.cpp" />
+    <ClCompile Include="model_new\xfilemesh.cpp" />
+    <ClCompile Include="model_new\xfilemodel.cpp" />
+    <ClCompile Include="particle\particles.cpp" />
+    <ClCompile Include="particle\snow.cpp" />
+    <ClCompile Include="sprite\sprite.cpp" />
+    <ClCompile Include="sprite\sprite2.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="terrain\terrain.cpp" />
+    <ClCompile Include="terrain\terrain2.cpp" />
+    <ClCompile Include="terrain\terraincursor.cpp" />
+    <ClCompile Include="terrain\terraineditor.cpp" />
+    <ClCompile Include="terrain\terrainexporter.cpp" />
+    <ClCompile Include="terrain\terrainimporter.cpp" />
+    <ClCompile Include="terrain\terrainloader.cpp" />
+    <ClCompile Include="terrain\tile.cpp" />
+    <ClCompile Include="terrain\water.cpp" />
+    <ClCompile Include="textdesigner\BmpOutlineText.cpp" />
+    <ClCompile Include="textdesigner\Canvas.cpp" />
+    <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp" />
+    <ClCompile Include="textdesigner\DrawGradient.cpp" />
+    <ClCompile Include="textdesigner\ExtrudeStrategy.cpp" />
+    <ClCompile Include="textdesigner\GDIPath.cpp" />
+    <ClCompile Include="textdesigner\IOutlineText.cpp" />
+    <ClCompile Include="textdesigner\ITextStrategy.cpp" />
+    <ClCompile Include="textdesigner\MaskColor.cpp" />
+    <ClCompile Include="textdesigner\NonSystemFontLoader.cpp" />
+    <ClCompile Include="textdesigner\OutlineText.cpp" />
+    <ClCompile Include="textdesigner\PngOutlineText.cpp" />
+    <ClCompile Include="textdesigner\TextDblGlowStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextDblOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextGlowStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextGradOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextImplGetHeight.cpp" />
+    <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextOutlineStrategy.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

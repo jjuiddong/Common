@@ -1,0 +1,862 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="graphic11.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="action\actiondef.h">
+      <Filter>action</Filter>
+    </ClInclude>
+    <ClInclude Include="base\billboard.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\box.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\camera.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\circle.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\circleline.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\color.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cube.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cube2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cube3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cube4.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\dxInit.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\fontgdi.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\graphicdef.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\grid.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\grid2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\grid3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\indexbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\light.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\material.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\meshbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\pyramid.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shader.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shaderdef.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shadow1.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shadow2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shadowmap.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shadowvolume.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\skybox.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\skybox2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\sphere.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\surface.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\surface2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\surface3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\texture.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\texturecube.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexdeclaration.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexformat.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\viewport.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="character\teracharacter.h">
+      <Filter>character</Filter>
+    </ClInclude>
+    <ClInclude Include="character\archebladecharacter.h">
+      <Filter>character</Filter>
+    </ClInclude>
+    <ClInclude Include="character\character.h">
+      <Filter>character</Filter>
+    </ClInclude>
+    <ClInclude Include="character\characteranalyzer.h">
+      <Filter>character</Filter>
+    </ClInclude>
+    <ClInclude Include="character\sc2character.h">
+      <Filter>character</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingbox.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingbox2.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingsphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collision.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collisionmanager.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\frustum.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgsphere.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgarrow.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgaxis.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgbox.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgbox2.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgfrustum.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbglinelist.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgquad.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgquad2.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\modelimporter.h">
+      <Filter>importer</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\parallelloader.h">
+      <Filter>importer</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\renderable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\shaderrenderer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\shadowrenderer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\pickable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\textmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\fontmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\lightmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\maincamera.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\pickmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\Renderer.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\resourcemanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\task_resource.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="model\track.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\blendtrack.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\bonemgr.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\bonenode.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\mesh.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\model.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\node.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\node2.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\rawani.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\rawmesh.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\rigidmesh.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model\skinnedmesh.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\model_collada.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\skeleton.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\animation.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\animationnode.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\colladaloader.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_collada\mesh2.h">
+      <Filter>model_collada</Filter>
+    </ClInclude>
+    <ClInclude Include="model_new\model2.h">
+      <Filter>model_new</Filter>
+    </ClInclude>
+    <ClInclude Include="model_new\xfilemesh.h">
+      <Filter>model_new</Filter>
+    </ClInclude>
+    <ClInclude Include="model_new\xfilemodel.h">
+      <Filter>model_new</Filter>
+    </ClInclude>
+    <ClInclude Include="particle\particles.h">
+      <Filter>particle</Filter>
+    </ClInclude>
+    <ClInclude Include="particle\snow.h">
+      <Filter>particle</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite\sprite.h">
+      <Filter>sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite\sprite2.h">
+      <Filter>sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\water.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\rawterrain.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrain.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrain2.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terraincursor.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terraineditor.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrainexporter.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrainimporter.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrainloader.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\tile.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\BmpOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\Canvas.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\DiffusedShadowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\DrawGradient.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\ExtrudeStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\GDIPath.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\IOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\ITextStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\MaskColor.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\NonSystemFontLoader.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\OutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\PngOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextDblGlowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextDblOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextGlowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextGradOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextImplGetHeight.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextNoOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="base\billboard.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\box.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\camera.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\circle.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\circleline.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\color.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube4.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\dxinit.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\fontgdi.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\grid.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\grid2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\grid3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\indexbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\light.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\material.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\meshbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\pyramid.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shader.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shadow1.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shadow2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shadowmap.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shadowvolume.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\skybox.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\skybox2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\sphere.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\surface.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\surface2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\surface3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\texture.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\texturecube.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\vertexbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\vertexdeclaration.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\viewport.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="character\archebladecharacter.cpp">
+      <Filter>character</Filter>
+    </ClCompile>
+    <ClCompile Include="character\character.cpp">
+      <Filter>character</Filter>
+    </ClCompile>
+    <ClCompile Include="character\characteranalyzer.cpp">
+      <Filter>character</Filter>
+    </ClCompile>
+    <ClCompile Include="character\sc2character.cpp">
+      <Filter>character</Filter>
+    </ClCompile>
+    <ClCompile Include="character\teracharacter.cpp">
+      <Filter>character</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox2.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\collisionmanager.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\frustum.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgsphere.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgarrow.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgaxis.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgbox.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgbox2.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgfrustum.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbglinelist.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgquad.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgquad2.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="importer\modelimporter.cpp">
+      <Filter>importer</Filter>
+    </ClCompile>
+    <ClCompile Include="importer\parallelloader.cpp">
+      <Filter>importer</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\fontmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\lightmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\maincamera.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\pickmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\Renderer.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\resourcemanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\textmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="model\blendtrack.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\bonemgr.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\bonenode.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\mesh.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\model.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\node.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\node2.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\rawmesh.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\rigidmesh.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\skinnedmesh.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model\track.cpp">
+      <Filter>model</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\skeleton.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\animation.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\animationnode.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\colladaloader.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\mesh2.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_collada\model_collada.cpp">
+      <Filter>model_collada</Filter>
+    </ClCompile>
+    <ClCompile Include="model_new\xfilemesh.cpp">
+      <Filter>model_new</Filter>
+    </ClCompile>
+    <ClCompile Include="model_new\xfilemodel.cpp">
+      <Filter>model_new</Filter>
+    </ClCompile>
+    <ClCompile Include="model_new\model2.cpp">
+      <Filter>model_new</Filter>
+    </ClCompile>
+    <ClCompile Include="particle\snow.cpp">
+      <Filter>particle</Filter>
+    </ClCompile>
+    <ClCompile Include="particle\particles.cpp">
+      <Filter>particle</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite\sprite2.cpp">
+      <Filter>sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite\sprite.cpp">
+      <Filter>sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\water.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrain.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrain2.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terraincursor.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terraineditor.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrainexporter.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrainimporter.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrainloader.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\tile.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\BmpOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\Canvas.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\DrawGradient.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\ExtrudeStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\GDIPath.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\IOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\ITextStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\MaskColor.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\NonSystemFontLoader.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\OutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\PngOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextDblGlowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextDblOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextGlowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextGradOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextImplGetHeight.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="action">
+      <UniqueIdentifier>{48491cc9-161d-4448-b68d-d2682485056c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{16c976f2-3ab8-43d2-87b4-17606bc8f33e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="character">
+      <UniqueIdentifier>{2460f72e-d978-4efa-879e-f9a4e6b5c9ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="collision">
+      <UniqueIdentifier>{3b61979b-c933-4a4b-957d-896410e1307d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dbg">
+      <UniqueIdentifier>{44561387-4c7a-4e13-8799-61b485081b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="importer">
+      <UniqueIdentifier>{affa83ff-f44f-4753-ab27-45b133be77d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{83362dab-7805-45c6-a4db-c1f3bd7c02f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager">
+      <UniqueIdentifier>{66d52fcd-b1b4-4eeb-9a81-4c394ca10fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{0623b9ec-a13d-4900-9396-e9f98c5002b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model_collada">
+      <UniqueIdentifier>{73557f20-9885-43f5-9546-47b62866b67f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model_new">
+      <UniqueIdentifier>{608da746-a034-456e-b805-049f7bd5f3a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="particle">
+      <UniqueIdentifier>{7a7dac2f-5580-465a-8d8d-a295d03a6594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sprite">
+      <UniqueIdentifier>{6364a8df-1e98-4cbc-8edb-7465205f46f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="terrain">
+      <UniqueIdentifier>{0fcfe8a0-b03f-47c5-95a6-16ed686e23c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textdesigner">
+      <UniqueIdentifier>{1bb0686b-4962-4447-ac88-fea9009992b8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

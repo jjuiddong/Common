@@ -187,7 +187,7 @@
       <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>..\..\..\..\..\Common\Framework\external\sfml\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external\sfml\include\;external\sfml\src\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -458,11 +458,6 @@
     <ClCompile Include="ui\window2.cpp" />
     <ClCompile Include="window\scene.cpp" />
     <ClCompile Include="window\utility.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Graphic\Graphic.vcxproj">
-      <Project>{3a91e3aa-18df-4733-9f41-ed09a61f97e3}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
