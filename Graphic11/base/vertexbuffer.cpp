@@ -184,7 +184,7 @@ void cVertexBuffer::Bind(cRenderer &renderer) const
 {
 	const UINT offset = 0;
 	const UINT stride = (UINT)m_sizeOfVertex;
-	renderer.GetDeviceContext()->IASetVertexBuffers(0, 1, &m_vtxBuff, &stride, &offset);
+	renderer.GetDevContext()->IASetVertexBuffers(0, 1, &m_vtxBuff, &stride, &offset);
 
 	//if (m_pVtxDecl)
 	//{

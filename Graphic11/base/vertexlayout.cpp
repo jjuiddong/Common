@@ -1,40 +1,70 @@
 
 #include "stdafx.h"
-#include "vertexdeclaration.h"
+#include "vertexlayout.h"
 
 
 using namespace graphic;
 
 
-cVertexDeclaration::cVertexDeclaration()
+cVertexLayout::cVertexLayout()
 	: m_vertexLayout(NULL)
 {
 }
 
-cVertexDeclaration::~cVertexDeclaration()
+cVertexLayout::~cVertexLayout()
 {
 	SAFE_RELEASE(m_vertexLayout);
 }
 
 
-bool cVertexDeclaration::Create(cRenderer &renderer, ID3DBlob *vsBlob 
+bool cVertexLayout::Create(cRenderer &renderer, ID3DBlob *vsBlob 
 	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
 {
-	m_decl.clear();
+	Create(layout, numElements);
 
-	int size = 0;
-	if (FAILED(renderer.GetDevice()->CreateInputLayout(layout, numElements
+	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
 		, vsBlob->GetBufferPointer()
 		, vsBlob->GetBufferSize()
 		, &m_vertexLayout)))
 		return false;
+
+	return true;
+}
+
+
+bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
+{
+	int size = 0;
+	m_elements.clear();
+	for (int i = 0; i < numElements; ++i)
+	{
+		m_elements.push_back(layout[i]);
+		m_elements.back().AlignedByteOffset = size;
+		size += BitsPerPixel(layout[i].Format) / 8;
+	}
 
 	m_elementSize = size;
 	return true;
 }
 
 
-bool cVertexDeclaration::Create(const sRawMesh &rawMesh )
+bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
+{
+	int size = 0;
+	m_elements.clear();
+	for (u_int i = 0; i < layout.size(); ++i)
+	{
+		m_elements.push_back(layout[i]);
+		m_elements.back().AlignedByteOffset = size;
+		size += BitsPerPixel(layout[i].Format) / 8;
+	}
+
+	m_elementSize = size;
+	return true;
+}
+
+
+bool cVertexLayout::Create(const sRawMesh &rawMesh )
 {
 	CreateDecl(rawMesh.vertices,
 		rawMesh.normals,
@@ -47,7 +77,7 @@ bool cVertexDeclaration::Create(const sRawMesh &rawMesh )
 }
 
 
-bool cVertexDeclaration::Create(const sRawMesh2 &rawMesh)
+bool cVertexLayout::Create(const sRawMesh2 &rawMesh)
 {
 	CreateDecl(rawMesh.vertices,
 		rawMesh.normals,
@@ -60,7 +90,7 @@ bool cVertexDeclaration::Create(const sRawMesh2 &rawMesh)
 }
 
 
-void cVertexDeclaration::CreateDecl(
+void cVertexLayout::CreateDecl(
 	const vector<Vector3> &vertices,
 	const vector<Vector3> &normals,
 	const vector<Vector3> &tex,
@@ -70,7 +100,7 @@ void cVertexDeclaration::CreateDecl(
 	)
 {
 	int offset = 0;
-	m_decl.clear();
+	m_elements.clear();
 
 	//if (!vertices.empty())
 	//{
@@ -128,19 +158,33 @@ void cVertexDeclaration::CreateDecl(
 }
 
 
-int cVertexDeclaration::GetOffset( const BYTE usage, const BYTE usageIndex ) const //usageIndex=0
+//int cVertexLayout::GetOffset( const BYTE usage, const BYTE usageIndex ) const //usageIndex=0
+//{
+//	//for (u_int i=0; i < m_decl.size(); ++i)
+//	//{
+//	//	if ((usage == m_decl[ i].Usage) && (usageIndex == m_decl[ i].UsageIndex))
+//	//		return m_decl[ i].Offset;
+//	//}
+//	return -1;
+//}
+
+
+void cVertexLayout::Bind(cRenderer &renderer)
 {
-	//for (u_int i=0; i < m_decl.size(); ++i)
-	//{
-	//	if ((usage == m_decl[ i].Usage) && (usageIndex == m_decl[ i].UsageIndex))
-	//		return m_decl[ i].Offset;
-	//}
-	return -1;
+	assert(m_vertexLayout);
+	renderer.GetDevContext()->IASetInputLayout(m_vertexLayout);
 }
 
 
-void cVertexDeclaration::Bind(cRenderer &renderer)
+int cVertexLayout::GetOffset(const char *semanticName) const
 {
-	assert(m_vertexLayout);
-	renderer.GetDeviceContext()->IASetInputLayout(m_vertexLayout);
+	int offset = 0;
+	for (auto &elem : m_elements)
+	{
+		if (!strcmp(elem.SemanticName, semanticName))
+			break;
+		offset += BitsPerPixel(elem.Format) / 8;
+	}
+
+	return offset;
 }

@@ -136,6 +136,8 @@
   <ItemGroup>
     <ClInclude Include="base\camera.h" />
     <ClInclude Include="base\color.h" />
+    <ClInclude Include="base\constantbuffer.h" />
+    <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\dxInit.h" />
     <ClInclude Include="base\grid.h" />
     <ClInclude Include="base\indexbuffer.h" />
@@ -145,7 +147,7 @@
     <ClInclude Include="base\texture.h" />
     <ClInclude Include="base\texturecube.h" />
     <ClInclude Include="base\vertexbuffer.h" />
-    <ClInclude Include="base\vertexdeclaration.h" />
+    <ClInclude Include="base\vertexlayout.h" />
     <ClInclude Include="base\vertexformat.h" />
     <ClInclude Include="base\viewport.h" />
     <ClInclude Include="collision\boundingbox.h" />
@@ -182,10 +184,13 @@
     <ClInclude Include="textdesigner\TextNoOutlineStrategy.h" />
     <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h" />
     <ClInclude Include="textdesigner\TextOutlineStrategy.h" />
+    <ClInclude Include="utility\utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\camera.cpp" />
     <ClCompile Include="base\color.cpp" />
+    <ClCompile Include="base\constantbuffer.cpp" />
+    <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\dxinit.cpp" />
     <ClCompile Include="base\grid.cpp" />
     <ClCompile Include="base\indexbuffer.cpp" />
@@ -195,7 +200,7 @@
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\texturecube.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
-    <ClCompile Include="base\vertexdeclaration.cpp" />
+    <ClCompile Include="base\vertexlayout.cpp" />
     <ClCompile Include="base\viewport.cpp" />
     <ClCompile Include="collision\boundingbox.cpp" />
     <ClCompile Include="collision\boundingbox2.cpp" />
@@ -232,6 +237,7 @@
     <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp" />
     <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp" />
     <ClCompile Include="textdesigner\TextOutlineStrategy.cpp" />
+    <ClCompile Include="utility\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

@@ -44,14 +44,15 @@ cNode2::~cNode2()
 
 // 자식노드의 Render 를 호출한다.
 bool cNode2::Render(cRenderer &renderer
-	, const Matrix44 &parentTm // = Matrix44::Identity
+	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
 {
 	RETV(!m_isEnable, false);
 	RETV(!m_isShow, false);
 
-	const Matrix44 tm = m_transform.GetMatrix() * parentTm;
+	XMMATRIX ctm = XMLoadFloat4x4((XMFLOAT4X4*)&m_transform.GetMatrix());
+	const XMMATRIX tm = ctm * parentTm;
 
 	for (auto &node : m_children)
 		node->Render(renderer, tm, flags);

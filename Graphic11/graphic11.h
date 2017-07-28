@@ -1,13 +1,24 @@
-
+//
+// Graphic Global Include
+// Upgrade DX11 
+//
 #pragma once
 
 
+#pragma warning(push)
+#pragma warning (disable: 4005) //warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <d3d11.h>
 #include <d3dx11.h>
+#pragma warning(pop)
+
 #include <d3dcompiler.h>
+
+#pragma warning(push)
+#pragma warning (disable: 4838) //warning C4838 : conversion from 'unsigned int' to 'INT' requires a narrowing conversion
 #include <xnamath.h>
+#pragma warning(pop)
 
 #include <objidl.h>
 #include <gdiplus.h> 
@@ -22,8 +33,8 @@ static const StrPath g_defaultTexture = "white.dds";
 
 #include "../ai/ai.h"
 
+#include "utility\utility.h"
 #include "textdesigner\PngOutlineText.h"
-
 
 #include "base/graphicdef.h"
 #include "model/rawmesh.h"
@@ -45,7 +56,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/viewport.h"
 //#include "base/material.h"
 #include "base/light.h"
-#include "base/vertexdeclaration.h"
+#include "base/vertexlayout.h"
 #include "base/vertexbuffer.h"
 #include "base/indexbuffer.h"
 //#include "base/meshbuffer.h"
@@ -61,12 +72,13 @@ static const StrPath g_defaultTexture = "white.dds";
 //#include "base/line2.h"
 //#include "base/line3.h"
 //#include "base/line2d.h"
-//#include "base/cube.h"
+#include "base/cube.h"
 //#include "base/cube2.h"
 //#include "base/cube3.h"
 //#include "base/cube4.h"
 #include "base/shader.h"
 #include "base/shader11.h"
+#include "base/constantbuffer.h"
 #include "base/camera.h"
 //#include "base/skybox.h"
 //#include "base/skybox2.h"

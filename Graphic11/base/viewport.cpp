@@ -8,7 +8,7 @@ cViewport::cViewport()
 {
 }
 
-cViewport::cViewport(const int x, const int y, const int width, const int height,
+cViewport::cViewport(const float  x, const float  y, const float  width, const float  height,
 	const float minZ, const float maxZ)
 {
 	Create(x, y, width, height, minZ, maxZ);
@@ -19,37 +19,47 @@ cViewport::~cViewport()
 }
 
 
-bool cViewport::Create(const int x, const int y, const int width, const int height,
-	const float minZ, const float maxZ)
-//	x = 0, y = 0,
-// width = 1024, height = 768,
-//	minZ = 1.f, maxZ = 10000.f
+bool cViewport::Create(
+	const float x //=0
+	, const float y //=0
+	, const float width //=1024
+	, const float height //=768
+	, const float minZ //=1
+	, const float maxZ //=10000
+)
 {
-	m_vp.X = x;
-	m_vp.Y = y;
+	m_vp.TopLeftX = x;
+	m_vp.TopLeftY = y;
 	m_vp.Width = width;
 	m_vp.Height = height;
-	m_vp.MinZ = minZ;
-	m_vp.MaxZ = maxZ;
+	m_vp.MinDepth = minZ;
+	m_vp.MaxDepth = maxZ;
 	return true;
 }
 
 
-int cViewport::GetX() const {
-	return (int)m_vp.X;
+bool cViewport::Bind(cRenderer &renderer)
+{
+	renderer.GetDevContext()->RSSetViewports(1, &m_vp);
+	return true;
 }
-int cViewport::GetY() const {
-	return (int)m_vp.Y;
+
+
+float cViewport::GetX() const {
+	return m_vp.TopLeftX;
+}
+float cViewport::GetY() const {
+	return m_vp.TopLeftY;
 }
 float cViewport::GetMinZ() const {
-	return m_vp.MinZ;
+	return m_vp.MinDepth;
 }
 float cViewport::GetMaxZ() const {
-	return m_vp.MaxZ;
+	return m_vp.MaxDepth;
 }
-int cViewport::GetWidth() const {
-	return (int)m_vp.Width;
+float cViewport::GetWidth() const {
+	return m_vp.Width;
 }
-int cViewport::GetHeight() const {
-	return (int)m_vp.Height;
+float cViewport::GetHeight() const {
+	return m_vp.Height;
 }

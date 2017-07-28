@@ -68,7 +68,8 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height,
 	GdiplusStartupInput gdiplusStartupInput;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	m_viewPort.Create(0, 0, width, height);
+	m_viewPort.Create(0, 0, (float)width, (float)height, 0, 1.f);
+	m_viewPort.Bind(*this);
 
 	//m_textMgr.Create(256);
 

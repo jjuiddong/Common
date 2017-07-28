@@ -1,6 +1,9 @@
-// 정육면체를 표현하는 클래스.
-// Vertex = Position + Normal + Diffuse
+//
+// 2017-07-28, jjuiddong
+// DX11 Cube Class
+// Vertex = Position + Normal + Diffuse + TextureUV
 // VertexBuffer + IndexBuffer
+//
 #pragma once
 
 
@@ -8,44 +11,45 @@ namespace graphic
 {
 	class cRenderer;
 
-	class cCube : public iShaderRenderer
+	class cCube : public cNode2
 	{
 	public:
-		cCube();
-		cCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
+		struct eCubeType {
+			enum Enum {
+				POSITION = 1 << 1
+				, NORMAL = 1 << 2
+				, DIFFUSE = 1 << 3
+				, TEXTURE = 1 << 4
+			};
+		};
 
-		void InitCube(cRenderer &renderer);
-		void SetCube(const Vector3 &vMin, const Vector3 &vMax);
-		void SetCube(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax);
+
+		cCube();
+		cCube(cRenderer &renderer, const cBoundingBox &bbox
+			, const int cubeType = (eCubeType::POSITION | eCubeType::NORMAL | eCubeType::DIFFUSE)
+			, const cColor &color = cColor::WHITE);
+
+		bool Create(cRenderer &renderer, const cBoundingBox &bbox
+			, const int cubeType = (eCubeType::POSITION | eCubeType::NORMAL | eCubeType::DIFFUSE)
+			, const cColor &color = cColor::WHITE);
+		void InitCube(cRenderer &renderer, const int cubeType, const cColor &color = cColor::WHITE);
+		void SetCube(const cBoundingBox &bbox);
+		void SetCube(cRenderer &renderer, const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cCube &cube);
-		void SetTransform( const Matrix44 &tm );
-		void ReCalcTransform();
-		void SetColor( DWORD color);
-		const Matrix44& GetTransform() const;
-		const Vector3& GetMin() const;
-		const Vector3& GetMax() const;
+		void SetColor( const cColor &color );
 		const float Length() const; // length(min - max)
 
-		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		void RenderSolid(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
-		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
+		//void RenderSolid(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		//void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
+		//void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 
 
 	public:
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
-		Vector3 m_scale;
-		Vector3 m_pos;
-		Matrix44 m_tm;
-		Vector3 m_min;
-		Vector3 m_max;
+		int m_cubeType;
 	};	
 
-
-	inline void cCube::SetTransform( const Matrix44 &tm ) { m_tm = tm; }
-	inline const Matrix44& cCube::GetTransform() const { return m_tm; }
-	inline const Vector3& cCube::GetMin() const { return m_min; }
-	inline const Vector3& cCube::GetMax() const { return m_max; }
-	inline const float cCube::Length() const { return (m_min - m_max).Length(); }
+	inline const float cCube::Length() const { return m_boundingBox.Length(); }
 }

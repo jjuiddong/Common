@@ -18,7 +18,7 @@ namespace graphic
 			const UINT adapter= D3DADAPTER_DEFAULT);
 		void Update(const float elpaseT);
 		ID3D11Device* GetDevice();
-		ID3D11DeviceContext* GetDeviceContext();
+		ID3D11DeviceContext* GetDevContext();
 		HWND GetHwnd() const;
 		bool CheckResetDevice(const int width=0, const int height=0);
 		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false
@@ -63,7 +63,6 @@ namespace graphic
 		IDXGISwapChain *m_swapChain;
 		ID3D11RenderTargetView *m_renderTargetView;
 
-		//LPDIRECT3DDEVICE9 m_pDevice;
 		D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
 
@@ -94,6 +93,6 @@ namespace graphic
 	// 렌더러 초기화.
 	void ReleaseRenderer();
 	inline ID3D11Device* cRenderer::GetDevice() { return m_d3dDevice; }
-	inline ID3D11DeviceContext* cRenderer::GetDeviceContext() {return m_immediateContext;}
+	inline ID3D11DeviceContext* cRenderer::GetDevContext() {return m_immediateContext;}
 	inline HWND cRenderer::GetHwnd() const { return m_hWnd; }
 }

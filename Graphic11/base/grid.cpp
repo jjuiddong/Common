@@ -80,36 +80,54 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 }
 
 
-void cGrid::Render(cRenderer &renderer)
+bool cGrid::Render(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+	, const int flags //= 1
+)
 {
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
+	
+	//renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount()*3, 0, 0);
 
-	renderer.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	renderer.GetDeviceContext()->DrawIndexed(m_idxBuff.GetFaceCount()*3, 0, 0);
-
-	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-
-	//m_vtxBuff.Bind(renderer);
-	//m_idxBuff.Bind(renderer);
-	//renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_vtxBuff.GetVertexCount(),
-	//	0, m_idxBuff.GetFaceCount());
+	__super::Render(renderer, tm, flags);
+	return true;
 }
 
 
-void cGrid::RenderLinelist(cRenderer &renderer)
-{
-	m_vtxBuff.Bind(renderer);
-	m_idxBuff.Bind(renderer);
-
-	renderer.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	renderer.GetDeviceContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
-
-	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-	//renderer.GetDevice()->SetTexture(0, NULL);
-
-	//m_vtxBuff.Bind(renderer);
-	//m_idxBuff.Bind(renderer);
-	//renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, m_vtxBuff.GetVertexCount(),
-	//	0, m_idxBuff.GetFaceCount()*3/2);
-}
+//
+//void cGrid::Render(cRenderer &renderer)
+//{
+//	m_vtxBuff.Bind(renderer);
+//	m_idxBuff.Bind(renderer);
+//
+//	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount()*3, 0, 0);
+//
+//	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+//
+//	//m_vtxBuff.Bind(renderer);
+//	//m_idxBuff.Bind(renderer);
+//	//renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_vtxBuff.GetVertexCount(),
+//	//	0, m_idxBuff.GetFaceCount());
+//}
+//
+//
+//void cGrid::RenderLinelist(cRenderer &renderer)
+//{
+//	m_vtxBuff.Bind(renderer);
+//	m_idxBuff.Bind(renderer);
+//
+//	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+//	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
+//
+//	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+//	//renderer.GetDevice()->SetTexture(0, NULL);
+//
+//	//m_vtxBuff.Bind(renderer);
+//	//m_idxBuff.Bind(renderer);
+//	//renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, m_vtxBuff.GetVertexCount(),
+//	//	0, m_idxBuff.GetFaceCount()*3/2);
+//}

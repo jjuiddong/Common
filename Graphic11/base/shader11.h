@@ -24,7 +24,7 @@ namespace graphic
 	public:
 		ID3D11VertexShader *m_vtxShader;
 		ID3D11PixelShader *m_pixelShader;
-		cVertexDeclaration m_vtxDecl;
+		cVertexLayout m_vtxLayout;
 	};
 
 }

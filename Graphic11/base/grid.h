@@ -15,8 +15,9 @@ namespace graphic
 		virtual ~cGrid();
 
 		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize);
-		void Render(cRenderer &renderer);
-		void RenderLinelist(cRenderer &renderer);
+		//void Render(cRenderer &renderer);
+		//void RenderLinelist(cRenderer &renderer);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 
 		cVertexBuffer& GetVertexBuffer();
 		cIndexBuffer& GetIndexBuffer();

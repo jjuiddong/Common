@@ -33,7 +33,7 @@ namespace graphic
 		virtual ~cNode2();
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
-		virtual bool Render(cRenderer &renderer, const Matrix44 &parentTm = Matrix44::Identity, const int flags = 1);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
 		virtual bool AddChild(cNode2 *node);
 		virtual const cNode2* FindNode(const int id) const;
 		virtual const cNode2* FindNode(const StrId &name) const;

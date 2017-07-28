@@ -105,7 +105,7 @@ void cIndexBuffer::Unlock()
 
 void cIndexBuffer::Bind(cRenderer &renderer) const
 {
-	renderer.GetDeviceContext()->IASetIndexBuffer(m_idxBuff, DXGI_FORMAT_R16_UINT, 0);
+	renderer.GetDevContext()->IASetIndexBuffer(m_idxBuff, DXGI_FORMAT_R16_UINT, 0);
 }
 
 

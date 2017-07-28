@@ -133,14 +133,23 @@
     <ClInclude Include="base\indexbuffer.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="base\vertexdeclaration.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="model\rawmesh.h">
       <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="base\shader11.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\constantbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cube.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexlayout.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\utility.h">
+      <Filter>utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -262,14 +271,23 @@
     <ClCompile Include="base\indexbuffer.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="base\vertexdeclaration.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="model\rawmesh.cpp">
       <Filter>model</Filter>
     </ClCompile>
     <ClCompile Include="base\shader11.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\constantbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\vertexlayout.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\utility.cpp">
+      <Filter>utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +335,9 @@
     </Filter>
     <Filter Include="textdesigner">
       <UniqueIdentifier>{1bb0686b-4962-4447-ac88-fea9009992b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utility">
+      <UniqueIdentifier>{6ef36f04-a8b5-4ebe-8319-3953bc694cef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -67,7 +67,7 @@ bool cShader11::CreateVertexShader(cRenderer &renderer, const StrPath &fileName,
 		return false;
 	}
 
-	if (!m_vtxDecl.Create(renderer, pVSBlob, layout, numElements))
+	if (!m_vtxLayout.Create(renderer, pVSBlob, layout, numElements))
 	{
 		pVSBlob->Release();
 		return false;
@@ -103,12 +103,12 @@ bool cShader11::CreatePixelShader(cRenderer &renderer, const StrPath &fileName, 
 
 void cShader11::BindVertexShader(cRenderer &renderer)
 {
-	m_vtxDecl.Bind(renderer);
-	renderer.GetDeviceContext()->VSSetShader(m_vtxShader, NULL, 0);
+	m_vtxLayout.Bind(renderer);
+	renderer.GetDevContext()->VSSetShader(m_vtxShader, NULL, 0);
 }
 
 
 void cShader11::BindPixelShader(cRenderer &renderer)
 {
-	renderer.GetDeviceContext()->PSSetShader(m_pixelShader, NULL, 0);
+	renderer.GetDevContext()->PSSetShader(m_pixelShader, NULL, 0);
 }
