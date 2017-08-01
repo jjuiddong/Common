@@ -234,6 +234,9 @@ bool cCube::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
+	if ((m_cubeType & eCubeType::TEXTURE) && m_texture)
+		m_texture->Bind(renderer, 0);
+
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);

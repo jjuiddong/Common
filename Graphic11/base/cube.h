@@ -48,6 +48,7 @@ namespace graphic
 	public:
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
+		cTexture *m_texture; // reference
 		int m_cubeType;
 	};	
 

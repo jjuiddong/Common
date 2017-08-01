@@ -6,15 +6,17 @@
 using namespace graphic;
 
 cShader11::cShader11()
-: m_vtxShader(NULL)
-, m_pixelShader(NULL)
+//: m_vtxShader(NULL)
+//, m_pixelShader(NULL)
+	: m_technique(NULL)
 {
 }
 
 cShader11::~cShader11()
 {
-	SAFE_RELEASE(m_vtxShader);
-	SAFE_RELEASE(m_pixelShader);
+	//SAFE_RELEASE(m_vtxShader);
+	//SAFE_RELEASE(m_pixelShader);
+	SAFE_RELEASE(m_effect);
 }
 
 
@@ -51,64 +53,76 @@ HRESULT CompileShaderFromFile(const char* szFileName, const char *szEntryPoint
 }
 
 
-bool cShader11::CreateVertexShader(cRenderer &renderer, const StrPath &fileName, const char *entryPoint
-	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
+bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
+	, const char *techniqueName, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
 {
-	ID3DBlob* pVSBlob = NULL;
-	if (FAILED(CompileShaderFromFile(fileName.c_str(), entryPoint, "vs_4_0", &pVSBlob)))
-	{
-		return false;
-	}
+	std::ifstream fin(fileName.c_str(), std::ios::binary);
 
-	if (FAILED(renderer.GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer()
-		, pVSBlob->GetBufferSize(), NULL, &m_vtxShader)))
-	{
-		pVSBlob->Release();
-		return false;
-	}
+	fin.seekg(0, std::ios_base::end);
+	int size = (int)fin.tellg();
+	fin.seekg(0, std::ios_base::beg);
+	std::vector<char> compiledShader(size);
 
-	if (!m_vtxLayout.Create(renderer, pVSBlob, layout, numElements))
-	{
-		pVSBlob->Release();
-		return false;
-	}
+	fin.read(&compiledShader[0], size);
+	fin.close();
 
-	pVSBlob->Release();
+	HRESULT hr = D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, renderer.GetDevice(), &m_effect);
+	if (FAILED(hr))
+		return false;
+
+	m_technique = m_effect->GetTechniqueByName(techniqueName);
+	RETV(!m_technique, false);
+
+
+	// Create the input layout
+	D3DX11_PASS_DESC passDesc;
+	m_technique->GetPassByIndex(0)->GetDesc(&passDesc);
+
+	if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, layout, numElements))
+		return false;
 
 	return true;
 }
 
 
-bool cShader11::CreatePixelShader(cRenderer &renderer, const StrPath &fileName, const char *entryPoint)
+ID3DX11EffectTechnique* cShader11::GetTechnique(const char *id)
 {
-	ID3DBlob* pPSBlob = NULL;
-	if (FAILED(CompileShaderFromFile(fileName.c_str(), entryPoint, "ps_4_0", &pPSBlob)))
-	{
-		return false;
-	}
-
-	// Create the pixel shader
-	if (FAILED(renderer.GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer()
-		, pPSBlob->GetBufferSize(), NULL, &m_pixelShader)))
-	{
-		pPSBlob->Release();
-		return false;
-	}
-
-	pPSBlob->Release();
-
-	return true;
+	return NULL;
 }
 
 
-void cShader11::BindVertexShader(cRenderer &renderer)
+ID3DX11EffectVariable* cShader11::GetVariable(const char *id)
 {
+	return NULL;
+}
+
+
+ID3DX11EffectMatrixVariable* cShader11::GetMatrix(const char *id)
+{
+	//return mFX->GetVariableByName("gWorldViewProj")->AsMatrix();;
+	return NULL;
+}
+
+
+ID3DX11EffectVectorVariable** cShader11::GetVector(const char *id)
+{
+	return NULL;
+}
+
+
+int cShader11::Begin()
+{
+	RETV(!m_technique, 0);
+
+	D3DX11_TECHNIQUE_DESC techDesc;
+	m_technique->GetDesc(&techDesc);
+	return techDesc.Passes;
+}
+
+
+void cShader11::BeginPass(cRenderer &renderer, const int pass)
+{
+	RET(!m_technique);
 	m_vtxLayout.Bind(renderer);
-	renderer.GetDevContext()->VSSetShader(m_vtxShader, NULL, 0);
-}
-
-
-void cShader11::BindPixelShader(cRenderer &renderer)
-{
-	renderer.GetDevContext()->PSSetShader(m_pixelShader, NULL, 0);
+	m_technique->GetPassByIndex(pass)->Apply(0, renderer.GetDevContext());
 }

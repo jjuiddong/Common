@@ -7,7 +7,7 @@ namespace graphic
 	struct sVertex
 	{
 		Vector3 p;
-		enum { FVF = D3DFVF_XYZ};
+		//enum { FVF = D3DFVF_XYZ};
 	};
 
 
@@ -27,7 +27,7 @@ namespace graphic
 		Vector3 p;
 		float size;
 		DWORD c;
-		enum {FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_PSIZE};
+		//enum {FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_PSIZE};
 	};
 
 
@@ -38,7 +38,7 @@ namespace graphic
 
 		sVertexTex() {}
 		sVertexTex(float x0, float y0, float z0, float u0, float v0) : p(x0,y0,z0), u(u0), v(v0) {}
-		enum {FVF = D3DFVF_XYZ | D3DFVF_TEX1 };
+		//enum {FVF = D3DFVF_XYZ | D3DFVF_TEX1 };
 	};
 
 
@@ -49,7 +49,7 @@ namespace graphic
 
 		sVertexTexRhw() {}
 		sVertexTexRhw(float x0, float y0, float z0, float w0, float u0, float v0) : p(x0, y0, z0, w0), u(u0), v(v0) {}
-		enum { FVF = D3DFVF_XYZRHW | D3DFVF_TEX1 };
+		//enum { FVF = D3DFVF_XYZRHW | D3DFVF_TEX1 };
 	};
 
 
@@ -58,7 +58,7 @@ namespace graphic
 		Vector3 p;
 		Vector3 n;
 
-		enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL};
+		//enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL};
 	};
 
 	struct sVertexNormDiffuse
@@ -66,7 +66,7 @@ namespace graphic
 		Vector3 p;
 		Vector3 n;
 		DWORD c;
-		enum {FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE };
+		//enum {FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE };
 	};
 
 
@@ -76,7 +76,7 @@ namespace graphic
 		Vector3 n;
 		float u,v;
 
-		enum {FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1 };
+		//enum {FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1 };
 	};
 
 	struct sVertexNormDiffuseTex
@@ -86,7 +86,7 @@ namespace graphic
 		DWORD c;
 		float u, v;
 
-		enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1 };
+		//enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1 };
 	};
 
 	// 스키닝 + 범프 매핑
@@ -97,9 +97,9 @@ namespace graphic
 		float u,v;
 		Vector3 t; // tangent;
 
-		enum {FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2 |
-			D3DFVF_TEXCOORDSIZE2(0)|		// texture
-			D3DFVF_TEXCOORDSIZE3(1))};		// tangent
+		//enum {FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2 |
+		//	D3DFVF_TEXCOORDSIZE2(0)|		// texture
+		//	D3DFVF_TEXCOORDSIZE3(1))};		// tangent
 	};
 
 
@@ -114,10 +114,10 @@ namespace graphic
 		float weights[4];
 		float matrixIndices[4];
 
-		enum {FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX3 |
-			D3DFVF_TEXCOORDSIZE2(0)|		// texture
-			D3DFVF_TEXCOORDSIZE4(1)|		// blend weight
-			D3DFVF_TEXCOORDSIZE4(2)) };	// blend indices
+		//enum {FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX3 |
+		//	D3DFVF_TEXCOORDSIZE2(0)|		// texture
+		//	D3DFVF_TEXCOORDSIZE4(1)|		// blend weight
+		//	D3DFVF_TEXCOORDSIZE4(2)) };	// blend indices
 	};
 
 
@@ -131,8 +131,8 @@ namespace graphic
 		Vector3 n;
 		float u,v;	
 
-		enum {FVF = (D3DFVF_XYZB5 | D3DFVF_LASTBETA_D3DCOLOR | 
-			D3DFVF_NORMAL | D3DFVF_TEX1)};
+		//enum {FVF = (D3DFVF_XYZB5 | D3DFVF_LASTBETA_D3DCOLOR | 
+		//	D3DFVF_NORMAL | D3DFVF_TEX1)};
 	};
 
 
@@ -146,10 +146,10 @@ namespace graphic
 		float weights[3];
 		BYTE matrixIndices[4];
 
-		enum {
-			FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2 |
-			D3DFVF_TEXCOORDSIZE2(0) |		// texture
-				D3DFVF_TEXCOORDSIZE4(1)) 	// blend weight
-		};	// blend indices
+		//enum {
+		//	FVF = (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX2 |
+		//	D3DFVF_TEXCOORDSIZE2(0) |		// texture
+		//		D3DFVF_TEXCOORDSIZE4(1)) 	// blend weight
+		//};	// blend indices
 	};
 }

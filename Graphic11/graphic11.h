@@ -11,6 +11,7 @@
 #include <d3dx9.h>
 #include <d3d11.h>
 #include <d3dx11.h>
+#include <dxgitype.h>
 #pragma warning(pop)
 
 #include <d3dcompiler.h>
@@ -30,6 +31,8 @@ using namespace common;
 
 static const StrPath g_defaultTexture = "white.dds";
 
+
+#include "base\d3dx11effect.h"
 
 #include "../ai/ai.h"
 
@@ -60,8 +63,9 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/vertexbuffer.h"
 #include "base/indexbuffer.h"
 //#include "base/meshbuffer.h"
+#include "base/samplerstate.h"
 #include "base/texture.h"
-#include "base/texturecube.h"
+//#include "base/texturecube.h"
 #include "base/vertexformat.h"
 #include "base/grid.h"
 //#include "base/grid2.h"
@@ -76,7 +80,7 @@ static const StrPath g_defaultTexture = "white.dds";
 //#include "base/cube2.h"
 //#include "base/cube3.h"
 //#include "base/cube4.h"
-#include "base/shader.h"
+//#include "base/shader.h"
 #include "base/shader11.h"
 #include "base/constantbuffer.h"
 #include "base/camera.h"
@@ -201,7 +205,8 @@ namespace graphic
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3dx11d.lib")
-#pragma comment(lib, "d3dx9d.lib")
+#pragma comment(lib, "effects11.lib")
+//#pragma comment(lib, "d3dx9d.lib")
 #pragma comment(lib, "dxerr.lib")
 #pragma comment(lib, "dxguid.lib")
 

@@ -6,9 +6,9 @@
 using namespace graphic;
 
 
-cTexture::cTexture() :
-	m_texture(NULL)
-	, m_isReferenceMode(false)
+cTexture::cTexture() 
+	//: m_texture(NULL)
+	: m_isReferenceMode(false)
 	, m_customTexture(false)
 {
 }
@@ -19,31 +19,27 @@ cTexture::~cTexture()
 }
 
 
-bool cTexture::Create(cRenderer &renderer, const StrPath &fileName, bool isSizePow2)//isSizePow2=true
+bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 {
 	Clear();
 
 	m_fileName = fileName;
 
-	if (isSizePow2)
-	{
-		//if (FAILED(D3DXCreateTextureFromFileA(renderer.GetDevice(), fileName.c_str(), &m_texture)))
-		//	return false;
+	if (FAILED(D3DX11CreateShaderResourceViewFromFileA(renderer.GetDevice(), fileName.c_str(), NULL, NULL, &m_texture, NULL)))
+		return false;
 
-		//// 텍스쳐 사이즈 저장.
-		//D3DSURFACE_DESC desc;
-		//if (SUCCEEDED(m_texture->GetLevelDesc(0, &desc)))
-		//{
-		//	m_imageInfo.Width = desc.Width;
-		//	m_imageInfo.Height = desc.Height;
-		//	m_imageInfo.Format = desc.Format;
-		//}
-	}
-	else
-	{
-		return CreateEx(renderer, fileName);
-	}
+	// 텍스쳐 사이즈 저장.
+	ID3D11Resource *res;
+	m_texture->GetResource(&res);
 
+	ID3D11Texture2D *pTextureInterface = 0;
+	res->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
+	D3D11_TEXTURE2D_DESC desc;
+	pTextureInterface->GetDesc(&desc);
+	SAFE_RELEASE(res);
+	SAFE_RELEASE(pTextureInterface);
+
+	m_imageInfo = desc;
 	return true;
 }
 
@@ -56,44 +52,25 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height, co
 	//	D3DPOOL_MANAGED, &m_texture, NULL )))
 	//	return false;
 
-	D3DLOCKED_RECT lockrect;
-	m_texture->LockRect( 0, &lockrect, NULL, 0 );
-	memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
-	m_texture->UnlockRect( 0 );
+	//D3DLOCKED_RECT lockrect;
+	//m_texture->LockRect( 0, &lockrect, NULL, 0 );
+	//memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
+	//m_texture->UnlockRect( 0 );
 
-	m_customTexture = true;
-	m_imageInfo.Width = width;
-	m_imageInfo.Height = height;
-	m_imageInfo.Format = format;
+	//m_customTexture = true;
+	//m_imageInfo.Width = width;
+	//m_imageInfo.Height = height;
+	//m_imageInfo.Format = format;
 	return true;
 }
 
 
-// D3DX_DEFAULT_NONPOW2 옵션을 켠 상태에서 텍스쳐를 생성한다.
-bool cTexture::CreateEx(cRenderer &renderer, const StrPath &fileName)
+void cTexture::Bind(cRenderer &renderer
+	, const int stage //= 0
+)
 {
-	Clear();
+	renderer.GetDevContext()->PSSetShaderResources(stage, 1, &m_texture);
 
-	//if (FAILED(D3DXCreateTextureFromFileExA(
-	//	renderer.GetDevice(), fileName.c_str(),
-	//	D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, // option On
-	//	NULL, NULL, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT,
-	//	0,
-	//	&m_imageInfo,
-	//	NULL,
-	//	&m_texture)))
-	//{
-	//	return false;
-	//}
-
-	m_fileName = fileName;
-	
-	return true;
-}
-
-
-void cTexture::Bind(cRenderer &renderer, const int stage)
-{
 	//renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 	//renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 	//renderer.GetDevice()->SetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
@@ -103,7 +80,7 @@ void cTexture::Bind(cRenderer &renderer, const int stage)
 
 void cTexture::Bind(cShader &shader, const Str32 &key)
 {
-	shader.SetTexture(key, *this);
+	//shader.SetTexture(key, *this);
 }
 
 void cTexture::Unbind(cRenderer &renderer, const int stage)
@@ -148,59 +125,59 @@ void cTexture::CopyFrom(cTexture &src)
 		|| (m_imageInfo.Width != src.m_imageInfo.Width))
 		return;
 
-	D3DLOCKED_RECT slock;
-	if (src.Lock(slock))
-	{
-		D3DLOCKED_RECT dlock;
-		if (Lock(dlock))
-		{
-			memcpy(dlock.pBits, slock.pBits, slock.Pitch * src.m_imageInfo.Height);
-			Unlock();
-		}
-		src.Unlock();
-	}
+	//D3DLOCKED_RECT slock;
+	//if (src.Lock(slock))
+	//{
+	//	D3DLOCKED_RECT dlock;
+	//	if (Lock(dlock))
+	//	{
+	//		memcpy(dlock.pBits, slock.pBits, slock.Pitch * src.m_imageInfo.Height);
+	//		Unlock();
+	//	}
+	//	src.Unlock();
+	//}
 }
 
 
-void cTexture::CopyFrom(IDirect3DTexture9 *src)
-{
-	RET(!src);
+//void cTexture::CopyFrom(IDirect3DTexture9 *src)
+//{
+//	RET(!src);
+//
+//	D3DSURFACE_DESC desc;
+//	if (FAILED(src->GetLevelDesc(0, &desc)))
+//		return;
+//
+//	// Check If Texture Match Width - Height
+//	if ((m_imageInfo.Height != desc.Height)
+//		|| (m_imageInfo.Width != desc.Width))
+//		return;
+//
+//	D3DLOCKED_RECT slock;
+//	if (SUCCEEDED(src->LockRect(0, &slock, NULL, 0)))
+//	{
+//		D3DLOCKED_RECT dlock;
+//		if (Lock(dlock))
+//		{
+//			memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
+//			Unlock();
+//		}
+//		src->UnlockRect(0);
+//	}
+//}
 
-	D3DSURFACE_DESC desc;
-	if (FAILED(src->GetLevelDesc(0, &desc)))
-		return;
 
-	// Check If Texture Match Width - Height
-	if ((m_imageInfo.Height != desc.Height)
-		|| (m_imageInfo.Width != desc.Width))
-		return;
-
-	D3DLOCKED_RECT slock;
-	if (SUCCEEDED(src->LockRect(0, &slock, NULL, 0)))
-	{
-		D3DLOCKED_RECT dlock;
-		if (Lock(dlock))
-		{
-			memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
-			Unlock();
-		}
-		src->UnlockRect(0);
-	}
-}
-
-
-bool cTexture::Lock(D3DLOCKED_RECT &out)
-{
-	out.pBits = NULL;
-	RETV(!m_texture, false);
-	m_texture->LockRect( 0, &out, NULL, 0 );
-	return true;
-}
+//bool cTexture::Lock(D3DLOCKED_RECT &out)
+//{
+//	//out.pBits = NULL;
+//	//RETV(!m_texture, false);
+//	//m_texture->LockRect( 0, &out, NULL, 0 );
+//	return true;
+//}
 
 
 void cTexture::Unlock()
 {
-	m_texture->UnlockRect( 0 );
+//	m_texture->UnlockRect( 0 );
 }
 
 
@@ -214,10 +191,10 @@ void cTexture::Clear()
 // 텍스쳐를 파일에 저장한다.
 bool cTexture::WritePNGFile( const StrPath &fileName )
 {
-	if (FAILED(D3DXSaveTextureToFileA(fileName.c_str(), D3DXIFF_PNG, m_texture, NULL)))
-	{
-		return false;
-	}
+	//if (FAILED(D3DXSaveTextureToFileA(fileName.c_str(), D3DXIFF_PNG, m_texture, NULL)))
+	//{
+	//	return false;
+	//}
 	return true;
 }
 
@@ -372,10 +349,10 @@ int cTexture::Height()
 
 void cTexture::LostDevice()
 {
-	RET(!m_texture);
-	
-	if (m_customTexture)
-		SAFE_RELEASE(m_texture);
+	//RET(!m_texture);
+	//
+	//if (m_customTexture)
+	//	SAFE_RELEASE(m_texture);
 }
 
 
@@ -387,7 +364,7 @@ void cTexture::ResetDevice(cRenderer &renderer)
 
 	if (m_fileName.empty())
 	{
-		Create(renderer, m_imageInfo.Width, m_imageInfo.Height, m_imageInfo.Format);
+		//Create(renderer, m_imageInfo.Width, m_imageInfo.Height, m_imageInfo.Format);
 	}
 	else
 	{

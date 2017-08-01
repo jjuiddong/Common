@@ -76,9 +76,6 @@
     <ClInclude Include="model\node2.h">
       <Filter>model</Filter>
     </ClInclude>
-    <ClInclude Include="base\shader.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="collision\boundingbox.h">
       <Filter>collision</Filter>
     </ClInclude>
@@ -98,9 +95,6 @@
       <Filter>collision</Filter>
     </ClInclude>
     <ClInclude Include="base\texture.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="base\texturecube.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="base\color.h">
@@ -150,6 +144,12 @@
     </ClInclude>
     <ClInclude Include="utility\utility.h">
       <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="base\samplerstate.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\d3dx11effect.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -223,9 +223,6 @@
     <ClCompile Include="model\node2.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="base\shader.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="collision\boundingbox2.cpp">
       <Filter>collision</Filter>
     </ClCompile>
@@ -239,9 +236,6 @@
       <Filter>collision</Filter>
     </ClCompile>
     <ClCompile Include="base\texture.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="base\texturecube.cpp">
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\color.cpp">
@@ -288,6 +282,9 @@
     </ClCompile>
     <ClCompile Include="utility\utility.cpp">
       <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="base\samplerstate.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

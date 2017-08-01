@@ -171,12 +171,12 @@ void cCamera::Render(cRenderer &renderer)
 
 
 // shader bind
-void cCamera::Bind(cShader &shader)
-{
-	shader.SetCameraView(m_view);
-	shader.SetCameraProj(m_proj);
-	shader.SetCameraEyePos(m_eyePos);
-}
+//void cCamera::Bind(cShader &shader)
+//{
+//	shader.SetCameraView(m_view);
+//	shader.SetCameraProj(m_proj);
+//	shader.SetCameraEyePos(m_eyePos);
+//}
 
 
 void cCamera::Bind(cRenderer &renderer)

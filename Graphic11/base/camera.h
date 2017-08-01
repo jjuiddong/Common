@@ -16,7 +16,7 @@ namespace graphic
 		void Init(cRenderer *renderer);
 		void Update(const float deltaSeconds);
 		void Render(cRenderer &renderer);
-		void Bind(cShader &shader);
+		//void Bind(cShader &shader);
 		void Bind(cRenderer &renderer);
 
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);

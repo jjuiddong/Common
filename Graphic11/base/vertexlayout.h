@@ -18,6 +18,8 @@ namespace graphic
 		bool Create(const sRawMesh &rawMesh );
 		bool Create(const sRawMesh2 &rawMesh);
 		bool Create(cRenderer &renderer, ID3DBlob *vsBlob, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
+		bool Create(cRenderer &renderer, const BYTE *pIAInputSignature, const SIZE_T IAInputSignatureSize
+			, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout);
 		//int GetOffset( const BYTE usage, const BYTE usageIndex=0 ) const;

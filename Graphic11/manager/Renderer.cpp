@@ -27,6 +27,8 @@ cRenderer::cRenderer()
 	, m_immediateContext(NULL)
 	, m_swapChain(NULL)
 	, m_renderTargetView(NULL)
+	, m_depthStencil(NULL)
+	, m_depthStencilView(NULL)
 	, m_fps(0)
 	, m_isDbgRender(false)
 	, m_dbgRenderStyle(0)
@@ -46,6 +48,8 @@ cRenderer::~cRenderer()
 	//m_alphaSpaceBuffer.clear();
 
 	SAFE_RELEASE(m_renderTargetView);
+	SAFE_RELEASE(m_depthStencil);
+	SAFE_RELEASE(m_depthStencilView);
 	SAFE_RELEASE(m_swapChain);
 	SAFE_RELEASE(m_immediateContext);
 	SAFE_RELEASE(m_d3dDevice);
@@ -56,11 +60,12 @@ cRenderer::~cRenderer()
 
 
 // DirectX Device °´Ã¼ »ý¼º.
-bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height, 
-	const UINT adapter) // D3DADAPTER_DEFAULT
+bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height 
+	, const UINT adapter // = D3DADAPTER_DEFAULT
+	)
 {
 	if (!InitDirectX11(hWnd, width, height, adapter, &m_d3dDevice, &m_immediateContext
-		, &m_swapChain, &m_renderTargetView))
+		, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
 		return false;
 
 	using namespace Gdiplus;
@@ -268,6 +273,9 @@ bool cRenderer::ClearScene()
 
 	float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
 	m_immediateContext->ClearRenderTargetView(m_renderTargetView, ClearColor);
+
+	m_immediateContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
 	return true;
 }
 

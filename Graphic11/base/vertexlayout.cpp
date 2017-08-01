@@ -32,6 +32,21 @@ bool cVertexLayout::Create(cRenderer &renderer, ID3DBlob *vsBlob
 }
 
 
+bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, const SIZE_T IAInputSignatureSize
+	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
+{
+	Create(layout, numElements);
+
+	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
+		, pIAInputSignature
+		, IAInputSignatureSize
+		, &m_vertexLayout)))
+		return false;
+
+	return true;
+}
+
+
 bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
 {
 	int size = 0;

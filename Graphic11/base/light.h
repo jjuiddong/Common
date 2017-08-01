@@ -1,5 +1,8 @@
-// 조명 클래스
-// D3DLIGHT9 데이타를 쉽게 다루기위해서 만들어짐.
+//
+// 2017-07-31, jjuiddong
+// Lighting Class
+// Upgrade DX9 - DX11
+//
 #pragma once
 
 
@@ -27,11 +30,11 @@ namespace graphic
 
 		void SetDirection( const Vector3 &direction );
 		void SetPosition( const Vector3 &pos );
-		const Vector3& GetDirection() const;
-		const Vector3& GetPosition() const;
+		//const Vector3& GetDirection() const;
+		//const Vector3& GetPosition() const;
 
 		void Bind(cRenderer &renderer, int lightIndex=0);
-		void Bind(cShader &shader) const;
+		//void Bind(cShader &shader) const;
 
 		void GetShadowMatrix( const Vector3 &modelPos, 
 			OUT Vector3 &lightPos, OUT Matrix44 &view, OUT Matrix44 &proj, 
@@ -42,10 +45,10 @@ namespace graphic
 
 
 	public:
-		D3DLIGHT9 m_light;
+		//D3DLIGHT9 m_light;
 	};
 
 
-	inline const Vector3& cLight::GetDirection() const { return *(Vector3*)&m_light.Direction; }
-	inline const Vector3& cLight::GetPosition() const { return *(Vector3*)&m_light.Position; }
+	//inline const Vector3& cLight::GetDirection() const { return *(Vector3*)&m_light.Direction; }
+	//inline const Vector3& cLight::GetPosition() const { return *(Vector3*)&m_light.Position; }
 }
