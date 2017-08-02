@@ -21,7 +21,7 @@ namespace graphic
 		virtual ~cTexture();
 
 		bool Create(cRenderer &renderer, const StrPath &fileName);
-		bool Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format);
+		//bool Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format);
 		bool WritePNGFile( const StrPath &fileName );
 
 		void Bind(cRenderer &renderer, const int stage=0);

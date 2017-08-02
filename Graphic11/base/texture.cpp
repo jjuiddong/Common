@@ -25,7 +25,9 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 
 	m_fileName = fileName;
 
-	if (FAILED(D3DX11CreateShaderResourceViewFromFileA(renderer.GetDevice(), fileName.c_str(), NULL, NULL, &m_texture, NULL)))
+	//if (FAILED(D3DX11CreateShaderResourceViewFromFileA(renderer.GetDevice(), fileName.c_str(), NULL, NULL, &m_texture, NULL)))
+	//	return false;
+	if (FAILED(CreateDDSTextureFromFile(renderer.GetDevice(), fileName.wstr().c_str(), NULL, &m_texture)))
 		return false;
 
 	// 텍스쳐 사이즈 저장.
@@ -44,25 +46,25 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 }
 
 
-bool cTexture::Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format)
-{
-	Clear();
-
-	//if (FAILED(renderer.GetDevice()->CreateTexture( width, height, 1, 0, format, 
-	//	D3DPOOL_MANAGED, &m_texture, NULL )))
-	//	return false;
-
-	//D3DLOCKED_RECT lockrect;
-	//m_texture->LockRect( 0, &lockrect, NULL, 0 );
-	//memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
-	//m_texture->UnlockRect( 0 );
-
-	//m_customTexture = true;
-	//m_imageInfo.Width = width;
-	//m_imageInfo.Height = height;
-	//m_imageInfo.Format = format;
-	return true;
-}
+//bool cTexture::Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format)
+//{
+//	Clear();
+//
+//	//if (FAILED(renderer.GetDevice()->CreateTexture( width, height, 1, 0, format, 
+//	//	D3DPOOL_MANAGED, &m_texture, NULL )))
+//	//	return false;
+//
+//	//D3DLOCKED_RECT lockrect;
+//	//m_texture->LockRect( 0, &lockrect, NULL, 0 );
+//	//memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
+//	//m_texture->UnlockRect( 0 );
+//
+//	//m_customTexture = true;
+//	//m_imageInfo.Width = width;
+//	//m_imageInfo.Height = height;
+//	//m_imageInfo.Format = format;
+//	return true;
+//}
 
 
 void cTexture::Bind(cRenderer &renderer

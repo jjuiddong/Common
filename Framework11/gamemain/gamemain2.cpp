@@ -3,9 +3,6 @@
 #include "gamemain2.h"
 #include <MMSystem.h>
 #include <chrono>
-#include "../window/utility.h"
-#include "../ui/dockmanager.h"
-#include "../ui/renderwindow.h"
 
 using namespace framework;
 

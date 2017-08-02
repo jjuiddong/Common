@@ -61,10 +61,10 @@ cRenderer::~cRenderer()
 
 // DirectX Device 객체 생성.
 bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height 
-	, const UINT adapter // = D3DADAPTER_DEFAULT
+	//, const UINT adapter // = D3DADAPTER_DEFAULT
 	)
 {
-	if (!InitDirectX11(hWnd, width, height, adapter, &m_d3dDevice, &m_immediateContext
+	if (!InitDirectX11(hWnd, width, height, 0, &m_d3dDevice, &m_immediateContext
 		, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
 		return false;
 
@@ -106,8 +106,8 @@ void cRenderer::RenderAxis()
 {
 	//RET(!m_pDevice);
 
-	if (m_axis.empty())
-		MakeAxis(500.f,  D3DXCOLOR(1,0,0,0),  D3DXCOLOR(0,1,0,0),  D3DXCOLOR(0,0,1,0), m_axis);
+	//if (m_axis.empty())
+	//	MakeAxis(500.f,  D3DXCOLOR(1,0,0,0),  D3DXCOLOR(0,1,0,0),  D3DXCOLOR(0,0,1,0), m_axis);
 
 	// 가장 위에 출력되기 위해서 zbuffer 를 끈다.
 	//m_pDevice->SetRenderState(D3DRS_ZENABLE, 0);
@@ -140,8 +140,8 @@ void cRenderer::RenderGrid()
 	static int gridSize = 0;
 	if (m_grid.empty())
 	{
-		MakeGrid(10, 64, D3DXCOLOR(0.8f,0.8f,0.8f,1), m_grid);
-		gridSize = m_grid.size() / 2;
+		//MakeGrid(10, 64, D3DXCOLOR(0.8f,0.8f,0.8f,1), m_grid);
+		//gridSize = m_grid.size() / 2;
 	}
 
 	if (gridSize > 0)
@@ -366,8 +366,8 @@ bool cRenderer::CheckResetDevice(const int width, const int height)
 		h = height;
 	}
 
-	if ((m_params.BackBufferWidth == w) && (m_params.BackBufferHeight == h))
-		return false;
+	//if ((m_params.BackBufferWidth == w) && (m_params.BackBufferHeight == h))
+	//	return false;
 	return true;
 }
 
@@ -401,10 +401,10 @@ bool cRenderer::ResetDevice(
 
 	//m_textFps.LostDevice();
 
-	m_viewPort.m_vp.Width = w;
-	m_viewPort.m_vp.Height = h;
-	m_params.BackBufferWidth = w;
-	m_params.BackBufferHeight = h;
+	m_viewPort.m_vp.Width = (float)w;
+	m_viewPort.m_vp.Height = (float)h;
+	//m_params.BackBufferWidth = w;
+	//m_params.BackBufferHeight = h;
 
 	//HRESULT hr = GetDevice()->Reset(&m_params);
 	//if (FAILED(hr))
@@ -496,46 +496,46 @@ sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 }
 
 
-void cRenderer::SetLightEnable(const int light, const bool enable)
-{
-	//GetDevice()->LightEnable(light, enable);
-}
-void cRenderer::SetCullMode(const D3DCULL cull)
-{
-	//GetDevice()->SetRenderState(D3DRS_CULLMODE, cull);
-}
-void cRenderer::SetFillMode(const D3DFILLMODE mode)
-{
-	//GetDevice()->SetRenderState(D3DRS_FILLMODE, mode);
-}
-void cRenderer::SetNormalizeNormals(const bool value)
-{
-	//GetDevice()->SetRenderState(D3DRS_NORMALIZENORMALS, value? TRUE : FALSE);
-}
-void cRenderer::SetAlphaBlend(const bool value)
-{
-	//GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, value ? TRUE : FALSE);
-}
-
-void cRenderer::SetZEnable(const bool value)
-{
-	//GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
-}
-void cRenderer::SetZFunc(const D3DCMPFUNC value)
-{
-	//GetDevice()->SetRenderState(D3DRS_ZFUNC, value);
-}
-
-D3DFILLMODE cRenderer::GetFillMode()
-{
-	DWORD value= 0;
-	//GetDevice()->GetRenderState(D3DRS_FILLMODE, &value);
-	return (D3DFILLMODE)value;
-}
-
-D3DCULL cRenderer::GetCullMode()
-{
-	DWORD value= 0;
-	//GetDevice()->GetRenderState(D3DRS_CULLMODE, &value);
-	return (D3DCULL)value;
-}
+//void cRenderer::SetLightEnable(const int light, const bool enable)
+//{
+//	//GetDevice()->LightEnable(light, enable);
+//}
+//void cRenderer::SetCullMode(const D3DCULL cull)
+//{
+//	//GetDevice()->SetRenderState(D3DRS_CULLMODE, cull);
+//}
+//void cRenderer::SetFillMode(const D3DFILLMODE mode)
+//{
+//	//GetDevice()->SetRenderState(D3DRS_FILLMODE, mode);
+//}
+//void cRenderer::SetNormalizeNormals(const bool value)
+//{
+//	//GetDevice()->SetRenderState(D3DRS_NORMALIZENORMALS, value? TRUE : FALSE);
+//}
+//void cRenderer::SetAlphaBlend(const bool value)
+//{
+//	//GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, value ? TRUE : FALSE);
+//}
+//
+//void cRenderer::SetZEnable(const bool value)
+//{
+//	//GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
+//}
+//void cRenderer::SetZFunc(const D3DCMPFUNC value)
+//{
+//	//GetDevice()->SetRenderState(D3DRS_ZFUNC, value);
+//}
+//
+//D3DFILLMODE cRenderer::GetFillMode()
+//{
+//	DWORD value= 0;
+//	//GetDevice()->GetRenderState(D3DRS_FILLMODE, &value);
+//	return (D3DFILLMODE)value;
+//}
+//
+//D3DCULL cRenderer::GetCullMode()
+//{
+//	DWORD value= 0;
+//	//GetDevice()->GetRenderState(D3DRS_CULLMODE, &value);
+//	return (D3DCULL)value;
+//}

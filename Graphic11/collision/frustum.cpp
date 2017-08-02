@@ -176,9 +176,10 @@ bool cFrustum::IsInBox(const cBoundingBox &bbox
 	//		return true;
 	//}
 
-	Vector3 size = bbox.m_max - bbox.m_min;
-	const float radius = size.Length() * 0.5f;
-	return IsInSphere(bbox.Center() * tm, radius);
+	//Vector3 size = bbox.m_max - bbox.m_min;
+	//const float radius = size.Length() * 0.5f;
+	//return IsInSphere(bbox.Center() * tm, radius);
+	return false;
 }
 
 

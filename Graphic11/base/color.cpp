@@ -48,8 +48,7 @@ void cColor::SetColor(const float r, const float g, const float b
 	, const float a //= 1.f
 )
 {
-	m_color = D3DCOLOR_COLORVALUE(r, g, b, a);
-
+	m_color = COLOR_COLORVALUE(r, g, b, a);
 }
 
 
@@ -58,7 +57,7 @@ void cColor::SetColor(const BYTE r, const BYTE g, const BYTE b
 	, const BYTE a //= 255
 )
 {
-	m_color = D3DCOLOR_ARGB(a, r, g, b);
+	m_color = COLOR_ARGB(a, r, g, b);
 }
 
 

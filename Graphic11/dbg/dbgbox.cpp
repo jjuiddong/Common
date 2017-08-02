@@ -9,20 +9,21 @@ cDbgBox::cDbgBox()
 {
 }
 
-cDbgBox::cDbgBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
+cDbgBox::cDbgBox(cRenderer &renderer, const cBoundingBox &bbox
+	, const cColor &color //= cColor::BLACK
+)
 {
-	SetBox(renderer, vMin, vMax);
+	Create(renderer, bbox, color);
 }
 
 
-void cDbgBox::InitBox(cRenderer &renderer)
+void cDbgBox::Create(cRenderer &renderer
+	, const cColor &color //= cColor::BLACK
+)
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return;
 
-	m_vtxBuff.Create(renderer, 36, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
-	m_idxBuff.Create(renderer, 12);
-
 	//        4 --- 5
 	//      / |  |  /|
 	//   0 --- 1   |
@@ -30,173 +31,150 @@ void cDbgBox::InitBox(cRenderer &renderer)
 	//   | /     | /
 	//   2 --- 3
 	//
-	Vector3 vertices[8] = {
-		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
-		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	Vector3 vertices[24] = {
+		Vector3(-1.f, 1.f, -1.f),//0
+		Vector3(1.f, -1.f, -1.f),//3
+		Vector3(-1.f, -1.f, -1.f),//2
+		Vector3(1.f, 1.f, -1.f),//1
+		Vector3(-1.f, -1.f, -1.f),//2
+		Vector3(1.f, -1.f, 1.f),// 7
+		Vector3(-1.f, -1.f, 1.f),//6
+		Vector3(1.f, -1.f, -1.f),//3
+		Vector3(-1.f, -1.f, 1.f),
+		Vector3(1.f, 1.f, 1.f),
+		Vector3(-1.f, 1.f, 1.f),
+		Vector3(1.f, -1.f, 1.f),
+		Vector3(-1.f, 1.f, 1.f),
+		Vector3(1.f, 1.f, -1.f),
+		Vector3(-1.f, 1.f, -1.f),
+		Vector3(1.f, 1.f, 1.f),
+		Vector3(-1.f, -1.f, 1.f),
+		Vector3(-1.f, 1.f, -1.f),
+		Vector3(-1.f, -1.f, -1.f),
+		Vector3(-1.f, 1.f, 1.f),
+		Vector3(1.f, -1.f, 1.f),
+		Vector3(1.f, 1.f, -1.f),
+		Vector3(1.f, 1.f, 1.f),
+		Vector3(1.f, -1.f, -1.f),
 	};
-
-	SetBox(vertices);
+	for (int i = 0; i < 24; ++i)
+		vertices[i] *= 0.5f;
 
 	WORD indices[36] = {
-		// front
-		0, 3, 2,
-		0 ,1, 3,
-		// back
-		5, 6, 7,
-		5, 4, 6,
-		// top
-		4, 1, 0,
-		4, 5, 1,
-		// bottom
-		2, 7, 6,
-		2, 3, 7,
-		// left
-		4, 2, 6,
-		4, 0, 2,
-		// right
-		1, 7, 3,
-		1, 5, 7,
+		0, 1, 2,
+		1, 0, 3,
+		4, 5, 6,
+		5, 4, 7,
+		8, 9, 10,
+		9, 8, 11,
+		12, 13, 14,
+		13, 12, 15,
+		16, 17, 18,
+		17, 16, 19,
+		20, 21, 22,
+		21, 20, 23,
 	};
 
-	if (WORD *p = (WORD*)m_idxBuff.Lock())
+	vector<D3D11_INPUT_ELEMENT_DESC> elems;
+	elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	cVertexLayout vtxLayout;
+	vtxLayout.Create(elems);
+
+	const int posOffset = vtxLayout.GetOffset("POSITION");
+	const int colorOffset = vtxLayout.GetOffset("COLOR");
+	const int vertexStride = vtxLayout.GetVertexSize();
+
+	vector<BYTE> buffer(vertexStride * 24);
+	BYTE *initVertices = &buffer[0];
+	const Vector4 vColor = color.GetColor();
+	BYTE *pvtx = initVertices;
+	for (int i = 0; i < 24; ++i)
 	{
-		for (int i = 0; i < 36; ++i)
-			*p++ = i;
-		m_idxBuff.Unlock();
+		*(Vector3*)(pvtx + posOffset) = vertices[i];
+		*(Vector4*)(pvtx + colorOffset) = vColor;
+		pvtx += vertexStride;
 	}
 
-	m_min = Vector3(-1, -1, -1);
-	m_max = Vector3(1, 1, 1);
+	m_vtxBuff.Create(renderer, 24, vertexStride, initVertices);
+
+	vector<WORD> buffer2(36);
+	WORD *initIndices = &buffer2[0];
+	for (int i = 0; i < 36; ++i)
+		initIndices[i] = indices[i];
+
+	m_idxBuff.Create(renderer, 12, initIndices);
+
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0,0,0,1));
 }
 
 
-void cDbgBox::InitBox(cRenderer &renderer, Vector3 vertices[8])
+void cDbgBox::Create(cRenderer &renderer, const cBoundingBox &bbox
+	, const cColor &color //= cColor::BLACK
+)
 {
 	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitBox(renderer);
+		Create(renderer, color);
 
-	SetBox(vertices);
-}
-
-
-void cDbgBox::SetBox(cRenderer &renderer, const Vector3 &vMin, const Vector3 &vMax)
-{
-	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitBox(renderer);
-
-	SetBox(vMin, vMax);
-}
-
-
-void cDbgBox::SetBox(Vector3 vertices[8])
-{
-	if (m_vtxBuff.GetVertexCount() <= 0)
-		return;
-
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
-	//   2 --- 3
-	//
-	// vertices
-
-	WORD indices[36] = {
-		// front
-		0, 3, 2,
-		0 ,1, 3,
-		// back
-		5, 6, 7,
-		5, 4, 6,
-		// top
-		4, 1, 0,
-		4, 5, 1,
-		// bottom
-		2, 7, 6,
-		2, 3, 7,
-		// left
-		4, 2, 6,
-		4, 0, 2,
-		// right
-		1, 7, 3,
-		1, 5, 7,
-	};
-
-	if (sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock())
-	{
-		const DWORD color = D3DCOLOR_XRGB(200, 200, 200);
-		for (int i = 0; i < 36; ++i)
-		{
-			vbuff[i].p = vertices[indices[i]];
-			vbuff[i].c = color;
-		}
-		m_vtxBuff.Unlock();
-	}
-}
-
-
-void cDbgBox::SetBox(const Vector3 &vMin, const Vector3 &vMax)
-{
-	const Vector3 center = (vMin + vMax) / 2.f;
-	const Vector3 v1 = vMin - vMax;
-	const Vector3 v2 = m_max - m_min;
-	Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
-
-	Matrix44 S;
-	S.SetScale(scale);
-	Matrix44 T;
-	T.SetTranslate(center);
-	Matrix44 tm = S * T;
-
-	m_tm = tm;
-	m_min = vMin;
-	m_max = vMax;
+	SetBox(bbox);
 }
 
 
 void cDbgBox::SetBox(const cBoundingBox &bbox)
 {
-	SetBox(bbox.m_min, bbox.m_max);
+	m_boundingBox = bbox;
 }
 
 
 void cDbgBox::SetColor(DWORD color)
 {
-	sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
-	for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
-		vbuff[i].c = color;
-	m_vtxBuff.Unlock();
+	//sVertexDiffuse *vbuff = (sVertexDiffuse*)m_vtxBuff.Lock();
+	//for (int i = 0; i < m_vtxBuff.GetVertexCount(); ++i)
+	//	vbuff[i].c = color;
+	//m_vtxBuff.Unlock();
 }
 
 
 // Render Box using Triangle
 void cDbgBox::Render(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 )
 {
 	RET(m_vtxBuff.GetVertexCount() <= 0);
 
-	DWORD cullMode;
-	DWORD fillMode;
-	DWORD lightMode;
-	renderer.GetDevice()->GetRenderState(D3DRS_CULLMODE, &cullMode);
-	renderer.GetDevice()->GetRenderState(D3DRS_FILLMODE, &fillMode);
-	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lightMode);
+	XMMATRIX ctm = m_boundingBox.GetTransform();
 
-	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, FALSE);
-	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-	renderer.GetDevice()->SetTexture(0, NULL);
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.Wireframe());
 
-	Matrix44 mat = m_tm * tm;
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
-		m_vtxBuff.GetVertexCount(), 0, 12);
 
-	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, cullMode);
-	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, fillMode);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
+
+	renderer.GetDevContext()->RSSetState(NULL);
+
+	//DWORD cullMode;
+	//DWORD fillMode;
+	//DWORD lightMode;
+	//renderer.GetDevice()->GetRenderState(D3DRS_CULLMODE, &cullMode);
+	//renderer.GetDevice()->GetRenderState(D3DRS_FILLMODE, &fillMode);
+	//renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lightMode);
+
+	//renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, FALSE);
+	//renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
+	//renderer.GetDevice()->SetTexture(0, NULL);
+
+	//Matrix44 mat = m_tm * tm;
+	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&mat);
+	//m_vtxBuff.Bind(renderer);
+	//m_idxBuff.Bind(renderer);
+	//renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0,
+	//	m_vtxBuff.GetVertexCount(), 0, 12);
+
+	//renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, cullMode);
+	//renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, fillMode);
+	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
 }

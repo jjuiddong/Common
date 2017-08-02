@@ -143,6 +143,7 @@
     <ClInclude Include="base\grid.h" />
     <ClInclude Include="base\indexbuffer.h" />
     <ClInclude Include="base\light.h" />
+    <ClInclude Include="base\line.h" />
     <ClInclude Include="base\material.h" />
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="collision\collision.h" />
     <ClInclude Include="collision\collisionmanager.h" />
     <ClInclude Include="collision\frustum.h" />
+    <ClInclude Include="dbg\dbgbox.h" />
     <ClInclude Include="graphic11.h" />
     <ClInclude Include="manager\lightmanager.h" />
     <ClInclude Include="manager\maincamera.h" />
@@ -197,6 +199,7 @@
     <ClCompile Include="base\grid.cpp" />
     <ClCompile Include="base\indexbuffer.cpp" />
     <ClCompile Include="base\light.cpp" />
+    <ClCompile Include="base\line.cpp" />
     <ClCompile Include="base\material.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
@@ -208,6 +211,7 @@
     <ClCompile Include="collision\boundingbox2.cpp" />
     <ClCompile Include="collision\collisionmanager.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
+    <ClCompile Include="dbg\dbgbox.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />
     <ClCompile Include="manager\maincamera.cpp" />
     <ClCompile Include="manager\Renderer.cpp" />
@@ -243,6 +247,9 @@
     <ClCompile Include="utility\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
+      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>

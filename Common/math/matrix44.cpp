@@ -3,7 +3,7 @@
 #include "math.h"
 
 #ifdef USE_D3DX_MATH
-	#include <d3dx9.h>
+	//#include <d3dx9.h>
 #endif
 
 
@@ -21,6 +21,20 @@ Matrix44::Matrix44(const float *ar)
 {
 	memcpy((float*)m, ar, sizeof(m));
 }
+
+Matrix44::Matrix44(
+	float m11, float m12, float m13, float m14
+	, float m21, float m22, float m23, float m24
+	, float m31, float m32, float m33, float m34
+	, float m41, float m42, float m43, float m44
+)
+{
+	_11 = m11; _12 = m12; _13 = m13; _14 = m14;
+	_21 = m21; _22 = m22; _23 = m23; _24 = m24;
+	_31 = m31; _32 = m32; _33 = m33; _34 = m34;
+	_41 = m41; _42 = m42; _43 = m43; _44 = m44;
+}
+
 
 void Matrix44::SetIdentity()
 {
@@ -197,6 +211,8 @@ void	Matrix44::SetProjectionOrthogonal(const float width, const float height, co
 {
 #ifdef USE_D3DX_MATH
 	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
+#else
+	assert(0);
 #endif
 }
 
@@ -205,6 +221,8 @@ void	Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 {
 #ifdef USE_D3DX_MATH
 	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, top, bottom, nearPlane, farPlane);
+#else
+	assert(0);
 #endif
 }
 

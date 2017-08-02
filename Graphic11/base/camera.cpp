@@ -670,6 +670,7 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 // 	point.x = (point.x + 1) * viewportWidth / 2;
 // 	point.y = (-point.y + 1) * viewportHeight / 2;
 
+#ifdef USE_D3DX_MATH
 	D3DVIEWPORT9 viewPort;
 	viewPort.X = 0;
 	viewPort.Y = 0;
@@ -686,6 +687,11 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 		(const D3DXMATRIX*)&world);
 
 	return point;
+#else
+	assert(0);
+	return Vector3(0, 0, 0);
+#endif
+
 }
 
 
@@ -733,7 +739,7 @@ void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix
 	view = GetViewMatrix();
 	proj = GetProjectionMatrix();
 
-	D3DXMATRIX mTT = D3DXMATRIX(0.5f, 0.0f, 0.0f, 0.0f
+	Matrix44 mTT(0.5f, 0.0f, 0.0f, 0.0f
 		, 0.0f, -0.5f, 0.0f, 0.0f
 		, 0.0f, 0.0f, 1.0f, 0.0f
 		, 0.5f, 0.5f, 0.0f, 1.0f);

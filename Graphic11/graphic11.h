@@ -7,19 +7,35 @@
 
 #pragma warning(push)
 #pragma warning (disable: 4005) //warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
-#include <d3d9.h>
-#include <d3dx9.h>
+//#include <d3d9.h>
+//#include <d3dx9.h>
 #include <d3d11.h>
-#include <d3dx11.h>
+//#include <d3dx11.h>
 #include <dxgitype.h>
 #pragma warning(pop)
 
 #include <d3dcompiler.h>
 
-#pragma warning(push)
-#pragma warning (disable: 4838) //warning C4838 : conversion from 'unsigned int' to 'INT' requires a narrowing conversion
-#include <xnamath.h>
-#pragma warning(pop)
+//--------------------------------------------------------------------------------------------------------------
+// DirectXTK Desktop 2015
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+#include <DirectXCollision.h>
+//#include <DirectXMathVector.inl>
+
+#include "../../DirectXTK/Inc/SimpleMath.h"
+#include "../../DirectXTK/Inc/DDSTextureLoader.h"
+#include "../../DirectXTK/Inc/CommonStates.h"
+
+using namespace DirectX;
+//--------------------------------------------------------------------------------------------------------------
+
+
+
+//#pragma warning(push)
+//#pragma warning (disable: 4838) //warning C4838 : conversion from 'unsigned int' to 'INT' requires a narrowing conversion
+//#include <xnamath.h>
+//#pragma warning(pop)
 
 #include <objidl.h>
 #include <gdiplus.h> 
@@ -72,7 +88,7 @@ static const StrPath g_defaultTexture = "white.dds";
 //#include "base/grid3.h"
 //#include "base/box.h"
 //#include "base/pyramid.h"
-//#include "base/line.h"
+#include "base/line.h"
 //#include "base/line2.h"
 //#include "base/line3.h"
 //#include "base/line2d.h"
@@ -110,7 +126,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "collision/frustum.h"
 //
 //
-//#include "dbg/dbgbox.h"
+#include "dbg/dbgbox.h"
 //#include "dbg/dbgbox2.h"
 //#include "dbg/dbgsphere.h"
 //#include "dbg/dbgline.h"

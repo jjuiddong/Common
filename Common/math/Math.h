@@ -1,7 +1,7 @@
 #pragma once
 
 // Direct3D 9 Math Library
-#define USE_D3DX_MATH
+//#define USE_D3DX_MATH
 
 
 

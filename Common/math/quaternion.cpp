@@ -3,7 +3,7 @@
 #include "Math.h"
 
 #ifdef USE_D3DX_MATH
-	#include <D3dx9math.h>
+	//#include <D3dx9math.h>
 #endif
 
 using namespace common;
@@ -13,6 +13,7 @@ using namespace common;
 //	Constructor
 //--------------------------------
 Quaternion::Quaternion()
+	:x(0), y(0), z(0), w(1)
 {
 
 } //Quaternion::Quaternion

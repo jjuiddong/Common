@@ -72,6 +72,8 @@ void cCube::InitCube(cRenderer &renderer, const int cubeType
 		Vector3(1.f, 1.f, 1.f),
 		Vector3(1.f, -1.f, -1.f),
 	};
+	for (int i = 0; i < 24; ++i)
+		vertices[i] *= 0.5f;
 
 	Vector3 normals[24] = {
 		Vector3(0.f, 0.f, -1.f),
@@ -184,21 +186,21 @@ void cCube::InitCube(cRenderer &renderer, const int cubeType
 	m_idxBuff.Create(renderer, 12, initIndices);
 	delete[] initIndices;
 
-	m_boundingBox.SetBoundingBox(Vector3(-1, -1, -1), Vector3(1, 1, 1));
+	m_boundingBox.SetBoundingBox(Vector3(0,0,0), Vector3(2,2,2), Quaternion(0,0,0,1));
 	m_cubeType = cubeType;
 }
 
 
 void cCube::SetCube(const cBoundingBox &bbox)
 {
-	const Vector3 vMin = bbox.m_min;
-	const Vector3 vMax = bbox.m_max;
-	const Vector3 center = (vMin + vMax) / 2.f;
-	const Vector3 v1 = vMin - vMax;
-	Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
+	//const Vector3 vMin = bbox.m_min;
+	//const Vector3 vMax = bbox.m_max;
+	//const Vector3 center = (vMin + vMax) / 2.f;
+	//const Vector3 v1 = vMin - vMax;
+	//Vector3 scale(abs(v1.x) / 2, abs(v1.y) / 2, abs(v1.z) / 2);
 
-	m_transform.scale = scale;
-	m_transform.pos = center;
+	m_transform.scale = bbox.GetDimension();
+	m_transform.pos = bbox.Center();
 	m_boundingBox = bbox;
 }
 

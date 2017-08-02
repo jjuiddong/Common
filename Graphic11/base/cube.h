@@ -36,7 +36,7 @@ namespace graphic
 		void SetCube(cRenderer &renderer, const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cCube &cube);
 		void SetColor( const cColor &color );
-		const float Length() const; // length(min - max)
+		//const float Length() const; // length(min - max)
 
 		//void RenderSolid(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
@@ -49,5 +49,5 @@ namespace graphic
 		int m_cubeType; // eCubeType::Enum
 	};	
 
-	inline const float cCube::Length() const { return m_boundingBox.Length(); }
+	//inline const float cCube::Length() const { return m_boundingBox.Length(); }
 }

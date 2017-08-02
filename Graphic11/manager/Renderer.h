@@ -15,7 +15,7 @@ namespace graphic
 		virtual ~cRenderer();
 
 		bool CreateDirectX(HWND hWnd, const int width, const int height
-			, const UINT adapter = D3DADAPTER_DEFAULT
+			//, const UINT adapter = D3DADAPTER_DEFAULT
 			);
 		void Update(const float elpaseT);
 		ID3D11Device* GetDevice();
@@ -41,15 +41,14 @@ namespace graphic
 
 		void SetLightEnable(const int light, const bool enable);
 
-		void SetCullMode(const D3DCULL cull);
-		void SetFillMode(const D3DFILLMODE mode);
-		void SetNormalizeNormals(const bool value);
-		void SetAlphaBlend(const bool value);
-		void SetZEnable(const bool value);
-		void SetZFunc(const D3DCMPFUNC value);
-
-		D3DFILLMODE GetFillMode();
-		D3DCULL GetCullMode();
+		//void SetCullMode(const D3DCULL cull);
+		//void SetFillMode(const D3DFILLMODE mode);
+		//void SetNormalizeNormals(const bool value);
+		//void SetAlphaBlend(const bool value);
+		//void SetZEnable(const bool value);
+		//void SetZFunc(const D3DCMPFUNC value);
+		//D3DFILLMODE GetFillMode();
+		//D3DCULL GetCullMode();
 
 
 	protected:
@@ -66,7 +65,7 @@ namespace graphic
 		ID3D11Texture2D *m_depthStencil;
 		ID3D11DepthStencilView *m_depthStencilView;
 
-		D3DPRESENT_PARAMETERS m_params;
+		//D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
 
 		//vector<sAlphaBlendSpace*> m_alphaSpace;

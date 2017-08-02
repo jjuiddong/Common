@@ -227,8 +227,12 @@ float cNode2::CullingTest(const cFrustum &frustum
 cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type)
 {
 	if (type == m_type)
-		if (m_boundingBox.Pick(orig, dir, GetWorldMatrix()))
+	{
+		cBoundingBox bbox = m_boundingBox;
+		bbox.Transform(GetWorldMatrix());
+		if (bbox.Pick(orig, dir))
 			return this;
+	}
 
 	for (auto &p : m_children)
 		if (cNode2 *n = p->Picking(orig, dir, type))

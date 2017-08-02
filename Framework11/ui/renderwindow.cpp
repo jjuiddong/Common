@@ -53,7 +53,7 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	__super::create(sf::VideoMode(width, height), title.c_str(),
 		(isTitleBar? sf::Style::Default : sf::Style::None));
 
-	if (!m_renderer.CreateDirectX(getSystemHandle(), width, height, s_adapter++))
+	if (!m_renderer.CreateDirectX(getSystemHandle(), width, height))// , s_adapter++))
 	{
 		return false;
 	}
@@ -72,7 +72,7 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	m_light.SetPosition(Vector3(-30000, 30000, -30000));
 	m_light.SetDirection(Vector3(1, -1, 1).Normal());
 
-	m_renderer.SetNormalizeNormals(true);
+	//m_renderer.SetNormalizeNormals(true);
 	m_renderer.SetLightEnable(0, true);
 	m_light.Bind(m_renderer, 0);
 
@@ -81,14 +81,14 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	{
 		m_sharedRenderer = shared;
 		//m_gui.Init(getSystemHandle(), shared->GetDevice());
-		m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
+		//m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
 		//m_sharedSurf.Create(*shared, width, height, 1);
 	}
 	else
 	{
 		m_sharedRenderer = NULL;
 		//m_gui.Init(getSystemHandle(), m_renderer.GetDevice());
-		m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
+		//m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
 		//m_sharedSurf.Create(m_renderer, width, height, 1);
 	}
 
@@ -720,8 +720,8 @@ void cRenderWindow::LostDevice()
 
 void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 {
-	const int width = m_renderer.m_viewPort.m_vp.Width;
-	const int height = m_renderer.m_viewPort.m_vp.Height;
+	const int width = (int)m_renderer.m_viewPort.m_vp.Width;
+	const int height = (int)m_renderer.m_viewPort.m_vp.Height;
 
 	m_camera.SetViewPort(width, height);
 	m_gui.CreateDeviceObjects();

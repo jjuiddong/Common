@@ -21,10 +21,10 @@ namespace graphic
 		}
 
 		void Set(const cBoundingBox &bbox, const Matrix44 &tm=Matrix44::Identity) {
-			const Vector3 v0 = bbox.m_max * tm;
-			const Vector3 v1 = bbox.m_min * tm;
-			m_pos = (v0 + v1) * 0.5f;
-			m_radius = (v0 - v1).Length() * 0.5f;
+			//const Vector3 v0 = bbox.m_max * tm;
+			//const Vector3 v1 = bbox.m_min * tm;
+			//m_pos = (v0 + v1) * 0.5f;
+			//m_radius = (v0 - v1).Length() * 0.5f;
 		}
 
 		cBoundingSphere operator * (const Matrix44 &rhs) {
