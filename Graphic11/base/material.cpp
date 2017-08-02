@@ -16,31 +16,27 @@ cMaterial::~cMaterial()
 
 
 // 메터리얼 초기화.
-void cMaterial::Init(const Vector4 &ambient, 
-	const Vector4 &diffuse,
-	const Vector4 &specular,
-	const Vector4 &emmisive,
-	const float pow)
+void cMaterial::Init(
+	const Vector4 &ambient 
+	, const Vector4 &diffuse
+	, const Vector4 &specular
+	, const Vector4 &emmisive //=Vector4(0, 0, 0, 1),
+	, const float pow // =90
+)
 {
-	ZeroMemory(&m_mtrl, sizeof(m_mtrl));
-	m_mtrl.Ambient = *(D3DXCOLOR*)&ambient;
-	m_mtrl.Diffuse = *(D3DXCOLOR*)&diffuse;
-	m_mtrl.Specular = *(D3DXCOLOR*)&specular;
-	m_mtrl.Emissive = *(D3DXCOLOR*)&emmisive;
-	m_mtrl.Power = 200.f;
+	m_ambient = *(XMFLOAT4*)&ambient;
+	m_diffuse = *(XMFLOAT4*)&diffuse;
+	m_specular = *(XMFLOAT4*)&specular;
+	m_emissive = *(XMFLOAT4*)&emmisive;
+	m_power = pow;
 }
 
-
-void cMaterial::Init(const D3DMATERIAL9 &mtrl)
-{
-	m_mtrl = mtrl;
-}
 
 
 void cMaterial::Init(const sMaterial &mtrl)
 {
 	Init(mtrl.ambient, mtrl.diffuse, mtrl.specular, mtrl.emissive);
-	m_mtrl.Power = mtrl.power;
+	m_power = mtrl.power;
 }
 
 
@@ -100,27 +96,13 @@ void cMaterial::InitYellow()
 	Init(Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1));
 }
 
-void cMaterial::Bind(cRenderer &renderer)
-{
-	renderer.GetDevice()->SetMaterial(&m_mtrl);
-}
-
-void cMaterial::Bind(cShader &shader)
-{
-	shader.SetMaterialAmbient(*(Vector4*)&m_mtrl.Ambient);
-	shader.SetMaterialDiffuse(*(Vector4*)&m_mtrl.Diffuse);
-	shader.SetMaterialEmissive(*(Vector4*)&m_mtrl.Emissive);
-	shader.SetMaterialSpecular(*(Vector4*)&m_mtrl.Specular);
-	shader.SetMaterialShininess(m_mtrl.Power);
-}
-
 
 Str64 cMaterial::DiffuseColor()
 {
 	Str64 str = common::format<64>("Diffuse  R=%f G=%f B=%f A=%f ",
-		m_mtrl.Diffuse.r, m_mtrl.Diffuse.g, m_mtrl.Diffuse.b, m_mtrl.Diffuse.a);
+		m_diffuse.x, m_diffuse.y, m_diffuse.z, m_diffuse.w);
 
-	Str64 color = SpecialColor(m_mtrl.Diffuse.r, m_mtrl.Diffuse.g, m_mtrl.Diffuse.b);
+	Str64 color = SpecialColor(m_diffuse.x, m_diffuse.y, m_diffuse.z);
 
 	if (!color.empty())
 		str += Str64(" (") + color + ")";
@@ -130,9 +112,9 @@ Str64 cMaterial::DiffuseColor()
 Str64 cMaterial::AmbientColor()
 {
 	Str64 str = common::format<64>("Ambient  R=%f G=%f B=%f A=%f ",
-		m_mtrl.Ambient.r, m_mtrl.Ambient.g, m_mtrl.Ambient.b, m_mtrl.Ambient.a);
+		m_ambient.x, m_ambient.y, m_ambient.z, m_ambient.w);
 
-	Str64 color = SpecialColor(m_mtrl.Ambient.r, m_mtrl.Ambient.g, m_mtrl.Ambient.b);
+	Str64 color = SpecialColor(m_ambient.x, m_ambient.y, m_ambient.z);
 
 	if (!color.empty())
 		str += Str64(" (") + color + ")";
@@ -142,9 +124,9 @@ Str64 cMaterial::AmbientColor()
 Str64 cMaterial::SpecularColor()
 {
 	Str64 str = common::format<64>("Specular  R=%f G=%f B=%f A=%f ",
-		m_mtrl.Specular.r, m_mtrl.Specular.g, m_mtrl.Specular.b, m_mtrl.Specular.a);
+		m_specular.x, m_specular.y, m_specular.z, m_specular.w);
 
-	Str64 color = SpecialColor(m_mtrl.Specular.r, m_mtrl.Specular.g, m_mtrl.Specular.b);
+	Str64 color = SpecialColor(m_specular.x, m_specular.y, m_specular.z);
 
 	if (!color.empty())
 		str += Str64(" (") + color + ")";
@@ -155,9 +137,9 @@ Str64 cMaterial::SpecularColor()
 Str64 cMaterial::EmissiveColor()
 {
 	Str64 str = common::format<64>("Emissive  R=%f G=%f B=%f A=%f ",
-		m_mtrl.Emissive.r, m_mtrl.Emissive.g, m_mtrl.Emissive.b, m_mtrl.Emissive.a);
+		m_emissive.x, m_emissive.y, m_emissive.z, m_emissive.w);
 
-	Str64 color = SpecialColor(m_mtrl.Emissive.r, m_mtrl.Emissive.g, m_mtrl.Emissive.b);
+	Str64 color = SpecialColor(m_emissive.x, m_emissive.y, m_emissive.z);
 
 	if (!color.empty())
 		str += Str64(" (") + color + ")";
@@ -182,4 +164,16 @@ Str64 cMaterial::SpecialColor(const float r, const float g, const float b)
 	else if ((r == 0) && (g == 0) && (b == 1))
 		color = "Blue";
 	return color;
+}
+
+
+sCbMaterial cMaterial::GetMaterial()
+{
+	sCbMaterial cb;
+	cb.ambient = XMLoadFloat4(&m_ambient);
+	cb.diffuse = XMLoadFloat4(&m_diffuse);
+	cb.specular = XMLoadFloat4(&m_specular);
+	cb.emissive = XMLoadFloat4(&m_emissive);
+	cb.pow = m_power;
+	return cb;
 }

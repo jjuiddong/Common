@@ -9,21 +9,20 @@
 
 namespace graphic
 {
-	class cRenderer;
 
+	struct eCubeType {
+		enum Enum {
+			POSITION = 1 << 1
+			, NORMAL = 1 << 2
+			, DIFFUSE = 1 << 3
+			, TEXTURE = 1 << 4
+		};
+	};
+
+	class cRenderer;
 	class cCube : public cNode2
 	{
 	public:
-		struct eCubeType {
-			enum Enum {
-				POSITION = 1 << 1
-				, NORMAL = 1 << 2
-				, DIFFUSE = 1 << 3
-				, TEXTURE = 1 << 4
-			};
-		};
-
-
 		cCube();
 		cCube(cRenderer &renderer, const cBoundingBox &bbox
 			, const int cubeType = (eCubeType::POSITION | eCubeType::NORMAL | eCubeType::DIFFUSE)
@@ -40,8 +39,6 @@ namespace graphic
 		const float Length() const; // length(min - max)
 
 		//void RenderSolid(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		//void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
-		//void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 
 
@@ -49,7 +46,7 @@ namespace graphic
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 		cTexture *m_texture; // reference
-		int m_cubeType;
+		int m_cubeType; // eCubeType::Enum
 	};	
 
 	inline const float cCube::Length() const { return m_boundingBox.Length(); }

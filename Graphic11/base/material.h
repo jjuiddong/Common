@@ -1,10 +1,24 @@
-// 재질 클래스
-// D3DMATERIAL9 데이타를 쉽게 다루기위해 만들어짐.
+//
+// 2017-08-01, jjuiddong
+// Upgrade DX9 - DX11
+// Material Class
+//
 #pragma once
 
 
 namespace graphic
 {
+
+	struct sCbMaterial
+	{
+		XMVECTOR ambient;
+		XMVECTOR diffuse;
+		XMVECTOR specular;
+		XMVECTOR emissive;
+		float pow;
+	};
+
+
 	struct sMaterial;
 	class cShader;
 	class cRenderer;
@@ -19,12 +33,9 @@ namespace graphic
 			const Vector4 &diffuse,
 			const Vector4 &specular,
 			const Vector4 &emmisive=Vector4(0,0,0,1),
-			const float pow=0);
+			const float pow=90);
 
-		void Init(const D3DMATERIAL9 &mtrl);
 		void Init(const sMaterial &mtrl);
-
-		D3DMATERIAL9& GetMtrl();
 
 		void InitWhite();
 		void InitBlack();
@@ -36,20 +47,21 @@ namespace graphic
 		void InitBlue();
 		void InitGreen();
 		void InitYellow();
-		void Bind(cRenderer &renderer);
-		void Bind(cShader &shader);
 
 		Str64 DiffuseColor();
 		Str64 AmbientColor();
 		Str64 SpecularColor();
 		Str64 EmissiveColor();
 		Str64 SpecialColor(const float r, const float g, const float b);
+		sCbMaterial GetMaterial();
 
 
 	public:
-		D3DMATERIAL9 m_mtrl;
+		XMFLOAT4 m_ambient;
+		XMFLOAT4 m_diffuse;
+		XMFLOAT4 m_specular;
+		XMFLOAT4 m_emissive;
+		float m_power;
 	};
 
-
-	inline D3DMATERIAL9& cMaterial::GetMtrl() { return m_mtrl; }
 }

@@ -25,18 +25,27 @@ void cLight::Init(TYPE type,
 	//m_light.Diffuse = *(D3DCOLORVALUE*)&diffuse;
 	//m_light.Specular = *(D3DCOLORVALUE*)&specular;
 	//m_light.Direction = *(D3DXVECTOR3*)&direction;
+
+	m_ambient = *(XMFLOAT4*)&ambient;
+	m_diffuse = *(XMFLOAT4*)&diffuse;
+	m_specular = *(XMFLOAT4*)&specular;
+	m_direction = *(XMFLOAT3*)&direction;
+	m_pos = XMFLOAT3(0, 0, 0);
+
 }
 
 
 void cLight::SetDirection( const Vector3 &direction )
 {
 	//m_light.Direction = *(D3DXVECTOR3*)&direction;
+	m_direction = *(XMFLOAT3*)&direction;
 }
 
 
 void cLight::SetPosition( const Vector3 &pos )
 {
 	//m_light.Position = *(D3DXVECTOR3*)&pos;
+	m_pos = *(XMFLOAT3*)&pos;
 }
 
 
@@ -130,3 +139,15 @@ void cLight::Bind(cRenderer &renderer,
 //	shader.SetLightTheta(m_light.Theta);
 //	shader.SetLightPhi(m_light.Phi);
 //}
+
+
+sCbLight cLight::GetLight()
+{
+	sCbLight cb;
+	cb.ambient = XMLoadFloat4(&m_ambient);
+	cb.diffuse = XMLoadFloat4(&m_diffuse);
+	cb.specular = XMLoadFloat4(&m_specular);
+	cb.direction = XMLoadFloat3(&m_direction);
+	cb.posW = XMLoadFloat3(&m_pos);
+	return cb;
+}

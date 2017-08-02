@@ -151,6 +151,12 @@
     <ClInclude Include="base\d3dx11effect.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="manager\lightmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\material.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -284,6 +290,12 @@
       <Filter>utility</Filter>
     </ClCompile>
     <ClCompile Include="base\samplerstate.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\lightmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\material.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

@@ -57,7 +57,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/color.h"
 //#include "base/fontgdi.h"
 #include "base/viewport.h"
-//#include "base/material.h"
+#include "base/material.h"
 #include "base/light.h"
 #include "base/vertexlayout.h"
 #include "base/vertexbuffer.h"
@@ -190,7 +190,7 @@ namespace graphic
 #include "manager/Renderer.h"
 //#include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
-//#include "manager/lightmanager.h"
+#include "manager/lightmanager.h"
 //#include "manager/fontmanager.h"
 //#include "manager/pickmanager.h"
 //

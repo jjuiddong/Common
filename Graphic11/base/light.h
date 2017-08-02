@@ -9,6 +9,16 @@
 namespace graphic
 {
 
+	struct sCbLight
+	{
+		XMVECTOR ambient;
+		XMVECTOR diffuse;
+		XMVECTOR specular;
+		XMVECTOR direction;
+		XMVECTOR posW;
+	};
+
+
 	class cLight
 	{
 	public:
@@ -43,9 +53,16 @@ namespace graphic
 			, OUT Matrix44 &proj, OUT Matrix44 &tt);
 		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt);
 
+		sCbLight GetLight();
+
 
 	public:
-		//D3DLIGHT9 m_light;
+		TYPE m_type;
+		XMFLOAT4 m_ambient;
+		XMFLOAT4 m_diffuse;
+		XMFLOAT4 m_specular;
+		XMFLOAT3 m_direction;
+		XMFLOAT3 m_pos;
 	};
 
 

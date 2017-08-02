@@ -40,10 +40,13 @@ bool cConstantBuffer::Update(cRenderer &renderer, const void *ptr)
 }
 
 
-bool cConstantBuffer::Bind(cRenderer &renderer)
+bool cConstantBuffer::Bind(cRenderer &renderer
+	, const int slot //=0
+)
 {
 	RETV(!m_constantBuffer, false);
-	renderer.GetDevContext()->VSSetConstantBuffers(0, 1, &m_constantBuffer);
+	renderer.GetDevContext()->VSSetConstantBuffers(slot, 1, &m_constantBuffer);
+	renderer.GetDevContext()->PSSetConstantBuffers(slot, 1, &m_constantBuffer);
 	return true;
 }
 
