@@ -2,8 +2,9 @@
 #include "stdafx.h"
 #include "math.h"
 
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	//#include <d3dx9.h>
+	#include <D3dx9math.h>
 #endif
 
 
@@ -43,7 +44,7 @@ void Matrix44::SetIdentity()
 }
 
 
-void	Matrix44::SetRotationX( const float angle )
+void Matrix44::SetRotationX( const float angle )
 {
 	float fCos = cosf( angle );
 	float fSin = sinf( angle );
@@ -55,7 +56,7 @@ void	Matrix44::SetRotationX( const float angle )
 }
 
 
-void	Matrix44::SetRotationY( const float angle )
+void Matrix44::SetRotationY( const float angle )
 {
 	float fCos = cosf( angle );
 	float fSin = sinf( angle );
@@ -67,7 +68,7 @@ void	Matrix44::SetRotationY( const float angle )
 }
 
 
-void	Matrix44::SetRotationZ( const float angle )
+void Matrix44::SetRotationZ( const float angle )
 {
 	float fCos = cosf( angle );
 	float fSin = sinf( angle );
@@ -79,7 +80,7 @@ void	Matrix44::SetRotationZ( const float angle )
 }
 
 
-void	Matrix44::SetTranslate( const Vector3& pos )
+void Matrix44::SetTranslate( const Vector3& pos )
 {
 	SetIdentity();
 	_41 = pos.x;
@@ -88,7 +89,7 @@ void	Matrix44::SetTranslate( const Vector3& pos )
 }
 
 
-void	Matrix44::SetScale( const Vector3& scale)
+void Matrix44::SetScale( const Vector3& scale)
 {
 	SetIdentity();
 	_11 = scale.x;
@@ -99,7 +100,7 @@ void	Matrix44::SetScale( const Vector3& scale)
 
 Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	Matrix44 matrix;
 	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
 	return matrix;
@@ -118,13 +119,13 @@ Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 		}
 	}
 	return matrix;
-#endif // USE_D3DX_MATH
+#endif // USE_D3D9_MATH
 }
 
 
 Matrix44& Matrix44::operator *= ( const Matrix44& rhs )
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	Matrix44 matrix;
 	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
 	*this = matrix;
@@ -145,7 +146,7 @@ Matrix44& Matrix44::operator *= ( const Matrix44& rhs )
 	}
 	*this = matrix;
 	return *this;
-#endif // USE_D3DX_MATH
+#endif // USE_D3D9_MATH
 }
 
 
@@ -207,9 +208,9 @@ void Matrix44::SetProjection(	const float fov, const float aspect, const float n
 }
 
 
-void	Matrix44::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
+void Matrix44::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
 #else
 	assert(0);
@@ -217,9 +218,9 @@ void	Matrix44::SetProjectionOrthogonal(const float width, const float height, co
 }
 
 
-void	Matrix44::SetProjectionOrthogonal(const float left, const float right, const float top, const float bottom, const float nearPlane, const float farPlane)
+void Matrix44::SetProjectionOrthogonal(const float left, const float right, const float top, const float bottom, const float nearPlane, const float farPlane)
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, top, bottom, nearPlane, farPlane);
 #else
 	assert(0);
@@ -229,7 +230,7 @@ void	Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 
 Quaternion Matrix44::GetQuaternion() const
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	 	Vector3 s, t;
 		Quaternion q;
 	 	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
@@ -269,7 +270,7 @@ Quaternion Matrix44::GetQuaternion() const
 		q.w = ( m[k][j] - m[j][k] ) / ( 2.0F * s );
 	}
 	return q;
-#endif // USE_D3DX_MATH
+#endif // USE_D3D9_MATH
 }
 
 
@@ -555,7 +556,7 @@ void Matrix44::InverseMatrix(Matrix44 &out) const
 // 역행렬을 리턴한다.
 Matrix44 Matrix44::Inverse() const
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	Matrix44 matInverse;
 	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
 	return matInverse;
@@ -564,13 +565,13 @@ Matrix44 Matrix44::Inverse() const
 	Matrix44 matInverse;
 	InverseMatrix(matInverse);
 	return matInverse;
-#endif // USE_D3DX_MATH
+#endif // USE_D3D9_MATH
 }
 
 
 Matrix44& Matrix44::Inverse2()
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	Matrix44 matInverse;
 	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
 	*this = matInverse;
@@ -578,7 +579,7 @@ Matrix44& Matrix44::Inverse2()
 	Matrix44 matInverse;
 	InverseMatrix(matInverse);
 	*this = matInverse;
-#endif // USE_D3DX_MATH
+#endif // USE_D3D9_MATH
 
 	return *this;
 }
@@ -587,7 +588,7 @@ Matrix44& Matrix44::Inverse2()
 // 전치행렬을 만든다.
 Matrix44& Matrix44::Transpose()
 {
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	Matrix44 m;
 	D3DXMatrixTranspose((D3DXMATRIX*)&m, (D3DXMATRIX*)this);
 	*this = m;
@@ -610,7 +611,7 @@ Matrix44& Matrix44::Transpose()
 	m._43 = _34;
 	m._44 = _44;
 	*this = m;
-#endif // USE_D3DX_MATH
+#endif // USE_D3D9_MATH
 
 	return *this;
 }
@@ -683,3 +684,14 @@ void Matrix44::SetRotationYZ(const Vector3 &yAxis, const Vector3 &zAxis)
 	_41 = _42 = _43 = 0;
 	_44 = 1;
 }
+
+
+#ifdef USE_D3D11_MATH
+
+XMMATRIX Matrix44::GetMatrixXM() const
+{
+	XMMATRIX m = XMLoadFloat4x4((XMFLOAT4X4*)this);
+	return m;
+}
+
+#endif

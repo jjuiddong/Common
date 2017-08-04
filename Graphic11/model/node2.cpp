@@ -187,7 +187,7 @@ bool cNode2::RemoveChild(cNode2 *rmNode
 
 void cNode2::CalcBoundingSphere()
 {
-	m_boundingSphere.Set(m_boundingBox);
+	m_boundingSphere.SetBoundingSphere(m_boundingBox);
 }
 
 
@@ -199,7 +199,8 @@ float cNode2::CullingTest(const cFrustum &frustum
 	RETV(!m_isEnable, false);
 
 	const Matrix44 transform = m_transform.GetMatrix()*tm;
-	if (frustum.IsInSphere(m_boundingSphere, transform))
+	const cBoundingSphere bsphere = m_boundingSphere * transform;
+	if (frustum.IsInSphere(bsphere))
 	{
 		m_isShow = true;
 		m_isShadow = m_isShadowEnable;
@@ -220,7 +221,7 @@ float cNode2::CullingTest(const cFrustum &frustum
 		m_isShow = false;
 	}
 
-	return frustum.m_pos.LengthRoughly(m_boundingBox.Center() * transform);
+	return frustum.LengthRoughly(m_boundingBox.Center() * transform);
 }
 
 
@@ -229,7 +230,7 @@ cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType
 	if (type == m_type)
 	{
 		cBoundingBox bbox = m_boundingBox;
-		bbox.Transform(GetWorldMatrix());
+		bbox *= GetWorldMatrix();
 		if (bbox.Pick(orig, dir))
 			return this;
 	}

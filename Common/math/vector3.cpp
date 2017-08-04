@@ -208,3 +208,11 @@ Vector3 Vector3::Maximum(const Vector3 &rhs)
 	v.z = max(z, rhs.z);
 	return v;
 }
+
+
+#ifdef USE_D3D11_MATH
+XMVECTOR Vector3::GetVectorXM() const
+{
+	return XMLoadFloat3((XMFLOAT3*)this);
+}
+#endif

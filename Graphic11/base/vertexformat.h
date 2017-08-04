@@ -17,8 +17,8 @@ namespace graphic
 		//DWORD c;
 		//enum {FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE };
 
-		XMFLOAT3 p;
-		XMFLOAT4 c;
+		Vector3 p;
+		Vector4 c;
 	};
 
 

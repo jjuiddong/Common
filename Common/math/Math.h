@@ -1,7 +1,8 @@
 #pragma once
 
 // Direct3D 9 Math Library
-//#define USE_D3DX_MATH
+//#define USE_D3D9_MATH
+#define USE_D3D11_MATH
 
 
 
@@ -20,6 +21,22 @@ const double MATH_EPSILON2 = 0.0000000001f;//1.0e-10;
 #include <float.h>
 #include <vector>
 using std::vector;
+
+
+#ifdef USE_D3D11_MATH
+	#pragma warning(push)
+	#pragma warning (disable: 4005) //warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+		#include <d3d11.h>
+		#include <dxgitype.h>
+	#pragma warning(pop)
+
+	#include <DirectXMath.h>
+	#include <DirectXPackedVector.h>
+	#include <DirectXCollision.h>
+
+	using namespace DirectX;
+#endif // USE_D3D11_MATH
+
 
 #include "vectortype.h"
 #include "vector2.h"

@@ -13,20 +13,18 @@ namespace graphic
 	{
 	public:
 		cDbgSphere();
-		cDbgSphere(cRenderer &renderer, const float radius, const int stacks, const int slices);
+		cDbgSphere(cRenderer &renderer, const float radius, const int stacks, const int slices, const cColor &color = cColor::BLACK);
 		virtual ~cDbgSphere();
 
-		void Create(cRenderer &renderer, const float radius, const int stacks, const int slices);
-		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
+		void Create(cRenderer &renderer, const float radius, const int stacks, const int slices, const cColor &color = cColor::BLACK);
+		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
+		void SetPos(const Vector3 &pos);
+		XMMATRIX GetTransform() const;
 
 
 	public:
-		cVertexBuffer m_vtxBuff;
-		cIndexBuffer m_idxBuff;
-		float m_radius;
-		int m_numSlices;
-		int m_numStacks;
-		Transform m_transform;
+		cSphereShape m_shape;
+		cBoundingSphere m_bsphere;
 	};
 
 }

@@ -5,32 +5,33 @@
 // 2016-05-22
 //		- cNode 클래스 상속받아서 일반화 시킴
 //
+// 2017-08-04
+//		- Upgrade DX9 - DX11
+//
 #pragma once
 
-#include "../model/node.h"
 
 namespace graphic
 {
 
-	class cSphere : public cNode
+	class cSphere : public cNode2
 	{
 	public:
 		cSphere();
-		cSphere(cRenderer &renderer, const float radius, const int stacks, const int slices);
+		cSphere(cRenderer &renderer, const float radius, const int stacks, const int slices
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE));
 		virtual ~cSphere();
 
-		void Create(cRenderer &renderer, const float radius, const int stacks, const int slices);
-		virtual void Render(cRenderer &renderer, const Matrix44 &tm) override;
-		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm);
+		void Create(cRenderer &renderer, const float radius, const int stacks, const int slices
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE));
+
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
 
 	public:
-		cVertexBuffer m_vtxBuff;
-		cIndexBuffer m_idxBuff;
-		float m_radius;
-		int m_numSlices;
-		int m_numStacks;
+		cSphereShape m_shape;
 		cMaterial m_mtrl;
+		float m_radius;
 	};	
 
 }

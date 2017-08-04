@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base\camera.h" />
+    <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\color.h" />
     <ClInclude Include="base\constantbuffer.h" />
     <ClInclude Include="base\cube.h" />
@@ -145,20 +146,23 @@
     <ClInclude Include="base\light.h" />
     <ClInclude Include="base\line.h" />
     <ClInclude Include="base\material.h" />
+    <ClInclude Include="base\pyramid.h" />
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
+    <ClInclude Include="base\sphere.h" />
     <ClInclude Include="base\texture.h" />
     <ClInclude Include="base\vertexbuffer.h" />
     <ClInclude Include="base\vertexlayout.h" />
     <ClInclude Include="base\vertexformat.h" />
     <ClInclude Include="base\viewport.h" />
     <ClInclude Include="collision\boundingbox.h" />
-    <ClInclude Include="collision\boundingbox2.h" />
     <ClInclude Include="collision\boundingsphere.h" />
     <ClInclude Include="collision\collision.h" />
     <ClInclude Include="collision\collisionmanager.h" />
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="dbg\dbgbox.h" />
+    <ClInclude Include="dbg\dbgfrustum.h" />
+    <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
     <ClInclude Include="manager\lightmanager.h" />
     <ClInclude Include="manager\maincamera.h" />
@@ -166,6 +170,11 @@
     <ClInclude Include="model\node.h" />
     <ClInclude Include="model\node2.h" />
     <ClInclude Include="model\rawmesh.h" />
+    <ClInclude Include="shape\circleshape.h" />
+    <ClInclude Include="shape\cubeshape.h" />
+    <ClInclude Include="shape\pyramidshape.h" />
+    <ClInclude Include="shape\shape.h" />
+    <ClInclude Include="shape\sphereshape.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="textdesigner\BmpOutlineText.h" />
@@ -192,6 +201,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\camera.cpp" />
+    <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\color.cpp" />
     <ClCompile Include="base\constantbuffer.cpp" />
     <ClCompile Include="base\cube.cpp" />
@@ -201,23 +211,30 @@
     <ClCompile Include="base\light.cpp" />
     <ClCompile Include="base\line.cpp" />
     <ClCompile Include="base\material.cpp" />
+    <ClCompile Include="base\pyramid.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
+    <ClCompile Include="base\sphere.cpp" />
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
     <ClCompile Include="base\vertexlayout.cpp" />
     <ClCompile Include="base\viewport.cpp" />
     <ClCompile Include="collision\boundingbox.cpp" />
-    <ClCompile Include="collision\boundingbox2.cpp" />
     <ClCompile Include="collision\collisionmanager.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="dbg\dbgbox.cpp" />
+    <ClCompile Include="dbg\dbgfrustum.cpp" />
+    <ClCompile Include="dbg\dbgsphere.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />
     <ClCompile Include="manager\maincamera.cpp" />
     <ClCompile Include="manager\Renderer.cpp" />
     <ClCompile Include="model\node.cpp" />
     <ClCompile Include="model\node2.cpp" />
     <ClCompile Include="model\rawmesh.cpp" />
+    <ClCompile Include="shape\circleshape.cpp" />
+    <ClCompile Include="shape\cubeshape.cpp" />
+    <ClCompile Include="shape\pyramidshape.cpp" />
+    <ClCompile Include="shape\sphereshape.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

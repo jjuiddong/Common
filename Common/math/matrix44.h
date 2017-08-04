@@ -1,3 +1,8 @@
+//
+// 2017-08-03, jjuiddong
+// Upgrade DX9 -> DX11
+//
+//
 #pragma once
 
 namespace common
@@ -51,6 +56,10 @@ namespace common
 		Matrix44& Inverse2();
 		void InverseMatrix(Matrix44 &out) const;
 		Matrix44& Transpose();
+
+#ifdef USE_D3D11_MATH
+		XMMATRIX GetMatrixXM() const;
+#endif
 
 		Matrix44 operator * ( const Matrix44& rhs ) const;
 		Matrix44& operator *= ( const Matrix44& rhs );

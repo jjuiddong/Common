@@ -2,6 +2,10 @@
 #include "stdafx.h"
 #include "camera.h"
 
+#ifdef USE_D3D9_MATH
+	#include <D3dx9math.h>
+#endif 
+
 
 using namespace graphic;
 
@@ -670,7 +674,7 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 // 	point.x = (point.x + 1) * viewportWidth / 2;
 // 	point.y = (-point.y + 1) * viewportHeight / 2;
 
-#ifdef USE_D3DX_MATH
+#ifdef USE_D3D9_MATH
 	D3DVIEWPORT9 viewPort;
 	viewPort.X = 0;
 	viewPort.Y = 0;
@@ -690,7 +694,7 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 #else
 	assert(0);
 	return Vector3(0, 0, 0);
-#endif
+#endif // USE_D3D9_MATH
 
 }
 

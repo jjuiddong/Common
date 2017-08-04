@@ -7,10 +7,7 @@
 
 #pragma warning(push)
 #pragma warning (disable: 4005) //warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
-//#include <d3d9.h>
-//#include <d3dx9.h>
 #include <d3d11.h>
-//#include <d3dx11.h>
 #include <dxgitype.h>
 #pragma warning(pop)
 
@@ -21,7 +18,6 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
-//#include <DirectXMathVector.inl>
 
 #include "../../DirectXTK/Inc/SimpleMath.h"
 #include "../../DirectXTK/Inc/DDSTextureLoader.h"
@@ -47,6 +43,10 @@ using namespace common;
 
 static const StrPath g_defaultTexture = "white.dds";
 
+namespace graphic {
+	class cRenderer;
+}
+
 
 #include "base\d3dx11effect.h"
 
@@ -59,7 +59,7 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "model/rawmesh.h"
 //#include "model/rawani.h"
 #include "collision/boundingbox.h"
-#include "collision/boundingbox2.h"
+//#include "collision/boundingbox2.h"
 #include "collision/boundingsphere.h"
 //
 //#include "interface/pickable.h"
@@ -70,6 +70,8 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "model/node.h"
 #include "model/node2.h"
 //
+
+
 #include "base/color.h"
 //#include "base/fontgdi.h"
 #include "base/viewport.h"
@@ -83,11 +85,19 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/texture.h"
 //#include "base/texturecube.h"
 #include "base/vertexformat.h"
+
+#include "shape\shape.h"
+#include "shape\cubeshape.h"
+#include "shape\sphereshape.h"
+#include "shape\pyramidshape.h"
+#include "shape\circleshape.h"
+
+
 #include "base/grid.h"
 //#include "base/grid2.h"
 //#include "base/grid3.h"
 //#include "base/box.h"
-//#include "base/pyramid.h"
+#include "base/pyramid.h"
 #include "base/line.h"
 //#include "base/line2.h"
 //#include "base/line3.h"
@@ -102,11 +112,11 @@ static const StrPath g_defaultTexture = "white.dds";
 #include "base/camera.h"
 //#include "base/skybox.h"
 //#include "base/skybox2.h"
-//#include "base/sphere.h"
+#include "base/sphere.h"
 //#include "base/surface.h"
 //#include "base/surface2.h"
 //#include "base/surface3.h"
-//#include "base/circle.h"
+#include "base/circle.h"
 //#include "base/circleline.h"
 //#include "base/quad.h"
 //#include "base/quad2d.h"
@@ -128,11 +138,11 @@ static const StrPath g_defaultTexture = "white.dds";
 //
 #include "dbg/dbgbox.h"
 //#include "dbg/dbgbox2.h"
-//#include "dbg/dbgsphere.h"
+#include "dbg/dbgsphere.h"
 //#include "dbg/dbgline.h"
 //#include "dbg/dbglinelist.h"
 //#include "dbg/dbgarrow.h"
-//#include "dbg/dbgfrustum.h"
+#include "dbg/dbgfrustum.h"
 //#include "dbg/dbgquad.h"
 //#include "dbg/dbgquad2.h"
 //#include "dbg/dbgaxis.h"
@@ -214,15 +224,14 @@ namespace graphic
 
 
 
-#pragma comment( lib, "d3d9.lib" )
-#pragma comment( lib, "d3dx9.lib" )
+//#pragma comment( lib, "d3d9.lib" )
+//#pragma comment( lib, "d3dx9.lib" )
 #pragma comment( lib, "gdiplus.lib" ) 
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3dx11d.lib")
 #pragma comment(lib, "effects11.lib")
-//#pragma comment(lib, "d3dx9d.lib")
 #pragma comment(lib, "dxerr.lib")
 #pragma comment(lib, "dxguid.lib")
 

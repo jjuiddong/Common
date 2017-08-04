@@ -79,9 +79,6 @@
     <ClInclude Include="collision\boundingbox.h">
       <Filter>collision</Filter>
     </ClInclude>
-    <ClInclude Include="collision\boundingbox2.h">
-      <Filter>collision</Filter>
-    </ClInclude>
     <ClInclude Include="collision\boundingsphere.h">
       <Filter>collision</Filter>
     </ClInclude>
@@ -163,6 +160,36 @@
     <ClInclude Include="dbg\dbgbox.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgsphere.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgfrustum.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\shape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\cubeshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\sphereshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\sphere.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\pyramid.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\pyramidshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\circle.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\circleshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -234,9 +261,6 @@
     </ClCompile>
     <ClCompile Include="model\node2.cpp">
       <Filter>model</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundingbox2.cpp">
-      <Filter>collision</Filter>
     </ClCompile>
     <ClCompile Include="collision\collisionmanager.cpp">
       <Filter>collision</Filter>
@@ -310,6 +334,33 @@
     <ClCompile Include="dbg\dbgbox.cpp">
       <Filter>dbg</Filter>
     </ClCompile>
+    <ClCompile Include="dbg\dbgsphere.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgfrustum.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\cubeshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\sphereshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\sphere.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\pyramid.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\pyramidshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\circle.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\circleshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">
@@ -359,6 +410,9 @@
     </Filter>
     <Filter Include="utility">
       <UniqueIdentifier>{6ef36f04-a8b5-4ebe-8319-3953bc694cef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shape">
+      <UniqueIdentifier>{29658cad-a0f1-4692-ae8e-6828a34ec9aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

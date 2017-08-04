@@ -32,6 +32,13 @@ void cBoundingBox::SetBoundingBox(const Vector3 &center, const Vector3 &scale
 }
 
 
+void cBoundingBox::SetBoundingBox(const Transform &tfm)
+{
+	m_bbox = BoundingOrientedBox(*(XMFLOAT3*)&tfm.pos, *(XMFLOAT3*)&tfm.scale, *(XMFLOAT4*)&tfm.rot);
+}
+
+
+
 void cBoundingBox::SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width)
 {
 	Vector3 v = p1 - p0;
@@ -106,7 +113,7 @@ bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
 cBoundingBox& cBoundingBox::operator=(const cCube &cube)
 {
 	*this = cube.m_boundingBox;
-	Transform(cube.GetWorldMatrix());
+	*this *= cube.GetWorldMatrix();
 	return *this;
 }
 
@@ -131,36 +138,51 @@ Vector3 cBoundingBox::GetDimension() const
 }
 
 
-void cBoundingBox::Transform(const Matrix44 &tm)
+//void cBoundingBox::MultiyplyTransform(const Matrix44 &tm)
+//{
+//	XMVECTOR center = XMLoadFloat3(&m_bbox.Center);
+//	XMVECTOR pos = XMLoadFloat3((XMFLOAT3*)&tm.GetPosition());
+//	center += pos;
+//
+//	XMVECTOR extents = XMLoadFloat3(&m_bbox.Extents);
+//	XMVECTOR scale = XMLoadFloat3((XMFLOAT3*)&tm.GetScale());
+//	extents *= scale;
+//
+//	XMVECTOR q = XMLoadFloat4(&m_bbox.Orientation);
+//	XMMATRIX rot = XMMatrixRotationQuaternion(q);
+//	XMMATRIX rot2 = XMLoadFloat4x4((XMFLOAT4X4*)&tm);
+//
+//	rot *= rot2;
+//	q = XMQuaternionRotationMatrix(rot);
+//
+//	XMStoreFloat3(&m_bbox.Center, center);
+//	XMStoreFloat3(&m_bbox.Extents, extents);
+//	XMStoreFloat4(&m_bbox.Orientation, q);
+//}
+
+
+XMMATRIX cBoundingBox::GetTransform() const
 {
-	XMVECTOR center = XMLoadFloat3(&m_bbox.Center);
-	XMVECTOR pos = XMLoadFloat3((XMFLOAT3*)&tm.GetPosition());
-	center += pos;
-
-	XMVECTOR extents = XMLoadFloat3(&m_bbox.Extents);
-	XMVECTOR scale = XMLoadFloat3((XMFLOAT3*)&tm.GetScale());
-	extents *= scale;
-
 	XMVECTOR q = XMLoadFloat4(&m_bbox.Orientation);
 	XMMATRIX rot = XMMatrixRotationQuaternion(q);
-	XMMATRIX rot2 = XMLoadFloat4x4((XMFLOAT4X4*)&tm);
-
-	rot *= rot2;
-	q = XMQuaternionRotationMatrix(rot);
-
-	XMStoreFloat3(&m_bbox.Center, center);
-	XMStoreFloat3(&m_bbox.Extents, extents);
-	XMStoreFloat4(&m_bbox.Orientation, q);
+	XMMATRIX tm = XMMatrixScaling(m_bbox.Extents.x, m_bbox.Extents.y, m_bbox.Extents.z) * rot 
+		* XMMatrixTranslation(m_bbox.Center.x, m_bbox.Center.y, m_bbox.Center.z);
+	return tm;
 }
 
 
-XMMATRIX cBoundingBox::GetTransform()
+cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs) 
 {
-	XMVECTOR q = XMLoadFloat4(&m_bbox.Orientation);
-	XMMATRIX rot = XMMatrixRotationQuaternion(q);
+	BoundingOrientedBox bbox;
+	m_bbox.Transform(bbox, rhs);
+	cBoundingBox ret;
+	ret.m_bbox = bbox;
+	return ret;
+}
 
-	XMMATRIX tm = rot * XMMatrixScaling(m_bbox.Extents.x, m_bbox.Extents.y, m_bbox.Extents.z)
-		* XMMatrixTranslation(m_bbox.Center.x, m_bbox.Center.y, m_bbox.Center.z);
 
-	return tm;
+const cBoundingBox& cBoundingBox::operator *= (const Matrix44 &rhs) 
+{
+	*this = operator*(rhs.GetMatrixXM());
+	return *this;
 }

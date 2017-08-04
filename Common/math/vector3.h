@@ -25,6 +25,10 @@ namespace common
 		Vector3 Interpolate( const Vector3 &v, const float alpha) const;
 		Vector3 Minimum(const Vector3 &rhs);
 		Vector3 Maximum(const Vector3 &rhs);
+
+#ifdef USE_D3D11_MATH
+		XMVECTOR GetVectorXM() const;
+#endif
 	
 		Vector3 operator + () const;
 		Vector3 operator - () const;

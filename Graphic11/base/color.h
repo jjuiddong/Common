@@ -28,6 +28,9 @@ namespace graphic
 
 		static const cColor BLACK;
 		static const cColor WHITE;
+		static const cColor BLUE;
+		static const cColor GREEN;
+		static const cColor RED;
 
 		virtual ~cColor();
 

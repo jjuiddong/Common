@@ -1,6 +1,8 @@
 //
-// 정육면체 메쉬로해서 라인을 그린다.
-// Vertex + Diffuse
+// 2017-08-04, jjuiddong
+// Upgrade DX9 -> DX11
+// Line Cube Class
+// Vertex = Point + Diffuse
 //
 #pragma once
 
@@ -12,27 +14,26 @@ namespace graphic
 	{
 	public:
 		cLine();
-		cLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width);
+		cLine(cRenderer &renderer
+			, const Vector3 &p0 = Vector3(0, 0, 0)
+			, const Vector3 &p1 = Vector3(1, 1, 1)
+			, const float width = 1.f
+			, const cColor color = cColor::BLACK);
 
-		void Create(cRenderer &renderer);
-		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
-		void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
-		void SetLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1, const float width, const cColor color=cColor::BLACK);
+		bool Create(cRenderer &renderer
+			, const Vector3 &p0=Vector3(0,0,0)
+			, const Vector3 &p1=Vector3(1,1,1)
+			, const float width=1.f
+			, const cColor color = cColor::BLACK);
+
 		void SetLine(const Vector3 &p0, const Vector3 &p1, const float width);
-		void SetColor(const DWORD color);
+		void SetColor(const cColor &color);
 
-
-	protected:
-		void InitCube(cRenderer &renderer, const cColor color = cColor::BLACK);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
 
 
 	public:
-		cVertexBuffer m_vtxBuff;
-		cIndexBuffer m_idxBuff;
-		Vector3 m_p0;
-		Vector3 m_p1;
-		float m_width;
-		Matrix44 m_tm;
+		cCubeShape m_shape;
 	};
 
 }

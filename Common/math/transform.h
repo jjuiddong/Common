@@ -14,10 +14,14 @@ namespace common
 
 		Matrix44 GetMatrix() const;
 
+#ifdef USE_D3D11_MATH
+		XMMATRIX GetMatrixXM() const;
+#endif
+
+
 		Vector3 pos;
 		Vector3 scale;
 		Quaternion rot;
-
 		const static Transform Identity;
 	};
 

@@ -75,6 +75,10 @@ namespace graphic
 		vector<sVertexDiffuse> m_axis;
 		//cTextManager m_textMgr;
 
+		// Common Primitive
+
+
+
 		ULONG_PTR gdiplusToken;
 
 		// Display FPS 
