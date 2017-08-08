@@ -76,6 +76,10 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height
 	m_viewPort.Create(0, 0, (float)width, (float)height, 0, 1.f);
 	m_viewPort.Bind(*this);
 
+	m_cbPerFrame.Create(*this);
+	m_cbLight.Create(*this);
+	m_cbMaterial.Create(*this);
+
 	//m_textMgr.Create(256);
 
 	//D3D11_INPUT_ELEMENT_DESC layout1[] =

@@ -18,78 +18,58 @@ cDbgLineList::~cDbgLineList()
 
 
 bool cDbgLineList::Create(cRenderer &renderer, const int maxLines
-	, const DWORD color //= 0
+	, const cColor &color //= cColor::BLACK
 )
 {
 	m_color = color;
 	m_lineCount = 0;
-	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
+	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertexDiffuse), D3D11_USAGE_DYNAMIC);
+	m_lines.reserve(maxLines);
 
 	return true;
 }
 
 
-bool cDbgLineList::AddLine(const Vector3 &p0, const Vector3 &p1)
+bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1)
 {
 	if (m_vtxBuff.GetVertexCount() <= (m_lineCount + 1))
 		return false; // full buffer
 
-	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock())
-	{
-		p[m_lineCount].p = p0;
-		p[m_lineCount].c = m_color;
-		p[m_lineCount+1].p = p1;
-		p[m_lineCount+1].c = m_color;
-		
-		m_lineCount += 2;
-		m_vtxBuff.Unlock();
-	}
-
+	m_lines.push_back({ p0, p1 });
+	UpdateBuffer(renderer);
 	return true;
 }
 
 
-bool cDbgLineList::AddNextPoint(const Vector3 &p0)
+bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0)
 {
 	if (m_vtxBuff.GetVertexCount() <= (m_lineCount + 1))
 		return false; // full buffer
 
-	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock())
-	{
-		if (m_lineCount <= 0)
-		{
-			p[0].p = p0;
-			p[0].c = m_color;
-		}
-		else
-		{
-			p[m_lineCount].p = p[m_lineCount-1].p;
-			p[m_lineCount].c = m_color;
-		}
-
-		p[m_lineCount + 1].p = p0;
-		p[m_lineCount + 1].c = m_color;
-
-		m_lineCount += 2;
-		m_vtxBuff.Unlock();
-	}
-
+	Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;
+	m_lines.push_back({ p, p0 });
+	UpdateBuffer(renderer);
 	return true;
 }
 
 
-void cDbgLineList::SetColor(const DWORD color)
+void cDbgLineList::UpdateBuffer(cRenderer &renderer)
 {
-	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock())
+	const Vector4 color = m_color.GetColor();
+
+	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock(renderer))
 	{
-		for (int i = 0; i < m_lineCount; ++i)
+		for (auto &pt : m_lines)
 		{
+			p->p = pt.first;
+			p->c = color;
+			++p;
+			p->p = pt.second;
 			p->c = color;
 			++p;
 		}
-		m_vtxBuff.Unlock();
 
-		m_color = color;
+		m_vtxBuff.Unlock(renderer);
 	}
 }
 
@@ -98,16 +78,12 @@ void cDbgLineList::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	DWORD lighting;
-	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-	renderer.GetDevice()->SetTexture(0, NULL);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
+	renderer.m_cbPerFrame.Update(renderer);
 
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&tm);
 	m_vtxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawPrimitive(D3DPT_LINELIST, 0, m_lineCount/2);
-
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	renderer.GetDevContext()->DrawInstanced(m_lines.size()*2, 1, 0, 0);
 }
 
 

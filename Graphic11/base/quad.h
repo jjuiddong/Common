@@ -2,7 +2,11 @@
 // 2017-05-06, jjuiddong
 // 사각형을 나타내는 클래스다.
 // 간단하게 텍스쳐를 입힐 때 사용할 수 있는 클래스.
-// VertexFormat = Point + UV
+// Vertex = Point + UV
+//
+// 2017-08-07
+//	- Upgrade DX11
+//
 //
 #pragma once
 
@@ -10,38 +14,25 @@
 namespace graphic
 {
 
-	class cQuad : public graphic::iShaderRenderer
+	class cQuad : public cNode2
 	{
 	public:
 		cQuad();
+		cQuad(cRenderer &renderer, const float width, const float height, const Vector3 &pos
+			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE)
+			, const StrPath &textureFileName = "");
 		virtual ~cQuad();
 
 		bool Create(cRenderer &renderer, const float width, const float height, const Vector3 &pos
-			, const StrPath &textureFileName = ""
-			, const bool isSizePow2 = true
-			, const bool isVert = true);
+			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE)
+			, const StrPath &textureFileName = "");
 
-		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
-		void RenderAlpha(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		void RenderFactor(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		virtual void RenderShader(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
-		void RenderLine(cRenderer &renderer);
-		void SetUV(const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb);
-
-		cMaterial& GetMaterial();
-		cVertexBuffer& GetVertexBuffer();
-		cTexture* GetTexture();
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
 
 	public:
-		cVertexBuffer m_vtxBuff;
-		cMaterial m_material;
+		cQuadShape m_shape;
 		cTexture *m_texture; // reference
-		Matrix44 m_tm;
 	};
 
-
-	inline cMaterial& cQuad::GetMaterial() { return m_material; }
-	inline cVertexBuffer& cQuad::GetVertexBuffer() { return m_vtxBuff; }
-	inline cTexture* cQuad::GetTexture() { return m_texture; }
 }

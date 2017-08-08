@@ -8,21 +8,66 @@
 namespace graphic
 {
 
+	template<typename T>
 	class cConstantBuffer
 	{
 	public:
-		cConstantBuffer();
-		virtual ~cConstantBuffer();
+		cConstantBuffer()
+			: m_constantBuffer(NULL) {
+		}
 
-		bool Create(cRenderer &renderer, const int byteSize);
-		bool Update(cRenderer &renderer, const void *ptr);
-		bool Bind(cRenderer &renderer, const int slot=0);
-		bool UpdateAndBind(cRenderer &renderer, const void *ptr);
-		void Clear();
+		~cConstantBuffer() {
+			Clear();
+		}
+
+		bool Create(cRenderer &renderer)
+		{
+			D3D11_BUFFER_DESC bd;
+			ZeroMemory(&bd, sizeof(bd));
+			bd.ByteWidth = sizeof(T);
+			bd.Usage = D3D11_USAGE_DEFAULT;
+			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bd.CPUAccessFlags = 0;
+
+			if (FAILED(renderer.GetDevice()->CreateBuffer(&bd, NULL, &m_constantBuffer)))
+				return false;
+
+			m_v = new T();
+
+			return true;
+		}
+
+
+		bool Update(cRenderer &renderer, const int slot=0)
+		{
+			RETV(!m_constantBuffer, false);
+			renderer.GetDevContext()->UpdateSubresource(m_constantBuffer, 0, NULL, m_v, 0, 0);
+			renderer.GetDevContext()->VSSetConstantBuffers(slot, 1, &m_constantBuffer);
+			renderer.GetDevContext()->PSSetConstantBuffers(slot, 1, &m_constantBuffer);
+
+			return true;
+		}
+
+
+		void Clear()
+		{
+			SAFE_RELEASE(m_constantBuffer);
+			SAFE_DELETE(m_v);
+		}
+
+
+		T& operator = (const T& rhs) {
+			if (m_v != &rhs) {
+				*m_v = rhs;
+			}
+			return *m_v;
+		}
+
 
 
 	public:
 		ID3D11Buffer *m_constantBuffer;
+		T *m_v;
 	};
 
 }

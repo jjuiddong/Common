@@ -120,12 +120,15 @@ bool cGrid::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
+	renderer.m_cbPerFrame.Update(renderer);
+
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
 	if ((m_gridType & eGridType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
-	
+
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount()*3, 0, 0);
 

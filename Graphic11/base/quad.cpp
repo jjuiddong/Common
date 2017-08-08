@@ -7,11 +7,22 @@ using namespace graphic;
 
 
 cQuad::cQuad()
-	: m_texture(NULL)
+	: cNode2(common::GenerateId(), "quad", eNodeType::MODEL)
+	, m_texture(NULL)
 {
-	m_material.InitWhite();
+	//m_material.InitWhite();
 	//m_material.InitRed();
 }
+
+cQuad::cQuad(cRenderer &renderer, const float width, const float height,
+	const Vector3 &pos
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
+	, const StrPath &textureFileName // = " "
+)
+{
+	Create(renderer, width, height, pos, vtxType, textureFileName);
+}
+
 
 cQuad::~cQuad()
 {
@@ -23,192 +34,31 @@ cQuad::~cQuad()
 // pos : Äõµå À§Ä¡
 bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	const Vector3 &pos 
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
 	, const StrPath &textureFileName // = " "
-	, const bool isSizePow2 // = true
-	, const bool isVert //= true
 	)
 {
-	if (m_vtxBuff.GetVertexCount() <= 0)
-	{
-		m_vtxBuff.Create(renderer, 4, sizeof(sVertexTex), sVertexTex::FVF);
-	}
+	m_shape.Create(renderer, vtxType);
 
-	sVertexTex *vertices = (sVertexTex*)m_vtxBuff.Lock();
-	RETV(!vertices, false);
-
-	if (isVert)
-	{
-		vertices[ 0].p = Vector3(-width/2.f, height/2.f, 0);
-		vertices[ 1].p = Vector3(width/2.f, height/2.f, 0);
-		vertices[ 2].p = Vector3(-width/2.f,-height/2.f, 0);
-		vertices[ 3].p = Vector3(width/2.f,- height/2.f, 0);
-	}
-	else
-	{
-		vertices[0].p = Vector3(-width / 2.f, 0, height / 2.f);
-		vertices[1].p = Vector3(width / 2.f, 0, height / 2.f);
-		vertices[2].p = Vector3(-width / 2.f, 0, -height / 2.f);
-		vertices[3].p = Vector3(width / 2.f, 0, -height / 2.f);
-	}
-
-	vertices[ 0].u = 0;
-	vertices[ 0].v = 0;
-	vertices[ 1].u = 1;
-	vertices[ 1].v = 0;
-	vertices[ 2].u = 0;
-	vertices[ 2].v = 1;
-	vertices[ 3].u = 1;
-	vertices[ 3].v = 1;
-
-	m_vtxBuff.Unlock();
-
-	if (!textureFileName.empty())
-		m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName, isSizePow2);
-
-	m_tm.SetTranslate(pos);
-	//m_tm.pos = pos;
+	m_transform.pos = pos;
+	m_transform.scale = Vector3(width, 0, height);
 
 	return true;
 }
 
 
-void cQuad::Render(cRenderer &renderer, const Matrix44 &tm)
-// tm = Matrix44::Identity
-{
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm * tm));
-	m_material.Bind(renderer);
-	if (m_texture)
-		m_texture->Bind(renderer, 0);
-
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-	// AlphaBlending
-	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	//renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	//renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
-	//renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
-
-	m_vtxBuff.RenderTriangleStrip(renderer);
-	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-}
-
-
-void cQuad::RenderAlpha(cRenderer &renderer, const Matrix44 &tm)
-// tm = Matrix44::Identity
-{
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm* tm));
-	m_material.Bind(renderer);
-	if (m_texture)
-		m_texture->Bind(renderer, 0);
-
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-	
-	// AlphaBlending
-	renderer.SetCullMode(D3DCULL_CCW);
-	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
-	m_vtxBuff.RenderTriangleStrip(renderer);
-	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-}
-
-
-void cQuad::RenderFactor(cRenderer &renderer, const Matrix44 &tm)
-// tm = Matrix44::Identity
-{
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&(m_tm * tm));
-	m_material.Bind(renderer);
-	if (m_texture)
-		m_texture->Bind(renderer, 0);
-
-	DWORD op, arg1;
-	renderer.GetDevice()->GetTextureStageState(0, D3DTSS_COLOROP, &op);
-	renderer.GetDevice()->GetTextureStageState(0, D3DTSS_COLORARG1, &arg1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TFACTOR);
-
-	m_vtxBuff.RenderTriangleStrip(renderer);
-
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, op);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, arg1);
-}
-
-
-void cQuad::RenderLine(cRenderer &renderer)
-{
-	DWORD flag;
-	renderer.GetDevice()->GetRenderState(D3DRS_FILLMODE, &flag);
-	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	Render(renderer);
-	renderer.GetDevice()->SetRenderState(D3DRS_FILLMODE, flag);
-}
-
-
-void cQuad::RenderShader(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+bool cQuad::Render(cRenderer &renderer
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
 )
 {
-	RET(!m_shader);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM());
+	renderer.m_cbPerFrame.Update(renderer);
 
-	const Matrix44 transform = m_tm * tm;
+	if (m_texture)
+		m_texture->Bind(renderer, 0);
 
-	const int pass = m_shader->Begin();
-	for (int i = 0; i < pass; ++i)
-	{
-		m_shader->BeginPass(i);
-		m_shader->SetMatrix("g_mWorld", transform);
-		if (m_texture)
-			m_texture->Bind(*m_shader, "g_colorMapTexture");
-		else
-			m_shader->SetTexture("g_colorMapTexture", NULL);
+	m_shape.Render(renderer);
 
-		m_shader->CommitChanges();
-		m_vtxBuff.RenderTriangleStrip(renderer);
-		m_shader->EndPass();
-	}
-	m_shader->End();
-}
-
-
-// Set UV Position
-// Vector2.xy = {u , v}
-// lt : left top
-// rt : right top
-// lb : left bottom
-// rb : right bottom
-void cQuad::SetUV(const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb)
-{
-	RET(m_vtxBuff.GetVertexCount() <= 0);
-	sVertexTex *vertices = (sVertexTex*)m_vtxBuff.Lock();
-	RET(!vertices);
-
-	// left top
-	vertices[0].u = lt.x;
-	vertices[0].v = lt.y;
-
-	// right top
-	vertices[1].u = rt.x;
-	vertices[1].v = rt.y;
-
-	// left bottom
-	vertices[2].u = lb.x;
-	vertices[2].v = lb.y;
-
-	// right bottom
-	vertices[3].u = rb.x;
-	vertices[3].v = rb.y;
-
-	m_vtxBuff.Unlock();
+	return true;
 }

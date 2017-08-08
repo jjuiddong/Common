@@ -162,7 +162,8 @@ void cCubeShape::InitCube(cRenderer &renderer, const int vtxType
 	const int colorOffset = vtxLayout.GetOffset("COLOR");
 	const int texOffset = vtxLayout.GetOffset("TEXCOORD");
 	const int vertexStride = vtxLayout.GetVertexSize();
-	BYTE *initVertices = new BYTE[vertexStride * 24];
+	vector<BYTE> buffer(vertexStride * 24);
+	BYTE *initVertices = &buffer[0];
 
 	const Vector4 vColor = color.GetColor();
 	BYTE *pvtx = initVertices;
@@ -180,14 +181,12 @@ void cCubeShape::InitCube(cRenderer &renderer, const int vtxType
 	}
 
 	m_vtxBuff.Create(renderer, 24, vertexStride, initVertices);
-	delete[] initVertices;
 
-
-	WORD *initIndices = new WORD[36 * sizeof(WORD)];
+	vector<WORD> buffer2(36);
+	WORD *initIndices = &buffer2[0];
 	for (int i = 0; i < 36; ++i)
 		initIndices[i] = indices[i];
 	m_idxBuff.Create(renderer, 12, initIndices);
-	delete[] initIndices;
 
 	m_vtxType = vtxType;
 }

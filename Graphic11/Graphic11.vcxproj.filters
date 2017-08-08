@@ -190,6 +190,21 @@
     <ClInclude Include="shape\circleshape.h">
       <Filter>shape</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbglinelist.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgarrow.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\quadshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -307,9 +322,6 @@
     <ClCompile Include="base\shader11.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="base\constantbuffer.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="base\cube.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -360,6 +372,21 @@
     </ClCompile>
     <ClCompile Include="shape\circleshape.cpp">
       <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbglinelist.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgarrow.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\quadshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

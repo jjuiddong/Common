@@ -7,6 +7,13 @@
 
 namespace graphic
 {
+	struct sCbPerFrame
+	{
+		XMMATRIX mWorld;
+		XMMATRIX mView;
+		XMMATRIX mProjection;
+		XMVECTOR eyePosW;
+	};
 
 	class cRenderer
 	{
@@ -70,6 +77,10 @@ namespace graphic
 
 		//vector<sAlphaBlendSpace*> m_alphaSpace;
 		//vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+
+		cConstantBuffer<sCbPerFrame> m_cbPerFrame;
+		cConstantBuffer<sCbLight> m_cbLight;
+		cConstantBuffer<sCbMaterial> m_cbMaterial;
 
 		vector<sVertexDiffuse> m_grid;
 		vector<sVertexDiffuse> m_axis;

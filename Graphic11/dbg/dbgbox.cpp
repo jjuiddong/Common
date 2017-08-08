@@ -67,6 +67,9 @@ void cDbgBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransform());
+	renderer.m_cbPerFrame.Update(renderer);
+
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);

@@ -21,16 +21,18 @@ cVertexBuffer::~cVertexBuffer()
 }
 
 
-bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex)
+bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex
+	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
+)
 {
 	SAFE_RELEASE(m_vtxBuff);
 
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = usage;
 	bd.ByteWidth = sizeofVertex * vertexCount;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
+	bd.CPUAccessFlags = (usage== D3D11_USAGE_DEFAULT)? 0 : D3D11_CPU_ACCESS_WRITE;
 
 	//D3D11_SUBRESOURCE_DATA InitData;
 	//ZeroMemory(&InitData, sizeof(InitData));
@@ -48,13 +50,15 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 }
 
 
-bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex, void *vertices)
+bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex, void *vertices
+	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
+)
 {
 	SAFE_RELEASE(m_vtxBuff);
 
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = usage;
 	bd.ByteWidth = sizeofVertex * vertexCount;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
@@ -124,16 +128,14 @@ bool cVertexBuffer::CreateVMem(cRenderer &renderer, const int vertexCount, const
 //}
 
 
-void* cVertexBuffer::Lock()
+void* cVertexBuffer::Lock(cRenderer &renderer)
 {
-	//RETV(!m_vtxBuff, NULL);
-
-	//void *vertices = NULL;
-	//if (FAILED(m_vtxBuff->Lock( 0, 0, (void**)&vertices, 0)))
-	//	return NULL;
-
-	//return vertices;
-	return NULL;
+	D3D11_MAPPED_SUBRESOURCE res;
+	ZeroMemory(&res, sizeof(res));
+	HRESULT hr = renderer.GetDevContext()->Map(m_vtxBuff, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	if (FAILED(hr))
+		return NULL;
+	return res.pData;
 }
 
 
@@ -171,12 +173,9 @@ void* cVertexBuffer::LockNooverwrite(const int idx, const int size) // idx=0, si
 }
 
 
-void cVertexBuffer::Unlock()
+void cVertexBuffer::Unlock(cRenderer &renderer)
 {
-	//if (!m_vtxBuff)
-	//	return;
-
-	//m_vtxBuff->Unlock();
+	renderer.GetDevContext()->Unmap(m_vtxBuff, 0);
 }
 
 
@@ -334,15 +333,15 @@ void cVertexBuffer::Set(cRenderer &renderer, cVertexBuffer &rhs)
 		//if (Create(renderer, rhs.m_vertexCount, rhs.m_sizeOfVertex, rhs.m_fvf))
 		if (Create(renderer, rhs.m_vertexCount, rhs.m_sizeOfVertex))
 		{
-			if (BYTE* dest = (BYTE*)Lock())
-			{
-				if (BYTE *src = (BYTE*)rhs.Lock())
-				{
-					memcpy(dest, src, rhs.m_vertexCount*m_sizeOfVertex);
-					rhs.Unlock();
-				}
-				Unlock();
-			}
+			//if (BYTE* dest = (BYTE*)Lock())
+			//{
+			//	if (BYTE *src = (BYTE*)rhs.Lock())
+			//	{
+			//		memcpy(dest, src, rhs.m_vertexCount*m_sizeOfVertex);
+			//		rhs.Unlock();
+			//	}
+			//	Unlock();
+			//}
 		}
 	}
 	//return *this;

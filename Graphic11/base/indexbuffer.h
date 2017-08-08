@@ -28,7 +28,7 @@ namespace graphic
 		void Set(cRenderer &renderer, cIndexBuffer &rhs);
 
 
-	private:
+	public:
 		ID3D11Buffer *m_idxBuff;
 		int m_faceCount;
 	};

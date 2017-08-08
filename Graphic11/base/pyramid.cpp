@@ -36,6 +36,8 @@ bool cPyramid::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM());
+	renderer.m_cbPerFrame.Update(renderer);
 	m_shape.Render(renderer);
 	return true;
 }
