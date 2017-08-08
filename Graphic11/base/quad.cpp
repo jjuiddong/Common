@@ -10,8 +10,6 @@ cQuad::cQuad()
 	: cNode2(common::GenerateId(), "quad", eNodeType::MODEL)
 	, m_texture(NULL)
 {
-	//m_material.InitWhite();
-	//m_material.InitRed();
 }
 
 cQuad::cQuad(cRenderer &renderer, const float width, const float height,
@@ -41,7 +39,7 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	m_shape.Create(renderer, vtxType);
 
 	m_transform.pos = pos;
-	m_transform.scale = Vector3(width, 0, height);
+	m_transform.scale = Vector3(width, height, 1);
 
 	return true;
 }
@@ -58,7 +56,10 @@ bool cQuad::Render(cRenderer &renderer
 	if (m_texture)
 		m_texture->Bind(renderer, 0);
 
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 	m_shape.Render(renderer);
+	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
 	return true;
 }

@@ -11,6 +11,7 @@ using namespace framework;
 cDockManager::cDockManager()
 	: m_dockTarget(NULL)
 	, m_mainWindow(NULL)
+	, m_captureWindow(NULL)
 	, m_state(eState::NORMAL)
 {
 }
@@ -243,4 +244,24 @@ graphic::cRenderer* cDockManager::GetMainRenderer()
 {
 	RETV(!m_mainWindow, NULL);
 	return &m_mainWindow->m_renderer;
+}
+
+
+void cDockManager::SetCapture(cRenderWindow *window)
+{
+	m_captureWindow = window;
+	::SetCapture(window->getSystemHandle());
+}
+
+
+void cDockManager::ReleaseCapture()
+{
+	m_captureWindow = NULL;
+	::ReleaseCapture();
+}
+
+
+cRenderWindow* cDockManager::GetCaptureWindow()
+{
+	return m_captureWindow;
 }

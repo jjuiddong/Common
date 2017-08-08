@@ -67,7 +67,7 @@ void cDbgBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransform());
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM());
 	renderer.m_cbPerFrame.Update(renderer);
 
 	CommonStates states(renderer.GetDevice());
@@ -79,5 +79,5 @@ void cDbgBox::Render(cRenderer &renderer
 
 XMMATRIX cDbgBox::GetTransform() const
 {
-	return m_boundingBox.GetTransform();
+	return m_boundingBox.GetTransformXM();
 }

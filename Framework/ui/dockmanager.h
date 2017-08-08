@@ -29,6 +29,9 @@ namespace framework
 		void SetDragState(cRenderWindow *drag, const bool isDragStart=true);
 		void SetMoveState(cRenderWindow *drag, const bool isMove=true);
 		void SetDragTarget(cDockWindow *target);
+		void SetCapture(cRenderWindow *window);
+		void ReleaseCapture();
+		cRenderWindow* GetCaptureWindow();
 		cRenderWindow* GetMainWindow();
 		graphic::cRenderer* GetMainRenderer();
 		bool IsDragState();
@@ -60,6 +63,7 @@ namespace framework
 		cRenderWindow *m_mainWindow;
 		cDockWindow *m_dockTarget;
 		cRenderWindow *m_dragWindow;
+		cRenderWindow *m_captureWindow;
 	};
 
 

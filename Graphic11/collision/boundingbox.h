@@ -23,7 +23,8 @@ namespace graphic
 		Vector3 Center() const;
 		void Scale(const Vector3 &scale);
 		Vector3 GetDimension() const;
-		XMMATRIX GetTransform() const;
+		XMMATRIX GetTransformXM() const;
+		Matrix44 GetTransform() const;
 
 		cBoundingBox operator * (const XMMATRIX &rhs);
 		const cBoundingBox& operator *= (const Matrix44 &rhs);

@@ -1,5 +1,9 @@
-// 빌보드 클래스.
-// 해골 책 빌보드 아티클을 참조함.
+//
+// 2017-08-08, jjuiddong
+//	- Upgrade DX11
+//		빌보드 클래스.
+//		해골 책 빌보드 아티클을 참조함.
+//
 #pragma once
 
 
@@ -28,13 +32,12 @@ namespace graphic
 		bool Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type, const float width, const float height,
 			const Vector3 &pos, const StrPath &textureFileName = "", const bool isSizePow2=true);
 		void Render(cRenderer &renderer);
-		void RenderFactor(cRenderer &renderer);
 		void Rotate();
 
 
 	public:
 		BILLBOARD_TYPE::TYPE m_type;
-		Transform m_transform;
+		Vector3 m_scale;
 		Vector3 m_normal;
 	};
 

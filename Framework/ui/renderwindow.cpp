@@ -752,7 +752,7 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
 	OnEventProc(evt);
 
-	if (m_captureDock)
+	if ((cDockManager::Get()->GetCaptureWindow()==this) && m_captureDock)
 		m_captureDock->DefaultEventProc(evt);
 	else if (m_dock)
 		m_dock->DefaultEventProc(evt);
@@ -968,7 +968,7 @@ void cRenderWindow::RequestResetDeviceNextFrame()
 void cRenderWindow::SetCapture(cDockWindow *dock)
 {
 	m_captureDock = dock;
-	::SetCapture(getSystemHandle());
+	cDockManager::Get()->SetCapture(this);
 }
 
 
@@ -981,7 +981,7 @@ cDockWindow* cRenderWindow::GetCapture()
 void cRenderWindow::ReleaseCapture()
 {
 	m_captureDock = NULL;
-	::ReleaseCapture();
+	cDockManager::Get()->ReleaseCapture();
 }
 
 

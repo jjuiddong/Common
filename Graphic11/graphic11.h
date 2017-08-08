@@ -111,7 +111,7 @@ namespace graphic {
 //#include "base/circleline.h"
 #include "base/quad.h"
 //#include "base/quad2d.h"
-//#include "base/billboard.h"
+#include "base/billboard.h"
 //#include "base/text.h"
 //#include "base/text3d.h"
 //#include "base/text3d2.h"
@@ -136,7 +136,7 @@ namespace graphic {
 #include "dbg/dbgfrustum.h"
 //#include "dbg/dbgquad.h"
 //#include "dbg/dbgquad2.h"
-//#include "dbg/dbgaxis.h"
+#include "dbg/dbgaxis.h"
 
 //#include "base/xfilemesh.h"
 
@@ -214,11 +214,7 @@ namespace graphic
 //#include "importer/parallelloader.h"
 
 
-
-//#pragma comment( lib, "d3d9.lib" )
-//#pragma comment( lib, "d3dx9.lib" )
 #pragma comment( lib, "gdiplus.lib" ) 
-
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3dx11d.lib")

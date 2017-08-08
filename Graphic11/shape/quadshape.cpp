@@ -32,10 +32,14 @@ bool cQuadShape::Create(cRenderer &renderer
 	const float height = 2;
 
 	Vector3 vertices[4] = {
-		Vector3(-width / 2.f, 0, height / 2.f)
-		,Vector3(width / 2.f, 0, height / 2.f)
-		,Vector3(-width / 2.f, 0, -height / 2.f)
-		,Vector3(width / 2.f, 0, -height / 2.f)
+		//Vector3(-width / 2.f, 0, height / 2.f)
+		//,Vector3(width / 2.f, 0, height / 2.f)
+		//,Vector3(-width / 2.f, 0, -height / 2.f)
+		//,Vector3(width / 2.f, 0, -height / 2.f)
+		Vector3(-width / 2.f, height / 2.f, 0),
+		Vector3(width / 2.f, height / 2.f, 0),
+		Vector3(-width / 2.f,-height / 2.f, 0),
+		Vector3(width / 2.f,-height / 2.f, 0),
 	};
 
 	Vector2 uv[4] = {

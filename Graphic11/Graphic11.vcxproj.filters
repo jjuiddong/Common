@@ -205,6 +205,12 @@
     <ClInclude Include="base\quad.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\billboard.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgaxis.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -387,6 +393,12 @@
     </ClCompile>
     <ClCompile Include="base\quad.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\billboard.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgaxis.cpp">
+      <Filter>dbg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

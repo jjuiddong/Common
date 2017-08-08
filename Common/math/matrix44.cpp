@@ -231,10 +231,16 @@ void Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 Quaternion Matrix44::GetQuaternion() const
 {
 #ifdef USE_D3D9_MATH
-	 	Vector3 s, t;
-		Quaternion q;
-	 	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
-		return q;
+	Vector3 s, t;
+	Quaternion q;
+	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
+	return q;
+#elif defined (USE_D3D11_MATH)
+	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
+	XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
+	Quaternion q;
+	XMStoreFloat4((XMFLOAT4*)&q, xq);
+	return q;
 #else
 	Quaternion q;
 	float fTr = _11 + _22 + _33 + _44;

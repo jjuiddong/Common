@@ -136,6 +136,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="base\billboard.h" />
     <ClInclude Include="base\camera.h" />
     <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\color.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="collision\collisionmanager.h" />
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="dbg\dbgarrow.h" />
+    <ClInclude Include="dbg\dbgaxis.h" />
     <ClInclude Include="dbg\dbgbox.h" />
     <ClInclude Include="dbg\dbgfrustum.h" />
     <ClInclude Include="dbg\dbgline.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="utility\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="base\billboard.cpp" />
     <ClCompile Include="base\camera.cpp" />
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\color.cpp" />
@@ -230,6 +233,7 @@
     <ClCompile Include="collision\collisionmanager.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="dbg\dbgarrow.cpp" />
+    <ClCompile Include="dbg\dbgaxis.cpp" />
     <ClCompile Include="dbg\dbgbox.cpp" />
     <ClCompile Include="dbg\dbgfrustum.cpp" />
     <ClCompile Include="dbg\dbgline.cpp" />

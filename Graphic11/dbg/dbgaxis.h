@@ -2,6 +2,9 @@
 // 2017-07-20, jjuiddong
 // Render Axis
 //
+// 2017-08-08
+//	- Upgrade DX11
+//
 #pragma once
 
 
@@ -15,9 +18,9 @@ namespace graphic
 		virtual ~cDbgAxis();
 
 		bool Create(cRenderer &renderer);
-		void SetAxis(const float size, const cBoundingBox &bbox);
-		void SetAxis(const cBoundingBox &bbox);
-		void Render(cRenderer &renderer, const Matrix44 &tm);
+		void SetAxis(const float size, const cBoundingBox &bbox, const bool approximate=true);
+		void SetAxis(const cBoundingBox &bbox, const bool approximate = true);
+		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);
 
 
 	public:

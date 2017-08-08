@@ -41,7 +41,7 @@ bool cLine::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransform());
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM());
 	renderer.m_cbPerFrame.Update(renderer);
 
 	m_shape.Render(renderer);

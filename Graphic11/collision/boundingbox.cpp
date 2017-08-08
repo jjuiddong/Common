@@ -161,13 +161,25 @@ Vector3 cBoundingBox::GetDimension() const
 //}
 
 
-XMMATRIX cBoundingBox::GetTransform() const
+XMMATRIX cBoundingBox::GetTransformXM() const
 {
 	XMVECTOR q = XMLoadFloat4(&m_bbox.Orientation);
 	XMMATRIX rot = XMMatrixRotationQuaternion(q);
 	XMMATRIX tm = XMMatrixScaling(m_bbox.Extents.x, m_bbox.Extents.y, m_bbox.Extents.z) * rot 
 		* XMMatrixTranslation(m_bbox.Center.x, m_bbox.Center.y, m_bbox.Center.z);
 	return tm;
+}
+
+
+Matrix44 cBoundingBox::GetTransform() const
+{
+	Matrix44 S;
+	S.SetScale(Vector3(m_bbox.Extents.x, m_bbox.Extents.y, m_bbox.Extents.z));
+	Quaternion q = *(Quaternion*)&m_bbox.Orientation;
+	Matrix44 R = q.GetMatrix();
+	Matrix44 T;
+	T.SetTranslate(Vector3(m_bbox.Center.x, m_bbox.Center.y, m_bbox.Center.z));
+	return S * R * T;
 }
 
 

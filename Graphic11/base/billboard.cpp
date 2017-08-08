@@ -20,10 +20,12 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	const float width, const float height, 
 	const Vector3 &pos, const StrPath &textureFileName, const bool isSizePow2)
 {
-	if (!__super::Create(renderer, width, height, pos, textureFileName, isSizePow2))
+	if (!__super::Create(renderer, width, height, pos
+		, eVertexType::POSITION | eVertexType::TEXTURE, textureFileName))
 		return false;
 
 	m_type = type;
+	m_scale = m_transform.scale;
 	m_transform.pos = pos;
 	return true;
 }
@@ -42,20 +44,13 @@ void cBillboard::Rotate()
 	{
 		// Y축 빌보드 행렬을 계산한다.
 		Matrix44 view;
-		view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), Vector3(0, -1, 0));
+		view.SetView2(m_transform.pos, GetMainCamera()->GetEyePos(), Vector3(0, 1, 0));
 
 		mat._11 = view._11;
 		mat._13 = view._13;
 		mat._31 = view._31;
 		mat._33 = view._33;
-
-		Matrix44 T;
-		T.SetTranslate(m_transform.pos);
-		Matrix44 S;
-		S.SetScale(m_transform.scale);
-		m_tm = S * mat.Transpose() * T;
-
-		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
+		mat.Transpose();
 	}
 	break;
 
@@ -67,12 +62,7 @@ void cBillboard::Rotate()
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
-
-		Matrix44 T;
-		T.SetTranslate(m_transform.pos);
-		m_tm = mat.Transpose() * T;
-
-		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
+		mat.Transpose();
 	}
 	break;
 
@@ -84,12 +74,7 @@ void cBillboard::Rotate()
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
-
-		Matrix44 T;
-		T.SetTranslate(m_transform.pos);
-		m_tm = mat.Transpose() * T;
-
-		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
+		mat.Transpose();
 	}
 	break;
 
@@ -99,7 +84,7 @@ void cBillboard::Rotate()
 		// Fixed Scale Model
 		Vector3 pos = m_transform.pos;
 		const float len = (pos - GetMainCamera()->GetEyePos()).Length();
-		const Vector3 scale = m_transform.scale * min(1.5f, max(1.f, len / 50.f));
+		const Vector3 scale = m_scale * min(1.5f, max(1.f, len / 50.f));
 
 		Matrix44 S;
 		S.SetScale(scale);
@@ -109,18 +94,17 @@ void cBillboard::Rotate()
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
-
-		Matrix44 R;
-		R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
-
-		Matrix44 T;
-		T.SetTranslate(m_transform.pos);
-		m_tm = S * R * mat.Transpose() * T;
-
-		m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
+		mat.Transpose();
+		m_transform.scale = scale;
 	}
 	break;
 	}
+
+	Matrix44 R;
+	R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
+
+	m_normal = (GetMainCamera()->GetEyePos() - m_transform.pos).Normal();
+	m_transform.rot = (R * mat).GetQuaternion();
 }
 
 
@@ -129,11 +113,4 @@ void cBillboard::Render(cRenderer &renderer)
 {
 	Rotate();
 	__super::Render(renderer);
-}
-
-
-void cBillboard::RenderFactor(cRenderer &renderer)
-{
-	Rotate();
-	__super::RenderFactor(renderer);
 }
