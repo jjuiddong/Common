@@ -211,6 +211,9 @@
     <ClInclude Include="dbg\dbgaxis.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="model_new\xfilemesh.h">
+      <Filter>model_new</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -399,6 +402,9 @@
     </ClCompile>
     <ClCompile Include="dbg\dbgaxis.cpp">
       <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="model_new\xfilemesh.cpp">
+      <Filter>model_new</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

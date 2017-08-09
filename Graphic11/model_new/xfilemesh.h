@@ -2,6 +2,10 @@
 // 2017-01-24, jjuiddong
 // Direct3D9 XFile Loading class
 //
+// 2017-08-09
+//	- Upgrade DX11
+//
+//
 #pragma once
 
 
@@ -24,12 +28,12 @@ namespace graphic
 
 
 	protected:
-		HRESULT CreateMaterials(const StrPath &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials);
+		//HRESULT CreateMaterials(const StrPath &filePath, cRenderer &renderer, D3DXMATERIAL* d3dxMtrls, const DWORD dwNumMaterials);
 		void InitBoundingBox();
 		
 
 	public:
-		ID3DXMesh *m_mesh;
+		//ID3DXMesh *m_mesh;
 		int m_verticesCount;
 		int m_facesCount;
 		int m_materialsCount;
@@ -37,6 +41,6 @@ namespace graphic
 		cBoundingBox m_boundingBox; // Local Space
 		cMaterial* m_materials;
 		cTexture** m_textures; // reference 
-		cShadowVolume m_shadow;
+		//cShadowVolume m_shadow;
 	};
 }

@@ -22,6 +22,9 @@
 #include "../../DirectXTK/Inc/SimpleMath.h"
 #include "../../DirectXTK/Inc/DDSTextureLoader.h"
 #include "../../DirectXTK/Inc/CommonStates.h"
+#include "../../DirectXTK/Inc/Effects.h"
+#include "../../DirectXTK/Inc/Model.h"
+#include "../../DirectXTK/Inc/GeometricPrimitive.h"
 
 using namespace DirectX;
 //--------------------------------------------------------------------------------------------------------------
@@ -163,7 +166,7 @@ namespace graphic {
 //#include "model_collada/colladaloader.h"
 //
 //
-//#include "model_new/xfilemesh.h"
+#include "model_new/xfilemesh.h"
 //#include "model_new/xfilemodel.h"
 //#include "model_new/model2.h"
 //

@@ -178,6 +178,7 @@
     <ClInclude Include="model\node.h" />
     <ClInclude Include="model\node2.h" />
     <ClInclude Include="model\rawmesh.h" />
+    <ClInclude Include="model_new\xfilemesh.h" />
     <ClInclude Include="shape\circleshape.h" />
     <ClInclude Include="shape\cubeshape.h" />
     <ClInclude Include="shape\pyramidshape.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="model\node.cpp" />
     <ClCompile Include="model\node2.cpp" />
     <ClCompile Include="model\rawmesh.cpp" />
+    <ClCompile Include="model_new\xfilemesh.cpp" />
     <ClCompile Include="shape\circleshape.cpp" />
     <ClCompile Include="shape\cubeshape.cpp" />
     <ClCompile Include="shape\pyramidshape.cpp" />
