@@ -30,9 +30,7 @@ namespace graphic
 		);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags=1);
-		//virtual void RenderShadow(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 		//virtual void SetShader(cShader *shader) override;
-		//virtual void SetShadowShader(cShader *shader) override;
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
@@ -66,7 +64,6 @@ namespace graphic
 		eState::Enum m_state;
 		//D3DCULL m_cullType; // default : CCW
 		cAssimpModel *m_assimpModel; // reference
-		//cShadowVolume *m_shadow; // reference
 		//cShadow2 *m_shadowMap; // reference
 	};
 

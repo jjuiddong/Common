@@ -9,8 +9,6 @@ cModel2::cModel2()
 	: cNode2(common::GenerateId(), "model", eNodeType::MODEL)
 	, m_assimpModel(NULL)
 	, m_state(eState::NORMAL)
-	//, m_shadow(NULL)
-	//, m_shadowMap(NULL)
 	//, m_cullType(D3DCULL_CCW)
 {
 }
@@ -77,9 +75,7 @@ bool cModel2::Render(cRenderer &renderer
 	//	m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
 
 	if (m_assimpModel)
-	{
 		m_assimpModel->Render(renderer, transform);
-	}
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();
@@ -93,28 +89,6 @@ bool cModel2::Render(cRenderer &renderer
 
 	return true;
 }
-
-
-//void cModel2::RenderShadow(cRenderer &renderer
-//	, const Matrix44 &tm //= Matrix44::Identity
-//)
-//{
-//	RET(!m_isShow);
-	//RET(!m_shadow);
-	//RET(!m_shadowShader);
-
-	//m_shadowShader->SetMatrix("g_mWorld", m_transform.GetMatrix() * tm);
-	//
-	//const int pass = m_shadowShader->Begin();
-	//for (int i = 0; i < pass; ++i)
-	//{
-	//	m_shadowShader->BeginPass(i);
-	//	m_shadowShader->CommitChanges();
-	//	m_shadow->Render(renderer);
-	//	m_shadowShader->EndPass();
-	//}
-	//m_shadowShader->End();
-//}
 
 
 bool cModel2::Update(cRenderer &renderer, const float deltaSeconds)
@@ -151,7 +125,6 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 
 			if (m_isShadow)
 			{
-				//cResourceManager::Get()->LoadShadowParallel(renderer, m_fileName.c_str());
 				m_state = eState::LOAD_MESH_FINISH;
 			}
 			else
@@ -165,12 +138,6 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 	case eState::LOAD_SINGLE_ASSIMP:
 	{
 		InitModel(renderer);
-
-		if (m_isShadow)
-		{
-			//m_shadow = cResourceManager::Get()->LoadShadow(renderer, m_fileName.c_str());
-		}
-
 		m_state = eState::LOAD_FINISH;
 	}
 	break;
@@ -181,14 +148,8 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 		break;
 
 	case eState::LOAD_PARALLEL_ASSIMP_SHADOW:
-	{
-		//m_shadow = cResourceManager::Get()->FindShadow(m_fileName.c_str()).second;
-		//if (m_shadow)
-		{
-			m_state = eState::NORMAL; // no finish event
-		}
-	}
-	break;
+		m_state = eState::NORMAL; // no finish event
+		break;
 
 	case eState::LOAD_SINGLE_ASSIMP_SHADOW:
 		break;
@@ -239,7 +200,6 @@ void cModel2::Clear()
 {
 	m_assimpModel = NULL;
 	//m_shader = NULL;
-	//m_shadow = NULL;
 }
 
 
@@ -251,11 +211,6 @@ bool cModel2::IsLoadFinish()
 
 
 //void cModel2::SetShader(cShader *shader)
-//{
-//	__super::SetShader(shader);
-//	__super::SetShadowShader(shader);
-//}
-//void cModel2::SetShadowShader(cShader *shader)
 //{
 //	__super::SetShader(shader);
 //	__super::SetShadowShader(shader);

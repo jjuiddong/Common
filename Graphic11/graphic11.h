@@ -228,7 +228,7 @@ namespace graphic
 
 
 #ifdef _DEBUG
-//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
-//#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif
