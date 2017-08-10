@@ -73,7 +73,7 @@ void cCollisionManager::InsertObject(sCollisionNode *parent, ICollisionable *obj
 	pnew->box = obj->GetCollisionBox(*m_renderer);
 	//pnew->psphere = pObj->GetSphere();
 
-	parent->InsertChild(pnew);
+	//parent->InsertChild(pnew);
 }
 
 
@@ -82,8 +82,8 @@ void cCollisionManager::InsertObject(sCollisionNode *parent, ICollisionable *obj
 //-----------------------------------------------------------------------------//
 void cCollisionManager::RemoveObject( ICollisionable *obj )
 {
-	m_group1->RemoveNode( obj->GetCollisionId() );
-	m_group2->RemoveNode( obj->GetCollisionId() );
+	//m_group1->RemoveNode( obj->GetCollisionId() );
+	//m_group2->RemoveNode( obj->GetCollisionId() );
 }
 
 
@@ -101,10 +101,10 @@ void cCollisionManager::UpdateCollisionBoxRec( sCollisionNode *obj )
 {
 	RET(!obj);
 
-	if (obj->pobj)
-		obj->pobj->UpdateCollisionBox();
-	for each (auto &node in obj->GetChildren())
-		UpdateCollisionBoxRec((sCollisionNode*)node);
+	//if (obj->pobj)
+	//	obj->pobj->UpdateCollisionBox();
+	//for each (auto &node in obj->GetChildren())
+	//	UpdateCollisionBoxRec((sCollisionNode*)node);
 }
 
 
@@ -135,51 +135,51 @@ void cCollisionManager::CollisionTestRec(
 {
 	RET(!node1 || !node2);
 
-	if (node1->GetChildren().empty() && node2->GetChildren().empty())
-	{
-		// 루트 그룹은 testnum 값이 0이다. 
-		// 루트 그룹은 충돌 검사에 포함하지 않는다.
-		if ((node1->testnum != 0) && (node2->testnum != 0))
-		{
-			m_checkTable[ m_collisionCount][ 0] = node1->pobj;
-			m_checkTable[ m_collisionCount][ 1] = node2->pobj;
-			m_collisionCount++;
-		}
+	//if (node1->GetChildren().empty() && node2->GetChildren().empty())
+	//{
+	//	// 루트 그룹은 testnum 값이 0이다. 
+	//	// 루트 그룹은 충돌 검사에 포함하지 않는다.
+	//	if ((node1->testnum != 0) && (node2->testnum != 0))
+	//	{
+	//		m_checkTable[ m_collisionCount][ 0] = node1->pobj;
+	//		m_checkTable[ m_collisionCount][ 1] = node2->pobj;
+	//		m_collisionCount++;
+	//	}
 
-		return;
-	}
-	
+	//	return;
+	//}
+	//
 
-	for each (cNode *p1 in node1->GetChildren())
-	{
-		sCollisionNode *collisionNode1 = (sCollisionNode*)p1;
-		if (!collisionNode1->pobj->IsTest(testNum))
-			continue;
+	//for each (cNode *p1 in node1->GetChildren())
+	//{
+	//	sCollisionNode *collisionNode1 = (sCollisionNode*)p1;
+	//	if (!collisionNode1->pobj->IsTest(testNum))
+	//		continue;
 
-		for each (cNode *p2 in node2->GetChildren())
-		{
-			sCollisionNode *collisionNode2 = (sCollisionNode*)p2;
-			if (!collisionNode2->pobj->IsTest(testNum))
-				continue;
+	//	for each (cNode *p2 in node2->GetChildren())
+	//	{
+	//		sCollisionNode *collisionNode2 = (sCollisionNode*)p2;
+	//		if (!collisionNode2->pobj->IsTest(testNum))
+	//			continue;
 
-			// 충돌 테스트
-			if (CheckNodeCollision(collisionNode1, collisionNode2, testNum))
-			{
-				if (collisionNode1->GetChildren().empty())
-				{
-					CollisionTestNode1Loop(collisionNode1, collisionNode2, testNum);
-				}
-				else if (collisionNode2->GetChildren().empty())
-				{
-					CollisionTestNode2Loop(collisionNode1, collisionNode2, testNum);
-				}
-				else
-				{
-					CollisionTestRec(collisionNode1, collisionNode2, testNum);
-				}
-			}
-		}
-	}
+	//		// 충돌 테스트
+	//		if (CheckNodeCollision(collisionNode1, collisionNode2, testNum))
+	//		{
+	//			if (collisionNode1->GetChildren().empty())
+	//			{
+	//				CollisionTestNode1Loop(collisionNode1, collisionNode2, testNum);
+	//			}
+	//			else if (collisionNode2->GetChildren().empty())
+	//			{
+	//				CollisionTestNode2Loop(collisionNode1, collisionNode2, testNum);
+	//			}
+	//			else
+	//			{
+	//				CollisionTestRec(collisionNode1, collisionNode2, testNum);
+	//			}
+	//		}
+	//	}
+	//}
 
 }
 

@@ -14,13 +14,14 @@
 #include <d3dcompiler.h>
 
 //--------------------------------------------------------------------------------------------------------------
-// DirectXTK Desktop 2015
+// DirectXTK Desktop VS2015
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
 
 #include "../../DirectXTK/Inc/SimpleMath.h"
 #include "../../DirectXTK/Inc/DDSTextureLoader.h"
+#include "../../DirectXTK/Inc/WICTextureLoader.h"
 #include "../../DirectXTK/Inc/CommonStates.h"
 #include "../../DirectXTK/Inc/Effects.h"
 #include "../../DirectXTK/Inc/Model.h"
@@ -60,7 +61,7 @@ namespace graphic {
 
 #include "base/graphicdef.h"
 #include "model/rawmesh.h"
-//#include "model/rawani.h"
+#include "model/rawani.h"
 #include "collision/boundingbox.h"
 #include "collision/boundingsphere.h"
 //
@@ -69,7 +70,7 @@ namespace graphic {
 //#include "interface/shaderrenderer.h"
 //#include "interface/shadowrenderer.h"
 //
-#include "model/node.h"
+//#include "model/node.h"
 #include "model/node2.h"
 //
 
@@ -82,7 +83,7 @@ namespace graphic {
 #include "base/vertexlayout.h"
 #include "base/vertexbuffer.h"
 #include "base/indexbuffer.h"
-//#include "base/meshbuffer.h"
+#include "base/meshbuffer.h"
 #include "base/samplerstate.h"
 #include "base/texture.h"
 //#include "base/texturecube.h"
@@ -125,8 +126,8 @@ namespace graphic {
 //#include "base/shadowmap.h"
 //#include "base/shadowvolume.h"
 //
-#include "collision/collision.h"
-#include "collision/collisionmanager.h"
+//#include "collision/collision.h"
+//#include "collision/collisionmanager.h"
 #include "collision/frustum.h"
 //
 //
@@ -158,17 +159,17 @@ namespace graphic {
 //#include "model/bonemgr.h"
 //#include "model/bonenode.h"
 //
-//#include "model_collada/skeleton.h"
-//#include "model_collada/animationnode.h"
-//#include "model_collada/animation.h"
-//#include "model_collada/mesh2.h"
-//#include "model_collada/model_collada.h"
-//#include "model_collada/colladaloader.h"
+#include "model_assimp/skeleton.h"
+#include "model_assimp/animationnode.h"
+#include "model_assimp/animation.h"
+#include "model_assimp/mesh2.h"
+#include "model_assimp/model_assimp.h"
+#include "model_assimp/assimploader.h"
 //
 //
-#include "model_new/xfilemesh.h"
+//#include "model_new/xfilemesh.h"
 //#include "model_new/xfilemodel.h"
-//#include "model_new/model2.h"
+#include "model_new/model2.h"
 //
 //
 //#include "character/character.h"
@@ -208,13 +209,13 @@ namespace graphic
 
 //#include "manager/textmanager.h"
 #include "manager/Renderer.h"
-//#include "manager/resourcemanager.h"
+#include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
 #include "manager/lightmanager.h"
 //#include "manager/fontmanager.h"
 //#include "manager/pickmanager.h"
 //
-//#include "importer/parallelloader.h"
+#include "importer/parallelloader.h"
 
 
 #pragma comment( lib, "gdiplus.lib" ) 

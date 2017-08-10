@@ -6,6 +6,7 @@
 #pragma once
 
 #include <shlwapi.h> // file path library
+#pragma comment(lib, "shlwapi")
 
 
 namespace common

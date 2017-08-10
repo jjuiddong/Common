@@ -82,12 +82,6 @@
     <ClInclude Include="collision\boundingsphere.h">
       <Filter>collision</Filter>
     </ClInclude>
-    <ClInclude Include="collision\collision.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\collisionmanager.h">
-      <Filter>collision</Filter>
-    </ClInclude>
     <ClInclude Include="collision\frustum.h">
       <Filter>collision</Filter>
     </ClInclude>
@@ -108,9 +102,6 @@
     </ClInclude>
     <ClInclude Include="manager\maincamera.h">
       <Filter>manager</Filter>
-    </ClInclude>
-    <ClInclude Include="model\node.h">
-      <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="base\light.h">
       <Filter>base</Filter>
@@ -211,7 +202,37 @@
     <ClInclude Include="dbg\dbgaxis.h">
       <Filter>dbg</Filter>
     </ClInclude>
-    <ClInclude Include="model_new\xfilemesh.h">
+    <ClInclude Include="base\meshbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\resourcemanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\parallelloader.h">
+      <Filter>importer</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\task_resource.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\animationnode.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\assimploader.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\mesh2.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\model_assimp.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\skeleton.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\animation.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_new\model2.h">
       <Filter>model_new</Filter>
     </ClInclude>
   </ItemGroup>
@@ -286,9 +307,6 @@
     <ClCompile Include="model\node2.cpp">
       <Filter>model</Filter>
     </ClCompile>
-    <ClCompile Include="collision\collisionmanager.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
     <ClCompile Include="collision\frustum.cpp">
       <Filter>collision</Filter>
     </ClCompile>
@@ -309,9 +327,6 @@
     </ClCompile>
     <ClCompile Include="manager\maincamera.cpp">
       <Filter>manager</Filter>
-    </ClCompile>
-    <ClCompile Include="model\node.cpp">
-      <Filter>model</Filter>
     </ClCompile>
     <ClCompile Include="base\light.cpp">
       <Filter>base</Filter>
@@ -403,7 +418,34 @@
     <ClCompile Include="dbg\dbgaxis.cpp">
       <Filter>dbg</Filter>
     </ClCompile>
-    <ClCompile Include="model_new\xfilemesh.cpp">
+    <ClCompile Include="base\meshbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\resourcemanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="importer\parallelloader.cpp">
+      <Filter>importer</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\assimploader.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\mesh2.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\model_assimp.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\skeleton.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\animation.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\animationnode.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_new\model2.cpp">
       <Filter>model_new</Filter>
     </ClCompile>
   </ItemGroup>
@@ -435,9 +477,6 @@
     <Filter Include="model">
       <UniqueIdentifier>{0623b9ec-a13d-4900-9396-e9f98c5002b1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="model_collada">
-      <UniqueIdentifier>{73557f20-9885-43f5-9546-47b62866b67f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="model_new">
       <UniqueIdentifier>{608da746-a034-456e-b805-049f7bd5f3a0}</UniqueIdentifier>
     </Filter>
@@ -458,6 +497,9 @@
     </Filter>
     <Filter Include="shape">
       <UniqueIdentifier>{29658cad-a0f1-4692-ae8e-6828a34ec9aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model_assimp">
+      <UniqueIdentifier>{73557f20-9885-43f5-9546-47b62866b67f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

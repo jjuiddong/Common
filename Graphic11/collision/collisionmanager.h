@@ -20,14 +20,14 @@ namespace graphic
 
 
 		// 충돌테스트할 오브젝트를 저장하는 트리
-		struct sCollisionNode : cNode
+		struct sCollisionNode : cNode2
 		{
 			int testnum; // 테스트번호 (0번을 제외한, 같은 테스트번호끼리 비교한다.)
 			int boundingType;	// 0: box, 1: sphere
 			ICollisionable *pobj;
 			//Sphere *psphere;
 			cBoundingBox *box;
-			sCollisionNode( int id ) : cNode(id), testnum(0) , pobj(NULL)
+			sCollisionNode( int id ) : cNode2(id), testnum(0) , pobj(NULL)
 			{}
 		};
 

@@ -1,6 +1,6 @@
 //
 // 2017-02-16, jjuiddong
-// collada export mesh
+// Assimp export mesh
 // tree architecture mesh
 //
 #pragma once
@@ -15,20 +15,18 @@ namespace graphic {
 		virtual ~cMesh2();
 
 		bool Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skeleton);
-		void Render(cRenderer &renderer, const Matrix44 &tm=Matrix44::Identity);
-		void RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &tm = Matrix44::Identity);
-		bool Update(const float deltaSeconds);
+		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);
 		void Clear();
 
 
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
-		void Skinning();
 
 
 	public:
 		StrId m_name;
 		Matrix44 m_localTm;
+		Transform m_transform;
 		cSkeleton *m_skeleton; // reference
 		vector<cMaterial> m_mtrls;
 		vector<cTexture*>m_colorMap;  // reference
@@ -38,7 +36,6 @@ namespace graphic {
 		vector<sMeshBone> m_bones; // mesh bone
 		vector<Matrix44> m_tmPose;
 		cMeshBuffer *m_buffers;
-		cMeshBuffer *m_skinnedBuffers;
 	};
 	
 }

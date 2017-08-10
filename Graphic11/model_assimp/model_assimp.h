@@ -1,7 +1,7 @@
 //
 // 2017-02-16, jjuiddong
-// collada model
-// collada architecture model
+// assimpl loader model
+// assimp architecture model
 //
 #pragma once
 
@@ -9,13 +9,13 @@
 namespace graphic
 {
 
-	class cColladaModel
+	class cAssimpModel
 	{
 	public:
-		cColladaModel();
-		virtual ~cColladaModel();
+		cAssimpModel();
+		virtual ~cAssimpModel();
 		bool Create(cRenderer &renderer, const StrPath &fileName);
-		bool Render(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
+		bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		bool Update(const float deltaSeconds);
 		void SetAnimation(const Str64 &animationName, const bool isMerge=false);
 		void Clear();

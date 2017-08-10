@@ -38,6 +38,15 @@ void cBoundingBox::SetBoundingBox(const Transform &tfm)
 }
 
 
+void cBoundingBox::SetBoundingBox(const sMinMax &minMax)
+{
+	const Vector3 center = (minMax._min + minMax._max) / 2;
+	const Vector3 scale = Vector3(abs(minMax._min.x - minMax._max.x)
+		, abs(minMax._min.y - minMax._max.y)
+		, abs(minMax._min.z - minMax._max.z));
+	SetBoundingBox(center, scale, Quaternion());
+}
+
 
 void cBoundingBox::SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width)
 {

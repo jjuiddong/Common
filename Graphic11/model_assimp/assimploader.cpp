@@ -1,25 +1,26 @@
 
 #include "stdafx.h"
-#include "colladaloader.h"
+#include "assimploader.h"
 
 
 using namespace graphic;
 using namespace Assimp;
 
-cColladaLoader::cColladaLoader()
+cAssimpLoader::cAssimpLoader()
 	: m_rawMeshes(NULL)
 	, m_rawAnies(NULL)
 	, m_aiScene(NULL)
 {
 }
 
-cColladaLoader::~cColladaLoader()
+cAssimpLoader::~cAssimpLoader()
 {
 }
 
 
-bool cColladaLoader::Create(const StrPath &fileName)
+bool cAssimpLoader::Create(const StrPath &fileName)
 {
+	SAFE_DELETE(m_rawMeshes);
 	m_rawMeshes = new sRawMeshGroup2;
 	m_rawMeshes->name = fileName.c_str();
 
@@ -40,6 +41,8 @@ bool cColladaLoader::Create(const StrPath &fileName)
 		aiProcess_SplitLargeMeshes |			// split large, unrenderable meshes into sub-meshes
 		aiProcess_Triangulate |					// triangulate polygons with more than 3 edges
 		aiProcess_ConvertToLeftHanded |			// convert everything to D3D left handed space
+		//aiProcess_MakeLeftHanded |
+		//aiProcess_FlipUVs | 
 		aiProcess_SortByPType);					// make 'clean' meshes which consist of a single type of primitives
 
 	// If the import failed, report it
@@ -71,7 +74,7 @@ bool cColladaLoader::Create(const StrPath &fileName)
 
 
 // find all bones that influence the meshes first
-void cColladaLoader::FindBoneNode()
+void cAssimpLoader::FindBoneNode()
 {
 	for (unsigned int m = 0; m < m_aiScene->mNumMeshes; ++m)
 	{
@@ -88,7 +91,7 @@ void cColladaLoader::FindBoneNode()
 }
 
 
-void cColladaLoader::CreateSimpleBones(const aiNode* node, int parent,
+void cAssimpLoader::CreateSimpleBones(const aiNode* node, int parent,
 	const map<hashcode, aiBone*>& animatedNodes, vector<SkeletonNode>& result) const
 {
 	if (!node)
@@ -116,7 +119,7 @@ void cColladaLoader::CreateSimpleBones(const aiNode* node, int parent,
 
 
 
-void  cColladaLoader::MarkParents(std::vector<SkeletonNode>& hierarchy) const
+void  cAssimpLoader::MarkParents(std::vector<SkeletonNode>& hierarchy) const
 {
 	for (unsigned int i = 0; i < hierarchy.size(); ++i)
 	{
@@ -137,7 +140,7 @@ void  cColladaLoader::MarkParents(std::vector<SkeletonNode>& hierarchy) const
 }
 
 
-void cColladaLoader::FilterHierarchy(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const
+void cAssimpLoader::FilterHierarchy(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const
 {
 	map<int, int> nodeMapping;
 	nodeMapping[-1] = -1;
@@ -156,7 +159,7 @@ void cColladaLoader::FilterHierarchy(const std::vector<SkeletonNode>& fullHierar
 }
 
 
-void cColladaLoader::CreateMesh()
+void cAssimpLoader::CreateMesh()
 {
 	for (unsigned int m = 0; m < m_aiScene->mNumMeshes; ++m)
 	{
@@ -269,7 +272,7 @@ void cColladaLoader::CreateMesh()
 }
 
 
-void cColladaLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl)
+void cAssimpLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl)
 {
 	// extract all properties from the ASSIMP material structure
 	const aiMaterial* sourceMaterial = m_aiScene->mMaterials[sourceMesh->mMaterialIndex];
@@ -395,7 +398,7 @@ void cColladaLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtr
 }
 
 
-int cColladaLoader::GetBoneId(const Str64 &boneName)
+int cAssimpLoader::GetBoneId(const Str64 &boneName)
 {
 	for (u_int i = 0; i < m_reducedHierarchy.size(); ++i)
 	{
@@ -406,7 +409,7 @@ int cColladaLoader::GetBoneId(const Str64 &boneName)
 }
 
 
-void cColladaLoader::CreateBone()
+void cAssimpLoader::CreateBone()
 {
 	m_rawMeshes->bones.resize(m_reducedHierarchy.size());
 
@@ -432,7 +435,7 @@ void cColladaLoader::CreateBone()
 }
 
 
-void cColladaLoader::CreateAnimation()
+void cAssimpLoader::CreateAnimation()
 {
 	RET(m_aiScene->mNumAnimations <= 0);
 
@@ -490,7 +493,7 @@ void cColladaLoader::CreateAnimation()
 }
 
 
-void cColladaLoader::CreateNode(aiNode* node)
+void cAssimpLoader::CreateNode(aiNode* node)
 {
 	for (u_int m = 0; m < node->mNumMeshes; ++m)
 	{
@@ -504,7 +507,7 @@ void cColladaLoader::CreateNode(aiNode* node)
 }
 
 
-void cColladaLoader::CreateMeshBone(aiNode* node)
+void cAssimpLoader::CreateMeshBone(aiNode* node)
 {
 	for (u_int m = 0; m < node->mNumMeshes; ++m)
 	{

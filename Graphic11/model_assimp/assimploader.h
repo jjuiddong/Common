@@ -1,6 +1,9 @@
 //
 // 2017-02-16, jjuiddong
-// collada export loader
+// Assimp export loader
+//
+// 2017-08-10
+//	- Upgrade DX11
 //
 #pragma once
 
@@ -14,7 +17,7 @@ namespace graphic
 {
 	using namespace Assimp;
 
-	class cColladaLoader
+	class cAssimpLoader
 	{
 	public:
 		struct SkeletonNode
@@ -26,8 +29,8 @@ namespace graphic
 			bool used;
 		};
 
-		cColladaLoader();
-		virtual ~cColladaLoader();
+		cAssimpLoader();
+		virtual ~cAssimpLoader();
 		bool Create(const StrPath &fileName);
 
 

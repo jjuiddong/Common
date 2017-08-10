@@ -40,9 +40,6 @@ bool cDbgLine::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
-	renderer.m_cbPerFrame.Update(renderer);
-
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	__super::Render(renderer, parentTm, flags);

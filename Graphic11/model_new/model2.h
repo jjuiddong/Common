@@ -1,19 +1,20 @@
 //
 // 2017-05-01, jjuiddong
 // integrate model class
-//	- collada, xfile
+//	- assimp load model
+//
+// 2017-08-10
+//	- Upgrade DX11
 //
 #pragma once
 
 
 namespace graphic
 {
-	class cColladaModel;
-	class cXFileMesh;
+	class cAssimpModel;
 	class cShadowMap;
 
 	class cModel2 : public cNode2
-				, public iShadowRenderer
 	{
 	public:
 		cModel2();
@@ -28,10 +29,10 @@ namespace graphic
 			, const bool isShadow=false
 		);
 
-		virtual bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int flags=1) override;
-		virtual void RenderShadow(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity) override;
-		virtual void SetShader(cShader *shader) override;
-		virtual void SetShadowShader(cShader *shader) override;
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags=1);
+		//virtual void RenderShadow(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		//virtual void SetShader(cShader *shader) override;
+		//virtual void SetShadowShader(cShader *shader) override;
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
@@ -48,15 +49,11 @@ namespace graphic
 
 	public:
 		struct eState { enum Enum { 
-				LOAD_PARALLEL_COLLADA
-				, LOAD_PARALLEL_XFILE
-				, LOAD_SINGLE_COLLADA
-				, LOAD_SINGLE_XFILE
+				LOAD_PARALLEL_ASSIMP
+				, LOAD_SINGLE_ASSIMP
 				, LOAD_MESH_FINISH
-				, LOAD_PARALLEL_COLLADA_SHADOW
-				, LOAD_PARALLEL_XFILE_SHADOW
-				, LOAD_SINGLE_COLLADA_SHADOW
-				, LOAD_SINGLE_XFILE_SHADOW
+				, LOAD_PARALLEL_ASSIMP_SHADOW
+				, LOAD_SINGLE_ASSIMP_SHADOW
 				, LOAD_FINISH
 				, NORMAL 
 			};
@@ -67,11 +64,10 @@ namespace graphic
 		Str32 m_techniqueName;
 		StrId m_animationName;
 		eState::Enum m_state;
-		D3DCULL m_cullType; // default : CCW
-		cColladaModel *m_colladaModel; // reference
-		cXFileMesh *m_xModel; // reference
-		cShadowVolume *m_shadow; // reference
-		cShadow2 *m_shadowMap; // reference
+		//D3DCULL m_cullType; // default : CCW
+		cAssimpModel *m_assimpModel; // reference
+		//cShadowVolume *m_shadow; // reference
+		//cShadow2 *m_shadowMap; // reference
 	};
 
 }

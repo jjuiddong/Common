@@ -54,7 +54,7 @@ namespace graphic
 		int id;
 		int parentId;
 		StrId name;
-		Matrix44 offset; // collada
+		Matrix44 offset; // assimp
 		Matrix44 localTm;
 		Matrix44 worldTm;
 
@@ -96,7 +96,7 @@ namespace graphic
 
 
 	//------------------------------------------------------------------------------------------------------
-	// Collada Format Version
+	// Assimp Format Version
 	struct sRawBone2
 	{
 		int id;

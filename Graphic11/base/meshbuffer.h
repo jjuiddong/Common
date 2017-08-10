@@ -1,6 +1,8 @@
-// cMeshBuffer
-// 메쉬를 구성하는 버텍스 버퍼, 인덱스 버퍼, 속성 버퍼를 
-// 관리하는 클래스다.
+//
+// 2017-08-10, jjuiddong
+// Upgrade DX9 -> DX11
+// Management Mesh Object
+//
 #pragma once
 
 
@@ -11,12 +13,9 @@ namespace graphic
 	{
 	public:
 		cMeshBuffer();
-		cMeshBuffer(cRenderer &renderer, const sRawMesh &rawMesh);
 		cMeshBuffer(cRenderer &renderer, const sRawMesh2 &rawMesh);
-		cMeshBuffer(cRenderer &renderer, const sRawBone &rawBone);
 		virtual ~cMeshBuffer();
 
-		void Bind(cRenderer &renderer);
 		void Render(cRenderer &renderer, const int faceStart = 0, const int faceCount = 0);
 
 		cMeshBuffer* Clone();
@@ -31,17 +30,10 @@ namespace graphic
 
 
 	protected:
-		void CreateMesh(cRenderer &renderer, const sRawMesh &rawMesh);
 		void CreateMesh(cRenderer &renderer, const sRawMesh2 &rawMesh);
 		
-		void CreateMesh(cRenderer &renderer, 
-			const vector<Vector3> &vertices,
-			const vector<Vector3> &normals, 
-			const vector<Vector3> &tex,
-			const vector<int> &indices);
-
 		void CreateMesh(cRenderer &renderer,
-			const cVertexDeclaration &decl,
+			const cVertexLayout &layout,
 			const vector<Vector3> &vertices,
 			const vector<Vector3> &normals,
 			const vector<Vector3> &tex,

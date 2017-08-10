@@ -9,34 +9,34 @@ namespace graphic
 {
 
 	//-----------------------------------------------------------------------------------------------
-	class cTaskColladaLoader : public common::cTask
+	class cTaskAssimpLoader : public common::cTask
 	{
 	public:
-		cTaskColladaLoader(int id, cRenderer *renderer, const StrPath &fileName)
-			: cTask(id, "cTaskColladaLoader")
+		cTaskAssimpLoader(int id, cRenderer *renderer, const StrPath &fileName)
+			: cTask(id, "cTaskAssimpLoader")
 			, m_renderer(renderer)
 			, m_fileName(fileName) {
 		}
-		virtual ~cTaskColladaLoader() {
+		virtual ~cTaskAssimpLoader() {
 		}
 
 		virtual eRunResult::Enum Run() 
 		{
-			cColladaModel *model = NULL;
+			cAssimpModel *model = NULL;
 			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
 			if (resourcePath.empty())
 				goto error;
 
-			model = new cColladaModel;
+			model = new cAssimpModel;
 			if (!model->Create(*m_renderer, resourcePath))
 				goto error;
 
-			cResourceManager::Get()->InsertColladaModel(m_fileName, model);
+			cResourceManager::Get()->InsertAssimpModel(m_fileName, model);
 			return eRunResult::END; 
 
 
 		error:
-			dbg::ErrLog("Error cTaskColladaLoader %s \n", m_fileName.c_str());
+			dbg::ErrLog("Error cTaskAssimpLoader %s \n", m_fileName.c_str());
 			SAFE_DELETE(model);
 			return eRunResult::END;
 		}
@@ -46,108 +46,107 @@ namespace graphic
 	};
 
 
-	//-----------------------------------------------------------------------------------------------
-	class cTaskXFileLoader : public common::cTask
-	{
-	public:
-		cTaskXFileLoader(int id, cRenderer *renderer, const StrPath &fileName)
-			: cTask(id, "cTaskXFileLoader")
-			, m_renderer(renderer)
-			, m_fileName(fileName) {
-		}
-		virtual ~cTaskXFileLoader() {
-		}
+	////-----------------------------------------------------------------------------------------------
+	//class cTaskXFileLoader : public common::cTask
+	//{
+	//public:
+	//	cTaskXFileLoader(int id, cRenderer *renderer, const StrPath &fileName)
+	//		: cTask(id, "cTaskXFileLoader")
+	//		, m_renderer(renderer)
+	//		, m_fileName(fileName) {
+	//	}
+	//	virtual ~cTaskXFileLoader() {
+	//	}
 
-		virtual eRunResult::Enum Run()
-		{
-			cXFileMesh *mesh = NULL;
-			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
-			if (resourcePath.empty())
-				goto error;
+	//	virtual eRunResult::Enum Run()
+	//	{
+	//		cXFileMesh *mesh = NULL;
+	//		const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
+	//		if (resourcePath.empty())
+	//			goto error;
 
-			mesh = new cXFileMesh;
-			if (!mesh->Create(*m_renderer, resourcePath, false, true))
-				goto error;
+	//		mesh = new cXFileMesh;
+	//		if (!mesh->Create(*m_renderer, resourcePath, false, true))
+	//			goto error;
 
-			cResourceManager::Get()->InsertXFileModel(m_fileName, mesh);
-			return eRunResult::END;
-
-
-		error:
-			dbg::ErrLog("Error cTaskXFileLoader %s \n", m_fileName.c_str());
-			SAFE_DELETE(mesh);
-			return eRunResult::END;
-		}
-
-		StrPath m_fileName;
-		cRenderer *m_renderer;
-	};
+	//		cResourceManager::Get()->InsertXFileModel(m_fileName, mesh);
+	//		return eRunResult::END;
 
 
-	//-----------------------------------------------------------------------------------------------
-	class cTaskShadowLoader : public common::cTask
-	{
-	public:
-		cTaskShadowLoader(int id, cRenderer *renderer
-			, const StrPath &fileName
-			, cColladaModel *colladaModel
-			, cXFileMesh *xfile
-		)
-			: cTask(id, "cTaskShadowLoader")
-			, m_renderer(renderer)
-			, m_fileName(fileName)
-			, m_colladaModel(colladaModel)
-			, m_xfile(xfile) {
-		}
-		virtual ~cTaskShadowLoader() {
-		}
+	//	error:
+	//		dbg::ErrLog("Error cTaskXFileLoader %s \n", m_fileName.c_str());
+	//		SAFE_DELETE(mesh);
+	//		return eRunResult::END;
+	//	}
 
-		virtual eRunResult::Enum Run()
-		{
-			cShadowVolume *shadow = NULL;
+	//	StrPath m_fileName;
+	//	cRenderer *m_renderer;
+	//};
 
-			if (m_colladaModel)
-			{
-				shadow = new cShadowVolume();
-				if (!m_colladaModel->m_meshes.empty())
-				{
-					cMesh2 *mesh = m_colladaModel->m_meshes[0];
-					if (!shadow->Create(*m_renderer, mesh->m_buffers->m_vtxBuff, mesh->m_buffers->m_idxBuff))
-					{
-						SAFE_DELETE(shadow);
-					}
-				}
-			}
-			else if (m_xfile)
-			{
-				shadow = new cShadowVolume();
-				if (!shadow->Create(*m_renderer, m_xfile->m_mesh, true))
-				{
-					SAFE_DELETE(shadow);
-				}
-			}
 
-			if (shadow)
-				cResourceManager::Get()->InsertShadow(m_fileName, shadow);
+	////-----------------------------------------------------------------------------------------------
+	//class cTaskShadowLoader : public common::cTask
+	//{
+	//public:
+	//	cTaskShadowLoader(int id, cRenderer *renderer
+	//		, const StrPath &fileName
+	//		, cColladaModel *colladaModel
+	//		, cXFileMesh *xfile
+	//	)
+	//		: cTask(id, "cTaskShadowLoader")
+	//		, m_renderer(renderer)
+	//		, m_fileName(fileName)
+	//		, m_colladaModel(colladaModel)
+	//		, m_xfile(xfile) {
+	//	}
+	//	virtual ~cTaskShadowLoader() {
+	//	}
 
-			return eRunResult::END;
-		}
+	//	virtual eRunResult::Enum Run()
+	//	{
+	//		cShadowVolume *shadow = NULL;
 
-		StrPath m_fileName;
-		cRenderer *m_renderer;
-		cColladaModel *m_colladaModel;
-		cXFileMesh *m_xfile;
-	};
+	//		if (m_colladaModel)
+	//		{
+	//			shadow = new cShadowVolume();
+	//			if (!m_colladaModel->m_meshes.empty())
+	//			{
+	//				cMesh2 *mesh = m_colladaModel->m_meshes[0];
+	//				if (!shadow->Create(*m_renderer, mesh->m_buffers->m_vtxBuff, mesh->m_buffers->m_idxBuff))
+	//				{
+	//					SAFE_DELETE(shadow);
+	//				}
+	//			}
+	//		}
+	//		else if (m_xfile)
+	//		{
+	//			shadow = new cShadowVolume();
+	//			if (!shadow->Create(*m_renderer, m_xfile->m_mesh, true))
+	//			{
+	//				SAFE_DELETE(shadow);
+	//			}
+	//		}
+
+	//		if (shadow)
+	//			cResourceManager::Get()->InsertShadow(m_fileName, shadow);
+
+	//		return eRunResult::END;
+	//	}
+
+	//	StrPath m_fileName;
+	//	cRenderer *m_renderer;
+	//	cColladaModel *m_colladaModel;
+	//	cXFileMesh *m_xfile;
+	//};
 
 
 	//-----------------------------------------------------------------------------------------------
 	class cTaskTextureLoader : public common::cTask
 	{
 	public:
-		cTaskTextureLoader(int id, cRenderer *renderer, const StrPath &fileName, const bool isSizePow2)
+		cTaskTextureLoader(int id, cRenderer *renderer, const StrPath &fileName)
 			: cTask(id, "cTaskTextureLoader")
 			, m_renderer(renderer)
-			, m_isSizePow2(isSizePow2)
 			, m_fileName(fileName) {
 		}
 		virtual ~cTaskTextureLoader() {
@@ -161,7 +160,7 @@ namespace graphic
 				goto error;
 
 			texture = new cTexture();
-			if (!texture->Create(*m_renderer, resourcePath, m_isSizePow2))
+			if (!texture->Create(*m_renderer, resourcePath))
 			{
 				if (resourcePath == g_defaultTexture) // this file must loaded
 				{
@@ -178,7 +177,7 @@ namespace graphic
 			else
 			{
 				cResourceManager::Get()->InsertTexture(m_fileName,
-					cResourceManager::Get()->LoadTexture(*m_renderer, g_defaultTexture, m_isSizePow2, false));
+					cResourceManager::Get()->LoadTexture(*m_renderer, g_defaultTexture, false));
 			}
 
 
@@ -189,7 +188,6 @@ namespace graphic
 		}
 
 		StrPath m_fileName;
-		bool m_isSizePow2;
 		cRenderer *m_renderer;
 	};
 

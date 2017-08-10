@@ -25,10 +25,11 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 
 	m_fileName = fileName;
 
-	//if (FAILED(D3DX11CreateShaderResourceViewFromFileA(renderer.GetDevice(), fileName.c_str(), NULL, NULL, &m_texture, NULL)))
-	//	return false;
 	if (FAILED(CreateDDSTextureFromFile(renderer.GetDevice(), fileName.wstr().c_str(), NULL, &m_texture)))
-		return false;
+	{
+		if (FAILED(CreateWICTextureFromFile(renderer.GetDevice(), fileName.wstr().c_str(), NULL, &m_texture)))
+			return false;
+	}
 
 	// 텍스쳐 사이즈 저장.
 	ID3D11Resource *res;

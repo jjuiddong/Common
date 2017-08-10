@@ -114,29 +114,25 @@ void cVertexLayout::CreateDecl(
 	const vector<sVertexWeight> &weights
 	)
 {
-	int offset = 0;
-	m_elements.clear();
+	vector<D3D11_INPUT_ELEMENT_DESC> layout;
 
-	//if (!vertices.empty())
-	//{
-	//	D3DVERTEXELEMENT9 element = { 0,  (WORD)offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 };
-	//	m_decl.push_back(element);
-	//	offset += 12;
-	//}
+	if (!vertices.empty())
+	{
+		D3D11_INPUT_ELEMENT_DESC element = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element);
+	}
 
-	//if (!normals.empty())
-	//{
-	//	D3DVERTEXELEMENT9 element = { 0, (WORD)offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL,   0 };
-	//	m_decl.push_back(element);
-	//	offset += 12;
-	//}
+	if (!normals.empty())
+	{
+		D3D11_INPUT_ELEMENT_DESC element = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element);
+	}
 
-	//if (!tex.empty())
-	//{
-	//	D3DVERTEXELEMENT9 element = { 0, (WORD)offset, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 };
-	//	m_decl.push_back(element);
-	//	offset += 8;
-	//}
+	if (!tex.empty())
+	{
+		D3D11_INPUT_ELEMENT_DESC element = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element);
+	}
 
 	//if (!tangent.empty())
 	//{
@@ -168,6 +164,8 @@ void cVertexLayout::CreateDecl(
 
 	//D3DVERTEXELEMENT9 endElement = D3DDECL_END();
 	//m_decl.push_back(endElement);
+
+	Create(layout);
 
 	//m_elementSize = offset;
 }

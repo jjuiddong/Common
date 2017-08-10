@@ -17,6 +17,7 @@ namespace graphic
 		cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q=Quaternion());
 		void SetBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q = Quaternion());
 		void SetBoundingBox(const Transform &tfm);
+		void SetBoundingBox(const sMinMax &minMax );
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
 		bool Collision( cBoundingBox &box );
 		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance=NULL);

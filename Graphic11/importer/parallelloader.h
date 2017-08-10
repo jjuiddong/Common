@@ -14,7 +14,7 @@ namespace graphic
 		struct eType {
 			enum Enum {
 				NONE
-				, COLLADA
+				, ASSIMP
 				, XFILE
 				, SHADOW_VOLUME
 				, TEXTURE				
@@ -48,9 +48,9 @@ namespace graphic
 			DWORD ptr = 0;
 			switch (m_type)
 			{
-			case eType::COLLADA:
+			case eType::ASSIMP:
 			{
-				auto result = cResourceManager::Get()->FindColladaModel(m_key);
+				auto result = cResourceManager::Get()->FindAssimpModel(m_key);
 				if (result.second)
 					ptr = (DWORD)result.second;
 			}

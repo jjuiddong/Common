@@ -9,7 +9,7 @@ using namespace graphic;
 
 void graphic::ReleaseRenderer()
 {
-	//cResourceManager::Release();
+	cResourceManager::Release();
 	cMainCamera::Release();
 	//cLightManager::Release();
 	//cFontManager::Release();
