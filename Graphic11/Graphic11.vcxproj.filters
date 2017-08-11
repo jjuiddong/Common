@@ -235,6 +235,15 @@
     <ClInclude Include="model_new\model2.h">
       <Filter>model_new</Filter>
     </ClInclude>
+    <ClInclude Include="base\skybox.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\tile.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrain2.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -447,6 +456,15 @@
     </ClCompile>
     <ClCompile Include="model_new\model2.cpp">
       <Filter>model_new</Filter>
+    </ClCompile>
+    <ClCompile Include="base\skybox.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\tile.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrain2.cpp">
+      <Filter>terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

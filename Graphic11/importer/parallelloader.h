@@ -41,7 +41,7 @@ namespace graphic
 
 		bool Update(const float deltaSeconds) {
 			m_incTime += deltaSeconds;
-			if (m_incTime < 0.5f)
+			if (m_incTime < 0.1f)
 				return false;
 			m_incTime = 0;
 

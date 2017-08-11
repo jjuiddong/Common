@@ -18,7 +18,9 @@ cGrid::~cGrid()
 
 
 void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-	, const int gridType //= (eGridType::POSITION | eGridType::DIFFUSE)
+	, const int gridType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
+	, const cColor &color //= cColor::WHITE
+	, const char *textureFileName //= g_defaultTexture
 	, const Vector2 &uv0 //= Vector2(0, 0)
 	, const Vector2 &uv1 //= Vector2(1, 1)
 	, const float textureUVFactor // = 8.f
@@ -30,13 +32,13 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	m_gridType = gridType;
 
 	vector<D3D11_INPUT_ELEMENT_DESC> elems;
-	if (gridType & eGridType::POSITION)
+	if (gridType & eVertexType::POSITION)
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (gridType & eGridType::NORMAL)
+	if (gridType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (gridType & eGridType::DIFFUSE)
+	if (gridType & eVertexType::DIFFUSE)
 		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (gridType & eGridType::TEXTURE)
+	if (gridType & eVertexType::TEXTURE)
 		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	cVertexLayout vtxLayout;
 	vtxLayout.Create(elems);
@@ -52,8 +54,10 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	const int colVtxCnt  = colCellCount+1;
 	const int cellCnt = rowCellCount * colCellCount;
 	const int vtxCount = rowVtxCnt * colVtxCnt;
+	const Vector4 vcolor = color.GetColor();
 
-	BYTE *vertices = new BYTE[vertexStride * vtxCount];
+	vector<BYTE> buffer0(vertexStride * vtxCount);
+	BYTE *vertices = &buffer0[0];
 	BYTE *pvtx = vertices;
 	{
 		const float startx = -cellSize*(colCellCount / 2);
@@ -70,23 +74,23 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 			int k = 0;
 			for (float x = startx; x <= endx; x += cellSize, ++k)
 			{
-				if (gridType & eGridType::POSITION)
+				if (gridType & eVertexType::POSITION)
 					*(Vector3*)(pvtx + posOffset) = Vector3(x, 0, y);
-				if (gridType & eGridType::NORMAL)
+				if (gridType & eVertexType::NORMAL)
 					*(Vector3*)(pvtx + normOffset) = Vector3(0, 1, 0);
-				if (gridType & eGridType::DIFFUSE)
-					*(Vector4*)(pvtx + colorOffset) = Vector4(1,1,1,1);
-				if (gridType & eGridType::TEXTURE)
+				if (gridType & eVertexType::DIFFUSE)
+					*(Vector4*)(pvtx + colorOffset) = vcolor;
+				if (gridType & eVertexType::TEXTURE)
 					*(Vector2*)(pvtx + texOffset) = uv0 + Vector2(k*uCoordIncrementSize, i*vCoordIncrementSize);
 				pvtx += vertexStride;
 			}
 		}
 	}
 
-	m_vtxBuff.Create(renderer, vtxCount, vertexStride, vertices);
-	delete[] vertices;
+	m_vtxBuff.Create(renderer, vtxCount, vertexStride, &buffer0[0]);
 
-	WORD *indices = new WORD[cellCnt * 2 * 3];
+	vector<WORD> buffer1(cellCnt * 2 * 3);
+	WORD *indices = &buffer1[0];
 	{
 		int baseIndex = 0;
 		for (int i = 0; i < rowCellCount; ++i)
@@ -107,10 +111,13 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		}
 	}
 
-	m_idxBuff.Create(renderer, cellCnt * 2, indices);
-	delete[] indices;
+	m_idxBuff.Create(renderer, cellCnt * 2, &buffer1[0]);
 
-	if (gridType & eGridType::TEXTURE)
+	m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
+	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
+		, textureFileName, (void**)&m_texture));
+
+	if (gridType & eVertexType::TEXTURE)
 		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }
 
@@ -126,11 +133,16 @@ bool cGrid::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	if ((m_gridType & eGridType::TEXTURE) && m_texture)
+	if ((m_gridType & eVertexType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
 
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount()*3, 0, 0);
+
+	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
 	__super::Render(renderer, tm, flags);
 	return true;

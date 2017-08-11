@@ -26,7 +26,7 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 {
 	const Vector2 center = rect.Center();
 	const Vector3 lightLookat = Vector3(center.x, 0, center.y);
-	const Vector3 lightPos = GetMainLight().GetDirection()	* -400.f + lightLookat;
+	const Vector3 lightPos = GetMainLight().m_direction * -400.f + lightLookat;
 
 	const Vector3 p0 = lightPos;
 	const Vector3 p1 = (lightLookat - lightPos).Normal() * 3 + p0;
@@ -36,20 +36,21 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 	const int shadowHeight = 1024;
 	for (int i = 0; i < SHADOWMAP_COUNT; ++i)
 	{
-		m_shadowMap[i].Create(renderer, 1024, 1024);
+		//m_shadowMap[i].Create(renderer, 1024, 1024);
 
-		m_frustum[i].Create(renderer, GetMainCamera()->GetViewProjectionMatrix());
-		m_frustum[i].m_fullCheck = true;
+		m_frustum[i].Create(renderer, *GetMainCamera());
+		//m_frustum[i].m_fullCheck = true;
 
 		m_lightCam[i].Init(&renderer);
 		m_lightCam[i].SetCamera(lightPos, lightLookat, Vector3(0, 1, 0));
 		m_lightCam[i].SetProjectionOrthogonal((float)shadowWidth, (float)shadowHeight, 0.1f, 1000.0f);
 		m_lightCam[i].SetViewPort(100, 100);
 
-		m_dbgLightFrustum[i].Create(renderer, m_lightCam[i].GetViewProjectionMatrix());
+		m_dbgLightFrustum[i].Create(renderer, m_lightCam[i]);
 	}
 
-	m_dbgPlane.SetLine(renderer, Vector3(0, 0, 0), Vector3(0, 30, 0), 0.1f);
+	m_dbgPlane.Create(renderer);
+	m_dbgPlane.SetLine(Vector3(0, 0, 0), Vector3(0, 30, 0), 0.1f);
 	m_dbgSphere.Create(renderer, 1, 10, 10);
 
 	return true;
@@ -64,21 +65,21 @@ bool cTerrain2::Update(cRenderer &renderer, const float deltaSeconds)
 
 
 void cTerrain2::PreRender(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 	, const int shadowMapIdx //= 0
 )
 {
 	cAutoCam cam(&m_lightCam[shadowMapIdx]);
 
-	m_shadowMap[shadowMapIdx].Begin(renderer);
-	for (auto &p : m_tiles)
-		p->PreRender(renderer, tm);
-	m_shadowMap[shadowMapIdx].End(renderer);
+	//m_shadowMap[shadowMapIdx].Begin(renderer);
+	//for (auto &p : m_tiles)
+	//	p->PreRender(renderer, tm);
+	//m_shadowMap[shadowMapIdx].End(renderer);
 }
 
 
 bool cTerrain2::Render(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 	, const int flags //= 1
 )
 {
@@ -90,7 +91,7 @@ bool cTerrain2::Render(cRenderer &renderer
 	{
 		for (int i = 0; i < SHADOWMAP_COUNT; ++i)
 		{
-			m_shadowMap[i].Render(renderer, i+1);
+			//m_shadowMap[i].Render(renderer, i+1);
 			//m_frustum[i].RenderShader(renderer);
 			//m_dbgLightFrustum[i].RenderShader(renderer);
 		}
@@ -103,7 +104,7 @@ bool cTerrain2::Render(cRenderer &renderer
 
 
 void cTerrain2::RenderOption(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 	, const int option //= 0x1
 )
 {
@@ -112,14 +113,14 @@ void cTerrain2::RenderOption(cRenderer &renderer
 
 
 void cTerrain2::RenderDebug(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 )
 {
 	if (m_isShowDebug)
 	{
 		for (int i = 0; i < SHADOWMAP_COUNT; ++i)
 		{
-			m_shadowMap[i].Render(renderer, i + 1);
+			//m_shadowMap[i].Render(renderer, i + 1);
 			//m_frustum[i].RenderShader(renderer);
 			//m_dbgLightFrustum[i].RenderShader(renderer);
 		}
@@ -129,27 +130,26 @@ void cTerrain2::RenderDebug(cRenderer &renderer
 }
 
 
-
 void cTerrain2::UpdateShader(cRenderer &renderer)
 {
 	RET(m_tiles.empty());
 
 	cCamera *cam = GetMainCamera();
 
-	cShader *shader = m_tiles[0]->m_ground.m_shader;
-	cam->Bind(*shader);
-	GetMainLight().Bind(*shader);
-	cam->Bind(*m_frustum[0].m_shader);
+	//cShader *shader = m_tiles[0]->m_ground.m_shader;
+	//cam->Bind(*shader);
+	//GetMainLight().Bind(*shader);
+	//cam->Bind(*m_frustum[0].m_shader);
 
-	for (auto &shader : m_shaders)
-	{
-		GetMainLight().Bind(*shader);
-		cam->Bind(*shader);
-	}
+	//for (auto &shader : m_shaders)
+	//{
+	//	GetMainLight().Bind(*shader);
+	//	cam->Bind(*shader);
+	//}
 
-	for (auto &p : m_tiles)
-		p->UpdateShader(m_lightView, m_lightProj, m_lightTT
-			, m_shadowMap, SHADOWMAP_COUNT);
+	//for (auto &p : m_tiles)
+	//	p->UpdateShader(m_lightView, m_lightProj, m_lightTT
+	//		, m_shadowMap, SHADOWMAP_COUNT);
 }
 
 
@@ -160,7 +160,7 @@ void cTerrain2::CullingTest(
 	, const int shadowMapIdx //= 0
 )
 {
-	m_frustum[shadowMapIdx].SetFrustum(renderer, camera.GetViewProjectionMatrix());
+	m_frustum[shadowMapIdx].SetFrustum(renderer, camera);
 
 	for (auto &p : m_tiles)
 		p->CullingTest(m_frustum[shadowMapIdx], Matrix44::Identity, isModel);
@@ -172,7 +172,7 @@ void cTerrain2::CullingTest(
 	camera.GetRay(x, y, orig, dir);
 	const Plane ground(Vector3(0, 1, 0), 0);
 	const Vector3 pos = ground.Pick(orig, dir);
-	m_dbgPlane.SetLine(renderer, pos, pos + Vector3(0, 1, 0) * 10, 0.1f);
+	m_dbgPlane.SetLine(pos, pos + Vector3(0, 1, 0) * 10, 0.1f);
 
 	const Vector3 lightDir = m_lightCam[shadowMapIdx].GetDirection();
 	//const Vector3 lightPos = pos + Vector3(0, 1, 0) * 10 + lightDir*-30.f
@@ -193,7 +193,7 @@ void cTerrain2::CullingTest(
 	if (m_isShowDebug)
 	{ 
 		m_dbgLight.SetDirection(m_lightCam[shadowMapIdx].GetEyePos(), m_lightCam[shadowMapIdx].GetEyePos() + lightDir*1.f, 0.5f);
-		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx].GetViewProjectionMatrix());
+		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx]);
 	}
 }
 
@@ -207,7 +207,7 @@ void cTerrain2::CullingTest(cRenderer &renderer
 	for (auto &p : m_tiles)
 		p->CullingTest(frustum, Matrix44::Identity, isModel);
 
-	m_frustum[shadowMapIdx].SetFrustum(renderer, frustum.m_viewProj);
+	m_frustum[shadowMapIdx].SetFrustum(renderer, frustum);
 
 	Vector3 vtxQuad[4];
 	const Plane ground(Vector3(0, 1, 0), 0);
@@ -224,7 +224,7 @@ void cTerrain2::CullingTest(cRenderer &renderer
 	{
 		const Vector3 lightDir = m_lightCam[shadowMapIdx].GetDirection();
 		m_dbgLight.SetDirection(m_lightCam[shadowMapIdx].GetEyePos(), m_lightCam[shadowMapIdx].GetEyePos() + lightDir*1.f, 0.5f);
-		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx].GetViewProjectionMatrix());
+		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx]);
 	}
 }
 
@@ -234,7 +234,9 @@ void cTerrain2::CullingTestOnly(cRenderer &renderer, cCamera &camera
 )
 {
 	cFrustum frustum;
-	frustum.SetFrustum(camera.GetViewProjectionMatrix());
+	frustum.SetFrustum(camera.GetEyePos()
+		, camera.GetDirection()
+		, camera.GetProjectionMatrix());
 
 	for (auto &p : m_tiles)
 		p->CullingTest(frustum, Matrix44::Identity, isModel);
@@ -302,8 +304,8 @@ void cTerrain2::LostDevice()
 {
 	for (auto &p : m_tiles)
 		p->LostDevice();
-	for (int i = 0; i < SHADOWMAP_COUNT; ++i)
-		m_shadowMap[i].LostDevice();
+	//for (int i = 0; i < SHADOWMAP_COUNT; ++i)
+	//	m_shadowMap[i].LostDevice();
 }
 
 
@@ -311,8 +313,8 @@ void cTerrain2::ResetDevice(cRenderer &renderer)
 {
 	for (auto &p : m_tiles)
 		p->ResetDevice(renderer);
-	for (int i=0; i < SHADOWMAP_COUNT; ++i)
-		m_shadowMap[i].ResetDevice(renderer);
+	//for (int i=0; i < SHADOWMAP_COUNT; ++i)
+	//	m_shadowMap[i].ResetDevice(renderer);
 }
 
 

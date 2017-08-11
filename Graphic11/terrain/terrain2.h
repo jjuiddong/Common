@@ -2,6 +2,9 @@
 // 2017-05-13, jjuiddong
 // terrain 
 // - lighting, model
+//
+// 2017-08-11
+//	- Upgrade DX11
 // 
 #pragma once
 
@@ -18,11 +21,11 @@ namespace graphic
 
 		virtual bool Create(cRenderer &renderer, const sRectf &rect);
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
-		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity
+		virtual void PreRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity
 			, const int shadowMapIdx=0);
-		virtual bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int flags = 1) override;
-		virtual void RenderOption(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int option=0x1);
-		virtual void RenderDebug(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
+		virtual void RenderOption(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int option=0x1);
+		virtual void RenderDebug(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		virtual void LostDevice();
 		virtual void ResetDevice(cRenderer &renderer);
 		virtual void Clear();
@@ -59,7 +62,7 @@ namespace graphic
 		Matrix44 m_lightView[ SHADOWMAP_COUNT];
 		Matrix44 m_lightProj[ SHADOWMAP_COUNT];
 		Matrix44 m_lightTT[ SHADOWMAP_COUNT];
-		cShadowMap m_shadowMap[ SHADOWMAP_COUNT];
+		//cShadowMap m_shadowMap[ SHADOWMAP_COUNT];
 
 		// Debug Display
 		bool m_isShowDebug;

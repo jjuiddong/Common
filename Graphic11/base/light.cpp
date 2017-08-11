@@ -26,26 +26,30 @@ void cLight::Init(TYPE type,
 	//m_light.Specular = *(D3DCOLORVALUE*)&specular;
 	//m_light.Direction = *(D3DXVECTOR3*)&direction;
 
-	m_ambient = *(XMFLOAT4*)&ambient;
-	m_diffuse = *(XMFLOAT4*)&diffuse;
-	m_specular = *(XMFLOAT4*)&specular;
-	m_direction = *(XMFLOAT3*)&direction;
-	m_pos = XMFLOAT3(0, 0, 0);
+	//m_ambient = *(XMFLOAT4*)&ambient;
+	//m_diffuse = *(XMFLOAT4*)&diffuse;
+	//m_specular = *(XMFLOAT4*)&specular;
+	//m_direction = *(XMFLOAT3*)&direction;
+	//m_pos = XMFLOAT3(0, 0, 0);
+
+	m_ambient = ambient;
+	m_diffuse = diffuse;
+	m_specular = specular;
+	m_direction = direction;
+	m_pos = Vector3(0, 0, 0);
 
 }
 
 
 void cLight::SetDirection( const Vector3 &direction )
 {
-	//m_light.Direction = *(D3DXVECTOR3*)&direction;
-	m_direction = *(XMFLOAT3*)&direction;
+	m_direction = direction;
 }
 
 
 void cLight::SetPosition( const Vector3 &pos )
 {
-	//m_light.Position = *(D3DXVECTOR3*)&pos;
-	m_pos = *(XMFLOAT3*)&pos;
+	m_pos = pos;
 }
 
 
@@ -122,7 +126,8 @@ void cLight::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix4
 
 
 void cLight::Bind(cRenderer &renderer, 
-	int lightIndex) // 0
+	int lightIndex // =0
+) 
 {
 	//renderer.GetDevice()->SetLight(lightIndex, &m_light);
 }
@@ -144,10 +149,10 @@ void cLight::Bind(cRenderer &renderer,
 sCbLight cLight::GetLight()
 {
 	sCbLight cb;
-	cb.ambient = XMLoadFloat4(&m_ambient);
-	cb.diffuse = XMLoadFloat4(&m_diffuse);
-	cb.specular = XMLoadFloat4(&m_specular);
-	cb.direction = XMLoadFloat3(&m_direction);
-	cb.posW = XMLoadFloat3(&m_pos);
+	cb.ambient = XMLoadFloat4((XMFLOAT4*)&m_ambient);
+	cb.diffuse = XMLoadFloat4((XMFLOAT4*)&m_diffuse);
+	cb.specular = XMLoadFloat4((XMFLOAT4*)&m_specular);
+	cb.direction = XMLoadFloat3((XMFLOAT3*)&m_direction);
+	cb.posW = XMLoadFloat3((XMFLOAT3*)&m_pos);
 	return cb;
 }

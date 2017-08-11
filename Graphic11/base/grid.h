@@ -7,15 +7,6 @@
 namespace graphic
 {
 
-	struct eGridType {
-		enum Enum {
-			POSITION = 1 << 1
-			, NORMAL = 1 << 2
-			, DIFFUSE = 1 << 3
-			, TEXTURE = 1 << 4
-		};
-	};
-
 	class cRenderer;
 	class cGrid : public cNode2
 	{
@@ -24,7 +15,9 @@ namespace graphic
 		virtual ~cGrid();
 
 		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-			, const int gridType = (eGridType::POSITION | eGridType::DIFFUSE)
+			, const int gridType = (eVertexType::POSITION | eVertexType::DIFFUSE)
+			, const cColor &color = cColor::WHITE
+			, const char *textureFileName = g_defaultTexture
 			, const Vector2 &uv0 = Vector2(0, 0)
 			, const Vector2 &uv1 = Vector2(1, 1)
 			, const float textureUVFactor = 1.f
@@ -39,7 +32,7 @@ namespace graphic
 		int m_rowCellCount;
 		int m_colCellCount;
 		float m_cellSize;
-		int m_gridType; // eGridType::Enum
+		int m_gridType; // eVertexType::Enum
 		D3D_PRIMITIVE_TOPOLOGY m_primitiveType;
 	};
 

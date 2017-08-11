@@ -22,8 +22,15 @@ bool cDbgFrustum::Create(cRenderer &renderer, const Vector3 &pos, const Vector3 
 	, const cColor &color //= cColor::BLACK
 )
 {
-	SetFrustum(renderer, pos, direction, proj, color);
-	return true;
+	return SetFrustum(renderer, pos, direction, proj, color);
+}
+
+
+bool cDbgFrustum::Create(cRenderer &renderer, const cCamera &camera
+	, const cColor &color //= cColor::BLACK
+)
+{
+	return SetFrustum(renderer, camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix());
 }
 
 
@@ -35,11 +42,49 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vect
 	m_box.Create(renderer);
 	cFrustum::SetFrustum(pos, direction, proj);
 
-	//        4 --- 5
-	//      / |  |  /|
+	// view * proj 행렬을 구한다.
+	Matrix44 view;
+	view.SetView(pos, direction, Vector3(0, 1, 0));
+	const Matrix44 viewProj = view * proj;
+	SetFrustum(renderer, viewProj, color);
+
+	////      4 --- 5
+	////    / |  |  /|
+	////   0 --- 1   |
+	////   |   6-|- -7
+	////   | /   | /
+	////   2 --- 3
+	////
+	//// 투영행렬까지 거치면 모든 3차원 월드좌표의 점은 (-1,-1,0) ~ (1,1,1)사이의 값으로 바뀐다.
+	//Vector3 vertices[8] = {
+	//	Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+	//	Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	//};
+
+	//// view * proj의 역행렬을 구한다.
+	//Matrix44 view;
+	//view.SetView(pos, direction, Vector3(0, 1, 0));
+	//const Matrix44 viewProj = view * proj;
+	//Matrix44 matInv = viewProj.Inverse();
+
+	//for (int i = 0; i < 8; i++)
+	//	vertices[i] *= matInv;
+
+	//m_box.SetBox(renderer, vertices, color);
+
+	return true;
+}
+
+
+bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Matrix44 &viewProj
+	, const cColor &color //= cColor::BLACK
+)
+{
+	//      4 --- 5
+	//    / |  |  /|
 	//   0 --- 1   |
 	//   |   6-|- -7
-	//   | /     | /
+	//   | /   | /
 	//   2 --- 3
 	//
 	// 투영행렬까지 거치면 모든 3차원 월드좌표의 점은 (-1,-1,0) ~ (1,1,1)사이의 값으로 바뀐다.
@@ -49,21 +94,33 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vect
 	};
 
 	// view * proj의 역행렬을 구한다.
-	Matrix44 view;
-	view.SetView(pos, direction, Vector3(0, 1, 0));
-	const Matrix44 viewProj = view * proj;
 	Matrix44 matInv = viewProj.Inverse();
 
 	for (int i = 0; i < 8; i++)
 		vertices[i] *= matInv;
 
 	m_box.SetBox(renderer, vertices, color);
+
 	return true;
 }
 
 
-bool cDbgFrustum::SetFrustum(const Matrix44 &matViewProj)
+bool cDbgFrustum::SetFrustum(cRenderer &renderer, const cCamera &camera)
 {
+	return SetFrustum(renderer, camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix());
+}
+
+
+bool cDbgFrustum::SetFrustum(cRenderer &renderer, const cFrustum &frustum)
+{
+	__super::operator=(frustum);
+	SetFrustum(renderer, m_viewProj);
+	return true;
+}
+
+
+//bool cDbgFrustum::SetFrustum(const Matrix44 &matViewProj)
+//{
 	//cFrustum::SetFrustum(matViewProj);
 
 	////        4 --- 5
@@ -87,8 +144,8 @@ bool cDbgFrustum::SetFrustum(const Matrix44 &matViewProj)
 
 	//m_box.SetBox(vertices);
 
-	return true;
-}
+//	return true;
+//}
 
 
 //-----------------------------------------------------------------------------//
@@ -128,3 +185,4 @@ void cDbgFrustum::Render(cRenderer &renderer)
 	//renderer.GetDevice()->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 	//renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lightMode);
 }
+

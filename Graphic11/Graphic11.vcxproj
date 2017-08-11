@@ -154,6 +154,7 @@
     <ClInclude Include="base\quad.h" />
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
+    <ClInclude Include="base\skybox.h" />
     <ClInclude Include="base\sphere.h" />
     <ClInclude Include="base\texture.h" />
     <ClInclude Include="base\vertexbuffer.h" />
@@ -194,6 +195,8 @@
     <ClInclude Include="shape\sphereshape.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="terrain\terrain2.h" />
+    <ClInclude Include="terrain\tile.h" />
     <ClInclude Include="textdesigner\BmpOutlineText.h" />
     <ClInclude Include="textdesigner\Canvas.h" />
     <ClInclude Include="textdesigner\DiffusedShadowStrategy.h" />
@@ -233,6 +236,7 @@
     <ClCompile Include="base\quad.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
+    <ClCompile Include="base\skybox.cpp" />
     <ClCompile Include="base\sphere.cpp" />
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
@@ -272,6 +276,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="terrain\terrain2.cpp" />
+    <ClCompile Include="terrain\tile.cpp" />
     <ClCompile Include="textdesigner\BmpOutlineText.cpp" />
     <ClCompile Include="textdesigner\Canvas.cpp" />
     <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp" />

@@ -20,7 +20,7 @@ namespace graphic
 		cModel2();
 		virtual ~cModel2();
 
-		bool Create(cRenderer &renderer 
+		bool Create( cRenderer &renderer 
 			, const int id 
 			, const StrPath &fileName
 			, const StrPath &shaderName=""
@@ -47,11 +47,11 @@ namespace graphic
 
 	public:
 		struct eState { enum Enum { 
-				LOAD_PARALLEL_ASSIMP
-				, LOAD_SINGLE_ASSIMP
+				LOAD_PARALLEL
+				, LOAD_SINGLE
 				, LOAD_MESH_FINISH
-				, LOAD_PARALLEL_ASSIMP_SHADOW
-				, LOAD_SINGLE_ASSIMP_SHADOW
+				, LOAD_PARALLEL_SHADOW
+				, LOAD_SINGLE_SHADOW
 				, LOAD_FINISH
 				, NORMAL 
 			};
@@ -63,7 +63,7 @@ namespace graphic
 		StrId m_animationName;
 		eState::Enum m_state;
 		//D3DCULL m_cullType; // default : CCW
-		cAssimpModel *m_assimpModel; // reference
+		cAssimpModel *m_model; // reference
 		//cShadow2 *m_shadowMap; // reference
 	};
 

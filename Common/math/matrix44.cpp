@@ -212,6 +212,9 @@ void Matrix44::SetProjectionOrthogonal(const float width, const float height, co
 {
 #ifdef USE_D3D9_MATH
 	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
+#elif defined(USE_D3D11_MATH)
+	XMMATRIX view = XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
+	XMStoreFloat4x4((XMFLOAT4X4*)this, view);
 #else
 	assert(0);
 #endif

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "skybox.h"
 
-
 using namespace graphic;
 
 
@@ -71,11 +70,6 @@ bool cSkyBox::Create(cRenderer &renderer, const StrPath &textureFilePath,
 	if (!CreateVertexBuffer(renderer))
 		return false;
 
-	m_shader = cResourceManager::Get()->LoadShader(renderer, "cube3.fx");
-	if (!m_shader)
-		return false;
-	m_shader->SetTechnique("SkyTech");
-
 	return true;
 }
 
@@ -136,72 +130,26 @@ bool  cSkyBox::CreateVertexBuffer(cRenderer &renderer)
 	};
 
 	const int vtxSize = 24;
-	m_vtxBuff.Create(renderer, vtxSize, sizeof(sVertexTex), sVertexTex::FVF);
-
-	sVertexTex *pv = (sVertexTex*)m_vtxBuff.Lock();
-	memcpy( pv, SkyboxMesh, sizeof(sVertexTex) * 24 );
-	m_vtxBuff.Unlock();
+	m_vtxBuff.Create(renderer, vtxSize, sizeof(sVertexTex), SkyboxMesh);
 
 	return true;
 }
 
 
-//------------------------------------------------------------------------
-// 
-//------------------------------------------------------------------------
-void cSkyBox::Render(cRenderer &renderer, const Matrix44 &tm)
+void cSkyBox::Render(cRenderer &renderer
+	, const XMMATRIX &tm //=XMIdentity
+)
 {
-	renderer.SetCullMode(D3DCULL_NONE);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
+	renderer.m_cbPerFrame.Update(renderer);
 
-	DWORD lighting, fogEnable;
-	renderer.GetDevice()->GetRenderState(D3DRS_LIGHTING, &lighting);
-	renderer.GetDevice()->GetRenderState(D3DRS_FOGENABLE, &fogEnable);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
-	renderer.GetDevice()->SetRenderState(D3DRS_FOGENABLE, FALSE);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	renderer.GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-
-	//mat matView, matViewSave, matWorld;
-	Matrix44 matView, matViewSave, matWorld;
-	renderer.GetDevice()->GetTransform(D3DTS_VIEW, (D3DXMATRIX*)&matViewSave);
-	matView = matViewSave;
-	matView._41 = 0.0f; matView._42 = -0.4f; matView._43 = 0.0f;
-	renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DXMATRIX*)&matView);
-	// Set a default world matrix
-	renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DXMATRIX*)&tm);
-
-	// render
 	m_vtxBuff.Bind(renderer);
-	renderer.GetDevice()->SetTexture(0, NULL);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	for (int i = 0 ; i < MAX_FACE; i++)
 	{
 		if (m_textures[i])
-			m_textures[ i]->Bind(renderer, 0);
-		renderer.GetDevice()->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
+			m_textures[i]->Bind(renderer, 0);
+		renderer.GetDevContext()->DrawInstanced(4, 1, i * 4, 0);
 	}
-
-	renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DXMATRIX*)&matViewSave);
-
-	renderer.SetCullMode(D3DCULL_CCW);
-	renderer.GetDevice()->SetTexture(0, NULL);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
-	renderer.GetDevice()->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-	renderer.GetDevice()->SetRenderState(D3DRS_LIGHTING, lighting);
-	renderer.GetDevice()->SetRenderState(D3DRS_FOGENABLE, fogEnable);
-}
-
-
-void cSkyBox::RenderShader(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
-)
-{
-	RET(!m_shader);
-	// Nothing~
 }

@@ -45,7 +45,7 @@ using namespace common;
 
 //#include "../wxMemMonitorLib/wxMemMonitor.h" // debug library
 
-static const StrPath g_defaultTexture = "white.dds";
+static const char* g_defaultTexture = "white.dds";
 
 namespace graphic {
 	class cRenderer;
@@ -105,7 +105,7 @@ namespace graphic {
 #include "base/shader11.h"
 #include "base/constantbuffer.h"
 #include "base/camera.h"
-//#include "base/skybox.h"
+#include "base/skybox.h"
 //#include "base/skybox2.h"
 #include "base/sphere.h"
 //#include "base/surface.h"
@@ -180,8 +180,8 @@ namespace graphic {
 //#include "terrain/rawterrain.h"
 //#include "terrain/water.h"
 //#include "terrain/terrain.h"
-//#include "terrain/terrain2.h"
-//#include "terrain/tile.h"
+#include "terrain/terrain2.h"
+#include "terrain/tile.h"
 //#include "terrain/terraincursor.h"
 //#include "terrain/terraineditor.h"
 //#include "terrain/terrainimporter.h"

@@ -2,6 +2,9 @@
 // 2017-05-13, jjuiddong
 // terrain tile
 //
+// 2017-08-11
+//	- Upgrade DX11
+//
 #pragma once
 
 
@@ -18,7 +21,8 @@ namespace graphic
 			, const int id
 			, const Str64 &name
 			, const sRectf &rect
-			, const float y=0, const float uvFactor=1.f
+			, const char *textureFileName = g_defaultTexture
+			, const float uvFactor=1.f
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
 			);
 
@@ -27,16 +31,17 @@ namespace graphic
 			, const Str64 &name
 			, const Vector3 &dim
 			, const Transform &transform
-			, const float y = 0, const float uvFactor = 1.f
+			, const char *textureFileName //= g_defaultTexture
+			, const float uvFactor = 1.f
 			, const Vector2 &uv0 = Vector2(0, 0), const Vector2 &uv1 = Vector2(1, 1)
 		);
 
 		void UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj, const Matrix44 *mLightTT
 			, cShadowMap *shadowMap = NULL, const int shadowMapCount = 0);
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
-		virtual void PreRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
-		virtual bool Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity, const int flags = 1) override;
-		virtual void DebugRender(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
+		virtual void PreRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
+		virtual void DebugRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 
 		virtual float CullingTest(const cFrustum &frustum, const Matrix44 &tm = Matrix44::Identity, const bool isModel = true);
 		virtual bool AddChild(cNode2 *node) override;
@@ -51,11 +56,11 @@ namespace graphic
 
 	public:
 		Vector2i m_location; // Tile Location row, col
-		cGrid3 m_ground;
-		set<cShader*> m_shaders; // reference
+		cGrid m_ground;
+		//set<cShader*> m_shaders; // reference
 
 		bool m_isDbgRender;	
-		cDbgBox2 m_dbgTile;
+		cDbgBox m_dbgTile;
 	};
 
 }

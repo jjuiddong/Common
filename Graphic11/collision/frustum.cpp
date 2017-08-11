@@ -28,11 +28,15 @@ bool cFrustum::SetFrustum(const Vector3 &pos, const Vector3 &direction, const Ma
 	Quaternion q = view.GetQuaternion();
 	m_frustum.Origin = *(XMFLOAT3*)&pos;
 	m_frustum.Orientation = *(XMFLOAT4*)&q;
-	m_viewProj = matProj;
+	m_viewProj = view * matProj;
 
 	return TRUE;
 }
 
+bool cFrustum::SetFrustum(const cCamera &camera)
+{
+	return SetFrustum(camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix());
+}
 
 
 //-----------------------------------------------------------------------------//
@@ -136,40 +140,51 @@ void cFrustum::GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertice
 	//   | /     | /
 	//   2 --- 3
 	//
-	Vector3 vertices[8] = {
-		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
-		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
-	};
-	Matrix44 matInv = m_viewProj.Inverse();
-	for (int i = 0; i < 8; ++i)
-		vertices[i] *= matInv;
+	//Vector3 vertices[8] = {
+	//	Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+	//	Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	//};
+	//Matrix44 matInv = m_viewProj.Inverse();
+	//for (int i = 0; i < 8; ++i)
+	//	vertices[i] *= matInv;
 
-	// Far Plane
-	Vector3 p0, p1;
-	if (plane.LineCross(vertices[0], vertices[4], &p0) == 0)
-		p0 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
-	if (plane.LineCross(vertices[1], vertices[5], &p1) == 0)
-		p1 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
-	Vector3 p4 = plane.Pick(vertices[4], (vertices[6] - vertices[4]).Normal());
-	Vector3 p5 = plane.Pick(vertices[5], (vertices[7] - vertices[5]).Normal());
+	//// Far Plane
+	//Vector3 p0, p1;
+	//if (plane.LineCross(vertices[0], vertices[4], &p0) == 0)
+	//	p0 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	//if (plane.LineCross(vertices[1], vertices[5], &p1) == 0)
+	//	p1 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	//Vector3 p4 = plane.Pick(vertices[4], (vertices[6] - vertices[4]).Normal());
+	//Vector3 p5 = plane.Pick(vertices[5], (vertices[7] - vertices[5]).Normal());
 
-	// Near Plane
-	Vector3 p2, p3;
-	if (plane.LineCross(vertices[3], vertices[7], &p2) == 0)
-		p2 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
-	if (plane.LineCross(vertices[2], vertices[6], &p3) == 0)
-		p3 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
-	Vector3 p6 = plane.Pick(vertices[1], (vertices[3] - vertices[1]).Normal());
-	Vector3 p7 = plane.Pick(vertices[0], (vertices[2] - vertices[0]).Normal());
+	//// Near Plane
+	//Vector3 p2, p3;
+	//if (plane.LineCross(vertices[3], vertices[7], &p2) == 0)
+	//	p2 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	//if (plane.LineCross(vertices[2], vertices[6], &p3) == 0)
+	//	p3 = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	//Vector3 p6 = plane.Pick(vertices[1], (vertices[3] - vertices[1]).Normal());
+	//Vector3 p7 = plane.Pick(vertices[0], (vertices[2] - vertices[0]).Normal());
 
-	outVertices[0] = (LengthRoughly(p0) < LengthRoughly(p4)) ? p0 : p4;
-	outVertices[1] = (LengthRoughly(p1) < LengthRoughly(p5)) ? p1 : p5;
-	outVertices[2] = (LengthRoughly(p2) < LengthRoughly(p6)) ? p2 : p6;
-	outVertices[3] = (LengthRoughly(p3) < LengthRoughly(p7)) ? p3 : p7;
+	//outVertices[0] = (LengthRoughly(p0) < LengthRoughly(p4)) ? p0 : p4;
+	//outVertices[1] = (LengthRoughly(p1) < LengthRoughly(p5)) ? p1 : p5;
+	//outVertices[2] = (LengthRoughly(p2) < LengthRoughly(p6)) ? p2 : p6;
+	//outVertices[3] = (LengthRoughly(p3) < LengthRoughly(p7)) ? p3 : p7;
 }
 
 
 float cFrustum::LengthRoughly(const Vector3 &pos) const
 {
 	return (*(Vector3*)&m_frustum.Origin).LengthRoughly(pos);
+}
+
+
+cFrustum& cFrustum::operator=(const cFrustum &rhs)
+{
+	if (this != &rhs)
+	{
+		m_viewProj = rhs.m_viewProj;
+		m_frustum = rhs.m_frustum;
+	}
+	return *this;
 }

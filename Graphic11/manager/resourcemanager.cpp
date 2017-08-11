@@ -702,8 +702,9 @@ void cResourceManager::Clear()
 
 	// remove texture
 	{
+		const StrPath defTex = g_defaultTexture;
 		AutoCSLock cs(m_cs);
-		cTexture *defaultTex = m_textures[g_defaultTexture.GetHashCode()];
+		cTexture *defaultTex = m_textures[defTex.GetHashCode()];
 		for each (auto kv in m_textures)
 		{
 			if (kv.second != defaultTex)

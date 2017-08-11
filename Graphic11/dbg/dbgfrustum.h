@@ -17,11 +17,16 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const Vector3 &pos, const Vector3 &direction
 			, const Matrix44 &proj, const cColor &color = cColor::BLACK);
-		void Render(cRenderer &renderer);
-
+		bool Create(cRenderer &renderer, const cCamera &camera, const cColor &color = cColor::BLACK);
 		bool SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vector3 &direction
 			, const Matrix44 &proj, const cColor &color = cColor::BLACK);
-		bool SetFrustum(const Matrix44 &matViewProj);
+		bool SetFrustum(cRenderer &renderer, const cFrustum &frustum);
+		bool SetFrustum(cRenderer &renderer, const cCamera &camera);
+		void Render(cRenderer &renderer);
+
+
+	protected:
+		bool SetFrustum(cRenderer &renderer, const Matrix44 &viewProj, const cColor &color = cColor::BLACK);
 
 
 	public:

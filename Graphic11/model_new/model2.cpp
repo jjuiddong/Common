@@ -7,7 +7,7 @@ using namespace graphic;
 
 cModel2::cModel2()
 	: cNode2(common::GenerateId(), "model", eNodeType::MODEL)
-	, m_assimpModel(NULL)
+	, m_model(NULL)
 	, m_state(eState::NORMAL)
 	//, m_cullType(D3DCULL_CCW)
 {
@@ -41,17 +41,17 @@ bool cModel2::Create(cRenderer &renderer
 
 	if (isParallel)
 	{
-		m_state = eState::LOAD_PARALLEL_ASSIMP;
+		m_state = eState::LOAD_PARALLEL;
 		auto ret = cResourceManager::Get()->LoadAssimpModelParallel(renderer, fileName.c_str());
-		m_assimpModel = ret.second;
+		m_model = ret.second;
 	}
 	else
 	{
-		m_state = eState::LOAD_SINGLE_ASSIMP;
-		m_assimpModel = cResourceManager::Get()->LoadAssimpModel(renderer, fileName.c_str());
+		m_state = eState::LOAD_SINGLE;
+		m_model = cResourceManager::Get()->LoadAssimpModel(renderer, fileName.c_str());
 	}
 
-	if (!m_assimpModel)
+	if (!m_model)
 		return false;
 
 	return true;
@@ -74,8 +74,8 @@ bool cModel2::Render(cRenderer &renderer
 	//if (m_isShadow && m_shadowMap && m_shader)
 	//	m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
 
-	if (m_assimpModel)
-		m_assimpModel->Render(renderer, transform);
+	if (m_model)
+		m_model->Render(renderer, transform);
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();
@@ -100,8 +100,8 @@ bool cModel2::Update(cRenderer &renderer, const float deltaSeconds)
 		return true;
 
 	bool reval = true;
-	if (m_assimpModel)
-		reval = m_assimpModel->Update(deltaSeconds);
+	if (m_model)
+		reval = m_model->Update(deltaSeconds);
 
 	__super::Update(renderer, deltaSeconds);
 
@@ -116,10 +116,10 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 
 	switch (m_state)
 	{
-	case eState::LOAD_PARALLEL_ASSIMP:
+	case eState::LOAD_PARALLEL:
 	{
-		m_assimpModel = cResourceManager::Get()->FindAssimpModel(m_fileName.c_str()).second;
-		if (m_assimpModel) // Parallel Load Finish
+		m_model = cResourceManager::Get()->FindAssimpModel(m_fileName.c_str()).second;
+		if (m_model) // Parallel Load Finish
 		{
 			InitModel(renderer);
 
@@ -135,7 +135,7 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 	}
 	break;
 
-	case eState::LOAD_SINGLE_ASSIMP:
+	case eState::LOAD_SINGLE:
 	{
 		InitModel(renderer);
 		m_state = eState::LOAD_FINISH;
@@ -143,15 +143,15 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 	break;
 
 	case eState::LOAD_MESH_FINISH:
-		if (m_assimpModel)
-			m_state = eState::LOAD_PARALLEL_ASSIMP_SHADOW;
+		if (m_model)
+			m_state = eState::LOAD_PARALLEL_SHADOW;
 		break;
 
-	case eState::LOAD_PARALLEL_ASSIMP_SHADOW:
+	case eState::LOAD_PARALLEL_SHADOW:
 		m_state = eState::NORMAL; // no finish event
 		break;
 
-	case eState::LOAD_SINGLE_ASSIMP_SHADOW:
+	case eState::LOAD_SINGLE_SHADOW:
 		break;
 
 	case eState::LOAD_FINISH:
@@ -167,11 +167,11 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 
 void cModel2::InitModel(cRenderer &renderer)
 {
-	if (m_assimpModel)
+	if (m_model)
 	{
-		m_animationName = m_assimpModel->m_storedAnimationName;
-		m_boundingBox = m_assimpModel->m_boundingBox;
-		m_boundingSphere.SetBoundingSphere(m_assimpModel->m_boundingBox);
+		m_animationName = m_model->m_storedAnimationName;
+		m_boundingBox = m_model->m_boundingBox;
+		m_boundingSphere.SetBoundingSphere(m_model->m_boundingBox);
 
 		//SetShader( m_assimpModel->m_isSkinning ?
 		//	cResourceManager::Get()->LoadShader(renderer, m_shaderName.empty() ? "assimp_skin.fx" : m_shaderName)
@@ -191,14 +191,14 @@ void cModel2::SetAnimation(const Str64 &animationName
 	, const bool isMerge //= false
 )
 {
-	if (m_assimpModel)
-		m_assimpModel->SetAnimation(animationName, isMerge);
+	if (m_model)
+		m_model->SetAnimation(animationName, isMerge);
 }
 
 
 void cModel2::Clear()
 {
-	m_assimpModel = NULL;
+	m_model = NULL;
 	//m_shader = NULL;
 }
 

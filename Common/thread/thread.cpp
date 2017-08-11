@@ -9,6 +9,8 @@ namespace common
 {
 	unsigned __stdcall ThreadProcess(void *pThreadPtr )
 	{
+		CoInitialize(NULL); // for COM interface
+
 		cThread *pThread = (cThread*)pThreadPtr;
 		pThread->Run();
 		pThread->Exit();

@@ -17,6 +17,7 @@ namespace graphic
 
 		//virtual bool SetFrustum(const Matrix44 &matViewProj);
 		virtual bool SetFrustum(const Vector3 &pos, const Vector3 &direction, const Matrix44 &maProj);
+		virtual bool SetFrustum(const cCamera &camera);
 		bool IsIn( const Vector3 &point ) const;
 		//bool IsInSphere( const Vector3 &point, float radius, const Matrix44 &tm = Matrix44::Identity ) const;
 		bool IsInSphere(const cBoundingSphere &sphere) const;
@@ -31,6 +32,8 @@ namespace graphic
 			, cFrustum &out1, cFrustum &out2, cFrustum &out3);
 
 		void GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertices[4]) const;
+
+		cFrustum& operator=(const cFrustum &rhs);
 
 
 	public:
