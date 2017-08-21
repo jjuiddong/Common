@@ -68,6 +68,8 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height
 		, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
 		return false;
 
+	m_hWnd = hWnd;
+
 	using namespace Gdiplus;
 	// Initialize GDI+
 	GdiplusStartupInput gdiplusStartupInput;
@@ -82,13 +84,39 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height
 
 	//m_textMgr.Create(256);
 
-	//D3D11_INPUT_ELEMENT_DESC layout1[] =
-	//{
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//};
-	//m_vtxLayoutPosDiffuse.Create(*this, layout1, ARRAYSIZE(layout1));
 
+	//------------------------------------------------------------------------------------------------------
+	// Initialize Shader
+	D3D11_INPUT_ELEMENT_DESC pos_color[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-color.fxo", pos_color, ARRAYSIZE(pos_color));
+
+	D3D11_INPUT_ELEMENT_DESC pos_tex[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", pos_tex, ARRAYSIZE(pos_tex));
+
+	D3D11_INPUT_ELEMENT_DESC pos_norm_tex[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex.fxo", pos_norm_tex, ARRAYSIZE(pos_norm_tex));
+
+	D3D11_INPUT_ELEMENT_DESC pos_norm_color_tex[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
 
 	//m_textFps.Create(*this);
 	//m_textFps.SetPos(0, 0);
@@ -100,7 +128,6 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height
 	//m_dbgSphere.Create(*this, 1, 10, 10);
 	//m_dbgAxis.Create(*this);
 
-	m_hWnd = hWnd;
 	return true;
 }
 
@@ -304,9 +331,9 @@ void cRenderer::EndScene()
 	// Text Render
 	//m_textMgr.Render(*this);
 
-	cCamera *cam = GetMainCamera();
+	cCamera &cam = GetMainCamera();
 	Vector3 camOrig, camDir;
-	cam->GetRay(camOrig, camDir);
+	cam.GetRay(camOrig, camDir);
 
 	// AlphaBlending Render, Sorting Camera Position
 	// Descent Distance from Camera
@@ -352,11 +379,11 @@ void cRenderer::EndScene()
 }
 
 
-bool cRenderer::CheckResetDevice(const int width, const int height)
+bool cRenderer::CheckResetDevice(const float width, const float height)
 // width=0
 // height=0
 {
-	int w, h;
+	float w, h;
 	if ((width == 0) || (height == 0))
 	{
 		sRecti cr;
@@ -377,19 +404,19 @@ bool cRenderer::CheckResetDevice(const int width, const int height)
 
 
 bool cRenderer::ResetDevice(
-	const int width //=0
-	, const int height //=0
+	const float width //=0
+	, const float height //=0
 	, const bool forceReset //=false
 	, const bool resetResource //= true
 )
 {
-	int w, h;
+	float w, h;
 	if ((width == 0) || (height == 0))
 	{
 		sRecti cr;
 		GetClientRect(m_hWnd, (RECT*)&cr);
-		w = cr.Width();
-		h = cr.Height();
+		w = (float)cr.Width();
+		h = (float)cr.Height();
 	}
 	else
 	{
@@ -405,8 +432,8 @@ bool cRenderer::ResetDevice(
 
 	//m_textFps.LostDevice();
 
-	m_viewPort.m_vp.Width = (float)w;
-	m_viewPort.m_vp.Height = (float)h;
+	m_viewPort.m_vp.Width = w;
+	m_viewPort.m_vp.Height = h;
 	//m_params.BackBufferWidth = w;
 	//m_params.BackBufferHeight = h;
 
@@ -440,10 +467,10 @@ bool cRenderer::ResetDevice(
 	//	return false;
 	//}
 
-	const Vector3 lookAt = GetMainCamera()->GetLookAt();
-	const Vector3 eyePos = GetMainCamera()->GetEyePos();
-	GetMainCamera()->SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
-	GetMainCamera()->SetViewPort(w, h);
+	const Vector3 lookAt = GetMainCamera().GetLookAt();
+	const Vector3 eyePos = GetMainCamera().GetEyePos();
+	GetMainCamera().SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
+	GetMainCamera().SetViewPort(w, h);
 
 	//if (resetResource)
 	//	cResourceManager::Get()->ResetDevice(*this);

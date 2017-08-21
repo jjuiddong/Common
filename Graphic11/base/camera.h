@@ -23,7 +23,7 @@ namespace graphic
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
 		void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
 		void ReCalcProjection(const float nearPlane, const float farPlane);
-		void SetViewPort(const int width, const int height);
+		void SetViewPort(const float width, const float height);
 		void SetEyePos(const Vector3 &eye);
 		void SetLookAt(const Vector3 &lookAt);
 		void SetUpVector(const Vector3 &up);
@@ -110,10 +110,10 @@ namespace graphic
 		float m_aspect;
 		float m_nearPlane;
 		float m_farPlane;
-		int m_oldWidth;
-		int m_oldHeight;
-		int m_width; // ViewPort
-		int m_height; // ViewPort
+		float m_oldWidth;
+		float m_oldHeight;
+		float m_width; // ViewPort
+		float m_height; // ViewPort
 		cRenderer *m_renderer;
 
 		// Animation

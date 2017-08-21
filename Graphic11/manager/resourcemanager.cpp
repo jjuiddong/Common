@@ -482,7 +482,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 
 
 // 텍스쳐 로딩.
-// fileName 에 해당하는 파일이 없다면, dirPath  경로에서 파일을 찾는다.
+// fileName 에 해당하는 파일이 없다면, dirPath 경로에서 파일을 찾는다.
 cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName
 	, const bool isRecursive //= true
 )

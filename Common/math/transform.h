@@ -13,10 +13,13 @@ namespace common
 		Transform();
 
 		Matrix44 GetMatrix() const;
-
 #ifdef USE_D3D11_MATH
 		XMMATRIX GetMatrixXM() const;
 #endif
+
+		Transform Inverse() const;
+		Transform operator*(const Transform &rhs) const;
+		const Transform& operator*=(const Transform &rhs);
 
 
 		Vector3 pos;

@@ -286,7 +286,7 @@ void Quaternion::Normalize()
 
 
 // https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
-Quaternion Quaternion::Inverse()
+Quaternion Quaternion::Inverse() const
 {
 	Quaternion q(-x, -y, -z, w);
 	return q;
@@ -412,7 +412,7 @@ Vector3 Quaternion::Euler(void) const
 
 
 // return x-z plane
-float Quaternion::GetRotationAngleXZ()
+float Quaternion::GetRotationAngleXZ() const
 {
 	const Vector3 v = GetDirection();
 	float angle = v.DotProduct(Vector3(0, 0, -1));

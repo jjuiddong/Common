@@ -2,6 +2,9 @@
 // 2017-07-10, jjuiddong
 // json format 
 //
+// 2017-08-21
+//	- DX11 Upgrade
+//
 #pragma once
 
 

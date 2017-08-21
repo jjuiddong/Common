@@ -67,8 +67,8 @@ void cCamera::SetProjectionOrthogonal(const float width, const float height, con
 	m_aspect = height / width;
 	m_nearPlane = nearPlane;
 	m_farPlane = farPlane;
-	m_width = (int)width;
-	m_height = (int)height;
+	m_width = width;
+	m_height = height;
 	m_proj.SetProjectionOrthogonal(width, height, nearPlane, farPlane);
 	UpdateProjectionMatrix();
 }
@@ -78,7 +78,7 @@ void cCamera::ReCalcProjection(const float nearPlane, const float farPlane)
 {
 	if (m_isOrthogonal)
 	{
-		SetProjectionOrthogonal((float)m_width, (float)m_height, nearPlane, farPlane);
+		SetProjectionOrthogonal(m_width, m_height, nearPlane, farPlane);
 	}
 	else
 	{
@@ -860,7 +860,7 @@ void cCamera::FitQuad(const Vector3 vertices[4])
 }
 
 
-void cCamera::SetViewPort(const int width, const int height)
+void cCamera::SetViewPort(const float width, const float height)
 {
 	m_oldWidth = m_width;
 	m_oldHeight = m_height;
@@ -869,13 +869,11 @@ void cCamera::SetViewPort(const int width, const int height)
 
 	if (m_isOrthogonal)
 	{
-		SetProjectionOrthogonal((float)width, (float)height
-			, m_nearPlane, m_farPlane);
+		SetProjectionOrthogonal(width, height, m_nearPlane, m_farPlane);
 	}
 	else
 	{
-		SetProjection(m_fov, (float)width / (float)height
-			, m_nearPlane, m_farPlane);
+		SetProjection(m_fov, width / height, m_nearPlane, m_farPlane);
 	}
 }
 

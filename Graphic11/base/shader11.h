@@ -18,6 +18,7 @@ namespace graphic
 			, const char *techniqueName , const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		int Begin();
 		void BeginPass(cRenderer &renderer, const int pass);
+		bool SetTechnique(const char *id);
 
 
 		ID3DX11EffectTechnique* GetTechnique(const char *id);

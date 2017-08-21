@@ -14,8 +14,8 @@ namespace graphic
 	public:
 		cBoundingBox();
 		cBoundingBox(const cCube &cube);
-		cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q=Quaternion());
-		void SetBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q = Quaternion());
+		cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q);
+		void SetBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q);
 		void SetBoundingBox(const Transform &tfm);
 		void SetBoundingBox(const sMinMax &minMax );
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
@@ -28,6 +28,7 @@ namespace graphic
 		Matrix44 GetTransform() const;
 
 		cBoundingBox operator * (const XMMATRIX &rhs);
+		cBoundingBox operator * (const Matrix44 &rhs);
 		const cBoundingBox& operator *= (const Matrix44 &rhs);
 		cBoundingBox& operator=(const cCube &cube);
 

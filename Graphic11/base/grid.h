@@ -15,7 +15,7 @@ namespace graphic
 		virtual ~cGrid();
 
 		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-			, const int gridType = (eVertexType::POSITION | eVertexType::DIFFUSE)
+			, const int vertexType = (eVertexType::POSITION | eVertexType::DIFFUSE)
 			, const cColor &color = cColor::WHITE
 			, const char *textureFileName = g_defaultTexture
 			, const Vector2 &uv0 = Vector2(0, 0)
@@ -32,7 +32,7 @@ namespace graphic
 		int m_rowCellCount;
 		int m_colCellCount;
 		float m_cellSize;
-		int m_gridType; // eVertexType::Enum
+		int m_vertexType; // compose eVertexType::Enum
 		D3D_PRIMITIVE_TOPOLOGY m_primitiveType;
 	};
 

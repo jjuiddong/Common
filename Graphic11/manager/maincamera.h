@@ -28,7 +28,7 @@ namespace graphic
 
 
 //	inline cMainCamera* GetMainCamera() { return cMainCamera::Get(); }
-	inline cCamera* GetMainCamera() { return cMainCamera::Get()->Top(); }
+	inline cCamera& GetMainCamera() { return *cMainCamera::Get()->Top(); }
 
 
 	class cAutoCam

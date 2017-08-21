@@ -16,17 +16,13 @@ cBoundingBox::cBoundingBox(const cCube &cube)
 }
 
 
-cBoundingBox::cBoundingBox(const Vector3 &center, const Vector3 &scale
-	, const Quaternion &q//=Quaternion()
-)
+cBoundingBox::cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q )
 {
 	SetBoundingBox(center, scale, q);
 }
 
 
-void cBoundingBox::SetBoundingBox(const Vector3 &center, const Vector3 &scale
-	, const Quaternion &q//=Quaternion()
-)
+void cBoundingBox::SetBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q)
 {
 	m_bbox = BoundingOrientedBox(*(XMFLOAT3*)&center, *(XMFLOAT3*)&scale, *(XMFLOAT4*)&q);
 }
@@ -199,6 +195,14 @@ cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs)
 	cBoundingBox ret;
 	ret.m_bbox = bbox;
 	return ret;
+}
+
+
+cBoundingBox cBoundingBox::operator * (const Matrix44 &rhs)
+{
+	cBoundingBox bbox = *this;
+	bbox *= rhs;
+	return bbox;
 }
 
 

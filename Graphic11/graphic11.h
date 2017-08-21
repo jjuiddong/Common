@@ -31,12 +31,6 @@ using namespace DirectX;
 //--------------------------------------------------------------------------------------------------------------
 
 
-
-//#pragma warning(push)
-//#pragma warning (disable: 4838) //warning C4838 : conversion from 'unsigned int' to 'INT' requires a narrowing conversion
-//#include <xnamath.h>
-//#pragma warning(pop)
-
 #include <objidl.h>
 #include <gdiplus.h> 
 
@@ -186,7 +180,7 @@ namespace graphic {
 //#include "terrain/terraineditor.h"
 //#include "terrain/terrainimporter.h"
 //#include "terrain/terrainexporter.h"
-//#include "terrain/terrainloader.h"
+#include "terrain/terrainloader.h"
 
 
 namespace graphic
@@ -208,6 +202,7 @@ namespace graphic
 
 
 //#include "manager/textmanager.h"
+#include "manager\shadermanager.h"
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"

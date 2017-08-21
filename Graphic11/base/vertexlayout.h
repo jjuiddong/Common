@@ -22,7 +22,6 @@ namespace graphic
 			, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout);
-		//int GetOffset( const BYTE usage, const BYTE usageIndex=0 ) const;
 		int GetOffset(const char *semanticName) const;
 		const vector<D3D11_INPUT_ELEMENT_DESC>& GetLayout() const;
 		int GetVertexSize() const;
@@ -44,6 +43,7 @@ namespace graphic
 		ID3D11InputLayout *m_vertexLayout;
 		vector<D3D11_INPUT_ELEMENT_DESC> m_elements;
 		int m_elementSize;
+		int m_vertexType; // compose eVertexType
 	};
 
 

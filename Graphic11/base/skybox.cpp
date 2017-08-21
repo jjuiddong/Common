@@ -140,16 +140,25 @@ void cSkyBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //=XMIdentity
 )
 {
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::TEXTURE);
+	assert(shader);
+	shader->SetTechnique("Skybox");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
 	for (int i = 0 ; i < MAX_FACE; i++)
 	{
 		if (m_textures[i])
 			m_textures[i]->Bind(renderer, 0);
 		renderer.GetDevContext()->DrawInstanced(4, 1, i * 4, 0);
 	}
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 }

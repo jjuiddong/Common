@@ -244,6 +244,12 @@
     <ClInclude Include="terrain\terrain2.h">
       <Filter>terrain</Filter>
     </ClInclude>
+    <ClInclude Include="terrain\terrainloader.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\shadermanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -465,6 +471,12 @@
     </ClCompile>
     <ClCompile Include="terrain\terrain2.cpp">
       <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrainloader.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\shadermanager.cpp">
+      <Filter>manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

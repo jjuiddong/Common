@@ -28,14 +28,13 @@ namespace graphic
 		ID3D11Device* GetDevice();
 		ID3D11DeviceContext* GetDevContext();
 		HWND GetHwnd() const;
-		bool CheckResetDevice(const int width=0, const int height=0);
-		bool ResetDevice(const int width=0, const int height=0, const bool forceReset=false
+		bool CheckResetDevice(const float width=0, const float height=0);
+		bool ResetDevice(const float width=0, const float height=0, const bool forceReset=false
 			, const bool resetResource=true);
 		void AddRenderAlpha(cNode2 *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
 		void AddRenderAlpha(sAlphaBlendSpace *space, cNode2 *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
 		void AddAlphaBlendSpace(const cBoundingBox &bbox);
 		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
-
 
 		bool ClearScene();
 		void BeginScene();
@@ -77,6 +76,8 @@ namespace graphic
 
 		//vector<sAlphaBlendSpace*> m_alphaSpace;
 		//vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+
+		cShaderManager m_shaderMgr;
 
 		cConstantBuffer<sCbPerFrame> m_cbPerFrame;
 		cConstantBuffer<sCbLight> m_cbLight;

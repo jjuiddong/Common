@@ -39,11 +39,9 @@ bool cTile::Create(cRenderer &renderer
 	//m_ground.m_mtrl.InitXFile();
 	
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
-	const Matrix44 tm = m_transform.GetMatrix();
+	//const Matrix44 tm = m_transform.GetMatrix();
 
-	m_boundingBox.SetBoundingBox(Vector3(-cellSize, 0, -cellSize)
-		, Vector3(cellSize, 20, cellSize));
-
+	m_boundingBox.SetBoundingBox( Vector3(0,10,0), Vector3(cellSize, 20, cellSize), Quaternion());
 	m_dbgTile.Create(renderer);
 	m_dbgTile.SetBox(m_boundingBox);
 
@@ -80,7 +78,7 @@ bool cTile::Create(cRenderer &renderer
 	m_transform = transform;
 	//const Matrix44 tm = m_transform.GetMatrix();
 
-	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), dim);
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), dim, Quaternion());
 	m_dbgTile.Create(renderer);
 	m_dbgTile.SetBox(m_boundingBox);
 
@@ -103,7 +101,7 @@ void cTile::UpdateShader(const Matrix44 *mLightView, const Matrix44 *mLightProj,
 	char *varLightProj[] = { "g_mLightProj1", "g_mLightProj2", "g_mLightProj3" };
 	char *varLightTT[] = { "g_mLightTT1", "g_mLightTT2", "g_mLightTT3" };
 
-	cCamera *cam = GetMainCamera();
+	cCamera &cam = GetMainCamera();
 
 	if (m_isShadow && shadowMap)
 	{
@@ -168,7 +166,7 @@ void cTile::PreRender(cRenderer &renderer
 	RET(!m_isEnable);
 	RET(!m_isShow);
 
-	cCamera *cam = GetMainCamera();
+	cCamera &cam = GetMainCamera();
 	//for (auto &shader : m_shaders)
 	//{
 	//	shader->SetTechnique("ShadowMap");
@@ -251,6 +249,7 @@ float cTile::CullingTest(const cFrustum &frustum
 
 bool cTile::AddChild(cNode2 *node)
 {
+	__super::AddChild(node);
 	//if (__super::AddChild(node))
 	//	if (node->m_shader)
 	//		m_shaders.insert(node->m_shader);
@@ -281,10 +280,9 @@ void cTile::UpdatePosition(const sRectf &rect)
 	//m_ground.UpdateSize(cellSize);
 
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
-	const Matrix44 tm = m_transform.GetMatrix();
+	//const Matrix44 tm = m_transform.GetMatrix();
 
-	m_boundingBox.SetBoundingBox(Vector3(-cellSize, 0, -cellSize)
-		, Vector3(cellSize, 20, cellSize));
+	m_boundingBox.SetBoundingBox(Vector3(0, 10, 0), Vector3(cellSize, 20, cellSize), Quaternion());
 
 	m_dbgTile.SetBox(m_boundingBox);
 

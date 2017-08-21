@@ -58,7 +58,7 @@ void cDbgBox::SetBox(cRenderer &renderer, Vector3 vertices[8]
 
 void cDbgBox::SetColor(DWORD color)
 {
-	assert(0);
+	//assert(0);
 }
 
 
@@ -67,7 +67,13 @@ void cDbgBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM());
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	CommonStates states(renderer.GetDevice());

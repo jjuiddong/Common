@@ -46,7 +46,7 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 	if (rawMesh.mtrl.texture.empty())
 	{
 		m_colorMap.push_back(
-			cResourceManager::Get()->LoadTexture(renderer, "", g_defaultTexture));
+			cResourceManager::Get()->LoadTexture2(renderer, "", g_defaultTexture));
 	}
 	else
 	{
@@ -74,17 +74,17 @@ void cMesh2::Render(cRenderer &renderer
 {
 	RET(!m_buffers);
 
-	if (!m_mtrls.empty())
-	{
-		renderer.m_cbMaterial.m_v->ambient = XMLoadFloat4(&m_mtrls[0].m_ambient);
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4(&m_mtrls[0].m_diffuse);
-		renderer.m_cbMaterial.m_v->specular = XMLoadFloat4(&m_mtrls[0].m_specular);
-		renderer.m_cbMaterial.m_v->emissive = XMLoadFloat4(&m_mtrls[0].m_emissive);
-		renderer.m_cbMaterial.m_v->pow = m_mtrls[0].m_power;
-		renderer.m_cbMaterial.Update(renderer);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
 
-	}
-	//	m_mtrls[0].Bind(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	if (!m_mtrls.empty())
+		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
+	renderer.m_cbMaterial.Update(renderer, 2);
+
 	if (!m_colorMap.empty())
 		m_colorMap[0]->Bind(renderer, 0);
 

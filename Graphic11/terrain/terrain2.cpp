@@ -38,7 +38,7 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 	{
 		//m_shadowMap[i].Create(renderer, 1024, 1024);
 
-		m_frustum[i].Create(renderer, *GetMainCamera());
+		m_frustum[i].Create(renderer, GetMainCamera());
 		//m_frustum[i].m_fullCheck = true;
 
 		m_lightCam[i].Init(&renderer);
@@ -134,7 +134,7 @@ void cTerrain2::UpdateShader(cRenderer &renderer)
 {
 	RET(m_tiles.empty());
 
-	cCamera *cam = GetMainCamera();
+	cCamera &cam = GetMainCamera();
 
 	//cShader *shader = m_tiles[0]->m_ground.m_shader;
 	//cam->Bind(*shader);

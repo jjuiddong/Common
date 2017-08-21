@@ -18,7 +18,7 @@ cGrid::~cGrid()
 
 
 void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-	, const int gridType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
+	, const int vertexType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
 	, const cColor &color //= cColor::WHITE
 	, const char *textureFileName //= g_defaultTexture
 	, const Vector2 &uv0 //= Vector2(0, 0)
@@ -29,16 +29,16 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	m_rowCellCount = rowCellCount;
 	m_colCellCount = colCellCount;
 	m_cellSize = cellSize;
-	m_gridType = gridType;
+	m_vertexType = vertexType;
 
 	vector<D3D11_INPUT_ELEMENT_DESC> elems;
-	if (gridType & eVertexType::POSITION)
+	if (vertexType & eVertexType::POSITION)
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (gridType & eVertexType::NORMAL)
+	if (vertexType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (gridType & eVertexType::DIFFUSE)
+	if (vertexType & eVertexType::DIFFUSE)
 		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (gridType & eVertexType::TEXTURE)
+	if (vertexType & eVertexType::TEXTURE)
 		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	cVertexLayout vtxLayout;
 	vtxLayout.Create(elems);
@@ -74,13 +74,13 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 			int k = 0;
 			for (float x = startx; x <= endx; x += cellSize, ++k)
 			{
-				if (gridType & eVertexType::POSITION)
+				if (vertexType & eVertexType::POSITION)
 					*(Vector3*)(pvtx + posOffset) = Vector3(x, 0, y);
-				if (gridType & eVertexType::NORMAL)
+				if (vertexType & eVertexType::NORMAL)
 					*(Vector3*)(pvtx + normOffset) = Vector3(0, 1, 0);
-				if (gridType & eVertexType::DIFFUSE)
+				if (vertexType & eVertexType::DIFFUSE)
 					*(Vector4*)(pvtx + colorOffset) = vcolor;
-				if (gridType & eVertexType::TEXTURE)
+				if (vertexType & eVertexType::TEXTURE)
 					*(Vector2*)(pvtx + texOffset) = uv0 + Vector2(k*uCoordIncrementSize, i*vCoordIncrementSize);
 				pvtx += vertexStride;
 			}
@@ -117,7 +117,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
 		, textureFileName, (void**)&m_texture));
 
-	if (gridType & eVertexType::TEXTURE)
+	if (vertexType & eVertexType::TEXTURE)
 		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }
 
@@ -127,20 +127,28 @@ bool cGrid::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_vertexType);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	if ((m_gridType & eVertexType::TEXTURE) && m_texture)
+	if ((m_vertexType & eVertexType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
 
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
-	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount()*3, 0, 0);
+	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
 
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 

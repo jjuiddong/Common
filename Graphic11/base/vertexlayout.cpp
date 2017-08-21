@@ -8,6 +8,7 @@ using namespace graphic;
 
 cVertexLayout::cVertexLayout()
 	: m_vertexLayout(NULL)
+	, m_vertexType(0)
 {
 }
 
@@ -51,11 +52,21 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 {
 	int size = 0;
 	m_elements.clear();
+	m_vertexType = 0;
 	for (int i = 0; i < numElements; ++i)
 	{
 		m_elements.push_back(layout[i]);
 		m_elements.back().AlignedByteOffset = size;
 		size += BitsPerPixel(layout[i].Format) / 8;
+
+		if (Str32("POSITION") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::POSITION;
+		else if (Str32("NORMAL") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::NORMAL;
+		else if (Str32("TEXCOORD") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::TEXTURE;
+		else if (Str32("COLOR") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::DIFFUSE;
 	}
 
 	m_elementSize = size;
@@ -169,17 +180,6 @@ void cVertexLayout::CreateDecl(
 
 	//m_elementSize = offset;
 }
-
-
-//int cVertexLayout::GetOffset( const BYTE usage, const BYTE usageIndex ) const //usageIndex=0
-//{
-//	//for (u_int i=0; i < m_decl.size(); ++i)
-//	//{
-//	//	if ((usage == m_decl[ i].Usage) && (usageIndex == m_decl[ i].UsageIndex))
-//	//		return m_decl[ i].Offset;
-//	//}
-//	return -1;
-//}
 
 
 void cVertexLayout::Bind(cRenderer &renderer)

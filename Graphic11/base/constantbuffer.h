@@ -32,12 +32,12 @@ namespace graphic
 			if (FAILED(renderer.GetDevice()->CreateBuffer(&bd, NULL, &m_constantBuffer)))
 				return false;
 
-			m_v = new T();
+			m_v = (T*)_aligned_malloc(sizeof(T), 16);
 
 			return true;
 		}
 
-
+		
 		bool Update(cRenderer &renderer, const int slot=0)
 		{
 			RETV(!m_constantBuffer, false);
@@ -52,7 +52,8 @@ namespace graphic
 		void Clear()
 		{
 			SAFE_RELEASE(m_constantBuffer);
-			SAFE_DELETE(m_v);
+			_aligned_free(m_v);
+			m_v = NULL;
 		}
 
 
@@ -63,8 +64,7 @@ namespace graphic
 			return *m_v;
 		}
 
-
-
+		
 	public:
 		ID3D11Buffer *m_constantBuffer;
 		T *m_v;

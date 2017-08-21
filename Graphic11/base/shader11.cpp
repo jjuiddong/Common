@@ -52,6 +52,17 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 }
 
 
+bool cShader11::SetTechnique(const char *id)
+{
+	RETV(!m_effect, false);
+
+	ID3DX11EffectTechnique *tech = m_effect->GetTechniqueByName(id);
+	RETV(!tech, false);
+	m_technique = tech;
+	return true;
+}
+
+
 ID3DX11EffectTechnique* cShader11::GetTechnique(const char *id)
 {
 	return NULL;

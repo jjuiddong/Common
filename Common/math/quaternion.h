@@ -22,7 +22,7 @@ namespace common
 			return *this;
 		} //operator *=
 
-		Quaternion operator * ( const Quaternion& q )
+		Quaternion operator * ( const Quaternion& q ) const
 		{
 			return Quaternion(
 					x * q.w + y * q.z - z * q.y + w * q.x,
@@ -31,7 +31,7 @@ namespace common
 				-x * q.x - y * q.y - z * q.z + w * q.w );
 		} //operator *
 
-		Quaternion operator * ( const Matrix44& m )
+		Quaternion operator * ( const Matrix44& m ) const
 		{
 			return *this * m.GetQuaternion();
 		} //operator *
@@ -49,9 +49,9 @@ namespace common
 		void Euler2(const Vector3& euler);
 		Vector3 Euler() const;
 		void Normalize();
-		Quaternion Inverse();
+		Quaternion Inverse() const;
 
-		float GetRotationAngleXZ();
+		float GetRotationAngleXZ() const;
 
 
 		float x, y, z, w;

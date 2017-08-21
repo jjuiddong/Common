@@ -177,6 +177,7 @@
     <ClInclude Include="manager\maincamera.h" />
     <ClInclude Include="manager\Renderer.h" />
     <ClInclude Include="manager\resourcemanager.h" />
+    <ClInclude Include="manager\shadermanager.h" />
     <ClInclude Include="manager\task_resource.h" />
     <ClInclude Include="model\node2.h" />
     <ClInclude Include="model\rawmesh.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="terrain\terrain2.h" />
+    <ClInclude Include="terrain\terrainloader.h" />
     <ClInclude Include="terrain\tile.h" />
     <ClInclude Include="textdesigner\BmpOutlineText.h" />
     <ClInclude Include="textdesigner\Canvas.h" />
@@ -256,6 +258,7 @@
     <ClCompile Include="manager\maincamera.cpp" />
     <ClCompile Include="manager\Renderer.cpp" />
     <ClCompile Include="manager\resourcemanager.cpp" />
+    <ClCompile Include="manager\shadermanager.cpp" />
     <ClCompile Include="model\node2.cpp" />
     <ClCompile Include="model\rawmesh.cpp" />
     <ClCompile Include="model_assimp\animation.cpp" />
@@ -277,6 +280,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="terrain\terrain2.cpp" />
+    <ClCompile Include="terrain\terrainloader.cpp" />
     <ClCompile Include="terrain\tile.cpp" />
     <ClCompile Include="textdesigner\BmpOutlineText.cpp" />
     <ClCompile Include="textdesigner\Canvas.cpp" />
