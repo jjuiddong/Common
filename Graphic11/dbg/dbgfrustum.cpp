@@ -30,7 +30,7 @@ bool cDbgFrustum::Create(cRenderer &renderer, const cCamera &camera
 	, const cColor &color //= cColor::BLACK
 )
 {
-	return SetFrustum(renderer, camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix());
+	return SetFrustum(renderer, camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix(), color);
 }
 
 
@@ -47,7 +47,7 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vect
 	view.SetView(pos, direction, Vector3(0, 1, 0));
 	const Matrix44 viewProj = view * proj;
 	SetFrustum(renderer, viewProj, color);
-
+	
 	////      4 --- 5
 	////    / |  |  /|
 	////   0 --- 1   |

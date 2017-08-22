@@ -49,7 +49,7 @@ namespace graphic
 			return *this;
 		}
 
-		XMMATRIX GetTransform() const {
+		XMMATRIX GetTransformXM() const {
 			XMMATRIX tm = XMMatrixScaling(m_bsphere.Radius, m_bsphere.Radius, m_bsphere.Radius)
 				* XMMatrixTranslation(m_bsphere.Center.x, m_bsphere.Center.y, m_bsphere.Center.z);
 			return tm;

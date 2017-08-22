@@ -29,5 +29,14 @@ bool cCircle::Create(cRenderer &renderer, const Vector3 &center, const float rad
 // Ãâ·Â.
 void cCircle::Render(cRenderer &renderer)
 {
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM());
+	renderer.m_cbPerFrame.Update(renderer);
+
 	m_shape.Render(renderer);
 }

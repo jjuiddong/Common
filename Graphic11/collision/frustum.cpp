@@ -25,7 +25,7 @@ bool cFrustum::SetFrustum(const Vector3 &pos, const Vector3 &direction, const Ma
 
 	Matrix44 view;
 	view.SetView(pos, direction, Vector3(0, 1, 0));
-	Quaternion q = view.GetQuaternion();
+	Quaternion q = view.GetQuaternion();	
 	m_frustum.Origin = *(XMFLOAT3*)&pos;
 	m_frustum.Orientation = *(XMFLOAT4*)&q;
 	m_viewProj = view * matProj;

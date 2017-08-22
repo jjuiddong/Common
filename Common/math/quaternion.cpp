@@ -101,6 +101,12 @@ Matrix44 Quaternion::GetMatrix() const
 	Matrix44 m;
 	D3DXMatrixRotationQuaternion( (D3DXMATRIX*)&m, (D3DXQUATERNION*)this );
 	return m;
+#elif defined (USE_D3D11_MATH)
+	XMVECTOR xq = XMLoadFloat4((XMFLOAT4*)this);
+	XMMATRIX xm = XMMatrixRotationQuaternion(xq);
+	Matrix44 m;
+	XMStoreFloat4x4((XMFLOAT4X4*)&m, xm);
+	return m;
 #else
 	Matrix44 m;
 

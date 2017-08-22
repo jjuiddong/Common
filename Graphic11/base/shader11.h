@@ -28,6 +28,7 @@ namespace graphic
 
 
 	public:
+		StrId m_name;
 		ID3DX11Effect *m_effect;
 		ID3DX11EffectTechnique* m_technique;
 		cVertexLayout m_vtxLayout;

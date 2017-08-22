@@ -33,7 +33,6 @@ namespace graphic
 
 
 	public:
-		int m_vtxType;
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 	};

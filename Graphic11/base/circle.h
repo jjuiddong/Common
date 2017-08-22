@@ -24,9 +24,6 @@ namespace graphic
 	public:
 		float m_radius;
 		cCircleShape m_shape;
-		//Matrix44 m_tm;
-		//cMaterial m_mtrl;
-		//cVertexBuffer m_vtxBuff;
 	};
 
 }

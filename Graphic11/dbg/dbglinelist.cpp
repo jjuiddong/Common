@@ -78,6 +78,12 @@ void cDbgLineList::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
 	renderer.m_cbPerFrame.Update(renderer);
 

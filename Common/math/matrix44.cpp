@@ -104,6 +104,13 @@ Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 	Matrix44 matrix;
 	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
 	return matrix;
+#elif defined(USE_D3D11_MATH)
+	XMMATRIX m0 = GetMatrixXM();
+	XMMATRIX m1 = rhs.GetMatrixXM();
+	XMMATRIX r = m0 * m1;
+	Matrix44 matrix;
+	XMStoreFloat4x4((XMFLOAT4X4*)&matrix, r);
+	return matrix;	
 #else
 	Matrix44 matrix;
 	ZeroMemory( &matrix, sizeof( matrix ) );
@@ -129,6 +136,9 @@ Matrix44& Matrix44::operator *= ( const Matrix44& rhs )
 	Matrix44 matrix;
 	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
 	*this = matrix;
+	return *this;
+#elif defined(USE_D3D11_MATH)
+	*this = operator*(rhs);
 	return *this;
 #else
 	Matrix44 matrix;
@@ -188,7 +198,7 @@ void Matrix44::SetView2( const Vector3& pos, const Vector3& lookAt, const Vector
 }
 
 
-void Matrix44::SetProjection(	const float fov, const float aspect, const float nearPlane, const float farPlane )
+void Matrix44::SetProjection( const float fov, const float aspect, const float nearPlane, const float farPlane )
 {
 	float fH = cosf(fov / 2.f) / sinf(fov / 2.f);
 	float fW = fH / aspect;
@@ -238,12 +248,16 @@ Quaternion Matrix44::GetQuaternion() const
 	Quaternion q;
 	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
 	return q;
-#elif defined (USE_D3D11_MATH)
-	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
-	XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
-	Quaternion q;
-	XMStoreFloat4((XMFLOAT4*)&q, xq);
-	return q;
+
+// bug DX11 XMQuaternionRotationMatrix Function
+//#elif defined (USE_D3D11_MATH)
+//	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
+//	XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
+//	XMQuaternionNormalize(xq);
+//	Quaternion q;
+//	XMStoreFloat4((XMFLOAT4*)&q, xq);
+//	return q;
+
 #else
 	Quaternion q;
 	float fTr = _11 + _22 + _33 + _44;

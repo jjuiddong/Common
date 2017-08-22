@@ -50,6 +50,12 @@ bool cQuad::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM());
 	renderer.m_cbPerFrame.Update(renderer);
 

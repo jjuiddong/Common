@@ -26,6 +26,8 @@
 #include "../../DirectXTK/Inc/Effects.h"
 #include "../../DirectXTK/Inc/Model.h"
 #include "../../DirectXTK/Inc/GeometricPrimitive.h"
+#include "../../DirectXTK/Inc/SpriteFont.h"
+#include "../../DirectXTK/Inc/SpriteBatch.h"
 
 using namespace DirectX;
 //--------------------------------------------------------------------------------------------------------------

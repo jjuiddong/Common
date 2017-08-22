@@ -86,6 +86,7 @@ bool cQuadShape::Create(cRenderer &renderer
 	}
 
 	m_vtxBuff.Create(renderer, 4, vertexStride, initVertices);
+	m_vtxType = vtxType;
 
 	return true;
 }

@@ -78,6 +78,17 @@ bool cCube::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * tm);
+	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
 	if ((m_shape.m_vtxType & eVertexType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
 

@@ -77,6 +77,8 @@ bool cCircleShape::Create(cRenderer &renderer, const Vector3 &center, const floa
 
 	m_idxBuff.Create(renderer, slice, initIndices);
 
+	m_vtxType = vtxType;
+
 	return true;
 }
 

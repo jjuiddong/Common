@@ -40,13 +40,14 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 	m_technique = m_effect->GetTechniqueByName(techniqueName);
 	RETV(!m_technique, false);
 
-
 	// Create the input layout
 	D3DX11_PASS_DESC passDesc;
 	m_technique->GetPassByIndex(0)->GetDesc(&passDesc);
 
 	if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, layout, numElements))
 		return false;
+
+	m_name = fileName.GetFileName();
 
 	return true;
 }

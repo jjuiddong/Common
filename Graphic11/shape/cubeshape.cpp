@@ -7,7 +7,6 @@ using namespace graphic;
 
 
 cCubeShape::cCubeShape()
-	: m_vtxType((eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE))
 {
 }
 
@@ -290,6 +289,8 @@ void cCubeShape::Create(cRenderer &renderer, Vector3 vertices[8]
 		initIndices[i] = i;
 
 	m_idxBuff.Create(renderer, 12, initIndices);
+
+	m_vtxType = vtxType;
 }
 
 

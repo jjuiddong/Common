@@ -21,7 +21,12 @@ namespace graphic
 	interface cShape
 	{
 	public:
+		cShape() : m_vtxType(0) {}
+		virtual ~cShape() {}
+
 		virtual void Render(cRenderer &renderer) = 0;
+
+		int m_vtxType;
 	};
 
 }

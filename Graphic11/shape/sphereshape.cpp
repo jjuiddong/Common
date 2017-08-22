@@ -283,6 +283,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 	m_vtxBuff.Create(renderer, vtxCount, vertexStride, &vertices[0]);
 	m_idxBuff.Create(renderer, faceCount, &indices[0]);
+	m_vtxType = vtxType;
 	return true;
 }
 

@@ -108,6 +108,8 @@ bool cPyramidShape::Create(cRenderer &renderer
 	m_vtxBuff.Create(renderer, ARRAYSIZE(vertices), vertexStride, initVertices);
 	m_idxBuff.Create(renderer, ARRAYSIZE(indices) / 3, &buffer2[0]);
 
+	m_vtxType = vtxType;
+
 	return true;
 }
 
