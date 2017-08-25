@@ -32,7 +32,7 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 	bd.Usage = usage;
 	bd.ByteWidth = sizeofVertex * vertexCount;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = (usage== D3D11_USAGE_DEFAULT)? 0 : D3D11_CPU_ACCESS_WRITE;
+	bd.CPUAccessFlags = (usage== D3D11_USAGE_DEFAULT)? 0 : D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 
 	//D3D11_SUBRESOURCE_DATA InitData;
 	//ZeroMemory(&InitData, sizeof(InitData));
@@ -61,7 +61,7 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 	bd.Usage = usage;
 	bd.ByteWidth = sizeofVertex * vertexCount;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
+	bd.CPUAccessFlags = (usage == D3D11_USAGE_DEFAULT) ? 0 : D3D11_CPU_ACCESS_WRITE;
 
 	D3D11_SUBRESOURCE_DATA InitData;
 	ZeroMemory(&InitData, sizeof(InitData));

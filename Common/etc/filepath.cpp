@@ -492,9 +492,15 @@ bool common::FindFile( const StrPath &findName, const StrPath &searchPath, StrPa
 }
 
 
-bool common::IsFileExist(const string &fileName)
+bool common::IsFileExist(const char *fileName)
 {
-	return _access_s(fileName.c_str(), 0) == 0;
+	return _access_s(fileName, 0) == 0;
+}
+
+
+bool common::IsFileExist(const wchar_t *fileName)
+{
+	return _waccess_s(fileName, 0) == 0;
 }
 
 

@@ -2,27 +2,28 @@
 #include "stdafx.h"
 #include "text.h"
 
-
 using namespace graphic;
 
 
 cText::cText()
-	: m_font(NULL)
-,	m_color(D3DXCOLOR(1,1,1,1))
-,	m_rect(0,0,100,100)
-,	m_sprite(NULL)
+	: m_color(cColor::WHITE.GetAbgr())
+	, m_fontWrapper(NULL)
+	, m_textLayout(NULL)
 {
 }
 
-cText::cText(cRenderer &renderer, const Str128 &text, const int x, const int y,
-	const DWORD color, const int fontSize, const bool isBold, const Str32 &fontName)
-	// fontSize=18, isBold=true, fontName=±¼¸²
-	: m_text(text)
-,	m_font(NULL)
-,	m_rect(x, y, 100, 100)
-,	m_color(color)
+cText::cText(cRenderer &renderer
+	, const float fontSize //= fontSize=18
+	, const bool isBold //= isBold=true
+	, const char *fontName //=±¼¸²
+	, const cColor &color //=cColor::WHITE
+	, const wchar_t *text //= NULL
+)
+	: m_fontWrapper(NULL)
+	, m_textLayout(NULL)
+	, m_color(color.GetAbgr())
 {
-	Create(renderer, fontSize, isBold, fontName);
+	Create(renderer, fontSize, isBold, fontName, color, text);
 }
 
 
@@ -33,60 +34,87 @@ cText::~cText()
 
 
 // ÅØ½ºÆ® »ý¼º.
-bool cText::Create(cRenderer &renderer, const int fontSize, const bool isBold, const Str32 &fontName, cSprite *sprite)
-	// fontSize=18, isBold=true, fontName=±¼¸²
+bool cText::Create(cRenderer &renderer
+	, const float fontSize //=18
+	, const bool isBold //=true
+	, const char *fontName //=±¼¸²
+	, const cColor &color //=cColor::WHITE
+	, const wchar_t *text //=NULL
+)
 {
 	Clear();
 
-	const HRESULT hr = D3DXCreateFontA(renderer.GetDevice(), fontSize, 0, 
-		isBold?  FW_BOLD : FW_NORMAL, 1, FALSE, 
-		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, 
-		DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, fontName.c_str(), 
-		&m_font );
+	auto result = renderer.m_fontMgr.GetFont(renderer, fontName, fontSize);
+	IFW1FontWrapper *fontWrapper = result.first;
+	IDWriteTextFormat *textFormat = result.second;
+	RETV(!fontWrapper, false);
 
-	if (FAILED(hr))
-		return false;
+	if (text)
+	{
+		IDWriteFactory *pDWriteFactory;
+		HRESULT hResult = fontWrapper->GetDWriteFactory(&pDWriteFactory);
 
-	m_sprite = sprite;
+		pDWriteFactory->CreateTextLayout(text,wcslen(text),textFormat,0.0f,0.0f,&m_textLayout);
+
+		// No word wrapping
+		m_textLayout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+		m_textLayout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+
+		pDWriteFactory->Release();
+	}
+
+	m_fontWrapper = fontWrapper;
+	m_fontSize = fontSize;
+	m_color = color.GetAbgr();
+
+	if (text)
+		m_text = text;
 
 	return true;
 }
 
 
-// ÅØ½ºÆ® Ãâ·Â.
-void cText::Render()
+void cText::Render(cRenderer &renderer, 
+	const float x, const float y, const wchar_t *text)
 {
-	RET(!m_font);
+	RET(!m_fontWrapper);
 
-	if (m_sprite)
+	m_fontWrapper->DrawString(
+		renderer.GetDevContext(),
+		text,
+		m_fontSize,
+		x, y, 
+		m_color,
+		FW1_CENTER | FW1_VCENTER// Flags
+	);
+}
+
+
+void cText::Render(cRenderer &renderer,
+	const float x, const float y)
+{
+	RET(!m_fontWrapper);
+
+	if (m_textLayout)
 	{
-		m_sprite->Begin();
-		m_font->DrawTextA(m_sprite->m_p, m_text.c_str(), -1, (RECT*)&m_rect, DT_NOCLIP, m_color);
-		m_sprite->End();
+		m_fontWrapper->DrawTextLayout(renderer.GetDevContext(), m_textLayout, x, y, m_color, 0);
 	}
 	else
 	{
-		m_font->DrawTextA( NULL, m_text.c_str(), -1, (RECT*)&m_rect, DT_NOCLIP, m_color);
+		m_fontWrapper->DrawString(
+			renderer.GetDevContext(),
+			m_text.c_str(),
+			m_fontSize,
+			x, y,
+			m_color,
+			FW1_CENTER | FW1_VCENTER// Flags
+		);
 	}
 }
 
 
 void cText::Clear()
 {
-	SAFE_RELEASE(m_font);
-	m_sprite = NULL;
-}
-
-
-void cText::LostDevice()
-{
-	if (m_font)
-		m_font->OnLostDevice();
-}
-
-
-void cText::ResetDevice(cRenderer &renderer)
-{
-	if (m_font)
-		m_font->OnResetDevice();
+	m_text.clear();
+	SAFE_RELEASE(m_textLayout);
 }

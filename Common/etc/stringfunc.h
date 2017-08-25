@@ -20,8 +20,8 @@ namespace common
 
 
 	template<size_t MAX>
-	String<MAX> format(const char* fmt, ...) {
-		String<MAX> textString;
+	String<char, MAX> format(const char* fmt, ...) {
+		String<char, MAX> textString;
 		va_list args;
 		va_start(args, fmt);
 		vsnprintf_s(textString.m_str, sizeof(textString.m_str), _TRUNCATE, fmt, args);

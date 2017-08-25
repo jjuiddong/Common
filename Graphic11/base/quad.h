@@ -25,9 +25,12 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const float width, const float height, const Vector3 &pos
 			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE)
-			, const StrPath &textureFileName = "");
+			, const StrPath &textureFileName = ""
+			, const bool isDynamic = false );
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
+
+		//void SetUV(cRenderer &renderer, const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb);
 
 
 	public:

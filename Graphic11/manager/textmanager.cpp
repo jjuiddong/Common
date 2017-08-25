@@ -35,8 +35,10 @@ void cTextManager::Create(const u_int maxTextCount //= 100
 	m_textureSizeX = textureSizeX;
 	m_textureSizeY = textureSizeY;
 
-	m_graphicBuffer = std::shared_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(textureSizeX, textureSizeY, PixelFormat32bppARGB));
-	m_textBuffer = std::shared_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(textureSizeX, textureSizeY, PixelFormat32bppARGB));
+	m_graphicBmp = std::shared_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(textureSizeX, textureSizeY, PixelFormat32bppARGB));
+	m_textBmp = std::shared_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(textureSizeX, textureSizeY, PixelFormat32bppARGB));
+	m_graphic = std::shared_ptr<Gdiplus::Graphics>(new Gdiplus::Graphics(m_graphicBmp.get()));
+	m_graphicText = std::shared_ptr<Gdiplus::Graphics>(new Gdiplus::Graphics(m_textBmp.get()));
 }
 
 
@@ -53,7 +55,9 @@ void cTextManager::NewFrame()
 }
 
 
-void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128 &str
+void cTextManager::AddTextRender(cRenderer &renderer
+	, const int id
+	, const wchar_t *str
 	, const cColor &color //= cColor::WHITE
 	, const cColor &outlineColor //= cColor::BLACK
 	, BILLBOARD_TYPE::TYPE type //= BILLBOARD_TYPE::Y_AXIS
@@ -62,10 +66,13 @@ void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128
 	, const int height//=1
 )
 {
+	const cColor c1 = color.GetAbgr();
+	const cColor c2 = outlineColor.GetAbgr();
+
 	sText *text = GetCacheText(id);
 	if (text)
 	{
-		text->text.SetTextRect2(renderer, tm, str, color, outlineColor, type);
+		text->text.SetTextRect(renderer, tm, str, c1, c2, type);
 		text->space = renderer.GetCurrentAlphaBlendSpace();
 		text->used = true;
 
@@ -79,10 +86,9 @@ void cTextManager::AddTextRender(cRenderer &renderer, const int id, const Str128
 	{
 		sCommand cmd;
 		cmd.id = id;
-		strcpy_s(cmd.str, str.c_str());
-		cmd.str[ min(sCommand::MAX_STR - 1, (int)str.size())] = NULL;
-		cmd.color = color;
-		cmd.outlineColor = outlineColor;
+		cmd.str = str;
+		cmd.color = c1;
+		cmd.outlineColor = c2;
 		cmd.type = type;
 		cmd.tm = tm;
 		cmd.width = width;
@@ -132,16 +138,8 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 			if (m_maxTextCount <= m_buffer.size())
 				break; // buffer full, Finish
 
-			cFontGdi *font = cFontManager::Get()->GetFontGdi("test");
-			if (!font)
-			{
-				font = new cFontGdi();
-				font->Create();
-				cFontManager::Get()->AddFontGdi("test", font);
-			}
-
 			sText *text = new sText;
-			text->text.Create(renderer, font, cmd.type, cmd.width, cmd.height, m_textureSizeX, m_textureSizeY);
+			text->text.Create(renderer, cmd.type, cmd.width, cmd.height, m_textureSizeX, m_textureSizeY);
 			m_buffer.push_back(text);
 
 			SetCommand2Text(renderer, text, cmd);
@@ -181,18 +179,14 @@ void cTextManager::Render(cRenderer &renderer
 	if (isSort)
 		Sorting();
 
-	// render
-	//renderer.SetCullMode(D3DCULL_NONE);
 	for (auto &p : m_renders)
 		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_quad.m_normal, p->text.m_transform.GetMatrix());
-		//p->text.Render(renderer);
-	//renderer.SetCullMode(D3DCULL_CCW);
 }
 
 
 void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd)
 {
-	text->text.SetTextRect2(renderer, cmd.tm, cmd.str, cmd.color, cmd.outlineColor, cmd.type);
+	text->text.SetTextRect(renderer, cmd.tm, cmd.str.c_str(), cmd.color, cmd.outlineColor, cmd.type);
 
 	text->id = cmd.id;
 	text->used = true;
@@ -248,9 +242,9 @@ void cTextManager::GarbageCollection()
 // Descent Distance from Camera
 void cTextManager::Sorting()
 {
-	cCamera *cam = GetMainCamera();
+	cCamera &cam = GetMainCamera();
 	Vector3 camOrig, camDir;
-	cam->GetRay(camOrig, camDir);
+	cam.GetRay(camOrig, camDir);
 
 	std::sort(m_renders.begin(), m_renders.end(), 
 		[&](const sText* a, const sText* b)
@@ -269,6 +263,8 @@ void cTextManager::Clear()
 		delete p;
 	m_buffer.clear();
 
-	m_graphicBuffer = NULL;
-	m_textBuffer = NULL;
+	m_graphicBmp = NULL;
+	m_textBmp = NULL;
+	m_graphic = NULL;
+	m_graphicText = NULL;
 }

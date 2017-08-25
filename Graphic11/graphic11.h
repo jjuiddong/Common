@@ -13,7 +13,10 @@
 
 #include <d3dcompiler.h>
 
+
 //--------------------------------------------------------------------------------------------------------------
+// External
+
 // DirectXTK Desktop VS2015
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
@@ -28,9 +31,14 @@
 #include "../../DirectXTK/Inc/GeometricPrimitive.h"
 #include "../../DirectXTK/Inc/SpriteFont.h"
 #include "../../DirectXTK/Inc/SpriteBatch.h"
+#include "../../DirectXTK/Inc/SimpleMath.h"
 
 using namespace DirectX;
+
+// FW1FontWrapper
+#include "../External/FW1FontWrapper/FW1FontWrapper.h"
 //--------------------------------------------------------------------------------------------------------------
+
 
 
 #include <objidl.h>
@@ -112,10 +120,10 @@ namespace graphic {
 #include "base/quad.h"
 //#include "base/quad2d.h"
 #include "base/billboard.h"
-//#include "base/text.h"
+#include "base/text.h"
 //#include "base/text3d.h"
 //#include "base/text3d2.h"
-//#include "base/text3d3.h"
+#include "base/text3d3.h"
 //
 //#include "base/shadow1.h"
 //#include "base/shadow2.h"
@@ -203,13 +211,13 @@ namespace graphic
 }
 
 
-//#include "manager/textmanager.h"
+#include "manager/textmanager.h"
+#include "manager/fontmanager.h"
 #include "manager\shadermanager.h"
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
 #include "manager/lightmanager.h"
-//#include "manager/fontmanager.h"
 //#include "manager/pickmanager.h"
 //
 #include "importer/parallelloader.h"
@@ -218,14 +226,16 @@ namespace graphic
 #pragma comment( lib, "gdiplus.lib" ) 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "d3dx11d.lib")
-#pragma comment(lib, "effects11.lib")
-#pragma comment(lib, "dxerr.lib")
+//#pragma comment(lib, "d3dx11d.lib")
+//#pragma comment(lib, "dxerr.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
 
 #ifdef _DEBUG
+	#pragma comment(lib, "Effects11/effects11d.lib")
 	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #else
+	#pragma comment(lib, "Effects11/effects11.lib")
 	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif

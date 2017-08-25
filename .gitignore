@@ -269,5 +269,20 @@ Lib/Motion/Release_DLL/MotionDLL.iobj
 .idea/
 *.sln.iml
 
-*.lib
 
+Lib/Framework/Release_DLL/Framework.lib
+Lib/Framework/Debug_MD/Framework.lib
+Lib/Framework/Debug_DLL/Framework.lib
+Lib/Common/Debug_MD/Common.lib
+Lib/Common/Debug_DLL/Common.lib
+Lib/Network/Release_MD/Network.lib
+Lib/Network/Debug_MT/Network.lib
+Lib/Network/Debug_MD/Network.lib
+Lib/Graphic/Release_DLL/Graphic.lib
+Lib/Common/Release_MD/Common.lib
+Lib/Graphic/Debug_MD/Graphic.lib
+Lib/Graphic/Debug_DLL/Graphic.lib
+Lib/Common/Debug_MT/Common.lib
+Lib/Effects11.lib
+Graphic11/Effects11.lib
+Lib/AI/Debug_MD/AI.lib

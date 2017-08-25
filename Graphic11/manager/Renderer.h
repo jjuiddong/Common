@@ -74,10 +74,12 @@ namespace graphic
 		//D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
 
-		//vector<sAlphaBlendSpace*> m_alphaSpace;
-		//vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+		vector<sAlphaBlendSpace*> m_alphaSpace;
+		vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
 
 		cShaderManager m_shaderMgr;
+		cFontManager m_fontMgr;
+		cTextManager m_textMgr;
 
 		cConstantBuffer<sCbPerFrame> m_cbPerFrame;
 		cConstantBuffer<sCbLight> m_cbLight;
@@ -85,7 +87,6 @@ namespace graphic
 
 		vector<sVertexDiffuse> m_grid;
 		vector<sVertexDiffuse> m_axis;
-		//cTextManager m_textMgr;
 
 		// Common Primitive
 
@@ -94,7 +95,7 @@ namespace graphic
 		ULONG_PTR gdiplusToken;
 
 		// Display FPS 
-		//cText m_textFps;
+		cText m_textFps;
 		float m_elapseTime;
 		int m_fps;
 

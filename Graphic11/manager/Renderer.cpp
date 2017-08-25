@@ -37,15 +37,15 @@ cRenderer::cRenderer()
 
 cRenderer::~cRenderer()
 {
-	//m_textMgr.Clear();
+	m_textMgr.Clear();
 
-	//for (auto &p : m_alphaSpace)
-	//	delete p;
-	//m_alphaSpace.clear();
+	for (auto &p : m_alphaSpace)
+		delete p;
+	m_alphaSpace.clear();
 
-	//for (auto &p : m_alphaSpaceBuffer)
-	//	delete p;
-	//m_alphaSpaceBuffer.clear();
+	for (auto &p : m_alphaSpaceBuffer)
+		delete p;
+	m_alphaSpaceBuffer.clear();
 
 	SAFE_RELEASE(m_renderTargetView);
 	SAFE_RELEASE(m_depthStencil);
@@ -82,7 +82,7 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height
 	m_cbLight.Create(*this);
 	m_cbMaterial.Create(*this);
 
-	//m_textMgr.Create(256);
+	m_textMgr.Create(256);
 
 
 	//------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
 
-	//m_textFps.Create(*this);
+	m_textFps.Create(*this, 20, true, "Arial");
 	//m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
 
@@ -169,7 +169,7 @@ void cRenderer::RenderAxis()
 // FPS Ãâ·Â.
 void cRenderer::RenderFPS()
 {
-	//m_textFps.Render();
+	m_textFps.Render(*this, 70, 17);
 }
 
 
@@ -210,7 +210,7 @@ void cRenderer::Update(const float elapseT)
 	m_elapseTime += elapseT;
 	if( 1.f <= m_elapseTime )
 	{
-		//m_textFps.SetText(format("fps: %d", m_fps));
+		m_textFps.SetText(formatw("fps: %d", m_fps).c_str());
 		m_fps = 0;
 		m_elapseTime = 0;
 	}
@@ -337,7 +337,7 @@ void cRenderer::Present()
 void cRenderer::EndScene()
 {
 	// Text Render
-	//m_textMgr.Render(*this);
+	m_textMgr.Render(*this);
 
 	cCamera &cam = GetMainCamera();
 	Vector3 camOrig, camDir;
@@ -372,18 +372,16 @@ void cRenderer::EndScene()
 	//	);
 	//}
 
-	//for (auto &p : m_alphaSpace)
-	//	for (auto &data : p->renders)
-	//		data.p->Render(*this, data.tm, -1);
+	for (auto &p : m_alphaSpace)
+		for (auto &data : p->renders)
+			data.p->Render(*this, data.tm.GetMatrixXM(), -1);
 
-	//for (auto &p : m_alphaSpace)
-	//{
-	//	p->renders.clear();
-	//	m_alphaSpaceBuffer.push_back(p);
-	//}
-	//m_alphaSpace.clear();
-
-	//GetDevice()->EndScene();
+	for (auto &p : m_alphaSpace)
+	{
+		p->renders.clear();
+		m_alphaSpaceBuffer.push_back(p);
+	}
+	m_alphaSpace.clear();
 }
 
 
@@ -493,8 +491,8 @@ void cRenderer::AddRenderAlpha(cNode2 *node
 	, const int opt // = 1
 )
 {
-	//assert(!m_alphaSpace.empty());
-	//m_alphaSpace.back()->renders.push_back({ opt, normal ,tm, node });
+	assert(!m_alphaSpace.empty());
+	m_alphaSpace.back()->renders.push_back({ opt, normal ,tm, node });
 }
 
 
@@ -511,27 +509,26 @@ void cRenderer::AddRenderAlpha(sAlphaBlendSpace *space
 
 void cRenderer::AddAlphaBlendSpace(const cBoundingBox &bbox)
 {
-	//if (m_alphaSpaceBuffer.empty())
-	//{
-	//	sAlphaBlendSpace *pNew = new sAlphaBlendSpace;
-	//	pNew->renders.reserve(256);	
-	//	m_alphaSpaceBuffer.push_back(pNew);
-	//}
+	if (m_alphaSpaceBuffer.empty())
+	{
+		sAlphaBlendSpace *pNew = new sAlphaBlendSpace;
+		pNew->renders.reserve(256);	
+		m_alphaSpaceBuffer.push_back(pNew);
+	}
 
-	//sAlphaBlendSpace *p = m_alphaSpaceBuffer.back();
-	//p->renders.clear();
-	//m_alphaSpaceBuffer.pop_back();
+	sAlphaBlendSpace *p = m_alphaSpaceBuffer.back();
+	p->renders.clear();
+	m_alphaSpaceBuffer.pop_back();
 
-	//p->bbox = bbox;
-	//m_alphaSpace.push_back(p);
+	p->bbox = bbox;
+	m_alphaSpace.push_back(p);
 }
 
 
 sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 {
-	//assert(!m_alphaSpace.empty());
-	//return m_alphaSpace.back();
-	return NULL;
+	assert(!m_alphaSpace.empty());
+	return m_alphaSpace.back();
 }
 
 

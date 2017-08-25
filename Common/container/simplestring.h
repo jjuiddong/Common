@@ -3,6 +3,10 @@
 // simple string
 // use stack memory
 //
+// 2017-08-24
+//	- add wchar_t type
+//
+//
 #pragma once
 
 #include <shlwapi.h> // file path library
@@ -12,12 +16,17 @@
 namespace common
 {
 
-	template<size_t MAX>
+	template<class CharT, size_t MAX>
 	class String
+	{
+	};
+
+	template<size_t MAX>
+	class String<char, MAX>
 	{
 	public:
 		String() {
-			memset(m_str, 0, MAX);
+			memset(m_str, 0, sizeof(char)*MAX);
 		}
 		String(const char *str) {
 			const size_t len = min(strlen(str), MAX - 1);
@@ -302,7 +311,6 @@ namespace common
 			return *this;
 		}
 
-
 		String& operator += (const String &str) {
 			if (this == &str)
 				return *this;
@@ -328,12 +336,345 @@ namespace common
 	};
 
 
+	template<size_t MAX>
+	class String<wchar_t, MAX>
+	{
+	public:
+		String() {
+			memset(m_str, 0, sizeof(wchar_t)*MAX);
+		}
+		String(const wchar_t *str) {
+			const size_t len = min(wcslen(str), MAX - 1);
+			wcsncpy_s(m_str, str, len);
+			m_str[len] = NULL;
+		}
+		String(const std::wstring &str) {
+			const size_t len = min(str.size(), MAX - 1);
+			wcssncpy_s(m_str, str.c_str(), len);
+			m_str[len] = NULL;
+		}
+
+		virtual ~String() {
+		}
+
+		wchar_t* Format(const wchar_t* fmt, ...) {
+			va_list args;
+			va_start(args, fmt);
+			vswprintf_s(m_str, sizeof(m_str) - 1, fmt, args);
+			va_end(args);
+			return m_str;
+		}
+
+		//------------------------------------------------------------------------------------
+		// shlwapi
+		bool IsRelativePath() const {
+			return PathIsRelative(m_str) ? true : false;
+		}
+
+		bool IsFileExist() const {
+			return common::IsFileExist(m_str);
+		}
+
+		String convertToString(double num) const {
+			String str;
+			swprintf_s(str.m_str, L"%.1f", num);
+			return str;
+		}
+
+		double roundOff(double n) const {
+			double d = n * 100.0f;
+			int i = (int)(d + 0.5);
+			d = (float)i / 100.0f;
+			return d;
+		}
+
+		String convertSize(size_t size) const {
+			static const char *SIZES[] = { "B", "KB", "MB", "GB" };
+			int div = 0;
+			size_t rem = 0;
+
+			while (size >= 1024 && div < (sizeof SIZES / sizeof *SIZES)) {
+				rem = (size % 1024);
+				div++;
+				size /= 1024;
+			}
+
+			double size_d = (float)size + (float)rem / 1024.0;
+			String result = convertToString(roundOff(size_d)) + " " + SIZES[div];
+			return result;
+		}
+
+		__int64 FileSize() const {
+			struct __wstat64 buf;
+			if (_wstat64(m_str, &buf) != 0)
+				return -1; // error, could use errno to find out more
+			return buf.st_size;
+			return 0;
+		}
+
+		String FileSizeStr() const {
+			return convertSize((size_t)FileSize());
+		}
+
+		const char* GetFileExt() const {
+			return PathFindExtension(m_str);
+		}
+
+		const char* GetFileName() const {
+			return PathFindFileName(m_str);
+		}
+
+		String GetFullFileName() const {
+			String str;
+			if (IsRelativePath())
+			{
+				wchar_t curDir[MAX];
+				GetCurrentDirectory(MAX, curDir);
+				wcsscat_s(curDir, L"/");
+				wcscat_s(curDir, m_str);
+				GetFullPathName(curDir, MAX, str.m_str, NULL);
+			}
+			else
+			{
+				GetFullPathName(m_str, MAX, str.m_str, NULL);
+			}
+			return str;
+		}
+
+		String GetFilePathExceptFileName() const {
+			String str = *this;
+			PathRemoveFileSpec(str.m_str);
+			return str;
+		}
+
+		// only return filname except extends
+		String GetFileNameExceptExt() const {
+			String str = PathFindFileName(m_str);
+			PathRemoveExtension(str.m_str);
+			return str;
+		}
+
+		// return full filname except extends
+		String GetFileNameExceptExt2() const {
+			String str = *this;
+			char *name = PathFindFileName(str.m_str);
+			PathRemoveExtension(name);
+			return str;
+		}
+
+
+		//------------------------------------------------------------------------------------
+		// STL
+		void erase(const wchar_t *str) {
+			wchar_t *p = (wchar_t*)find(str);
+			if (!p || !*p)
+				return;
+
+			std::rotate(p, p + wcslen(str), m_str + wcslen(m_str));
+			const int len = wcslen(m_str) - wcsslen(str);
+			m_str[len] = NULL;
+		}
+
+		const wchar_t* find(const wchar_t *str) const {
+			const wchar_t *p = m_str;
+			while (*p)
+			{
+				const wchar_t *n = p;
+				const wchar_t *c = str;
+				while (*n && *c)
+				{
+					if (*n != *c)
+						break;
+					++n;
+					++c;
+				}
+
+				if (!*c) // found
+					return p;
+
+				++p; // not found
+			}
+			return NULL;
+		}
+
+		const wchar_t* find(const String &str) const {
+			return find(str.m_str);
+		}
+
+		wchar_t back() {
+			if (empty())
+				return NULL;
+			for (int i = 0; i < MAX - 1; ++i)
+				if (NULL == m_str[i + 1])
+					return m_str[i];
+			return NULL;
+		}
+
+		bool empty() const {
+			return m_str[0] == NULL;
+		}
+
+		String& lowerCase() {
+			std::transform(m_str, &m_str[MAX], m_str, _wcslwr);
+			return *this;
+		}
+
+		String& upperrCase() {
+			std::transform(m_str, &m_str[MAX], m_str, _wcsupr);
+			return *this;
+		}
+
+		hashcode GetHashCode() const {
+			boost::hash<std::wstring> string_hash;
+			return string_hash(m_str);
+		}
+
+		size_t size() const {
+			return (size_t)strlen(m_str);
+		}
+
+		void clear() {
+			memset(m_str, 0, sizeof(wchar_t)*MAX);
+		}
+		//------------------------------------------------------------------------------------
+
+		//------------------------------------------------------------------------------------
+		// ETC
+		std::string str() const
+		{
+			const int slength = (int)size() + 1;
+			const int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
+			char* buf = new char[len];
+			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf, len, NULL, FALSE);
+			std::string r(buf);
+			delete[] buf;
+			return r;
+
+			//int len;
+			//int slength = (int)size() + 1;
+			//len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
+			//wchar_t* buf = new wchar_t[len];
+			//::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf, len);
+			//std::wstring r(buf);
+			//delete[] buf;
+			//return r;
+		}
+
+
+		//------------------------------------------------------------------------------------
+
+
+		const wchar_t* c_str() const { return (const wchar_t*)m_str; }
+
+		bool operator == (const String &rhs) const {
+			return !wcscmp(m_str, rhs.m_str);
+		}
+
+		bool operator == (const std::wstring &rhs) const {
+			return rhs == m_str;
+		}
+
+		bool operator == (const wchar_t *str) const {
+			return !wcscmp(m_str, str);
+		}
+
+		bool operator != (const String &rhs) const {
+			return !(operator==(rhs));
+		}
+
+		bool operator != (const std::string &rhs) const {
+			return !(operator==(rhs));
+		}
+
+		bool operator != (const wchar_t *str) const {
+			return !(operator==(str));
+		}
+
+
+		String& operator = (const wchar_t *str) {
+			const size_t len = min(wcslen(str), MAX - 1);
+			wcsncpy_s(m_str, str, len);
+			m_str[len] = NULL;
+			return *this;
+		}
+
+		String& operator = (const String &rhs) {
+			if (this != &rhs) {
+				operator = (rhs.m_str);
+			}
+			return *this;
+		}
+
+		String& operator = (const std::wstring &rhs) {
+			return operator = (rhs.c_str());
+		}
+
+		String operator + (const wchar_t *str) const {
+			String v;
+			v += *this;
+			v += str;
+			return v;
+		}
+
+		String operator + (const String &str) const {
+			String v;
+			v += *this;
+			v += str;
+			return v;
+		}
+
+		String& operator += (const wchar_t *str) {
+			const size_t len1 = wcsslen(m_str);
+			if (len1 >= (MAX - 1))
+				return *this;
+
+			const size_t len2 = wcsslen(str);
+			const size_t cpLen = min(len2, MAX - len1 - 1);
+			wcssncat_s(m_str, str, cpLen);
+			m_str[len1 + cpLen] = NULL;
+			return *this;
+		}
+
+		String& operator += (const String &str) {
+			if (this == &str)
+				return *this;
+
+			const size_t len1 = wcsslen(m_str);
+			if (len1 >= (MAX - 1))
+				return *this;
+
+			const size_t len2 = wcsslen(str.m_str);
+			const size_t cpLen = min(len2, MAX - len1 - 1);
+			wcssncat_s(m_str, str.m_str, cpLen);
+			m_str[len1 + cpLen] = NULL;
+			return *this;
+		}
+
+		bool operator < (const String &rhs) const {
+			return std::wcscmp(m_str, rhs.m_str) < 0;
+		}
+
+
+	public:
+		wchar_t m_str[MAX];
+	};
+
+
+
 	// Define Type
-	typedef String<16> Str16;
-	typedef String<32> Str32;
-	typedef String<64> Str64;
-	typedef String<64> StrId;
-	typedef String<128> Str128;
-	typedef String<128> StrPath;
-	typedef String<256> StrGlobalPath;
+	typedef String<char, 16> Str16;
+	typedef String<char, 32> Str32;
+	typedef String<char, 64> Str64;
+	typedef String<char, 64> StrId;
+	typedef String<char, 128> Str128;
+	typedef String<char, 128> StrPath;
+	typedef String<char, 256> StrGlobalPath;
+
+	typedef String<wchar_t, 16> WStr16;
+	typedef String<wchar_t, 32> WStr32;
+	typedef String<wchar_t, 64> WStr64;
+	typedef String<wchar_t, 64> WStrId;
+	typedef String<wchar_t, 128> WStr128;
+	typedef String<wchar_t, 128> WStrPath;
+	typedef String<wchar_t, 256> WStrGlobalPath;
 }

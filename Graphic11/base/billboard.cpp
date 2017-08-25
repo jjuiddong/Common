@@ -21,7 +21,7 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	const Vector3 &pos, const StrPath &textureFileName, const bool isSizePow2)
 {
 	if (!__super::Create(renderer, width, height, pos
-		, eVertexType::POSITION | eVertexType::TEXTURE, textureFileName))
+		, eVertexType::POSITION | eVertexType::TEXTURE, textureFileName, true))
 		return false;
 
 	m_type = type;
@@ -102,18 +102,25 @@ void cBillboard::Rotate()
 
 	Matrix44 R;
 	R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
-	//m_transform.rot = (R * mat).GetQuaternion();
-
+	m_transform.rot = (R * mat).GetQuaternion();
 	m_normal = (GetMainCamera().GetEyePos() - m_transform.pos).Normal();
-	Matrix44 rot = R * mat;
-	{
-		XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)&rot);
-		XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
-		XMQuaternionNormalize(xq);
-		Quaternion q;
-		XMStoreFloat4((XMFLOAT4*)&q, xq);
-		m_transform.rot = q;
-	}
+	//Matrix44 rot = R * mat;
+	//{
+		//SimpleMath::Matrix m(*(XMFLOAT4X4*)&rot);
+		//SimpleMath::Vector3 s, t;
+		//SimpleMath::Quaternion r;
+		//m.Decompose(s, r, t);
+
+		//m_transform.pos = Vector3(0, 0, 0);
+		//m_transform.rot = *(Quaternion*)&r;
+
+		//XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)&rot);
+		//XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
+		//XMQuaternionNormalize(xq);
+		//Quaternion q;
+		//XMStoreFloat4((XMFLOAT4*)&q, xq);
+		//m_transform.rot = q;
+	//}
 }
 
 
@@ -121,5 +128,8 @@ void cBillboard::Rotate()
 void cBillboard::Render(cRenderer &renderer)
 {
 	Rotate();
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.CullNone());
 	__super::Render(renderer);
+	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
 }

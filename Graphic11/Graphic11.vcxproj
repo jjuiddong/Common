@@ -156,6 +156,8 @@
     <ClInclude Include="base\shader11.h" />
     <ClInclude Include="base\skybox.h" />
     <ClInclude Include="base\sphere.h" />
+    <ClInclude Include="base\text.h" />
+    <ClInclude Include="base\text3d3.h" />
     <ClInclude Include="base\texture.h" />
     <ClInclude Include="base\vertexbuffer.h" />
     <ClInclude Include="base\vertexlayout.h" />
@@ -173,12 +175,14 @@
     <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
     <ClInclude Include="importer\parallelloader.h" />
+    <ClInclude Include="manager\fontmanager.h" />
     <ClInclude Include="manager\lightmanager.h" />
     <ClInclude Include="manager\maincamera.h" />
     <ClInclude Include="manager\Renderer.h" />
     <ClInclude Include="manager\resourcemanager.h" />
     <ClInclude Include="manager\shadermanager.h" />
     <ClInclude Include="manager\task_resource.h" />
+    <ClInclude Include="manager\textmanager.h" />
     <ClInclude Include="model\node2.h" />
     <ClInclude Include="model\rawmesh.h" />
     <ClInclude Include="model_assimp\animation.h" />
@@ -240,6 +244,8 @@
     <ClCompile Include="base\shader11.cpp" />
     <ClCompile Include="base\skybox.cpp" />
     <ClCompile Include="base\sphere.cpp" />
+    <ClCompile Include="base\text.cpp" />
+    <ClCompile Include="base\text3d3.cpp" />
     <ClCompile Include="base\texture.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
     <ClCompile Include="base\vertexlayout.cpp" />
@@ -254,11 +260,13 @@
     <ClCompile Include="dbg\dbglinelist.cpp" />
     <ClCompile Include="dbg\dbgsphere.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />
+    <ClCompile Include="manager\fontmanager.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />
     <ClCompile Include="manager\maincamera.cpp" />
     <ClCompile Include="manager\Renderer.cpp" />
     <ClCompile Include="manager\resourcemanager.cpp" />
     <ClCompile Include="manager\shadermanager.cpp" />
+    <ClCompile Include="manager\textmanager.cpp" />
     <ClCompile Include="model\node2.cpp" />
     <ClCompile Include="model\rawmesh.cpp" />
     <ClCompile Include="model_assimp\animation.cpp" />

@@ -20,13 +20,21 @@ namespace graphic
 
 		bool Create(cRenderer &renderer
 			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const float width = 2
+			, const float height = 2
+			, const bool isDynamic = false);
 
 		void Render(cRenderer &renderer) override;
 
+		void SetUV(cRenderer &renderer, const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb);
+
 
 	public:
+		float m_width;
+		float m_height;
 		cVertexBuffer m_vtxBuff;
+		cVertexLayout m_vtxLayout;
 	};
 
 }

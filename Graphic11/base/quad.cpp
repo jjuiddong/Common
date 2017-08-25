@@ -12,8 +12,8 @@ cQuad::cQuad()
 {
 }
 
-cQuad::cQuad(cRenderer &renderer, const float width, const float height,
-	const Vector3 &pos
+cQuad::cQuad(cRenderer &renderer, const float width, const float height
+	, const Vector3 &pos
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
 	, const StrPath &textureFileName // = " "
 )
@@ -34,12 +34,21 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	const Vector3 &pos 
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
 	, const StrPath &textureFileName // = " "
-	)
+	, const bool isDynamic // = false
+)
 {
-	m_shape.Create(renderer, vtxType);
-
-	m_transform.pos = pos;
-	m_transform.scale = Vector3(width, height, 1);
+	//if (isNormalize)
+	{
+		m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
+		m_transform.pos = pos;
+		m_transform.scale = Vector3(width, height, 1);
+	}
+	//else
+	//{
+	//	m_shape.Create(renderer, vtxType, cColor::WHITE, width*2, height*2);
+	//	m_transform.pos = pos;
+	//	m_transform.scale = Vector3(1, 1, 1);
+	//}
 
 	return true;
 }
@@ -64,8 +73,46 @@ bool cQuad::Render(cRenderer &renderer
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+	//renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
 	return true;
 }
+
+//
+//// Set UV Position
+//// Vector2.xy = {u , v}
+//// lt : left top
+//// rt : right top
+//// lb : left bottom
+//// rb : right bottom
+//void cQuad::SetUV(cRenderer &renderer, const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb)
+//{
+//	RET(m_shape.m_vtxBuff.GetVertexCount() <= 0);
+//
+//	const int posOffset = m_shape.m_vtxLayout.GetOffset("POSITION");
+//	const int normOffset = m_shape.m_vtxLayout.GetOffset("NORMAL");
+//	const int colorOffset = m_shape.m_vtxLayout.GetOffset("COLOR");
+//	const int texOffset = m_shape.m_vtxLayout.GetOffset("TEXCOORD");
+//	const int vertexStride = m_shape.m_vtxLayout.GetVertexSize();
+//
+//	BYTE *vertices = (BYTE*)m_shape.m_vtxBuff.Lock(renderer);
+//	RET(!vertices);
+//
+//	Vector2 *uv0 = (Vector2*)(vertices + (vertexStride * 0) + texOffset);
+//	Vector2 *uv1 = (Vector2*)(vertices + (vertexStride * 1) + texOffset);
+//	Vector2 *uv2 = (Vector2*)(vertices + (vertexStride * 2) + texOffset);
+//	Vector2 *uv3 = (Vector2*)(vertices + (vertexStride * 3) + texOffset);
+//
+//	// left top
+//	*uv0 = lt;
+//	// right top
+//	*uv1 = rt;
+//	// left bottom
+//	*uv2 = lb;
+//	// right bottom
+//	*uv3 = rb;
+//
+//	m_shape.m_vtxBuff.Unlock(renderer);
+//}

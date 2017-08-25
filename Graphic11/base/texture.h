@@ -1,4 +1,4 @@
-////
+//
 // 2017-07-31, jjuiddong
 // Upgrade DX9 - DX11 
 // Texture Class
@@ -7,6 +7,9 @@
 // 2017-07-24
 //	- TextDesigner
 //	- https://www.codeproject.com/Articles/42529/Outline-Text
+//
+// 2017-08-25
+//	- Upgrade DX11, wchar_t
 //
 #pragma once
 
@@ -21,7 +24,8 @@ namespace graphic
 		virtual ~cTexture();
 
 		bool Create(cRenderer &renderer, const StrPath &fileName);
-		//bool Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format);
+		bool Create(cRenderer &renderer, const int width, const int height
+			, const DXGI_FORMAT format= DXGI_FORMAT_R8G8B8A8_UNORM);
 		bool WritePNGFile( const StrPath &fileName );
 
 		void Bind(cRenderer &renderer, const int stage=0);
@@ -30,14 +34,11 @@ namespace graphic
 		void Render2D(cRenderer &renderer);
 		void CopyFrom(cTexture &src);
 		//void CopyFrom(IDirect3DTexture9 *src);
-		//bool Lock(D3DLOCKED_RECT &out);
-		void Unlock();
-		//IDirect3DTexture9* GetTexture();
+		void* Lock(cRenderer &renderer);
+		void Unlock(cRenderer &renderer);
 		//const D3DXIMAGE_INFO& GetImageInfo() const;
 		const StrPath& GetTextureName() const;
-		void TextOut(const Str128 &text, const int x, const int y, const DWORD color);
-		void DrawText(const Str128 &text, const sRecti &rect, const DWORD color);
-		bool DrawText2(cRenderer &renderer, const Str128 &text, 
+		bool DrawText(cRenderer &renderer, const wchar_t *text, 
 			const cColor &color, const cColor &outlineColor, Vector2 &textSize);
 		bool IsLoaded();
 		int Width();
@@ -48,8 +49,8 @@ namespace graphic
 		
 
 	public:
-		//IDirect3DTexture9 *m_texture;
 		ID3D11ShaderResourceView *m_texture;
+		ID3D11Texture2D *m_rawTex;
 		//D3DXIMAGE_INFO m_imageInfo;
 		D3D11_TEXTURE2D_DESC m_imageInfo;
 		StrPath m_fileName;
@@ -58,7 +59,6 @@ namespace graphic
 	};
 
 
-	//inline IDirect3DTexture9* cTexture::GetTexture() { return m_texture; }
 	//inline const D3DXIMAGE_INFO& cTexture::GetImageInfo() const { return m_imageInfo; }
 	inline const StrPath& cTexture::GetTextureName() const { return m_fileName; }
 }

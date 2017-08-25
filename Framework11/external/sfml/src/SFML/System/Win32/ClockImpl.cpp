@@ -46,8 +46,8 @@ namespace
     bool isWindowsXpOrOlder()
     {
         // Windows XP was the last 5.x version of Windows
-        return static_cast<DWORD>(LOBYTE(LOWORD(GetVersion()))) < 6;
-		//return false;
+        //return static_cast<DWORD>(LOBYTE(LOWORD(GetVersion()))) < 6;
+		return false;
     }
 }
 

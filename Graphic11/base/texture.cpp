@@ -7,8 +7,9 @@ using namespace graphic;
 
 
 cTexture::cTexture() 
-	//: m_texture(NULL)
-	: m_isReferenceMode(false)
+	: m_texture(NULL)
+	, m_rawTex(NULL)
+	,  m_isReferenceMode(false)
 	, m_customTexture(false)
 {
 }
@@ -31,7 +32,6 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 			return false;
 	}
 
-	// 텍스쳐 사이즈 저장.
 	ID3D11Resource *res;
 	m_texture->GetResource(&res);
 
@@ -47,25 +47,47 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 }
 
 
-//bool cTexture::Create(cRenderer &renderer, const int width, const int height, const D3DFORMAT format)
-//{
-//	Clear();
-//
-//	//if (FAILED(renderer.GetDevice()->CreateTexture( width, height, 1, 0, format, 
-//	//	D3DPOOL_MANAGED, &m_texture, NULL )))
-//	//	return false;
-//
-//	//D3DLOCKED_RECT lockrect;
-//	//m_texture->LockRect( 0, &lockrect, NULL, 0 );
-//	//memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
-//	//m_texture->UnlockRect( 0 );
-//
-//	//m_customTexture = true;
-//	//m_imageInfo.Width = width;
-//	//m_imageInfo.Height = height;
-//	//m_imageInfo.Format = format;
-//	return true;
-//}
+bool cTexture::Create(cRenderer &renderer, const int width, const int height
+	, const DXGI_FORMAT format //=DXGI_FORMAT_R8G8B8A8_UNORM
+)
+{
+	Clear();
+
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = format;
+	desc.SampleDesc.Count = 1;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	if (FAILED(renderer.GetDevice()->CreateTexture2D(&desc, NULL, &m_rawTex)))
+		return false;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC rdesc;
+	ZeroMemory(&rdesc, sizeof(rdesc));
+	rdesc.Format = format;
+	rdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	rdesc.Texture2D.MipLevels = 1;
+
+	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_rawTex, &rdesc, &m_texture)))
+		return false;
+
+	//D3DLOCKED_RECT lockrect;
+	//m_texture->LockRect( 0, &lockrect, NULL, 0 );
+	//memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
+	//m_texture->UnlockRect( 0 );
+
+	m_customTexture = true;
+	m_imageInfo.Width = width;
+	m_imageInfo.Height = height;
+	m_imageInfo.Format = format;
+	return true;
+}
 
 
 void cTexture::Bind(cRenderer &renderer
@@ -169,18 +191,20 @@ void cTexture::CopyFrom(cTexture &src)
 //}
 
 
-//bool cTexture::Lock(D3DLOCKED_RECT &out)
-//{
-//	//out.pBits = NULL;
-//	//RETV(!m_texture, false);
-//	//m_texture->LockRect( 0, &out, NULL, 0 );
-//	return true;
-//}
-
-
-void cTexture::Unlock()
+void* cTexture::Lock(cRenderer &renderer)
 {
-//	m_texture->UnlockRect( 0 );
+	D3D11_MAPPED_SUBRESOURCE res;
+	ZeroMemory(&res, sizeof(res));
+	HRESULT hr = renderer.GetDevContext()->Map(m_rawTex, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	if (FAILED(hr))
+		return NULL;
+	return res.pData;
+}
+
+
+void cTexture::Unlock(cRenderer &renderer)
+{
+	renderer.GetDevContext()->Unmap(m_rawTex, 0);
 }
 
 
@@ -188,6 +212,7 @@ void cTexture::Clear()
 {
 	m_fileName.clear();
 	SAFE_RELEASE(m_texture);
+	SAFE_RELEASE(m_rawTex);
 }
 
 
@@ -202,137 +227,69 @@ bool cTexture::WritePNGFile( const StrPath &fileName )
 }
 
 
-// Render Text String on Texture
-void cTexture::TextOut(const Str128 &text, const int x, const int y, const DWORD color)
-{
-	//RET(!m_texture);
-
-	//IDirect3DSurface9* ppSurface = NULL;
-	//HDC mDC = NULL;
-	//if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
-	//{
-	//	if (ppSurface->GetDC(&mDC) == D3D_OK)
-	//	{
-	//		SelectObject(mDC, font.m_font);
-	//		SetTextColor(mDC, color);
-	//		SetBkMode(mDC, TRANSPARENT);
-	//		TextOutA(mDC, x, y, text.c_str(), text.size());
-	//		ppSurface->ReleaseDC(mDC);
-	//	}
-	//	ppSurface->Release();
-	//}
-}
-
-
-// Render Text String on Texture
-void cTexture::DrawText(const Str128 &text, const sRecti &rect, const DWORD color)
-{
-	//RET(!m_texture);	
-
-	//IDirect3DSurface9* ppSurface = NULL;
-	//HDC mDC = NULL;
-	//if (m_texture->GetSurfaceLevel(0, &ppSurface) == D3D_OK)
-	//{
-	//	if (ppSurface->GetDC(&mDC) == D3D_OK)
-	//	{
-	//		SelectObject(mDC, font.m_font);
-	//		SetTextColor(mDC, color);
-	//		SetBkMode(mDC, TRANSPARENT);
-	//		::DrawTextA(mDC, text.c_str(), -1, (RECT*)&rect, DT_CENTER | DT_WORDBREAK);
-	//		ppSurface->ReleaseDC(mDC);
-	//	}
-	//	ppSurface->Release();
-	//}
-}
-
-
 // Render Text String on Texture using GdiPlus
 // https://www.codeproject.com/Articles/42529/Outline-Text
-bool cTexture::DrawText2(cRenderer &renderer, const Str128 &szText
+bool cTexture::DrawText(cRenderer &renderer, const wchar_t *szText
 	, const cColor &color, const cColor &outlineColor
 	, Vector2 &textSize)
 {
-	//using namespace Gdiplus;
-	//Graphics* pGraphics = new Graphics(renderer.m_textMgr.m_graphicBuffer.get());
-	//if (!pGraphics)
-	//	return false;
+	using namespace Gdiplus;
+	Graphics &g = *renderer.m_textMgr.m_graphic.get();
 
-	//const int fontSize = 28;
-	//pGraphics->SetSmoothingMode(SmoothingModeAntiAlias);
-	//pGraphics->SetInterpolationMode(InterpolationModeHighQualityBicubic);
-	//pGraphics->SetPageUnit(UnitPixel);
+	const int fontSize = 28;
+	g.SetSmoothingMode(SmoothingModeAntiAlias);
+	g.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+	g.SetPageUnit(UnitPixel);
 
-	//if (!pGraphics)
-	//	return false;
+	FontFamily fontFamily(L"Arial");
+	StringFormat strformat;
 
-	//FontFamily fontFamily(L"Arial");
-	//StringFormat strformat;
+	TextDesigner::PngOutlineText text;
 
-	//TextDesigner::PngOutlineText text;
+	const Vector4 tColor = color.GetColor();
+	const Vector4 oColor = outlineColor.GetColor();
+	text.TextOutline(Color((int)(tColor.x*255), (int)(tColor.y * 255), (int)(tColor.z * 255))
+		, Color((int)(oColor.x * 255), (int)(oColor.y * 255), (int)(oColor.z * 255)), 4);
+	text.EnableShadow(false);
 
-	//const Vector4 tColor = color.GetColor();
-	//const Vector4 oColor = outlineColor.GetColor();
-	//text.TextOutline(Color((int)(tColor.x*255), (int)(tColor.y * 255), (int)(tColor.z * 255))
-	//	, Color((int)(oColor.x * 255), (int)(oColor.y * 255), (int)(oColor.z * 255)), 4);
-	//text.EnableShadow(false);
+	float fWidth = 0.0f;
+	float fHeight = 0.0f;
+	text.MeasureString(&g, &fontFamily, FontStyleBold,
+		fontSize, szText, Gdiplus::Point(0, 0), &strformat,
+		NULL, NULL, &fWidth, &fHeight);
+	textSize.x = fWidth;
+	textSize.y = fHeight;
 
-	//wstring wstr = str2wstr(szText.c_str());
-	//float fWidth = 0.0f;
-	//float fHeight = 0.0f;
-	//text.MeasureString(pGraphics, &fontFamily, FontStyleBold,
-	//	fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat,
-	//	NULL, NULL, &fWidth, &fHeight);
-	//textSize.x = fWidth;
-	//textSize.y = fHeight;
+	std::shared_ptr<Gdiplus::Bitmap> pbmp = renderer.m_textMgr.m_textBmp;
+	Graphics &clearTxtBmp = *renderer.m_textMgr.m_graphicText.get();
+	clearTxtBmp.Clear(Gdiplus::Color(0,255,255,255));
+	//clearTxtBmp.Clear(Gdiplus::Color(255, 255, 255, 255));
 
-	//std::shared_ptr<Gdiplus::Bitmap> pbmp = renderer.m_textMgr.m_textBuffer;
-	//Graphics g(pbmp.get());
-	//g.Clear(Gdiplus::Color(0,255,255,255));
+	text.SetPngImage(pbmp);
+	text.DrawString(&g, &fontFamily, FontStyleBold,
+		fontSize, szText, Gdiplus::Point(0, 0), &strformat);
 
-	//text.SetPngImage(pbmp);
-	//text.DrawString(pGraphics, &fontFamily, FontStyleBold,
-	//	fontSize, wstr.c_str(), Gdiplus::Point(0, 0), &strformat);
+	Rect rect1(0, 0, pbmp->GetWidth(), pbmp->GetHeight());
+	BitmapData bitmapData;
+	memset(&bitmapData, 0, sizeof(bitmapData));
+	pbmp->LockBits(
+		&rect1,
+		ImageLockModeRead,
+		PixelFormat32bppARGB,
+		&bitmapData);
 
-	//if (pGraphics)
-	//{
-	//	delete pGraphics;
-	//	pGraphics = NULL;
-	//}
+	const int pitch = abs(bitmapData.Stride);
+	UINT* pixels = (UINT*)bitmapData.Scan0;
+	if (!pixels)
+		return false;
 
-	//Rect rect1(0, 0, pbmp->GetWidth(), pbmp->GetHeight());
-	//BitmapData bitmapData;
-	//memset(&bitmapData, 0, sizeof(bitmapData));
-	//pbmp->LockBits(
-	//	&rect1,
-	//	ImageLockModeRead,
-	//	PixelFormat32bppARGB,
-	//	&bitmapData);
+	if (UINT* dpixels = (UINT*)Lock(renderer))
+	{
+		memcpy(dpixels, pixels, bitmapData.Height*pitch);
+		Unlock(renderer);
+	}
 
-	//int nStride1 = bitmapData.Stride;
-	//if (nStride1 < 0)
-	//	nStride1 = -nStride1;
-	//UINT* pixels = (UINT*)bitmapData.Scan0;
-	//if (!pixels)
-	//	return false;
-
-	//D3DLOCKED_RECT dlock;
-	//if (Lock(dlock))
-	//{
-	//	UINT* dpixels = (UINT*)dlock.pBits;
-
-	//	for (UINT row = 0; row < bitmapData.Height; ++row)
-	//	{
-	//		for (UINT col = 0; col < bitmapData.Width; ++col)
-	//		{
-	//			dpixels[row*bitmapData.Width + col] = pixels[row * nStride1 / 4 + col];
-	//		}
-	//	}
-
-	//	//memcpy(dlock.pBits, slock.pBits, slock.Pitch * m_imageInfo.Height);
-	//	Unlock();
-	//}
-
-	//pbmp->UnlockBits(&bitmapData);
+	pbmp->UnlockBits(&bitmapData);
 
 	return true;
 }

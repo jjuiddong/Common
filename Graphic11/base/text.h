@@ -1,4 +1,8 @@
-// ¹®ÀÚ¿­ Ãâ·Â °´Ã¼.
+//
+// 2017-08-24, jjuiddong
+// DX11 Text Render Class
+// using FW1FontWrapper
+//
 #pragma once
 
 
@@ -10,43 +14,32 @@ namespace graphic
 	{
 	public:
 		cText();
-		cText(cRenderer &renderer, const Str128 &text, const int x, const int y,
-			const DWORD color=D3DXCOLOR(1,1,1,1),
-			const int fontSize=18, const bool isBold=true, const Str32 &fontName="±¼¸²");
+		cText(cRenderer &renderer
+			, const float fontSize=18.f, const bool isBold=true, const char *fontName="±¼¸²"
+			, const cColor &color = cColor::WHITE, const wchar_t *text = NULL);
 		virtual ~cText();
 
-		bool Create(cRenderer &renderer, const int fontSize = 18, const bool isBold = true, const Str32 &fontName = "±¼¸²",
-			cSprite *sprite=NULL);
-		void SetText(const Str128 &text);
-		void SetText(const int x, const int y, const Str128 &text);
-		const Str128& GetText() const;
-		void SetPos(const int x, const int y);
-		void SetPos(const float x, const float y);
-		const sRecti& GetPos() const;
-		void SetColor(const DWORD color);
-		DWORD GetColor() const;
-		void LostDevice();
-		void ResetDevice(cRenderer &renderer);
-		void Render();
+		bool Create(cRenderer &renderer, const float fontSize = 18.f, const bool isBold = true, const char *fontName = "±¼¸²"
+			, const cColor &color=cColor::WHITE, const wchar_t *text=NULL);
+		void Render(cRenderer &renderer, const float x, const float y, const wchar_t *text);
+		void Render(cRenderer &renderer, const float x, const float y);
+
+		void SetText(const wchar_t *text);
+		void SetColor(const cColor color);
+		cColor GetColor() const;
 		void Clear();
 
 
 	public:
-		ID3DXFont *m_font;
-		cSprite *m_sprite;
-		Str128 m_text;
-		sRecti m_rect;
+		WStr128 m_text;
 		DWORD m_color;
+		float m_fontSize;
+		IDWriteTextLayout *m_textLayout;
+		IFW1FontWrapper *m_fontWrapper; // reference
 	};
 
 
-	inline void cText::SetText(const Str128 &text) { m_text = text; }
-	inline void cText::SetText(const int x, const int y, const Str128 &text) {
-		m_text = text; m_rect.SetX(x); m_rect.SetY(y); }
-	inline const Str128& cText::GetText() const { return m_text; }
-	inline void cText::SetColor(const DWORD color) { m_color = color; }
-	inline DWORD cText::GetColor() const { return m_color; }
-	inline void cText::SetPos(const int x, const int y) { m_rect.SetX(x), m_rect.SetY(y); }
-	inline void cText::SetPos(const float x, const float y) { m_rect.SetX((int)x), m_rect.SetY((int)y); }
-	inline const sRecti& cText::GetPos() const { return m_rect; }
+	inline void cText::SetText(const wchar_t *text) { m_text = text; }
+	inline void cText::SetColor(const cColor color) { m_color = color.GetAbgr(); }
+	inline cColor cText::GetColor() const { return m_color; }
 }

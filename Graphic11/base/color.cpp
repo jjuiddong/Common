@@ -89,6 +89,16 @@ Vector4 cColor::GetColor() const
 }
 
 
+DWORD cColor::GetAbgr() const
+{
+	DWORD r = (m_color >> 24) << 24 
+		| (m_color & 0xFF) << 16
+		| ((m_color >> 8) & 0xFF) << 8 
+		| ((m_color >> 16) & 0xFF);
+	return r;
+}
+
+
 cColor::operator DWORD ()
 {
 	return m_color;

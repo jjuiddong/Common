@@ -250,6 +250,18 @@
     <ClInclude Include="manager\shadermanager.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="base\text.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\fontmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\textmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d3.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -477,6 +489,18 @@
     </ClCompile>
     <ClCompile Include="manager\shadermanager.cpp">
       <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\fontmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\textmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d3.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

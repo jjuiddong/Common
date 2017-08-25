@@ -250,13 +250,13 @@ Quaternion Matrix44::GetQuaternion() const
 	return q;
 
 // bug DX11 XMQuaternionRotationMatrix Function
-//#elif defined (USE_D3D11_MATH)
-//	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
-//	XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
-//	XMQuaternionNormalize(xq);
-//	Quaternion q;
-//	XMStoreFloat4((XMFLOAT4*)&q, xq);
-//	return q;
+#elif defined (USE_D3D11_MATH)
+	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
+	XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
+	XMQuaternionNormalize(xq);
+	Quaternion q;
+	XMStoreFloat4((XMFLOAT4*)&q, xq);
+	return q;
 
 #else
 	Quaternion q;
