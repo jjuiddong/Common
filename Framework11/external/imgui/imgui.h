@@ -15,10 +15,6 @@
 #include <stdarg.h>         // va_list
 #include <stddef.h>         // ptrdiff_t, NULL
 #include <string.h>         // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
-#include <Windows.h>
-#include <stdio.h>
-#include <d3d9.h>
-#include <d3dx9.h>
 
 #define IMGUI_VERSION       "1.50 WIP"
 

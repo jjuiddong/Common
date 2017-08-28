@@ -61,7 +61,7 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	m_title = StrId(" - ") + title + StrId(" - ");
 	m_camera.Init(&m_renderer);
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
-	m_camera.SetProjection(D3DX_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
+	m_camera.SetProjection(MATH_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
 	m_camera.SetViewPort(width, height);
 	m_camera.Bind(m_renderer);
 
@@ -73,21 +73,21 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	m_light.SetDirection(Vector3(1, -1, 1).Normal());
 
 	//m_renderer.SetNormalizeNormals(true);
-	m_renderer.SetLightEnable(0, true);
+	//m_renderer.SetLightEnable(0, true);
 	m_light.Bind(m_renderer, 0);
 
 	// ImGui Shared Device
 	if (shared)
 	{
 		m_sharedRenderer = shared;
-		//m_gui.Init(getSystemHandle(), shared->GetDevice());
+		m_gui.Init(getSystemHandle(), shared->GetDevice(), shared->GetDevContext());
 		//m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
 		//m_sharedSurf.Create(*shared, width, height, 1);
 	}
 	else
 	{
 		m_sharedRenderer = NULL;
-		//m_gui.Init(getSystemHandle(), m_renderer.GetDevice());
+		m_gui.Init(getSystemHandle(), m_renderer.GetDevice(), m_renderer.GetDevContext());
 		//m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
 		//m_sharedSurf.Create(m_renderer, width, height, 1);
 	}

@@ -142,6 +142,42 @@
     <ClInclude Include="ui\uidef.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="external\imgui\imgui.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imconfig.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_truetype.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_textedit.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_rect_pack.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_internal.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_impl_dx11.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\renderwindow.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dockwindow.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dockmanager.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dock.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="gamemain\gamemain2.h">
+      <Filter>gamemain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -234,6 +270,30 @@
     </ClCompile>
     <ClCompile Include="ui\eventhandler.cpp">
       <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_draw.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_demo.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_impl_dx11.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\renderwindow.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\dockwindow.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\dockmanager.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="gamemain\gamemain2.cpp">
+      <Filter>gamemain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

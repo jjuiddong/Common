@@ -68,15 +68,11 @@
 //#include "ui/button.h"
 //#include "window/scene.h"
 
-//#include "window/utility.h"
-//#include "ui/dockmanager.h"
-//#include "ui/renderwindow.h"
-
 
 // ImGui
 #define IMGUI_DEFINE_MATH_OPERATORS
-//#include "external/imgui/imgui.h"
-//#include "external/imgui/imgui_impl_dx9.h"
+#include "external/imgui/imgui.h"
+#include "external/imgui/imgui_impl_dx11.h"
 
 // SFML
 #pragma warning(push)
@@ -86,3 +82,9 @@
 
 #include "input/input.h"
 
+
+//#include "window/utility.h"
+#include "ui/dockwindow.h"
+#include "ui/dockmanager.h"
+#include "ui/renderwindow.h"
+#include "gamemain/GameMain2.h"

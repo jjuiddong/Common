@@ -345,32 +345,32 @@ void cRenderer::EndScene()
 
 	// AlphaBlending Render, Sorting Camera Position
 	// Descent Distance from Camera
-	//for (auto &space : m_alphaSpace)
-	//{
-	//	std::sort(space->renders.begin(), space->renders.end(),
-	//		[&](const sRenderObj &a, const sRenderObj &b)
-	//		{
-	//			const Vector3 c1 = a.p->m_boundingBox.Center() * a.tm;
-	//			const Vector3 c2 = b.p->m_boundingBox.Center() * b.tm;
-	//			const Plane plane1(a.normal, c1);
-	//			const Plane plane2(b.normal, c2);
-	//			const Vector3 dir1 = (c1 - camOrig).Normal();
-	//			const Vector3 dir2 = (c2 - camOrig).Normal();
+	for (auto &space : m_alphaSpace)
+	{
+		std::sort(space->renders.begin(), space->renders.end(),
+			[&](const sRenderObj &a, const sRenderObj &b)
+			{
+				const Vector3 c1 = a.p->m_boundingBox.Center() * a.tm;
+				const Vector3 c2 = b.p->m_boundingBox.Center() * b.tm;
+				const Plane plane1(a.normal, c1);
+				const Plane plane2(b.normal, c2);
+				const Vector3 dir1 = (c1 - camOrig).Normal();
+				const Vector3 dir2 = (c2 - camOrig).Normal();
 
-	//			Vector3 p1 = plane1.Pick(camOrig, dir2);
-	//			if (a.p->m_boundingSphere.m_radius*2 < (p1 - c1).Length())
-	//				p1 = plane1.Pick(camOrig, dir1);
+				Vector3 p1 = plane1.Pick(camOrig, dir2);
+				if (a.p->m_boundingSphere.m_bsphere.Radius*2 < (p1 - c1).Length())
+					p1 = plane1.Pick(camOrig, dir1);
 
-	//			Vector3 p2 = plane2.Pick(camOrig, dir1);
-	//			if (b.p->m_boundingSphere.m_radius*2 < (p2 - c2).Length())
-	//				p2 = plane2.Pick(camOrig, dir2);
+				Vector3 p2 = plane2.Pick(camOrig, dir1);
+				if (b.p->m_boundingSphere.m_bsphere.Radius*2 < (p2 - c2).Length())
+					p2 = plane2.Pick(camOrig, dir2);
 
-	//			const float l1 = p1.LengthRoughly(camOrig);
-	//			const float l2 = p2.LengthRoughly(camOrig);
-	//			return l1 > l2;
-	//		}
-	//	);
-	//}
+				const float l1 = p1.LengthRoughly(camOrig);
+				const float l2 = p2.LengthRoughly(camOrig);
+				return l1 > l2;
+			}
+		);
+	}
 
 	for (auto &p : m_alphaSpace)
 		for (auto &data : p->renders)

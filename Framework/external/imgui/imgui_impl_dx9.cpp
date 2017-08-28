@@ -37,8 +37,6 @@ struct CUSTOMVERTEX
 cImGui::cImGui()
 	: m_context(NULL)
 {
-
-
 }
 
 cImGui::~cImGui()
