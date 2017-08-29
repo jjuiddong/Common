@@ -22,7 +22,7 @@ namespace framework
 			SHUTDOWN,
 		};
 
-		virtual bool Init(HWND hWnd);
+		virtual bool Init(HINSTANCE hInstance, HWND hWnd);
 		virtual void ShutDown();
 		virtual void Run();
 		virtual void Update(const float deltaSeconds);
@@ -49,6 +49,7 @@ namespace framework
 
 	public:
 		STATE m_state;
+		HINSTANCE m_hInstance;
 		HWND m_hWnd;
 		wstring m_windowName;
 		sRecti m_windowRect;

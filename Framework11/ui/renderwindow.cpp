@@ -53,7 +53,7 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	__super::create(sf::VideoMode(width, height), title.c_str(),
 		(isTitleBar? sf::Style::Default : sf::Style::None));
 
-	if (!m_renderer.CreateDirectX(getSystemHandle(), width, height))// , s_adapter++))
+	if (!m_renderer.CreateDirectX(true, getSystemHandle(), width, height))// , s_adapter++))
 	{
 		return false;
 	}

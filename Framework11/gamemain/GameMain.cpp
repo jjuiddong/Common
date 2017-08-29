@@ -4,7 +4,6 @@
 #include <MMSystem.h>
 #include <chrono>
 #include <thread>
-#include "../window/utility.h"
 
 //#include "../../wxMemMonitorLib/wxMemMonitor.h"
 //MEMORYMONITOR_INNER_PROCESS();
@@ -15,7 +14,8 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 //------------------------------------------------------------------------
 // WindowMain ÇÔ¼ö
 //------------------------------------------------------------------------
-int framework::FrameWorkWinMain(HINSTANCE hInstance, 
+int framework::FrameWorkWinMain(
+	HINSTANCE hInstance, 
 	HINSTANCE hPrevInstance, 
 	LPSTR lpCmdLine, 
 	int nCmdShow,
@@ -38,13 +38,22 @@ int framework::FrameWorkWinMain(HINSTANCE hInstance,
 
 	srand((int)timeGetTime());
 
-	if (!cGameMain::Get()->Init(hWnd))
+	ULONG_PTR gdiplusToken;
+	using namespace Gdiplus;
+	// Initialize GDI+
+	GdiplusStartupInput gdiplusStartupInput;
+	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+	if (!cGameMain::Get()->Init(hInstance, hWnd))
 		return 0;
 
 	cGameMain::Get()->Run();
 	cGameMain::Get()->ShutDown();
 	cGameMain::Release();
 	//memmonitor::Cleanup();
+	// Shutdown GDI+
+	Gdiplus::GdiplusShutdown(gdiplusToken);
+
 	return 0;
 }
 
@@ -118,12 +127,13 @@ void cGameMain::Release()
 }
 
 
-bool cGameMain::Init(HWND hWnd)
+bool cGameMain::Init(HINSTANCE hInstance, HWND hWnd)
 {
 	m_state = INIT;
+	m_hInstance = hInstance;
 	m_hWnd = hWnd;
 
-	if (!m_renderer.CreateDirectX(hWnd, m_windowRect.Width(), m_windowRect.Height()))
+	if (!m_renderer.CreateDirectX(true, hWnd, m_windowRect.Width(), m_windowRect.Height()))
 	{
 		return false;
 	}
@@ -192,17 +202,17 @@ void cGameMain::Update(const float deltaSeconds)
 
 void cGameMain::Render(const float deltaSeconds)
 {
-	if (m_renderer.ClearScene())
+	//if (m_renderer.ClearScene())
 	{
 		//if (m_currentScene)
 		//	m_currentScene->Render(m_renderer, Matrix44::Identity);
 
 		OnRender(deltaSeconds);
 	}
-	else
-	{
-		OnLostDevice();
-	}
+	//else
+	//{
+	//	OnLostDevice();
+	//}
 }
 
 

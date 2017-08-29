@@ -5,9 +5,13 @@
 using namespace framework;
 
 
-HWND framework::InitWindow(HINSTANCE hInstance, const wstring &windowName, const sRecti &windowRect, int nCmdShow, WNDPROC WndProc,
-	const bool dualMonitor)
-	// dualMonitor=false
+HWND framework::InitWindow(HINSTANCE hInstance
+	, const wstring &windowName
+	, const sRecti &windowRect
+	, int nCmdShow
+	, WNDPROC WndProc
+	, const bool dualMonitor //=false
+)
 {
 	const int X = windowRect.left;
 	const int Y = windowRect.top;

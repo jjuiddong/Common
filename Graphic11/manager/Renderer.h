@@ -21,9 +21,8 @@ namespace graphic
 		cRenderer();
 		virtual ~cRenderer();
 
-		bool CreateDirectX(HWND hWnd, const int width, const int height
-			//, const UINT adapter = D3DADAPTER_DEFAULT
-			);
+		bool CreateDirectX(const bool isImmediate, HWND hWnd, const int width, const int height
+			, ID3D11Device *device = NULL);
 		void Update(const float elpaseT);
 		ID3D11Device* GetDevice();
 		ID3D11DeviceContext* GetDevContext();
@@ -40,6 +39,9 @@ namespace graphic
 		void BeginScene();
 		void Present();
 		void EndScene();
+		void SetRenderTarget(ID3D11RenderTargetView *renderTargetView, ID3D11DepthStencilView *depthStencilView);
+		void ExecuteCommandList(ID3D11CommandList *cmdList);
+		void FinishCommandList();
 
 		void RenderAxis();
 		void RenderFPS();
@@ -63,13 +65,16 @@ namespace graphic
 
 
 	public:
-		HWND m_hWnd;
+		bool m_isImmediateMode; // immediate or deferred mode, default: true
 		ID3D11Device *m_d3dDevice;
-		ID3D11DeviceContext *m_immediateContext;
+
+		HWND m_hWnd;
+		ID3D11DeviceContext *m_devContext;
 		IDXGISwapChain *m_swapChain;
 		ID3D11RenderTargetView *m_renderTargetView;
 		ID3D11Texture2D *m_depthStencil;
 		ID3D11DepthStencilView *m_depthStencilView;
+		ID3D11CommandList *m_cmdList;
 
 		//D3DPRESENT_PARAMETERS m_params;
 		cViewport m_viewPort;
@@ -87,12 +92,6 @@ namespace graphic
 
 		vector<sVertexDiffuse> m_grid;
 		vector<sVertexDiffuse> m_axis;
-
-		// Common Primitive
-
-
-
-		ULONG_PTR gdiplusToken;
 
 		// Display FPS 
 		cText m_textFps;
@@ -112,6 +111,6 @@ namespace graphic
 	// 렌더러 초기화.
 	void ReleaseRenderer();
 	inline ID3D11Device* cRenderer::GetDevice() { return m_d3dDevice; }
-	inline ID3D11DeviceContext* cRenderer::GetDevContext() {return m_immediateContext;}
+	inline ID3D11DeviceContext* cRenderer::GetDevContext() {return m_devContext;}
 	inline HWND cRenderer::GetHwnd() const { return m_hWnd; }
 }

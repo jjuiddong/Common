@@ -23,8 +23,9 @@ void graphic::ReleaseRenderer()
 
 cRenderer::cRenderer() 
 	: m_elapseTime(0)
+	, m_isImmediateMode(true)
 	, m_d3dDevice(NULL)
-	, m_immediateContext(NULL)
+	, m_devContext(NULL)
 	, m_swapChain(NULL)
 	, m_renderTargetView(NULL)
 	, m_depthStencil(NULL)
@@ -51,29 +52,36 @@ cRenderer::~cRenderer()
 	SAFE_RELEASE(m_depthStencil);
 	SAFE_RELEASE(m_depthStencilView);
 	SAFE_RELEASE(m_swapChain);
-	SAFE_RELEASE(m_immediateContext);
-	SAFE_RELEASE(m_d3dDevice);
+	SAFE_RELEASE(m_devContext);
 
-	// Shutdown GDI+
-	Gdiplus::GdiplusShutdown(gdiplusToken);
+	if (m_isImmediateMode)
+		SAFE_RELEASE(m_d3dDevice);
+	m_d3dDevice = NULL;
 }
 
 
 // DirectX Device °´Ã¼ »ý¼º.
-bool cRenderer::CreateDirectX(HWND hWnd, const int width, const int height 
-	//, const UINT adapter // = D3DADAPTER_DEFAULT
-	)
+bool cRenderer::CreateDirectX(const bool isImmediate, HWND hWnd, const int width, const int height
+	, ID3D11Device *device //= NULL
+)
 {
-	if (!InitDirectX11(hWnd, width, height, 0, &m_d3dDevice, &m_immediateContext
-		, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
-		return false;
+	if (isImmediate)
+	{
+		if (!InitDirectX11(hWnd, width, height, &m_d3dDevice, &m_devContext
+			, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
+			return false;
+	}
+	else
+	{
+		if (!InitDirectX11Deferred(device, hWnd, width, height, &m_devContext
+			, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
+			return false;
 
+		m_d3dDevice = device;
+	}
+
+	m_isImmediateMode = isImmediate;
 	m_hWnd = hWnd;
-
-	using namespace Gdiplus;
-	// Initialize GDI+
-	GdiplusStartupInput gdiplusStartupInput;
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 	m_viewPort.Create(0, 0, (float)width, (float)height, 0, 1.f);
 	m_viewPort.Bind(*this);
@@ -309,11 +317,11 @@ bool cRenderer::ClearScene()
 	//{
 	//	return true;
 	//}
+	//SetRenderTarget(m_renderTargetView, m_depthStencilView);
 
 	float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
-	m_immediateContext->ClearRenderTargetView(m_renderTargetView, ClearColor);
-
-	m_immediateContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_devContext->ClearRenderTargetView(m_renderTargetView, ClearColor);
+	m_devContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	return true;
 }
@@ -322,15 +330,32 @@ bool cRenderer::ClearScene()
 void cRenderer::BeginScene()
 {
 	//GetDevice()->BeginScene();
-
 	AddAlphaBlendSpace(cBoundingBox());
 }
 
 
 void cRenderer::Present()
 {
-	//GetDevice()->Present(NULL, NULL, NULL, NULL);
 	m_swapChain->Present(0, 0);
+}
+
+
+void cRenderer::ExecuteCommandList(ID3D11CommandList *cmdList)
+{
+	m_devContext->ExecuteCommandList(cmdList, false);
+}
+
+
+void cRenderer::FinishCommandList()
+{
+	SAFE_RELEASE(m_cmdList);
+	m_devContext->FinishCommandList(false, &m_cmdList);
+}
+
+
+void cRenderer::SetRenderTarget(ID3D11RenderTargetView *renderTargetView, ID3D11DepthStencilView *depthStencilView)
+{
+	m_devContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 }
 
 
