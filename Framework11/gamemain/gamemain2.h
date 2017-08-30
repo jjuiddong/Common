@@ -19,7 +19,7 @@ namespace framework
 		virtual bool Init();
 		virtual void Update(const float deltaSeconds) override;
 		virtual void LostDevice() override;
-		virtual void ResetDevice(graphic::cRenderer *shared = NULL) override;
+		virtual void ResetDevice() override;
 		virtual void Exit();
 
 
@@ -29,9 +29,10 @@ namespace framework
 
 	public:
 		HWND m_hWnd;
-		wstring m_windowName;
+		WStrId m_windowName;
 		sRecti m_windowRect;
 	};
+
 
 	// 프레임워크 매인 함수.
 	int FrameWorkWinMain2(HINSTANCE hInstance,

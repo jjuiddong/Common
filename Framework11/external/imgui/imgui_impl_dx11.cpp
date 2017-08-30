@@ -527,7 +527,8 @@ void    cImGui::InvalidateDeviceObjects()
     if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
 }
 
-bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* device_context)
+bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* device_context
+	, ImFontAtlas *font)
 {
     g_hWnd = (HWND)hwnd;
     g_pd3dDevice = device;
@@ -561,9 +562,10 @@ bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* devi
 
     //io.RenderDrawListsFn = RenderDrawLists;  // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
     io.ImeWindowHandle = g_hWnd;
-
+	
+	m_FontAtlas = (font) ? font : new ImFontAtlas;
 	m_context = ImGui::CreateContext();
-	m_context->IO.Fonts = &m_FontAtlas;
+	m_context->IO.Fonts = m_FontAtlas;
 
     return true;
 }

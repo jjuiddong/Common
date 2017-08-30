@@ -34,7 +34,7 @@ public:
 	cImGui();
 	virtual ~cImGui();
 
-	bool Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* device_context);
+	bool Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* device_context, ImFontAtlas *font);
 	LRESULT WndProcHandler(HWND, UINT msg, WPARAM wParam, LPARAM lParam);
 	void Shutdown();
 	void NewFrame();
@@ -82,5 +82,5 @@ public:
 	int                      g_VertexBufferSize = 5000, g_IndexBufferSize = 10000;
 
 	ImGuiContext *m_context;
-	ImFontAtlas m_FontAtlas;
+	ImFontAtlas *m_FontAtlas;
 };

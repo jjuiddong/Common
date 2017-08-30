@@ -9,8 +9,6 @@
 using namespace graphic;
 using namespace framework;
 
-int cDockWindow::s_id = 1;
-
 
 cDockWindow::cDockWindow(const StrId &name //=""
 //	, const sDockSizingOption &sizingOpt //= defaultSizingOption
@@ -149,7 +147,7 @@ bool cDockWindow::Undock(const bool newWindow) // = true
 		const int width = 800;
 		const int height = 600;
 		cImGui *oldGui = &m_owner->m_gui;
-		cRenderWindow *window = cDockManager::Get()->NewRenderWindow(m_name, width, height, m_owner->m_sharedRenderer);
+		cRenderWindow *window = cDockManager::Get()->NewRenderWindow(m_name, width, height);
 		window->m_dock = this;
 		m_parent = NULL;
 		m_owner = window;
@@ -861,16 +859,16 @@ void cDockWindow::LostDevice()
 }
 
 
-void cDockWindow::ResetDevice(graphic::cRenderer *shared)//= NULL
+void cDockWindow::ResetDevice()
 {
-	OnResetDevice(shared);
+	OnResetDevice();
 
 	if (m_lower)
-		m_lower->ResetDevice(shared);
+		m_lower->ResetDevice();
 	for (auto &p : m_tabs)
-		p->ResetDevice(shared);
+		p->ResetDevice();
 	if (m_upper)
-		m_upper->ResetDevice(shared);
+		m_upper->ResetDevice();
 }
 
 
@@ -966,6 +964,12 @@ void cDockWindow::ReleaseCapture()
 {
 	if (m_owner)
 		m_owner->ReleaseCapture();
+}
+
+
+cRenderer& cDockWindow::GetRenderer()
+{
+	return m_owner->m_renderer;
 }
 
 

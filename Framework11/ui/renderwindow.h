@@ -45,15 +45,15 @@ namespace framework
 		cRenderWindow();
 		virtual ~cRenderWindow();
 
-		virtual bool Create(const StrId &title, const int width, const int height
-			, graphic::cRenderer *shared=NULL, bool isTitleBar= true);
+		virtual bool Create(const bool isMainWindow, const StrId &title, const int width, const int height
+			, cRenderWindow *mainWindow = NULL, bool isTitleBar=true);
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender(const float deltaSeconds);
 		virtual void PostRender(const float deltaSeconds);
 		virtual void Render(const float deltaSeconds);
 		virtual bool TranslateEvent();
 		virtual void LostDevice();
-		virtual void ResetDevice(graphic::cRenderer *shared=NULL);
+		virtual void ResetDevice();
 		cDockWindow* GetSizerTargetWindow(const Vector2 &mousePt);
 		void RequestResetDeviceNextFrame();
 		void Sleep();
@@ -86,7 +86,7 @@ namespace framework
 		virtual void OnPostRender(const float deltaSeconds) {}
 		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void OnLostDevice() {}
-		virtual void OnResetDevice(graphic::cRenderer *shared) {}
+		virtual void OnResetDevice() {}
 
 
 	public:
@@ -98,10 +98,8 @@ namespace framework
 		graphic::cCamera m_camera;
 		graphic::cLight m_light;
 		graphic::cRenderer m_renderer;
-		graphic::cRenderer *m_sharedRenderer;
+		cRenderWindow *m_mainWindow; // reference
 		cImGui m_gui;
-		graphic::cTexture m_backBuffer;
-		//graphic::cSurface3 m_sharedSurf;
 		cDockWindow *m_dock;
 		cDockWindow *m_captureDock;
 

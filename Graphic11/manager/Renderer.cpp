@@ -23,13 +23,15 @@ void graphic::ReleaseRenderer()
 
 cRenderer::cRenderer() 
 	: m_elapseTime(0)
-	, m_isImmediateMode(true)
+	, m_isMainRenderer(true)
+	, m_isThreadRender(false)
 	, m_d3dDevice(NULL)
 	, m_devContext(NULL)
 	, m_swapChain(NULL)
 	, m_renderTargetView(NULL)
-	, m_depthStencil(NULL)
 	, m_depthStencilView(NULL)
+	, m_refRTV(NULL)
+	, m_refDSV(NULL)
 	, m_fps(0)
 	, m_isDbgRender(false)
 	, m_dbgRenderStyle(0)
@@ -49,38 +51,70 @@ cRenderer::~cRenderer()
 	m_alphaSpaceBuffer.clear();
 
 	SAFE_RELEASE(m_renderTargetView);
-	SAFE_RELEASE(m_depthStencil);
 	SAFE_RELEASE(m_depthStencilView);
 	SAFE_RELEASE(m_swapChain);
-	SAFE_RELEASE(m_devContext);
+	m_refRTV = NULL;
+	m_refDSV = NULL;
 
-	if (m_isImmediateMode)
+	if (m_isMainRenderer)
 		SAFE_RELEASE(m_d3dDevice);
+
+	if (m_isMainRenderer || m_isThreadRender) // main renderer or deferred context
+		SAFE_RELEASE(m_devContext);
+
 	m_d3dDevice = NULL;
 }
 
 
 // DirectX Device 객체 생성.
-bool cRenderer::CreateDirectX(const bool isImmediate, HWND hWnd, const int width, const int height
-	, ID3D11Device *device //= NULL
-)
+bool cRenderer::CreateDirectX(const bool isThreadRender, HWND hWnd, const int width, const int height)
 {
-	if (isImmediate)
+	if (!InitDirectX11(hWnd, width, height, &m_d3dDevice, &m_devContext
+		, &m_swapChain, &m_renderTargetView, &m_depthStencilView))
+		return false;
+
+	m_isMainRenderer = true;
+	m_isThreadRender = isThreadRender;
+
+	InitRenderer(hWnd, width, height);
+
+	return true;
+}
+
+
+bool cRenderer::CreateDirectXSubRenderer(const bool isThreadRender, HWND hWnd, const int width, const int height
+	, ID3D11Device *device, ID3D11DeviceContext *devContext )
+{
+	const bool isCreateImmediateMode = !isThreadRender;
+
+	if (isCreateImmediateMode)
 	{
-		if (!InitDirectX11(hWnd, width, height, &m_d3dDevice, &m_devContext
-			, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
+		if (!InitDirectX11SwapChain(device, hWnd, width, height 
+			, &m_swapChain, &m_renderTargetView, &m_depthStencilView))
 			return false;
 	}
 	else
 	{
 		if (!InitDirectX11Deferred(device, hWnd, width, height, &m_devContext
-			, &m_swapChain, &m_renderTargetView, &m_depthStencil, &m_depthStencilView))
+			, &m_swapChain, &m_renderTargetView, &m_depthStencilView))
 			return false;
-
-		m_d3dDevice = device;
 	}
 
-	m_isImmediateMode = isImmediate;
+	m_d3dDevice = device;
+	m_devContext = devContext;
+
+	m_isMainRenderer = false;
+	m_isThreadRender = isThreadRender;
+
+	InitRenderer(hWnd, width, height);
+
+	return true;
+}
+
+
+// Initialize Renderer
+void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
+{
 	m_hWnd = hWnd;
 
 	m_viewPort.Create(0, 0, (float)width, (float)height, 0, 1.f);
@@ -92,8 +126,7 @@ bool cRenderer::CreateDirectX(const bool isImmediate, HWND hWnd, const int width
 
 	m_textMgr.Create(256);
 
-
-	//------------------------------------------------------------------------------------------------------
+	//---------------------------------------------------------
 	// Initialize Shader
 	D3D11_INPUT_ELEMENT_DESC pos_color[] =
 	{
@@ -134,6 +167,7 @@ bool cRenderer::CreateDirectX(const bool isImmediate, HWND hWnd, const int width
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
 
+
 	m_textFps.Create(*this, 20, true, "Arial");
 	//m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
@@ -143,34 +177,12 @@ bool cRenderer::CreateDirectX(const bool isImmediate, HWND hWnd, const int width
 	//m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//m_dbgSphere.Create(*this, 1, 10, 10);
 	//m_dbgAxis.Create(*this);
-
-	return true;
 }
 
 
 // x, y, z 축을 출력한다.
 void cRenderer::RenderAxis()
 {
-	//RET(!m_pDevice);
-
-	//if (m_axis.empty())
-	//	MakeAxis(500.f,  D3DXCOLOR(1,0,0,0),  D3DXCOLOR(0,1,0,0),  D3DXCOLOR(0,0,1,0), m_axis);
-
-	// 가장 위에 출력되기 위해서 zbuffer 를 끈다.
-	//m_pDevice->SetRenderState(D3DRS_ZENABLE, 0);
-
-	//DWORD lighting;
-	//m_pDevice->GetRenderState( D3DRS_LIGHTING, &lighting );
-	//m_pDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
-
-	//m_pDevice->SetTexture(0, NULL);
-	//Matrix44 identity;
-	//m_pDevice->SetTransform( D3DTS_WORLD, (D3DXMATRIX*)&identity );
-	//m_pDevice->SetFVF( sVertexDiffuse::FVF );
-	//m_pDevice->DrawPrimitiveUP( D3DPT_LINELIST, 3, &m_axis[0], sizeof(sVertexDiffuse) );
-	//m_pDevice->SetRenderState( D3DRS_LIGHTING, lighting );
-
-	//m_pDevice->SetRenderState(D3DRS_ZENABLE, 1);
 }
 
 
@@ -184,29 +196,7 @@ void cRenderer::RenderFPS()
 // 그리드 출력.
 void cRenderer::RenderGrid()
 {
-	static int gridSize = 0;
-	if (m_grid.empty())
-	{
-		//MakeGrid(10, 64, D3DXCOLOR(0.8f,0.8f,0.8f,1), m_grid);
-		//gridSize = m_grid.size() / 2;
-	}
 
-	if (gridSize > 0)
-	{
-		// 가장 위에 출력되기 위해서 zbuffer 를 끈다.
-		//m_pDevice->SetRenderState(D3DRS_ZENABLE, 0);
-
-		//DWORD lighting;
-		//m_pDevice->GetRenderState( D3DRS_LIGHTING, &lighting );
-		//m_pDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
-		//m_pDevice->SetTexture(0, NULL);
-		//Matrix44 identity;
-		//m_pDevice->SetTransform( D3DTS_WORLD, (D3DXMATRIX*)&identity );
-		//m_pDevice->SetFVF( sVertexDiffuse::FVF );
-		//m_pDevice->DrawPrimitiveUP( D3DPT_LINELIST, gridSize, &m_grid[0], sizeof(sVertexDiffuse) );
-		//m_pDevice->SetRenderState( D3DRS_LIGHTING, lighting);
-		//m_pDevice->SetRenderState(D3DRS_ZENABLE, 1);
-	}
 }
 
 
@@ -226,102 +216,16 @@ void cRenderer::Update(const float elapseT)
 }
 
 
-// 격자무늬 버텍스를 만든다. 
-// width = 격자 하나의 폭 크기 (정 사각형이므로 인자값은 하나만 받는다)
-// count = 격자 가로 세로 개수
-void cRenderer::MakeGrid( const float width, const int count, DWORD color, vector<sVertexDiffuse> &out )
+bool cRenderer::ClearScene(
+	const bool updateRenderTarget //=true
+)
 {
-	if (out.empty())
-	{
-		//out.reserve(count * 4);
-		//const Vector3 start(count/2 * -width, 0, count/2 * width);
-
-		//for (int i=0; i < count+1; ++i)
-		//{
-		//	sVertexDiffuse vtx;
-		//	vtx.p = start;
-		//	vtx.p.x += (i * width);
-		//	vtx.c = color;
-		//	out.push_back(vtx);
-
-		//	vtx.p += Vector3(0, 0.001f,-width*count);
-		//	out.push_back(vtx);
-		//}
-
-		//for (int i=0; i < count+1; ++i)
-		//{
-		//	sVertexDiffuse vtx;
-		//	vtx.p = start;
-		//	vtx.p.z -= (i * width);
-		//	vtx.c = color;
-		//	out.push_back(vtx);
-
-		//	vtx.p += Vector3(width*count, 0.001f, 0);
-		//	out.push_back(vtx);
-		//}
-	}
-}
-
-
-// x, y, z 축을 만든다.
-void cRenderer::MakeAxis( const float length, DWORD xcolor, DWORD ycolor, DWORD zcolor, 
-	vector<sVertexDiffuse> &out )
-{
-	RET(!out.empty());
-
-	out.reserve(6);
-
-	sVertexDiffuse v;
-
-	//// x axis
-	//v.p = Vector3( 0.f, 0.001f, 0.f );
-	//v.c = xcolor;
-	//out.push_back(v);
-
-	//v.p = Vector3( length, 0.001f, 0.f );
-	//v.c = xcolor;
-	//out.push_back(v);
-
-	//// y axis
-	//v.p = Vector3( 0.f, 0.001f, 0.f );
-	//v.c = ycolor;
-	//out.push_back(v);
-
-	//v.p = Vector3( 0.f, length, 0.f );
-	//v.c = ycolor;
-	//out.push_back(v);
-
-	//// z axis
-	//v.p = Vector3( 0.f, 0.001f, 0.f );
-	//v.c = zcolor;
-	//out.push_back(v);
-
-	//v.p = Vector3( 0.f, 0.001f, length );
-	//v.c = zcolor;
-	//out.push_back(v);
-}
-
-
-bool cRenderer::ClearScene()
-{
-	//HRESULT hr = GetDevice()->TestCooperativeLevel();
-	//if (hr == D3DERR_DEVICELOST)
-	//	return false;
-	//else if (hr == D3DERR_DEVICENOTRESET)// reset상황.				
-	//	return false;
-
-	//if (SUCCEEDED(GetDevice()->Clear(
-	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL,
-	//	D3DCOLOR_ARGB(255, 50, 50, 50), // UI Gray
-	//	1.0f, 0)))
-	//{
-	//	return true;
-	//}
-	//SetRenderTarget(m_renderTargetView, m_depthStencilView);
+	if (updateRenderTarget)
+		SetRenderTarget(m_renderTargetView, m_depthStencilView);
 
 	float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
-	m_devContext->ClearRenderTargetView(m_renderTargetView, ClearColor);
-	m_devContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);
+	m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	return true;
 }
@@ -329,7 +233,6 @@ bool cRenderer::ClearScene()
 
 void cRenderer::BeginScene()
 {
-	//GetDevice()->BeginScene();
 	AddAlphaBlendSpace(cBoundingBox());
 }
 
@@ -355,7 +258,11 @@ void cRenderer::FinishCommandList()
 
 void cRenderer::SetRenderTarget(ID3D11RenderTargetView *renderTargetView, ID3D11DepthStencilView *depthStencilView)
 {
-	m_devContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	ID3D11RenderTargetView *rtv = (renderTargetView) ? renderTargetView : m_renderTargetView;
+	ID3D11DepthStencilView *dsv = (depthStencilView) ? depthStencilView : m_depthStencilView;
+	m_refRTV = rtv;
+	m_refDSV = dsv;
+	m_devContext->OMSetRenderTargets(1, &rtv, dsv);
 }
 
 
@@ -410,9 +317,10 @@ void cRenderer::EndScene()
 }
 
 
-bool cRenderer::CheckResetDevice(const float width, const float height)
-// width=0
-// height=0
+bool cRenderer::CheckResetDevice(
+	const float width //=0
+	, const float height //=0
+)
 {
 	float w, h;
 	if ((width == 0) || (height == 0))
@@ -428,8 +336,9 @@ bool cRenderer::CheckResetDevice(const float width, const float height)
 		h = height;
 	}
 
-	//if ((m_params.BackBufferWidth == w) && (m_params.BackBufferHeight == h))
-	//	return false;
+	if ((m_viewPort.m_vp.Width == w) && (m_viewPort.m_vp.Height == h))
+		return false;
+
 	return true;
 }
 
@@ -465,38 +374,66 @@ bool cRenderer::ResetDevice(
 
 	m_viewPort.m_vp.Width = w;
 	m_viewPort.m_vp.Height = h;
-	//m_params.BackBufferWidth = w;
-	//m_params.BackBufferHeight = h;
+	m_viewPort.Bind(*this);
 
-	//HRESULT hr = GetDevice()->Reset(&m_params);
-	//if (FAILED(hr))
-	//{
-	//	switch (hr)
-	//	{
-	//	//장치를 손실했지만 리셋하지 못했고 그래서 랜더링 불가
-	//	case D3DERR_DEVICELOST:
-	//		OutputDebugStringA("OnResetDevice 장치를 손실했지만 리셋하지 못했고 그래서 랜더링 불가 \n");
-	//		break;
-	//		//내부 드라이버 에러,어플리케이션은 이 메세지 일때 일반적으로 셧다운된다.
-	//	case D3DERR_DRIVERINTERNALERROR:
-	//		OutputDebugStringA("OnResetDevice 드라이버 내부 에러,어플리케이션은 이 메세지 일때 일반적으로 셧다운된다.");
-	//		break;
-	//		//부적절한 호출이다. 파라메터가 잘못일수도 있고..
-	//	case D3DERR_INVALIDCALL:
-	//		OutputDebugStringA("OnResetDevice 부적절한 호출. 파라메터가 잘못된경우.. ");
-	//		break;
-	//		//디스플레이 메모리가 충분하지 않음
-	//	case D3DERR_OUTOFVIDEOMEMORY:
-	//		OutputDebugStringA("OnResetDevice 디스플레이 메모리가 충분하지 않음 \n");
-	//		break;
-	//		//Direct3D가 이호출에 대한 메모리 확보를 못햇다.
-	//	case E_OUTOFMEMORY:
-	//		OutputDebugStringA("OnResetDevice Direct3D가 이호출에 대한 메모리 확보를 못햇다. \n");
-	//		break;
-	//	}
-	//	Sleep(10);
-	//	return false;
-	//}
+	SAFE_RELEASE(m_renderTargetView);
+	SAFE_RELEASE(m_depthStencilView);
+	m_refRTV = NULL;
+	m_refDSV = NULL;
+
+	const UINT chW = static_cast<UINT>(w);
+	const UINT chH = static_cast<UINT>(h);
+	HRESULT hr = m_swapChain->ResizeBuffers(
+		2, // Double-buffered swap chain.
+		chW,
+		chH,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		0
+	);
+
+	// Create a render target view
+	ID3D11Texture2D* pBackBuffer = NULL;
+	hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	if (FAILED(hr))
+		return false;
+
+	hr = m_d3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_renderTargetView);
+	pBackBuffer->Release();
+	if (FAILED(hr))
+		return false;
+
+	// Create depth stencil texture
+	D3D11_TEXTURE2D_DESC descDepth;
+	ZeroMemory(&descDepth, sizeof(descDepth));
+	descDepth.Width = chW;
+	descDepth.Height = chH;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+
+	OUT ID3D11Texture2D *pDepthStencil = NULL;
+	hr = m_d3dDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
+	if (FAILED(hr))
+		return false;
+
+	// Create the depth stencil view
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+	ZeroMemory(&descDSV, sizeof(descDSV));
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	hr = m_d3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &m_depthStencilView);
+	if (FAILED(hr))
+		return false;
+	pDepthStencil->Release();
+
+	SetRenderTarget(m_renderTargetView, m_depthStencilView);
 
 	const Vector3 lookAt = GetMainCamera().GetLookAt();
 	const Vector3 eyePos = GetMainCamera().GetEyePos();
@@ -555,48 +492,3 @@ sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 	assert(!m_alphaSpace.empty());
 	return m_alphaSpace.back();
 }
-
-
-//void cRenderer::SetLightEnable(const int light, const bool enable)
-//{
-//	//GetDevice()->LightEnable(light, enable);
-//}
-//void cRenderer::SetCullMode(const D3DCULL cull)
-//{
-//	//GetDevice()->SetRenderState(D3DRS_CULLMODE, cull);
-//}
-//void cRenderer::SetFillMode(const D3DFILLMODE mode)
-//{
-//	//GetDevice()->SetRenderState(D3DRS_FILLMODE, mode);
-//}
-//void cRenderer::SetNormalizeNormals(const bool value)
-//{
-//	//GetDevice()->SetRenderState(D3DRS_NORMALIZENORMALS, value? TRUE : FALSE);
-//}
-//void cRenderer::SetAlphaBlend(const bool value)
-//{
-//	//GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, value ? TRUE : FALSE);
-//}
-//
-//void cRenderer::SetZEnable(const bool value)
-//{
-//	//GetDevice()->SetRenderState(D3DRS_ZENABLE, value ? TRUE : FALSE);
-//}
-//void cRenderer::SetZFunc(const D3DCMPFUNC value)
-//{
-//	//GetDevice()->SetRenderState(D3DRS_ZFUNC, value);
-//}
-//
-//D3DFILLMODE cRenderer::GetFillMode()
-//{
-//	DWORD value= 0;
-//	//GetDevice()->GetRenderState(D3DRS_FILLMODE, &value);
-//	return (D3DFILLMODE)value;
-//}
-//
-//D3DCULL cRenderer::GetCullMode()
-//{
-//	DWORD value= 0;
-//	//GetDevice()->GetRenderState(D3DRS_CULLMODE, &value);
-//	return (D3DCULL)value;
-//}

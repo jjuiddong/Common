@@ -17,14 +17,13 @@ void RenderProc(cRenderWindow *wnd)
 
 	while (wnd->m_isThreadLoop && wnd->isOpen())
 	{
-		//wnd->m_backBuffer.CopyFrom(wnd->m_sharedSurf.m_texture);
 		std::this_thread::sleep_for(20ms);
 	}
 }
 
 
 cRenderWindow::cRenderWindow()
-	: m_sharedRenderer(NULL)
+	: m_mainWindow(NULL)
 	, m_state(eState::NORMAL)
 	, m_isVisible(true)
 	, m_isThread(true)
@@ -45,17 +44,25 @@ cRenderWindow::~cRenderWindow()
 }
 
 
-bool cRenderWindow::Create(const StrId &title, const int width, const int height
-	, cRenderer *shared // = NULL
+bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const int width, const int height
+	, cRenderWindow *mainWindow //= NULL
 	, bool isTitleBar // = true
 )
 {
 	__super::create(sf::VideoMode(width, height), title.c_str(),
-		(isTitleBar? sf::Style::Default : sf::Style::None));
+		(isTitleBar ? sf::Style::Default : sf::Style::None));
 
-	if (!m_renderer.CreateDirectX(true, getSystemHandle(), width, height))// , s_adapter++))
+	ID3D11Device *mainDevice = (mainWindow) ? mainWindow->m_renderer.GetDevice() : NULL;
+	ID3D11DeviceContext *devContext = (mainWindow) ? mainWindow->m_renderer.GetDevContext() : NULL;
+	if (isMainWindow)
 	{
-		return false;
+		if (!m_renderer.CreateDirectX(false, getSystemHandle(), width, height))
+			return false;
+	}
+	else
+	{
+		if (!m_renderer.CreateDirectXSubRenderer(false, getSystemHandle(), width, height, mainDevice, devContext))
+			return false;
 	}
 
 	m_title = StrId(" - ") + title + StrId(" - ");
@@ -72,30 +79,18 @@ bool cRenderWindow::Create(const StrId &title, const int width, const int height
 	m_light.SetPosition(Vector3(-30000, 30000, -30000));
 	m_light.SetDirection(Vector3(1, -1, 1).Normal());
 
+	m_mainWindow = mainWindow;
+
 	//m_renderer.SetNormalizeNormals(true);
 	//m_renderer.SetLightEnable(0, true);
 	m_light.Bind(m_renderer, 0);
 
-	// ImGui Shared Device
-	if (shared)
-	{
-		m_sharedRenderer = shared;
-		m_gui.Init(getSystemHandle(), shared->GetDevice(), shared->GetDevContext());
-		//m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
-		//m_sharedSurf.Create(*shared, width, height, 1);
-	}
-	else
-	{
-		m_sharedRenderer = NULL;
-		m_gui.Init(getSystemHandle(), m_renderer.GetDevice(), m_renderer.GetDevContext());
-		//m_backBuffer.Create(m_renderer, width, height, D3DFMT_A8R8G8B8);
-		//m_sharedSurf.Create(m_renderer, width, height, 1);
-	}
+	m_gui.Init(getSystemHandle(), m_renderer.GetDevice(), m_renderer.GetDevContext(), ((mainWindow) ? mainWindow->m_gui.m_FontAtlas : NULL));
 
 	m_gui.SetContext();
 	ImGuiIO& io = ImGui::GetIO();
-	//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/Roboto-Medium.ttf", 18, NULL, io.Fonts->GetGlyphRangesKorean());
-	io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, io.Fonts->GetGlyphRangesKorean());
+	if (!mainWindow)
+		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, io.Fonts->GetGlyphRangesKorean());
 
 	if (m_isThread)
 	{
@@ -529,59 +524,24 @@ void cRenderWindow::Render(const float deltaSeconds)
 		ImGui::End();
 	}
 
-	if (m_sharedRenderer)
+	m_camera.Bind(m_renderer);
+	m_light.Bind(m_renderer, 0);
+
+	if (m_renderer.ClearScene())
 	{
-		m_camera.Bind(*m_sharedRenderer);
-		//m_sharedSurf.Begin(m_renderer);
-		if (m_sharedRenderer->ClearScene())
-		{
-			m_sharedRenderer->BeginScene();
-			//m_sharedRenderer->GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
-			m_gui.Render();
-			m_sharedRenderer->EndScene();
-		}
-		//m_sharedSurf.End(m_renderer);
+		m_renderer.BeginScene();
+		//m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
+		
+		OnRender(deltaSeconds);
 
-		//if (!m_isThread)
-		//	m_backBuffer.CopyFrom(m_sharedSurf.m_texture);
+		m_gui.Render();
 
-		m_camera.Bind(m_renderer);
-		m_light.Bind(m_renderer, 0);
-
-		if (m_renderer.ClearScene())
-		{
-			m_renderer.BeginScene();
-			//m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
-
-			OnRender(deltaSeconds);
-
-			m_backBuffer.Render2D(m_renderer);
-
-			m_renderer.EndScene();
-			m_renderer.Present();
-		}
+		m_renderer.EndScene();
+		m_renderer.Present();
 	}
 	else
 	{
-		m_camera.Bind(m_renderer);
-		m_light.Bind(m_renderer, 0);
-
-		if (m_renderer.ClearScene())
-		{
-			m_renderer.BeginScene();
-			//m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
-		
-			OnRender(deltaSeconds);
-
-			m_gui.Render();
-
-			m_renderer.EndScene();
-			m_renderer.Present();
-		}
-		else
-		{
-			ChangeDevice(0, 0, true);
-		}
+		ChangeDevice(0, 0, true);
 	}
 
 	PostRender(deltaSeconds);
@@ -708,8 +668,6 @@ void cRenderWindow::LostDevice()
 		m_thread.join();
 
 	m_gui.InvalidateDeviceObjects();
-	//m_sharedSurf.LostDevice();
-	m_backBuffer.LostDevice();
 
 	if (m_dock)
 		m_dock->LostDevice();
@@ -718,23 +676,16 @@ void cRenderWindow::LostDevice()
 }
 
 
-void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
+void cRenderWindow::ResetDevice()
 {
 	const int width = (int)m_renderer.m_viewPort.m_vp.Width;
 	const int height = (int)m_renderer.m_viewPort.m_vp.Height;
 
 	m_camera.SetViewPort(width, height);
 	m_gui.CreateDeviceObjects();
-	//m_sharedSurf.m_vp.Width = width;
-	//m_sharedSurf.m_vp.Height = height;
-	//m_sharedSurf.ResetDevice((shared)? *shared : m_renderer);
-	
-	m_backBuffer.m_imageInfo.Width = width;
-	m_backBuffer.m_imageInfo.Height = height;
-	m_backBuffer.ResetDevice(m_renderer);
 
 	if (m_dock)
-		m_dock->ResetDevice(shared);
+		m_dock->ResetDevice();
 
 	if (m_isThread)
 	{
@@ -742,7 +693,7 @@ void cRenderWindow::ResetDevice(cRenderer *shared)//=NULL
 		m_thread = std::thread(RenderProc, this);
 	}
 
-	OnResetDevice(shared);
+	OnResetDevice();
 }
 
 
@@ -953,7 +904,7 @@ void cRenderWindow::ChangeDevice(
 	if (m_dock)
 		m_dock->CalcResizeWindow(eDockResize::RENDER_WINDOW, rect);
 
-	ResetDevice(m_sharedRenderer);
+	ResetDevice();
 }
 
 

@@ -29,14 +29,13 @@ void cDockManager::InsertMainRenderWindow(cRenderWindow *main)
 }
 
 
-cRenderWindow* cDockManager::NewRenderWindow(const StrId &title, const int width, const int height
-	, cRenderer *shared)
+cRenderWindow* cDockManager::NewRenderWindow(const StrId &title, const int width, const int height)
 {
 	cRenderWindow *window = NULL;
 	if (m_poolWindow.empty())
 	{
 		window = new cRenderWindow();
-		window->Create(title, width, height, shared, false);
+		window->Create(false, title, width, height, m_mainWindow, false);
 	}
 	else
 	{
@@ -217,19 +216,19 @@ void cDockManager::LostDevice()
 }
 
 
-void cDockManager::ResetDevice(cRenderer *shared) // =NULL
+void cDockManager::ResetDevice() // =NULL
 {
 	for (auto &p : m_windows)
 	{
 		if (m_mainWindow != p)
-			p->ResetDevice(shared);
+			p->ResetDevice();
 	}
 
 	for (auto &p : m_poolWindow)
-		p->ResetDevice(shared);
+		p->ResetDevice();
 
 	for (auto &p : m_poolDock)
-		p->ResetDevice(shared);
+		p->ResetDevice();
 }
 
 

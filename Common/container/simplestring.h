@@ -530,7 +530,7 @@ namespace common
 		}
 
 		size_t size() const {
-			return (size_t)strlen(m_str);
+			return (size_t)wcslen(m_str);
 		}
 
 		void clear() {

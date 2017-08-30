@@ -32,6 +32,8 @@
 #include "../../DirectXTK/Inc/SpriteFont.h"
 #include "../../DirectXTK/Inc/SpriteBatch.h"
 #include "../../DirectXTK/Inc/SimpleMath.h"
+#include "../../DirectXTK/Inc/ScreenGrab.h"
+#include <Wincodec.h>   // for ScreenGrab
 
 using namespace DirectX;
 
@@ -90,6 +92,7 @@ namespace graphic {
 #include "base/meshbuffer.h"
 #include "base/samplerstate.h"
 #include "base/texture.h"
+#include "base/rendertarget.h"
 //#include "base/texturecube.h"
 #include "base/vertexformat.h"
 

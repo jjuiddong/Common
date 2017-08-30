@@ -19,8 +19,7 @@ namespace framework
 		virtual ~cDockManager();
 
 		void InsertMainRenderWindow(cRenderWindow *main);
-		cRenderWindow* NewRenderWindow(const StrId &title, const int width, const int height
-			, graphic::cRenderer *shared);
+		cRenderWindow* NewRenderWindow(const StrId &title, const int width, const int height);
 		void DeleteRenderWindow(cRenderWindow *wnd);
 		cDockWindow* NewDockWindow();
 		void DeleteDockWindow(cDockWindow *p);
@@ -34,7 +33,7 @@ namespace framework
 		bool IsDragState();
 		bool IsMoveState();
 		void LostDevice();
-		void ResetDevice(graphic::cRenderer *shared = NULL);
+		void ResetDevice();
 
 
 	protected:

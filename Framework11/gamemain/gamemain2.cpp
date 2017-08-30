@@ -14,7 +14,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	const bool dualMonitor)
 {
 	cGameMain2* gameMain = CreateFrameWork2();
-	gameMain->Create(wstr2str(gameMain->m_windowName) 
+	gameMain->Create(true, gameMain->m_windowName.str()
 		, gameMain->m_windowRect.Width() 
 		, gameMain->m_windowRect.Height()
 		, NULL
@@ -63,7 +63,7 @@ cGameMain2::~cGameMain2()
 bool cGameMain2::Init()
 {
 	m_hWnd = getSystemHandle();
-	//graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
+	graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
 
 	if (!OnInit())
 		return false;
@@ -74,7 +74,7 @@ bool cGameMain2::Init()
 void cGameMain2::Update(const float deltaSeconds)
 {
 	__super::Update(deltaSeconds);
-	//graphic::cResourceManager::Get()->Update(deltaSeconds);
+	graphic::cResourceManager::Get()->Update(deltaSeconds);
 }
 
 
@@ -91,9 +91,8 @@ void cGameMain2::LostDevice()
 }
 
 
-void cGameMain2::ResetDevice(graphic::cRenderer *shared // = NULL
-)
+void cGameMain2::ResetDevice()
 {
-	__super::ResetDevice(shared);
-	cDockManager::Get()->ResetDevice(&m_renderer);
+	__super::ResetDevice();
+	cDockManager::Get()->ResetDevice();
 }

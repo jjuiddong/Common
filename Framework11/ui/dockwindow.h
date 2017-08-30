@@ -40,7 +40,7 @@ namespace framework
 		virtual bool RemoveTab(cDockWindow *tab);
 		virtual void ResizeEnd(const eDockResize::Enum type, const sRectf &rect);
 		virtual void LostDevice();
-		virtual void ResetDevice(graphic::cRenderer *shared = NULL);
+		virtual void ResetDevice();
 		void CalcWindowSize(cDockWindow *dock
 			, const float floatwindowSize = 0.5f
 			//, const sDockSizingOption &sizingOpt = defaultSizingOption
@@ -55,6 +55,7 @@ namespace framework
 		void SetCapture();
 		cDockWindow* GetCapture();
 		void ReleaseCapture();
+		graphic::cRenderer& GetRenderer();
 		void ClearConnection();
 		void Clear();
 
@@ -74,7 +75,7 @@ namespace framework
 		virtual void OnResizeEnd(const eDockResize::Enum type, const sRectf &rect) {}
 		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void OnLostDevice() {}
-		virtual void OnResetDevice(graphic::cRenderer *shared) {}
+		virtual void OnResetDevice() {}
 
 
 	public:
@@ -90,7 +91,6 @@ namespace framework
 		StrId m_name;
 		sRectf m_rect;
 		eDockSlot::Enum m_dragSlot; // using drag dock window
-		static int s_id;
 	};
 
 }

@@ -133,7 +133,7 @@ bool cGameMain::Init(HINSTANCE hInstance, HWND hWnd)
 	m_hInstance = hInstance;
 	m_hWnd = hWnd;
 
-	if (!m_renderer.CreateDirectX(true, hWnd, m_windowRect.Width(), m_windowRect.Height()))
+	if (!m_renderer.CreateDirectX(false, hWnd, m_windowRect.Width(), m_windowRect.Height()))
 	{
 		return false;
 	}

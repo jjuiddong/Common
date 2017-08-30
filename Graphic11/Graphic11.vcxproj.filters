@@ -262,6 +262,9 @@
     <ClInclude Include="base\text3d3.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\rendertarget.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -500,6 +503,9 @@
       <Filter>manager</Filter>
     </ClCompile>
     <ClCompile Include="base\text3d3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rendertarget.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
