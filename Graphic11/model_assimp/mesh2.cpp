@@ -70,13 +70,14 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 
 void cMesh2::Render(cRenderer &renderer
 	, const XMMATRIX &tm // = XMIdentity
+	, const char *techniqueName //= "Unlit"
 )
 {
 	RET(!m_buffers);
 
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	shader->SetTechnique(techniqueName);
 	assert(shader);
-	shader->SetTechnique("Unlit");
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
@@ -87,6 +88,9 @@ void cMesh2::Render(cRenderer &renderer
 
 	if (!m_colorMap.empty())
 		m_colorMap[0]->Bind(renderer, 0);
+
+	if (shader->m_shadowMap)
+		renderer.GetDevContext()->PSSetShaderResources(1, 1, &shader->m_shadowMap);
 
 	const XMMATRIX m = m_transform.GetMatrixXM() * tm;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);

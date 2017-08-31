@@ -47,10 +47,11 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 
 bool cAssimpModel::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
+	, const char *techniqueName //= "Unlit"
 )
 {
 	for (auto &mesh : m_meshes)
-		mesh->Render(renderer, tm);
+		mesh->Render(renderer, tm, techniqueName);
 
 	return true;
 }

@@ -144,18 +144,22 @@ bool cDockWindow::Undock(const bool newWindow) // = true
 
 	if (newWindow)
 	{
+		ReleaseCapture();
+
 		const int width = 800;
 		const int height = 600;
 		cImGui *oldGui = &m_owner->m_gui;
 		cRenderWindow *window = cDockManager::Get()->NewRenderWindow(m_name, width, height);
 		window->m_dock = this;
 		m_parent = NULL;
+		SendMessage(m_owner->getSystemHandle(), WM_LBUTTONUP, 0, 0); // bug fix (ImGui::ItemActive() bug)
 		m_owner = window;
 		CalcResizeWindow(eDockResize::RENDER_WINDOW, sRectf(0, 0, (float)width, (float)height));
 		oldGui->SetContext();
 		window->requestFocus();
 		window->SetDragState();
 		window->RequestResetDeviceNextFrame();
+		SetCapture();
 	}
 	else
 	{

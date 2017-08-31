@@ -9,6 +9,7 @@ cShader11::cShader11()
 //: m_vtxShader(NULL)
 //, m_pixelShader(NULL)
 	: m_technique(NULL)
+	, m_shadowMap(NULL)
 {
 }
 

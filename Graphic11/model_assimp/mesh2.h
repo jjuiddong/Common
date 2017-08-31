@@ -15,7 +15,7 @@ namespace graphic {
 		virtual ~cMesh2();
 
 		bool Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skeleton);
-		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);
+		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity, const char *techniqueName = "Unlit");
 		void Clear();
 
 
@@ -29,10 +29,10 @@ namespace graphic {
 		Transform m_transform;
 		cSkeleton *m_skeleton; // reference
 		vector<cMaterial> m_mtrls;
-		vector<cTexture*>m_colorMap;  // reference
-		vector<cTexture*>m_normalMap;  // reference
-		vector<cTexture*>m_specularMap;  // reference
-		vector<cTexture*>m_selfIllumMap;  // reference
+		vector<cTexture*> m_colorMap;  // reference
+		vector<cTexture*> m_normalMap;  // reference
+		vector<cTexture*> m_specularMap;  // reference
+		vector<cTexture*> m_selfIllumMap;  // reference
 		vector<sMeshBone> m_bones; // mesh bone
 		vector<Matrix44> m_tmPose;
 		cMeshBuffer *m_buffers;

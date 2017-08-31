@@ -19,12 +19,17 @@ cRenderTarget::~cRenderTarget()
 }
 
 
-bool cRenderTarget::Create(cRenderer &renderer, const int width, const int height
+bool cRenderTarget::Create(cRenderer &renderer
+	, const cViewport &viewPort //const int width, const int height
 	, const DXGI_FORMAT rtvFormat //render target view = DXGI_FORMAT_R8G8B8A8_UNORM
 	, const DXGI_FORMAT dsvFormat //depth stecil view = DXGI_FORMAT_D24_UNORM_S8_UINT
 )
 {
 	Clear();
+
+	m_viewPort = viewPort;
+	const int width = viewPort.m_vp.Width;
+	const int height = viewPort.m_vp.Height;
 
 	// Create Render Target Texture
 	D3D11_TEXTURE2D_DESC desc;
@@ -97,12 +102,22 @@ bool cRenderTarget::Create(cRenderer &renderer, const int width, const int heigh
 void cRenderTarget::SetRenderTarget(cRenderer &renderer) 
 {
 	renderer.SetRenderTarget(m_renderTargetView, m_depthStencilView);
+	m_viewPort.Bind(renderer);
 }
 
 
 void cRenderTarget::RecoveryRenderTarget(cRenderer &renderer)
 {
 	renderer.SetRenderTarget(NULL, NULL);
+	renderer.m_viewPort.Bind(renderer);
+}
+
+
+void cRenderTarget::Bind(cRenderer &renderer
+	, const int stage //= 0
+)
+{
+	renderer.GetDevContext()->PSSetShaderResources(stage, 1, &m_texture);
 }
 
 

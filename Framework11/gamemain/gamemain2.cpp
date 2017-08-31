@@ -87,12 +87,12 @@ void cGameMain2::Exit()
 void cGameMain2::LostDevice()
 {
 	__super::LostDevice();
-	cDockManager::Get()->LostDevice();
+	//cDockManager::Get()->LostDevice();
 }
 
 
 void cGameMain2::ResetDevice()
 {
 	__super::ResetDevice();
-	cDockManager::Get()->ResetDevice();
+	//cDockManager::Get()->ResetDevice();
 }

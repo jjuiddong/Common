@@ -160,14 +160,20 @@ void cDockManager::SetDragState(cRenderWindow *drag
 	, const bool isDragStart // = true
 )
 {
+	for (auto &p : m_windows)
+		p->ReleaseCapture();
+
 	if (isDragStart)
 	{
-		dbg::Print("start drag\n");
+		dbg::Log("start drag\n");
+
 		m_dockTarget = NULL;
 		m_state = eState::DRAG;
 	}
 	else
 	{
+		dbg::Log("end drag\n");
+
 		m_dragWindow = drag;
 		m_state = eState::DRAG_END;
 	}

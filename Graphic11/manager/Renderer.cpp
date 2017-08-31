@@ -218,13 +218,15 @@ void cRenderer::Update(const float elapseT)
 
 bool cRenderer::ClearScene(
 	const bool updateRenderTarget //=true
+	, const Vector4 &color //= Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f)
 )
 {
 	if (updateRenderTarget)
 		SetRenderTarget(m_renderTargetView, m_depthStencilView);
 
 	float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
-	m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);
+	//m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);
+	m_devContext->ClearRenderTargetView(m_refRTV, (float*)&color);
 	m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	return true;

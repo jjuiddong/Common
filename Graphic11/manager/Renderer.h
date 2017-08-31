@@ -12,6 +12,9 @@ namespace graphic
 		XMMATRIX mWorld;
 		XMMATRIX mView;
 		XMMATRIX mProjection;
+		XMMATRIX mLightView;
+		XMMATRIX mLightProj;
+		XMMATRIX mLightTT;
 		XMVECTOR eyePosW;
 	};
 
@@ -39,7 +42,8 @@ namespace graphic
 		void AddAlphaBlendSpace(const cBoundingBox &bbox);
 		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
 
-		bool ClearScene(const bool updateRenderTarget=true);
+		bool ClearScene(const bool updateRenderTarget=true
+			, const Vector4 &color=Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f));
 		void BeginScene();
 		void Present();
 		void EndScene();

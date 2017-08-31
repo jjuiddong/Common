@@ -31,6 +31,7 @@ namespace graphic
 		StrId m_name;
 		ID3DX11Effect *m_effect;
 		ID3DX11EffectTechnique* m_technique;
+		ID3D11ShaderResourceView *m_shadowMap; // reference
 		cVertexLayout m_vtxLayout;
 	};
 

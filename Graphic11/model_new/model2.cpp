@@ -9,7 +9,6 @@ cModel2::cModel2()
 	: cNode2(common::GenerateId(), "model", eNodeType::MODEL)
 	, m_model(NULL)
 	, m_state(eState::NORMAL)
-	//, m_cullType(D3DCULL_CCW)
 {
 }
 
@@ -24,7 +23,7 @@ bool cModel2::Create(cRenderer &renderer
 	, const int id
 	, const StrPath &fileName
 	, const StrPath &shaderName //= ""
-	, const Str32 &techniqueName //= ""
+	, const Str32 &techniqueName //= "Unlit"
 	, const bool isParallel //= false
 	, const bool isShadow //= false
 )
@@ -65,9 +64,6 @@ bool cModel2::Render(cRenderer &renderer
 {
 	RETV(!m_isEnable, false);
 	RETV(!m_isShow, false);
-	//RETV(!m_shader, false);
-
-	//renderer.SetCullMode(m_cullType);
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
 
@@ -75,7 +71,7 @@ bool cModel2::Render(cRenderer &renderer
 	//	m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
 
 	if (m_model)
-		m_model->Render(renderer, transform);
+		m_model->Render(renderer, transform, m_techniqueName.c_str());
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();
@@ -199,7 +195,6 @@ void cModel2::SetAnimation(const Str64 &animationName
 void cModel2::Clear()
 {
 	m_model = NULL;
-	//m_shader = NULL;
 }
 
 
@@ -209,18 +204,3 @@ bool cModel2::IsLoadFinish()
 		|| (eState::LOAD_FINISH == m_state);
 }
 
-
-//void cModel2::SetShader(cShader *shader)
-//{
-//	__super::SetShader(shader);
-//	__super::SetShadowShader(shader);
-//}
-
-
-void cModel2::UpdateShader(cRenderer &renderer)
-{
-	//RET(!m_shader);
-
-	//GetMainCamera()->Bind(*m_shader);
-	//GetMainLight().Bind(*m_shader);
-}

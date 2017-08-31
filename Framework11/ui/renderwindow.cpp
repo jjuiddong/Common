@@ -69,7 +69,7 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 	m_camera.Init(&m_renderer);
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	m_camera.SetProjection(MATH_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
-	m_camera.SetViewPort(width, height);
+	m_camera.SetViewPort((float)width, (float)height);
 	m_camera.Bind(m_renderer);
 
 	m_light.Init(cLight::LIGHT_DIRECTIONAL,
@@ -393,7 +393,7 @@ void cRenderWindow::ChangeState( const eState::Enum nextState
 			ShowWindow(getSystemHandle(), SW_RESTORE);
 
 		setAlpha(0.3f);
-		cDockManager::Get()->SetDragState(this);
+		cDockManager::Get()->SetDragState(this, true);
 		break;
 
 	case eState::MOVE:
@@ -678,8 +678,8 @@ void cRenderWindow::LostDevice()
 
 void cRenderWindow::ResetDevice()
 {
-	const int width = (int)m_renderer.m_viewPort.m_vp.Width;
-	const int height = (int)m_renderer.m_viewPort.m_vp.Height;
+	const float width = m_renderer.m_viewPort.m_vp.Width;
+	const float height = m_renderer.m_viewPort.m_vp.Height;
 
 	m_camera.SetViewPort(width, height);
 	m_gui.CreateDeviceObjects();
