@@ -14,6 +14,12 @@ cTexture::cTexture()
 {
 }
 
+cTexture::cTexture(ID3D11ShaderResourceView *srv)
+	: m_texture(srv)
+	, m_isReferenceMode(true)
+{
+}
+
 cTexture::~cTexture()
 {
 	Clear();
@@ -211,8 +217,17 @@ void cTexture::Unlock(cRenderer &renderer)
 void cTexture::Clear()
 {
 	m_fileName.clear();
-	SAFE_RELEASE(m_texture);
-	SAFE_RELEASE(m_rawTex);
+
+	if (m_isReferenceMode)
+	{
+		m_texture = NULL;
+		m_rawTex = NULL;
+	}
+	else
+	{
+		SAFE_RELEASE(m_texture);
+		SAFE_RELEASE(m_rawTex);
+	}
 }
 
 

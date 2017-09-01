@@ -21,6 +21,7 @@ namespace graphic
 	{
 	public:
 		cTexture();
+		cTexture(ID3D11ShaderResourceView *srv);
 		virtual ~cTexture();
 
 		bool Create(cRenderer &renderer, const StrPath &fileName);

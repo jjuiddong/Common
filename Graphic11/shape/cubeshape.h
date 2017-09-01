@@ -23,11 +23,15 @@ namespace graphic
 			, const cColor &color = cColor::WHITE);
 
 
-		void Create(cRenderer &renderer, Vector3 vertices[8]
+		void Create(cRenderer &renderer, const Vector3 vertices[8]
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 			, const cColor &color = cColor::BLACK);
 
 		void InitCube(cRenderer &renderer, const int cubeType, const cColor &color = cColor::WHITE);
+
+		void SetCube(cRenderer &renderer, const Vector3 vertices[8]
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+			, const cColor &color = cColor::BLACK);
 
 		void Render(cRenderer &renderer) override;
 

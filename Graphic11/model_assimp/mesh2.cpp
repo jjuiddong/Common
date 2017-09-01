@@ -87,10 +87,14 @@ void cMesh2::Render(cRenderer &renderer
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	if (!m_colorMap.empty())
+	{
 		m_colorMap[0]->Bind(renderer, 0);
 
-	if (shader->m_shadowMap)
-		renderer.GetDevContext()->PSSetShaderResources(1, 1, &shader->m_shadowMap);
+		if (shader->m_shadowMap)
+			renderer.GetDevContext()->PSSetShaderResources(1, 1, &shader->m_shadowMap);
+		else
+			m_colorMap[0]->Bind(renderer, 1);
+	}
 
 	const XMMATRIX m = m_transform.GetMatrixXM() * tm;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);

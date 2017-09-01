@@ -46,12 +46,21 @@ void cDbgBox::SetBox(const Transform &tfm)
 	m_boundingBox.SetBoundingBox(tfm);
 }
 
+//
+//void cDbgBox::SetBox(cRenderer &renderer, const Vector3 vertices[8]
+//	, const cColor &color //= cColor::BLACK
+//)
+//{
+//	m_shape.Create(renderer, vertices, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+//	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
+//}
 
-void cDbgBox::SetBox(cRenderer &renderer, Vector3 vertices[8]
-	, const cColor &color //= cColor::BLACK
+
+void cDbgBox::SetBox(cRenderer &renderer, const Vector3 vertices[8]
+	, const cColor &color // = cColor::BLACK
 )
 {
-	m_shape.Create(renderer, vertices, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_shape.SetCube(renderer, vertices, eVertexType::POSITION | eVertexType::DIFFUSE, color);
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
 }
 

@@ -3,6 +3,59 @@
 #include "cubeshape.h"
 
 
+namespace {
+
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	// vertices
+	Vector3 g_vertices2[8] = {
+		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
+		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	};
+	Vector3 g_normals2[6] = {
+		Vector3(0,0,-1), // front
+		Vector3(0,0,1), // back
+		Vector3(0,1,0), // top
+		Vector3(0,-1,0), // bottom
+		Vector3(-1,0,0), // left
+		Vector3(1,0,0) // right
+	};
+
+	Vector2 g_uv2[] = {
+		Vector2(0, 0),
+		Vector2(1, 0),
+		Vector2(0, 1),
+		Vector2(1, 1)
+	};
+
+	WORD g_indices2[36] = {
+		// front
+		0, 3, 2,
+		0 ,1, 3,
+		// back
+		5, 6, 7,
+		5, 4, 6,
+		// top
+		4, 1, 0,
+		4, 5, 1,
+		// bottom
+		2, 7, 6,
+		2, 3, 7,
+		// left
+		4, 2, 6,
+		4, 0, 2,
+		// right
+		1, 7, 3,
+		1, 5, 7,
+	};
+
+}
+
 using namespace graphic;
 
 
@@ -179,7 +232,7 @@ void cCubeShape::InitCube(cRenderer &renderer, const int vtxType
 		pvtx += vertexStride;
 	}
 
-	m_vtxBuff.Create(renderer, 24, vertexStride, initVertices);
+	m_vtxBuff.Create(renderer, 24, vertexStride, initVertices, D3D11_USAGE_DYNAMIC);
 
 	vector<WORD> buffer2(36);
 	WORD *initIndices = &buffer2[0];
@@ -191,41 +244,11 @@ void cCubeShape::InitCube(cRenderer &renderer, const int vtxType
 }
 
 
-void cCubeShape::Create(cRenderer &renderer, Vector3 vertices[8]
+void cCubeShape::Create(cRenderer &renderer, const Vector3 vertices[8]
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 	, const cColor &color //= cColor::BLACK
 )
 {
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
-	//   2 --- 3
-	//
-	// vertices
-
-	WORD indices[36] = {
-		// front
-		0, 3, 2,
-		0 ,1, 3,
-		// back
-		5, 6, 7,
-		5, 4, 6,
-		// top
-		4, 1, 0,
-		4, 5, 1,
-		// bottom
-		2, 7, 6,
-		2, 3, 7,
-		// left
-		4, 2, 6,
-		4, 0, 2,
-		// right
-		1, 7, 3,
-		1, 5, 7,
-	};
-
 	vector<D3D11_INPUT_ELEMENT_DESC> elems;
 	if (vtxType & eVertexType::POSITION)
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
@@ -250,9 +273,9 @@ void cCubeShape::Create(cRenderer &renderer, Vector3 vertices[8]
 	BYTE *pvtx = initVertices;
 	for (int i = 0; i < 12; ++i)
 	{
-		Vector3 v1 = vertices[indices[i * 3]];
-		Vector3 v2 = vertices[indices[i * 3 + 1]];
-		Vector3 v3 = vertices[indices[i * 3 + 2]];
+		Vector3 v1 = vertices[g_indices2[i * 3]];
+		Vector3 v2 = vertices[g_indices2[i * 3 + 1]];
+		Vector3 v3 = vertices[g_indices2[i * 3 + 2]];
 		Vector3 normal = (v2 - v1).Normal().CrossProduct((v3 - v1).Normal());
 
 
@@ -303,3 +326,76 @@ void cCubeShape::Render(cRenderer &renderer)
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
 }
 
+
+void cCubeShape::SetCube(cRenderer &renderer, const Vector3 vertices[8]
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const cColor &color //= cColor::BLACK
+)
+{
+	vector<D3D11_INPUT_ELEMENT_DESC> elems;
+	if (vtxType & eVertexType::POSITION)
+		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::NORMAL)
+		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::DIFFUSE)
+		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::TEXTURE)
+		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	cVertexLayout vtxLayout;
+	vtxLayout.Create(elems);
+
+	const int posOffset = vtxLayout.GetOffset("POSITION");
+	const int normOffset = vtxLayout.GetOffset("NORMAL");
+	const int colorOffset = vtxLayout.GetOffset("COLOR");
+	const int texOffset = vtxLayout.GetOffset("TEXCOORD");
+	const int vertexStride = vtxLayout.GetVertexSize();
+
+	const Vector4 vColor = color.GetColor();
+	if (BYTE *initVertices = (BYTE*)m_vtxBuff.Lock(renderer))
+	{
+		BYTE *pvtx = initVertices;
+		for (int i = 0; i < 12; ++i)
+		{
+			Vector3 v1 = vertices[g_indices2[i * 3]];
+			Vector3 v2 = vertices[g_indices2[i * 3 + 1]];
+			Vector3 v3 = vertices[g_indices2[i * 3 + 2]];
+			Vector3 normal = (v2 - v1).Normal().CrossProduct((v3 - v1).Normal());
+
+			if (vtxType & eVertexType::POSITION)
+				*(Vector3*)(pvtx + posOffset) = v1;
+			if (vtxType & eVertexType::NORMAL)
+				*(Vector3*)(pvtx + normOffset) = normal;
+			if (vtxType & eVertexType::DIFFUSE)
+				*(Vector4*)(pvtx + colorOffset) = vColor;
+			pvtx += vertexStride;
+
+			if (vtxType & eVertexType::POSITION)
+				*(Vector3*)(pvtx + posOffset) = v2;
+			if (vtxType & eVertexType::NORMAL)
+				*(Vector3*)(pvtx + normOffset) = normal;
+			if (vtxType & eVertexType::DIFFUSE)
+				*(Vector4*)(pvtx + colorOffset) = vColor;
+			pvtx += vertexStride;
+
+			if (vtxType & eVertexType::POSITION)
+				*(Vector3*)(pvtx + posOffset) = v3;
+			if (vtxType & eVertexType::NORMAL)
+				*(Vector3*)(pvtx + normOffset) = normal;
+			if (vtxType & eVertexType::DIFFUSE)
+				*(Vector4*)(pvtx + colorOffset) = vColor;
+			pvtx += vertexStride;
+		}
+
+		//for (int i = 0; i < 8; ++i)
+		//{
+		//	if (vtxType & eVertexType::POSITION)
+		//		*(Vector3*)(pvtx + posOffset) = vertices[i];
+		//	//if (vtxType & eVertexType::NORMAL)
+		//	//	*(Vector3*)(pvtx + normOffset) = normal;
+		//	if (vtxType & eVertexType::DIFFUSE)
+		//		*(Vector4*)(pvtx + colorOffset) = vColor;
+		//	pvtx += vertexStride;
+		//}
+		m_vtxBuff.Unlock(renderer);
+	}
+}
