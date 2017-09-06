@@ -7,7 +7,6 @@
 // 2017-08-07
 //	- Upgrade DX11
 //
-//
 #pragma once
 
 

@@ -738,7 +738,7 @@ void cCamera::GetRay(const int windowWidth, const int windowHeight,
 
 
 // return camera position, shadow matrix
-void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt)
+void cCamera::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const
 {
 	view = GetViewMatrix();
 	proj = GetProjectionMatrix();
@@ -810,7 +810,7 @@ void cCamera::FitFrustum(const Matrix44 &matViewProj)
 	newProj.SetProjectionOrthogonal(
 		mm._min.x, mm._max.x,
 		mm._min.y, mm._max.y,
-		mm._min.z, mm._max.z);
+		mm._min.z, mm._max.z+100);
 
 	m_eyePos = pos;
 	m_lookAt = center;

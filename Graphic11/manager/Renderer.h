@@ -12,8 +12,8 @@ namespace graphic
 		XMMATRIX mWorld;
 		XMMATRIX mView;
 		XMMATRIX mProjection;
-		XMMATRIX mLightView;
-		XMMATRIX mLightProj;
+		XMMATRIX mLightView[3];
+		XMMATRIX mLightProj[3];
 		XMMATRIX mLightTT;
 		XMVECTOR eyePosW;
 	};

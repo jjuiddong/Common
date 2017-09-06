@@ -62,6 +62,7 @@ namespace graphic
 		vector<cNode2*> m_children;
 		Transform m_transform;
 		cShader11 *m_shader;
+		Str32 m_techniqueName;
 		cBoundingBox m_boundingBox; // Local Space
 		cBoundingSphere m_boundingSphere; // Local Space
 	};

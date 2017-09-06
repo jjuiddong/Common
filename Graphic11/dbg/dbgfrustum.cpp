@@ -48,30 +48,6 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vect
 	const Matrix44 viewProj = view * proj;
 	SetFrustum(renderer, viewProj, color);
 	
-	////      4 --- 5
-	////    / |  |  /|
-	////   0 --- 1   |
-	////   |   6-|- -7
-	////   | /   | /
-	////   2 --- 3
-	////
-	//// 투영행렬까지 거치면 모든 3차원 월드좌표의 점은 (-1,-1,0) ~ (1,1,1)사이의 값으로 바뀐다.
-	//Vector3 vertices[8] = {
-	//	Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
-	//	Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
-	//};
-
-	//// view * proj의 역행렬을 구한다.
-	//Matrix44 view;
-	//view.SetView(pos, direction, Vector3(0, 1, 0));
-	//const Matrix44 viewProj = view * proj;
-	//Matrix44 matInv = viewProj.Inverse();
-
-	//for (int i = 0; i < 8; i++)
-	//	vertices[i] *= matInv;
-
-	//m_box.SetBox(renderer, vertices, color);
-
 	return true;
 }
 

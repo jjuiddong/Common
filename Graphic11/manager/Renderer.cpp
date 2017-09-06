@@ -135,12 +135,27 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-color.fxo", pos_color, ARRAYSIZE(pos_color));
 
+	D3D11_INPUT_ELEMENT_DESC posrhw_color[] =
+	{
+		{ "POSITION_RHW", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color.fxo", posrhw_color, ARRAYSIZE(posrhw_color));
+
 	D3D11_INPUT_ELEMENT_DESC pos_tex[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", pos_tex, ARRAYSIZE(pos_tex));
+
+	D3D11_INPUT_ELEMENT_DESC posrhw_color_tex[] =
+	{
+		{ "POSITION_RHW", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color-tex.fxo", posrhw_color_tex, ARRAYSIZE(posrhw_color_tex));
 
 	D3D11_INPUT_ELEMENT_DESC pos_norm_color[] =
 	{
@@ -168,7 +183,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
 
 
-	m_textFps.Create(*this, 20, true, "Arial");
+	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
 	//m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
 

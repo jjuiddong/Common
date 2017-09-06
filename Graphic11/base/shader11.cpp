@@ -6,11 +6,9 @@
 using namespace graphic;
 
 cShader11::cShader11()
-//: m_vtxShader(NULL)
-//, m_pixelShader(NULL)
 	: m_technique(NULL)
-	, m_shadowMap(NULL)
 {
+	ZeroMemory(m_shadowMap, sizeof(m_shadowMap));
 }
 
 cShader11::~cShader11()
@@ -105,4 +103,11 @@ void cShader11::BeginPass(cRenderer &renderer, const int pass)
 	RET(!m_technique);
 	m_vtxLayout.Bind(renderer);
 	m_technique->GetPassByIndex(pass)->Apply(0, renderer.GetDevContext());
+
+	if (m_shadowMap[0])
+	{
+		renderer.GetDevContext()->PSSetShaderResources(1, 1, &m_shadowMap[0]);
+		renderer.GetDevContext()->PSSetShaderResources(2, 1, &m_shadowMap[1]);
+		renderer.GetDevContext()->PSSetShaderResources(3, 1, &m_shadowMap[2]);
+	}
 }

@@ -39,7 +39,7 @@ namespace graphic
 		Vector3 GetRight() const;
 		float GetDistance() const; // lookAt - eyePos 사이 거리.
 
-		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt);
+		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const;
 		void FitFrustum(const cCamera &camera, const float farPlaneRate =1.f);
 		void FitFrustum(const Matrix44 &matViewProj);
 		void FitQuad(const Vector3 vertices[4]);

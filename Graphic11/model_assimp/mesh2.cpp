@@ -75,26 +75,13 @@ void cMesh2::Render(cRenderer &renderer
 {
 	RET(!m_buffers);
 
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
-	shader->SetTechnique(techniqueName);
-	assert(shader);
-	shader->Begin();
-	shader->BeginPass(renderer, 0);
-
 	renderer.m_cbLight.Update(renderer, 1);
 	if (!m_mtrls.empty())
 		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	if (!m_colorMap.empty())
-	{
 		m_colorMap[0]->Bind(renderer, 0);
-
-		if (shader->m_shadowMap)
-			renderer.GetDevContext()->PSSetShaderResources(1, 1, &shader->m_shadowMap);
-		else
-			m_colorMap[0]->Bind(renderer, 1);
-	}
 
 	const XMMATRIX m = m_transform.GetMatrixXM() * tm;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);

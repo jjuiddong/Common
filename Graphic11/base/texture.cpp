@@ -116,7 +116,8 @@ void cTexture::Bind(cShader &shader, const Str32 &key)
 
 void cTexture::Unbind(cRenderer &renderer, const int stage)
 {
-	//renderer.GetDevice()->SetTexture(stage, NULL);
+	ID3D11ShaderResourceView *ns[1] = { NULL };
+	renderer.GetDevContext()->PSSetShaderResources(stage, 1, ns);
 }
 
 

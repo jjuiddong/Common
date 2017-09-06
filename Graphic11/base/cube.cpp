@@ -38,7 +38,7 @@ void cCube::InitCube(
 )
 {
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(2, 2, 2), Quaternion(0, 0, 0, 1));
-	m_shape.Create(renderer, vtxType, color);
+	m_shape.Create2(renderer, vtxType, color);
 }
 
 

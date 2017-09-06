@@ -236,7 +236,8 @@ void Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 #ifdef USE_D3D9_MATH
 	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, top, bottom, nearPlane, farPlane);
 #else
-	assert(0);
+	XMMATRIX view = XMMatrixOrthographicOffCenterLH(left, right, top, bottom, nearPlane, farPlane);
+	XMStoreFloat4x4((XMFLOAT4X4*)this, view);
 #endif
 }
 

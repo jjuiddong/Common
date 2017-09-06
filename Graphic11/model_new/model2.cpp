@@ -22,8 +22,8 @@ cModel2::~cModel2()
 bool cModel2::Create(cRenderer &renderer
 	, const int id
 	, const StrPath &fileName
-	, const StrPath &shaderName //= ""
-	, const Str32 &techniqueName //= "Unlit"
+	, const char *shaderName //= ""
+	, const char *techniqueName //= "Unlit"
 	, const bool isParallel //= false
 	, const bool isShadow //= false
 )
@@ -67,8 +67,11 @@ bool cModel2::Render(cRenderer &renderer
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
 
-	//if (m_isShadow && m_shadowMap && m_shader)
-	//	m_shadowMap->Bind(*m_shader, "g_shadowMapTexture");
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	shader->SetTechnique(m_techniqueName.c_str());
+	assert(shader);
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
 
 	if (m_model)
 		m_model->Render(renderer, transform, m_techniqueName.c_str());

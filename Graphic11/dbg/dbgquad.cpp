@@ -16,30 +16,42 @@ cDbgQuad::~cDbgQuad()
 
 bool cDbgQuad::Create(cRenderer &renderer)
 {
-	if (m_vtxBuff.GetVertexCount() > 0)
-		return true;
+	for (int i = 0; i < 4; ++i)
+		m_lines[i].Create(renderer);
 
-	return m_vtxBuff.Create(renderer, 5, sizeof(sVertexDiffuse), sVertexDiffuse::FVF);
+	return true;
 }
 
 
-void cDbgQuad::SetQuad(Vector3 vertices[4])
+//   0 -------------- 1
+//   |                     |
+//   |                     |
+//   |                     |
+//   3 -------------- 2
+//    Vertex Index
+void cDbgQuad::SetQuad(const Vector3 vertices[4]
+	, const float width //= 1.f
+)
 {
-	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock())
+	for (int i = 0; i < 4; ++i)
 	{
-		for (int i = 0; i < 5; ++i)
-		{
-			p[i].p = vertices[i%4];
-			p[i].c = 0;
-		}
-		m_vtxBuff.Unlock();
+		m_lines[i].SetLine(vertices[i % 4], vertices[(i + 1) % 4], width);
+		m_pos[i] = vertices[i];
 	}
 }
 
 
+void cDbgQuad::SetColor(const cColor &color)
+{
+	for (int i = 0; i < 4; ++i)
+		m_lines[i].SetColor(color);
+}
+
+
 void cDbgQuad::Render(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 )
 {
-	m_vtxBuff.RenderLineStrip(renderer);
+	for (int i = 0; i < 4; ++i)
+		m_lines[i].Render(renderer, tm);
 }

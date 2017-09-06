@@ -129,7 +129,7 @@ bool cGrid::Render(cRenderer &renderer
 {
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_vertexType);
 	assert(shader);
-	shader->SetTechnique("Unlit");
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 

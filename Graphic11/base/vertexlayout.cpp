@@ -61,6 +61,11 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 
 		if (Str32("POSITION") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::POSITION;
+		else if (Str32("POSITION_RHW") == layout[i].SemanticName)
+		{
+			m_elements.back().SemanticName = "POSITION"; // recovery, bugfix
+			m_vertexType |= eVertexType::POSITION_RHW;
+		}
 		else if (Str32("NORMAL") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::NORMAL;
 		else if (Str32("TEXCOORD") == layout[i].SemanticName)

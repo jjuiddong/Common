@@ -121,7 +121,7 @@ namespace graphic {
 #include "base/circle.h"
 //#include "base/circleline.h"
 #include "base/quad.h"
-//#include "base/quad2d.h"
+#include "base/quad2d.h"
 #include "base/billboard.h"
 #include "base/text.h"
 //#include "base/text3d.h"
@@ -145,7 +145,7 @@ namespace graphic {
 #include "dbg/dbglinelist.h"
 #include "dbg/dbgarrow.h"
 #include "dbg/dbgfrustum.h"
-//#include "dbg/dbgquad.h"
+#include "dbg/dbgquad.h"
 //#include "dbg/dbgquad2.h"
 #include "dbg/dbgaxis.h"
 

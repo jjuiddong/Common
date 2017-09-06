@@ -18,7 +18,7 @@ cLine::cLine(cRenderer &renderer
 )
 	: cNode2(common::GenerateId(), "line", eNodeType::MODEL)
 {
-	m_shape.Create(renderer, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE), color);
+	m_shape.Create2(renderer, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE), color);
 	SetLine(p0, p1, width);
 }
 
@@ -30,7 +30,7 @@ bool cLine::Create(cRenderer &renderer
 	, const cColor color //= cColor::BLACK
 )
 {
-	m_shape.Create(renderer, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE), color);
+	m_shape.Create2(renderer, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE), color);
 	SetLine(p0, p1, width);
 	return true;
 }

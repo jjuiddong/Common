@@ -21,7 +21,7 @@ void cDbgBox::Create(cRenderer &renderer
 	, const cColor &color //= cColor::BLACK
 )
 {
-	m_shape.Create(renderer, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_shape.Create2(renderer, eVertexType::POSITION | eVertexType::DIFFUSE, color);
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0,0,0,1));
 }
 
@@ -30,7 +30,7 @@ void cDbgBox::Create(cRenderer &renderer, const cBoundingBox &bbox
 	, const cColor &color //= cColor::BLACK
 )
 {
-	m_shape.Create(renderer, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_shape.Create2(renderer, eVertexType::POSITION | eVertexType::DIFFUSE, color);
 	SetBox(bbox);
 }
 
@@ -60,7 +60,7 @@ void cDbgBox::SetBox(cRenderer &renderer, const Vector3 vertices[8]
 	, const cColor &color // = cColor::BLACK
 )
 {
-	m_shape.SetCube(renderer, vertices, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_shape.SetCube(renderer, vertices, color);
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
 }
 

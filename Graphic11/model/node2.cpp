@@ -16,6 +16,7 @@ cNode2::cNode2()
 	, m_parent(NULL)
 	, m_flags(1)
 	, m_shader(NULL)
+	, m_techniqueName("Unlit")
 {
 }
 

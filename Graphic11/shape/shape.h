@@ -11,9 +11,10 @@ namespace graphic
 	struct eVertexType {
 		enum Enum {
 			POSITION = 1
-			, NORMAL = 1 << 1
-			, DIFFUSE = 1 << 2
-			, TEXTURE = 1 << 3
+			, POSITION_RHW	= 1 << 1
+			, NORMAL		= 1 << 2
+			, DIFFUSE		= 1 << 3
+			, TEXTURE		= 1 << 4
 		};
 	};
 

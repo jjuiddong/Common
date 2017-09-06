@@ -37,18 +37,9 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	, const bool isDynamic // = false
 )
 {
-	//if (isNormalize)
-	{
-		m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
-		m_transform.pos = pos;
-		m_transform.scale = Vector3(width, height, 1);
-	}
-	//else
-	//{
-	//	m_shape.Create(renderer, vtxType, cColor::WHITE, width*2, height*2);
-	//	m_transform.pos = pos;
-	//	m_transform.scale = Vector3(1, 1, 1);
-	//}
+	m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
+	m_transform.pos = pos;
+	m_transform.scale = Vector3(width, height, 1);
 
 	return true;
 }

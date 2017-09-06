@@ -6,9 +6,9 @@
 using namespace graphic;
 
 cQuad2D::cQuad2D()
-	: m_texture(NULL)
+	: cNode2(common::GenerateId(), "Quad2d", eNodeType::MODEL)
+	, m_texture(NULL)
 {
-	m_material.InitWhite();
 }
 
 cQuad2D::~cQuad2D()
@@ -19,20 +19,15 @@ cQuad2D::~cQuad2D()
 // 쿼드를 초기화 한다.
 // width, height : 쿼드 크기
 // pos : 쿼드 위치
-bool cQuad2D::Create(cRenderer &renderer
-	, const float x, const float y
-	, const float width, const float height
-	, const StrPath &textureFileName // = " "
-	, const bool isSizePow2 // = true
+bool cQuad2D::Create(cRenderer &renderer, const float x, const float y, const float width, const float height
+	, const char *textureFileName // = " "
 )
 {
-	if (m_vtxBuff.GetVertexCount() <= 0)
-		m_vtxBuff.Create(renderer, 4, sizeof(sVertexTexRhw), sVertexTexRhw::FVF);
+	m_shape.Create(renderer, eVertexType::POSITION_RHW | eVertexType::DIFFUSE | eVertexType::TEXTURE, cColor::WHITE);
 
 	SetPosition(x, y, width, height);
 
-	if (!textureFileName.empty())
-		m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName, isSizePow2);
+	m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName? textureFileName : g_defaultTexture);
 
 	return true;
 }
@@ -42,23 +37,38 @@ void cQuad2D::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	RET(!m_texture);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	shader->SetTechnique("Unlit");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
 
-	m_material.Bind(renderer);
-	m_texture->Bind(renderer, 0);
+	UINT numVp = 1;
+	D3D11_VIEWPORT vp;
+	renderer.GetDevContext()->RSGetViewports(&numVp, &vp);
 
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+	const float halfWidth = m_transform.scale.x*2 / vp.Width;
+	const float halfHeight = m_transform.scale.y*2 / vp.Height;
 
-	// AlphaBlending
-	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	Transform tfm = m_transform;
+	tfm.pos.x = -1 + halfWidth + (m_transform.pos.x*2 / vp.Width);
+	tfm.pos.y = 1 - halfHeight - (m_transform.pos.y * 2 / vp.Height);
+	tfm.scale *= Vector3(2.f/ vp.Width, 2.f/ vp.Height, 1);
 
-	m_vtxBuff.RenderTriangleStrip(renderer);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM());
+	renderer.m_cbPerFrame.Update(renderer);
 
-	renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
+
+	if (m_texture)
+		m_texture->Bind(renderer, 0);
+
+	m_shape.Render(renderer);
+
+	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 }
 
 
@@ -66,22 +76,6 @@ void cQuad2D::SetPosition(const float x, const float y
 	, const float width, const float height
 )
 {
-	sVertexTexRhw *vertices = (sVertexTexRhw*)m_vtxBuff.Lock();
-	RET(!vertices);
-
-	vertices[0].p = Vector4(x, y, 0, 1);
-	vertices[1].p = Vector4(x + width, y, 0, 1);
-	vertices[2].p = Vector4(x, y + height, 0, 1);
-	vertices[3].p = Vector4(x + width, y + height, 0, 1);
-
-	vertices[0].u = 0;
-	vertices[0].v = 0;
-	vertices[1].u = 1;
-	vertices[1].v = 0;
-	vertices[2].u = 0;
-	vertices[2].v = 1;
-	vertices[3].u = 1;
-	vertices[3].v = 1;
-
-	m_vtxBuff.Unlock();
+	m_transform.pos = Vector3(x, y, 0);
+	m_transform.scale = Vector3(width / 2, height / 2, 1);
 }

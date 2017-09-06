@@ -23,8 +23,8 @@ namespace graphic
 		bool Create( cRenderer &renderer 
 			, const int id 
 			, const StrPath &fileName
-			, const StrPath &shaderName=""
-			, const Str32 &techniqueName="Unlit"
+			, const char *shaderName=""
+			, const char *techniqueName="Unlit"
 			, const bool isParallel=false
 			, const bool isShadow=false
 		);
@@ -57,7 +57,6 @@ namespace graphic
 
 		StrPath m_fileName;
 		StrPath m_shaderName;
-		Str32 m_techniqueName;
 		StrId m_animationName;
 		eState::Enum m_state;
 		cAssimpModel *m_model; // reference

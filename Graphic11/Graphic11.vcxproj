@@ -152,6 +152,7 @@
     <ClInclude Include="base\meshbuffer.h" />
     <ClInclude Include="base\pyramid.h" />
     <ClInclude Include="base\quad.h" />
+    <ClInclude Include="base\quad2d.h" />
     <ClInclude Include="base\rendertarget.h" />
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="dbg\dbgfrustum.h" />
     <ClInclude Include="dbg\dbgline.h" />
     <ClInclude Include="dbg\dbglinelist.h" />
+    <ClInclude Include="dbg\dbgquad.h" />
     <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
     <ClInclude Include="importer\parallelloader.h" />
@@ -241,6 +243,7 @@
     <ClCompile Include="base\meshbuffer.cpp" />
     <ClCompile Include="base\pyramid.cpp" />
     <ClCompile Include="base\quad.cpp" />
+    <ClCompile Include="base\quad2d.cpp" />
     <ClCompile Include="base\rendertarget.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
@@ -260,6 +263,7 @@
     <ClCompile Include="dbg\dbgfrustum.cpp" />
     <ClCompile Include="dbg\dbgline.cpp" />
     <ClCompile Include="dbg\dbglinelist.cpp" />
+    <ClCompile Include="dbg\dbgquad.cpp" />
     <ClCompile Include="dbg\dbgsphere.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />
     <ClCompile Include="manager\fontmanager.cpp" />

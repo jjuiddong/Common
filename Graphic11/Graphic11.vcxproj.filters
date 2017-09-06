@@ -265,6 +265,12 @@
     <ClInclude Include="base\rendertarget.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgquad.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -506,6 +512,12 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\rendertarget.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgquad.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad2d.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

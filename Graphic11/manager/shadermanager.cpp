@@ -34,6 +34,7 @@ cShader11* cShaderManager::LoadShader(cRenderer &renderer, const StrPath &fileNa
 	{
 		m_shaders[ StrPath(fileName.GetFileName()).GetHashCode()] = shader;
 
+		// Check Aready Exist
 		assert(m_vtxTypeShaders.end() == m_vtxTypeShaders.find(shader->m_vtxLayout.m_vertexType));
 		m_vtxTypeShaders[shader->m_vtxLayout.m_vertexType] = shader;
 	}
