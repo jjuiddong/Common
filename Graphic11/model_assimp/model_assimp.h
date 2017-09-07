@@ -15,7 +15,14 @@ namespace graphic
 		cAssimpModel();
 		virtual ~cAssimpModel();
 		bool Create(cRenderer &renderer, const StrPath &fileName);
-		bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const char *techniqueName="Unlit");
+		bool Render(cRenderer &renderer
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1);
+		bool RenderInstancing(cRenderer &renderer
+			, const int count
+			, const XMMATRIX *transforms
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1);
 		bool Update(const float deltaSeconds);
 		void SetAnimation(const Str64 &animationName, const bool isMerge=false);
 		void Clear();

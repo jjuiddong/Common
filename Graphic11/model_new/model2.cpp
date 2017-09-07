@@ -58,14 +58,14 @@ bool cModel2::Create(cRenderer &renderer
 
 
 bool cModel2::Render(cRenderer &renderer
-	, const XMMATRIX &tm //= XMIdentity
+	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
 {
 	RETV(!m_isEnable, false);
 	RETV(!m_isShow, false);
 
-	const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
+	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
 	shader->SetTechnique(m_techniqueName.c_str());
@@ -74,7 +74,7 @@ bool cModel2::Render(cRenderer &renderer
 	shader->BeginPass(renderer, 0);
 
 	if (m_model)
-		m_model->Render(renderer, transform, m_techniqueName.c_str());
+		m_model->Render(renderer, transform);
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();
@@ -84,9 +84,43 @@ bool cModel2::Render(cRenderer &renderer
 	//	, cColor(0.f, 0.f, 0.f)
 	//	, BILLBOARD_TYPE::DYN_SCALE, tm2);
 
-	__super::Render(renderer, tm, flags);
+	__super::Render(renderer, parentTm, flags);
 
 	return true;
+}
+
+
+bool cModel2::RenderInstancing(cRenderer &renderer
+	, const int count
+	, const XMMATRIX *transforms
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	RETV(!m_isEnable, false);
+	RETV(!m_isShow, false);
+
+	const Str32 technique = m_techniqueName + "_Instancing";
+	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	shader->SetTechnique(technique.c_str());
+	assert(shader);
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	if (m_model)
+		m_model->RenderInstancing(renderer, count, transforms, transform);
+
+	//Transform tm2;
+	//tm2.pos = m_transform.pos + tm.GetPosition();
+	//tm2.pos.y += m_boundingBox.GetDimension().y * m_transform.scale.y + 5;
+	//renderer.m_textMgr.AddTextRender(renderer, m_id, m_name.c_str()
+	//	, cColor(1.f, 0.f, 0.f)
+	//	, cColor(0.f, 0.f, 0.f)
+	//	, BILLBOARD_TYPE::DYN_SCALE, tm2);
+
+	__super::RenderInstancing(renderer, count, transforms, parentTm, flags);
 }
 
 

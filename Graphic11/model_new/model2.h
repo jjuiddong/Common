@@ -29,7 +29,13 @@ namespace graphic
 			, const bool isShadow=false
 		);
 
-		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags=1);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
+		virtual bool RenderInstancing(cRenderer &renderer
+			, const int count
+			, const XMMATRIX *transforms
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1
+			) override;
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}

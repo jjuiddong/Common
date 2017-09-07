@@ -46,15 +46,38 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 
 
 bool cAssimpModel::Render(cRenderer &renderer
-	, const XMMATRIX &tm //= XMIdentity
-	, const char *techniqueName //= "Unlit"
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
 )
 {
 	for (auto &mesh : m_meshes)
-		mesh->Render(renderer, tm, techniqueName);
-
+		mesh->Render(renderer, parentTm);
 	return true;
 }
+
+
+bool cAssimpModel::RenderInstancing(cRenderer &renderer
+	, const int count
+	, const XMMATRIX *transforms
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	for (auto &mesh : m_meshes)
+	{
+		for (int i = 0; i < count; ++i)
+		{
+			const XMMATRIX &tm1 = transforms[i];
+			const XMMATRIX &tm2 = mesh->m_transform.GetMatrixXM();
+			renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm2 * tm1);
+		}
+
+		renderer.m_cbInstancing.Update(renderer, 3);
+		mesh->RenderInstancing(renderer, count, parentTm);
+	}
+	return true;
+}
+
 
 
 bool cAssimpModel::Update(const float deltaSeconds)

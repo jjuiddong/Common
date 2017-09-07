@@ -17,6 +17,11 @@ namespace graphic
 		virtual ~cMeshBuffer();
 
 		void Render(cRenderer &renderer, const int faceStart = 0, const int faceCount = 0);
+		void RenderInstancing(cRenderer &renderer
+			, const int count
+			, const int faceStart = 0
+			, const int faceCount = 0
+			);
 
 		cMeshBuffer* Clone();
 		vector<sAttribute>& GetAttributes();

@@ -68,13 +68,30 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 }
 
 
-void cMesh2::Render(cRenderer &renderer
-	, const XMMATRIX &tm // = XMIdentity
-	, const char *techniqueName //= "Unlit"
+void cMesh2::Render( cRenderer &renderer
+	, const XMMATRIX &parentTm // = XMIdentity
 )
 {
 	RET(!m_buffers);
 
+	UpdateConstantBuffer(renderer, parentTm);
+	m_buffers->Render(renderer);
+}
+
+
+void cMesh2::RenderInstancing(cRenderer &renderer, const int count
+	, const XMMATRIX &parentTm //= XMIdentity
+)
+{
+	RET(!m_buffers);
+
+	UpdateConstantBuffer(renderer, parentTm);
+	m_buffers->RenderInstancing(renderer, count);
+}
+
+
+void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
+{
 	renderer.m_cbLight.Update(renderer, 1);
 	if (!m_mtrls.empty())
 		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
@@ -83,10 +100,9 @@ void cMesh2::Render(cRenderer &renderer
 	if (!m_colorMap.empty())
 		m_colorMap[0]->Bind(renderer, 0);
 
-	const XMMATRIX m = m_transform.GetMatrixXM() * tm;
+	const XMMATRIX m = m_transform.GetMatrixXM() * parentTm;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);
 	renderer.m_cbPerFrame.Update(renderer);
-	m_buffers->Render(renderer);
 }
 
 

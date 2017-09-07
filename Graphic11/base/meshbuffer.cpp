@@ -183,10 +183,26 @@ void cMeshBuffer::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	renderer.GetDevContext()->DrawIndexed(
-		(faceCount==0)? (m_idxBuff.GetFaceCount() * 3) : (faceCount * 3)
+	renderer.GetDevContext()->DrawIndexed((faceCount==0)? (m_idxBuff.GetFaceCount() * 3) : (faceCount * 3), faceStart, m_offset);
+}
+
+
+void cMeshBuffer::RenderInstancing(cRenderer &renderer
+	, const int count
+	, const int faceStart //= 0
+	, const int faceCount //= 0
+)
+{
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	renderer.GetDevContext()->DrawIndexedInstanced(
+		(faceCount == 0) ? (m_idxBuff.GetFaceCount() * 3) : (faceCount * 3)
+		, count
 		, faceStart
-		, m_offset);
+		, m_offset
+		, 0);
 }
 
 

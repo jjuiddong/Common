@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+
 	struct sCbPerFrame
 	{
 		XMMATRIX mWorld;
@@ -17,6 +18,12 @@ namespace graphic
 		XMMATRIX mLightTT;
 		XMVECTOR eyePosW;
 	};
+	
+	struct sCbInstancing
+	{
+		XMMATRIX worlds[100];
+	};
+
 
 	class cRenderer
 	{
@@ -86,6 +93,8 @@ namespace graphic
 		cConstantBuffer<sCbPerFrame> m_cbPerFrame;
 		cConstantBuffer<sCbLight> m_cbLight;
 		cConstantBuffer<sCbMaterial> m_cbMaterial;
+		cConstantBuffer<sCbInstancing> m_cbInstancing;
+		cConstantBuffer<sCbInstancing> m_cbInstancingTemp;
 
 		// Display FPS 
 		cText m_textFps;

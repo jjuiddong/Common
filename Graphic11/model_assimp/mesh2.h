@@ -15,12 +15,14 @@ namespace graphic {
 		virtual ~cMesh2();
 
 		bool Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skeleton);
-		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity, const char *techniqueName = "Unlit");
+		void Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity);
+		void RenderInstancing(cRenderer &renderer, const int count, const XMMATRIX &parentTm = XMIdentity);
 		void Clear();
 
 
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
+		void UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm);
 
 
 	public:

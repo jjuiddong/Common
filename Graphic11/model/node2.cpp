@@ -81,6 +81,45 @@ bool cNode2::Render(cRenderer &renderer
 }
 
 
+bool cNode2::RenderInstancing(cRenderer &renderer
+	, const int count
+	, const XMMATRIX *transforms
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	RETV(!m_isEnable, false);
+	RETV(!m_isShow, false);
+
+	XMMATRIX ctm = XMLoadFloat4x4((XMFLOAT4X4*)&m_transform.GetMatrix());
+	const XMMATRIX tm = ctm * parentTm;
+
+	for (auto &node : m_children)
+		node->RenderInstancing(renderer, count, transforms, tm, flags);
+
+	// for Debugging
+	if (renderer.m_isDbgRender)
+	{
+		if (0 == renderer.m_dbgRenderStyle) // sphere
+		{
+			//renderer.m_dbgSphere.m_transform.pos = m_boundingSphere.m_pos;
+			//renderer.m_dbgSphere.m_transform.scale = Vector3(1, 1, 1) * m_boundingSphere.m_radius;
+			//renderer.m_dbgSphere.Render(renderer, tm);
+		}
+		else
+		{
+			//renderer.m_dbgBox.SetBox(m_boundingBox.m_min, m_boundingBox.m_max);
+			//renderer.m_dbgBox.Render(renderer, tm);
+		}
+
+		//renderer.m_dbgAxis.SetAxis(m_boundingBox);
+		//renderer.m_dbgAxis.Render(renderer, tm);
+	}
+
+	return true;
+}
+
+
 bool cNode2::Update(cRenderer &renderer, const float deltaSeconds)
 {
 	RETV(!m_isEnable, false);

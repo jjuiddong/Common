@@ -17,10 +17,11 @@ namespace graphic
 
 	struct eRenderFlag {
 		enum Enum {
-			NONE = 0x01
-			, BUILDING = 0x02
-			, ALPHABLEND = 0x4
-			, SHADOW = 0x08
+			NONE = 1
+			, BUILDING = 1 << 1
+			, ALPHABLEND = 1 << 2
+			, SHADOW = 1 << 3
+			//, INSTANCING = 1 << 4
 		};
 	};
 
@@ -34,6 +35,13 @@ namespace graphic
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
+		virtual bool RenderInstancing(cRenderer &renderer
+			, const int count
+			, const XMMATRIX *transforms
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1
+		);
+
 		virtual bool AddChild(cNode2 *node);
 		virtual const cNode2* FindNode(const int id) const;
 		virtual const cNode2* FindNode(const StrId &name) const;
