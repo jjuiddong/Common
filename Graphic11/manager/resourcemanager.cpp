@@ -463,6 +463,8 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 	}
 	else
 	{
+		dbg::ErrLog("Error LoadTexture %s \n", fileName.c_str());
+
 		// load error
 		if (!texture)
 		{  // Not Exist File

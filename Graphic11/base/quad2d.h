@@ -18,7 +18,7 @@ namespace graphic
 		virtual ~cQuad2D();
 
 		bool Create(cRenderer &renderer, const float x, const float y, const float width, const float height
-			, const char *textureFileName = "" );
+			, const char *textureFileName = NULL );
 
 		void Render(cRenderer &renderer, const Matrix44 &tm = Matrix44::Identity);
 
