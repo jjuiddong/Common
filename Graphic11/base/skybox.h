@@ -8,7 +8,7 @@
 namespace graphic
 {
 
-	class cSkyBox
+	class cSkyBox : public cNode2
 	{
 	public:
 		cSkyBox();

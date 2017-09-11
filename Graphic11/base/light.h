@@ -63,12 +63,6 @@ namespace graphic
 		Vector4 m_specular;
 		Vector3 m_direction;
 		Vector3 m_pos;
-
-		//XMFLOAT4 m_ambient;
-		//XMFLOAT4 m_diffuse;
-		//XMFLOAT4 m_specular;
-		//XMFLOAT3 m_direction;
-		//XMFLOAT3 m_pos;
 	};
 
 

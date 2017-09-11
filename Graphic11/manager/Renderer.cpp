@@ -184,6 +184,8 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
 
+	m_shaderMgr.LoadShader(*this, "../media/shader11/water.fxo", pos_norm_tex, ARRAYSIZE(pos_norm_tex), false);
+
 
 	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
 	//m_textFps.SetPos(0, 0);

@@ -358,7 +358,7 @@ cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const StrPa
 	if (resourcePath.empty())
 		goto error;
 	
-	AddTask(new cTaskTextureLoader(0, &renderer, fileName));
+	AddTask(new cTaskTextureLoader(0, &renderer, fileName, resourcePath));
 
 	{
 		AutoCSLock cs(m_cs);

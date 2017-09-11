@@ -166,7 +166,10 @@ const Plane Plane::operator * (const Matrix44 &rhs)
 #ifdef USE_D3D9_MATH
 	D3DXPlaneTransform((D3DXPLANE*)&out, (D3DXPLANE*)this, (D3DXMATRIX*)&rhs);
 #else
-	assert(0);
+	XMVECTOR p = XMLoadFloat4((XMFLOAT4*)this);
+	XMMATRIX m = rhs.GetMatrixXM();	
+	XMVECTOR r = XMPlaneTransform(p, m);
+	XMStoreFloat4((XMFLOAT4*)&out, r);
 #endif
 	return out;
 }
@@ -179,7 +182,10 @@ Matrix44 Plane::GetReflectMatrix()
 #ifdef USE_D3D9_MATH
 	D3DXMatrixReflect((D3DXMATRIX*)&reflect, (D3DXPLANE*)this);
 #else
-	assert(0);
+	XMVECTOR plane = XMLoadFloat4((XMFLOAT4*)this);
+	XMMATRIX m;
+	m = XMMatrixReflect(plane);
+	XMStoreFloat4x4((XMFLOAT4X4*)&reflect, m);
 #endif
 	return reflect;
 }

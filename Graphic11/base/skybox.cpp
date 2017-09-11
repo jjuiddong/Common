@@ -5,6 +5,7 @@ using namespace graphic;
 
 
 cSkyBox::cSkyBox()
+	: cNode2(common::GenerateId(), "SkyBox", eNodeType::MODEL)
 {
 	ZeroMemory(m_textures, sizeof(m_textures));
 }
@@ -140,13 +141,13 @@ void cSkyBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //=XMIdentity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::TEXTURE);
+	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::TEXTURE);
 	assert(shader);
 	shader->SetTechnique("Skybox");
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tm);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	m_vtxBuff.Bind(renderer);
@@ -158,6 +159,9 @@ void cSkyBox::Render(cRenderer &renderer
 	{
 		if (m_textures[i])
 			m_textures[i]->Bind(renderer, 0);
+		else
+			m_textures[i]->Unbind(renderer, 0);
+
 		renderer.GetDevContext()->DrawInstanced(4, 1, i * 4, 0);
 	}
 	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);

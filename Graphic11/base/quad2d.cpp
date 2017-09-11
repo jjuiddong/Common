@@ -37,7 +37,7 @@ void cQuad2D::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();

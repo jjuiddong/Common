@@ -16,7 +16,9 @@ cShaderManager::~cShaderManager()
 
 
 cShader11* cShaderManager::LoadShader(cRenderer &renderer, const StrPath &fileName
-	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
+	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements
+	, const bool isVtxTypeHash //= true
+)
 {
 	if (cShader11 *p = FindShader(fileName))
 		return p;
@@ -35,8 +37,11 @@ cShader11* cShaderManager::LoadShader(cRenderer &renderer, const StrPath &fileNa
 		m_shaders[ StrPath(fileName.GetFileName()).GetHashCode()] = shader;
 
 		// Check Aready Exist
-		assert(m_vtxTypeShaders.end() == m_vtxTypeShaders.find(shader->m_vtxLayout.m_vertexType));
-		m_vtxTypeShaders[shader->m_vtxLayout.m_vertexType] = shader;
+		if (isVtxTypeHash)
+		{
+			assert(m_vtxTypeShaders.end() == m_vtxTypeShaders.find(shader->m_vtxLayout.m_vertexType));
+			m_vtxTypeShaders[shader->m_vtxLayout.m_vertexType] = shader;
+		}
 	}
 	return shader;
 

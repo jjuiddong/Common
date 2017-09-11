@@ -185,8 +185,10 @@ void cCamera::Render(cRenderer &renderer)
 
 void cCamera::Bind(cRenderer &renderer)
 {
-	//renderer.GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
-	//renderer.GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
+	const XMMATRIX mView = XMLoadFloat4x4((XMFLOAT4X4*)&GetMainCamera().GetViewMatrix());
+	const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&GetMainCamera().GetProjectionMatrix());
+	renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(mView);
+	renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
 }
 
 

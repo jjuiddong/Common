@@ -20,7 +20,7 @@ cRenderTarget::~cRenderTarget()
 
 
 bool cRenderTarget::Create(cRenderer &renderer
-	, const cViewport &viewPort //const int width, const int height
+	, const cViewport &viewPort
 	, const DXGI_FORMAT rtvFormat //render target view = DXGI_FORMAT_R8G8B8A8_UNORM
 	, const DXGI_FORMAT dsvFormat //depth stecil view = DXGI_FORMAT_D24_UNORM_S8_UINT
 )
@@ -28,8 +28,8 @@ bool cRenderTarget::Create(cRenderer &renderer
 	Clear();
 
 	m_viewPort = viewPort;
-	const int width = viewPort.m_vp.Width;
-	const int height = viewPort.m_vp.Height;
+	const int width = (int)viewPort.m_vp.Width;
+	const int height = (int)viewPort.m_vp.Height;
 
 	// Create Render Target Texture
 	D3D11_TEXTURE2D_DESC desc;

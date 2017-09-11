@@ -67,7 +67,7 @@ bool cModel2::Render(cRenderer &renderer
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
 	shader->SetTechnique(m_techniqueName.c_str());
 	assert(shader);
 	shader->Begin();
@@ -103,7 +103,7 @@ bool cModel2::RenderInstancing(cRenderer &renderer
 	const Str32 technique = m_techniqueName + "_Instancing";
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
 	shader->SetTechnique(technique.c_str());
 	assert(shader);
 	shader->Begin();

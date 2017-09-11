@@ -24,10 +24,10 @@ void cMaterial::Init(
 	, const float pow // =90
 )
 {
-	m_ambient = *(XMFLOAT4*)&ambient;
-	m_diffuse = *(XMFLOAT4*)&diffuse;
-	m_specular = *(XMFLOAT4*)&specular;
-	m_emissive = *(XMFLOAT4*)&emmisive;
+	m_ambient = ambient;
+	m_diffuse = diffuse;
+	m_specular = specular;
+	m_emissive = emmisive;
 	m_power = pow;
 }
 
@@ -170,10 +170,10 @@ Str64 cMaterial::SpecialColor(const float r, const float g, const float b)
 sCbMaterial cMaterial::GetMaterial()
 {
 	sCbMaterial cb;
-	cb.ambient = XMLoadFloat4(&m_ambient);
-	cb.diffuse = XMLoadFloat4(&m_diffuse);
-	cb.specular = XMLoadFloat4(&m_specular);
-	cb.emissive = XMLoadFloat4(&m_emissive);
+	cb.ambient = XMLoadFloat4((XMFLOAT4*)&m_ambient);
+	cb.diffuse = XMLoadFloat4((XMFLOAT4*)&m_diffuse);
+	cb.specular = XMLoadFloat4((XMFLOAT4*)&m_specular);
+	cb.emissive = XMLoadFloat4((XMFLOAT4*)&m_emissive);
 	cb.pow = m_power;
 	return cb;
 }

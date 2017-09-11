@@ -50,7 +50,7 @@ bool cQuad::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();

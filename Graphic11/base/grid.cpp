@@ -10,6 +10,7 @@ cGrid::cGrid()
 	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	, m_texture(NULL)
 {
+	int a = 0;
 }
 
 cGrid::~cGrid()
@@ -127,7 +128,7 @@ bool cGrid::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_vertexType);
+	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_vertexType);
 	assert(shader);
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
@@ -146,6 +147,7 @@ bool cGrid::Render(cRenderer &renderer
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);

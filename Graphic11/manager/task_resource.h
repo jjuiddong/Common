@@ -144,9 +144,10 @@ namespace graphic
 	class cTaskTextureLoader : public common::cTask
 	{
 	public:
-		cTaskTextureLoader(int id, cRenderer *renderer, const StrPath &fileName)
+		cTaskTextureLoader(int id, cRenderer *renderer, const StrPath &key, const StrPath &fileName)
 			: cTask(id, "cTaskTextureLoader")
 			, m_renderer(renderer)
+			, m_key(key)
 			, m_fileName(fileName) {
 		}
 		virtual ~cTaskTextureLoader() {
@@ -171,12 +172,12 @@ namespace graphic
 
 			if (texture && texture->IsLoaded())
 			{
-				cResourceManager::Get()->InsertTexture(m_fileName, texture);
+				cResourceManager::Get()->InsertTexture(m_key, texture);
 				return eRunResult::END;
 			}
 			else
 			{
-				cResourceManager::Get()->InsertTexture(m_fileName,
+				cResourceManager::Get()->InsertTexture(m_key,
 					cResourceManager::Get()->LoadTexture(*m_renderer, g_defaultTexture, false));
 			}
 
@@ -187,6 +188,7 @@ namespace graphic
 			return eRunResult::END;
 		}
 
+		StrPath m_key;
 		StrPath m_fileName;
 		cRenderer *m_renderer;
 	};

@@ -6,11 +6,10 @@ using namespace graphic;
 
 
 cWater::cWater()
-	: m_isRenderSurface(false)
-	, m_isFirstUpdateShader(true)
+	: cNode2(common::GenerateId(), "Water", eNodeType::MODEL)
+	, m_isRenderSurface(false)
 {
 	Matrix44 mWaterWorld;
-	//mWaterWorld.SetTranslate(Vector3(0,10,0));
 	mWaterWorld.SetTranslate(Vector3(0, 0, 0));
 
 	sInitInfo waterInitInfo;
@@ -23,8 +22,8 @@ cWater::cWater()
 	waterInitInfo.dz = 1.0f;
 	waterInitInfo.uvFactor = 8.f;
 	waterInitInfo.yOffset = 0.f;
-	waterInitInfo.waveMapFilename0 = "wave0.dds";
-	waterInitInfo.waveMapFilename1 = "wave1.dds";
+	waterInitInfo.waveMapFilename0 = "wave0.png";
+	waterInitInfo.waveMapFilename1 = "wave1.png";
 	waterInitInfo.waveMapVelocity0 = Vector2(0.09f, 0.06f);
 	waterInitInfo.waveMapVelocity1 = Vector2(-0.05f, 0.08f);
 	waterInitInfo.texScale = 10.0f; 
@@ -38,7 +37,6 @@ cWater::cWater()
 
 	m_waveMapOffset0 = Vector2(0.0f, 0.0f);
 	m_waveMapOffset1 = Vector2(0.0f, 0.0f);
-
 }
 
 cWater::~cWater()
@@ -46,25 +44,27 @@ cWater::~cWater()
 }
 
 
-// 물 클래스 생성.
+//
 bool cWater::Create(cRenderer &renderer)
 {
-	RETV(m_grid.GetVertexBuffer().GetVertexCount() > 0, true); // 이미 생성되었다면 리턴
+	cViewport vp;
+	vp.Create(0, 0, 512, 512, 0.f, 1.f);
+	m_reflectMap.Create(renderer, vp);
+	m_refractMap.Create(renderer, vp);
 
-	const int width = 512;
-	const int  height = 512;
-	m_reflectMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true, NULL, 0.f, 1.f);
-	m_refractMap.Create(renderer, width, height, 0, D3DFMT_X8R8G8B8, true, D3DFMT_D24X8, true, NULL, 0.f, 1.f);
+	m_grid.Create(renderer
+		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize
+		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
+		, cColor::WHITE
+		//, g_defaultTexture
+		, "sora.jpg"
+		, Vector2(0, 0)
+		, Vector2(1, 1)
+		, m_initInfo.uvFactor);
 
-	m_shader = cResourceManager::Get()->LoadShader(renderer, "water.fx");
-	if (!m_shader)
+	m_grid.m_shader = renderer.m_shaderMgr.FindShader("water.fxo");
+	if (!m_grid.m_shader)
 		return false;
-
-	m_shader->SetTechnique("WaterTech");
-
-	m_grid.Create(renderer, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize
-		, m_initInfo.uvFactor, m_initInfo.yOffset);
-	m_grid.GetTexture().Create(renderer, cResourceManager::Get()->FindFile(g_defaultTexture));
 
 	m_waveMap0 = cResourceManager::Get()->LoadTextureParallel(renderer, m_initInfo.waveMapFilename0);
 	m_waveMap1 = cResourceManager::Get()->LoadTextureParallel(renderer, m_initInfo.waveMapFilename1);
@@ -75,65 +75,68 @@ bool cWater::Create(cRenderer &renderer)
 		new cParallelLoader(cParallelLoader::eType::TEXTURE, m_initInfo.waveMapFilename1
 			, (void**)&m_waveMap1));
 
-	//m_waveMap0 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename0);
-	//m_waveMap1 = cResourceManager::Get()->LoadTexture(renderer, m_initInfo.waveMapFilename1);
-	//if (!m_waveMap0 || !m_waveMap1)
-	//	return false;
+	m_initInfo.dirLight.m_ambient = Vector4(0.8f, 0.8f, 0.8f, 1);
+	m_initInfo.mtrl.m_ambient = Vector4(0.4f, 0.4f, 0.4f, 1);
+	m_initInfo.mtrl.m_specular = Vector4(0.6f, 0.6f, 0.6f, 0.6f);
+	m_initInfo.mtrl.m_power = 200;
 
-	//m_hWVP = m_shader->GetValueHandle( "gWVP");
-	//m_hEyePosW = m_shader->GetValueHandle( "gEyePosW");
-	//m_hLight = m_shader->GetValueHandle( "gLight");
-	//m_hMtrl = m_shader->GetValueHandle( "gMtrl");
-	//m_hWaveMapOffset0 = m_shader->GetValueHandle( "gWaveMapOffset0");
-	//m_hWaveMapOffset1 = m_shader->GetValueHandle( "gWaveMapOffset1");
-	//m_hReflectMap = m_shader->GetValueHandle( "gReflectMap");
-	//m_hRefractMap = m_shader->GetValueHandle( "gRefractMap");
-
-	m_initInfo.dirLight.m_light.Ambient = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1);
-
-	m_initInfo.mtrl.m_mtrl.Ambient = D3DXCOLOR(0.4f, 0.4f, 0.4f, 1);
-	m_initInfo.mtrl.m_mtrl.Specular = D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.6f);
-	m_initInfo.mtrl.m_mtrl.Power = 200;
-
-	UpdateShader();
+	m_cbWater.Create(renderer);
 
 	return true;
 }
 
 
-void cWater::Render(cRenderer &renderer)
+bool cWater::Render(cRenderer &renderer
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
 {
-	cLightManager::Get()->GetMainLight().Bind(*m_shader);
+	cShader11 *shader = m_grid.m_shader;
+	assert(shader);
 
-	m_shader->SetMatrix("g_mVP", GetMainCamera()->GetViewProjectionMatrix());
-	m_shader->SetMatrix("gWVP", m_initInfo.toWorld*GetMainCamera()->GetViewProjectionMatrix());
-	m_shader->SetVector("gEyePosW", GetMainCamera()->GetEyePos());
-	m_shader->SetVector("gWaveMapOffset0", m_waveMapOffset0);
-	m_shader->SetVector("gWaveMapOffset1", m_waveMapOffset1);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_initInfo.toWorld.GetMatrixXM());
+	//const Matrix44 worldInv = m_initInfo.toWorld.Inverse();
+	//m_cbWater.m_v->gWorldInv = XMMatrixTranspose(worldInv.GetMatrixXM());
 
-	m_grid.RenderShader(renderer, *m_shader);
+	shader->SetBindTexture(m_waveMap0, 1);
+	shader->SetBindTexture(m_waveMap1, 2);
 
-	// 디버깅용.
-	if (m_isRenderSurface)
-	{
-		m_refractMap.Render(renderer, 1);
-		m_reflectMap.Render(renderer, 2);
-	}
+	shader->SetBindTexture(m_reflectMap, 3);
+	shader->SetBindTexture(m_refractMap, 4);
+
+	Vector3 dirW(0.0f, -1.0f, -3.0f);
+	dirW.Normalize();
+	renderer.m_cbLight.m_v->direction = XMLoadFloat3((XMFLOAT3*)&dirW);
+
+	m_cbWater.m_v->gRefractPower = m_initInfo.refractBias;
+	m_cbWater.m_v->gRefractPower = m_initInfo.refractPower;
+	m_cbWater.m_v->gRippleScale = *(XMFLOAT2*)&m_initInfo.rippleScale;
+	m_cbWater.m_v->gWaveMapOffset0 = *(XMFLOAT2*)&m_waveMapOffset0;
+	m_cbWater.m_v->gWaveMapOffset1 = *(XMFLOAT2*)&m_waveMapOffset1;
+
+	renderer.m_cbPerFrame.Update(renderer, 0);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.Update(renderer, 2);
+	m_cbWater.Update(renderer, 3);
+
+	m_grid.Render(renderer);
+
+	//if (m_isRenderSurface)
+	//{
+	//	m_refractMap.Render(renderer, 1);
+	//	m_reflectMap.Render(renderer, 2);
+	//}
+
+	return true;
 }
 
 
-void cWater::Update(const float elapseTime)
+bool cWater::Update(cRenderer &renderer, const float deltaSeconds)
 {
-	if (m_isFirstUpdateShader && m_waveMap0 && m_waveMap1)
-	{
-		UpdateShader();
-		m_isFirstUpdateShader = false;
-	}
-
 	// Update texture coordinate offsets.  These offsets are added to the
 	// texture coordinates in the vertex shader to animate them.
-	m_waveMapOffset0 += m_initInfo.waveMapVelocity0 * elapseTime;
-	m_waveMapOffset1 += m_initInfo.waveMapVelocity1 * elapseTime;
+	m_waveMapOffset0 += m_initInfo.waveMapVelocity0 * deltaSeconds;
+	m_waveMapOffset1 += m_initInfo.waveMapVelocity1 * deltaSeconds;
 
 	// Textures repeat every 1.0 unit, so reset back down to zero
 	// so the coordinates do not grow too large.
@@ -145,72 +148,44 @@ void cWater::Update(const float elapseTime)
 		m_waveMapOffset0.y = 0.0f;
 	if(m_waveMapOffset1.y >= 1.0f || m_waveMapOffset1.y <= -1.0f)
 		m_waveMapOffset1.y = 0.0f;
+
+	return true;
 }
+
 
 void cWater::BeginRefractScene(cRenderer &renderer)
 {
-	m_refractMap.Begin(renderer);
+	m_refractMap.SetRenderTarget(renderer);
 }
 
 
 void cWater::EndRefractScene(cRenderer &renderer)
 {
-	m_refractMap.End(renderer);
+	m_refractMap.RecoveryRenderTarget(renderer);
 }
 
 
 void cWater::BeginReflectScene(cRenderer &renderer)
 {
-	m_reflectMap.Begin(renderer);
+	m_reflectMap.SetRenderTarget(renderer);
 }
 
 
 void cWater::EndReflectScene(cRenderer &renderer)
 {
-	m_reflectMap.End(renderer);
+	m_reflectMap.RecoveryRenderTarget(renderer);
 }
 
 
 void cWater::LostDevice()
 {
-	m_reflectMap.LostDevice();
-	m_refractMap.LostDevice();
+	//m_reflectMap.LostDevice();
+	//m_refractMap.LostDevice();
 }
 
 
 void cWater::ResetDevice(cRenderer &renderer)
 {
-	m_reflectMap.ResetDevice(renderer);
-	m_refractMap.ResetDevice(renderer);
-
-	UpdateShader();
-}
-
-
-void cWater::UpdateShader() 
-{
-	RET(!m_shader);
-
-	// We don't need to set these every frame since they do not change
-	m_shader->SetMatrix("gWorld", m_initInfo.toWorld);
-	Matrix44 worldInv = m_initInfo.toWorld.Inverse();
-	m_shader->SetMatrix("gWorldInv", worldInv);
-
-	if (m_waveMap0)
-		m_waveMap0->Bind(*m_shader, "gWaveMap0");
-	if (m_waveMap1)
-		m_waveMap1->Bind(*m_shader, "gWaveMap1");
-	m_reflectMap.Bind(*m_shader, "gReflectMap");
-	m_refractMap.Bind(*m_shader, "gRefractMap");
-
-	Vector3 dirW(0.0f, -1.0f, -3.0f);
-	dirW.Normalize();
-	m_initInfo.dirLight.Bind(*m_shader);
-	m_shader->SetVector("g_light.dirW", dirW);
-
-	m_initInfo.mtrl.Bind(*m_shader);
-
-	m_shader->SetFloat("gRefractBias", m_initInfo.refractBias);
-	m_shader->SetFloat("gRefractPower", m_initInfo.refractPower);
-	m_shader->SetVector("gRippleScale", m_initInfo.rippleScale);
+	//m_reflectMap.ResetDevice(renderer);
+	//m_refractMap.ResetDevice(renderer);
 }

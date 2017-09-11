@@ -206,6 +206,7 @@
     <ClInclude Include="terrain\terrain2.h" />
     <ClInclude Include="terrain\terrainloader.h" />
     <ClInclude Include="terrain\tile.h" />
+    <ClInclude Include="terrain\water.h" />
     <ClInclude Include="textdesigner\BmpOutlineText.h" />
     <ClInclude Include="textdesigner\Canvas.h" />
     <ClInclude Include="textdesigner\DiffusedShadowStrategy.h" />
@@ -296,6 +297,7 @@
     <ClCompile Include="terrain\terrain2.cpp" />
     <ClCompile Include="terrain\terrainloader.cpp" />
     <ClCompile Include="terrain\tile.cpp" />
+    <ClCompile Include="terrain\water.cpp" />
     <ClCompile Include="textdesigner\BmpOutlineText.cpp" />
     <ClCompile Include="textdesigner\Canvas.cpp" />
     <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp" />

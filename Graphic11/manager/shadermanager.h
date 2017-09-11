@@ -15,7 +15,8 @@ namespace graphic
 		virtual ~cShaderManager();
 
 		cShader11* LoadShader(cRenderer &renderer, const StrPath &fileName
-			, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
+			, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements
+			, const bool isVtxTypeHash = true);
 		cShader11* FindShader(const int vertexType);
 		cShader11* FindShader(const StrPath &fileName);
 		void Clear();

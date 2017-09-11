@@ -21,7 +21,6 @@ namespace graphic
 			, BUILDING = 1 << 1
 			, ALPHABLEND = 1 << 2
 			, SHADOW = 1 << 3
-			//, INSTANCING = 1 << 4
 		};
 	};
 

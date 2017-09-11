@@ -34,6 +34,7 @@ cNode2::cNode2(const int id
 	, m_type(type)
 	, m_flags(1)
 	, m_shader(NULL)
+	, m_techniqueName("Unlit")
 {
 }
 

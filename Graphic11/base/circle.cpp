@@ -29,7 +29,7 @@ bool cCircle::Create(cRenderer &renderer, const Vector3 &center, const float rad
 // Ãâ·Â.
 void cCircle::Render(cRenderer &renderer)
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();

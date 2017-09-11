@@ -19,8 +19,8 @@ namespace graphic
 		int Begin();
 		void BeginPass(cRenderer &renderer, const int pass);
 		bool SetTechnique(const char *id);
-		void BindShadowMap();
-
+		void SetBindTexture(cTexture *texture, const int stage);
+		void SetBindTexture(cRenderTarget &rt, const int stage);
 
 		ID3DX11EffectTechnique* GetTechnique(const char *id);
 		ID3DX11EffectVariable* GetVariable(const char *id);
@@ -32,7 +32,7 @@ namespace graphic
 		StrId m_name;
 		ID3DX11Effect *m_effect;
 		ID3DX11EffectTechnique* m_technique;
-		ID3D11ShaderResourceView *m_shadowMap[3]; // reference
+		ID3D11ShaderResourceView *m_textureMap[5]; // reference
 		cVertexLayout m_vtxLayout;
 	};
 

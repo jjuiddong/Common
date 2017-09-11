@@ -63,7 +63,11 @@ namespace graphic {
 #include "../ai/ai.h"
 
 #include "utility\utility.h"
-#include "textdesigner\PngOutlineText.h"
+
+#pragma warning(push)
+#pragma warning (disable: 4244) //warning C4244:  conversion from 'float' to 'const int', possible loss of data
+	#include "textdesigner\PngOutlineText.h"
+#pragma warning(pop)
 
 #include "base/graphicdef.h"
 #include "model/rawmesh.h"
@@ -185,7 +189,7 @@ namespace graphic {
 //#include "sprite/sprite2.h"
 //
 //#include "terrain/rawterrain.h"
-//#include "terrain/water.h"
+#include "terrain/water.h"
 //#include "terrain/terrain.h"
 #include "terrain/terrain2.h"
 #include "terrain/tile.h"
