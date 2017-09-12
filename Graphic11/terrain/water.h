@@ -41,6 +41,8 @@ namespace graphic
 		bool IstRenderReflectMap() const;
 		void LostDevice();
 		void ResetDevice(cRenderer &renderer);
+		Matrix44 GetReflectionMatrix();
+		Plane GetWorldPlane();
 
 
 	public:

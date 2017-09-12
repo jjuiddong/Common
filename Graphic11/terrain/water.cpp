@@ -10,7 +10,7 @@ cWater::cWater()
 	, m_isRenderSurface(false)
 {
 	Matrix44 mWaterWorld;
-	mWaterWorld.SetTranslate(Vector3(0, 0, 0));
+	mWaterWorld.SetTranslate(Vector3(0, 0.5f, 0));
 
 	sInitInfo waterInitInfo;
 	waterInitInfo.dirLight.Init(cLight::LIGHT_DIRECTIONAL);
@@ -20,7 +20,7 @@ cWater::cWater()
 	waterInitInfo.cellSize = 64.f;
 	waterInitInfo.dx = 1.0f;
 	waterInitInfo.dz = 1.0f;
-	waterInitInfo.uvFactor = 8.f;
+	waterInitInfo.uvFactor = 512;
 	waterInitInfo.yOffset = 0.f;
 	waterInitInfo.waveMapFilename0 = "wave0.png";
 	waterInitInfo.waveMapFilename1 = "wave1.png";
@@ -29,8 +29,8 @@ cWater::cWater()
 	waterInitInfo.texScale = 10.0f; 
 	waterInitInfo.refractBias = 0.1f;
 	waterInitInfo.refractPower = 2.0f;
-	//waterInitInfo.rippleScale  = Vector2(0.06f, 0.03f); 
-	waterInitInfo.rippleScale  = Vector2(0.06f, 0.0f); 
+	waterInitInfo.rippleScale  = Vector2(0.06f, 0.03f); 
+	//waterInitInfo.rippleScale  = Vector2(0.06f, 0.0f); 
 	waterInitInfo.toWorld = mWaterWorld;
 
 	m_initInfo = waterInitInfo;
@@ -94,32 +94,49 @@ bool cWater::Render(cRenderer &renderer
 	cShader11 *shader = m_grid.m_shader;
 	assert(shader);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_initInfo.toWorld.GetMatrixXM());
-	//const Matrix44 worldInv = m_initInfo.toWorld.Inverse();
-	//m_cbWater.m_v->gWorldInv = XMMatrixTranspose(worldInv.GetMatrixXM());
-
 	shader->SetBindTexture(m_waveMap0, 1);
 	shader->SetBindTexture(m_waveMap1, 2);
-
 	shader->SetBindTexture(m_reflectMap, 3);
 	shader->SetBindTexture(m_refractMap, 4);
+
+	shader->SetTechnique(m_techniqueName.c_str());
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
 
 	Vector3 dirW(0.0f, -1.0f, -3.0f);
 	dirW.Normalize();
 	renderer.m_cbLight.m_v->direction = XMLoadFloat3((XMFLOAT3*)&dirW);
 
-	m_cbWater.m_v->gRefractPower = m_initInfo.refractBias;
+	const Matrix44 worldInv = m_initInfo.toWorld.Inverse();
+	m_cbWater.m_v->gWorldInv = XMMatrixTranspose(worldInv.GetMatrixXM());
+	m_cbWater.m_v->gRefractBias = m_initInfo.refractBias;
 	m_cbWater.m_v->gRefractPower = m_initInfo.refractPower;
 	m_cbWater.m_v->gRippleScale = *(XMFLOAT2*)&m_initInfo.rippleScale;
 	m_cbWater.m_v->gWaveMapOffset0 = *(XMFLOAT2*)&m_waveMapOffset0;
 	m_cbWater.m_v->gWaveMapOffset1 = *(XMFLOAT2*)&m_waveMapOffset1;
 
+	renderer.m_cbMaterial = m_initInfo.mtrl.GetMaterial();
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_initInfo.toWorld.GetMatrixXM());
 	renderer.m_cbPerFrame.Update(renderer, 0);
 	renderer.m_cbLight.Update(renderer, 1);
 	renderer.m_cbMaterial.Update(renderer, 2);
 	m_cbWater.Update(renderer, 3);
 
-	m_grid.Render(renderer);
+	m_grid.m_vtxBuff.Bind(renderer);
+	m_grid.m_idxBuff.Bind(renderer);
+
+	if ((m_grid.m_vertexType & eVertexType::TEXTURE) && m_grid.m_texture)
+		m_grid.m_texture->Bind(renderer, 0);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+
+	renderer.GetDevContext()->IASetPrimitiveTopology(m_grid.m_primitiveType);
+	renderer.GetDevContext()->DrawIndexed(m_grid.m_idxBuff.GetFaceCount() * 3, 0, 0);
+	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+
+	//m_grid.Render(renderer);
 
 	//if (m_isRenderSurface)
 	//{
@@ -156,24 +173,84 @@ bool cWater::Update(cRenderer &renderer, const float deltaSeconds)
 void cWater::BeginRefractScene(cRenderer &renderer)
 {
 	m_refractMap.SetRenderTarget(renderer);
+	renderer.ClearScene(false);
+	renderer.BeginScene();
+
+	// Reflection plane in world space.
+	Plane waterPlaneW = GetWorldPlane();
+	float f[4] = { waterPlaneW.N.x, waterPlaneW.N.y, waterPlaneW.N.z, waterPlaneW.D };
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
+	memcpy(renderer.m_cbClipPlane.m_v->clipPlane, f, sizeof(f));
 }
 
 
 void cWater::EndRefractScene(cRenderer &renderer)
 {
+	renderer.EndScene();
 	m_refractMap.RecoveryRenderTarget(renderer);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
+
+	float f2[4] = { 1,1,1,1000 }; // default clipplane always positive return
+	memcpy(renderer.m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 }
 
 
 void cWater::BeginReflectScene(cRenderer &renderer)
 {
 	m_reflectMap.SetRenderTarget(renderer);
+	renderer.ClearScene(false);
+	renderer.BeginScene();
+
+	// Reflection plane in world space.
+	Plane waterPlaneW = GetWorldPlane();
+	float f[4] = { waterPlaneW.N.x, waterPlaneW.N.y, waterPlaneW.N.z, waterPlaneW.D };
+
+	CommonStates states(renderer.GetDevice());
+	memcpy(renderer.m_cbClipPlane.m_v->clipPlane, f, sizeof(f));
+	renderer.GetDevContext()->RSSetState(states.CullClockwise());
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 }
 
 
 void cWater::EndReflectScene(cRenderer &renderer)
 {
+	renderer.EndScene();
 	m_reflectMap.RecoveryRenderTarget(renderer);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
+
+	float f2[4] = { 1,1,1,1000 }; // default clipplane always positive return
+	memcpy(renderer.m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
+}
+
+
+Plane cWater::GetWorldPlane()
+{
+	// Reflection plane in local space.
+	Plane waterPlaneL(0, -1, 0, 0);
+
+	// Reflection plane in world space.
+	Matrix44 waterWorld;
+	waterWorld.SetTranslate(Vector3(0, m_initInfo.toWorld.GetPosition().y, 0)); // water height
+	Matrix44 WInvTrans;
+	WInvTrans = waterWorld.Inverse();
+	WInvTrans.Transpose();
+	Plane waterPlaneW = waterPlaneL * WInvTrans;
+	return waterPlaneW;
+}
+
+
+Matrix44 cWater::GetReflectionMatrix()
+{
+	return GetWorldPlane().GetReflectMatrix();
 }
 
 

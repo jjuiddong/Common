@@ -129,7 +129,7 @@ void cLight::Bind(cRenderer &renderer,
 	int lightIndex // =0
 ) 
 {
-	//renderer.GetDevice()->SetLight(lightIndex, &m_light);
+	renderer.m_cbLight = GetLight();
 }
 
 

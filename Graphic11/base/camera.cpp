@@ -189,6 +189,8 @@ void cCamera::Bind(cRenderer &renderer)
 	const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&GetMainCamera().GetProjectionMatrix());
 	renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(mView);
 	renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
+	//renderer.m_cbPerFrame.m_v->eyePosW = XMLoadFloat4((XMFLOAT4*)&Vector4(m_eyePos));
+	renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
 }
 
 

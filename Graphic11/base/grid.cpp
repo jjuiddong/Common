@@ -10,7 +10,7 @@ cGrid::cGrid()
 	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	, m_texture(NULL)
 {
-	int a = 0;
+	m_mtrl.InitWhite();
 }
 
 cGrid::~cGrid()
@@ -137,6 +137,7 @@ bool cGrid::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_vtxBuff.Bind(renderer);

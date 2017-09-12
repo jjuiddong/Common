@@ -59,7 +59,7 @@ void cQuad2D::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.Update(renderer);
 
 	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
 
 	if (m_texture)
@@ -67,7 +67,7 @@ void cQuad2D::Render(cRenderer &renderer
 
 	m_shape.Render(renderer);
 
-	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	//renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 }
 

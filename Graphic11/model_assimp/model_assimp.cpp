@@ -69,15 +69,13 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 		{
 			const XMMATRIX &tm1 = transforms[i];
 			const XMMATRIX &tm2 = mesh->m_transform.GetMatrixXM();
-			renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm2 * tm1);
+			renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm2 * tm1 * parentTm);
 		}
-
 		renderer.m_cbInstancing.Update(renderer, 3);
 		mesh->RenderInstancing(renderer, count, parentTm);
 	}
 	return true;
 }
-
 
 
 bool cAssimpModel::Update(const float deltaSeconds)

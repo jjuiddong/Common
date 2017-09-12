@@ -124,7 +124,9 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_cbLight.Create(*this);
 	m_cbMaterial.Create(*this);
 	m_cbInstancing.Create(*this);
-	m_cbInstancingTemp.Create(*this);
+	m_cbClipPlane.Create(*this);
+	float f2[4] = { 1,1,1,1000 }; // default clipplane always positive return
+	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 
 	m_textMgr.Create(256);
 

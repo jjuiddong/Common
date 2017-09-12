@@ -72,6 +72,7 @@ bool cModel2::Render(cRenderer &renderer
 	assert(shader);
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
+	renderer.m_cbClipPlane.Update(renderer, 4);
 
 	if (m_model)
 		m_model->Render(renderer, transform);
@@ -108,6 +109,7 @@ bool cModel2::RenderInstancing(cRenderer &renderer
 	assert(shader);
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
+	renderer.m_cbClipPlane.Update(renderer, 4);
 
 	if (m_model)
 		m_model->RenderInstancing(renderer, count, transforms, transform);

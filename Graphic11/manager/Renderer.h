@@ -16,12 +16,17 @@ namespace graphic
 		XMMATRIX mLightView[3];
 		XMMATRIX mLightProj[3];
 		XMMATRIX mLightTT;
-		XMVECTOR eyePosW;
+		Vector3 eyePosW;
 	};
 	
 	struct sCbInstancing
 	{
 		XMMATRIX worlds[100];
+	};
+
+	struct cCbClipPlane
+	{
+		float clipPlane[4];
 	};
 
 
@@ -94,7 +99,7 @@ namespace graphic
 		cConstantBuffer<sCbLight> m_cbLight;
 		cConstantBuffer<sCbMaterial> m_cbMaterial;
 		cConstantBuffer<sCbInstancing> m_cbInstancing;
-		cConstantBuffer<sCbInstancing> m_cbInstancingTemp;
+		cConstantBuffer<cCbClipPlane> m_cbClipPlane;
 
 		// Display FPS 
 		cText m_textFps;

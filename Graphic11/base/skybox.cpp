@@ -149,6 +149,7 @@ void cSkyBox::Render(cRenderer &renderer
 
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tm);
 	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbClipPlane.Update(renderer, 1);
 
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);

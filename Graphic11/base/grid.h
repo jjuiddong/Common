@@ -30,6 +30,7 @@ namespace graphic
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 		cTexture *m_texture; // reference
+		cMaterial m_mtrl;
 		int m_rowCellCount;
 		int m_colCellCount;
 		float m_cellSize;
