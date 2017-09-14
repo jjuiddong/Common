@@ -25,6 +25,7 @@ namespace graphic
 			, const int flags = 1);
 		bool Update(const float deltaSeconds);
 		void SetAnimation(const Str64 &animationName, const bool isMerge=false);
+		int GetVertexType();
 		void Clear();
 
 

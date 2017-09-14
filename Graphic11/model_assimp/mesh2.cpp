@@ -19,7 +19,9 @@ cMesh2::~cMesh2()
 
 
 // Create Mesh
-bool cMesh2::Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skeleton)
+bool cMesh2::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skeleton
+	, const bool calculateTangentBinormal //= false
+)
 {
 	Clear();
 
@@ -30,6 +32,9 @@ bool cMesh2::Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skelet
 
 	CreateMaterials(renderer, mesh);
 	
+	if (calculateTangentBinormal)
+		CalculateModelVectors(mesh);
+
 	m_buffers = new cMeshBuffer(renderer, mesh);
 
 	m_tmPose.resize(m_bones.size());
@@ -100,6 +105,9 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
 	if (!m_colorMap.empty())
 		m_colorMap[0]->Bind(renderer, 0);
 
+	if (!m_normalMap.empty())
+		m_normalMap[0]->Bind(renderer, 1);
+
 	const XMMATRIX m = m_transform.GetMatrixXM() * parentTm;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);
 	renderer.m_cbPerFrame.Update(renderer);
@@ -159,6 +167,114 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
 //	//}
 //	//shader->End();
 //}
+
+
+void cMesh2::CalculateModelVectors(INOUT sRawMesh2 &mesh)
+{
+	RET(!mesh.tangent.empty());
+	RET(!mesh.binormal.empty());
+
+	const int vertexCount = mesh.vertices.size();
+	mesh.tangent.resize(vertexCount);
+	mesh.binormal.resize(vertexCount);
+
+	const int faceCount = vertexCount / 3;
+	int index = 0;
+
+	// Go through all the faces and calculate the the tangent, binormal, and normal vectors.
+	for (int i = 0; i<faceCount; i++)
+	{
+		// Get the three vertices for this face from the model.
+		sVertexNormTex vertex1, vertex2, vertex3;
+
+		vertex1.p = mesh.vertices[index];
+		vertex1.n = mesh.normals[index];
+		vertex1.u = mesh.tex[index].x;
+		vertex1.v = mesh.tex[index].y;
+		index++;
+
+		vertex2.p = mesh.vertices[index];
+		vertex2.n = mesh.normals[index];
+		vertex2.u = mesh.tex[index].x;
+		vertex2.v = mesh.tex[index].y;
+		index++;
+
+		vertex3.p = mesh.vertices[index];
+		vertex3.n = mesh.normals[index];
+		vertex3.u = mesh.tex[index].x;
+		vertex3.v = mesh.tex[index].y;
+		index++;
+
+		Vector3 tangent, binormal, normal;
+		// Calculate the tangent and binormal of that face.
+		CalculateTangentBinormal(vertex1, vertex2, vertex3, tangent, binormal);
+
+		// Calculate the new normal using the tangent and binormal.
+		normal = tangent.CrossProduct(binormal).Normal();
+
+		// Store the normal, tangent, and binormal for this face back in the model structure.
+		mesh.normals[index - 1] = normal;
+		mesh.tangent[index - 1] = tangent;
+		mesh.binormal[index - 1] = binormal;
+
+		mesh.normals[index - 2] = normal;
+		mesh.tangent[index - 2] = tangent;
+		mesh.binormal[index - 2] = binormal;
+
+		mesh.normals[index - 3] = normal;
+		mesh.tangent[index - 3] = tangent;
+		mesh.binormal[index - 3] = binormal;
+	}
+
+	return;
+}
+
+
+void cMesh2::CalculateTangentBinormal(
+	const sVertexNormTex &vertex1
+	, const sVertexNormTex &vertex2
+	, const sVertexNormTex &vertex3
+	, OUT Vector3& tangent
+	, OUT Vector3& binormal
+)
+{
+	float vector1[3], vector2[3];
+	float tuVector[2], tvVector[2];
+	float den;
+
+	// Calculate the two vectors for this face.
+	vector1[0] = vertex2.p.x - vertex1.p.x;
+	vector1[1] = vertex2.p.y - vertex1.p.y;
+	vector1[2] = vertex2.p.z - vertex1.p.z;
+
+	vector2[0] = vertex3.p.x - vertex1.p.x;
+	vector2[1] = vertex3.p.y - vertex1.p.y;
+	vector2[2] = vertex3.p.z - vertex1.p.z;
+
+	// Calculate the tu and tv texture space vectors.
+	tuVector[0] = vertex2.u - vertex1.u;
+	tvVector[0] = vertex2.v - vertex1.v;
+
+	tuVector[1] = vertex3.u - vertex1.u;
+	tvVector[1] = vertex3.v - vertex1.v;
+
+	// Calculate the denominator of the tangent/binormal equation.
+	den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
+
+	// Calculate the cross products and multiply by the coefficient to get the tangent and binormal.
+	tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
+	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
+	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
+
+	binormal.x = (tuVector[0] * vector2[0] - tuVector[1] * vector1[0]) * den;
+	binormal.y = (tuVector[0] * vector2[1] - tuVector[1] * vector1[1]) * den;
+	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
+
+	tangent.Normalize();
+	binormal.Normalize();
+
+	return;
+}
 
 
 void cMesh2::Clear()

@@ -36,6 +36,7 @@ cRenderer::cRenderer()
 	, m_isDbgRender(false)
 	, m_dbgRenderStyle(0)
 {
+	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }
 
 cRenderer::~cRenderer()
@@ -125,7 +126,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_cbMaterial.Create(*this);
 	m_cbInstancing.Create(*this);
 	m_cbClipPlane.Create(*this);
-	float f2[4] = { 1,1,1,1000 }; // default clipplane always positive return
+	float f2[4] = { 1, 1, 1, 1000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 
 	m_textMgr.Create(256);
@@ -187,6 +188,16 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
 
 	m_shaderMgr.LoadShader(*this, "../media/shader11/water.fxo", pos_norm_tex, ARRAYSIZE(pos_norm_tex), false);
+
+	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_tangent_binormal[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-tangent-binormal.fxo", pos_norm_tex_tangent_binormal, ARRAYSIZE(pos_norm_tex_tangent_binormal));
 
 
 	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
@@ -350,8 +361,8 @@ bool cRenderer::CheckResetDevice(
 	{
 		sRecti cr;
 		GetClientRect(m_hWnd, (RECT*)&cr);
-		w = cr.Width();
-		h = cr.Height();
+		w = (float)cr.Width();
+		h = (float)cr.Height();
 	}
 	else
 	{
@@ -514,4 +525,31 @@ sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 {
 	assert(!m_alphaSpace.empty());
 	return m_alphaSpace.back();
+}
+
+
+void cRenderer::BindTexture(cTexture *texture, const int stage)
+{
+	RET(MAX_TEXTURE_STAGE <= (stage - 1));
+	m_textureMap[stage - 2] = (texture) ? texture->m_texture : NULL;
+}
+
+
+void cRenderer::BindTexture(cRenderTarget &rt, const int stage)
+{
+	RET(MAX_TEXTURE_STAGE <= (stage - 1));
+	m_textureMap[stage - 2] = rt.m_texture;
+}
+
+
+void cRenderer::UnbindTexture(const int stage)
+{
+	RET(MAX_TEXTURE_STAGE <= (stage - 1));
+	m_textureMap[stage - 2] = NULL;
+}
+
+
+void cRenderer::UnbindTextureAll()
+{
+	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }

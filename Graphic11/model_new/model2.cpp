@@ -64,18 +64,19 @@ bool cModel2::Render(cRenderer &renderer
 {
 	RETV(!m_isEnable, false);
 	RETV(!m_isShow, false);
+	RETV(!m_model, false);
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
-	shader->SetTechnique(m_techniqueName.c_str());
+	const int vtxType = m_model->GetVertexType();
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(vtxType);
+		//eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE );
 	assert(shader);
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 	renderer.m_cbClipPlane.Update(renderer, 4);
-
-	if (m_model)
-		m_model->Render(renderer, transform);
+	m_model->Render(renderer, transform);
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();
@@ -86,7 +87,6 @@ bool cModel2::Render(cRenderer &renderer
 	//	, BILLBOARD_TYPE::DYN_SCALE, tm2);
 
 	__super::Render(renderer, parentTm, flags);
-
 	return true;
 }
 

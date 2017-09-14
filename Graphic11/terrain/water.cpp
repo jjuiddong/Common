@@ -48,7 +48,7 @@ cWater::~cWater()
 bool cWater::Create(cRenderer &renderer)
 {
 	cViewport vp;
-	vp.Create(0, 0, 512, 512, 0.f, 1.f);
+	vp.Create(0, 0, 1024, 1024, 0.f, 1.f);
 	m_reflectMap.Create(renderer, vp);
 	m_refractMap.Create(renderer, vp);
 
@@ -56,8 +56,8 @@ bool cWater::Create(cRenderer &renderer)
 		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize
 		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
 		, cColor::WHITE
-		//, g_defaultTexture
-		, "sora.jpg"
+		, g_defaultTexture
+		//, "sora.jpg"
 		, Vector2(0, 0)
 		, Vector2(1, 1)
 		, m_initInfo.uvFactor);
@@ -94,10 +94,10 @@ bool cWater::Render(cRenderer &renderer
 	cShader11 *shader = m_grid.m_shader;
 	assert(shader);
 
-	shader->SetBindTexture(m_waveMap0, 1);
-	shader->SetBindTexture(m_waveMap1, 2);
-	shader->SetBindTexture(m_reflectMap, 3);
-	shader->SetBindTexture(m_refractMap, 4);
+	renderer.BindTexture(m_waveMap0, 2);
+	renderer.BindTexture(m_waveMap1, 3);
+	renderer.BindTexture(m_reflectMap, 4);
+	renderer.BindTexture(m_refractMap, 5);
 
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();

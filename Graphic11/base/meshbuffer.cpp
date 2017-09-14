@@ -6,8 +6,9 @@
 using namespace graphic;
 
 cMeshBuffer::cMeshBuffer()
-:	m_offset(0)
-, m_isSkinned(false)
+	: m_offset(0)
+	, m_isSkinned(false)
+	, m_vtxType(0)
 {
 }
 
@@ -29,6 +30,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer, const sRawMesh2 &rawMesh)
 {
 	cVertexLayout layout;
 	layout.Create(rawMesh);
+	m_vtxType = layout.m_vertexType;
 
 	CreateMesh(renderer,
 		layout,
@@ -91,22 +93,24 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 	}
 
 	// tagent
-	//const int tangent_offset = decl.GetOffset(D3DDECLUSAGE_TANGENT);
-	//for (u_int i = 0; i < tangent.size(); i++)
-	//{
-	//	BYTE *p = pv + (decl.GetElementSize() * i);
-	//	Vector3 *pt = (Vector3*)(p + tangent_offset);
-	//	*pt = tangent[i];
-	//}
+	const int tangent_offset = layout.GetOffset("TANGENT");
+	for (u_int i = 0; i < tangent.size(); i++)
+	{
+		BYTE *p = pv + (vertexStride * i);
+		Vector3 *pt = (Vector3*)(p + tangent_offset);
+		*pt = tangent[i];
+	}
 
-	//// binormal
-	//const int binormal_offset = decl.GetOffset(D3DDECLUSAGE_BINORMAL);
-	//for (u_int i = 0; i < binormal.size(); i++)
-	//{
-	//	BYTE *p = pv + (decl.GetElementSize() * i);
-	//	Vector3 *pb = (Vector3*)(p + binormal_offset);
-	//	*pb = binormal[i];
-	//}
+
+	// binormal
+	const int binormal_offset = layout.GetOffset("BINORMAL");
+	for (u_int i = 0; i < binormal.size(); i++)
+	{
+		BYTE *p = pv + (vertexStride * i);
+		Vector3 *pb = (Vector3*)(p + binormal_offset);
+		*pb = binormal[i];
+	}
+
 
 	//// bone weight
 	//m_isSkinned = !weights.empty();

@@ -49,6 +49,6 @@ cLight* cLightManager::GetLight(const int index)
 bool cLightManager::Bind(cRenderer &renderer, const int index)
 {
 	RETV((int)m_lights.size() <= index, false);
-	m_lights[ index].Bind(renderer, 0);
+	m_lights[ index].Bind(renderer);
 	return true;
 }

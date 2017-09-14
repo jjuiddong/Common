@@ -5,7 +5,6 @@
 
 using namespace graphic;
 
-
 cVertexLayout::cVertexLayout()
 	: m_vertexLayout(NULL)
 	, m_vertexType(0)
@@ -72,6 +71,10 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 			m_vertexType |= eVertexType::TEXTURE;
 		else if (Str32("COLOR") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::DIFFUSE;
+		else if (Str32("TANGENT") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::TANGENT;
+		else if (Str32("BINORMAL") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::BINORMAL;
 	}
 
 	m_elementSize = size;
@@ -81,17 +84,17 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 
 bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 {
-	int size = 0;
-	m_elements.clear();
-	for (u_int i = 0; i < layout.size(); ++i)
-	{
-		m_elements.push_back(layout[i]);
-		m_elements.back().AlignedByteOffset = size;
-		size += BitsPerPixel(layout[i].Format) / 8;
-	}
+	//int size = 0;
+	//m_elements.clear();
+	//for (u_int i = 0; i < layout.size(); ++i)
+	//{
+	//	m_elements.push_back(layout[i]);
+	//	m_elements.back().AlignedByteOffset = size;
+	//	size += BitsPerPixel(layout[i].Format) / 8;
+	//}
 
-	m_elementSize = size;
-	return true;
+	//m_elementSize = size;
+	return Create(&layout[0], layout.size());
 }
 
 
@@ -149,6 +152,19 @@ void cVertexLayout::CreateDecl(
 		D3D11_INPUT_ELEMENT_DESC element = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
 		layout.push_back(element);
 	}
+
+	if (!tangent.empty())
+	{
+		D3D11_INPUT_ELEMENT_DESC element = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element);
+	}
+
+	if (!binormal.empty())
+	{
+		D3D11_INPUT_ELEMENT_DESC element = { "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element);
+	}
+
 
 	//if (!tangent.empty())
 	//{

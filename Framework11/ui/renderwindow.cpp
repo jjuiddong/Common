@@ -83,7 +83,7 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 
 	//m_renderer.SetNormalizeNormals(true);
 	//m_renderer.SetLightEnable(0, true);
-	m_light.Bind(m_renderer, 0);
+	m_light.Bind(m_renderer);
 
 	m_gui.Init(getSystemHandle(), m_renderer.GetDevice(), m_renderer.GetDevContext(), ((mainWindow) ? mainWindow->m_gui.m_FontAtlas : NULL));
 
@@ -525,12 +525,11 @@ void cRenderWindow::Render(const float deltaSeconds)
 	}
 
 	m_camera.Bind(m_renderer);
-	m_light.Bind(m_renderer, 0);
+	m_light.Bind(m_renderer);
 
 	if (m_renderer.ClearScene())
 	{
 		m_renderer.BeginScene();
-		//m_renderer.GetDevice()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&Matrix44::Identity);
 		
 		OnRender(deltaSeconds);
 

@@ -8,7 +8,6 @@ using namespace graphic;
 cShader11::cShader11()
 	: m_technique(NULL)
 {
-	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }
 
 cShader11::~cShader11()
@@ -63,20 +62,6 @@ bool cShader11::SetTechnique(const char *id)
 }
 
 
-void cShader11::SetBindTexture(cTexture *texture, const int stage)
-{
-	RET(5 <= (stage-1));
-	m_textureMap[stage-1] = (texture) ? texture->m_texture : NULL;
-}
-
-
-void cShader11::SetBindTexture(cRenderTarget &rt, const int stage)
-{
-	RET(5 <= (stage - 1));
-	m_textureMap[stage - 1] = rt.m_texture;
-}
-
-
 ID3DX11EffectTechnique* cShader11::GetTechnique(const char *id)
 {
 	return NULL;
@@ -118,10 +103,10 @@ void cShader11::BeginPass(cRenderer &renderer, const int pass)
 	m_vtxLayout.Bind(renderer);
 	m_technique->GetPassByIndex(pass)->Apply(0, renderer.GetDevContext());
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < cRenderer::MAX_TEXTURE_STAGE; ++i)
 	{
-		if (!m_textureMap[i])
+		if (!renderer.m_textureMap[i])
 			break;
-		renderer.GetDevContext()->PSSetShaderResources(i + 1, 1, &m_textureMap[i]);
+		renderer.GetDevContext()->PSSetShaderResources(i + 2, 1, &renderer.m_textureMap[i]);
 	}
 }

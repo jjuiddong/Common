@@ -41,6 +41,16 @@ void cLight::Init(TYPE type,
 }
 
 
+// set position, direction
+void cLight::Set(const cCamera &camera)
+{
+	const Vector3 lightPos = camera.GetEyePos();
+	const Vector3 lightLookat = camera.GetLookAt();
+	SetPosition(lightPos);
+	SetDirection((lightLookat - lightPos).Normal());
+}
+
+
 void cLight::SetDirection( const Vector3 &direction )
 {
 	m_direction = direction;
@@ -125,9 +135,7 @@ void cLight::GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix4
 }
 
 
-void cLight::Bind(cRenderer &renderer, 
-	int lightIndex // =0
-) 
+void cLight::Bind(cRenderer &renderer) 
 {
 	renderer.m_cbLight = GetLight();
 }

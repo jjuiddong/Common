@@ -122,3 +122,11 @@ void cAssimpModel::Clear()
 //{
 //	m_shader = shader;
 //}
+
+
+int cAssimpModel::GetVertexType()
+{
+	RETV(m_meshes.empty(), 0);
+	RETV(!m_meshes[0]->m_buffers, 0);
+	return m_meshes[0]->m_buffers->m_vtxType;
+}

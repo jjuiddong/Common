@@ -51,6 +51,7 @@ namespace graphic
 
 
 	public:
+		int m_vtxType;
 		vector<sAttribute> m_attributes;
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;

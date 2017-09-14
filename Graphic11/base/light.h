@@ -18,6 +18,7 @@ namespace graphic
 		XMVECTOR posW;
 	};
 
+	class cCamera;
 
 	class cLight
 	{
@@ -38,12 +39,13 @@ namespace graphic
 			const Vector4 &specular = Vector4(1,1,1,1),
 			const Vector3 &direction = Vector3(0,-1,0));
 
+		void Set(const cCamera &camera);
 		void SetDirection( const Vector3 &direction );
 		void SetPosition( const Vector3 &pos );
 		//const Vector3& GetDirection() const;
 		//const Vector3& GetPosition() const;
 
-		void Bind(cRenderer &renderer, int lightIndex=0);
+		void Bind(cRenderer &renderer);
 		//void Bind(cShader &shader) const;
 
 		void GetShadowMatrix( const Vector3 &modelPos, 

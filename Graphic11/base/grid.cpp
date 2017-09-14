@@ -139,6 +139,7 @@ bool cGrid::Render(cRenderer &renderer
 	renderer.m_cbLight.Update(renderer, 1);
 	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
+	renderer.m_cbClipPlane.Update(renderer, 4);
 
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);

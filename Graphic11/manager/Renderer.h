@@ -30,6 +30,9 @@ namespace graphic
 	};
 
 
+	class cTexture;
+	class cRenderTarget;
+
 	class cRenderer
 	{
 	public:
@@ -63,6 +66,11 @@ namespace graphic
 		void ExecuteCommandList(ID3D11CommandList *cmdList);
 		void FinishCommandList();
 
+		void BindTexture(cTexture *texture, const int stage);
+		void BindTexture(cRenderTarget &rt, const int stage);
+		void UnbindTexture(const int stage);
+		void UnbindTextureAll();
+
 		void RenderAxis();
 		void RenderFPS();
 		void RenderGrid();
@@ -94,6 +102,15 @@ namespace graphic
 		cShaderManager m_shaderMgr;
 		cFontManager m_fontMgr;
 		cTextManager m_textMgr;
+
+		enum {MAX_TEXTURE_STAGE=5};
+		// Diffuse
+		// Normal
+		// Texture1 - m_textureMap[0]
+		// Texture2 - m_textureMap[1]
+		// Texture3 - m_textureMap[2]
+		// ...
+		ID3D11ShaderResourceView *m_textureMap[MAX_TEXTURE_STAGE]; // reference
 
 		cConstantBuffer<sCbPerFrame> m_cbPerFrame;
 		cConstantBuffer<sCbLight> m_cbLight;

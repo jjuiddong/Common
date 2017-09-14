@@ -14,7 +14,7 @@ namespace graphic {
 		cMesh2();
 		virtual ~cMesh2();
 
-		bool Create(cRenderer &renderer, const sRawMesh2 mesh, cSkeleton *skeleton);
+		bool Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skeleton, const bool calculateTangentBinormal=false);
 		void Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity);
 		void RenderInstancing(cRenderer &renderer, const int count, const XMMATRIX &parentTm = XMIdentity);
 		void Clear();
@@ -23,6 +23,14 @@ namespace graphic {
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
 		void UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm);
+		void CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh);
+		void CalculateTangentBinormal(
+			const graphic::sVertexNormTex &vertex1
+			, const graphic::sVertexNormTex &vertex2
+			, const graphic::sVertexNormTex &vertex3
+			, OUT Vector3& tangent
+			, OUT Vector3& binormal
+		);
 
 
 	public:
