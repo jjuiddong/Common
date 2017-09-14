@@ -389,7 +389,7 @@ void cAssimpLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl
 		}
 
 		// Normal texture
-		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_NORMALS(0), &szPath))
+		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_HEIGHT(0), &szPath))
 		{
 			StrPath fileName = szPath.data;
 			mtrl.bumpMap = fileName;

@@ -416,18 +416,19 @@ void cResourceManager::InsertTexture(const StrPath &fileName, cTexture *p)
 // fileName 에 해당하는 파일이 없다면, "../media/" + dirPath  경로에서 파일을 찾는다.
 cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName
 	, const bool isRecursive //= true
-)	
+)
 {
 	auto result = FindTexture(fileName);
 	if (result.first)
 		return result.second;
 
 	StrPath key = fileName;
+	StrPath cvtFileName = cTexture::ConvertTextureFileName(fileName.c_str());
 	cTexture *texture = NULL;
-	if (common::IsFileExist(fileName))
+	if (common::IsFileExist(cvtFileName))
 	{
 		texture = new cTexture();
-		texture->Create(renderer, fileName);
+		texture->Create(renderer, cvtFileName);
 	}
 	else
 	{
@@ -437,7 +438,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 			searchPath = ".";
 
 		key = newPath;
-		if (common::FindFile(fileName.GetFileName(), searchPath + "/", newPath))
+		if (common::FindFile(cvtFileName.GetFileName(), searchPath + "/", newPath))
 		{
 			if (isRecursive)
 			{
@@ -493,8 +494,10 @@ cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const StrPath &dir
 	if (result.first)
 		return result.second;
 
+	StrPath cvtFileName = cTexture::ConvertTextureFileName(fileName.c_str());
+
 	cTexture *texture = NULL;
-	const StrPath resourcePath = GetResourceFilePath(dirPath, fileName);
+	const StrPath resourcePath = GetResourceFilePath(dirPath, cvtFileName);
 	if (resourcePath.empty())
 		goto error;
 

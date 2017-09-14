@@ -70,8 +70,8 @@ bool cModel2::Render(cRenderer &renderer
 
 	const int vtxType = m_model->GetVertexType();
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(vtxType);
-		//eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE );
 	assert(shader);
+
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);

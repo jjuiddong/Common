@@ -37,10 +37,9 @@ namespace graphic
 		//void CopyFrom(IDirect3DTexture9 *src);
 		void* Lock(cRenderer &renderer);
 		void Unlock(cRenderer &renderer);
-		//const D3DXIMAGE_INFO& GetImageInfo() const;
 		const StrPath& GetTextureName() const;
-		bool DrawText(cRenderer &renderer, const wchar_t *text, 
-			const cColor &color, const cColor &outlineColor, Vector2 &textSize);
+		bool DrawText(cRenderer &renderer, const wchar_t *text
+			, const cColor &color, const cColor &outlineColor, Vector2 &textSize);
 		bool IsLoaded();
 		int Width();
 		int Height();
@@ -48,11 +47,12 @@ namespace graphic
 		void ResetDevice(cRenderer &renderer);
 		void Clear();
 		
+		static StrPath ConvertTextureFileName(const char *fileName);
+
 
 	public:
 		ID3D11ShaderResourceView *m_texture;
 		ID3D11Texture2D *m_rawTex;
-		//D3DXIMAGE_INFO m_imageInfo;
 		D3D11_TEXTURE2D_DESC m_imageInfo;
 		StrPath m_fileName;
 		bool m_isReferenceMode;
@@ -60,6 +60,5 @@ namespace graphic
 	};
 
 
-	//inline const D3DXIMAGE_INFO& cTexture::GetImageInfo() const { return m_imageInfo; }
 	inline const StrPath& cTexture::GetTextureName() const { return m_fileName; }
 }

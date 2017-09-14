@@ -144,6 +144,7 @@
     <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\d3dx11effect.h" />
     <ClInclude Include="base\dxInit.h" />
+    <ClInclude Include="base\graphicdef.h" />
     <ClInclude Include="base\grid.h" />
     <ClInclude Include="base\indexbuffer.h" />
     <ClInclude Include="base\light.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="dbg\dbgquad.h" />
     <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
+    <ClInclude Include="importer\modelimporter.h" />
     <ClInclude Include="importer\parallelloader.h" />
     <ClInclude Include="manager\fontmanager.h" />
     <ClInclude Include="manager\lightmanager.h" />
@@ -266,6 +268,7 @@
     <ClCompile Include="dbg\dbglinelist.cpp" />
     <ClCompile Include="dbg\dbgquad.cpp" />
     <ClCompile Include="dbg\dbgsphere.cpp" />
+    <ClCompile Include="importer\modelimporter.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />
     <ClCompile Include="manager\fontmanager.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />

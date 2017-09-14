@@ -32,6 +32,10 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 		m_skeleton.Create(rawMeshes->bones);
 	}
 
+	// RUST_3d Test
+	//rawMeshes->meshes[0].mtrl.texture = "RUST_3d_Low1_Difuse.jpg";
+	//rawMeshes->meshes[0].mtrl.bumpMap = "RUST_3d_Low1_Normal.jpg";
+
 	for (auto &mesh : rawMeshes->meshes)
 	{
 		cMesh2 *p = new cMesh2();

@@ -30,18 +30,7 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 {
 	Clear();
 
-	m_fileName = fileName;
-
-	// convert file extention TGA -> DDS
-	// because, did not load tga format, you must change format tga to dds
-	const Str32 ext = m_fileName.GetFileExt();
-	if ((ext == ".tga") || (ext == ".TGA"))
-	{
-		const int len = m_fileName.size();
-		m_fileName.m_str[len - 3] = 'd';
-		m_fileName.m_str[len - 2] = 'd';
-		m_fileName.m_str[len - 1] = 's';
-	}
+	 m_fileName = ConvertTextureFileName(fileName.c_str());
 
 	if (FAILED(CreateDDSTextureFromFile(renderer.GetDevice(), m_fileName.wstr().c_str(), NULL, &m_texture)))
 	{
@@ -363,4 +352,22 @@ void cTexture::ResetDevice(cRenderer &renderer)
 bool cTexture::IsLoaded()
 {
 	return m_texture? true : false;
+}
+
+
+// return true if converting filName
+// convert file extention TGA -> DDS
+// because, did not load tga format, you must change format tga to dds
+StrPath cTexture::ConvertTextureFileName(const char *fileName)
+{
+	StrPath out(fileName);
+	const Str32 ext = out.GetFileExt();
+	if ((ext == ".tga") || (ext == ".TGA"))
+	{
+		const int len = out.size();
+		out.m_str[len - 3] = 'd';
+		out.m_str[len - 2] = 'd';
+		out.m_str[len - 1] = 's';
+	}	
+	return out;
 }

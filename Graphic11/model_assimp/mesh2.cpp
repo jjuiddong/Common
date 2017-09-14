@@ -32,7 +32,7 @@ bool cMesh2::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skele
 
 	CreateMaterials(renderer, mesh);
 	
-	if (calculateTangentBinormal)
+	if (!mesh.mtrl.bumpMap.empty() || calculateTangentBinormal)
 		CalculateModelVectors(mesh);
 
 	m_buffers = new cMeshBuffer(renderer, mesh);
@@ -169,7 +169,7 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
 //}
 
 
-void cMesh2::CalculateModelVectors(INOUT sRawMesh2 &mesh)
+void cMesh2::CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh)
 {
 	RET(!mesh.tangent.empty());
 	RET(!mesh.binormal.empty());
@@ -178,32 +178,34 @@ void cMesh2::CalculateModelVectors(INOUT sRawMesh2 &mesh)
 	mesh.tangent.resize(vertexCount);
 	mesh.binormal.resize(vertexCount);
 
-	const int faceCount = vertexCount / 3;
-	int index = 0;
+	//const int faceCount = vertexCount / 3;
+	const int faceCount = mesh.indices.size() / 3;
+	//int index = 0;
 
 	// Go through all the faces and calculate the the tangent, binormal, and normal vectors.
-	for (int i = 0; i<faceCount; i++)
+	for (int i = 0; i<mesh.indices.size(); i+=3)
 	{
 		// Get the three vertices for this face from the model.
 		sVertexNormTex vertex1, vertex2, vertex3;
 
-		vertex1.p = mesh.vertices[index];
-		vertex1.n = mesh.normals[index];
-		vertex1.u = mesh.tex[index].x;
-		vertex1.v = mesh.tex[index].y;
-		index++;
+		const int idx1 = mesh.indices[i];
+		const int idx2 = mesh.indices[i+1];
+		const int idx3 = mesh.indices[i+2];
 
-		vertex2.p = mesh.vertices[index];
-		vertex2.n = mesh.normals[index];
-		vertex2.u = mesh.tex[index].x;
-		vertex2.v = mesh.tex[index].y;
-		index++;
+		vertex1.p = mesh.vertices[idx1];
+		vertex1.n = mesh.normals[idx1];
+		vertex1.u = mesh.tex[idx1].x;
+		vertex1.v = mesh.tex[idx1].y;
 
-		vertex3.p = mesh.vertices[index];
-		vertex3.n = mesh.normals[index];
-		vertex3.u = mesh.tex[index].x;
-		vertex3.v = mesh.tex[index].y;
-		index++;
+		vertex2.p = mesh.vertices[idx2];
+		vertex2.n = mesh.normals[idx2];
+		vertex2.u = mesh.tex[idx2].x;
+		vertex2.v = mesh.tex[idx2].y;
+
+		vertex3.p = mesh.vertices[idx3];
+		vertex3.n = mesh.normals[idx3];
+		vertex3.u = mesh.tex[idx3].x;
+		vertex3.v = mesh.tex[idx3].y;
 
 		Vector3 tangent, binormal, normal;
 		// Calculate the tangent and binormal of that face.
@@ -213,17 +215,17 @@ void cMesh2::CalculateModelVectors(INOUT sRawMesh2 &mesh)
 		normal = tangent.CrossProduct(binormal).Normal();
 
 		// Store the normal, tangent, and binormal for this face back in the model structure.
-		mesh.normals[index - 1] = normal;
-		mesh.tangent[index - 1] = tangent;
-		mesh.binormal[index - 1] = binormal;
+		mesh.normals[idx3] = normal;
+		mesh.tangent[idx3] = tangent;
+		mesh.binormal[idx3] = binormal;
 
-		mesh.normals[index - 2] = normal;
-		mesh.tangent[index - 2] = tangent;
-		mesh.binormal[index - 2] = binormal;
+		mesh.normals[idx2] = normal;
+		mesh.tangent[idx2] = tangent;
+		mesh.binormal[idx2] = binormal;
 
-		mesh.normals[index - 3] = normal;
-		mesh.tangent[index - 3] = tangent;
-		mesh.binormal[index - 3] = binormal;
+		mesh.normals[idx1] = normal;
+		mesh.tangent[idx1] = tangent;
+		mesh.binormal[idx1] = binormal;
 	}
 
 	return;

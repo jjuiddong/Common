@@ -112,7 +112,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		}
 	}
 
-	m_idxBuff.Create(renderer, cellCnt * 2, &buffer1[0]);
+	m_idxBuff.Create(renderer, cellCnt * 2, (BYTE*)&buffer1[0]);
 
 	m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
 	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE

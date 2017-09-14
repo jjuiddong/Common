@@ -16,8 +16,8 @@ namespace graphic
 		cIndexBuffer();
 		virtual ~cIndexBuffer();
 
-		bool Create(cRenderer &renderer, int faceCount);
-		bool Create(cRenderer &renderer, int faceCount, WORD *indices);
+		bool Create(cRenderer &renderer, const int faceCount, const DXGI_FORMAT fmt = DXGI_FORMAT_R16_UINT);
+		bool Create(cRenderer &renderer, const int faceCount, BYTE *indices, const DXGI_FORMAT fmt = DXGI_FORMAT_R16_UINT);
 		bool Create2(cRenderer &renderer, const int primitiveCount, const int primitiveSize);
 		void* Lock();
 		void Unlock();
@@ -31,6 +31,7 @@ namespace graphic
 	public:
 		ID3D11Buffer *m_idxBuff;
 		int m_faceCount;
+		DXGI_FORMAT m_format;
 	};
 
 

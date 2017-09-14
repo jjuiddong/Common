@@ -280,7 +280,7 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 	for (int i = 0; i < 36; ++i)
 		initIndices[i] = i;
 
-	m_idxBuff.Create(renderer, 12, initIndices);
+	m_idxBuff.Create(renderer, 12, (BYTE*)initIndices);
 
 	m_vtxType = vtxType;
 
@@ -338,7 +338,7 @@ bool cCubeShape::CreateShape1(cRenderer &renderer, const Vector3 vertices[24]
 	WORD *initIndices = &buffer2[0];
 	for (int i = 0; i < 36; ++i)
 		initIndices[i] = indices[i];
-	m_idxBuff.Create(renderer, 12, initIndices);
+	m_idxBuff.Create(renderer, 12, (BYTE*)initIndices);
 
 	m_vtxType = vtxType;
 

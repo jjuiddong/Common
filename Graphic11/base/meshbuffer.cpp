@@ -152,11 +152,22 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 
 
 	// 인덱스 버퍼 생성.
-	vector<WORD> buffer2(indices.size());
-	WORD *pi = &buffer2[0];
+	const int indexStride = (vertices.size() >= 65536)? sizeof(DWORD) : sizeof(WORD);
+	BYTE *tempIdxBuff = new BYTE[indexStride*indices.size()];
+	BYTE *pi = tempIdxBuff;
 	for (u_int i = 0; i < indices.size(); ++i)
-		pi[i] = indices[i];
-	m_idxBuff.Create(renderer, indices.size()/3, &buffer2[0]);
+	{
+		if (indexStride == sizeof(DWORD))
+			*(DWORD*)pi = indices[i];
+		else
+			*(WORD*)pi = indices[i];
+
+		pi += indexStride;
+	}
+
+	m_idxBuff.Create(renderer, indices.size()/3, tempIdxBuff
+		, (indexStride==sizeof(DWORD))? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT);
+	delete[] tempIdxBuff;
 }
 
 

@@ -86,7 +86,6 @@ namespace graphic {
 
 
 #include "base/color.h"
-//#include "base/fontgdi.h"
 #include "base/viewport.h"
 #include "base/material.h"
 #include "base/light.h"
@@ -117,25 +116,15 @@ namespace graphic {
 #include "base/constantbuffer.h"
 #include "base/camera.h"
 #include "base/skybox.h"
-//#include "base/skybox2.h"
 #include "base/sphere.h"
-//#include "base/surface.h"
-//#include "base/surface2.h"
-//#include "base/surface3.h"
 #include "base/circle.h"
 //#include "base/circleline.h"
 #include "base/quad.h"
 #include "base/quad2d.h"
 #include "base/billboard.h"
 #include "base/text.h"
-//#include "base/text3d.h"
-//#include "base/text3d2.h"
 #include "base/text3d3.h"
 //
-//#include "base/shadow1.h"
-//#include "base/shadow2.h"
-//#include "base/shadowmap.h"
-//#include "base/shadowvolume.h"
 //
 //#include "collision/collision.h"
 //#include "collision/collisionmanager.h"
@@ -143,7 +132,6 @@ namespace graphic {
 //
 //
 #include "dbg/dbgbox.h"
-//#include "dbg/dbgbox2.h"
 #include "dbg/dbgsphere.h"
 #include "dbg/dbgline.h"
 #include "dbg/dbglinelist.h"
@@ -152,8 +140,6 @@ namespace graphic {
 #include "dbg/dbgquad.h"
 //#include "dbg/dbgquad2.h"
 #include "dbg/dbgaxis.h"
-
-//#include "base/xfilemesh.h"
 
 
 
@@ -185,8 +171,6 @@ namespace graphic {
 //
 //#include "character/character.h"
 //
-//#include "sprite/sprite.h"
-//#include "sprite/sprite2.h"
 //
 //#include "terrain/rawterrain.h"
 #include "terrain/water.h"
@@ -228,13 +212,12 @@ namespace graphic
 //#include "manager/pickmanager.h"
 //
 #include "importer/parallelloader.h"
+#include "importer/modelimporter.h"
 
 
 #pragma comment( lib, "gdiplus.lib" ) 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-//#pragma comment(lib, "d3dx11d.lib")
-//#pragma comment(lib, "dxerr.lib")
 #pragma comment(lib, "dxguid.lib")
 
 #pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")

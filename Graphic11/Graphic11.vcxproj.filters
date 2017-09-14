@@ -274,6 +274,8 @@
     <ClInclude Include="terrain\water.h">
       <Filter>terrain</Filter>
     </ClInclude>
+    <ClInclude Include="base\graphicdef.h" />
+    <ClInclude Include="importer\modelimporter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -526,6 +528,7 @@
     <ClCompile Include="terrain\water.cpp">
       <Filter>terrain</Filter>
     </ClCompile>
+    <ClCompile Include="importer\modelimporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">
