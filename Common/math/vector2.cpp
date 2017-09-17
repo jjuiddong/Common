@@ -5,6 +5,27 @@
 using namespace common;
 
 
+float Vector2::Length() const
+{
+	return sqrt(x*x + y*y);
+}
+
+
+Vector2 Vector2::Normal() const
+{
+	const float len = Length();
+	if (len < 0.001f)
+		return Vector2(0, 0);
+	return *this / len;
+}
+
+
+void Vector2::Normalize()
+{
+	*this = Normal();
+}
+
+
 Vector2 Vector2::operator + () const
 {
 	return *this;

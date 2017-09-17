@@ -88,7 +88,7 @@ namespace graphic
 		HWND m_hWnd;
 		ID3D11DeviceContext *m_devContext;
 		IDXGISwapChain *m_swapChain;
-		ID3D11RenderTargetView *m_renderTargetView;
+		ID3D11RenderTargetView *m_renderTargetView; // backbuffer
 		ID3D11DepthStencilView *m_depthStencilView;
 		ID3D11RenderTargetView *m_refRTV; // reference
 		ID3D11DepthStencilView *m_refDSV; // reference

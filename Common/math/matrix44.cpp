@@ -719,3 +719,9 @@ XMMATRIX Matrix44::GetMatrixXM() const
 }
 
 #endif
+
+
+float& Matrix44::operator () (UINT iRow, UINT iCol)
+{
+	return m[iRow][iCol];
+}
