@@ -63,6 +63,8 @@ namespace common
 
 		Matrix44 operator * ( const Matrix44& rhs ) const;
 		Matrix44& operator *= ( const Matrix44& rhs );
+		float& operator () (UINT iRow, UINT iCol);
+
 	};
 
 

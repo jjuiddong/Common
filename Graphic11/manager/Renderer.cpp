@@ -221,7 +221,7 @@ void cRenderer::RenderAxis()
 // FPS Ãâ·Â.
 void cRenderer::RenderFPS()
 {
-	m_textFps.Render(*this, 70, 17);
+	m_textFps.Render(*this, 70, 17);	
 }
 
 
@@ -254,7 +254,10 @@ bool cRenderer::ClearScene(
 )
 {
 	if (updateRenderTarget)
+	{
 		SetRenderTarget(m_renderTargetView, m_depthStencilView);
+		//m_viewPort.Bind(*this);
+	}
 
 	float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
 	//m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);

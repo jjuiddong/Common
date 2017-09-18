@@ -19,6 +19,13 @@ bool Vector4::IsEmpty() const
 	return (x == 0) && (y == 0) && (z == 0) && (w == 0);
 }
 
+
+float Vector4::DotProduct(const Vector4& v) const
+{
+	return x * v.x + y * v.y + z * v.z + w * v.w;
+}
+
+
 Vector4 Vector4::operator * ( const float & rhs ) const
 {
 	return Vector4(x*rhs, y*rhs, z*rhs, w*rhs);

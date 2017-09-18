@@ -15,6 +15,7 @@ namespace common
 		Vector4(const DWORD color);
 
 		bool IsEmpty() const;
+		float DotProduct(const Vector4& v) const;
 
 		Vector4 operator * ( const float & rhs ) const;
 		Vector4 operator * ( const Matrix44& rhs ) const;
