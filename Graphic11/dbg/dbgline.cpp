@@ -40,11 +40,11 @@ bool cDbgLine::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
-	assert(shader);
-	shader->SetTechnique("Unlit");
-	shader->Begin();
-	shader->BeginPass(renderer, 0);
+	//cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	//assert(shader);
+	//shader->SetTechnique("Unlit");
+	//shader->Begin();
+	//shader->BeginPass(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->RSSetState(states.Wireframe());

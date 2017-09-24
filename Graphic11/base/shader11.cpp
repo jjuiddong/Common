@@ -53,7 +53,7 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 
 bool cShader11::SetTechnique(const char *id)
 {
-	RETV(!m_effect, false);
+	assert(m_effect);
 
 	ID3DX11EffectTechnique *tech = m_effect->GetTechniqueByName(id);
 	RETV(!tech, false);
@@ -89,6 +89,7 @@ ID3DX11EffectVectorVariable** cShader11::GetVector(const char *id)
 
 int cShader11::Begin()
 {
+	assert(m_effect);
 	RETV(!m_technique, 0);
 
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -99,6 +100,7 @@ int cShader11::Begin()
 
 void cShader11::BeginPass(cRenderer &renderer, const int pass)
 {
+	assert(m_effect);
 	RET(!m_technique);
 	m_vtxLayout.Bind(renderer);
 	m_technique->GetPassByIndex(pass)->Apply(0, renderer.GetDevContext());
