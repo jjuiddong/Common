@@ -14,40 +14,12 @@ cDbgFrustum::~cDbgFrustum()
 }
 
 
-//-----------------------------------------------------------------------------//
-// 카메라(view) * 프로젝션(projection)행렬을 입력받아 6개의 평면을 만든다.
-//-----------------------------------------------------------------------------//
-bool cDbgFrustum::Create(cRenderer &renderer, const Vector3 &pos, const Vector3 &direction
-	, const Matrix44 &proj
-	, const cColor &color //= cColor::BLACK
-)
-{
-	return SetFrustum(renderer, pos, direction, proj, color);
-}
-
-
-bool cDbgFrustum::Create(cRenderer &renderer, const cCamera &camera
-	, const cColor &color //= cColor::BLACK
-)
-{
-	return SetFrustum(renderer, camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix(), color);
-}
-
-
-bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vector3 &direction
-	, const Matrix44 &proj
+bool cDbgFrustum::Create(cRenderer &renderer, const Matrix44 &viewProj
 	, const cColor &color //= cColor::BLACK
 )
 {
 	m_box.Create(renderer);
-	cFrustum::SetFrustum(pos, direction, proj);
-
-	// view * proj 행렬을 구한다.
-	Matrix44 view;
-	view.SetView(pos, direction, Vector3(0, 1, 0));
-	const Matrix44 viewProj = view * proj;
 	SetFrustum(renderer, viewProj, color);
-	
 	return true;
 }
 
@@ -56,6 +28,8 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Matrix44 &viewProj
 	, const cColor &color //= cColor::BLACK
 )
 {
+	cFrustum::SetFrustum(viewProj);
+
 	//      4 --- 5
 	//    / |  |  /|
 	//   0 --- 1   |
@@ -81,47 +55,12 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Matrix44 &viewProj
 }
 
 
-bool cDbgFrustum::SetFrustum(cRenderer &renderer, const cCamera &camera)
-{
-	return SetFrustum(renderer, camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix());
-}
-
-
 bool cDbgFrustum::SetFrustum(cRenderer &renderer, const cFrustum &frustum)
 {
 	__super::operator=(frustum);
 	SetFrustum(renderer, m_viewProj);
 	return true;
 }
-
-
-//bool cDbgFrustum::SetFrustum(const Matrix44 &matViewProj)
-//{
-	//cFrustum::SetFrustum(matViewProj);
-
-	////        4 --- 5
-	////      / |  |  /|
-	////   0 --- 1   |
-	////   |   6-|- -7
-	////   | /     | /
-	////   2 --- 3
-	////
-	//// 투영행렬까지 거치면 모든 3차원 월드좌표의 점은 (-1,-1,0) ~ (1,1,1)사이의 값으로 바뀐다.
-	//Vector3 vertices[8] = {
-	//	Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
-	//	Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
-	//};
-
-	//// view * proj의 역행렬을 구한다.
-	//Matrix44 matInv = matViewProj.Inverse();
-
-	//for (int i = 0; i < 8; i++)
-	//	vertices[i] *= matInv;
-
-	//m_box.SetBox(vertices);
-
-//	return true;
-//}
 
 
 //-----------------------------------------------------------------------------//

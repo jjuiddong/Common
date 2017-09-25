@@ -38,7 +38,7 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 	{
 		//m_shadowMap[i].Create(renderer, 1024, 1024);
 
-		m_frustum[i].Create(renderer, GetMainCamera());
+		m_frustum[i].Create(renderer, GetMainCamera().GetViewProjectionMatrix());
 		//m_frustum[i].m_fullCheck = true;
 
 		m_lightCam[i].Init(&renderer);
@@ -46,7 +46,7 @@ bool cTerrain2::Create(cRenderer &renderer, const sRectf &rect)
 		m_lightCam[i].SetProjectionOrthogonal((float)shadowWidth, (float)shadowHeight, 0.1f, 1000.0f);
 		m_lightCam[i].SetViewPort(100, 100);
 
-		m_dbgLightFrustum[i].Create(renderer, m_lightCam[i]);
+		m_dbgLightFrustum[i].Create(renderer, m_lightCam[i].GetViewProjectionMatrix());
 	}
 
 	m_dbgPlane.Create(renderer);
@@ -160,7 +160,7 @@ void cTerrain2::CullingTest(
 	, const int shadowMapIdx //= 0
 )
 {
-	m_frustum[shadowMapIdx].SetFrustum(renderer, camera);
+	m_frustum[shadowMapIdx].SetFrustum(renderer, camera.GetViewProjectionMatrix());
 
 	for (auto &p : m_tiles)
 		p->CullingTest(m_frustum[shadowMapIdx], Matrix44::Identity, isModel);
@@ -193,7 +193,7 @@ void cTerrain2::CullingTest(
 	if (m_isShowDebug)
 	{ 
 		m_dbgLight.SetDirection(m_lightCam[shadowMapIdx].GetEyePos(), m_lightCam[shadowMapIdx].GetEyePos() + lightDir*1.f, 0.5f);
-		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx]);
+		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx].GetViewProjectionMatrix());
 	}
 }
 
@@ -224,7 +224,7 @@ void cTerrain2::CullingTest(cRenderer &renderer
 	{
 		const Vector3 lightDir = m_lightCam[shadowMapIdx].GetDirection();
 		m_dbgLight.SetDirection(m_lightCam[shadowMapIdx].GetEyePos(), m_lightCam[shadowMapIdx].GetEyePos() + lightDir*1.f, 0.5f);
-		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx]);
+		m_dbgLightFrustum[shadowMapIdx].Create(renderer, m_lightCam[shadowMapIdx].GetViewProjectionMatrix());
 	}
 }
 
@@ -234,9 +234,7 @@ void cTerrain2::CullingTestOnly(cRenderer &renderer, cCamera &camera
 )
 {
 	cFrustum frustum;
-	frustum.SetFrustum(camera.GetEyePos()
-		, camera.GetDirection()
-		, camera.GetProjectionMatrix());
+	frustum.SetFrustum(camera.GetViewProjectionMatrix());
 
 	for (auto &p : m_tiles)
 		p->CullingTest(frustum, Matrix44::Identity, isModel);

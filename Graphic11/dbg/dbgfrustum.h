@@ -15,18 +15,9 @@ namespace graphic
 		cDbgFrustum();
 		virtual ~cDbgFrustum();
 
-		bool Create(cRenderer &renderer, const Vector3 &pos, const Vector3 &direction
-			, const Matrix44 &proj, const cColor &color = cColor::BLACK);
-
-		bool Create(cRenderer &renderer, const cCamera &camera, const cColor &color = cColor::BLACK);
-
-		bool SetFrustum(cRenderer &renderer, const Vector3 &pos, const Vector3 &direction
-			, const Matrix44 &proj, const cColor &color = cColor::BLACK);
-
+		bool Create(cRenderer &renderer, const Matrix44 &viewProj, const cColor &color = cColor::BLACK);
 		bool SetFrustum(cRenderer &renderer, const Matrix44 &viewProj, const cColor &color = cColor::BLACK);
-
 		bool SetFrustum(cRenderer &renderer, const cFrustum &frustum);
-		bool SetFrustum(cRenderer &renderer, const cCamera &camera);
 		void Render(cRenderer &renderer);
 
 

@@ -6,8 +6,8 @@ using namespace graphic;
 
 cFrustum::cFrustum()
 //:	m_fullCheck(false)
-//,	m_plane(6) // 절두체 평면 6개
-//, m_epsilon(5.f)
+	: m_plane(6) // 절두체 평면 6개
+	, m_epsilon(0.5f)
 {
 }
 
@@ -16,26 +16,38 @@ cFrustum::~cFrustum()
 }
 
 
-//-----------------------------------------------------------------------------//
-// 카메라(view) * 프로젝션(projection)행렬을 입력받아 6개의 평면을 만든다.
-//-----------------------------------------------------------------------------//
-bool cFrustum::SetFrustum(const Vector3 &pos, const Vector3 &direction, const Matrix44 &matProj)
+bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 {
-	BoundingFrustum::CreateFromMatrix(m_frustum, matProj.GetMatrixXM());
+	//        4 --- 5
+	//      / |  |  /|
+	//   0 --- 1   |
+	//   |   6-|- -7
+	//   | /     | /
+	//   2 --- 3
+	//
+	Vector3 vertices[8] = {
+		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	};
 
-	Matrix44 view;
-	view.SetView(pos, direction, Vector3(0, 1, 0));
-	Quaternion q = view.GetQuaternion();	
-	m_frustum.Origin = *(XMFLOAT3*)&pos;
-	m_frustum.Orientation = *(XMFLOAT4*)&q;
-	m_viewProj = view * matProj;
+	Matrix44 matInv = matViewProj.Inverse();
 
-	return TRUE;
-}
+	for (int i = 0; i < 8; i++)
+		vertices[i] *= matInv;
 
-bool cFrustum::SetFrustum(const cCamera &camera)
-{
-	return SetFrustum(camera.GetEyePos(), camera.GetDirection(), camera.GetProjectionMatrix());
+	m_pos = (vertices[0] + vertices[3]) / 2.0f;
+
+	m_plane[0].Init(vertices[0], vertices[1], vertices[2]);	// 근 평면(near)
+	m_plane[1].Init(vertices[0], vertices[4], vertices[1]);	// 위 평면(up)
+	m_plane[2].Init(vertices[2], vertices[3], vertices[7]);	// 아래 평면(down)
+	m_plane[3].Init(vertices[4], vertices[6], vertices[5]);	// 원 평면(far)
+	m_plane[4].Init(vertices[0], vertices[2], vertices[6]);	// 좌 평면(left)
+	m_plane[5].Init(vertices[1], vertices[5], vertices[7]);	// 우 평면(right)
+
+	//m_fullCheck = false;
+	m_viewProj = matViewProj;
+
+	return true;
 }
 
 
@@ -44,20 +56,44 @@ bool cFrustum::SetFrustum(const cCamera &camera)
 //-----------------------------------------------------------------------------//
 bool cFrustum::IsIn( const Vector3 &point ) const
 {
-	return DISJOINT != m_frustum.Contains(point.GetVectorXM());
-}
+	for (int i = 0; i < 6; ++i)
+	{
+		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
+		//if (!m_fullCheck && (i < 3))
+		//	continue;
 
+		const float dist = m_plane[i].Distance(point);
+		if (dist > m_epsilon)
+			return false;
+	}
+	return false;
+}
 
 
 bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
 {
-	return DISJOINT != m_frustum.Contains(sphere.m_bsphere);
+	const Vector3 pos = *(Vector3*)&sphere.m_bsphere.Center;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
+		//if (!m_fullCheck && (i < 3))
+		//	continue;
+
+		const float dist = m_plane[i].Distance(pos);
+		if (dist > (sphere.m_bsphere.Radius + m_epsilon))
+			return false;
+	}
+
+	return true;
 }
 
 
 bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 {
-	return DISJOINT != m_frustum.Contains(bbox.m_bbox);
+	assert(0);
+
+	//return DISJOINT != m_frustum.Contains(bbox.m_bbox);
 
 	//const Vector3 vertices[] = {
 	//	bbox.m_min
@@ -116,13 +152,13 @@ void cFrustum::Split3(cCamera &cam, const float f1, const float f2, const float 
 	const float far3 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f3);
 
 	cam.ReCalcProjection(cam.m_nearPlane, far1);
-	out1.SetFrustum(cam);
+	out1.SetFrustum(cam.GetViewProjectionMatrix());
 
 	cam.ReCalcProjection(far1, far2);
-	out2.SetFrustum(cam);
+	out2.SetFrustum(cam.GetViewProjectionMatrix());
 
 	cam.ReCalcProjection(far2, far3);
-	out3.SetFrustum(cam);
+	out3.SetFrustum(cam.GetViewProjectionMatrix());
 
 	// recovery
 	cam.ReCalcProjection(oldNearPlane, oldFarPlane);
@@ -175,7 +211,7 @@ void cFrustum::GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertice
 
 float cFrustum::LengthRoughly(const Vector3 &pos) const
 {
-	return (*(Vector3*)&m_frustum.Origin).LengthRoughly(pos);
+	return m_pos.LengthRoughly(pos);
 }
 
 
@@ -184,7 +220,11 @@ cFrustum& cFrustum::operator=(const cFrustum &rhs)
 	if (this != &rhs)
 	{
 		m_viewProj = rhs.m_viewProj;
-		m_frustum = rhs.m_frustum;
+		m_plane = rhs.m_plane;
+		m_pos = rhs.m_pos;
+		m_epsilon = rhs.m_epsilon;
+
+		//m_frustum = rhs.m_frustum;
 	}
 	return *this;
 }
