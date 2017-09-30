@@ -47,7 +47,7 @@ bool cLine::Render(cRenderer &renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM());
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
 	renderer.m_cbMaterial.Update(renderer, 2);

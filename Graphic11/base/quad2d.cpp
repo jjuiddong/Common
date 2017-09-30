@@ -59,6 +59,7 @@ void cQuad2D::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.Update(renderer);
 
 	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(states.Opaque(), 0, 0xffffffff);
 	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
 

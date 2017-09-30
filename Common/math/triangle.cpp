@@ -100,3 +100,10 @@ float Triangle::Distance( const Vector3& vPos )  const
 	return (vPos - center).Length();
 }
 
+
+Vector3 Triangle::Normal()
+{
+	const Vector3 v0 = (b - a).Normal();
+	const Vector3 v1 = (c - a).Normal();
+	return v0.CrossProduct(v1).Normal();
+}

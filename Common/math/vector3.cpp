@@ -215,4 +215,13 @@ XMVECTOR Vector3::GetVectorXM() const
 {
 	return XMLoadFloat3((XMFLOAT3*)this);
 }
+
+Vector3 Vector3::operator * (const XMMATRIX &m) const 
+{
+	XMVECTOR v = XMLoadFloat3((XMFLOAT3*)this);
+	v = XMVector3Transform(v, m);
+	Vector3 ret;
+	XMStoreFloat3((XMFLOAT3*)&ret, v);
+	return ret;
+}
 #endif

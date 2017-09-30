@@ -18,6 +18,29 @@ cGrid::~cGrid()
 }
 
 
+// 
+//   z
+//   |
+//   |
+//   |
+//   |
+//  -|--------------> x
+//  Axis X-Z
+//
+//
+// uv(0,0)=uv0         uv(1,0)
+// 0      1      2      3
+// * ---- * ---- * ---- *
+// |      |      |      |
+// |4     | 5    |6     |7
+// * ---- * - +  * ---- *
+// |      |center|      |
+// |8     | 9    | 10   |11
+// * ---- * ---- * ---- *
+// uv(0,1)             uv(1,1)=uv1
+//
+// Vertex Store Order
+//
 void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
 	, const int vertexType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
 	, const cColor &color //= cColor::WHITE
@@ -25,6 +48,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	, const Vector2 &uv0 //= Vector2(0, 0)
 	, const Vector2 &uv1 //= Vector2(1, 1)
 	, const float textureUVFactor // = 8.f
+	, const bool isEditable //= false
 )
 {
 	m_rowCellCount = rowCellCount;
@@ -88,7 +112,8 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		}
 	}
 
-	m_vtxBuff.Create(renderer, vtxCount, vertexStride, &buffer0[0]);
+	m_vtxBuff.Create(renderer, vtxCount, vertexStride, &buffer0[0]
+		, isEditable? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
 
 	vector<WORD> buffer1(cellCnt * 2 * 3);
 	WORD *indices = &buffer1[0];
@@ -112,7 +137,8 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		}
 	}
 
-	m_idxBuff.Create(renderer, cellCnt * 2, (BYTE*)&buffer1[0]);
+	m_idxBuff.Create(renderer, cellCnt * 2, (BYTE*)&buffer1[0]
+		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
 
 	m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
 	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
@@ -120,6 +146,11 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 
 	if (vertexType & eVertexType::TEXTURE)
 		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0)
+		, Vector3(rowCellCount*cellSize*0.5f, 1, colCellCount*cellSize*0.5f)
+		, Quaternion());
+	CalcBoundingSphere();
 }
 
 
@@ -150,10 +181,8 @@ bool cGrid::Render(cRenderer &renderer
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
 	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
-
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
-
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
 	__super::Render(renderer, tm, flags);

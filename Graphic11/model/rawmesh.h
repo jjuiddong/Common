@@ -129,12 +129,20 @@ namespace graphic
 		Matrix44 localTm;
 	};
 
+	struct sRawNode
+	{
+		vector<int> meshes; // sRawMeshGroup2::meshes index
+		vector<int> children; // sRawMeshGroup2::nodes index
+		Matrix44 localTm;
+	};
+
 	struct sRawMeshGroup2
 	{
 		StrId name;
 		StrId animationName; // set by Resource Manager
 		vector<sRawMesh2> meshes;
 		vector<sRawBone2> bones;
+		vector<sRawNode> nodes;
 	};
 	//------------------------------------------------------------------------------------------------------
 

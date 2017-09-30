@@ -20,11 +20,8 @@ namespace graphic
 			, const D3D11_USAGE usage= D3D11_USAGE_DEFAULT);
 		bool Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex, void *vertices
 			, const D3D11_USAGE usage = D3D11_USAGE_DEFAULT);
-		bool CreateVMem(cRenderer &renderer, const int vertexCount, const int sizeofVertex);
 
-		void* Lock(cRenderer &renderer);
-		void* LockDiscard(const int idx=0, const int size=0);
-		void* LockNooverwrite(const int idx=0, const int size=0);
+		void* Lock(cRenderer &renderer, const D3D11_MAP flag = D3D11_MAP_WRITE_DISCARD);
 		void Unlock(cRenderer &renderer);
 		void Bind(cRenderer &renderer) const;
 		void Clear();
@@ -46,7 +43,6 @@ namespace graphic
 		ID3D11Buffer *m_vtxBuff;
 		int m_sizeOfVertex; // stride
 		int m_vertexCount;
-		bool m_isManagedPool;
 	};
 
 	

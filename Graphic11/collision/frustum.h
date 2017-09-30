@@ -21,9 +21,11 @@ namespace graphic
 		bool IsInBox(const cBoundingBox &bbox) const;
 		float LengthRoughly(const Vector3 &pos) const;
 		
-		static void Split2(cCamera &cam, const float f1, const float f2
+		static void Split2(const cCamera &cam, const float f1, const float f2
 			, cFrustum &out1, cFrustum &out2);
-		static void Split3(cCamera &cam, const float f1, const float f2, const float f3
+		static void Split3(const cCamera &cam, const float f1, const float f2, const float f3
+			, cFrustum &out1, cFrustum &out2, cFrustum &out3);
+		static void Split3_2(const cCamera &cam, const float f1, const float f2, const float f3
 			, cFrustum &out1, cFrustum &out2, cFrustum &out3);
 
 		void GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertices[4]) const;
@@ -38,5 +40,7 @@ namespace graphic
 		float m_epsilon;
 
 		Matrix44 m_viewProj;
+		BoundingFrustum m_frustum;
 	};
+
 }

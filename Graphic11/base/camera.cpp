@@ -14,7 +14,6 @@ cCamera::cCamera() :
 ,	 m_isOrthogonal(false)
 ,	m_lookAt(0,0,0)
 ,	m_up(0,1,0)
-, m_renderer(NULL)
 , m_oldWidth(0)
 , m_oldHeight(0)
 , m_width(0)
@@ -28,7 +27,6 @@ cCamera::cCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up
 	m_eyePos(eyePos)
 ,	m_lookAt(lookAt)
 ,	m_up(up)
-, m_renderer(NULL)
 {
 	UpdateViewMatrix();
 }
@@ -43,6 +41,15 @@ void cCamera::SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vect
 {
 	m_eyePos = eyePos;
 	m_lookAt = lookAt;
+	m_up = up;
+	UpdateViewMatrix();
+}
+
+
+void cCamera::SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const Vector3 &up)
+{
+	m_eyePos = eyePos;
+	m_lookAt = direction*10 + eyePos;
 	m_up = up;
 	UpdateViewMatrix();
 }
@@ -185,10 +192,10 @@ void cCamera::Render(cRenderer &renderer)
 
 void cCamera::Bind(cRenderer &renderer)
 {
-	const XMMATRIX mView = XMLoadFloat4x4((XMFLOAT4X4*)&GetMainCamera().GetViewMatrix());
-	const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&GetMainCamera().GetProjectionMatrix());
-	renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(mView);
-	renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
+	const XMMATRIX mView = XMLoadFloat4x4( (XMFLOAT4X4*)&m_view );
+	const XMMATRIX mProj = XMLoadFloat4x4( (XMFLOAT4X4*)&m_proj );
+	renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose( mView );
+	renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose( mProj );
 	//renderer.m_cbPerFrame.m_v->eyePosW = XMLoadFloat4((XMFLOAT4*)&Vector4(m_eyePos));
 	renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
 }
@@ -197,8 +204,6 @@ void cCamera::Bind(cRenderer &renderer)
 void cCamera::UpdateViewMatrix(const bool updateUp)
 // updateUp = true
 {
-	RET(!m_renderer);
-
 	m_view.SetView2(m_eyePos, m_lookAt, m_up);
 
 	// Update Up Vector
@@ -234,8 +239,6 @@ void cCamera::UpdateParameterFromViewMatrix()
 
 void cCamera::UpdateProjectionMatrix()
 {
-	RET(!m_renderer);
-
 	//if (m_renderer->GetDevice())
 	//	m_renderer->GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
 }
@@ -604,14 +607,9 @@ void cCamera::MoveFrontHorizontal(const float len)
 
 void cCamera::Move(const cBoundingBox &bbox)
 {
-	//const Vector3 dir = (bbox.m_min - bbox.Center()) * 2.f;
-	//Vector3 pos = dir + bbox.m_min;
-	//pos.y = bbox.m_max.y * 1.5f;
-
 	const Vector3 dim = bbox.GetDimension();
 	const float m = max(dim.x, max(dim.y, dim.z)) * 1.5f;
 	Vector3 pos(-m, m, -m);
-
 	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
 }
 
@@ -668,7 +666,7 @@ float cCamera::GetDistance() const
 
 Vector3 cCamera::GetScreenPos(const Vector3& vPos)
 {
-	return GetScreenPos(m_width, m_height, vPos);
+	return GetScreenPos((int)m_width, (int)m_height, vPos);
 }
 
 
@@ -705,13 +703,13 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 
 void cCamera::GetRay(OUT Vector3 &orig, OUT Vector3 &dir)
 {
-	GetRay(m_width, m_height, m_width/2, m_height/2, orig, dir);
+	GetRay((int)m_width, (int)m_height, (int)(m_width/2), (int)(m_height/2), orig, dir);
 }
 
 
 void cCamera::GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
 {
-	GetRay(m_width, m_height, sx, sy, orig, dir);
+	GetRay((int)m_width, (int)m_height, sx, sy, orig, dir);
 }
 
 

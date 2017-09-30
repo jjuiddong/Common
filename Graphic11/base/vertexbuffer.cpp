@@ -9,8 +9,6 @@ cVertexBuffer::cVertexBuffer()
 	: m_sizeOfVertex(0)
 	, m_vertexCount(0)
 	, m_vtxBuff(NULL)
-	//,	m_pVtxDecl(NULL)
-	, m_isManagedPool(true)
 {
 
 }
@@ -32,20 +30,27 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 	bd.Usage = usage;
 	bd.ByteWidth = sizeofVertex * vertexCount;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = (usage== D3D11_USAGE_DEFAULT)? 0 : D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-
-	//D3D11_SUBRESOURCE_DATA InitData;
-	//ZeroMemory(&InitData, sizeof(InitData));
-	//InitData.pSysMem = vertices;
+	switch (usage)
+	{
+	case D3D11_USAGE_DEFAULT: 
+		bd.CPUAccessFlags = 0;
+		break;
+	case D3D11_USAGE_DYNAMIC:
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		break;
+	case D3D11_USAGE_STAGING:
+		assert(0); // very slow flag
+		break;
+	}
 
 	if (FAILED(renderer.GetDevice()->CreateBuffer(&bd, NULL, &m_vtxBuff)))
 	{
+		assert(0);
 		return false;
 	}
 
 	m_vertexCount = vertexCount;
 	m_sizeOfVertex = sizeofVertex;
-	m_isManagedPool = true;
 	return true;
 }
 
@@ -61,7 +66,18 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 	bd.Usage = usage;
 	bd.ByteWidth = sizeofVertex * vertexCount;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = (usage == D3D11_USAGE_DEFAULT) ? 0 : D3D11_CPU_ACCESS_WRITE;
+	switch (usage)
+	{
+	case D3D11_USAGE_DEFAULT:
+		bd.CPUAccessFlags = 0;
+		break;
+	case D3D11_USAGE_DYNAMIC:
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		break;
+	case D3D11_USAGE_STAGING:
+		assert(0); // very slow flag
+		break;
+	}
 
 	D3D11_SUBRESOURCE_DATA InitData;
 	ZeroMemory(&InitData, sizeof(InitData));
@@ -69,112 +85,34 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 
 	if (FAILED(renderer.GetDevice()->CreateBuffer(&bd, &InitData, &m_vtxBuff)))
 	{
+		assert(0);
 		return false;
 	}
 
 	m_vertexCount = vertexCount;
 	m_sizeOfVertex = sizeofVertex;
-	m_isManagedPool = true;
 	return true;
 }
 
 
-// Video Memory 에 버텍스 버퍼를 생성한다.
-// 웬만하면 사용하지 말자. 잘쓰려면 복잡해지고, 잘 쓰더라도 효과가 거의 없다.
-bool cVertexBuffer::CreateVMem(cRenderer &renderer, const int vertexCount, const int sizeofVertex)
+void* cVertexBuffer::Lock(cRenderer &renderer
+	, const D3D11_MAP flag //= D3D11_MAP_WRITE_DISCARD
+)
 {
-	//SAFE_RELEASE(m_vtxBuff);
+	assert(m_vtxBuff);
 
-	//if (FAILED(renderer.GetDevice()->CreateVertexBuffer( vertexCount*sizeofVertex,
-	//	D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 
-	//	fvf,
-	//	D3DPOOL_DEFAULT, &m_vtxBuff, NULL)))
-	//{
-	//	return false;
-	//}
-
-	m_vertexCount = vertexCount;
-	m_sizeOfVertex = sizeofVertex;
-	m_isManagedPool = false;
-	return true;
-}
-
-
-// 버텍스 버퍼 생성.
-//bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex
-//	, const cVertexDeclaration *decl)
-//{
-//	//SAFE_RELEASE(m_vtxBuff);
-//	//SAFE_RELEASE(m_pVtxDecl);
-//
-//	//if (FAILED(renderer.GetDevice()->CreateVertexDeclaration(&decl.GetDecl()[0], &m_pVtxDecl)))
-//	//{
-//	//	return false; //Failed to create vertex declaration.
-//	//}
-//
-//	//if (FAILED(renderer.GetDevice()->CreateVertexBuffer( vertexCount*sizeofVertex,
-//	//	D3DUSAGE_WRITEONLY, 
-//	//	0,
-//	//	D3DPOOL_MANAGED, &m_vtxBuff, NULL)))
-//	//{
-//	//	return false;
-//	//}
-//
-//	m_vtxDecl = decl;
-//	m_vertexCount = vertexCount;
-//	m_sizeOfVertex = sizeofVertex;
-//	m_isManagedPool = true;
-//	return true;
-//}
-
-
-void* cVertexBuffer::Lock(cRenderer &renderer)
-{
 	D3D11_MAPPED_SUBRESOURCE res;
 	ZeroMemory(&res, sizeof(res));
-	HRESULT hr = renderer.GetDevContext()->Map(m_vtxBuff, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	HRESULT hr = renderer.GetDevContext()->Map(m_vtxBuff, 0, flag, 0, &res);
 	if (FAILED(hr))
 		return NULL;
 	return res.pData;
 }
 
 
-// idx : 몇 번째 버텍스 부터 Lock 할지를 가르킨다.
-// size: 몇 개의 버텍스를 Lock 할지를 가르킨다.
-void* cVertexBuffer::LockDiscard(const int idx, const int size) // idx=0, size=0
-{
-	//RETV(!m_vtxBuff, NULL);
-	//RETV(m_isManagedPool, NULL);
-
-	//void *vertices = NULL;
-	//if (FAILED(m_vtxBuff->Lock(idx*m_sizeOfVertex, size*m_sizeOfVertex, 
-	//	(void**)&vertices, D3DLOCK_DISCARD)))
-	//	return NULL;
-
-	//return vertices;
-	return NULL;
-}
-
-
-// idx : 몇 번째 버텍스 부터 Lock 할지를 가르킨다.
-// size: 몇 개의 버텍스를 Lock 할지를 가르킨다.
-void* cVertexBuffer::LockNooverwrite(const int idx, const int size) // idx=0, size=0
-{
-	//RETV(!m_vtxBuff, NULL);
-	//RETV(m_isManagedPool, NULL);
-
-	//void *vertices = NULL;
-	//if (FAILED(m_vtxBuff->Lock(idx*m_sizeOfVertex, size*m_sizeOfVertex, 
-	//	(void**)&vertices, D3DLOCK_NOOVERWRITE)))
-	//	return NULL;
-
-	//return vertices;
-	return NULL;
-}
-
-
 void cVertexBuffer::Unlock(cRenderer &renderer)
 {
+	assert(m_vtxBuff);
 	renderer.GetDevContext()->Unmap(m_vtxBuff, 0);
 }
 
@@ -184,18 +122,6 @@ void cVertexBuffer::Bind(cRenderer &renderer) const
 	const UINT offset = 0;
 	const UINT stride = (UINT)m_sizeOfVertex;
 	renderer.GetDevContext()->IASetVertexBuffers(0, 1, &m_vtxBuff, &stride, &offset);
-
-	//if (m_pVtxDecl)
-	//{
-		//renderer.GetDevice()->SetFVF( 0 );
-		//renderer.GetDevice()->SetVertexDeclaration(m_pVtxDecl);
-	//}
-	//else
-	//{
-		//renderer.GetDevice()->SetFVF(m_fvf);
-	//}
-
-	//renderer.GetDevice()->SetStreamSource(0, m_vtxBuff, 0, m_sizeOfVertex);
 }
 
 
@@ -316,9 +242,7 @@ void cVertexBuffer::Clear()
 {
 	m_vertexCount = 0;
 	m_sizeOfVertex = 0;
-	m_isManagedPool = true;
 	SAFE_RELEASE(m_vtxBuff);
-	//SAFE_RELEASE(m_pVtxDecl);
 }
 
 

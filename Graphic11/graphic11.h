@@ -92,6 +92,7 @@ namespace graphic {
 #include "base/vertexlayout.h"
 #include "base/vertexbuffer.h"
 #include "base/indexbuffer.h"
+#include "base/temporalbuffer.h"
 #include "base/meshbuffer.h"
 #include "base/samplerstate.h"
 #include "base/texture.h"
@@ -173,11 +174,12 @@ namespace graphic {
 //
 //
 //#include "terrain/rawterrain.h"
+#include "terrain/cascadedshadowmap.h"
 #include "terrain/water.h"
 //#include "terrain/terrain.h"
 #include "terrain/terrain2.h"
 #include "terrain/tile.h"
-//#include "terrain/terraincursor.h"
+#include "terrain/terraincursor.h"
 //#include "terrain/terraineditor.h"
 //#include "terrain/terrainimporter.h"
 //#include "terrain/terrainexporter.h"

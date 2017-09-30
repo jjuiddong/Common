@@ -63,3 +63,9 @@ void cDbgSphere::SetPos(const Vector3 &pos)
 {
 	m_bsphere.SetPos(pos);
 }
+
+
+void cDbgSphere::SetRadius(const float radius)
+{
+	m_bsphere.SetRadius(radius);
+}

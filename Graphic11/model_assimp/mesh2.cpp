@@ -109,6 +109,7 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
 		m_normalMap[0]->Bind(renderer, 1);
 
 	const XMMATRIX m = m_transform.GetMatrixXM() * parentTm;
+	//const XMMATRIX m = m_transform.GetMatrixXM() * m_localTm.GetMatrixXM() * parentTm;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);
 	renderer.m_cbPerFrame.Update(renderer);
 }
@@ -183,7 +184,7 @@ void cMesh2::CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh)
 	//int index = 0;
 
 	// Go through all the faces and calculate the the tangent, binormal, and normal vectors.
-	for (int i = 0; i<mesh.indices.size(); i+=3)
+	for (u_int i = 0; i<mesh.indices.size(); i+=3)
 	{
 		// Get the three vertices for this face from the model.
 		sVertexNormTex vertex1, vertex2, vertex3;

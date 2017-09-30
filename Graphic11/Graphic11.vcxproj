@@ -74,6 +74,10 @@
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -159,6 +163,7 @@
     <ClInclude Include="base\shader11.h" />
     <ClInclude Include="base\skybox.h" />
     <ClInclude Include="base\sphere.h" />
+    <ClInclude Include="base\temporalbuffer.h" />
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d3.h" />
     <ClInclude Include="base\texture.h" />
@@ -205,7 +210,9 @@
     <ClInclude Include="shape\sphereshape.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="terrain\cascadedshadowmap.h" />
     <ClInclude Include="terrain\terrain2.h" />
+    <ClInclude Include="terrain\terraincursor.h" />
     <ClInclude Include="terrain\terrainloader.h" />
     <ClInclude Include="terrain\tile.h" />
     <ClInclude Include="terrain\water.h" />
@@ -252,6 +259,7 @@
     <ClCompile Include="base\shader11.cpp" />
     <ClCompile Include="base\skybox.cpp" />
     <ClCompile Include="base\sphere.cpp" />
+    <ClCompile Include="base\temporalbuffer.cpp" />
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d3.cpp" />
     <ClCompile Include="base\texture.cpp" />
@@ -297,7 +305,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="terrain\cascadedshadowmap.cpp" />
     <ClCompile Include="terrain\terrain2.cpp" />
+    <ClCompile Include="terrain\terraincursor.cpp" />
     <ClCompile Include="terrain\terrainloader.cpp" />
     <ClCompile Include="terrain\tile.cpp" />
     <ClCompile Include="terrain\water.cpp" />
@@ -324,9 +334,6 @@
     <ClCompile Include="utility\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
-      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>

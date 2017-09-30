@@ -83,7 +83,7 @@ size_t graphic::BitsPerPixel(_In_ DXGI_FORMAT fmt)
 
 		//case DXGI_FORMAT_P010:
 		//case DXGI_FORMAT_P016:
-		//	return 24;
+		//    return 24;
 
 	case DXGI_FORMAT_R8G8_TYPELESS:
 	case DXGI_FORMAT_R8G8_UNORM:
@@ -106,7 +106,7 @@ size_t graphic::BitsPerPixel(_In_ DXGI_FORMAT fmt)
 		//case DXGI_FORMAT_NV12:
 		//case DXGI_FORMAT_420_OPAQUE:
 		//case DXGI_FORMAT_NV11:
-		//	return 12;
+		//    return 12;
 
 	case DXGI_FORMAT_R8_TYPELESS:
 	case DXGI_FORMAT_R8_UNORM:
@@ -295,3 +295,4 @@ void graphic::createTextureAndViews(ID3D11Device* pd3dDevice, UINT width, UINT h
 		assert(*ppRTV);
 	}
 }
+

@@ -21,8 +21,9 @@ namespace graphic
 			, const Vector2 &uv0 = Vector2(0, 0)
 			, const Vector2 &uv1 = Vector2(1, 1)
 			, const float textureUVFactor = 1.f
-		);
+			, const bool isEditable = false
 
+		);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 
 

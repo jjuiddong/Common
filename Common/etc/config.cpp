@@ -190,6 +190,40 @@ string cConfig::GetString(const string &key, const string &defaultValue) //defau
 }
 
 
+void cConfig::SetValue(const StrId &key, const char *value)
+{
+	m_options[key.c_str()] = value;
+}
+
+void cConfig::SetValue(const StrId &key, const int value)
+{
+	Str64 str;
+	str.Format("%d", value);
+	m_options[key.c_str()] = str.c_str();
+}
+
+void cConfig::SetValue(const StrId &key, const bool value)
+{
+	Str64 str;
+	str.Format("%d", value);
+	m_options[key.c_str()] = str.c_str();
+}
+
+void cConfig::SetValue(const StrId &key, const float value)
+{
+	SetValue(key, (double)value);
+}
+
+
+void cConfig::SetValue(const StrId &key, const double value)
+{
+	Str64 str;
+	str.Format("%f", value);
+	m_options[key.c_str()] = str.c_str();
+}
+
+
+
 // 동일한 이름에 파일이 있다면, 그 파일 형태를 그대로 유지하면서,
 // 데이타만 업데이트 되는 형태로 저장하게 한다.
 bool cConfig::Write(const string &fileName)

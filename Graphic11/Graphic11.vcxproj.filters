@@ -276,6 +276,9 @@
     </ClInclude>
     <ClInclude Include="base\graphicdef.h" />
     <ClInclude Include="importer\modelimporter.h" />
+    <ClInclude Include="terrain\cascadedshadowmap.h" />
+    <ClInclude Include="terrain\terraincursor.h" />
+    <ClInclude Include="base\temporalbuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -529,6 +532,9 @@
       <Filter>terrain</Filter>
     </ClCompile>
     <ClCompile Include="importer\modelimporter.cpp" />
+    <ClCompile Include="terrain\cascadedshadowmap.cpp" />
+    <ClCompile Include="terrain\terraincursor.cpp" />
+    <ClCompile Include="base\temporalbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">

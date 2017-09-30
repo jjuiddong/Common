@@ -224,19 +224,73 @@ namespace common
 
 		//------------------------------------------------------------------------------------
 		// ETC
-		std::wstring wstr() const
+		//std::wstring wstr() const
+		//{
+		//	int len;
+		//	int slength = (int)size() + 1;
+		//	len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
+		//	wchar_t buf[MAX];
+		//	ZeroMemory(buf, sizeof(buf));
+		//	len = min(MAX-1, len);
+		//	::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf, len);
+		//	std::wstring r(buf);
+		//	return r;
+		//}
+
+		String<wchar_t, MAX> wstr() const
 		{
 			int len;
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
-			wchar_t* buf = new wchar_t[len];
-			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf, len);
-			std::wstring r(buf);
-			delete[] buf;
-			return r;
+			String<wchar_t, MAX> buf;
+			len = min(MAX - 1, len);
+			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf.m_str, len);
+			return buf;
+		}
+
+		String<wchar_t, MAX> wstrUTF8() const
+		{
+			int len;
+			int slength = (int)size() + 1;
+			len = ::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, 0, 0);
+			String<wchar_t, MAX> buf;
+			len = min(MAX - 1, len);
+			::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, buf.m_str, len);
+			return buf;
 		}
 
 
+		// UTF-8 -> Default Ansi
+		String ansi() const
+		{
+			int len;
+			int slength = (int)size() + 1;
+			len = ::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, 0, 0);
+			String<wchar_t, MAX> buf;
+			len = min(MAX - 1, len);
+			::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, buf.m_str, len);
+
+			String buf2;
+			const int len2 = ::WideCharToMultiByte(CP_ACP, 0, buf.m_str, len, 0, 0, NULL, FALSE);
+			::WideCharToMultiByte(CP_ACP, 0, buf.m_str, len, buf2.m_str, len2, NULL, FALSE);
+			return buf2;
+		}
+
+		// Default Ansi -> UTF-8
+		String utf8() const
+		{
+			int len;
+			int slength = (int)size() + 1;
+			len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
+			String<wchar_t, MAX> buf;
+			len = min(MAX - 1, len);
+			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf.m_str, len);
+
+			String buf2;
+			const int len2 = ::WideCharToMultiByte(CP_UTF8, 0, buf.m_str, len, 0, 0, NULL, FALSE);
+			::WideCharToMultiByte(CP_UTF8, 0, buf.m_str, len, buf2.m_str, len2, NULL, FALSE);
+			return buf2;
+		}
 		//------------------------------------------------------------------------------------
 
 		
@@ -416,12 +470,12 @@ namespace common
 			return convertSize((size_t)FileSize());
 		}
 
-		const char* GetFileExt() const {
-			return PathFindExtension(m_str);
+		const wchar_t* GetFileExt() const {
+			return PathFindExtensionW(m_str);
 		}
 
-		const char* GetFileName() const {
-			return PathFindFileName(m_str);
+		const wchar_t* GetFileName() const {
+			return PathFindFileNameW(m_str);
 		}
 
 		String GetFullFileName() const {
@@ -457,7 +511,7 @@ namespace common
 		// return full filname except extends
 		String GetFileNameExceptExt2() const {
 			String str = *this;
-			char *name = PathFindFileName(str.m_str);
+			wchar_t *name = PathFindFileName(str.m_str);
 			PathRemoveExtension(name);
 			return str;
 		}
@@ -471,7 +525,7 @@ namespace common
 				return;
 
 			std::rotate(p, p + wcslen(str), m_str + wcslen(m_str));
-			const int len = wcslen(m_str) - wcsslen(str);
+			const int len = wcslen(m_str) - wcslen(str);
 			m_str[len] = NULL;
 		}
 
@@ -540,27 +594,49 @@ namespace common
 
 		//------------------------------------------------------------------------------------
 		// ETC
-		std::string str() const
+		//std::string str() const
+		//{
+		//	const int slength = (int)size() + 1;
+		//	int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
+		//	char buf[MAX];
+		//	ZeroMemory(buf, sizeof(buf));
+		//	len = min(MAX - 1, len);
+		//	::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf, len, NULL, FALSE);
+		//	std::string r(buf);
+		//	return r;
+		//}
+
+		String<char,MAX> str() const
 		{
 			const int slength = (int)size() + 1;
-			const int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
-			char* buf = new char[len];
-			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf, len, NULL, FALSE);
-			std::string r(buf);
-			delete[] buf;
-			return r;
-
-			//int len;
-			//int slength = (int)size() + 1;
-			//len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
-			//wchar_t* buf = new wchar_t[len];
-			//::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf, len);
-			//std::wstring r(buf);
-			//delete[] buf;
-			//return r;
+			int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
+			String<char, MAX> buf;
+			len = min(MAX - 1, len);
+			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
+			return buf;
 		}
 
+		// Default Ansi - UTF-8
+		String<char, MAX> utf8() const
+		{
+			const int slength = (int)size() + 1;
+			int len = ::WideCharToMultiByte(CP_UTF8, 0, m_str, slength, 0, 0, NULL, FALSE);
+			String<char, MAX> buf;
+			len = min(MAX - 1, len);
+			::WideCharToMultiByte(CP_UTF8, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
+			return buf;
+		}
 
+		// UTF-8 -> Default Ansi
+		String<char, MAX> ansi() const
+		{
+			const int slength = (int)size() + 1;
+			int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
+			String<char, MAX> buf;
+			len = min(MAX - 1, len);
+			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
+			return buf;
+		}
 		//------------------------------------------------------------------------------------
 
 
@@ -624,13 +700,13 @@ namespace common
 		}
 
 		String& operator += (const wchar_t *str) {
-			const size_t len1 = wcsslen(m_str);
+			const size_t len1 = wcslen(m_str);
 			if (len1 >= (MAX - 1))
 				return *this;
 
-			const size_t len2 = wcsslen(str);
+			const size_t len2 = wcslen(str);
 			const size_t cpLen = min(len2, MAX - len1 - 1);
-			wcssncat_s(m_str, str, cpLen);
+			wcsncat_s(m_str, str, cpLen);
 			m_str[len1 + cpLen] = NULL;
 			return *this;
 		}
@@ -639,13 +715,13 @@ namespace common
 			if (this == &str)
 				return *this;
 
-			const size_t len1 = wcsslen(m_str);
+			const size_t len1 = wcslen(m_str);
 			if (len1 >= (MAX - 1))
 				return *this;
 
-			const size_t len2 = wcsslen(str.m_str);
+			const size_t len2 = wcslen(str.m_str);
 			const size_t cpLen = min(len2, MAX - len1 - 1);
-			wcssncat_s(m_str, str.m_str, cpLen);
+			wcsncat_s(m_str, str.m_str, cpLen);
 			m_str[len1 + cpLen] = NULL;
 			return *this;
 		}
@@ -667,6 +743,7 @@ namespace common
 	typedef String<char, 64> Str64;
 	typedef String<char, 64> StrId;
 	typedef String<char, 128> Str128;
+	typedef String<char, 512> Str512;
 	typedef String<char, 128> StrPath;
 	typedef String<char, 256> StrGlobalPath;
 
@@ -675,6 +752,7 @@ namespace common
 	typedef String<wchar_t, 64> WStr64;
 	typedef String<wchar_t, 64> WStrId;
 	typedef String<wchar_t, 128> WStr128;
+	typedef String<wchar_t, 512> WStr512;
 	typedef String<wchar_t, 128> WStrPath;
 	typedef String<wchar_t, 256> WStrGlobalPath;
 }

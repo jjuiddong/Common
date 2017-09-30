@@ -166,7 +166,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 	}
 
 	m_idxBuff.Create(renderer, indices.size()/3, tempIdxBuff
-		, (indexStride==sizeof(DWORD))? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT);
+		, D3D11_USAGE_DEFAULT, (indexStride==sizeof(DWORD))? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT);
 	delete[] tempIdxBuff;
 }
 

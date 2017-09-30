@@ -2,6 +2,10 @@
 // 2017-05-26, jjuiddong
 // Bounding Sphere
 //
+//	BoundingSphere
+//		- XMFLOAT3 Center;            // Center of the sphere.
+//		- float Radius;               // Radius of the sphere.
+//
 #pragma once
 
 
@@ -30,6 +34,22 @@ namespace graphic
 
 		void SetPos(const Vector3 &pos) {
 			m_bsphere.Center = *(XMFLOAT3*)&pos;
+		}
+
+		Vector3 GetPos() const {
+			return *(Vector3*)&m_bsphere.Center;
+		}
+
+		void SetRadius(const float radius) {
+			m_bsphere.Radius = radius;
+		}
+
+		float GetRadius() const {
+			return m_bsphere.Radius;
+		}
+
+		bool Intersects(const cBoundingSphere &bspere) {
+			return m_bsphere.Intersects(bspere.m_bsphere);
 		}
 
 		cBoundingSphere operator * (const Matrix44 &rhs) {

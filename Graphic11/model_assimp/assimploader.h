@@ -36,15 +36,15 @@ namespace graphic
 
 	protected:
 		void FindBoneNode();
-		void CreateSimpleBones(const aiNode* node, int parent, const map<hashcode, aiBone*>& animatedNodes, 
-			vector<SkeletonNode>& result) const;
-		void  MarkParents(std::vector<SkeletonNode>& hierarchy) const;
+		void CreateSimpleBones(const aiNode* node, int parent, const map<hashcode, aiBone*>& animatedNodes
+			, vector<SkeletonNode>& result) const;
+		void MarkParents(std::vector<SkeletonNode>& hierarchy) const;
 		void FilterHierarchy(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const;
 		void CreateMesh();
 		void CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl);
 		void CreateBone();
 		void CreateMeshBone(aiNode* node);
-		void CreateNode(aiNode* node);
+		void CreateNode(aiNode* node, const int parentNodeIdx=-1);
 		void CreateAnimation();
 		int GetBoneId(const Str64 &boneName);
 

@@ -21,7 +21,7 @@ std::pair<IFW1FontWrapper*, IDWriteTextFormat*> cFontManager::GetFont(cRenderer 
 )
 {
 	IFW1FontWrapper *fontWrapper = NULL;
-	wstring wname = Str64(name).wstr();
+	WStr64 wname = Str64(name).wstr();
 
 	const hashcode hcode = Str64(name).GetHashCode();
 	auto it = m_fonts.find(hcode);

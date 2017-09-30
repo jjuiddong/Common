@@ -23,6 +23,8 @@ namespace graphic
 
 		void SetRenderTarget(cRenderer &renderer);
 		void RecoveryRenderTarget(cRenderer &renderer);
+		bool Begin(cRenderer &renderer, const Vector4 &color = Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f));
+		void End(cRenderer &renderer);
 		void Bind(cRenderer &renderer, const int stage = 0);
 
 		void Clear();

@@ -12,6 +12,7 @@
 namespace common {
 
 	bool CompareExtendName(const char *srcFileName, int srcStringMaxLength, const char *compareExtendName);
+	bool CompareExtendName(const wchar_t *srcFileName, int srcStringMaxLength, const wchar_t *compareExtendName);
 
 }
 
@@ -403,6 +404,74 @@ bool common::CollectFilesOrdered(const list<string> &findExt, const string &sear
 }
 
 
+//-----------------------------------------------------------------------------//
+// searchPath폴더에 findExt 확장자 리스트에 포함된 파일을 out에 저장한다.
+//
+// searchPath: 탐색하고자 하는 디렉토리 경로
+//		- 마지막에 / 넣어야한다.
+// findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+// out: 일치하는 확장자를 가진 파일이름을 저장한다.
+//-----------------------------------------------------------------------------//
+bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out)
+{
+	WStrPath modifySearchPath;
+	//if (!searchPath.empty() &&
+	//	(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
+	const int searchLen = wcslen(searchPath);
+	if ((searchLen != 0) &&
+		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath;
+		modifySearchPath += L"\\";
+	}
+
+	WIN32_FIND_DATAW fd;
+	WStrPath searchDir = modifySearchPath + L"*.*";
+	HANDLE hFind = FindFirstFileW(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..",fd.cFileName))
+			{
+				const WStrPath newPath = modifySearchPath + fd.cFileName + L"/";
+				CollectFiles(findExt, newPath.c_str(), out);
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			if (findExt.empty())
+			{
+				out.push_back(modifySearchPath + fd.cFileName);
+			}
+			else
+			{
+				for (auto &ext : findExt)
+				{
+					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					{
+						out.push_back(modifySearchPath + fd.cFileName);
+						break;
+					}
+				}
+			}
+		}
+
+		if (!FindNextFileW(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
+
 //------------------------------------------------------------------------
 // srcFileName의 확장자와 compareExtendName 이름이 같다면 true를 리턴한다.
 // 확장자는 srcFileName 끝에서 '.'이 나올 때까지 이다.
@@ -441,6 +510,43 @@ bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLe
 
 	return false;
 }
+
+
+bool common::CompareExtendName(const wchar_t *srcFileName, const int srcStringMaxLength, const wchar_t *compareExtendName)
+{
+	const int len = (int)wcslen(srcFileName);
+	if (len <= 0)
+		return FALSE;
+
+	int count = 0;
+	wchar_t temp[5];
+	for (int i = 0; i < len && i < 4; ++i)
+	{
+		const wchar_t c = srcFileName[len - i - 1];
+		if ('.' == c)
+		{
+			break;
+		}
+		else
+		{
+			temp[count++] = c;
+		}
+	}
+	temp[count] = NULL;
+
+	wchar_t extendName[5];
+	for (int i = 0; i < count; ++i)
+		extendName[i] = temp[count - i - 1];
+	extendName[count] = NULL;
+
+	if (!wcscmp(extendName, compareExtendName))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 
 
 // searchPath 디렉토리 안에서 findName 의 파일이름을 가진 파일이 있다면 해당 경로를

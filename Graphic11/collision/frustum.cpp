@@ -5,7 +5,7 @@
 using namespace graphic;
 
 cFrustum::cFrustum()
-//:	m_fullCheck(false)
+	//:	m_fullCheck(false)
 	: m_plane(6) // 절두체 평면 6개
 	, m_epsilon(0.5f)
 {
@@ -18,18 +18,20 @@ cFrustum::~cFrustum()
 
 bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 {
-	//        4 --- 5
-	//      / |  |  /|
+	//      4 --- 5
+	//    / |  |  /|
 	//   0 --- 1   |
 	//   |   6-|- -7
-	//   | /     | /
+	//   | /   | /
 	//   2 --- 3
 	//
+	// 투영행렬까지 거치면 모든 3차원 월드좌표의 점은 (-1,-1,0) ~ (1,1,1)사이의 값으로 바뀐다.
 	Vector3 vertices[8] = {
 		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
 		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
 	};
 
+	// view * proj의 역행렬을 구한다.
 	Matrix44 matInv = matViewProj.Inverse();
 
 	for (int i = 0; i < 8; i++)
@@ -44,7 +46,6 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 	m_plane[4].Init(vertices[0], vertices[2], vertices[6]);	// 좌 평면(left)
 	m_plane[5].Init(vertices[1], vertices[5], vertices[7]);	// 우 평면(right)
 
-	//m_fullCheck = false;
 	m_viewProj = matViewProj;
 
 	return true;
@@ -62,29 +63,30 @@ bool cFrustum::IsIn( const Vector3 &point ) const
 		//if (!m_fullCheck && (i < 3))
 		//	continue;
 
+		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
 		const float dist = m_plane[i].Distance(point);
 		if (dist > m_epsilon)
 			return false;
 	}
-	return false;
+	return true;
 }
+
 
 
 bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
 {
-	const Vector3 pos = *(Vector3*)&sphere.m_bsphere.Center;
-
+	const Vector3 pos = sphere.GetPos();
 	for (int i = 0; i < 6; ++i)
 	{
 		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
 		//if (!m_fullCheck && (i < 3))
 		//	continue;
 
+		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
 		const float dist = m_plane[i].Distance(pos);
-		if (dist > (sphere.m_bsphere.Radius + m_epsilon))
+		if (dist > (sphere.GetRadius() + m_epsilon))
 			return false;
 	}
-
 	return true;
 }
 
@@ -121,28 +123,15 @@ bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 
 // Split Frustum
 // f : 0 ~ 1
-void cFrustum::Split2(cCamera &cam, const float f1, const float f2
+void cFrustum::Split2(const cCamera &cam, const float f1, const float f2
 	, cFrustum &out1, cFrustum &out2)
 {
-	//const float oldNearPlane = cam.m_nearPlane;
-	//const float oldFarPlane = cam.m_farPlane;
-	//const float far1 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f1);
-	//const float far2 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f2); 
-
-	//cam.ReCalcProjection(cam.m_nearPlane, far1);
-	//out1.SetFrustum(cam.GetViewProjectionMatrix());
-	//
-	//cam.ReCalcProjection(far1, far2);
-	//out2.SetFrustum(cam.GetViewProjectionMatrix());
-
-	//// recovery
-	//cam.ReCalcProjection(oldNearPlane, oldFarPlane);
 }
 
 
 // Split Frustum
-// f : 0 ~ 1
-void cFrustum::Split3(cCamera &cam, const float f1, const float f2, const float f3
+// f : 0 ~ 1 (near-far plane ratio)
+void cFrustum::Split3(const cCamera &cam, const float f1, const float f2, const float f3
 	, cFrustum &out1, cFrustum &out2, cFrustum &out3)
 {
 	const float oldNearPlane = cam.m_nearPlane;
@@ -151,17 +140,37 @@ void cFrustum::Split3(cCamera &cam, const float f1, const float f2, const float 
 	const float far2 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f2);
 	const float far3 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f3);
 
-	cam.ReCalcProjection(cam.m_nearPlane, far1);
-	out1.SetFrustum(cam.GetViewProjectionMatrix());
+	cCamera tmpCam = cam;
 
-	cam.ReCalcProjection(far1, far2);
-	out2.SetFrustum(cam.GetViewProjectionMatrix());
+	tmpCam.ReCalcProjection(tmpCam.m_nearPlane, far1);
+	out1.SetFrustum(tmpCam.GetViewProjectionMatrix());
 
-	cam.ReCalcProjection(far2, far3);
-	out3.SetFrustum(cam.GetViewProjectionMatrix());
+	tmpCam.ReCalcProjection(far1, far2);
+	out2.SetFrustum(tmpCam.GetViewProjectionMatrix());
 
-	// recovery
-	cam.ReCalcProjection(oldNearPlane, oldFarPlane);
+	tmpCam.ReCalcProjection(far2, far3);
+	out3.SetFrustum(tmpCam.GetViewProjectionMatrix());
+}
+
+
+// Split Frustum
+// f1,2,3 : meter
+void cFrustum::Split3_2(const cCamera &cam, const float f1, const float f2, const float f3
+	, cFrustum &out1, cFrustum &out2, cFrustum &out3)
+{
+	const float oldNearPlane = cam.m_nearPlane;
+	const float oldFarPlane = cam.m_farPlane;
+
+	cCamera tmpCam = cam;
+
+	tmpCam.ReCalcProjection(tmpCam.m_nearPlane, f1);
+	out1.SetFrustum(tmpCam.GetViewProjectionMatrix());
+
+	tmpCam.ReCalcProjection(f1, f2);
+	out2.SetFrustum(tmpCam.GetViewProjectionMatrix());
+
+	tmpCam.ReCalcProjection(f2, f3);
+	out3.SetFrustum(tmpCam.GetViewProjectionMatrix());
 }
 
 
@@ -211,7 +220,7 @@ void cFrustum::GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertice
 
 float cFrustum::LengthRoughly(const Vector3 &pos) const
 {
-	return m_pos.LengthRoughly(pos);
+	return (*(Vector3*)&m_frustum.Origin).LengthRoughly(pos);
 }
 
 
@@ -220,11 +229,7 @@ cFrustum& cFrustum::operator=(const cFrustum &rhs)
 	if (this != &rhs)
 	{
 		m_viewProj = rhs.m_viewProj;
-		m_plane = rhs.m_plane;
-		m_pos = rhs.m_pos;
-		m_epsilon = rhs.m_epsilon;
-
-		//m_frustum = rhs.m_frustum;
+		m_frustum = rhs.m_frustum;
 	}
 	return *this;
 }

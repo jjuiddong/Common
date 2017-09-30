@@ -2,6 +2,12 @@
 // 2017-08-02, jjuiddong
 // OBB (Oriendted Bounding Box)
 //
+//
+//	BoundingOrientedBox
+//		- XMFLOAT3 Center;            // Center of the box.
+//		- XMFLOAT3 Extents;           // Distance from the center to each side.
+//		- XMFLOAT4 Orientation;       // Unit quaternion representing rotation (box -> world).
+//
 #pragma once
 
 

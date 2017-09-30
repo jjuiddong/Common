@@ -65,7 +65,7 @@ void cDbgBox::SetBox(cRenderer &renderer, const Vector3 vertices[8]
 }
 
 
-void cDbgBox::SetColor(DWORD color)
+void cDbgBox::SetColor(const cColor &color)
 {
 	//assert(0);
 }
@@ -86,9 +86,11 @@ void cDbgBox::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.Update(renderer);
 
 	CommonStates states(renderer.GetDevice());
+	ID3D11RasterizerState *oldState = NULL;
+	renderer.GetDevContext()->RSGetState(&oldState);
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);
-	renderer.GetDevContext()->RSSetState(NULL);
+	renderer.GetDevContext()->RSSetState(oldState);
 }
 
 

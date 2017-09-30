@@ -19,6 +19,7 @@ namespace graphic
 			, const bool isVtxTypeHash = true);
 		cShader11* FindShader(const int vertexType);
 		cShader11* FindShader(const StrPath &fileName);
+		void ReloadAll(cRenderer &renderer);
 		void Clear();
 
 

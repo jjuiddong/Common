@@ -21,6 +21,11 @@ namespace graphic
 		bool Read(cRenderer &renderer, const StrPath &fileName);
 
 
+	protected:
+		bool WriteHeightmap(const char *fileName);
+		bool ReadHeightmap(const char *fileName);
+
+
 	public:
 		cTerrain2 *m_terrain; // reference
 	};

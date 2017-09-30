@@ -24,6 +24,7 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 	RETV(!rawMeshes, false);
 
 	//m_fileName = fileName;
+	m_nodes = rawMeshes->nodes;
 	m_storedAnimationName = rawMeshes->animationName;
 
 	m_isSkinning = !rawMeshes->bones.empty();
@@ -54,8 +55,11 @@ bool cAssimpModel::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	for (auto &mesh : m_meshes)
-		mesh->Render(renderer, parentTm);
+	//for (auto &mesh : m_meshes)
+	//	mesh->Render(renderer, parentTm);
+
+	RETV(m_nodes.empty(), false);
+	RenderNode(renderer, m_nodes[0], parentTm, flags);
 	return true;
 }
 
@@ -82,6 +86,27 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 }
 
 
+// Render From Node
+bool cAssimpModel::RenderNode(cRenderer &renderer
+	, const sRawNode &node
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	const XMMATRIX tm = node.localTm.GetMatrixXM() * parentTm;
+
+	// Render Meshes
+	for (auto idx : node.meshes)
+		m_meshes[idx]->Render(renderer, tm);
+
+	// Render Child Node
+	for (auto idx : node.children)
+		RenderNode(renderer, m_nodes[idx], tm, flags);
+
+	return true;
+}
+
+
 bool cAssimpModel::Update(const float deltaSeconds)
 {
 	m_animation.Update(deltaSeconds);
@@ -91,16 +116,40 @@ bool cAssimpModel::Update(const float deltaSeconds)
 
 void cAssimpModel::UpdateBoundingBox()
 {
-	//sMinMax mm;
-	//for each (auto &mesh in m_meshes)
-	//{
-	//	mm.Update(mesh->m_buffers->m_boundingBox.m_min);
-	//	mm.Update(mesh->m_buffers->m_boundingBox.m_max);
-	//}
+	RET(m_nodes.empty());
 
-	//m_boundingBox.SetBoundingBox(mm._min, mm._max);
+	sMinMax mm;
+	struct sData {sRawNode *p; Matrix44 tm;};
+	vector<sData> s; // like stack
+	s.push_back({ &m_nodes[0] });
+
+	while (!s.empty())
+	{
+		sRawNode *node = s.back().p;
+		Matrix44 tm = s.back().tm;
+		s.pop_back();
+
+		for (auto idx : node->meshes)
+		{
+			cMesh2 *mesh = m_meshes[idx];
+			cBoundingBox bbox = mesh->m_buffers->m_boundingBox;
+			bbox *= node->localTm * tm;
+			const Vector3 center = bbox.Center();
+			const Vector3 dim = bbox.GetDimension();
+			const Vector3 _min = center - (dim * 0.5f);
+			const Vector3 _max = center + (dim * 0.5f);
+			mm.Update(_min);
+			mm.Update(_max);
+		}
+
+		for (auto idx : node->children)
+			s.push_back({ &m_nodes[idx], node->localTm * tm});
+	}
+
+	m_boundingBox.SetBoundingBox(mm);
+
 	//if (m_boundingBox.Length() >= FLT_MAX)
-	//	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(0, 0, 0));
+	//	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(0, 0, 0), Quaternion());
 }
 
 

@@ -204,24 +204,28 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	//m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
 
-	//m_dbgBox.SetBox(*this, Vector3(1, 1, 1)*-0.2f, Vector3(1, 1, 1)*0.2f);
-	//m_dbgBox.SetColor(D3DCOLOR_XRGB(255, 0, 0));
-	//m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
-	//m_dbgSphere.Create(*this, 1, 10, 10);
-	//m_dbgAxis.Create(*this);
+	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
+	m_dbgBox.Create(*this, bbox, cColor::RED);
+	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
+	m_dbgSphere.Create(*this, 0.5f, 10, 10, cColor::WHITE);
+
+	cBoundingBox bbox2(Vector3(0, 0, 0), Vector3(10, 10, 10), Quaternion());
+	m_dbgAxis.Create(*this);
+	m_dbgAxis.SetAxis(bbox2, false);
 }
 
 
 // x, y, z 축을 출력한다.
 void cRenderer::RenderAxis()
 {
+	m_dbgAxis.Render(*this);
 }
 
 
 // FPS 출력.
 void cRenderer::RenderFPS()
 {
-	m_textFps.Render(*this, 70, 17);	
+	m_textFps.Render(*this, 70, 17);
 }
 
 
@@ -230,7 +234,6 @@ void cRenderer::RenderGrid()
 {
 
 }
-
 
 
 void cRenderer::Update(const float elapseT)
@@ -254,12 +257,10 @@ bool cRenderer::ClearScene(
 )
 {
 	if (updateRenderTarget)
-	{
 		SetRenderTarget(m_renderTargetView, m_depthStencilView);
-		//m_viewPort.Bind(*this);
-	}
 
-	float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
+	//float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
+	//float ClearColor[4] = { 1,1,1,1 }; // red,green,blue,alpha
 	//m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);
 	m_devContext->ClearRenderTargetView(m_refRTV, (float*)&color);
 	m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -555,4 +556,7 @@ void cRenderer::UnbindTexture(const int stage)
 void cRenderer::UnbindTextureAll()
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
+
+	ID3D11ShaderResourceView *ns[5] = { NULL, NULL, NULL, NULL, NULL };
+	GetDevContext()->PSSetShaderResources(0, 5, ns);
 }

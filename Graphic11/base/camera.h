@@ -4,7 +4,6 @@
 
 namespace graphic
 {
-	class cRenderer;
 
 	class cCamera
 	{
@@ -13,13 +12,12 @@ namespace graphic
 		cCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		virtual ~cCamera();
 
-		void Init(cRenderer *renderer);
 		void Update(const float deltaSeconds);
 		void Render(cRenderer &renderer);
-		//void Bind(cShader &shader);
 		void Bind(cRenderer &renderer);
 
 		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
+		void SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const Vector3 &up);
 		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
 		void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
 		void ReCalcProjection(const float nearPlane, const float farPlane);
@@ -114,7 +112,6 @@ namespace graphic
 		float m_oldHeight;
 		float m_width; // ViewPort
 		float m_height; // ViewPort
-		cRenderer *m_renderer;
 
 		// Animation
 		struct sCamMoving
@@ -128,7 +125,6 @@ namespace graphic
 	};
 
 
-	inline void cCamera::Init(cRenderer *renderer) { m_renderer = renderer;  }
 	inline void cCamera::SetEyePos(const Vector3 &eye) { m_eyePos = eye; UpdateViewMatrix(); }
 	inline void cCamera::SetLookAt(const Vector3 &lookAt) { m_lookAt = lookAt; UpdateViewMatrix(); }
 	inline void cCamera::SetUpVector(const Vector3 &up) { m_up = up; UpdateViewMatrix(); }

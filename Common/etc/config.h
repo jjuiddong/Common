@@ -22,6 +22,12 @@ namespace common
 		int GetInt(const string &key, const int defaultValue = 0);
 		string GetString(const string &key, const string &defaultValue = "");
 
+		void SetValue(const StrId &key, const char *value);
+		void SetValue(const StrId &key, const bool value);
+		void SetValue(const StrId &key, const int value);
+		void SetValue(const StrId &key, const float value);
+		void SetValue(const StrId &key, const double value);
+
 
 	protected:
 		bool Parse(const string &fileName);

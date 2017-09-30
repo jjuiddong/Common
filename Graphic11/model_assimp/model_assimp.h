@@ -31,11 +31,16 @@ namespace graphic
 
 	protected:
 		void UpdateBoundingBox();
+		bool RenderNode(cRenderer &renderer
+			, const sRawNode &node
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1);
 
 
 	public:
 		bool m_isSkinning;
 		vector<cMesh2*> m_meshes;
+		vector<sRawNode> m_nodes;
 		cSkeleton m_skeleton;
 		cAnimation m_animation;
 		cBoundingBox m_boundingBox;

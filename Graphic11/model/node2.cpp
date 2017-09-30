@@ -10,11 +10,9 @@ cNode2::cNode2()
 	, m_name("none")
 	, m_type(eNodeType::NONE)
 	, m_isEnable(true)
-	, m_isShow(true)
-	, m_isShadowEnable(true)
-	, m_isShadow(true)
 	, m_parent(NULL)
-	, m_flags(1)
+	, m_renderFlags(eRenderFlag::VISIBLE)
+	, m_opFlags(eOpFlag::COLLISION)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 {
@@ -27,12 +25,10 @@ cNode2::cNode2(const int id
 	: m_id(id)
 	, m_name(name)
 	, m_isEnable(true)
-	, m_isShow(true)
-	, m_isShadowEnable(true)
-	, m_isShadow(true)
 	, m_parent(NULL)
 	, m_type(type)
-	, m_flags(1)
+	, m_renderFlags(eRenderFlag::VISIBLE)
+	, m_opFlags(eOpFlag::COLLISION)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 {
@@ -51,7 +47,7 @@ bool cNode2::Render(cRenderer &renderer
 )
 {
 	RETV(!m_isEnable, false);
-	RETV(!m_isShow, false);
+	RETV(!IsVisible(), false);
 
 	XMMATRIX ctm = XMLoadFloat4x4((XMFLOAT4X4*)&m_transform.GetMatrix());
 	const XMMATRIX tm = ctm * parentTm;
@@ -64,18 +60,18 @@ bool cNode2::Render(cRenderer &renderer
 	{
 		if (0 == renderer.m_dbgRenderStyle) // sphere
 		{
-			//renderer.m_dbgSphere.m_transform.pos = m_boundingSphere.m_pos;
-			//renderer.m_dbgSphere.m_transform.scale = Vector3(1, 1, 1) * m_boundingSphere.m_radius;
-			//renderer.m_dbgSphere.Render(renderer, tm);
+			renderer.m_dbgSphere.SetPos(m_boundingSphere.GetPos());
+			renderer.m_dbgSphere.SetRadius(m_boundingSphere.GetRadius());
+			renderer.m_dbgSphere.Render(renderer, tm);
 		}
 		else
 		{
-			//renderer.m_dbgBox.SetBox(m_boundingBox.m_min, m_boundingBox.m_max);
-			//renderer.m_dbgBox.Render(renderer, tm);
+			renderer.m_dbgBox.SetBox(m_boundingBox);
+			renderer.m_dbgBox.Render(renderer, tm);
 		}
 
-		//renderer.m_dbgAxis.SetAxis(m_boundingBox);
-		//renderer.m_dbgAxis.Render(renderer, tm);
+		renderer.m_dbgAxis.SetAxis(m_boundingBox);
+		renderer.m_dbgAxis.Render(renderer, tm);
 	}
 
 	return true;
@@ -90,7 +86,7 @@ bool cNode2::RenderInstancing(cRenderer &renderer
 )
 {
 	RETV(!m_isEnable, false);
-	RETV(!m_isShow, false);
+	RETV(!IsVisible(), false);
 
 	XMMATRIX ctm = XMLoadFloat4x4((XMFLOAT4X4*)&m_transform.GetMatrix());
 	const XMMATRIX tm = ctm * parentTm;
@@ -124,7 +120,7 @@ bool cNode2::RenderInstancing(cRenderer &renderer
 bool cNode2::Update(cRenderer &renderer, const float deltaSeconds)
 {
 	RETV(!m_isEnable, false);
-	RETV(!m_isShow, false);
+	RETV(!IsVisible(), false);
 
 	for (auto &node : m_children)
 		node->Update(renderer, deltaSeconds);
@@ -233,18 +229,17 @@ void cNode2::CalcBoundingSphere()
 
 
 float cNode2::CullingTest(const cFrustum &frustum
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 	, const bool isModel //= true
 )
 {
 	RETV(!m_isEnable, false);
 
-	const Matrix44 transform = m_transform.GetMatrix()*tm;
+	const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
 	const cBoundingSphere bsphere = m_boundingSphere * transform;
 	if (frustum.IsInSphere(bsphere))
 	{
-		m_isShow = true;
-		m_isShadow = m_isShadowEnable;
+		SetRenderFlag(eRenderFlag::VISIBLE, true);
 
 		if (isModel)
 		{
@@ -254,12 +249,12 @@ float cNode2::CullingTest(const cFrustum &frustum
 		else
 		{
 			for (auto &p : m_children)
-				p->m_isShow = true;
+				p->SetRenderFlag(eRenderFlag::VISIBLE, true);
 		}
 	}
 	else
 	{
-		m_isShow = false;
+		SetRenderFlag(eRenderFlag::VISIBLE, false);
 	}
 
 	return frustum.LengthRoughly(m_boundingBox.Center() * transform);
@@ -268,6 +263,9 @@ float cNode2::CullingTest(const cFrustum &frustum
 
 cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type)
 {
+	if (!(m_opFlags & eOpFlag::COLLISION))
+		return NULL;
+
 	if (type == m_type)
 	{
 		cBoundingBox bbox = m_boundingBox;
@@ -276,11 +274,32 @@ cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType
 			return this;
 	}
 
+	vector<cNode2*> picks;
+	picks.reserve(4);
+
 	for (auto &p : m_children)
 		if (cNode2 *n = p->Picking(orig, dir, type))
-			return n;
+			picks.push_back(n);
+	
+	if (picks.empty())
+		return NULL;
 
-	return NULL;
+	if (picks.size() == 1)
+		return picks[0];
+
+	cNode2 *mostNearest = NULL;
+	float nearLen = FLT_MAX;
+	for (auto &p : picks)
+	{		
+		const float len = orig.LengthRoughly(p->GetWorldMatrix().GetPosition());
+		if (nearLen > len)
+		{
+			nearLen = len;
+			mostNearest = p;
+		}
+	}
+
+	return mostNearest;
 }
 
 
@@ -307,4 +326,31 @@ Matrix44 cNode2::GetWorldMatrix() const
 		node = node->m_parent;
 	}
 	return ret;
+}
+
+
+Transform cNode2::GetWorldTransform() const
+{
+	Transform ret = m_transform;
+	cNode2 *node = m_parent;
+	while (node)
+	{
+		ret *= node->m_transform;
+		node = node->m_parent;
+	}
+	return ret;
+}
+
+
+void cNode2::SetTechnique(const char *techniqName
+	, const bool isApplyChild // = true
+)
+{
+	m_techniqueName = techniqName;
+
+	if (isApplyChild)
+	{
+		for (auto &p : m_children)
+			p->SetTechnique(techniqName, isApplyChild);
+	}
 }

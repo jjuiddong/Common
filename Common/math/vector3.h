@@ -28,6 +28,7 @@ namespace common
 
 #ifdef USE_D3D11_MATH
 		XMVECTOR GetVectorXM() const;
+		Vector3 operator * (const XMMATRIX &m) const;
 #endif
 	
 		Vector3 operator + () const;

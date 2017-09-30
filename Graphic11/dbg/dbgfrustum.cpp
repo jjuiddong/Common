@@ -18,8 +18,10 @@ bool cDbgFrustum::Create(cRenderer &renderer, const Matrix44 &viewProj
 	, const cColor &color //= cColor::BLACK
 )
 {
+	cFrustum::SetFrustum(viewProj);
 	m_box.Create(renderer);
 	SetFrustum(renderer, viewProj, color);
+
 	return true;
 }
 
@@ -63,9 +65,6 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const cFrustum &frustum)
 }
 
 
-//-----------------------------------------------------------------------------//
-// Ãâ·Â
-//-----------------------------------------------------------------------------//
 void cDbgFrustum::Render(cRenderer &renderer)
 {
 	m_box.Render(renderer);

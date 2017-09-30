@@ -25,7 +25,7 @@ bool cModel2::Create(cRenderer &renderer
 	, const char *shaderName //= ""
 	, const char *techniqueName //= "Unlit"
 	, const bool isParallel //= false
-	, const bool isShadow //= false
+	, const bool isShadow //= true
 )
 {
 	Clear();
@@ -35,8 +35,7 @@ bool cModel2::Create(cRenderer &renderer
 	m_fileName = fileName;
 	m_shaderName = shaderName;
 	m_techniqueName = techniqueName;
-	m_isShadow = isShadow;
-	m_flags |= eRenderFlag::SHADOW;
+	SetRenderFlag(eRenderFlag::SHADOW, isShadow);
 
 	if (isParallel)
 	{
@@ -63,7 +62,7 @@ bool cModel2::Render(cRenderer &renderer
 )
 {
 	RETV(!m_isEnable, false);
-	RETV(!m_isShow, false);
+	RETV(!IsVisible(), false);
 	RETV(!m_model, false);
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
@@ -99,7 +98,7 @@ bool cModel2::RenderInstancing(cRenderer &renderer
 )
 {
 	RETV(!m_isEnable, false);
-	RETV(!m_isShow, false);
+	RETV(!IsVisible(), false);
 
 	const Str32 technique = m_techniqueName + "_Instancing";
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
@@ -123,13 +122,14 @@ bool cModel2::RenderInstancing(cRenderer &renderer
 	//	, BILLBOARD_TYPE::DYN_SCALE, tm2);
 
 	__super::RenderInstancing(renderer, count, transforms, parentTm, flags);
+	return true;
 }
 
 
 bool cModel2::Update(cRenderer &renderer, const float deltaSeconds)
 {
 	RETV(!m_isEnable, false);
-	RETV(!m_isShow, false);
+	RETV(!IsVisible(), false);
 
 	if (CheckLoadProcess(renderer))
 		return true;
@@ -157,15 +157,7 @@ bool cModel2::CheckLoadProcess(cRenderer &renderer)
 		if (m_model) // Parallel Load Finish
 		{
 			InitModel(renderer);
-
-			if (m_isShadow)
-			{
-				m_state = eState::LOAD_MESH_FINISH;
-			}
-			else
-			{
-				m_state = eState::LOAD_FINISH;
-			}
+			m_state = eState::LOAD_FINISH;
 		}
 	}
 	break;

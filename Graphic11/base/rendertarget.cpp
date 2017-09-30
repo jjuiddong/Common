@@ -113,6 +113,31 @@ void cRenderTarget::RecoveryRenderTarget(cRenderer &renderer)
 }
 
 
+bool cRenderTarget::Begin(cRenderer &renderer
+	, const Vector4 &color //= Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f)
+)
+{
+	renderer.SetRenderTarget(m_renderTargetView, m_depthStencilView);
+	m_viewPort.Bind(renderer);
+	
+	if (renderer.ClearScene(false, color))
+	{
+		renderer.BeginScene();
+		return true;
+	}
+
+	return false;
+}
+
+
+void cRenderTarget::End(cRenderer &renderer)
+{
+	renderer.SetRenderTarget(NULL, NULL);
+	renderer.m_viewPort.Bind(renderer);
+	renderer.EndScene();
+}
+
+
 void cRenderTarget::Bind(cRenderer &renderer
 	, const int stage //= 0
 )

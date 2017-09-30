@@ -43,7 +43,9 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		props.add("version", "1.01");
 		props.add("rows", m_terrain->m_rows);
 		props.add("cols", m_terrain->m_cols);
-	
+		props.add("tilerows", m_terrain->m_tileRows);
+		props.add("tilecols", m_terrain->m_tileCols);
+
 		// Write Tile
 		ptree tiles;
 		for (auto &tile : m_terrain->m_tiles)
@@ -61,8 +63,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 			const float height = dim.z;// abs(tile->m_boundingBox.m_min.z - tile->m_boundingBox.m_max.z);
 			tree.put("width", width);
 			tree.put("height", height);
-
-			tree.put("filename", tile->m_ground.m_texture->m_fileName.c_str());
+			tree.put("filename", tile->m_ground->m_texture->m_fileName.utf8().c_str()); // Save UTF-8
 
 			tiles.push_back(std::make_pair("", tree));
 		}
@@ -74,6 +75,9 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		{
 			for (auto &p : tile->m_children)
 			{
+				if (p->m_name == "grid")
+					continue;
+
 				ptree tree;
 
 				tree.put("name", p->m_name.c_str());
@@ -97,7 +101,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 				if (eNodeType::MODEL == p->m_type)
 				{
 					if (cModel2 *model = dynamic_cast<cModel2*>(p))
-						tree.put("filename", model->m_fileName.c_str());
+						tree.put("filename", model->m_fileName.utf8().c_str());// Save UTF-8
 				}
 
 				models.push_back(std::make_pair("", tree));
@@ -117,6 +121,9 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		return false;
 	}
 
+	if (!WriteHeightmap((fileName + ".height").c_str()))
+		return false;
+
 	return true;
 }
 
@@ -133,10 +140,12 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 		const string version = props.get<string>("version");
 
 		m_terrain->Clear();
-		//m_terrain->Create(renderer, sRectf(0, 0, col*m_tileSize, row*m_tileSize));
 
-		m_terrain->m_rows = props.get<int>("rows");
-		m_terrain->m_cols = props.get<int>("cols");
+		const int row = props.get<int>("rows");
+		const int col = props.get<int>("cols");
+		const int tilerow = props.get<int>("tilerows");
+		const int tilecol = props.get<int>("tilecols");
+		bool terrainCr = false;
 
 		ptree::assoc_iterator itor = props.find("tiles");
 		if (props.not_found() != itor)
@@ -154,7 +163,8 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				ss >> pos.x >> pos.y >> pos.z;
 				const float width = vt.second.get<float>("width");
 				const float height = vt.second.get<float>("height");
-				const StrPath fileName = vt.second.get<string>("filename");
+				const StrPath fileNameUTF8 = vt.second.get<string>("filename"); // UTF-8
+				const StrPath fileName = fileNameUTF8.ansi();
 
 				const float tileSize = width;
 				cTile *tile = new cTile();
@@ -163,20 +173,22 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 
 				const sRectf rect(x, z, x + tileSize, z + tileSize);
 
+				if (!terrainCr)
+				{
+					terrainCr = true;
+					m_terrain->Create(renderer, row, col, tileSize/16, tilerow, tilecol);
+				}
+
 				tile->Create(renderer 
 					, common::GenerateId()
 					, fileName.GetFileNameExceptExt().c_str()
+					, location.x // row
+					, location.y // col
 					, rect
 					, fileName.c_str()
 				);
 
-				tile->m_location = location;
-				//tile->m_ground.m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, fileName);
-				//if (!tile->m_ground.m_texture)
-				//	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
-				//		, fileName, (void**)&tile->m_ground.m_texture));
-
-				tile->m_dbgTile.SetColor((DWORD)cColor(1.f, 0, 0, 1));
+				//tile->m_dbgTile.SetColor(cColor::RED);
 				m_terrain->AddTile(tile);
 			}
 		}
@@ -189,7 +201,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			for (ptree::value_type &vt : child_field)
 			{
 				Transform transform;
-				cBoundingBox bbox;
+				cBoundingBox bbox; // world space
 				{
 					std::stringstream ss(vt.second.get<string>("pos"));
 					ss >> transform.pos.x >> transform.pos.y >> transform.pos.z;
@@ -208,16 +220,17 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					Vector3 _min, _max;
 					ss >> _min.x >> _min.y >> _min.z >> _max.x >> _max.y >> _max.z;
 					bbox.SetBoundingBox(transform.pos
-						, Vector3(abs(_max.x - _min.x), abs(_max.y - _min.y), abs(_max.z - _min.z))
+						, Vector3(abs(_max.x - _min.x)*transform.scale.x
+								, abs(_max.y - _min.y)*transform.scale.y
+								, abs(_max.z - _min.z)*transform.scale.z)
 						, transform.rot);
 				}
 
 				StrPath fileName = vt.second.get<string>("filename");
 				cModel2 *model = new cModel2();
 				model->Create(renderer, common::GenerateId()
-					, fileName, "../Media/shader/xfile.fx", "Scene_NoShadow", true);
+					, fileName.ansi(), "../Media/shader/xfile.fx", "Unlit", true);
 				model->m_name = vt.second.get<string>("name");
-				//model->m_boundingBox = bbox;
 
 				// insert model to tile
 				bool isInsertSuccess = false;
@@ -227,14 +240,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					if (tbbox.Collision(bbox))
 					{
 						model->m_transform = transform * tile->m_transform.Inverse();
-						model->m_boundingBox.SetBoundingBox(model->m_transform);
-						//model->m_transform.pos -= tile->m_transform.pos;
-
 						tile->AddChild(model);
-
-						//tile->m_shaders.insert(
-						//	cResourceManager::Get()->LoadShader(renderer, "../Media/shader/xfile.fx"));
-
 						isInsertSuccess = true;
 						break;
 					}
@@ -242,9 +248,6 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 
 				assert(isInsertSuccess);
 			}
-
-			//m_terrain->m_shaders.insert(
-			//	cResourceManager::Get()->LoadShader(renderer, "../Media/shader/xfile.fx"));
 		}
 
 	}
@@ -254,6 +257,49 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 		return false;
 	}
 
+	if (!ReadHeightmap((fileName + ".height").c_str()))
+		return false;
+
+	m_terrain->HeightmapNormalize();
+	m_terrain->UpdateHeightmapToTile(renderer, &m_terrain->m_tiles[0], m_terrain->m_tiles.size());
+
 	return true;
 }
 
+
+// Save Terrain Heightmap
+bool cTerrainLoader::WriteHeightmap(const char *fileName)
+{
+	std::ofstream ofs(fileName, std::ios::binary);
+	if (!ofs.is_open())
+		return false;
+
+	float *map = new float[m_terrain->m_colVtx * m_terrain->m_rowVtx];
+	int idx = 0;
+	for (auto &v : m_terrain->m_heightMap)
+		map[idx++] = v.p.y;
+
+	ofs.write((const char*)map, sizeof(float) * m_terrain->m_colVtx * m_terrain->m_rowVtx);
+
+	delete[] map;
+	return true;
+}
+
+
+// Load Terrain Heightmap
+bool cTerrainLoader::ReadHeightmap(const char *fileName)
+{
+	std::ifstream ifs(fileName, std::ios::binary);
+	if (!ifs.is_open())
+		return false;
+
+	float *map = new float[m_terrain->m_colVtx * m_terrain->m_rowVtx];
+	ifs.read((char*)map, sizeof(float)*m_terrain->m_colVtx * m_terrain->m_rowVtx);
+
+	int idx = 0;
+	for (auto &v : m_terrain->m_heightMap)
+		v.p.y = map[idx++];
+
+	delete[] map;
+	return true;
+}

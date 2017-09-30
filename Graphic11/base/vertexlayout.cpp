@@ -13,13 +13,15 @@ cVertexLayout::cVertexLayout()
 
 cVertexLayout::~cVertexLayout()
 {
-	SAFE_RELEASE(m_vertexLayout);
+	Clear();
 }
 
 
 bool cVertexLayout::Create(cRenderer &renderer, ID3DBlob *vsBlob 
 	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
 {
+	Clear();
+
 	Create(layout, numElements);
 
 	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
@@ -35,6 +37,8 @@ bool cVertexLayout::Create(cRenderer &renderer, ID3DBlob *vsBlob
 bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, const SIZE_T IAInputSignatureSize
 	, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
 {
+	Clear();
+
 	Create(layout, numElements);
 
 	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
@@ -84,6 +88,8 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 
 bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 {
+	RETV(layout.empty(), false);
+
 	//int size = 0;
 	//m_elements.clear();
 	//for (u_int i = 0; i < layout.size(); ++i)
@@ -221,4 +227,10 @@ int cVertexLayout::GetOffset(const char *semanticName) const
 	}
 
 	return offset;
+}
+
+
+void cVertexLayout::Clear()
+{
+	SAFE_RELEASE(m_vertexLayout);
 }

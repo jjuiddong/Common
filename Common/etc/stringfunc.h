@@ -14,6 +14,7 @@ namespace common
 
 	string wstr2str(const wstring &wstr);
 	wstring str2wstr(const string &str);
+	string wstr2utf8(const wstring &wstr);
 
 	string format(const char* fmt, ...);
 	wstring formatw(const char* fmt, ...);
@@ -29,11 +30,10 @@ namespace common
 		return textString;
 	}
 
-
-
 	void tokenizer(const string &str, const string &delimeter, const string &ignoreStr, OUT vector<string> &out);
 	void wtokenizer(const wstring &str, const wstring &delimeter, const wstring &ignoreStr, OUT vector<wstring> &out);
-
 	void tokenizer2(const string &str, const string &delimeters, OUT vector<string> &out);
+
+	int scanner(const wchar_t *buf, const wchar_t *fmt, ...);
 }
 

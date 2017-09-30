@@ -286,7 +286,3 @@ Lib/Common/Debug_MT/Common.lib
 Lib/Effects11.lib
 Graphic11/Effects11.lib
 Lib/AI/Debug_MD/AI.lib
-Lib/Common/Release_DLL/Common.lib
-Lib/Motion/Debug_DLL/MotionDLL.lib
-Lib/Network/Debug_DLL/Network.lib
-Lib/Network/Release_DLL/Network.lib

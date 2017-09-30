@@ -73,6 +73,13 @@ cShader11* cShaderManager::FindShader(const StrPath &fileName)
 }
 
 
+void cShaderManager::ReloadAll(cRenderer &renderer)
+{
+	for (auto &kv : m_shaders)
+		kv.second->CompileAndReload(renderer);
+}
+
+
 void cShaderManager::Clear() 
 {
 	for (auto &kv : m_shaders)

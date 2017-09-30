@@ -19,26 +19,29 @@ cIndexBuffer::~cIndexBuffer()
 
 
 bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount
+	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
 	, const DXGI_FORMAT fmt //= DXGI_FORMAT_R16_UINT
 )
 {
 	SAFE_RELEASE(m_idxBuff);
 
-	//if (FAILED(renderer.GetDevice()->CreateIndexBuffer(faceCount*3*sizeof(WORD), 
-	//	D3DUSAGE_WRITEONLY,
-	//	D3DFMT_INDEX16,
-	//	D3DPOOL_MANAGED,
-	//	&m_idxBuff, NULL)))
-	//{
-	//	return false;
-	//}
-
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = usage;
 	bd.ByteWidth = sizeof(WORD) * faceCount * 3;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd.CPUAccessFlags = 0;
+	switch (usage)
+	{
+	case D3D11_USAGE_DEFAULT:
+		bd.CPUAccessFlags = 0;
+		break;
+	case D3D11_USAGE_DYNAMIC:
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		break;
+	case D3D11_USAGE_STAGING:
+		assert(0); // very slow flag
+		break;
+	}
 
 	if (FAILED(renderer.GetDevice()->CreateBuffer(&bd, NULL, &m_idxBuff)))
 		return false;
@@ -50,6 +53,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount
 
 
 bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount, BYTE *indices
+	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
 	, const DXGI_FORMAT fmt //= DXGI_FORMAT_R16_UINT
 )
 {
@@ -57,10 +61,21 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount, BYTE *indice
 
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.Usage = usage;
 	bd.ByteWidth = BitsPerPixel(fmt)/8 * faceCount * 3;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd.CPUAccessFlags = 0;
+	switch (usage)
+	{
+	case D3D11_USAGE_DEFAULT:
+		bd.CPUAccessFlags = 0;
+		break;
+	case D3D11_USAGE_DYNAMIC:
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		break;
+	case D3D11_USAGE_STAGING:
+		assert(0); // very slow flag
+		break;
+	}
 
 	D3D11_SUBRESOURCE_DATA InitData;
 	ZeroMemory(&InitData, sizeof(InitData));

@@ -28,6 +28,7 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 	Assimp::Importer importer;
 
 	m_aiScene = importer.ReadFile(fileName.c_str(),
+		//aiProcess_CalcTangentSpace | // calculate tangents and bitangents if possible
 		aiProcess_JoinIdenticalVertices |		// join identical vertices/ optimize indexing
 		aiProcess_ValidateDataStructure |		// perform a full validation of the loader's output
 		aiProcess_ImproveCacheLocality |		// improve the cache locality of the output vertices
@@ -65,7 +66,7 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 
 	CreateMesh();
 	CreateBone();
-	CreateNode(m_aiScene->mRootNode);
+	CreateNode(m_aiScene->mRootNode, -1);
 	CreateMeshBone(m_aiScene->mRootNode);
 	CreateAnimation();
 
@@ -111,12 +112,11 @@ void cAssimpLoader::CreateSimpleBones(const aiNode* node, int parent,
 	};
 
 	result.push_back(_n);
-	parent = result.size() - 1;
+	int new_parent = result.size() - 1;
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		CreateSimpleBones(node->mChildren[i], parent, animatedNodes, result);
+		CreateSimpleBones(node->mChildren[i], new_parent, animatedNodes, result);
 }
-
 
 
 void  cAssimpLoader::MarkParents(std::vector<SkeletonNode>& hierarchy) const
@@ -195,7 +195,7 @@ void cAssimpLoader::CreateMesh()
 		}
 
 		// now fill the index buffer
-		rawMesh->indices.reserve(mesh->mNumFaces * 3);
+		rawMesh->indices.reserve(mesh->mNumFaces * nidx);
 
 		for (unsigned int x = 0; x < mesh->mNumFaces; ++x)
 		{
@@ -500,17 +500,35 @@ void cAssimpLoader::CreateAnimation()
 }
 
 
-void cAssimpLoader::CreateNode(aiNode* node)
+// Create sRawNode and Children node
+// Update Local Transform
+void cAssimpLoader::CreateNode(aiNode* node
+	, const int parentNodeIdx //=-1
+)
 {
+	m_rawMeshes->nodes.push_back(sRawNode());
+	sRawNode *newNode = &m_rawMeshes->nodes.back();
+	const int nodeIdx = m_rawMeshes->nodes.size() - 1;
+	newNode->localTm = *(Matrix44*)&node->mTransformation;
+	newNode->localTm.Transpose();
+
+	if (parentNodeIdx >= 0)
+	{
+		sRawNode &parentNode = m_rawMeshes->nodes[parentNodeIdx];
+		parentNode.children.push_back(nodeIdx);
+	}
+
 	for (u_int m = 0; m < node->mNumMeshes; ++m)
 	{
 		sRawMesh2 &mesh = m_rawMeshes->meshes[node->mMeshes[m]];
 		mesh.localTm = *(Matrix44*)&node->mTransformation;
 		mesh.localTm.Transpose();
+
+		newNode->meshes.push_back(node->mMeshes[m]);
 	}
 
 	for (u_int c = 0; c < node->mNumChildren; c++)
-		CreateNode(node->mChildren[c]);
+		CreateNode(node->mChildren[c], nodeIdx);
 }
 
 

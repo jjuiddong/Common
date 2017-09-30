@@ -26,6 +26,9 @@ namespace common
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, const int flags=0);
 	bool FindFile( const StrPath &findName, const StrPath &searchPath, StrPath &out, const int depth=-1);
 
+	bool CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out);
+
+
 	bool IsFileExist(const char *fileName);
 	bool IsFileExist(const wchar_t *fileName);
 	bool IsFileExist(const StrPath &fileName);

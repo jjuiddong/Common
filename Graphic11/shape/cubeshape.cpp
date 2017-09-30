@@ -117,8 +117,14 @@ namespace {
 	//
 	// vertices
 	Vector3 g_vertices2[8] = {
-		Vector3(-1,1,-1), Vector3(1,1,-1), Vector3(-1,-1,-1), Vector3(1,-1,-1),
-		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+		Vector3(-1,1,-1)
+		, Vector3(1,1,-1)
+		, Vector3(-1,-1,-1)
+		, Vector3(1,-1,-1)
+		, Vector3(-1,1, 1)
+		, Vector3(1,1, 1)
+		, Vector3(-1,-1,1)
+		, Vector3(1,-1,1)
 	};
 	Vector3 g_normals2[6] = {
 		Vector3(0,0,-1), // front

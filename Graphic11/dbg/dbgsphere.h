@@ -19,6 +19,7 @@ namespace graphic
 		void Create(cRenderer &renderer, const float radius, const int stacks, const int slices, const cColor &color = cColor::BLACK);
 		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		void SetPos(const Vector3 &pos);
+		void SetRadius(const float radius);
 		XMMATRIX GetTransform() const;
 
 

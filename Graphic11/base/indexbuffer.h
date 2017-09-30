@@ -16,8 +16,14 @@ namespace graphic
 		cIndexBuffer();
 		virtual ~cIndexBuffer();
 
-		bool Create(cRenderer &renderer, const int faceCount, const DXGI_FORMAT fmt = DXGI_FORMAT_R16_UINT);
-		bool Create(cRenderer &renderer, const int faceCount, BYTE *indices, const DXGI_FORMAT fmt = DXGI_FORMAT_R16_UINT);
+		bool Create(cRenderer &renderer, const int faceCount
+			, const D3D11_USAGE usage = D3D11_USAGE_DEFAULT
+			, const DXGI_FORMAT fmt = DXGI_FORMAT_R16_UINT);
+
+		bool Create(cRenderer &renderer, const int faceCount, BYTE *indices
+			, const D3D11_USAGE usage = D3D11_USAGE_DEFAULT
+			, const DXGI_FORMAT fmt = DXGI_FORMAT_R16_UINT);
+
 		bool Create2(cRenderer &renderer, const int primitiveCount, const int primitiveSize);
 		void* Lock();
 		void Unlock();

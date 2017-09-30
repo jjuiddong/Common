@@ -24,7 +24,6 @@ string& common::trim(string &str)
 		if ((str[i] == '\n') || (str[i] == '\t') || (str[i] == '\r') || (str[i] == ' '))
 		{
 			rotatepopvector(str, i);
-//			str[ i] = '$';
 			--i;
 		}
 		else
@@ -37,13 +36,11 @@ string& common::trim(string &str)
 		if ((str[i] == '\n') || (str[i] == '\t') || (str[i] == '\r') || (str[i] == ' '))
 		{
 			rotatepopvector(str, i);
-//			str[ i] = '$';
 		}
 		else
 			break;
 	}
 
-//	replaceAll(str, "$", "");
 	return str;
 }
 
@@ -86,6 +83,19 @@ std::wstring common::str2wstr(const std::string &str)
 	delete[] buf;
 	return r;
 }
+
+
+string common::wstr2utf8(const wstring &wstr)
+{
+	const int slength = (int)wstr.length() + 1;
+	const int len = ::WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), slength, 0, 0, NULL, FALSE);
+	char* buf = new char[len];
+	::WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), slength, buf, len, NULL, FALSE);
+	std::string r(buf);
+	delete[] buf;
+	return r;
+}
+
 
 
 //------------------------------------------------------------------------
@@ -235,4 +245,104 @@ void common::tokenizer2(const string &str, const string &delimeters, OUT vector<
 		if (!tok.empty())
 			out.push_back(tok);
 	}
+}
+
+
+// explicit all matching character
+// %f, %d
+// Last Variable Argument Must NULL
+//
+// etc)
+//  scanner("test string 1-1", "test string %d-%d", &v1, &v2, NULL);
+//
+int common::scanner(const wchar_t *buf, const wchar_t *fmt, ...)
+{
+	va_list listPointer;
+	va_start(listPointer, fmt);
+
+	const wchar_t *pfL = fmt;
+	const wchar_t *pfR = fmt;
+	const wchar_t *pb = buf;
+	int scanCount = 0;
+
+	while (*pfR && *pb)
+	{
+		if (*pfR == '%')
+		{
+			const int cmpLen = pfR - pfL;
+			if (cmpLen > 0)
+				if (wcsncmp(pb, pfL, cmpLen))
+					break; // not matching fail Scan
+
+			pb += cmpLen;
+			const wchar_t f = *++pfR; // next
+			pfL = ++pfR; // next formatter
+
+			switch (f)
+			{
+			case 'd': // integer
+			{
+				wchar_t tmp[32];
+				int idx = 0;
+				ZeroMemory(tmp, sizeof(tmp));
+
+				while (*pb && (31 > idx))
+				{
+					if (!iswdigit(*pb))
+						break;
+					tmp[idx++] = *pb++;
+				}
+
+				void *arg = va_arg(listPointer, void*);
+				if (!arg)
+					break; // no argument
+
+				*(int*)arg = _wtoi(tmp);
+				++scanCount;
+			}
+			break;
+
+			case 'f': // floating
+			{
+				wchar_t tmp[32];
+				int idx = 0;
+				ZeroMemory(tmp, sizeof(tmp));
+
+				while (*pb && (31 > idx))
+				{
+					if ((*pb == '.') && (!iswdigit(*pb)))
+						break;
+					tmp[idx++] = *pb++;
+				}
+
+				void *arg = va_arg(listPointer, void*);
+				if (!arg)
+					break; // no argument
+
+				*(float*)arg = (float)_wtof(tmp);
+				++scanCount;
+			}
+			break;
+
+			default: assert(0); break;
+			}
+		}
+		else
+		{
+			++pfR;
+		}
+	}
+
+	va_end(listPointer);
+
+	if (!*pfR && *pfL)
+	{
+		if (!wcscmp(pfL, pb))
+			return scanCount; // success
+	}
+
+	if (!*pfR && !*pb)
+		return scanCount; // success
+
+	return -1; // fail
 }

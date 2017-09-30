@@ -19,15 +19,20 @@ namespace graphic
 		int Begin();
 		void BeginPass(cRenderer &renderer, const int pass);
 		bool SetTechnique(const char *id);
+		bool CompileAndReload(cRenderer &renderer);
+		void Clear();
 
 		ID3DX11EffectTechnique* GetTechnique(const char *id);
 		ID3DX11EffectVariable* GetVariable(const char *id);
 		ID3DX11EffectMatrixVariable* GetMatrix(const char *id);
 		ID3DX11EffectVectorVariable** GetVector(const char *id);
 
+		static bool Compile(const char *fileName, Str512 *outMsg = NULL );
+
 
 	public:
 		StrId m_name;
+		StrPath m_fxoFileName; // *.fxo fileName
 		ID3DX11Effect *m_effect;
 		ID3DX11EffectTechnique* m_technique;
 		cVertexLayout m_vtxLayout;

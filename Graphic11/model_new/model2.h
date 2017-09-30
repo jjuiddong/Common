@@ -26,7 +26,7 @@ namespace graphic
 			, const char *shaderName=""
 			, const char *techniqueName="Unlit"
 			, const bool isParallel=false
-			, const bool isShadow=false
+			, const bool isShadow=true
 		);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
@@ -37,8 +37,6 @@ namespace graphic
 			, const int flags = 1
 			) override;
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
-		virtual void LostDevice() {}
-		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
 		void SetAnimation(const Str64 &animationName, const bool isMerge = false);
 		bool IsLoadFinish();

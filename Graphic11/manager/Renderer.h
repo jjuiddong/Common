@@ -57,7 +57,7 @@ namespace graphic
 		void AddAlphaBlendSpace(const cBoundingBox &bbox);
 		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
 
-		bool ClearScene(const bool updateRenderTarget=true
+		bool ClearScene(const bool updateRenderTarget = true
 			, const Vector4 &color=Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f));
 		void BeginScene();
 		void Present();
@@ -126,10 +126,10 @@ namespace graphic
 		// Debug Render
 		bool m_isDbgRender; // Debug Render
 		int m_dbgRenderStyle; // 0:Sphere, 1:Box
-		//cDbgBox m_dbgBox;
-		//cDbgArrow m_dbgArrow;
-		//cDbgSphere m_dbgSphere;
-		//cDbgAxis m_dbgAxis;
+		cDbgBox m_dbgBox;
+		cDbgArrow m_dbgArrow;
+		cDbgSphere m_dbgSphere;
+		cDbgAxis m_dbgAxis;
 	};
 
 

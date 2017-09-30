@@ -66,7 +66,6 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 	}
 
 	m_title = StrId(" - ") + title + StrId(" - ");
-	m_camera.Init(&m_renderer);
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	m_camera.SetProjection(MATH_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
 	m_camera.SetViewPort((float)width, (float)height);
@@ -90,7 +89,20 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 	m_gui.SetContext();
 	ImGuiIO& io = ImGui::GetIO();
 	if (!mainWindow)
-		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, io.Fonts->GetGlyphRangesKorean());
+	{
+		const float fontSize = 14; //18
+		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		io.ImeWindowHandle = (HWND)this->getSystemHandle();
+
+		//ImVector<ImWchar> ranges;
+		//ImFontAtlas::GlyphRangesBuilder builder;
+		//builder.AddText("Hello world");                        // Add a string (here "Hello world" contains 7 unique characters)
+		//builder.AddChar(0x7262);                               // Add a specific character
+		//builder.AddRanges(io.Fonts->GetGlyphRangesKorean()); // Add one of the default ranges
+		//builder.BuildRanges(&ranges);                          // Build the final result (ordered ranges with all the unique characters submitted)
+		////io.Fonts->AddFontFromFileTTF("myfontfile.ttf", size_in_pixels, NULL, ranges.Data);
+		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, ranges.Data);
+	}
 
 	if (m_isThread)
 	{
