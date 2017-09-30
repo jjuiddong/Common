@@ -1,8 +1,8 @@
 # Common
 
-빌드
+## How To Build
 
-필요한 라이브러리 
+- Need Library
 	- DirectXTK
 	- Assimp
 	- Boost 1.63
@@ -10,7 +10,7 @@
 	- TBB 
 
 
-Property Manager Setting
+- Property Manager Setting
 	- Microsoft.Cpp.Win32.user
 		- Include Directories
 			- $(WindowsSdkDir_10)\include
@@ -29,7 +29,6 @@ Property Manager Setting
 			- $(WindowsSdkDir_10)\Lib
 
 
-DirectXTK는 직접 include 함.
-
+- DirectXTK add reference project
 
 
