@@ -101,7 +101,6 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 		*pt = tangent[i];
 	}
 
-
 	// binormal
 	const int binormal_offset = layout.GetOffset("BINORMAL");
 	for (u_int i = 0; i < binormal.size(); i++)
@@ -111,42 +110,62 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 		*pb = binormal[i];
 	}
 
+	// bone weight
+	m_isSkinned = !weights.empty();
+	const int blendWeight_offset = layout.GetOffset("BLENDWEIGHT");
+	const int blendIndices_offset = layout.GetOffset("BLENDINDICES");
+	for (u_int i = 0; i < weights.size(); i++)
+	{
+		BYTE *p = pv + (vertexStride * i);
+		u_int *vtxWeight = (u_int*)(p + blendWeight_offset); // byte4
+		u_int *vtxIndices = (u_int*)(p + blendIndices_offset); // byte4
 
-	//// bone weight
-	//m_isSkinned = !weights.empty();
-	//const int blendWeight_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD, 1);
-	//const int blendIndices_offset = decl.GetOffset(D3DDECLUSAGE_TEXCOORD, 2);
-	//for (u_int i = 0; i < weights.size(); i++)
-	//{
-	//	BYTE *p = pv + (decl.GetElementSize() * i);
-	//	float *vtxWeight = (float*)(p + blendWeight_offset); // float4
-	//	float *vtxIndices = (float*)(p + blendIndices_offset); // float4
+		const sVertexWeight &weight = weights[i];
+		//const int vtxIdx = weight.vtxIdx;
+		//ZeroMemory(vtxWeight, sizeof(u_int));
+		//ZeroMemory(vtxIndices, sizeof(u_int));
 
-	//	const sVertexWeight &weight = weights[i];
-	//	const int vtxIdx = weight.vtxIdx;
+		u_int _idx[4] = { 0,0,0,0 };
+		float _w[4] = { 0,0,0,0 };
+		for (int k = 0; (k < weight.size) && (k < 4); ++k)
+		{
+			const sWeight *w = &weight.w[k];
+			if (k < 3)
+			{
+				_w[k] = w->weight;
+			}
+			else // k == 3 (마지막 가중치)
+			{
+				_w[k] = 1.f - (vtxWeight[0] + vtxWeight[1] + vtxWeight[2]);
+			}
 
-	//	ZeroMemory(vtxWeight, sizeof(float) * 4);
-	//	ZeroMemory(vtxIndices, sizeof(float) * 4);
-	//	//pv[ vtxIdx].matrixIndices = 0;
+			_idx[k] = w->bone;
+		}
 
-	//	for (int k = 0; (k < weight.size) && (k < 4); ++k)
-	//	{
-	//		const sWeight *w = &weight.w[k];
-	//		if (k < 3)
-	//		{
-	//			vtxWeight[k] = w->weight;
-	//		}
-	//		else // k == 3 (마지막 가중치)
-	//		{
-	//			vtxWeight[k] =
-	//				1.f - (vtxWeight[0] + vtxWeight[1] + vtxWeight[2]);
-	//		}
+		*vtxIndices = ((_idx[3] & 0xff) << 24) | ((_idx[2] & 0xff) << 16) | ((_idx[1] & 0xff) << 8) | (_idx[0] & 0xff);
 
-	//		vtxIndices[k] = (float)w->bone;
-	//		//const int boneIdx = (w->bone << (8*(3-k)));
-	//		//pv[ vtxIdx].matrixIndices |= boneIdx;
-	//	}
-	//}
+		XMVECTOR iweights = XMLoadFloat4((XMFLOAT4*)_w);
+		DirectX::PackedVector::XMUBYTEN4 packed;
+		XMStoreUByteN4(&packed, iweights);
+		*vtxWeight = packed.v;
+
+
+		//for (int k = 0; (k < weight.size) && (k < 4); ++k)
+		//{
+		//	const sWeight *w = &weight.w[k];
+		//	if (k < 3)
+		//	{
+		//		vtxWeight[k] = w->weight;
+		//	}
+		//	else // k == 3 (마지막 가중치)
+		//	{
+		//		vtxWeight[k] =
+		//			1.f - (vtxWeight[0] + vtxWeight[1] + vtxWeight[2]);
+		//	}
+
+		//	vtxIndices[k] = (BYTE)w->bone;
+		//}
+	}
 
 	m_vtxBuff.Create(renderer, vertices.size(), vertexStride, &buffer[0]);
 

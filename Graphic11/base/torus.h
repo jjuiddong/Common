@@ -1,0 +1,27 @@
+//
+// 2017-10-02, jjuiddong
+// Torus
+//
+#pragma once
+
+
+namespace graphic
+{
+
+	class cTorus : public cNode2
+	{
+	public:
+		cTorus();
+		virtual ~cTorus();
+
+		bool Create(cRenderer &renderer, const float outerRadius, const float innerRadius
+			, const int stack=10, const int slice = 10);
+
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
+
+
+	public:
+		cTorusShape m_shape;
+	};
+
+}

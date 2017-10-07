@@ -9,24 +9,26 @@
 
 using namespace graphic;
 
-cCamera::cCamera() :
-	m_eyePos(0,100,-100)
-,	 m_isOrthogonal(false)
-,	m_lookAt(0,0,0)
-,	m_up(0,1,0)
-, m_oldWidth(0)
-, m_oldHeight(0)
-, m_width(0)
-, m_height(0)
-, m_state(eState::STOP)
+cCamera::cCamera(const char *name) 
+	: m_name(name)
+	, m_eyePos(0,100,-100)
+	, m_isOrthogonal(false)
+	, m_lookAt(0,0,0)
+	, m_up(0,1,0)
+	, m_oldWidth(0)
+	, m_oldHeight(0)
+	, m_width(0)
+	, m_height(0)
+	, m_state(eState::STOP)
 {
 	UpdateViewMatrix();
 }
 
-cCamera::cCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up) :
-	m_eyePos(eyePos)
-,	m_lookAt(lookAt)
-,	m_up(up)
+cCamera::cCamera(const char *name, const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up) 
+	: m_name(name)
+	, m_eyePos(eyePos)
+	, m_lookAt(lookAt)
+	, m_up(up)
 {
 	UpdateViewMatrix();
 }
@@ -701,14 +703,31 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 }
 
 
+Ray cCamera::GetRay(const int sx, const int sy)
+{
+	assert(m_width != 0);
+	assert(m_height != 0);
+
+	Ray ray;
+	GetRay((int)m_width, (int)m_height, sx, sy, ray.orig, ray.dir);
+	return ray;
+}
+
+
 void cCamera::GetRay(OUT Vector3 &orig, OUT Vector3 &dir)
 {
+	assert(m_width != 0);
+	assert(m_height != 0);
+
 	GetRay((int)m_width, (int)m_height, (int)(m_width/2), (int)(m_height/2), orig, dir);
 }
 
 
 void cCamera::GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
 {
+	assert(m_width != 0);
+	assert(m_height != 0);
+
 	GetRay((int)m_width, (int)m_height, sx, sy, orig, dir);
 }
 

@@ -29,6 +29,10 @@ namespace graphic
 			, const cColor color = cColor::BLACK);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
+
+
+	public:
+		bool m_isSolid;
 	};
 
 }

@@ -279,6 +279,12 @@
     <ClInclude Include="terrain\cascadedshadowmap.h" />
     <ClInclude Include="terrain\terraincursor.h" />
     <ClInclude Include="base\temporalbuffer.h" />
+    <ClInclude Include="shape\torusshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\torus.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -535,6 +541,12 @@
     <ClCompile Include="terrain\cascadedshadowmap.cpp" />
     <ClCompile Include="terrain\terraincursor.cpp" />
     <ClCompile Include="base\temporalbuffer.cpp" />
+    <ClCompile Include="shape\torusshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\torus.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">

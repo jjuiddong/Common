@@ -106,6 +106,7 @@ namespace graphic {
 #include "shape\pyramidshape.h"
 #include "shape\circleshape.h"
 #include "shape\quadshape.h"
+#include "shape\torusshape.h"
 
 
 #include "base/grid.h"
@@ -122,6 +123,7 @@ namespace graphic {
 //#include "base/circleline.h"
 #include "base/quad.h"
 #include "base/quad2d.h"
+#include "base/torus.h"
 #include "base/billboard.h"
 #include "base/text.h"
 #include "base/text3d3.h"
@@ -226,7 +228,7 @@ namespace graphic
 
 #ifdef _DEBUG
 	#pragma comment(lib, "Effects11/effects11d.lib")
-	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+	#pragma comment( lib, "assimp-vc140-mtd.lib" ) 
 #else
 	#pragma comment(lib, "Effects11/effects11.lib")
 	#pragma comment( lib, "assimp-vc140-mt.lib" ) 

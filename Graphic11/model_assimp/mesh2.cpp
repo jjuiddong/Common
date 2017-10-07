@@ -37,8 +37,6 @@ bool cMesh2::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skele
 
 	m_buffers = new cMeshBuffer(renderer, mesh);
 
-	m_tmPose.resize(m_bones.size());
-
 	return true;
 }
 
@@ -74,29 +72,45 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 
 
 void cMesh2::Render( cRenderer &renderer
+	, const char *techniqueName
 	, const XMMATRIX &parentTm // = XMIdentity
 )
 {
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, parentTm);
+	UpdateConstantBuffer(renderer, techniqueName, parentTm);
 	m_buffers->Render(renderer);
 }
 
 
-void cMesh2::RenderInstancing(cRenderer &renderer, const int count
+void cMesh2::RenderInstancing(cRenderer &renderer
+	, const char *techniqueName
+	, const int count
 	, const XMMATRIX &parentTm //= XMIdentity
 )
 {
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, parentTm);
+	UpdateConstantBuffer(renderer, techniqueName, parentTm);
 	m_buffers->RenderInstancing(renderer, count);
 }
 
 
-void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
+void cMesh2::UpdateConstantBuffer(cRenderer &renderer
+	, const char *techniqueName
+	, const XMMATRIX &parentTm)
 {
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_buffers->m_vtxType);
+	assert(shader);
+	shader->SetTechnique(techniqueName);
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+	renderer.m_cbClipPlane.Update(renderer, 4);
+
+	const XMMATRIX m = m_transform.GetMatrixXM() * parentTm;
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);
+	renderer.m_cbPerFrame.Update(renderer);
+
 	renderer.m_cbLight.Update(renderer, 1);
 	if (!m_mtrls.empty())
 		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
@@ -108,66 +122,16 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm)
 	if (!m_normalMap.empty())
 		m_normalMap[0]->Bind(renderer, 1);
 
-	const XMMATRIX m = m_transform.GetMatrixXM() * parentTm;
-	//const XMMATRIX m = m_transform.GetMatrixXM() * m_localTm.GetMatrixXM() * parentTm;
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);
-	renderer.m_cbPerFrame.Update(renderer);
+	// Set Skinning Information
+	for (u_int i = 0; i < m_bones.size(); ++i)
+	{
+		Matrix44 tm = m_bones[i].offsetTm * m_skeleton->m_tmPose[m_bones[i].id];
+		renderer.m_cbSkinning.m_v->mPalette[i] = XMMatrixTranspose(XMLoadFloat4x4((XMFLOAT4X4*)&tm));
+	}
+
+	if (!m_bones.empty())
+		renderer.m_cbSkinning.Update(renderer, 5);
 }
-
-
-// Shader Rendering
-//void cMesh2::RenderShader(cRenderer &renderer, cShader *shader, const Matrix44 &tm)
-//{
-//	RET(!shader);
-//	//RET(m_bones.empty());
-//
-//	if (!m_mtrls.empty())
-//		m_mtrls[0].Bind(*shader);
-//
-//	shader->SetMatrix("g_mWorld", m_localTm * tm);
-//
-//	if (!m_colorMap.empty())
-//		shader->SetTexture("g_colorMapTexture", *m_colorMap[0]);
-//
-//	// Set Skinning Information
-//	for (u_int i = 0; i < m_bones.size(); ++i)
-//		m_tmPose[i] = m_bones[i].offsetTm * m_skeleton->m_tmPose[m_bones[i].id];
-//	if (!m_tmPose.empty())
-//		shader->SetMatrixArray("g_mPalette", (Matrix44*)&m_tmPose[0], m_tmPose.size());
-//	//
-//
-//	shader->CommitChanges();
-//	m_buffers->Bind(renderer);
-//	m_buffers->Render(renderer);
-//
-//
-//
-//	//if (!m_mtrls.empty())
-//	//	m_mtrls[0].Bind(*shader);
-//	//
-//	//shader->SetMatrix("g_mWorld", m_localTm * tm);
-//
-//	//if (!m_colorMap.empty())
-//	//	shader->SetTexture("g_colorMapTexture", *m_colorMap[0]);
-//
-//	//// Set Skinning Information
-//	//for (u_int i = 0; i < m_bones.size(); ++i)
-//	//	m_tmPose[i] = m_bones[i].offsetTm * m_skeleton->m_tmPose[ m_bones[i].id];
-//	//if (!m_tmPose.empty())
-//	//	shader->SetMatrixArray("g_mPalette", (Matrix44*)&m_tmPose[0], m_tmPose.size());
-//	////
-//
-//	//const int passCount = shader->Begin();
-//	//for (int i = 0; i < passCount; ++i)
-//	//{
-//	//	shader->BeginPass(i);
-//	//	m_buffers->Bind(renderer);
-//	//	shader->CommitChanges();
-//	//	m_buffers->Render(renderer);
-//	//	shader->EndPass();
-//	//}
-//	//shader->End();
-//}
 
 
 void cMesh2::CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh)

@@ -18,12 +18,14 @@ namespace graphic
 			, const Vector3 &p0 = Vector3(0, 0, 0)
 			, const Vector3 &p1 = Vector3(1, 1, 1)
 			, const float width = 1.f
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 			, const cColor color = cColor::BLACK);
 
 		bool Create(cRenderer &renderer
 			, const Vector3 &p0=Vector3(0,0,0)
 			, const Vector3 &p1=Vector3(1,1,1)
 			, const float width=1.f
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 			, const cColor color = cColor::BLACK);
 
 		void SetLine(const Vector3 &p0, const Vector3 &p1, const float width);

@@ -22,7 +22,7 @@ namespace graphic
 		bool Create(cRenderer &renderer, const cBoundingBox &bbox
 			, const int cubeType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 			, const cColor &color = cColor::WHITE);
-		void InitCube(cRenderer &renderer, const int cubeType, const cColor &color = cColor::WHITE);
+		bool Create(cRenderer &renderer, const int cubeType, const cColor &color = cColor::WHITE);
 		void SetCube(const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cCube &cube);
@@ -33,8 +33,6 @@ namespace graphic
 
 	public:
 		cCubeShape m_shape;
-		cVertexBuffer m_vtxBuff;
-		cIndexBuffer m_idxBuff;
 		cTexture *m_texture; // reference
 	};	
 

@@ -6,6 +6,7 @@ using namespace graphic;
 
 
 cDbgLine::cDbgLine()
+	: m_isSolid(false)
 {
 }
 
@@ -40,16 +41,17 @@ bool cDbgLine::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	//cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
-	//assert(shader);
-	//shader->SetTechnique("Unlit");
-	//shader->Begin();
-	//shader->BeginPass(renderer, 0);
+	if (m_isSolid)
+	{
+		__super::Render(renderer, parentTm, flags);
+	}
+	else
+	{
+		CommonStates states(renderer.GetDevice());
+		renderer.GetDevContext()->RSSetState(states.Wireframe());
+		__super::Render(renderer, parentTm, flags);
+		renderer.GetDevContext()->RSSetState(NULL);
+	}
 
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->RSSetState(states.Wireframe());
-	__super::Render(renderer, parentTm, flags);
-	renderer.GetDevContext()->RSSetState(NULL);
 	return true;
 }
-

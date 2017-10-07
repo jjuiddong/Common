@@ -38,7 +38,7 @@ namespace graphic
 	{
 	public:
 		cNode2();
-		cNode2(const int id, const StrId &name = "none", const eNodeType::Enum type=eNodeType::NONE);
+		cNode2(const int id, const StrId &name = "none", const eNodeType::Enum type=eNodeType::MODEL);
 		virtual ~cNode2();
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
@@ -59,7 +59,13 @@ namespace graphic
 		virtual void SetShader(cShader11 *shader) { m_shader = shader; }
 		virtual void CalcBoundingSphere();
 		virtual float CullingTest(const cFrustum &frustum, const XMMATRIX &tm = XMIdentity, const bool isModel = true);
-		virtual cNode2* Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type);
+		
+		virtual cNode2* Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type
+			, const XMMATRIX &parentTm = XMIdentity);
+
+		virtual cNode2* Picking(const Ray &ray, const eNodeType::Enum type
+			, const XMMATRIX &parentTm = XMIdentity);
+
 		virtual void LostDevice() {}
 		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();

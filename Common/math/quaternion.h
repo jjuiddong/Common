@@ -2,6 +2,7 @@
 // refactoring, 2017-07-17
 //	irrlicht 엔진 참조
 //	- inverse
+//	- multiply
 //
 #pragma once
 
@@ -22,13 +23,15 @@ namespace common
 			return *this;
 		} //operator *=
 
+		// https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
 		Quaternion operator * ( const Quaternion& q ) const
 		{
-			return Quaternion(
-					x * q.w + y * q.z - z * q.y + w * q.x,
-				-x * q.z + y * q.w + z * q.x + w * q.y,
-					x * q.y - y * q.x + z * q.w + w * q.z,
-				-x * q.x - y * q.y - z * q.z + w * q.w );
+			Quaternion tmp;
+			tmp.w = (q.w * w) - (q.x * x) - (q.y * y) - (q.z * z);
+			tmp.x = (q.w * x) + (q.x * w) + (q.y * z) - (q.z * y);
+			tmp.y = (q.w * y) + (q.y * w) + (q.z * x) - (q.x * z);
+			tmp.z = (q.w * z) + (q.z * w) + (q.x * y) - (q.y * x);
+			return tmp;
 		} //operator *
 
 		Quaternion operator * ( const Matrix44& m ) const
@@ -48,7 +51,7 @@ namespace common
 		void Euler(const Vector3& euler);
 		void Euler2(const Vector3& euler);
 		Vector3 Euler() const;
-		void Normalize();
+		const Quaternion& Normalize();
 		Quaternion Inverse() const;
 
 		float GetRotationAngleXZ() const;

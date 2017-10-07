@@ -43,7 +43,7 @@ namespace graphic
 
 		ANITYPE type;
 		Str64 name;		
-		vector<sRawAni> anies;
+		vector<sRawAni> anies; // index = bone index, bone animation array
 		vector<sRawBone> bones;
 	};
 

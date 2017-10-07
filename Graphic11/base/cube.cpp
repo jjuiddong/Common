@@ -6,7 +6,9 @@ using namespace graphic;
 
 
 cCube::cCube()
+	: cNode2(common::GenerateId(), "cube", eNodeType::MODEL)
 {
+	m_renderFlags |= eRenderFlag::SHADOW;
 }
 
 cCube::cCube(cRenderer &renderer
@@ -14,6 +16,7 @@ cCube::cCube(cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 	, const cColor &color //= cColor::WHITE
 )
+	: cNode2(common::GenerateId(), "cube", eNodeType::MODEL)
 {
 	Create(renderer, bbox, vtxType, color);
 }
@@ -25,35 +28,38 @@ bool cCube::Create(cRenderer &renderer
 	, const cColor &color //= Color::WHITE
 )
 {
-	InitCube(renderer, vtxType, color);
+	Create(renderer, vtxType, color);
 	SetCube(bbox);
+	CalcBoundingSphere();
 	return true;
 }
 
 
-void cCube::InitCube(
+bool cCube::Create(
 	cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 	, const cColor &color //= Color::WHITE
 )
 {
-	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(2, 2, 2), Quaternion(0, 0, 0, 1));
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
 	m_shape.Create2(renderer, vtxType, color);
+	CalcBoundingSphere();
+	return true;
 }
 
 
 void cCube::SetCube(const cBoundingBox &bbox)
 {
-	m_transform.scale = bbox.GetDimension();
+	m_transform.scale = bbox.GetDimension() / 2.f;
 	m_transform.pos = bbox.Center();
-	m_boundingBox = bbox;
+	//m_boundingBox = bbox;
 }
 
 
 void cCube::SetCube(cRenderer &renderer, const cBoundingBox &bbox)
 {
-	if (m_vtxBuff.GetVertexCount() <= 0)
-		InitCube(renderer, m_shape.m_vtxType);
+	if (m_shape.m_vtxBuff.GetVertexCount() <= 0)
+		Create(renderer, m_shape.m_vtxType);
 	SetCube(bbox);
 }
 
@@ -80,11 +86,12 @@ bool cCube::Render(cRenderer &renderer
 {
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
-	shader->SetTechnique("Unlit");
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * tm);
+	//renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * tm);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
 	renderer.m_cbMaterial.Update(renderer, 2);

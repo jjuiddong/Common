@@ -67,15 +67,14 @@ bool cModel2::Render(cRenderer &renderer
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	const int vtxType = m_model->GetVertexType();
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(vtxType);
-	assert(shader);
-
-	shader->SetTechnique(m_techniqueName.c_str());
-	shader->Begin();
-	shader->BeginPass(renderer, 0);
-	renderer.m_cbClipPlane.Update(renderer, 4);
-	m_model->Render(renderer, transform);
+	//const int vtxType = m_model->GetVertexType();
+	//cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(vtxType);
+	//assert(shader);
+	//shader->SetTechnique(m_techniqueName.c_str());
+	//shader->Begin();
+	//shader->BeginPass(renderer, 0);
+	//renderer.m_cbClipPlane.Update(renderer, 4);
+	m_model->Render(renderer, m_techniqueName.c_str(), transform);
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();
@@ -100,18 +99,18 @@ bool cModel2::RenderInstancing(cRenderer &renderer
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
 
-	const Str32 technique = m_techniqueName + "_Instancing";
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
-	shader->SetTechnique(technique.c_str());
-	assert(shader);
-	shader->Begin();
-	shader->BeginPass(renderer, 0);
-	renderer.m_cbClipPlane.Update(renderer, 4);
+	const Str32 technique = m_techniqueName + "_Instancing";
+	//cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	//shader->SetTechnique(technique.c_str());
+	//assert(shader);
+	//shader->Begin();
+	//shader->BeginPass(renderer, 0);
+	//renderer.m_cbClipPlane.Update(renderer, 4);
 
 	if (m_model)
-		m_model->RenderInstancing(renderer, count, transforms, transform);
+		m_model->RenderInstancing(renderer, technique.c_str(), count, transforms, transform);
 
 	//Transform tm2;
 	//tm2.pos = m_transform.pos + tm.GetPosition();

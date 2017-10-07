@@ -8,14 +8,15 @@ using namespace graphic;
 cNode2::cNode2()
 	: m_id(common::GenerateId())
 	, m_name("none")
-	, m_type(eNodeType::NONE)
+	, m_type(eNodeType::MODEL)
 	, m_isEnable(true)
 	, m_parent(NULL)
-	, m_renderFlags(eRenderFlag::VISIBLE)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::SHADOW)
 	, m_opFlags(eOpFlag::COLLISION)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 {
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion());
 }
 
 cNode2::cNode2(const int id
@@ -27,11 +28,12 @@ cNode2::cNode2(const int id
 	, m_isEnable(true)
 	, m_parent(NULL)
 	, m_type(type)
-	, m_renderFlags(eRenderFlag::VISIBLE)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::SHADOW)
 	, m_opFlags(eOpFlag::COLLISION)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 {
+	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion());
 }
 
 cNode2::~cNode2()
@@ -132,11 +134,11 @@ bool cNode2::Update(cRenderer &renderer, const float deltaSeconds)
 // 노드를 자식으로 추가한다.
 bool cNode2::AddChild(cNode2 *node)
 {
-	assert(node);
-	assert(!FindNode(node->m_id));
+	RETV2(!node, false);
+	RETV2(FindNode(node->m_id), false); // Already Exist
 
-	RETV(!node, false);
-	RETV(FindNode(node->m_id), false); // Already Exist
+	if (node->m_parent)
+		node->m_parent->RemoveChild(node, false);
 
 	node->m_parent = this;
 	m_children.push_back(node);
@@ -261,15 +263,20 @@ float cNode2::CullingTest(const cFrustum &frustum
 }
 
 
-cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type)
+cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType::Enum type
+	, const XMMATRIX &parentTm //= XMIdentity
+)
 {
 	if (!(m_opFlags & eOpFlag::COLLISION))
 		return NULL;
 
+	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
+
 	if (type == m_type)
 	{
 		cBoundingBox bbox = m_boundingBox;
-		bbox *= GetWorldMatrix();
+		//bbox *= GetWorldMatrix();
+		bbox *= tm;
 		if (bbox.Pick(orig, dir))
 			return this;
 	}
@@ -278,7 +285,7 @@ cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType
 	picks.reserve(4);
 
 	for (auto &p : m_children)
-		if (cNode2 *n = p->Picking(orig, dir, type))
+		if (cNode2 *n = p->Picking(orig, dir, type, tm))
 			picks.push_back(n);
 	
 	if (picks.empty())
@@ -300,6 +307,14 @@ cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType
 	}
 
 	return mostNearest;
+}
+
+
+cNode2* cNode2::Picking(const Ray &ray, const eNodeType::Enum type
+	, const XMMATRIX &parentTm //= XMIdentity
+)
+{
+	return Picking(ray.orig, ray.dir, type, parentTm);
 }
 
 

@@ -98,6 +98,15 @@ void Matrix44::SetScale( const Vector3& scale)
 }
 
 
+void Matrix44::SetScale(const float scale)
+{
+	SetIdentity();
+	_11 = scale;
+	_22 = scale;
+	_33 = scale;
+}
+
+
 Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 {
 #ifdef USE_D3D9_MATH
@@ -242,6 +251,28 @@ void Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 }
 
 
+Vector3 Matrix44::GetScale() const 
+{ 
+#ifdef USE_D3D9_MATH
+	Vector3 s, t;
+	Quaternion q;
+	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
+	return s;
+
+#elif defined (USE_D3D11_MATH)
+	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
+	XMVECTOR scale, xq, tran;
+	XMMatrixDecompose(&scale, &xq, &tran, xmat);
+	Vector3 s;
+	XMStoreFloat3((XMFLOAT3*)&s, scale);
+	return s;
+
+#endif
+
+	return Vector3(_11, _22, _33);
+}
+
+
 Quaternion Matrix44::GetQuaternion() const
 {
 #ifdef USE_D3D9_MATH
@@ -250,11 +281,16 @@ Quaternion Matrix44::GetQuaternion() const
 	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
 	return q;
 
-// bug DX11 XMQuaternionRotationMatrix Function
 #elif defined (USE_D3D11_MATH)
+	// must call XMMatrixDecompose() function
+	// no XMQuaternionRotationMatrix() function 
+	// because Matrix is compose if scale, rot, translate Matrix
+	// Before Decompose, must normalize matrix rotation axis
+	// this work is XMMatrixDecompose() function
+	// 2017-10-04, jjuiddong
 	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
-	XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
-	XMQuaternionNormalize(xq);
+	XMVECTOR scale, xq, tran;
+	XMMatrixDecompose(&scale, &xq, &tran, xmat); 
 	Quaternion q;
 	XMStoreFloat4((XMFLOAT4*)&q, xq);
 	return q;
@@ -586,9 +622,13 @@ Matrix44 Matrix44::Inverse() const
 	return matInverse;
 
 #else
-	Matrix44 matInverse;
-	InverseMatrix(matInverse);
-	return matInverse;
+	XMMATRIX matInverse = XMLoadFloat4x4((XMFLOAT4X4*)this);
+
+	matInverse = XMMatrixInverse(NULL, matInverse);
+
+	Matrix44 ret;
+	XMStoreFloat4x4((XMFLOAT4X4*)&ret, matInverse);
+	return ret;
 #endif // USE_D3D9_MATH
 }
 

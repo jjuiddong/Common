@@ -8,8 +8,8 @@ namespace graphic
 	class cCamera
 	{
 	public:
-		cCamera();
-		cCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
+		cCamera(const char *name);
+		cCamera(const char *name, const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		virtual ~cCamera();
 
 		void Update(const float deltaSeconds);
@@ -79,6 +79,8 @@ namespace graphic
 
 		Vector3 GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 		Vector3 GetScreenPos(const Vector3& vPos);
+
+		Ray GetRay(const int sx, const int sy);
 		void GetRay(OUT Vector3 &orig, OUT Vector3 &dir);
 		void GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir);
 		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy
@@ -96,6 +98,7 @@ namespace graphic
 		struct eState { enum Enum { STOP, MOVE}; };
 
 		eState::Enum m_state;
+		StrId m_name;
 		bool m_isOrthogonal;
 		Vector3 m_eyePos;
 		Vector3 m_lookAt;

@@ -114,6 +114,14 @@ bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
 }
 
 
+bool cBoundingBox::Pick(const Ray &ray
+	, OUT float *distance //= NULL
+)
+{
+	return Pick(ray.orig, ray.dir, distance);
+}
+
+
 // 할당 연산자.
 cBoundingBox& cBoundingBox::operator=(const cCube &cube)
 {
@@ -209,5 +217,11 @@ cBoundingBox cBoundingBox::operator * (const Matrix44 &rhs)
 const cBoundingBox& cBoundingBox::operator *= (const Matrix44 &rhs) 
 {
 	*this = operator*(rhs.GetMatrixXM());
+	return *this;
+}
+
+const cBoundingBox& cBoundingBox::operator *= (const XMMATRIX &rhs)
+{
+	*this = operator*(rhs);
 	return *this;
 }

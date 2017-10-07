@@ -65,9 +65,6 @@
 #include "ui/event.h"
 #include "ui/eventhandler.h"
 #include "window/utility.h"
-//#include "ui/window2.h"
-//#include "ui/button.h"
-//#include "window/scene.h"
 
 
 // ImGui

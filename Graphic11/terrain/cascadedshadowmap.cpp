@@ -6,6 +6,7 @@ using namespace graphic;
 
 cCascadedShadowMap::cCascadedShadowMap()
 	: m_shadowMapSize(1024,1024)
+	, m_lightCams{cCamera("shadow camera1"), cCamera("shadow camera2"), cCamera("shadow camera3") }
 {
 	m_splitZ[0] = 0.0003f;
 	m_splitZ[1] = 0.001f;
@@ -39,6 +40,7 @@ bool cCascadedShadowMap::Create(cRenderer &renderer
 	{
 		m_shadowMaps[i].Create(renderer, svp, DXGI_FORMAT_R32_FLOAT);
 		m_frustums[i].Create(renderer, GetMainCamera().GetViewProjectionMatrix());
+		m_lightCams[i].SetProjectionOrthogonal(shadowMapSize.x, shadowMapSize.y, 1, 10000);
 		m_dbgLightFrustums[i].Create(renderer, m_lightCams[i].GetViewProjectionMatrix());
 		m_shadowMapQuads[i].Create(renderer, 0, 310.f * i, 300.f, 300.f);
 	}

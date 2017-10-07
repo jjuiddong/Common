@@ -9,6 +9,7 @@ cGrid::cGrid()
 	: cNode2(common::GenerateId(), "grid", eNodeType::MODEL)
 	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	, m_texture(NULL)
+	, m_isLineDrawing(false)
 {
 	m_mtrl.InitWhite();
 }
@@ -184,6 +185,39 @@ bool cGrid::Render(cRenderer &renderer
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+
+	// Line Drawing (ignore shadow map building)
+	if (m_isLineDrawing && !(flags & eRenderFlag::SHADOW))
+	{
+		shader->SetTechnique(m_techniqueName.c_str());
+		shader->Begin();
+		shader->BeginPass(renderer, 0);
+
+		Transform tfm = m_transform;
+		tfm.pos.y += 0.1f;
+		renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
+		renderer.m_cbPerFrame.Update(renderer);
+		renderer.m_cbLight.Update(renderer, 1);
+		renderer.m_cbMaterial = m_mtrl.GetMaterial();
+		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.2f));
+		renderer.m_cbMaterial.Update(renderer, 2);
+		renderer.m_cbClipPlane.Update(renderer, 4);
+
+		m_vtxBuff.Bind(renderer);
+		m_idxBuff.Bind(renderer);
+
+		if ((m_vertexType & eVertexType::TEXTURE) && m_texture)
+			m_texture->Bind(renderer, 0);
+
+		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+		renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+		renderer.m_cbMaterial.m_v;
+		renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+
+		// recovery material
+		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+	}
 
 	__super::Render(renderer, tm, flags);
 	return true;

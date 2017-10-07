@@ -33,9 +33,22 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 		m_skeleton.Create(rawMeshes->bones);
 	}
 
-	// RUST_3d Test
-	//rawMeshes->meshes[0].mtrl.texture = "RUST_3d_Low1_Difuse.jpg";
-	//rawMeshes->meshes[0].mtrl.bumpMap = "RUST_3d_Low1_Normal.jpg";
+	//int n = 0;
+	//for (auto &mesh : rawMeshes->meshes)
+	//{
+	//	if (n == 1)
+	//	{
+	//		cMesh2 *p = new cMesh2();
+	//		p->Create(renderer, mesh, &m_skeleton);
+	//		m_meshes.push_back(p);
+	//	}
+	//	else
+	//	{
+	//		cMesh2 *p = new cMesh2();
+	//		m_meshes.push_back(p);
+	//	}
+	//	++n;
+	//}
 
 	for (auto &mesh : rawMeshes->meshes)
 	{
@@ -44,27 +57,29 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 		m_meshes.push_back(p);
 	}
 
+
 	UpdateBoundingBox();
+
+	SetAnimation(rawMeshes->animationName);
 
 	return true;
 }
 
 
 bool cAssimpModel::Render(cRenderer &renderer
+	, const char *techniqueName
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
 {
-	//for (auto &mesh : m_meshes)
-	//	mesh->Render(renderer, parentTm);
-
 	RETV(m_nodes.empty(), false);
-	RenderNode(renderer, m_nodes[0], parentTm, flags);
+	RenderNode(renderer, techniqueName, m_nodes[0], parentTm, flags);
 	return true;
 }
 
 
 bool cAssimpModel::RenderInstancing(cRenderer &renderer
+	, const char *techniqueName
 	, const int count
 	, const XMMATRIX *transforms
 	, const XMMATRIX &parentTm //= XMIdentity
@@ -80,7 +95,7 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 			renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm2 * tm1 * parentTm);
 		}
 		renderer.m_cbInstancing.Update(renderer, 3);
-		mesh->RenderInstancing(renderer, count, parentTm);
+		mesh->RenderInstancing(renderer, techniqueName, count, parentTm);
 	}
 	return true;
 }
@@ -88,6 +103,7 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 
 // Render From Node
 bool cAssimpModel::RenderNode(cRenderer &renderer
+	, const char *techniqueName
 	, const sRawNode &node
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
@@ -97,11 +113,11 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 
 	// Render Meshes
 	for (auto idx : node.meshes)
-		m_meshes[idx]->Render(renderer, tm);
+		m_meshes[idx]->Render(renderer, techniqueName, tm);
 
 	// Render Child Node
 	for (auto idx : node.children)
-		RenderNode(renderer, m_nodes[idx], tm, flags);
+		RenderNode(renderer, techniqueName, m_nodes[idx], tm, flags);
 
 	return true;
 }
@@ -132,6 +148,8 @@ void cAssimpModel::UpdateBoundingBox()
 		for (auto idx : node->meshes)
 		{
 			cMesh2 *mesh = m_meshes[idx];
+			if (!mesh->m_buffers)
+				continue;
 			cBoundingBox bbox = mesh->m_buffers->m_boundingBox;
 			bbox *= node->localTm * tm;
 			const Vector3 center = bbox.Center();
@@ -156,8 +174,8 @@ void cAssimpModel::UpdateBoundingBox()
 void cAssimpModel::SetAnimation(const Str64 &animationName, const bool isMerge)
 // isMerge = false
 {
-	//if (sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName.c_str()))
-	//	m_animation.Create(*rawAnies, &m_skeleton, isMerge);
+	if (sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName.c_str()))
+		m_animation.Create(*rawAnies, &m_skeleton, isMerge);
 }
 
 
@@ -180,6 +198,6 @@ void cAssimpModel::Clear()
 int cAssimpModel::GetVertexType()
 {
 	RETV(m_meshes.empty(), 0);
-	RETV(!m_meshes[0]->m_buffers, 0);
-	return m_meshes[0]->m_buffers->m_vtxType;
+	RETV(!m_meshes.back()->m_buffers, 0);
+	return m_meshes.back()->m_buffers->m_vtxType;
 }

@@ -27,6 +27,7 @@ bool cPyramid::Create(cRenderer &renderer
 	m_shape.Create(renderer, width, height, pos, vtxType, color);
 	m_transform.scale = Vector3(width, height, width);
 	m_transform.pos = pos;
+	m_boundingBox.SetBoundingBox(m_transform);
 	return true;
 }
 
@@ -42,8 +43,11 @@ bool cPyramid::Render(cRenderer &renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM());
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
 	m_shape.Render(renderer);
 	return true;
 }
@@ -72,11 +76,13 @@ void cPyramid::SetDirection(const Vector3 &p0, const Vector3 &p1
 	m_transform.rot = q;
 	m_transform.pos = p0;
 	m_transform.scale = Vector3(width, v.Length(), width);
+	m_boundingBox.SetBoundingBox(m_transform);
 }
 
 
 void cPyramid::SetDirection(const Vector3 &p0, const Vector3 &p1, const Vector3 &from
 	, const float width //= 1
+	, const float lengthRatio //= 1.f
 )
 {
 	Vector3 v = p1 - p0;
@@ -84,5 +90,6 @@ void cPyramid::SetDirection(const Vector3 &p0, const Vector3 &p1, const Vector3 
 	q.SetRotationArc(Vector3(0, 1, 0), v.Normal());
 	m_transform.rot = q;
 	m_transform.pos = from;
-	m_transform.scale = Vector3(width, v.Length(), width);
+	m_transform.scale = Vector3(width, v.Length()*lengthRatio, width);
+	m_boundingBox.SetBoundingBox(m_transform);
 }

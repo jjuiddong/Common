@@ -17,6 +17,8 @@ namespace graphic
 			, TEXTURE		= 1 << 4
 			, TANGENT		= 1 << 5
 			, BINORMAL		= 1 << 6
+			, BLENDINDICES	= 1 << 7
+			, BLENDWEIGHT	= 1 << 8
 		};
 	};
 

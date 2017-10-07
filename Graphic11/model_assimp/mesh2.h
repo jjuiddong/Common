@@ -15,14 +15,20 @@ namespace graphic {
 		virtual ~cMesh2();
 
 		bool Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skeleton, const bool calculateTangentBinormal=false);
-		void Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity);
-		void RenderInstancing(cRenderer &renderer, const int count, const XMMATRIX &parentTm = XMIdentity);
+
+		void Render(cRenderer &renderer
+			, const char *techniqueName
+			, const XMMATRIX &parentTm = XMIdentity);
+
+		void RenderInstancing(cRenderer &renderer
+			, const char *techniqueName
+			, const int count, const XMMATRIX &parentTm = XMIdentity);
 		void Clear();
 
 
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
-		void UpdateConstantBuffer(cRenderer &renderer, const XMMATRIX &parentTm);
+		void UpdateConstantBuffer(cRenderer &renderer, const char *techniqueName, const XMMATRIX &parentTm);
 		void CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh);
 		void CalculateTangentBinormal(
 			const graphic::sVertexNormTex &vertex1
@@ -37,14 +43,13 @@ namespace graphic {
 		StrId m_name;
 		Matrix44 m_localTm;
 		Transform m_transform;
-		cSkeleton *m_skeleton; // reference
+		cSkeleton *m_skeleton; // reference from cAssimpModel
 		vector<cMaterial> m_mtrls;
 		vector<cTexture*> m_colorMap;  // reference
 		vector<cTexture*> m_normalMap;  // reference
 		vector<cTexture*> m_specularMap;  // reference
 		vector<cTexture*> m_selfIllumMap;  // reference
 		vector<sMeshBone> m_bones; // mesh bone
-		vector<Matrix44> m_tmPose;
 		cMeshBuffer *m_buffers;
 	};
 	

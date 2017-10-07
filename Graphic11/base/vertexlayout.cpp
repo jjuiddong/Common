@@ -79,6 +79,10 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 			m_vertexType |= eVertexType::TANGENT;
 		else if (Str32("BINORMAL") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::BINORMAL;
+		else if (Str32("BLENDINDICES") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::BLENDINDICES;
+		else if (Str32("BLENDWEIGHT") == layout[i].SemanticName)
+			m_vertexType |= eVertexType::BLENDWEIGHT;
 	}
 
 	m_elementSize = size;
@@ -89,17 +93,6 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 {
 	RETV(layout.empty(), false);
-
-	//int size = 0;
-	//m_elements.clear();
-	//for (u_int i = 0; i < layout.size(); ++i)
-	//{
-	//	m_elements.push_back(layout[i]);
-	//	m_elements.back().AlignedByteOffset = size;
-	//	size += BitsPerPixel(layout[i].Format) / 8;
-	//}
-
-	//m_elementSize = size;
 	return Create(&layout[0], layout.size());
 }
 
@@ -171,41 +164,18 @@ void cVertexLayout::CreateDecl(
 		layout.push_back(element);
 	}
 
+	if (!weights.empty())
+	{
+		// 텍스쳐 좌표에 블랜딩 정보를 저장한다.
+		// blend Weight 4
+		D3D11_INPUT_ELEMENT_DESC element1 = { "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element1);
 
-	//if (!tangent.empty())
-	//{
-	//	D3DVERTEXELEMENT9 element = { 0, (WORD)offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT,  0 };
-	//	m_decl.push_back(element);
-	//	offset += 12;
-	//}
-
-	//if (!binormal.empty())
-	//{
-	//	D3DVERTEXELEMENT9 element = { 0, (WORD)offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL,  0 };
-	//	m_decl.push_back(element);
-	//	offset += 12;
-	//}
-
-	//if (!weights.empty())
-	//{
-	//	// 텍스쳐 좌표에 블랜딩 정보를 저장한다.
-	//	// blend Weight 4
-	//	D3DVERTEXELEMENT9 element1 = { 0, (WORD)offset, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  1 };
-	//	m_decl.push_back(element1);
-	//	offset += 16;
-
-	//	// blend Indices 4
-	//	D3DVERTEXELEMENT9 element2 = { 0, (WORD)offset, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD,  2 };
-	//	m_decl.push_back(element2);
-	//	offset += 16;
-	//}
-
-	//D3DVERTEXELEMENT9 endElement = D3DDECL_END();
-	//m_decl.push_back(endElement);
+		D3D11_INPUT_ELEMENT_DESC element2 = { "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+		layout.push_back(element2);
+	}
 
 	Create(layout);
-
-	//m_elementSize = offset;
 }
 
 

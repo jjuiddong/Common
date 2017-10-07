@@ -167,6 +167,7 @@
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d3.h" />
     <ClInclude Include="base\texture.h" />
+    <ClInclude Include="base\torus.h" />
     <ClInclude Include="base\vertexbuffer.h" />
     <ClInclude Include="base\vertexlayout.h" />
     <ClInclude Include="base\vertexformat.h" />
@@ -208,6 +209,7 @@
     <ClInclude Include="shape\quadshape.h" />
     <ClInclude Include="shape\shape.h" />
     <ClInclude Include="shape\sphereshape.h" />
+    <ClInclude Include="shape\torusshape.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="terrain\cascadedshadowmap.h" />
@@ -263,6 +265,7 @@
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d3.cpp" />
     <ClCompile Include="base\texture.cpp" />
+    <ClCompile Include="base\torus.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
     <ClCompile Include="base\vertexlayout.cpp" />
     <ClCompile Include="base\viewport.cpp" />
@@ -299,6 +302,7 @@
     <ClCompile Include="shape\pyramidshape.cpp" />
     <ClCompile Include="shape\quadshape.cpp" />
     <ClCompile Include="shape\sphereshape.cpp" />
+    <ClCompile Include="shape\torusshape.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -59,10 +59,10 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 	m_numAnimations = m_aiScene->mNumAnimations;
 	m_hasAnimations = m_numAnimations > 0;
 
-	FindBoneNode();
-	CreateSimpleBones(m_aiScene->mRootNode, -1, m_aiBones, m_fullHierarchy);
-	MarkParents(m_fullHierarchy);
-	FilterHierarchy(m_fullHierarchy, m_reducedHierarchy);
+	CollectBoneNode();
+	CreateSkeleton(m_aiScene->mRootNode, -1, m_fullSkeleton);
+	MarkParentsAnimation(m_fullSkeleton);
+	RemoveNoneAnimationBone(m_fullSkeleton, m_reducedSkeleton);
 
 	CreateMesh();
 	CreateBone();
@@ -75,7 +75,7 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 
 
 // find all bones that influence the meshes first
-void cAssimpLoader::FindBoneNode()
+void cAssimpLoader::CollectBoneNode()
 {
 	for (unsigned int m = 0; m < m_aiScene->mNumMeshes; ++m)
 	{
@@ -92,15 +92,16 @@ void cAssimpLoader::FindBoneNode()
 }
 
 
-void cAssimpLoader::CreateSimpleBones(const aiNode* node, int parent,
-	const map<hashcode, aiBone*>& animatedNodes, vector<SkeletonNode>& result) const
+// 노드를 기반으로 스켈레톤을 만든다.
+void cAssimpLoader::CreateSkeleton(const aiNode* node, int parent
+	, vector<SkeletonNode>& result) const
 {
 	if (!node)
 		return;
 
 	Str64 nodeName = Str64(node->mName.data);
-	map<hashcode, aiBone*>::const_iterator itBone = animatedNodes.find(nodeName.GetHashCode());
-	bool isAnimated = itBone != animatedNodes.end();
+	map<hashcode, aiBone*>::const_iterator itBone = m_aiBones.find(nodeName.GetHashCode());
+	bool isAnimated = itBone != m_aiBones.end();
 
 	SkeletonNode _n =
 	{
@@ -115,11 +116,12 @@ void cAssimpLoader::CreateSimpleBones(const aiNode* node, int parent,
 	int new_parent = result.size() - 1;
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		CreateSimpleBones(node->mChildren[i], new_parent, animatedNodes, result);
+		CreateSkeleton(node->mChildren[i], new_parent, result);
 }
 
 
-void  cAssimpLoader::MarkParents(std::vector<SkeletonNode>& hierarchy) const
+// 자식노드가 애니메이션 노드라면, 부모도 애니메이션 노드가되게 플래그를 설정한다.
+void  cAssimpLoader::MarkParentsAnimation(std::vector<SkeletonNode>& hierarchy) const
 {
 	for (unsigned int i = 0; i < hierarchy.size(); ++i)
 	{
@@ -140,9 +142,12 @@ void  cAssimpLoader::MarkParents(std::vector<SkeletonNode>& hierarchy) const
 }
 
 
-void cAssimpLoader::FilterHierarchy(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const
+// 에니메이션이 있는 노드만 추려서 리턴한다.
+void cAssimpLoader::RemoveNoneAnimationBone(
+	const std::vector<SkeletonNode>& fullHierarchy
+	, std::vector<SkeletonNode>& result) const
 {
-	map<int, int> nodeMapping;
+	map<int, int> nodeMapping; // old node id, new node id
 	nodeMapping[-1] = -1;
 
 	for (unsigned int i = 0; i < fullHierarchy.size(); ++i)
@@ -407,9 +412,9 @@ void cAssimpLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl
 
 int cAssimpLoader::GetBoneId(const Str64 &boneName)
 {
-	for (u_int i = 0; i < m_reducedHierarchy.size(); ++i)
+	for (u_int i = 0; i < m_reducedSkeleton.size(); ++i)
 	{
-		if (m_reducedHierarchy[i].name == boneName)
+		if (m_reducedSkeleton[i].name == boneName)
 			return i;
 	}
 	return -1;
@@ -418,10 +423,10 @@ int cAssimpLoader::GetBoneId(const Str64 &boneName)
 
 void cAssimpLoader::CreateBone()
 {
-	m_rawMeshes->bones.resize(m_reducedHierarchy.size());
+	m_rawMeshes->bones.resize(m_reducedSkeleton.size());
 
 	int i = 0;
-	for (auto bone : m_reducedHierarchy)
+	for (auto bone : m_reducedSkeleton)
 	{
 		sRawBone2 b;
 		b.id = GetBoneId(bone.name);
@@ -467,34 +472,60 @@ void cAssimpLoader::CreateAnimation()
 
 			sRawAni &ani = m_rawAnies->anies[boneId];
 			ani.pos.resize(sourceAnimation->mChannels[a]->mNumPositionKeys);
-			ani.rot.resize(sourceAnimation->mChannels[a]->mNumPositionKeys);
-			ani.scale.resize(sourceAnimation->mChannels[a]->mNumPositionKeys);
+			ani.rot.resize(sourceAnimation->mChannels[a]->mNumRotationKeys);
+			ani.scale.resize(sourceAnimation->mChannels[a]->mNumScalingKeys);
+
+			float minT = FLT_MAX;
+			float maxT = -FLT_MAX;
 
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumPositionKeys; i++)
 			{
-				float timePos = static_cast<float>(sourceAnimation->mChannels[a]->mPositionKeys[i].mTime);
+				const float t = static_cast<float>(sourceAnimation->mChannels[a]->mPositionKeys[i].mTime);
 
-				if (i == 0)
-					ani.start = timePos;
-				else if (i == (sourceAnimation->mChannels[a]->mNumPositionKeys - 1))
-					ani.end = timePos;
+				if (t < minT)
+					minT = t;
+				if (t > maxT)
+					maxT = t;
 
-				ani.pos[i].t = timePos;
+				ani.pos[i].t = t;
 				ani.pos[i].p.x = sourceAnimation->mChannels[a]->mPositionKeys[i].mValue.x;
 				ani.pos[i].p.y = sourceAnimation->mChannels[a]->mPositionKeys[i].mValue.y;
 				ani.pos[i].p.z = sourceAnimation->mChannels[a]->mPositionKeys[i].mValue.z;
+			}
 
-				ani.rot[i].t = timePos;
+			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumRotationKeys; i++)
+			{
+				const float t = static_cast<float>(sourceAnimation->mChannels[a]->mRotationKeys[i].mTime);
+
+				if (t < minT)
+					minT = t;
+				if (t > maxT)
+					maxT = t;
+
+				ani.rot[i].t = t;
 				ani.rot[i].q.x = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.x;
 				ani.rot[i].q.y = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.y;
 				ani.rot[i].q.z = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.z;
 				ani.rot[i].q.w = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.w;
+			}
 
-				ani.scale[i].t = timePos;
+			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumScalingKeys; i++)
+			{
+				const float t = static_cast<float>(sourceAnimation->mChannels[a]->mScalingKeys[i].mTime);
+	
+				if (t < minT)
+					minT = t;
+				if (t > maxT)
+					maxT = t;
+
+				ani.scale[i].t = t;
 				ani.scale[i].s.x = sourceAnimation->mChannels[a]->mScalingKeys[i].mValue.x;
 				ani.scale[i].s.y = sourceAnimation->mChannels[a]->mScalingKeys[i].mValue.y;
 				ani.scale[i].s.z = sourceAnimation->mChannels[a]->mScalingKeys[i].mValue.z;
 			}
+
+			ani.start = minT;
+			ani.end = maxT;
 		}
 	}
 }
@@ -509,6 +540,7 @@ void cAssimpLoader::CreateNode(aiNode* node
 	m_rawMeshes->nodes.push_back(sRawNode());
 	sRawNode *newNode = &m_rawMeshes->nodes.back();
 	const int nodeIdx = m_rawMeshes->nodes.size() - 1;
+	newNode->name = node->mName.data;
 	newNode->localTm = *(Matrix44*)&node->mTransformation;
 	newNode->localTm.Transpose();
 

@@ -57,15 +57,24 @@ Transform Transform::Inverse() const
 }
 
 
+// Scale * Rotation * Traslation
 Transform Transform::operator*(const Transform &rhs) const
 {
+	const Matrix44 tm1 = rhs.rot.GetMatrix();
+
 	Transform v;
-	v.pos = pos + rhs.pos;
-	v.scale = Vector3(scale.x * rhs.scale.x
-		, scale.y * rhs.scale.y
-		, scale.z * rhs.scale.z);
+	v.pos = ((pos * rhs.scale) * tm1) + rhs.pos;
+	v.scale = scale * rhs.scale;
 	v.rot = rot * rhs.rot;
 	return v;
+
+	//Transform v;
+	//v.pos = pos + rhs.pos;
+	//v.scale = Vector3(scale.x * rhs.scale.x
+	//	, scale.y * rhs.scale.y
+	//	, scale.z * rhs.scale.z);
+	//v.rot = rot * rhs.rot;
+	//return v;
 }
 
 

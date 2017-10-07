@@ -16,6 +16,7 @@ namespace common
 		float Length() const;
 		float Length2() const;
 		float LengthRoughly(const Vector3 &rhs) const;
+		float Distance(const Vector3 &rhs) const;
 		Vector3 Normal() const;
 		void Normalize();
 		float	DotProduct( const Vector3& v ) const;
@@ -53,6 +54,10 @@ namespace common
 		bool operator != (const Vector3 &rhs) const
 		{
 			return !(operator==(rhs));
+		}
+
+		Vector3 operator * (const Vector3 &v) const {
+			return Vector3(x*v.x, y*v.y, z*v.z);
 		}
 
 		template <class T>

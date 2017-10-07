@@ -20,10 +20,11 @@ namespace graphic
 	class cAssimpLoader
 	{
 	public:
+		// aiNode 구조와 동일한 스켈레톤 구조체
 		struct SkeletonNode
 		{
 			const aiNode* node;
-			const aiBone* bone;
+			const aiBone* bone; // mesh에 소속된 bone, node의 대표 bone
 			int parent;
 			Str64 name;
 			bool used;
@@ -35,11 +36,10 @@ namespace graphic
 
 
 	protected:
-		void FindBoneNode();
-		void CreateSimpleBones(const aiNode* node, int parent, const map<hashcode, aiBone*>& animatedNodes
-			, vector<SkeletonNode>& result) const;
-		void MarkParents(std::vector<SkeletonNode>& hierarchy) const;
-		void FilterHierarchy(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const;
+		void CollectBoneNode();
+		void CreateSkeleton(const aiNode* node, int parent, vector<SkeletonNode>& result) const;
+		void MarkParentsAnimation(std::vector<SkeletonNode>& hierarchy) const;
+		void RemoveNoneAnimationBone(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const;
 		void CreateMesh();
 		void CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl);
 		void CreateBone();
@@ -58,9 +58,9 @@ namespace graphic
 		bool m_hasAnimations;
 
 		StrPath m_fileName;
-		map<hashcode, aiBone*> m_aiBones;
-		vector<SkeletonNode> m_fullHierarchy;
-		vector<SkeletonNode> m_reducedHierarchy;
+		map<hashcode, aiBone*> m_aiBones; // total bones
+		vector<SkeletonNode> m_fullSkeleton;
+		vector<SkeletonNode> m_reducedSkeleton;
 		sRawMeshGroup2 *m_rawMeshes;
 		sRawAniGroup *m_rawAnies;
 	};

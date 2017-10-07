@@ -26,7 +26,10 @@ namespace graphic
 		void SetBoundingBox(const sMinMax &minMax );
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
 		bool Collision( cBoundingBox &box );
+
 		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance=NULL);
+		bool Pick(const Ray &ray, OUT float *distance = NULL);
+
 		Vector3 Center() const;
 		void Scale(const Vector3 &scale);
 		Vector3 GetDimension() const;
@@ -36,6 +39,7 @@ namespace graphic
 		cBoundingBox operator * (const XMMATRIX &rhs);
 		cBoundingBox operator * (const Matrix44 &rhs);
 		const cBoundingBox& operator *= (const Matrix44 &rhs);
+		const cBoundingBox& operator *= (const XMMATRIX &rhs);
 		cBoundingBox& operator=(const cCube &cube);
 
 

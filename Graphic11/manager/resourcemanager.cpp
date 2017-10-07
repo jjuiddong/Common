@@ -143,115 +143,22 @@ void cResourceManager::InsertAssimpModel(const StrPath &fileName, cAssimpModel *
 	m_assimpModels[fileName.GetHashCode()] = p;
 }
 
-//
-//cShadowVolume* cResourceManager::LoadShadow(cRenderer &renderer, const StrPath &fileName)
-//{
-//	auto result = FindShadow(fileName);
-//	if (result.first)
-//		return result.second;
-//
-//	cShadowVolume *shadow = NULL;
-//	cAssimpModel *collada = FindAssimpModel(fileName).second;
-//	cXFileMesh *xfile = FindXFile(fileName).second;
-//	if (!collada && !xfile)
-//		return NULL;
-//	if (collada && xfile)
-//	{
-//		assert(0);
-//		return NULL;
-//	}
-//
-//	if (collada)
-//	{
-//		shadow = new cShadowVolume();
-//		if (!collada->m_meshes.empty())
-//		{
-//			cMesh2 *mesh = collada->m_meshes[0];
-//			if (!shadow->Create(renderer, mesh->m_buffers->m_vtxBuff, mesh->m_buffers->m_idxBuff))
-//			{
-//				SAFE_DELETE(shadow);
-//			}
-//		}
-//	}
-//	else if (xfile)
-//	{
-//		shadow = new cShadowVolume();
-//		if (!shadow->Create(renderer, xfile->m_mesh, false))
-//		{
-//			SAFE_DELETE(shadow);
-//		}
-//	}
-//
-//	AutoCSLock cs(m_csShadow);
-//	m_shadows[fileName.GetHashCode()] = shadow;
-//	return shadow;
-//}
-//
-//
-//std::pair<bool, cShadowVolume*> cResourceManager::LoadShadowParallel(cRenderer &renderer
-//	, const StrPath &fileName
-//)
-//{
-//	auto result = FindShadow(fileName);
-//	if (result.first)
-//		return{ true, result.second };
-//
-//	cAssimpModel *collada = FindAssimpModel(fileName).second;
-//	cXFileMesh *xfile = FindXFile(fileName).second;
-//	if (!collada && !xfile)
-//		return{ false, NULL };
-//	if (collada && xfile)
-//	{
-//		assert(0);
-//		return{ false, NULL };
-//	}
-//
-//	{
-//		AutoCSLock cs(m_csShadow);
-//		m_shadows[fileName.GetHashCode()] = NULL;
-//	}
-//
-//	AddTask(new cTaskShadowLoader(0, &renderer, fileName, collada, xfile));
-//	
-//	return{ true, NULL };
-//}
-//
-//
-//void cResourceManager::InsertShadow(const StrPath &fileName, cShadowVolume *p)
-//{
-//	AutoCSLock cs(m_csShadow);
-//	m_shadows[fileName.GetHashCode()] = p;
-//}
-//
 
 // 애니메이션 파일 로딩.
-//sRawAniGroup* cResourceManager::LoadAnimation( const StrId &fileName )
-//{
-//	RETV(fileName.empty(), NULL);
-//
-//	if (sRawAniGroup *data = FindAnimation(fileName))
-//		return data;
-//
-//	sRawAniGroup *anies = NULL;
-//	const StrPath resourcePath = GetResourceFilePath(fileName.c_str());
-//	if (resourcePath.empty())
-//		goto error;
-//
-//	anies = new sRawAniGroup;
-//	anies->name = fileName.c_str();
-//
-//	if (!importer::ReadRawAnimationFile(fileName.c_str(), *anies))
-//		goto error;
-//
-//	LoadAnimation(anies);
-//	return anies;
-//
-//
-//error:
-//	dbg::ErrLog("Err LoadAnimation %s \n", fileName.c_str());
-//	SAFE_DELETE(anies);
-//	return NULL;
-//}
+sRawAniGroup* cResourceManager::LoadAnimation( const StrId &fileName )
+{
+	RETV(fileName.empty(), NULL);
+
+	if (sRawAniGroup *data = FindAnimation(fileName))
+		return data;
+
+	// Animation Read only assimp loader
+	goto error;
+
+error:
+	dbg::ErrLog("Err LoadAnimation %s \n", fileName.c_str());
+	return NULL;
+}
 
 
 // Register Animation Information
@@ -283,16 +190,6 @@ std::pair<bool, cAssimpModel*> cResourceManager::FindAssimpModel(const StrPath &
 	return{ false, NULL };
 }
 
-//
-//std::pair<bool, cShadowVolume*> cResourceManager::FindShadow(const StrPath &fileName)
-//{
-//	AutoCSLock cs(m_csShadow);
-//	auto it = m_shadows.find(fileName.GetHashCode());
-//	if (m_shadows.end() != it)
-//		return{ true, it->second };
-//	return{ false, NULL };
-//}
-//
 
 // find animation data
 sRawAniGroup* cResourceManager::FindAnimation( const StrId &fileName )
@@ -522,36 +419,6 @@ error:
 	return NULL;
 }
 
-//
-//// 셰이더 로딩.
-//cShader* cResourceManager::LoadShader(cRenderer &renderer, const StrPath &fileName)
-//// isReload=false
-//{
-//	if (cShader *p = FindShader(fileName))
-//		return p;
-//
-//	cShader *shader = NULL;
-//	const StrPath resourcePath = GetResourceFilePath(fileName);
-//	if (resourcePath.empty())
-//		goto error;
-//
-//	shader = new cShader();
-//	if (!shader->Create(renderer, resourcePath, "TShader", false))
-//		goto error;
-//
-//	if (shader)
-//		m_shaders[ StrPath(fileName.GetFileName()).GetHashCode()] = shader;
-//	return shader;
-//
-//
-//error:
-//	StrPath msg = StrPath("Error LoadShader ") + fileName + " 파일이 존재하지 않습니다.";
-//	MessageBoxA(NULL, msg.c_str(), "ERROR", MB_OK);
-//	dbg::ErrLog("%s\n", msg.c_str());
-//	SAFE_DELETE(shader);
-//	return NULL;
-//}
-
 
 // 텍스쳐 찾기.
 std::pair<bool,cTexture*> cResourceManager::FindTexture( const StrPath &fileName )
@@ -568,16 +435,6 @@ std::pair<bool,cTexture*> cResourceManager::FindTexture( const StrPath &fileName
 //{
 //	auto it = m_cubeTextures.find(fileName.GetHashCode());
 //	if (m_cubeTextures.end() == it)
-//		return NULL; // not exist
-//	return it->second;
-//}
-//
-//
-//// 셰이더 찾기.
-//cShader* cResourceManager::FindShader( const StrPath &fileName )
-//{
-//	auto it = m_shaders.find(StrPath(fileName.GetFileName()).GetHashCode());
-//	if (m_shaders.end() == it)
 //		return NULL; // not exist
 //	return it->second;
 //}
@@ -695,16 +552,6 @@ void cResourceManager::Clear()
 		m_assimpModels.clear();
 	}
 
-	//// remove shadow
-	//{
-	//	AutoCSLock cs(m_csShadow);
-	//	for each (auto kv in m_shadows)
-	//	{
-	//		delete kv.second;
-	//	}
-	//	m_shadows.clear();
-	//}
-
 	// remove texture
 	{
 		const StrPath defTex = g_defaultTexture;
@@ -733,14 +580,6 @@ void cResourceManager::Clear()
 		delete kv.second;
 	}
 	m_anies.clear();
-
-//	// remove shader
-//	for each (auto kv in m_shaders)
-//	{
-//		delete kv.second;
-//	}
-//	m_shaders.clear();
-//
 }
 
 
@@ -754,43 +593,3 @@ StrPath cResourceManager::GetRelativePathToMedia( const StrPath &fileName )
 	const StrPath relatePath = common::RelativePathTo(m_mediaDirectory.GetFullFileName(), fileName.GetFullFileName());
 	return relatePath;
 }
-
-//
-//void cResourceManager::ReloadShader(cRenderer &renderer)
-//{
-//	for (auto p : m_shaders)
-//		p.second->Reload(renderer);
-//}
-//
-//
-//void cResourceManager::LostDevice()
-//{
-//	{
-//		AutoCSLock cs(m_cs);
-//		for (auto &p : m_textures)
-//			if (p.second)
-//				p.second->LostDevice();
-//	}
-//
-//	for (auto &p : m_cubeTextures)
-//		p.second->LostDevice();
-//	for (auto &p : m_shaders)
-//		p.second->LostDevice();
-//}
-//
-//
-//void cResourceManager::ResetDevice(cRenderer &renderer)
-//{
-//	{
-//		AutoCSLock cs(m_cs);
-//		for (auto &p : m_textures)
-//			if (p.second)
-//				p.second->ResetDevice(renderer);
-//	}
-//
-//	for (auto &p : m_cubeTextures)
-//		p.second->ResetDevice(renderer);
-//	for (auto &p : m_shaders)
-//		p.second->ResetDevice(renderer);
-//}
-//

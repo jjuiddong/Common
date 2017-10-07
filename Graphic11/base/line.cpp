@@ -14,11 +14,12 @@ cLine::cLine(cRenderer &renderer
 	, const Vector3 &p0 //= Vector3(0, 0, 0)
 	, const Vector3 &p1 //= Vector3(1, 1, 1)
 	, const float width //= 1.f
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 	, const cColor color //= cColor::BLACK
 )
 	: cNode2(common::GenerateId(), "line", eNodeType::MODEL)
 {
-	m_shape.Create2(renderer, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE), color);
+	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);
 }
 
@@ -27,10 +28,11 @@ bool cLine::Create(cRenderer &renderer
 	, const Vector3 &p0 //= Vector3(0, 0, 0)
 	, const Vector3 &p1 //= Vector3(1, 1, 1)
 	, const float width //= 1.f
+	, const int vtxType //=(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 	, const cColor color //= cColor::BLACK
 )
 {
-	m_shape.Create2(renderer, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE), color);
+	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);
 	return true;
 }

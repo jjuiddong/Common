@@ -29,6 +29,11 @@ namespace graphic
 		float clipPlane[4];
 	};
 
+	struct cCbSkinning
+	{
+		XMMATRIX mPalette[64];
+	};
+
 
 	class cTexture;
 	class cRenderTarget;
@@ -117,6 +122,7 @@ namespace graphic
 		cConstantBuffer<sCbMaterial> m_cbMaterial;
 		cConstantBuffer<sCbInstancing> m_cbInstancing;
 		cConstantBuffer<cCbClipPlane> m_cbClipPlane;
+		cConstantBuffer<cCbSkinning> m_cbSkinning;
 
 		// Display FPS 
 		cText m_textFps;
@@ -127,6 +133,7 @@ namespace graphic
 		bool m_isDbgRender; // Debug Render
 		int m_dbgRenderStyle; // 0:Sphere, 1:Box
 		cDbgBox m_dbgBox;
+		cDbgLine m_dbgLine;
 		cDbgArrow m_dbgArrow;
 		cDbgSphere m_dbgSphere;
 		cDbgAxis m_dbgAxis;

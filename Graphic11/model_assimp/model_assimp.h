@@ -16,9 +16,11 @@ namespace graphic
 		virtual ~cAssimpModel();
 		bool Create(cRenderer &renderer, const StrPath &fileName);
 		bool Render(cRenderer &renderer
+			, const char *techniqueName
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);
 		bool RenderInstancing(cRenderer &renderer
+			, const char *techniqueName
 			, const int count
 			, const XMMATRIX *transforms
 			, const XMMATRIX &parentTm = XMIdentity
@@ -32,6 +34,7 @@ namespace graphic
 	protected:
 		void UpdateBoundingBox();
 		bool RenderNode(cRenderer &renderer
+			, const char *techniqueName
 			, const sRawNode &node
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);

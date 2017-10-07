@@ -11,8 +11,7 @@ void graphic::ReleaseRenderer()
 {
 	cResourceManager::Release();
 	cMainCamera::Release();
-	//cLightManager::Release();
-	//cFontManager::Release();
+	cLightManager::Release();
 	//cPickManager::Release();
 }
 
@@ -126,6 +125,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_cbMaterial.Create(*this);
 	m_cbInstancing.Create(*this);
 	m_cbClipPlane.Create(*this);
+	m_cbSkinning.Create(*this);
 	float f2[4] = { 1, 1, 1, 1000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 
@@ -200,6 +200,17 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-tangent-binormal.fxo", pos_norm_tex_tangent_binormal, ARRAYSIZE(pos_norm_tex_tangent_binormal));
 
 
+	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_skin[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin.fxo", pos_norm_tex_skin, ARRAYSIZE(pos_norm_tex_skin));
+
+
 	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
 	//m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
@@ -207,6 +218,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgBox.Create(*this, bbox, cColor::RED);
 	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
+	m_dbgLine.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1), 1, cColor::WHITE);
 	m_dbgSphere.Create(*this, 0.5f, 10, 10, cColor::WHITE);
 
 	cBoundingBox bbox2(Vector3(0, 0, 0), Vector3(10, 10, 10), Quaternion());
@@ -263,7 +275,8 @@ bool cRenderer::ClearScene(
 	//float ClearColor[4] = { 1,1,1,1 }; // red,green,blue,alpha
 	//m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);
 	m_devContext->ClearRenderTargetView(m_refRTV, (float*)&color);
-	m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	//m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0xff);
 
 	return true;
 }

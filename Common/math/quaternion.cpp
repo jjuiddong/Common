@@ -209,28 +209,61 @@ void Quaternion::SetRotationZ( const float fRadian )
 //--------------------------------
 //
 //--------------------------------
-void Quaternion::SetRotationArc( const Vector3& v0, const Vector3& v1 )
+void Quaternion::SetRotationArc( const Vector3& from, const Vector3& to )
 {
-	Vector3 vCross = v0.CrossProduct(v1);
-	const float len = vCross.Length();
-	if (len <= 0.01f)
+	// Based on Stan Melax's article in Game Programming Gems
+	// Copy, since cannot modify local
+	Vector3 v0 = from;
+	Vector3 v1 = to;
+	v0.Normalize();
+	v1.Normalize();
+
+	const float d = v0.DotProduct(v1);
+	if (d >= 1.0f) // If dot == 1, vectors are the same
 	{
 		x = 0; y = 0; z = 0; w = 1;
 		return;
 	}
+	else if (d <= -1.0f) // exactly opposite
+	{
+		Vector3 axis(1.0f, 0.f, 0.f);
+		axis = axis.CrossProduct(v0);
+		if (axis.Length() == 0)
+		{
+			axis = Vector3(0.f, 1.f, 0.f);
+			axis = axis.CrossProduct(v0);
+		}
+		// same as fromAngleAxis(core::PI, axis).normalize();
+		*this = Quaternion(axis.x, axis.y, axis.z, 0).Normalize();
+		return;
+	}
 
-	float fDot = v0.DotProduct( v1 );
-	float s = (float)sqrtf((1.0f + fDot) * 2.0f);
-	//if (0.1f >  s)
+	const float s = sqrtf((1 + d) * 2); // optimize inv_sqrt
+	const float invs = 1.f / s;
+	const Vector3 c = v0.CrossProduct(v1)*invs;
+	*this = Quaternion(c.x, c.y, c.z, s * 0.5f).Normalize();
+
+
+	//Vector3 vCross = v0.CrossProduct(v1);
+	//const float len = vCross.Length();
+	//if (len <= 0.01f)
 	//{
-	//	x = 0; y = 1; z = 0; w = 0;
+	//	x = 0; y = 0; z = 0; w = 1;
 	//	return;
 	//}
 
-	x = vCross.x / s;
-	y = vCross.y / s;
-	z = vCross.z / s;
-	w = s * 0.5f;
+	//float fDot = v0.DotProduct( v1 );
+	//float s = (float)sqrtf((1.0f + fDot) * 2.0f);
+	////if (0.1f >  s)
+	////{
+	////	x = 0; y = 1; z = 0; w = 0;
+	////	return;
+	////}
+
+	//x = vCross.x / s;
+	//y = vCross.y / s;
+	//z = vCross.z / s;
+	//w = s * 0.5f;
 } //Quaternion::SetRotationArc
 
 
@@ -260,13 +293,16 @@ void Quaternion::SetRotationArc(const Vector3& v0, const Vector3& v1, const Vect
 //--------------------------------
 //
 //--------------------------------
-void Quaternion::Normalize()
+const Quaternion& Quaternion::Normalize()
 {
+	//return (*this *= reciprocal_squareroot(X*X + Y*Y + Z*Z + W*W));
+
 	float norm = sqrtf( SQR(x) + SQR(y) + SQR(z) + SQR(w) );
 
 	if( FLOAT_EQ( 0.0F, norm ) )
 	{
-		return ;
+		x = 0; y = 0; z = 0; w = 1;
+		return *this;
 	} //if
 
 	norm = 1.0F / norm;
@@ -280,7 +316,8 @@ void Quaternion::Normalize()
 
 	if( !FLOAT_EQ( 1.0F, norm ) )
 	{
-		return ;
+		x = 0; y = 0; z = 0; w = 1;
+		return *this;
 	} //if
 
 	LIMIT_RANGE(-1.0f, w, 1.0f);
@@ -288,6 +325,7 @@ void Quaternion::Normalize()
 	LIMIT_RANGE(-1.0f, x, 1.0f);
 	LIMIT_RANGE(-1.0f, y, 1.0f);
 	LIMIT_RANGE(-1.0f, z, 1.0f);
+	return *this;
 } //Quaternion::Normalize
 
 

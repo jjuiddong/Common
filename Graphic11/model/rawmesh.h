@@ -102,8 +102,8 @@ namespace graphic
 		int id;
 		int parentId;
 		StrId name;
-		Matrix44 localTm;
-		Matrix44 offsetTm;
+		Matrix44 localTm;  // aiNode mTransformation
+		Matrix44 offsetTm;	// aiNode -> bone -> mOffsetMatrix
 	};
 
 	struct sMeshBone
@@ -131,6 +131,7 @@ namespace graphic
 
 	struct sRawNode
 	{
+		StrId name;
 		vector<int> meshes; // sRawMeshGroup2::meshes index
 		vector<int> children; // sRawMeshGroup2::nodes index
 		Matrix44 localTm;

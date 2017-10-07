@@ -4,6 +4,7 @@
 
 using namespace graphic;
 
+
 cAnimation::cAnimation()
 	: m_skeleton(NULL)
 	, m_isMergeAni(false)
@@ -32,6 +33,7 @@ bool cAnimation::Create(const sRawAniGroup &anies, cSkeleton *skeleton, const bo
 	{
 		m_anies.resize(1);
 		m_anies[0].clear();
+		m_anies[0].reserve(anies.anies.size());
 		for (auto &ani : anies.anies)
 			m_anies[0].push_back(cAnimationNode(&ani));
 	}

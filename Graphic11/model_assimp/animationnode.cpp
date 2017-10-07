@@ -22,7 +22,7 @@ bool cAnimationNode::GetAnimationResult(const float curTime, OUT Matrix44 &out)
 
 	float t = curTime;
 	if (m_rawAni->end < curTime)
-		t = m_rawAni->start;
+		t = m_rawAni->end;
 
 	Vector3 pos(0,0,0);
 	GetPosKey(t, pos);
@@ -59,7 +59,8 @@ bool cAnimationNode::GetPosKey(const float t, OUT Vector3 &out)
 		}
 	}
 
-	out = (m_rawAni->pos.empty()) ? Vector3(0, 0, 0) : m_rawAni->pos[0].p;
+	//out = (m_rawAni->pos.empty()) ? Vector3(0, 0, 0) : m_rawAni->pos[0].p;
+	out = (m_rawAni->pos.empty()) ? Vector3(0, 0, 0) : m_rawAni->pos.back().p;
 
 	return true;
 }
@@ -78,7 +79,8 @@ bool cAnimationNode::GetRotKey(const float t, OUT Quaternion &out)
 		}
 	}
 
-	out = (m_rawAni->rot.empty()) ? Quaternion(0, 0, 0, 1) : m_rawAni->rot[0].q;
+	//out = (m_rawAni->rot.empty()) ? Quaternion(0, 0, 0, 1) : m_rawAni->rot[0].q;
+	out = (m_rawAni->rot.empty()) ? Quaternion(0, 0, 0, 1) : m_rawAni->rot.back().q;
 
 	return true;
 }
@@ -97,7 +99,8 @@ bool cAnimationNode::GetScaleKey(const float t, OUT Vector3 &out)
 		}
 	}
 
-	out = (m_rawAni->scale.empty()) ? Vector3(0, 0, 0) : m_rawAni->scale[0].s;
+	//out = (m_rawAni->scale.empty()) ? Vector3(0, 0, 0) : m_rawAni->scale[0].s;
+	out = (m_rawAni->scale.empty()) ? Vector3(0, 0, 0) : m_rawAni->scale.back().s;
 
 	return true;
 }

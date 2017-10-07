@@ -40,6 +40,7 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
 	m_transform.pos = pos;
 	m_transform.scale = Vector3(width, height, 1);
+	m_boundingBox.SetBoundingBox(m_transform);
 
 	return true;
 }
@@ -56,15 +57,16 @@ bool cQuad::Render(cRenderer &renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM());
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.Update(renderer, 2);
 
 	if (m_texture)
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
-	//renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 

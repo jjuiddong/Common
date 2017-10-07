@@ -25,6 +25,7 @@ void RenderProc(cRenderWindow *wnd)
 cRenderWindow::cRenderWindow()
 	: m_mainWindow(NULL)
 	, m_state(eState::NORMAL)
+	, m_camera("render window camera")
 	, m_isVisible(true)
 	, m_isThread(true)
 	, m_isRequestResetDevice(false)
@@ -72,9 +73,9 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 	m_camera.Bind(m_renderer);
 
 	m_light.Init(cLight::LIGHT_DIRECTIONAL,
-		Vector4(0.2f, 0.2f, 0.2f, 1), 
-		Vector4(0.9f, 0.9f, 0.9f, 1),
-		Vector4(0.2f, 0.2f, 0.2f, 1));
+		Vector4(1.f, 1.f, 1.f, 1), 
+		Vector4(1.f, 1.f, 1.f, 1),
+		Vector4(1.f, 1.f, 1.f, 1));
 	m_light.SetPosition(Vector3(-30000, 30000, -30000));
 	m_light.SetDirection(Vector3(1, -1, 1).Normal());
 
@@ -510,10 +511,10 @@ void cRenderWindow::Render(const float deltaSeconds)
 		return;
 	}
 
-	PreRender(deltaSeconds);
-
 	m_gui.SetContext();
 	m_gui.NewFrame();
+
+	PreRender(deltaSeconds);
 
 	if (m_dock)
 	{
