@@ -105,7 +105,7 @@ bool cCascadedShadowMap::Bind(cRenderer &renderer)
 	}
 
 	for (int i = 0; i < SHADOWMAP_COUNT; ++i)
-		renderer.BindTexture(m_shadowMaps[i], i + 2);
+		renderer.BindTexture(m_shadowMaps[i], i + cRenderer::TEXTURE_OFFSET);
 
 	return true;
 }

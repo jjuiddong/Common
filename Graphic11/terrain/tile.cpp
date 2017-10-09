@@ -67,7 +67,7 @@ bool cTile::Create(cRenderer &renderer
 	m_ground->SetOpFlag(eOpFlag::COLLISION, false);
 	m_ground->m_isLineDrawing = true;
 	if (!textureFileName)
-		m_ground->m_mtrl.InitGray3();
+		m_ground->m_mtrl.InitWhite();
 	AddChild(m_ground);
 	
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);

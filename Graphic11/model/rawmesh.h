@@ -16,6 +16,7 @@ namespace graphic
 		StrPath bumpMap;
 		StrPath specularMap;
 		StrPath selfIllumMap;
+		StrPath glowMap;
 
 		sMaterial() {}
 		sMaterial(const sMaterial &rhs);

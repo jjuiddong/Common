@@ -28,7 +28,7 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 	Assimp::Importer importer;
 
 	m_aiScene = importer.ReadFile(fileName.c_str(),
-		//aiProcess_CalcTangentSpace | // calculate tangents and bitangents if possible
+		aiProcess_CalcTangentSpace |			// calculate tangents and bitangents if possible
 		aiProcess_JoinIdenticalVertices |		// join identical vertices/ optimize indexing
 		aiProcess_ValidateDataStructure |		// perform a full validation of the loader's output
 		aiProcess_ImproveCacheLocality |		// improve the cache locality of the output vertices
@@ -227,10 +227,20 @@ void cAssimpLoader::CreateMesh()
 			}
 		}
 
+		// has bumpmap, load tangent, binormal
+		const bool isBumpMap = !rawMesh->mtrl.bumpMap.empty();
+		if (isBumpMap)
+		{
+			rawMesh->tangent.reserve(mesh->mNumVertices);
+			rawMesh->binormal.reserve(mesh->mNumVertices);
+		}
+
 		for (unsigned int x = 0; x < mesh->mNumVertices; ++x)
 		{
 			Vector3 position;
 			Vector3 normal(0.0f, 0.0f, 0.0f);
+			Vector3 tangent(0.0f, 0.0f, 0.0f);
+			Vector3 binormal(0.0f, 0.0f, 0.0f);
 			Vector3 texture(0.5f, 0.5f, 0.5f);
 			unsigned char boneIndices[4] = { 0, 0, 0, 0 };
 			float boneWeights[4] = { 0, 0, 0, 0 };
@@ -244,6 +254,20 @@ void cAssimpLoader::CreateMesh()
 				normal.x = mesh->mNormals[x].x;
 				normal.y = mesh->mNormals[x].y;
 				normal.z = mesh->mNormals[x].z;
+			}
+
+			if (NULL != mesh->mTangents)
+			{
+				tangent.x = mesh->mTangents[x].x;
+				tangent.y = mesh->mTangents[x].y;
+				tangent.z = mesh->mTangents[x].z;
+			}
+
+			if (NULL != mesh->mBitangents)
+			{
+				binormal.x = mesh->mBitangents[x].x;
+				binormal.y = mesh->mBitangents[x].y;
+				binormal.z = mesh->mBitangents[x].z;
 			}
 
 			if (mesh->HasTextureCoords(0))
@@ -272,6 +296,11 @@ void cAssimpLoader::CreateMesh()
 			rawMesh->vertices.push_back(position);
 			rawMesh->normals.push_back(normal);
 			rawMesh->tex.push_back(texture);
+			if (isBumpMap)
+			{
+				rawMesh->tangent.push_back(tangent);
+				rawMesh->binormal.push_back(binormal);
+			}
 		}
 	}
 }
@@ -400,12 +429,26 @@ void cAssimpLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl
 			mtrl.bumpMap = fileName;
 		}
 
-		// Normal texture
+		// Specular texture
 		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_SPECULAR(0), &szPath))
 		{
 			StrPath fileName = szPath.data;
-			//mtrl.bumpMap = fileName;
+			mtrl.specularMap = fileName;
 		}		
+
+		// Self Illumination texture
+		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_EMISSIVE(0), &szPath))
+		{
+			StrPath fileName = szPath.data;
+			mtrl.selfIllumMap = fileName;
+		}
+
+		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_SHININESS(0), &szPath))
+		{
+			StrPath fileName = szPath.data;
+			mtrl.glowMap = fileName;
+		}
+
 	}
 }
 

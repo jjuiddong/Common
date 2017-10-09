@@ -23,6 +23,8 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 	Clear();
 
 	std::ifstream fin(fileName.c_str(), std::ios::binary);
+	if (!fin.is_open())
+		return false;
 
 	fin.seekg(0, std::ios_base::end);
 	int size = (int)fin.tellg();
@@ -58,6 +60,7 @@ bool cShader11::CompileAndReload(cRenderer &renderer)
 	if (m_fxoFileName.empty())
 		return false;
 
+	//remove(m_fxoFileName.c_str()); // remove file
 	const StrPath fxFileName = m_fxoFileName.GetFileNameExceptExt2() + ".fx";
 	if (!Compile(fxFileName.c_str()))
 		return false;
@@ -128,7 +131,7 @@ void cShader11::BeginPass(cRenderer &renderer, const int pass)
 	{
 		if (!renderer.m_textureMap[i])
 			break;
-		renderer.GetDevContext()->PSSetShaderResources(i + 2, 1, &renderer.m_textureMap[i]);
+		renderer.GetDevContext()->PSSetShaderResources(i + cRenderer::TEXTURE_OFFSET, 1, &renderer.m_textureMap[i]);
 	}
 }
 

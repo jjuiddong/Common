@@ -189,7 +189,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 
 	m_shaderMgr.LoadShader(*this, "../media/shader11/water.fxo", pos_norm_tex, ARRAYSIZE(pos_norm_tex), false);
 
-	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_tangent_binormal[] =
+	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_bump[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -197,7 +197,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-tangent-binormal.fxo", pos_norm_tex_tangent_binormal, ARRAYSIZE(pos_norm_tex_tangent_binormal));
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-bump.fxo", pos_norm_tex_bump, ARRAYSIZE(pos_norm_tex_bump));
 
 
 	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_skin[] =
@@ -209,6 +209,19 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin.fxo", pos_norm_tex_skin, ARRAYSIZE(pos_norm_tex_skin));
+
+
+	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_skin_bump[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin-bump.fxo", pos_norm_tex_skin_bump, ARRAYSIZE(pos_norm_tex_skin_bump));
 
 
 	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
@@ -548,21 +561,21 @@ sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 void cRenderer::BindTexture(cTexture *texture, const int stage)
 {
 	RET(MAX_TEXTURE_STAGE <= (stage - 1));
-	m_textureMap[stage - 2] = (texture) ? texture->m_texture : NULL;
+	m_textureMap[stage - TEXTURE_OFFSET] = (texture) ? texture->m_texture : NULL;
 }
 
 
 void cRenderer::BindTexture(cRenderTarget &rt, const int stage)
 {
 	RET(MAX_TEXTURE_STAGE <= (stage - 1));
-	m_textureMap[stage - 2] = rt.m_texture;
+	m_textureMap[stage - TEXTURE_OFFSET] = rt.m_texture;
 }
 
 
 void cRenderer::UnbindTexture(const int stage)
 {
 	RET(MAX_TEXTURE_STAGE <= (stage - 1));
-	m_textureMap[stage - 2] = NULL;
+	m_textureMap[stage - TEXTURE_OFFSET] = NULL;
 }
 
 
@@ -570,6 +583,6 @@ void cRenderer::UnbindTextureAll()
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 
-	ID3D11ShaderResourceView *ns[5] = { NULL, NULL, NULL, NULL, NULL };
-	GetDevContext()->PSSetShaderResources(0, 5, ns);
+	ID3D11ShaderResourceView *ns[MAX_TEXTURE_STAGE] = { NULL, NULL, NULL, NULL, NULL, NULL };
+	GetDevContext()->PSSetShaderResources(0, MAX_TEXTURE_STAGE, ns);
 }

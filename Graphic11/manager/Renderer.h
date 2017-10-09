@@ -108,9 +108,11 @@ namespace graphic
 		cFontManager m_fontMgr;
 		cTextManager m_textMgr;
 
-		enum {MAX_TEXTURE_STAGE=5};
+		enum {MAX_TEXTURE_STAGE=7, TEXTURE_OFFSET=4};
 		// Diffuse
 		// Normal
+		// Specular
+		// Emissive
 		// Texture1 - m_textureMap[0]
 		// Texture2 - m_textureMap[1]
 		// Texture3 - m_textureMap[2]

@@ -32,8 +32,8 @@ bool cMesh2::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skele
 
 	CreateMaterials(renderer, mesh);
 	
-	if (!mesh.mtrl.bumpMap.empty() || calculateTangentBinormal)
-		CalculateModelVectors(mesh);
+	//if (!mesh.mtrl.bumpMap.empty() || calculateTangentBinormal)
+	//	CalculateModelVectors(mesh);
 
 	m_buffers = new cMeshBuffer(renderer, mesh);
 
@@ -61,9 +61,16 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 		m_normalMap.push_back(
 			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.bumpMap));
 
-	if (!rawMesh.mtrl.specularMap.empty())
+	if (rawMesh.mtrl.specularMap.empty())
+	{
+		m_colorMap.push_back(
+			cResourceManager::Get()->LoadTexture2(renderer, "", g_defaultTexture));
+	}
+	else
+	{
 		m_specularMap.push_back(
 			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.specularMap));
+	}
 
 	if (!rawMesh.mtrl.selfIllumMap.empty())
 		m_selfIllumMap.push_back(
@@ -121,6 +128,12 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer
 
 	if (!m_normalMap.empty())
 		m_normalMap[0]->Bind(renderer, 1);
+
+	if (!m_specularMap.empty())
+		m_specularMap[0]->Bind(renderer, 2);
+
+	if (!m_selfIllumMap.empty())
+		m_selfIllumMap[0]->Bind(renderer, 3);
 
 	// Set Skinning Information
 	for (u_int i = 0; i < m_bones.size(); ++i)
