@@ -30,7 +30,8 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 	m_isSkinning = !rawMeshes->bones.empty();
 	if (!rawMeshes->bones.empty())
 	{
-		m_skeleton.Create(rawMeshes->bones);
+		//m_skeleton.Create(rawMeshes->bones, rawMeshes->nodes);
+		m_skeleton.Create(rawMeshes);
 	}
 
 	//int n = 0;

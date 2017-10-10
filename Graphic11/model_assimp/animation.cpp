@@ -74,23 +74,7 @@ bool cAnimation::Update(const float deltaSeconds)
 		{
 			Matrix44 result;
 			if (anies[i].GetAnimationResult(m_incTime, result))
-			{
-				//Vector3 p1 = m_skeleton->m_tmAni[i].GetPosition();
-				//Vector3 p2 = result.GetPosition();
-				//Vector3 p3 = (p1 + p2) * 0.5f;
-				//Matrix44 t;
-				//t.SetPosition(p3);
-
-				//Quaternion q1 = m_skeleton->m_tmAni[i].GetQuaternion();
-				//Quaternion q2 = result.GetQuaternion();
-				//Quaternion q3 = q1.Interpolate(q2, 0.5f);
-				//Matrix44 r = q3.GetMatrix();
-
 				m_skeleton->m_tmAni[i] = result;
-				//m_skeleton->m_tmAni[i].SetPosition( (p1+p2) * 0.5f );
-				//m_skeleton->m_tmAni[i].SetPosition(p2);
-				//m_skeleton->m_tmAni[i] = result;
-			}
 		}
 	}
 	

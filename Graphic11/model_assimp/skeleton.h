@@ -11,7 +11,7 @@ namespace graphic
 	public:
 		cSkeleton();
 		virtual ~cSkeleton();
-		bool Create(const vector<sRawBone2> &bones);
+		bool Create(sRawMeshGroup2 *meshes);
 		void UpdateHierarcyTransform();
 
 
