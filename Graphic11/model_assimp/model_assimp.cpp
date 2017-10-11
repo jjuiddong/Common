@@ -23,33 +23,12 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadRawMesh2(fileName);
 	RETV(!rawMeshes, false);
 
-	//m_fileName = fileName;
 	m_nodes = rawMeshes->nodes;
 	m_storedAnimationName = rawMeshes->animationName;
 
 	m_isSkinning = !rawMeshes->bones.empty();
 	if (!rawMeshes->bones.empty())
-	{
-		//m_skeleton.Create(rawMeshes->bones, rawMeshes->nodes);
 		m_skeleton.Create(rawMeshes);
-	}
-
-	//int n = 0;
-	//for (auto &mesh : rawMeshes->meshes)
-	//{
-	//	if (n == 1)
-	//	{
-	//		cMesh2 *p = new cMesh2();
-	//		p->Create(renderer, mesh, &m_skeleton);
-	//		m_meshes.push_back(p);
-	//	}
-	//	else
-	//	{
-	//		cMesh2 *p = new cMesh2();
-	//		m_meshes.push_back(p);
-	//	}
-	//	++n;
-	//}
 
 	for (auto &mesh : rawMeshes->meshes)
 	{
@@ -57,7 +36,6 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 		p->Create(renderer, mesh, &m_skeleton);
 		m_meshes.push_back(p);
 	}
-
 
 	UpdateBoundingBox();
 
@@ -175,8 +153,15 @@ void cAssimpModel::UpdateBoundingBox()
 void cAssimpModel::SetAnimation(const Str64 &animationName, const bool isMerge)
 // isMerge = false
 {
-	if (sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName.c_str()))
+	sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName.c_str());
+
+	if (rawAnies)
 		m_animation.Create(*rawAnies, &m_skeleton, isMerge);
+	else
+		m_animation.Create(&m_skeleton);
+
+	for (auto &mesh : m_meshes)
+		mesh->m_skeleton = rawAnies? &m_skeleton : NULL;
 }
 
 

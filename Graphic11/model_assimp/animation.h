@@ -13,6 +13,7 @@ namespace graphic
 		cAnimation();
 		virtual ~cAnimation();
 
+		bool Create(cSkeleton *skeleton);
 		bool Create(const sRawAniGroup &anies, cSkeleton *skeleton, const bool isMerge=false);
 		bool Update(const float deltaSeconds);
 		void Stop();

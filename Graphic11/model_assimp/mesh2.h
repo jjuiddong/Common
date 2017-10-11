@@ -41,9 +41,8 @@ namespace graphic {
 
 	public:
 		StrId m_name;
-		Matrix44 m_localTm;
 		Transform m_transform;
-		cSkeleton *m_skeleton; // reference from cAssimpModel
+		cSkeleton *m_skeleton; // reference from cAssimpModel, if NULL no skinning animation
 		vector<cMaterial> m_mtrls;
 		vector<cTexture*> m_colorMap;  // reference
 		vector<cTexture*> m_normalMap;  // reference

@@ -126,15 +126,16 @@ void  cAssimpLoader::MarkParentsAnimation(std::vector<SkeletonNode>& hierarchy) 
 	for (unsigned int i = 0; i < hierarchy.size(); ++i)
 	{
 		SkeletonNode& currentNode = hierarchy[i];
-		if (currentNode.used)
+		if (currentNode.animate)
 		{
 			char p = currentNode.parent;
 			while (p >= 0)
 			{
 				SkeletonNode& n = hierarchy[p];
-				if (n.used) break;
+				if (n.animate)
+					break;
 
-				n.used = true;
+				n.animate = true;
 				p = n.parent;
 			}
 		}
@@ -153,7 +154,7 @@ void cAssimpLoader::RemoveNoneAnimationBone(
 	for (unsigned int i = 0; i < fullHierarchy.size(); ++i)
 	{
 		SkeletonNode n = fullHierarchy[i];
-		if (n.used)
+		if (n.animate)
 		{
 			n.parent = nodeMapping[n.parent];
 			result.push_back(n);
@@ -514,6 +515,7 @@ void cAssimpLoader::CreateAnimation()
 				continue;
 
 			sRawAni &ani = m_rawAnies->anies[boneId];
+			ani.name = boneName.c_str();
 			ani.pos.resize(sourceAnimation->mChannels[a]->mNumPositionKeys);
 			ani.rot.resize(sourceAnimation->mChannels[a]->mNumRotationKeys);
 			ani.scale.resize(sourceAnimation->mChannels[a]->mNumScalingKeys);
@@ -596,8 +598,8 @@ void cAssimpLoader::CreateNode(aiNode* node
 	for (u_int m = 0; m < node->mNumMeshes; ++m)
 	{
 		sRawMesh2 &mesh = m_rawMeshes->meshes[node->mMeshes[m]];
-		mesh.localTm = *(Matrix44*)&node->mTransformation;
-		mesh.localTm.Transpose();
+		//mesh.localTm = *(Matrix44*)&node->mTransformation;
+		//mesh.localTm.Transpose();
 
 		newNode->meshes.push_back(node->mMeshes[m]);
 	}
@@ -613,8 +615,8 @@ void cAssimpLoader::CreateMeshBone(aiNode* node)
 	{
 		aiMesh *mesh = m_aiScene->mMeshes[node->mMeshes[m]];
 		sRawMesh2 &rawMesh = m_rawMeshes->meshes[node->mMeshes[m]];
-		rawMesh.localTm = *(Matrix44*)&node->mTransformation;
-		rawMesh.localTm.Transpose();
+		//rawMesh.localTm = *(Matrix44*)&node->mTransformation;
+		//rawMesh.localTm.Transpose();
 
 		rawMesh.bones.reserve(4);
 		for (auto b : rawMesh.bones)

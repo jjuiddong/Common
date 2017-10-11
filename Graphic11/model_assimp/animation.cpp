@@ -20,6 +20,15 @@ cAnimation::~cAnimation()
 }
 
 
+// Empty Animation
+bool cAnimation::Create(cSkeleton *skeleton)
+{
+	m_state = eState::PLAY;
+	m_skeleton = skeleton;
+	return true;
+}
+
+
 bool cAnimation::Create(const sRawAniGroup &anies, cSkeleton *skeleton, const bool isMerge)
 // isMerge = false
 {

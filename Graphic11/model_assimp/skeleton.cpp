@@ -4,6 +4,7 @@
 
 using namespace graphic;
 
+
 cSkeleton::cSkeleton()
 {
 }

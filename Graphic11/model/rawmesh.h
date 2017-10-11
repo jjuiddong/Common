@@ -127,15 +127,18 @@ namespace graphic
 		vector<sVertexWeight> weights; // vertex 갯수만큼 저장된다.
 		vector<sMeshBone> bones;
 		sMaterial mtrl;
-		Matrix44 localTm;
 	};
 
 	struct sRawNode
 	{
+		int id;
 		StrId name;
+		int channel;	// animation channel
+		int parentId;
 		vector<int> meshes; // sRawMeshGroup2::meshes index
 		vector<int> children; // sRawMeshGroup2::nodes index
 		Matrix44 localTm;
+		Matrix44 worldTm;
 	};
 
 	struct sRawMeshGroup2

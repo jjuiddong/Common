@@ -27,7 +27,7 @@ namespace graphic
 			const aiBone* bone; // mesh에 소속된 bone, node의 대표 bone
 			int parent;
 			Str64 name;
-			bool used;
+			bool animate;
 		};
 
 		cAssimpLoader();
