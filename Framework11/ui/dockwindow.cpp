@@ -891,6 +891,16 @@ void cDockWindow::DefaultEventProc(const sf::Event &evt)
 	if (!CheckEventTarget(evt))
 		return;
 
+	// Picking Event Trigger
+	switch (evt.type)
+	{
+	case sf::Event::MouseButtonPressed:
+	case sf::Event::MouseMoved:
+		m_pickMgr.Pick(0, m_owner->m_input.GetDockWindowCursorPos(this));
+		break;
+	}
+	//
+
 	if (m_lower)
 	{
 		m_lower->DefaultEventProc(evt);
@@ -974,6 +984,12 @@ void cDockWindow::ReleaseCapture()
 cRenderer& cDockWindow::GetRenderer()
 {
 	return m_owner->m_renderer;
+}
+
+
+framework::cInputManager& cDockWindow::GetInput()
+{
+	return m_owner->m_input;
 }
 
 

@@ -56,6 +56,7 @@ namespace framework
 		cDockWindow* GetCapture();
 		void ReleaseCapture();
 		graphic::cRenderer& GetRenderer();
+		framework::cInputManager& GetInput();
 		void ClearConnection();
 		void Clear();
 
@@ -91,6 +92,7 @@ namespace framework
 		StrId m_name;
 		sRectf m_rect;
 		eDockSlot::Enum m_dragSlot; // using drag dock window
+		graphic::cPickManager m_pickMgr;
 	};
 
 }

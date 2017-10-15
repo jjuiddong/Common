@@ -125,7 +125,7 @@ namespace graphic
 		cConstantBuffer<sCbInstancing> m_cbInstancing;
 		cConstantBuffer<cCbClipPlane> m_cbClipPlane;
 		cConstantBuffer<cCbSkinning> m_cbSkinning;
-
+		
 		// Display FPS 
 		cText m_textFps;
 		float m_elapseTime;

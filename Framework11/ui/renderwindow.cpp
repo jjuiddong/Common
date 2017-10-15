@@ -91,7 +91,8 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 	ImGuiIO& io = ImGui::GetIO();
 	if (!mainWindow)
 	{
-		const float fontSize = 14; //18
+		const float fontSize = 14;
+		//const float fontSize = 18;
 		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		io.ImeWindowHandle = (HWND)this->getSystemHandle();
 
@@ -711,6 +712,8 @@ void cRenderWindow::ResetDevice()
 
 void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
+	m_input.MouseProc(evt);
+
 	OnEventProc(evt);
 
 	if (m_captureDock)

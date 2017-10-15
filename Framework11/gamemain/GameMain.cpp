@@ -150,7 +150,6 @@ bool cGameMain::Init(HINSTANCE hInstance, HWND hWnd)
 void cGameMain::ShutDown()
 {
 	OnShutdown();
-	cInputManager::Release();
 	graphic::ReleaseRenderer();
 }
 

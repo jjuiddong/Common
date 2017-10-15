@@ -22,7 +22,6 @@ namespace graphic
 
 	public:
 		struct eState {enum Enum {STOP,PLAY,};};
-
 		eState::Enum m_state;
 		cSkeleton *m_skeleton; // reference
 		vector<vector<cAnimationNode>> m_anies;

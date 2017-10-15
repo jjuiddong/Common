@@ -38,6 +38,7 @@ namespace graphic
 		cTexture m_texture;
 		cBillboard m_quad;
 		cColor m_color;
+		Vector3 m_originalScale;
 	};
 
 }

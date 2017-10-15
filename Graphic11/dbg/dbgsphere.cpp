@@ -6,6 +6,7 @@
 using namespace graphic;
 
 cDbgSphere::cDbgSphere()
+	: m_color(cColor::BLACK)
 {
 }
 
@@ -26,8 +27,8 @@ void cDbgSphere::Create(cRenderer &renderer, const float radius, const int stack
 	, const cColor &color //= cColor::BLACK
 )
 {
-	m_bsphere.SetBoundingSphere(Vector3(0, 0, 0), radius);
-	m_shape.Create(renderer, radius, stacks, slices, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_color = color;
+	m_shape.Create(renderer, radius, stacks, slices, eVertexType::POSITION, color);
 }
 
 
@@ -35,15 +36,18 @@ void cDbgSphere::Render(cRenderer &renderer
 	, const XMMATRIX &tm //=XMIdentity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_bsphere.GetTransformXM() * tm);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	CommonStates states(renderer.GetDevice());
@@ -55,17 +59,17 @@ void cDbgSphere::Render(cRenderer &renderer
 
 XMMATRIX cDbgSphere::GetTransform() const
 {
-	return m_bsphere.GetTransformXM();
+	return m_transform.GetMatrixXM();
 }
 
 
 void cDbgSphere::SetPos(const Vector3 &pos) 
 {
-	m_bsphere.SetPos(pos);
+	m_transform.pos = pos;
 }
 
 
 void cDbgSphere::SetRadius(const float radius)
 {
-	m_bsphere.SetRadius(radius);
+	m_transform.scale = Vector3(1, 1, 1)*radius;
 }

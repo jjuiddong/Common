@@ -38,7 +38,7 @@ bool cCascadedShadowMap::Create(cRenderer &renderer
 
 	for (int i = 0; i < SHADOWMAP_COUNT; ++i)
 	{
-		m_shadowMaps[i].Create(renderer, svp, DXGI_FORMAT_R32_FLOAT);
+		m_shadowMaps[i].Create(renderer, svp, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
 		m_frustums[i].Create(renderer, GetMainCamera().GetViewProjectionMatrix());
 		m_lightCams[i].SetProjectionOrthogonal(shadowMapSize.x, shadowMapSize.y, 1, 10000);
 		m_dbgLightFrustums[i].Create(renderer, m_lightCams[i].GetViewProjectionMatrix());
@@ -63,7 +63,7 @@ bool cCascadedShadowMap::UpdateParameter(cRenderer &renderer, const cCamera &cam
 		m_frustums[i].SetFrustum(renderer, m_lightCams[i].GetViewProjectionMatrix());
 		m_dbgLightFrustums[i].SetFrustum(renderer, m_lightCams[i].GetViewProjectionMatrix());
 	}
-
+	
 	return true;
 }
 

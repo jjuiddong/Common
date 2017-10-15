@@ -35,7 +35,7 @@ namespace graphic
 		void Render2D(cRenderer &renderer);
 		void CopyFrom(cTexture &src);
 		//void CopyFrom(IDirect3DTexture9 *src);
-		void* Lock(cRenderer &renderer);
+		void* Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out);
 		void Unlock(cRenderer &renderer);
 		const StrPath& GetTextureName() const;
 		bool DrawText(cRenderer &renderer, const wchar_t *text

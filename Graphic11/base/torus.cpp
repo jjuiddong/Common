@@ -6,6 +6,7 @@ using namespace graphic;
 
 
 cTorus::cTorus()
+	: m_color(cColor::WHITE)
 {
 }
 
@@ -17,9 +18,11 @@ cTorus::~cTorus()
 bool cTorus::Create(cRenderer &renderer, const float outerRadius, const float innerRadius
 	, const int stack //= 10
 	, const int slice //= 10
+	, const cColor &color //= cColor::WHITE
 )
 {
 	m_shape.Create(renderer, outerRadius, innerRadius, stack, slice);
+	m_color = color;
 	return true;
 }
 
@@ -38,7 +41,11 @@ bool cTorus::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
+
 
 	m_shape.Render(renderer);
 	return true;

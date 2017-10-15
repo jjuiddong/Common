@@ -18,8 +18,9 @@ cDbgLine::cDbgLine(cRenderer &renderer
 )
 	//: cLine(renderer, p0, p1, width, color)
 {
-	m_shape.Create2(renderer, (eVertexType::POSITION | eVertexType::DIFFUSE), color);
+	m_shape.Create2(renderer, eVertexType::POSITION);
 	SetLine(p0, p1, width);
+	m_color = color;
 }
 
 
@@ -30,8 +31,9 @@ bool cDbgLine::Create(cRenderer &renderer
 	, const cColor color //= cColor::BLACK
 )
 {
-	m_shape.Create2(renderer, (eVertexType::POSITION | eVertexType::DIFFUSE), color);
+	m_shape.Create2(renderer, eVertexType::POSITION);
 	SetLine(p0, p1, width);
+	m_color = color;
 	return true;
 }
 

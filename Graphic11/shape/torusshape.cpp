@@ -19,7 +19,7 @@ cTorusShape::~cTorusShape()
 bool cTorusShape::Create(cRenderer &renderer, const float outerRadius, const float innerRadius
 	, const int stack //= 10
 	, const int slice //=10
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION)
 )
 {
 	RETV2(stack <= 0, false);

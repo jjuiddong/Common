@@ -14,13 +14,14 @@ cLine::cLine(cRenderer &renderer
 	, const Vector3 &p0 //= Vector3(0, 0, 0)
 	, const Vector3 &p1 //= Vector3(1, 1, 1)
 	, const float width //= 1.f
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
 	, const cColor color //= cColor::BLACK
 )
 	: cNode2(common::GenerateId(), "line", eNodeType::MODEL)
 {
 	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);
+	m_color = color;
 }
 
 
@@ -28,12 +29,13 @@ bool cLine::Create(cRenderer &renderer
 	, const Vector3 &p0 //= Vector3(0, 0, 0)
 	, const Vector3 &p1 //= Vector3(1, 1, 1)
 	, const float width //= 1.f
-	, const int vtxType //=(eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //=(eVertexType::POSITION | eVertexType::NORMAL)
 	, const cColor color //= cColor::BLACK
 )
 {
 	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);
+	m_color = color;
 	return true;
 }
 
@@ -52,6 +54,9 @@ bool cLine::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_shape.Render(renderer);

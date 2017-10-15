@@ -21,7 +21,8 @@ void cDbgBox::Create(cRenderer &renderer
 	, const cColor &color //= cColor::BLACK
 )
 {
-	m_shape.Create2(renderer, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_color = color;
+	m_shape.Create2(renderer, eVertexType::POSITION);
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0,0,0,1));
 }
 
@@ -30,7 +31,8 @@ void cDbgBox::Create(cRenderer &renderer, const cBoundingBox &bbox
 	, const cColor &color //= cColor::BLACK
 )
 {
-	m_shape.Create2(renderer, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+	m_color = color;
+	m_shape.Create2(renderer, eVertexType::POSITION);
 	SetBox(bbox);
 }
 
@@ -67,7 +69,7 @@ void cDbgBox::SetBox(cRenderer &renderer, const Vector3 vertices[8]
 
 void cDbgBox::SetColor(const cColor &color)
 {
-	//assert(0);
+	m_color = color;
 }
 
 
@@ -84,6 +86,10 @@ void cDbgBox::Render(cRenderer &renderer
 
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
+
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
+	renderer.m_cbMaterial.Update(renderer, 2);
 
 	CommonStates states(renderer.GetDevice());
 	ID3D11RasterizerState *oldState = NULL;

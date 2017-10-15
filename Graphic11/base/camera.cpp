@@ -703,13 +703,19 @@ Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight,
 }
 
 
-Ray cCamera::GetRay(const int sx, const int sy)
+Ray cCamera::GetRay(
+	const int sx //=-1
+	, const int sy //=-1
+)
 {
 	assert(m_width != 0);
 	assert(m_height != 0);
 
+	const int x = (sx == -1) ? m_width / 2 : sx;
+	const int y = (sy == -1) ? m_height / 2 : sy;
+
 	Ray ray;
-	GetRay((int)m_width, (int)m_height, sx, sy, ray.orig, ray.dir);
+	GetRay((int)m_width, (int)m_height, x, y, ray.orig, ray.dir);
 	return ray;
 }
 

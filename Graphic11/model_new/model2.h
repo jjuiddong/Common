@@ -45,6 +45,7 @@ namespace graphic
 	protected:
 		void InitModel(cRenderer &renderer);
 		bool CheckLoadProcess(cRenderer &renderer);
+		virtual void OnPicking() override;
 
 
 	public:

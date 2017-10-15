@@ -53,15 +53,25 @@ namespace graphic
 		}
 
 		cBoundingSphere operator * (const Matrix44 &rhs) {
-			return cBoundingSphere(*(Vector3*)&m_bsphere.Center * rhs, m_bsphere.Radius);
+			const float scale = rhs.GetScale().Length();
+			return cBoundingSphere(*(Vector3*)&m_bsphere.Center * rhs, m_bsphere.Radius*scale);
 		}
 
 		cBoundingSphere operator * (const XMMATRIX &rhs) {
 			const XMVECTOR center = XMLoadFloat3(&m_bsphere.Center);
 			const XMVECTOR pos = XMVector3Transform(center, rhs);
-			XMFLOAT3 f3;
-			XMStoreFloat3(&f3, pos);
-			return cBoundingSphere(*(Vector3*)&f3, m_bsphere.Radius);
+			XMFLOAT3 outPos;
+			XMStoreFloat3(&outPos, pos);
+
+			XMVECTOR _t, _s, _q;
+			XMMatrixDecompose(&_s, &_q, &_t, rhs);
+			_s = XMVector3Length(_s);
+			XMFLOAT3 outScale;
+			XMStoreFloat3(&outScale, _s);
+
+			//const XMVECTOR radius = XMLoadFloat3(&Vector3(1,1,1)*m_bsphere.Radius);
+			//const XMVECTOR pos = XMVector3Transform(center, rhs);
+			return cBoundingSphere(*(Vector3*)&outPos, m_bsphere.Radius*outScale.x);
 		}
 
 		const cBoundingSphere& operator *= (const Matrix44 &rhs) {

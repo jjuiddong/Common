@@ -35,6 +35,7 @@ namespace graphic
 	public:
 		cCubeShape m_shape;
 		cBoundingBox m_boundingBox;
+		cColor m_color;
 	};
 
 }

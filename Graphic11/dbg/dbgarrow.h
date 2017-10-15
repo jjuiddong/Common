@@ -25,6 +25,7 @@ namespace graphic
 		bool m_isSolid; // default: false
 		cPyramid m_head;
 		cLine m_body;
+		cColor m_color;
 	};
 
 }

@@ -232,21 +232,38 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					, fileName.ansi(), "../Media/shader/xfile.fx", "Unlit", true);
 				model->m_name = vt.second.get<string>("name");
 
-				// insert model to tile
-				bool isInsertSuccess = false;
-				for (auto &tile : m_terrain->m_tiles)
+				// insert model to most nearest tile
 				{
-					cBoundingBox tbbox = tile->m_boundingBox * tile->GetWorldMatrix();
-					if (tbbox.Collision(bbox))
+					vector<cTile*> candidate;
+					for (auto &tile : m_terrain->m_tiles)
 					{
-						model->m_transform = transform * tile->m_transform.Inverse();
-						tile->AddChild(model);
-						isInsertSuccess = true;
-						break;
+						cBoundingBox tbbox = tile->m_boundingBox * tile->GetWorldMatrix();
+						if (tbbox.Collision(bbox))
+						{
+							candidate.push_back(tile);
+							//model->m_transform = transform * tile->m_transform.Inverse();
+							//tile->AddChild(model);
+							//break;
+						}
 					}
-				}
 
-				assert(isInsertSuccess);
+					assert(!candidate.empty());
+
+					float nearLen = FLT_MAX;
+					cTile *nearTile = NULL;
+					for (auto &tile : candidate)
+					{
+						const float len = tile->GetWorldMatrix().GetPosition().Distance(transform.pos);
+						if (len < nearLen)
+						{
+							nearLen = len;
+							nearTile = tile;
+						}
+					}
+
+					model->m_transform = transform * nearTile->m_transform.Inverse();
+					nearTile->AddChild(model);
+				}
 			}
 		}
 

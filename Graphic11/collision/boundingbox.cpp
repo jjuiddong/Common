@@ -198,6 +198,12 @@ Matrix44 cBoundingBox::GetTransform() const
 
 cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs) 
 {
+	//// todo: 왜 assert() 가 발생하는지 모름, jjuiddong, 2017-10-13
+	//XMVECTOR vOrientation = XMLoadFloat4(&m_bbox.Orientation);
+	//if (!DirectX::Internal::XMQuaternionIsUnit(vOrientation))
+	//	m_bbox.Orientation = *(XMFLOAT4*)&Quaternion();
+	////
+
 	BoundingOrientedBox bbox;
 	m_bbox.Transform(bbox, rhs);
 	cBoundingBox ret;

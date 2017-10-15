@@ -30,9 +30,9 @@ namespace graphic
 		Str32 name;
 		float start; // frame 단위
 		float end; // frame 단위
-		vector<sKeyPos> pos;
-		vector<sKeyRot> rot;
-		vector<sKeyScale> scale;
+		vector<sKeyPos> pos; // localTm Animation
+		vector<sKeyRot> rot; // localTm Animation
+		vector<sKeyScale> scale; // localTm Animation
 	};
 
 

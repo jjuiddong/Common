@@ -27,6 +27,7 @@ bool cText3d3::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	if (!m_quad.Create(renderer, type, (float)width, (float)height, Vector3(0, 0, 0)))
 		return false;
 
+	m_originalScale = m_quad.m_transform.scale;
 	m_quad.m_texture = &m_texture;
 	m_boundingBox.SetBoundingBox(Vector3(0,0,0), Vector3((float)width, (float)height, 0), Quaternion());
 	CalcBoundingSphere();
@@ -61,9 +62,9 @@ bool cText3d3::SetTextRect(
 			const float u = textSize.x / (float)m_texture.m_imageInfo.Width;
 			m_quad.m_shape.SetUV(renderer, Vector2(0, 0), Vector2(u, 0), Vector2(0, 1), Vector2(u, 1));
 			m_quad.m_transform.scale = Vector3(
-				u * m_quad.m_transform.scale.x * tm.scale.x
-				, m_quad.m_transform.scale.y * tm.scale.y
-				, m_quad.m_transform.scale.z * tm.scale.z);
+				u * m_originalScale.x * tm.scale.x
+				, m_originalScale.y * tm.scale.y
+				, m_originalScale.z * tm.scale.z);
 		}
 
 		m_text = text;

@@ -31,6 +31,7 @@ namespace graphic
 		static const cColor BLUE;
 		static const cColor GREEN;
 		static const cColor RED;
+		static const cColor YELLOW;
 
 		virtual ~cColor();
 

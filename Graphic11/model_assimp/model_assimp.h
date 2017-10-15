@@ -19,6 +19,7 @@ namespace graphic
 			, const char *techniqueName
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);
+
 		bool RenderInstancing(cRenderer &renderer
 			, const char *techniqueName
 			, const int count
@@ -37,6 +38,7 @@ namespace graphic
 			, const char *techniqueName
 			, const sRawNode &node
 			, const XMMATRIX &parentTm = XMIdentity
+			, const XMMATRIX &transformTm = XMIdentity
 			, const int flags = 1);
 
 

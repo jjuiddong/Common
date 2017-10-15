@@ -6,15 +6,13 @@ using namespace framework;
 
 
 cInputManager::cInputManager()
-	: m_lBtnDown(false)
-	, m_rBtnDown(false)
-	, m_mBtnDown(false)
-	, m_lBtnDbClick(false)
+	: m_lBtnDbClick(false)
 	, m_clickTime(0)
 	, m_dbClickTime(0)
 {
 	m_mousePt.x = 0;
 	m_mousePt.y = 0;
+	ZeroMemory(m_mouseDown, sizeof(m_mouseDown));
 }
 
 cInputManager::~cInputManager()
@@ -43,7 +41,7 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 		if (curT - m_dbClickTime > 200)
 		{
-			m_lBtnDown = true;
+			m_mouseDown[0] = true;
 			m_clickTime = curT;
 		}
 	}
@@ -54,15 +52,15 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 		const int curT = GetTickCount();
 		if (curT - m_dbClickTime > 200)
 		{
-			m_lBtnDown = false;
+			m_mouseDown[0] = false;
 		}
 	}
 	break;
 
-	case WM_RBUTTONDOWN: m_rBtnDown = true; break;
-	case WM_RBUTTONUP: m_rBtnDown = false; break;
-	case WM_MBUTTONDOWN: m_mBtnDown = true; break;
-	case WM_MBUTTONUP: m_mBtnDown = false; break;
+	case WM_RBUTTONDOWN: m_mouseDown[1] = true; break;
+	case WM_RBUTTONUP: m_mouseDown[1] = false; break;
+	case WM_MBUTTONDOWN: m_mouseDown[2] = true; break;
+	case WM_MBUTTONUP: m_mouseDown[2] = false; break;
 	}
 }
 
@@ -85,13 +83,13 @@ void cInputManager::MouseProc(const sf::Event &evt)
 
 			if (curT - m_dbClickTime > 200)
 			{
-				m_lBtnDown = true;
+				m_mouseDown[0] = true;
 				m_clickTime = curT;
 			}
 		}
 		break;
 		case sf::Mouse::Right:
-			m_rBtnDown = true;
+			m_mouseDown[1] = true;
 			break;
 		}
 		break;
@@ -104,17 +102,18 @@ void cInputManager::MouseProc(const sf::Event &evt)
 			const int curT = GetTickCount();
 			if (curT - m_dbClickTime > 200)
 			{
-				m_lBtnDown = false;
+				m_mouseDown[0] = false;
 			}
 		}
 		break;
 		case sf::Mouse::Right:
-			m_rBtnDown = false;
+			m_mouseDown[1] = false;
 			break;
 		}
 		break;
 
 	case sf::Event::MouseMoved:
+		m_mousePt = { evt.mouseMove.x, evt.mouseMove.y };
 		break;
 	}
 }
@@ -122,5 +121,16 @@ void cInputManager::MouseProc(const sf::Event &evt)
 
 bool cInputManager::IsClick()
 {
-	return m_lBtnDown;
+	return m_mouseDown[0];
+}
+
+
+POINT cInputManager::GetDockWindowCursorPos(cDockWindow *dock)
+{
+	RETV2(!dock, {})
+
+	POINT pos = m_mousePt;
+	pos.x -= (int)dock->m_rect.left;
+	pos.y -= (int)dock->m_rect.top;
+	return pos;
 }

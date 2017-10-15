@@ -14,11 +14,14 @@ namespace graphic {
 		cMesh2();
 		virtual ~cMesh2();
 
-		bool Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skeleton, const bool calculateTangentBinormal=false);
+		bool Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skeleton
+			, const bool calculateTangentBinormal=false);
 
 		void Render(cRenderer &renderer
 			, const char *techniqueName
-			, const XMMATRIX &parentTm = XMIdentity);
+			, const XMMATRIX &parentTm = XMIdentity
+			, const XMMATRIX &transform = XMIdentity
+		);
 
 		void RenderInstancing(cRenderer &renderer
 			, const char *techniqueName
@@ -28,7 +31,8 @@ namespace graphic {
 
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
-		void UpdateConstantBuffer(cRenderer &renderer, const char *techniqueName, const XMMATRIX &parentTm);
+		void UpdateConstantBuffer(cRenderer &renderer, const char *techniqueName
+			, const XMMATRIX &parentTm, const XMMATRIX &transform);
 		void CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh);
 		void CalculateTangentBinormal(
 			const graphic::sVertexNormTex &vertex1
@@ -41,6 +45,7 @@ namespace graphic {
 
 	public:
 		StrId m_name;
+		bool m_isShow;
 		Transform m_transform;
 		cSkeleton *m_skeleton; // reference from cAssimpModel, if NULL no skinning animation
 		vector<cMaterial> m_mtrls;

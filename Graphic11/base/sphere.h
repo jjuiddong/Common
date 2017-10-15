@@ -19,11 +19,13 @@ namespace graphic
 	public:
 		cSphere();
 		cSphere(cRenderer &renderer, const float radius, const int stacks, const int slices
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE));
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL)
+			, const cColor &color = cColor::WHITE);
 		virtual ~cSphere();
 
 		void Create(cRenderer &renderer, const float radius, const int stacks, const int slices
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE));
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL)
+			, const cColor &color = cColor::WHITE);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 

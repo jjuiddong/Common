@@ -99,6 +99,7 @@ namespace framework
 		cRenderWindow *m_mainWindow; // reference
 		cDockWindow *m_dock;
 		cDockWindow *m_captureDock;
+		cInputManager m_input;
 
 		Vector2 m_mousePos;
 		Vector2 m_clickPos;

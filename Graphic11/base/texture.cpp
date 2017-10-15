@@ -198,14 +198,13 @@ void cTexture::CopyFrom(cTexture &src)
 //}
 
 
-void* cTexture::Lock(cRenderer &renderer)
+void* cTexture::Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out)
 {
-	D3D11_MAPPED_SUBRESOURCE res;
-	ZeroMemory(&res, sizeof(res));
-	HRESULT hr = renderer.GetDevContext()->Map(m_rawTex, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	ZeroMemory(&out, sizeof(out));
+	HRESULT hr = renderer.GetDevContext()->Map(m_rawTex, 0, D3D11_MAP_WRITE_DISCARD, 0, &out);
 	if (FAILED(hr))
 		return NULL;
-	return res.pData;
+	return out.pData;
 }
 
 
@@ -299,7 +298,8 @@ bool cTexture::DrawText(cRenderer &renderer, const wchar_t *szText
 	if (!pixels)
 		return false;
 
-	if (UINT* dpixels = (UINT*)Lock(renderer))
+	D3D11_MAPPED_SUBRESOURCE res;
+	if (UINT* dpixels = (UINT*)Lock(renderer, res))
 	{
 		memcpy(dpixels, pixels, bitmapData.Height*pitch);
 		Unlock(renderer);

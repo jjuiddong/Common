@@ -4,7 +4,6 @@
 
 using namespace graphic;
 
-
 cSkeleton::cSkeleton()
 {
 }
@@ -27,38 +26,6 @@ bool cSkeleton::Create(sRawMeshGroup2 *meshes)
 		m_tmOffset[i] = meshes->bones[i].offsetTm;
 	}
 
-	// make bone ordered
-	//{
-	//	m_bones.reserve(meshes->bones.size());
-
-	//	set<int> testBoneId;
-	//	for (auto &bone : meshes->bones)
-	//	{
-	//		int tmp[64]; // max hierarchy 64
-	//		int size = 0;
-	//		int parentId = bone.parentId;
-	//		while (parentId >= 0)
-	//		{
-	//			auto it = testBoneId.find(parentId);
-	//			if (testBoneId.end() != it)
-	//				break; // already exist, break
-
-	//			tmp[size++] = parentId;
-	//			parentId = m_meshes->bones[parentId].parentId;
-	//		}
-
-	//		// reverse push (insert parent to child)
-	//		for (int i = size - 1; i >= 0; --i)
-	//		{
-	//			testBoneId.insert(tmp[i]);
-	//			m_bones.push_back(m_meshes->bones[tmp[i]]);
-	//		}
-
-	//		testBoneId.insert(bone.id);
-	//		m_bones.push_back(bone);
-	//	}
-	//}
-
 	m_bones = meshes->bones; // Already Orderred
 
 	return true;
@@ -70,10 +37,8 @@ void cSkeleton::UpdateHierarcyTransform()
 	for (auto &bone : m_bones)
 	{
 		Matrix44 tm = m_tmAni[bone.id];
-		int parentId = bone.parentId;
-		if (parentId >= 0)
-			tm *= m_tmPose[parentId];
+		if (bone.parentId >= 0)
+			tm *= m_tmPose[bone.parentId];
 		m_tmPose[bone.id] = tm;
-	}
+	}	
 }
-

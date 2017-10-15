@@ -126,13 +126,19 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_cbInstancing.Create(*this);
 	m_cbClipPlane.Create(*this);
 	m_cbSkinning.Create(*this);
-	float f2[4] = { 1, 1, 1, 1000 }; // default clipplane always positive return
+	float f2[4] = { 1, 1, 1, 100000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 
 	m_textMgr.Create(256);
 
 	//---------------------------------------------------------
 	// Initialize Shader
+	D3D11_INPUT_ELEMENT_DESC pos[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos.fxo", pos, ARRAYSIZE(pos));
+
 	D3D11_INPUT_ELEMENT_DESC pos_color[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -153,6 +159,14 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", pos_tex, ARRAYSIZE(pos_tex));
+
+	D3D11_INPUT_ELEMENT_DESC pos_norm[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm.fxo", pos_norm, ARRAYSIZE(pos_norm));
+
 
 	D3D11_INPUT_ELEMENT_DESC posrhw_color_tex[] =
 	{
@@ -263,6 +277,8 @@ void cRenderer::RenderGrid()
 
 void cRenderer::Update(const float elapseT)
 {
+	//m_pickMgr.Update(elapseT, )
+
 	// fps °è»ê ---------------------------------------
 	++m_fps;
 	m_elapseTime += elapseT;
@@ -378,6 +394,8 @@ void cRenderer::EndScene()
 		m_alphaSpaceBuffer.push_back(p);
 	}
 	m_alphaSpace.clear();
+
+	m_textMgr.NewFrame();
 }
 
 

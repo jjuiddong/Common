@@ -113,6 +113,8 @@ error:
 // Load Parallel Assimp file
 std::pair<bool, cAssimpModel*> cResourceManager::LoadAssimpModelParallel(cRenderer &renderer, const StrPath &fileName)
 {
+	AutoCSLock cs(m_cs);
+
 	auto result = FindAssimpModel(fileName);
 	if (result.first)
 		return{ true, result.second };
@@ -122,12 +124,9 @@ std::pair<bool, cAssimpModel*> cResourceManager::LoadAssimpModelParallel(cRender
 		goto error;
 
 	AddTask( new cTaskAssimpLoader(0, &renderer, fileName) );
+	m_assimpModels[fileName.GetHashCode()] = NULL;
 
-	{
-		AutoCSLock cs(m_cs);
-		m_assimpModels[fileName.GetHashCode()] = NULL;
-		return{ true, NULL };
-	}
+	return{ true, NULL };
 
 
 error:

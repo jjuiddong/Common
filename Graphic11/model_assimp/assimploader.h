@@ -37,9 +37,9 @@ namespace graphic
 
 	protected:
 		void CollectBoneNode();
-		void CreateSkeleton(const aiNode* node, int parent, vector<SkeletonNode>& result) const;
-		void MarkParentsAnimation(std::vector<SkeletonNode>& hierarchy) const;
-		void RemoveNoneAnimationBone(const std::vector<SkeletonNode>& fullHierarchy, std::vector<SkeletonNode>& result) const;
+		void CreateFullNode(const aiNode* node, int parent, vector<SkeletonNode>& result) const;
+		void MarkParentsAnimation(std::vector<SkeletonNode>& fullNodes) const;
+		void RemoveNoneAnimationBone(const std::vector<SkeletonNode>& fullNodes, std::vector<SkeletonNode>& reducedNodes) const;
 		void CreateMesh();
 		void CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl);
 		void CreateBone();
@@ -59,7 +59,7 @@ namespace graphic
 
 		StrPath m_fileName;
 		map<hashcode, aiBone*> m_aiBones; // total bones
-		vector<SkeletonNode> m_fullSkeleton;
+		vector<SkeletonNode> m_fullNode;
 		vector<SkeletonNode> m_reducedSkeleton;
 		sRawMeshGroup2 *m_rawMeshes;
 		sRawAniGroup *m_rawAnies;

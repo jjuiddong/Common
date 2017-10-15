@@ -31,7 +31,7 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type, const float width, const float height,
 			const Vector3 &pos, const StrPath &textureFileName = "", const bool isSizePow2=true);
-		void Render(cRenderer &renderer);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 		void Rotate();
 
 

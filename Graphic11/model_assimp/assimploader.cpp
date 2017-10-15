@@ -60,9 +60,9 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 	m_hasAnimations = m_numAnimations > 0;
 
 	CollectBoneNode();
-	CreateSkeleton(m_aiScene->mRootNode, -1, m_fullSkeleton);
-	MarkParentsAnimation(m_fullSkeleton);
-	RemoveNoneAnimationBone(m_fullSkeleton, m_reducedSkeleton);
+	CreateFullNode(m_aiScene->mRootNode, -1, m_fullNode);
+	MarkParentsAnimation(m_fullNode);
+	RemoveNoneAnimationBone(m_fullNode, m_reducedSkeleton);
 
 	CreateMesh();
 	CreateBone();
@@ -93,7 +93,7 @@ void cAssimpLoader::CollectBoneNode()
 
 
 // 노드를 기반으로 스켈레톤을 만든다.
-void cAssimpLoader::CreateSkeleton(const aiNode* node, int parent
+void cAssimpLoader::CreateFullNode(const aiNode* node, int parent
 	, vector<SkeletonNode>& result) const
 {
 	if (!node)
@@ -116,23 +116,23 @@ void cAssimpLoader::CreateSkeleton(const aiNode* node, int parent
 	int new_parent = result.size() - 1;
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		CreateSkeleton(node->mChildren[i], new_parent, result);
+		CreateFullNode(node->mChildren[i], new_parent, result);
 }
 
 
 // 자식노드가 애니메이션 노드라면, 부모도 애니메이션 노드가되게 플래그를 설정한다.
-void  cAssimpLoader::MarkParentsAnimation(std::vector<SkeletonNode>& hierarchy) const
+void  cAssimpLoader::MarkParentsAnimation(std::vector<SkeletonNode>& fullNodes) const
 {
-	for (unsigned int i = 0; i < hierarchy.size(); ++i)
+	for (unsigned int i = 0; i < fullNodes.size(); ++i)
 	{
-		SkeletonNode& currentNode = hierarchy[i];
+		SkeletonNode& currentNode = fullNodes[i];
 		if (currentNode.animate)
 		{
 			char p = currentNode.parent;
 			while (p >= 0)
 			{
-				SkeletonNode& n = hierarchy[p];
-				if (n.animate)
+				SkeletonNode& n = fullNodes[p];
+				if (n.animate) 
 					break;
 
 				n.animate = true;
@@ -145,21 +145,21 @@ void  cAssimpLoader::MarkParentsAnimation(std::vector<SkeletonNode>& hierarchy) 
 
 // 에니메이션이 있는 노드만 추려서 리턴한다.
 void cAssimpLoader::RemoveNoneAnimationBone(
-	const std::vector<SkeletonNode>& fullHierarchy
-	, std::vector<SkeletonNode>& result) const
+	const std::vector<SkeletonNode>& fullNodes
+	, std::vector<SkeletonNode>& reducedNodes) const
 {
 	map<int, int> nodeMapping; // old node id, new node id
 	nodeMapping[-1] = -1;
 
-	for (unsigned int i = 0; i < fullHierarchy.size(); ++i)
+	for (unsigned int i = 0; i < fullNodes.size(); ++i)
 	{
-		SkeletonNode n = fullHierarchy[i];
+		SkeletonNode n = fullNodes[i];
 		if (n.animate)
 		{
 			n.parent = nodeMapping[n.parent];
-			result.push_back(n);
+			reducedNodes.push_back(n);
 
-			nodeMapping[i] = result.size() - 1;
+			nodeMapping[i] = reducedNodes.size() - 1;
 		}
 	}
 }
@@ -444,6 +444,7 @@ void cAssimpLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl
 			mtrl.selfIllumMap = fileName;
 		}
 
+		// Glow texture
 		if (AI_SUCCESS == aiGetMaterialString(sourceMaterial, AI_MATKEY_TEXTURE_SHININESS(0), &szPath))
 		{
 			StrPath fileName = szPath.data;
@@ -477,13 +478,19 @@ void cAssimpLoader::CreateBone()
 		b.parentId = bone.parent;
 		b.name = bone.name;
 
+		assert(bone.node);
+		
+		b.localTm = *(Matrix44*)&bone.node->mTransformation;
+		b.localTm.Transpose();
+
 		if (bone.bone)
 		{
-			b.localTm = *(Matrix44*)&bone.node->mTransformation;
-			b.localTm.Transpose();
-
 			b.offsetTm = *(Matrix44*)&bone.bone->mOffsetMatrix;
 			b.offsetTm.Transpose();
+		}
+		else
+		{
+			// not need offsetMatrix
 		}
 
 		m_rawMeshes->bones[i++] = b;
@@ -515,7 +522,6 @@ void cAssimpLoader::CreateAnimation()
 				continue;
 
 			sRawAni &ani = m_rawAnies->anies[boneId];
-			ani.name = boneName.c_str();
 			ani.pos.resize(sourceAnimation->mChannels[a]->mNumPositionKeys);
 			ani.rot.resize(sourceAnimation->mChannels[a]->mNumRotationKeys);
 			ani.scale.resize(sourceAnimation->mChannels[a]->mNumScalingKeys);
@@ -598,8 +604,6 @@ void cAssimpLoader::CreateNode(aiNode* node
 	for (u_int m = 0; m < node->mNumMeshes; ++m)
 	{
 		sRawMesh2 &mesh = m_rawMeshes->meshes[node->mMeshes[m]];
-		//mesh.localTm = *(Matrix44*)&node->mTransformation;
-		//mesh.localTm.Transpose();
 
 		newNode->meshes.push_back(node->mMeshes[m]);
 	}
@@ -615,8 +619,6 @@ void cAssimpLoader::CreateMeshBone(aiNode* node)
 	{
 		aiMesh *mesh = m_aiScene->mMeshes[node->mMeshes[m]];
 		sRawMesh2 &rawMesh = m_rawMeshes->meshes[node->mMeshes[m]];
-		//rawMesh.localTm = *(Matrix44*)&node->mTransformation;
-		//rawMesh.localTm.Transpose();
 
 		rawMesh.bones.reserve(4);
 		for (auto b : rawMesh.bones)

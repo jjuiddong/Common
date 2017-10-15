@@ -71,8 +71,10 @@ bool cTile::Create(cRenderer &renderer
 	AddChild(m_ground);
 	
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
-	m_boundingBox.SetBoundingBox( Vector3(0,10,0), Vector3(cellSize, 20, cellSize), Quaternion());
+	//m_boundingBox.SetBoundingBox( Vector3(0,10,0), Vector3(cellSize, 20000, cellSize), Quaternion());
+	m_boundingBox.SetBoundingBox(Vector3(0, 10, 0), Vector3(cellSize, cellSize, cellSize), Quaternion());
 	CalcBoundingSphere();
+	m_boundingBox.SetBoundingBox( Vector3(0,10,0), Vector3(cellSize, 20000, cellSize), Quaternion());
 
 	return true;
 }

@@ -135,12 +135,23 @@ namespace {
 		Vector3(1,0,0) // right
 	};
 
-	Vector2 g_uv2[] = {
+	Vector2 g_uv2[8] = {
+		Vector2(0, 0),
+		Vector2(1, 0),
+		Vector2(0, 1),
+		Vector2(1, 1),
 		Vector2(0, 0),
 		Vector2(1, 0),
 		Vector2(0, 1),
 		Vector2(1, 1)
 	};
+
+	//Vector2 g_uv2[] = {
+	//	Vector2(0, 0),
+	//	Vector2(1, 0),
+	//	Vector2(0, 1),
+	//	Vector2(1, 1)
+	//};
 
 	WORD g_indices2[36] = {
 		// front
@@ -212,12 +223,12 @@ bool cCubeShape::InitCube2(cRenderer &renderer
 	, const cColor &color //= Color::BLACK
 )
 {
-	return CreateShape2(renderer, g_vertices2, g_indices2, vtxType, color);
+	return CreateShape2(renderer, g_vertices2, g_indices2, g_uv2, vtxType, color);
 }
 
 
 bool cCubeShape::CreateShape2(cRenderer &renderer
-	, const Vector3 vertices[8], const WORD indices[36]
+	, const Vector3 vertices[8], const WORD indices[36], const Vector2 uvs[8]
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE);
 	, const cColor &color //= cColor::BLACK
 )
@@ -252,6 +263,9 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 		Vector3 v1 = vertices[indices[i * 3]];
 		Vector3 v2 = vertices[indices[i * 3 + 1]];
 		Vector3 v3 = vertices[indices[i * 3 + 2]];
+		Vector2 uv1 = uvs[indices[i * 3]];
+		Vector2 uv2 = uvs[indices[i * 3 + 1]];
+		Vector2 uv3 = uvs[indices[i * 3 + 2]];
 		Vector3 normal = (v2 - v1).Normal().CrossProduct((v3 - v1).Normal());
 
 		if (vtxType & eVertexType::POSITION)
@@ -260,6 +274,8 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 			*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::DIFFUSE)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
+		if (vtxType & eVertexType::TEXTURE)
+			*(Vector2*)(pvtx + texOffset) = uv1;
 		pvtx += vertexStride;
 
 		if (vtxType & eVertexType::POSITION)
@@ -268,6 +284,8 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 			*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::DIFFUSE)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
+		if (vtxType & eVertexType::TEXTURE)
+			*(Vector2*)(pvtx + texOffset) = uv2;
 		pvtx += vertexStride;
 
 		if (vtxType & eVertexType::POSITION)
@@ -276,6 +294,8 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 			*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::DIFFUSE)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
+		if (vtxType & eVertexType::TEXTURE)
+			*(Vector2*)(pvtx + texOffset) = uv3;
 		pvtx += vertexStride;
 	}
 

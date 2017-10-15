@@ -199,7 +199,8 @@ bool cGrid::Render(cRenderer &renderer
 		renderer.m_cbPerFrame.Update(renderer);
 		renderer.m_cbLight.Update(renderer, 1);
 		renderer.m_cbMaterial = m_mtrl.GetMaterial();
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.2f));
+		//renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.2f));
+		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.5f));
 		renderer.m_cbMaterial.Update(renderer, 2);
 		renderer.m_cbClipPlane.Update(renderer, 4);
 

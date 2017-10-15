@@ -12,7 +12,7 @@ cNode2::cNode2()
 	, m_isEnable(true)
 	, m_parent(NULL)
 	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::SHADOW)
-	, m_opFlags(eOpFlag::COLLISION)
+	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 {
@@ -29,7 +29,7 @@ cNode2::cNode2(const int id
 	, m_parent(NULL)
 	, m_type(type)
 	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::SHADOW)
-	, m_opFlags(eOpFlag::COLLISION)
+	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 {
@@ -275,7 +275,6 @@ cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType
 	if (type == m_type)
 	{
 		cBoundingBox bbox = m_boundingBox;
-		//bbox *= GetWorldMatrix();
 		bbox *= tm;
 		if (bbox.Pick(orig, dir))
 			return this;
@@ -297,8 +296,11 @@ cNode2* cNode2::Picking(const Vector3 &orig, const Vector3 &dir, const eNodeType
 	cNode2 *mostNearest = NULL;
 	float nearLen = FLT_MAX;
 	for (auto &p : picks)
-	{		
-		const float len = orig.LengthRoughly(p->GetWorldMatrix().GetPosition());
+	{
+		const Vector3 modelPos = p->GetWorldMatrix().GetPosition();
+		Plane ground(Vector3(0, 1, 0), modelPos);
+		const Vector3 pickPos = ground.Pick(orig, dir);
+		const float len = modelPos.LengthRoughly(pickPos);
 		if (nearLen > len)
 		{
 			nearLen = len;

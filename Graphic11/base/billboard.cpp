@@ -84,7 +84,8 @@ void cBillboard::Rotate()
 		// Fixed Scale Model
 		Vector3 pos = m_transform.pos;
 		const float len = (pos - GetMainCamera().GetEyePos()).Length();
-		const Vector3 scale = m_scale * min(1.5f, max(1.f, len / 50.f));
+		//const Vector3 scale = m_scale * min(1.5f, max(1.f, len / 50.f));
+		const Vector3 scale = m_scale * min(2.5f, max(1.f, len / 100.f));
 
 		Matrix44 S;
 		S.SetScale(scale);
@@ -125,11 +126,15 @@ void cBillboard::Rotate()
 
 
 // 화면에 출력.
-void cBillboard::Render(cRenderer &renderer)
+bool cBillboard::Render(cRenderer &renderer
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
 {
 	Rotate();
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->RSSetState(states.CullNone());
-	__super::Render(renderer);
+	__super::Render(renderer, parentTm, flags);
 	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+	return true;
 }

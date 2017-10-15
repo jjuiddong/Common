@@ -23,6 +23,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 	, const cViewport &viewPort
 	, const DXGI_FORMAT rtvFormat //render target view = DXGI_FORMAT_R8G8B8A8_UNORM
 	, const DXGI_FORMAT dsvFormat //depth stecil view = DXGI_FORMAT_D24_UNORM_S8_UINT
+	, const bool isMultiSampling //= true
 )
 {
 	Clear();
@@ -39,7 +40,8 @@ bool cRenderTarget::Create(cRenderer &renderer
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.Format = rtvFormat;
-	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Count = isMultiSampling? 4 : 1;
+	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.CPUAccessFlags = 0;
 	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -49,7 +51,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 	rtvDesc.Format = rtvFormat;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.ViewDimension = isMultiSampling? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 	if (FAILED(renderer.GetDevice()->CreateRenderTargetView(m_rawTex, &rtvDesc, &m_renderTargetView)))
 		return false;
@@ -57,7 +59,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 	D3D11_SHADER_RESOURCE_VIEW_DESC rdesc;
 	ZeroMemory(&rdesc, sizeof(rdesc));
 	rdesc.Format = rtvFormat;
-	rdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	rdesc.ViewDimension = isMultiSampling? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 	rdesc.Texture2D.MipLevels = 1;
 
 	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_rawTex, &rdesc, &m_texture)))
@@ -71,7 +73,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = dsvFormat;
-	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Count = isMultiSampling? 4 : 1;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
 	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -87,7 +89,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
 	descDSV.Format = descDepth.Format;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.ViewDimension = isMultiSampling? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	hr = renderer.GetDevice()->CreateDepthStencilView(pDepthStencil, &descDSV, &m_depthStencilView);
 	if (FAILED(hr))
@@ -132,9 +134,9 @@ bool cRenderTarget::Begin(cRenderer &renderer
 
 void cRenderTarget::End(cRenderer &renderer)
 {
+	renderer.EndScene();
 	renderer.SetRenderTarget(NULL, NULL);
 	renderer.m_viewPort.Bind(renderer);
-	renderer.EndScene();
 }
 
 

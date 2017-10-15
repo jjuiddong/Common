@@ -43,6 +43,7 @@ namespace graphic
 			, const cColor &color = cColor::BLACK);
 
 		bool CreateShape2(cRenderer &renderer, const Vector3 vertices[8], const WORD indices[36]
+			, const Vector2 uvs[8]
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 			, const cColor &color = cColor::BLACK);
 

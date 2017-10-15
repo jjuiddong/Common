@@ -17,7 +17,7 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const float outerRadius, const float innerRadius
 			, const int stack = 10, const int slice=10
-			, const int vtxType=(eVertexType::POSITION | eVertexType::DIFFUSE));
+			, const int vtxType=(eVertexType::POSITION));
 
 		virtual void Render(cRenderer &renderer) override;
 

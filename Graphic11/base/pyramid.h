@@ -36,7 +36,7 @@ namespace graphic
 			, const float width=1
 			, const float height=1
 			, const Vector3 &pos=Vector3(0,0,0)
-			, const int vtxType = (eVertexType::POSITION | eVertexType::DIFFUSE)
+			, const int vtxType = (eVertexType::POSITION)
 			, const cColor &color=cColor::BLACK);
 		void SetDimension(const float width, const float height);
 		void SetPos(const Vector3 &pos);
@@ -49,6 +49,7 @@ namespace graphic
 	public:
 		cPyramidShape m_shape;
 		Transform m_transform;
+		cColor m_color;
 	};
 
 }

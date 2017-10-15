@@ -20,7 +20,7 @@ bool cPyramid::Create(cRenderer &renderer
 	, const float width //=1
 	, const float height//=1
 	, const Vector3 &pos //=Vector3(0,0,0)
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION)
 	, const cColor &color //= cColor::BLACK
 )
 {
@@ -28,6 +28,7 @@ bool cPyramid::Create(cRenderer &renderer
 	m_transform.scale = Vector3(width, height, width);
 	m_transform.pos = pos;
 	m_boundingBox.SetBoundingBox(m_transform);
+	m_color = color;
 	return true;
 }
 
@@ -46,6 +47,9 @@ bool cPyramid::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_shape.Render(renderer);

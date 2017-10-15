@@ -7,6 +7,9 @@
 
 namespace graphic
 {
+	class cRenderer;
+	class cFrustum;
+	class cShader11;
 
 	struct eNodeType {
 		enum Enum { NONE, BONE, MESH, MODEL, TEXT, TERRAIN };
@@ -26,13 +29,10 @@ namespace graphic
 		enum Enum {
 			NONE = 0
 			, COLLISION = 1 << 0
+			, PICK = 1 << 1
 		};
 	};
 
-
-	class cRenderer;
-	class cFrustum;
-	class cShader11;
 
 	class cNode2
 	{
@@ -66,8 +66,6 @@ namespace graphic
 		virtual cNode2* Picking(const Ray &ray, const eNodeType::Enum type
 			, const XMMATRIX &parentTm = XMIdentity);
 
-		virtual void LostDevice() {}
-		virtual void ResetDevice(cRenderer &renderer) {}
 		virtual void Clear();
 
 		Matrix44 GetWorldMatrix() const;
@@ -76,9 +74,14 @@ namespace graphic
 
 		inline bool IsVisible() const;
 		inline int SetRenderFlag(const eRenderFlag::Enum val, const bool enable);
+		inline bool IsRenderFlag(const eRenderFlag::Enum val);
 		inline void ClearRenderFlag();
 		inline int SetOpFlag(const eOpFlag::Enum val, const bool enable);
+		inline bool IsOpFlag(const eOpFlag::Enum val);
 		inline void ClearOpFlag();
+
+		// Picking Event, call from PickManager
+		virtual void OnPicking() {}
 
 
 	public:
@@ -102,8 +105,14 @@ namespace graphic
 	inline int cNode2::SetRenderFlag(const eRenderFlag::Enum val, const bool enable) {
 		return (enable) ? (m_renderFlags |= val) : (m_renderFlags &= ~val);
 	}
+	inline bool cNode2::IsRenderFlag(const eRenderFlag::Enum val) {
+		return (m_renderFlags & val) ? true : false;
+	}
 	inline int cNode2::SetOpFlag(const eOpFlag::Enum val, const bool enable) {
 		return (enable) ? (m_opFlags |= val) : (m_opFlags &= ~val);
+	}
+	inline bool cNode2::IsOpFlag(const eOpFlag::Enum val) {
+		return (m_opFlags & val)? true : false;
 	}
 	inline void cNode2::ClearRenderFlag() {m_renderFlags = 0;}
 	inline void cNode2::ClearOpFlag(){m_opFlags = 0;}

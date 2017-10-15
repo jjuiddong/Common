@@ -52,7 +52,7 @@ bool cAssimpModel::Render(cRenderer &renderer
 )
 {
 	RETV(m_nodes.empty(), false);
-	RenderNode(renderer, techniqueName, m_nodes[0], parentTm, flags);
+	RenderNode(renderer, techniqueName, m_nodes[0], XMIdentity, parentTm, flags);
 	return true;
 }
 
@@ -85,6 +85,7 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 	, const char *techniqueName
 	, const sRawNode &node
 	, const XMMATRIX &parentTm //= XMIdentity
+	, const XMMATRIX &transformTm //= XMIdentity
 	, const int flags //= 1
 )
 {
@@ -92,11 +93,11 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 
 	// Render Meshes
 	for (auto idx : node.meshes)
-		m_meshes[idx]->Render(renderer, techniqueName, tm);
+		m_meshes[idx]->Render(renderer, techniqueName, tm, transformTm);
 
 	// Render Child Node
 	for (auto idx : node.children)
-		RenderNode(renderer, techniqueName, m_nodes[idx], tm, flags);
+		RenderNode(renderer, techniqueName, m_nodes[idx], tm, transformTm, flags);
 
 	return true;
 }
@@ -158,10 +159,7 @@ void cAssimpModel::SetAnimation(const Str64 &animationName, const bool isMerge)
 	if (rawAnies)
 		m_animation.Create(*rawAnies, &m_skeleton, isMerge);
 	else
-		m_animation.Create(&m_skeleton);
-
-	for (auto &mesh : m_meshes)
-		mesh->m_skeleton = rawAnies? &m_skeleton : NULL;
+		m_animation.Create(&m_skeleton); // empty animation
 }
 
 

@@ -7,8 +7,7 @@ using namespace graphic;
 
 
 cDbgLineList::cDbgLineList()
-	: m_lineCount(0)
-	, m_color(0)
+	: m_color(0)
 {
 }
 
@@ -22,8 +21,7 @@ bool cDbgLineList::Create(cRenderer &renderer, const int maxLines
 )
 {
 	m_color = color;
-	m_lineCount = 0;
-	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertexDiffuse), D3D11_USAGE_DYNAMIC);
+	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertex), D3D11_USAGE_DYNAMIC);
 	m_lines.reserve(maxLines);
 
 	return true;
@@ -32,7 +30,7 @@ bool cDbgLineList::Create(cRenderer &renderer, const int maxLines
 
 bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1)
 {
-	if (m_vtxBuff.GetVertexCount() <= (m_lineCount + 1))
+	if ((u_int)m_vtxBuff.GetVertexCount() <= (m_lines.size() + 1))
 		return false; // full buffer
 
 	m_lines.push_back({ p0, p1 });
@@ -43,7 +41,7 @@ bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3
 
 bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0)
 {
-	if (m_vtxBuff.GetVertexCount() <= (m_lineCount + 1))
+	if ((u_int)m_vtxBuff.GetVertexCount() <= (m_lines.size() + 1))
 		return false; // full buffer
 
 	Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;
@@ -55,17 +53,13 @@ bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0)
 
 void cDbgLineList::UpdateBuffer(cRenderer &renderer)
 {
-	const Vector4 color = m_color.GetColor();
-
-	if (sVertexDiffuse *p = (sVertexDiffuse*)m_vtxBuff.Lock(renderer))
+	if (sVertex *p = (sVertex*)m_vtxBuff.Lock(renderer))
 	{
 		for (auto &pt : m_lines)
 		{
 			p->p = pt.first;
-			p->c = color;
 			++p;
 			p->p = pt.second;
-			p->c = color;
 			++p;
 		}
 
@@ -87,6 +81,10 @@ void cDbgLineList::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
 	renderer.m_cbPerFrame.Update(renderer);
 
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	renderer.GetDevContext()->DrawInstanced(m_lines.size()*2, 1, 0, 0);
@@ -95,5 +93,5 @@ void cDbgLineList::Render(cRenderer &renderer
 
 void cDbgLineList::ClearLines()
 {
-	m_lineCount = 0;
+	m_lines.clear();
 }

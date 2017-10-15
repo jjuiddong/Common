@@ -4,7 +4,6 @@
 //
 #pragma once
 
-#include "../model/node.h"
 
 namespace graphic
 {
@@ -25,7 +24,8 @@ namespace graphic
 
 	public:
 		cSphereShape m_shape;
-		cBoundingSphere m_bsphere;
+		Transform m_transform;
+		cColor m_color;
 	};
 
 }

@@ -16,7 +16,7 @@ namespace graphic
 	public:
 		cCube();
 		cCube(cRenderer &renderer, const cBoundingBox &bbox
-			, const int cubeType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 			, const cColor &color = cColor::WHITE);
 
 		bool Create(cRenderer &renderer, const cBoundingBox &bbox

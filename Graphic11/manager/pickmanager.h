@@ -2,14 +2,15 @@
 // 2017-03-14, jjuiddong
 // Picking Check, Notify Event
 //
+// Refactoring, 2017-10-15
+//
 #pragma once
 
 
 namespace graphic
 {
-	interface iPickable;
 
-	class cPickManager : public common::cSingleton<cPickManager>
+	class cPickManager
 	{
 	public:
 		struct ePickMode {enum Enum { SINGLE, MULTI};};
@@ -18,15 +19,17 @@ namespace graphic
 		virtual ~cPickManager();	
 
 		void SetMode(const ePickMode::Enum mode);
-		bool Add(iPickable *obj);
-		bool Remove(iPickable *obj);
-		bool Update(const float deltaSeconds, const POINT &mousePt);
+		bool Add(cNode2 *node);
+		bool Remove(cNode2 *node);
+		bool Pick(float deltaSeconds, const POINT &mousePt);
 		void Clear();
 
 
 	public:
 		ePickMode::Enum m_mode; // default : SINGLE_PICK
-		vector<iPickable*> m_objects;
+		cCamera *m_mainCamera; // reference
+		POINT m_offset;
+		vector<cNode2*> m_nodes;
 	};
 
 }

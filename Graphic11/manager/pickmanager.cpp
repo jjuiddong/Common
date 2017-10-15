@@ -7,6 +7,8 @@ using namespace graphic;
 
 cPickManager::cPickManager()
 	: m_mode(ePickMode::SINGLE)
+	, m_mainCamera(NULL)
+	, m_offset({ 0,0 })
 {
 }
 
@@ -15,77 +17,80 @@ cPickManager::~cPickManager()
 }
 
 
-bool cPickManager::Add(iPickable *obj)
+bool cPickManager::Add(cNode2 *node)
 {
-	auto it = std::find(m_objects.begin(), m_objects.end(), obj);
-	if (m_objects.end() != it)
+	auto it = std::find(m_nodes.begin(), m_nodes.end(), node);
+	if (m_nodes.end() != it)
 		return false; // already exist
 
-	m_objects.push_back(obj);
+	m_nodes.push_back(node);
 	return true;
 }
 
 
-bool cPickManager::Remove(iPickable *obj)
+bool cPickManager::Remove(cNode2 *node)
 {
-	common::popvector2(m_objects, obj);
+	common::popvector2(m_nodes, node);
 	return true;
 }
 
 
-bool cPickManager::Update(const float deltaSeconds, const POINT &mousePt)
+bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt)
 {
+	RETV(!m_mainCamera, false);
+
 	Vector3 orig, dir;
-	GetMainCamera()->GetRay(mousePt.x, mousePt.y, orig, dir);
+	m_mainCamera->GetRay(mousePt.x + m_offset.x, mousePt.y + m_offset.y, orig, dir);
 
 	if (ePickMode::SINGLE == m_mode)
 	{
-		vector<iPickable*> objs;
-		for (auto &obj : m_objects)
+		float lens[32];
+		cNode2 *nodes[32];
+		int cnt = 0;
+
+		for (auto &node : m_nodes)
 		{
-			if (obj->IsPickEnable())
-				if (obj->Pick(orig, dir))
-					objs.push_back(obj);
+			if (node->IsOpFlag(eOpFlag::PICK) && (cnt < 32))
+			{
+				if (node->Picking(orig, dir, node->m_type
+					, node->m_parent? node->m_parent->GetWorldTransform().GetMatrixXM() : XMIdentity))
+				{
+					nodes[cnt] = node;
+					lens[cnt] = node->GetWorldTransform().pos.Distance(orig);
+					++cnt;
+				}
+			}
 		}
 
-		RETV(objs.empty(), false);
+		RETV(0==cnt, false);
 
-		if (objs.size() == 1)
+		if (cnt == 1)
 		{
-			objs[0]->OnPicking(); // Trigger Event
+			nodes[0]->OnPicking(); // Trigger Event
 			return true;
 		}
-
-		vector<float> lens;
-		for (auto &obj : objs)
-		{
-			float d = 0;
-			if (obj->Pick2(orig, dir, &d))
-				lens.push_back(d);
-		}
-
-		RETV(lens.empty(), false);
 
 		// Find Most Nearest object
 		float distance = lens[0];
 		int idx = 0;
-		for (u_int i = 1; i < lens.size(); ++i)
+		for (int i = 1; i < cnt; ++i)
 		{
 			if (distance > lens[i])
 			{
 				idx = i;
+				distance = lens[i];
 			}
 		}
 
-		objs[idx]->OnPicking(); // Trigger Event
+		nodes[idx]->OnPicking(); // Trigger Event
 	}
 	else
 	{
-		for (auto &obj : m_objects)
+		for (auto &node : m_nodes)
 		{
-			if (obj->IsPickEnable())
-				if (obj->Pick(orig, dir))
-					obj->OnPicking(); // Trigger Event
+			if (node->IsOpFlag(eOpFlag::PICK))
+				if (node->Picking(orig, dir, node->m_type))
+					node->OnPicking(); // Trigger Event
 		}
 	}
 
@@ -95,7 +100,7 @@ bool cPickManager::Update(const float deltaSeconds, const POINT &mousePt)
 
 void cPickManager::Clear()
 {
-	m_objects.clear();
+	m_nodes.clear();
 }
 
 

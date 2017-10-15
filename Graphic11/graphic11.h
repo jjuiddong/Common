@@ -75,12 +75,10 @@ namespace graphic {
 #include "collision/boundingbox.h"
 #include "collision/boundingsphere.h"
 //
-//#include "interface/pickable.h"
 //#include "interface/renderable.h"
 //#include "interface/shaderrenderer.h"
 //#include "interface/shadowrenderer.h"
 //
-//#include "model/node.h"
 #include "model/node2.h"
 //
 
@@ -144,6 +142,8 @@ namespace graphic {
 //#include "dbg/dbgquad2.h"
 #include "dbg/dbgaxis.h"
 
+#include "base/gizmo.h"
+
 
 
 //#include "particle/particles.h"
@@ -165,20 +165,11 @@ namespace graphic {
 #include "model_assimp/mesh2.h"
 #include "model_assimp/model_assimp.h"
 #include "model_assimp/assimploader.h"
-//
-//
-//#include "model_new/xfilemesh.h"
-//#include "model_new/xfilemodel.h"
+
 #include "model_new/model2.h"
-//
-//
-//#include "character/character.h"
-//
-//
-//#include "terrain/rawterrain.h"
+
 #include "terrain/cascadedshadowmap.h"
 #include "terrain/water.h"
-//#include "terrain/terrain.h"
 #include "terrain/terrain2.h"
 #include "terrain/tile.h"
 #include "terrain/terraincursor.h"
@@ -208,13 +199,13 @@ namespace graphic
 
 #include "manager/textmanager.h"
 #include "manager/fontmanager.h"
-#include "manager\shadermanager.h"
+#include "manager/shadermanager.h"
+#include "manager/pickmanager.h"
 #include "manager/Renderer.h"
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
 #include "manager/lightmanager.h"
-//#include "manager/pickmanager.h"
-//
+
 #include "importer/parallelloader.h"
 #include "importer/modelimporter.h"
 

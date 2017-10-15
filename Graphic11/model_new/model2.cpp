@@ -67,13 +67,6 @@ bool cModel2::Render(cRenderer &renderer
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	//const int vtxType = m_model->GetVertexType();
-	//cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(vtxType);
-	//assert(shader);
-	//shader->SetTechnique(m_techniqueName.c_str());
-	//shader->Begin();
-	//shader->BeginPass(renderer, 0);
-	//renderer.m_cbClipPlane.Update(renderer, 4);
 	m_model->Render(renderer, m_techniqueName.c_str(), transform);
 
 	//Transform tm2;
@@ -127,11 +120,11 @@ bool cModel2::RenderInstancing(cRenderer &renderer
 
 bool cModel2::Update(cRenderer &renderer, const float deltaSeconds)
 {
-	RETV(!m_isEnable, false);
-	RETV(!IsVisible(), false);
-
 	if (CheckLoadProcess(renderer))
 		return true;
+
+	RETV(!m_isEnable, false);
+	RETV(!IsVisible(), false);
 
 	bool reval = true;
 	if (m_model)
@@ -234,3 +227,9 @@ bool cModel2::IsLoadFinish()
 		|| (eState::LOAD_FINISH == m_state);
 }
 
+
+
+void cModel2::OnPicking()
+{
+	int a = 0;
+}

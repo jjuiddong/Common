@@ -285,6 +285,12 @@
     <ClInclude Include="base\torus.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\gizmo.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\pickmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -546,6 +552,12 @@
     </ClCompile>
     <ClCompile Include="base\torus.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\gizmo.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\pickmanager.cpp">
+      <Filter>manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

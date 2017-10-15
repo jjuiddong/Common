@@ -7,6 +7,7 @@ using namespace graphic;
 
 cDbgArrow::cDbgArrow()
 	: m_isSolid(false)
+	, m_color(cColor::WHITE)
 {
 }
 
@@ -20,14 +21,10 @@ bool cDbgArrow::Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
 	, const bool isSolid //= false
 )
 {
-	m_head.Create(renderer, size, size, p0
-		, eVertexType::POSITION | eVertexType::DIFFUSE
-		, cColor::WHITE );
+	m_head.Create(renderer, size, size, p0, eVertexType::POSITION);
 	m_head.SetDirection(p0, p1, p1, size*1.75f, 0.75f);
 
-	m_body.Create(renderer, p0, p1, size * 0.4f
-		, eVertexType::POSITION | eVertexType::DIFFUSE
-		, cColor::WHITE);
+	m_body.Create(renderer, p0, p1, size * 0.4f, eVertexType::POSITION);
 
 	m_isSolid = isSolid;
 	return true;
@@ -38,6 +35,9 @@ void cDbgArrow::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
+	m_head.m_color = m_color;
+	m_body.m_color = m_color;
+
 	if (m_isSolid)
 	{
 		m_head.Render(renderer, tm);

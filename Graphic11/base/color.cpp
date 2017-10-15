@@ -10,6 +10,7 @@ const cColor cColor::WHITE(1.f, 1.f, 1.f, 1.f);
 const cColor cColor::BLUE(0.f, 0.f, 1.f, 1.f);
 const cColor cColor::GREEN(0.f, 1.f, 0.f, 1.f);
 const cColor cColor::RED(1.f, 0.f, 0.f, 1.f);
+const cColor cColor::YELLOW(1.f, 1.f, 0.f, 1.f);
 
 
 

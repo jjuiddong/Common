@@ -209,6 +209,69 @@ bool cTerrain2::RemoveTile(cTile *tile)
 }
 
 
+// insert model to most nearest tile
+bool cTerrain2::AddModel(cNode2 *model)
+{
+	cTile *nearTile = GetNearestTile(model);
+	assert(nearTile);
+
+	model->m_transform = model->m_transform * nearTile->m_transform.Inverse();
+	model->CalcBoundingSphere();
+
+	return nearTile->AddChild(model);
+}
+
+
+// Update Model Position
+bool cTerrain2::UpdateModel(cNode2 *model)
+{
+	cTile *nearTile = GetNearestTile(model);
+	assert(nearTile);
+
+	Transform transform = model->GetWorldTransform();
+	model->m_transform = transform * nearTile->m_transform.Inverse();
+	model->CalcBoundingSphere();
+
+	if (model->m_parent)
+		model->m_parent->RemoveChild(model, false);
+
+	return nearTile->AddChild(model);
+}
+
+
+cTile* cTerrain2::GetNearestTile(const cNode2 *node)
+{
+	cBoundingBox bbox = node->m_boundingBox;
+	bbox *= node->GetWorldMatrix();
+	//Transform transform = node->m_transform;
+	//bbox.SetBoundingBox(transform.pos, transform.scale, transform.rot);
+
+	vector<cTile*> candidate;
+	for (auto &tile : m_tiles)
+	{
+		cBoundingBox tbbox = tile->m_boundingBox * tile->GetWorldMatrix();
+		if (tbbox.Collision(bbox))
+			candidate.push_back(tile);
+	}
+
+	RETV2(candidate.empty(), false);
+
+	float nearLen = FLT_MAX;
+	cTile *nearTile = NULL;
+	for (auto &tile : candidate)
+	{
+		const float len = tile->GetWorldMatrix().GetPosition().Distance(node->m_transform.pos);
+		if (len < nearLen)
+		{
+			nearLen = len;
+			nearTile = tile;
+		}
+	}
+
+	return nearTile;
+}
+
+
 void cTerrain2::SetDbgRendering(const bool isRender)
 {
 	m_isShowDebug = isRender;

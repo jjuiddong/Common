@@ -13,6 +13,12 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	int nCmdShow,
 	const bool dualMonitor)
 {
+
+	// Initialize GDI+
+	ULONG_PTR gdiplusToken;
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
 	cGameMain2* gameMain = CreateFrameWork2();
 	gameMain->Create(true, gameMain->m_windowName.str()
 		, gameMain->m_windowRect.Width() 
@@ -44,6 +50,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 
 	graphic::ReleaseRenderer();
 	cDockManager::Release();
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return 0;
 }
@@ -51,6 +58,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 cGameMain2::cGameMain2()
+	: m_hWnd(NULL)
 {
 }
 
@@ -87,12 +95,10 @@ void cGameMain2::Exit()
 void cGameMain2::LostDevice()
 {
 	__super::LostDevice();
-	//cDockManager::Get()->LostDevice();
 }
 
 
 void cGameMain2::ResetDevice()
 {
 	__super::ResetDevice();
-	//cDockManager::Get()->ResetDevice();
 }

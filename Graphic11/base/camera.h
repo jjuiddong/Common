@@ -80,7 +80,7 @@ namespace graphic
 		Vector3 GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 		Vector3 GetScreenPos(const Vector3& vPos);
 
-		Ray GetRay(const int sx, const int sy);
+		Ray GetRay(const int sx=-1, const int sy=-1);
 		void GetRay(OUT Vector3 &orig, OUT Vector3 &dir);
 		void GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir);
 		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy

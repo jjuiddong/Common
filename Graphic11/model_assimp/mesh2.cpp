@@ -9,6 +9,7 @@ using namespace graphic;
 cMesh2::cMesh2()
 	: m_buffers(NULL)
 	, m_skeleton(NULL)
+	, m_isShow(true)
 {
 }
 
@@ -77,11 +78,13 @@ void cMesh2::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 void cMesh2::Render( cRenderer &renderer
 	, const char *techniqueName
 	, const XMMATRIX &parentTm // = XMIdentity
+	, const XMMATRIX &transform //= XMIdentity
 )
 {
+	RET(!m_isShow);
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, parentTm);
+	UpdateConstantBuffer(renderer, techniqueName, parentTm, transform);
 	m_buffers->Render(renderer);
 }
 
@@ -92,16 +95,19 @@ void cMesh2::RenderInstancing(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 )
 {
+	RET(!m_isShow);
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, parentTm);
+	UpdateConstantBuffer(renderer, techniqueName, parentTm, XMIdentity);
 	m_buffers->RenderInstancing(renderer, count);
 }
 
 
 void cMesh2::UpdateConstantBuffer(cRenderer &renderer
 	, const char *techniqueName
-	, const XMMATRIX &parentTm)
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const XMMATRIX &transform //= XMIdentity
+)
 {
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_buffers->m_vtxType);
 	assert(shader);
@@ -110,8 +116,11 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer
 	shader->BeginPass(renderer, 0);
 	renderer.m_cbClipPlane.Update(renderer, 4);
 
-	const XMMATRIX m = m_transform.GetMatrixXM() * parentTm;
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m);
+	Matrix44 worldM;
+	worldM.SetPosition(Vector3(40, 0, 40));
+
+	const XMMATRIX nodeGlobalTm = m_transform.GetMatrixXM() * parentTm;
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(nodeGlobalTm * transform);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	renderer.m_cbLight.Update(renderer, 1);
@@ -132,10 +141,12 @@ void cMesh2::UpdateConstantBuffer(cRenderer &renderer
 		m_selfIllumMap[0]->Bind(renderer, 3);
 
 	// Set Skinning Information
+	// 
 	for (u_int i = 0; i < m_bones.size(); ++i)
 	{
 		Matrix44 tm = (m_skeleton) ? (m_bones[i].offsetTm * m_skeleton->m_tmPose[m_bones[i].id]) : Matrix44::Identity;
-		renderer.m_cbSkinning.m_v->mPalette[i] = XMMatrixTranspose(XMLoadFloat4x4((XMFLOAT4X4*)&tm));
+		XMMATRIX tfm = XMLoadFloat4x4((XMFLOAT4X4*)&tm) * XMMatrixInverse(NULL, nodeGlobalTm);
+		renderer.m_cbSkinning.m_v->mPalette[i] = XMMatrixTranspose(tfm);
 	}
 
 	if (!m_bones.empty())
