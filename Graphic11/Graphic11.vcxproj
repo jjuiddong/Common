@@ -215,6 +215,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="terrain\cascadedshadowmap.h" />
+    <ClInclude Include="terrain\ocean.h" />
     <ClInclude Include="terrain\terrain2.h" />
     <ClInclude Include="terrain\terraincursor.h" />
     <ClInclude Include="terrain\terrainloader.h" />
@@ -314,6 +315,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="terrain\cascadedshadowmap.cpp" />
+    <ClCompile Include="terrain\ocean.cpp" />
     <ClCompile Include="terrain\terrain2.cpp" />
     <ClCompile Include="terrain\terraincursor.cpp" />
     <ClCompile Include="terrain\terrainloader.cpp" />

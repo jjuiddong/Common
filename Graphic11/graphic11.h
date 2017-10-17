@@ -170,6 +170,7 @@ namespace graphic {
 
 #include "terrain/cascadedshadowmap.h"
 #include "terrain/water.h"
+#include "terrain/ocean.h"
 #include "terrain/terrain2.h"
 #include "terrain/tile.h"
 #include "terrain/terraincursor.h"

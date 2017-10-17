@@ -291,6 +291,9 @@
     <ClInclude Include="manager\pickmanager.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="terrain\ocean.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -558,6 +561,9 @@
     </ClCompile>
     <ClCompile Include="manager\pickmanager.cpp">
       <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\ocean.cpp">
+      <Filter>terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
