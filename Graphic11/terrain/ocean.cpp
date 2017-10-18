@@ -53,8 +53,25 @@ void cOcean::Create(cRenderer &renderer
 
     D3D11_INPUT_ELEMENT_DESC TerrainLayout[] =
         { "PATCH_PARAMETERS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
-	m_shader = renderer.m_shaderMgr.LoadShader(renderer, "../media/ocean4/Island11.fxo", TerrainLayout, 1);
+	m_shader = renderer.m_shaderMgr.LoadShader(renderer, "../media/ocean5/Island11.fxo", TerrainLayout, 1);
 	heightfield_inputlayout = m_shader->m_vtxLayout.m_vertexLayout;
+
+	ID3D11Device *pDevice = renderer.GetDevice();
+	ID3DX11Effect *pEffect = m_shader->m_effect;
+
+	const D3D11_INPUT_ELEMENT_DESC SkyLayout[] =
+	{
+		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,   0, 16,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	D3DX11_PASS_DESC passDesc;
+	pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->GetDesc(&passDesc);
+	pDevice->CreateInputLayout(SkyLayout,
+		2,
+		passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize,
+		&trianglestrip_inputlayout);
 
 	DirectX::CreateDDSTextureFromFile(renderer.GetDevice(), L"../media/TerrainTextures/water_bump.dds"
 		, (ID3D11Resource**)&m_water_bump_texture, &m_water_bump_textureSRV);
@@ -575,8 +592,12 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 	pEffect->GetVariableByName("g_HeightFieldSize")->AsScalar()->SetFloat(terrain_gridpoints*terrain_geometry_scale);
 	
 
- 	ID3D11RenderTargetView *colorBuffer = renderer.m_renderTargetView;
-	ID3D11DepthStencilView  *backBuffer = renderer.m_depthStencilView;
+	//ID3D11RenderTargetView *colorBuffer = renderer.m_renderTargetView;
+	//ID3D11DepthStencilView  *backBuffer = renderer.m_depthStencilView;
+	ID3D11RenderTargetView *colorBuffer = NULL;
+	ID3D11DepthStencilView *backBuffer = NULL;
+	//renderer.GetDevContext()->OMGetRenderTargets(1, &colorBuffer, &backBuffer);
+
 	D3D11_VIEWPORT currentViewport;
 	D3D11_VIEWPORT reflection_Viewport;
 	D3D11_VIEWPORT refraction_Viewport;
@@ -719,6 +740,10 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 
 	//resolving main buffer 
 	pContext->ResolveSubresource(m_main_color_resource_resolved,0,m_main_color_resource,0,DXGI_FORMAT_R8G8B8A8_UNORM);
+
+	//DirectX::SaveDDSTextureToFile(pContext, m_main_color_resource_resolved, L"save1.dds");
+	//DirectX::SaveWICTextureToFile(pContext, m_main_color_resource, GUID_ContainerFormatJpeg
+	//	, L"save2.jpg");
 
 	//drawing main buffer to back buffer
 	tex_variable=pEffect->GetVariableByName("g_MainTexture")->AsShaderResource();
