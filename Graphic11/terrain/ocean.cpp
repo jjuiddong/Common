@@ -3,7 +3,7 @@
 #include "ocean.h"
 
 
-namespace 
+namespace graphic
 {
 	const int terrain_numpatches_1d = 64;
 	const float terrain_geometry_scale = 1.0f;
@@ -580,13 +580,11 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 	effect->GetVariableByName("g_FrustumCullInHS")->AsScalar()->SetFloat(m_FrustumCullInHS ? 1.0f : 0.0f);
 
 
-
-
 	tex_variable=pEffect->GetVariableByName("g_WaterBumpTexture")->AsShaderResource();
 	tex_variable->SetResource(m_water_bump_textureSRV);
 
-	tex_variable=pEffect->GetVariableByName("g_DepthMapTexture")->AsShaderResource();
-	tex_variable->SetResource(depthmap_textureSRV);
+	//tex_variable=pEffect->GetVariableByName("g_DepthMapTexture")->AsShaderResource();
+	//tex_variable->SetResource(depthmap_textureSRV);
 
 	pEffect->GetVariableByName("g_HeightFieldOrigin")->AsVector()->SetFloatVector(origin);
 	pEffect->GetVariableByName("g_HeightFieldSize")->AsScalar()->SetFloat(terrain_gridpoints*terrain_geometry_scale);
@@ -692,8 +690,11 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 
 
 	// getting back to rendering to main buffer 
-	pContext->RSSetViewports(1,&main_Viewport);
-    pContext->OMSetRenderTargets( 1, &m_main_color_resourceRTV, m_main_depth_resourceDSV);
+	//pContext->RSSetViewports(1,&main_Viewport);
+ //   pContext->OMSetRenderTargets( 1, &m_main_color_resourceRTV, m_main_depth_resourceDSV);
+
+	pContext->OMSetRenderTargets(1, &colorBuffer, backBuffer);
+	pContext->RSSetViewports(1, &currentViewport);
 
 	// drawing water surface to main buffer
 	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
@@ -718,50 +719,6 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 	pContext->IASetVertexBuffers(0,1,&heightfield_vertexbuffer,&stride,&offset);
 	pContext->Draw(terrain_numpatches_1d*terrain_numpatches_1d, 0);
 
-
-
-	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_ReflectionTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_RefractionTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_RefractionDepthTextureResolved")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	pEffect->GetTechniqueByName("RenderWater")->GetPassByIndex(0)->Apply(0, pContext);
-
-	pEffect->GetTechniqueByName("Default")->GetPassByIndex(0)->Apply(0, pContext);
-
-	//restoring scene color buffer and back buffer
-	pContext->OMSetRenderTargets( 1, &colorBuffer, backBuffer);
-    pContext->RSSetViewports( 1, &currentViewport );
-
-	//resolving main buffer 
-	pContext->ResolveSubresource(m_main_color_resource_resolved,0,m_main_color_resource,0,DXGI_FORMAT_R8G8B8A8_UNORM);
-
-	//DirectX::SaveDDSTextureToFile(pContext, m_main_color_resource_resolved, L"save1.dds");
-	//DirectX::SaveWICTextureToFile(pContext, m_main_color_resource, GUID_ContainerFormatJpeg
-	//	, L"save2.jpg");
-
-	//drawing main buffer to back buffer
-	tex_variable=pEffect->GetVariableByName("g_MainTexture")->AsShaderResource();
-	tex_variable->SetResource(m_main_color_resource_resolvedSRV);
-	pEffect->GetVariableByName("g_MainBufferSizeMultiplier")->AsScalar()->SetFloat(main_buffer_size_multiplier);
-
-	pContext->IASetInputLayout(trianglestrip_inputlayout);
-	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->Apply(0, pContext);
-	stride=sizeof(float)*6;
-	pContext->IASetVertexBuffers(0,1,&heightfield_vertexbuffer,&stride,&offset);
-	pContext->Draw(4, 0); // just need to pass 4 vertices to shader
-
-	tex_variable=pEffect->GetVariableByName("g_MainTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-
-	pEffect->GetTechniqueByName("Default")->GetPassByIndex(0)->Apply(0, pContext);
-
     SAFE_RELEASE ( colorBuffer );
     SAFE_RELEASE ( backBuffer );
 
@@ -781,7 +738,6 @@ void cOcean::SetupReflectionView(graphic::cCamera *cam)
 	LookAtPoint = cam->GetLookAt();
 	EyePoint.y=-1.0f*EyePoint.y+1.0f;
 	LookAtPoint.y=-1.0f*LookAtPoint.y+1.0f;
-
 
 	Matrix44 mView;
 	Matrix44 mProj;
