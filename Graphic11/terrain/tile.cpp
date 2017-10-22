@@ -5,7 +5,7 @@ using namespace graphic;
 
 
 cTile::cTile()
-	: cNode2(common::GenerateId(), "tile", eNodeType::TERRAIN)
+	: cNode(common::GenerateId(), "tile", eNodeType::TERRAIN)
 	, m_isDbgRender(false)
 	, m_location(-1,-1)
 	, m_isHilight(false)
@@ -58,7 +58,6 @@ bool cTile::Create(cRenderer &renderer
 
 	const float cellSize = rect.Width() / 2.f;
 	m_ground = new cGrid();
-	//m_ground->Create(renderer, 2, 2, cellSize
 	m_ground->Create(renderer, 16, 16, cellSize/8.f
 		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
 		, cColor::WHITE, textureFileName, uv0, uv1, uvFactor
@@ -66,12 +65,12 @@ bool cTile::Create(cRenderer &renderer
 	m_ground->SetRenderFlag(eRenderFlag::SHADOW, true);
 	m_ground->SetOpFlag(eOpFlag::COLLISION, false);
 	m_ground->m_isLineDrawing = true;
+	//m_ground->m_transform.pos.y = -3.f;
 	if (!textureFileName)
 		m_ground->m_mtrl.InitWhite();
 	AddChild(m_ground);
 	
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
-	//m_boundingBox.SetBoundingBox( Vector3(0,10,0), Vector3(cellSize, 20000, cellSize), Quaternion());
 	m_boundingBox.SetBoundingBox(Vector3(0, 10, 0), Vector3(cellSize, cellSize, cellSize), Quaternion());
 	CalcBoundingSphere();
 	m_boundingBox.SetBoundingBox( Vector3(0,10,0), Vector3(cellSize, 20000, cellSize), Quaternion());
@@ -169,13 +168,13 @@ float cTile::CullingTest(const cFrustum &frustum
 }
 
 
-bool cTile::AddChild(cNode2 *node)
+bool cTile::AddChild(cNode *node)
 {
 	return __super::AddChild(node);
 }
 
 
-bool cTile::RemoveChild(cNode2 *rmNode
+bool cTile::RemoveChild(cNode *rmNode
 	, const bool rmInstance //= true
 )
 {
@@ -183,7 +182,7 @@ bool cTile::RemoveChild(cNode2 *rmNode
 }
 
 
-const cNode2* cTile::FindNode(const int id) const
+cNode* cTile::FindNode(const int id) 
 {
 	return __super::FindNode(id);
 }

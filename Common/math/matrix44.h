@@ -71,4 +71,14 @@ namespace common
 	//inline Vector3 Matrix44::GetScale() const { return Vector3(_11, _22, _33); }
 	inline Vector3 Matrix44::GetPosition() const { return Vector3(_41, _42, _43); }
 	inline void Matrix44::SetPosition(const Vector3 &pos) { _41=pos.x; _42 = pos.y; _43 = pos.z; }
+
+
+#ifdef USE_D3D11_MATH
+	inline XMMATRIX Matrix44::GetMatrixXM() const
+	{
+		XMMATRIX m = XMLoadFloat4x4((XMFLOAT4X4*)this);
+		return m;
+	}
+#endif
+
 }

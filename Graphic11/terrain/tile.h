@@ -31,7 +31,7 @@
 namespace graphic
 {
 
-	class cTile : public cNode2
+	class cTile : public cNode
 	{
 	public:
 		cTile();
@@ -54,9 +54,9 @@ namespace graphic
 		virtual void DebugRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 
 		virtual float CullingTest(const cFrustum &frustum, const XMMATRIX &tm = XMIdentity, const bool isModel = true);
-		virtual bool AddChild(cNode2 *node) override;
-		virtual bool RemoveChild(cNode2 *rmNode, const bool rmInstance = true) override;
-		virtual const cNode2* FindNode(const int id) const override;
+		virtual bool AddChild(cNode *node) override;
+		virtual bool RemoveChild(cNode *rmNode, const bool rmInstance = true) override;
+		virtual cNode* FindNode(const int id) override;
 		void UpdatePosition(const sRectf &rect);
 		virtual void Clear();
 

@@ -47,8 +47,6 @@ namespace graphic
 			const vector<sVertexWeight> &weights,
 			const vector<int> &indices);
 
-		void CreateAttributes(const sRawMesh &rawMesh);
-
 
 	public:
 		int m_vtxType;

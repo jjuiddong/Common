@@ -13,7 +13,7 @@ namespace graphic
 {
 
 	class cTile;
-	class cTerrain2 : public cNode2
+	class cTerrain2 : public cNode
 	{
 	public:
 		cTerrain2();
@@ -36,22 +36,22 @@ namespace graphic
 		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true);
 		bool AddTile(cTile *model);
 		bool RemoveTile(cTile *model);
-		bool AddModel(cNode2 *model);
-		bool UpdateModel(cNode2 *model);
+		bool AddModel(cNode *model);
+		bool UpdateModel(cNode *model);
 		void SetDbgRendering(const bool isRender);
 		void SetShadowRendering(const bool isRender);
 
 		// Heightmap
 		float GetHeight(const float x, const float z);
 		float GetHeightMapEntry(int row, int col);
+		bool GetHeightFromRay(const Ray &ray, OUT Vector3 &out);
 		void HeightmapNormalize(const Vector3 &cursorPos, const float radius);
 		void HeightmapNormalize();
 		void UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const int tileCount);
 
 
 	protected:
-		cTile* GetNearestTile(const cNode2 *node);
-
+		cTile* GetNearestTile(const cNode *node);
 
 
 	public:

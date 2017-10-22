@@ -10,6 +10,8 @@ cRenderTarget::cRenderTarget()
 	, m_depthStencilView(NULL)
 	, m_texture(NULL)
 	, m_rawTex(NULL)
+	, m_resolvedTex(NULL)
+	, m_resolvedSRV(NULL)
 {
 }
 
@@ -28,6 +30,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 {
 	Clear();
 
+	m_rtvFormat = rtvFormat;
 	m_viewPort = viewPort;
 	const int width = (int)viewPort.m_vp.Width;
 	const int height = (int)viewPort.m_vp.Height;
@@ -65,6 +68,18 @@ bool cRenderTarget::Create(cRenderer &renderer
 	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_rawTex, &rdesc, &m_texture)))
 		return false;
 
+	if (isMultiSampling)
+	{
+		desc.SampleDesc.Count = 1;
+		if (FAILED(renderer.GetDevice()->CreateTexture2D(&desc, NULL, &m_resolvedTex)))
+			return false;
+
+		rdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_resolvedTex, &rdesc, &m_resolvedSRV)))
+			return false;
+	}
+
+
 	// Create depth stencil texture
 	D3D11_TEXTURE2D_DESC descDepth;
 	ZeroMemory(&descDepth, sizeof(descDepth));
@@ -80,8 +95,8 @@ bool cRenderTarget::Create(cRenderer &renderer
 	descDepth.CPUAccessFlags = 0;
 	descDepth.MiscFlags = 0;
 
-	ID3D11Texture2D *pDepthStencil = NULL;
-	HRESULT hr = renderer.GetDevice()->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
+	ID3D11Texture2D *depthTexture = NULL;
+	HRESULT hr = renderer.GetDevice()->CreateTexture2D(&descDepth, NULL, &depthTexture);
 	if (FAILED(hr))
 		return false;
 
@@ -89,13 +104,13 @@ bool cRenderTarget::Create(cRenderer &renderer
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
 	descDSV.Format = descDepth.Format;
-	descDSV.ViewDimension = isMultiSampling? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.ViewDimension = isMultiSampling ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
-	hr = renderer.GetDevice()->CreateDepthStencilView(pDepthStencil, &descDSV, &m_depthStencilView);
+	hr = renderer.GetDevice()->CreateDepthStencilView(depthTexture, &descDSV, &m_depthStencilView);
 	if (FAILED(hr))
 		return false;
 
-	pDepthStencil->Release();
+	SAFE_RELEASE(depthTexture);
 
 	return true;
 }
@@ -117,12 +132,22 @@ void cRenderTarget::RecoveryRenderTarget(cRenderer &renderer)
 
 bool cRenderTarget::Begin(cRenderer &renderer
 	, const Vector4 &color //= Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f)
+	, const bool isClear //= true
 )
 {
 	renderer.SetRenderTarget(m_renderTargetView, m_depthStencilView);
+
 	m_viewPort.Bind(renderer);
 	
-	if (renderer.ClearScene(false, color))
+	if (isClear)
+	{
+		if (renderer.ClearScene(false, color))
+		{
+			renderer.BeginScene();
+			return true;
+		}
+	}
+	else
 	{
 		renderer.BeginScene();
 		return true;
@@ -137,6 +162,12 @@ void cRenderTarget::End(cRenderer &renderer)
 	renderer.EndScene();
 	renderer.SetRenderTarget(NULL, NULL);
 	renderer.m_viewPort.Bind(renderer);
+
+	if (m_resolvedSRV)
+	{
+		renderer.GetDevContext()->ResolveSubresource(
+			m_resolvedTex, 0, m_rawTex, 0, m_rtvFormat);
+	}
 }
 
 
@@ -151,7 +182,9 @@ void cRenderTarget::Bind(cRenderer &renderer
 void cRenderTarget::Clear()
 {
 	SAFE_RELEASE(m_rawTex);
+	SAFE_RELEASE(m_resolvedTex);
 	SAFE_RELEASE(m_texture);
 	SAFE_RELEASE(m_renderTargetView);
 	SAFE_RELEASE(m_depthStencilView);
+	SAFE_RELEASE(m_resolvedSRV);
 }

@@ -11,7 +11,7 @@
 namespace graphic
 {
 
-	class cQuad2D : public cNode2
+	class cQuad2D : public cNode
 	{
 	public:
 		cQuad2D();

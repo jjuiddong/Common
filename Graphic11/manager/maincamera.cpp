@@ -35,9 +35,3 @@ void cMainCamera::PopCamera()
 {
 	m_cams.pop_back();
 }
-
-
-cCamera* cMainCamera::Top()
-{
-	return m_cams.back();
-}

@@ -13,7 +13,6 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	int nCmdShow,
 	const bool dualMonitor)
 {
-
 	// Initialize GDI+
 	ULONG_PTR gdiplusToken;
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;

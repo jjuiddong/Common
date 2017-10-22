@@ -24,7 +24,9 @@ namespace graphic
 
 		void SetRenderTarget(cRenderer &renderer);
 		void RecoveryRenderTarget(cRenderer &renderer);
-		bool Begin(cRenderer &renderer, const Vector4 &color = Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f));
+		bool Begin(cRenderer &renderer
+			, const Vector4 &color = Vector4(50.f / 255.f, 50.f / 255.f, 50.f / 255.f, 1.0f)
+			, const bool isClear = true );
 		void End(cRenderer &renderer);
 		void Bind(cRenderer &renderer, const int stage = 0);
 
@@ -33,9 +35,11 @@ namespace graphic
 
 	public:
 		cViewport m_viewPort;
-
-		ID3D11ShaderResourceView *m_texture;
+		DXGI_FORMAT m_rtvFormat;
 		ID3D11Texture2D *m_rawTex;
+		ID3D11Texture2D *m_resolvedTex;
+		ID3D11ShaderResourceView *m_texture;
+		ID3D11ShaderResourceView *m_resolvedSRV; // if multi sampling render target
 		ID3D11RenderTargetView *m_renderTargetView;
 		ID3D11DepthStencilView *m_depthStencilView;
 	};

@@ -10,6 +10,11 @@
 namespace graphic
 {
 
+	interface iPickListener {
+		virtual void OnPickEvent(graphic::cNode *node, const graphic::ePickState::Enum state) = 0;
+	};
+
+
 	class cPickManager
 	{
 	public:
@@ -19,17 +24,24 @@ namespace graphic
 		virtual ~cPickManager();	
 
 		void SetMode(const ePickMode::Enum mode);
-		bool Add(cNode2 *node);
-		bool Remove(cNode2 *node);
-		bool Pick(float deltaSeconds, const POINT &mousePt);
+		bool Add(cNode *node);
+		bool Remove(cNode *node);
+		bool Pick(float deltaSeconds, const POINT &mousePt, const ePickState::Enum state);
+		bool AddListener(iPickListener *listener);
+		bool RemoveListener(iPickListener *listener);
 		void Clear();
+
+
+	protected:
+		void BoradcastPickEvent(cNode *node, const ePickState::Enum state);
 
 
 	public:
 		ePickMode::Enum m_mode; // default : SINGLE_PICK
 		cCamera *m_mainCamera; // reference
 		POINT m_offset;
-		vector<cNode2*> m_nodes;
+		vector<cNode*> m_nodes;
+		vector<iPickListener*> m_listeners;
 	};
 
 }

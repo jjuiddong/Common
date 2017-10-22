@@ -43,9 +43,7 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 
 	// Create the input layout
 	D3DX11_PASS_DESC passDesc;
-	ZeroMemory(&passDesc, sizeof(passDesc));
 	m_technique->GetPassByIndex(0)->GetDesc(&passDesc);
-	assert(passDesc.pIAInputSignature);
 
 	if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, layout, numElements))
 		return false;

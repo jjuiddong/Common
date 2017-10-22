@@ -10,6 +10,8 @@ cTextManager::cTextManager()
 	: m_maxTextCount(128)
 	, m_textureSizeX(TEXTURE_SIZEX)
 	, m_textureSizeY(TEXTURE_SIZEY)
+	, m_generateCount(0)
+	, m_cacheCount(0)
 {
 	m_renders.reserve(m_maxTextCount);
 	m_buffer.reserve(m_maxTextCount);
@@ -44,6 +46,9 @@ void cTextManager::Create(const u_int maxTextCount //= 100
 
 void cTextManager::NewFrame()
 {
+	m_generateCount = 0;
+	m_cacheCount = 0;
+
 	m_renderMap.clear();
 
 	m_renders.clear();
@@ -72,9 +77,14 @@ void cTextManager::AddTextRender(cRenderer &renderer
 	sText *text = GetCacheText(id);
 	if (text)
 	{
-		text->text.SetTextRect(renderer, tm, str, c1, c2, type);
+		if (text->text.SetTextRect(renderer, tm, str, c1, c2, type))
+			++m_generateCount;
+		else
+			++m_cacheCount;
+
 		text->space = renderer.GetCurrentAlphaBlendSpace();
 		text->used = true;
+		text->initTime = timeGetTime();
 
 		if (m_renderMap.end() == m_renderMap.find(id))
 		{
@@ -113,6 +123,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 			SetCommand2Text(renderer, text, cmd);
 
 			isFindEmptyText = true;
+			++m_cacheCount;
 		}
 		else
 		{
@@ -122,7 +133,9 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 				if ((text->id >= 0) && (text->used))
 					continue;
 
-				m_cacheMap.erase(text->id);
+				if (m_cacheMap.end() != m_cacheMap.find(text->id))
+					continue; // if exist cache, next text
+
 				SetCommand2Text(renderer, text, cmd);
 
 				m_renders.push_back(text);
@@ -151,6 +164,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 	m_cmds.clear();
 
 	// clear cache if not use buffer
+	const int curT = timeGetTime();
 	set<int> rmIds;
 	for (auto kv : m_cacheMap)
 	{
@@ -159,6 +173,8 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 			continue;
 		if (text->id >= 0)
 		{
+			if ((curT - text->initTime) < 3000)
+				continue;
 			rmIds.insert(text->id);
 			text->id = -1;
 		}
@@ -186,11 +202,15 @@ void cTextManager::Render(cRenderer &renderer
 
 void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd)
 {
-	text->text.SetTextRect(renderer, cmd.tm, cmd.str.c_str(), cmd.color, cmd.outlineColor, cmd.type);
+	if (text->text.SetTextRect(renderer, cmd.tm, cmd.str.c_str(), cmd.color, cmd.outlineColor, cmd.type))
+		++m_generateCount;
+	else
+		++m_cacheCount;
 
 	text->id = cmd.id;
 	text->used = true;
 	text->space = cmd.space;
+	text->initTime = timeGetTime();
 	m_cacheMap[cmd.id] = text;
 }
 

@@ -767,9 +767,8 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		}
 		break;
 
-	case sf::Event::MouseWheelMoved:
-	//case sf::Event::MouseWheelScrolled:
-		io.MouseWheel += evt.mouseWheel.delta >= 0 ? +1.0f : -1.0f;
+	case sf::Event::MouseWheelScrolled:
+		io.MouseWheel += (evt.mouseWheelScroll.delta) >= 0 ? +1.0f : -1.0f;
 		break;
 
 	case sf::Event::Resized:

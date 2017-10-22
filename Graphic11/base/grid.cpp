@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cGrid::cGrid() 
-	: cNode2(common::GenerateId(), "grid", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "grid", eNodeType::MODEL)
 	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	, m_texture(NULL)
 	, m_isLineDrawing(false)
@@ -56,6 +56,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	m_colCellCount = colCellCount;
 	m_cellSize = cellSize;
 	m_vertexType = vertexType;
+	m_mtrl.m_diffuse = color.GetColor();
 
 	vector<D3D11_INPUT_ELEMENT_DESC> elems;
 	if (vertexType & eVertexType::POSITION)
@@ -198,8 +199,6 @@ bool cGrid::Render(cRenderer &renderer
 		renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
 		renderer.m_cbPerFrame.Update(renderer);
 		renderer.m_cbLight.Update(renderer, 1);
-		renderer.m_cbMaterial = m_mtrl.GetMaterial();
-		//renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.2f));
 		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.5f));
 		renderer.m_cbMaterial.Update(renderer, 2);
 		renderer.m_cbClipPlane.Update(renderer, 4);

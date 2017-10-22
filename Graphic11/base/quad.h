@@ -13,7 +13,7 @@
 namespace graphic
 {
 
-	class cQuad : public cNode2
+	class cQuad : public cNode
 	{
 	public:
 		cQuad();

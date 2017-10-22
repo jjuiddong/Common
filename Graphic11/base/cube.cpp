@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cCube::cCube()
-	: cNode2(common::GenerateId(), "cube", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "cube", eNodeType::MODEL)
 {
 	m_renderFlags |= eRenderFlag::SHADOW;
 }
@@ -16,7 +16,7 @@ cCube::cCube(cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
 	, const cColor &color //= cColor::WHITE
 )
-	: cNode2(common::GenerateId(), "cube", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "cube", eNodeType::MODEL)
 {
 	Create(renderer, bbox, vtxType, color);
 }
@@ -98,10 +98,17 @@ bool cCube::Render(cRenderer &renderer
 	if ((m_shape.m_vtxType & eVertexType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
 
-	//CommonStates states(renderer.GetDevice());
-	//renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
-	m_shape.Render(renderer);
-	//renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		CommonStates states(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+		m_shape.Render(renderer);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	}
+	else
+	{
+		m_shape.Render(renderer);
+	}
 
 	__super::Render(renderer, tm, flags);
 	return true;

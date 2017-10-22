@@ -67,6 +67,8 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 void cInputManager::MouseProc(const sf::Event &evt)
 {
+	m_lBtnDbClick = false;
+
 	switch (evt.type)
 	{
 	case sf::Event::MouseButtonPressed:

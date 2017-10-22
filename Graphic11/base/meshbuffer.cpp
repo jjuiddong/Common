@@ -190,13 +190,6 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 }
 
 
-// 속성버퍼 초기화.
-void cMeshBuffer::CreateAttributes(const sRawMesh &rawMesh)
-{
-	m_attributes = rawMesh.attributes;
-}
-
-
 // 인스턴스를 깊이복사해서 리턴한다.
 cMeshBuffer* cMeshBuffer::Clone()
 {

@@ -12,8 +12,7 @@ namespace framework
 	{
 		enum Enum
 		{
-			DOCK,
-			//FLOATING,
+			DOCKWINDOW,
 			VIRTUAL,
 		};
 	};
@@ -73,8 +72,16 @@ namespace framework
 		};
 	};
 
+	struct eDockSizingOption {
+		enum Enum {
+			RATE
+			, PIXEL
+		};
+	};
+
+
 
 	const float TITLEBAR_HEIGHT = 37.f;
 	const float TITLEBAR_HEIGHT2 = TITLEBAR_HEIGHT + 3.f; // add frame gap
-
+	const float TAB_H = 32;
 }

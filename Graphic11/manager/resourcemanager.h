@@ -7,7 +7,6 @@
 // - model
 // - animation
 // - texture
-// - shader
 #pragma  once
 
 
@@ -27,23 +26,26 @@ namespace graphic
 		virtual ~cResourceManager();
 
 		void Update(const float deltaSeconds);
-		sRawMeshGroup2* LoadRawMesh2(const StrPath &fileName);
+		sRawMeshGroup2* LoadRawMesh(const StrPath &fileName);
 		cAssimpModel * LoadAssimpModel(cRenderer &renderer, const StrPath &fileName);
 		std::pair<bool, cAssimpModel*> LoadAssimpModelParallel(cRenderer &renderer, const StrPath &fileName);
 		void InsertAssimpModel(const StrPath &fileName, cAssimpModel *p);
 		sRawAniGroup* LoadAnimation( const StrId &fileName );
-		bool LoadAnimation(sRawAniGroup *anies);
+		bool LoadAnimation(const StrPath &fileName, sRawAniGroup *anies);
+
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &fileName, const bool isRecursive=true);
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isRecursive = true);
 		cTexture* LoadTexture2(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isRecursive = true);
 		cTexture* LoadTextureParallel(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true);
 		void InsertTexture(const StrPath &fileName, cTexture *p);
-		//cCubeTexture* LoadCubeTexture(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
+		
 		sRawMeshGroup2* FindModel2(const StrId &fileName);
 		std::pair<bool, cAssimpModel*> FindAssimpModel(const StrPath &fileName);
 		sRawAniGroup* FindAnimation( const StrId &fileName );
 		std::pair<bool, cTexture*> FindTexture( const StrPath &fileName );
+		//cCubeTexture* LoadCubeTexture(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true, const bool isRecursive = true);
 		//cCubeTexture* FindCubeTexture(const StrPath &fileName);
+		
 		StrPath FindFile( const StrPath &fileName );
 		void AddParallelLoader(cParallelLoader *p);
 		void AddTask(cTask *task);
@@ -53,6 +55,11 @@ namespace graphic
 		StrPath GetResourceFilePath(const StrPath &fileName);
 		StrPath GetResourceFilePath(const StrPath &dir, const StrPath &fileName);
 		void Clear();
+
+
+	protected:
+		bool ReadSequenceFile(const StrPath &modelFileName, sRawAniGroup &rawAnies);
+
 
 
 	private:

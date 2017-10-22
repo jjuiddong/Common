@@ -22,7 +22,7 @@ namespace graphic
 		);
 		bool UpdateParameter(cRenderer &renderer, const cCamera &camera);
 		bool Bind(cRenderer &renderer);
-		bool Begin(cRenderer &renderer, const int shadowMapIndex);
+		bool Begin(cRenderer &renderer, const int shadowMapIndex, const bool isClear=true);
 		bool End(cRenderer &renderer, const int shadowMapIndex);
 		void DebugRender(cRenderer &renderer);
 
@@ -33,7 +33,7 @@ namespace graphic
 		float m_splitZ[3];
 		cCamera m_lightCams[SHADOWMAP_COUNT];
 		cDbgFrustum m_frustums[SHADOWMAP_COUNT];
-		cRenderTarget m_shadowMaps[SHADOWMAP_COUNT];
+		cDepthBuffer m_shadowMaps[SHADOWMAP_COUNT];
 		cQuad2D m_shadowMapQuads[SHADOWMAP_COUNT];
 		cDbgFrustum m_dbgLightFrustums[SHADOWMAP_COUNT];
 	};

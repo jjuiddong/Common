@@ -9,7 +9,7 @@
 namespace graphic
 {
 
-	class cCircle : public cNode2
+	class cCircle : public cNode
 	{
 	public:
 		cCircle();

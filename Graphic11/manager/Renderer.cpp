@@ -34,6 +34,8 @@ cRenderer::cRenderer()
 	, m_fps(0)
 	, m_isDbgRender(false)
 	, m_dbgRenderStyle(0)
+	, m_textGenerateCount(0)
+	, m_textCacheCount(0)
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }
@@ -300,12 +302,10 @@ bool cRenderer::ClearScene(
 	if (updateRenderTarget)
 		SetRenderTarget(m_renderTargetView, m_depthStencilView);
 
-	//float ClearColor[4] = { 50.f/255.f, 50.f / 255.f, 50.f / 255.f, 1.0f }; // red,green,blue,alpha
-	//float ClearColor[4] = { 1,1,1,1 }; // red,green,blue,alpha
-	//m_devContext->ClearRenderTargetView(m_refRTV, ClearColor);
-	m_devContext->ClearRenderTargetView(m_refRTV, (float*)&color);
-	//m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0xff);
+	if (m_refRTV)
+		m_devContext->ClearRenderTargetView(m_refRTV, (float*)&color);
+	if (m_refDSV)
+		m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0xff);
 
 	return true;
 }
@@ -343,6 +343,15 @@ void cRenderer::SetRenderTarget(ID3D11RenderTargetView *renderTargetView, ID3D11
 	m_refRTV = rtv;
 	m_refDSV = dsv;
 	m_devContext->OMSetRenderTargets(1, &rtv, dsv);
+}
+
+
+void cRenderer::SetRenderTargetDepth(ID3D11DepthStencilView *depthStencilView)
+{
+	ID3D11DepthStencilView *dsv = (depthStencilView) ? depthStencilView : m_depthStencilView;
+	m_refRTV = NULL;
+	m_refDSV = dsv;
+	m_devContext->OMSetRenderTargets(0, NULL, dsv);
 }
 
 
@@ -395,6 +404,8 @@ void cRenderer::EndScene()
 	}
 	m_alphaSpace.clear();
 
+	m_textGenerateCount = m_textMgr.m_generateCount;
+	m_textCacheCount = m_textMgr.m_cacheCount;
 	m_textMgr.NewFrame();
 }
 
@@ -529,7 +540,7 @@ bool cRenderer::ResetDevice(
 }
 
 
-void cRenderer::AddRenderAlpha(cNode2 *node
+void cRenderer::AddRenderAlpha(cNode *node
 	, const Vector3 &normal //= Vector3(0, 0, 1),
 	, const Matrix44 &tm // = Matrix44::Identity
 	, const int opt // = 1
@@ -541,7 +552,7 @@ void cRenderer::AddRenderAlpha(cNode2 *node
 
 
 void cRenderer::AddRenderAlpha(sAlphaBlendSpace *space
-	, cNode2 *node
+	, cNode *node
 	, const Vector3 &normal //= Vector3(0, 0, 1),
 	, const Matrix44 &tm // = Matrix44::Identity
 	, const int opt // = 1
@@ -587,6 +598,13 @@ void cRenderer::BindTexture(cRenderTarget &rt, const int stage)
 {
 	RET(MAX_TEXTURE_STAGE <= (stage - 1));
 	m_textureMap[stage - TEXTURE_OFFSET] = rt.m_texture;
+}
+
+
+void cRenderer::BindTexture(cDepthBuffer &db, const int stage)
+{
+	RET(MAX_TEXTURE_STAGE <= (stage - 1));
+	m_textureMap[stage - TEXTURE_OFFSET] = db.m_depthSRV;
 }
 
 

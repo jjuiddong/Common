@@ -623,9 +623,7 @@ Matrix44 Matrix44::Inverse() const
 
 #else
 	XMMATRIX matInverse = XMLoadFloat4x4((XMFLOAT4X4*)this);
-
 	matInverse = XMMatrixInverse(NULL, matInverse);
-
 	Matrix44 ret;
 	XMStoreFloat4x4((XMFLOAT4X4*)&ret, matInverse);
 	return ret;
@@ -749,16 +747,6 @@ void Matrix44::SetRotationYZ(const Vector3 &yAxis, const Vector3 &zAxis)
 	_44 = 1;
 }
 
-
-#ifdef USE_D3D11_MATH
-
-XMMATRIX Matrix44::GetMatrixXM() const
-{
-	XMMATRIX m = XMLoadFloat4x4((XMFLOAT4X4*)this);
-	return m;
-}
-
-#endif
 
 float& Matrix44::operator () (UINT iRow, UINT iCol)
 {

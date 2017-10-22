@@ -8,7 +8,7 @@ namespace graphic
 {
 
 	class cRenderer;
-	class cGrid : public cNode2
+	class cGrid : public cNode
 	{
 	public:
 		cGrid();

@@ -22,8 +22,9 @@ namespace graphic
 		vector<cCamera*> m_cams;
 	};
 
-
 	inline cCamera& GetMainCamera() { return *cMainCamera::Get()->Top(); }
+	inline cCamera* cMainCamera::Top() { return m_cams.back(); }
+
 
 
 	class cAutoCam

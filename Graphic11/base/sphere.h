@@ -14,7 +14,7 @@
 namespace graphic
 {
 
-	class cSphere : public cNode2
+	class cSphere : public cNode
 	{
 	public:
 		cSphere();

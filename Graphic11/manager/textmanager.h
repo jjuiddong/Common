@@ -40,6 +40,7 @@ namespace graphic
 		{
 			int id;
 			bool used;
+			int initTime;
 			sAlphaBlendSpace *space;
 			cText3d3 text;
 		};
@@ -83,6 +84,10 @@ namespace graphic
 		std::shared_ptr<Gdiplus::Bitmap> m_textBmp;
 		std::shared_ptr<Gdiplus::Graphics> m_graphic;
 		std::shared_ptr<Gdiplus::Graphics> m_graphicText;
+
+		// Debugging
+		int m_generateCount;
+		int m_cacheCount;
 	};
 
 }

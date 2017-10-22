@@ -36,7 +36,7 @@ namespace graphic
 
 
 	class cTexture;
-	class cRenderTarget;
+	class cDepthBuffer;
 
 	class cRenderer
 	{
@@ -57,8 +57,8 @@ namespace graphic
 		bool CheckResetDevice(const float width=0, const float height=0);
 		bool ResetDevice(const float width=0, const float height=0, const bool forceReset=false
 			, const bool resetResource=true);
-		void AddRenderAlpha(cNode2 *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
-		void AddRenderAlpha(sAlphaBlendSpace *space, cNode2 *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
+		void AddRenderAlpha(cNode *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
+		void AddRenderAlpha(sAlphaBlendSpace *space, cNode *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
 		void AddAlphaBlendSpace(const cBoundingBox &bbox);
 		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
 
@@ -68,11 +68,13 @@ namespace graphic
 		void Present();
 		void EndScene();
 		void SetRenderTarget(ID3D11RenderTargetView *renderTargetView, ID3D11DepthStencilView *depthStencilView);
+		void SetRenderTargetDepth(ID3D11DepthStencilView *depthStencilView);
 		void ExecuteCommandList(ID3D11CommandList *cmdList);
 		void FinishCommandList();
 
 		void BindTexture(cTexture *texture, const int stage);
 		void BindTexture(cRenderTarget &rt, const int stage);
+		void BindTexture(cDepthBuffer &db, const int stage);
 		void UnbindTexture(const int stage);
 		void UnbindTextureAll();
 
@@ -133,7 +135,9 @@ namespace graphic
 
 		// Debug Render
 		bool m_isDbgRender; // Debug Render
-		int m_dbgRenderStyle; // 0:Sphere, 1:Box
+		int m_dbgRenderStyle; // 0:Sphere, 1:Box, 2:None
+		int m_textGenerateCount; // cTextManager generate count
+		int m_textCacheCount; // cTextManager cache count
 		cDbgBox m_dbgBox;
 		cDbgLine m_dbgLine;
 		cDbgArrow m_dbgArrow;

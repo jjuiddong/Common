@@ -8,7 +8,7 @@ using namespace graphic;
 
 
 cTerrain2::cTerrain2()
-	: cNode2(common::GenerateId(), "terrain", eNodeType::TERRAIN)
+	: cNode(common::GenerateId(), "terrain", eNodeType::TERRAIN)
 	, m_isShowDebug(false)
 	, m_rows(0)
 	, m_cols(0)
@@ -210,7 +210,7 @@ bool cTerrain2::RemoveTile(cTile *tile)
 
 
 // insert model to most nearest tile
-bool cTerrain2::AddModel(cNode2 *model)
+bool cTerrain2::AddModel(cNode *model)
 {
 	cTile *nearTile = GetNearestTile(model);
 	assert(nearTile);
@@ -223,7 +223,7 @@ bool cTerrain2::AddModel(cNode2 *model)
 
 
 // Update Model Position
-bool cTerrain2::UpdateModel(cNode2 *model)
+bool cTerrain2::UpdateModel(cNode *model)
 {
 	cTile *nearTile = GetNearestTile(model);
 	assert(nearTile);
@@ -239,7 +239,7 @@ bool cTerrain2::UpdateModel(cNode2 *model)
 }
 
 
-cTile* cTerrain2::GetNearestTile(const cNode2 *node)
+cTile* cTerrain2::GetNearestTile(const cNode *node)
 {
 	cBoundingBox bbox = node->m_boundingBox;
 	bbox *= node->GetWorldMatrix();
@@ -336,6 +336,54 @@ float cTerrain2::GetHeight(const float x, const float z)
 	}
 
 	return height;
+}
+
+
+bool cTerrain2::GetHeightFromRay(const Ray &ray, OUT Vector3 &out)
+{
+	bool isFirst = true;
+	for (int r = 0; r < m_rows; ++r)
+	{
+		for (int c = 0; c < m_cols; ++c)
+		{
+			const int indices[2][3] = {
+				{ r*m_colVtx + c,  (r + 1)*m_colVtx + c, r*m_colVtx + c + 1 }
+				, { (r + 1)*m_colVtx + c,  (r + 1)*m_colVtx + c + 1, r*m_colVtx + c+1 }
+			};
+
+			for (int i = 0; i < 2; ++i)
+			{
+				const Vector3 p1 = m_heightMap[ indices[i][0]].p;
+				const Vector3 p2 = m_heightMap[ indices[i][1]].p;
+				const Vector3 p3 = m_heightMap[ indices[i][2]].p;
+		
+				const Triangle tri(p1, p2, p3);
+				const Plane p(p1, p2, p3);
+				const float dot = ray.dir.DotProduct(p.N);
+				if (dot >= 0)
+					continue;
+
+				float t;
+				if (tri.Intersect(ray.orig, ray.dir, &t))
+				{
+					if (isFirst)
+					{
+						isFirst = false;
+						out = ray.orig + ray.dir * t;
+					}
+					else
+					{
+						const Vector3 v = ray.orig + ray.dir * t;
+						if (ray.orig.LengthRoughly(v) < ray.orig.LengthRoughly(out))
+							out = v;
+					}
+				}
+			}
+
+		}
+	}
+
+	return !isFirst;
 }
 
 

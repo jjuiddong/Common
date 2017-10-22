@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cGizmo::cGizmo()
-	: cNode2(common::GenerateId(), "gizmo", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "gizmo", eNodeType::MODEL)
 	, m_type(eGizmoEditType::TRANSLATE)
 	, m_axisType(eGizmoEditAxis::X)
  	, m_transformType(eGizmoTransform::LOCAL)
@@ -59,7 +59,7 @@ void cGizmo::SetTransformType(const eGizmoTransform::Enum type)
 
 
 // local space -> world space
-void cGizmo::SetControlNode(cNode2 *node)
+void cGizmo::SetControlNode(cNode *node)
 {
 	if (!node)
 	{

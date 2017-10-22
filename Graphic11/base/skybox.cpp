@@ -5,7 +5,7 @@ using namespace graphic;
 
 
 cSkyBox::cSkyBox()
-	: cNode2(common::GenerateId(), "SkyBox", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "SkyBox", eNodeType::MODEL)
 {
 	ZeroMemory(m_textures, sizeof(m_textures));
 }

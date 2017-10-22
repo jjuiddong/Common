@@ -21,14 +21,14 @@ namespace graphic
 	};
 
 
-	class cGizmo : public cNode2
+	class cGizmo : public cNode
 	{
 	public:
 		cGizmo();
 		virtual ~cGizmo();
 
 		bool Create(cRenderer &renderer);
-		void SetControlNode(cNode2 *node);
+		void SetControlNode(cNode *node);
 		void SetTransformType(const eGizmoTransform::Enum type);
 
 		bool Render(cRenderer &renderer
@@ -54,7 +54,7 @@ namespace graphic
 		eGizmoEditType::Enum m_type;
 		eGizmoEditAxis::Enum m_axisType;
 		eGizmoTransform::Enum m_transformType;
-		cNode2 *m_controlNode;
+		cNode *m_controlNode;
 		cQuad m_quad;
 		cTorus m_torus;
 		cDbgArrow m_arrow;

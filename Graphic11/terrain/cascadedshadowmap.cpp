@@ -38,7 +38,7 @@ bool cCascadedShadowMap::Create(cRenderer &renderer
 
 	for (int i = 0; i < SHADOWMAP_COUNT; ++i)
 	{
-		m_shadowMaps[i].Create(renderer, svp, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
+		m_shadowMaps[i].Create(renderer, svp, DXGI_FORMAT_D32_FLOAT, false);
 		m_frustums[i].Create(renderer, GetMainCamera().GetViewProjectionMatrix());
 		m_lightCams[i].SetProjectionOrthogonal(shadowMapSize.x, shadowMapSize.y, 1, 10000);
 		m_dbgLightFrustums[i].Create(renderer, m_lightCams[i].GetViewProjectionMatrix());
@@ -69,14 +69,16 @@ bool cCascadedShadowMap::UpdateParameter(cRenderer &renderer, const cCamera &cam
 
 
 // Prepare Render ShadowMap
-bool cCascadedShadowMap::Begin(cRenderer &renderer, const int shadowMapIndex)
+bool cCascadedShadowMap::Begin(cRenderer &renderer, const int shadowMapIndex
+	, const bool isClear //= true
+)
 {
 	RETV2(shadowMapIndex >= SHADOWMAP_COUNT, false);
 
 	cMainCamera::Get()->PushCamera(&m_lightCams[shadowMapIndex]);
 	m_lightCams[shadowMapIndex].Bind(renderer);
 	renderer.UnbindTextureAll();
-	m_shadowMaps[shadowMapIndex].Begin(renderer, Vector4(1, 1, 1, 1));
+	m_shadowMaps[shadowMapIndex].Begin(renderer, isClear);
 
 	return true;
 }
@@ -115,7 +117,7 @@ void cCascadedShadowMap::DebugRender(cRenderer &renderer)
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		cTexture shadowTex(m_shadowMaps[i].m_texture);
+		cTexture shadowTex(m_shadowMaps[i].m_depthSRV);
 		m_shadowMapQuads[i].m_texture = &shadowTex;
 		m_shadowMapQuads[i].Render(renderer);
 		//m_frustum[i].RenderShader(renderer);

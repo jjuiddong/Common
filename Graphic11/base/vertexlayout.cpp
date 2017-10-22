@@ -97,19 +97,6 @@ bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 }
 
 
-bool cVertexLayout::Create(const sRawMesh &rawMesh )
-{
-	CreateDecl(rawMesh.vertices,
-		rawMesh.normals,
-		rawMesh.tex,
-		rawMesh.tangent,
-		rawMesh.binormal,
-		rawMesh.weights);
-
-	return true;
-}
-
-
 bool cVertexLayout::Create(const sRawMesh2 &rawMesh)
 {
 	CreateDecl(rawMesh.vertices,

@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cWater::cWater()
-	: cNode2(common::GenerateId(), "Water", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "Water", eNodeType::MODEL)
 	, m_isRenderSurface(false)
 {
 	Matrix44 mWaterWorld;
@@ -49,8 +49,8 @@ bool cWater::Create(cRenderer &renderer)
 {
 	cViewport vp;
 	vp.Create(0, 0, 1024, 1024, 0.f, 1.f);
-	m_reflectMap.Create(renderer, vp);
-	m_refractMap.Create(renderer, vp);
+	m_reflectMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
+	m_refractMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
 
 	m_grid.Create(renderer
 		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize
@@ -94,10 +94,10 @@ bool cWater::Render(cRenderer &renderer
 	cShader11 *shader = m_grid.m_shader;
 	assert(shader);
 
-	renderer.BindTexture(m_waveMap0, 2);
-	renderer.BindTexture(m_waveMap1, 3);
-	renderer.BindTexture(m_reflectMap, 4);
-	renderer.BindTexture(m_refractMap, 5);
+	renderer.BindTexture(m_waveMap0, 4);
+	renderer.BindTexture(m_waveMap1, 5);
+	renderer.BindTexture(m_reflectMap, 6);
+	renderer.BindTexture(m_refractMap, 7);
 
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();

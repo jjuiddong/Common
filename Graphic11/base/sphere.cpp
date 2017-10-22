@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cSphere::cSphere() 
-	: cNode2(common::GenerateId(), "sphere", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "sphere", eNodeType::MODEL)
 	, m_radius(0)
 {
 	m_mtrl.InitWhite();
@@ -16,7 +16,7 @@ cSphere::cSphere(cRenderer &renderer, const float radius, const int stacks, cons
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
 	, const cColor &color //= cColor::WHITE
 )
-	: cNode2(common::GenerateId(), "sphere", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "sphere", eNodeType::MODEL)
 	, m_radius(0)
 {
 	Create(renderer, radius, stacks, slices, vtxType, color);	

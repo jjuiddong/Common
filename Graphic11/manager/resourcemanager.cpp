@@ -1,10 +1,7 @@
 
 #include "stdafx.h"
 #include "resourcemanager.h"
-#include "../importer/modelimporter.h"
-#include "../base/material.h"
 #include "task_resource.h"
-#include "../importer/parallelloader.h"
 
 
 using namespace graphic;
@@ -47,7 +44,7 @@ void cResourceManager::Update(const float deltaSeconds)
 
 
 // load Assimp model file
-sRawMeshGroup2* cResourceManager::LoadRawMesh2(const StrPath &fileName)
+sRawMeshGroup2* cResourceManager::LoadRawMesh(const StrPath &fileName)
 {
 	RETV(fileName.empty(), NULL);
 
@@ -64,17 +61,63 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh2(const StrPath &fileName)
 
 	if (loader.m_rawMeshes)
 		m_meshes2[fileName.GetHashCode()] = loader.m_rawMeshes;
-	if (loader.m_rawAnies)
+
+	if (loader.m_rawAnies && !loader.m_rawAnies->anies.empty())
 	{
-		loader.m_rawMeshes->animationName = loader.m_rawAnies->name;
-		m_anies[loader.m_rawAnies->name.GetHashCode()] = loader.m_rawAnies;
+		//loader.m_rawMeshes->animationName = loader.m_rawAnies->anies[0].name;
+		//m_anies[loader.m_rawAnies->name.GetHashCode()] = loader.m_rawAnies;
+		loader.m_rawMeshes->animationName = fileName.c_str();
+		m_anies[fileName.GetHashCode()] = loader.m_rawAnies;
+		ReadSequenceFile(resourcePath, *loader.m_rawAnies);
 	}
+
 	return loader.m_rawMeshes;
 
 
 error:
 	dbg::ErrLog("Err LoadRawMesh2 %s \n", fileName.c_str());
 	return NULL;
+}
+
+
+// read '.seq' file
+// animation name, start time, end time
+bool cResourceManager::ReadSequenceFile(const StrPath &modelFileName, sRawAniGroup &rawAnies)
+{
+	RETV(rawAnies.anies.empty(), false);
+
+	using namespace std;
+	StrPath aniFileName = modelFileName.GetFileNameExceptExt2() + ".seq";
+	ifstream ifs(aniFileName.c_str());
+	if (!ifs.is_open())
+		return false;
+
+	sRawAni &originalAni = rawAnies.anies[0];
+
+	Str128 line;
+	while (ifs.getline(line.m_str, sizeof(line.m_str)))
+	{
+		stringstream ss(line.c_str());
+		StrId name;
+		float start = -1, end = -1;
+		ss >> name.m_str >> start >> end;
+
+		if (name.empty())
+			continue;
+
+		sRawAni rawAni;
+
+		// check animation frame
+		if ((originalAni.start > start) ||
+			(originalAni.end < end))
+			continue; // not found animation from original
+
+		int posCnt = 0;
+		int rotCnt = 0;
+		int scaleCnt = 0;
+	}
+
+	return true;
 }
 
 
@@ -161,11 +204,11 @@ error:
 
 
 // Register Animation Information
-bool cResourceManager::LoadAnimation(sRawAniGroup *anies)
+bool cResourceManager::LoadAnimation(const StrPath &fileName, sRawAniGroup *anies)
 {
 	RETV(!anies, false);
 
-	m_anies[anies->name.GetHashCode()] = anies;
+	m_anies[fileName.GetHashCode()] = anies;
 	return true;
 }
 

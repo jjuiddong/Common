@@ -20,7 +20,7 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 {
 	Clear();
 
-	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadRawMesh2(fileName);
+	sRawMeshGroup2 *rawMeshes = cResourceManager::Get()->LoadRawMesh(fileName);
 	RETV(!rawMeshes, false);
 
 	m_nodes = rawMeshes->nodes;
@@ -32,14 +32,19 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 
 	for (auto &mesh : rawMeshes->meshes)
 	{
-		cMesh2 *p = new cMesh2();
+		cMesh *p = new cMesh();
 		p->Create(renderer, mesh, &m_skeleton);
 		m_meshes.push_back(p);
 	}
 
 	UpdateBoundingBox();
 
-	SetAnimation(rawMeshes->animationName);
+	// Create Animation
+	sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(rawMeshes->animationName.c_str());
+	if (rawAnies)
+		m_animation.Create(*rawAnies, &m_skeleton);
+	else
+		m_animation.Create(&m_skeleton); // empty animation
 
 	return true;
 }
@@ -103,10 +108,9 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 }
 
 
-bool cAssimpModel::Update(const float deltaSeconds)
+bool cAssimpModel::Update(const float deltaSeconds, const float incT)
 {
-	m_animation.Update(deltaSeconds);
-	return true;
+	return m_animation.Update(incT);
 }
 
 
@@ -127,7 +131,7 @@ void cAssimpModel::UpdateBoundingBox()
 
 		for (auto idx : node->meshes)
 		{
-			cMesh2 *mesh = m_meshes[idx];
+			cMesh *mesh = m_meshes[idx];
 			if (!mesh->m_buffers)
 				continue;
 			cBoundingBox bbox = mesh->m_buffers->m_boundingBox;
@@ -145,21 +149,13 @@ void cAssimpModel::UpdateBoundingBox()
 	}
 
 	m_boundingBox.SetBoundingBox(mm);
-
-	//if (m_boundingBox.Length() >= FLT_MAX)
-	//	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(0, 0, 0), Quaternion());
 }
 
 
 void cAssimpModel::SetAnimation(const Str64 &animationName, const bool isMerge)
 // isMerge = false
 {
-	sRawAniGroup *rawAnies = cResourceManager::Get()->LoadAnimation(animationName.c_str());
-
-	if (rawAnies)
-		m_animation.Create(*rawAnies, &m_skeleton, isMerge);
-	else
-		m_animation.Create(&m_skeleton); // empty animation
+	m_animation.SetAnimation(animationName, isMerge);
 }
 
 
@@ -168,16 +164,7 @@ void cAssimpModel::Clear()
 	for (auto &mesh : m_meshes)
 		delete mesh;
 	m_meshes.clear();
-
-	//m_shader = NULL;
 }
-
-
-//void cAssimpModel::SetShader(cShader *shader) 
-//{
-//	m_shader = shader;
-//}
-
 
 int cAssimpModel::GetVertexType()
 {

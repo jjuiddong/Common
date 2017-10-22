@@ -26,7 +26,7 @@
 namespace graphic
 {
 
-	class cPyramid : public cNode2
+	class cPyramid : public cNode
 	{
 	public:
 		cPyramid();

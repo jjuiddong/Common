@@ -14,7 +14,7 @@ namespace graphic
 	};
 
 
-	class cTerrainCursor : public cNode2
+	class cTerrainCursor : public cNode
 	{
 	public:
 		cTerrainCursor();

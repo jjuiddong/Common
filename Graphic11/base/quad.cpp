@@ -7,7 +7,7 @@ using namespace graphic;
 
 
 cQuad::cQuad()
-	: cNode2(common::GenerateId(), "quad", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "quad", eNodeType::MODEL)
 	, m_texture(NULL)
 {
 }

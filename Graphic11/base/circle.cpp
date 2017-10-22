@@ -5,7 +5,7 @@
 using namespace graphic;
 
 cCircle::cCircle()
-	: cNode2(common::GenerateId(), "circle", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "circle", eNodeType::MODEL)
 	, m_radius(1)
 {
 }

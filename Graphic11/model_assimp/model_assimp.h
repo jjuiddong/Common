@@ -26,7 +26,7 @@ namespace graphic
 			, const XMMATRIX *transforms
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);
-		bool Update(const float deltaSeconds);
+		bool Update(const float deltaSeconds, const float incT);
 		void SetAnimation(const Str64 &animationName, const bool isMerge=false);
 		int GetVertexType();
 		void Clear();
@@ -44,7 +44,7 @@ namespace graphic
 
 	public:
 		bool m_isSkinning;
-		vector<cMesh2*> m_meshes;
+		vector<cMesh*> m_meshes;
 		vector<sRawNode> m_nodes;
 		cSkeleton m_skeleton;
 		cAnimation m_animation;

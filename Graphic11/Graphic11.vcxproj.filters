@@ -73,9 +73,6 @@
     <ClInclude Include="base\dxInit.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="model\node2.h">
-      <Filter>model</Filter>
-    </ClInclude>
     <ClInclude Include="collision\boundingbox.h">
       <Filter>collision</Filter>
     </ClInclude>
@@ -114,9 +111,6 @@
     </ClInclude>
     <ClInclude Include="base\indexbuffer.h">
       <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="model\rawmesh.h">
-      <Filter>model</Filter>
     </ClInclude>
     <ClInclude Include="base\shader11.h">
       <Filter>base</Filter>
@@ -220,9 +214,6 @@
     <ClInclude Include="model_assimp\assimploader.h">
       <Filter>model_assimp</Filter>
     </ClInclude>
-    <ClInclude Include="model_assimp\mesh2.h">
-      <Filter>model_assimp</Filter>
-    </ClInclude>
     <ClInclude Include="model_assimp\model_assimp.h">
       <Filter>model_assimp</Filter>
     </ClInclude>
@@ -231,9 +222,6 @@
     </ClInclude>
     <ClInclude Include="model_assimp\animation.h">
       <Filter>model_assimp</Filter>
-    </ClInclude>
-    <ClInclude Include="model_new\model2.h">
-      <Filter>model_new</Filter>
     </ClInclude>
     <ClInclude Include="base\skybox.h">
       <Filter>base</Filter>
@@ -275,7 +263,6 @@
       <Filter>terrain</Filter>
     </ClInclude>
     <ClInclude Include="base\graphicdef.h" />
-    <ClInclude Include="importer\modelimporter.h" />
     <ClInclude Include="terrain\cascadedshadowmap.h" />
     <ClInclude Include="terrain\terraincursor.h" />
     <ClInclude Include="base\temporalbuffer.h" />
@@ -293,6 +280,24 @@
     </ClInclude>
     <ClInclude Include="terrain\ocean.h">
       <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="base\depthbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\node.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\mesh.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\model.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\rawani.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\rawmesh.h">
+      <Filter>model_assimp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -363,9 +368,6 @@
     <ClCompile Include="base\dxinit.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="model\node2.cpp">
-      <Filter>model</Filter>
-    </ClCompile>
     <ClCompile Include="collision\frustum.cpp">
       <Filter>collision</Filter>
     </ClCompile>
@@ -398,9 +400,6 @@
     </ClCompile>
     <ClCompile Include="base\indexbuffer.cpp">
       <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="model\rawmesh.cpp">
-      <Filter>model</Filter>
     </ClCompile>
     <ClCompile Include="base\shader11.cpp">
       <Filter>base</Filter>
@@ -489,9 +488,6 @@
     <ClCompile Include="model_assimp\assimploader.cpp">
       <Filter>model_assimp</Filter>
     </ClCompile>
-    <ClCompile Include="model_assimp\mesh2.cpp">
-      <Filter>model_assimp</Filter>
-    </ClCompile>
     <ClCompile Include="model_assimp\model_assimp.cpp">
       <Filter>model_assimp</Filter>
     </ClCompile>
@@ -503,9 +499,6 @@
     </ClCompile>
     <ClCompile Include="model_assimp\animationnode.cpp">
       <Filter>model_assimp</Filter>
-    </ClCompile>
-    <ClCompile Include="model_new\model2.cpp">
-      <Filter>model_new</Filter>
     </ClCompile>
     <ClCompile Include="base\skybox.cpp">
       <Filter>base</Filter>
@@ -546,7 +539,6 @@
     <ClCompile Include="terrain\water.cpp">
       <Filter>terrain</Filter>
     </ClCompile>
-    <ClCompile Include="importer\modelimporter.cpp" />
     <ClCompile Include="terrain\cascadedshadowmap.cpp" />
     <ClCompile Include="terrain\terraincursor.cpp" />
     <ClCompile Include="base\temporalbuffer.cpp" />
@@ -564,6 +556,21 @@
     </ClCompile>
     <ClCompile Include="terrain\ocean.cpp">
       <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="base\depthbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\node.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\mesh.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\model.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\rawmesh.cpp">
+      <Filter>model_assimp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -590,12 +597,6 @@
     </Filter>
     <Filter Include="manager">
       <UniqueIdentifier>{66d52fcd-b1b4-4eeb-9a81-4c394ca10fbb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="model">
-      <UniqueIdentifier>{0623b9ec-a13d-4900-9396-e9f98c5002b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="model_new">
-      <UniqueIdentifier>{608da746-a034-456e-b805-049f7bd5f3a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="particle">
       <UniqueIdentifier>{7a7dac2f-5580-465a-8d8d-a295d03a6594}</UniqueIdentifier>

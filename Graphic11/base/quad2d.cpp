@@ -6,7 +6,7 @@
 using namespace graphic;
 
 cQuad2D::cQuad2D()
-	: cNode2(common::GenerateId(), "Quad2d", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "Quad2d", eNodeType::MODEL)
 	, m_texture(NULL)
 {
 }

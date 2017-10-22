@@ -6,7 +6,8 @@
 namespace graphic
 {
 	const int terrain_numpatches_1d = 64;
-	const float terrain_geometry_scale = 1.0f;
+	const float terrain_geometry_scale = 1.2f;
+	//const float terrain_geometry_scale = 2.f;
 	const float terrain_maxheight = 30.0f;
 	const float terrain_minheight = -30.0f;
 	const float terrain_fractalfactor = 0.68f;
@@ -20,7 +21,7 @@ namespace graphic
 
 	const int shadowmap_resource_buffer_size_xy = 4096;
 	const int water_normalmap_resource_buffer_size_xy = 2048;
-	const int terrain_layerdef_map_texture_size = 1024;
+	//const int terrain_layerdef_map_texture_size = 1024;
 	const int terrain_depth_shadow_map_texture_size = 512;
 
 	const float main_buffer_size_multiplier = 1.1f;
@@ -35,6 +36,10 @@ cOcean::cOcean()
 	: m_shader(NULL)
 	, m_TotalTime(0)
 {
+	m_microBumpTexScale[0] = 225;
+	m_microBumpTexScale[1] = 225;
+	m_waterBumpTexScale[0] = 14;
+	m_waterBumpTexScale[1] = 14;
 }
 
 cOcean::~cOcean()
@@ -578,7 +583,9 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 	effect->GetVariableByName("g_UseDynamicLOD")->AsScalar()->SetFloat(m_UseDynamicLOD ? 1.0f : 0.0f);
 	effect->GetVariableByName("g_RenderCaustics")->AsScalar()->SetFloat(m_RenderCaustics ? 1.0f : 0.0f);
 	effect->GetVariableByName("g_FrustumCullInHS")->AsScalar()->SetFloat(m_FrustumCullInHS ? 1.0f : 0.0f);
-
+	
+	effect->GetVariableByName("g_WaterMicroBumpTexcoordScale")->AsVector()->SetFloatVector(m_microBumpTexScale);
+	effect->GetVariableByName("g_WaterBumpTexcoordScale")->AsVector()->SetFloatVector(m_waterBumpTexScale);
 
 	tex_variable=pEffect->GetVariableByName("g_WaterBumpTexture")->AsShaderResource();
 	tex_variable->SetResource(m_water_bump_textureSRV);

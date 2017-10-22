@@ -6,7 +6,7 @@
 
 
 
-const float MATH_PI = 3.14159265358979323846f;
+const float MATH_PI = 3.141592654f;
 const float MATH_EPSILON = 0.0005f;//1.0e-5;
 const double MATH_EPSILON2 = 0.0000000001f;//1.0e-10;
 #define SQR(x)		( (x) * (x) )

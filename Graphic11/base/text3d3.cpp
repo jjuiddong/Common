@@ -6,7 +6,7 @@
 using namespace graphic;
 
 cText3d3::cText3d3()
-	: cNode2(common::GenerateId(), "text", eNodeType::TEXT)
+	: cNode(common::GenerateId(), "text", eNodeType::TEXT)
 {
 }
 
@@ -36,6 +36,8 @@ bool cText3d3::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 }
 
 
+// if Render Text return true
+// reuse Text return false
 bool cText3d3::SetTextRect(
 	cRenderer &renderer
 	, const Transform &tm
@@ -68,9 +70,10 @@ bool cText3d3::SetTextRect(
 		}
 
 		m_text = text;
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 

@@ -35,18 +35,6 @@ Matrix44 Transform::GetMatrix() const
 }
 
 
-#ifdef USE_D3D11_MATH
-
-	XMMATRIX Transform::GetMatrixXM() const
-	{
-		XMVECTOR q = XMLoadFloat4((XMFLOAT4*)&rot);
-		XMMATRIX mRot = XMMatrixRotationQuaternion(q);
-		return XMMatrixScaling(scale.x, scale.y, scale.z) * mRot * XMMatrixTranslation(pos.x, pos.y, pos.z);
-	}
-
-#endif
-
-
 Transform Transform::Inverse() const
 {
 	Transform v;

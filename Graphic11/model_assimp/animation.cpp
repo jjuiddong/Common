@@ -7,11 +7,12 @@ using namespace graphic;
 
 cAnimation::cAnimation()
 	: m_skeleton(NULL)
+	, m_curAniIdx(-1)
 	, m_isMergeAni(false)
 	, m_state(eState::STOP)
-	, m_incTime(0)
 	, m_start(0)
 	, m_end(0)
+	, m_aniGroup(NULL)
 {
 }
 
@@ -29,67 +30,95 @@ bool cAnimation::Create(cSkeleton *skeleton)
 }
 
 
-bool cAnimation::Create(const sRawAniGroup &anies, cSkeleton *skeleton, const bool isMerge)
-// isMerge = false
+bool cAnimation::Create(const sRawAniGroup &aniGroup, cSkeleton *skeleton
+	, const bool isMerge //= false
+)
 {
 	if (isMerge)
 	{
-		m_anies.push_back({});
-		for (auto &ani : anies.anies)
-			m_anies.back().push_back(cAnimationNode(&ani));
+		assert(0);
 	}
 	else
 	{
-		m_anies.resize(1);
-		m_anies[0].clear();
-		m_anies[0].reserve(anies.anies.size());
-		for (auto &ani : anies.anies)
-			m_anies[0].push_back(cAnimationNode(&ani));
-	}
-
-	m_state = eState::PLAY;
-	m_skeleton = skeleton;
-
-	m_start = 0;
-	m_end = 0;
-	for (auto &ani : anies.anies)
-	{
-		if (ani.start != ani.end)
+		m_curAniIdx = 0;
+		m_anies.reserve(aniGroup.anies.size());
+		for (auto &srcAni : aniGroup.anies)
 		{
-			m_start = min(m_start, ani.start);
-			m_end = max(m_end, ani.end);
+			m_anies.push_back({});
+			vector<cAnimationNode> &dst = m_anies.back();
+			dst.reserve(srcAni.boneAnies.size());
+
+			for (auto &boneAni : srcAni.boneAnies)
+				dst.push_back(cAnimationNode(&boneAni));
 		}
 	}
 
-	//m_anies[0].push_back(cAnimationNode(&ani));
+	m_aniGroup = &aniGroup;
+	m_state = eState::PLAY;
+	m_skeleton = skeleton;
+
+	if (m_curAniIdx >= 0)
+	{
+		m_start = aniGroup.anies[m_curAniIdx].start;
+		m_end = aniGroup.anies[m_curAniIdx].end;
+	}
+	else
+	{
+		m_start = 0;
+		m_end = 0;
+	}
 
 	return true;
 }
 
 
-bool cAnimation::Update(const float deltaSeconds)
+// return true, if end of animation 
+bool cAnimation::Update(const float increasedTime)
 {
 	RETV(!m_skeleton, false);
 	RETV(m_state != eState::PLAY, false);
+	RETV(m_curAniIdx < 0, false);
 	
-	m_incTime += deltaSeconds;
-	if (m_incTime >= m_end)
-		m_incTime = m_start;
-
-	for (u_int k = 0; k < m_anies.size(); ++k)
+	bool isEnd = false;
+	float t = increasedTime;
+	if (t >= m_end)
 	{
-		auto &anies = m_anies[k];
-		for (u_int i = 0; i < anies.size(); ++i)
-		{
-			Matrix44 result;
-			if (anies[i].GetAnimationResult(m_incTime, result))
-				m_skeleton->m_tmAni[i] = result;
-		}
+		t = m_end;
+		isEnd = true;
+	}
+
+	auto &ani = m_anies[m_curAniIdx];
+	for (u_int i = 0; i < ani.size(); ++i)
+	{
+		Matrix44 result;
+		if (ani[i].GetAnimationResult(t, result))
+			m_skeleton->m_tmAni[i] = result;
 	}
 	
 	m_skeleton->UpdateHierarcyTransform();
 
-	return true;
+	return isEnd;
+}
+
+
+bool cAnimation::SetAnimation(const StrId &animationName
+	, const bool isMerge //= false
+)
+{
+	RETV(!m_aniGroup, false);
+
+	for (u_int i = 0; i < m_aniGroup->anies.size(); ++i)
+	{
+		if (m_aniGroup->anies[i].name == animationName)
+		{
+			m_curAniIdx = i;
+			m_start = m_aniGroup->anies[i].start;
+			m_end = m_aniGroup->anies[i].end;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

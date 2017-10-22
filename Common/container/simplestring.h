@@ -131,14 +131,14 @@ namespace common
 			return str;
 		}
 
-		// only return filname except extends
+		// only return filename except extends
 		String GetFileNameExceptExt() const {
 			String str = PathFindFileNameA(m_str);
 			PathRemoveExtensionA(str.m_str);
 			return str;
 		}
 
-		// return full filname except extends
+		// return full filename except extends
 		String GetFileNameExceptExt2() const {
 			String str = *this;
 			char *name = PathFindFileNameA(str.m_str);
@@ -501,14 +501,14 @@ namespace common
 			return str;
 		}
 
-		// only return filname except extends
+		// only return filename except extends
 		String GetFileNameExceptExt() const {
 			String str = PathFindFileName(m_str);
 			PathRemoveExtension(str.m_str);
 			return str;
 		}
 
-		// return full filname except extends
+		// return full filename except extends
 		String GetFileNameExceptExt2() const {
 			String str = *this;
 			wchar_t *name = PathFindFileName(str.m_str);

@@ -502,17 +502,61 @@ void cAssimpLoader::CreateAnimation()
 {
 	RET(m_aiScene->mNumAnimations <= 0);
 
-	for (size_t j = 0; j < 1; j++)
+	// Read Sequence file
+	// read '.seq' file
+	// animation name, start time, end time
+	struct sSequence
 	{
-		const aiAnimation* sourceAnimation = m_aiScene->mAnimations[j];
+		StrId name;
+		float start;
+		float end;
+	};
+	vector<sSequence> seqs;
+	using namespace std;
+	StrPath aniFileName = m_fileName.GetFileNameExceptExt2() + ".seq";
+	ifstream ifs(aniFileName.c_str());
+	if (ifs.is_open())
+	{
+		Str128 line;
+		while (ifs.getline(line.m_str, sizeof(line.m_str)))
+		{
+			stringstream ss(line.c_str());
+			StrId name;
+			float start = -1, end = -1;
+			ss >> name.m_str >> start >> end;
+
+			if (name.empty())
+				continue;
+
+			const float fps = 1.f / 960.f;
+			seqs.push_back({ name, start*fps, (end-start)*fps });
+		}
+	}
+	else
+	{
+		const aiAnimation* sourceAnimation = m_aiScene->mAnimations[0];
+		StrId name = StrId(m_fileName.GetFileName()) + "::" + sourceAnimation->mName.data;
+		seqs.push_back({ name, 0, -1});
+	}
+	//
+
+	m_rawAnies = new sRawAniGroup;
+
+	for (size_t j = 0; j < seqs.size(); j++)
+	{
+		const sSequence &seq = seqs[j];
+		const aiAnimation* sourceAnimation = m_aiScene->mAnimations[0];
 
 		//animation.TicksPerSecond = static_cast<float>(sourceAnimation->mTicksPerSecond);
 		//animation.Duration = static_cast<float>(sourceAnimation->mDuration);
 
-		m_rawAnies = new sRawAniGroup;
-		m_rawAnies->type = sRawAniGroup::BONE_ANI;
-		m_rawAnies->name = Str64(m_fileName.GetFileName()) + "::" + sourceAnimation->mName.data;
-		m_rawAnies->anies.resize(m_rawMeshes->bones.size());
+		m_rawAnies->anies.push_back(sRawAni());
+		sRawAni &ani = m_rawAnies->anies.back();
+
+		ani.name = seq.name;
+		ani.boneAnies.resize(m_rawMeshes->bones.size());
+		ani.start = FLT_MAX;
+		ani.end = -FLT_MAX;
 
 		for (UINT a = 0; a < sourceAnimation->mNumChannels; a++)
 		{
@@ -521,63 +565,199 @@ void cAssimpLoader::CreateAnimation()
 			if (boneId < 0)
 				continue;
 
-			sRawAni &ani = m_rawAnies->anies[boneId];
-			ani.pos.resize(sourceAnimation->mChannels[a]->mNumPositionKeys);
-			ani.rot.resize(sourceAnimation->mChannels[a]->mNumRotationKeys);
-			ani.scale.resize(sourceAnimation->mChannels[a]->mNumScalingKeys);
-
-			float minT = FLT_MAX;
-			float maxT = -FLT_MAX;
-
+			int posCnt = 0, rotCnt=0, scaleCnt=0;
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumPositionKeys; i++)
 			{
-				const float t = static_cast<float>(sourceAnimation->mChannels[a]->mPositionKeys[i].mTime);
-
-				if (t < minT)
-					minT = t;
-				if (t > maxT)
-					maxT = t;
-
-				ani.pos[i].t = t;
-				ani.pos[i].p.x = sourceAnimation->mChannels[a]->mPositionKeys[i].mValue.x;
-				ani.pos[i].p.y = sourceAnimation->mChannels[a]->mPositionKeys[i].mValue.y;
-				ani.pos[i].p.z = sourceAnimation->mChannels[a]->mPositionKeys[i].mValue.z;
+				aiVectorKey &key = sourceAnimation->mChannels[a]->mPositionKeys[i];
+				const float t = (float)key.mTime;
+				if ((seq.start >= 0) && (seq.end >= 0))
+				{
+					if ((t < seq.start) || (t > seq.end))
+						continue;
+				}
+				++posCnt;
 			}
 
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumRotationKeys; i++)
 			{
-				const float t = static_cast<float>(sourceAnimation->mChannels[a]->mRotationKeys[i].mTime);
-
-				if (t < minT)
-					minT = t;
-				if (t > maxT)
-					maxT = t;
-
-				ani.rot[i].t = t;
-				ani.rot[i].q.x = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.x;
-				ani.rot[i].q.y = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.y;
-				ani.rot[i].q.z = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.z;
-				ani.rot[i].q.w = sourceAnimation->mChannels[a]->mRotationKeys[i].mValue.w;
+				aiQuatKey &key = sourceAnimation->mChannels[a]->mRotationKeys[i];
+				const float t = (float)key.mTime;
+				if ((seq.start >= 0) && (seq.end >= 0))
+				{
+					if ((t < seq.start) || (t > seq.end))
+						continue;
+				}
+				++rotCnt;
 			}
 
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumScalingKeys; i++)
 			{
-				const float t = static_cast<float>(sourceAnimation->mChannels[a]->mScalingKeys[i].mTime);
-	
+				aiVectorKey &key = sourceAnimation->mChannels[a]->mScalingKeys[i];
+				const float t = (float)key.mTime;
+				if ((seq.start >= 0) && (seq.end >= 0))
+				{
+					if ((t < seq.start) || (t > seq.end))
+						continue;
+				}
+				++scaleCnt;
+			}
+
+
+			sBoneAni &boneAni = ani.boneAnies[boneId];
+			boneAni.name = boneName.c_str();
+			boneAni.pos.reserve(posCnt);
+			boneAni.rot.reserve(rotCnt);
+			boneAni.scale.reserve(scaleCnt);
+
+			double minT = FLT_MAX;
+			double maxT = -FLT_MAX;
+
+			// Position
+			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumPositionKeys; i++)
+			{
+				aiVectorKey &key = sourceAnimation->mChannels[a]->mPositionKeys[i];
+				float t = (float)key.mTime - seq.start;
+				if (seq.end >= 0)
+				{
+					const bool isLast = i == (sourceAnimation->mChannels[a]->mNumPositionKeys - 1);
+					if ((t > seq.end) || isLast)
+					{
+						if (boneAni.pos.empty())
+						{
+							if (0 < minT)
+								minT = 0;
+							if (0 > maxT)
+								maxT = 0;
+
+							sKeyPos pos;
+							pos.t = 0;
+							pos.p = Vector3(key.mValue.x, key.mValue.y, key.mValue.z);
+							boneAni.pos.push_back(pos);
+
+							pos.t = 0.0333f;
+							boneAni.pos.push_back(pos);
+						}
+
+						break;
+					}
+
+					if ((t < 0) && (abs(t) > 0.0001f))
+						continue;
+				}
+
+				t = max(0, t);
+
 				if (t < minT)
 					minT = t;
 				if (t > maxT)
 					maxT = t;
 
-				ani.scale[i].t = t;
-				ani.scale[i].s.x = sourceAnimation->mChannels[a]->mScalingKeys[i].mValue.x;
-				ani.scale[i].s.y = sourceAnimation->mChannels[a]->mScalingKeys[i].mValue.y;
-				ani.scale[i].s.z = sourceAnimation->mChannels[a]->mScalingKeys[i].mValue.z;
+				sKeyPos pos;
+				pos.t = t;
+				pos.p = Vector3(key.mValue.x, key.mValue.y, key.mValue.z);
+				boneAni.pos.push_back(pos);
 			}
 
-			ani.start = minT;
-			ani.end = maxT;
+			// Rotation
+			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumRotationKeys; i++)
+			{
+				aiQuatKey &key = sourceAnimation->mChannels[a]->mRotationKeys[i];
+				float t = (float)key.mTime - seq.start;
+				if (seq.end >= 0)
+				{
+					const bool isLast = i == (sourceAnimation->mChannels[a]->mNumRotationKeys - 1);
+					if ((t > seq.end) || isLast)
+					{
+						if (boneAni.rot.empty())
+						{
+							if (0 < minT)
+								minT = 0;
+							if (0 > maxT)
+								maxT = 0;
+
+							sKeyRot rot;
+							rot.t = 0;
+							rot.q = Quaternion(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w);
+							boneAni.rot.push_back(rot);
+
+							rot.t = 0.0333f;
+							boneAni.rot.push_back(rot);
+						}
+
+						break;
+					}
+
+					if ((t < 0) && (abs(t) > 0.0001f))
+						continue;
+				}
+
+				t = max(0, t);
+
+				if (t < minT)
+					minT = t;
+				if (t > maxT)
+					maxT = t;
+
+				sKeyRot rot;
+				rot.t = (float)key.mTime - seq.start;
+				rot.q = Quaternion(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w);
+				boneAni.rot.push_back(rot);
+			}
+
+			// Scale
+			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumScalingKeys; i++)
+			{
+				aiVectorKey &key = sourceAnimation->mChannels[a]->mScalingKeys[i];
+				float t = (float)key.mTime - seq.start;
+				if (seq.end >= 0)
+				{
+					const bool isLast = i == (sourceAnimation->mChannels[a]->mNumScalingKeys - 1);
+					if ((t > seq.end) || isLast)
+					{
+						if (boneAni.scale.empty())
+						{
+							if (0 < minT)
+								minT = 0;
+							if (0 > maxT)
+								maxT = 0;
+
+							sKeyScale scale;
+							scale.t = 0;
+							scale.s = Vector3(key.mValue.x, key.mValue.y, key.mValue.z);
+							boneAni.scale.push_back(scale);
+
+							scale.t = 0.0333f;
+							boneAni.scale.push_back(scale);
+						}
+
+						break;
+					}
+
+					if ((t < 0) && (abs(t) > 0.0001f))
+						continue;
+				}
+
+				t = max(0, t);
+
+				if (t < minT)
+					minT = t;
+				if (t > maxT)
+					maxT = t;
+
+				sKeyScale scale;
+				scale.t = (float)key.mTime - seq.start;
+				scale.s = Vector3(key.mValue.x, key.mValue.y, key.mValue.z);
+				boneAni.scale.push_back(scale);
+			}
+
+			boneAni.start = (float)minT;
+			boneAni.end = (float)maxT;
+
+			ani.start = min((float)minT, ani.start);
+			ani.end = max((float)maxT, ani.end);
 		}
+
+		int a = 0;
 	}
 }
 

@@ -83,7 +83,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
@@ -147,6 +147,7 @@
     <ClInclude Include="base\constantbuffer.h" />
     <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\d3dx11effect.h" />
+    <ClInclude Include="base\depthbuffer.h" />
     <ClInclude Include="base\dxInit.h" />
     <ClInclude Include="base\gizmo.h" />
     <ClInclude Include="base\graphicdef.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="base\line.h" />
     <ClInclude Include="base\material.h" />
     <ClInclude Include="base\meshbuffer.h" />
+    <ClInclude Include="base\node.h" />
     <ClInclude Include="base\pyramid.h" />
     <ClInclude Include="base\quad.h" />
     <ClInclude Include="base\quad2d.h" />
@@ -185,7 +187,6 @@
     <ClInclude Include="dbg\dbgquad.h" />
     <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
-    <ClInclude Include="importer\modelimporter.h" />
     <ClInclude Include="importer\parallelloader.h" />
     <ClInclude Include="manager\fontmanager.h" />
     <ClInclude Include="manager\lightmanager.h" />
@@ -196,15 +197,15 @@
     <ClInclude Include="manager\shadermanager.h" />
     <ClInclude Include="manager\task_resource.h" />
     <ClInclude Include="manager\textmanager.h" />
-    <ClInclude Include="model\node2.h" />
-    <ClInclude Include="model\rawmesh.h" />
     <ClInclude Include="model_assimp\animation.h" />
     <ClInclude Include="model_assimp\animationnode.h" />
     <ClInclude Include="model_assimp\assimploader.h" />
-    <ClInclude Include="model_assimp\mesh2.h" />
+    <ClInclude Include="model_assimp\mesh.h" />
+    <ClInclude Include="model_assimp\model.h" />
     <ClInclude Include="model_assimp\model_assimp.h" />
+    <ClInclude Include="model_assimp\rawani.h" />
+    <ClInclude Include="model_assimp\rawmesh.h" />
     <ClInclude Include="model_assimp\skeleton.h" />
-    <ClInclude Include="model_new\model2.h" />
     <ClInclude Include="shape\circleshape.h" />
     <ClInclude Include="shape\cubeshape.h" />
     <ClInclude Include="shape\pyramidshape.h" />
@@ -249,6 +250,7 @@
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\color.cpp" />
     <ClCompile Include="base\cube.cpp" />
+    <ClCompile Include="base\depthbuffer.cpp" />
     <ClCompile Include="base\dxinit.cpp" />
     <ClCompile Include="base\gizmo.cpp" />
     <ClCompile Include="base\grid.cpp" />
@@ -257,6 +259,7 @@
     <ClCompile Include="base\line.cpp" />
     <ClCompile Include="base\material.cpp" />
     <ClCompile Include="base\meshbuffer.cpp" />
+    <ClCompile Include="base\node.cpp" />
     <ClCompile Include="base\pyramid.cpp" />
     <ClCompile Include="base\quad.cpp" />
     <ClCompile Include="base\quad2d.cpp" />
@@ -283,7 +286,6 @@
     <ClCompile Include="dbg\dbglinelist.cpp" />
     <ClCompile Include="dbg\dbgquad.cpp" />
     <ClCompile Include="dbg\dbgsphere.cpp" />
-    <ClCompile Include="importer\modelimporter.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />
     <ClCompile Include="manager\fontmanager.cpp" />
     <ClCompile Include="manager\lightmanager.cpp" />
@@ -293,15 +295,14 @@
     <ClCompile Include="manager\resourcemanager.cpp" />
     <ClCompile Include="manager\shadermanager.cpp" />
     <ClCompile Include="manager\textmanager.cpp" />
-    <ClCompile Include="model\node2.cpp" />
-    <ClCompile Include="model\rawmesh.cpp" />
     <ClCompile Include="model_assimp\animation.cpp" />
     <ClCompile Include="model_assimp\animationnode.cpp" />
     <ClCompile Include="model_assimp\assimploader.cpp" />
-    <ClCompile Include="model_assimp\mesh2.cpp" />
+    <ClCompile Include="model_assimp\mesh.cpp" />
+    <ClCompile Include="model_assimp\model.cpp" />
     <ClCompile Include="model_assimp\model_assimp.cpp" />
+    <ClCompile Include="model_assimp\rawmesh.cpp" />
     <ClCompile Include="model_assimp\skeleton.cpp" />
-    <ClCompile Include="model_new\model2.cpp" />
     <ClCompile Include="shape\circleshape.cpp" />
     <ClCompile Include="shape\cubeshape.cpp" />
     <ClCompile Include="shape\pyramidshape.cpp" />

@@ -6,7 +6,7 @@
 using namespace graphic;
 
 cTerrainCursor::cTerrainCursor() 
-	: cNode2(common::GenerateId(), "Terrain Cursor", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "Terrain Cursor", eNodeType::MODEL)
 	, m_innerRadius(10)
 	, m_outerRadius(20)
 	, m_innerAlpha(1.f)

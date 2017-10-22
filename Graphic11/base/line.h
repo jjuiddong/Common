@@ -10,7 +10,7 @@
 namespace graphic
 {
 
-	class cLine : public cNode2
+	class cLine : public cNode
 	{
 	public:
 		cLine();

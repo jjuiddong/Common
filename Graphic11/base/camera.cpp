@@ -121,6 +121,8 @@ void cCamera::Update(const float deltaSeconds)
 		return;
 	}
 
+	const float dt = min(deltaSeconds, 0.05f);
+
 	// PID
 	const float Ki = 8.f;
 	const float Kd = 5.f;
@@ -138,7 +140,7 @@ void cCamera::Update(const float deltaSeconds)
 			dv = posDir - oldPosDir;
 		oldPosDir = posDir;
 
-		m_eyePos += posDir * deltaSeconds * Ki + (dv * deltaSeconds * Kd);
+		m_eyePos += posDir * dt * Ki + (dv * dt * Kd);
 	}
 	else
 	{
@@ -156,7 +158,7 @@ void cCamera::Update(const float deltaSeconds)
 			dv = lookDir - oldLookAtDir;
 		oldLookAtDir = lookDir;
 
-		m_lookAt += lookDir * deltaSeconds * Ki + (dv * deltaSeconds * Kd);
+		m_lookAt += lookDir * dt * Ki + (dv * dt * Kd);
 	}
 	else
 	{
@@ -711,8 +713,8 @@ Ray cCamera::GetRay(
 	assert(m_width != 0);
 	assert(m_height != 0);
 
-	const int x = (sx == -1) ? m_width / 2 : sx;
-	const int y = (sy == -1) ? m_height / 2 : sy;
+	const int x = (sx == -1) ? (int)m_width / 2 : sx;
+	const int y = (sy == -1) ? (int)m_height / 2 : sy;
 
 	Ray ray;
 	GetRay((int)m_width, (int)m_height, x, y, ray.orig, ray.dir);

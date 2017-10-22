@@ -11,7 +11,7 @@ namespace graphic
 {
 
 	class cRenderer;
-	class cCube : public cNode2
+	class cCube : public cNode
 	{
 	public:
 		cCube();

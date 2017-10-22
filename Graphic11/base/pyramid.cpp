@@ -7,7 +7,7 @@ using namespace graphic;
 
 
 cPyramid::cPyramid()
-	: cNode2(common::GenerateId(), "pyramid", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "pyramid", eNodeType::MODEL)
 {
 }
 

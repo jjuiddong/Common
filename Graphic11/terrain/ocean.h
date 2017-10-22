@@ -17,7 +17,8 @@
 //
 #pragma once
 
-#define terrain_gridpoints 512
+//#define terrain_gridpoints 512
+#define terrain_gridpoints 1024
 #define scene_z_near 1.0f
 #define scene_z_far 25000.0f
 #define camera_fov 110.0f
@@ -95,6 +96,9 @@ namespace graphic
 		bool m_UseDynamicLOD = true;
 		bool m_RenderCaustics = true;
 		bool m_FrustumCullInHS = true;
+
+		float m_microBumpTexScale[3];
+		float m_waterBumpTexScale[3];
 	};
 
 }

@@ -17,7 +17,7 @@ cPickManager::~cPickManager()
 }
 
 
-bool cPickManager::Add(cNode2 *node)
+bool cPickManager::Add(cNode *node)
 {
 	auto it = std::find(m_nodes.begin(), m_nodes.end(), node);
 	if (m_nodes.end() != it)
@@ -28,35 +28,34 @@ bool cPickManager::Add(cNode2 *node)
 }
 
 
-bool cPickManager::Remove(cNode2 *node)
+bool cPickManager::Remove(cNode *node)
 {
 	common::popvector2(m_nodes, node);
 	return true;
 }
 
 
-bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt)
+bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt, const ePickState::Enum state)
 {
 	RETV(!m_mainCamera, false);
+	RETV(m_nodes.empty(), false);
 
-	Vector3 orig, dir;
-	m_mainCamera->GetRay(mousePt.x + m_offset.x, mousePt.y + m_offset.y, orig, dir);
+	const Ray ray = m_mainCamera->GetRay(mousePt.x + m_offset.x, mousePt.y + m_offset.y);
 
 	if (ePickMode::SINGLE == m_mode)
 	{
 		float lens[32];
-		cNode2 *nodes[32];
+		cNode *nodes[32];
 		int cnt = 0;
 
 		for (auto &node : m_nodes)
 		{
 			if (node->IsOpFlag(eOpFlag::PICK) && (cnt < 32))
 			{
-				if (node->Picking(orig, dir, node->m_type
-					, node->m_parent? node->m_parent->GetWorldTransform().GetMatrixXM() : XMIdentity))
+				if (node->Picking(ray, node->m_type))
 				{
 					nodes[cnt] = node;
-					lens[cnt] = node->GetWorldTransform().pos.Distance(orig);
+					lens[cnt] = node->GetWorldTransform().pos.Distance(ray.orig);
 					++cnt;
 				}
 			}
@@ -66,7 +65,8 @@ bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt)
 
 		if (cnt == 1)
 		{
-			nodes[0]->OnPicking(); // Trigger Event
+			nodes[0]->OnPicking(state); // Trigger Event
+			BoradcastPickEvent(nodes[0], state);
 			return true;
 		}
 
@@ -82,15 +82,21 @@ bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt)
 			}
 		}
 
-		nodes[idx]->OnPicking(); // Trigger Event
+		nodes[idx]->OnPicking(state); // Trigger Event
+		BoradcastPickEvent(nodes[idx], state);
 	}
 	else
 	{
 		for (auto &node : m_nodes)
 		{
 			if (node->IsOpFlag(eOpFlag::PICK))
-				if (node->Picking(orig, dir, node->m_type))
-					node->OnPicking(); // Trigger Event
+			{
+				if (node->Picking(ray, node->m_type))
+				{
+					node->OnPicking(state); // Trigger Event
+					BoradcastPickEvent(node, state);
+				}
+			}
 		}
 	}
 
@@ -101,10 +107,42 @@ bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt)
 void cPickManager::Clear()
 {
 	m_nodes.clear();
+	m_listeners.clear();
 }
 
 
 void cPickManager::SetMode(const ePickMode::Enum mode)
 {
 	m_mode = mode;
+}
+
+
+bool cPickManager::AddListener(iPickListener *listener)
+{
+	auto it = std::find(m_listeners.begin(), m_listeners.end(), listener);
+	if (m_listeners.end() != it)
+		return false; // already exist
+
+	m_listeners.push_back(listener);
+	return true;
+}
+
+
+bool cPickManager::RemoveListener(iPickListener *listener)
+{
+	auto it = std::find(m_listeners.begin(), m_listeners.end(), listener);
+	if (m_listeners.end() == it)
+		return false; // not exist
+
+	common::popvector2(m_listeners, listener);
+	return true;
+}
+
+
+void cPickManager::BoradcastPickEvent(cNode *node, const ePickState::Enum state)
+{
+	RET(m_listeners.empty());
+
+	for (auto &p : m_listeners)
+		p->OnPickEvent(node, state);
 }

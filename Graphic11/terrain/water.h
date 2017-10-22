@@ -23,7 +23,7 @@ namespace graphic
 	};
 
 
-	class cWater : public cNode2
+	class cWater : public cNode
 	{
 	public:
 		cWater();

@@ -72,7 +72,7 @@ void cDbgLineList::Render(cRenderer &renderer
 	, const Matrix44 &tm //= Matrix44::Identity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();

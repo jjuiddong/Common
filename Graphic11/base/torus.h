@@ -8,7 +8,7 @@
 namespace graphic
 {
 
-	class cTorus : public cNode2
+	class cTorus : public cNode
 	{
 	public:
 		cTorus();

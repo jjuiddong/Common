@@ -6,7 +6,7 @@ using namespace graphic;
 
 
 cLine::cLine() 
-	: cNode2(common::GenerateId(), "line", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "line", eNodeType::MODEL)
 {
 }
 
@@ -17,7 +17,7 @@ cLine::cLine(cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
 	, const cColor color //= cColor::BLACK
 )
-	: cNode2(common::GenerateId(), "line", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "line", eNodeType::MODEL)
 {
 	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);

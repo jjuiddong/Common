@@ -90,6 +90,9 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 				tree.put("rot", format<64>("%f %f %f %f"
 					, p->m_transform.rot.x, p->m_transform.rot.y, p->m_transform.rot.z, p->m_transform.rot.w).c_str());
 
+				if (cModel *mod = dynamic_cast<cModel*>(p))
+					tree.put("animation speed", format<64>("%f", mod->m_animationSpeed).c_str());
+
 				const Vector3 dim = p->m_boundingBox.GetDimension();
 				const Vector3 center = *(Vector3*)&p->m_boundingBox.m_bbox.Center;
 				const Vector3 _min = center - (dim / 2);
@@ -100,7 +103,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 
 				if (eNodeType::MODEL == p->m_type)
 				{
-					if (cModel2 *model = dynamic_cast<cModel2*>(p))
+					if (cModel *model = dynamic_cast<cModel*>(p))
 						tree.put("filename", model->m_fileName.utf8().c_str());// Save UTF-8
 				}
 
@@ -201,6 +204,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			for (ptree::value_type &vt : child_field)
 			{
 				Transform transform;
+				float aniSpeed = 1.f;
 				cBoundingBox bbox; // world space
 				{
 					std::stringstream ss(vt.second.get<string>("pos"));
@@ -213,6 +217,10 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				{
 					std::stringstream ss(vt.second.get<string>("rot"));
 					ss >> transform.rot.x >> transform.rot.y >> transform.rot.z >> transform.rot.w;
+				}
+				{
+					std::stringstream ss(vt.second.get<string>("animation speed", "1"));
+					ss >> aniSpeed;
 				}
 
 				{
@@ -227,10 +235,11 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				}
 
 				StrPath fileName = vt.second.get<string>("filename");
-				cModel2 *model = new cModel2();
+				cModel *model = new cModel();
 				model->Create(renderer, common::GenerateId()
-					, fileName.ansi(), "../Media/shader/xfile.fx", "Unlit", true);
+					, fileName.ansi(), true);
 				model->m_name = vt.second.get<string>("name");
+				model->m_animationSpeed = aniSpeed;
 
 				// insert model to most nearest tile
 				{

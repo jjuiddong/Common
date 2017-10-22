@@ -70,19 +70,13 @@ namespace graphic {
 #pragma warning(pop)
 
 #include "base/graphicdef.h"
-#include "model/rawmesh.h"
-#include "model/rawani.h"
+#include "model_assimp/rawmesh.h"
+#include "model_assimp/rawani.h"
 #include "collision/boundingbox.h"
 #include "collision/boundingsphere.h"
-//
-//#include "interface/renderable.h"
-//#include "interface/shaderrenderer.h"
-//#include "interface/shadowrenderer.h"
-//
-#include "model/node2.h"
-//
 
 
+#include "base/node.h"
 #include "base/color.h"
 #include "base/viewport.h"
 #include "base/material.h"
@@ -95,6 +89,7 @@ namespace graphic {
 #include "base/samplerstate.h"
 #include "base/texture.h"
 #include "base/rendertarget.h"
+#include "base/depthbuffer.h"
 //#include "base/texturecube.h"
 #include "base/vertexformat.h"
 
@@ -149,24 +144,14 @@ namespace graphic {
 //#include "particle/particles.h"
 //#include "particle/snow.h"
 //
-//
-//#include "model/track.h"
-//#include "model/blendtrack.h"
-//#include "model/mesh.h"
-//#include "model/rigidmesh.h"
-//#include "model/skinnedmesh.h"
-//#include "model/model.h"
-//#include "model/bonemgr.h"
-//#include "model/bonenode.h"
-//
 #include "model_assimp/skeleton.h"
 #include "model_assimp/animationnode.h"
 #include "model_assimp/animation.h"
-#include "model_assimp/mesh2.h"
+#include "model_assimp/mesh.h"
 #include "model_assimp/model_assimp.h"
 #include "model_assimp/assimploader.h"
+#include "model_assimp/model.h"
 
-#include "model_new/model2.h"
 
 #include "terrain/cascadedshadowmap.h"
 #include "terrain/water.h"
@@ -187,7 +172,7 @@ namespace graphic
 		int opt;
 		Vector3 normal;
 		Matrix44 tm;
-		cNode2 *p;
+		cNode *p;
 	};
 
 	struct sAlphaBlendSpace
@@ -208,7 +193,6 @@ namespace graphic
 #include "manager/lightmanager.h"
 
 #include "importer/parallelloader.h"
-#include "importer/modelimporter.h"
 
 
 #pragma comment( lib, "gdiplus.lib" ) 

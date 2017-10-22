@@ -12,7 +12,7 @@
 namespace graphic
 {
 
-	class cText3d3 : public cNode2
+	class cText3d3 : public cNode
 	{
 	public:
 		cText3d3();
