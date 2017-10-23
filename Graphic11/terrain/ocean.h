@@ -17,8 +17,8 @@
 //
 #pragma once
 
-//#define terrain_gridpoints 512
-#define terrain_gridpoints 1024
+#define terrain_gridpoints 512
+//#define terrain_gridpoints 1024
 #define scene_z_near 1.0f
 #define scene_z_far 25000.0f
 #define camera_fov 110.0f
@@ -35,7 +35,10 @@ namespace graphic
 		void Create(cRenderer &renderer
 			, const float backBufferWidth, const float backBufferHeight);
 		void ReCreateBuffers(cRenderer &renderer);
-		void Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds);
+		void Render(cRenderer &renderer
+			, cCamera *cam
+			, cSkyBox *skyBox
+			, const float deltaSeconds);
 		void CreateTerrain(cRenderer &renderer);
 
 		void SetupNormalView(cCamera *);
@@ -53,6 +56,9 @@ namespace graphic
 
 		ID3D11Texture2D		*m_water_bump_texture;
 		ID3D11ShaderResourceView *m_water_bump_textureSRV;
+
+		ID3D11Texture2D		*sky_texture;
+		ID3D11ShaderResourceView *sky_textureSRV;
 
 		ID3D11Texture2D			 *m_reflection_color_resource;
 		ID3D11ShaderResourceView *m_reflection_color_resourceSRV;
@@ -86,6 +92,7 @@ namespace graphic
 		ID3D11Texture2D		*depthmap_texture;
 		ID3D11ShaderResourceView *depthmap_textureSRV;
 		ID3D11Buffer		*heightfield_vertexbuffer;
+		ID3D11Buffer		*sky_vertexbuffer;
 		ID3D11InputLayout   *heightfield_inputlayout;
 		ID3D11InputLayout   *trianglestrip_inputlayout;
 

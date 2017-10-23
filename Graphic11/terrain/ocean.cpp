@@ -24,6 +24,9 @@ namespace graphic
 	//const int terrain_layerdef_map_texture_size = 1024;
 	const int terrain_depth_shadow_map_texture_size = 512;
 
+	const int sky_gridpoints = 10;
+	const float sky_texture_angle = 0.425f;
+
 	const float main_buffer_size_multiplier = 1.1f;
 	const float reflection_buffer_size_multiplier = 1.1f;
 	const float refraction_buffer_size_multiplier = 1.1f;
@@ -64,6 +67,20 @@ void cOcean::Create(cRenderer &renderer
 	ID3D11Device *pDevice = renderer.GetDevice();
 	ID3DX11Effect *pEffect = m_shader->m_effect;
 
+	//const D3D11_INPUT_ELEMENT_DESC SkyLayout[] =
+	//{
+	//	{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	//	{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,   0, 16,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	//};
+
+	//D3DX11_PASS_DESC passDesc;
+	//pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->GetDesc(&passDesc);
+	//pDevice->CreateInputLayout(SkyLayout,
+	//	2,
+	//	passDesc.pIAInputSignature,
+	//	passDesc.IAInputSignatureSize,
+	//	&trianglestrip_inputlayout);
+
 	const D3D11_INPUT_ELEMENT_DESC SkyLayout[] =
 	{
 		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -71,15 +88,20 @@ void cOcean::Create(cRenderer &renderer
 	};
 
 	D3DX11_PASS_DESC passDesc;
-	pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->GetDesc(&passDesc);
+	pEffect->GetTechniqueByName("RenderSky")->GetPassByIndex(0)->GetDesc(&passDesc);
 	pDevice->CreateInputLayout(SkyLayout,
 		2,
 		passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize,
 		&trianglestrip_inputlayout);
 
+
+
 	DirectX::CreateDDSTextureFromFile(renderer.GetDevice(), L"../media/TerrainTextures/water_bump.dds"
 		, (ID3D11Resource**)&m_water_bump_texture, &m_water_bump_textureSRV);
+
+	DirectX::CreateDDSTextureFromFile(pDevice, L"../media/TerrainTextures/sky.dds"
+		, (ID3D11Resource**)&sky_texture, &sky_textureSRV);
 
 	CreateTerrain(renderer);
 	ReCreateBuffers(renderer);
@@ -334,6 +356,9 @@ void cOcean::Clear()
 	SAFE_RELEASE(m_water_bump_texture);
 	SAFE_RELEASE(m_water_bump_textureSRV);
 
+	SAFE_RELEASE(sky_texture);
+	SAFE_RELEASE(sky_textureSRV);
+
 	SAFE_RELEASE(depthmap_texture);
 	SAFE_RELEASE(depthmap_textureSRV);
 
@@ -366,6 +391,8 @@ void cOcean::Clear()
 	SAFE_RELEASE(m_shadowmap_resourceSRV);
 
 	SAFE_RELEASE(trianglestrip_inputlayout);
+
+	SAFE_RELEASE(sky_vertexbuffer);
 
 	SAFE_RELEASE(heightfield_vertexbuffer);
 	//SAFE_RELEASE(heightfield_inputlayout);
@@ -548,12 +575,73 @@ void cOcean::CreateTerrain(cRenderer &renderer)
 
 	result=pDevice->CreateBuffer(&buf_desc,&subresource_data,&heightfield_vertexbuffer);
 	free (patches_rawdata);
+
+	// creating sky vertex buffer
+	float *sky_vertexdata;
+	int floatnum;
+	sky_vertexdata = new float[sky_gridpoints*(sky_gridpoints + 2) * 2 * 6];
+
+	for (int j = 0; j<sky_gridpoints; j++)
+	{
+
+		i = 0;
+		floatnum = (j*(sky_gridpoints + 2) * 2) * 6;
+		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 3] = 1;
+		sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)j / (float)sky_gridpoints;
+		floatnum += 6;
+		for (i = 0; i<sky_gridpoints + 1; i++)
+		{
+			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 3] = 1;
+			sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)j / (float)sky_gridpoints;
+			floatnum += 6;
+			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 3] = 1;
+			sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)(j + 1) / (float)sky_gridpoints;
+			floatnum += 6;
+		}
+		i = sky_gridpoints;
+		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 3] = 1;
+		sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)(j + 1) / (float)sky_gridpoints;
+		floatnum += 6;
+	}
+
+	memset(&buf_desc, 0, sizeof(buf_desc));
+
+	buf_desc.ByteWidth = sky_gridpoints*(sky_gridpoints + 2) * 2 * 6 * sizeof(float);
+	buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	buf_desc.Usage = D3D11_USAGE_DEFAULT;
+
+	subresource_data.pSysMem = sky_vertexdata;
+	subresource_data.SysMemPitch = 0;
+	subresource_data.SysMemSlicePitch = 0;
+
+	result = pDevice->CreateBuffer(&buf_desc, &subresource_data, &sky_vertexbuffer);
+
+	free(sky_vertexdata);
 }
 
 
 float g_LightPosition[3] = { -10000.0f,6500.0f,10000.0f };
 
-void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
+void cOcean::Render(cRenderer &renderer
+	, cCamera *cam
+	, cSkyBox *skyBox
+	, const float deltaSeconds)
 {
 	ID3D11Device *pDevice = renderer.GetDevice();
 	ID3DX11Effect *pEffect = m_shader->m_effect;
@@ -589,6 +677,9 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 
 	tex_variable=pEffect->GetVariableByName("g_WaterBumpTexture")->AsShaderResource();
 	tex_variable->SetResource(m_water_bump_textureSRV);
+
+	tex_variable = pEffect->GetVariableByName("g_SkyTexture")->AsShaderResource();
+	tex_variable->SetResource(sky_textureSRV);
 
 	//tex_variable=pEffect->GetVariableByName("g_DepthMapTexture")->AsShaderResource();
 	//tex_variable->SetResource(depthmap_textureSRV);
@@ -665,10 +756,33 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
     pContext->ClearRenderTargetView( m_reflection_color_resourceRTV, RefractionClearColor );
     pContext->ClearDepthStencilView( m_reflection_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
+	SetupReflectionView(cam);
+	// drawing sky to reflection RT
+
+	pEffect->GetTechniqueByName("RenderSky")->GetPassByIndex(0)->Apply(0, pContext);
+	pContext->IASetInputLayout(trianglestrip_inputlayout);
+	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	stride = sizeof(float) * 6;
+	pContext->IASetVertexBuffers(0, 1, &sky_vertexbuffer, &stride, &offset);
+	pContext->Draw(sky_gridpoints*(sky_gridpoints + 2) * 2, 0);
+
+	//// Reflection plane in local space.
+	//Plane waterPlaneL(0, -1, 0, 0);
+	//// Reflection plane in world space.
+	//Matrix44 waterWorld;
+	//waterWorld.SetTranslate(Vector3(0, 1, 0)); // water height
+	//Matrix44 WInvTrans;
+	//WInvTrans = waterWorld.Inverse();
+	//WInvTrans.Transpose();
+	//Plane waterPlaneW = waterPlaneL * WInvTrans;
+	//if (skyBox)
+	//	skyBox->Render(renderer, waterPlaneW.GetReflectMatrix().GetMatrixXM());
+
+
 	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
 	tex_variable->SetResource(NULL);
 
-	pEffect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->Apply(0, pContext);
+	//pEffect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->Apply(0, pContext);
 
 	// setting up main rendertarget	
 	pContext->RSSetViewports(1,&main_Viewport);
@@ -684,7 +798,7 @@ void cOcean::Render(cRenderer &renderer, cCamera *cam, const float deltaSeconds)
 	tex_variable->SetResource(NULL);
 	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
 	tex_variable->SetResource(NULL);
-	pEffect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->Apply(0, pContext);
+	//pEffect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->Apply(0, pContext);
 
 	// resolving main buffer color to refraction color resource
 	pContext->ResolveSubresource(m_refraction_color_resource,0,m_main_color_resource,0,DXGI_FORMAT_R8G8B8A8_UNORM);

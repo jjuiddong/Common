@@ -65,7 +65,7 @@ bool cTile::Create(cRenderer &renderer
 	m_ground->SetRenderFlag(eRenderFlag::SHADOW, true);
 	m_ground->SetOpFlag(eOpFlag::COLLISION, false);
 	m_ground->m_isLineDrawing = true;
-	//m_ground->m_transform.pos.y = -3.f;
+	m_ground->m_transform.pos.y = -3.f;
 	if (!textureFileName)
 		m_ground->m_mtrl.InitWhite();
 	AddChild(m_ground);
