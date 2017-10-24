@@ -20,19 +20,20 @@ bool cSkeleton::Create(sRawMeshGroup2 *meshes)
 	m_tmAni.resize(meshes->bones.size(), Matrix44::Identity);
 	m_tmPose.resize(meshes->bones.size(), Matrix44::Identity);
 
-	for (u_int i = 0; i < meshes->bones.size(); ++i)
-	{
-		m_tmAni[i] = meshes->bones[i].localTm;
-		m_tmOffset[i] = meshes->bones[i].offsetTm;
-	}
+	//for (u_int i = 0; i < meshes->bones.size(); ++i)
+	//{
+	//	m_tmAni[i] = meshes->bones[i].localTm;
+	//	m_tmOffset[i] = meshes->bones[i].offsetTm;
+	//}
 
 	m_bones = meshes->bones; // Already Orderred
+	SetInitializePose();
 
 	return true;
 }
 
 
-void cSkeleton::UpdateHierarcyTransform()
+void cSkeleton::UpdateHierarchyTransform()
 {
 	for (auto &bone : m_bones)
 	{
@@ -41,4 +42,14 @@ void cSkeleton::UpdateHierarcyTransform()
 			tm *= m_tmPose[bone.parentId];
 		m_tmPose[bone.id] = tm;
 	}	
+}
+
+
+void cSkeleton::SetInitializePose()
+{
+	for (u_int i = 0; i < m_bones.size(); ++i)
+	{
+		m_tmAni[i] = m_bones[i].localTm;
+		m_tmOffset[i] = m_bones[i].offsetTm;
+	}
 }

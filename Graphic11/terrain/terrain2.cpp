@@ -125,6 +125,9 @@ bool cTerrain2::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
 	CullingTestOnly(renderer, GetMainCamera()); // Recovery Culling
 	return __super::Render(renderer, tm);
 }
@@ -136,6 +139,9 @@ bool cTerrain2::RenderCascadedShadowMap(cRenderer &renderer
 	, const int flags // =1
 )
 {
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
 	ccsm.Bind(renderer);
 	__super::Render(renderer, tm);
 
@@ -151,6 +157,9 @@ void cTerrain2::RenderOption(cRenderer &renderer
 	, const int option //= 0x1
 )
 {
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
 	__super::Render(renderer, tm, option);
 }
 
@@ -159,6 +168,9 @@ void cTerrain2::RenderDebug(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
 	if (m_isShowDebug)
 	{
 		m_dbgLightDir.Render(renderer);

@@ -155,7 +155,8 @@ void cAssimpModel::UpdateBoundingBox()
 void cAssimpModel::SetAnimation(const Str64 &animationName, const bool isMerge)
 // isMerge = false
 {
-	m_animation.SetAnimation(animationName, isMerge);
+	if (m_animation.SetAnimation(animationName, isMerge))
+		m_animation.Play();
 }
 
 

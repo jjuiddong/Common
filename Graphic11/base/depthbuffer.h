@@ -16,13 +16,15 @@ namespace graphic
 
 		bool Create(cRenderer &renderer
 			, const cViewport &viewPort
-			, const DXGI_FORMAT dsvFormat = DXGI_FORMAT_D32_FLOAT
+			, const DXGI_FORMAT texFormat = DXGI_FORMAT_R32_TYPELESS
+			, const DXGI_FORMAT SRVFormat = DXGI_FORMAT_R32_FLOAT
+			, const DXGI_FORMAT DSVFormat = DXGI_FORMAT_D32_FLOAT
 			, const bool isMultiSampling = true
 		);
 
 		void SetRenderTarget(cRenderer &renderer);
 		void RecoveryRenderTarget(cRenderer &renderer);
-		bool Begin(cRenderer &renderer, const bool isClear = true);
+		bool Begin(cRenderer &renderer, const bool isClear = true, const Vector4 &clearColor=Vector4(1,1,1,1));
 		void End(cRenderer &renderer);
 		void Bind(cRenderer &renderer, const int stage = 0);
 		void Clear();

@@ -1,7 +1,7 @@
 //
 // 2017-07-17, jjuiddong
 // Draw Text On Texture and then Render 3D Space
-// cNode2 Derivated
+// cNode Derivated
 //
 // 2017-08-24
 //	- Upgrade DX11

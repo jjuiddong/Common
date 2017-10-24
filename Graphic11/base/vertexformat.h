@@ -35,6 +35,13 @@ namespace graphic
 	};
 
 
+	struct sVertexTex2
+	{
+		Vector4 p;
+		float u, v;
+	};
+
+
 	struct sVertexTexRhw
 	{
 		Vector4 p;

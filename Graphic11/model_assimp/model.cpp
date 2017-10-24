@@ -108,10 +108,11 @@ bool cModel::Update(cRenderer &renderer, const float deltaSeconds)
 	RETV(!IsVisible(), false);
 
 	bool reval = false;
-	m_aniIncT += deltaSeconds;
+	const float dt = deltaSeconds * m_animationSpeed;
+	m_aniIncT += dt;
 	if (m_model)
 	{
-		reval = m_model->Update(deltaSeconds*m_animationSpeed, m_aniIncT*m_animationSpeed);
+		reval = m_model->Update(dt, m_aniIncT);
 		if (reval)
 			m_aniIncT = 0;		
 	}

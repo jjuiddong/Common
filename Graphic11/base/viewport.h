@@ -30,9 +30,19 @@ namespace graphic
 		float GetWidth() const;
 		float GetHeight() const;
 
+		const cViewport& operator=(const D3D11_VIEWPORT &vp);		
+
 
 	public:
 		D3D11_VIEWPORT m_vp;
 	};
 
+
+	inline float cViewport::GetX() const {return m_vp.TopLeftX;}
+	inline float cViewport::GetY() const {return m_vp.TopLeftY;}
+	inline float cViewport::GetMinZ() const {return m_vp.MinDepth;}
+	inline float cViewport::GetMaxZ() const {return m_vp.MaxDepth;}
+	inline float cViewport::GetWidth() const {return m_vp.Width;}
+	inline float cViewport::GetHeight() const {return m_vp.Height;}
+	inline const cViewport& cViewport::operator=(const D3D11_VIEWPORT &vp) { m_vp = vp; return *this; }
 }

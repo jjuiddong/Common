@@ -165,6 +165,7 @@
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
     <ClInclude Include="base\skybox.h" />
+    <ClInclude Include="base\skyboxcube.h" />
     <ClInclude Include="base\sphere.h" />
     <ClInclude Include="base\temporalbuffer.h" />
     <ClInclude Include="base\text.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
     <ClCompile Include="base\skybox.cpp" />
+    <ClCompile Include="base\skyboxcube.cpp" />
     <ClCompile Include="base\sphere.cpp" />
     <ClCompile Include="base\temporalbuffer.cpp" />
     <ClCompile Include="base\text.cpp" />

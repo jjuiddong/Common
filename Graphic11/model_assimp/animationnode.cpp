@@ -7,6 +7,7 @@ using namespace graphic;
 
 cAnimationNode::cAnimationNode(const sBoneAni *boneAni)
 	: m_boneAni(boneAni)
+	, m_isEnable(true)
 {
 }
 

@@ -12,7 +12,8 @@ namespace graphic
 		cSkeleton();
 		virtual ~cSkeleton();
 		bool Create(sRawMeshGroup2 *meshes);
-		void UpdateHierarcyTransform();
+		void UpdateHierarchyTransform();
+		void SetInitializePose();
 
 
 	public:

@@ -240,6 +240,14 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin-bump.fxo", pos_norm_tex_skin_bump, ARRAYSIZE(pos_norm_tex_skin_bump));
 
 
+	D3D11_INPUT_ELEMENT_DESC skyboxcube_layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	m_shaderMgr.LoadShader(*this, "../media/shader11/skyboxcube.fxo", skyboxcube_layout, ARRAYSIZE(skyboxcube_layout), false);
+
+
 	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
 	//m_textFps.SetPos(0, 0);
 	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
@@ -590,14 +598,14 @@ sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 void cRenderer::BindTexture(cTexture *texture, const int stage)
 {
 	RET(MAX_TEXTURE_STAGE <= (stage - 1));
-	m_textureMap[stage - TEXTURE_OFFSET] = (texture) ? texture->m_texture : NULL;
+	m_textureMap[stage - TEXTURE_OFFSET] = (texture) ? texture->m_texSRV : NULL;
 }
 
 
 void cRenderer::BindTexture(cRenderTarget &rt, const int stage)
 {
 	RET(MAX_TEXTURE_STAGE <= (stage - 1));
-	m_textureMap[stage - TEXTURE_OFFSET] = rt.m_texture;
+	m_textureMap[stage - TEXTURE_OFFSET] = rt.m_texSRV;
 }
 
 

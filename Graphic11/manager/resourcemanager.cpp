@@ -514,27 +514,7 @@ void cResourceManager::AddTask(cTask *task)
 // media 폴더내에 fileName이 있으면, 경로를 리턴한다.
 StrPath cResourceManager::GetResourceFilePath(const StrPath &fileName)
 {
-	if (fileName.IsFileExist())
-	{
-		return fileName;
-	}
-	else
-	{
-		const StrPath composeMediaFileName = m_mediaDirectory + fileName;
-		if (composeMediaFileName.IsFileExist())
-		{
-			return composeMediaFileName;
-		}
-		else
-		{
-			StrPath newPath;
-			if (common::FindFile(fileName, m_mediaDirectory, newPath))
-			{
-				return newPath;
-			}
-		}
-	}
-	return "";
+	return GetResourceFilePath(m_mediaDirectory, fileName);
 }
 
 
@@ -562,7 +542,8 @@ StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath 
 			if ((searchPath.back() != '/') || (searchPath.back() != '\\'))
 				searchPath += "/";
 
-			if (common::FindFile(fileName, searchPath, newPath, 5))
+			StrPath onlyFileName = fileName.GetFileName();
+			if (common::FindFile(onlyFileName, searchPath, newPath, 5))
 			{
 				return newPath;
 			}

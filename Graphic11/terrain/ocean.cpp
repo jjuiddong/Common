@@ -18,7 +18,7 @@ namespace graphic
 	const int terrain_smoothsteps = 40;
 
 	const float terrain_far_range = terrain_gridpoints*terrain_geometry_scale;
-
+	
 	const int shadowmap_resource_buffer_size_xy = 4096;
 	const int water_normalmap_resource_buffer_size_xy = 2048;
 	//const int terrain_layerdef_map_texture_size = 1024;
@@ -41,8 +41,10 @@ cOcean::cOcean()
 {
 	m_microBumpTexScale[0] = 225;
 	m_microBumpTexScale[1] = 225;
-	m_waterBumpTexScale[0] = 14;
-	m_waterBumpTexScale[1] = 14;
+	//m_waterBumpTexScale[0] = 14;
+	//m_waterBumpTexScale[1] = 14;
+	m_waterBumpTexScale[0] = 7;
+	m_waterBumpTexScale[1] = 7;
 }
 
 cOcean::~cOcean()
@@ -67,41 +69,9 @@ void cOcean::Create(cRenderer &renderer
 	ID3D11Device *pDevice = renderer.GetDevice();
 	ID3DX11Effect *pEffect = m_shader->m_effect;
 
-	//const D3D11_INPUT_ELEMENT_DESC SkyLayout[] =
-	//{
-	//	{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,   0, 16,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	//};
-
-	//D3DX11_PASS_DESC passDesc;
-	//pEffect->GetTechniqueByName("MainToBackBuffer")->GetPassByIndex(0)->GetDesc(&passDesc);
-	//pDevice->CreateInputLayout(SkyLayout,
-	//	2,
-	//	passDesc.pIAInputSignature,
-	//	passDesc.IAInputSignatureSize,
-	//	&trianglestrip_inputlayout);
-
-	const D3D11_INPUT_ELEMENT_DESC SkyLayout[] =
-	{
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,   0, 16,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	D3DX11_PASS_DESC passDesc;
-	pEffect->GetTechniqueByName("RenderSky")->GetPassByIndex(0)->GetDesc(&passDesc);
-	pDevice->CreateInputLayout(SkyLayout,
-		2,
-		passDesc.pIAInputSignature,
-		passDesc.IAInputSignatureSize,
-		&trianglestrip_inputlayout);
-
-
-
-	DirectX::CreateDDSTextureFromFile(renderer.GetDevice(), L"../media/TerrainTextures/water_bump.dds"
-		, (ID3D11Resource**)&m_water_bump_texture, &m_water_bump_textureSRV);
-
-	DirectX::CreateDDSTextureFromFile(pDevice, L"../media/TerrainTextures/sky.dds"
-		, (ID3D11Resource**)&sky_texture, &sky_textureSRV);
+	m_waterBump = cResourceManager::Get()->LoadTextureParallel(renderer, "../media/TerrainTextures/water_bump.dds");
+	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
+		, "../media/TerrainTextures/water_bump.dds", (void**)&m_waterBump));
 
 	CreateTerrain(renderer);
 	ReCreateBuffers(renderer);
@@ -110,292 +80,24 @@ void cOcean::Create(cRenderer &renderer
 
 void cOcean::ReCreateBuffers(cRenderer &renderer)
 {
-	ID3D11Device *pDevice = renderer.GetDevice();
+	cViewport vp;
+	vp.Create(0, 0, (m_BackbufferWidth*main_buffer_size_multiplier), (m_BackbufferHeight*main_buffer_size_multiplier), 0, 1);
+	m_mainColor.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, true, true, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
 
-	D3D11_TEXTURE2D_DESC tex_desc;
-	D3D11_SHADER_RESOURCE_VIEW_DESC textureSRV_desc;
-	D3D11_DEPTH_STENCIL_VIEW_DESC DSV_desc;
+	vp.Create(0, 0, (m_BackbufferWidth*reflection_buffer_size_multiplier), (m_BackbufferHeight*reflection_buffer_size_multiplier), 0, 1);
+	m_reflection.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, false, true, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
 
-	SAFE_RELEASE(m_main_color_resource);
-	SAFE_RELEASE(m_main_color_resourceSRV);
-	SAFE_RELEASE(m_main_color_resourceRTV);
+	vp.Create(0, 0, (m_BackbufferWidth*refraction_buffer_size_multiplier), (m_BackbufferHeight*refraction_buffer_size_multiplier), 0, 1);
+	m_refraction.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, false, true, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
+	m_refractionDepth.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, false, false);
 
-	SAFE_RELEASE(m_main_color_resource_resolved);
-	SAFE_RELEASE(m_main_color_resource_resolvedSRV);
-
-	SAFE_RELEASE(m_main_depth_resource);
-	SAFE_RELEASE(m_main_depth_resourceDSV);
-	SAFE_RELEASE(m_main_depth_resourceSRV);
-
-	SAFE_RELEASE(m_reflection_color_resource);
-	SAFE_RELEASE(m_reflection_color_resourceSRV);
-	SAFE_RELEASE(m_reflection_color_resourceRTV);
-	SAFE_RELEASE(m_refraction_color_resource);
-	SAFE_RELEASE(m_refraction_color_resourceSRV);
-	SAFE_RELEASE(m_refraction_color_resourceRTV);
-
-	SAFE_RELEASE(m_reflection_depth_resource);
-	SAFE_RELEASE(m_reflection_depth_resourceDSV);
-	SAFE_RELEASE(m_refraction_depth_resource);
-	SAFE_RELEASE(m_refraction_depth_resourceSRV);
-	SAFE_RELEASE(m_refraction_depth_resourceRTV);
-
-	SAFE_RELEASE(m_shadowmap_resource);
-	SAFE_RELEASE(m_shadowmap_resourceDSV);
-	SAFE_RELEASE(m_shadowmap_resourceSRV);
-
-	// recreating main color buffer
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	ZeroMemory(&tex_desc,sizeof(tex_desc));
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*main_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*main_buffer_size_multiplier);
-    tex_desc.MipLevels          = 1;
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-	tex_desc.SampleDesc.Count   = m_MultiSampleCount;
-    tex_desc.SampleDesc.Quality = m_MultiSampleQuality;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = 0;
-
-    textureSRV_desc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-	textureSRV_desc.Texture2D.MipLevels = tex_desc.MipLevels;
-	textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D         ( &tex_desc, NULL, &m_main_color_resource );
-    pDevice->CreateShaderResourceView( m_main_color_resource, &textureSRV_desc, &m_main_color_resourceSRV );
-    pDevice->CreateRenderTargetView  ( m_main_color_resource, NULL, &m_main_color_resourceRTV );
-
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	ZeroMemory(&tex_desc,sizeof(tex_desc));
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*main_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*main_buffer_size_multiplier);
-    tex_desc.MipLevels          = 1;
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-	tex_desc.SampleDesc.Count   = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = 0;
-
-    textureSRV_desc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	textureSRV_desc.Texture2D.MipLevels = tex_desc.MipLevels;
-	textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D         ( &tex_desc, NULL, &m_main_color_resource_resolved );
-    pDevice->CreateShaderResourceView( m_main_color_resource_resolved, &textureSRV_desc, &m_main_color_resource_resolvedSRV );
-
-	// recreating main depth buffer
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	ZeroMemory(&tex_desc,sizeof(tex_desc));
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*main_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*main_buffer_size_multiplier);
-    tex_desc.MipLevels          = 1;
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R32_TYPELESS;
-	tex_desc.SampleDesc.Count   = m_MultiSampleCount;
-    tex_desc.SampleDesc.Quality = m_MultiSampleQuality;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = 0;
-	
-	DSV_desc.Format  = DXGI_FORMAT_D32_FLOAT;
-	DSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-	DSV_desc.Flags = 0;
-	DSV_desc.Texture2D.MipSlice = 0;
-
-    textureSRV_desc.Format                    = DXGI_FORMAT_R32_FLOAT;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-	textureSRV_desc.Texture2D.MipLevels		  = 1;
-	textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D( &tex_desc, NULL, &m_main_depth_resource );
- 	pDevice->CreateDepthStencilView(m_main_depth_resource, &DSV_desc, &m_main_depth_resourceDSV );
-	pDevice->CreateShaderResourceView( m_main_depth_resource, &textureSRV_desc, &m_main_depth_resourceSRV );
-
-	// recreating reflection and refraction color buffers
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	ZeroMemory(&tex_desc,sizeof(tex_desc));
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*reflection_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*reflection_buffer_size_multiplier);
-    tex_desc.MipLevels          = (UINT)max(1,log(max((float)tex_desc.Width,(float)tex_desc.Height))/(float)log(2.0f));
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-    tex_desc.SampleDesc.Count   = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-    textureSRV_desc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	textureSRV_desc.Texture2D.MipLevels = tex_desc.MipLevels;
-	textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D         ( &tex_desc, NULL, &m_reflection_color_resource );
-    pDevice->CreateShaderResourceView( m_reflection_color_resource, &textureSRV_desc, &m_reflection_color_resourceSRV );
-    pDevice->CreateRenderTargetView  ( m_reflection_color_resource, NULL, &m_reflection_color_resourceRTV );
-
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	ZeroMemory(&tex_desc,sizeof(tex_desc));
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*refraction_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*refraction_buffer_size_multiplier);
-    tex_desc.MipLevels          = (UINT)max(1,log(max((float)tex_desc.Width,(float)tex_desc.Height))/(float)log(2.0f));
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-    tex_desc.SampleDesc.Count   = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-    textureSRV_desc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-	textureSRV_desc.Texture2D.MipLevels = tex_desc.MipLevels;
-	textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D         ( &tex_desc, NULL, &m_refraction_color_resource );
-    pDevice->CreateShaderResourceView( m_refraction_color_resource, &textureSRV_desc, &m_refraction_color_resourceSRV );
-    pDevice->CreateRenderTargetView  ( m_refraction_color_resource, NULL, &m_refraction_color_resourceRTV );
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	ZeroMemory(&tex_desc,sizeof(tex_desc));
-
-	// recreating reflection and refraction depth buffers
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*reflection_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*reflection_buffer_size_multiplier);
-    tex_desc.MipLevels          = 1;
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R32_TYPELESS;
-    tex_desc.SampleDesc.Count   = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = 0;
-	
-	DSV_desc.Format  = DXGI_FORMAT_D32_FLOAT;
-	DSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	DSV_desc.Flags = 0;
-	DSV_desc.Texture2D.MipSlice = 0;
-
-	pDevice->CreateTexture2D( &tex_desc, NULL, &m_reflection_depth_resource );
- 	pDevice->CreateDepthStencilView(m_reflection_depth_resource, &DSV_desc, &m_reflection_depth_resourceDSV );
-
-
-	tex_desc.Width              = (UINT)(m_BackbufferWidth*refraction_buffer_size_multiplier);
-    tex_desc.Height             = (UINT)(m_BackbufferHeight*refraction_buffer_size_multiplier);
-    tex_desc.MipLevels          = 1;
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R32_FLOAT;
-    tex_desc.SampleDesc.Count   = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = 0;
-	
-	textureSRV_desc.Format                    = DXGI_FORMAT_R32_FLOAT;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-    textureSRV_desc.Texture2D.MipLevels       = 1;
-    textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D( &tex_desc, NULL, &m_refraction_depth_resource );
- 	pDevice->CreateRenderTargetView  (m_refraction_depth_resource, NULL, &m_refraction_depth_resourceRTV );
-	pDevice->CreateShaderResourceView(m_refraction_depth_resource, &textureSRV_desc, &m_refraction_depth_resourceSRV );
-
-	// recreating shadowmap resource
-	tex_desc.Width              = shadowmap_resource_buffer_size_xy;
-    tex_desc.Height             = shadowmap_resource_buffer_size_xy;
-    tex_desc.MipLevels          = 1;
-    tex_desc.ArraySize          = 1;
-    tex_desc.Format             = DXGI_FORMAT_R32_TYPELESS;
-    tex_desc.SampleDesc.Count   = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.Usage              = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags          = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-    tex_desc.CPUAccessFlags     = 0;
-    tex_desc.MiscFlags          = 0;
-	
-	DSV_desc.Format  = DXGI_FORMAT_D32_FLOAT;
-	DSV_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	DSV_desc.Flags = 0;
-	DSV_desc.Texture2D.MipSlice=0;
-
-	textureSRV_desc.Format                    = DXGI_FORMAT_R32_FLOAT;
-    textureSRV_desc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-    textureSRV_desc.Texture2D.MipLevels       = 1;
-    textureSRV_desc.Texture2D.MostDetailedMip = 0;
-
-	pDevice->CreateTexture2D( &tex_desc, NULL, &m_shadowmap_resource);	
-	pDevice->CreateShaderResourceView( m_shadowmap_resource, &textureSRV_desc, &m_shadowmap_resourceSRV );
-	pDevice->CreateDepthStencilView(m_shadowmap_resource, &DSV_desc, &m_shadowmap_resourceDSV );
+	cViewport depthVp;
+	depthVp.Create(0, 0, (float)shadowmap_resource_buffer_size_xy, (float)shadowmap_resource_buffer_size_xy, 0, 1);
+	m_shadowMap.Create(renderer, depthVp, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
 }
 
 void cOcean::Clear()
 {
-	SAFE_RELEASE(m_water_bump_texture);
-	SAFE_RELEASE(m_water_bump_textureSRV);
-
-	SAFE_RELEASE(sky_texture);
-	SAFE_RELEASE(sky_textureSRV);
-
-	SAFE_RELEASE(depthmap_texture);
-	SAFE_RELEASE(depthmap_textureSRV);
-
-	SAFE_RELEASE(m_main_color_resource);
-	SAFE_RELEASE(m_main_color_resourceSRV);
-	SAFE_RELEASE(m_main_color_resourceRTV);
-
-	SAFE_RELEASE(m_main_color_resource_resolved);
-	SAFE_RELEASE(m_main_color_resource_resolvedSRV);
-
-	SAFE_RELEASE(m_main_depth_resource);
-	SAFE_RELEASE(m_main_depth_resourceDSV);
-	SAFE_RELEASE(m_main_depth_resourceSRV);
-
-	SAFE_RELEASE(m_reflection_color_resource);
-	SAFE_RELEASE(m_reflection_color_resourceSRV);
-	SAFE_RELEASE(m_reflection_color_resourceRTV);
-	SAFE_RELEASE(m_refraction_color_resource);
-	SAFE_RELEASE(m_refraction_color_resourceSRV);
-	SAFE_RELEASE(m_refraction_color_resourceRTV);
-
-	SAFE_RELEASE(m_reflection_depth_resource);
-	SAFE_RELEASE(m_reflection_depth_resourceDSV);
-	SAFE_RELEASE(m_refraction_depth_resource);
-	SAFE_RELEASE(m_refraction_depth_resourceRTV);
-	SAFE_RELEASE(m_refraction_depth_resourceSRV);
-
-	SAFE_RELEASE(m_shadowmap_resource);
-	SAFE_RELEASE(m_shadowmap_resourceDSV);
-	SAFE_RELEASE(m_shadowmap_resourceSRV);
-
-	SAFE_RELEASE(trianglestrip_inputlayout);
-
-	SAFE_RELEASE(sky_vertexbuffer);
-
-	SAFE_RELEASE(heightfield_vertexbuffer);
-	//SAFE_RELEASE(heightfield_inputlayout);
 }
 
 int gp_wrap(int a)
@@ -425,12 +127,6 @@ void cOcean::CreateTerrain(cRenderer &renderer)
 	int currentstep=terrain_gridpoints;
 	float mv,rm;
 	float offset=0,yscale=0,maxheight=0,minheight=0;
-
-	float *patches_rawdata;
-	HRESULT result;
-	D3D11_SUBRESOURCE_DATA subresource_data;
-	D3D11_TEXTURE2D_DESC tex_desc;
-	D3D11_SHADER_RESOURCE_VIEW_DESC textureSRV_desc; 
 
 	backterrain = (float *) malloc((terrain_gridpoints+1)*(terrain_gridpoints+1)*sizeof(float));
 	rm=terrain_fractalinitialvalue;
@@ -487,7 +183,7 @@ void cOcean::CreateTerrain(cRenderer &renderer)
 
 	free(backterrain);
 
-	patches_rawdata = new float [terrain_numpatches_1d*terrain_numpatches_1d*4];
+	float *patches_rawdata = new float [terrain_numpatches_1d*terrain_numpatches_1d*4];
 
 	//building depthmap
 	byte * depth_shadow_map_texture_pixels=(byte *)malloc(terrain_depth_shadow_map_texture_size*terrain_depth_shadow_map_texture_size*4);
@@ -526,29 +222,8 @@ void cOcean::CreateTerrain(cRenderer &renderer)
 			depth_shadow_map_texture_pixels[(j*terrain_depth_shadow_map_texture_size + i) * 4 + 3] = 0;
 		}
 
-
-	subresource_data.pSysMem = depth_shadow_map_texture_pixels;
-	subresource_data.SysMemPitch = terrain_depth_shadow_map_texture_size*4;
-	subresource_data.SysMemSlicePitch = 0;
-
-	tex_desc.Width = terrain_depth_shadow_map_texture_size;
-	tex_desc.Height = terrain_depth_shadow_map_texture_size;
-	tex_desc.MipLevels = 1;
-	tex_desc.ArraySize = 1;
-	tex_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	tex_desc.SampleDesc.Count = 1; 
-	tex_desc.SampleDesc.Quality = 0; 
-	tex_desc.Usage = D3D11_USAGE_DEFAULT;
-	tex_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	tex_desc.CPUAccessFlags = 0;
-	tex_desc.MiscFlags = 0;
-	result=pDevice->CreateTexture2D(&tex_desc,&subresource_data,&depthmap_texture);
-
-	ZeroMemory(&textureSRV_desc,sizeof(textureSRV_desc));
-	textureSRV_desc.Format=tex_desc.Format;
-	textureSRV_desc.ViewDimension=D3D11_SRV_DIMENSION_TEXTURE2D;
-	textureSRV_desc.Texture2D.MipLevels=tex_desc.MipLevels;
-	pDevice->CreateShaderResourceView(depthmap_texture,&textureSRV_desc,&depthmap_textureSRV);
+	m_depthMap.Create(renderer, terrain_depth_shadow_map_texture_size, terrain_depth_shadow_map_texture_size
+		, DXGI_FORMAT_R8G8B8A8_UNORM, depth_shadow_map_texture_pixels, terrain_depth_shadow_map_texture_size * 4);
 
 	free(depth_shadow_map_texture_pixels);
 
@@ -562,77 +237,8 @@ void cOcean::CreateTerrain(cRenderer &renderer)
 			patches_rawdata[(i+j*terrain_numpatches_1d)*4+3]=terrain_geometry_scale*terrain_gridpoints/terrain_numpatches_1d;
 		}
 
-	D3D11_BUFFER_DESC buf_desc;
-	memset(&buf_desc,0,sizeof(buf_desc));
-
-	buf_desc.ByteWidth = terrain_numpatches_1d*terrain_numpatches_1d*4*sizeof(float);
-	buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	buf_desc.Usage = D3D11_USAGE_DEFAULT;
-
-	subresource_data.pSysMem=patches_rawdata;
-	subresource_data.SysMemPitch=0;
-	subresource_data.SysMemSlicePitch=0;
-
-	result=pDevice->CreateBuffer(&buf_desc,&subresource_data,&heightfield_vertexbuffer);
+	m_heightField.Create(renderer, terrain_numpatches_1d*terrain_numpatches_1d, sizeof(Vector4), patches_rawdata);
 	free (patches_rawdata);
-
-	// creating sky vertex buffer
-	float *sky_vertexdata;
-	int floatnum;
-	sky_vertexdata = new float[sky_gridpoints*(sky_gridpoints + 2) * 2 * 6];
-
-	for (int j = 0; j<sky_gridpoints; j++)
-	{
-
-		i = 0;
-		floatnum = (j*(sky_gridpoints + 2) * 2) * 6;
-		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 3] = 1;
-		sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)j / (float)sky_gridpoints;
-		floatnum += 6;
-		for (i = 0; i<sky_gridpoints + 1; i++)
-		{
-			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 3] = 1;
-			sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)j / (float)sky_gridpoints;
-			floatnum += 6;
-			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 3] = 1;
-			sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)(j + 1) / (float)sky_gridpoints;
-			floatnum += 6;
-		}
-		i = sky_gridpoints;
-		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 3] = 1;
-		sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)(j + 1) / (float)sky_gridpoints;
-		floatnum += 6;
-	}
-
-	memset(&buf_desc, 0, sizeof(buf_desc));
-
-	buf_desc.ByteWidth = sky_gridpoints*(sky_gridpoints + 2) * 2 * 6 * sizeof(float);
-	buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	buf_desc.Usage = D3D11_USAGE_DEFAULT;
-
-	subresource_data.pSysMem = sky_vertexdata;
-	subresource_data.SysMemPitch = 0;
-	subresource_data.SysMemSlicePitch = 0;
-
-	result = pDevice->CreateBuffer(&buf_desc, &subresource_data, &sky_vertexbuffer);
-
-	free(sky_vertexdata);
 }
 
 
@@ -649,8 +255,6 @@ void cOcean::Render(cRenderer &renderer
 	ID3D11DeviceContext* pContext;
 	ID3DX11EffectShaderResourceVariable* tex_variable;
 	float origin[2]={0,0};
-	UINT stride=sizeof(float)*4;
-	UINT offset=0;
 	UINT cRT = 1;
 
 	pDevice->GetImmediateContext(&pContext);
@@ -676,10 +280,8 @@ void cOcean::Render(cRenderer &renderer
 	effect->GetVariableByName("g_WaterBumpTexcoordScale")->AsVector()->SetFloatVector(m_waterBumpTexScale);
 
 	tex_variable=pEffect->GetVariableByName("g_WaterBumpTexture")->AsShaderResource();
-	tex_variable->SetResource(m_water_bump_textureSRV);
-
-	tex_variable = pEffect->GetVariableByName("g_SkyTexture")->AsShaderResource();
-	tex_variable->SetResource(sky_textureSRV);
+	if (m_waterBump)
+		tex_variable->SetResource(m_waterBump->m_texSRV);
 
 	//tex_variable=pEffect->GetVariableByName("g_DepthMapTexture")->AsShaderResource();
 	//tex_variable->SetResource(depthmap_textureSRV);
@@ -687,23 +289,13 @@ void cOcean::Render(cRenderer &renderer
 	pEffect->GetVariableByName("g_HeightFieldOrigin")->AsVector()->SetFloatVector(origin);
 	pEffect->GetVariableByName("g_HeightFieldSize")->AsScalar()->SetFloat(terrain_gridpoints*terrain_geometry_scale);
 	
-
-	//ID3D11RenderTargetView *colorBuffer = renderer.m_renderTargetView;
-	//ID3D11DepthStencilView  *backBuffer = renderer.m_depthStencilView;
 	ID3D11RenderTargetView *colorBuffer = NULL;
 	ID3D11DepthStencilView *backBuffer = NULL;
-	//renderer.GetDevContext()->OMGetRenderTargets(1, &colorBuffer, &backBuffer);
 
-	D3D11_VIEWPORT currentViewport;
+    Vector4 ClearColor(0.8f, 0.8f, 1.0f, 1.0f);
+	Vector4 RefractionClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+
 	D3D11_VIEWPORT reflection_Viewport;
-	D3D11_VIEWPORT refraction_Viewport;
-	D3D11_VIEWPORT shadowmap_resource_viewport;
-	D3D11_VIEWPORT water_normalmap_resource_viewport;
-	D3D11_VIEWPORT main_Viewport;
-
-    float ClearColor[4] = { 0.8f, 0.8f, 1.0f, 1.0f };
-	float RefractionClearColor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-
 	reflection_Viewport.Width=(float)m_BackbufferWidth*reflection_buffer_size_multiplier;
 	reflection_Viewport.Height=(float)m_BackbufferHeight*reflection_buffer_size_multiplier;
 	reflection_Viewport.MaxDepth=1;
@@ -711,6 +303,7 @@ void cOcean::Render(cRenderer &renderer
 	reflection_Viewport.TopLeftX=0;
 	reflection_Viewport.TopLeftY=0;
 
+	D3D11_VIEWPORT refraction_Viewport;
 	refraction_Viewport.Width=(float)m_BackbufferWidth*refraction_buffer_size_multiplier;
 	refraction_Viewport.Height=(float)m_BackbufferHeight*refraction_buffer_size_multiplier;
 	refraction_Viewport.MaxDepth=1;
@@ -718,6 +311,7 @@ void cOcean::Render(cRenderer &renderer
 	refraction_Viewport.TopLeftX=0;
 	refraction_Viewport.TopLeftY=0;
 
+	D3D11_VIEWPORT main_Viewport;
 	main_Viewport.Width=(float)m_BackbufferWidth*main_buffer_size_multiplier;
 	main_Viewport.Height=(float)m_BackbufferHeight*main_buffer_size_multiplier;
 	main_Viewport.MaxDepth=1;
@@ -725,6 +319,7 @@ void cOcean::Render(cRenderer &renderer
 	main_Viewport.TopLeftX=0;
 	main_Viewport.TopLeftY=0;
 
+	D3D11_VIEWPORT shadowmap_resource_viewport;
 	shadowmap_resource_viewport.Width=shadowmap_resource_buffer_size_xy;
 	shadowmap_resource_viewport.Height=shadowmap_resource_buffer_size_xy;
 	shadowmap_resource_viewport.MaxDepth=1;
@@ -732,88 +327,43 @@ void cOcean::Render(cRenderer &renderer
 	shadowmap_resource_viewport.TopLeftX=0;
 	shadowmap_resource_viewport.TopLeftY=0;
 
-	water_normalmap_resource_viewport.Width=water_normalmap_resource_buffer_size_xy;
-	water_normalmap_resource_viewport.Height=water_normalmap_resource_buffer_size_xy;
-	water_normalmap_resource_viewport.MaxDepth=1;
-	water_normalmap_resource_viewport.MinDepth=0;
-	water_normalmap_resource_viewport.TopLeftX=0;
-	water_normalmap_resource_viewport.TopLeftY=0;
-
 	//saving scene color buffer and back buffer to constants
+	D3D11_VIEWPORT currentViewport;
 	pContext->RSGetViewports( &cRT, &currentViewport);
     pContext->OMGetRenderTargets( 1, &colorBuffer, &backBuffer );
 
 	// selecting shadowmap_resource rendertarget
-	pContext->RSSetViewports(1,&shadowmap_resource_viewport);
-    pContext->OMSetRenderTargets( 0, NULL, m_shadowmap_resourceDSV);
-    pContext->ClearDepthStencilView( m_shadowmap_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
-
-	pEffect->GetTechniqueByName("Default")->GetPassByIndex(0)->Apply(0, pContext);
+	m_shadowMap.m_viewPort = shadowmap_resource_viewport;
+	m_shadowMap.Begin(renderer, true);
 
 	// setting up reflection rendertarget	
-	pContext->RSSetViewports(1,&reflection_Viewport);
-    pContext->OMSetRenderTargets( 1, &m_reflection_color_resourceRTV, m_reflection_depth_resourceDSV);
-    pContext->ClearRenderTargetView( m_reflection_color_resourceRTV, RefractionClearColor );
-    pContext->ClearDepthStencilView( m_reflection_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	m_reflection.m_viewPort = reflection_Viewport;
+	m_reflection.BeginSimple(renderer, RefractionClearColor);
 
-	SetupReflectionView(cam);
-	// drawing sky to reflection RT
+	if (skyBox)
+		skyBox->Render(renderer, skyBox->GetReflectMatrix().GetMatrixXM());
 
-	pEffect->GetTechniqueByName("RenderSky")->GetPassByIndex(0)->Apply(0, pContext);
-	pContext->IASetInputLayout(trianglestrip_inputlayout);
-	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	stride = sizeof(float) * 6;
-	pContext->IASetVertexBuffers(0, 1, &sky_vertexbuffer, &stride, &offset);
-	pContext->Draw(sky_gridpoints*(sky_gridpoints + 2) * 2, 0);
-
-	//// Reflection plane in local space.
-	//Plane waterPlaneL(0, -1, 0, 0);
-	//// Reflection plane in world space.
-	//Matrix44 waterWorld;
-	//waterWorld.SetTranslate(Vector3(0, 1, 0)); // water height
-	//Matrix44 WInvTrans;
-	//WInvTrans = waterWorld.Inverse();
-	//WInvTrans.Transpose();
-	//Plane waterPlaneW = waterPlaneL * WInvTrans;
-	//if (skyBox)
-	//	skyBox->Render(renderer, waterPlaneW.GetReflectMatrix().GetMatrixXM());
-
-
-	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-
-	//pEffect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->Apply(0, pContext);
+	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
+	//tex_variable->SetResource(NULL);
 
 	// setting up main rendertarget	
-	pContext->RSSetViewports(1,&main_Viewport);
-    pContext->OMSetRenderTargets( 1, &m_main_color_resourceRTV, m_main_depth_resourceDSV);
-    pContext->ClearRenderTargetView( m_main_color_resourceRTV, ClearColor );
-    pContext->ClearDepthStencilView( m_main_depth_resourceDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	m_mainColor.m_viewPort = main_Viewport;
+	m_mainColor.BeginSimple(renderer, ClearColor);
 	SetupNormalView(cam);
 
 	tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
 	tex_variable->SetResource(NULL);
-
-	tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
-	tex_variable->SetResource(NULL);
-	//pEffect->GetTechniqueByName("RenderHeightfield")->GetPassByIndex(0)->Apply(0, pContext);
+	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
+	//tex_variable->SetResource(NULL);
 
 	// resolving main buffer color to refraction color resource
-	pContext->ResolveSubresource(m_refraction_color_resource,0,m_main_color_resource,0,DXGI_FORMAT_R8G8B8A8_UNORM);
+	pContext->ResolveSubresource(m_refraction.m_texture, 0, m_mainColor.m_texture, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	// resolving main buffer depth to refraction depth resource manually
-    pContext->RSSetViewports( 1, &main_Viewport );
-	pContext->OMSetRenderTargets( 1, &m_refraction_depth_resourceRTV, NULL);
-	float depthClear[4] = { 1,1,1,1 };
-	pContext->ClearRenderTargetView(m_refraction_depth_resourceRTV, depthClear); // add test code
-
+	m_refractionDepth.m_viewPort = main_Viewport;
+	m_refractionDepth.BeginSimple(renderer, Vector4(1,1,1,1), true);
 
 	// getting back to rendering to main buffer 
-	//pContext->RSSetViewports(1,&main_Viewport);
- //   pContext->OMSetRenderTargets( 1, &m_main_color_resourceRTV, m_main_depth_resourceDSV);
-
 	pContext->OMSetRenderTargets(1, &colorBuffer, backBuffer);
 	pContext->RSSetViewports(1, &currentViewport);
 
@@ -822,12 +372,12 @@ void cOcean::Render(cRenderer &renderer
 	//tex_variable->SetResource(shadowmap_resourceSRV);
 	tex_variable->SetResource(NULL);
 	tex_variable=pEffect->GetVariableByName("g_ReflectionTexture")->AsShaderResource();
-	tex_variable->SetResource(m_reflection_color_resourceSRV);
+	tex_variable->SetResource(m_reflection.m_texSRV);
 	tex_variable=pEffect->GetVariableByName("g_RefractionTexture")->AsShaderResource();
 	//tex_variable->SetResource(refraction_color_resourceSRV);
 	tex_variable->SetResource(NULL);
 	tex_variable=pEffect->GetVariableByName("g_RefractionDepthTextureResolved")->AsShaderResource();
-	tex_variable->SetResource(m_refraction_depth_resourceSRV);
+	tex_variable->SetResource(m_refractionDepth.m_texSRV);
 	tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
 	tex_variable->SetResource(NULL); // add test code
 
@@ -836,13 +386,11 @@ void cOcean::Render(cRenderer &renderer
 
 	pContext->IASetInputLayout(heightfield_inputlayout);
 	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
-	stride=sizeof(float)*4;
-	pContext->IASetVertexBuffers(0,1,&heightfield_vertexbuffer,&stride,&offset);
+	m_heightField.Bind(renderer);
 	pContext->Draw(terrain_numpatches_1d*terrain_numpatches_1d, 0);
 
-    SAFE_RELEASE ( colorBuffer );
+	SAFE_RELEASE ( colorBuffer );
     SAFE_RELEASE ( backBuffer );
-
 	pContext->Release();
 }
 
@@ -932,4 +480,20 @@ void cOcean::ChangeWindowSize(cRenderer &renderer, const float backBufferWidth, 
 	m_BackbufferWidth = backBufferWidth;
 	m_BackbufferHeight = backBufferHeight;
 	ReCreateBuffers(renderer);
+}
+
+
+Plane cOcean::GetWorldPlane()
+{
+	// Reflection plane in local space.
+	Plane waterPlaneL(0, -1, 0, 0);
+
+	// Reflection plane in world space.
+	Matrix44 waterWorld;
+	waterWorld.SetTranslate(Vector3(0, 0, 0)); // water height
+	Matrix44 WInvTrans;
+	WInvTrans = waterWorld.Inverse();
+	WInvTrans.Transpose();
+	Plane waterPlaneW = waterPlaneL * WInvTrans;
+	return waterPlaneW;
 }

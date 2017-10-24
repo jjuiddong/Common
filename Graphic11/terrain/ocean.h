@@ -32,19 +32,16 @@ namespace graphic
 		cOcean();
 		virtual ~cOcean();
 
-		void Create(cRenderer &renderer
-			, const float backBufferWidth, const float backBufferHeight);
+		void Create(cRenderer &renderer, const float backBufferWidth, const float backBufferHeight);
 		void ReCreateBuffers(cRenderer &renderer);
-		void Render(cRenderer &renderer
-			, cCamera *cam
-			, cSkyBox *skyBox
-			, const float deltaSeconds);
+		void Render(cRenderer &renderer, cCamera *cam, cSkyBox *skyBox, const float deltaSeconds);
 		void CreateTerrain(cRenderer &renderer);
 
 		void SetupNormalView(cCamera *);
 		void SetupReflectionView(cCamera *);
 		void SetupRefractionView(cCamera *);
 		void ChangeWindowSize(cRenderer &renderer, const float backBufferWidth, const float backBufferHeight);
+		Plane GetWorldPlane();
 		void Clear();
 
 
@@ -54,47 +51,18 @@ namespace graphic
 		UINT m_MultiSampleCount;
 		UINT m_MultiSampleQuality;
 
-		ID3D11Texture2D		*m_water_bump_texture;
-		ID3D11ShaderResourceView *m_water_bump_textureSRV;
-
-		ID3D11Texture2D		*sky_texture;
-		ID3D11ShaderResourceView *sky_textureSRV;
-
-		ID3D11Texture2D			 *m_reflection_color_resource;
-		ID3D11ShaderResourceView *m_reflection_color_resourceSRV;
-		ID3D11RenderTargetView   *m_reflection_color_resourceRTV;
-		ID3D11Texture2D			 *m_refraction_color_resource;
-		ID3D11ShaderResourceView *m_refraction_color_resourceSRV;
-		ID3D11RenderTargetView   *m_refraction_color_resourceRTV;
-
-		ID3D11Texture2D			 *m_shadowmap_resource;
-		ID3D11ShaderResourceView *m_shadowmap_resourceSRV;
-		ID3D11DepthStencilView   *m_shadowmap_resourceDSV;
-
-		ID3D11Texture2D			 *m_reflection_depth_resource;
-		ID3D11DepthStencilView   *m_reflection_depth_resourceDSV;
-
-		ID3D11Texture2D			 *m_refraction_depth_resource;
-		ID3D11RenderTargetView   *m_refraction_depth_resourceRTV;
-		ID3D11ShaderResourceView *m_refraction_depth_resourceSRV;
-
-		ID3D11Texture2D			 *m_main_color_resource;
-		ID3D11ShaderResourceView *m_main_color_resourceSRV;
-		ID3D11RenderTargetView   *m_main_color_resourceRTV;
-		ID3D11Texture2D			 *m_main_depth_resource;
-		ID3D11DepthStencilView   *m_main_depth_resourceDSV;
-		ID3D11ShaderResourceView *m_main_depth_resourceSRV;
-		ID3D11Texture2D			 *m_main_color_resource_resolved;
-		ID3D11ShaderResourceView *m_main_color_resource_resolvedSRV;
+		cTexture *m_waterBump;
+		cTexture m_depthMap;
+		cRenderTarget m_reflection;
+		cRenderTarget m_refraction;
+		cRenderTarget m_refractionDepth;
+		cRenderTarget m_mainColor;
+		cDepthBuffer m_shadowMap;
 
 		float m_height[terrain_gridpoints + 1][terrain_gridpoints + 1];
 
-		ID3D11Texture2D		*depthmap_texture;
-		ID3D11ShaderResourceView *depthmap_textureSRV;
-		ID3D11Buffer		*heightfield_vertexbuffer;
-		ID3D11Buffer		*sky_vertexbuffer;
-		ID3D11InputLayout   *heightfield_inputlayout;
-		ID3D11InputLayout   *trianglestrip_inputlayout;
+		cVertexBuffer m_heightField;
+		ID3D11InputLayout *heightfield_inputlayout;
 
 		cShader11 *m_shader;
 		float m_TotalTime;

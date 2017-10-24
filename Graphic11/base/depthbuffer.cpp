@@ -19,7 +19,9 @@ cDepthBuffer::~cDepthBuffer()
 
 bool cDepthBuffer::Create(cRenderer &renderer
 	, const cViewport &viewPort
-	, const DXGI_FORMAT dsvFormat //depth stecil view = DXGI_FORMAT_D32_FLOAT
+	, const DXGI_FORMAT texFormat //depth stecil view = DXGI_FORMAT_R32_TYPELESS
+	, const DXGI_FORMAT SRVFormat //depth stecil view = DXGI_FORMAT_R32_FLOAT
+	, const DXGI_FORMAT DSVFormat //depth stecil view = DXGI_FORMAT_D32_FLOAT
 	, const bool isMultiSampling //= true
 )
 {
@@ -36,7 +38,7 @@ bool cDepthBuffer::Create(cRenderer &renderer
 	descDepth.Height = height;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
-	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDepth.Format = texFormat;
 	descDepth.SampleDesc.Count = isMultiSampling ? 4 : 1;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
@@ -51,21 +53,21 @@ bool cDepthBuffer::Create(cRenderer &renderer
 	// Create the depth stencil view
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
-	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.Format = DSVFormat;
 	descDSV.ViewDimension = isMultiSampling ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	hr = renderer.GetDevice()->CreateDepthStencilView(m_texture, &descDSV, &m_depthDSV);
 	if (FAILED(hr))
 		return false;
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC rdescDSV;
-	ZeroMemory(&rdescDSV, sizeof(rdescDSV));
-	rdescDSV.Format = DXGI_FORMAT_R32_FLOAT;
-	rdescDSV.ViewDimension = isMultiSampling ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
-	rdescDSV.Texture2D.MipLevels = 1;
-	rdescDSV.Texture2D.MostDetailedMip = 0;
+	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
+	ZeroMemory(&descSRV, sizeof(descSRV));
+	descSRV.Format = SRVFormat;
+	descSRV.ViewDimension = isMultiSampling ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
+	descSRV.Texture2D.MipLevels = 1;
+	descSRV.Texture2D.MostDetailedMip = 0;
 
-	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdescDSV, &m_depthSRV)))
+	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &descSRV, &m_depthSRV)))
 		return false;
 
 	return true;
@@ -88,6 +90,7 @@ void cDepthBuffer::RecoveryRenderTarget(cRenderer &renderer)
 
 bool cDepthBuffer::Begin(cRenderer &renderer
 	, const bool isClear //= true
+	, const Vector4 &clearColor // = Vector4(1,1,1,1)
 )
 {
 	renderer.SetRenderTargetDepth(m_depthDSV);
@@ -96,7 +99,7 @@ bool cDepthBuffer::Begin(cRenderer &renderer
 
 	if (isClear)
 	{
-		if (renderer.ClearScene(false))
+		if (renderer.ClearScene(false, clearColor))
 		{
 			renderer.BeginScene();
 			return true;

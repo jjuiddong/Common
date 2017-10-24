@@ -299,6 +299,9 @@
     <ClInclude Include="model_assimp\rawmesh.h">
       <Filter>model_assimp</Filter>
     </ClInclude>
+    <ClInclude Include="base\skyboxcube.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -571,6 +574,9 @@
     </ClCompile>
     <ClCompile Include="model_assimp\rawmesh.cpp">
       <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="base\skyboxcube.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

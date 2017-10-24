@@ -25,16 +25,21 @@ namespace graphic
 		virtual ~cTexture();
 
 		bool Create(cRenderer &renderer, const StrPath &fileName);
+
 		bool Create(cRenderer &renderer, const int width, const int height
 			, const DXGI_FORMAT format= DXGI_FORMAT_R8G8B8A8_UNORM);
+
+		bool Create(cRenderer &renderer, const int width, const int height
+			, const DXGI_FORMAT format
+			, const void *pMem
+			, const int pitchLength );
+
 		bool WritePNGFile( const StrPath &fileName );
 
 		void Bind(cRenderer &renderer, const int stage=0);
 		void Bind(cShader &shader, const Str32 &key);
 		void Unbind(cRenderer &renderer, const int stage);
 		void Render2D(cRenderer &renderer);
-		void CopyFrom(cTexture &src);
-		//void CopyFrom(IDirect3DTexture9 *src);
 		void* Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out);
 		void Unlock(cRenderer &renderer);
 		const StrPath& GetTextureName() const;
@@ -51,12 +56,12 @@ namespace graphic
 
 
 	public:
-		ID3D11ShaderResourceView *m_texture;
-		ID3D11Texture2D *m_rawTex;
-		D3D11_TEXTURE2D_DESC m_imageInfo;
 		StrPath m_fileName;
+		D3D11_TEXTURE2D_DESC m_imageInfo;
 		bool m_isReferenceMode;
-		bool m_customTexture; // using LostDevice, ResetDevice
+		ID3D11Texture2D *m_texture;
+		ID3D11ShaderResourceView *m_texSRV;
+		//bool m_customTexture; // using LostDevice, ResetDevice
 	};
 
 

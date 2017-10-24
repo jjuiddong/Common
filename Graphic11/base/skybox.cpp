@@ -137,8 +137,9 @@ bool  cSkyBox::CreateVertexBuffer(cRenderer &renderer)
 }
 
 
-void cSkyBox::Render(cRenderer &renderer
-	, const XMMATRIX &tm //=XMIdentity
+bool cSkyBox::Render(cRenderer &renderer
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
 )
 {
 	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::TEXTURE);
@@ -147,9 +148,9 @@ void cSkyBox::Render(cRenderer &renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tm);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
-	renderer.m_cbClipPlane.Update(renderer, 1);
+	renderer.m_cbClipPlane.Update(renderer, 4);
 
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -166,4 +167,25 @@ void cSkyBox::Render(cRenderer &renderer
 		renderer.GetDevContext()->DrawInstanced(4, 1, i * 4, 0);
 	}
 	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
+
+	// recovery camera constant buffer
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
+	return true;
+}
+
+
+Matrix44 cSkyBox::GetReflectMatrix()
+{
+	// Reflection plane in local space.
+	Plane waterPlaneL(0, -1, 0, 0);
+	// Reflection plane in world space.
+	Matrix44 waterWorld;
+	waterWorld.SetTranslate(Vector3(0, 1, 0)); // water height
+	Matrix44 WInvTrans;
+	WInvTrans = waterWorld.Inverse();
+	WInvTrans.Transpose();
+	Plane waterPlaneW = waterPlaneL * WInvTrans;
+	return waterPlaneW.GetReflectMatrix();
 }

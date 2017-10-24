@@ -81,6 +81,11 @@ bool cTile::Create(cRenderer &renderer
 
 bool cTile::Update(cRenderer &renderer, const float deltaSeconds)
 {
+	if (m_name == "±¤»ê4-5")
+	{
+		int a = 0;
+	}
+
 	return __super::Update(renderer, deltaSeconds);
 }
 

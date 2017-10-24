@@ -111,6 +111,7 @@ namespace graphic {
 #include "base/constantbuffer.h"
 #include "base/camera.h"
 #include "base/skybox.h"
+#include "base/skyboxcube.h"
 #include "base/sphere.h"
 #include "base/circle.h"
 //#include "base/circleline.h"

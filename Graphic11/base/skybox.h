@@ -18,7 +18,8 @@ namespace graphic
 		bool Create(cRenderer &renderer, const StrPath &textureFilePath,
 			char *skyboxTextureNames[6]);
 		bool Create2(cRenderer &renderer, const StrPath &textureFilePath);
-		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
+		virtual Matrix44 GetReflectMatrix();
 
 
 	protected:

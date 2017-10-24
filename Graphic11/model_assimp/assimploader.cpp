@@ -613,6 +613,7 @@ void cAssimpLoader::CreateAnimation()
 			double maxT = -FLT_MAX;
 
 			// Position
+			Vector3 prevPos(0,0,0);
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumPositionKeys; i++)
 			{
 				aiVectorKey &key = sourceAnimation->mChannels[a]->mPositionKeys[i];
@@ -652,13 +653,19 @@ void cAssimpLoader::CreateAnimation()
 				if (t > maxT)
 					maxT = t;
 
+				Vector3 aniPos(key.mValue.x, key.mValue.y, key.mValue.z);
+				if (!boneAni.pos.empty() && (prevPos == aniPos))
+					continue;
+				prevPos = aniPos;
+
 				sKeyPos pos;
 				pos.t = t;
-				pos.p = Vector3(key.mValue.x, key.mValue.y, key.mValue.z);
+				pos.p = aniPos;
 				boneAni.pos.push_back(pos);
 			}
 
 			// Rotation
+			Quaternion prevRot;
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumRotationKeys; i++)
 			{
 				aiQuatKey &key = sourceAnimation->mChannels[a]->mRotationKeys[i];
@@ -698,13 +705,19 @@ void cAssimpLoader::CreateAnimation()
 				if (t > maxT)
 					maxT = t;
 
+				Quaternion aniRot(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w);
+				if (!boneAni.rot.empty() && (prevRot == aniRot))
+					continue;
+				prevRot = aniRot;
+
 				sKeyRot rot;
 				rot.t = (float)key.mTime - seq.start;
-				rot.q = Quaternion(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w);
+				rot.q = aniRot;
 				boneAni.rot.push_back(rot);
 			}
 
 			// Scale
+			Vector3 prevScale;
 			for (unsigned int i = 0; i < sourceAnimation->mChannels[a]->mNumScalingKeys; i++)
 			{
 				aiVectorKey &key = sourceAnimation->mChannels[a]->mScalingKeys[i];
@@ -744,9 +757,14 @@ void cAssimpLoader::CreateAnimation()
 				if (t > maxT)
 					maxT = t;
 
+				const Vector3 aniScale(key.mValue.x, key.mValue.y, key.mValue.z);
+				if (!boneAni.scale.empty() && (prevScale == aniScale))
+					continue;
+				prevScale = aniScale;
+
 				sKeyScale scale;
 				scale.t = (float)key.mTime - seq.start;
-				scale.s = Vector3(key.mValue.x, key.mValue.y, key.mValue.z);
+				scale.s = aniScale;
 				boneAni.scale.push_back(scale);
 			}
 

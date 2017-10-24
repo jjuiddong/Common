@@ -46,9 +46,9 @@ namespace common
 
 		bool operator == (const Vector3 &rhs) const
 		{
-			return (abs(x - rhs.x) < MATH_EPSILON2) &&
-				(abs(y - rhs.y) < MATH_EPSILON2) &&
-				(abs(z - rhs.z) < MATH_EPSILON2);
+			return (abs(x - rhs.x) < MATH_EPSILON) &&
+				(abs(y - rhs.y) < MATH_EPSILON) &&
+				(abs(z - rhs.z) < MATH_EPSILON);
 		}
 
 		bool operator != (const Vector3 &rhs) const

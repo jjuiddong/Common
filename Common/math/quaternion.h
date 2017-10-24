@@ -56,6 +56,13 @@ namespace common
 
 		float GetRotationAngleXZ() const;
 
+		bool operator==(const Quaternion &rhs) {
+			return (abs(x - rhs.x) < MATH_EPSILON) &&
+				(abs(y - rhs.y) < MATH_EPSILON) &&
+				(abs(z - rhs.z) < MATH_EPSILON) &&
+				(abs(w - rhs.w) < MATH_EPSILON);
+		}
+
 
 		float x, y, z, w;
 	};

@@ -77,7 +77,6 @@ bool cAnimation::Update(const float increasedTime)
 {
 	RETV(!m_skeleton, false);
 	RETV(m_state != eState::PLAY, false);
-	RETV(m_curAniIdx < 0, false);
 	
 	bool isEnd = false;
 	float t = increasedTime;
@@ -87,15 +86,18 @@ bool cAnimation::Update(const float increasedTime)
 		isEnd = true;
 	}
 
-	auto &ani = m_anies[m_curAniIdx];
-	for (u_int i = 0; i < ani.size(); ++i)
+	if (m_curAniIdx >= 0)
 	{
-		Matrix44 result;
-		if (ani[i].GetAnimationResult(t, result))
-			m_skeleton->m_tmAni[i] = result;
+		auto &ani = m_anies[m_curAniIdx];
+		for (u_int i = 0; i < ani.size(); ++i)
+		{
+			Matrix44 result;
+			if (ani[i].GetAnimationResult(t, result))
+				m_skeleton->m_tmAni[i] = result;
+		}
 	}
 	
-	m_skeleton->UpdateHierarcyTransform();
+	m_skeleton->UpdateHierarchyTransform();
 
 	return isEnd;
 }
@@ -125,6 +127,12 @@ bool cAnimation::SetAnimation(const StrId &animationName
 void cAnimation::Stop()
 {
 	m_state = eState::STOP;
+	m_curAniIdx = -1;
+	if (m_skeleton)
+	{
+		m_skeleton->SetInitializePose();
+		m_skeleton->UpdateHierarchyTransform();
+	}
 }
 
 

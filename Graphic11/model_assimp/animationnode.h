@@ -24,6 +24,7 @@ namespace graphic
 
 
 	public:
+		bool m_isEnable; // for debuggin
 		const sBoneAni *m_boneAni; // reference
 	};
 
@@ -32,6 +33,7 @@ namespace graphic
 	inline bool cAnimationNode::GetAnimationResult(const float curTime
 		, OUT Vector3 &pos, OUT Quaternion &rot, OUT Vector3 &scale)
 	{
+		RETV(!m_isEnable, false);
 		RETV(!m_boneAni, false);
 		RETV(m_boneAni->start == m_boneAni->end, false);
 

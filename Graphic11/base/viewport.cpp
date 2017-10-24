@@ -43,23 +43,3 @@ bool cViewport::Bind(cRenderer &renderer)
 	renderer.GetDevContext()->RSSetViewports(1, &m_vp);
 	return true;
 }
-
-
-float cViewport::GetX() const {
-	return m_vp.TopLeftX;
-}
-float cViewport::GetY() const {
-	return m_vp.TopLeftY;
-}
-float cViewport::GetMinZ() const {
-	return m_vp.MinDepth;
-}
-float cViewport::GetMaxZ() const {
-	return m_vp.MaxDepth;
-}
-float cViewport::GetWidth() const {
-	return m_vp.Width;
-}
-float cViewport::GetHeight() const {
-	return m_vp.Height;
-}
