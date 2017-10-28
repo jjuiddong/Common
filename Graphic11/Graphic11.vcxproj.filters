@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="graphic11.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -631,5 +628,60 @@
     <Filter Include="model_assimp">
       <UniqueIdentifier>{73557f20-9885-43f5-9546-47b62866b67f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{f6d5ff75-3974-4e0e-aa0e-7900b6732eb4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\Island11.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\water.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shader\pos.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos_rhw-color.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos_rhw-color-tex.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-color.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-color.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-color-tex.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-tex.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-tex-bump.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-tex-skin.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-tex-skin-bump.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-norm-tex-tangent-binormal.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\pos-tex.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -286,3 +286,7 @@ Lib/Common/Debug_MT/Common.lib
 Lib/Effects11.lib
 Graphic11/Effects11.lib
 Lib/AI/Debug_MD/AI.lib
+
+*.cod
+*.fox
+

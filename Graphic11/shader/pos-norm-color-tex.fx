@@ -17,7 +17,7 @@ VSOUT_TEXDIFF VS( float4 Pos : POSITION
     output.Normal = normalize( mul(Normal, (float3x3)gWorld) );
     output.Tex = Tex;
 	output.PosH = output.Pos;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW);
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
     output.Color = Color;
     return output;
 }

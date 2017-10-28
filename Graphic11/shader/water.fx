@@ -131,7 +131,7 @@ OutputVS WaterVS(
 	
 	// Transform eye position to local space.
 	float3 eyePosL = mul(float4(gEyePosW, 1.0f), gWorldInv).xyz;
-	outVS.eyeVertDist = distance(eyePosL, posL);
+	outVS.eyeVertDist = distance(float4(eyePosL,1), posL);
 	
 	// Transform to-eye vector to tangent space.
 	float3 toEyeL = eyePosL - posL;
