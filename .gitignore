@@ -288,5 +288,6 @@ Graphic11/Effects11.lib
 Lib/AI/Debug_MD/AI.lib
 
 *.cod
-*.fox
+*.fxo
+
 
