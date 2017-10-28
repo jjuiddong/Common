@@ -20,15 +20,15 @@ VSOUT_TEX VS( float4 Pos : POSITION
     float3 p = {0,0,0};
     float3 n = {0,0,0};
 
-    p += mul(Pos, gPalette[ BlendId.x]) * BlendWeight.x;
-    p += mul(Pos, gPalette[ BlendId.y]) * BlendWeight.y;
-    p += mul(Pos, gPalette[ BlendId.z]) * BlendWeight.z;
-    p += mul(Pos, gPalette[ BlendId.w]) * BlendWeight.w;
+    p += mul(Pos, gPalette[ BlendId.x]).xyz * BlendWeight.x;
+    p += mul(Pos, gPalette[ BlendId.y]).xyz * BlendWeight.y;
+    p += mul(Pos, gPalette[ BlendId.z]).xyz * BlendWeight.z;
+    p += mul(Pos, gPalette[ BlendId.w]).xyz * BlendWeight.w;
 
-    n += mul(Normal, gPalette[ BlendId.x]) * BlendWeight.x;
-    n += mul(Normal, gPalette[ BlendId.y]) * BlendWeight.y;
-    n += mul(Normal, gPalette[ BlendId.z]) * BlendWeight.z;
-    n += mul(Normal, gPalette[ BlendId.w]) * BlendWeight.w;
+    n += mul(Normal, (float3x3)gPalette[ BlendId.x]) * BlendWeight.x;
+    n += mul(Normal, (float3x3)gPalette[ BlendId.y]) * BlendWeight.y;
+    n += mul(Normal, (float3x3)gPalette[ BlendId.z]) * BlendWeight.z;
+    n += mul(Normal, (float3x3)gPalette[ BlendId.w]) * BlendWeight.w;
 
     n = normalize(n);
 
@@ -38,7 +38,7 @@ VSOUT_TEX VS( float4 Pos : POSITION
 
     output.Normal = normalize( mul(n, (float3x3)mWorld) );
     output.Tex = Tex;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW);
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
 	output.PosH = output.Pos;
     output.clip = dot(mul(Pos, mWorld), gClipPlane);
 
@@ -128,15 +128,15 @@ VSOUT_SHADOW VS_ShadowMap(float4 Pos : POSITION
 	float3 p = {0,0,0};
 	float3 n = {0,0,0};
 
-	p += mul(Pos, gPalette[ BlendId.x]) * BlendWeight.x;
-	p += mul(Pos, gPalette[ BlendId.y]) * BlendWeight.y;
-	p += mul(Pos, gPalette[ BlendId.z]) * BlendWeight.z;
-	p += mul(Pos, gPalette[ BlendId.w]) * BlendWeight.w;
+	p += mul(Pos, gPalette[ BlendId.x]).xyz * BlendWeight.x;
+	p += mul(Pos, gPalette[ BlendId.y]).xyz * BlendWeight.y;
+	p += mul(Pos, gPalette[ BlendId.z]).xyz * BlendWeight.z;
+	p += mul(Pos, gPalette[ BlendId.w]).xyz * BlendWeight.w;
 
-	n += mul(Normal, gPalette[ BlendId.x]) * BlendWeight.x;
-	n += mul(Normal, gPalette[ BlendId.y]) * BlendWeight.y;
-	n += mul(Normal, gPalette[ BlendId.z]) * BlendWeight.z;
-	n += mul(Normal, gPalette[ BlendId.w]) * BlendWeight.w;
+	n += mul(Normal, (float3x3)gPalette[ BlendId.x]) * BlendWeight.x;
+	n += mul(Normal, (float3x3)gPalette[ BlendId.y]) * BlendWeight.y;
+	n += mul(Normal, (float3x3)gPalette[ BlendId.z]) * BlendWeight.z;
+	n += mul(Normal, (float3x3)gPalette[ BlendId.w]) * BlendWeight.w;
 
 	n = normalize(n);
 
@@ -145,7 +145,7 @@ VSOUT_SHADOW VS_ShadowMap(float4 Pos : POSITION
 	output.Pos = mul(output.Pos, gProjection);
 	output.Normal = normalize(mul(n, (float3x3)mWorld));
 	output.Tex = Tex;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW);
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
 
 	matrix mLVP[3];
 	matrix mVPT[3];
@@ -267,10 +267,10 @@ VSOUT_BUILDSHADOW VS_BuildShadowMap(float4 Pos : POSITION
 
 	float3 p = {0,0,0};
 
-	p += mul(Pos, gPalette[ BlendId.x]) * BlendWeight.x;
-	p += mul(Pos, gPalette[ BlendId.y]) * BlendWeight.y;
-	p += mul(Pos, gPalette[ BlendId.z]) * BlendWeight.z;
-	p += mul(Pos, gPalette[ BlendId.w]) * BlendWeight.w;
+	p += mul(Pos, gPalette[ BlendId.x]).xyz * BlendWeight.x;
+	p += mul(Pos, gPalette[ BlendId.y]).xyz * BlendWeight.y;
+	p += mul(Pos, gPalette[ BlendId.z]).xyz * BlendWeight.z;
+	p += mul(Pos, gPalette[ BlendId.w]).xyz * BlendWeight.w;
 
 	output.Pos = mul(float4(p,1), mWorld);
 	output.Pos = mul(output.Pos, gView);

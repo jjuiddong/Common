@@ -134,7 +134,7 @@ OutputVS WaterVS(
 	outVS.eyeVertDist = distance(float4(eyePosL,1), posL);
 	
 	// Transform to-eye vector to tangent space.
-	float3 toEyeL = eyePosL - posL;
+	float3 toEyeL = eyePosL - posL.xyz;
 	outVS.toEyeT = mul(toEyeL, toTangentSpace);
 	
 	// Transform light direction to tangent space.
@@ -175,9 +175,9 @@ float4 WaterPS( OutputVS In ) : SV_Target
 	
 	// Sample normal map.
 	//float3 normalT0 = tex2D(WaveMapS0, tex0);
-	float3 normalT0 = txWaveMap0.Sample(samLinear, In.tex0);
+	float3 normalT0 = txWaveMap0.Sample(samLinear, In.tex0).xyz;
 	//float3 normalT1 = tex2D(WaveMapS1, tex1);
-	float3 normalT1 = txWaveMap1.Sample(samLinear, In.tex1);
+	float3 normalT1 = txWaveMap1.Sample(samLinear, In.tex1).xyz;
 	
 	// Expand from [0, 1] compressed interval to true [-1, 1] interval.
     normalT0 = 2.0f*normalT0 - 1.0f;
@@ -228,13 +228,13 @@ float4 WaterPS( OutputVS In ) : SV_Target
 	
 	// Weighted average between the reflected color and refracted color, modulated
 	// with the material.
-	float3 ambientMtrl = gMtrl_Ambient*lerp(reflectCol, refractCol, refractWt);
-	float3 diffuseMtrl = gMtrl_Diffuse*lerp(reflectCol, refractCol, refractWt);
+	float3 ambientMtrl = gMtrl_Ambient.xyz*lerp(reflectCol, refractCol, refractWt).xyz;
+	float3 diffuseMtrl = gMtrl_Diffuse.xyz*lerp(reflectCol, refractCol, refractWt).xyz;
 	
 	// Compute the ambient, diffuse and specular terms separatly. 
 	float3 spec = t*(gMtrl_Specular*gLight_Specular).rgb;
 	float3 diffuse = (diffuseMtrl*gLight_Diffuse.rgb);
-	float3 ambient = ambientMtrl*gLight_Ambient;
+	float3 ambient = ambientMtrl.xyz*gLight_Ambient.xyz;
 	
 	float3 final = diffuse + spec;
 	

@@ -17,7 +17,7 @@ VSOUT_DIFFUSE VS( float4 Pos : POSITION
     output.Pos = mul( output.Pos, gProjection );
     output.Normal = normalize( mul(Normal, (float3x3)gWorld) );
 	output.PosH = output.Pos;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW);
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
     output.Color = Color;
 
     return output;
@@ -67,14 +67,14 @@ float4 PS_Outline(VSOUT_DIFFUSE In) : SV_Target
 	const float dx = 1 / 400.f;
 	float2 vTexCoords[9];
 	vTexCoords[0] = coords;
-	vTexCoords[1] = coords + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[2] = coords + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[3] = coords + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[6] = coords + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[4] = coords + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[5] = coords + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[7] = coords + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[8] = coords + float4(dx, dx, 0.0f, 0.0f);
+	vTexCoords[1] = coords + float2(-dx, 0.0f);
+	vTexCoords[2] = coords + float2(dx, 0.0f);
+	vTexCoords[3] = coords + float2(0.0f, -dx);
+	vTexCoords[6] = coords + float2(0.0f, dx);
+	vTexCoords[4] = coords + float2(-dx, -dx);
+	vTexCoords[5] = coords + float2(dx, -dx);
+	vTexCoords[7] = coords + float2(-dx, dx);
+	vTexCoords[8] = coords + float2(dx, dx);
 
 	float fOutline = 0.0f;
 	for (int i = 0; i < 9; i++)

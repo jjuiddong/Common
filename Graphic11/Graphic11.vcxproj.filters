@@ -683,5 +683,8 @@
     <FxCompile Include="shader\pos-tex.fx">
       <Filter>shader</Filter>
     </FxCompile>
+    <FxCompile Include="shader\skyboxcube.fx">
+      <Filter>shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
