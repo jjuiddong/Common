@@ -34,7 +34,7 @@ namespace graphic
 			, const void *pMem
 			, const int pitchLength );
 
-		bool WritePNGFile( const StrPath &fileName );
+		bool WritePNGFile(cRenderer &renderer, const StrPath &fileName );
 
 		void Bind(cRenderer &renderer, const int stage=0);
 		void Bind(cShader &shader, const Str32 &key);

@@ -198,7 +198,7 @@ Vector3 Vector3::Interpolate( const Vector3 &v, const float alpha) const
 }
 
 
-Vector3 Vector3::Minimum(const Vector3 &rhs)
+Vector3 Vector3::Minimum(const Vector3 &rhs) const
 {
 	Vector3 v;
 	v.x = min(x, rhs.x);
@@ -208,7 +208,7 @@ Vector3 Vector3::Minimum(const Vector3 &rhs)
 }
 
 
-Vector3 Vector3::Maximum(const Vector3 &rhs)
+Vector3 Vector3::Maximum(const Vector3 &rhs) const
 {
 	Vector3 v;
 	v.x = max(x, rhs.x);

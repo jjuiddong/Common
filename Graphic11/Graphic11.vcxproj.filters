@@ -302,6 +302,9 @@
     <ClInclude Include="base\skyboxcube.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="collision\boundinghalfsphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -577,6 +580,9 @@
     </ClCompile>
     <ClCompile Include="base\skyboxcube.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundinghalfsphere.cpp">
+      <Filter>collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

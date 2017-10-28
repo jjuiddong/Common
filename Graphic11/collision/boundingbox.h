@@ -35,6 +35,7 @@ namespace graphic
 		Vector3 GetDimension() const;
 		XMMATRIX GetTransformXM() const;
 		Matrix44 GetTransform() const;
+		Vector3 BoundingPoint(const Vector3 &pos);
 
 		cBoundingBox operator * (const XMMATRIX &rhs);
 		cBoundingBox operator * (const Matrix44 &rhs);

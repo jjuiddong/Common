@@ -19,10 +19,10 @@ cDepthBuffer::~cDepthBuffer()
 
 bool cDepthBuffer::Create(cRenderer &renderer
 	, const cViewport &viewPort
+	, const bool isMultiSampling //= true
 	, const DXGI_FORMAT texFormat //depth stecil view = DXGI_FORMAT_R32_TYPELESS
 	, const DXGI_FORMAT SRVFormat //depth stecil view = DXGI_FORMAT_R32_FLOAT
 	, const DXGI_FORMAT DSVFormat //depth stecil view = DXGI_FORMAT_D32_FLOAT
-	, const bool isMultiSampling //= true
 )
 {
 	Clear();

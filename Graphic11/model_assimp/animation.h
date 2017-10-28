@@ -18,6 +18,7 @@ namespace graphic
 		bool Create(const sRawAniGroup &aniGroup, cSkeleton *skeleton, const bool isMerge=false);
 		bool Update(const float increasedTime);
 		bool SetAnimation(const StrId &animationName, const bool isMerge = false);
+		bool SetAnimation(const int animationIndex, const bool isMerge = false);
 		void Stop();
 		void Play();
 

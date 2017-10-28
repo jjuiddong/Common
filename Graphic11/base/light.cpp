@@ -16,7 +16,7 @@ cLight::~cLight()
 void cLight::Init(TYPE type, 
 	const Vector4 &ambient, // Vector4(0.3f, 0.3f, 0.3f, 1),
 	const Vector4 &diffuse, // Vector4(0.9f, 0.9f, 0.9f,1),
-	const Vector4 &specular, // Vector4(1,1,1,1)
+	const Vector4 &specular, // Vector4(0.2,0.2,0.2,0.2)
 	const Vector3 &direction) // Vector3(0,-1,0)
 {
 	m_ambient = ambient;

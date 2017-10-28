@@ -33,7 +33,8 @@ namespace graphic
 		virtual void RenderDebug(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		virtual void Clear();
 
-		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true);
+		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true
+			, const XMMATRIX &tm = XMIdentity);
 		bool AddTile(cTile *model);
 		bool RemoveTile(cTile *model);
 		bool AddModel(cNode *model);

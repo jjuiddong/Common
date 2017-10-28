@@ -66,7 +66,9 @@ namespace graphic
 		
 		virtual void SetShader(cShader11 *shader) { m_shader = shader; }
 		virtual void CalcBoundingSphere();
-		virtual float CullingTest(const cFrustum &frustum, const XMMATRIX &tm = XMIdentity, const bool isModel = true);
+		virtual float CullingTest(const cFrustum &frustum
+			, const XMMATRIX &tm = XMIdentity
+			, const bool isModel = true);
 		
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
 			, const XMMATRIX &parentTm);

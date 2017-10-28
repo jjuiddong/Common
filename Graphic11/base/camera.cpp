@@ -20,6 +20,8 @@ cCamera::cCamera(const char *name)
 	, m_width(0)
 	, m_height(0)
 	, m_state(eState::STOP)
+	, m_isMovingLimitation(false)
+	, m_zoom(1.f)
 {
 	UpdateViewMatrix();
 }
@@ -31,6 +33,7 @@ cCamera::cCamera(const char *name, const Vector3 &eyePos, const Vector3 &lookAt,
 	, m_up(up)
 {
 	UpdateViewMatrix();
+	m_boundingHSphere.SetBoundingHalfSphere(Vector3(0, 0, 0), 500);
 }
 
 cCamera::~cCamera()
@@ -114,6 +117,8 @@ Vector3 cCamera::GetRight() const
 
 void cCamera::Update(const float deltaSeconds)
 {
+	CheckBoundingBox();
+
 	RET(eState::STOP == m_state);
 	if (m_mover.empty())
 	{
@@ -196,12 +201,24 @@ void cCamera::Render(cRenderer &renderer)
 
 void cCamera::Bind(cRenderer &renderer)
 {
-	const XMMATRIX mView = XMLoadFloat4x4( (XMFLOAT4X4*)&m_view );
-	const XMMATRIX mProj = XMLoadFloat4x4( (XMFLOAT4X4*)&m_proj );
-	renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose( mView );
-	renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose( mProj );
-	//renderer.m_cbPerFrame.m_v->eyePosW = XMLoadFloat4((XMFLOAT4*)&Vector4(m_eyePos));
-	renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
+	if (m_isOrthogonal)
+	{
+		Matrix44 zoom;
+		zoom.SetScale(Vector3(1, 1, 1));
+		const XMMATRIX mView = XMLoadFloat4x4((XMFLOAT4X4*)&m_view);
+		const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&m_proj);
+		renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(zoom.GetMatrixXM()*mView);
+		renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
+		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
+	}
+	else
+	{
+		const XMMATRIX mView = XMLoadFloat4x4( (XMFLOAT4X4*)&m_view );
+		const XMMATRIX mProj = XMLoadFloat4x4( (XMFLOAT4X4*)&m_proj );
+		renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose( mView );
+		renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose( mProj );
+		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
+	}
 }
 
 
@@ -600,9 +617,16 @@ void cCamera::MoveFront( const float len )
 
 void cCamera::MoveFrontHorizontal(const float len)
 {
-	Vector3 dir = GetDirection();
-	dir.y = 0;
-	dir.Normalize();
+	Vector3 dir;
+	if (m_isOrthogonal)
+		dir = Vector3(0, 0, 1);
+	else
+	{
+		dir = GetDirection();
+		dir.y = 0;
+		dir.Normalize();
+	}
+
 	m_lookAt += dir * len;
 	m_eyePos += dir * len;
 	UpdateViewMatrix();
@@ -650,7 +674,14 @@ void cCamera::MoveAxis( const Vector3 &dir, const float len )
 // lookAt 은 고정된채로 eyePos 를 이동한다.
 void cCamera::Zoom( const float len)
 {
-	Zoom(GetDirection(), len);
+	if (m_isOrthogonal)
+	{
+		m_zoom *= len;
+	}
+	else
+	{
+		Zoom(GetDirection(), len);
+	}
 }
 
 void cCamera::Zoom(const Vector3 &dir, const float len)
@@ -907,7 +938,19 @@ void cCamera::SetViewPort(const float width, const float height)
 }
 
 
-Vector3 cCamera::GetUpVector() const 
-{ 
-	return GetDirection().CrossProduct(GetRight()).Normal();
+void cCamera::CheckBoundingBox()
+{
+	RET(!m_isMovingLimitation);
+	RET(m_isOrthogonal);
+	m_eyePos = m_boundingHSphere.GetBoundingPoint(m_eyePos);
+}
+
+
+Matrix44 cCamera::GetZoomMatrix() const
+{
+	RETV(!m_isOrthogonal, Matrix44::Identity);
+
+	Matrix44 ret;
+	ret.SetScale(Vector3(1, 1, 1)*m_zoom);
+	return ret;
 }

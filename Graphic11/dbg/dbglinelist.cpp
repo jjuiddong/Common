@@ -69,7 +69,7 @@ void cDbgLineList::UpdateBuffer(cRenderer &renderer)
 
 
 void cDbgLineList::Render(cRenderer &renderer
-	, const Matrix44 &tm //= Matrix44::Identity
+	, const XMMATRIX &tm //= XMIdentity
 )
 {
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);

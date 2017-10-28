@@ -381,15 +381,16 @@ eDockSlot::Enum cDockWindow::render_dock_slot_preview(const ImVec2& mouse_pos, c
 }
 
 
-void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
+void cDockWindow::RenderDock( const float deltaSeconds
+	, const Vector2 &pos //=ImVec2(0,0)	
 	) 
 {
 	if (m_lower)
 	{
-		m_lower->RenderDock();
+		m_lower->RenderDock(deltaSeconds);
 
 		if (m_upper)
-			m_upper->RenderDock(pos);
+			m_upper->RenderDock(deltaSeconds, pos);
 	}
 	else
 	{
@@ -404,9 +405,9 @@ void cDockWindow::RenderDock(const Vector2 &pos //=ImVec2(0,0)
 			ImGuiWindowFlags_AlwaysUseWindowPadding);
 
 		if (m_selectTab == 0)
-			OnRender();
+			OnRender(deltaSeconds);
 		else if ((int)m_tabs.size() > m_selectTab-1)
-			m_tabs[m_selectTab-1]->OnRender();
+			m_tabs[m_selectTab-1]->OnRender(deltaSeconds);
 
 		if (m_isDockBinding)
 		{
@@ -501,44 +502,44 @@ void cDockWindow::RenderTab()
 }
 
 
-void cDockWindow::PreRender()
+void cDockWindow::PreRender(const float deltaSeconds)
 {
 	if (m_lower)
 	{
-		m_lower->PreRender();
+		m_lower->PreRender(deltaSeconds);
 	}
 	else
 	{
 		if (m_selectTab == 0)
-			OnPreRender();
+			OnPreRender(deltaSeconds);
 		else if ((int)m_tabs.size() > m_selectTab - 1)
-			m_tabs[m_selectTab - 1]->PreRender();
+			m_tabs[m_selectTab - 1]->PreRender(deltaSeconds);
 	}
 
 	if (m_upper)
 	{
-		m_upper->PreRender();
+		m_upper->PreRender(deltaSeconds);
 	}
 }
 
 
-void cDockWindow::PostRender()
+void cDockWindow::PostRender(const float deltaSeconds)
 {
 	if (m_lower)
 	{
-		m_lower->PostRender();
+		m_lower->PostRender(deltaSeconds);
 	}
 	else
 	{
 		if (m_selectTab == 0)
-			OnPostRender();
+			OnPostRender(deltaSeconds);
 		else if ((int)m_tabs.size() > m_selectTab - 1)
-			m_tabs[m_selectTab - 1]->PostRender();
+			m_tabs[m_selectTab - 1]->PostRender(deltaSeconds);
 	}
 
 	if (m_upper)
 	{
-		m_upper->PostRender();
+		m_upper->PostRender(deltaSeconds);
 	}
 }
 

@@ -30,10 +30,10 @@ namespace framework
 
 		virtual bool Undock(const bool newWindow = true);
 		virtual bool Undock(cDockWindow *dock);
-		void RenderDock(const Vector2 &pos = Vector2(0, 0));
+		void RenderDock(const float deltaSeconds, const Vector2 &pos = Vector2(0, 0));
 		virtual void Update(const float deltaSeconds);
-		virtual void PreRender();
-		virtual void PostRender();
+		virtual void PreRender(const float deltaSeconds);
+		virtual void PostRender(const float deltaSeconds);
 		virtual void DefaultEventProc(const sf::Event &evt);
 		virtual void TriggerPickingEvent();
 		virtual void RenderTab();
@@ -68,9 +68,9 @@ namespace framework
 		eDockSizingOption::Enum GetSizingOption();
 
 		virtual void OnUpdate(const float deltaSeconds) {}
-		virtual void OnRender() {}
-		virtual void OnPreRender() {}
-		virtual void OnPostRender() {}
+		virtual void OnRender(const float deltaSeconds) {}
+		virtual void OnPreRender(const float deltaSeconds) {}
+		virtual void OnPostRender(const float deltaSeconds) {}
 		virtual void OnResize(const eDockResize::Enum type, const sRectf &rect) {}
 		virtual void OnResizeEnd(const eDockResize::Enum type, const sRectf &rect) {}
 		virtual void OnEventProc(const sf::Event &evt) {}

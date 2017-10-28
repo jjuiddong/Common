@@ -534,7 +534,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 			| ImGuiWindowFlags_NoFocusOnAppearing
 			;
 		ImGui::Begin("", NULL, flags);
-		m_dock->RenderDock();
+		m_dock->RenderDock(deltaSeconds);
 		ImGui::End();
 	}
 
@@ -659,7 +659,7 @@ void cRenderWindow::RenderTitleBar()
 void cRenderWindow::PreRender(const float deltaSeconds)
 {
 	if (m_dock)
-		m_dock->PreRender();
+		m_dock->PreRender(deltaSeconds);
 
 	OnPreRender(deltaSeconds);
 }
@@ -668,7 +668,7 @@ void cRenderWindow::PreRender(const float deltaSeconds)
 void cRenderWindow::PostRender(const float deltaSeconds)
 {
 	if (m_dock)
-		m_dock->PostRender();
+		m_dock->PostRender(deltaSeconds);
 
 	OnPostRender(deltaSeconds);
 }

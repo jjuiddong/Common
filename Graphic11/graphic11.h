@@ -74,6 +74,7 @@ namespace graphic {
 #include "model_assimp/rawani.h"
 #include "collision/boundingbox.h"
 #include "collision/boundingsphere.h"
+#include "collision/boundinghalfsphere.h"
 
 
 #include "base/node.h"

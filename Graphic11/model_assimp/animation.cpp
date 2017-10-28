@@ -124,6 +124,20 @@ bool cAnimation::SetAnimation(const StrId &animationName
 }
 
 
+bool cAnimation::SetAnimation(const int animationIndex
+	, const bool isMerge //= false
+)
+{
+	RETV(!m_aniGroup, false);
+	RETV((int)m_aniGroup->anies.size() <= animationIndex, false);
+
+	m_curAniIdx = animationIndex;
+	m_start = m_aniGroup->anies[animationIndex].start;
+	m_end = m_aniGroup->anies[animationIndex].end;
+	return true;
+}
+
+
 void cAnimation::Stop()
 {
 	m_state = eState::STOP;

@@ -196,6 +196,21 @@ Matrix44 cBoundingBox::GetTransform() const
 }
 
 
+Vector3 cBoundingBox::BoundingPoint(const Vector3 &pos)
+{
+	Vector3 reVal;
+
+	const Vector3 center = *(Vector3*)&m_bbox.Center;
+	const Vector3 extents = *(Vector3*)&m_bbox.Extents;
+	const Vector3 _min = center - extents;
+	const Vector3 _max = center + extents;
+
+	reVal = _min.Maximum(pos);
+	reVal = _max.Minimum(reVal);
+	return reVal;
+}
+
+
 cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs) 
 {
 	//// todo: 왜 assert() 가 발생하는지 모름, jjuiddong, 2017-10-13

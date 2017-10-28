@@ -152,10 +152,20 @@ void cAssimpModel::UpdateBoundingBox()
 }
 
 
-void cAssimpModel::SetAnimation(const Str64 &animationName, const bool isMerge)
-// isMerge = false
+void cAssimpModel::SetAnimation(const Str64 &animationName
+	, const bool isMerge //= false
+)
 {
 	if (m_animation.SetAnimation(animationName, isMerge))
+		m_animation.Play();
+}
+
+
+void cAssimpModel::SetAnimation(const int animationIndex
+	, const bool isMerge //= false
+)
+{
+	if (m_animation.SetAnimation(animationIndex, isMerge))
 		m_animation.Play();
 }
 

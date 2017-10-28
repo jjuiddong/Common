@@ -226,13 +226,12 @@ void cTexture::Clear()
 
 
 // 텍스쳐를 파일에 저장한다.
-bool cTexture::WritePNGFile( const StrPath &fileName )
+bool cTexture::WritePNGFile( cRenderer &renderer, const StrPath &fileName )
 {
-	//if (FAILED(D3DXSaveTextureToFileA(fileName.c_str(), D3DXIFF_PNG, m_texture, NULL)))
-	//{
-	//	return false;
-	//}
-	return true;
+	const HRESULT result = DirectX::SaveWICTextureToFile(renderer.GetDevContext()
+		, m_texture, GUID_ContainerFormatBmp, fileName.wstr().c_str());
+
+	return result == S_OK;
 }
 
 

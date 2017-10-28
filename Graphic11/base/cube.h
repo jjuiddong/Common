@@ -34,6 +34,7 @@ namespace graphic
 	public:
 		cCubeShape m_shape;
 		cTexture *m_texture; // reference
+		cColor m_color;
 	};	
 
 }

@@ -313,7 +313,7 @@ bool cRenderer::ClearScene(
 	if (m_refRTV)
 		m_devContext->ClearRenderTargetView(m_refRTV, (float*)&color);
 	if (m_refDSV)
-		m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0xff);
+		m_devContext->ClearDepthStencilView(m_refDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	return true;
 }

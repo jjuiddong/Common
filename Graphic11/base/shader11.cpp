@@ -129,8 +129,8 @@ void cShader11::BeginPass(cRenderer &renderer, const int pass)
 
 	for (int i = 0; i < cRenderer::MAX_TEXTURE_STAGE; ++i)
 	{
-		if (!renderer.m_textureMap[i])
-			break;
+		//if (!renderer.m_textureMap[i])
+		//	break;
 		renderer.GetDevContext()->PSSetShaderResources(i + cRenderer::TEXTURE_OFFSET, 1, &renderer.m_textureMap[i]);
 	}
 }

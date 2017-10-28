@@ -110,7 +110,7 @@ namespace graphic
 		cFontManager m_fontMgr;
 		cTextManager m_textMgr;
 
-		enum {MAX_TEXTURE_STAGE=7, TEXTURE_OFFSET=4};
+		enum {MAX_TEXTURE_STAGE=8, TEXTURE_OFFSET=4};
 		// Diffuse
 		// Normal
 		// Specular
@@ -118,6 +118,7 @@ namespace graphic
 		// Texture1 - m_textureMap[0]
 		// Texture2 - m_textureMap[1]
 		// Texture3 - m_textureMap[2]
+		// Texture4 - m_textureMap[3]
 		// ...
 		ID3D11ShaderResourceView *m_textureMap[MAX_TEXTURE_STAGE]; // reference
 

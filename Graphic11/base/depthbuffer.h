@@ -16,10 +16,10 @@ namespace graphic
 
 		bool Create(cRenderer &renderer
 			, const cViewport &viewPort
+			, const bool isMultiSampling = true
 			, const DXGI_FORMAT texFormat = DXGI_FORMAT_R32_TYPELESS
 			, const DXGI_FORMAT SRVFormat = DXGI_FORMAT_R32_FLOAT
 			, const DXGI_FORMAT DSVFormat = DXGI_FORMAT_D32_FLOAT
-			, const bool isMultiSampling = true
 		);
 
 		void SetRenderTarget(cRenderer &renderer);

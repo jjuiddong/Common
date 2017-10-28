@@ -36,12 +36,12 @@ namespace graphic
 		Vector3 GetDirection() const;
 		Vector3 GetRight() const;
 		float GetDistance() const; // lookAt - eyePos 사이 거리.
+		Matrix44 GetZoomMatrix() const;
 
 		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const;
 		void FitFrustum(const cCamera &camera, const float farPlaneRate =1.f);
 		void FitFrustum(const Matrix44 &matViewProj);
 		void FitQuad(const Vector3 vertices[4]);
-
 
 		// LookAt 이 이동한다.
 		void Pitch( const float radian );
@@ -88,10 +88,11 @@ namespace graphic
 
 		void UpdateParameterFromViewMatrix();
 		void UpdateViewMatrix(const bool updateUp=true);
-
+		
 
 	protected:
 		void UpdateProjectionMatrix();
+		void CheckBoundingBox();
 
 
 	public:
@@ -106,7 +107,6 @@ namespace graphic
 		Matrix44 m_view; // 카메라 행렬.
 		Matrix44 m_proj; // 투영 행렬.
 		Matrix44 m_viewProj; // m_view X m_proj
-		//cLine m_lines[3]; // Front, Up, Right
 		float m_fov;
 		float m_aspect;
 		float m_nearPlane;
@@ -115,6 +115,9 @@ namespace graphic
 		float m_oldHeight;
 		float m_width; // ViewPort
 		float m_height; // ViewPort
+		float m_zoom; // for OthorGonal Mode
+		bool m_isMovingLimitation;
+		cBoundingHalfSphere m_boundingHSphere;
 
 		// Animation
 		struct sCamMoving
@@ -125,6 +128,9 @@ namespace graphic
 			float velocityLookAt;
 		};
 		vector<sCamMoving> m_mover;
+
+		// Debugging
+		//cLine m_lines[3]; // Front, Up, Right
 	};
 
 
@@ -135,7 +141,7 @@ namespace graphic
 	inline void cCamera::SetProjectionMatrix(const Matrix44 &proj) { m_proj = proj; UpdateProjectionMatrix(); }
 	inline const Vector3& cCamera::GetEyePos() const { return m_eyePos; }
 	inline const Vector3& cCamera::GetLookAt() const { return m_lookAt; }
-	//inline const Vector3& cCamera::GetUpVector() const { return m_up; }
+	inline Vector3 cCamera::GetUpVector() const { return GetDirection().CrossProduct(GetRight()).Normal(); }
 	inline const Matrix44& cCamera::GetViewMatrix() const { return m_view; }
 	inline const Matrix44& cCamera::GetProjectionMatrix() const { return m_proj; }
 	inline const Matrix44& cCamera::GetViewProjectionMatrix() { m_viewProj = m_view * m_proj; return m_viewProj; }		 

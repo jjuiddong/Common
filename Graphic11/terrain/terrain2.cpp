@@ -128,7 +128,7 @@ bool cTerrain2::Render(cRenderer &renderer
 	GetMainCamera().Bind(renderer);
 	GetMainLight().Bind(renderer);
 
-	CullingTestOnly(renderer, GetMainCamera()); // Recovery Culling
+	CullingTestOnly(renderer, GetMainCamera(), true, tm); // Recovery Culling
 	return __super::Render(renderer, tm);
 }
 
@@ -181,13 +181,14 @@ void cTerrain2::RenderDebug(cRenderer &renderer
 
 void cTerrain2::CullingTestOnly(cRenderer &renderer, cCamera &camera
 	, const bool isModel //= true
+	, const XMMATRIX &tm //= XMIdentity
 )
 {
 	cFrustum frustum;
 	frustum.SetFrustum(camera.GetViewProjectionMatrix());
 
 	for (auto &p : m_tiles)
-		p->CullingTest(frustum, XMIdentity, isModel);
+		p->CullingTest(frustum, tm, isModel);
 }
 
 
