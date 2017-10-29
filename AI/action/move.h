@@ -11,10 +11,10 @@
 
 namespace ai
 {
-	template<class T>
 
+	template<class T>
 	class cMove : public cAction<T>
-						, public common::cMemoryPool< cMove<T> >
+				, public common::cMemoryPool< cMove<T> >
 	{
 	public:
 		cMove(ai::iActorInterface<T> *agent, const Vector3 &dest, const float speed=3.f)

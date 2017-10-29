@@ -5,22 +5,16 @@
 //
 #pragma once
 
-// #include "../object/actorinterface.h"
-// #include "../action/action.h"
-//#include "../control/event.h"
-
 
 namespace ai
 {
 
 	template <class T>
-
 	class cActor : public cObject
 	{
 	public:
 		cActor(iActorInterface<T> *agent =NULL)
 			: m_agent(agent)
-			//, m_id(common::GenerateId())
 		{
 		}
 

@@ -24,8 +24,8 @@ namespace ai
 	public:
 		cAction( 
 			iActorInterface<T> *agent = NULL,
-			const string &name = "action",
-			const string &animationName = "",
+			const StrId &name = "action",
+			const StrId &animationName = "",
 			const ACTION_TYPE::TYPE type = ACTION_TYPE::NONE)
 			: m_agent(agent)
 			, m_name(name)
@@ -149,7 +149,7 @@ namespace ai
 		}
 
 
-		void RemoveAction(const string &actionName)
+		void RemoveAction(const StrId &actionName)
 		{
 			for (u_int i = m_children.size() - 1; i >= 0; --i)
 			{
@@ -177,7 +177,7 @@ namespace ai
 		}
 
 
-		cAction* FindAction(const string &actionName, bool isFindChild=true)
+		cAction* FindAction(const StrId &actionName, bool isFindChild=true)
 		{
 			for (u_int i = 0; i < m_children.size(); ++i)
 			{
@@ -288,8 +288,8 @@ namespace ai
 	public:
 		ACTION_STATE::TYPE m_state;
 		ACTION_TYPE::TYPE m_type;
-		string m_name;
-		string m_animationName;
+		StrId m_name;
+		StrId m_animationName;
 		iActorInterface<T> *m_agent;
 		vector<cAction<T>*> m_children;
 		cAction<T> *m_current;

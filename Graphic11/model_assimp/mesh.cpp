@@ -137,16 +137,20 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 		renderer.m_cbMaterial.Update(renderer, 2);
 
 		if (!m_colorMap.empty())
-			m_colorMap[0]->Bind(renderer, 0);
+			if (m_colorMap[0])
+				m_colorMap[0]->Bind(renderer, 0);
 
 		if (!m_normalMap.empty())
-			m_normalMap[0]->Bind(renderer, 1);
+			if (m_normalMap[0])
+				m_normalMap[0]->Bind(renderer, 1);
 
 		if (!m_specularMap.empty())
-			m_specularMap[0]->Bind(renderer, 2);
+			if (m_specularMap[0])
+				m_specularMap[0]->Bind(renderer, 2);
 
 		if (!m_selfIllumMap.empty())
-			m_selfIllumMap[0]->Bind(renderer, 3);
+			if (m_selfIllumMap[0])
+				m_selfIllumMap[0]->Bind(renderer, 3);
 
 		// Set Skinning Information
 		// 
