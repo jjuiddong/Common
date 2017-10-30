@@ -27,7 +27,7 @@ namespace ai
 			m_dest = dest;
 			m_rotateTime = 0;
 
-			const Vector3 curPos = agent->aiGetTransform().GetPosition();
+			const Vector3 curPos = agent->aiGetTransform().pos;
 			m_distance = curPos.LengthRoughly(m_dest);
 			m_oldDistance = curPos.LengthRoughly(m_dest);
 			m_dir = m_dest - curPos;
@@ -37,18 +37,18 @@ namespace ai
 			Quaternion q;
 			q.SetRotationArc(Vector3(0, 0, -1), m_dir);
 
-			m_fromDir = agent->aiGetTransform().GetQuaternion();
+			m_fromDir = agent->aiGetTransform().rot;
 			m_toDir = q;
 			m_rotateTime = 0;
 
-			m_S.SetScale(agent->aiGetTransform().GetScale());
+			m_S.SetScale(agent->aiGetTransform().scale);
 			m_R = m_fromDir.GetMatrix();
 		}
 
 
 		virtual bool ActionExecute(const float deltaSeconds) override
 		{
-			const Vector3 curPos = m_agent->aiGetTransform().GetPosition();
+			const Vector3 curPos = m_agent->aiGetTransform().pos;
 
 			// 회전 보간 계산
 			if (m_rotateTime < m_rotateInterval)
@@ -62,8 +62,11 @@ namespace ai
 
 			// 캐릭터 이동.
 			const Vector3 pos = curPos + m_dir * m_speed * deltaSeconds;
-			m_agent->aiGetTransform() = m_S * m_R;
-			m_agent->aiGetTransform().SetPosition(pos);
+			Transform tfm;
+			tfm.pos = pos;
+			//m_agent->aiGetTransform() = m_S * m_R;
+			//m_agent->aiGetTransform().SetPosition(pos);
+			m_agent->aiGetTransform() = tfm;
 
 			// 목적지에 가깝다면 종료.
 			// 프레임이 낮을 때, 통과되는 문제가 있을 수 있다.

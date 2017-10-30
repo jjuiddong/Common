@@ -86,7 +86,7 @@ float4 PS_Outline(VSOUT_TEX In) : SV_Target
 	coords.x = (In.PosH.x / In.PosH.w + 1) * 0.5f;
 	coords.y = 1 - ((In.PosH.y / In.PosH.w + 1) * 0.5f);
 
-	const float dx = 1 / 400.f;
+	const float dx = 1.f / DepthMapSizeScaled;
 	float2 vTexCoords[9];
 	vTexCoords[0] = coords;
 	vTexCoords[1] = coords + float2(-dx, 0.0f);

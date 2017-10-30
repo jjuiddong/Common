@@ -3,7 +3,8 @@
 #define SHADOW_EPSILON2 0.001f // pos-norm-tex
 #define Instancing		true
 #define NotInstancing	false
-
+#define	DepthMapSize 1024.f
+#define	DepthMapSizeScaled (DepthMapSize-50.f)
 
 //--------------------------------------------------------------------------------------
 // Texture

@@ -45,6 +45,9 @@ namespace ai
 		// 아무 작업도 하지 않는다면 false 를 리턴한다.
 		virtual bool Traverse(const float deltaSeconds)
 		{
+			if (m_state != ACTION_STATE::RUN)
+				StartAction();
+
 			m_state = ACTION_STATE::RUN;
 
 			if (m_current)
@@ -79,6 +82,12 @@ namespace ai
 		virtual bool ActionExecute(const float deltaSeconds) 
 		{ 
 			return true; 
+		}
+
+		// 행동이 처음 시작될 때 호출된다.
+		// 파생된 클래스에서 구현한다.
+		virtual void StartAction()
+		{
 		}
 
 		// 실행 중인 자식 Action에 메세지를 보낸다.

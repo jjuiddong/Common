@@ -5,8 +5,7 @@
 
 namespace ai
 {
-	static Matrix44 g_tempMat;
-
+	static Transform g_tempTransform;
 
 	template<class T>
 	class iActorInterface
@@ -15,7 +14,7 @@ namespace ai
 		iActorInterface(T *p)  : m_ptr(p) {}
 		virtual ~iActorInterface() {}
 
-		virtual Matrix44& aiGetTransform() { return g_tempMat; }
+		virtual Transform& aiGetTransform() { return g_tempTransform; }
 		virtual void aiSetAnimation(const Str64 &animationName) {}
 
 

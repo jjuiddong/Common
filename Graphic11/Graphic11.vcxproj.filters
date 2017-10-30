@@ -639,52 +639,50 @@
     <CustomBuild Include="shader\water.fx">
       <Filter>shader</Filter>
     </CustomBuild>
+    <CustomBuild Include="shader\pos.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw-color.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw-color-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-color.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-color.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-color-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-bump.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-skin.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-skin-bump.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-tangent-binormal.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\skyboxcube.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="shader\pos.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos_rhw-color.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos_rhw-color-tex.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-color.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-color.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-color-tex.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-tex.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-tex-bump.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-tex-skin.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-tex-skin-bump.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-norm-tex-tangent-binormal.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\pos-tex.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="shader\skyboxcube.fx">
-      <Filter>shader</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
