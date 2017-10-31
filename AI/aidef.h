@@ -28,6 +28,7 @@ namespace ai
 			ROOT,
 
 			MOVE, 
+			ATTACK,
 
 			MAX_ACTION_TYPE0,
 		};
