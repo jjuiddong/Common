@@ -392,6 +392,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="thread\Instance.h" />
+    <ClInclude Include="thread\mutex.h" />
     <ClInclude Include="thread\task.h" />
     <ClInclude Include="thread\thread.h" />
     <ClInclude Include="thread\threaddef.h" />

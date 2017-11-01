@@ -116,6 +116,7 @@ using std::wstringstream;
 #include "etc/path.h"
 #include "thread/task.h"
 #include "thread/thread.h"
+#include "thread/mutex.h"
 
 // #pragma comment( lib, "d3d9.lib" )
 // #pragma comment( lib, "d3dx9.lib" )

@@ -133,6 +133,9 @@
     <ClInclude Include="container\simplestring.h">
       <Filter>container</Filter>
     </ClInclude>
+    <ClInclude Include="thread\mutex.h">
+      <Filter>thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
