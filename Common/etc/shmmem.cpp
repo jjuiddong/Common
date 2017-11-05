@@ -25,7 +25,8 @@ bool cShmmem::Init(const std::string &sharedMemoryName, const int memoryByteSize
 
 	try
 	{
-		m_sharedmem = windows_shared_memory(open_or_create, sharedMemoryName.c_str(), read_write, memoryByteSize);
+		m_sharedmem = windows_shared_memory(open_or_create, sharedMemoryName.c_str()
+			, read_write, memoryByteSize);
 		m_mmap = mapped_region(m_sharedmem, read_write, 0, memoryByteSize);
 		m_memPtr = static_cast<BYTE*>(m_mmap.get_address());
 	}

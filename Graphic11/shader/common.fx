@@ -3,8 +3,8 @@
 #define SHADOW_EPSILON2 0.001f // pos-norm-tex
 #define Instancing		true
 #define NotInstancing	false
-#define	DepthMapSize 1024.f
-#define	DepthMapSizeScaled (DepthMapSize-50.f)
+#define DepthMapSize		1024.f
+#define DepthMapSize_Scaled (DepthMapSize - 500.f)
 
 //--------------------------------------------------------------------------------------
 // Texture
@@ -25,13 +25,6 @@ Texture2D txDepth : register(t7);
 SamplerState samLinear : register(s0)
 {
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = WRAP;
-	AddressV = WRAP;
-};
-
-SamplerState samAnis : register(s3)
-{
-	Filter = ANISOTROPIC;
 	AddressU = WRAP;
 	AddressV = WRAP;
 };
@@ -58,6 +51,13 @@ SamplerComparisonState samDepth : register(s2)
 	ComparisonFunc = LESS_EQUAL;
 };
 
+SamplerState samAnis : register(s3)
+{
+	Filter = ANISOTROPIC;
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
+
 
 
 
@@ -71,6 +71,21 @@ RasterizerState Depth
 	SlopeScaledDepthBias = 1.0f;
 };
 
+RasterizerState NoCull
+{
+	CullMode = NONE;
+};
+
+DepthStencilState DepthNormal
+{
+	DepthFunc = LESS_EQUAL;
+	DepthEnable = TRUE;
+};
+
+DepthStencilState NoDepthStencil
+{
+	DepthEnable = FALSE;
+};
 
 
 //--------------------------------------------------------------------------------------

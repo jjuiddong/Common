@@ -70,7 +70,7 @@ bool cModel::Render(cRenderer &renderer
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 
-	m_model->Render(renderer, m_techniqueName.c_str(), transform);
+	m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
 
 	__super::Render(renderer, parentTm, flags);
 	return true;
@@ -94,7 +94,7 @@ bool cModel::RenderInstancing(cRenderer &renderer
 
 	const Str32 technique = m_techniqueName + "_Instancing";
 	if (m_model)
-		m_model->RenderInstancing(renderer, technique.c_str(), count, transforms, transform);
+		m_model->RenderInstancing(renderer, technique.c_str(), &m_skeleton, count, transforms, transform);
 
 	__super::RenderInstancing(renderer, count, transforms, parentTm, flags);
 	return true;
@@ -112,7 +112,9 @@ bool cModel::Update(cRenderer &renderer, const float deltaSeconds)
 	m_aniIncT += dt;
 	if (m_model)
 	{
-		reval = m_model->Update(dt, m_aniIncT);
+		m_model->Update(deltaSeconds);
+		reval = m_animation.Update(m_aniIncT);
+
 		if (reval)
 			m_aniIncT = 0;		
 	}
@@ -174,9 +176,21 @@ void cModel::InitModel(cRenderer &renderer)
 {
 	if (m_model)
 	{
-		m_animationName = m_model->m_storedAnimationName;
+		if (m_animationName.empty()) // 애니메이션이 설정된 상태라면, 덮어 씌우지 않는다.
+			m_animationName = m_model->m_storedAnimationName;
 		m_boundingBox = m_model->m_boundingBox;
 		m_boundingSphere.SetBoundingSphere(m_model->m_boundingBox);
+
+		m_skeleton = m_model->m_skeleton;
+		const int curAniIdx = m_animation.m_curAniIdx;
+		m_animation = m_model->m_animation;
+		m_animation.m_skeleton = &m_skeleton;
+
+		// 모델이 로딩 되기전에 애니메이션 정보를 설정했다면, 그대로 유지한다. (병렬로 로딩 되었을 경우)
+		if (curAniIdx >= 0)
+			m_animation.m_curAniIdx = curAniIdx;
+		else
+			SetAnimation(m_animationName);
 	}
 }
 
@@ -185,8 +199,18 @@ void cModel::SetAnimation(const Str64 &animationName
 	, const bool isMerge //= false
 )
 {
-	if (m_model)
-		m_model->SetAnimation(animationName, isMerge);
+	m_animationName = animationName;
+	if (m_animation.SetAnimation(animationName, isMerge))
+		m_animation.Play();
+}
+
+
+void cModel::SetAnimation(const int animationIndex
+	, const bool isMerge //= false
+)
+{
+	if (m_animation.SetAnimation(animationIndex, isMerge))
+		m_animation.Play();
 }
 
 

@@ -15,7 +15,4 @@
 #include "../Common/common.h"
 using namespace common;
 
-#include "../ai/ai.h"
-
-
 #include "graphic11.h"

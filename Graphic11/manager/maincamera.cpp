@@ -7,7 +7,7 @@ using namespace graphic;
 cMainCamera::cMainCamera() 
 {
 	// Default Camera
-	cCamera *cam = new cCamera("Root Camera");
+	cCamera3D *cam = new cCamera3D("Root Camera");
 	cam->SetCamera(Vector3(100,100,-500), Vector3(0,0,0), Vector3(0,1,0));
 	cam->SetProjection( MATH_PI / 4.f, 1024.f/768.f, 1.f, 10000.0f);
 	cam->SetViewPort(1280, 1024);

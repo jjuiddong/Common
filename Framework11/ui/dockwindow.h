@@ -92,7 +92,7 @@ namespace framework
 		StrId m_name;
 		sRectf m_rect;
 		eDockSlot::Enum m_dragSlot; // using drag dock window
-		graphic::cCamera m_camera;
+		graphic::cCamera3D m_camera;
 		graphic::cPickManager m_pickMgr;
 	};
 

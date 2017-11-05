@@ -46,7 +46,8 @@ namespace ai
 		virtual bool Traverse(const float deltaSeconds)
 		{
 			if (m_state != ACTION_STATE::RUN)
-				StartAction();
+				if (!StartAction())
+					NextAction();
 
 			m_state = ACTION_STATE::RUN;
 
@@ -86,8 +87,10 @@ namespace ai
 
 		// 행동이 처음 시작될 때 호출된다.
 		// 파생된 클래스에서 구현한다.
-		virtual void StartAction()
+		// false를 리턴하면, 액션을 종료한다.
+		virtual bool StartAction()
 		{
+			return true;
 		}
 
 		// 실행 중인 자식 Action에 메세지를 보낸다.

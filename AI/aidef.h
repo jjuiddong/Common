@@ -29,6 +29,7 @@ namespace ai
 
 			MOVE, 
 			ATTACK,
+			PATROL,
 
 			MAX_ACTION_TYPE0,
 		};

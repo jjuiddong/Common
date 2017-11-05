@@ -1,6 +1,6 @@
 // 
-//  2016-04-27, jjuiddong
-//
+// 2016-04-27, jjuiddong
+// Shared Memeory
 //
 #pragma once
 

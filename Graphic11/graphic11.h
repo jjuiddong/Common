@@ -60,8 +60,6 @@ namespace graphic {
 
 #include "base\d3dx11effect.h"
 
-#include "../ai/ai.h"
-
 #include "utility\utility.h"
 
 #pragma warning(push)
@@ -111,6 +109,8 @@ namespace graphic {
 #include "base/shader11.h"
 #include "base/constantbuffer.h"
 #include "base/camera.h"
+#include "base/camera2d.h"
+#include "base/camera3d.h"
 #include "base/skybox.h"
 #include "base/skyboxcube.h"
 #include "base/sphere.h"
@@ -193,8 +193,11 @@ namespace graphic
 #include "manager/resourcemanager.h"
 #include "manager/maincamera.h"
 #include "manager/lightmanager.h"
+#include "manager/task_resource.h"
 
 #include "importer/parallelloader.h"
+
+#include "../ai/ai.h"
 
 
 #pragma comment( lib, "gdiplus.lib" ) 

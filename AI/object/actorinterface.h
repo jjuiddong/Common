@@ -3,10 +3,12 @@
 #pragma once
 
 
+namespace graphic {class cBoundingSphere;}
+
 namespace ai
 {
 	static Transform g_tempTransform;
-
+	
 	template<class T>
 	class iActorInterface
 	{
@@ -16,6 +18,8 @@ namespace ai
 
 		virtual Transform& aiGetTransform() { return g_tempTransform; }
 		virtual void aiSetAnimation(const Str64 &animationName) {}
+		virtual bool aiCollision(const graphic::cBoundingSphere &srcBSphere
+			, OUT graphic::cBoundingSphere &collisionSphrere) {return false;}
 
 
 	public:

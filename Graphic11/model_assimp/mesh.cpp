@@ -8,7 +8,6 @@ using namespace graphic;
 
 cMesh::cMesh()
 	: m_buffers(NULL)
-	, m_skeleton(NULL)
 	, m_isShow(true)
 	, m_isHilight(false)
 {
@@ -21,14 +20,13 @@ cMesh::~cMesh()
 
 
 // Create Mesh
-bool cMesh::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh, cSkeleton *skeleton
+bool cMesh::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh
 	, const bool calculateTangentBinormal //= false
 )
 {
 	Clear();
 
 	m_name = mesh.name;
-	m_skeleton = skeleton;
 	m_bones = mesh.bones;
 
 	CreateMaterials(renderer, mesh);
@@ -78,6 +76,7 @@ void cMesh::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 
 void cMesh::Render( cRenderer &renderer
 	, const char *techniqueName
+	, cSkeleton *skeleton
 	, const XMMATRIX &parentTm // = XMIdentity
 	, const XMMATRIX &transform //= XMIdentity
 )
@@ -85,13 +84,14 @@ void cMesh::Render( cRenderer &renderer
 	RET(!m_isShow);
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, parentTm, transform);
+	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, transform);
 	m_buffers->Render(renderer);
 }
 
 
 void cMesh::RenderInstancing(cRenderer &renderer
 	, const char *techniqueName
+	, cSkeleton *skeleton
 	, const int count
 	, const XMMATRIX &parentTm //= XMIdentity
 )
@@ -99,13 +99,14 @@ void cMesh::RenderInstancing(cRenderer &renderer
 	RET(!m_isShow);
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, parentTm, XMIdentity);
+	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, XMIdentity);
 	m_buffers->RenderInstancing(renderer, count);
 }
 
 
 void cMesh::UpdateConstantBuffer(cRenderer &renderer
 	, const char *techniqueName
+	, cSkeleton *skeleton
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const XMMATRIX &transform //= XMIdentity
 )
@@ -113,57 +114,53 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_buffers->m_vtxType);
 	assert(shader);
 	shader->SetTechnique(techniqueName);
-	const int passCnt = shader->Begin();
-	for (int i = 0; i < passCnt; ++i)
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+	renderer.m_cbClipPlane.Update(renderer, 4);
+
+	const XMMATRIX nodeGlobalTm = m_transform.GetMatrixXM() * parentTm;
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(nodeGlobalTm * transform);
+	renderer.m_cbPerFrame.Update(renderer);
+
+	renderer.m_cbLight.Update(renderer, 1);
+	if (!m_mtrls.empty())
 	{
-		shader->Begin();
-		shader->BeginPass(renderer, i);
-		renderer.m_cbClipPlane.Update(renderer, 4);
-
-		const XMMATRIX nodeGlobalTm = m_transform.GetMatrixXM() * parentTm;
-		renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(nodeGlobalTm * transform);
-		renderer.m_cbPerFrame.Update(renderer);
-
-		renderer.m_cbLight.Update(renderer, 1);
-		if (!m_mtrls.empty())
+		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
+		if (m_isHilight)
 		{
-			renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
-			if (m_isHilight)
-			{
-				renderer.m_cbMaterial.m_v->ambient = XMVectorSet(0.3f, 0.3f, 1.f, 1);
-				renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0.3f, 0.3f, 1.f, 1);
-			}
+			renderer.m_cbMaterial.m_v->ambient = XMVectorSet(0.3f, 0.3f, 1.f, 1);
+			renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0.3f, 0.3f, 1.f, 1);
 		}
-		renderer.m_cbMaterial.Update(renderer, 2);
-
-		if (!m_colorMap.empty())
-			if (m_colorMap[0])
-				m_colorMap[0]->Bind(renderer, 0);
-
-		if (!m_normalMap.empty())
-			if (m_normalMap[0])
-				m_normalMap[0]->Bind(renderer, 1);
-
-		if (!m_specularMap.empty())
-			if (m_specularMap[0])
-				m_specularMap[0]->Bind(renderer, 2);
-
-		if (!m_selfIllumMap.empty())
-			if (m_selfIllumMap[0])
-				m_selfIllumMap[0]->Bind(renderer, 3);
-
-		// Set Skinning Information
-		// 
-		for (u_int i = 0; i < m_bones.size(); ++i)
-		{
-			Matrix44 tm = (m_skeleton) ? (m_bones[i].offsetTm * m_skeleton->m_tmPose[m_bones[i].id]) : Matrix44::Identity;
-			XMMATRIX tfm = XMLoadFloat4x4((XMFLOAT4X4*)&tm) * XMMatrixInverse(NULL, nodeGlobalTm);
-			renderer.m_cbSkinning.m_v->mPalette[i] = XMMatrixTranspose(tfm);
-		}
-
-		if (!m_bones.empty())
-			renderer.m_cbSkinning.Update(renderer, 5);
 	}
+	renderer.m_cbMaterial.Update(renderer, 2);
+
+	if (!m_colorMap.empty())
+		if (m_colorMap[0])
+			m_colorMap[0]->Bind(renderer, 0);
+
+	if (!m_normalMap.empty())
+		if (m_normalMap[0])
+			m_normalMap[0]->Bind(renderer, 1);
+
+	if (!m_specularMap.empty())
+		if (m_specularMap[0])
+			m_specularMap[0]->Bind(renderer, 2);
+
+	if (!m_selfIllumMap.empty())
+		if (m_selfIllumMap[0])
+			m_selfIllumMap[0]->Bind(renderer, 3);
+
+	// Set Skinning Information
+	// 
+	for (u_int i = 0; i < m_bones.size(); ++i)
+	{
+		Matrix44 tm = (skeleton) ? (m_bones[i].offsetTm * skeleton->m_tmPose[m_bones[i].id]) : Matrix44::Identity;
+		XMMATRIX tfm = XMLoadFloat4x4((XMFLOAT4X4*)&tm) * XMMatrixInverse(NULL, nodeGlobalTm);
+		renderer.m_cbSkinning.m_v->mPalette[i] = XMMatrixTranspose(tfm);
+	}
+
+	if (!m_bones.empty())
+		renderer.m_cbSkinning.Update(renderer, 5);
 }
 
 

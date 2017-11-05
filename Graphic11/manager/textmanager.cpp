@@ -263,14 +263,13 @@ void cTextManager::GarbageCollection()
 void cTextManager::Sorting()
 {
 	cCamera &cam = GetMainCamera();
-	Vector3 camOrig, camDir;
-	cam.GetRay(camOrig, camDir);
+	const Ray ray = cam.GetRay();
 
 	std::sort(m_renders.begin(), m_renders.end(), 
 		[&](const sText* a, const sText* b)
 		{
-			const float l1 = a->text.m_transform.pos.LengthRoughly(camOrig);
-			const float l2 = b->text.m_transform.pos.LengthRoughly(camOrig);
+			const float l1 = a->text.m_transform.pos.LengthRoughly(ray.orig);
+			const float l2 = b->text.m_transform.pos.LengthRoughly(ray.orig);
 			return l1 > l2;
 		}
 	);

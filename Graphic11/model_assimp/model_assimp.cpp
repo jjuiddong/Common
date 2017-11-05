@@ -33,7 +33,7 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 	for (auto &mesh : rawMeshes->meshes)
 	{
 		cMesh *p = new cMesh();
-		p->Create(renderer, mesh, &m_skeleton);
+		p->Create(renderer, mesh);
 		m_meshes.push_back(p);
 	}
 
@@ -52,18 +52,20 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 
 bool cAssimpModel::Render(cRenderer &renderer
 	, const char *techniqueName
+	, cSkeleton *skeleton
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
 {
 	RETV(m_nodes.empty(), false);
-	RenderNode(renderer, techniqueName, m_nodes[0], XMIdentity, parentTm, flags);
+	RenderNode(renderer, techniqueName, skeleton, m_nodes[0], XMIdentity, parentTm, flags);
 	return true;
 }
 
 
 bool cAssimpModel::RenderInstancing(cRenderer &renderer
 	, const char *techniqueName
+	, cSkeleton *skeleton
 	, const int count
 	, const XMMATRIX *transforms
 	, const XMMATRIX &parentTm //= XMIdentity
@@ -79,7 +81,7 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 			renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm2 * tm1 * parentTm);
 		}
 		renderer.m_cbInstancing.Update(renderer, 3);
-		mesh->RenderInstancing(renderer, techniqueName, count, parentTm);
+		mesh->RenderInstancing(renderer, techniqueName, skeleton, count, parentTm);
 	}
 	return true;
 }
@@ -88,6 +90,7 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 // Render From Node
 bool cAssimpModel::RenderNode(cRenderer &renderer
 	, const char *techniqueName
+	, cSkeleton *skeleton
 	, const sRawNode &node
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const XMMATRIX &transformTm //= XMIdentity
@@ -98,19 +101,19 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 
 	// Render Meshes
 	for (auto idx : node.meshes)
-		m_meshes[idx]->Render(renderer, techniqueName, tm, transformTm);
+		m_meshes[idx]->Render(renderer, techniqueName, skeleton, tm, transformTm);
 
 	// Render Child Node
 	for (auto idx : node.children)
-		RenderNode(renderer, techniqueName, m_nodes[idx], tm, transformTm, flags);
+		RenderNode(renderer, techniqueName, skeleton, m_nodes[idx], tm, transformTm, flags);
 
 	return true;
 }
 
 
-bool cAssimpModel::Update(const float deltaSeconds, const float incT)
+bool cAssimpModel::Update(const float deltaSeconds)
 {
-	return m_animation.Update(incT);
+	return true;
 }
 
 
@@ -149,24 +152,6 @@ void cAssimpModel::UpdateBoundingBox()
 	}
 
 	m_boundingBox.SetBoundingBox(mm);
-}
-
-
-void cAssimpModel::SetAnimation(const Str64 &animationName
-	, const bool isMerge //= false
-)
-{
-	if (m_animation.SetAnimation(animationName, isMerge))
-		m_animation.Play();
-}
-
-
-void cAssimpModel::SetAnimation(const int animationIndex
-	, const bool isMerge //= false
-)
-{
-	if (m_animation.SetAnimation(animationIndex, isMerge))
-		m_animation.Play();
 }
 
 

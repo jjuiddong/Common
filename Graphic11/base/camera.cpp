@@ -2,42 +2,38 @@
 #include "stdafx.h"
 #include "camera.h"
 
-#ifdef USE_D3D9_MATH
-	#include <D3dx9math.h>
-#endif 
-
 
 using namespace graphic;
 
 cCamera::cCamera(const char *name) 
 	: m_name(name)
 	, m_eyePos(0,100,-100)
+	, m_lookAt(0, 0, 0)
+	, m_up(0, 1, 0)
 	, m_isOrthogonal(false)
-	, m_lookAt(0,0,0)
-	, m_up(0,1,0)
-	, m_oldWidth(0)
-	, m_oldHeight(0)
+	, m_aspect(1)
+	, m_fov(MATH_PI / 4.f)
 	, m_width(0)
 	, m_height(0)
+	, m_oldWidth(0)
+	, m_oldHeight(0)
 	, m_state(eState::STOP)
 	, m_isMovingLimitation(false)
-	, m_zoom(1.f)
 {
-	UpdateViewMatrix();
-}
-
-cCamera::cCamera(const char *name, const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up) 
-	: m_name(name)
-	, m_eyePos(eyePos)
-	, m_lookAt(lookAt)
-	, m_up(up)
-{
-	UpdateViewMatrix();
 	m_boundingHSphere.SetBoundingHalfSphere(Vector3(0, 0, 0), 500);
 }
 
 cCamera::~cCamera()
 {
+}
+
+
+void cCamera::SetCamera(const Vector3 &eyePos, const Vector3 &up)
+{
+	m_eyePos = eyePos;
+	m_lookAt = Vector3(eyePos.x, 0, eyePos.z);
+	m_up = up;
+	UpdateViewMatrix();
 }
 
 
@@ -54,67 +50,13 @@ void cCamera::SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vect
 void cCamera::SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const Vector3 &up)
 {
 	m_eyePos = eyePos;
-	m_lookAt = direction*10 + eyePos;
+	m_lookAt = direction * 10 + eyePos;
 	m_up = up;
 	UpdateViewMatrix();
 }
 
 
-void cCamera::SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane)
-{
-	m_isOrthogonal = false;
-	m_fov = fov;
-	m_aspect = aspect;
-	m_nearPlane = nearPlane;
-	m_farPlane = farPlane;
-	m_proj.SetProjection(fov, aspect, nearPlane, farPlane);
-	UpdateProjectionMatrix();
-}
-
-
-void cCamera::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
-{
-	//m_fov = fov;
-	m_isOrthogonal = true;
-	m_aspect = height / width;
-	m_nearPlane = nearPlane;
-	m_farPlane = farPlane;
-	m_width = width;
-	m_height = height;
-	m_proj.SetProjectionOrthogonal(width, height, nearPlane, farPlane);
-	UpdateProjectionMatrix();
-}
-
-
-void cCamera::ReCalcProjection(const float nearPlane, const float farPlane)
-{
-	if (m_isOrthogonal)
-	{
-		SetProjectionOrthogonal(m_width, m_height, nearPlane, farPlane);
-	}
-	else
-	{
-		SetProjection(m_fov, m_aspect, nearPlane, farPlane);
-	}
-}
-
-
-// Direction 단위 벡터를 리턴한다.
-Vector3 cCamera::GetDirection() const 
-{
-	Vector3 v = m_lookAt - m_eyePos;
-	return v.Normal();
-}
-
-
-// Right 단위 벡터를 리턴한다.
-Vector3 cCamera::GetRight() const
-{
-	Vector3 v = m_up.CrossProduct( GetDirection() );
-	return v.Normal();
-}
-
-
+// 카메라 움직임 애니메이션 처리
 void cCamera::Update(const float deltaSeconds)
 {
 	CheckBoundingBox();
@@ -173,566 +115,8 @@ void cCamera::Update(const float deltaSeconds)
 	if (check >= 2)
 		rotatepopvector(m_mover, 0);
 
-	KeepHorizontal();
-	UpdateViewMatrix();	
-}
-
-
-// Rendering Camera Position, Direction
-void cCamera::Render(cRenderer &renderer)
-{
-	//m_lines[0].SetLine(renderer, m_eyePos, m_eyePos + GetRight(), 0.1f, D3DCOLOR_XRGB(255,0,0) );
-	//m_lines[1].SetLine(renderer, m_eyePos, m_eyePos + GetUpVector(), 0.1f, D3DCOLOR_XRGB(0, 255, 0));
-	//m_lines[2].SetLine(renderer, m_eyePos, m_eyePos + GetDirection(), 0.1f, D3DCOLOR_XRGB(0, 0, 255));
-
-	//for (auto &line : m_lines)
-	//	line.Render(renderer);
-}
-
-
-// shader bind
-//void cCamera::Bind(cShader &shader)
-//{
-//	shader.SetCameraView(m_view);
-//	shader.SetCameraProj(m_proj);
-//	shader.SetCameraEyePos(m_eyePos);
-//}
-
-
-void cCamera::Bind(cRenderer &renderer)
-{
-	if (m_isOrthogonal)
-	{
-		Matrix44 zoom;
-		zoom.SetScale(Vector3(1, 1, 1));
-		const XMMATRIX mView = XMLoadFloat4x4((XMFLOAT4X4*)&m_view);
-		const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&m_proj);
-		renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(zoom.GetMatrixXM()*mView);
-		renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
-		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
-	}
-	else
-	{
-		const XMMATRIX mView = XMLoadFloat4x4( (XMFLOAT4X4*)&m_view );
-		const XMMATRIX mProj = XMLoadFloat4x4( (XMFLOAT4X4*)&m_proj );
-		renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose( mView );
-		renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose( mProj );
-		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
-	}
-}
-
-
-void cCamera::UpdateViewMatrix(const bool updateUp)
-// updateUp = true
-{
-	m_view.SetView2(m_eyePos, m_lookAt, m_up);
-
-	// Update Up Vector
-	//if (updateUp)
-	//{
-	//	Vector3 dir = m_lookAt - m_eyePos;
-	//	dir.Normalize();
-	//	Vector3 right = m_up.CrossProduct(dir);
-	//	right.Normalize();
-	//	m_up = dir.CrossProduct(right);
-	//	m_up.Normalize();
-	//}
-	//
-
-	//if (m_renderer->GetDevice())
-	//	m_renderer->GetDevice()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&m_view);
-}
-
-
-// ViewMatrix 로 eyePos, lookAt, up 을 계산한다.
-void cCamera::UpdateParameterFromViewMatrix()
-{
-	const Vector3 right(m_view._11, m_view._21, m_view._31);
-	const Vector3 up(m_view._12, m_view._22, m_view._32 );
-	const Vector3 dir(m_view._13, m_view._23, m_view._33);
-	const Vector3 pos = m_view.Inverse().GetPosition();
-	
-	m_eyePos = pos;
-	m_up = up;
-	m_lookAt = dir * 100 + pos;
-}
-
-
-void cCamera::UpdateProjectionMatrix()
-{
-	//if (m_renderer->GetDevice())
-	//	m_renderer->GetDevice()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&m_proj);
-}
-
-
-// Right 축으로 회전한다.
-void cCamera::Pitch( const float radian )
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetRight();
-	const Quaternion q( axis, radian );
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
+	//KeepHorizontal();
 	UpdateViewMatrix();
-}
-
-
-// Up 축으로 회전한다.
-void cCamera::Yaw( const float radian )
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetUpVector();
-	const Quaternion q( axis, radian );
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
-	UpdateViewMatrix();	
-}
-
-
-// Direction 축으로 회전한다.
-void cCamera::Roll( const float radian )
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetDirection();
-	const Quaternion q( axis, radian );
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
-	UpdateViewMatrix();	
-}
-
-
-
-// Right 축으로 회전한다.
-void cCamera::Pitch2( const float radian)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetRight();
-	const Quaternion q( axis, radian );
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_eyePos - m_lookAt;
-	v *= mat;
-	Vector3 eyePos = m_lookAt + v;
-
-	Vector3 dir = m_lookAt - eyePos;
-	dir.Normalize();
-
-	// Vertical Direction BugFix
-	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
-		return;
-
-	m_eyePos = eyePos;
-
-	UpdateViewMatrix();
-}
-
-
-// Right 축으로 회전한다.
-void cCamera::Pitch2(const float radian, const Vector3 &up)
-{
-	RET(radian == 0);
-
-	const Vector3 right = up.CrossProduct(GetDirection()).Normal();
-	const Quaternion q(right, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_eyePos - m_lookAt;
-	v *= mat;
-	Vector3 eyePos = m_lookAt + v;
-
-	Vector3 dir = m_lookAt - eyePos;
-	dir.Normalize();
-
-	// Vertical Direction BugFix
-	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
-		return;
-
-	m_eyePos = eyePos;
-	m_up = up;
-
-	UpdateViewMatrix();
-}
-
-
-// Up 축으로 회전한다.
-void cCamera::Yaw2( const float radian)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetUpVector();
-	const Quaternion q( axis, radian );
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_eyePos - m_lookAt;
-	v *= mat;
-	m_eyePos = m_lookAt + v;
-
-	UpdateViewMatrix();
-}
-
-
-// Up 축으로 회전한다.
-void cCamera::Yaw2(const float radian, const Vector3 &up)
-{
-	RET(radian == 0);
-
-	const Quaternion q(up, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_eyePos - m_lookAt;
-	v *= mat;
-	m_eyePos = m_lookAt + v;
-	m_up = up;
-
-	UpdateViewMatrix();
-}
-
-
-// Direction 축으로 회전한다.
-void cCamera::Roll2( const float radian)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetDirection();
-	const Quaternion q( axis, radian );
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
-	UpdateViewMatrix();
-}
-
-
-void cCamera::Pitch3(const float radian, const Vector3 &target)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetRight();
-	const Quaternion q(axis, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	{
-		Vector3 v = m_eyePos - target;
-		v *= mat;
-		m_eyePos = target + v;
-	}
-
-	{
-		Vector3 v = m_lookAt - target;
-		v *= mat;
-		m_lookAt = target + v;
-	}
-
-	UpdateViewMatrix();
-}
-
-
-void cCamera::Yaw3(const float radian, const Vector3 &target)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetUpVector();
-	const Quaternion q(axis, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	{
-		Vector3 v = m_eyePos - target;
-		v *= mat;
-		m_eyePos = target + v;
-	}
-
-	{
-		Vector3 v = m_lookAt - target;
-		v *= mat;
-		m_lookAt = target + v;
-	}
-
-	UpdateViewMatrix();
-}
-
-
-void cCamera::Roll3(const float radian, const Vector3 &target)
-{
-	RET(radian == 0);
-
-	//const Vector3 axis = GetDirection();
-	//const Quaternion q(axis, radian);
-	//const Matrix44 mat = q.GetMatrix();
-
-	//Vector3 v = target - m_eyePos;
-	//v *= mat;
-	//target = m_eyePos + v;
-
-	//UpdateViewMatrix();
-}
-
-
-void cCamera::Yaw4(const float radian, const Vector3 &up, const Vector3 &target)
-{
-	RET(radian == 0);
-
-	const Quaternion q(up, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	{
-		Vector3 v = m_eyePos - target;
-		v *= mat;
-		m_eyePos = target + v;
-	}
-
-	{
-		Vector3 v = m_lookAt - target;
-		v *= mat;
-		m_lookAt = target + v;
-	}
-
-	m_up = up;
-
-	UpdateViewMatrix();
-}
-
-
-void cCamera::Pitch4(const float radian, const Vector3 &up, const Vector3 &target)
-{
-	RET(radian == 0);
-
-	const Vector3 right = up.CrossProduct(GetDirection()).Normal();
-	const Quaternion q(right, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 eyePos;
-	{
-		Vector3 v = m_eyePos - target;
-		v *= mat;
-		eyePos = target + v;
-	}
-
-	Vector3 lookAt;
-	{
-		Vector3 v = m_lookAt - target;
-		v *= mat;
-		lookAt = target + v;
-	}
-
-	Vector3 dir = lookAt - eyePos;
-	dir.Normalize();
-
-	// Vertical Direction BugFix
-	if (abs(Vector3(0, 1, 0).DotProduct(dir)) > 0.98f)
-		return;
-
-	m_lookAt = lookAt;
-	m_eyePos = eyePos;
-	m_up = up;
-
-	UpdateViewMatrix();
-}
-
-
-void cCamera::KeepHorizontal()
-{
-	Vector3 dir = m_lookAt - m_eyePos;
-	dir.Normalize();
-	Vector3 right = Vector3(0, 1, 0).CrossProduct(dir);
-	right.Normalize();
-	Vector3 up = dir.CrossProduct(right);
-	up.Normalize();
-	m_up = up;
-}
-
-
-void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt)
-{
-	// Initialize mover vector
-	m_mover.clear();
-
-	sCamMoving info;
-	info.eyePos = eyePos;
-	info.lookAt = lookAt;
-
-	const float eyePosVelocity = (eyePos - m_eyePos).Length();
-	const float lookAtVelocity = (lookAt - m_lookAt).Length();
-
-	info.velocityLookAt = lookAtVelocity;
-	info.velocityPos = eyePosVelocity;
-
-	m_mover.push_back(info);
-	m_state = eState::MOVE;
-}
-
-
-void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
-{
-	sCamMoving info;
-	info.eyePos = eyePos;
-	info.lookAt = lookAt;
-
-	Vector3 curEyePos = (m_mover.empty()) ? m_eyePos : m_mover.back().eyePos;
-	Vector3 curLookAt = (m_mover.empty()) ? m_lookAt : m_mover.back().lookAt;
-
-	const float eyePosVelocity = (eyePos - curEyePos).Length();
-	const float lookAtVelocity = (lookAt - curLookAt).Length();
-
-	info.velocityLookAt = lookAtVelocity;
-	info.velocityPos = eyePosVelocity;
-
-	m_mover.push_back(info);
-	m_state = eState::MOVE;
-}
-
-
-void cCamera::MoveCancel()
-{
-	m_state = eState::STOP;
-}
-
-
-// 앞/뒤으로 이동
-void cCamera::MoveFront( const float len )
-{
-	const Vector3 dir = GetDirection();
-	m_lookAt += dir * len;
-	m_eyePos += dir * len;
-	UpdateViewMatrix();
-}
-
-
-void cCamera::MoveFrontHorizontal(const float len)
-{
-	Vector3 dir;
-	if (m_isOrthogonal)
-		dir = Vector3(0, 0, 1);
-	else
-	{
-		dir = GetDirection();
-		dir.y = 0;
-		dir.Normalize();
-	}
-
-	m_lookAt += dir * len;
-	m_eyePos += dir * len;
-	UpdateViewMatrix();
-}
-
-
-void cCamera::Move(const cBoundingBox &bbox)
-{
-	const Vector3 dim = bbox.GetDimension();
-	const float m = max(dim.x, max(dim.y, dim.z)) * 1.5f;
-	Vector3 pos(-m, m, -m);
-	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
-}
-
-
-// 위아래 이동
-void cCamera::MoveUp( const float len )
-{
-	const Vector3 dir = GetUpVector();
-	m_lookAt += dir * len;
-	m_eyePos += dir * len;
-	UpdateViewMatrix();
-}
-
-
-// 좌우 이동.
-void cCamera::MoveRight( const float len )
-{
-	const Vector3 dir = GetRight();
-	m_lookAt += dir * len;
-	m_eyePos += dir * len;
-	UpdateViewMatrix();
-}
-
-
-// dir 방향으로 이동한다.
-void cCamera::MoveAxis( const Vector3 &dir, const float len )
-{
-	m_lookAt += dir * len;
-	m_eyePos += dir * len;
-	UpdateViewMatrix();
-}
-
-
-// lookAt 은 고정된채로 eyePos 를 이동한다.
-void cCamera::Zoom( const float len)
-{
-	if (m_isOrthogonal)
-	{
-		m_zoom *= len;
-	}
-	else
-	{
-		Zoom(GetDirection(), len);
-	}
-}
-
-void cCamera::Zoom(const Vector3 &dir, const float len)
-{
-	m_eyePos += dir * len;
-	m_lookAt += dir * len;
-	UpdateViewMatrix();
-}
-
-
-// lookAt - eyePos 사이 거리
-float cCamera::GetDistance() const 
-{
-	return (m_lookAt - m_eyePos).Length();
-}
-
-
-Vector3 cCamera::GetScreenPos(const Vector3& vPos)
-{
-	return GetScreenPos((int)m_width, (int)m_height, vPos);
-}
-
-
-Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos)
-{
-// 	Vector3 point = vPos * m_view * m_proj;
-// 	point.x = (point.x + 1) * viewportWidth / 2;
-// 	point.y = (-point.y + 1) * viewportHeight / 2;
-
-#ifdef USE_D3D9_MATH
-	D3DVIEWPORT9 viewPort;
-	viewPort.X = 0;
-	viewPort.Y = 0;
-	viewPort.Width = viewportWidth;
-	viewPort.Height = viewportHeight;
-	viewPort.MinZ = 0;
-	viewPort.MaxZ = 1;
-
-	Matrix44 world;
-
-	Vector3 point;
-	D3DXVec3Project((D3DXVECTOR3*)&point, (const D3DXVECTOR3*)&vPos, 
-		&viewPort, (const D3DXMATRIX*)&m_proj, (const D3DXMATRIX*)&m_view, 
-		(const D3DXMATRIX*)&world);
-
-	return point;
-#else
-	assert(0);
-	return Vector3(0, 0, 0);
-#endif // USE_D3D9_MATH
-
 }
 
 
@@ -753,34 +137,18 @@ Ray cCamera::GetRay(
 }
 
 
-void cCamera::GetRay(OUT Vector3 &orig, OUT Vector3 &dir)
-{
-	assert(m_width != 0);
-	assert(m_height != 0);
-
-	GetRay((int)m_width, (int)m_height, (int)(m_width/2), (int)(m_height/2), orig, dir);
-}
-
-
-void cCamera::GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
-{
-	assert(m_width != 0);
-	assert(m_height != 0);
-
-	GetRay((int)m_width, (int)m_height, sx, sy, orig, dir);
-}
-
-
 void cCamera::GetRay(const int windowWidth, const int windowHeight, 
 	const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
 {
 	const float x = ((sx * 2.0f / windowWidth) - 1.0f);
 	const float y = -((sy * 2.0f / windowHeight) - 1.0f);
 
-	Vector3 v;
-	v.x = x / m_proj._11;
-	v.y = y / m_proj._22;
-	v.z = 1.0f;
+	//Vector3 v;
+	//v.x = x / m_proj._11;
+	//v.y = y / m_proj._22;
+	//v.z = 1.0f;
+	Vector3 v(x, y, 1);
+	v *= m_proj.Inverse();
 
 	Matrix44 m = m_view.Inverse();
 
@@ -794,6 +162,195 @@ void cCamera::GetRay(const int windowWidth, const int windowHeight,
 	orig.z = m._43;
 
 	orig += (dir * 1);
+}
+
+
+void cCamera::SetViewPort(const float width, const float height)
+{
+	m_oldWidth = m_width;
+	m_oldHeight = m_height;
+	m_width = width;
+	m_height = height;
+
+	if (m_isOrthogonal)
+	{
+		SetProjectionOrthogonal(width, height, m_near, m_far);
+	}
+	else
+	{
+		SetProjection(m_fov, width / height, m_near, m_far);
+	}
+}
+
+
+void cCamera::MoveCancel()
+{
+	m_state = eState::STOP;
+}
+
+void cCamera::SetEyePos(const Vector3 &eye) 
+{ 
+	m_eyePos = eye; 
+	UpdateViewMatrix(); 
+}
+void cCamera::SetLookAt(const Vector3 &lookAt) 
+{ 
+	m_lookAt = lookAt;
+	UpdateViewMatrix(); 
+}
+void cCamera::SetUpVector(const Vector3 &up) 
+{ 
+	m_up = up;
+	UpdateViewMatrix(); 
+}
+void cCamera::SetViewMatrix(const Matrix44 &view) 
+{ 
+	m_view = view; 
+}
+void cCamera::SetProjectionMatrix(const Matrix44 &proj) 
+{ 
+	m_proj = proj; 
+}
+
+Vector3 cCamera::GetDirection() const
+{
+	assert(0);
+	return Vector3(0, 0, 0);
+}
+
+Vector3 cCamera::GetRight() const
+{
+	assert(0);
+	return Vector3(0, 0, 0);
+}
+
+float cCamera::GetDistance() const
+{
+	assert(0);
+	return 0;
+}
+
+Vector3 cCamera::GetUpVector() const 
+{ 
+	return m_up; 
+}
+
+
+void cCamera::CheckBoundingBox()
+{
+	RET(!m_isMovingLimitation);
+	m_eyePos = m_boundingHSphere.GetBoundingPoint(m_eyePos);
+}
+
+
+void cCamera::Move(const cBoundingBox &bbox)
+{
+	const Vector3 dim = bbox.GetDimension();
+	const float m = max(dim.x, max(dim.y, dim.z)) * 1.5f;
+	Vector3 pos(-m, m, -m);
+	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
+}
+
+
+
+// 앞/뒤으로 이동
+void cCamera::MoveFront(const float len)
+{
+	const Vector3 dir = GetDirection();
+	m_lookAt += dir * len;
+	m_eyePos += dir * len;
+	UpdateViewMatrix();
+}
+
+
+void cCamera::MoveFrontHorizontal(const float len)
+{
+	Vector3 dir;
+	dir = GetDirection();
+	dir.y = 0;
+	dir.Normalize();
+
+	m_lookAt += dir * len;
+	m_eyePos += dir * len;
+	UpdateViewMatrix();
+}
+
+
+// 위아래 이동
+void cCamera::MoveUp(const float len)
+{
+	const Vector3 dir = GetUpVector();
+	m_lookAt += dir * len;
+	m_eyePos += dir * len;
+	UpdateViewMatrix();
+}
+
+
+// 좌우 이동.
+void cCamera::MoveRight(const float len)
+{
+	const Vector3 dir = GetRight();
+	m_lookAt += dir * len;
+	m_eyePos += dir * len;
+	UpdateViewMatrix();
+}
+
+
+// dir 방향으로 이동한다.
+void cCamera::MoveAxis(const Vector3 &dir, const float len)
+{
+	m_lookAt += dir * len;
+	m_eyePos += dir * len;
+	UpdateViewMatrix();
+}
+
+
+void cCamera::ReCalcProjection(const float nearPlane, const float farPlane)
+{
+	if (m_isOrthogonal)
+	{
+		SetProjectionOrthogonal(m_width, m_height, nearPlane, farPlane);
+	}
+	else
+	{
+		SetProjection(m_fov, m_aspect, nearPlane, farPlane);
+	}
+}
+
+
+void cCamera::SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane)
+{
+	m_isOrthogonal = false;
+	m_fov = fov;
+	m_aspect = aspect;
+	m_near = nearPlane;
+	m_far = farPlane;
+	m_proj.SetProjection(fov, aspect, nearPlane, farPlane);
+}
+
+
+void cCamera::SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane)
+{
+	m_isOrthogonal = true;
+	m_aspect = height / width;
+	m_near = nearPlane;
+	m_far = farPlane;
+	m_width = width;
+	m_height = height;
+	m_proj.SetProjectionOrthogonal(width, height, nearPlane, farPlane);
+}
+
+
+Vector3 cCamera::GetScreenPos(const Vector3& vPos)
+{
+	return GetScreenPos((int)m_width, (int)m_height, vPos);
+}
+
+
+Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos)
+{
+	assert(0);
+	return Vector3(0, 0, 0);
 }
 
 
@@ -820,7 +377,7 @@ void cCamera::FitFrustum(const cCamera &camera
 {
 	// Camera View Space
 	Matrix44 oldProj;
-	oldProj.SetProjection(camera.m_fov, camera.m_aspect, camera.m_nearPlane, camera.m_farPlane * farPlaneRate);
+	oldProj.SetProjection(camera.m_fov, camera.m_aspect, camera.m_near, camera.m_far * farPlaneRate);
 	FitFrustum(camera.m_view * oldProj);
 }
 
@@ -870,14 +427,14 @@ void cCamera::FitFrustum(const Matrix44 &matViewProj)
 	newProj.SetProjectionOrthogonal(
 		mm._min.x, mm._max.x,
 		mm._min.y, mm._max.y,
-		mm._min.z, mm._max.z+100);
+		mm._min.z, mm._max.z + 100);
 
 	m_eyePos = pos;
 	m_lookAt = center;
 	m_view = newView;
 	m_proj = newProj;
-	m_nearPlane = mm._min.z;
-	m_farPlane = mm._max.z;
+	m_near = mm._min.z;
+	m_far = mm._max.z;
 	m_viewProj = newView * newProj;
 }
 
@@ -908,49 +465,67 @@ void cCamera::FitQuad(const Vector3 vertices[4])
 	newProj.SetProjectionOrthogonal(
 		mm._min.x, mm._max.x,
 		mm._min.y, mm._max.y,
-		mm._min.z-100, mm._max.z+100);
+		mm._min.z - 100, mm._max.z + 100);
 
 	m_eyePos = pos;
 	m_lookAt = center;
 	m_view = newView;
 	m_proj = newProj;
-	m_nearPlane = mm._min.z;
-	m_farPlane = mm._max.z;
+	m_near = mm._min.z;
+	m_far = mm._max.z;
 	m_viewProj = newView * newProj;
 }
 
 
-void cCamera::SetViewPort(const float width, const float height)
+// lookAt 은 고정된채로 eyePos 를 이동한다.
+void cCamera::Zoom(const float len)
 {
-	m_oldWidth = m_width;
-	m_oldHeight = m_height;
-	m_width = width;
-	m_height = height;
+	Zoom(GetDirection(), len);
+}
 
-	if (m_isOrthogonal)
-	{
-		SetProjectionOrthogonal(width, height, m_nearPlane, m_farPlane);
-	}
-	else
-	{
-		SetProjection(m_fov, width / height, m_nearPlane, m_farPlane);
-	}
+void cCamera::Zoom(const Vector3 &dir, const float len)
+{
+	m_eyePos += dir * len;
+	m_lookAt += dir * len;
+	UpdateViewMatrix();
 }
 
 
-void cCamera::CheckBoundingBox()
+void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt)
 {
-	RET(!m_isMovingLimitation);
-	RET(m_isOrthogonal);
-	m_eyePos = m_boundingHSphere.GetBoundingPoint(m_eyePos);
+	// Initialize mover vector
+	m_mover.clear();
+
+	sCamMoving info;
+	info.eyePos = eyePos;
+	info.lookAt = lookAt;
+
+	const float eyePosVelocity = (eyePos - m_eyePos).Length();
+	const float lookAtVelocity = (lookAt - m_lookAt).Length();
+
+	info.velocityLookAt = lookAtVelocity;
+	info.velocityPos = eyePosVelocity;
+
+	m_mover.push_back(info);
+	m_state = eState::MOVE;
 }
 
 
-Matrix44 cCamera::GetZoomMatrix() const
+void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
 {
-	RETV(!m_isOrthogonal, Matrix44::Identity);
+	sCamMoving info;
+	info.eyePos = eyePos;
+	info.lookAt = lookAt;
 
-	Matrix44 ret;
-	ret.SetScale(Vector3(1, 1, 1)*m_zoom);
-	return ret;
+	Vector3 curEyePos = (m_mover.empty()) ? m_eyePos : m_mover.back().eyePos;
+	Vector3 curLookAt = (m_mover.empty()) ? m_lookAt : m_mover.back().lookAt;
+
+	const float eyePosVelocity = (eyePos - curEyePos).Length();
+	const float lookAtVelocity = (lookAt - curLookAt).Length();
+
+	info.velocityLookAt = lookAtVelocity;
+	info.velocityPos = eyePosVelocity;
+
+	m_mover.push_back(info);
+	m_state = eState::MOVE;
 }

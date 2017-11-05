@@ -125,7 +125,7 @@ float4 PS_Outline(VSOUT_BUMP In) : SV_Target
 	coords.x = (In.PosH.x / In.PosH.w + 1) * 0.5f;
 	coords.y = 1 - ((In.PosH.y / In.PosH.w + 1) * 0.5f);
 
-	const float dx = 1.f / DepthMapSizeScaled;
+	const float dx = 1.f / DepthMapSize_Scaled;
 	float2 vTexCoords[9];
 	vTexCoords[0] = coords;
 	vTexCoords[1] = coords + float2(-dx, 0.0f);
@@ -144,9 +144,8 @@ float4 PS_Outline(VSOUT_BUMP In) : SV_Target
 	}
 	fOutline /= 9.0f;
 
-	Out += float4(1, 0, 0, 1) * fOutline;
-	return float4(Out.xyz, gMtrl_Diffuse.a);
-	//return float4(Out.xyz, gMtrl_Diffuse.a);
+	clip(fOutline - 0.000001f);
+	return float4(0.8f, 0, 0, fOutline*2.5f);
 }
 
 

@@ -6,7 +6,7 @@ using namespace graphic;
 
 cCascadedShadowMap::cCascadedShadowMap()
 	: m_shadowMapSize(1024,1024)
-	, m_lightCams{cCamera("shadow camera1"), cCamera("shadow camera2"), cCamera("shadow camera3") }
+	, m_lightCams{cCamera3D("shadow camera1"), cCamera3D("shadow camera2"), cCamera3D("shadow camera3") }
 {
 	m_splitZ[0] = 0.0003f;
 	m_splitZ[1] = 0.001f;

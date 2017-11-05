@@ -134,15 +134,15 @@ void cFrustum::Split2(const cCamera &cam, const float f1, const float f2
 void cFrustum::Split3(const cCamera &cam, const float f1, const float f2, const float f3
 	, cFrustum &out1, cFrustum &out2, cFrustum &out3)
 {
-	const float oldNearPlane = cam.m_nearPlane;
-	const float oldFarPlane = cam.m_farPlane;
-	const float far1 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f1);
-	const float far2 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f2);
-	const float far3 = common::lerp(cam.m_nearPlane, cam.m_farPlane, f3);
+	const float oldNearPlane = cam.m_near;
+	const float oldFarPlane = cam.m_far;
+	const float far1 = common::lerp(cam.m_near, cam.m_far, f1);
+	const float far2 = common::lerp(cam.m_near, cam.m_far, f2);
+	const float far3 = common::lerp(cam.m_near, cam.m_far, f3);
 
 	cCamera tmpCam = cam;
 
-	tmpCam.ReCalcProjection(tmpCam.m_nearPlane, far1);
+	tmpCam.ReCalcProjection(tmpCam.m_near, far1);
 	out1.SetFrustum(tmpCam.GetViewProjectionMatrix());
 
 	tmpCam.ReCalcProjection(far1, far2);
@@ -158,12 +158,12 @@ void cFrustum::Split3(const cCamera &cam, const float f1, const float f2, const 
 void cFrustum::Split3_2(const cCamera &cam, const float f1, const float f2, const float f3
 	, cFrustum &out1, cFrustum &out2, cFrustum &out3)
 {
-	const float oldNearPlane = cam.m_nearPlane;
-	const float oldFarPlane = cam.m_farPlane;
+	const float oldNearPlane = cam.m_near;
+	const float oldFarPlane = cam.m_far;
 
 	cCamera tmpCam = cam;
 
-	tmpCam.ReCalcProjection(tmpCam.m_nearPlane, f1);
+	tmpCam.ReCalcProjection(tmpCam.m_near, f1);
 	out1.SetFrustum(tmpCam.GetViewProjectionMatrix());
 
 	tmpCam.ReCalcProjection(f1, f2);

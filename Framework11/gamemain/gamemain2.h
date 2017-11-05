@@ -20,6 +20,7 @@ namespace framework
 		virtual void Update(const float deltaSeconds) override;
 		virtual void LostDevice() override;
 		virtual void ResetDevice() override;
+		virtual void Shutdown() override;
 		virtual void Exit();
 
 
@@ -31,6 +32,7 @@ namespace framework
 		HWND m_hWnd;
 		WStrId m_windowName;
 		sRecti m_windowRect;
+		bool m_isLazyMode; // FPS 100 이하 유지
 	};
 
 
@@ -41,7 +43,8 @@ namespace framework
 		int nCmdShow,
 		const bool dualMonitor = false);
 
-	// 프레임워크 인스턴스를 생성한다. 반드시 이 함수를 구현해야 한다.
+	// 프레임워크 인스턴스를 생성한다. 반드시 이 함수를 구현해야 한다. (매크로 이용)
 	cGameMain2* CreateFrameWork2();
 
+	//extern cGameMain2* g_application; // 전역 어플리케이션 인스턴스
 }

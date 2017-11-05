@@ -1,4 +1,7 @@
-
+//
+// Common Library Include
+//
+//
 #pragma once
 
 
@@ -114,10 +117,8 @@ using std::wstringstream;
 #include "etc/shmmem.h"
 #include "etc/fastmemloader.h"
 #include "etc/path.h"
+#include "etc/timer.h"
 #include "thread/task.h"
-#include "thread/thread.h"
 #include "thread/mutex.h"
+#include "thread/thread.h"
 
-// #pragma comment( lib, "d3d9.lib" )
-// #pragma comment( lib, "d3dx9.lib" )
-//#pragma comment( lib, "gdiplus.lib" ) 

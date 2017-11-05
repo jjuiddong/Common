@@ -48,8 +48,15 @@ namespace graphic
 			return m_bsphere.Radius;
 		}
 
-		bool Intersects(const cBoundingSphere &bspere) {
+		bool Intersects(const cBoundingSphere &bspere) const {
 			return m_bsphere.Intersects(bspere.m_bsphere);
+		}
+
+		cBoundingSphere operator * (const Transform &rhs) {
+			Matrix44 m;
+			m.SetScale(rhs.scale);
+			const Vector3 radius = Vector3(m_bsphere.Radius, 0, 0) * m;
+			return cBoundingSphere(*(Vector3*)&m_bsphere.Center * rhs, radius.x);
 		}
 
 		cBoundingSphere operator * (const Matrix44 &rhs) {
@@ -65,13 +72,19 @@ namespace graphic
 
 			XMVECTOR _t, _s, _q;
 			XMMatrixDecompose(&_s, &_q, &_t, rhs);
-			_s = XMVector3Length(_s);
+			//_s = XMVector3Length(_s);
+
 			XMFLOAT3 outScale;
 			XMStoreFloat3(&outScale, _s);
+			XMMATRIX mScale = XMMatrixScaling(outScale.x, outScale.y, outScale.z);
+			XMVECTOR vRadius = XMLoadFloat3((XMFLOAT3*)&Vector3(m_bsphere.Radius, 0, 0));
+			const XMVECTOR radius = XMVector3Transform(vRadius, mScale);
 
-			//const XMVECTOR radius = XMLoadFloat3(&Vector3(1,1,1)*m_bsphere.Radius);
-			//const XMVECTOR pos = XMVector3Transform(center, rhs);
-			return cBoundingSphere(*(Vector3*)&outPos, m_bsphere.Radius*outScale.x);
+			XMFLOAT3 retRadius;
+			XMStoreFloat3(&retRadius, radius);
+
+			//return cBoundingSphere(*(Vector3*)&outPos, m_bsphere.Radius*outScale.x);
+			return cBoundingSphere(*(Vector3*)&outPos, retRadius.x);
 		}
 
 		const cBoundingSphere& operator *= (const Matrix44 &rhs) {

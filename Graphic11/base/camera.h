@@ -1,4 +1,7 @@
-// 카메라 클래스.
+//
+// 2017-11-03, jjuiddong
+// Camera Interface
+// 
 #pragma once
 
 
@@ -9,115 +12,94 @@ namespace graphic
 	{
 	public:
 		cCamera(const char *name);
-		cCamera(const char *name, const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		virtual ~cCamera();
 
-		void Update(const float deltaSeconds);
-		void Render(cRenderer &renderer);
-		void Bind(cRenderer &renderer);
+		virtual void SetCamera(const Vector3 &eyePos, const Vector3 &up);
+		virtual void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
+		virtual void SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const Vector3 &up);
+		virtual void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
+		virtual void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
 
-		void SetCamera(const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
-		void SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const Vector3 &up);
-		void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
-		void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
-		void ReCalcProjection(const float nearPlane, const float farPlane);
-		void SetViewPort(const float width, const float height);
-		void SetEyePos(const Vector3 &eye);
-		void SetLookAt(const Vector3 &lookAt);
-		void SetUpVector(const Vector3 &up);
-		void SetViewMatrix(const Matrix44 &view);
-		void SetProjectionMatrix(const Matrix44 &proj);
-		const Vector3& GetEyePos() const;
+		virtual void Update(const float deltaSeconds);
+		virtual void Bind(cRenderer &renderer) {}
+
+		virtual Ray GetRay(const int sx=-1, const int sy=-1);
+		virtual void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy
+			, OUT Vector3 &orig, OUT Vector3 &dir);
+
 		const Vector3& GetLookAt() const;
-		Vector3 GetUpVector() const;
+		const Vector3& GetEyePos() const;
+		virtual Vector3 GetUpVector() const;
+
+		virtual Vector3 GetDirection() const;
+		virtual Vector3 GetRight() const;
+		virtual float GetDistance() const;
+		virtual void SetEyePos(const Vector3 &eye);
+		virtual void SetLookAt(const Vector3 &lookAt);
+		virtual void SetUpVector(const Vector3 &up);
+
 		const Matrix44& GetViewMatrix() const;
 		const Matrix44& GetProjectionMatrix() const;
 		const Matrix44& GetViewProjectionMatrix();
-		Vector3 GetDirection() const;
-		Vector3 GetRight() const;
-		float GetDistance() const; // lookAt - eyePos 사이 거리.
-		Matrix44 GetZoomMatrix() const;
+		virtual void SetViewMatrix(const Matrix44 &view);
+		virtual void SetProjectionMatrix(const Matrix44 &proj);
+		virtual void ReCalcProjection(const float nearPlane, const float farPlane);
 
-		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const;
-		void FitFrustum(const cCamera &camera, const float farPlaneRate =1.f);
-		void FitFrustum(const Matrix44 &matViewProj);
-		void FitQuad(const Vector3 vertices[4]);
+		virtual void SetViewPort(const float width, const float height);
 
-		// LookAt 이 이동한다.
-		void Pitch( const float radian );
-		void Yaw( const float radian );
-		void Roll( const float radian );
+		virtual void Move(const Vector3 &eyePos, const Vector3 &lookAt);
+		virtual void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt);
+		virtual void MoveCancel();
+		virtual void Move(const cBoundingBox &bbox);
 
-		// EyePos 가 이동한다.
-		void Pitch2( const float radian);
-		void Pitch2(const float radian, const Vector3 &up);
-		void Yaw2( const float radian);
-		void Yaw2(const float radian, const Vector3 &up);
-		void Roll2( const float radian);
+		virtual void MoveFront(const float len);
+		virtual void MoveFrontHorizontal(const float len);
+		virtual void MoveUp(const float len);
+		virtual void MoveRight(const float len);
+		virtual void MoveAxis(const Vector3 &dir, const float len);
 
-		void Pitch3(const float radian, const Vector3 &target);
-		void Yaw3(const float radian, const Vector3 &target);
-		void Roll3(const float radian, const Vector3 &target);
+		virtual void Zoom(const float len);
+		virtual void Zoom(const Vector3 &dir, const float len);
+		virtual void UpdateViewMatrix() {}
 
-		void Yaw4(const float radian, const Vector3 &up, const Vector3 &target);
-		void Pitch4(const float radian, const Vector3 &up, const Vector3 &target);
+		Vector3 cCamera::GetScreenPos(const Vector3& vPos);
 
-		void KeepHorizontal();
+		virtual void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const;
+		virtual void FitFrustum(const cCamera &camera, const float farPlaneRate = 1.f);
+		virtual void FitFrustum(const Matrix44 &matViewProj);
+		virtual void FitQuad(const Vector3 vertices[4]);
 
-		void Move(const Vector3 &eyePos, const Vector3 &lookAt);
-		void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt);
-		void MoveCancel();
-		void Move(const cBoundingBox &bbox);
-
-		void MoveFront( const float len );
-		void MoveFrontHorizontal(const float len);
-		void MoveUp( const float len );
-		void MoveRight( const float len );
-		void MoveAxis( const Vector3 &dir, const float len );
-		void Zoom( const float len );
-		void Zoom( const Vector3 &dir, const float len);
-
-		Vector3 GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
-		Vector3 GetScreenPos(const Vector3& vPos);
-
-		Ray GetRay(const int sx=-1, const int sy=-1);
-		void GetRay(OUT Vector3 &orig, OUT Vector3 &dir);
-		void GetRay(const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir);
-		void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy
-			, OUT Vector3 &orig, OUT Vector3 &dir);
-
-		void UpdateParameterFromViewMatrix();
-		void UpdateViewMatrix(const bool updateUp=true);
-		
 
 	protected:
-		void UpdateProjectionMatrix();
-		void CheckBoundingBox();
+		virtual void CheckBoundingBox();
+		Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 
 
 	public:
-		struct eState { enum Enum { STOP, MOVE}; };
+		struct eState { enum Enum { STOP, MOVE }; };
 
 		eState::Enum m_state;
 		StrId m_name;
-		bool m_isOrthogonal;
 		Vector3 m_eyePos;
 		Vector3 m_lookAt;
 		Vector3 m_up;
-		Matrix44 m_view; // 카메라 행렬.
-		Matrix44 m_proj; // 투영 행렬.
+		Matrix44 m_view; // View Matrix
+		Matrix44 m_proj; // Projection Matrix
 		Matrix44 m_viewProj; // m_view X m_proj
-		float m_fov;
-		float m_aspect;
-		float m_nearPlane;
-		float m_farPlane;
-		float m_oldWidth;
-		float m_oldHeight;
-		float m_width; // ViewPort
-		float m_height; // ViewPort
-		float m_zoom; // for OthorGonal Mode
+		bool m_isOrthogonal;
 		bool m_isMovingLimitation;
 		cBoundingHalfSphere m_boundingHSphere;
+
+		// ViewPort
+		// left, top = {0,0}
+		float m_fov;
+		float m_aspect;
+		float m_width;
+		float m_height;
+		float m_near;
+		float m_far;
+		float m_oldWidth;
+		float m_oldHeight;
 
 		// Animation
 		struct sCamMoving
@@ -128,21 +110,12 @@ namespace graphic
 			float velocityLookAt;
 		};
 		vector<sCamMoving> m_mover;
-
-		// Debugging
-		//cLine m_lines[3]; // Front, Up, Right
 	};
 
 
-	inline void cCamera::SetEyePos(const Vector3 &eye) { m_eyePos = eye; UpdateViewMatrix(); }
-	inline void cCamera::SetLookAt(const Vector3 &lookAt) { m_lookAt = lookAt; UpdateViewMatrix(); }
-	inline void cCamera::SetUpVector(const Vector3 &up) { m_up = up; UpdateViewMatrix(); }
-	inline void cCamera::SetViewMatrix(const Matrix44 &view) { m_view = view; }
-	inline void cCamera::SetProjectionMatrix(const Matrix44 &proj) { m_proj = proj; UpdateProjectionMatrix(); }
 	inline const Vector3& cCamera::GetEyePos() const { return m_eyePos; }
 	inline const Vector3& cCamera::GetLookAt() const { return m_lookAt; }
-	inline Vector3 cCamera::GetUpVector() const { return GetDirection().CrossProduct(GetRight()).Normal(); }
 	inline const Matrix44& cCamera::GetViewMatrix() const { return m_view; }
 	inline const Matrix44& cCamera::GetProjectionMatrix() const { return m_proj; }
-	inline const Matrix44& cCamera::GetViewProjectionMatrix() { m_viewProj = m_view * m_proj; return m_viewProj; }		 
+	inline const Matrix44& cCamera::GetViewProjectionMatrix() { m_viewProj = m_view * m_proj; return m_viewProj; }
 }

@@ -54,6 +54,7 @@ namespace framework
 		virtual bool TranslateEvent();
 		virtual void LostDevice();
 		virtual void ResetDevice();
+		virtual void Shutdown();
 		cDockWindow* GetSizerTargetWindow(const Vector2 &mousePt);
 		void RequestResetDeviceNextFrame();
 		void Sleep();
@@ -87,6 +88,7 @@ namespace framework
 		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void OnLostDevice() {}
 		virtual void OnResetDevice() {}
+		virtual void OnShutdown() {}
 
 
 	public:
@@ -94,7 +96,7 @@ namespace framework
 		eState::Enum m_state;
 		StrId m_title;
 		cImGui m_gui;
-		graphic::cCamera m_camera;
+		graphic::cCamera3D m_camera;
 		graphic::cLight m_light;
 		cRenderWindow *m_mainWindow; // reference
 		cDockWindow *m_dock;
@@ -111,11 +113,7 @@ namespace framework
 		bool m_isVisible;
 		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
-		bool m_isThread;
-		bool m_isThreadLoop;
-		std::thread m_thread;
-
-		static int s_adapter;
+		sf::Vector2u m_resetSize;
 	};
 
 }

@@ -1,9 +1,11 @@
+
 #include "stdafx.h"
 #include "Thread.h"
 #include "Task.h"
 #include <boost/bind.hpp>
+#include <chrono>
+#include <MMSystem.h>
 
-using namespace common;
 
 namespace common
 {
@@ -24,13 +26,16 @@ namespace common
 		return p->m_Id == id;
 	}
 }
+using namespace common;
 
 
-cThread::cThread(const std::string &name) :
+cThread::cThread(const StrId &name) :
 	m_state(eState::WAIT)
-,	m_hThread(NULL)
-,	m_name(name)
+	, m_name(name)
+	, m_procTaskIndex(0)
+	, m_mutex("cThread::Mutex::jjuiddong")
 {
+	m_tasks.reserve(32);
 }
 
 cThread::~cThread()
@@ -44,11 +49,43 @@ cThread::~cThread()
 //------------------------------------------------------------------------
 void cThread::Start()
 {
-	if (eState::RUN != m_state)
+	if ((eState::WAIT == m_state) || (eState::END == m_state))
 	{
+		if (eState::END != m_state)
+			Terminate(INFINITE);
+
+		if (m_thread.joinable())
+			m_thread.join();
+
 		m_state = eState::RUN;
-		m_hThread = (HANDLE)_beginthreadex(NULL, 0, ThreadProcess, this, 0, NULL);
+		m_thread = std::thread(ThreadProcess, this);
 	}
+}
+
+
+// 쓰레드를 일시 정지 시킨다.
+bool cThread::Pause()
+{
+	if (eState::RUN == m_state)
+	{
+		m_mutex.Lock(); // Run() 함수와 동기화 한다.
+		m_state = eState::PAUSE;
+		return true;
+	}
+	return false;
+}
+
+
+// 쓰레드를 재 실행한다. Pause 상태일때만 가능하다.
+bool cThread::Resume()
+{
+	if ((eState::PAUSE == m_state) || (eState::IDLE == m_state))
+	{
+		m_mutex.Unlock(); // Run() 함수와 동기화 한다.
+		m_state = eState::RUN;
+		return true;
+	}
+	return false;
 }
 
 
@@ -57,13 +94,10 @@ void cThread::Start()
 //------------------------------------------------------------------------
 void cThread::Terminate(const int milliSeconds) //milliSeconds = -1
 {
-	RET(!m_hThread);
-
 	m_state = eState::END;
 	DWORD timeOutTime = (milliSeconds>=0)? milliSeconds : INFINITE;
-	WaitForSingleObject(m_hThread, timeOutTime);
-	CloseHandle(m_hThread);
-	m_hThread = NULL;
+	if (m_thread.joinable())
+		m_thread.join();
 }
 
 
@@ -176,7 +210,6 @@ bool cThread::RemoveTask(const int id)
 
 int cThread::GetTaskCount()
 {
-	AutoCSLock cs(m_taskCS);
 	return m_tasks.size();
 }
 
@@ -198,10 +231,18 @@ cTask*	cThread::GetTask(const int taskId)
 // 쓰레드 실행
 // Task를 실행시킨다.
 //------------------------------------------------------------------------
-void cThread::Run()
+int cThread::Run()
 {
-	while (eState::RUN == m_state)
+	using namespace std::chrono_literals;
+
+	cTimer timer;
+	timer.Create();
+
+	while ((eState::RUN == m_state)
+		|| (eState::PAUSE == m_state))
 	{
+		m_mutex.Lock();
+
 		//1. Add & Remove Task
 		UpdateTask();
 
@@ -209,33 +250,45 @@ void cThread::Run()
 			break;
 
 		//2. Task Process
+		if ((eState::RUN == m_state) && !m_tasks.empty())
 		{
-			AutoCSLock cs(m_taskCS);
-			auto it = m_tasks.begin();
-			while ((eState::RUN == m_state) && (m_tasks.end() != it))
+			if ((int)m_tasks.size() <= m_procTaskIndex)
+				m_procTaskIndex = 0;
+
+			const double dt = (float)timer.GetDeltaSeconds();
+
+			do
 			{
-				cTask *task = *it;
-				if (cTask::eRunResult::END == task->Run())
+				cTask *task = m_tasks[m_procTaskIndex];
+				if (cTask::eRunResult::END == task->Run(dt))
 				{
 					// finish task , remove taks
-					it = m_tasks.erase(it);
+					common::rotatepopvector(m_tasks, m_procTaskIndex);
 					delete task;
 				}
 				else
 				{
-					++it;
+					++m_procTaskIndex;
 				}
-			}
+
+			} while (((eState::RUN == m_state)
+				//|| (eState::PAUSE == m_state)
+				)
+				&& (m_procTaskIndex < (int)m_tasks.size()));
 		}
 
 		//3. Message Process
 		DispatchMessage();
 
-		Sleep(1);
+		m_mutex.Unlock();
 	}
+
+	m_mutex.Unlock();
 
 	// 남았을지도 모를 메세지를 마지막으로 처리한다.
 	DispatchMessage();
+
+	return 1;
 }
 
 
@@ -250,7 +303,8 @@ void	cThread::Exit()
 
 void cThread::UpdateTask()
 {
-	AutoCSLock cs(m_containerCS);
+	AutoCSLock cs1(m_containerCS);
+
 	for (auto &p : m_addTasks)
 	{
 		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(p->m_Id));
@@ -267,7 +321,7 @@ void cThread::UpdateTask()
 		if (m_tasks.end() != it)
 		{
 			cTask *p = *it;
-			m_tasks.remove_if(IsTask(id));
+			m_tasks.erase(it);
 			delete p;
 		}
 	}
@@ -286,18 +340,15 @@ void cThread::DispatchMessage()
 	{
 		if (threadmsg::TASK_MSG == it->msg) // task message
 		{
+			auto t = find_if(m_tasks.begin(), m_tasks.end(), 
+				boost::bind( &IsSameId<cTask>, _1, it->wParam) );
+			if (m_tasks.end() != t)
 			{
-				AutoCSLock cs(m_taskCS);
-				auto t = find_if(m_tasks.begin(), m_tasks.end(), 
-					boost::bind( &IsSameId<cTask>, _1, it->wParam) );
-				if (m_tasks.end() != t)
-				{
-					(*t)->MessageProc((threadmsg::MSG)it->msg, it->wParam, it->lParam, it->added);
-				}
-				else
-				{
-					dbg::ErrLog("cThread::DispatchMessage Not Find Target Task\n");
-				}
+				(*t)->MessageProc((threadmsg::MSG)it->msg, it->wParam, it->lParam, it->added);
+			}
+			else
+			{
+				dbg::ErrLog("cThread::DispatchMessage Not Find Target Task\n");
 			}
 		}
 		else // Thread에게 온 메세지
@@ -313,22 +364,19 @@ void cThread::DispatchMessage()
 //------------------------------------------------------------------------
 // Message Process
 //------------------------------------------------------------------------
-void	cThread::MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added )
+void cThread::MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added )
 {
 	switch (msg)
 	{
 	case threadmsg::TERMINATE_TASK:
 		{
 			// terminate task of id wParam
+			auto it = std::find_if( m_tasks.begin(), m_tasks.end(), 
+				bind( &IsSameId<common::cTask>, _1, (int)wParam) );
+			if (m_tasks.end() != it)
 			{
-				AutoCSLock cs(m_taskCS);
-				auto it = std::find_if( m_tasks.begin(), m_tasks.end(), 
-					bind( &IsSameId<common::cTask>, _1, (int)wParam) );
-				if (m_tasks.end() != it)
-				{
-					delete *it;
-					m_tasks.erase(it);
-				}
+				delete *it;
+				m_tasks.erase(it);
 			}
 		}
 		break;
@@ -338,7 +386,14 @@ void	cThread::MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPA
 
 bool cThread::IsRun()
 {
-	return m_state == eState::RUN;
+	switch (m_state)
+	{
+	case eState::RUN:
+	case eState::PAUSE:
+	case eState::IDLE:
+		return true;
+	}
+	return false;
 }
 
 
@@ -357,16 +412,13 @@ void cThread::Clear()
 		m_addTasks.clear();
 	}
 
+	auto it = m_tasks.begin();
+	while (m_tasks.end() != it)
 	{
-		AutoCSLock cs(m_taskCS);
-		auto it = m_tasks.begin();
-		while (m_tasks.end() != it)
-		{
-			cTask *p = *it++;
-			delete p;
-		}
-		m_tasks.clear();
+		cTask *p = *it++;
+		delete p;
 	}
+	m_tasks.clear();
 
 	{
 		AutoCSLock cs2(m_msgCS);

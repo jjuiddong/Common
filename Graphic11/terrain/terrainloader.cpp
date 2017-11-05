@@ -144,6 +144,9 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 
 		m_terrain->Clear();
 
+		// 대부분의 리소스가 로딩되기 전까지, 로딩 쓰레드를 종료시키지 않기 위한, 지연 태스크다.
+		cResourceManager::Get()->AddTask(new graphic::cTaskDelay(5));
+
 		const int row = props.get<int>("rows");
 		const int col = props.get<int>("cols");
 		const int tilerow = props.get<int>("tilerows");

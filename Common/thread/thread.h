@@ -10,7 +10,9 @@
 //		- refactoring
 // 2017-05-03
 //		- refactoring
-//
+// 2017-10-31
+//		- Pause, Resume, Optimize Loop
+//		- list -> vector
 //------------------------------------------------------------------------
 #pragma once
 
@@ -27,26 +29,25 @@ namespace common
 		struct eMessageOption { 
 			enum Enum { REMOVE, KEEP, };
 		};
-		struct eState {
-			enum Enum { WAIT, RUN, END, };
-		};
 
-		cThread(const std::string &name="");
+		cThread(const StrId &name="");
 		virtual ~cThread();
 
 		void Start();
+		bool Pause();
+		bool Resume();
 		void Terminate(const int milliSeconds=-1);
 		void Send2ThreadMessage( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added=0);
-		void	Send2ExternalMessage( int msg, WPARAM wParam, LPARAM lParam, LPARAM added=0 );
-		bool	GetThreadMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );
-		bool	GetExternalMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );
-		bool	AddTask(cTask *pTask);
-		bool	RemoveTask(const int id);
+		void Send2ExternalMessage( int msg, WPARAM wParam, LPARAM lParam, LPARAM added=0 );
+		bool GetThreadMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );
+		bool GetExternalMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );
+		bool AddTask(cTask *pTask);
+		bool RemoveTask(const int id);
 		int GetTaskCount();
 		cTask* GetTask(const int taskId);
 		void Clear();
 		bool IsRun();
-		void Run();
+		int Run();
 		void Exit(); // call exit thread
 
 		virtual void MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added );
@@ -58,17 +59,20 @@ namespace common
 
 
 	public:
+		struct eState {enum Enum { WAIT, RUN, PAUSE, IDLE, END, };};
 		eState::Enum m_state;
-		string m_name;
-		HANDLE m_hThread;
-		CriticalSection m_taskCS;
+		StrId m_name;
 		CriticalSection m_msgCS;
 		CriticalSection m_containerCS;
-		list<cTask*> m_tasks;
+		int m_procTaskIndex;
+		vector<cTask*> m_tasks;
 		vector<cTask*> m_addTasks;
 		vector<int> m_removeTasks;
 		list<SExternalMsg> m_threadMsgs;	// receive message
 		list<SExternalMsg> m_externalMsgs;	// send to another process message
+
+		std::thread m_thread;
+		cMutex m_mutex; // 쓰레드 Run, Pause 동기화 객체
 	};
 
 }

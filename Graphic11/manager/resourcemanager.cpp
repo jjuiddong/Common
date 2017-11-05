@@ -9,8 +9,11 @@ using namespace graphic;
 
 cResourceManager::cResourceManager() 
 	: m_mediaDirectory("../media/")
+	, m_loadThread("Parallel Loader")
 	, m_loadId(0)
 {
+	// 대부분의 리소스가 로딩되기 전까지, 로딩 쓰레드를 종료시키지 않기 위한, 지연 태스크다.
+	AddTask(new graphic::cTaskDelay(5));
 }
 
 cResourceManager::~cResourceManager()

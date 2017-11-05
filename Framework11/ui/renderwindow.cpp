@@ -9,27 +9,13 @@
 using namespace graphic;
 using namespace framework;
 
-int cRenderWindow::s_adapter = 0;
-
-void RenderProc(cRenderWindow *wnd)
-{
-	using namespace std::chrono_literals;
-
-	while (wnd->m_isThreadLoop && wnd->isOpen())
-	{
-		std::this_thread::sleep_for(20ms);
-	}
-}
-
 
 cRenderWindow::cRenderWindow()
 	: m_mainWindow(NULL)
 	, m_state(eState::NORMAL)
 	, m_camera("render window camera")
 	, m_isVisible(true)
-	, m_isThread(true)
 	, m_isRequestResetDevice(false)
-	, m_isThreadLoop(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
 	, m_isFullScreen(false)
@@ -104,16 +90,6 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 		//builder.BuildRanges(&ranges);                          // Build the final result (ordered ranges with all the unique characters submitted)
 		////io.Fonts->AddFontFromFileTTF("myfontfile.ttf", size_in_pixels, NULL, ranges.Data);
 		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, ranges.Data);
-	}
-
-	if (m_isThread)
-	{
-		m_isThreadLoop = false;
-		if (m_thread.joinable())
-			m_thread.join();
-
-		m_isThreadLoop = true;
-		m_thread = std::thread(RenderProc, this);
 	}
 
 	return true;
@@ -658,10 +634,10 @@ void cRenderWindow::RenderTitleBar()
 
 void cRenderWindow::PreRender(const float deltaSeconds)
 {
+	OnPreRender(deltaSeconds);
+
 	if (m_dock)
 		m_dock->PreRender(deltaSeconds);
-
-	OnPreRender(deltaSeconds);
 }
 
 
@@ -676,10 +652,6 @@ void cRenderWindow::PostRender(const float deltaSeconds)
 
 void cRenderWindow::LostDevice()
 {
-	m_isThreadLoop = false;
-	if (m_thread.joinable())
-		m_thread.join();
-
 	m_gui.InvalidateDeviceObjects();
 
 	if (m_dock)
@@ -699,12 +671,6 @@ void cRenderWindow::ResetDevice()
 
 	if (m_dock)
 		m_dock->ResetDevice();
-
-	if (m_isThread)
-	{
-		m_isThreadLoop = true;
-		m_thread = std::thread(RenderProc, this);
-	}
 
 	OnResetDevice();
 }
@@ -872,10 +838,6 @@ bool cRenderWindow::IsMoveState()
 
 void cRenderWindow::Sleep()
 {
-	m_isThreadLoop = false;
-	if (m_thread.joinable())
-		m_thread.join();
-
 	setVisible(false);
 }
 
@@ -888,17 +850,6 @@ void cRenderWindow::WakeUp(const StrId &title, const int width, const int height
 	setTitle(title.c_str());
 	setSize(sf::Vector2u((u_int)width, (u_int)height));
 	m_isFullScreen = false;
-
-	if (m_isThread)
-	{
-		m_isThreadLoop = false;
-		if (m_thread.joinable())
-			m_thread.join();
-
-		m_isThreadLoop = true;
-		m_thread = std::thread(RenderProc, this);
-	}
-
 	setVisible(true);
 }
 
@@ -948,13 +899,15 @@ void cRenderWindow::ReleaseCapture()
 }
 
 
+void cRenderWindow::Shutdown()
+{
+	OnShutdown();
+}
+
+
 void cRenderWindow::Clear()
 {
 	m_gui.Shutdown();
-
-	m_isThreadLoop = false;
-	if (m_thread.joinable())
-		m_thread.join();
 
 	// Delete All Docking Window
 	SAFE_DELETE(m_dock);

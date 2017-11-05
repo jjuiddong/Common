@@ -248,9 +248,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_shaderMgr.LoadShader(*this, "../media/shader11/skyboxcube.fxo", skyboxcube_layout, ARRAYSIZE(skyboxcube_layout), false);
 
 
-	m_textFps.Create(*this, 20, true, "Arial", cColor::BLUE);
-	//m_textFps.SetPos(0, 0);
-	//m_textFps.SetColor(D3DXCOLOR(255, 255, 255, 1));
+	m_textFps.Create(*this, 20, true, "Arial", cColor::WHITE);
 
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgBox.Create(*this, bbox, cColor::RED);
@@ -369,8 +367,7 @@ void cRenderer::EndScene()
 	m_textMgr.Render(*this);
 
 	cCamera &cam = GetMainCamera();
-	Vector3 camOrig, camDir;
-	cam.GetRay(camOrig, camDir);
+	const Ray ray = cam.GetRay();
 
 	// AlphaBlending Render, Sorting Camera Position
 	// Descent Distance from Camera
@@ -383,19 +380,19 @@ void cRenderer::EndScene()
 				const Vector3 c2 = b.p->m_boundingBox.Center() * b.tm;
 				const Plane plane1(a.normal, c1);
 				const Plane plane2(b.normal, c2);
-				const Vector3 dir1 = (c1 - camOrig).Normal();
-				const Vector3 dir2 = (c2 - camOrig).Normal();
+				const Vector3 dir1 = (c1 - ray.orig).Normal();
+				const Vector3 dir2 = (c2 - ray.orig).Normal();
 
-				Vector3 p1 = plane1.Pick(camOrig, dir2);
+				Vector3 p1 = plane1.Pick(ray.orig, dir2);
 				if (a.p->m_boundingSphere.m_bsphere.Radius*2 < (p1 - c1).Length())
-					p1 = plane1.Pick(camOrig, dir1);
+					p1 = plane1.Pick(ray.orig, dir1);
 
-				Vector3 p2 = plane2.Pick(camOrig, dir1);
+				Vector3 p2 = plane2.Pick(ray.orig, dir1);
 				if (b.p->m_boundingSphere.m_bsphere.Radius*2 < (p2 - c2).Length())
-					p2 = plane2.Pick(camOrig, dir2);
+					p2 = plane2.Pick(ray.orig, dir2);
 
-				const float l1 = p1.LengthRoughly(camOrig);
-				const float l2 = p2.LengthRoughly(camOrig);
+				const float l1 = p1.LengthRoughly(ray.orig);
+				const float l2 = p2.LengthRoughly(ray.orig);
 				return l1 > l2;
 			}
 		);

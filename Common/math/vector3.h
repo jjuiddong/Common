@@ -4,6 +4,8 @@ namespace common
 {
 	struct Vector4;
 	struct Matrix44;
+	struct Transform;
+
 	struct Vector3
 	{
 		float x,y,z;
@@ -43,6 +45,8 @@ namespace common
 
 		Vector3 operator * ( const Matrix44& rhs ) const;
 		Vector3& operator *= ( const Matrix44& rhs );
+		Vector3 operator * (const Transform& rhs) const;
+		Vector3& operator *= (const Transform& rhs);
 
 		bool operator == (const Vector3 &rhs) const
 		{

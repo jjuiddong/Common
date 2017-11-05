@@ -302,6 +302,12 @@
     <ClInclude Include="collision\boundinghalfsphere.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="base\camera2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\camera3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -581,6 +587,12 @@
     <ClCompile Include="collision\boundinghalfsphere.cpp">
       <Filter>collision</Filter>
     </ClCompile>
+    <ClCompile Include="base\camera2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\camera3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">
@@ -681,6 +693,7 @@
     <CustomBuild Include="shader\skyboxcube.fx">
       <Filter>shader</Filter>
     </CustomBuild>
+    <CustomBuild Include="shader\common.fx" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

@@ -93,7 +93,7 @@ void cOcean::ReCreateBuffers(cRenderer &renderer)
 
 	cViewport depthVp;
 	depthVp.Create(0, 0, (float)shadowmap_resource_buffer_size_xy, (float)shadowmap_resource_buffer_size_xy, 0, 1);
-	m_shadowMap.Create(renderer, depthVp, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
+	m_shadowMap.Create(renderer, depthVp, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
 }
 
 void cOcean::Clear()
@@ -245,7 +245,7 @@ void cOcean::CreateTerrain(cRenderer &renderer)
 float g_LightPosition[3] = { -10000.0f,6500.0f,10000.0f };
 
 void cOcean::Render(cRenderer &renderer
-	, cCamera *cam
+	, cCamera3D *cam
 	, cSkyBox *skyBox
 	, const float deltaSeconds)
 {
@@ -395,7 +395,7 @@ void cOcean::Render(cRenderer &renderer
 }
 
 
-void cOcean::SetupReflectionView(graphic::cCamera *cam)
+void cOcean::SetupReflectionView(graphic::cCamera3D *cam)
 {
 	ID3DX11Effect *pEffect = m_shader->m_effect;
 	float aspectRatio = m_BackbufferWidth / m_BackbufferHeight;
@@ -439,7 +439,7 @@ void cOcean::SetupReflectionView(graphic::cCamera *cam)
 	pEffect->GetVariableByName("g_HalfSpaceCullPosition")->AsScalar()->SetFloat(-0.6f);
 }
 
-void cOcean::SetupRefractionView(graphic::cCamera *cam)
+void cOcean::SetupRefractionView(graphic::cCamera3D *cam)
 {
 	ID3DX11Effect *pEffect = m_shader->m_effect;
 	pEffect->GetVariableByName("g_HalfSpaceCullSign")->AsScalar()->SetFloat(-1.0f);
@@ -447,7 +447,7 @@ void cOcean::SetupRefractionView(graphic::cCamera *cam)
 }
 
 
-void cOcean::SetupNormalView(graphic::cCamera *cam)
+void cOcean::SetupNormalView(graphic::cCamera3D *cam)
 {
 	ID3DX11Effect *pEffect = m_shader->m_effect;
 

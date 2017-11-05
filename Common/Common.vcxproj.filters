@@ -133,6 +133,9 @@
     <ClInclude Include="container\simplestring.h">
       <Filter>container</Filter>
     </ClInclude>
+    <ClInclude Include="etc\timer.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
     <ClInclude Include="thread\mutex.h">
       <Filter>thread</Filter>
     </ClInclude>
@@ -222,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="math\transform.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\timer.cpp">
+      <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -15,9 +15,11 @@
 // 프레임워크 초기화. 
 // WinMain 을 실행한다.
 #define INIT_FRAMEWORK(frameWorkClassName) \
+	framework::cGameMain* g_application=NULL;\
 	framework::cGameMain* framework::CreateFrameWork()\
 	{\
-		return new frameWorkClassName();\
+		g_application = new frameWorkClassName();\
+        return g_application;\
 	}\
 	\
 	int APIENTRY WinMain(HINSTANCE hInstance, \
@@ -45,9 +47,11 @@
 
 
 #define INIT_FRAMEWORK3(frameWorkClassName) \
+	framework::cGameMain2 * g_application=NULL;\
 	framework::cGameMain2* framework::CreateFrameWork2()\
 	{\
-		return new frameWorkClassName();\
+		g_application = new frameWorkClassName();\
+        return g_application;\
 	}\
 	\
 	int APIENTRY WinMain(HINSTANCE hInstance, \

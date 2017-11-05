@@ -38,13 +38,14 @@ namespace graphic
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		void SetAnimation(const Str64 &animationName, const bool isMerge = false);
+		void SetAnimation(const int animationIndex, const bool isMerge = false);
 		void Hilight(const bool isHilight);
 		bool IsLoadFinish();
 		virtual void Clear();
 
 
 	protected:
-		void InitModel(cRenderer &renderer);
+		virtual void InitModel(cRenderer &renderer);
 		bool CheckLoadProcess(cRenderer &renderer);
 
 
@@ -64,6 +65,8 @@ namespace graphic
 		StrId m_animationName;
 		eState::Enum m_state;
 		cAssimpModel *m_model; // reference
+		cSkeleton m_skeleton;
+		cAnimation m_animation;
 		float m_aniIncT;
 		float m_animationSpeed;
 	};

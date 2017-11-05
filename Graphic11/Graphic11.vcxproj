@@ -142,6 +142,8 @@
   <ItemGroup>
     <ClInclude Include="base\billboard.h" />
     <ClInclude Include="base\camera.h" />
+    <ClInclude Include="base\camera2d.h" />
+    <ClInclude Include="base\camera3d.h" />
     <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\color.h" />
     <ClInclude Include="base\constantbuffer.h" />
@@ -249,6 +251,8 @@
   <ItemGroup>
     <ClCompile Include="base\billboard.cpp" />
     <ClCompile Include="base\camera.cpp" />
+    <ClCompile Include="base\camera2d.cpp" />
+    <ClCompile Include="base\camera3d.cpp" />
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\color.cpp" />
     <ClCompile Include="base\cube.cpp" />
@@ -502,6 +506,17 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\common.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
     </CustomBuild>
   </ItemGroup>

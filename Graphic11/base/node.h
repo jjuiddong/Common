@@ -79,7 +79,7 @@ namespace graphic
 
 		Matrix44 GetWorldMatrix() const;
 		Transform GetWorldTransform() const;
-		void SetTechnique(const char *techniqName, const bool isApplyChild=true);
+		virtual void SetTechnique(const char *techniqName, const bool isApplyChild=true);
 
 		inline bool IsVisible() const;
 		inline int SetRenderFlag(const eRenderFlag::Enum val, const bool enable);

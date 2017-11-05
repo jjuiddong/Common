@@ -118,7 +118,10 @@ bool cCube::Render(cRenderer &renderer
 	}
 	else
 	{
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
 		m_shape.Render(renderer);
+		renderer.GetDevContext()->OMSetBlendState(state.Opaque(), NULL, 0xffffffff);
 	}
 
 	__super::Render(renderer, tm, flags);

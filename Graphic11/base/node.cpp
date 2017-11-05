@@ -234,7 +234,7 @@ float cNode::CullingTest(const cFrustum &frustum
 	, const bool isModel //= true
 )
 {
-	RETV(!m_isEnable, false);
+	RETV(!m_isEnable, -1.f);
 
 	const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
 	const cBoundingSphere bsphere = m_boundingSphere * transform;
@@ -256,6 +256,7 @@ float cNode::CullingTest(const cFrustum &frustum
 	else
 	{
 		SetRenderFlag(eRenderFlag::VISIBLE, false);
+		return -1.f;
 	}
 
 	return frustum.LengthRoughly(m_boundingBox.Center() * transform);

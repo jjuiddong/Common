@@ -20,12 +20,6 @@ bool cSkeleton::Create(sRawMeshGroup2 *meshes)
 	m_tmAni.resize(meshes->bones.size(), Matrix44::Identity);
 	m_tmPose.resize(meshes->bones.size(), Matrix44::Identity);
 
-	//for (u_int i = 0; i < meshes->bones.size(); ++i)
-	//{
-	//	m_tmAni[i] = meshes->bones[i].localTm;
-	//	m_tmOffset[i] = meshes->bones[i].offsetTm;
-	//}
-
 	m_bones = meshes->bones; // Already Orderred
 	SetInitializePose();
 

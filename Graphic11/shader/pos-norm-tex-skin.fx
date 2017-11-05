@@ -79,14 +79,14 @@ float4 PS_Outline(VSOUT_TEX In) : SV_Target
 		+ gLight_Diffuse * gMtrl_Diffuse * lightV * 0.1
 		+ gLight_Diffuse * gMtrl_Diffuse * lightV
 		+ gLight_Specular * gMtrl_Specular * pow(max(0, dot(N,H)), gMtrl_Pow);
-
+	
 	float4 Out = color * txDiffuse.Sample(samLinear, In.Tex);
-
+	
 	float2 coords;
 	coords.x = (In.PosH.x / In.PosH.w + 1) * 0.5f;
 	coords.y = 1 - ((In.PosH.y / In.PosH.w + 1) * 0.5f);
 
-	const float dx = 1.f / DepthMapSizeScaled;
+	const float dx = 1.f / DepthMapSize_Scaled;
 	float2 vTexCoords[9];
 	vTexCoords[0] = coords;
 	vTexCoords[1] = coords + float2(-dx, 0.0f);
@@ -101,12 +101,12 @@ float4 PS_Outline(VSOUT_TEX In) : SV_Target
 	float fOutline = 0.0f;
 	for (int i = 0; i < 9; i++)
 	{
-		fOutline += txDepth.SampleCmpLevelZero(samDepth, vTexCoords[i], 1);
+		fOutline += txDepth.SampleCmpLevelZero(samDepth, vTexCoords[i], 1.f);
 	}
 	fOutline /= 9.0f;
-
-	Out += float4(1, 0, 0, 1) * fOutline;
-	return float4(Out.xyz, gMtrl_Diffuse.a);
+	
+	clip(fOutline - 0.000001f);
+	return float4(0.8f, 0, 0, fOutline*2.5f);
 }
 
 

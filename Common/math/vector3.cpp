@@ -233,3 +233,15 @@ Vector3 Vector3::operator * (const XMMATRIX &m) const
 	return ret;
 }
 #endif
+
+
+Vector3 Vector3::operator * (const Transform& rhs) const
+{
+	return operator*(rhs.GetMatrix());
+}
+
+
+Vector3& Vector3::operator *= (const Transform& rhs)
+{
+	return operator*=(rhs.GetMatrix());
+}

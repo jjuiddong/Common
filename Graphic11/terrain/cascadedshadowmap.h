@@ -31,7 +31,7 @@ namespace graphic
 		enum { SHADOWMAP_COUNT = 3 };
 		Vector2 m_shadowMapSize;
 		float m_splitZ[3];
-		cCamera m_lightCams[SHADOWMAP_COUNT];
+		cCamera3D m_lightCams[SHADOWMAP_COUNT];
 		cDbgFrustum m_frustums[SHADOWMAP_COUNT];
 		cDepthBuffer m_shadowMaps[SHADOWMAP_COUNT];
 		cQuad2D m_shadowMapQuads[SHADOWMAP_COUNT];

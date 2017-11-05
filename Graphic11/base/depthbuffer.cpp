@@ -47,8 +47,7 @@ bool cDepthBuffer::Create(cRenderer &renderer
 	descDepth.MiscFlags = 0;
 
 	HRESULT hr = renderer.GetDevice()->CreateTexture2D(&descDepth, NULL, &m_texture);
-	if (FAILED(hr))
-		return false;
+	RETV2(FAILED(hr), false);
 
 	// Create the depth stencil view
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
@@ -57,8 +56,7 @@ bool cDepthBuffer::Create(cRenderer &renderer
 	descDSV.ViewDimension = isMultiSampling ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	hr = renderer.GetDevice()->CreateDepthStencilView(m_texture, &descDSV, &m_depthDSV);
-	if (FAILED(hr))
-		return false;
+	RETV2(FAILED(hr), false);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
 	ZeroMemory(&descSRV, sizeof(descSRV));
@@ -67,8 +65,8 @@ bool cDepthBuffer::Create(cRenderer &renderer
 	descSRV.Texture2D.MipLevels = 1;
 	descSRV.Texture2D.MostDetailedMip = 0;
 
-	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &descSRV, &m_depthSRV)))
-		return false;
+	hr = renderer.GetDevice()->CreateShaderResourceView(m_texture, &descSRV, &m_depthSRV);
+	RETV2(FAILED(hr), false);
 
 	return true;
 }

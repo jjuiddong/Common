@@ -34,12 +34,12 @@ namespace graphic
 
 		void Create(cRenderer &renderer, const float backBufferWidth, const float backBufferHeight);
 		void ReCreateBuffers(cRenderer &renderer);
-		void Render(cRenderer &renderer, cCamera *cam, cSkyBox *skyBox, const float deltaSeconds);
+		void Render(cRenderer &renderer, cCamera3D *cam, cSkyBox *skyBox, const float deltaSeconds);
 		void CreateTerrain(cRenderer &renderer);
 
-		void SetupNormalView(cCamera *);
-		void SetupReflectionView(cCamera *);
-		void SetupRefractionView(cCamera *);
+		void SetupNormalView(cCamera3D *);
+		void SetupReflectionView(cCamera3D *);
+		void SetupRefractionView(cCamera3D *);
 		void ChangeWindowSize(cRenderer &renderer, const float backBufferWidth, const float backBufferHeight);
 		Plane GetWorldPlane();
 		void Clear();

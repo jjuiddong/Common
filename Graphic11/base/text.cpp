@@ -87,6 +87,7 @@ void cText::Render(cRenderer &renderer,
 		m_color,
 		FW1_CENTER | FW1_VCENTER// Flags
 	);
+
 }
 
 
@@ -110,6 +111,9 @@ void cText::Render(cRenderer &renderer,
 			FW1_CENTER | FW1_VCENTER// Flags
 		);
 	}
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 }
 
 

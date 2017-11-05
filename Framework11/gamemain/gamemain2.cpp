@@ -44,9 +44,12 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		oldT = curT;
 
 		cDockManager::Get()->UpdateRender(t);
-		//std::this_thread::sleep_for(1ms);
+
+		if (gameMain->m_isLazyMode) // 100 frame
+			std::this_thread::sleep_for(10ms);
 	}
 
+	gameMain->Shutdown();
 	graphic::ReleaseRenderer();
 	cDockManager::Release();
 	Gdiplus::GdiplusShutdown(gdiplusToken);
@@ -58,6 +61,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 /////////////////////////////////////////////////////////////////////////////////////////////
 cGameMain2::cGameMain2()
 	: m_hWnd(NULL)
+	, m_isLazyMode(false)
 {
 }
 
@@ -100,4 +104,11 @@ void cGameMain2::LostDevice()
 void cGameMain2::ResetDevice()
 {
 	__super::ResetDevice();
+}
+
+
+void cGameMain2::Shutdown()
+{
+	OnShutdown();
+	Clear();
 }
