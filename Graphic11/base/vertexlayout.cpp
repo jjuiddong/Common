@@ -74,7 +74,7 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 		else if (Str32("TEXCOORD") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::TEXTURE;
 		else if (Str32("COLOR") == layout[i].SemanticName)
-			m_vertexType |= eVertexType::DIFFUSE;
+			m_vertexType |= eVertexType::COLOR;
 		else if (Str32("TANGENT") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::TANGENT;
 		else if (Str32("BINORMAL") == layout[i].SemanticName)

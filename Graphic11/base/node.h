@@ -19,9 +19,11 @@ namespace graphic
 		enum Enum {
 			NONE = 1 << 0
 			, VISIBLE = NONE
-			, BUILDING = 1 << 1
-			, ALPHABLEND = 1 << 2
-			, SHADOW = 1 << 3
+			, TERRAIN = 1 << 1
+			, MODEL = 1 << 2
+			, ALPHABLEND = 1 << 3
+			, NOALPHABLEND = 1 << 4
+			, SHADOW = 1 << 5
 		};
 	};
 
@@ -71,13 +73,15 @@ namespace graphic
 			, const bool isModel = true);
 		
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
-			, const XMMATRIX &parentTm);
+			, const XMMATRIX &parentTm, const bool isSpherePicking = true);
 
-		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type);
+		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
+			, const bool isSpherePicking = true);
 
 		virtual void Clear();
 
 		Matrix44 GetWorldMatrix() const;
+		Matrix44 GetParentWorldMatrix() const;
 		Transform GetWorldTransform() const;
 		virtual void SetTechnique(const char *techniqName, const bool isApplyChild=true);
 

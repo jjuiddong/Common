@@ -59,8 +59,15 @@ float4 PS(VSOUT_TEX In ) : SV_Target
 			+ gLight_Diffuse * gMtrl_Diffuse * max(0, dot(N,L))
 			+ gLight_Specular * gMtrl_Specular * pow( max(0, dot(N,H)), gMtrl_Pow);
 
-	float4 Out = color * txDiffuse.Sample(samLinear, In.Tex);
-	return float4(Out.xyz, gMtrl_Diffuse.a);
+	float4 texColor = txDiffuse.Sample(samLinear, In.Tex);
+	float4 Out = color * texColor;
+	return float4(Out.xyz, gMtrl_Diffuse.a * texColor.a);
+
+	//float4 Out = color * txDiffuse.Sample(samLinear, In.Tex);
+	//return float4(1, 1, 1, 0.1);
+	//return float4(Out.xyz, gMtrl_Diffuse.w);
+	//return float4(Out.xyz, 0.5f);
+	return Out;
 }
 
 

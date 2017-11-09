@@ -8,6 +8,7 @@ using namespace graphic;
 cCamera2D::cCamera2D(const char *name)
 	: cCamera(name)
 	, m_zoom(1.f)
+	, m_maxZoom(10.f)
 {
 	m_up = Vector3(0, 0, 1); // Camera Up Vector (Z Axis)
 	UpdateViewMatrix();
@@ -23,6 +24,12 @@ cCamera2D::cCamera2D(const char *name, const Vector3 &eyePos, const Vector3 &up)
 
 cCamera2D::~cCamera2D()
 {
+}
+
+
+bool cCamera2D::Is2DMode() const
+{
+	return true;
 }
 
 
@@ -213,7 +220,7 @@ void cCamera2D::MoveAxis(const Vector3 &dir, const float len)
 // lookAt 은 고정된채로 eyePos 를 이동한다.
 void cCamera2D::Zoom(const float len)
 {
-	m_zoom *= len;
+	m_zoom = min(m_maxZoom, m_zoom * len);
 }
 
 void cCamera2D::Zoom(const Vector3 &dir, const float len)
@@ -255,7 +262,12 @@ Ray cCamera2D::GetRay(
 	const int y = (sy == -1) ? (int)m_height / 2 : sy;
 
 	Ray ray;
-	GetRay((int)m_width, (int)m_height, x, y, ray.orig, ray.dir);
+	ray.dir = Vector3(0, -1, 0);
+	ray.orig = m_eyePos;
+	Vector3 offset((float)x - (m_width / 2), 0, (m_height / 2) - (float)y);
+	ray.orig += offset;
+
+	//GetRay((int)m_width, (int)m_height, x, y, ray.orig, ray.dir);
 	return ray;
 }
 

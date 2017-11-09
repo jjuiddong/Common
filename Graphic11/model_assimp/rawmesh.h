@@ -71,6 +71,7 @@ namespace graphic
 	struct sRawMesh2
 	{
 		StrId name;
+		int renderFlags; // default: eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND
 		vector<Vector3> vertices;
 		vector<Vector3> normals; // vertex 갯수만큼 저장된다.
 		vector<Vector3> tangent; // vertex 갯수만큼 저장된다.

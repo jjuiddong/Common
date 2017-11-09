@@ -39,7 +39,6 @@ namespace graphic
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		void SetAnimation(const Str64 &animationName, const bool isMerge = false);
 		void SetAnimation(const int animationIndex, const bool isMerge = false);
-		void Hilight(const bool isHilight);
 		bool IsLoadFinish();
 		virtual void Clear();
 

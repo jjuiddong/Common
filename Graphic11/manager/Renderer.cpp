@@ -250,11 +250,13 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 
 	m_textFps.Create(*this, 20, true, "Arial", cColor::WHITE);
 
+	m_line.Create(*this);
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgBox.Create(*this, bbox, cColor::RED);
 	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
 	m_dbgLine.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1), 1, cColor::WHITE);
 	m_dbgSphere.Create(*this, 0.5f, 10, 10, cColor::WHITE);
+	m_line2D.Create(*this);
 
 	cBoundingBox bbox2(Vector3(0, 0, 0), Vector3(10, 10, 10), Quaternion());
 	m_dbgAxis.Create(*this);

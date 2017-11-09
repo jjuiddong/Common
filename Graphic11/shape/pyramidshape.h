@@ -36,7 +36,7 @@ namespace graphic
 			, const float width = 1
 			, const float height = 1
 			, const Vector3 &pos = Vector3(0, 0, 0)
-			, const int vtxType = (eVertexType::POSITION | eVertexType::DIFFUSE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::COLOR)
 			, const cColor &color = cColor::BLACK);
 
 		virtual void Render(cRenderer &renderer) override;

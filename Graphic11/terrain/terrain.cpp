@@ -1,20 +1,20 @@
 
 #include "stdafx.h"
 #include "terrain.h"
+#include "tile.h"
 
-using namespace std;
-using namespace Gdiplus;
+
 using namespace graphic;
 
 
-cTerrain::cTerrain() :
-	m_heightFactor(3.f)
-,	m_isShowModel(true)
-,	m_shader(NULL)
-,	m_isRenderWater(true)
+cTerrain::cTerrain()
+	: cNode(common::GenerateId(), "terrain", eNodeType::TERRAIN)
+	, m_isShowDebug(false)
+	, m_rows(0)
+	, m_cols(0)
+	, m_tileCols(0)
+	, m_tileRows(0)
 {
-	m_rigids.reserve(32);
-
 }
 
 cTerrain::~cTerrain()
@@ -23,355 +23,294 @@ cTerrain::~cTerrain()
 }
 
 
-// *.TRN  파일을 읽어서 지형을 초기화 한다.
-bool cTerrain::CreateFromTRNFile(cRenderer &renderer, const StrPath &fileName)
+bool cTerrain::Create(cRenderer &renderer, const sRectf &rect)
 {
-	sRawTerrain rawTerrain;
-	if (!importer::ReadRawTerrainFile(fileName.c_str(), rawTerrain))
-		return false;
+	const Vector2 center = rect.Center();
+	const Vector3 lightLookat = Vector3(center.x, 0, center.y);
+	const Vector3 lightPos = GetMainLight().m_pos;
+	const Vector3 p0 = lightPos;
+	const Vector3 p1 = (lightLookat - lightPos).Normal() * 3 + p0;
+	m_dbgLightDir.Create(renderer, p0, p1, 0.5F);
 
-	return CreateFromRawTerrain(renderer, rawTerrain);
-}
-
-
-// 지형정보를 토대로 지형을 생성한다.
-bool cTerrain::CreateFromRawTerrain(cRenderer &renderer, const sRawTerrain &rawTerrain)
-{
-	Clear();
-
-	const StrPath mediaDir = cResourceManager::Get()->GetMediaDirectory();
-
-	if (rawTerrain.heightMapStyle == 0)
-	{
-		// 높이맵으로 만들어진 지형이면, 높이 맵을 로딩한다.
-		if (rawTerrain.heightMap.empty())
-		{
-			CreateTerrain( renderer, rawTerrain.rowCellCount, rawTerrain.colCellCount, 
-				rawTerrain.cellSize, rawTerrain.textureFactor );
-			CreateTerrainTexture(renderer, mediaDir+rawTerrain.bgTexture );
-		}
-		else
-		{
-			// 기본 지형에서 만들어진 지형이면, 기본 지형을 생성한다.
-			CreateFromHeightMap( renderer, mediaDir+rawTerrain.heightMap, mediaDir+rawTerrain.bgTexture, 
-				rawTerrain.heightFactor, rawTerrain.textureFactor, 
-				rawTerrain.rowCellCount, rawTerrain.colCellCount, rawTerrain.cellSize );
-		}
-	}
-	else if (rawTerrain.heightMapStyle == 1)
-	{
-		CreateFromGRDFormat(renderer, mediaDir+rawTerrain.heightMap.c_str(), mediaDir+rawTerrain.bgTexture.c_str(),
-			rawTerrain.heightFactor, rawTerrain.textureFactor );
-			//rawTerrain.rowCellCount, rawTerrain.colCellCount, rawTerrain.cellSize );
-	}
-
-
-	// 레이어 생성
-	for (int i=0; i < MAX_LAYER; ++i)
-	{
-		if (rawTerrain.layer[ i].texture.empty())
-			break;
-
-		AddLayer();
-		m_layer[ i].texture = cResourceManager::Get()->LoadTexture( 
-			renderer, mediaDir+rawTerrain.layer[ i].texture );
-	}
-
-
-	// 모델 생성.
-	cShader *modelShader = cResourceManager::Get()->LoadShader(renderer, "hlsl_skinning_using_texcoord_unlit.fx" );
-
-	for (u_int i=0; i < rawTerrain.models.size(); ++i)
-	{
-		if (cModel *model = AddRigidModel(renderer, mediaDir+rawTerrain.models[ i].fileName))
-		{
-			model->SetTransform(rawTerrain.models[ i].tm);
-			//model->SetShader(modelShader);
-		}
-	}
-
-	m_alphaTexture.Create(renderer, mediaDir+rawTerrain.alphaTexture );
-
-	m_isRenderWater = rawTerrain.renderWater;
-	m_water.Create(renderer);
-	m_skybox.Create(renderer,
-		cResourceManager::Get()->FindFile("grassenvmap1024.dds"), 10000);
+	m_dbgPlane.Create(renderer);
+	m_dbgPlane.SetLine(Vector3(0, 0, 0), Vector3(0, 30, 0), 0.1f);
 
 	return true;
 }
 
 
-bool cTerrain::CreateFromHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
-	const StrPath &textureFileName, const float heightFactor, const float textureUVFactor,
-	const int rowCellCount, const int colCellCount, const float cellSize)
-	// heightFactor=3.f, textureUVFactor=1.f
-	// rowCellCount=64, colCellCount=64, cellSize=50.f
+bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt, const float cellSize
+	, const int rowTileCnt, const int colTileCnt)
 {
-	CreateTerrain(renderer, rowCellCount, colCellCount, cellSize, textureUVFactor);
-	const bool result = UpdateHeightMap(renderer, heightMapFileName, textureFileName, heightFactor );
-	return result;
-}
+	m_rows = rowCnt;
+	m_cols = colCnt;
+	m_cellSize = cellSize;
+	m_rowVtx = rowCnt + 1;
+	m_colVtx = colCnt + 1;
+	m_tileCols = colTileCnt;
+	m_tileRows = rowTileCnt;
+	m_heightMap.resize(m_rowVtx * m_colVtx);
 
-
-// Grid 포맷 파일로 지형을 생성한다.
-// GRD 포맷: 그리드의 높이 값을 저장하는 파일 포맷.
-bool cTerrain::CreateFromGRDFormat(cRenderer &renderer, const StrPath &gridFileName,
-	const StrPath &textureFileName, const float heightFactor, const float textureUVFactor )
-	// heightFactor=3.f, textureUVFactor=1.f
-	// rowCellCount=64, colCellCount=64, cellSize=50.f
-{
-	Clear();
-
-	if (!m_shader)
-		m_shader = cResourceManager::Get()->LoadShader(renderer,  "hlsl_terrain_splatting.fx" );
-
-	InitLayer(renderer);
-
-	if (!m_grid.CreateFromFile(renderer, gridFileName))
-		return false;
-
-	m_grid.GetTexture().Create( renderer, textureFileName );
-
-	m_heightFactor = heightFactor;
-	m_heightMapFileName = gridFileName;
-
-	return true;
-}
-
-
-// 지형 텍스쳐 생성.
-bool cTerrain::CreateTerrainTexture(cRenderer &renderer, const StrPath &textureFileName)
-{
-	m_grid.GetTexture().Clear();
-	return m_grid.GetTexture().Create(renderer, textureFileName );
-}
-
-
-// 지형 생성.
-bool cTerrain::CreateTerrain(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-	,const float textureUVFactor)
-	// rowCellCount=64, colCellCount=64, cellSize=50.f, textureUVFactor=1.f
-{
-	Clear();
-
-	if (!m_shader)
-		m_shader = cResourceManager::Get()->LoadShader(renderer,  "hlsl_terrain_splatting.fx" );
-
-	InitLayer(renderer);
-
-	m_grid.Create(renderer, rowCellCount, colCellCount, cellSize, textureUVFactor);
-
-	m_skybox.Create( renderer,
-		cResourceManager::Get()->FindFile("grassenvmap1024.dds"), 10000);
-
-	m_water.Create(renderer);
-
-	return true;
-}
-
-
-// 텍스쳐 파일 정보로 높이 정보를 채운다.
-// m_grid 가 생성된 상태여야 한다.
-bool cTerrain::UpdateHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
-	const StrPath &textureFileName, const float heightFactor )
-{
-	m_heightFactor = heightFactor;
-	m_heightMapFileName = heightMapFileName;
-
-	const wstring wfileName = common::str2wstr(heightMapFileName.c_str());
-	Gdiplus::Bitmap bmp(wfileName.c_str());
-	if (Gdiplus::Ok != bmp.GetLastStatus())
-		return false;
-
-	const int VERTEX_COL_COUNT = m_grid.GetColVertexCount();
-	const int VERTEX_ROW_COUNT = m_grid.GetRowVertexCount();
-	const float WIDTH = m_grid.GetWidth();
-	const float HEIGHT = m_grid.GetHeight();
-
-	const float incX = (float)(bmp.GetWidth()-1) / (float)m_grid.GetColCellCount();
-	const float incY = (float)(bmp.GetHeight()-1) /(float)m_grid.GetRowCellCount();
-
-	sVertexNormTex *pv = (sVertexNormTex*)m_grid.GetVertexBuffer().Lock();
-
-	for (int i=0; i < VERTEX_COL_COUNT; ++i)
+	// initialize map
+	// 
+	//   z (row)
+	//   |
+	//   |
+	//   |
+	//   |
+	//  -|--------------> x (column)
+	//  Axis X-Z
+	//
+	//
+	// 8      9      10      11
+	// * ---- * ---- * ---- *
+	// |      |      |      |
+	// |4     | 5    |6     |7
+	// * ---- * ---- * ---- *
+	// |      |      |      |
+	// |0     | 1    | 2    |3
+	// * ---- * ---- * ---- *
+	//
+	// Vertex Store Order
+	//
+	for (int r = 0; r < rowCnt+1; ++r)
 	{
-		for (int k=0; k < VERTEX_ROW_COUNT; ++k)
+		for (int c = 0; c < colCnt+1; ++c)
 		{
-			sVertexNormTex *vtx = pv + (k*VERTEX_COL_COUNT) + i;
-
-			Gdiplus::Color color;
-			bmp.GetPixel((int)(i*incX), (int)(k*incY), &color);
-			const float h = ((color.GetR() + color.GetG() + color.GetB()) / 3.f) 
-				* heightFactor;
-			vtx->p.y = h;
+			Vector3 p(c*cellSize, 0, r*cellSize);
+			Vector3 n(0, 1, 0);
+			const int idx = r*(colCnt+1) + c;
+			m_heightMap[idx].p = p;
+			m_heightMap[idx].n = n;
 		}
 	}
 
-	m_grid.GetVertexBuffer().Unlock();
+	return true;
+}
 
-	m_grid.CalculateNormals();
-	m_grid.GetTexture().Create( renderer, textureFileName );
+
+bool cTerrain::Update(cRenderer &renderer, const float deltaSeconds)
+{
+	__super::Update(renderer, deltaSeconds);
+	return true;
+}
+
+
+void cTerrain::BuildCascadedShadowMap(cRenderer &renderer
+	, INOUT cCascadedShadowMap &ccsm
+	, const XMMATRIX &tm //= XMIdentity
+)
+{
+	ccsm.UpdateParameter(renderer, GetMainCamera());
+	
+	SetTechnique("BuildShadowMap");
+
+	for (int i = 0; i < cCascadedShadowMap::SHADOWMAP_COUNT; ++i)
+	{
+		for (auto &p : m_tiles)
+			p->CullingTest(ccsm.m_frustums[i], tm, true);
+
+		ccsm.Begin(renderer, i);
+		for (auto &p : m_tiles)
+			p->PreRender(renderer, tm);
+		ccsm.End(renderer, i);
+	}
+
+	CullingTestOnly(renderer, GetMainCamera()); // Recovery Culling
+}
+
+
+bool cTerrain::Render(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
+	CullingTestOnly(renderer, GetMainCamera(), true, tm); // Recovery Culling
+	__super::Render(renderer, tm, eRenderFlag::TERRAIN);
+	__super::Render(renderer, tm, eRenderFlag::MODEL);
+	return true;
+}
+
+
+bool cTerrain::RenderCascadedShadowMap(cRenderer &renderer
+	, cCascadedShadowMap &ccsm
+	, const XMMATRIX &tm //= XMIdentity
+	, const int flags // =1
+)
+{
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
+	ccsm.Bind(renderer);
+	//__super::Render(renderer, tm, flags);
+	__super::Render(renderer, tm, eRenderFlag::TERRAIN);
+	__super::Render(renderer, tm, eRenderFlag::MODEL);
+
+	if (m_isShowDebug)
+		ccsm.DebugRender(renderer);
 
 	return true;
 }
 
 
-
-void cTerrain::PreRender(cRenderer &renderer)
+void cTerrain::RenderOption(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+	, const int option //= 0x1
+)
 {
-	RET(!m_shader);
-	RET(!m_isRenderWater);
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
 
-	// Reflection plane in local space.
-	Plane waterPlaneL(0,-1,0,0);
-
-	// Reflection plane in world space.
-	Matrix44 waterWorld;
-	waterWorld.SetTranslate(Vector3(0,20,0)); // 실제 물의 높이는 10이지만, 컬링을 위해 20으로 높임
-	Matrix44 WInvTrans;
-	WInvTrans = waterWorld.Inverse();
-	WInvTrans.Transpose();
-	Plane waterPlaneW = waterPlaneL * WInvTrans;
-
-	// Reflection plane in homogeneous clip space.
-	Matrix44 WVPInvTrans = (waterWorld * GetMainCamera()->GetViewProjectionMatrix()).Inverse();
-	WVPInvTrans.Transpose();
-	Plane waterPlaneH = waterPlaneL * WVPInvTrans;
-
-	float f[4] = {waterPlaneH.N.x, waterPlaneH.N.y, waterPlaneH.N.z, waterPlaneH.D};
-	renderer.GetDevice()->SetClipPlane(0, (float*)f);
-	renderer.GetDevice()->SetRenderState(D3DRS_CLIPPLANEENABLE, 1);
-
-	m_water.BeginRefractScene(renderer);
-	m_skybox.Render(renderer);
-	RenderShader(renderer, *m_shader);
-	m_water.EndRefractScene(renderer);
-
-	// Seems like we need to reset these due to a driver bug.  It works
-	// correctly without these next two lines in the REF and another 
-	//video card, however.
-	renderer.GetDevice()->SetClipPlane(0, (float*)f);
-	renderer.GetDevice()->SetRenderState(D3DRS_CLIPPLANEENABLE, 1);
-	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-
-	m_water.BeginReflectScene(renderer);
-	Matrix44 reflectMatrix = waterPlaneW.GetReflectMatrix();
-	m_skybox.Render(renderer, reflectMatrix);
-	RenderShader(renderer, *m_shader, reflectMatrix);
-	m_water.EndReflectScene(renderer);
-
-	renderer.GetDevice()->SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
-	renderer.GetDevice()->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	__super::Render(renderer, tm, option);
 }
 
 
-// 지형 출력
-void cTerrain::Render(cRenderer &renderer)
+void cTerrain::RenderDebug(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+)
 {
-	if (m_shader)
-	{
-		// RenderShader() 함수에서 mVP 를 초기화 하면 깜빡거리는 현상이 나타나서
-		// Render() 함수에서 일괄적으로 초기화하게 했다.
-		cLightManager::Get()->GetMainLight().Bind(*m_shader);
-		GetMainCamera()->Bind(*m_shader);
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
 
-		//m_shader->SetMatrix( "g_mVP", GetMainCamera()->GetViewProjectionMatrix());
-		//m_shader->SetVector( "g_vEyePos", GetMainCamera()->GetEyePos());
-		//GetMainCamera()->Bind(*m_shader);
-		m_shader->SetVector( "g_vFog", Vector3(1.f, 10000.f, 0)); // near, far
-
-		m_skybox.Render(renderer);
-		RenderShader(renderer, *m_shader);
-		if (m_isRenderWater)
-			m_water.Render(renderer);
-	}
-	else
+	if (m_isShowDebug)
 	{
-		m_grid.Render(renderer);
+		m_dbgLightDir.Render(renderer);
+		m_dbgPlane.Render(renderer);
 	}
 }
 
 
-void cTerrain::Move(const float elapseTime)
+void cTerrain::CullingTestOnly(cRenderer &renderer, cCamera &camera
+	, const bool isModel //= true
+	, const XMMATRIX &tm //= XMIdentity
+)
 {
-	if (m_isRenderWater)
-		m_water.Update(elapseTime);
+	cFrustum frustum;
+	frustum.SetFrustum(camera.GetViewProjectionMatrix());
+
+	for (auto &p : m_tiles)
+		p->CullingTest(frustum, tm, isModel);
 }
 
 
-// 셰이더로 지형을 출력한다.
-void cTerrain::RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm)
-	// tm = Matrix44::Identity
+bool cTerrain::AddTile(cTile *tile)
 {
-	if (m_layer.empty())
+	AddChild(tile);
+
+	auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
+	if (m_tiles.end() != it)
+		return false; // Already Exist
+
+	m_tiles.push_back(tile);
+	m_tilemap[tile->m_name.GetHashCode()] = tile;
+	m_tilemap2[tile->m_id] = tile;
+	return true;
+}
+
+
+bool cTerrain::RemoveTile(cTile *tile)
+{
+	RemoveChild(tile);
+
+	auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
+	if (m_tiles.end() == it)
+		return false; // Not Exist
+
+	common::popvector2(m_tiles, tile);
+	m_tilemap.erase(tile->m_name.GetHashCode());
+	m_tilemap2.erase(tile->m_id);
+	return true;
+}
+
+
+// insert model to most nearest tile
+bool cTerrain::AddModel(cNode *model)
+{
+	cTile *nearTile = GetNearestTile(model);
+	assert(nearTile);
+
+	model->m_transform = model->m_transform * nearTile->m_transform.Inverse();
+	model->CalcBoundingSphere();
+
+	return nearTile->AddChild(model);
+}
+
+
+// Update Model Position
+bool cTerrain::UpdateModel(cNode *model)
+{
+	cTile *nearTile = GetNearestTile(model);
+	RETV(!nearTile, false);
+
+	Transform transform = model->GetWorldTransform();
+	model->m_transform = transform * nearTile->m_transform.Inverse();
+	model->CalcBoundingSphere();
+
+	if (model->m_parent)
+		model->m_parent->RemoveChild(model, false);
+
+	return nearTile->AddChild(model);
+}
+
+
+cTile* cTerrain::GetNearestTile(const cNode *node)
+{
+	cBoundingBox bbox = node->m_boundingBox;
+	bbox *= node->GetWorldMatrix();
+	//Transform transform = node->m_transform;
+	//bbox.SetBoundingBox(transform.pos, transform.scale, transform.rot);
+
+	vector<cTile*> candidate;
+	for (auto &tile : m_tiles)
 	{
-		shader.SetRenderPass(2);
-
-		if (m_isShowModel && !m_rigids.empty())
-			shader.SetRenderPass(2);
+		cBoundingBox tbbox = tile->m_boundingBox * tile->GetWorldMatrix();
+		if (tbbox.Collision(bbox))
+			candidate.push_back(tile);
 	}
-	else
+
+	RETV(candidate.empty(), false);
+
+	float nearLen = FLT_MAX;
+	cTile *nearTile = NULL;
+	for (auto &tile : candidate)
 	{
-		shader.SetTexture( "g_SplattingAlphaMap", m_alphaTexture );
-		shader.SetFloat( "g_alphaUVFactor", GetTextureUVFactor() );
-
-		const char* texName[] = {"Tex1", "Tex2", "Tex3", "Tex4" };
-		for (u_int i=0; i < m_layer.size(); ++i)
-			shader.SetTexture( texName[ i], *m_layer[ i].texture );
-		for (u_int i=m_layer.size(); i < MAX_LAYER; ++i)
-			shader.SetTexture( texName[ i], m_emptyTexture );
-
-		shader.SetRenderPass(3);
-		//if (m_isShowModel && !m_rigids.empty())
-		//	shader.SetRenderPass(5);
+		const float len = tile->GetWorldMatrix().GetPosition().Distance(node->m_transform.pos);
+		if (len < nearLen)
+		{
+			nearLen = len;
+			nearTile = tile;
+		}
 	}
 
-	if (m_isShowModel)
-		RenderRigidModels(renderer, tm);
-
-
-	shader.SetMatrix("g_mWorld", tm);
-	m_grid.m_mtrl.Bind(shader);
-	m_grid.m_tex.Bind(shader, "g_colorMapTexture");
-	const int passCnt = shader.Begin();
-	shader.BeginPass();
-	shader.CommitChanges();
-	m_grid.m_vtxBuff.Bind(renderer);
-	m_grid.m_idxBuff.Bind(renderer);
-	renderer.GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 
-		m_grid.m_vtxBuff.GetVertexCount(), 0, m_grid.m_idxBuff.GetFaceCount());
-	shader.EndPass();
-	shader.End();
-	//m_grid.RenderShader(renderer, shader, tm);
+	return nearTile;
 }
 
 
-// 정적 모델 출력
-void cTerrain::RenderRigidModels(cRenderer &renderer, const Matrix44 &tm)
+void cTerrain::SetDbgRendering(const bool isRender)
 {
-	for each (auto model in m_rigids)
+	m_isShowDebug = isRender;
+
+	for (auto &p : m_tiles)
 	{
-		model->Render(renderer, tm);
+		p->m_isDbgRender = isRender;
+
+		//for (auto &ch : p->m_children)
+		//	((cTile*)ch)->m_isDbgRender = isRender;
 	}
 }
 
 
-// 모델의 그림자를 지형에 출력한다.
-void cTerrain::RenderModelShadow(cRenderer &renderer, cModel &model)
+void cTerrain::SetShadowRendering(const bool isRender)
 {
-	model.UpdateShadow(renderer);
-
-	Vector3 lightPos;
-	Matrix44 view, proj, tt;
-	cLightManager::Get()->GetMainLight().GetShadowMatrix(
-		model.GetTransform().GetPosition(), lightPos, view, proj, tt );
-
-	m_shader->SetTexture( "ShadowMap", model.GetShadow().GetTexture() );
-	m_shader->SetMatrix( "mWVPT", view * proj * tt );
+	for (auto &p : m_tiles)
+		p->SetRenderFlag(eRenderFlag::SHADOW, isRender);
 }
 
 
-float Lerp(float p1, float p2, float alpha)
+inline float Lerp(float p1, float p2, float alpha)
 {
 	return p1 * (1.f - alpha) + p2 * alpha;
 }
@@ -380,30 +319,27 @@ float Lerp(float p1, float p2, float alpha)
 // x/z평면에서 월드 좌표 x,z 위치에 해당하는 높이 값 y를 리턴한다.
 float cTerrain::GetHeight(const float x, const float z)
 {
-	float newX = x + (m_grid.GetWidth() / 2.0f);
-	float newZ = m_grid.GetHeight() - (z + (m_grid.GetHeight() / 2.0f));
+	const float newX = x / m_cellSize;
+	const float newZ = z / m_cellSize;
 
-	newX /= m_grid.GetCellSize();
-	newZ /= m_grid.GetCellSize();
-
-	const float col = ::floorf( newX );
-	const float row = ::floorf( newZ );
+	const float col = ::floorf(newX);
+	const float row = ::floorf(newZ);
 
 	//  A   B
 	//  *---*
 	//  | / |
 	//  *---*
 	//  C   D
-	const float A = GetHeightMapEntry( (int)row, (int)col );
-	const float B = GetHeightMapEntry( (int)row, (int)col+1 );
-	const float C = GetHeightMapEntry( (int)row+1, (int)col );
-	const float D = GetHeightMapEntry( (int)row+1, (int)col+1 );
+	const float A = GetHeightMapEntry((int)row, (int)col);
+	const float B = GetHeightMapEntry((int)row, (int)col + 1);
+	const float C = GetHeightMapEntry((int)row + 1, (int)col);
+	const float D = GetHeightMapEntry((int)row + 1, (int)col + 1);
 
 	const float dx = newX - col;
 	const float dz = newZ - row;
 
 	float height = 0.0f;
-	if( dz < 1.0f - dx )  // upper triangle ABC
+	if (dz < 1.0f - dx)  // upper triangle ABC
 	{
 		float uy = B - A; // A->B
 		float vy = C - A; // A->C
@@ -420,199 +356,297 @@ float cTerrain::GetHeight(const float x, const float z)
 }
 
 
-// 맵을 2차원 배열로 봤을 때, row, col 인덱스의 높이 값을 리턴한다.
-float cTerrain::GetHeightMapEntry( int row, int col )
+bool cTerrain::GetHeightFromRay(const Ray &ray, OUT Vector3 &out)
 {
-	const int VERTEX_COL_COUNT = m_grid.GetColVertexCount();
-	const int VERTEX_ROW_COUNT = m_grid.GetRowVertexCount();
-
-	const int vtxSize = (VERTEX_COL_COUNT) * (VERTEX_ROW_COUNT);
-
-	if( 0 > row || 0 > col )
-		return 0.f;
-	if( vtxSize <= (row * VERTEX_ROW_COUNT + col) ) 
-		return 0.f;
-
-	sVertexNormTex *pv = (sVertexNormTex*)m_grid.GetVertexBuffer().Lock();
-	const float h = pv[ row * VERTEX_ROW_COUNT + col].p.y;
-	m_grid.GetVertexBuffer().Unlock();
-	return h;
-}
-
-
-// 광선 벡터 orig, dir 를 이용해서, 충돌한 면의 y 좌표를 리턴한다.
-// 피킹 위치를 out에 저장해서 리턴한다.
-float cTerrain::GetHeightFromRay( const Vector3 &orig, const Vector3 &dir, OUT Vector3 &out )
-{
-	if (m_grid.Pick(orig, dir, out))
+	bool isFirst = true;
+	for (int r = 0; r < m_rows; ++r)
 	{
-		return GetHeight(out.x, out.z);
-	}
-	return 0.f;
-}
-
-
-// 피킹 처리.
-bool cTerrain::Pick(const Vector3 &orig, const Vector3 &dir, OUT Vector3 &out)
-{
-	return m_grid.Pick(orig, dir, out);
-}
-
-
-// 모델 피킹.
-cModel* cTerrain::PickModel(const Vector3 &orig, const Vector3 &dir)
-{
-	for each (auto &model in m_rigids)
-	{
-		if (model->Pick(orig, dir))
-			return model;
-	}
-	return NULL;
-}
-
-
-// 초기화.
-void cTerrain::Clear()
-{
-	m_heightFactor = 3.f;
-	m_heightMapFileName.clear();
-	m_grid.Clear();
-
-	for each (auto model in m_rigids)
-	{
-		SAFE_DELETE(model);
-	}
-	m_rigids.clear();
-}
-
-
-const StrPath& cTerrain::GetTextureName()
-{
-	return m_grid.GetTexture().GetTextureName();
-}
-
-
-// 정적 모델 추가
-cModel* cTerrain::AddRigidModel(cRenderer &renderer, const cModel &model)
-{
-	RETV(FindRigidModel(model.GetId()), false); // already exist return
-
-	m_rigids.push_back(model.Clone(renderer));
-	return m_rigids.back();
-}
-
-
-// 정적 모델 추가
-cModel* cTerrain::AddRigidModel(cRenderer &renderer, const StrPath &fileName)
-{
-	cModel *model = new cModel(common::GenerateId());
-	if (!model->Create(renderer, fileName))
-	{
-		delete model;
-		return NULL;
-	}
-	m_rigids.push_back(model);
-	return model;
-}
-
-
-// 정적 모델 찾기.
-cModel* cTerrain::FindRigidModel(const int id)
-{
-	for each (auto model in m_rigids)
-	{
-		if (model->GetId() == id)
-			return model;
-	}
-	return NULL;
-}
-
-
-// 정적 모델 제거
-// destruct : true 이면 메모리를 소거한다.
-bool cTerrain::RemoveRigidModel(cModel *model, const bool destruct) // destruct=true
-{
-	const bool result = common::removevector(m_rigids, model);
-	if (destruct)
-		SAFE_DELETE(model);
-	return result;
-}
-
-
-// 정적 모델 제거.
-bool cTerrain::RemoveRigidModel(const int id, const bool destruct) //destruct=true
-{
-	cModel *model = FindRigidModel(id);
-	RETV(!model, false);
-	return RemoveRigidModel(model, destruct);
-}
-
-
-void cTerrain::InitLayer(cRenderer &renderer)
-{
-	m_layer.clear();
-
-	m_alphaTexture.Clear();
-	m_alphaTexture.Create( renderer, ALPHA_TEXTURE_SIZE_W, ALPHA_TEXTURE_SIZE_H,
-		D3DFMT_A8R8G8B8 );
-}
-
-
-// 최상위 레이어 리턴
-sSplatLayer& cTerrain::GetTopLayer()
-{
-	if (m_layer.empty())
-		m_layer.push_back(sSplatLayer());
-	return m_layer.back();
-}
-
-
-// 레이어 추가.
-bool cTerrain::AddLayer()
-{
-	if (m_layer.size() >= MAX_LAYER)
-		return false;
-
-	m_layer.push_back(sSplatLayer());
-	return true;
-}
-
-
-// layer 위치의 레이어를 제거하고, 나머지는 밀어 올린다.
-void cTerrain::DeleteLayer(int layer)
-{
-	RET(m_layer.empty());
-
-	common::rotatepopvector(m_layer, (u_int)layer);
-
-	// 비어있는 알파 이미지도 같이 밀어올린다.
-	const DWORD delMask = GetAlphaMask(layer);
-	DWORD moveMask = 0;
-	for (u_int i=layer; i < m_layer.size(); ++i)
-		moveMask |= GetAlphaMask(i+1);
-
-	D3DLOCKED_RECT lockrect;
-	m_alphaTexture.Lock(lockrect);
-
-	BYTE *pbits = (BYTE*)lockrect.pBits;
-	for (int ay=0; ay < ALPHA_TEXTURE_SIZE_H; ++ay)
-	{
-		for (int ax=0; ax < ALPHA_TEXTURE_SIZE_W; ++ax)
+		for (int c = 0; c < m_cols; ++c)
 		{
-			// A8R8G8B8 Format
-			DWORD *ppixel = (DWORD*)(pbits + (ax*4) + (lockrect.Pitch * ay));
-			DWORD moveVal = *ppixel & moveMask;
-			*ppixel = *ppixel & ~(delMask | moveMask); // 이동할 AlphaTexture 초기화
-			*ppixel = *ppixel | (moveVal << 8);
+			const int indices[2][3] = {
+				{ r*m_colVtx + c,  (r + 1)*m_colVtx + c, r*m_colVtx + c + 1 }
+				, { (r + 1)*m_colVtx + c,  (r + 1)*m_colVtx + c + 1, r*m_colVtx + c+1 }
+			};
+
+			for (int i = 0; i < 2; ++i)
+			{
+				const Vector3 p1 = m_heightMap[ indices[i][0]].p;
+				const Vector3 p2 = m_heightMap[ indices[i][1]].p;
+				const Vector3 p3 = m_heightMap[ indices[i][2]].p;
+		
+				const Triangle tri(p1, p2, p3);
+				const Plane p(p1, p2, p3);
+				const float dot = ray.dir.DotProduct(p.N);
+				if (dot >= 0)
+					continue;
+
+				float t;
+				if (tri.Intersect(ray.orig, ray.dir, &t))
+				{
+					if (isFirst)
+					{
+						isFirst = false;
+						out = ray.orig + ray.dir * t;
+					}
+					else
+					{
+						const Vector3 v = ray.orig + ray.dir * t;
+						if (ray.orig.LengthRoughly(v) < ray.orig.LengthRoughly(out))
+							out = v;
+					}
+				}
+			}
+
 		}
 	}
 
-	m_alphaTexture.Unlock();
+	return !isFirst;
 }
 
 
-// layer 에 해당하는 마스크를 리턴한다.
-DWORD cTerrain::GetAlphaMask(const int layer)
+// 맵을 2차원 배열로 봤을 때, row, col 인덱스의 높이 값을 리턴한다.
+float cTerrain::GetHeightMapEntry(int row, int col)
 {
-	return (0xFF << (24 - (layer * 8)));
+	if (0 > row || 0 > col)
+		return 0.f;
+	if ((int)m_heightMap.size() <= (row * m_colVtx + col))
+		return 0.f;
+
+	return m_heightMap[row*m_colVtx + col].p.y;
+}
+
+
+void cTerrain::Clear()
+{
+	__super::Clear();
+	m_tiles.clear();
+	m_tilemap.clear();
+	m_tilemap2.clear();
+}
+
+
+// Normalize All HeightMap
+void cTerrain::HeightmapNormalize()
+{
+	const float radius = sqrt((float)(m_cols*m_cols + m_rows*m_rows)) * m_cellSize;
+	HeightmapNormalize(Vector3(0, 0, 0), radius);
+}
+
+
+void cTerrain::HeightmapNormalize(const Vector3 &cursorPos, const float radius)
+{
+	cTerrain &terrain = *this;
+
+	const float x = ((cursorPos.x - radius) / m_cellSize) - 2;
+	const float z = ((cursorPos.z - radius) / m_cellSize) - 2;
+	const int startX = (int)max(0, x);
+	const int startZ = (int)max(0, z);
+	const int rowSize = (int)((radius * 2) / m_cellSize) + 4;
+	const int colSize = (int)((radius * 2) / m_cellSize) + 4;
+	const int endZ = min(startZ + rowSize, m_rowVtx);
+	const int endX = min(startX + colSize, m_colVtx);
+
+	// Update Vertices Normal
+	for (int r = startZ; r <endZ; ++r)
+	{
+		for (int c = startX; c < endX; ++c)
+		{
+			Vector3 n(0, 0, 0);
+			Vector3 p0 = terrain.m_heightMap[r*terrain.m_colVtx + c].p;
+
+			//   z (row)
+			//   |
+			//   |
+			//   |
+			//   |
+			//  -|--------------> x (col)
+			//  Axis X-Z
+			//
+			//
+			// (r+1,c-1)
+			// * ---------- * ----------- * (r+1, c+1)
+			// |          / |           / |
+			// |       /    |        /    |
+			// |    /       |     /       |
+			// | /          | (r,c)       | (r,c+1)
+			// * ---------- * ----------- *
+			// |         /  |          /  |
+			// |       /    |        /    |
+			// |    /       |     /       |
+			// | /          |   /         |
+			// * ---------- * ----------- * (r-1,c+1)
+			// (r-1,c-1)
+			//
+
+			// left top triangle 1
+			if ((r + 1 < terrain.m_rowVtx) && (c - 1 >= 0))
+			{
+				Vector3 p1 = terrain.m_heightMap[r*terrain.m_colVtx + (c - 1)].p;
+				Vector3 p2 = terrain.m_heightMap[(r + 1)*terrain.m_colVtx + c].p;
+				Triangle t(p0, p1, p2);
+				n += t.Normal();
+			}
+
+			// right top triangle 1
+			if ((r + 1 < terrain.m_rowVtx) && (c + 1 < terrain.m_colVtx))
+			{
+				Vector3 p1 = terrain.m_heightMap[(r + 1)*terrain.m_colVtx + c].p;
+				Vector3 p2 = terrain.m_heightMap[(r + 1)*terrain.m_colVtx + (c + 1)].p;
+				Triangle t(p0, p1, p2);
+				n += t.Normal();
+			}
+
+			// right top triangle 2
+			if ((r + 1 < terrain.m_rowVtx) && (c + 1 < terrain.m_colVtx))
+			{
+				Vector3 p1 = terrain.m_heightMap[(r + 1)*terrain.m_colVtx + (c + 1)].p;
+				Vector3 p2 = terrain.m_heightMap[r*terrain.m_colVtx + (c + 1)].p;
+				Triangle t(p0, p1, p2);
+				n += t.Normal();
+			}
+
+
+			// right bottom triangle 1
+			if ((r - 1 >= 0) && (c + 1 < terrain.m_colVtx))
+			{
+				Vector3 p1 = terrain.m_heightMap[r*terrain.m_colVtx + (c + 1)].p;
+				Vector3 p2 = terrain.m_heightMap[(r - 1)*terrain.m_colVtx + c].p;
+				Triangle t(p0, p1, p2);
+				n += t.Normal();
+			}
+
+			// left bottom triangle 1
+			if ((r - 1 >= 0) && (c - 1 >= 0))
+			{
+				Vector3 p1 = terrain.m_heightMap[(r - 1)*terrain.m_colVtx + c].p;
+				Vector3 p2 = terrain.m_heightMap[(r - 1)*terrain.m_colVtx + (c - 1)].p;
+				Triangle t(p0, p1, p2);
+				n += t.Normal();
+			}
+
+			// left bottom triangle 2
+			if ((r - 1 >= 0) && (c - 1 >= 0))
+			{
+				Vector3 p1 = terrain.m_heightMap[(r - 1)*terrain.m_colVtx + (c - 1)].p;
+				Vector3 p2 = terrain.m_heightMap[r*terrain.m_colVtx + (c - 1)].p;
+				Triangle t(p0, p1, p2);
+				n += t.Normal();
+			}
+
+			//n /= (float)cnt;
+			n.Normalize();
+			terrain.m_heightMap[r*terrain.m_colVtx + c].n = n;
+		}
+	}
+}
+
+
+void cTerrain::UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const int tileCount)
+{
+	// initialize map
+	// 
+	//   z (row)
+	//   |
+	//   |
+	//   |
+	//   |
+	//  -|--------------> x (column)
+	//  Axis X-Z
+	//
+	//
+	// 8      9      10      11
+	// * ---- * ---- * ---- *
+	// |      |      |      |
+	// |4     | 5    |6     |7
+	// * ---- * ---- * ---- *
+	// |      |      |      |
+	// |0     | 1    | 2    |3
+	// * ---- * ---- * ---- *
+	//
+	// Terrain Vertex Store Order
+	//
+
+	//
+	// + --------------- + --------------- + --------------- +
+	// |                 |                 |                 |
+	// | tile(r=2,c=0)   | tile(r=2,c=1)   |  tile(r=2,c=2)  |
+	// |                 |                 |                 |
+	// + --------------- + --------------- + --------------- +
+	// |                 |                 |                 |
+	// | tile(r=1,c=0)   | tile(r=1,c=1)   |  tile(r=1,c=2)  |
+	// |                 |                 |                 |
+	// + --------------- + --------------- + --------------- +
+	// |                 |                 |                 |
+	// | tile(r=0,c=0)   | tile(r=0,c=1)   |  tile(r=0,c=2)  |
+	// |                 |                 |                 |
+	// + --------------- + --------------- + --------------- +
+	//
+	// Tile Row-Col Axis
+	//
+
+	// 
+	//   z
+	//   |
+	//   |
+	//   |
+	//   |
+	//  -|--------------> x
+	//  Axis X-Z
+	//
+	//
+	// uv(0,0)=uv0         uv(1,0)
+	// 0      1      2      3
+	// * ---- * ---- * ---- *
+	// |      |      |      |
+	// |4     | 5    |6     |7
+	// * ---- * - +  * ---- *
+	// |      |center|      |
+	// |8     | 9    | 10   |11
+	// * ---- * ---- * ---- *
+	// uv(0,1)             uv(1,1)=uv1
+	//
+	// Grid Vertex Store Order
+	//
+
+	cTerrain &terrain = *this;
+	const int cellCountPerTile_Col = terrain.m_cols / terrain.m_tileCols;
+	const int cellCountPerTile_Row = terrain.m_rows / terrain.m_tileRows;
+	const int vertexCountPerTile_Col = (terrain.m_cols / terrain.m_tileCols) + 1;
+	const int vertexCountPerTile_Row = (terrain.m_rows / terrain.m_tileRows) + 1;
+
+	//for (auto tile : tiles)
+	for (int i = 0; i < tileCount; ++i)
+	{
+		cTile *tile = tiles[i];
+		const int mapStartIdx = (tile->m_location.x * cellCountPerTile_Row * terrain.m_colVtx)
+			+ (tile->m_location.y * cellCountPerTile_Col)
+			+ (cellCountPerTile_Row * terrain.m_colVtx); // 왜냐하면, 그리드 좌표계와 지형 좌표계 row 가 반대이기 때문임.
+
+														 // all tiles must be same size, same vertex size
+		if (!m_cpyVtxBuff.m_buff)
+			m_cpyVtxBuff.Create(renderer, tile->m_ground->m_vtxBuff);
+
+		if (!m_cpyVtxBuff.CopyFrom(renderer, tile->m_ground->m_vtxBuff))
+			break;
+
+		cVertexBuffer &dstVb = tile->m_ground->m_vtxBuff;
+		sVertexNormTex *src = (sVertexNormTex*)m_cpyVtxBuff.Lock(renderer);
+		sVertexNormTex *dst = (sVertexNormTex*)dstVb.Lock(renderer);
+
+		const Matrix44 invTm = tile->GetWorldMatrix().Inverse();
+		for (int r = 0; r < vertexCountPerTile_Row; ++r)
+		{
+			for (int c = 0; c < vertexCountPerTile_Col; ++c)
+			{
+				const int mapIdx = mapStartIdx - (r * terrain.m_colVtx) + c;
+				const int srcIdx = (r * vertexCountPerTile_Col) + c;
+				dst[srcIdx] = src[srcIdx];
+				dst[srcIdx].p = terrain.m_heightMap[mapIdx].p * invTm;
+				dst[srcIdx].n = terrain.m_heightMap[mapIdx].n;
+			}
+		}
+
+		m_cpyVtxBuff.Unlock(renderer);
+		dstVb.Unlock(renderer);
+	}
 }

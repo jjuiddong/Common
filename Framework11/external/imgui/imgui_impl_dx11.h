@@ -48,38 +48,26 @@ public:
 
 
 public:
-	//HWND g_hWnd = 0;
-	//INT64 g_Time = 0;
-	//INT64 g_TicksPerSecond = 0;
-	//LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
-	//LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL;
-	//LPDIRECT3DINDEXBUFFER9 g_pIB = NULL;
-	//LPDIRECT3DTEXTURE9 g_FontTexture = NULL;
-	//int g_VertexBufferSize = 5000;
-	//int g_IndexBufferSize = 10000;
-	//ImGuiContext *m_context;
-	//ImFontAtlas m_FontAtlas;
+	INT64                    m_Time = 0;
+	INT64                    m_TicksPerSecond = 0;
 
-	INT64                    g_Time = 0;
-	INT64                    g_TicksPerSecond = 0;
-
-	HWND                     g_hWnd = 0;
-	ID3D11Device*            g_pd3dDevice = NULL;
-	ID3D11DeviceContext*     g_pd3dDeviceContext = NULL;
-	ID3D11Buffer*            g_pVB = NULL;
-	ID3D11Buffer*            g_pIB = NULL;
-	ID3D10Blob *             g_pVertexShaderBlob = NULL;
-	ID3D11VertexShader*      g_pVertexShader = NULL;
-	ID3D11InputLayout*       g_pInputLayout = NULL;
-	ID3D11Buffer*            g_pVertexConstantBuffer = NULL;
-	ID3D10Blob *             g_pPixelShaderBlob = NULL;
-	ID3D11PixelShader*       g_pPixelShader = NULL;
-	ID3D11SamplerState*      g_pFontSampler = NULL;
-	ID3D11ShaderResourceView*g_pFontTextureView = NULL;
-	ID3D11RasterizerState*   g_pRasterizerState = NULL;
-	ID3D11BlendState*        g_pBlendState = NULL;
-	ID3D11DepthStencilState* g_pDepthStencilState = NULL;
-	int                      g_VertexBufferSize = 5000, g_IndexBufferSize = 10000;
+	HWND                     m_hWnd = 0;
+	ID3D11Device*            m_pd3dDevice = NULL;
+	ID3D11DeviceContext*     m_pd3dDeviceContext = NULL;
+	ID3D11Buffer*            m_pVB = NULL;
+	ID3D11Buffer*            m_pIB = NULL;
+	ID3D10Blob *             m_pVertexShaderBlob = NULL;
+	ID3D11VertexShader*      m_pVertexShader = NULL;
+	ID3D11InputLayout*       m_pInputLayout = NULL;
+	ID3D11Buffer*            m_pVertexConstantBuffer = NULL;
+	ID3D10Blob *             m_pPixelShaderBlob = NULL;
+	ID3D11PixelShader*       m_pPixelShader = NULL;
+	ID3D11SamplerState*      m_pFontSampler = NULL;
+	ID3D11ShaderResourceView*m_pFontTextureView = NULL;
+	ID3D11RasterizerState*   m_pRasterizerState = NULL;
+	ID3D11BlendState*        m_pBlendState = NULL;
+	ID3D11DepthStencilState* m_pDepthStencilState = NULL;
+	int                      m_VertexBufferSize = 5000, m_IndexBufferSize = 10000;
 
 	ImGuiContext *m_context;
 	ImFontAtlas *m_FontAtlas;

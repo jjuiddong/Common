@@ -62,7 +62,7 @@ bool cTile::Create(cRenderer &renderer
 		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
 		, cColor::WHITE, textureFileName, uv0, uv1, uvFactor
 		, true);
-	m_ground->SetRenderFlag(eRenderFlag::SHADOW, true);
+	m_ground->m_renderFlags = eRenderFlag::VISIBLE | eRenderFlag::TERRAIN | eRenderFlag::SHADOW;
 	m_ground->SetOpFlag(eOpFlag::COLLISION, false);
 	m_ground->m_isLineDrawing = true;
 	//m_ground->m_transform.pos.y = -3.f;
@@ -90,8 +90,11 @@ bool cTile::Update(cRenderer &renderer, const float deltaSeconds)
 }
 
 
+// 쉐도우 맵에 그리기위한 렌더 함수
+// 쉐도우 플래그가 있는 모델들만 그린다.
 void cTile::PreRender(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
+	, const int flags //= 1
 )
 {
 	RET(!(m_renderFlags & eRenderFlag::SHADOW));

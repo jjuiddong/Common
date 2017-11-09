@@ -19,7 +19,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 	, const float width //=1
 	, const float height//=1
 	, const Vector3 &pos //=Vector3(0,0,0)
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::BLACK
 )
 {
@@ -70,7 +70,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::DIFFUSE)
+	if (vtxType & eVertexType::COLOR)
 		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::TEXTURE)
 		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
@@ -93,7 +93,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 			*(Vector3*)(pvtx + posOffset) = v;
 		//if (vtxType & eVertexType::NORMAL)
 		//	*(Vector3*)(pvtx + normOffset) = normal;
-		if (vtxType & eVertexType::DIFFUSE)
+		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
 		//if (vtxType & eVertexType::TEXTURE)
 		//	*(Vector2*)(pvtx + texOffset) = uv[i];

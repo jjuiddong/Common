@@ -13,7 +13,7 @@ cCube::cCube()
 
 cCube::cCube(cRenderer &renderer
 	, const cBoundingBox &bbox
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::WHITE
 )
 	: cNode(common::GenerateId(), "cube", eNodeType::MODEL)
@@ -24,7 +24,7 @@ cCube::cCube(cRenderer &renderer
 
 bool cCube::Create(cRenderer &renderer
 	, const cBoundingBox &bbox
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= Color::WHITE
 )
 {
@@ -37,7 +37,7 @@ bool cCube::Create(cRenderer &renderer
 
 bool cCube::Create(
 	cRenderer &renderer
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= Color::WHITE
 )
 {

@@ -72,6 +72,6 @@ void cLine::SetLine(const Vector3 &p0, const Vector3 &p1, const float width)
 
 void cLine::SetColor(const cColor &color)
 {
-	assert(0);
+	m_color = color;
 }
 

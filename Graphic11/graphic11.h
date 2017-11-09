@@ -87,8 +87,6 @@ namespace graphic {
 #include "base/meshbuffer.h"
 #include "base/samplerstate.h"
 #include "base/texture.h"
-#include "base/rendertarget.h"
-#include "base/depthbuffer.h"
 //#include "base/texturecube.h"
 #include "base/vertexformat.h"
 
@@ -104,7 +102,8 @@ namespace graphic {
 #include "base/grid.h"
 #include "base/pyramid.h"
 #include "base/line.h"
-//#include "base/line2d.h"
+#include "base/line2d.h"
+#include "base/rect3d.h"
 #include "base/cube.h"
 #include "base/shader11.h"
 #include "base/constantbuffer.h"
@@ -122,6 +121,8 @@ namespace graphic {
 #include "base/billboard.h"
 #include "base/text.h"
 #include "base/text3d3.h"
+#include "base/rendertarget.h"
+#include "base/depthbuffer.h"
 //
 //
 //#include "collision/collision.h"
@@ -158,7 +159,7 @@ namespace graphic {
 #include "terrain/cascadedshadowmap.h"
 #include "terrain/water.h"
 #include "terrain/ocean.h"
-#include "terrain/terrain2.h"
+#include "terrain/terrain.h"
 #include "terrain/tile.h"
 #include "terrain/terraincursor.h"
 //#include "terrain/terraineditor.h"

@@ -15,7 +15,7 @@ namespace graphic
 		virtual ~cGrid();
 
 		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-			, const int vertexType = (eVertexType::POSITION | eVertexType::DIFFUSE)
+			, const int vertexType = (eVertexType::POSITION | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE
 			, const char *textureFileName = g_defaultTexture
 			, const Vector2 &uv0 = Vector2(0, 0)

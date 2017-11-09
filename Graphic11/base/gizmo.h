@@ -38,7 +38,7 @@ namespace graphic
 			, const XMMATRIX &parentTm = XMIdentity
 		);
 
-		bool IsEditMode() const;
+		bool IsKeepEditMode() const;
 		void Cancel();
 
 
@@ -50,7 +50,7 @@ namespace graphic
 
 
 	public:
-		bool m_isEdit; // if picking node? true
+		bool m_isKeepEdit; // if picking node? true
 		eGizmoEditType::Enum m_type;
 		eGizmoEditAxis::Enum m_axisType;
 		eGizmoTransform::Enum m_transformType;
@@ -59,12 +59,11 @@ namespace graphic
 		cTorus m_torus;
 		cDbgArrow m_arrow;
 		bool m_pick[6]; // x,y,z-axis, x-z, y-z, x-y plane (eGizmoEditAxis order)
-		float m_deltaSconds;
 		POINT m_prevMousePos;
-		POINT m_mousePos;
+		POINT m_mousePos; // window 2d mouse pos
 		vector<cBoundingBox> m_ringBbox; // rotation ring picking
 	};
 
 
-	inline bool cGizmo::IsEditMode() const { return m_controlNode && m_isEdit; }
+	inline bool cGizmo::IsKeepEditMode() const { return m_controlNode && m_isKeepEdit; }
 }

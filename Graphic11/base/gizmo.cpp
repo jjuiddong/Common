@@ -10,9 +10,8 @@ cGizmo::cGizmo()
 	, m_type(eGizmoEditType::TRANSLATE)
 	, m_axisType(eGizmoEditAxis::X)
  	, m_transformType(eGizmoTransform::LOCAL)
-	, m_isEdit(false)
+	, m_isKeepEdit(false)
 	, m_controlNode(NULL)
-	, m_deltaSconds(0)
 {
 	ZeroMemory(m_pick, sizeof(m_pick));
 }
@@ -25,7 +24,7 @@ cGizmo::~cGizmo()
 bool cGizmo::Create(cRenderer &renderer)
 {
 	m_quad.Create(renderer, 1.f, 1.f, Vector3(0,0,0)
-		, eVertexType::POSITION | eVertexType::DIFFUSE);
+		, eVertexType::POSITION | eVertexType::COLOR);
 
 	const int stack = 40;
 	const float radius = 2.f;
@@ -171,8 +170,6 @@ bool cGizmo::Render(cRenderer &renderer
 
 	m_mousePos = mousePos;
 
-	//CommonStates states(renderer.GetDevice());
-	//renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0xffffffff);
 	switch (m_type)
 	{
 	case eGizmoEditType::TRANSLATE: RenderTranslate(renderer, parentTm);break;
@@ -180,7 +177,6 @@ bool cGizmo::Render(cRenderer &renderer
 	case eGizmoEditType::ROTATE: RenderRotate(renderer, parentTm); break;
 	default: assert(0); break;
 	}
-	//renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0xffffffff);
 
 	if (isMouseClick)
 	{
@@ -188,7 +184,7 @@ bool cGizmo::Render(cRenderer &renderer
 		{
 			if (m_pick[i])
 			{
-				m_isEdit = true;
+				m_isKeepEdit = true;
 				m_axisType = (eGizmoEditAxis::Enum)i;
 				m_prevMousePos = mousePos;
 				break;
@@ -197,10 +193,10 @@ bool cGizmo::Render(cRenderer &renderer
 	}
 	else
 	{
-		m_isEdit = false;
+		m_isKeepEdit = false;
 	}
 
-	return m_isEdit;
+	return m_isKeepEdit;
 }
 
 
@@ -210,7 +206,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 {
 	ZeroMemory(m_pick, sizeof(m_pick));
 
-	if (m_isEdit)
+	if (m_isKeepEdit)
 		m_pick[m_axisType] = true;
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
@@ -235,8 +231,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
 	const Vector3 px1 = Vector3(2, 0, 0) * m;
 	m_arrow.SetDirection(px0, px1, arrowSize);
-	if (!m_isEdit)
-		m_pick[0] = m_arrow.Picking(ray, ptm);
+	if (!m_isKeepEdit)
+		m_pick[0] = m_arrow.Picking(ray, ptm, false);
 	m_arrow.m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
 	m_arrow.Render(renderer, ptm);
 
@@ -244,8 +240,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	const Vector3 py0 = Vector3(0, 0.3f, 0) * m;
 	const Vector3 py1 = Vector3(0, 2, 0) * m;
 	m_arrow.SetDirection(py0, py1, arrowSize);
-	if (!m_isEdit)
-		m_pick[1] = m_arrow.Picking(ray, ptm);
+	if (!m_isKeepEdit)
+		m_pick[1] = m_arrow.Picking(ray, ptm, false);
 	m_arrow.m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
 	m_arrow.Render(renderer, ptm);
 
@@ -253,8 +249,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	const Vector3 pz0 = Vector3(0, 0, 0.3f) * m;
 	const Vector3 pz1 = Vector3(0, 0, 2) * m;
 	m_arrow.SetDirection(pz0, pz1, arrowSize);
-	if (!m_isEdit)
-		m_pick[2] = m_arrow.Picking(ray, ptm);
+	if (!m_isKeepEdit)
+		m_pick[2] = m_arrow.Picking(ray, ptm, false);
 	m_arrow.m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
 	m_arrow.Render(renderer, ptm);
 
@@ -268,8 +264,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		tfmXZ.rot.SetRotationArc(Vector3(0, 1, 0), Vector3(0, 0, 1));
 		tfmXZ.pos = Vector3(2.f, 0, 2.f);
 		const XMMATRIX ptmXZ = tfmXZ.GetMatrixXM() * tm;
-		if (!m_isEdit)
-			m_pick[3] = m_quad.Picking(ray, eNodeType::MODEL, ptmXZ) ? true : false;
+		if (!m_isKeepEdit)
+			m_pick[3] = m_quad.Picking(ray, eNodeType::MODEL, ptmXZ, false) ? true : false;
 		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[3] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
 		m_quad.Render(renderer, ptmXZ);
 
@@ -278,8 +274,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		tfmYZ.rot.SetRotationArc(Vector3(1, 0, 0), Vector3(0, 0, 1));
 		tfmYZ.pos = Vector3(0, 2.f, 2.f);
 		const XMMATRIX ptmYZ = tfmYZ.GetMatrixXM() * tm;
-		if (!m_isEdit)
-			m_pick[4] = m_quad.Picking(ray, eNodeType::MODEL, ptmYZ) ? true : false;
+		if (!m_isKeepEdit)
+			m_pick[4] = m_quad.Picking(ray, eNodeType::MODEL, ptmYZ, false) ? true : false;
 		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[4] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
 		m_quad.Render(renderer, ptmYZ);
 
@@ -287,8 +283,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		Transform tfmXY;
 		tfmXY.pos = Vector3(2.f, 2.f, 0);
 		const XMMATRIX ptmXY = tfmXY.GetMatrixXM() * tm;
-		if (!m_isEdit)
-			m_pick[5] = m_quad.Picking(ray, eNodeType::MODEL, ptmXY) ? true : false;
+		if (!m_isKeepEdit)
+			m_pick[5] = m_quad.Picking(ray, eNodeType::MODEL, ptmXY, false) ? true : false;
 		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[5] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
 		m_quad.Render(renderer, ptmXY);
 	}
@@ -298,7 +294,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
 
 
-	if (m_isEdit)
+	if (m_isKeepEdit)
 	{
 		const Vector3 nodePosW = m_controlNode->GetWorldMatrix().GetPosition();
 		Plane groundXZ(Vector3(0, 1, 0), nodePosW);
@@ -357,7 +353,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 )
 {
 	ZeroMemory(m_pick, sizeof(m_pick));
-	if (m_isEdit)
+	if (m_isKeepEdit)
 		m_pick[m_axisType] = true;
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
@@ -381,31 +377,31 @@ void cGizmo::RenderScale(cRenderer &renderer
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
 	const Vector3 px1 = Vector3(2, 0, 0) * m;
 	m_arrow.SetDirection(px0, px1, arrowSize);
-	if (!m_isEdit)
-		m_pick[0] = m_arrow.Picking(ray, ptm);
+	if (!m_isKeepEdit)
+		m_pick[0] = m_arrow.Picking(ray, ptm, false);
 	m_arrow.m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
 	m_arrow.Render(renderer, ptm);
 
 	const Vector3 py0 = Vector3(0, 0.3f, 0) * m;
 	const Vector3 py1 = Vector3(0, 2, 0) * m;
 	m_arrow.SetDirection(py0, py1, arrowSize);
-	if (!m_isEdit)
-		m_pick[1] = m_arrow.Picking(ray, ptm);
+	if (!m_isKeepEdit)
+		m_pick[1] = m_arrow.Picking(ray, ptm, false);
 	m_arrow.m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
 	m_arrow.Render(renderer, ptm);
 
 	const Vector3 pz0 = Vector3(0, 0, 0.3f) * m;
 	const Vector3 pz1 = Vector3(0, 0, 2) * m;
 	m_arrow.SetDirection(pz0, pz1, arrowSize);
-	if (!m_isEdit)
-		m_pick[2] = m_arrow.Picking(ray, ptm);
+	if (!m_isKeepEdit)
+		m_pick[2] = m_arrow.Picking(ray, ptm, false);
 	m_arrow.m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
 	m_arrow.Render(renderer, ptm);
 
 	// recovery material
 	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
 
-	if (m_isEdit)
+	if (m_isKeepEdit)
 	{
 		const Vector3 nodePosW = m_controlNode->GetWorldMatrix().GetPosition();
 		Plane groundXZ(Vector3(0, 1, 0), nodePosW);
@@ -446,7 +442,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 )
 {
 	ZeroMemory(m_pick, sizeof(m_pick));
-	if (m_isEdit)
+	if (m_isKeepEdit)
 		m_pick[m_axisType] = true;
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
@@ -479,7 +475,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 	tfmX.rot.SetRotationArc(Vector3(1, 0, 0), Vector3(0, 1, 0));
 	tfmX.pos *= 1 / scale;
 	const XMMATRIX tmX = tfmX.GetMatrixXM() * scaleTm.GetMatrixXM() * parentTm;
-	if (!m_isEdit)
+	if (!m_isKeepEdit)
 	{
 		for (auto &bbox : m_ringBbox)
 		{
@@ -499,7 +495,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 	Transform tfmY = m_transform;
 	tfmY.pos *= 1 / scale;
 	const XMMATRIX tmY = tfmY.GetMatrixXM() * scaleTm.GetMatrixXM() * parentTm;
-	if (!m_isEdit)
+	if (!m_isKeepEdit)
 	{
 		for (auto &bbox : m_ringBbox)
 		{
@@ -520,7 +516,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 	tfmZ.rot.SetRotationArc(Vector3(0, 0, 1), Vector3(0, 1, 0));
 	tfmZ.pos *= 1 / scale;
 	const XMMATRIX tmZ = tfmZ.GetMatrixXM() * scaleTm.GetMatrixXM() * parentTm;
-	if (!m_isEdit)
+	if (!m_isKeepEdit)
 	{
 		for (auto &bbox : m_ringBbox)
 		{
@@ -551,7 +547,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 		m_pick[axis] = true;
 	}
 
-	if (m_isEdit)
+	if (m_isKeepEdit)
 	{
 		Plane groundXZ(Vector3(0, 1, 0), m_transform.pos);
 		Plane groundYZ(Vector3(1, 0, 0), m_transform.pos);

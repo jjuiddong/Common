@@ -38,7 +38,6 @@ namespace graphic
 
 	public:
 		ePickMode::Enum m_mode; // default : SINGLE_PICK
-		cCamera *m_mainCamera; // reference
 		POINT m_offset;
 		vector<cNode*> m_nodes;
 		vector<iPickListener*> m_listeners;

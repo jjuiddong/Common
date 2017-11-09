@@ -16,11 +16,11 @@ namespace graphic
 	public:
 		cCube();
 		cCube(cRenderer &renderer, const cBoundingBox &bbox
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE);
 
 		bool Create(cRenderer &renderer, const cBoundingBox &bbox
-			, const int cubeType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE);
 		bool Create(cRenderer &renderer, const int cubeType, const cColor &color = cColor::WHITE);
 		void SetCube(const cBoundingBox &bbox);

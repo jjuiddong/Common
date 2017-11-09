@@ -53,7 +53,7 @@ void cDbgBox::SetBox(const Transform &tfm)
 //	, const cColor &color //= cColor::BLACK
 //)
 //{
-//	m_shape.Create(renderer, vertices, eVertexType::POSITION | eVertexType::DIFFUSE, color);
+//	m_shape.Create(renderer, vertices, eVertexType::POSITION | eVertexType::COLOR, color);
 //	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
 //}
 
@@ -78,7 +78,7 @@ void cDbgBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::COLOR);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();

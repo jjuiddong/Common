@@ -5,7 +5,14 @@
 // 2017-08-21
 //	- DX11 Upgrade
 //
+// 2017-11-08
+//	- Add Overriding Method
+//		- WriteNode, CreateNode
+//
 #pragma once
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 
 namespace graphic
@@ -14,7 +21,7 @@ namespace graphic
 	class cTerrainLoader
 	{
 	public:
-		cTerrainLoader(cTerrain2 *terrain);
+		cTerrainLoader(cTerrain *terrain);
 		virtual ~cTerrainLoader();
 
 		bool Write(const StrPath &fileName);
@@ -24,10 +31,12 @@ namespace graphic
 	protected:
 		bool WriteHeightmap(const char *fileName);
 		bool ReadHeightmap(const char *fileName);
+		virtual bool WriteNode(cNode *node, INOUT boost::property_tree::ptree &tree) { return false; }
+		virtual cNode* CreateNode(cRenderer &renderer, const boost::property_tree::ptree &tree);
 
 
 	public:
-		cTerrain2 *m_terrain; // reference
+		cTerrain *m_terrain; // reference
 	};
 }
 

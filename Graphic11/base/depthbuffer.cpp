@@ -68,6 +68,8 @@ bool cDepthBuffer::Create(cRenderer &renderer
 	hr = renderer.GetDevice()->CreateShaderResourceView(m_texture, &descSRV, &m_depthSRV);
 	RETV2(FAILED(hr), false);
 
+	// Debugging
+	m_quad.Create(renderer, 310, 0, 300.f, 300.f);
 	return true;
 }
 
@@ -134,4 +136,12 @@ void cDepthBuffer::Clear()
 	SAFE_RELEASE(m_texture);
 	SAFE_RELEASE(m_depthSRV);
 	SAFE_RELEASE(m_depthDSV);
+}
+
+
+void cDepthBuffer::DebugRender(cRenderer &renderer)
+{
+	cTexture tex(m_depthSRV);
+	m_quad.m_texture = &tex;
+	m_quad.Render(renderer);
 }

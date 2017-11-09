@@ -7,7 +7,6 @@ using namespace graphic;
 
 cPickManager::cPickManager()
 	: m_mode(ePickMode::SINGLE)
-	, m_mainCamera(NULL)
 	, m_offset({ 0,0 })
 {
 }
@@ -37,10 +36,10 @@ bool cPickManager::Remove(cNode *node)
 
 bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt, const ePickState::Enum state)
 {
-	RETV(!m_mainCamera, false);
 	RETV(m_nodes.empty(), false);
 
-	const Ray ray = m_mainCamera->GetRay(mousePt.x + m_offset.x, mousePt.y + m_offset.y);
+	const Ray ray = GetMainCamera().GetRay(mousePt.x + m_offset.x, mousePt.y + m_offset.y);
+	const XMMATRIX mZoom = GetMainCamera().GetZoomMatrix().GetMatrixXM();
 
 	if (ePickMode::SINGLE == m_mode)
 	{
@@ -52,7 +51,8 @@ bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt, const eP
 		{
 			if (node->IsOpFlag(eOpFlag::PICK) && (cnt < 32))
 			{
-				if (node->Picking(ray, node->m_type))
+				const XMMATRIX parentTm = node->GetParentWorldMatrix().GetMatrixXM();
+				if (node->Picking(ray, node->m_type, parentTm*mZoom))
 				{
 					nodes[cnt] = node;
 					lens[cnt] = node->GetWorldTransform().pos.Distance(ray.orig);
@@ -91,7 +91,8 @@ bool cPickManager::Pick(const float deltaSeconds, const POINT &mousePt, const eP
 		{
 			if (node->IsOpFlag(eOpFlag::PICK))
 			{
-				if (node->Picking(ray, node->m_type))
+				const XMMATRIX parentTm = node->GetParentWorldMatrix().GetMatrixXM();
+				if (node->Picking(ray, node->m_type, parentTm*mZoom))
 				{
 					node->OnPicking(state); // Trigger Event
 					BoradcastPickEvent(node, state);

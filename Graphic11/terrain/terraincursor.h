@@ -22,10 +22,10 @@ namespace graphic
 
 		bool Create(cRenderer &renderer);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
-		void GeometryEdit(cRenderer &renderer, cTerrain2 &terrain, const eGeoEditType::Enum editType
+		void GeometryEdit(cRenderer &renderer, cTerrain &terrain, const eGeoEditType::Enum editType
 			, const Vector3 &cursorPos, const float deltaSeconds, const bool isHilightTile = false);
 
-		void UpdateCursor(cRenderer &renderer, cTerrain2 &terrain, const Vector3 &cursorPos);
+		void UpdateCursor(cRenderer &renderer, cTerrain &terrain, const Vector3 &cursorPos);
 
 
 	public:

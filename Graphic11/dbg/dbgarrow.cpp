@@ -65,8 +65,9 @@ void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
 
 bool cDbgArrow::Picking(const Ray &ray
 	, const XMMATRIX &parentTm //= XMIdentity
+	, const bool isSpherePicking //= true
 )
 {
-	return m_head.Picking(ray, eNodeType::MODEL, parentTm) 
-		|| m_body.Picking(ray, eNodeType::MODEL, parentTm);
+	return m_head.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking) 
+		|| m_body.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking);
 }

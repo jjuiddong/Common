@@ -49,7 +49,7 @@ namespace graphic
 			);
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
-		virtual void PreRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
+		virtual void PreRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 		virtual void DebugRender(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 

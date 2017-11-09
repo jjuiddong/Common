@@ -10,7 +10,7 @@ namespace ai
 
 	struct sVertex
 	{
-		enum {MAX_EDGE = 5};
+		enum {MAX_EDGE = 10};
 
 		int type; //0:path point, 1:destination1, 2:destination2
 		Vector3 pos;

@@ -1,155 +1,82 @@
+//
+// 2017-05-13, jjuiddong
+// terrain 
+// - lighting, model
+//
+// 2017-08-11
+//	- Upgrade DX11
+// 
 #pragma once
 
 
 namespace graphic
 {
 
-	struct sSplatLayer
+	class cTile;
+	class cTerrain : public cNode
 	{
-		cTexture *texture;	
-		sSplatLayer() : texture(NULL) {}
-	};
-
-
-	class cTerrain
-	{
-	protected:
-		enum {
-			MAX_LAYER = 4,
-			ALPHA_TEXTURE_SIZE_W = 256,
-			ALPHA_TEXTURE_SIZE_H = 256,
-		};
-
-
 	public:
 		cTerrain();
 		virtual ~cTerrain();
 
-		//-----------------------------------------------------------------------------
-		// Create Terrain
-		bool CreateFromTRNFile(cRenderer &renderer, const StrPath &fileName);
+		virtual bool Create(cRenderer &renderer, const sRectf &rect);
+		virtual bool Create(cRenderer &renderer, const int rowCnt, const int colCnt, const float cellSize
+			, const int rowTileCnt, const int colTileCnt );
 
-		bool CreateFromRawTerrain(cRenderer &renderer, const sRawTerrain &rawTerrain);
+		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 
-		bool CreateFromHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
-			const StrPath &textureFileName, const float heightFactor=3.f,
-			const float textureUVFactor=1.f, const int rowCellCount=64, 
-			const int colCellCount=64, const float cellSize=50.f );
+		void BuildCascadedShadowMap(cRenderer &renderer, INOUT cCascadedShadowMap &ccsm, const XMMATRIX &tm = XMIdentity);
+		bool RenderCascadedShadowMap(cRenderer &renderer, cCascadedShadowMap &ccsm, const XMMATRIX &tm = XMIdentity, const int flags = 1);
 
-		bool CreateFromGRDFormat(cRenderer &renderer, const StrPath &gridFileName,
-			const StrPath &textureFileName, const float heightFactor=3.f,
-			const float textureUVFactor=1.f );
-
-		bool CreateTerrain(cRenderer &renderer, const int rowCellCount = 64, const int colCellCount = 64,
-			const float cellSize=50.f, const float textureUVFactor=1.f );
-
-		bool CreateTerrainTexture(cRenderer &renderer, const StrPath &textureFileName);
-
-		float GetHeight(const float x, const float z);
-		float GetHeightFromRay( const Vector3 &orig, const Vector3 &dir, OUT Vector3 &out );
-		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT Vector3 &out);
-		cModel* PickModel(const Vector3 &orig, const Vector3 &dir);
-
-		bool IsLoaded() const;
-
-
-		//-----------------------------------------------------------------------------
-		// Model
-		cModel* AddRigidModel(cRenderer &renderer, const cModel &model);
-		cModel* AddRigidModel(cRenderer &renderer, const StrPath &fileName);
-		cModel* FindRigidModel(const int id);
-		bool RemoveRigidModel(cModel *model, const bool destruct=true);
-		bool RemoveRigidModel(const int id, const bool destruct=true);
-		vector<cModel*>& GetRigidModels();
-
-
-		//-----------------------------------------------------------------------------
-		// Render
-		virtual void PreRender(cRenderer &renderer);
-		virtual void Render(cRenderer &renderer);
-		void RenderModelShadow(cRenderer &renderer, cModel &model);
-		virtual void Move(const float elapseTime);
-
-
-		//-----------------------------------------------------------------------------
-		// Terrain Information
-		int GetRowCellCount() const;
-		int GetColCellCount() const;
-		float GetCellSize() const;
-		float GetTerrainWidth() const;
-		float GetTerrainHeight() const;
-		const StrPath& GetTextureName();
-		float GetTextureUVFactor() const;
-		float GetHeightFactor() const;
-		const StrPath& GetHeightMapFileName() const;
-
-
-		//-----------------------------------------------------------------------------
-		// Layer
-		int GetLayerCount() const;
-		const sSplatLayer& GetLayer(int layer) const;
-		void DeleteLayer(int layer);
-		cTexture& GetAlphaTexture();
-
-
-		//-----------------------------------------------------------------------------
-		// Effect
-		void SetRenderWater(const bool enable);
-		bool IstRenderWater() const;
-
+		virtual void RenderOption(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int option=0x1);
+		virtual void RenderDebug(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		virtual void Clear();
+
+		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true
+			, const XMMATRIX &tm = XMIdentity);
+		bool AddTile(cTile *model);
+		bool RemoveTile(cTile *model);
+		bool AddModel(cNode *model);
+		bool UpdateModel(cNode *model);
+		void SetDbgRendering(const bool isRender);
+		void SetShadowRendering(const bool isRender);
+
+		// Heightmap
+		float GetHeight(const float x, const float z);
+		float GetHeightMapEntry(int row, int col);
+		bool GetHeightFromRay(const Ray &ray, OUT Vector3 &out);
+		void HeightmapNormalize(const Vector3 &cursorPos, const float radius);
+		void HeightmapNormalize();
+		void UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const int tileCount);
 
 
 	protected:
-		virtual void RenderShader(cRenderer &renderer, cShader &shader, const Matrix44 &tm = Matrix44::Identity);
-		void RenderRigidModels(cRenderer &renderer,  const Matrix44 &tm);
-
-		float GetHeightMapEntry( int row, int col );
-		bool UpdateHeightMap(cRenderer &renderer, const StrPath &heightMapFileName,
-			const StrPath &textureFileName, const float heightFactor );
-
-		DWORD GetAlphaMask(const int layer);
-
-		// layer
-		void InitLayer(cRenderer &renderer);
-		sSplatLayer& GetTopLayer();
-		bool AddLayer();
+		cTile* GetNearestTile(const cNode *node);
 
 
 	public:
-		cSkyBox2 m_skybox;
-		cWater m_water;
-		bool m_isRenderWater; // default: true
+		vector<cTile*> m_tiles; // reference
+		map<hashcode, cTile*> m_tilemap; // reference (key = name hashcode)
+		map<int, cTile*> m_tilemap2; // reference (key = id)
 
-		cGrid2 m_grid;
-		float m_heightFactor;
-		StrPath m_heightMapFileName;
-		cShader *m_shader; // reference
+		// Debug Display
+		bool m_isShowDebug;
+		cDbgArrow m_dbgLightDir;
+		cLine m_dbgPlane; // Plane Normal Vector
 
-		// model
-		vector<cModel*> m_rigids;
-		bool m_isShowModel; // default : true
-
-		// splatting layer
-		vector<sSplatLayer> m_layer;
-		cTexture m_alphaTexture;
-		cTexture m_emptyTexture;
+		// Terrain Edit
+		vector<sVertexNorm> m_heightMap; // row tile * col tile * tile vertex count
+										 // m_map[row][col];
+		int m_cols;  // column cell count
+		int m_rows;	 // row cell count
+		float m_cellSize;
+		int m_colVtx;  // column vertex count
+		int m_rowVtx;	 // row vertex count
+		int m_tileCols; // row tile count
+		int m_tileRows; // column tile count
+		cTemporalBuffer m_cpyVtxBuff;
+		cTemporalBuffer m_cpyIdxBuff;
 	};
 
-
-	inline int cTerrain::GetRowCellCount() const { return m_grid.GetRowCellCount(); }
-	inline int cTerrain::GetColCellCount() const { return m_grid.GetColCellCount(); }
-	inline float cTerrain::GetCellSize() const { return m_grid.GetCellSize(); }
-	inline float cTerrain::GetTerrainWidth() const { return m_grid.GetWidth(); }
-	inline float cTerrain::GetTerrainHeight() const { return m_grid.GetHeight(); }
-	inline float cTerrain::GetTextureUVFactor() const { return m_grid.GetTextureUVFactor(); }
-	inline float cTerrain::GetHeightFactor() const { return m_heightFactor; }
-	inline vector<cModel*>& cTerrain::GetRigidModels() { return m_rigids; }
-	inline bool cTerrain::IsLoaded() const { return m_grid.GetRowCellCount() > 0; }
-	inline int cTerrain::GetLayerCount() const { return (int)m_layer.size(); }
-	inline const sSplatLayer& cTerrain::GetLayer(int layer) const { return m_layer[ layer]; }
-	inline cTexture& cTerrain::GetAlphaTexture() { return m_alphaTexture; }
-	inline const StrPath& cTerrain::GetHeightMapFileName() const { return m_heightMapFileName; }
-	inline void cTerrain::SetRenderWater(const bool enable) { m_isRenderWater = enable; }
-	inline bool cTerrain::IstRenderWater() const { return m_isRenderWater; }
 }

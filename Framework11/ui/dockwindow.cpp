@@ -898,7 +898,7 @@ void cDockWindow::DefaultEventProc(const sf::Event &evt)
 void cDockWindow::TriggerPickingEvent()
 {
 	ePickState::Enum state = ePickState::HOVER;
-	if (GetInput().m_mouseDown[0])
+	if (GetInput().m_mouseClicked[0])
 		state = ePickState::CLICK;
 	else if (GetInput().m_lBtnDbClick)
 		state = ePickState::DBCLICK;

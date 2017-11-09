@@ -58,7 +58,20 @@ bool cAssimpModel::Render(cRenderer &renderer
 )
 {
 	RETV(m_nodes.empty(), false);
-	RenderNode(renderer, techniqueName, skeleton, m_nodes[0], XMIdentity, parentTm, flags);
+
+	RenderNode(renderer, techniqueName, skeleton, m_nodes[0], XMIdentity, parentTm, (eRenderFlag::NOALPHABLEND));
+
+	if (HasAlphaBlend())
+	{
+		// 알파 블랜딩 메쉬는 컬링을 하지 않는다.
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->RSSetState(state.CullNone());
+
+		RenderNode(renderer, techniqueName, skeleton, m_nodes[0], XMIdentity, parentTm, eRenderFlag::ALPHABLEND);
+
+		renderer.GetDevContext()->RSSetState(state.CullCounterClockwise());
+	}
+
 	return true;
 }
 
@@ -101,7 +114,8 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 
 	// Render Meshes
 	for (auto idx : node.meshes)
-		m_meshes[idx]->Render(renderer, techniqueName, skeleton, tm, transformTm);
+		if (m_meshes[idx]->m_renderFlags & flags)
+			m_meshes[idx]->Render(renderer, techniqueName, skeleton, tm, transformTm);
 
 	// Render Child Node
 	for (auto idx : node.children)
@@ -167,4 +181,13 @@ int cAssimpModel::GetVertexType()
 	RETV(m_meshes.empty(), 0);
 	RETV(!m_meshes.back()->m_buffers, 0);
 	return m_meshes.back()->m_buffers->m_vtxType;
+}
+
+
+bool cAssimpModel::HasAlphaBlend()
+{
+	for (auto &mesh : m_meshes)
+		if (mesh->m_renderFlags & eRenderFlag::ALPHABLEND)
+			return true;
+	return false;
 }

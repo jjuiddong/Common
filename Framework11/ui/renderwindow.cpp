@@ -100,6 +100,7 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 bool cRenderWindow::TranslateEvent()
 {
 	m_gui.SetContext();
+	m_input.NewFrame();
 
 	sf::Event evt;
 	while (pollEvent(evt))

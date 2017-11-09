@@ -9,7 +9,7 @@ using namespace graphic;
 cMesh::cMesh()
 	: m_buffers(NULL)
 	, m_isShow(true)
-	, m_isHilight(false)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND)
 {
 }
 
@@ -27,6 +27,7 @@ bool cMesh::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh
 	Clear();
 
 	m_name = mesh.name;
+	m_renderFlags = mesh.renderFlags;
 	m_bones = mesh.bones;
 
 	CreateMaterials(renderer, mesh);
@@ -124,14 +125,7 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 
 	renderer.m_cbLight.Update(renderer, 1);
 	if (!m_mtrls.empty())
-	{
 		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
-		if (m_isHilight)
-		{
-			renderer.m_cbMaterial.m_v->ambient = XMVectorSet(0.3f, 0.3f, 1.f, 1);
-			renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0.3f, 0.3f, 1.f, 1);
-		}
-	}
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	if (!m_colorMap.empty())

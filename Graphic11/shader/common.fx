@@ -150,6 +150,14 @@ struct VSOUT_POSDIFFUSE
 	float4 Color : COLOR0;
 };
 
+struct VSOUT_POSDIFFUSE_TEX
+{
+	float4 Pos : SV_POSITION;
+	float4 Color : COLOR0;
+	float2 Tex : TEXCOORD0;
+};
+
+
 struct VSOUT_POSTEX
 {
 	float4 Pos : SV_POSITION;

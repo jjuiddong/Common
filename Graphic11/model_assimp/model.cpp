@@ -68,9 +68,16 @@ bool cModel::Render(cRenderer &renderer
 	RETV(!IsVisible(), false);
 	RETV(!m_model, false);
 
-	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	if (!(flags & m_renderFlags))
+		return false;
 
+	CommonStates state(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
+	
+	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
 	m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
+	
+	renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
 
 	__super::Render(renderer, parentTm, flags);
 	return true;
@@ -224,13 +231,4 @@ bool cModel::IsLoadFinish()
 {
 	return (eState::LOAD_MESH_FINISH == m_state)
 		|| (eState::LOAD_FINISH == m_state);
-}
-
-
-void cModel::Hilight(const bool isHilight)
-{
-	RET(!m_model);
-
-	for (auto &mesh : m_model->m_meshes)
-		mesh->m_isHilight = isHilight;
 }

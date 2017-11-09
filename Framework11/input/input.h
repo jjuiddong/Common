@@ -17,6 +17,7 @@ namespace framework
 	public:
 		cInputManager();
 		virtual ~cInputManager();
+		void NewFrame();
 		void Update(const float deltaSeconds);
 		void MouseProc(UINT message, WPARAM wParam, LPARAM lParam);
 		void MouseProc(const sf::Event &evt);
@@ -25,9 +26,11 @@ namespace framework
 
 
 	public:
-		bool m_mouseDown[3]; // left, right, middle
+		bool m_mouseDown[3]; // left, right, middle (Mouse Down -> Down Flag True)
+		bool m_mouseClicked[3]; // left, right, middle, (Mouse Down -> Up -> Click Flag True)
 		bool m_lBtnDbClick;
 		POINT m_mousePt;
+		POINT m_mouseClickPt;
 		int m_clickTime;
 		int m_dbClickTime;
 	};

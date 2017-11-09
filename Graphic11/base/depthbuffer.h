@@ -27,6 +27,7 @@ namespace graphic
 		bool Begin(cRenderer &renderer, const bool isClear = true, const Vector4 &clearColor=Vector4(1,1,1,1));
 		void End(cRenderer &renderer);
 		void Bind(cRenderer &renderer, const int stage = 0);
+		void DebugRender(cRenderer &renderer);
 		void Clear();
 
 
@@ -35,6 +36,7 @@ namespace graphic
 		ID3D11Texture2D *m_texture;
 		ID3D11ShaderResourceView *m_depthSRV;
 		ID3D11DepthStencilView *m_depthDSV;
+		cQuad2D m_quad; // Debugging
 	};
 
 }

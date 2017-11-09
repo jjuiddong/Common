@@ -19,6 +19,7 @@ namespace graphic
 		cCamera2D(const char *name, const Vector3 &eyePos, const Vector3 &up);
 		virtual ~cCamera2D();
 
+		virtual bool Is2DMode() const;
 		virtual void Update(const float deltaSeconds) override;
 		virtual void Bind(cRenderer &renderer) override;
 
@@ -70,6 +71,7 @@ namespace graphic
 
 	public:
 		float m_zoom;
+		float m_maxZoom;
 	};
 
 

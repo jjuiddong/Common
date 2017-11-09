@@ -18,7 +18,8 @@ namespace graphic
 			, const float size = 1.f, const bool isSolid=false);
 		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
-		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity);
+		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity
+			, const bool isSpherePicking = true);
 
 
 	public:

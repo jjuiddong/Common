@@ -1,14 +1,12 @@
 
 #include "stdafx.h"
 #include "terrainloader.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 using namespace graphic;
 using boost::property_tree::ptree;
 
 
-cTerrainLoader::cTerrainLoader(cTerrain2 *terrain)
+cTerrainLoader::cTerrainLoader(cTerrain *terrain)
 	: m_terrain(terrain)
 {
 }
@@ -59,8 +57,8 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 			tree.put("pos", format<64>("%f %f %f", pos.x, pos.y, pos.z).c_str());
 
 			const Vector3 dim = tile->m_boundingBox.GetDimension();
-			const float width = dim.x;// abs(tile->m_boundingBox.m_min.x - tile->m_boundingBox.m_max.x);
-			const float height = dim.z;// abs(tile->m_boundingBox.m_min.z - tile->m_boundingBox.m_max.z);
+			const float width = dim.x;
+			const float height = dim.z;
 			tree.put("width", width);
 			tree.put("height", height);
 			tree.put("filename", tile->m_ground->m_texture->m_fileName.utf8().c_str()); // Save UTF-8
@@ -79,7 +77,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 					continue;
 
 				ptree tree;
-
+				
 				tree.put("name", p->m_name.c_str());
 
 				const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
@@ -106,6 +104,8 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 					if (cModel *model = dynamic_cast<cModel*>(p))
 						tree.put("filename", model->m_fileName.utf8().c_str());// Save UTF-8
 				}
+
+				WriteNode(p, tree);
 
 				models.push_back(std::make_pair("", tree));
 			}
@@ -169,7 +169,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				ss >> pos.x >> pos.y >> pos.z;
 				const float width = vt.second.get<float>("width");
 				const float height = vt.second.get<float>("height");
-				const StrPath fileNameUTF8 = vt.second.get<string>("filename"); // UTF-8
+				const StrPath fileNameUTF8 = vt.second.get<string>("filename", ""); // UTF-8
 				const StrPath fileName = fileNameUTF8.ansi();
 
 				const float tileSize = width;
@@ -237,15 +237,16 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 						, transform.rot);
 				}
 
-				StrPath fileName = vt.second.get<string>("filename");
-				cModel *model = new cModel();
-				model->Create(renderer, common::GenerateId()
-					, fileName.ansi(), true);
-				model->m_name = vt.second.get<string>("name");
-				model->m_animationSpeed = aniSpeed;
+				StrPath fileName = vt.second.get<string>("filename", "");
+				cNode *model = CreateNode(renderer, vt.second);
 
 				// insert model to most nearest tile
+				if (model)
 				{
+					model->m_name = vt.second.get<string>("name");
+					if (cModel *p = dynamic_cast<cModel*>(model))
+						p->m_animationSpeed = aniSpeed;
+
 					vector<cTile*> candidate;
 					for (auto &tile : m_terrain->m_tiles)
 					{
@@ -331,4 +332,16 @@ bool cTerrainLoader::ReadHeightmap(const char *fileName)
 
 	delete[] map;
 	return true;
+}
+
+
+// 기본적으로 cModel 클래스를 생성하고, 초기화해서 리턴한다.
+// 특수한 모델일 경우, 클래스를 상속받아서 메소드를 오버라이딩 한다.
+cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
+{ 
+	StrPath fileName = tree.get<string>("filename");
+
+	cModel *model = new cModel();
+	model->Create(renderer, common::GenerateId(), fileName.ansi(), true);
+	return model;
 }

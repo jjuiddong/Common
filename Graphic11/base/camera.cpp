@@ -28,6 +28,12 @@ cCamera::~cCamera()
 }
 
 
+bool cCamera::Is2DMode() const
+{
+	return false;
+}
+
+
 void cCamera::SetCamera(const Vector3 &eyePos, const Vector3 &up)
 {
 	m_eyePos = eyePos;
@@ -143,10 +149,6 @@ void cCamera::GetRay(const int windowWidth, const int windowHeight,
 	const float x = ((sx * 2.0f / windowWidth) - 1.0f);
 	const float y = -((sy * 2.0f / windowHeight) - 1.0f);
 
-	//Vector3 v;
-	//v.x = x / m_proj._11;
-	//v.y = y / m_proj._22;
-	//v.z = 1.0f;
 	Vector3 v(x, y, 1);
 	v *= m_proj.Inverse();
 
@@ -186,6 +188,7 @@ void cCamera::SetViewPort(const float width, const float height)
 void cCamera::MoveCancel()
 {
 	m_state = eState::STOP;
+	m_mover.clear();
 }
 
 void cCamera::SetEyePos(const Vector3 &eye) 
@@ -341,16 +344,14 @@ void cCamera::SetProjectionOrthogonal(const float width, const float height, con
 }
 
 
-Vector3 cCamera::GetScreenPos(const Vector3& vPos)
+Vector2 cCamera::GetScreenPos(const Vector3& vPos) const
 {
-	return GetScreenPos((int)m_width, (int)m_height, vPos);
-}
+	//return GetScreenPos((int)m_width, (int)m_height, vPos);
 
-
-Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos)
-{
-	assert(0);
-	return Vector3(0, 0, 0);
+	Vector3 hPos = vPos * m_viewProj;
+	const float x = ((hPos.x + 1.f) / 2.f);
+	const float y = 1.f - ((hPos.y + 1.f) / 2.f);
+	return Vector2(m_width*x, m_height*y);
 }
 
 
@@ -528,4 +529,10 @@ void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
 
 	m_mover.push_back(info);
 	m_state = eState::MOVE;
+}
+
+
+Matrix44 cCamera::GetZoomMatrix() const 
+{ 
+	return Matrix44::Identity; 
 }

@@ -69,6 +69,7 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 	CreateNode(m_aiScene->mRootNode, -1);
 	CreateMeshBone(m_aiScene->mRootNode);
 	CreateAnimation();
+	LoadOptionFile();
 
 	return true;
 }
@@ -173,6 +174,7 @@ void cAssimpLoader::CreateMesh()
 		m_rawMeshes->meshes.push_back(sRawMesh2());
 		sRawMesh2 *rawMesh = &m_rawMeshes->meshes.back();
 
+		rawMesh->renderFlags = eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND;
 		rawMesh->name = format("mesh%d", m);
 		CreateMaterial(mesh, rawMesh->mtrl);
 		rawMesh->mtrl.ambient = Vector4(1, 1, 1, 1) * 0.4f;
@@ -843,3 +845,40 @@ void cAssimpLoader::CreateMeshBone(aiNode* node)
 		CreateMeshBone(node->mChildren[c]);
 }
 
+
+void cAssimpLoader::LoadOptionFile()
+{
+	using namespace std;
+
+	// Option File Format
+	// mesh-alpha 0	// mesh0, No AlphaBlend
+	// mesh-alpha 1	// mesh1, AlphaBlend
+	// mesh-alpha 0	// mesh2, No AlphaBlend
+	
+	StrPath optionFileName = m_fileName.GetFileNameExceptExt2() + ".opt";
+	ifstream ifs(optionFileName.c_str());
+	if (!ifs.is_open())
+		return;
+
+	int cnt = 0;
+	Str128 line;
+	while (ifs.getline(line.m_str, sizeof(line.m_str)))
+	{
+		stringstream ss(line.m_str);
+		Str128 v1;
+		int renderFlag;
+		ss >> v1.m_str >> renderFlag;
+		
+		if (v1.empty())
+			continue;
+
+		if ((int)m_rawMeshes->meshes.size() <= cnt)
+			assert(0);
+
+		m_rawMeshes->meshes[cnt].renderFlags =
+			(renderFlag) ? (eRenderFlag::VISIBLE | eRenderFlag::ALPHABLEND) 
+				: (eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND);
+
+		++cnt;
+	}
+}

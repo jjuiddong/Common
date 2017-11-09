@@ -11,7 +11,7 @@ cNode::cNode()
 	, m_type(eNodeType::MODEL)
 	, m_isEnable(true)
 	, m_parent(NULL)
-	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::SHADOW)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW)
 	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
@@ -28,7 +28,7 @@ cNode::cNode(const int id
 	, m_isEnable(true)
 	, m_parent(NULL)
 	, m_type(type)
-	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::SHADOW)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW)
 	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
@@ -265,6 +265,7 @@ float cNode::CullingTest(const cFrustum &frustum
 
 cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 	, const XMMATRIX &parentTm //= XMIdentity
+	, const bool isSpherePicking //= true
 )
 {
 	if (!(m_opFlags & eOpFlag::COLLISION))
@@ -276,9 +277,22 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 	{
 		cBoundingBox bbox = m_boundingBox;
 		bbox *= tm;
-		if (bbox.Pick(ray.orig, ray.dir))
-			return this;
+		if (isSpherePicking)
+		{
+			cBoundingSphere bsphere;
+			bsphere.SetBoundingSphere(bbox);
+			if (bsphere.Intersects(ray))
+				return this;
+		}
+		else
+		{
+			if (bbox.Pick(ray.orig, ray.dir))
+				return this;
+		}
 	}
+
+	if (m_children.empty())
+		return NULL;
 
 	vector<cNode*> picks;
 	picks.reserve(4);
@@ -312,10 +326,12 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 }
 
 
-cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type)
+cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
+	, const bool isSpherePicking //= true
+)
 {
-	const XMMATRIX parentTm = (m_parent) ? m_parent->GetWorldMatrix().GetMatrixXM() : XMIdentity;
-	return Picking(ray, type, parentTm);
+	const XMMATRIX parentTm = GetParentWorldMatrix().GetMatrixXM();
+	return Picking(ray, type, parentTm, isSpherePicking);
 }
 
 
@@ -342,6 +358,12 @@ Matrix44 cNode::GetWorldMatrix() const
 		node = node->m_parent;
 	}
 	return ret;
+}
+
+
+Matrix44 cNode::GetParentWorldMatrix() const
+{
+	return (m_parent) ? m_parent->GetWorldMatrix() : Matrix44::Identity;
 }
 
 

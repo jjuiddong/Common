@@ -46,6 +46,7 @@ namespace graphic
 		void CreateMeshBone(aiNode* node);
 		void CreateNode(aiNode* node, const int parentNodeIdx=-1);
 		void CreateAnimation();
+		void LoadOptionFile();
 		int GetBoneId(const Str64 &boneName);
 
 

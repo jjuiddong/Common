@@ -43,7 +43,7 @@ cGrid::~cGrid()
 // Vertex Store Order
 //
 void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
-	, const int vertexType //= (eVertexType::POSITION | eVertexType::DIFFUSE)
+	, const int vertexType //= (eVertexType::POSITION | eVertexType::COLOR)
 	, const cColor &color //= cColor::WHITE
 	, const char *textureFileName //= g_defaultTexture
 	, const Vector2 &uv0 //= Vector2(0, 0)
@@ -63,7 +63,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vertexType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vertexType & eVertexType::DIFFUSE)
+	if (vertexType & eVertexType::COLOR)
 		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vertexType & eVertexType::TEXTURE)
 		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
@@ -105,7 +105,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 					*(Vector3*)(pvtx + posOffset) = Vector3(x, 0, y);
 				if (vertexType & eVertexType::NORMAL)
 					*(Vector3*)(pvtx + normOffset) = Vector3(0, 1, 0);
-				if (vertexType & eVertexType::DIFFUSE)
+				if (vertexType & eVertexType::COLOR)
 					*(Vector4*)(pvtx + colorOffset) = vcolor;
 				if (vertexType & eVertexType::TEXTURE)
 					*(Vector2*)(pvtx + texOffset) = uv0 + Vector2(k*uCoordIncrementSize, i*vCoordIncrementSize);
@@ -161,6 +161,9 @@ bool cGrid::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
+	if (!(flags & m_renderFlags))
+		return false;
+
 	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_vertexType);
 	assert(shader);
 	shader->SetTechnique(m_techniqueName.c_str());

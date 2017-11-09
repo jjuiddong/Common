@@ -13,7 +13,7 @@ namespace graphic
 			POSITION = 1
 			, POSITION_RHW	= 1 << 1
 			, NORMAL		= 1 << 2
-			, DIFFUSE		= 1 << 3
+			, COLOR			= 1 << 3
 			, TEXTURE		= 1 << 4
 			, TANGENT		= 1 << 5
 			, BINORMAL		= 1 << 6

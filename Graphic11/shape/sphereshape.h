@@ -16,7 +16,7 @@ namespace graphic
 		virtual ~cSphereShape();
 
 		bool Create(cRenderer &renderer, const float radius, const int stacks, const int slices
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::BLACK);
 
 		void Render(cRenderer &renderer) override;

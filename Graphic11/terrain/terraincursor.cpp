@@ -33,7 +33,7 @@ bool cTerrainCursor::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::DIFFUSE);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::COLOR);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();
@@ -60,7 +60,7 @@ bool cTerrainCursor::Render(cRenderer &renderer
 }
 
 
-void cTerrainCursor::UpdateCursor(cRenderer &renderer, cTerrain2 &terrain, const Vector3 &cursorPos )
+void cTerrainCursor::UpdateCursor(cRenderer &renderer, cTerrain &terrain, const Vector3 &cursorPos )
 {
 	m_pos = cursorPos;
 
@@ -103,7 +103,7 @@ void cTerrainCursor::UpdateCursor(cRenderer &renderer, cTerrain2 &terrain, const
 // Terrain Geometry Up
 // cursorPos : 카메라에서 프로젝션된 후, 선택된 맵의 x,z 위치를 가르킨다.
 void cTerrainCursor::GeometryEdit(cRenderer &renderer
-	, cTerrain2 &terrain
+	, cTerrain &terrain
 	, const eGeoEditType::Enum editType
 	, const Vector3 &cursorPos
 	, const float deltaSeconds

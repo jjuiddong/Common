@@ -20,6 +20,7 @@ namespace graphic
 		virtual void SetProjection(const float fov, const float aspect, const float nearPlane, const float farPlane);
 		virtual void SetProjectionOrthogonal(const float width, const float height, const float nearPlane, const float farPlane);
 
+		virtual bool Is2DMode() const;
 		virtual void Update(const float deltaSeconds);
 		virtual void Bind(cRenderer &renderer) {}
 
@@ -60,9 +61,10 @@ namespace graphic
 
 		virtual void Zoom(const float len);
 		virtual void Zoom(const Vector3 &dir, const float len);
+		virtual Matrix44 GetZoomMatrix() const;
 		virtual void UpdateViewMatrix() {}
 
-		Vector3 cCamera::GetScreenPos(const Vector3& vPos);
+		Vector2 GetScreenPos(const Vector3& vPos) const;
 
 		virtual void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const;
 		virtual void FitFrustum(const cCamera &camera, const float farPlaneRate = 1.f);
@@ -72,7 +74,6 @@ namespace graphic
 
 	protected:
 		virtual void CheckBoundingBox();
-		Vector3 cCamera::GetScreenPos(const int viewportWidth, const int viewportHeight, const Vector3& vPos);
 
 
 	public:

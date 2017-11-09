@@ -48,7 +48,7 @@ namespace graphic {
 	public:
 		StrId m_name;
 		bool m_isShow;
-		bool m_isHilight;
+		int m_renderFlags; // default : eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND
 		Transform m_transform;
 		vector<cMaterial> m_mtrls;
 		vector<cTexture*> m_colorMap;  // reference

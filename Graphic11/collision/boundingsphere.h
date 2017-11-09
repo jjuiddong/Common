@@ -48,6 +48,13 @@ namespace graphic
 			return m_bsphere.Radius;
 		}
 
+		bool Intersects(const Ray &ray) const {
+			const XMVECTOR dir = XMLoadFloat3((XMFLOAT3*)&ray.dir);
+			const XMVECTOR orig = XMLoadFloat3((XMFLOAT3*)&ray.orig);
+			float dist;
+			return m_bsphere.Intersects(orig, dir, dist);
+		}
+
 		bool Intersects(const cBoundingSphere &bspere) const {
 			return m_bsphere.Intersects(bspere.m_bsphere);
 		}

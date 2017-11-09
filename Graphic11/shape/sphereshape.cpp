@@ -14,7 +14,7 @@ cSphereShape::~cSphereShape()
 
 
 bool cSphereShape::Create(cRenderer &renderer, const float radius, const int stacks, const int slices
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::DIFFUSE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::BLACK
 )
 {
@@ -32,7 +32,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::DIFFUSE)
+	if (vtxType & eVertexType::COLOR)
 		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::TEXTURE)
 		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
@@ -106,7 +106,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 			{
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex1;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n1;
@@ -119,7 +119,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex3;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n3;
@@ -134,7 +134,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex4;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n4;
@@ -155,7 +155,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 			{
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex3;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n3;
@@ -170,7 +170,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex1;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n1;
@@ -185,7 +185,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex2;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n2;
@@ -208,7 +208,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 				// body, facing OUT:
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex1;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n1;
@@ -223,7 +223,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex2;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n2;
@@ -238,7 +238,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex3;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n3;
@@ -253,7 +253,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 				if (vtxType & eVertexType::POSITION)
 					*(Vector3*)(pVertex + posOffset) = vertex4;
-				if (vtxType & eVertexType::DIFFUSE)
+				if (vtxType & eVertexType::COLOR)
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n4;
