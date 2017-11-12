@@ -33,6 +33,19 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 
 void cBillboard::Rotate()
 {
+	if (GetMainCamera().Is2DMode())
+	{
+		// 직교투영 꽁수처리, jjuiddong
+		// 2017-11-10
+		m_transform.pos.y = GetMainCamera().GetEyePos().y - 50;
+		m_transform.rot.SetRotationArc(Vector3(0, 1, 0), Vector3(0, 0, 1));
+		Quaternion q; // Camera Roll Rotation
+		q.SetRotationArc(Vector3(0, 0, 1), GetMainCamera().m_up);
+		m_transform.rot *= q;
+		m_transform.scale = m_scale * 15;
+		return;
+	}
+
 	Matrix44 mat;
 
 	switch (m_type)
@@ -105,23 +118,6 @@ void cBillboard::Rotate()
 	R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
 	m_transform.rot = (R * mat).GetQuaternion();
 	m_normal = (GetMainCamera().GetEyePos() - m_transform.pos).Normal();
-	//Matrix44 rot = R * mat;
-	//{
-		//SimpleMath::Matrix m(*(XMFLOAT4X4*)&rot);
-		//SimpleMath::Vector3 s, t;
-		//SimpleMath::Quaternion r;
-		//m.Decompose(s, r, t);
-
-		//m_transform.pos = Vector3(0, 0, 0);
-		//m_transform.rot = *(Quaternion*)&r;
-
-		//XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)&rot);
-		//XMVECTOR xq = XMQuaternionRotationMatrix(xmat);
-		//XMQuaternionNormalize(xq);
-		//Quaternion q;
-		//XMStoreFloat4((XMFLOAT4*)&q, xq);
-		//m_transform.rot = q;
-	//}
 }
 
 

@@ -15,11 +15,6 @@ namespace graphic
 		cCamera3D(const char *name, const Vector3 &eyePos, const Vector3 &lookAt, const Vector3 &up);
 		virtual ~cCamera3D();
 
-		// LookAt 이 이동한다.
-		void Pitch(const float radian);
-		void Yaw(const float radian);
-		void Roll(const float radian);
-
 		// EyePos 가 이동한다.
 		void Pitch2(const float radian);
 		void Pitch2(const float radian, const Vector3 &up);

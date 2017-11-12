@@ -45,10 +45,17 @@ namespace graphic
 		// Heightmap
 		float GetHeight(const float x, const float z);
 		float GetHeightMapEntry(int row, int col);
-		bool GetHeightFromRay(const Ray &ray, OUT Vector3 &out);
+		Vector3 GetHeightFromRay(const Ray &ray);
 		void HeightmapNormalize(const Vector3 &cursorPos, const float radius);
 		void HeightmapNormalize();
 		void UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const int tileCount);
+
+		void GetRect3D(cRenderer &renderer
+			, const Vector3 &p0, const Vector3 &p1
+			, OUT cRect3D &out
+			, const int maxEdgeVertexCount = 32
+			, const Vector3 &offset = Vector3(0, 0.15f, 0)
+		);
 
 
 	protected:

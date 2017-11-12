@@ -18,6 +18,7 @@ VSOUT_POSNORM VS( float4 Pos : POSITION
     output.Pos = mul( output.Pos, gView );
     output.Pos = mul( output.Pos, gProjection );
     output.Normal = normalize( mul(Normal, (float3x3)mWorld) );
+	output.PosH = output.Pos;
     output.clip = dot(mul(Pos, mWorld), gClipPlane);
 
     return output;
@@ -43,6 +44,53 @@ float4 PS(VSOUT_POSNORM In ) : SV_Target
 	float4 Out = color;
 	return float4(Out.xyz, gMtrl_Diffuse.a);
 }
+
+
+//--------------------------------------------------------------------------------------
+// Outline Pixel Shader
+//--------------------------------------------------------------------------------------
+float4 PS_Outline(VSOUT_POSNORM In) : SV_Target
+{
+	float3 L = -gLight_Direction;
+	float3 H = normalize(L + normalize(In.toEye));
+	float3 N = normalize(In.Normal);
+
+	const float lightV = max(0, dot(N, L));
+	float4 color = gLight_Ambient * gMtrl_Ambient
+		+ gLight_Diffuse * gMtrl_Diffuse * 0.1
+		+ gLight_Diffuse * gMtrl_Diffuse * lightV * 0.1
+		+ gLight_Diffuse * gMtrl_Diffuse * lightV
+		+ gLight_Specular * gMtrl_Specular * pow(max(0, dot(N,H)), gMtrl_Pow);
+
+	float4 Out = color;// *txDiffuse.Sample(samLinear, In.Tex);
+
+	float2 coords;
+	coords.x = (In.PosH.x / In.PosH.w + 1) * 0.5f;
+	coords.y = 1 - ((In.PosH.y / In.PosH.w + 1) * 0.5f);
+
+	const float dx = 1.f / DepthMapSize_Scaled;
+	float2 vTexCoords[9];
+	vTexCoords[0] = coords;
+	vTexCoords[1] = coords + float2(-dx, 0.0f);
+	vTexCoords[2] = coords + float2(dx, 0.0f);
+	vTexCoords[3] = coords + float2(0.0f, -dx);
+	vTexCoords[6] = coords + float2(0.0f, dx);
+	vTexCoords[4] = coords + float2(-dx, -dx);
+	vTexCoords[5] = coords + float2(dx, -dx);
+	vTexCoords[7] = coords + float2(-dx, dx);
+	vTexCoords[8] = coords + float2(dx, dx);
+
+	float fOutline = 0.0f;
+	for (int i = 0; i < 9; i++)
+	{
+		fOutline += txDepth.SampleCmpLevelZero(samDepth, vTexCoords[i], 1);
+	}
+	fOutline /= 9.0f;
+
+	clip(fOutline - 0.000001f);
+	return float4(0.8f, 0, 0, fOutline*2.5f);
+}
+
 
 
 //--------------------------------------------------------------------------------------
@@ -187,6 +235,40 @@ VSOUT_BUILDSHADOW VS_BuildShadowMap(float4 Pos : POSITION
 }
 
 
+float4 PS_BuildShadowMap(VSOUT_BUILDSHADOW In) : SV_Target
+{
+	clip(gMtrl_Diffuse.a - 0.5f);
+	return float4(1, 1, 1, 1);
+}
+
+
+
+//-----------------------------------------------------------------------
+technique11 DepthTech
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(NULL);
+	}
+}
+
+
+technique11 Outline
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Outline()));
+	}
+}
+
 
 technique11 Unlit
 {
@@ -222,7 +304,7 @@ technique11 BuildShadowMap
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
-		SetPixelShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }
 
@@ -249,8 +331,8 @@ technique11 ShadowMap_Instancing
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_ShadowMap(Instancing)));
 		SetGeometryShader(NULL);
- 	        SetHullShader(NULL);
-        	SetDomainShader(NULL);
+        SetHullShader(NULL);
+       	SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS_ShadowMap()));
 	}
 }
@@ -264,6 +346,6 @@ technique11 BuildShadowMap_Instancing
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
-		SetPixelShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }

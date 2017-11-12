@@ -37,7 +37,6 @@ float4 PS(VSOUT_TEXDIFF In ) : SV_Target
 			+ gLight_Specular * gMtrl_Specular * pow( max(0, dot(N,H)), gMtrl_Pow);
 
 	float4 Out = txDiffuse.Sample(samAnis, In.Tex);
-	//return float4(Out.x, Out.y, Out.z, 1);
 	return Out;
 }
 
@@ -57,6 +56,14 @@ VSOUT_BUILDSHADOW VS_BuildShadowMap(float4 Pos : POSITION
 	output.Pos = mul(output.Pos, gProjection);
 	return output;
 }
+
+
+float4 PS_BuildShadowMap(VSOUT_BUILDSHADOW In) : SV_Target
+{
+	clip(gMtrl_Diffuse.a - 0.5f);
+	return float4(1, 1, 1, 1);
+}
+
 
 
 //------------------------------------------------------------------------
@@ -96,7 +103,7 @@ technique11 BuildShadowMap
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
-		SetPixelShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }
 

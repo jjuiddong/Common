@@ -251,6 +251,23 @@ void Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 }
 
 
+void Matrix44::SetProjectionScreen(const float width, const float height, const float nearPlane, const float farPlane)
+{
+	Matrix44 orthoProj;
+	orthoProj.SetProjectionOrthogonal(width, height, nearPlane, farPlane);
+
+	// left, top = (0,0), right, bottom = (1,1)
+
+	Matrix44 screenProj(
+		  1.f, 0.0f, 0.0f, 0.0f
+		, 0.0f, -1.f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, -1.f, 1.f, 0.0f, 1.0f);
+
+	*this = orthoProj * screenProj;
+}
+
+
 Vector3 Matrix44::GetScale() const 
 { 
 #ifdef USE_D3D9_MATH

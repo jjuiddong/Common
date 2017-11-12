@@ -78,58 +78,6 @@ void cCamera3D::UpdateParameterFromViewMatrix()
 
 
 // Right 축으로 회전한다.
-void cCamera3D::Pitch(const float radian)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetRight();
-	const Quaternion q(axis, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
-	UpdateViewMatrix();
-}
-
-
-// Up 축으로 회전한다.
-void cCamera3D::Yaw(const float radian)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetUpVector();
-	const Quaternion q(axis, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
-	UpdateViewMatrix();
-}
-
-
-// Direction 축으로 회전한다.
-void cCamera3D::Roll(const float radian)
-{
-	RET(radian == 0);
-
-	const Vector3 axis = GetDirection();
-	const Quaternion q(axis, radian);
-	const Matrix44 mat = q.GetMatrix();
-
-	Vector3 v = m_lookAt - m_eyePos;
-	v *= mat;
-	m_lookAt = m_eyePos + v;
-
-	UpdateViewMatrix();
-}
-
-
-
-// Right 축으로 회전한다.
 void cCamera3D::Pitch2(const float radian)
 {
 	RET(radian == 0);

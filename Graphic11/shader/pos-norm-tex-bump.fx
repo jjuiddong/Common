@@ -339,15 +339,14 @@ VS_BUILDSHADOW_OUTPUT VS_BuildShadowMap(float4 Pos : POSITION
 }
 
 
-//--------------------------------------------------------------------------------------
-// Pixel Shader BuildShadowMap
-//--------------------------------------------------------------------------------------
-float4 PS_BuildShadowMap(
-	VS_BUILDSHADOW_OUTPUT In
-	) : SV_Target
+float4 PS_BuildShadowMap(VS_BUILDSHADOW_OUTPUT In) : SV_Target
 {
-	return In.Depth.x / In.Depth.y;
+	clip(gMtrl_Diffuse.a - 0.5f);
+	return float4(1, 1, 1, 1);
 }
+
+
+//----------------------------------------------------------
 
 
 technique11 Unlit
@@ -356,8 +355,8 @@ technique11 Unlit
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
 		SetGeometryShader(NULL);
- 	        SetHullShader(NULL);
-        	SetDomainShader(NULL);
+        SetHullShader(NULL);
+      	SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }
@@ -369,8 +368,8 @@ technique11 ShadowMap
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_ShadowMap(NotInstancing)));
 		SetGeometryShader(NULL);
- 	        SetHullShader(NULL);
-        	SetDomainShader(NULL);
+        SetHullShader(NULL);
+      	SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS_ShadowMap()));
 	}
 }
@@ -384,8 +383,7 @@ technique11 BuildShadowMap
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
-		//SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
-		SetPixelShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }
 
@@ -399,8 +397,8 @@ technique11 Unlit_Instancing
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
 		SetGeometryShader(NULL);
- 	        SetHullShader(NULL);
-        	SetDomainShader(NULL);
+        SetHullShader(NULL);
+      	SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }
@@ -412,8 +410,8 @@ technique11 ShadowMap_Instancing
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_ShadowMap(Instancing)));
 		SetGeometryShader(NULL);
- 	        SetHullShader(NULL);
-        	SetDomainShader(NULL);
+        SetHullShader(NULL);
+      	SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS_ShadowMap()));
 	}
 }
@@ -427,7 +425,6 @@ technique11 BuildShadowMap_Instancing
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
-		//SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
-		SetPixelShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }

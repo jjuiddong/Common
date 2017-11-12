@@ -101,7 +101,7 @@ float Triangle::Distance( const Vector3& vPos )  const
 }
 
 
-Vector3 Triangle::Normal()
+Vector3 Triangle::Normal() const
 {
 	const Vector3 v0 = (b - a).Normal();
 	const Vector3 v1 = (c - a).Normal();

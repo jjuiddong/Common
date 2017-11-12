@@ -82,20 +82,9 @@ bool cText3d3::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	// AlphaBlending
-	// src, dest inverse alpha
-	//renderer.SetCullMode(D3DCULL_NONE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	//renderer.GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	//renderer.GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_quad.Render(renderer);
 	renderer.GetDevContext()->RSSetState(NULL);
-
-	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//renderer.SetCullMode(D3DCULL_CCW);
-
 	return true;
 }

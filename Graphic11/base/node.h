@@ -12,7 +12,7 @@ namespace graphic
 	class cShader11;
 
 	struct eNodeType {
-		enum Enum { NONE, BONE, MESH, MODEL, TEXT, TERRAIN };
+		enum Enum { NONE, MODEL, TEXT, TERRAIN, VIRTUAL };
 	};
 
 	struct eRenderFlag {
@@ -24,6 +24,7 @@ namespace graphic
 			, ALPHABLEND = 1 << 3
 			, NOALPHABLEND = 1 << 4
 			, SHADOW = 1 << 5
+			, OUTLINE = 1 << 6
 		};
 	};
 

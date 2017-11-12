@@ -14,6 +14,7 @@ namespace graphic
 	{
 	public:
 		cIndexBuffer();
+		cIndexBuffer(const cIndexBuffer &rhs);
 		virtual ~cIndexBuffer();
 
 		bool Create(cRenderer &renderer, const int faceCount
@@ -31,7 +32,8 @@ namespace graphic
 		int GetFaceCount() const;
 		void Clear();
 
-		void Set(cRenderer &renderer, cIndexBuffer &rhs);
+		void Set(cRenderer &renderer, const cIndexBuffer &rhs);
+		cIndexBuffer& operator=(const cIndexBuffer &rhs);
 
 
 	public:

@@ -110,6 +110,13 @@ VSOUT_BUILDSHADOW VS_BuildShadowMap(float4 Pos : POSITION
 }
 
 
+float4 PS_BuildShadowMap(VSOUT_BUILDSHADOW In) : SV_Target
+{
+	clip(gMtrl_Diffuse.a - 0.5f);
+	return float4(1, 1, 1, 1);
+}
+
+
 
 technique11 DepthTech
 {
@@ -176,7 +183,7 @@ technique11 BuildShadowMap
 		SetGeometryShader(NULL);
  	    SetHullShader(NULL);
         SetDomainShader(NULL);
-		SetPixelShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }
 

@@ -28,6 +28,11 @@ namespace graphic {
 			, const char *techniqueName
 			, cSkeleton *skeleton
 			, const int count, const XMMATRIX &parentTm = XMIdentity);
+
+		inline bool IsVisible() const;
+		inline int SetRenderFlag(const eRenderFlag::Enum val, const bool enable);
+		inline bool IsRenderFlag(const eRenderFlag::Enum val);
+
 		void Clear();
 
 
@@ -47,7 +52,6 @@ namespace graphic {
 
 	public:
 		StrId m_name;
-		bool m_isShow;
 		int m_renderFlags; // default : eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND
 		Transform m_transform;
 		vector<cMaterial> m_mtrls;
@@ -58,5 +62,13 @@ namespace graphic {
 		vector<sMeshBone> m_bones; // mesh bone
 		cMeshBuffer *m_buffers;
 	};
-	
+
+
+	inline bool cMesh::IsVisible() const { return (m_renderFlags & eRenderFlag::VISIBLE); }
+	inline int cMesh::SetRenderFlag(const eRenderFlag::Enum val, const bool enable) {
+		return (enable) ? (m_renderFlags |= val) : (m_renderFlags &= ~val);
+	}
+	inline bool cMesh::IsRenderFlag(const eRenderFlag::Enum val) {
+		return (m_renderFlags & val) ? true : false;
+	}
 }

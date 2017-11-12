@@ -68,6 +68,9 @@ bool cTorusShape::Create(cRenderer &renderer, const float outerRadius, const flo
 		angle += incAngle;
 	}
 
+	vector<Vector3> normals;
+	normals.resize(vertices.size());
+
 	vector<WORD> indices;
 	indices.reserve(slice * stack * 2 * 3);
 	for (int i = 0; i < stack; ++i)
@@ -85,6 +88,30 @@ bool cTorusShape::Create(cRenderer &renderer, const float outerRadius, const flo
 			indices.push_back(slice*i + nextK); // p1
 			indices.push_back(slice*nextI + nextK); // p2
 			indices.push_back(slice*nextI + k); // p2
+
+			// Normal - Triangle1
+			{
+				const Triangle tri1(
+					vertices[slice*i + k]
+					, vertices[slice*i + nextK]
+					, vertices[slice*(nextI) + k]);
+				const Vector3 norm1 = tri1.Normal();
+				normals[slice*i + k] = norm1;
+				normals[slice*i + nextK] = norm1;
+				normals[slice*(nextI)+k] = norm1;
+			}
+			
+			// Normal - Triangle2
+			{
+				const Triangle tri2(
+					vertices[slice*i + nextK]
+					, vertices[slice*nextI + nextK]
+					, vertices[slice*nextI + k]);
+				const Vector3 norm2 = tri2.Normal();
+				normals[slice*i + nextK] = norm2;
+				normals[slice*nextI + nextK] = norm2;
+				normals[slice*nextI + k] = norm2;
+			}
 		}
 	}
 
@@ -113,12 +140,10 @@ bool cTorusShape::Create(cRenderer &renderer, const float outerRadius, const flo
 	BYTE *pvtx = initVertices;
 	for (u_int i = 0; i < vertices.size(); ++i)
 	{
-		Vector3 v1 = vertices[i];
-
 		if (vtxType & eVertexType::POSITION)
-			*(Vector3*)(pvtx + posOffset) = v1;
-		//if (vtxType & eVertexType::NORMAL)
-		//	*(Vector3*)(pvtx + normOffset) = normal;
+			*(Vector3*)(pvtx + posOffset) = vertices[i];
+		if (vtxType & eVertexType::NORMAL)
+			*(Vector3*)(pvtx + normOffset) = normals[i];
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
 		pvtx += vertexStride;

@@ -97,7 +97,7 @@ void cCamera2D::UpdateParameterFromViewMatrix()
 }
 
 
-// Direction 축으로 회전한다.
+// Y축으로 회전한다.
 void cCamera2D::Roll(const float radian)
 {
 	RET(radian == 0);
@@ -106,9 +106,7 @@ void cCamera2D::Roll(const float radian)
 	const Quaternion q(axis, radian);
 	const Matrix44 mat = q.GetMatrix();
 
-	//Vector3 v = m_lookAt - m_eyePos;
-	//v *= mat;
-	//m_lookAt = m_eyePos + v;
+	m_up *= mat;
 
 	UpdateViewMatrix();
 }
@@ -264,7 +262,14 @@ Ray cCamera2D::GetRay(
 	Ray ray;
 	ray.dir = Vector3(0, -1, 0);
 	ray.orig = m_eyePos;
+	
 	Vector3 offset((float)x - (m_width / 2), 0, (m_height / 2) - (float)y);
+
+	Quaternion q;
+	q.SetRotationArc(Vector3(0, 0, 1), m_up);
+	const Matrix44 mat = q.GetMatrix();
+	offset *= mat;
+
 	ray.orig += offset;
 
 	//GetRay((int)m_width, (int)m_height, x, y, ray.orig, ray.dir);

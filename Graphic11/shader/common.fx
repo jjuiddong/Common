@@ -142,6 +142,7 @@ cbuffer cbSkinning : register(b5)
 struct VSOUT_POS
 {
 	float4 Pos : SV_POSITION;
+	float4 PosH : TEXCORRD0;
 };
 
 struct VSOUT_POSDIFFUSE
@@ -169,7 +170,8 @@ struct VSOUT_POSNORM
 {
 	float4 Pos : SV_POSITION;
 	float3 Normal : TEXCOORD0;
-	float3 toEye : TEXCOORD1;
+	float4 PosH : TEXCORRD1;
+	float3 toEye : TEXCOORD2;
 	float clip : SV_ClipDistance0;
 };
 

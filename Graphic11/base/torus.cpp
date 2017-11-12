@@ -18,10 +18,11 @@ cTorus::~cTorus()
 bool cTorus::Create(cRenderer &renderer, const float outerRadius, const float innerRadius
 	, const int stack //= 10
 	, const int slice //= 10
+	, const int vtxType //= (eVertexType::POSITION)
 	, const cColor &color //= cColor::WHITE
 )
 {
-	m_shape.Create(renderer, outerRadius, innerRadius, stack, slice);
+	m_shape.Create(renderer, outerRadius, innerRadius, stack, slice, vtxType);
 	m_color = color;
 	return true;
 }
@@ -34,7 +35,7 @@ bool cTorus::Render(cRenderer &renderer
 {
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
-	shader->SetTechnique("Unlit");
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
@@ -45,7 +46,6 @@ bool cTorus::Render(cRenderer &renderer
 	const Vector4 color = m_color.GetColor();
 	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
-
 
 	m_shape.Render(renderer);
 	return true;

@@ -77,39 +77,23 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 					continue;
 
 				ptree tree;
-				
-				tree.put("name", p->m_name.c_str());
-
-				const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
-				tree.put("pos", format<64>("%f %f %f"
-					, worldPos.x, worldPos.y, worldPos.z).c_str());
-				tree.put("scale", format<64>("%f %f %f"
-					, p->m_transform.scale.x, p->m_transform.scale.y, p->m_transform.scale.z).c_str());
-				tree.put("rot", format<64>("%f %f %f %f"
-					, p->m_transform.rot.x, p->m_transform.rot.y, p->m_transform.rot.z, p->m_transform.rot.w).c_str());
-
-				if (cModel *mod = dynamic_cast<cModel*>(p))
-					tree.put("animation speed", format<64>("%f", mod->m_animationSpeed).c_str());
-
-				const Vector3 dim = p->m_boundingBox.GetDimension();
-				const Vector3 center = *(Vector3*)&p->m_boundingBox.m_bbox.Center;
-				const Vector3 _min = center - (dim / 2);
-				const Vector3 _max = center + (dim / 2);
-				tree.put("boundingbox", format<128>("%f %f %f %f %f %f"
-					, _min.x, _min.y, _min.z
-					, _max.x, _max.y, _max.z).c_str());
-
-				if (eNodeType::MODEL == p->m_type)
-				{
-					if (cModel *model = dynamic_cast<cModel*>(p))
-						tree.put("filename", model->m_fileName.utf8().c_str());// Save UTF-8
-				}
-
-				WriteNode(p, tree);
-
+				WriteModel(p, tree);
 				models.push_back(std::make_pair("", tree));
 			}
 		}
+
+		// Write Etc
+		for (auto &node : m_terrain->m_children)
+		{
+			// Ingnore cTile Node
+			if (eNodeType::TERRAIN == node->m_type)
+				continue;
+
+			ptree tree;
+			WriteModel(node, tree);
+			models.push_back(std::make_pair("", tree));
+		}
+
 		props.add_child("models", models);
 
 		// write backup (copy file)
@@ -199,7 +183,15 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			}
 		}
 
+		// 높이맵 로딩
+		if (!ReadHeightmap((fileName + ".height").c_str()))
+			return false;
 
+		m_terrain->HeightmapNormalize();
+		m_terrain->UpdateHeightmapToTile(renderer, &m_terrain->m_tiles[0], m_terrain->m_tiles.size());
+
+
+		// 모델 로딩
 		ptree::assoc_iterator mitor = props.find("models");
 		if (props.not_found() != mitor)
 		{
@@ -247,35 +239,10 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					if (cModel *p = dynamic_cast<cModel*>(model))
 						p->m_animationSpeed = aniSpeed;
 
-					vector<cTile*> candidate;
-					for (auto &tile : m_terrain->m_tiles)
-					{
-						cBoundingBox tbbox = tile->m_boundingBox * tile->GetWorldMatrix();
-						if (tbbox.Collision(bbox))
-						{
-							candidate.push_back(tile);
-							//model->m_transform = transform * tile->m_transform.Inverse();
-							//tile->AddChild(model);
-							//break;
-						}
-					}
-
-					assert(!candidate.empty());
-
-					float nearLen = FLT_MAX;
-					cTile *nearTile = NULL;
-					for (auto &tile : candidate)
-					{
-						const float len = tile->GetWorldMatrix().GetPosition().Distance(transform.pos);
-						if (len < nearLen)
-						{
-							nearLen = len;
-							nearTile = tile;
-						}
-					}
-
-					model->m_transform = transform * nearTile->m_transform.Inverse();
-					nearTile->AddChild(model);
+					if (eNodeType::VIRTUAL == model->m_type)
+						m_terrain->AddChild(model);
+					else
+						m_terrain->AddModel(model);
 				}
 			}
 		}
@@ -286,12 +253,6 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 		MessageBoxA(NULL, e.what(), "ERROR", MB_OK);
 		return false;
 	}
-
-	if (!ReadHeightmap((fileName + ".height").c_str()))
-		return false;
-
-	m_terrain->HeightmapNormalize();
-	m_terrain->UpdateHeightmapToTile(renderer, &m_terrain->m_tiles[0], m_terrain->m_tiles.size());
 
 	return true;
 }
@@ -339,9 +300,83 @@ bool cTerrainLoader::ReadHeightmap(const char *fileName)
 // 특수한 모델일 경우, 클래스를 상속받아서 메소드를 오버라이딩 한다.
 cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 { 
-	StrPath fileName = tree.get<string>("filename");
+	const int type = tree.get<int>("type", 0);
 
-	cModel *model = new cModel();
-	model->Create(renderer, common::GenerateId(), fileName.ansi(), true);
-	return model;
+	if (type == 2)
+	{
+		Vector3 pos[4];
+		std::stringstream ss1(tree.get<string>("left-top"));
+		ss1 >> pos[0].x >> pos[0].y >> pos[0].z;
+		std::stringstream ss2(tree.get<string>("right-top"));
+		ss2 >> pos[1].x >> pos[1].y >> pos[1].z;
+		std::stringstream ss3(tree.get<string>("right-bottom"));
+		ss3 >> pos[2].x >> pos[2].y >> pos[2].z;
+		std::stringstream ss4(tree.get<string>("left-bottom"));
+		ss4 >> pos[3].x >> pos[3].y >> pos[3].z;
+
+		cRect3D *rect3D = new cRect3D();
+		rect3D->Create(renderer);
+		m_terrain->GetRect3D(renderer, pos[0], pos[2], *rect3D);
+		rect3D->m_rectId = tree.get<int>("rect id");
+		return rect3D;
+	}
+	else
+	{
+		StrPath fileName = tree.get<string>("filename");
+		cModel *model = new cModel();
+		model->Create(renderer, common::GenerateId(), fileName.ansi(), true);
+		return model;
+	}
+
+	return NULL;
+}
+
+
+bool cTerrainLoader::WriteModel(cNode *p, INOUT boost::property_tree::ptree &tree)
+{
+	tree.put("name", p->m_name.c_str());
+
+	const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
+	tree.put("pos", format<64>("%f %f %f"
+		, worldPos.x, worldPos.y, worldPos.z).c_str());
+	tree.put("scale", format<64>("%f %f %f"
+		, p->m_transform.scale.x, p->m_transform.scale.y, p->m_transform.scale.z).c_str());
+	tree.put("rot", format<64>("%f %f %f %f"
+		, p->m_transform.rot.x, p->m_transform.rot.y, p->m_transform.rot.z, p->m_transform.rot.w).c_str());
+
+	if (cModel *mod = dynamic_cast<cModel*>(p))
+		tree.put("animation speed", format<64>("%f", mod->m_animationSpeed).c_str());
+
+	const Vector3 dim = p->m_boundingBox.GetDimension();
+	const Vector3 center = *(Vector3*)&p->m_boundingBox.m_bbox.Center;
+	const Vector3 _min = center - (dim / 2);
+	const Vector3 _max = center + (dim / 2);
+	tree.put("boundingbox", format<128>("%f %f %f %f %f %f"
+		, _min.x, _min.y, _min.z
+		, _max.x, _max.y, _max.z).c_str());
+
+	if (eNodeType::MODEL == p->m_type)
+	{
+		if (cModel *model = dynamic_cast<cModel*>(p))
+			tree.put("filename", model->m_fileName.utf8().c_str());// Save UTF-8
+	}
+
+	if (cRect3D *rect3D = dynamic_cast<cRect3D*>(p))
+	{
+		tree.put("type", 2);
+		tree.put("rect id", rect3D->m_rectId);
+
+		tree.put("left-top", format<64>("%f %f %f"
+			, rect3D->m_pos[0].x, rect3D->m_pos[0].y, rect3D->m_pos[0].z).c_str());
+		tree.put("right-top", format<64>("%f %f %f"
+			, rect3D->m_pos[1].x, rect3D->m_pos[1].y, rect3D->m_pos[1].z).c_str());
+		tree.put("right-bottom", format<64>("%f %f %f"
+			, rect3D->m_pos[2].x, rect3D->m_pos[2].y, rect3D->m_pos[2].z).c_str());
+		tree.put("left-bottom", format<64>("%f %f %f"
+			, rect3D->m_pos[3].x, rect3D->m_pos[3].y, rect3D->m_pos[3].z).c_str());
+	}
+
+	WriteNode(p, tree); // Call Customizing Method
+
+	return true;
 }

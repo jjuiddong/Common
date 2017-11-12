@@ -1,6 +1,6 @@
 
-#include "stdafx.h"
 #include "mesh.h"
+#include "stdafx.h"
 #include "skeleton.h"
 
 using namespace graphic;
@@ -8,7 +8,6 @@ using namespace graphic;
 
 cMesh::cMesh()
 	: m_buffers(NULL)
-	, m_isShow(true)
 	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND)
 {
 }
@@ -82,7 +81,7 @@ void cMesh::Render( cRenderer &renderer
 	, const XMMATRIX &transform //= XMIdentity
 )
 {
-	RET(!m_isShow);
+	RET(!IsVisible());
 	RET(!m_buffers);
 
 	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, transform);
@@ -97,7 +96,7 @@ void cMesh::RenderInstancing(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 )
 {
-	RET(!m_isShow);
+	RET(!IsVisible());
 	RET(!m_buffers);
 
 	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, XMIdentity);

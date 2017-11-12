@@ -12,6 +12,13 @@ cIndexBuffer::cIndexBuffer() :
 {
 }
 
+// Copy Constructor
+cIndexBuffer::cIndexBuffer(const cIndexBuffer &rhs)
+{
+	operator = (rhs);
+}
+
+
 cIndexBuffer::~cIndexBuffer()
 {
 	Clear();
@@ -138,23 +145,29 @@ void cIndexBuffer::Clear()
 }
 
 
-void cIndexBuffer::Set(cRenderer &renderer, cIndexBuffer &rhs)
+void cIndexBuffer::Set(cRenderer &renderer, const cIndexBuffer &rhs)
 {
 	if (this != &rhs)
 	{
-		m_faceCount = rhs.m_faceCount;
+		Clear();
 
-		if (Create(renderer, rhs.m_faceCount))
-		{
-			if (BYTE* dest = (BYTE*)Lock())
-			{
-				if (BYTE *src = (BYTE*)rhs.Lock())
-				{
-					memcpy(dest, src, rhs.m_faceCount*3*sizeof(WORD));
-					rhs.Unlock();
-				}
-				Unlock();
-			}
-		}
+		m_format = rhs.m_format;
+		m_faceCount = rhs.m_faceCount;
+		Create(renderer, rhs.m_faceCount, D3D11_USAGE_DEFAULT, rhs.m_format);
+		renderer.GetDevContext()->CopyResource(m_idxBuff, rhs.m_idxBuff);
 	}
+}
+
+
+cIndexBuffer& cIndexBuffer::operator=(const cIndexBuffer &rhs)
+{
+	if (this != &rhs)
+	{
+		Clear();
+
+		m_format = rhs.m_format;
+		m_faceCount = rhs.m_faceCount;
+		m_idxBuff = NULL; // No Copy
+	}
+	return *this;
 }

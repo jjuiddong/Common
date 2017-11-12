@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "Renderer.h"
 #include "../base/DxInit.h"
-//#include "resourcemanager.h"
 
 using namespace graphic;
 
@@ -12,7 +11,6 @@ void graphic::ReleaseRenderer()
 	cResourceManager::Release();
 	cMainCamera::Release();
 	cLightManager::Release();
-	//cPickManager::Release();
 }
 
 
@@ -249,8 +247,9 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 
 
 	m_textFps.Create(*this, 20, true, "Arial", cColor::WHITE);
-
 	m_line.Create(*this);
+	m_rect3D.Create(*this, 32);
+
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgBox.Create(*this, bbox, cColor::RED);
 	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));
@@ -287,8 +286,6 @@ void cRenderer::RenderGrid()
 
 void cRenderer::Update(const float elapseT)
 {
-	//m_pickMgr.Update(elapseT, )
-
 	// fps °è»ê ---------------------------------------
 	++m_fps;
 	m_elapseTime += elapseT;
@@ -467,11 +464,6 @@ bool cRenderer::ResetDevice(
 	if (!forceReset && !CheckResetDevice(w, h))
 		return false;
 
-	//if (resetResource)
-	//	cResourceManager::Get()->LostDevice();
-
-	//m_textFps.LostDevice();
-
 	m_viewPort.m_vp.Width = w;
 	m_viewPort.m_vp.Height = h;
 	m_viewPort.Bind(*this);
@@ -539,9 +531,6 @@ bool cRenderer::ResetDevice(
 	const Vector3 eyePos = GetMainCamera().GetEyePos();
 	GetMainCamera().SetCamera(eyePos, lookAt, Vector3(0, 1, 0));
 	GetMainCamera().SetViewPort(w, h);
-
-	//if (resetResource)
-	//	cResourceManager::Get()->ResetDevice(*this);
 
 	return true;
 }

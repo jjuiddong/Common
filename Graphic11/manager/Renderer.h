@@ -139,13 +139,14 @@ namespace graphic
 		int m_dbgRenderStyle; // 0:Sphere, 1:Box, 2:None
 		int m_textGenerateCount; // cTextManager generate count
 		int m_textCacheCount; // cTextManager cache count
-		cLine m_line;
 		cDbgBox m_dbgBox;
 		cDbgLine m_dbgLine;
 		cDbgArrow m_dbgArrow;
 		cDbgSphere m_dbgSphere;
 		cDbgAxis m_dbgAxis;
+		cLine m_line;
 		cLine2D m_line2D;
+		cRect2D m_rect2D;
 		cRect3D m_rect3D;
 	};
 

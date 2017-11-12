@@ -84,7 +84,7 @@ void cDbgBox::Render(cRenderer &renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetTransformXM() * tm);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_boundingBox.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	const Vector4 color = m_color.GetColor();
@@ -102,5 +102,5 @@ void cDbgBox::Render(cRenderer &renderer
 
 XMMATRIX cDbgBox::GetTransform() const
 {
-	return m_boundingBox.GetTransformXM();
+	return m_boundingBox.GetMatrixXM();
 }

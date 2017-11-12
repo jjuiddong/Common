@@ -356,51 +356,90 @@ float cTerrain::GetHeight(const float x, const float z)
 }
 
 
-bool cTerrain::GetHeightFromRay(const Ray &ray, OUT Vector3 &out)
+// 피킹된 지형 좌표를 리턴한다.
+// ray.orig에서 가장 가까운 면에 피킹된 좌표를 리턴한다.
+// 지형 범위를 넘어섰다면, y = 0 가된다.
+// 최적화: 타일 충돌체크 후, 충돌된 타일만 충돌 체크를 한다.
+Vector3 cTerrain::GetHeightFromRay(const Ray &ray)
 {
+	const int cellCountPerTile_Col = m_cols / m_tileCols;
+	const int cellCountPerTile_Row = m_rows / m_tileRows;
+
+	Vector3 candidate[8];
+	int count = 0;
+
 	bool isFirst = true;
-	for (int r = 0; r < m_rows; ++r)
+	for (auto &tile : m_tiles)
 	{
-		for (int c = 0; c < m_cols; ++c)
+		cBoundingBox bbox = tile->m_boundingBox;
+		bbox *= tile->GetWorldMatrix();
+		if (!bbox.Pick(ray))
+			continue;
+
+		const int startCol = tile->m_location.y * cellCountPerTile_Col;
+		const int startRow = tile->m_location.x * cellCountPerTile_Row;
+
+		for (int r = startRow; r < startRow + cellCountPerTile_Row; ++r)
 		{
-			const int indices[2][3] = {
-				{ r*m_colVtx + c,  (r + 1)*m_colVtx + c, r*m_colVtx + c + 1 }
-				, { (r + 1)*m_colVtx + c,  (r + 1)*m_colVtx + c + 1, r*m_colVtx + c+1 }
-			};
-
-			for (int i = 0; i < 2; ++i)
+			for (int c = startCol; c < startCol + cellCountPerTile_Col; ++c)
 			{
-				const Vector3 p1 = m_heightMap[ indices[i][0]].p;
-				const Vector3 p2 = m_heightMap[ indices[i][1]].p;
-				const Vector3 p3 = m_heightMap[ indices[i][2]].p;
-		
-				const Triangle tri(p1, p2, p3);
-				const Plane p(p1, p2, p3);
-				const float dot = ray.dir.DotProduct(p.N);
-				if (dot >= 0)
-					continue;
+				const int indices[2][3] = {
+					{ r*m_colVtx + c,  (r + 1)*m_colVtx + c, r*m_colVtx + c + 1 }
+					, { (r + 1)*m_colVtx + c,  (r + 1)*m_colVtx + c + 1, r*m_colVtx + c + 1 }
+				};
 
-				float t;
-				if (tri.Intersect(ray.orig, ray.dir, &t))
+				for (int i = 0; i < 2; ++i)
 				{
-					if (isFirst)
+					const Vector3 p1 = m_heightMap[indices[i][0]].p;
+					const Vector3 p2 = m_heightMap[indices[i][1]].p;
+					const Vector3 p3 = m_heightMap[indices[i][2]].p;
+
+					const Triangle tri(p1, p2, p3);
+					const Plane p(p1, p2, p3);
+					const float dot = ray.dir.DotProduct(p.N);
+					if (dot >= 0)
+						continue;
+
+					float t;
+					if (tri.Intersect(ray.orig, ray.dir, &t))
 					{
-						isFirst = false;
-						out = ray.orig + ray.dir * t;
-					}
-					else
-					{
-						const Vector3 v = ray.orig + ray.dir * t;
-						if (ray.orig.LengthRoughly(v) < ray.orig.LengthRoughly(out))
-							out = v;
+						Vector3 pos = ray.orig + ray.dir * t;
+						if (count < ARRAYSIZE(candidate))
+							candidate[count++] = pos;
+						else
+							break;
 					}
 				}
-			}
 
+			}
+		}
+
+	}
+
+	if (count == 1)
+		return candidate[0];
+
+	if (count == 0)
+	{
+		// 지형과 충돌이 일어나지 않았다면, X-Z 평면의 충돌지점을 리턴한다.
+		Plane ground(Vector3(0, 1, 0), 0);
+		return ground.Pick(ray.orig, ray.dir);
+	}
+
+	// 하나 이상의 면과 충돌이 일어났다면, Ray.orig 와 가까운 위치를 리턴한다.
+	float minLen = candidate[0].LengthRoughly(ray.orig);
+	int retIdx = 0;
+	for (int i = 1; i < count; ++i)
+	{
+		const float len = candidate[i].LengthRoughly(ray.orig);
+		if (minLen > len)
+		{
+			minLen = len;
+			retIdx = i;
 		}
 	}
 
-	return !isFirst;
+	return candidate[retIdx];
 }
 
 
@@ -543,7 +582,7 @@ void cTerrain::HeightmapNormalize(const Vector3 &cursorPos, const float radius)
 
 void cTerrain::UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const int tileCount)
 {
-	// initialize map
+	// Initialize Map
 	// 
 	//   z (row)
 	//   |
@@ -614,7 +653,6 @@ void cTerrain::UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const 
 	const int vertexCountPerTile_Col = (terrain.m_cols / terrain.m_tileCols) + 1;
 	const int vertexCountPerTile_Row = (terrain.m_rows / terrain.m_tileRows) + 1;
 
-	//for (auto tile : tiles)
 	for (int i = 0; i < tileCount; ++i)
 	{
 		cTile *tile = tiles[i];
@@ -622,7 +660,7 @@ void cTerrain::UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const 
 			+ (tile->m_location.y * cellCountPerTile_Col)
 			+ (cellCountPerTile_Row * terrain.m_colVtx); // 왜냐하면, 그리드 좌표계와 지형 좌표계 row 가 반대이기 때문임.
 
-														 // all tiles must be same size, same vertex size
+		// all tiles must be same size, same vertex size
 		if (!m_cpyVtxBuff.m_buff)
 			m_cpyVtxBuff.Create(renderer, tile->m_ground->m_vtxBuff);
 
@@ -649,4 +687,52 @@ void cTerrain::UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const 
 		m_cpyVtxBuff.Unlock(renderer);
 		dstVb.Unlock(renderer);
 	}
+}
+
+
+// 입력으로 leftTop, RightBottom 좌표를 주면, X-Z 평면을 기준으로한
+// 사각영역의 라인 좌표를 만들어서 리턴한다. (cRect3D)
+// 버텍스는 한 변당 32개이고, 총 128개의 버텍스를 사용한다.
+// p0 : X-Z Plane Left Top
+// p1 : X-Z Plane Right Bottom
+// maxEdgeVertexCount = min(32, maxEdgeVertexCount)
+void cTerrain::GetRect3D(cRenderer &renderer
+	, const Vector3 &p0, const Vector3 &p1
+	, OUT cRect3D &out
+	, const int maxEdgeVertexCount //=32
+	, const Vector3 &offset //= Vector3(0, 0.15f, 0)
+	)
+{
+	// X-Z Plane
+	Vector3 patch[4]; // leftop, righttop, rightbottom, leftbottom
+	patch[0] = p0;
+	patch[1] = Vector3(p1.x, p0.y, p0.z);
+	patch[2] = p1;
+	patch[3] = Vector3(p0.x, p0.y, p1.z);
+
+	assert(maxEdgeVertexCount == 32);
+	//const int vtxSize = (maxEdgeVertexCount < 32) ? maxEdgeVertexCount : 32;
+	const int vtxSize = 32;
+	int indices[5] = { 0,1,2,3,0 };
+	Vector3 buff[vtxSize * 4];
+	int idx = 0;
+	for (int i = 0; i < 4; ++i)
+	{
+		Vector3 start = patch[indices[i]];
+		Vector3 end = patch[indices[i+1]];
+
+		Vector3 v = end - start;
+		const float inc = v.Length() / (float)(vtxSize-1);
+		v.Normalize();
+		
+		for (int k = 0; k < vtxSize; ++k)
+		{
+			const Vector3 p = start + v*(inc*(float)k);
+			Vector3 pos = p;
+			pos.y = GetHeight(p.x, p.z);
+			buff[idx++] = pos + offset;
+		}
+	}
+
+	out.SetRect(renderer, buff, ARRAYSIZE(buff));
 }

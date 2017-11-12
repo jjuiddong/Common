@@ -164,6 +164,7 @@
     <ClInclude Include="base\pyramid.h" />
     <ClInclude Include="base\quad.h" />
     <ClInclude Include="base\quad2d.h" />
+    <ClInclude Include="base\rect2d.h" />
     <ClInclude Include="base\rect3d.h" />
     <ClInclude Include="base\rendertarget.h" />
     <ClInclude Include="base\samplerstate.h" />
@@ -272,6 +273,7 @@
     <ClCompile Include="base\pyramid.cpp" />
     <ClCompile Include="base\quad.cpp" />
     <ClCompile Include="base\quad2d.cpp" />
+    <ClCompile Include="base\rect2d.cpp" />
     <ClCompile Include="base\rect3d.cpp" />
     <ClCompile Include="base\rendertarget.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />

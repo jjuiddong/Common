@@ -14,6 +14,7 @@ namespace graphic
 	{
 	public:
 		cVertexBuffer();
+		cVertexBuffer(const cVertexBuffer &rhs);
 		virtual ~cVertexBuffer();
 
 		bool Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex
@@ -36,7 +37,9 @@ namespace graphic
 
 		int GetSizeOfVertex() const;
 		int GetVertexCount() const;
-		void Set(cRenderer &renderer, cVertexBuffer &rhs);
+		void Set(cRenderer &renderer, const cVertexBuffer &rhs);
+
+		cVertexBuffer& operator=(const cVertexBuffer &rhs);
 
 
 	public:

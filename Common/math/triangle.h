@@ -12,7 +12,7 @@ namespace common
 		BOOL Intersect(	const Vector3& vOrig, const Vector3& vDir,
 			float* pfT = NULL, float* pfU = NULL, float* pfV = NULL ) const;
 		float Distance( const Vector3& vPos )  const;
-		Vector3 Normal();
+		Vector3 Normal() const;
 
 		Vector3 a, b, c;
 	};

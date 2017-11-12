@@ -43,7 +43,7 @@ namespace graphic
 		virtual void SetViewPort(const float width, const float height) override;
 
 		// LookAt 이 이동한다.
-		void Roll(const float radian);
+		virtual void Roll(const float radian) override;
 		// EyePos 가 이동한다.
 		void Roll2(const float radian);
 

@@ -103,6 +103,7 @@ namespace graphic {
 #include "base/pyramid.h"
 #include "base/line.h"
 #include "base/line2d.h"
+#include "base/rect2d.h"
 #include "base/rect3d.h"
 #include "base/cube.h"
 #include "base/shader11.h"

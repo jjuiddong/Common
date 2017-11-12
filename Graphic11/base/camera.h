@@ -59,6 +59,11 @@ namespace graphic
 		virtual void MoveRight(const float len);
 		virtual void MoveAxis(const Vector3 &dir, const float len);
 
+		// LookAt 이 이동한다.
+		virtual void Pitch(const float radian);
+		virtual void Yaw(const float radian);
+		virtual void Roll(const float radian);
+
 		virtual void Zoom(const float len);
 		virtual void Zoom(const Vector3 &dir, const float len);
 		virtual Matrix44 GetZoomMatrix() const;

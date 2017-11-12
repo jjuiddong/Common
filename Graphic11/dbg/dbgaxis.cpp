@@ -42,7 +42,7 @@ void cDbgAxis::SetAxis(const float size, const cBoundingBox &bbox
 	const Vector3 axis1[] = { Vector3(0.6f,0,0), Vector3(0,1.2f,0), Vector3(0,0,0.6f) };
 	const Vector3 axis2[] = { Vector3(1,0,0), Vector3(0,1,0), Vector3(0,0,1) };
 
-	const Matrix44 tm = bbox.GetTransform();
+	const Matrix44 tm = bbox.GetMatrix();
 	const Vector3 orig = Vector3(0, 0, 0) * tm;
 	for (int i = 0; i < 3; ++i)
 	{

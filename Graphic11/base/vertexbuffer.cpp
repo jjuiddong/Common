@@ -10,7 +10,12 @@ cVertexBuffer::cVertexBuffer()
 	, m_vertexCount(0)
 	, m_vtxBuff(NULL)
 {
+}
 
+// Copy Constructor
+cVertexBuffer::cVertexBuffer(const cVertexBuffer &rhs)
+{
+	operator = (rhs);
 }
 
 cVertexBuffer::~cVertexBuffer()
@@ -246,27 +251,29 @@ void cVertexBuffer::Clear()
 }
 
 
-//cVertexBuffer& cVertexBuffer::operator=(cVertexBuffer &rhs)
-void cVertexBuffer::Set(cRenderer &renderer, cVertexBuffer &rhs)
+void cVertexBuffer::Set(cRenderer &renderer, const cVertexBuffer &rhs)
 {
 	if (this != &rhs)
 	{
+		Clear();
+
 		m_sizeOfVertex = rhs.m_sizeOfVertex;
 		m_vertexCount = rhs.m_vertexCount;
-		
-		//if (Create(renderer, rhs.m_vertexCount, rhs.m_sizeOfVertex, rhs.m_fvf))
-		if (Create(renderer, rhs.m_vertexCount, rhs.m_sizeOfVertex))
-		{
-			//if (BYTE* dest = (BYTE*)Lock())
-			//{
-			//	if (BYTE *src = (BYTE*)rhs.Lock())
-			//	{
-			//		memcpy(dest, src, rhs.m_vertexCount*m_sizeOfVertex);
-			//		rhs.Unlock();
-			//	}
-			//	Unlock();
-			//}
-		}
+		Create(renderer, rhs.m_vertexCount, rhs.m_sizeOfVertex);		
+		renderer.GetDevContext()->CopyResource(m_vtxBuff, rhs.m_vtxBuff);
 	}
-	//return *this;
+}
+
+
+cVertexBuffer& cVertexBuffer::operator=(const cVertexBuffer &rhs)
+{
+	if (this != &rhs)
+	{
+		Clear();
+
+		m_sizeOfVertex = rhs.m_sizeOfVertex;
+		m_vertexCount = rhs.m_vertexCount;
+		m_vtxBuff = NULL; // No Copy
+	}
+	return *this;
 }

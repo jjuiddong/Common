@@ -31,6 +31,7 @@ namespace graphic
 	protected:
 		bool WriteHeightmap(const char *fileName);
 		bool ReadHeightmap(const char *fileName);
+		bool WriteModel(cNode *model, INOUT boost::property_tree::ptree &tree);
 		virtual bool WriteNode(cNode *node, INOUT boost::property_tree::ptree &tree) { return false; }
 		virtual cNode* CreateNode(cRenderer &renderer, const boost::property_tree::ptree &tree);
 

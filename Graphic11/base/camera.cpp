@@ -536,3 +536,54 @@ Matrix44 cCamera::GetZoomMatrix() const
 { 
 	return Matrix44::Identity; 
 }
+
+
+// Right 축으로 회전한다.
+void cCamera::Pitch(const float radian)
+{
+	RET(radian == 0);
+
+	const Vector3 axis = GetRight();
+	const Quaternion q(axis, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_lookAt - m_eyePos;
+	v *= mat;
+	m_lookAt = m_eyePos + v;
+
+	UpdateViewMatrix();
+}
+
+
+// Up 축으로 회전한다.
+void cCamera::Yaw(const float radian)
+{
+	RET(radian == 0);
+
+	const Vector3 axis = GetUpVector();
+	const Quaternion q(axis, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_lookAt - m_eyePos;
+	v *= mat;
+	m_lookAt = m_eyePos + v;
+
+	UpdateViewMatrix();
+}
+
+
+// Direction 축으로 회전한다.
+void cCamera::Roll(const float radian)
+{
+	RET(radian == 0);
+
+	const Vector3 axis = GetDirection();
+	const Quaternion q(axis, radian);
+	const Matrix44 mat = q.GetMatrix();
+
+	Vector3 v = m_lookAt - m_eyePos;
+	v *= mat;
+	m_lookAt = m_eyePos + v;
+
+	UpdateViewMatrix();
+}
