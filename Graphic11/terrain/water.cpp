@@ -49,8 +49,8 @@ bool cWater::Create(cRenderer &renderer)
 {
 	cViewport vp;
 	vp.Create(0, 0, 1024, 1024, 0.f, 1.f);
-	m_reflectMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
-	m_refractMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT, false);
+	m_reflectMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, false);
+	m_refractMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, false);
 
 	m_grid.Create(renderer
 		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize

@@ -90,6 +90,16 @@ Vector4 cColor::GetColor() const
 }
 
 
+void cColor::GetColor(OUT float out[4]) const
+{
+	const Vector4 v = GetColor();
+	out[0] = v.x;
+	out[1] = v.y;
+	out[2] = v.z;
+	out[3] = v.w;
+}
+
+
 DWORD cColor::GetAbgr() const
 {
 	DWORD r = (m_color >> 24) << 24 

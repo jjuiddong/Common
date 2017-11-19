@@ -1,10 +1,8 @@
 // FileTreeCtrl.cpp : 구현 파일입니다.
 //
-
 #include "stdafx.h"
 #include "FileTreeCtrl.h"
 #include "UIUtility.h"
-
 
 CImageList *CFileTreeCtrl::m_imageList = NULL;
 int CFileTreeCtrl::m_imageListRefCnt = 0;
@@ -112,15 +110,15 @@ CFileTreeCtrl::sTreeNode* CFileTreeCtrl::CreateTreeNode(const list<string> &file
 		for (u_int i=0; i < strs.size(); ++i)
 		{
 			const string name = strs[i];
-			auto it = node->children.find(name);
-			if (node->children.end() ==  it)
+			auto it = node->children.find(name); //map<string, sTreeNode*>
+			if (node->children.end() ==  it)     //없으면~
 			{
 				sTreeNode *t = new sTreeNode;
 				node->children[ name] = t;
 
 				if (i == (strs.size()-1)) // Last String Is FileName
  				{
-					node->childrenFiles.push_back(std::pair<string, sTreeNode*>(name, t));
+					node->childrenFiles.push_back(std::pair<string, sTreeNode*>(name, t)); //	list< std::pair<string, sTreeNode*> >
  				}
 				else
 				{

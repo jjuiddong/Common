@@ -92,60 +92,9 @@ float4 PS(VSOUT_BUMP In ) : SV_Target
 //--------------------------------------------------------------------------------------
 float4 PS_Outline(VSOUT_BUMP In) : SV_Target
 {
-	// 스타2 노멀맵은 rgba 순서로 저장된게 아니라. bgxr 형태로 저장되어 있다.
-	// 그래서 노멀값을 제대로 가져오려먼 agr 값을 가져와야 rgb즉 xyz 순서대로 
-	// 가져오게 된다.
-	// http://blog.naver.com/scahp/130109083917
-	// http://forum.xentax.com/viewtopic.php?f=16&t=6119&start=15
-	float4 bumpMap = txBump.Sample(samAnis, In.Tex).agrb;
-	// Expand the range of the normal value from (0, +1) to (-1, +1). 
-	bumpMap = (bumpMap * 2.0f) - 1.0f;
-
-	// Calculate the normal from the data in the bump map.
-	float3 bumpNormal = In.Normal + bumpMap.x * In.Tangent + bumpMap.y * In.Binormal;
-
-	// Normalize the resulting bump normal.
-	bumpNormal = normalize(bumpNormal);
-
-	float3 L = -gLight_Direction;
-	float3 H = normalize(L + normalize(In.toEye));
-	float3 N = normalize(bumpNormal);
-
-	float4 color = gLight_Ambient * gMtrl_Ambient
-		+ gLight_Diffuse * gMtrl_Diffuse * max(0, dot(N,L))
-		;
-
-	float4 Out = color * txDiffuse.Sample(samLinear, In.Tex)
-		+ gLight_Specular * pow(max(0, dot(N,H)), gMtrl_Pow * 10) * txSpecular.Sample(samAnis, In.Tex)
-		+ float4(0.8,0,0,1) * txEmissive.Sample(samAnis, In.Tex).a
-		;
-
-
-	float2 coords;
-	coords.x = (In.PosH.x / In.PosH.w + 1) * 0.5f;
-	coords.y = 1 - ((In.PosH.y / In.PosH.w + 1) * 0.5f);
-
-	const float dx = 1.f / DepthMapSize_Scaled;
-	float2 vTexCoords[9];
-	vTexCoords[0] = coords;
-	vTexCoords[1] = coords + float2(-dx, 0.0f);
-	vTexCoords[2] = coords + float2(dx, 0.0f);
-	vTexCoords[3] = coords + float2(0.0f, -dx);
-	vTexCoords[6] = coords + float2(0.0f, dx);
-	vTexCoords[4] = coords + float2(-dx, -dx);
-	vTexCoords[5] = coords + float2(dx, -dx);
-	vTexCoords[7] = coords + float2(-dx, dx);
-	vTexCoords[8] = coords + float2(dx, dx);
-
-	float fOutline = 0.0f;
-	for (int i = 0; i < 9; i++)
-	{
-		fOutline += txDepth.SampleCmpLevelZero(samDepth, vTexCoords[i], 1);
-	}
-	fOutline /= 9.0f;
-
+	const float fOutline = GetOutline(In.PosH);
 	clip(fOutline - 0.000001f);
-	return float4(0.8f, 0, 0, fOutline*2.5f);
+	return GetOutlineColor(fOutline);
 }
 
 
@@ -239,63 +188,8 @@ float4 PS_ShadowMap(VSOUT_BUMPSHADOW In) : SV_Target
 	float3 H = normalize(L + normalize(In.toEye));
 	float3 N = normalize(bumpNormal);
 
-	float4 vTexCoords[3][9];
-	float dx = 1.0f / 1024.0f;
-	float depth0 = min(In.Depth0.x / In.Depth0.y, 1.0);
-	float depth1 = min(In.Depth0.z / In.Depth0.w, 1.0);
-	float depth2 = min(In.Depth1.x / In.Depth1.y, 1.0);
-
-	// Generate the tecture co-ordinates for the specified depth-map size
-	// 4 3 5
-	// 1 0 2
-	// 7 6 8
-	vTexCoords[0][0] = In.TexShadow0;
-	vTexCoords[0][1] = In.TexShadow0 + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[0][2] = In.TexShadow0 + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[0][3] = In.TexShadow0 + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[0][6] = In.TexShadow0 + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[0][4] = In.TexShadow0 + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[0][5] = In.TexShadow0 + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[0][7] = In.TexShadow0 + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[0][8] = In.TexShadow0 + float4(dx, dx, 0.0f, 0.0f);
-
-	vTexCoords[1][0] = In.TexShadow1;
-	vTexCoords[1][1] = In.TexShadow1 + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[1][2] = In.TexShadow1 + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[1][3] = In.TexShadow1 + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[1][6] = In.TexShadow1 + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[1][4] = In.TexShadow1 + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[1][5] = In.TexShadow1 + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[1][7] = In.TexShadow1 + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[1][8] = In.TexShadow1 + float4(dx, dx, 0.0f, 0.0f);
-
-	vTexCoords[2][0] = In.TexShadow2;
-	vTexCoords[2][1] = In.TexShadow2 + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[2][2] = In.TexShadow2 + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[2][3] = In.TexShadow2 + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[2][6] = In.TexShadow2 + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[2][4] = In.TexShadow2 + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[2][5] = In.TexShadow2 + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[2][7] = In.TexShadow2 + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[2][8] = In.TexShadow2 + float4(dx, dx, 0.0f, 0.0f);
-
-	const float S0 = (depth0 - SHADOW_EPSILON);
-	const float S1 = (depth1 - SHADOW_EPSILON);
-	const float S2 = (depth2 - SHADOW_EPSILON);
-
-	float fShadowTerm = 0.0f;
-	for (int i = 0; i < 9; i++)
-	{
-		const float2 uv0 = vTexCoords[0][i].xy;
-		const float2 uv1 = vTexCoords[1][i].xy;
-		const float2 uv2 = vTexCoords[2][i].xy;
-		const float D0 = txShadow0.SampleCmpLevelZero(samShadow, uv0, S0);
-		const float D1 = txShadow1.SampleCmpLevelZero(samShadow, uv1, S1);
-		const float D2 = txShadow2.SampleCmpLevelZero(samShadow, uv2, S2);
-
-		fShadowTerm += (1 - saturate(D0 + D1 + D2));
-	}
-	fShadowTerm /= 9.0f;
+	const float fShadowTerm = GetShadowPCF(In.Depth0, In.Depth1
+		, In.TexShadow0.xy, In.TexShadow1.xy, In.TexShadow2.xy);
 
 	const float lightV = max(0, dot(N, L));
 	float4 color = gLight_Ambient * gMtrl_Ambient

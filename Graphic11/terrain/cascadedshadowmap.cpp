@@ -40,7 +40,7 @@ bool cCascadedShadowMap::Create(cRenderer &renderer
 	{
 		m_shadowMaps[i].Create(renderer, svp, false, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_D32_FLOAT);
 		m_frustums[i].Create(renderer, GetMainCamera().GetViewProjectionMatrix());
-		m_lightCams[i].SetProjectionOrthogonal(shadowMapSize.x, shadowMapSize.y, 1, 10000);
+		m_lightCams[i].SetProjectionOrthogonal(shadowMapSize.x, shadowMapSize.y, 1, 1000000);
 		m_dbgLightFrustums[i].Create(renderer, m_lightCams[i].GetViewProjectionMatrix());
 		m_shadowMapQuads[i].Create(renderer, 0, 310.f * i, 300.f, 300.f);
 	}

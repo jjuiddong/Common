@@ -85,7 +85,7 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		// Write Etc
 		for (auto &node : m_terrain->m_children)
 		{
-			// Ingnore cTile Node
+			// Ignore cTile Node
 			if (eNodeType::TERRAIN == node->m_type)
 				continue;
 
@@ -198,46 +198,12 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			ptree &child_field = props.get_child("models");
 			for (ptree::value_type &vt : child_field)
 			{
-				Transform transform;
-				float aniSpeed = 1.f;
-				cBoundingBox bbox; // world space
-				{
-					std::stringstream ss(vt.second.get<string>("pos"));
-					ss >> transform.pos.x >> transform.pos.y >> transform.pos.z;
-				}
-				{
-					std::stringstream ss(vt.second.get<string>("scale"));
-					ss >> transform.scale.x >> transform.scale.y >> transform.scale.z;
-				}
-				{
-					std::stringstream ss(vt.second.get<string>("rot"));
-					ss >> transform.rot.x >> transform.rot.y >> transform.rot.z >> transform.rot.w;
-				}
-				{
-					std::stringstream ss(vt.second.get<string>("animation speed", "1"));
-					ss >> aniSpeed;
-				}
-
-				{
-					std::stringstream ss(vt.second.get<string>("boundingbox"));
-					Vector3 _min, _max;
-					ss >> _min.x >> _min.y >> _min.z >> _max.x >> _max.y >> _max.z;
-					bbox.SetBoundingBox(transform.pos
-						, Vector3(abs(_max.x - _min.x)*transform.scale.x
-								, abs(_max.y - _min.y)*transform.scale.y
-								, abs(_max.z - _min.z)*transform.scale.z)
-						, transform.rot);
-				}
-
-				StrPath fileName = vt.second.get<string>("filename", "");
 				cNode *model = CreateNode(renderer, vt.second);
 
 				// insert model to most nearest tile
 				if (model)
 				{
 					model->m_name = vt.second.get<string>("name");
-					if (cModel *p = dynamic_cast<cModel*>(model))
-						p->m_animationSpeed = aniSpeed;
 
 					if (eNodeType::VIRTUAL == model->m_type)
 						m_terrain->AddChild(model);
@@ -300,9 +266,10 @@ bool cTerrainLoader::ReadHeightmap(const char *fileName)
 // 특수한 모델일 경우, 클래스를 상속받아서 메소드를 오버라이딩 한다.
 cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 { 
-	const int type = tree.get<int>("type", 0);
+	const string typeStr = tree.get<string>("type", "None");
+	const eSubType::Enum type = graphic::GetSubtype(typeStr.c_str());
 
-	if (type == 2)
+	if (type == eSubType::AREA)
 	{
 		Vector3 pos[4];
 		std::stringstream ss1(tree.get<string>("left-top"));
@@ -320,11 +287,31 @@ cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 		rect3D->m_rectId = tree.get<int>("rect id");
 		return rect3D;
 	}
+	else if (type == eSubType::CUBE)
+	{
+		Vector4 color;
+		std::stringstream ss1(tree.get<string>("color", "1 1 1 1"));
+		ss1 >> color.x >> color.y >> color.z >> color.w;
+
+		cCube *cube = new cCube();
+		const Transform transform = ParseTransform(tree);
+		cBoundingBox bbox;
+		//bbox.SetBoundingBox(transform);
+		cube->Create(renderer, bbox);
+		cube->m_transform = transform;
+		cube->m_color.SetColor(color);
+
+		return cube;
+	}
 	else
 	{
+		// Load Model File
 		StrPath fileName = tree.get<string>("filename");
 		cModel *model = new cModel();
 		model->Create(renderer, common::GenerateId(), fileName.ansi(), true);
+
+		model->m_transform = ParseTransform(tree);
+		model->m_animationSpeed = tree.get<float>("animation speed", 1.f);
 		return model;
 	}
 
@@ -335,6 +322,7 @@ cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 bool cTerrainLoader::WriteModel(cNode *p, INOUT boost::property_tree::ptree &tree)
 {
 	tree.put("name", p->m_name.c_str());
+	tree.put("type", graphic::GetSubtypeStr(p->m_subType));
 
 	const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
 	tree.put("pos", format<64>("%f %f %f"
@@ -363,7 +351,6 @@ bool cTerrainLoader::WriteModel(cNode *p, INOUT boost::property_tree::ptree &tre
 
 	if (cRect3D *rect3D = dynamic_cast<cRect3D*>(p))
 	{
-		tree.put("type", 2);
 		tree.put("rect id", rect3D->m_rectId);
 
 		tree.put("left-top", format<64>("%f %f %f"
@@ -375,8 +362,51 @@ bool cTerrainLoader::WriteModel(cNode *p, INOUT boost::property_tree::ptree &tre
 		tree.put("left-bottom", format<64>("%f %f %f"
 			, rect3D->m_pos[3].x, rect3D->m_pos[3].y, rect3D->m_pos[3].z).c_str());
 	}
+	else if (cCube *cube = dynamic_cast<cCube*>(p))
+	{
+		Vector4 color = cube->m_color.GetColor();
+		tree.put("color", format<64>("%f %f %f %f"
+			, color.x, color.y, color.z, color.w).c_str());
+	}
 
 	WriteNode(p, tree); // Call Customizing Method
 
 	return true;
+}
+
+
+Transform cTerrainLoader::ParseTransform(const boost::property_tree::ptree &tree)
+{
+	Transform transform;
+
+	std::stringstream ss1(tree.get<string>("pos"));
+	ss1 >> transform.pos.x >> transform.pos.y >> transform.pos.z;
+
+	std::stringstream ss2(tree.get<string>("scale"));
+	ss2 >> transform.scale.x >> transform.scale.y >> transform.scale.z;
+
+	std::stringstream ss3(tree.get<string>("rot"));
+	ss3 >> transform.rot.x >> transform.rot.y >> transform.rot.z >> transform.rot.w;
+
+	return transform;
+}
+
+
+cBoundingBox cTerrainLoader::ParseBoundingBox(const boost::property_tree::ptree &tree
+	, const Transform &transform )
+{
+	cBoundingBox bbox; // world space
+
+	std::stringstream ss(tree.get<string>("boundingbox"));
+
+	Vector3 _min, _max;
+	ss >> _min.x >> _min.y >> _min.z >> _max.x >> _max.y >> _max.z;
+
+	bbox.SetBoundingBox(transform.pos
+		, Vector3(abs(_max.x - _min.x)*transform.scale.x
+				, abs(_max.y - _min.y)*transform.scale.y
+				, abs(_max.z - _min.z)*transform.scale.z)
+		, transform.rot);
+
+	return bbox;
 }

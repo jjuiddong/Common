@@ -94,7 +94,8 @@ void cConfig::ParseStr(const string &str)
 
 			std::string strCmd((std::istreambuf_iterator<char>(ss)), std::istreambuf_iterator<char>());
  			common::trim(strCmd);
-			m_options[id] = strCmd; 		}
+			m_options[id] = strCmd;
+ 		}
 		else
 		{
 			ss >> eq;

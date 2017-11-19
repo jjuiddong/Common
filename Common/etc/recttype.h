@@ -25,7 +25,7 @@ namespace common
 			this->bottom = bottom;
 		}
 
-		bool IsIn(const T x, const T y) {
+		bool IsIn(const T x, const T y) const {
 			return (left <= x)
 				&& (right >= x)
 				&& (top <= y)

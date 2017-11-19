@@ -92,6 +92,44 @@ Quaternion Quaternion::Interpolate( const Quaternion& qNext, const float fTime )
 	return qC;
 } //Quaternion::Interpolate
 
+
+//https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
+Quaternion& Quaternion::lerp(Quaternion q1, Quaternion q2, float time)
+{
+	const float scale = 1.0f - time;
+	return (*this = (q1*scale) + (q2*time));
+}
+
+
+//https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
+Quaternion& Quaternion::slerp(Quaternion q1, Quaternion q2, float time
+	, float threshold //= 0.05f
+)
+{
+	float angle = q1.dotProduct(q2);
+
+	// make sure we use the short rotation
+	if (angle < 0.0f)
+	{
+		q1 *= -1.0f;
+		angle *= -1.0f;
+	}
+
+	if (angle <= (1 - threshold)) // spherical interpolation
+	{
+		const float theta = acosf(angle);
+		//const float invsintheta = reciprocal(sinf(theta));
+		const float invsintheta = 1.f / sinf(theta);
+		const float scale = sinf(theta * (1.0f - time)) * invsintheta;
+		const float invscale = sinf(theta * time) * invsintheta;
+		return (*this = (q1*scale) + (q2*invscale));
+	}
+	else // linear interpolation
+		return (*this = lerp(q1, q2, time));
+}
+
+
+
 //--------------------------------
 //
 //--------------------------------

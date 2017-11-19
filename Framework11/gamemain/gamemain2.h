@@ -31,7 +31,7 @@ namespace framework
 	public:
 		HWND m_hWnd;
 		WStrId m_windowName;
-		sRecti m_windowRect;
+		sRectf m_windowRect;
 		bool m_isLazyMode; // FPS 100 이하 유지
 	};
 

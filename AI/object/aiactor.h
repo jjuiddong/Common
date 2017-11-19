@@ -13,178 +13,249 @@ namespace ai
 	class cActor : public cObject
 	{
 	public:
-		cActor(iActorInterface<T> *agent =NULL)
-			: m_agent(agent)
-		{
-		}
+		cActor(iActorInterface<T> *agent = NULL);
+		virtual ~cActor();
 
-		virtual ~cActor()
-		{
-			Clear();
-		}
-
-		virtual bool Init()
-		{
-			return true;
-		}
-
-		virtual bool Update(const float deltaSeconds)
-		{
-			if (m_rootAction)
-				m_rootAction->Traverse(deltaSeconds);
-			return true;
-		}
-
-		virtual void Clear()
-		{
-			ClearAction();
-			ClearChildActor();
-		}
-
+		virtual bool Init();
+		virtual bool Update(const float deltaSeconds);
+		virtual void Clear();
 
 		// Action
-		void SetAction(cAction<T> *action)
-		{
-			RET(!action);
-
-			if (m_rootAction)
-				ClearAction();
-
-			action->m_agent = m_agent;
-			m_rootAction = new cRootAction<T>(m_agent);
-			m_rootAction->PushAction(action);
-		}
-
-
-		void PushAction(cAction<T> *action)
-		{
-			RET(!action);
-
-			if (m_rootAction)
-			{
-				action->m_agent = m_agent;
-				m_rootAction->PushAction(action);
-			}
-			else
-			{
-				SetAction(action);
-			}
-		}
-
-
-		void PushFrontAction(cAction<T> *action)
-		{
-			RET(!action);
-
-			if (m_rootAction)
-			{
-				action->m_agent = m_agent;
-				m_rootAction->PushFrontAction(action);
-			}
-			else
-			{
-				SetAction(action);
-			}
-		}
-
-		
-		cAction<T>* GetAction()
-		{
-			RETV(!m_rootAction, NULL);
-			return m_rootAction->m_current;
-		}
-
-		bool IsAction(ACTION_TYPE::TYPE type)
-		{
-			RETV(!m_rootAction, false);
-			return m_rootAction->IsAction(type);
-		}
-
-		void ClearAction()
-		{
-			SAFE_DELETE(m_rootAction);
-		}
+		void SetAction(cAction<T> *action);
+		void PushAction(cAction<T> *action);
+		void PushFrontAction(cAction<T> *action);
+		cAction<T>* GetAction();
+		bool IsAction(const eActionType::Enum type);
+		bool IsCurrentAction(const eActionType::Enum type);
+		void ClearAction();
 
 		// Children Actor
-		bool AddActor(cObject *actor)
-		{
-			if (IsExistActor(actor))
-				return false;
+		bool AddActor(cObject *actor);
+		bool RemoveActor(const int actorId);
+		cObject* GetActor(const int actorId);
+		bool IsExistActor(cObject *actor);
+		bool IsExistActor(const int actorId);
+		void ClearChildActor();
+		virtual void DispatchMsg(const sMsg &msg) override;
 
-			m_children.insert(ChildType::value_type(actor->m_id, actor));
-			return true;
-		}
-
-
-		bool RemoveActor(const int actorId)
-		{
-			return m_children.remove(actorId);
-		}
-
-
-		cObject* GetActor(const int actorId)
-		{
-			auto it = m_children.find(actorId);
-			if (m_children.end() == it)
-				return NULL;
-			return it->second;
-		}
-		
-		
-		bool IsExistActor(cObject *actor)
-		{
-			return IsExistActor(actor->m_id) ? true : false;
-		}
-
-
-		bool IsExistActor(const int actorId)
-		{
-			return GetActor(actorId) ? true : false;
-		}
-
-
-		// 메모리는 외부에서 제거한다.
-		void ClearChildActor()
-		{
-			m_children.clear();
-		}
-
-		
-		virtual void DispatchMessage(const sMsg &msg) override
-		{
-			if (m_rootAction)
-				m_rootAction->MessageProccess(msg);
-
-			// children message loop
-			for each (auto &actor in m_children.m_Seq)
-			{
-				actor->DispatchMessage(msg);
-			}
-		}
-
-
-		bool operator==(const cActor &rhs)
-		{
-			return Equal(rhs);
-		}
-
-		bool operator<(const cActor &rhs)
-		{
-			return m_id < rhs.m_id;
-		}
-
-		bool Equal(const cActor &rhs)
-		{
-			return rhs.m_id == m_id;
-		}
+		bool operator==(const cActor &rhs);
+		bool operator<(const cActor &rhs);
+		bool Equal(const cActor &rhs);
 
 
 	public:
 		iActorInterface<T> *m_agent;
 		cAction<T> *m_rootAction;
-
 		typedef VectorMap<int, cObject* > ChildType;
 		ChildType m_children;
 	};
+
+
+	//---------------------------------------------------------------
+	// Implements
+	
+	template <class T>
+	cActor<T>::cActor(iActorInterface<T> *agent //= NULL
+	)
+		: m_agent(agent)
+	{
+	}
+
+
+	template <class T>
+	cActor<T>::~cActor()
+	{
+		Clear();
+	}
+
+
+	template <class T>
+	bool cActor<T>::Init()
+	{
+		return true;
+	}
+
+
+	template <class T>
+	bool cActor<T>::Update(const float deltaSeconds)
+	{
+		if (m_rootAction)
+			m_rootAction->Traverse(deltaSeconds);
+		return true;
+	}
+
+
+	template <class T>
+	void cActor<T>::Clear()
+	{
+		ClearAction();
+		ClearChildActor();
+	}
+
+
+	// Action
+	template <class T>
+	void cActor<T>::SetAction(cAction<T> *action)
+	{
+		RET(!action);
+
+		if (m_rootAction)
+			ClearAction();
+
+		action->m_agent = m_agent;
+		m_rootAction = new cRootAction<T>(m_agent);
+		m_rootAction->PushAction(action);
+	}
+
+
+	template <class T>
+	void cActor<T>::PushAction(cAction<T> *action)
+	{
+		RET(!action);
+
+		if (m_rootAction)
+		{
+			action->m_agent = m_agent;
+			m_rootAction->PushAction(action);
+		}
+		else
+		{
+			SetAction(action);
+		}
+	}
+
+
+	template <class T>
+	void cActor<T>::PushFrontAction(cAction<T> *action)
+	{
+		RET(!action);
+
+		if (m_rootAction)
+		{
+			action->m_agent = m_agent;
+			m_rootAction->PushFrontAction(action);
+		}
+		else
+		{
+			SetAction(action);
+		}
+	}
+
+
+	template <class T>
+	cAction<T>* cActor<T>::GetAction()
+	{
+		RETV(!m_rootAction, NULL);
+		return m_rootAction->GetLeafAction();
+	}
+
+
+	template <class T>
+	bool cActor<T>::IsAction(const eActionType::Enum type)
+	{
+		RETV(!m_rootAction, false);
+		return m_rootAction->IsAction(type);
+	}
+
+
+	template <class T>
+	bool cActor<T>::IsCurrentAction(const eActionType::Enum type)
+	{
+		RETV(!m_rootAction, false);
+		return m_rootAction->GetLeafAction()->IsCurrentAction(type);
+	}
+
+
+	template <class T>
+	void cActor<T>::ClearAction()
+	{
+		SAFE_DELETE(m_rootAction);
+	}
+
+
+	// Children Actor
+	template <class T>
+	bool cActor<T>::AddActor(cObject *actor)
+	{
+		if (IsExistActor(actor))
+			return false;
+
+		m_children.insert(ChildType::value_type(actor->m_id, actor));
+		return true;
+	}
+
+
+	template <class T>
+	bool cActor<T>::RemoveActor(const int actorId)
+	{
+		return m_children.remove(actorId);
+	}
+
+
+	template <class T>
+	cObject* cActor<T>::GetActor(const int actorId)
+	{
+		auto it = m_children.find(actorId);
+		if (m_children.end() == it)
+			return NULL;
+		return it->second;
+	}
+
+
+	template <class T>
+	bool cActor<T>::IsExistActor(cObject *actor)
+	{
+		return IsExistActor(actor->m_id) ? true : false;
+	}
+
+
+	template <class T>
+	bool cActor<T>::IsExistActor(const int actorId)
+	{
+		return GetActor(actorId) ? true : false;
+	}
+
+
+	// 메모리는 외부에서 제거한다.
+	template <class T>
+	void cActor<T>::ClearChildActor()
+	{
+		m_children.clear();
+	}
+
+
+	template <class T>
+	void cActor<T>::DispatchMsg(const sMsg &msg)
+	{
+		if (m_rootAction)
+			m_rootAction->MessageProccess(msg);
+
+		// children message loop
+		for each (auto &actor in m_children.m_Seq)
+		{
+			actor->DispatchMsg(msg);
+		}
+	}
+
+
+	template <class T>
+	bool cActor<T>::operator==(const cActor &rhs)
+	{
+		return Equal(rhs);
+	}
+
+
+	template <class T>
+	bool cActor<T>::operator<(const cActor &rhs)
+	{
+		return m_id < rhs.m_id;
+	}
+
+
+	template <class T>
+	bool cActor<T>::Equal(const cActor &rhs)
+	{
+		return rhs.m_id == m_id;
+	}
 
 }

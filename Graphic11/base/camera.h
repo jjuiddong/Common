@@ -58,6 +58,7 @@ namespace graphic
 		virtual void MoveUp(const float len);
 		virtual void MoveRight(const float len);
 		virtual void MoveAxis(const Vector3 &dir, const float len);
+		virtual void Trace(cNode *trace, const Matrix44 &tm);
 
 		// LookAt 이 이동한다.
 		virtual void Pitch(const float radian);
@@ -79,10 +80,12 @@ namespace graphic
 
 	protected:
 		virtual void CheckBoundingBox();
+		virtual void UpdateMove(const float deltaSeconds);
+		virtual void UpdateTrace(const float deltaSeconds);
 
 
 	public:
-		struct eState { enum Enum { STOP, MOVE }; };
+		struct eState { enum Enum { STOP, MOVE, TRACE }; };
 
 		eState::Enum m_state;
 		StrId m_name;
@@ -95,6 +98,9 @@ namespace graphic
 		bool m_isOrthogonal;
 		bool m_isMovingLimitation;
 		cBoundingHalfSphere m_boundingHSphere;
+
+		cNode *m_traceNode;
+		Matrix44 m_traceTm;
 
 		// ViewPort
 		// left, top = {0,0}

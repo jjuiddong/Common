@@ -67,7 +67,7 @@ cRenderer::~cRenderer()
 
 
 // DirectX Device °´Ã¼ »ý¼º.
-bool cRenderer::CreateDirectX(const bool isThreadRender, HWND hWnd, const int width, const int height)
+bool cRenderer::CreateDirectX(const bool isThreadRender, HWND hWnd, const float width, const float height)
 {
 	if (!InitDirectX11(hWnd, width, height, &m_d3dDevice, &m_devContext
 		, &m_swapChain, &m_renderTargetView, &m_depthStencilView))
@@ -82,7 +82,7 @@ bool cRenderer::CreateDirectX(const bool isThreadRender, HWND hWnd, const int wi
 }
 
 
-bool cRenderer::CreateDirectXSubRenderer(const bool isThreadRender, HWND hWnd, const int width, const int height
+bool cRenderer::CreateDirectXSubRenderer(const bool isThreadRender, HWND hWnd, const float width, const float height
 	, ID3D11Device *device, ID3D11DeviceContext *devContext )
 {
 	const bool isCreateImmediateMode = !isThreadRender;
@@ -113,11 +113,11 @@ bool cRenderer::CreateDirectXSubRenderer(const bool isThreadRender, HWND hWnd, c
 
 
 // Initialize Renderer
-void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
+void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 {
 	m_hWnd = hWnd;
 
-	m_viewPort.Create(0, 0, (float)width, (float)height, 0, 1.f);
+	m_viewPort.Create(0, 0, width, height, 0, 1.f);
 	m_viewPort.Bind(*this);
 
 	m_cbPerFrame.Create(*this);
@@ -249,6 +249,7 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	m_textFps.Create(*this, 20, true, "Arial", cColor::WHITE);
 	m_line.Create(*this);
 	m_rect3D.Create(*this, 32);
+	m_sphere.Create(*this, 1, 10, 10);
 
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgBox.Create(*this, bbox, cColor::RED);
@@ -260,6 +261,8 @@ void cRenderer::InitRenderer(HWND hWnd, const int width, const int height)
 	cBoundingBox bbox2(Vector3(0, 0, 0), Vector3(10, 10, 10), Quaternion());
 	m_dbgAxis.Create(*this);
 	m_dbgAxis.SetAxis(bbox2, false);
+
+	m_defaultMtrl.InitWhite();
 }
 
 

@@ -32,6 +32,10 @@ namespace graphic
 		bool WriteHeightmap(const char *fileName);
 		bool ReadHeightmap(const char *fileName);
 		bool WriteModel(cNode *model, INOUT boost::property_tree::ptree &tree);
+		Transform ParseTransform(const boost::property_tree::ptree &tree);
+		cBoundingBox ParseBoundingBox(const boost::property_tree::ptree &tree
+			, const Transform &transform);
+
 		virtual bool WriteNode(cNode *node, INOUT boost::property_tree::ptree &tree) { return false; }
 		virtual cNode* CreateNode(cRenderer &renderer, const boost::property_tree::ptree &tree);
 

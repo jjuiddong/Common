@@ -45,7 +45,7 @@ bool cSphere::Render(cRenderer &renderer
 {
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
-	shader->SetTechnique("Unlit");
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 

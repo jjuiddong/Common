@@ -45,9 +45,9 @@ namespace graphic
 		virtual ~cRenderer();
 
 		bool CreateDirectX(const bool isThreadRender, HWND hWnd
-			, const int width, const int height );
+			, const float width, const float height );
 		bool CreateDirectXSubRenderer(const bool isThreadRender, HWND hWnd
-			, const int width, const int height
+			, const float width, const float height
 			, ID3D11Device *device, ID3D11DeviceContext *devContext);
 
 		void Update(const float elpaseT);
@@ -84,7 +84,7 @@ namespace graphic
 
 
 	protected:
-		void InitRenderer(HWND hWnd, const int width, const int height);
+		void InitRenderer(HWND hWnd, const float width, const float height);
 
 
 	public:
@@ -105,6 +105,7 @@ namespace graphic
 
 		vector<sAlphaBlendSpace*> m_alphaSpace;
 		vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+		cMaterial m_defaultMtrl;
 
 		cShaderManager m_shaderMgr;
 		cFontManager m_fontMgr;
@@ -148,6 +149,7 @@ namespace graphic
 		cLine2D m_line2D;
 		cRect2D m_rect2D;
 		cRect3D m_rect3D;
+		cSphere m_sphere;
 	};
 
 

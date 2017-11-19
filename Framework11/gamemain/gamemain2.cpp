@@ -19,7 +19,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 	cGameMain2* gameMain = CreateFrameWork2();
-	gameMain->Create(true, gameMain->m_windowName.str()
+	gameMain->Create(hInstance, true, gameMain->m_windowName.str()
 		, gameMain->m_windowRect.Width() 
 		, gameMain->m_windowRect.Height()
 		, NULL

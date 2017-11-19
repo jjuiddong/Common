@@ -12,7 +12,7 @@ namespace ai
 	{
 	public:
  		cRootAction(iActorInterface<T> *agent = NULL)
- 			: cAction(agent, "Root", "", ACTION_TYPE::ROOT)
+ 			: cAction(agent, "Root", "", eActionType::ROOT)
  		{
  		}
 	};

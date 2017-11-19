@@ -27,12 +27,13 @@ void cInputManager::NewFrame()
 	m_mouseClicked[0] = false;
 	m_mouseClicked[1] = false;
 	m_mouseClicked[2] = false;
+	m_lBtnDbClick = false;
 }
 
 
 void cInputManager::Update(const float deltaSeconds)
 {
-	m_lBtnDbClick = false;
+	
 }
 
 
@@ -105,9 +106,14 @@ void cInputManager::MouseProc(const sf::Event &evt)
 			}
 		}
 		break;
+
 		case sf::Mouse::Right:
+		{
+			const int curT = GetTickCount();
 			m_mouseDown[1] = true;
-			break;
+			m_clickTime = curT;
+		}
+		break;
 		}
 		m_mousePt = { evt.mouseButton.x, evt.mouseButton.y };
 		m_mouseClickPt = { evt.mouseButton.x, evt.mouseButton.y };
@@ -132,9 +138,20 @@ void cInputManager::MouseProc(const sf::Event &evt)
 			}
 		}
 		break;
+
 		case sf::Mouse::Right:
+		{
+			const POINT pt = { evt.mouseButton.x, evt.mouseButton.y };
+			const float len = (float)sqrt((pt.x - m_mouseClickPt.x) * (pt.x - m_mouseClickPt.x) + (pt.y - m_mouseClickPt.y) * (pt.y - m_mouseClickPt.y));
+			const bool isNear = len < 10;
+
 			m_mouseDown[1] = false;
-			break;
+
+			const int curT = GetTickCount();
+			if (isNear && ((curT - m_clickTime) < 300))
+				m_mouseClicked[1] = true;
+		}
+		break;
 		}
 		m_mousePt = { evt.mouseButton.x, evt.mouseButton.y };
 		break;
@@ -146,9 +163,16 @@ void cInputManager::MouseProc(const sf::Event &evt)
 }
 
 
-bool cInputManager::IsClick()
+bool cInputManager::IsClick(
+	const int btn //=0
+)
 {
-	return m_mouseClicked[0];
+	return m_mouseClicked[btn];
+}
+
+bool cInputManager::IsDbClick()
+{
+	return m_lBtnDbClick;
 }
 
 
@@ -161,3 +185,4 @@ POINT cInputManager::GetDockWindowCursorPos(cDockWindow *dock)
 	pos.y -= (int)dock->m_rect.top;
 	return pos;
 }
+

@@ -11,6 +11,7 @@ cRect3D::cRect3D()
 	, m_lineCount(0)
 	, m_rectId(0)
 {
+	m_subType = eSubType::AREA;
 }
 
 cRect3D::~cRect3D()

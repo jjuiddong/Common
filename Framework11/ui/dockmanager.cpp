@@ -29,13 +29,13 @@ void cDockManager::InsertMainRenderWindow(cRenderWindow *main)
 }
 
 
-cRenderWindow* cDockManager::NewRenderWindow(const StrId &title, const int width, const int height)
+cRenderWindow* cDockManager::NewRenderWindow(const StrId &title, const float width, const float height)
 {
 	cRenderWindow *window = NULL;
 	if (m_poolWindow.empty())
 	{
 		window = new cRenderWindow();
-		window->Create(false, title, width, height, m_mainWindow, false);
+		window->Create(NULL, false, title, width, height, m_mainWindow, false);
 	}
 	else
 	{

@@ -22,7 +22,8 @@ namespace framework
 		void MouseProc(UINT message, WPARAM wParam, LPARAM lParam);
 		void MouseProc(const sf::Event &evt);
 		POINT GetDockWindowCursorPos(cDockWindow *dock);
-		bool IsClick();
+		bool IsClick(const int btn=0);
+		bool IsDbClick();
 
 
 	public:

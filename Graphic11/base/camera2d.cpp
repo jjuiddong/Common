@@ -8,7 +8,8 @@ using namespace graphic;
 cCamera2D::cCamera2D(const char *name)
 	: cCamera(name)
 	, m_zoom(1.f)
-	, m_maxZoom(10.f)
+	, m_minZoom(1.f)
+	, m_maxZoom(100.f)
 {
 	m_up = Vector3(0, 0, 1); // Camera Up Vector (Z Axis)
 	UpdateViewMatrix();
@@ -62,6 +63,20 @@ Vector3 cCamera2D::GetRight() const
 void cCamera2D::Update(const float deltaSeconds)
 {
 	__super::Update(deltaSeconds);
+}
+
+
+// 카메라가 대상을 쫓아갈 때, 위치와 목표 값을 업데이트한다.
+// 2D 카메라는 Y 값은 업데이트 하지 않는다. Zoom 과 연관되기 때문.
+void cCamera2D::UpdateTrace(const float deltaSeconds)
+{
+	if ((eState::TRACE == m_state) && m_traceNode)
+	{
+		const Vector3 newPos = m_traceTm.GetPosition() + (m_traceNode->GetWorldMatrix().GetPosition() * m_zoom);
+		m_eyePos.x = newPos.x;
+		m_eyePos.z = newPos.z;
+		UpdateViewMatrix();
+	}
 }
 
 
@@ -215,10 +230,18 @@ void cCamera2D::MoveAxis(const Vector3 &dir, const float len)
 }
 
 
+void cCamera2D::Trace(cNode *trace, const Matrix44 &tm)
+{
+	m_traceNode = trace;
+	m_traceTm = tm;
+	m_state = eState::TRACE;
+}
+
+
 // lookAt 은 고정된채로 eyePos 를 이동한다.
 void cCamera2D::Zoom(const float len)
 {
-	m_zoom = min(m_maxZoom, m_zoom * len);
+	m_zoom = max(m_minZoom, min(m_maxZoom, m_zoom * len));
 }
 
 void cCamera2D::Zoom(const Vector3 &dir, const float len)

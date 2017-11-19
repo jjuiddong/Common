@@ -5,7 +5,7 @@
 using namespace graphic;
 
 
-bool graphic::InitDirectX11(const HWND hWnd, const int width, const int height
+bool graphic::InitDirectX11(const HWND hWnd, const float width, const float height
 	, OUT ID3D11Device **pd3dDevice
 	, OUT ID3D11DeviceContext **pImmediateContext
 	, OUT IDXGISwapChain **pSwapChain 
@@ -39,8 +39,8 @@ bool graphic::InitDirectX11(const HWND hWnd, const int width, const int height
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
 	sd.BufferCount = 1;
-	sd.BufferDesc.Width = width;
-	sd.BufferDesc.Height = height;
+	sd.BufferDesc.Width = (UINT)width;
+	sd.BufferDesc.Height = (UINT)height;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
@@ -79,8 +79,8 @@ bool graphic::InitDirectX11(const HWND hWnd, const int width, const int height
 	// Create depth stencil texture
 	D3D11_TEXTURE2D_DESC descDepth;
 	ZeroMemory(&descDepth, sizeof(descDepth));
-	descDepth.Width = width;
-	descDepth.Height = height;
+	descDepth.Width = (UINT)width;
+	descDepth.Height = (UINT)height;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -118,8 +118,8 @@ bool graphic::InitDirectX11(const HWND hWnd, const int width, const int height
 bool graphic::InitDirectX11SwapChain(
 	ID3D11Device *pd3dDevice
 	, const HWND hWnd
-	, const int width
-	, const int height
+	, const float width
+	, const float height
 	, OUT IDXGISwapChain **pSwapChain
 	, OUT ID3D11RenderTargetView **pRenderTargetView
 	, OUT ID3D11DepthStencilView **pDepthStencilView
@@ -150,8 +150,8 @@ bool graphic::InitDirectX11SwapChain(
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
 	sd.BufferCount = 1;
-	sd.BufferDesc.Width = width;
-	sd.BufferDesc.Height = height;
+	sd.BufferDesc.Width = (UINT)width;
+	sd.BufferDesc.Height = (UINT)height;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
@@ -179,8 +179,8 @@ bool graphic::InitDirectX11SwapChain(
 	// Create depth stencil texture
 	D3D11_TEXTURE2D_DESC descDepth;
 	ZeroMemory(&descDepth, sizeof(descDepth));
-	descDepth.Width = width;
-	descDepth.Height = height;
+	descDepth.Width = (UINT)width;
+	descDepth.Height = (UINT)height;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -219,8 +219,8 @@ bool graphic::InitDirectX11SwapChain(
 bool graphic::InitDirectX11Deferred(
 	ID3D11Device *pd3dDevice
 	, const HWND hWnd
-	, const int width
-	, const int height
+	, const float width
+	, const float height
 	, OUT ID3D11DeviceContext **pDeferredContext
 	, OUT IDXGISwapChain **pSwapChain
 	, OUT ID3D11RenderTargetView **pRenderTargetView

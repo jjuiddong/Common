@@ -40,6 +40,8 @@ namespace common
 		} //operator *
 	
 		Quaternion Interpolate( const Quaternion& qNext, const float fTime ) const;
+		Quaternion& lerp(Quaternion q1, Quaternion q2, float time);
+		Quaternion& slerp(Quaternion q1, Quaternion q2, float time, float threshold = 0.05f);
 		Matrix44 GetMatrix() const;
 		Vector3 GetDirection() const;
 
@@ -56,11 +58,37 @@ namespace common
 
 		float GetRotationAngleXZ() const;
 
+		inline float dotProduct(const Quaternion& q2) const
+		{
+			return (x * q2.x) + (y * q2.y) + (z * q2.z) + (w * q2.w);
+		}
+
 		bool operator==(const Quaternion &rhs) {
 			return (abs(x - rhs.x) < MATH_EPSILON) &&
 				(abs(y - rhs.y) < MATH_EPSILON) &&
 				(abs(z - rhs.z) < MATH_EPSILON) &&
 				(abs(w - rhs.w) < MATH_EPSILON);
+		}
+
+		//https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
+		Quaternion operator*(float s) const
+		{
+			return Quaternion(s*x, s*y, s*z, s*w);
+		}
+
+		Quaternion& operator*=(float s)
+		{
+			x *= s;
+			y *= s;
+			z *= s;
+			w *= s;
+			return *this;
+		}
+
+		//https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
+		Quaternion operator+(const Quaternion& b) const
+		{
+			return Quaternion(x + b.x, y + b.y, z + b.z, w + b.w);
 		}
 
 

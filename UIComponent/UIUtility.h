@@ -19,7 +19,6 @@
 
 //--------------------------------------------------------------------------------------------------
 // Function
-
 void ExpandAll(CTreeCtrl &treeCtrl);
 
 HTREEITEM FindTree( CTreeCtrl &treeCtrl, const wstring &text );

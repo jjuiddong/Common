@@ -21,7 +21,7 @@ namespace common {
 // fileName에서 파일이름과 확장자를 제외한 나머지 경로를 리턴한다.
 // 마지막에 '\' 문자는 없다.
 //------------------------------------------------------------------------
-string common::GetFilePathExceptFileName(const std::string &fileName)
+string common::GetFilePathExceptFileName(const string &fileName)
 {
 	char srcFileName[ MAX_PATH];
 	strcpy_s(srcFileName, MAX_PATH, fileName.c_str() );
@@ -147,7 +147,7 @@ wstring common::RelativePathToW(const wstring &pathFrom, const wstring &pathTo)
 {
 	wchar_t szOut[MAX_PATH];
 
-	const BOOL result = PathRelativePathTo(szOut,
+	const BOOL result = PathRelativePathToW(szOut,
 		pathFrom.c_str(), FILE_ATTRIBUTE_DIRECTORY,
 		pathTo.c_str(), FILE_ATTRIBUTE_NORMAL);
 

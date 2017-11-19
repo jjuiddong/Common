@@ -45,7 +45,8 @@ namespace framework
 		cRenderWindow();
 		virtual ~cRenderWindow();
 
-		virtual bool Create(const bool isMainWindow, const StrId &title, const int width, const int height
+		virtual bool Create(const HINSTANCE hInst, const bool isMainWindow
+			, const StrId &title, const float width, const float height
 			, cRenderWindow *mainWindow = NULL, bool isTitleBar=true);
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender(const float deltaSeconds);
@@ -67,6 +68,7 @@ namespace framework
 		void SetCapture(cDockWindow *dock);
 		cDockWindow* GetCapture();
 		void ReleaseCapture();
+		void SetIcon(int id);
 		void Clear();
 
 
@@ -92,6 +94,7 @@ namespace framework
 
 
 	public:
+		HINSTANCE m_hInstance;
 		graphic::cRenderer m_renderer;
 		eState::Enum m_state;
 		StrId m_title;

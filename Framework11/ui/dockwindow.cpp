@@ -810,6 +810,22 @@ bool cDockWindow::IsInSizerSpace(const Vector2 &pos)
 	return rect.IsIn(pos.x, pos.y);
 }
 
+// pos: dockwindow local mouse pos
+bool cDockWindow::IsInWindow(const Vector2 &pos)
+{
+	// dockwindow -> renderwindow coordinate system
+	Vector2 tmp = pos;
+	tmp.x += m_rect.left;
+	tmp.y += m_rect.top;
+	return m_rect.IsIn(tmp.x, tmp.y);
+}
+
+// pos: dockwindow local mouse pos
+bool cDockWindow::IsInWindow(const POINT &pos)
+{
+	return IsInWindow(Vector2((float)pos.x, (float)pos.y));
+}
+
 
 eDockSizingType::Enum cDockWindow::GetDockSizingType()
 {

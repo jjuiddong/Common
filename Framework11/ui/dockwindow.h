@@ -48,6 +48,8 @@ namespace framework
 		void CalcResizeWindow(const eDockResize::Enum type, const sRectf &rect);
 		void CalcResizeWindow(const eDockResize::Enum type, const int deltaSize);
 		bool IsInSizerSpace(const Vector2 &pos);
+		bool IsInWindow(const Vector2 &pos);
+		bool IsInWindow(const POINT &pos);
 		eDockSizingType::Enum GetDockSizingType();
 		void SetBindState(const bool enable = true);
 		void SetCapture();
@@ -90,7 +92,7 @@ namespace framework
 		vector<cDockWindow*> m_tabs;
 		int m_selectTab;
 		StrId m_name;
-		sRectf m_rect;
+		sRectf m_rect; // DockWindow Rect in RenderWindow Coordinate System
 		eDockSlot::Enum m_dragSlot; // using drag dock window
 		graphic::cCamera3D m_camera;
 		graphic::cPickManager m_pickMgr;

@@ -19,6 +19,7 @@ cCamera::cCamera(const char *name)
 	, m_oldHeight(0)
 	, m_state(eState::STOP)
 	, m_isMovingLimitation(false)
+	, m_traceNode(NULL)
 {
 	m_boundingHSphere.SetBoundingHalfSphere(Vector3(0, 0, 0), 500);
 }
@@ -66,8 +67,15 @@ void cCamera::SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const 
 void cCamera::Update(const float deltaSeconds)
 {
 	CheckBoundingBox();
+	UpdateTrace(deltaSeconds);
+	UpdateMove(deltaSeconds);
+}
 
-	RET(eState::STOP == m_state);
+
+// 카메라 이동에 관련된 작업을 한다.
+void cCamera::UpdateMove(const float deltaSeconds)
+{
+	RET(eState::MOVE != m_state);
 	if (m_mover.empty())
 	{
 		m_state = eState::STOP;
@@ -123,6 +131,18 @@ void cCamera::Update(const float deltaSeconds)
 
 	//KeepHorizontal();
 	UpdateViewMatrix();
+}
+
+
+// 카메라가 대상을 쫓아갈 때, 위치와 목표 값을 업데이트한다.
+void cCamera::UpdateTrace(const float deltaSeconds)
+{
+	if ((eState::TRACE == m_state) && m_traceNode)
+	{
+		m_eyePos = m_traceTm.GetPosition() + m_traceNode->GetWorldMatrix().GetPosition();
+		m_lookAt = m_traceNode->GetWorldMatrix().GetPosition();
+		UpdateViewMatrix();
+	}
 }
 
 
@@ -305,6 +325,16 @@ void cCamera::MoveAxis(const Vector3 &dir, const float len)
 	m_lookAt += dir * len;
 	m_eyePos += dir * len;
 	UpdateViewMatrix();
+}
+
+
+// 카메라가 trace node를 따라간다.
+// tm 변환행렬의 차 만큼 거리를 두고 이동한다.
+void cCamera::Trace(cNode *trace, const Matrix44 &tm)
+{
+	m_traceNode = trace;
+	m_traceTm = tm;
+	m_state = eState::TRACE;
 }
 
 

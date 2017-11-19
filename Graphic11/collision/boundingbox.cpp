@@ -87,9 +87,9 @@ bool cBoundingBox::Collision( cBoundingBox &box )
 	const ContainmentType result = m_bbox.Contains(box.m_bbox);
 	switch (result)
 	{
-		case INTERSECTS:
-		case CONTAINS:
-			return true;
+	case INTERSECTS:
+	case CONTAINS:
+		return true;
 	}
 	return false;
 }
@@ -223,14 +223,12 @@ Vector3 cBoundingBox::BoundingPoint(const Vector3 &pos)
 
 cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs) 
 {
-	//// todo: 왜 assert() 가 발생하는지 모름, jjuiddong, 2017-10-13
-	//XMVECTOR vOrientation = XMLoadFloat4(&m_bbox.Orientation);
-	//if (!DirectX::Internal::XMQuaternionIsUnit(vOrientation))
-	//	m_bbox.Orientation = *(XMFLOAT4*)&Quaternion();
-	////
-
+	Transform transform = rhs;
 	BoundingOrientedBox bbox;
-	m_bbox.Transform(bbox, rhs);
+	bbox.Center = *(XMFLOAT3*)&transform.pos;
+	bbox.Extents = *(XMFLOAT3*)&transform.scale;
+	bbox.Orientation = *(XMFLOAT4*)&transform.rot;
+
 	cBoundingBox ret;
 	ret.m_bbox = bbox;
 	return ret;

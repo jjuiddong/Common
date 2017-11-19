@@ -8,7 +8,6 @@
 
 
 // CFileTreeCtrl
-
 class CFileTreeCtrl : public CTreeCtrl
 {
 public:

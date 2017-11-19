@@ -14,7 +14,7 @@ namespace ai
 	public:
 		cObject(const int id=-1) : m_id( ((id == -1)? common::GenerateId() : id) ) {}
 		virtual ~cObject() {}
-		virtual void DispatchMessage(const sMsg &msg) {}
+		virtual void DispatchMsg(const sMsg &msg) {}
 
 	public:
 		int m_id; // auto generate id

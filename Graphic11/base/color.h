@@ -40,6 +40,7 @@ namespace graphic
 		void SetColor(const Vector3 &color);
 		void SetColor(const Vector4 &color);
 		Vector4 GetColor() const;
+		void GetColor(OUT float out[4]) const;
 		DWORD GetAbgr() const;
 
 		operator DWORD ();

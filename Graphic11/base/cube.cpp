@@ -9,6 +9,7 @@ cCube::cCube()
 	: cNode(common::GenerateId(), "cube", eNodeType::MODEL)
 {
 	m_renderFlags |= eRenderFlag::SHADOW;
+	m_subType = eSubType::CUBE;
 }
 
 cCube::cCube(cRenderer &renderer
@@ -18,6 +19,7 @@ cCube::cCube(cRenderer &renderer
 )
 	: cNode(common::GenerateId(), "cube", eNodeType::MODEL)
 {
+	m_subType = eSubType::CUBE;
 	Create(renderer, bbox, vtxType, color);
 }
 
@@ -73,10 +75,7 @@ void cCube::SetCube(cRenderer &renderer, const cCube &cube)
 
 void cCube::SetColor(const cColor &color)
 {
-	//sVertexNormDiffuse *vbuff = (sVertexNormDiffuse*)m_vtxBuff.Lock();
-	//for (int i=0; i < m_vtxBuff.GetVertexCount(); ++i)
-	//	vbuff[ i].c = color;
-	//m_vtxBuff.Unlock();
+	m_color = color;
 }
 
 
@@ -128,3 +127,17 @@ bool cCube::Render(cRenderer &renderer
 	return true;
 }
 
+
+cNode* cCube::Clone(cRenderer &renderer) const
+{
+	cCube *clone = new cCube();
+	clone->m_shape.m_vtxBuff.Set(renderer, m_shape.m_vtxBuff);
+	clone->m_shape.m_idxBuff.Set(renderer, m_shape.m_idxBuff);
+	clone->m_shape.m_vtxType = m_shape.m_vtxType;
+	clone->m_texture = m_texture;
+	clone->m_boundingBox = m_boundingBox;
+	clone->m_transform = m_transform;
+	clone->m_color = m_color;
+	clone->CalcBoundingSphere();
+	return clone;
+}

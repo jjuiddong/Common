@@ -29,30 +29,7 @@ float4 PS(VSOUT_POS In ) : SV_Target
 float4 PS_Outline(VSOUT_POS In) : SV_Target
 {
 	float4 Out = gMtrl_Diffuse;
-
-	float2 coords;
-	coords.x = (In.PosH.x / In.PosH.w + 1) * 0.5f;
-	coords.y = 1 - ((In.PosH.y / In.PosH.w + 1) * 0.5f);
-
-	const float dx = 1.f / DepthMapSize_Scaled;
-	float2 vTexCoords[9];
-	vTexCoords[0] = coords;
-	vTexCoords[1] = coords + float2(-dx, 0.0f);
-	vTexCoords[2] = coords + float2(dx, 0.0f);
-	vTexCoords[3] = coords + float2(0.0f, -dx);
-	vTexCoords[6] = coords + float2(0.0f, dx);
-	vTexCoords[4] = coords + float2(-dx, -dx);
-	vTexCoords[5] = coords + float2(dx, -dx);
-	vTexCoords[7] = coords + float2(-dx, dx);
-	vTexCoords[8] = coords + float2(dx, dx);
-
-	float fOutline = 0.0f;
-	for (int i = 0; i < 9; i++)
-	{
-		fOutline += txDepth.SampleCmpLevelZero(samDepth, vTexCoords[i], 1);
-	}
-	fOutline /= 9.0f;
-
+	const float fOutline = GetOutline(In.PosH);
 	clip(fOutline - 0.000001f);
 	return float4(0.8f, 0, 0, fOutline*2.5f);
 }

@@ -90,3 +90,5 @@
 #include "ui/dockmanager.h"
 #include "ui/renderwindow.h"
 #include "gamemain/GameMain2.h"
+
+#include "dbg/dbgmonitor.h"

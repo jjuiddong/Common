@@ -40,6 +40,7 @@ namespace graphic
 		void SetAnimation(const Str64 &animationName, const bool isMerge = false);
 		void SetAnimation(const int animationIndex, const bool isMerge = false);
 		bool IsLoadFinish();
+		virtual cNode* Clone(cRenderer &renderer) const override;
 		virtual void Clear();
 
 

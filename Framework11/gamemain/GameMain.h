@@ -19,6 +19,7 @@ namespace framework
 		{
 			INIT,
 			RUN,
+			PAUSE,
 			SHUTDOWN,
 		};
 
@@ -29,13 +30,12 @@ namespace framework
 		virtual void Render(const float deltaSeconds);
 		virtual void Exit();
 
-		bool InsertScene(cScene *scene);
-		bool RemoveScene(const int sceneId, const bool removeMemory=true);
-		bool ChangeScene(const int sceneId);
-
 		const wstring& GetWindowName();
-		common::sRecti GetWindowRect();		
+		common::sRectf GetWindowRect();		
 		void MessageProc( UINT message, WPARAM wParam, LPARAM lParam);
+		void Pause();
+		void Resume();
+		void Slow(const float rate);
 
 
 	protected:
@@ -52,8 +52,9 @@ namespace framework
 		HINSTANCE m_hInstance;
 		HWND m_hWnd;
 		wstring m_windowName;
-		sRecti m_windowRect;
+		sRectf m_windowRect;
 		graphic::cRenderer m_renderer;
+		float m_slowFactor; // default: 1.f
 
 
 	// singleton

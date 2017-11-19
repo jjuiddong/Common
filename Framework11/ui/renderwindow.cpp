@@ -12,6 +12,7 @@ using namespace framework;
 
 cRenderWindow::cRenderWindow()
 	: m_mainWindow(NULL)
+	, m_hInstance(NULL)
 	, m_state(eState::NORMAL)
 	, m_camera("render window camera")
 	, m_isVisible(true)
@@ -31,7 +32,8 @@ cRenderWindow::~cRenderWindow()
 }
 
 
-bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const int width, const int height
+bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const StrId &title
+	, const float width, const float height
 	, cRenderWindow *mainWindow //= NULL
 	, bool isTitleBar // = true
 )
@@ -39,6 +41,7 @@ bool cRenderWindow::Create(const bool isMainWindow, const StrId &title, const in
 	__super::create(sf::VideoMode(width, height), title.c_str(),
 		(isTitleBar ? sf::Style::Default : sf::Style::None));
 
+	m_hInstance = hInst;
 	ID3D11Device *mainDevice = (mainWindow) ? mainWindow->m_renderer.GetDevice() : NULL;
 	ID3D11DeviceContext *devContext = (mainWindow) ? mainWindow->m_renderer.GetDevContext() : NULL;
 	if (isMainWindow)
@@ -897,6 +900,14 @@ void cRenderWindow::ReleaseCapture()
 {
 	m_captureDock = NULL;
 	::ReleaseCapture();
+}
+
+
+void cRenderWindow::SetIcon(int id)
+{
+	SendMessage(getSystemHandle(), WM_SETICON, 0
+		, reinterpret_cast<LPARAM>(LoadIcon(GetModuleHandle(nullptr)
+			, MAKEINTRESOURCE(id))));
 }
 
 

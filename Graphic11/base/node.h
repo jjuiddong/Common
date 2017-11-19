@@ -15,6 +15,19 @@ namespace graphic
 		enum Enum { NONE, MODEL, TEXT, TERRAIN, VIRTUAL };
 	};
 
+	struct eSubType {
+		enum Enum {
+			NONE = 0
+			, CUBE2
+			, AREA
+			, CUBE
+			, LINE
+		};
+	};
+	char* GetSubtypeStr(const eSubType::Enum type);
+	eSubType::Enum GetSubtype(const char *subTypeStr);
+
+
 	struct eRenderFlag {
 		enum Enum {
 			NONE = 1 << 0
@@ -49,7 +62,9 @@ namespace graphic
 	{
 	public:
 		cNode();
-		cNode(const int id, const StrId &name = "none", const eNodeType::Enum type=eNodeType::MODEL);
+		cNode(const int id, const StrId &name = "none"
+			, const eNodeType::Enum type = eNodeType::MODEL
+			, const eSubType::Enum subType = eSubType::NONE);
 		virtual ~cNode();
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
@@ -64,6 +79,7 @@ namespace graphic
 		virtual bool AddChild(cNode *node);
 		virtual cNode* FindNode(const int id);
 		virtual cNode* FindNode(const StrId &name);
+		virtual void FindNodeAll(const StrId &name, OUT vector<cNode*> &out);
 		virtual bool RemoveChild(const int id, const bool rmInstance=true);
 		virtual bool RemoveChild(cNode *rmNode, const bool rmInstance = true);
 		
@@ -79,6 +95,7 @@ namespace graphic
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
 			, const bool isSpherePicking = true);
 
+		virtual cNode* Clone(cRenderer &renderer) const { return NULL; }
 		virtual void Clear();
 
 		Matrix44 GetWorldMatrix() const;
@@ -105,6 +122,7 @@ namespace graphic
 		int m_renderFlags; // eRenderFlag, default : VISIBLE
 		int m_opFlags; // eOpFlag, defalut : NONE
 		eNodeType::Enum m_type;
+		eSubType::Enum m_subType;
 		cNode *m_parent;
 		vector<cNode*> m_children;
 		Transform m_transform;

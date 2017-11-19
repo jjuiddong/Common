@@ -25,16 +25,6 @@ cTerrain::~cTerrain()
 
 bool cTerrain::Create(cRenderer &renderer, const sRectf &rect)
 {
-	const Vector2 center = rect.Center();
-	const Vector3 lightLookat = Vector3(center.x, 0, center.y);
-	const Vector3 lightPos = GetMainLight().m_pos;
-	const Vector3 p0 = lightPos;
-	const Vector3 p1 = (lightLookat - lightPos).Normal() * 3 + p0;
-	m_dbgLightDir.Create(renderer, p0, p1, 0.5F);
-
-	m_dbgPlane.Create(renderer);
-	m_dbgPlane.SetLine(Vector3(0, 0, 0), Vector3(0, 30, 0), 0.1f);
-
 	return true;
 }
 
@@ -85,13 +75,6 @@ bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt, c
 		}
 	}
 
-	return true;
-}
-
-
-bool cTerrain::Update(cRenderer &renderer, const float deltaSeconds)
-{
-	__super::Update(renderer, deltaSeconds);
 	return true;
 }
 
@@ -174,12 +157,6 @@ void cTerrain::RenderDebug(cRenderer &renderer
 {
 	GetMainCamera().Bind(renderer);
 	GetMainLight().Bind(renderer);
-
-	if (m_isShowDebug)
-	{
-		m_dbgLightDir.Render(renderer);
-		m_dbgPlane.Render(renderer);
-	}
 }
 
 
@@ -229,8 +206,11 @@ bool cTerrain::RemoveTile(cTile *tile)
 // insert model to most nearest tile
 bool cTerrain::AddModel(cNode *model)
 {
+	RETV(m_tiles.empty(), false);
+
 	cTile *nearTile = GetNearestTile(model);
-	assert(nearTile);
+	if (!nearTile)
+		nearTile = m_tiles[0];
 
 	model->m_transform = model->m_transform * nearTile->m_transform.Inverse();
 	model->CalcBoundingSphere();
@@ -260,8 +240,7 @@ cTile* cTerrain::GetNearestTile(const cNode *node)
 {
 	cBoundingBox bbox = node->m_boundingBox;
 	bbox *= node->GetWorldMatrix();
-	//Transform transform = node->m_transform;
-	//bbox.SetBoundingBox(transform.pos, transform.scale, transform.rot);
+	const Vector3 nodePosW = *(Vector3*)&bbox.m_bbox.Center;
 
 	vector<cTile*> candidate;
 	for (auto &tile : m_tiles)
@@ -277,7 +256,7 @@ cTile* cTerrain::GetNearestTile(const cNode *node)
 	cTile *nearTile = NULL;
 	for (auto &tile : candidate)
 	{
-		const float len = tile->GetWorldMatrix().GetPosition().Distance(node->m_transform.pos);
+		const float len = tile->GetWorldMatrix().GetPosition().Distance(nodePosW);
 		if (len < nearLen)
 		{
 			nearLen = len;

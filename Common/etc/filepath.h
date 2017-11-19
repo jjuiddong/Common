@@ -1,10 +1,9 @@
 #pragma once
 
-
 namespace common
 {
 
-	string GetFilePathExceptFileName(const std::string &fileName);
+	string GetFilePathExceptFileName(const string &fileName);
 	string GetFileExt(const string &fileName);
 	string GetFullFileName(const string &fileName);
 	string GetFileName(const string &fileName);

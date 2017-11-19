@@ -702,16 +702,15 @@
     <CustomBuild Include="shader\pos-norm-tex-skin-bump.fx">
       <Filter>shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="shader\pos-norm-tex-tangent-binormal.fx">
-      <Filter>shader</Filter>
-    </CustomBuild>
     <CustomBuild Include="shader\pos-tex.fx">
       <Filter>shader</Filter>
     </CustomBuild>
     <CustomBuild Include="shader\skyboxcube.fx">
       <Filter>shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="shader\common.fx" />
+    <CustomBuild Include="shader\common.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

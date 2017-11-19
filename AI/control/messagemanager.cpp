@@ -49,12 +49,12 @@ void cMessageManager::ProcessMsg(const sMsg &msg)
 {
 	if (msg.receiver)
 	{
-		msg.receiver->DispatchMessage(msg);
+		msg.receiver->DispatchMsg(msg);
 	}
 	else
 	{
 		if (m_defaultReceiver)
-			m_defaultReceiver->DispatchMessage(msg);
+			m_defaultReceiver->DispatchMsg(msg);
 	}
 }
 

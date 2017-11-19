@@ -23,7 +23,6 @@ namespace graphic
 		virtual bool Create(cRenderer &renderer, const int rowCnt, const int colCnt, const float cellSize
 			, const int rowTileCnt, const int colTileCnt );
 
-		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 
 		void BuildCascadedShadowMap(cRenderer &renderer, INOUT cCascadedShadowMap &ccsm, const XMMATRIX &tm = XMIdentity);
@@ -67,11 +66,6 @@ namespace graphic
 		map<hashcode, cTile*> m_tilemap; // reference (key = name hashcode)
 		map<int, cTile*> m_tilemap2; // reference (key = id)
 
-		// Debug Display
-		bool m_isShowDebug;
-		cDbgArrow m_dbgLightDir;
-		cLine m_dbgPlane; // Plane Normal Vector
-
 		// Terrain Edit
 		vector<sVertexNorm> m_heightMap; // row tile * col tile * tile vertex count
 										 // m_map[row][col];
@@ -79,11 +73,14 @@ namespace graphic
 		int m_rows;	 // row cell count
 		float m_cellSize;
 		int m_colVtx;  // column vertex count
-		int m_rowVtx;	 // row vertex count
+		int m_rowVtx;	// row vertex count
 		int m_tileCols; // row tile count
 		int m_tileRows; // column tile count
 		cTemporalBuffer m_cpyVtxBuff;
 		cTemporalBuffer m_cpyIdxBuff;
+
+		// Debug Display
+		bool m_isShowDebug;
 	};
 
 }

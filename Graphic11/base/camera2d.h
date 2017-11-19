@@ -55,6 +55,7 @@ namespace graphic
 		virtual void MoveUp(const float len) override;
 		virtual void MoveRight(const float len) override;
 		virtual void MoveAxis(const Vector3 &dir, const float len) override;
+		virtual void Trace(cNode *trace, const Matrix44 &tm);
 		virtual void Zoom(const float len);
 		virtual void Zoom(const Vector3 &dir, const float len);
 
@@ -69,8 +70,13 @@ namespace graphic
 		virtual void UpdateViewMatrix() override;
 
 
+	protected:
+		void UpdateTrace(const float deltaSeconds) override;
+
+
 	public:
 		float m_zoom;
+		float m_minZoom;
 		float m_maxZoom;
 	};
 

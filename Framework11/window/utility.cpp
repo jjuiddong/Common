@@ -7,16 +7,16 @@ using namespace framework;
 
 HWND framework::InitWindow(HINSTANCE hInstance
 	, const wstring &windowName
-	, const sRecti &windowRect
+	, const sRectf &windowRect
 	, int nCmdShow
 	, WNDPROC WndProc
 	, const bool dualMonitor //=false
 )
 {
-	const int X = windowRect.left;
-	const int Y = windowRect.top;
-	const int WIDTH = windowRect.right - windowRect.left;
-	const int HEIGHT = windowRect.bottom - windowRect.top;
+	const int X = (int)windowRect.left;
+	const int Y = (int)windowRect.top;
+	const int WIDTH = int(windowRect.right - windowRect.left);
+	const int HEIGHT = int(windowRect.bottom - windowRect.top);
 
 	WNDCLASS WndClass;
 	WndClass.cbClsExtra = 0;

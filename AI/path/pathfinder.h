@@ -12,10 +12,9 @@ namespace ai
 	{
 		enum {MAX_EDGE = 10};
 
-		int type; //0:path point, 1:destination1, 2:destination2
+		int type; // 0:path point, 1:destination1, 2:destination2
 		Vector3 pos;
 		int edge[MAX_EDGE];
-		bool visit;
 		float startLen;
 		float endLen;
 
@@ -25,6 +24,20 @@ namespace ai
 				edge[i] = -1;
 		}
 	};
+
+	struct sEdge
+	{
+		bool visit;
+		float len;
+	};
+
+	struct sArea
+	{
+		int id;
+		sRectf rect;
+		vector<int> indices; // sVertex Indices
+	};
+
 
 	class cPathFinder
 	{
@@ -41,16 +54,23 @@ namespace ai
 		bool RemoveVertex(const int index);
 		bool Find(const Vector3 &start, const Vector3 &end,
 			OUT vector<Vector3> &out);
+		bool AddArea(const sRectf &area);
 		int GetNearestVertex(const Vector3 &pos) const;
+		int GetNearestVertex(const Vector3 &pos, const Vector3 &end) const;
+		int GetNearestArea(const Vector3 &pos) const;
 		void Clear();
 
 
 	protected:
+		float Distance_Manhatan(const Vector3 &p0, const Vector3 &p1) const;
 		float Distance(const Vector3 &p0, const Vector3 &p1) const;
 
 
 	public:
 		vector<sVertex> m_vertices;
+		vector<sArea> m_areas;
+		float m_edges_len[128][128];
+		bool  m_edges_visit[128][128];
 	};
 
 }

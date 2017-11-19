@@ -8,32 +8,27 @@ namespace ai
 {
 	class cObject;
 
-
-	namespace ACTION_STATE
-	{
-		enum TYPE
-		{
+	struct eActionState {
+		enum Enum {
 			WAIT,
 			RUN,
 			STOP,
 		};
-	}
+	};
 
-
-	namespace ACTION_TYPE
-	{
-		enum TYPE
-		{
+	struct eActionType {
+		enum Enum {
 			NONE,
 			ROOT,
 
 			MOVE, 
+			GROUP_MOVE,
 			ATTACK,
 			PATROL,
 
 			MAX_ACTION_TYPE0,
 		};
-	}
+	};
 
 
 	struct sMsg

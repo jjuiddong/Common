@@ -36,6 +36,7 @@ namespace graphic
 		int m_rowCellCount;
 		int m_colCellCount;
 		float m_cellSize;
+		int m_faceCount; // no line count
 		int m_vertexType; // compose eVertexType::Enum
 		D3D_PRIMITIVE_TOPOLOGY m_primitiveType;
 	};

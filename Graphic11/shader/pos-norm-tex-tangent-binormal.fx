@@ -1,97 +1,5 @@
 
-#define SHADOW_EPSILON 0.001f
-
-#define Instancing		true
-#define NotInstancing	false
-
-
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-Texture2D txDiffuse	: register(t0);
-Texture2D txBump	: register(t1);
-Texture2D txShadow0	: register(t2);
-Texture2D txShadow1	: register(t3);
-Texture2D txShadow2	: register(t4);
-
-
-SamplerState samLinear : register(s0)
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = WRAP;
-	AddressV = WRAP;
-};
-
-SamplerState samAnis : register(s1)
-{
-	Filter = ANISOTROPIC;
-	AddressU = WRAP;
-	AddressV = WRAP;
-};
-
-SamplerComparisonState samShadow : register(s2)
-{
-	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-
-	AddressU = Border;
-	AddressV = Border;
-	AddressW = Border;
-	BorderColor = float4(1,1,1,1);
-	ComparisonFunc = GREATER_EQUAL;
-};
-
-
-RasterizerState Depth
-{
-	DepthBias = 10000;
-	DepthBiasClamp = 0.0f;
-	SlopeScaledDepthBias = 1.0f;
-};
-
-
-cbuffer cbPerFrame : register( b0 )
-{
-	matrix gWorld;
-	matrix gView;
-	matrix gProjection;
-	matrix gLightView[3];
-	matrix gLightProj[3];
-	matrix gLightTT;
-	float3 gEyePosW;
-}
-
-
-cbuffer cbLight : register( b1 )
-{
-	float4 gLight_Ambient;
-	float4 gLight_Diffuse;
-	float4 gLight_Specular;
-	float3 gLight_Direction;
-	float3 gLight_PosW;
-}
-
-
-cbuffer cbMaterial : register( b2 )
-{
-	float4 gMtrl_Ambient;
-	float4 gMtrl_Diffuse;
-	float4 gMtrl_Specular;
-	float4 gMtrl_Emissive;
-	float gMtrl_Pow;
-}
-
-
-cbuffer cbPerFrameInstancing : register( b3 )
-{
-	matrix gWorldInst[100];
-}
-
-
-cbuffer cbClipPlane : register(b4)
-{
-	float4	gClipPlane;
-}
-
+#include "common.fx"
 
 
 //--------------------------------------------------------------------------------------
@@ -140,14 +48,14 @@ VS_OUTPUT VS( float4 Pos : POSITION
 //--------------------------------------------------------------------------------------
 float4 PS( VS_OUTPUT In ) : SV_Target
 {
-	float3 L = -gLight_Direction;
-	float3 H = normalize(L + normalize(In.toEye));
-	float3 N = normalize(In.Normal);
+	//float3 L = -gLight_Direction;
+	//float3 H = normalize(L + normalize(In.toEye));
+	//float3 N = normalize(In.Normal);
 
-	float4 color  = gLight_Ambient * gMtrl_Ambient
-			+ gLight_Diffuse * gMtrl_Diffuse * max(0, dot(N,L))
-			+ gLight_Specular * gMtrl_Specular * pow( max(0, dot(N,H)), gMtrl_Pow);
-
+	//float4 color  = gLight_Ambient * gMtrl_Ambient
+	//		+ gLight_Diffuse * gMtrl_Diffuse * max(0, dot(N,L))
+	//		+ gLight_Specular * gMtrl_Specular * pow( max(0, dot(N,H)), gMtrl_Pow);
+	float4 color = GetLightingColor(In.Normal, In.toEye, 1.f);
 	float4 Out = color * txDiffuse.Sample(samLinear, In.Tex);
 	return float4(Out.xyz, gMtrl_Diffuse.a);
 }
@@ -223,63 +131,8 @@ VS_SHADOW_OUTPUT VS_ShadowMap(float4 Pos : POSITION
 //--------------------------------------------------------------------------------------
 float4 PS_ShadowMap(VS_SHADOW_OUTPUT In) : SV_Target
 {
-	float4 vTexCoords[3][9];
-	float dx = 1.0f / 1024.0f;
-	float depth0 = min(In.Depth0.x / In.Depth0.y, 1.0);
-	float depth1 = min(In.Depth0.z / In.Depth0.w, 1.0);
-	float depth2 = min(In.Depth1.x / In.Depth1.y, 1.0);
-
-	// Generate the tecture co-ordinates for the specified depth-map size
-	// 4 3 5
-	// 1 0 2
-	// 7 6 8
-	vTexCoords[0][0] = In.TexShadow0;
-	vTexCoords[0][1] = In.TexShadow0 + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[0][2] = In.TexShadow0 + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[0][3] = In.TexShadow0 + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[0][6] = In.TexShadow0 + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[0][4] = In.TexShadow0 + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[0][5] = In.TexShadow0 + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[0][7] = In.TexShadow0 + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[0][8] = In.TexShadow0 + float4(dx, dx, 0.0f, 0.0f);
-
-	vTexCoords[1][0] = In.TexShadow1;
-	vTexCoords[1][1] = In.TexShadow1 + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[1][2] = In.TexShadow1 + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[1][3] = In.TexShadow1 + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[1][6] = In.TexShadow1 + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[1][4] = In.TexShadow1 + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[1][5] = In.TexShadow1 + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[1][7] = In.TexShadow1 + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[1][8] = In.TexShadow1 + float4(dx, dx, 0.0f, 0.0f);
-
-	vTexCoords[2][0] = In.TexShadow2;
-	vTexCoords[2][1] = In.TexShadow2 + float4(-dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[2][2] = In.TexShadow2 + float4(dx, 0.0f, 0.0f, 0.0f);
-	vTexCoords[2][3] = In.TexShadow2 + float4(0.0f, -dx, 0.0f, 0.0f);
-	vTexCoords[2][6] = In.TexShadow2 + float4(0.0f, dx, 0.0f, 0.0f);
-	vTexCoords[2][4] = In.TexShadow2 + float4(-dx, -dx, 0.0f, 0.0f);
-	vTexCoords[2][5] = In.TexShadow2 + float4(dx, -dx, 0.0f, 0.0f);
-	vTexCoords[2][7] = In.TexShadow2 + float4(-dx, dx, 0.0f, 0.0f);
-	vTexCoords[2][8] = In.TexShadow2 + float4(dx, dx, 0.0f, 0.0f);
-
-	const float S0 = (depth0 - SHADOW_EPSILON);
-	const float S1 = (depth1 - SHADOW_EPSILON);
-	const float S2 = (depth2 - SHADOW_EPSILON);
-
-	float fShadowTerm = 0.0f;
-	for (int i = 0; i < 9; i++)
-	{
-		const float2 uv0 = vTexCoords[0][i].xy;
-		const float2 uv1 = vTexCoords[1][i].xy;
-		const float2 uv2 = vTexCoords[2][i].xy;
-		const float D0 = txShadow0.SampleCmpLevelZero(samShadow, uv0, S0);
-		const float D1 = txShadow1.SampleCmpLevelZero(samShadow, uv1, S1);
-		const float D2 = txShadow2.SampleCmpLevelZero(samShadow, uv2, S2);
-
-		fShadowTerm += (1 - saturate(D0 + D1 + D2));
-	}
-	fShadowTerm /= 9.0f;
+	const float fShadowTerm = GetShadowPCF(In.Depth0, In.Depth1
+	, In.TexShadow0.xy, In.TexShadow1.xy, In.TexShadow2.xy);
 
 	float4 bumpMap = txBump.Sample(samAnis, In.Tex);
 	// Expand the range of the normal value from (0, +1) to (-1, +1). 
@@ -291,17 +144,17 @@ float4 PS_ShadowMap(VS_SHADOW_OUTPUT In) : SV_Target
 	// Normalize the resulting bump normal.
 	bumpNormal = normalize(bumpNormal);
 
-	const float3 L = -gLight_Direction;
-	const float3 H = normalize(L + normalize(In.toEye));
-	const float3 N = normalize(bumpNormal);
+	//const float3 L = -gLight_Direction;
+	//const float3 H = normalize(L + normalize(In.toEye));
+	//const float3 N = normalize(bumpNormal);
 
-	const float lightV = max(0, dot(N, L));
-	float4 color = gLight_Ambient * gMtrl_Ambient
-		+ gLight_Diffuse * gMtrl_Diffuse * 0.1
-		+ gLight_Diffuse * gMtrl_Diffuse * lightV * 0.1
-		+ gLight_Diffuse * gMtrl_Diffuse * lightV * fShadowTerm * 0.9
-		+ gLight_Specular * gMtrl_Specular * pow(max(0, dot(N,H)), gMtrl_Pow);
-
+	//const float lightV = max(0, dot(N, L));
+	//float4 color = gLight_Ambient * gMtrl_Ambient
+	//	+ gLight_Diffuse * gMtrl_Diffuse * 0.1
+	//	+ gLight_Diffuse * gMtrl_Diffuse * lightV * 0.1
+	//	+ gLight_Diffuse * gMtrl_Diffuse * lightV * fShadowTerm * 0.9
+	//	+ gLight_Specular * gMtrl_Specular * pow(max(0, dot(N,H)), gMtrl_Pow);
+	float4 color = GetLightingColor(bumpNormal, In.toEye, fShadowTerm*0.9f);
 	float4 Out = float4(color.xyz, gMtrl_Diffuse.w) * txDiffuse.Sample(samAnis, In.Tex);
 	//Out = txBump.Sample(samAnis, In.Tex).rgba;
 	//Out = txDiffuse.Sample(samAnis, In.Tex);
@@ -347,7 +200,6 @@ float4 PS_BuildShadowMap(
 {
 	clip(gMtrl_Diffuse.a - 0.5f);
 	return float4(1, 1, 1, 1);
-	//return In.Depth.x / In.Depth.y;
 }
 
 

@@ -7,9 +7,11 @@ using namespace graphic;
 
 cGrid::cGrid() 
 	: cNode(common::GenerateId(), "grid", eNodeType::MODEL)
-	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+	//, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	, m_texture(NULL)
 	, m_isLineDrawing(false)
+	, m_faceCount(0)
 {
 	m_mtrl.InitWhite();
 }
@@ -77,8 +79,8 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	const int vertexStride = vtxLayout.GetVertexSize();
 
 	// Init Grid
-	const int rowVtxCnt  = rowCellCount+1;
-	const int colVtxCnt  = colCellCount+1;
+	const int rowVtxCnt = rowCellCount + 1;
+	const int colVtxCnt = colCellCount + 1;
 	const int cellCnt = rowCellCount * colCellCount;
 	const int vtxCount = rowVtxCnt * colVtxCnt;
 	const Vector4 vcolor = color.GetColor();
@@ -115,9 +117,11 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	}
 
 	m_vtxBuff.Create(renderer, vtxCount, vertexStride, &buffer0[0]
-		, isEditable? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
+		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
 
-	vector<WORD> buffer1(cellCnt * 2 * 3);
+	// We Need Additional Indexbuffer for Draw Grid Line
+	const int addLineCount = rowCellCount + colCellCount;
+	vector<WORD> buffer1((cellCnt * 2 * 3) + (addLineCount*3), 0);
 	WORD *indices = &buffer1[0];
 	{
 		int baseIndex = 0;
@@ -125,6 +129,13 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		{
 			for (int k = 0; k < colCellCount; ++k)
 			{
+				//
+				//  0 ----- 1,4
+				//  |    /  |
+				//  |   /   |
+				//  |  /    |
+				//  2,3 --- 5
+
 				indices[baseIndex] = (i * colVtxCnt) + k;
 				indices[baseIndex + 1] = (i   * colVtxCnt) + k + 1;
 				indices[baseIndex + 2] = ((i + 1) * colVtxCnt) + k;
@@ -139,7 +150,26 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		}
 	}
 
-	m_idxBuff.Create(renderer, cellCnt * 2, (BYTE*)&buffer1[0]
+	// Add Grid Line Index
+	{
+		int baseIndex = cellCnt * 2 * 3;
+		for (int i = 0; i < rowCellCount; ++i)
+		{
+			indices[baseIndex] = (i * colVtxCnt);
+			indices[baseIndex + 1] = ((i+1) * colVtxCnt);
+			baseIndex += 2;
+		}
+
+		for (int i = 0; i < colCellCount; ++i)
+		{
+			indices[baseIndex] = (rowCellCount * colVtxCnt) + i;
+			indices[baseIndex + 1] = (rowCellCount * colVtxCnt) + i + 1;
+			baseIndex += 2;
+		}
+	}
+
+	m_faceCount = cellCnt * 2;
+	m_idxBuff.Create(renderer, (cellCnt * 2) + addLineCount, (BYTE*)&buffer1[0]
 		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
 
 	m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
@@ -185,9 +215,8 @@ bool cGrid::Render(cRenderer &renderer
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
-	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
-	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
+	renderer.GetDevContext()->DrawIndexed(m_faceCount * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
 	// Line Drawing (ignore shadow map building)

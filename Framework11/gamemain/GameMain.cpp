@@ -50,8 +50,6 @@ int framework::FrameWorkWinMain(
 	cGameMain::Get()->Run();
 	cGameMain::Get()->ShutDown();
 	cGameMain::Release();
-	//memmonitor::Cleanup();
-	// Shutdown GDI+
 	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return 0;
@@ -96,7 +94,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 cGameMain *cGameMain::m_pInstance = NULL;
 
 cGameMain::cGameMain()
-	//: m_currentScene(NULL)
+	: m_slowFactor(1.f)
+	, m_hWnd(NULL)
+	, m_hInstance(NULL)
 {
 
 }
@@ -162,7 +162,7 @@ void cGameMain::Run()
 
 	MSG msg;
 	int oldT = timeGetTime();
-	while (RUN == m_state)
+	while ((RUN == m_state) || (PAUSE == m_state))
 	{
 		if (PeekMessage( &msg, m_hWnd, 0, 0, PM_NOREMOVE ))
 		{
@@ -175,13 +175,11 @@ void cGameMain::Run()
 		int elapseT = curT - oldT;
 		if (elapseT > 100) // 너무 간격이 크면, 0.1초를 넘지 않게 한다.
 			elapseT = 100;
-		const float t = elapseT * 0.001f;
+		const float t = (PAUSE == m_state)? 0.f : (elapseT * 0.001f * m_slowFactor);
 		oldT = curT;
 
 		Update(t);
 		Render(t);
-		//Sleep(1)
-		//std::this_thread::sleep_for(1ms);
 	}
 }
 
@@ -201,24 +199,12 @@ void cGameMain::Update(const float deltaSeconds)
 
 void cGameMain::Render(const float deltaSeconds)
 {
-	//if (m_renderer.ClearScene())
-	{
-		//if (m_currentScene)
-		//	m_currentScene->Render(m_renderer, Matrix44::Identity);
-
-		OnRender(deltaSeconds);
-	}
-	//else
-	//{
-	//	OnLostDevice();
-	//}
+	OnRender(deltaSeconds);
 }
 
 
 void	cGameMain::MessageProc( UINT message, WPARAM wParam, LPARAM lParam)
 {
-	//if (m_currentScene)
-	//	m_currentScene->MessageProc(message, wParam, lParam);
 	OnMessageProc(message, wParam, lParam);
 }
 
@@ -232,66 +218,19 @@ const wstring& cGameMain::GetWindowName()
 {
 	return m_windowName;
 }
-sRecti cGameMain::GetWindowRect()
+sRectf cGameMain::GetWindowRect()
 {
 	return m_windowRect;
 }
 
 
-bool cGameMain::InsertScene(cScene *scene)
-{
-	RETV(!scene, false);
-
-	//auto it = m_scenes.find(scene->GetId());
-	//if (m_scenes.end() != it)
-	//{
-	//	dbg::ErrLog("Insert Scene Error!! Already Exist scene id = %d \n", scene->GetId());
-	//	return false;
-	//}
-
-	//m_scenes[scene->GetId()] = scene;
-
-	//dbg::Log("Insert Scene id=%d, name=%s \n", scene->GetId(), scene->GetName().c_str());
-	return true;
+void cGameMain::Pause() {
+	if (RUN == m_state)
+		m_state = PAUSE;
 }
 
-
-bool cGameMain::RemoveScene(const int sceneId, const bool removeMemory)
+void cGameMain::Resume()
 {
-	//auto it = m_scenes.find(sceneId);
-	//if (m_scenes.end() == it)
-	//{
-	//	dbg::ErrLog("RemoveScene Error!! not found scene id = %d \n", sceneId);
-	//	return false;
-	//}
-
-	//if (removeMemory)
-	//{
-	//	delete m_scenes[sceneId];
-	//}
-
-	//m_scenes.erase(it);
-	return true;
-}
-
-
-bool cGameMain::ChangeScene(const int sceneId)
-{
-	//auto it = m_scenes.find(sceneId);
-	//if (m_scenes.end() == it)
-	//{
-	//	dbg::ErrLog("ChangeScene Error!! not found scene id = %d\n", sceneId);
-	//	return false;
-	//}
-
-	//if (m_currentScene == it->second)
-	//	return true;
-
-	//if (m_currentScene)
-	//	m_currentScene->Hide();
-
-	//m_currentScene = it->second;
-	//it->second->Show();
-
-	return true;
+	if (PAUSE == m_state)
+		m_state = RUN;
 }

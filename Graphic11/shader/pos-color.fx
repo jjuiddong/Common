@@ -22,8 +22,6 @@ VSOUT_POSDIFFUSE VS( float4 Pos : POSITION
 //--------------------------------------------------------------------------------------
 float4 PS(VSOUT_POSDIFFUSE In ) : SV_Target
 {
-	//return In.Color * gLight_Diffuse * gMtrl_Diffuse;
-	//return gLight_Diffuse * gMtrl_Diffuse;
 	return gMtrl_Diffuse;
 }
 

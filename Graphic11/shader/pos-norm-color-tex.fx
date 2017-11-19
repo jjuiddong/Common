@@ -8,7 +8,9 @@
 VSOUT_TEXDIFF VS( float4 Pos : POSITION
 	, float3 Normal : NORMAL
 	, float2 Tex : TEXCOORD0
-	, float4 Color : COLOR )
+	, float4 Color : COLOR 
+	, uniform bool IsInstancing
+	)
 {
 	VSOUT_TEXDIFF output = (VSOUT_TEXDIFF)0;
     float4 PosW = mul( Pos, gWorld );
@@ -28,16 +30,71 @@ VSOUT_TEXDIFF VS( float4 Pos : POSITION
 //--------------------------------------------------------------------------------------
 float4 PS(VSOUT_TEXDIFF In ) : SV_Target
 {
-	float3 L = -gLight_Direction;
-	float3 H = normalize(L + normalize(In.toEye));
-	float3 N = normalize(In.Normal);
+	float4 color = GetLightingColor(In.Normal, In.toEye, 1.f);
+	float4 texColor = txDiffuse.Sample(samLinear, In.Tex);
+	float4 Out = color * In.Color * texColor;
+	return float4(Out.xyz, gMtrl_Diffuse.a * texColor.a);
+}
 
-	float4 color  = gLight_Ambient * gMtrl_Ambient
-			+ gLight_Diffuse * gMtrl_Diffuse * max(0, dot(N,L))
-			+ gLight_Specular * gMtrl_Specular * pow( max(0, dot(N,H)), gMtrl_Pow);
 
-	float4 Out = txDiffuse.Sample(samAnis, In.Tex);
-	return Out;
+//--------------------------------------------------------------------------------------
+// Vertex Shader ShadowMap
+//--------------------------------------------------------------------------------------
+VSOUT_SHADOW VS_ShadowMap(float4 Pos : POSITION
+	, float3 Normal : NORMAL
+	, float2 Tex : TEXCOORD0
+	, float4 Color : COLOR
+	, uint instID : SV_InstanceID
+	, uniform bool IsInstancing
+)
+{
+	VSOUT_SHADOW output = (VSOUT_SHADOW)0;
+	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
+
+	float4 PosW = mul(Pos, mWorld);
+	output.Pos = mul(PosW, gView);
+	output.Pos = mul(output.Pos, gProjection);
+	output.Normal = normalize(mul(Normal, (float3x3)mWorld));
+	output.Tex = Tex;
+	output.Color = Color;
+	output.PosH = output.Pos;
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+
+	matrix mLVP[3];
+	matrix mVPT[3];
+
+	mLVP[0] = mul(gLightView[0], gLightProj[0]);
+	mVPT[0] = mul(mLVP[0], gLightTT);
+	mLVP[1] = mul(gLightView[1], gLightProj[1]);
+	mVPT[1] = mul(mLVP[1], gLightTT);
+	mLVP[2] = mul(gLightView[2], gLightProj[2]);
+	mVPT[2] = mul(mLVP[2], gLightTT);
+
+	output.TexShadow0 = mul(PosW, mVPT[0]);
+	output.TexShadow1 = mul(PosW, mVPT[1]);
+	output.TexShadow2 = mul(PosW, mVPT[2]);
+
+	output.Depth0.xy = mul(PosW, mLVP[0]).zw;
+	output.Depth0.zw = mul(PosW, mLVP[1]).zw;
+	output.Depth1.xy = mul(PosW, mLVP[2]).zw;
+
+	output.clip = dot(PosW, gClipPlane);
+
+	return output;
+}
+
+
+//--------------------------------------------------------------------------------------
+// Pixel Shader ShadowMap
+//--------------------------------------------------------------------------------------
+float4 PS_ShadowMap(VSOUT_SHADOW In) : SV_Target
+{
+	const float fShadowTerm = GetShadowPCF(In.Depth0, In.Depth1
+	, In.TexShadow0.xy, In.TexShadow1.xy, In.TexShadow2.xy);
+	float4 color = GetLightingColor(In.Normal, In.toEye, fShadowTerm*0.9f);
+	float4 texColor = txDiffuse.Sample(samLinear, In.Tex);
+	float4 Out = color * In.Color * texColor;
+	return float4(Out.xyz, gMtrl_Diffuse.a * texColor.a);
 }
 
 
@@ -73,7 +130,7 @@ technique11 Unlit
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
@@ -86,11 +143,11 @@ technique11 ShadowMap
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetVertexShader(CompileShader(vs_5_0, VS_ShadowMap(NotInstancing)));
 		SetGeometryShader(NULL);
 		SetHullShader(NULL);
 		SetDomainShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS()));
+		SetPixelShader(CompileShader(ps_5_0, PS_ShadowMap()));
 	}
 }
 

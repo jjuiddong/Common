@@ -221,6 +221,16 @@ void cModel::SetAnimation(const int animationIndex
 }
 
 
+cNode* cModel::Clone(cRenderer &renderer) const
+{
+	cModel *model = new cModel();
+	const int id = model->m_id;
+	*model = *this;
+	model->m_id = id;
+	return model;
+}
+
+
 void cModel::Clear()
 {
 	m_model = NULL;

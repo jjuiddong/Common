@@ -73,7 +73,7 @@ bool cTile::Create(cRenderer &renderer
 	m_transform.pos = Vector3(rect.left + cellSize, 0, rect.top + cellSize);
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(cellSize, cellSize, cellSize), Quaternion());
 	CalcBoundingSphere();
-	m_boundingBox.SetBoundingBox( Vector3(0,0,0), Vector3(cellSize, 20000, cellSize), Quaternion());
+	//m_boundingBox.SetBoundingBox( Vector3(0,0,0), Vector3(cellSize, 20000, cellSize), Quaternion());
 
 	return true;
 }
@@ -81,11 +81,6 @@ bool cTile::Create(cRenderer &renderer
 
 bool cTile::Update(cRenderer &renderer, const float deltaSeconds)
 {
-	if (m_name == "±¤»ê4-5")
-	{
-		int a = 0;
-	}
-
 	return __super::Update(renderer, deltaSeconds);
 }
 

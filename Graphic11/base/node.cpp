@@ -5,10 +5,40 @@
 using namespace graphic;
 
 
+//--------------------------------------------------------------------------------
+// eSubType
+char* graphic::GetSubtypeStr(const eSubType::Enum type)
+{
+	switch (type)
+	{
+	case eSubType::NONE: return "None";
+	case eSubType::CUBE2: return "Cube2";
+	case eSubType::AREA: return "Area";
+	case eSubType::CUBE: return "Cube";
+	case eSubType::LINE: return "Line";
+	}
+	return "";
+}
+
+eSubType::Enum graphic::GetSubtype(const char *subTypeStr)
+{
+#define COMPSTR(str, type) if (!strcmp(subTypeStr, str)) {return type;}
+	COMPSTR("None", eSubType::NONE);
+	COMPSTR("Cube2", eSubType::CUBE2);
+	COMPSTR("Area", eSubType::AREA);
+	COMPSTR("Cube", eSubType::CUBE);
+	COMPSTR("Line", eSubType::LINE);	
+	return eSubType::NONE;
+}
+//--------------------------------------------------------------------------------
+
+
+
 cNode::cNode()
 	: m_id(common::GenerateId())
 	, m_name("none")
 	, m_type(eNodeType::MODEL)
+	, m_subType(eSubType::NONE)
 	, m_isEnable(true)
 	, m_parent(NULL)
 	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW)
@@ -22,12 +52,14 @@ cNode::cNode()
 cNode::cNode(const int id
 	, const StrId &name // = "none"
 	, const eNodeType::Enum type //= NONE
+	, const eSubType::Enum subType //= NONE
 ) 
 	: m_id(id)
 	, m_name(name)
 	, m_isEnable(true)
 	, m_parent(NULL)
 	, m_type(type)
+	, m_subType(eSubType::NONE)
 	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW)
 	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
@@ -172,6 +204,18 @@ cNode* cNode::FindNode(const StrId &name)
 
 	return NULL;
 }
+
+
+// 자식 노드 중에 name과 같은 노드가 모두 저장해서 리턴한다.
+void cNode::FindNodeAll(const StrId &name, OUT vector<cNode*> &out)
+{
+	if (m_name == name)
+		out.push_back(this);
+
+	for (auto &node : m_children)
+		node->FindNodeAll(name, out);
+}
+
 
 // id 노드를 제거한다. 메모리까지 제거된다.
 bool cNode::RemoveChild(const int id

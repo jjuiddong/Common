@@ -18,7 +18,7 @@ namespace ai
 	{
 	public:
 		cMove(ai::iActorInterface<T> *agent, const Vector3 &dest, const float speed=3.f)
-			: cAction<T>(agent, "move", "zealot_walk.ani", ACTION_TYPE::MOVE)
+			: cAction<T>(agent, "move", "zealot_walk.ani", eActionType::MOVE)
 			, m_rotateTime(0)
 			, m_speed(speed)
 			, m_rotateInterval(0.3f)

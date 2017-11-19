@@ -178,6 +178,9 @@
     <ClInclude Include="gamemain\gamemain2.h">
       <Filter>gamemain</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgmonitor.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -295,6 +298,9 @@
     <ClCompile Include="gamemain\gamemain2.cpp">
       <Filter>gamemain</Filter>
     </ClCompile>
+    <ClCompile Include="dbg\dbgmonitor.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="external">
@@ -326,6 +332,9 @@
     </Filter>
     <Filter Include="external\sfml\Window\Win32">
       <UniqueIdentifier>{54d2608b-eb44-4932-8fe3-2a36f19f113a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dbg">
+      <UniqueIdentifier>{30c73c4f-02f1-4c08-8438-8aa6b3e2361c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
