@@ -101,13 +101,9 @@ float Plane::Collision( const Vector3& vP )
 }
 
 
-BOOL Plane::CollisionSphere( const Vector3& vP, const float fRadius )
+bool Plane::CollisionSphere( const Vector3& vP, const float fRadius )
 {
-	/*
-		평면의 방정식 : N * P + D = 0
-		구의 중심점과 평면과의 거리 : | N * C + D | / | N |
-	*/
-	return TRUE;
+	return Collision(vP) <= fRadius;
 }
 
 

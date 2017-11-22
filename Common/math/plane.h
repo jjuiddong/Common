@@ -20,7 +20,7 @@ namespace common
 		float GetY( float fX, float fZ ) const;
 		float GetZ( float fX, float fY ) const;
 		float Collision( const Vector3& vP );
-		BOOL CollisionSphere( const Vector3& vP, float fRadius );
+		bool CollisionSphere( const Vector3& vP, float fRadius );
 		int LineCross( const Vector3& v0, const Vector3& v1, Vector3* pvOut ) const;
 		Matrix44 GetReflectMatrix();
 

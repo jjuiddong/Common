@@ -95,6 +95,7 @@ bool cBoundingBox::Collision( cBoundingBox &box )
 }
 
 
+// OBB vs Sphere 충돌처리
 bool cBoundingBox::Collision(cBoundingSphere &sphere)
 {
 	const ContainmentType result = m_bbox.Contains(sphere.m_bsphere);
@@ -105,6 +106,26 @@ bool cBoundingBox::Collision(cBoundingSphere &sphere)
 		return true;
 	}
 	return false;
+}
+
+
+// X-Y, Z-Y Plane Collision Test
+// return Collision Position
+bool cBoundingBox::Collision2D(cBoundingSphere &sphere
+	, OUT Vector3 *out //= NULL
+)
+{
+	Vector3 N = Vector3(1, 0, 0) * *(Quaternion*)&m_bbox.Orientation; 
+	Plane planeZY(N, Center());
+	const float dist = planeZY.Collision(sphere.GetPos());
+	if (abs(dist) > sphere.GetRadius())
+		return false;
+
+	// Collision Position
+	if (out)
+		*out = sphere.GetPos() + -planeZY.N * dist;
+
+	return true;
 }
 
 

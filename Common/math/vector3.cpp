@@ -175,18 +175,19 @@ Vector3 Vector3::MultiplyNormal2(const Matrix44& rhs) const
 }
 
 
-float Vector3::DotProduct( const Vector3& v ) const
+//https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
+Vector3 Vector3::operator * (const Quaternion& rhs) const
 {
-	return x * v.x + y * v.y + z * v.z;
-}
+	// Extract the vector part of the quaternion
+	Vector3 u(rhs.x, rhs.y, rhs.z);
 
+	// Extract the scalar part of the quaternion
+	const float s = rhs.w;
 
-Vector3 Vector3::CrossProduct( const Vector3& v ) const
-{
-	return Vector3( 
-		(y * v.z) - (z * v.y), 
-		(z * v.x) - (x * v.z), 
-		(x * v.y) - (y * v.x) );
+	// Do the math
+	return u * 2.0f * u.DotProduct(*this)
+		+ *this * (s*s - u.DotProduct(u))
+		+ u.CrossProduct(*this) * 2.0f * s;
 }
 
 

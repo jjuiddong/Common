@@ -5,6 +5,7 @@ namespace common
 	struct Vector4;
 	struct Matrix44;
 	struct Transform;
+	struct Quaternion;
 
 	struct Vector3
 	{
@@ -21,8 +22,6 @@ namespace common
 		float Distance(const Vector3 &rhs) const;
 		Vector3 Normal() const;
 		void Normalize();
-		float	DotProduct( const Vector3& v ) const;
-		Vector3 CrossProduct( const Vector3& v ) const;
 		Vector3 MultiplyNormal( const Matrix44& rhs ) const;
 		Vector3 MultiplyNormal2(const Matrix44& rhs) const;
 		Vector3 Interpolate( const Vector3 &v, const float alpha) const;
@@ -34,6 +33,20 @@ namespace common
 		Vector3 operator * (const XMMATRIX &m) const;
 #endif
 	
+		float DotProduct(const Vector3& v) const
+		{
+			return x * v.x + y * v.y + z * v.z;
+		}
+
+		Vector3 CrossProduct(const Vector3& v) const
+		{
+			return Vector3(
+				(y * v.z) - (z * v.y),
+				(z * v.x) - (x * v.z),
+				(x * v.y) - (y * v.x));
+		}
+
+
 		Vector3 operator + () const;
 		Vector3 operator - () const;
 		Vector3 operator + ( const Vector3& rhs ) const;
@@ -44,9 +57,11 @@ namespace common
 		Vector3& operator /= ( const Vector3& rhs );
 
 		Vector3 operator * ( const Matrix44& rhs ) const;
+		Vector3 operator * (const Quaternion& rhs) const;
 		Vector3& operator *= ( const Matrix44& rhs );
 		Vector3 operator * (const Transform& rhs) const;
 		Vector3& operator *= (const Transform& rhs);
+
 
 		bool operator == (const Vector3 &rhs) const
 		{
