@@ -59,7 +59,7 @@ namespace framework
 		cDockWindow* GetSizerTargetWindow(const Vector2 &mousePt);
 		void RequestResetDeviceNextFrame();
 		void Sleep();
-		void WakeUp(const StrId &title, const int width, const int height);
+		void WakeUp(const StrId &title, const float width, const float height);
 		void SetDragState();
 		void SetDragBindState();
 		void SetFinishDragBindState();

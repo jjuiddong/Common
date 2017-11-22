@@ -25,6 +25,7 @@ namespace graphic
 
 		);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
+		void RenderLine(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1);
 
 
 	public:

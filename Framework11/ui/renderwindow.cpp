@@ -38,7 +38,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 	, bool isTitleBar // = true
 )
 {
-	__super::create(sf::VideoMode(width, height), title.c_str(),
+	__super::create(sf::VideoMode((int)width, (int)height), title.c_str(),
 		(isTitleBar ? sf::Style::Default : sf::Style::None));
 
 	m_hInstance = hInst;
@@ -846,7 +846,7 @@ void cRenderWindow::Sleep()
 }
 
 
-void cRenderWindow::WakeUp(const StrId &title, const int width, const int height)
+void cRenderWindow::WakeUp(const StrId &title, const float width, const float height)
 {
 	ChangeState(eState::NORMAL, 9);
 

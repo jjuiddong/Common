@@ -352,13 +352,14 @@ int cPathFinder::GetNearestArea(const Vector3 &pos) const
 
 
 bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
-	OUT vector<Vector3> &out)
+	OUT vector<Vector3> &out
+)
 {
-	const int startIdx = GetNearestVertex(start, end);
+	const int startIdx = m_areas.empty()? GetNearestVertex(start) : GetNearestVertex(start, end);
 	if (startIdx < 0)
 		return false;
 
-	const int endIdx = GetNearestVertex(end, start);
+	const int endIdx = m_areas.empty() ? GetNearestVertex(end) : GetNearestVertex(end, start);
 	if (endIdx < 0)
 		return false;
 

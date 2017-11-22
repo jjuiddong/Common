@@ -76,10 +76,10 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 			// 4------3 -- theta2
 			//
 
-			const float r1 = sin(theta1) * radius * 2;
-			const float r2 = sin(theta2) * radius * 2;
-			const float y1 = cos(theta1) * radius * 2;
-			const float y2 = cos(theta2) * radius * 2;
+			const float r1 = sin(theta1) * radius;
+			const float r2 = sin(theta2) * radius;
+			const float y1 = cos(theta1) * radius;
+			const float y2 = cos(theta2) * radius;
 
 			const float x11 = cos(phi1) * r1;
 			const float z11 = sin(phi1) * r1;

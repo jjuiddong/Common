@@ -138,7 +138,7 @@ void cAssimpModel::UpdateBoundingBox()
 	sMinMax mm;
 	struct sData {sRawNode *p; Matrix44 tm;};
 	vector<sData> s; // like stack
-	s.push_back({ &m_nodes[0] });
+	s.push_back({ &m_nodes[0], Matrix44::Identity });
 
 	while (!s.empty())
 	{

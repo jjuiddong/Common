@@ -62,7 +62,7 @@ namespace graphic
 	{
 		Vector3 p;
 		Vector3 n;
-		DWORD c;
+		Vector4 c;
 	};
 
 

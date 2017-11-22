@@ -222,36 +222,48 @@ bool cGrid::Render(cRenderer &renderer
 	// Line Drawing (ignore shadow map building)
 	if (m_isLineDrawing && !(flags & eRenderFlag::SHADOW))
 	{
-		shader->SetTechnique(m_techniqueName.c_str());
-		shader->Begin();
-		shader->BeginPass(renderer, 0);
-
-		Transform tfm = m_transform;
-		tfm.pos.y += 0.1f;
-		renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
-		renderer.m_cbPerFrame.Update(renderer);
-		renderer.m_cbLight.Update(renderer, 1);
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.5f));
-		renderer.m_cbMaterial.Update(renderer, 2);
-		renderer.m_cbClipPlane.Update(renderer, 4);
-
-		m_vtxBuff.Bind(renderer);
-		m_idxBuff.Bind(renderer);
-
-		if ((m_vertexType & eVertexType::TEXTURE) && m_texture)
-			m_texture->Bind(renderer, 0);
-
-		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
-		renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-		renderer.m_cbMaterial.m_v;
-		renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
-		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
-
-		// recovery material
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+		RenderLine(renderer, tm, flags);
 	}
 
 	__super::Render(renderer, tm, flags);
 	return true;
 }
 
+
+// 라인만 그린다.
+void cGrid::RenderLine(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vertexType);
+	assert(shader);
+	shader->SetTechnique(m_techniqueName.c_str());
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	Transform tfm = m_transform;
+	tfm.pos.y += 0.1f;
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
+	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.5f));
+	renderer.m_cbMaterial.Update(renderer, 2);
+	renderer.m_cbClipPlane.Update(renderer, 4);
+
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+
+	if ((m_vertexType & eVertexType::TEXTURE) && m_texture)
+		m_texture->Bind(renderer, 0);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	renderer.m_cbMaterial.m_v;
+	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
+	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+
+	// recovery material
+	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+}

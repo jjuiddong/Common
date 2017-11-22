@@ -95,6 +95,19 @@ bool cBoundingBox::Collision( cBoundingBox &box )
 }
 
 
+bool cBoundingBox::Collision(cBoundingSphere &sphere)
+{
+	const ContainmentType result = m_bbox.Contains(sphere.m_bsphere);
+	switch (result)
+	{
+	case INTERSECTS:
+	case CONTAINS:
+		return true;
+	}
+	return false;
+}
+
+
 // 피킹 되었다면 true를 리턴한다.
 // orig, dir : ray 값.
 bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
@@ -147,7 +160,11 @@ void cBoundingBox::Scale(const Vector3 &scale)
 // return x,y,z dimension
 Vector3 cBoundingBox::GetDimension() const 
 {
-	return (*(Vector3*)&m_bbox.Extents) * 2.f;
+	Vector3 scale = *(Vector3*)&m_bbox.Extents;
+	Quaternion q = *(Quaternion*)&m_bbox.Orientation;
+	scale *= q.GetMatrix();
+	return scale * 2.f;
+	//return (*(Vector3*)&m_bbox.Extents) * 2.f;
 }
 
 
@@ -221,13 +238,24 @@ Vector3 cBoundingBox::BoundingPoint(const Vector3 &pos)
 }
 
 
-cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs) 
+cBoundingBox cBoundingBox::operator * (const XMMATRIX &rhs)
 {
-	Transform transform = rhs;
+	// BoundingOrientedBox::Transform() 함수는 x,y,z Scaling이 동일할때 써야 한다.
+	// 이 코드는 BoundingBox의 pos,scale,rot 를 행렬처럼 이용해서 변환한다.
+	// 2017-11-20, jjuiddong
+
+	Transform tfm1;
+	tfm1.pos = *(Vector3*)&m_bbox.Center;
+	tfm1.scale = *(Vector3*)&m_bbox.Extents;
+	tfm1.rot = *(Quaternion*)&m_bbox.Orientation;
+
+	XMMATRIX m = tfm1.GetMatrixXM() * rhs;
+	Transform temp = m;
+
 	BoundingOrientedBox bbox;
-	bbox.Center = *(XMFLOAT3*)&transform.pos;
-	bbox.Extents = *(XMFLOAT3*)&transform.scale;
-	bbox.Orientation = *(XMFLOAT4*)&transform.rot;
+	bbox.Center = *(XMFLOAT3*)&temp.pos;
+	bbox.Extents = *(XMFLOAT3*)&temp.scale;
+	bbox.Orientation = *(XMFLOAT4*)&temp.rot;
 
 	cBoundingBox ret;
 	ret.m_bbox = bbox;

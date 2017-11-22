@@ -13,6 +13,7 @@ namespace framework
 		// app -> shared memory
 		float fps;
 		double dtVal;
+		Vector3 mousePos;
 
 		// shared memory -> app
 		bool isDbgRender;
