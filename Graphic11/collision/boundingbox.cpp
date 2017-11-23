@@ -115,15 +115,35 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 	, OUT Vector3 *out //= NULL
 )
 {
-	Vector3 N = Vector3(1, 0, 0) * *(Quaternion*)&m_bbox.Orientation; 
-	Plane planeZY(N, Center());
-	const float dist = planeZY.Collision(sphere.GetPos());
-	if (abs(dist) > sphere.GetRadius())
+	const Quaternion &q = *(Quaternion*)&m_bbox.Orientation;
+	const Vector3 zyN = Vector3(1, 0, 0) * q; 
+	Plane planeZY(zyN, Center());
+	const float distZY = planeZY.Collision(sphere.GetPos());
+	const float r1 = m_bbox.Extents.x;
+
+	const Vector3 xyN = Vector3(0, 0, 1) * q;
+	Plane planeXY(xyN, Center());
+	const float distXY = planeXY.Collision(sphere.GetPos());
+	const float r2 = m_bbox.Extents.z;
+
+	const float d1 = (abs(distZY) - r1);
+	const float d2 = (abs(distXY) - r2);
+	if (d1 > sphere.GetRadius())
 		return false;
+	if (d2 > sphere.GetRadius())
+		return false;
+
+	const bool isZy = abs(d1) < abs(d2);
+	const float dist = isZy? abs(distZY) : abs(distXY);
+	const float r = isZy ? r1 : r2;
+
+	const Vector3 N = isZy ? zyN : xyN;
+	const float minDist = isZy ? distZY : distXY;
+	const float rr = (minDist < 0) ? -(dist - r) : dist - r;
 
 	// Collision Position
 	if (out)
-		*out = sphere.GetPos() + -planeZY.N * dist;
+		*out = sphere.GetPos() + -N * rr;
 
 	return true;
 }
