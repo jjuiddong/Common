@@ -18,7 +18,7 @@ cCamera::cCamera(const char *name)
 	, m_oldWidth(0)
 	, m_oldHeight(0)
 	, m_state(eState::STOP)
-	, m_isMovingLimitation(false)
+	, m_boundingType(eBoundingType::NONE)
 	, m_traceNode(NULL)
 {
 	m_boundingHSphere.SetBoundingHalfSphere(Vector3(0, 0, 0), 500);
@@ -66,9 +66,9 @@ void cCamera::SetCamera2(const Vector3 &eyePos, const Vector3 &direction, const 
 // 카메라 움직임 애니메이션 처리
 void cCamera::Update(const float deltaSeconds)
 {
-	CheckBoundingBox();
 	UpdateTrace(deltaSeconds);
 	UpdateMove(deltaSeconds);
+	CheckBoundingBox();
 }
 
 
@@ -261,8 +261,31 @@ Vector3 cCamera::GetUpVector() const
 
 void cCamera::CheckBoundingBox()
 {
-	RET(!m_isMovingLimitation);
-	m_eyePos = m_boundingHSphere.GetBoundingPoint(m_eyePos);
+	RET(m_boundingType == eBoundingType::NONE);
+
+	// Y축 방향은 양수가되지 않게 한다. (항상 아래를 바라보게 한다.)
+	{
+		Vector3 dir = GetDirection();
+		if (dir.y > -0.1f)
+		{
+			dir.y = -0.1f;
+			dir.Normalize();
+			const float len = m_lookAt.Distance(m_eyePos);
+			m_eyePos = m_lookAt + -dir * len;
+			UpdateViewMatrix();
+		}
+	}
+
+	// 반구를 벗어나지 않게 한다.
+	Vector3 out;
+	if (m_boundingHSphere.GetBoundingPoint(m_eyePos, out))
+	{
+		const Vector3 dir = GetDirection();
+		const float len = m_lookAt.Distance(m_eyePos);
+		m_eyePos = out;
+		m_lookAt = out + dir * len;
+		UpdateViewMatrix();
+	}
 }
 
 
@@ -273,7 +296,6 @@ void cCamera::Move(const cBoundingBox &bbox)
 	Vector3 pos(-m, m, -m);
 	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
 }
-
 
 
 // 앞/뒤으로 이동
@@ -516,6 +538,16 @@ void cCamera::Zoom(const float len)
 
 void cCamera::Zoom(const Vector3 &dir, const float len)
 {
+	// 줌아웃 될때, 카메라 영역을 벗어나는지 체크한다. 벗어나면 무시
+	const bool isZoomOut = len < 0;
+	if ((m_boundingType == eBoundingType::HALF_SPHERE) && isZoomOut)
+	{
+		Vector3 out;
+		const Vector3 pos = m_eyePos + dir * len;
+		if (m_boundingHSphere.GetBoundingPoint(pos, out))
+			return;
+	}
+
 	m_eyePos += dir * len;
 	m_lookAt += dir * len;
 	UpdateViewMatrix();

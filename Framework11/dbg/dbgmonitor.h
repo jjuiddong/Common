@@ -14,6 +14,10 @@ namespace framework
 		float fps;
 		double dtVal;
 		Vector3 mousePos;
+		Vector3 eyePos;
+		Vector3 lookPos;
+		Vector3 eyePos2D;
+		Vector3 lookPos2D;
 
 		// shared memory -> app
 		bool isDbgRender;
@@ -32,6 +36,8 @@ namespace framework
 		bool Create(graphic::cRenderer &renderer, const StrId &sharedMemoryName);
 		void UpdateApp(graphic::cRenderer &renderer);
 		void UpdateTool(graphic::cRenderer &renderer);
+		void Lock();
+		void Unlock();
 
 
 	public:

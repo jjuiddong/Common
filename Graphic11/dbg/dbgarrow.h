@@ -19,7 +19,8 @@ namespace graphic
 		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
 		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity
-			, const bool isSpherePicking = true);
+			, const bool isSpherePicking = true
+			, OUT float *dist = NULL);
 
 
 	public:
@@ -27,6 +28,7 @@ namespace graphic
 		cPyramid m_head;
 		cLine m_body;
 		cColor m_color;
+		Transform m_transform;
 	};
 
 }

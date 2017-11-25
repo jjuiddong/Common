@@ -23,6 +23,7 @@ namespace graphic
 
 
 	// 경계박스 min max 값.
+	// AABB
 	struct sMinMax
 	{
 		Vector3 _min;
@@ -45,6 +46,7 @@ namespace graphic
 			if (_max.z < pos.z)
 				_max.z = pos.z;
 		}
+
 
 		bool IsOk()
 		{ // min, max 초기값 그대로이면 false를 리턴한다.

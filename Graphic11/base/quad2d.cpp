@@ -91,6 +91,7 @@ void cQuad2D::SetPosition(const float x, const float y
 cNode* cQuad2D::Picking(const Ray &ray, const eNodeType::Enum type
 	, const XMMATRIX &parentTm
 	, const bool isSpherePicking //= true
+	, OUT float *dist //= NULL
 )
 {
 	if (!(m_opFlags & eOpFlag::COLLISION))

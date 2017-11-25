@@ -32,7 +32,8 @@ namespace graphic
 
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
 			, const XMMATRIX &parentTm
-			, const bool isSpherePicking = true) override;
+			, const bool isSpherePicking = true
+			, OUT float *dist = NULL) override;
 
 
 	public:

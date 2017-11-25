@@ -30,7 +30,8 @@ bool cGizmo::Create(cRenderer &renderer)
 	const float radius = 2.f;
 	const float circleR = 0.08f;
 	m_torus.Create(renderer, radius, radius- circleR*2, stack, 20);
-	m_arrow.Create(renderer, Vector3(0, 0, 0), Vector3(1, 0, 0), 1.f, true);
+	for (int i=0; i < 3; ++i)
+		m_arrow[i].Create(renderer, Vector3(0, 0, 0), Vector3(1, 0, 0), 1.f, true);
 
 	// Create Torus Picking BoundingBox	
 	m_ringBbox.reserve(stack);
@@ -224,38 +225,37 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	scaleTm.SetScale(scale);
 	const XMMATRIX ptm = scaleTm.GetMatrixXM() * parentTm;
 
-	// X-Axis
+	Transform boundingBoxScale;
+	boundingBoxScale.scale = Vector3(1, 1, 1)*0.8f;
+	const XMMATRIX mBScale = boundingBoxScale.GetMatrixXM();
+
+	float dist[6];
 	Transform tfm = m_transform;
 	tfm.pos *= 1 / scale;
 	const Matrix44 m = tfm.GetMatrix();
+
+	// X-Axis
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
 	const Vector3 px1 = Vector3(2, 0, 0) * m;
-	m_arrow.SetDirection(px0, px1, arrowSize);
+	m_arrow[0].SetDirection(px0, px1, arrowSize);
 	if (!m_isKeepEdit)
-		m_pick[0] = m_arrow.Picking(ray, ptm, false);
-	m_arrow.m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
-	m_arrow.Render(renderer, ptm);
+		m_pick[0] = m_arrow[0].Picking(ray, ptm, false, &dist[0]);
 
 	// Y-Axis
 	const Vector3 py0 = Vector3(0, 0.3f, 0) * m;
 	const Vector3 py1 = Vector3(0, 2, 0) * m;
-	m_arrow.SetDirection(py0, py1, arrowSize);
+	m_arrow[1].SetDirection(py0, py1, arrowSize);
 	if (!m_isKeepEdit)
-		m_pick[1] = m_arrow.Picking(ray, ptm, false);
-	m_arrow.m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
-	m_arrow.Render(renderer, ptm);
+		m_pick[1] = m_arrow[1].Picking(ray, ptm, false, &dist[1]);
 
 	// Z-Axis
 	const Vector3 pz0 = Vector3(0, 0, 0.3f) * m;
 	const Vector3 pz1 = Vector3(0, 0, 2) * m;
-	m_arrow.SetDirection(pz0, pz1, arrowSize);
+	m_arrow[2].SetDirection(pz0, pz1, arrowSize);
 	if (!m_isKeepEdit)
-		m_pick[2] = m_arrow.Picking(ray, ptm, false);
-	m_arrow.m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
-	m_arrow.Render(renderer, ptm);
+		m_pick[2] = m_arrow[2].Picking(ray, ptm, false, &dist[2]);
 
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->RSSetState(states.CullNone());
+	XMMATRIX planeTm[3];// X-Z, Y-Z, X-Y Plane
 	{
 		const XMMATRIX tm = tfm.GetMatrixXM() * ptm;
 
@@ -265,9 +265,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		tfmXZ.pos = Vector3(2.f, 0, 2.f);
 		const XMMATRIX ptmXZ = tfmXZ.GetMatrixXM() * tm;
 		if (!m_isKeepEdit)
-			m_pick[3] = m_quad.Picking(ray, eNodeType::MODEL, ptmXZ, false) ? true : false;
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[3] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
-		m_quad.Render(renderer, ptmXZ);
+			m_pick[3] = m_quad.Picking(ray, eNodeType::MODEL, ptmXZ, false, &dist[3]) ? true : false;
+		planeTm[0] = ptmXZ;
 
 		// Y-Z Plane
 		Transform tfmYZ;
@@ -275,20 +274,84 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		tfmYZ.pos = Vector3(0, 2.f, 2.f);
 		const XMMATRIX ptmYZ = tfmYZ.GetMatrixXM() * tm;
 		if (!m_isKeepEdit)
-			m_pick[4] = m_quad.Picking(ray, eNodeType::MODEL, ptmYZ, false) ? true : false;
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[4] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
-		m_quad.Render(renderer, ptmYZ);
+			m_pick[4] = m_quad.Picking(ray, eNodeType::MODEL, ptmYZ, false, &dist[4]) ? true : false;
+		planeTm[1] = ptmYZ;
 
 		// X-Y Plane
 		Transform tfmXY;
 		tfmXY.pos = Vector3(2.f, 2.f, 0);
 		const XMMATRIX ptmXY = tfmXY.GetMatrixXM() * tm;
 		if (!m_isKeepEdit)
-			m_pick[5] = m_quad.Picking(ray, eNodeType::MODEL, ptmXY, false) ? true : false;
+			m_pick[5] = m_quad.Picking(ray, eNodeType::MODEL, ptmXY, false, &dist[5]) ? true : false;
+		planeTm[2] = ptmXY;
+	}
+
+	int pickCount = 0;
+	for (int i = 0; i < 6; ++i)
+		if (m_pick[i])
+			++pickCount;
+
+	// Find Best Pick
+	if (pickCount > 1)
+	{
+		Vector3 axisPos[6]; // 기즈모의 각 축의 위치
+
+		Transform tmp = m_arrow[0].m_transform.GetMatrixXM() * ptm;
+		axisPos[0] = tmp.pos;
+		tmp = m_arrow[1].m_transform.GetMatrixXM() * ptm;
+		axisPos[1] = tmp.pos;
+		tmp = m_arrow[2].m_transform.GetMatrixXM() * ptm;
+		axisPos[2] = tmp.pos;
+		tmp = m_quad.m_transform.GetMatrixXM() * planeTm[0];
+		axisPos[3] = tmp.pos;
+		tmp = m_quad.m_transform.GetMatrixXM() * planeTm[1];
+		axisPos[4] = tmp.pos;
+		tmp = m_quad.m_transform.GetMatrixXM() * planeTm[2];
+		axisPos[5] = tmp.pos;
+
+		float nearLen = FLT_MAX;
+		int idx = -1;
+		for (int i = 0; i < 6; ++i)
+		{
+			if (m_pick[i])
+			{
+				if (nearLen > dist[i])
+				{
+					nearLen = dist[i];
+					idx = i;
+				}
+			}
+		}
+
+		if (idx >= 0)
+		{
+			ZeroMemory(m_pick, sizeof(m_pick));
+			m_pick[idx] = true;			
+		}
+	}
+
+	m_arrow[0].m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
+	m_arrow[0].Render(renderer, ptm);
+	m_arrow[1].m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
+	m_arrow[1].Render(renderer, ptm);
+	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
+	m_arrow[2].Render(renderer, ptm);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.CullNone());
+	{
+		// X-Z Plane
+		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[3] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
+		m_quad.Render(renderer, planeTm[0]);
+		// Y-Z Plane
+		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[4] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
+		m_quad.Render(renderer, planeTm[1]);
+		// X-Y Plane
 		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[5] ? Vector4(0.6f, 0.6f, 0, 0.6f) : Vector4(0.3f, 0.3f, 0, 0.6f)));
-		m_quad.Render(renderer, ptmXY);
+		m_quad.Render(renderer, planeTm[2]);
 	}
 	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+
 
 	// recovery material
 	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
@@ -376,27 +439,27 @@ void cGizmo::RenderScale(cRenderer &renderer
 	const Matrix44 m = tfm.GetMatrix();
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
 	const Vector3 px1 = Vector3(2, 0, 0) * m;
-	m_arrow.SetDirection(px0, px1, arrowSize);
+	m_arrow[0].SetDirection(px0, px1, arrowSize);
 	if (!m_isKeepEdit)
-		m_pick[0] = m_arrow.Picking(ray, ptm, false);
-	m_arrow.m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
-	m_arrow.Render(renderer, ptm);
+		m_pick[0] = m_arrow[0].Picking(ray, ptm, false);
+	m_arrow[0].m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
+	m_arrow[0].Render(renderer, ptm);
 
 	const Vector3 py0 = Vector3(0, 0.3f, 0) * m;
 	const Vector3 py1 = Vector3(0, 2, 0) * m;
-	m_arrow.SetDirection(py0, py1, arrowSize);
+	m_arrow[1].SetDirection(py0, py1, arrowSize);
 	if (!m_isKeepEdit)
-		m_pick[1] = m_arrow.Picking(ray, ptm, false);
-	m_arrow.m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
-	m_arrow.Render(renderer, ptm);
+		m_pick[1] = m_arrow[1].Picking(ray, ptm, false);
+	m_arrow[1].m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
+	m_arrow[1].Render(renderer, ptm);
 
 	const Vector3 pz0 = Vector3(0, 0, 0.3f) * m;
 	const Vector3 pz1 = Vector3(0, 0, 2) * m;
-	m_arrow.SetDirection(pz0, pz1, arrowSize);
+	m_arrow[2].SetDirection(pz0, pz1, arrowSize);
 	if (!m_isKeepEdit)
-		m_pick[2] = m_arrow.Picking(ray, ptm, false);
-	m_arrow.m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
-	m_arrow.Render(renderer, ptm);
+		m_pick[2] = m_arrow[2].Picking(ray, ptm, false);
+	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
+	m_arrow[2].Render(renderer, ptm);
 
 	// recovery material
 	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
@@ -569,9 +632,9 @@ void cGizmo::RenderRotate(cRenderer &renderer
 			Vector3 v1 = (curPosYZ - m_transform.pos).Normal();
 			const Vector3 p0 = m_transform.pos * invScaleTm;
 			const Vector3 p1 = (v1*1.f*scale + m_transform.pos) * invScaleTm;
-			m_arrow.SetDirection(p0, p1, 0.15f);
-			m_arrow.m_color = cColor::YELLOW;
-			m_arrow.Render(renderer, scaleTm.GetMatrixXM() * parentTm);
+			m_arrow[0].SetDirection(p0, p1, 0.15f);
+			m_arrow[0].m_color = cColor::YELLOW;
+			m_arrow[0].Render(renderer, scaleTm.GetMatrixXM() * parentTm);
 
 			m_torus.m_color = m_pick[0] ? cColor::YELLOW : cColor(0.9f, 0, 0, 1);
 			m_torus.Render(renderer, tmX);
@@ -586,9 +649,9 @@ void cGizmo::RenderRotate(cRenderer &renderer
 			Vector3 v1 = (curPosXZ - m_transform.pos).Normal();
 			const Vector3 p0 = m_transform.pos * invScaleTm;
 			const Vector3 p1 = (v1*1.f*scale + m_transform.pos) * invScaleTm;
-			m_arrow.SetDirection(p0, p1, 0.15f);
-			m_arrow.m_color = cColor::YELLOW;
-			m_arrow.Render(renderer, scaleTm.GetMatrixXM() * parentTm);
+			m_arrow[0].SetDirection(p0, p1, 0.15f);
+			m_arrow[0].m_color = cColor::YELLOW;
+			m_arrow[0].Render(renderer, scaleTm.GetMatrixXM() * parentTm);
 
 			m_torus.m_color = m_pick[1] ? cColor::YELLOW : cColor(0, 0.9f, 0, 1);
 			m_torus.Render(renderer, tmY);
@@ -603,9 +666,9 @@ void cGizmo::RenderRotate(cRenderer &renderer
 			Vector3 v1 = (curPosXY - m_transform.pos).Normal();
 			const Vector3 p0 = m_transform.pos * invScaleTm;
 			const Vector3 p1 = (v1*1.f*scale + m_transform.pos) * invScaleTm;
-			m_arrow.SetDirection(p0, p1, 0.15f);
-			m_arrow.m_color = cColor::YELLOW;
-			m_arrow.Render(renderer, scaleTm.GetMatrixXM() * parentTm);
+			m_arrow[0].SetDirection(p0, p1, 0.15f);
+			m_arrow[0].m_color = cColor::YELLOW;
+			m_arrow[0].Render(renderer, scaleTm.GetMatrixXM() * parentTm);
 
 			m_torus.m_color = m_pick[2] ? cColor::YELLOW : cColor(0, 0, 0.9f, 1);
 			m_torus.Render(renderer, tmZ);

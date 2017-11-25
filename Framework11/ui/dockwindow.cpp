@@ -911,7 +911,7 @@ void cDockWindow::DefaultEventProc(const sf::Event &evt)
 
 
 // Picking Event Trigger
-void cDockWindow::TriggerPickingEvent()
+void cDockWindow::TriggerPickingEvent(const POINT &mousePos)
 {
 	ePickState::Enum state = ePickState::HOVER;
 	if (GetInput().m_mouseClicked[0])
@@ -919,7 +919,7 @@ void cDockWindow::TriggerPickingEvent()
 	else if (GetInput().m_lBtnDbClick)
 		state = ePickState::DBCLICK;
 
-	m_pickMgr.Pick(0, m_owner->m_input.GetDockWindowCursorPos(this), state);
+	m_pickMgr.Pick(0, mousePos, state);
 }
 
 

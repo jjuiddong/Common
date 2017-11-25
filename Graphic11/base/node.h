@@ -90,10 +90,12 @@ namespace graphic
 			, const bool isModel = true);
 		
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
-			, const XMMATRIX &parentTm, const bool isSpherePicking = true);
+			, const XMMATRIX &parentTm, const bool isSpherePicking = true
+			, OUT float *dist =NULL);
 
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
-			, const bool isSpherePicking = true);
+			, const bool isSpherePicking = true
+			, OUT float *dist = NULL);
 
 		virtual cNode* Clone(cRenderer &renderer) const { return NULL; }
 		virtual void Clear();

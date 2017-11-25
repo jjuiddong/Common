@@ -71,7 +71,8 @@ namespace graphic
 
 
 	protected:
-		void UpdateTrace(const float deltaSeconds) override;
+		virtual void CheckBoundingBox() override;
+		virtual void UpdateTrace(const float deltaSeconds) override;
 
 
 	public:

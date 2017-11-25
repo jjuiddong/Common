@@ -20,7 +20,8 @@ namespace graphic
 		virtual ~cTerrain();
 
 		virtual bool Create(cRenderer &renderer, const sRectf &rect);
-		virtual bool Create(cRenderer &renderer, const int rowCnt, const int colCnt, const float cellSize
+		virtual bool Create(cRenderer &renderer, const int rowCnt, const int colCnt
+			, const float cellSizeW, const float cellSizeH
 			, const int rowTileCnt, const int colTileCnt );
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
@@ -35,7 +36,7 @@ namespace graphic
 		void CullingTestOnly(cRenderer &renderer, cCamera &camera, const bool isModel = true
 			, const XMMATRIX &tm = XMIdentity);
 		bool AddTile(cTile *model);
-		bool RemoveTile(cTile *model);
+		bool RemoveTile(cTile *model, const bool rmInstance = true);
 		bool AddModel(cNode *model);
 		bool UpdateModel(cNode *model);
 		void SetDbgRendering(const bool isRender);
@@ -71,11 +72,14 @@ namespace graphic
 										 // m_map[row][col];
 		int m_cols;  // column cell count
 		int m_rows;	 // row cell count
-		float m_cellSize;
+		Vector2 m_cellSize;
 		int m_colVtx;  // column vertex count
 		int m_rowVtx;	// row vertex count
 		int m_tileCols; // row tile count
 		int m_tileRows; // column tile count
+		sRectf m_rect;
+		float m_defaultHeight; // out of range terrain height
+		float m_lerpAlphaFactor; // use lerp alpha factor
 		cTemporalBuffer m_cpyVtxBuff;
 		cTemporalBuffer m_cpyIdxBuff;
 

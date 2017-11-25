@@ -310,13 +310,18 @@ float cNode::CullingTest(const cFrustum &frustum
 cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const bool isSpherePicking //= true
+	, OUT float *dist //= NULL
 )
 {
 	if (!(m_opFlags & eOpFlag::COLLISION))
 		return NULL;
 
+	vector< std::pair<cNode*, float>> picks;
+	picks.reserve(4);
+
 	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
 
+	float chDist = 0.f;
 	if (type == m_type)
 	{
 		cBoundingBox bbox = m_boundingBox;
@@ -325,46 +330,50 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 		{
 			cBoundingSphere bsphere;
 			bsphere.SetBoundingSphere(bbox);
-			if (bsphere.Intersects(ray))
-				return this;
+			if (bsphere.Intersects(ray, &chDist))
+				picks.push_back({ this, chDist });
 		}
 		else
 		{
-			if (bbox.Pick(ray.orig, ray.dir))
-				return this;
+			if (bbox.Pick(ray.orig, ray.dir, &chDist))
+				picks.push_back({ this, chDist });
 		}
 	}
 
-	if (m_children.empty())
-		return NULL;
-
-	vector<cNode*> picks;
-	picks.reserve(4);
-
 	for (auto &p : m_children)
-		if (cNode *n = p->Picking(ray, type, tm))
-			picks.push_back(n);
+	{
+		if (cNode *n = p->Picking(ray, type, tm, isSpherePicking, &chDist))
+			picks.push_back({ n, chDist });
+	}
 
 	if (picks.empty())
 		return NULL;
 
 	if (picks.size() == 1)
-		return picks[0];
+	{
+		if (dist)
+			*dist = picks[0].second;
+		return picks[0].first;
+	}
 
 	cNode *mostNearest = NULL;
 	float nearLen = FLT_MAX;
-	for (auto &p : picks)
+	float retDist = 0;
+	for (auto &kv : picks)
 	{
-		const Vector3 modelPos = p->GetWorldMatrix().GetPosition();
-		Plane ground(Vector3(0, 1, 0), modelPos);
-		const Vector3 pickPos = ground.Pick(ray.orig, ray.dir);
-		const float len = modelPos.LengthRoughly(pickPos);
+		//const Vector3 modelPos = kv.first->GetWorldTransform().pos + -ray.dir * kv.second;
+		//const float len = ray.orig.LengthRoughly(modelPos);
+		const float len = kv.second;
 		if (nearLen > len)
 		{
 			nearLen = len;
-			mostNearest = p;
+			retDist = kv.second;
+			mostNearest = kv.first;
 		}
 	}
+
+	if (dist)
+		*dist = retDist;
 
 	return mostNearest;
 }
@@ -372,10 +381,11 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 
 cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 	, const bool isSpherePicking //= true
+	, OUT float *dist //= NULL
 )
 {
 	const XMMATRIX parentTm = GetParentWorldMatrix().GetMatrixXM();
-	return Picking(ray, type, parentTm, isSpherePicking);
+	return Picking(ray, type, parentTm, isSpherePicking, dist);
 }
 
 

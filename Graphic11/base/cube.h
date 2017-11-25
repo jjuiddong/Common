@@ -17,14 +17,17 @@ namespace graphic
 		cCube();
 		cCube(cRenderer &renderer, const cBoundingBox &bbox
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const int uvFlag = 1);
 
 		bool Create(cRenderer &renderer, const cBoundingBox &bbox
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const int uvFlag = 1);
 		bool Create(cRenderer &renderer
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const int uvFlag = 1);
 		void SetCube(const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cCube &cube);
@@ -32,6 +35,7 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 		virtual cNode* Clone(cRenderer &renderer) const override;
+
 
 	public:
 		cCubeShape m_shape;

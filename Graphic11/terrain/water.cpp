@@ -53,7 +53,7 @@ bool cWater::Create(cRenderer &renderer)
 	m_refractMap.Create(renderer, vp, DXGI_FORMAT_R8G8B8A8_UNORM, false);
 
 	m_grid.Create(renderer
-		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize
+		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize, m_initInfo.cellSize
 		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
 		, cColor::WHITE
 		, g_defaultTexture

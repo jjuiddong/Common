@@ -60,14 +60,29 @@ void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
 {
 	m_head.SetDirection(p0, p1, p1, size*1.75f, 0.75f);
 	m_body.SetLine(p0, p1, size * 0.4f);
+	m_transform.pos = (p0 + p1) * 0.5f;
 }
 
 
 bool cDbgArrow::Picking(const Ray &ray
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const bool isSpherePicking //= true
+	, OUT float *dist //= NULL
 )
 {
-	return m_head.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking) 
-		|| m_body.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking);
+	float out[2] = { FLT_MAX, FLT_MAX };
+	const bool r1 = m_head.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking, &out[0]);
+	const bool r2 = m_body.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking, &out[1]);
+
+	if (dist)
+	{
+		if (r1 && !r2)
+			*dist = out[0];
+		else if (!r1 && r2)
+			*dist = out[1];
+		else if (r1 && r2)
+			*dist = max(out[0], out[1]);
+	}
+
+	return r1 || r2;
 }

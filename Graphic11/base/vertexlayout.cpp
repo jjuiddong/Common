@@ -97,6 +97,32 @@ bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 }
 
 
+bool cVertexLayout::Create(const int vtxType)
+{
+	vector<D3D11_INPUT_ELEMENT_DESC> elems;
+
+	if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
+		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::NORMAL)
+		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::TEXTURE)
+		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::COLOR)
+		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::TANGENT)
+		elems.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::BINORMAL)
+		elems.push_back({ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::BLENDINDICES)
+		elems.push_back({ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::BLENDWEIGHT)
+		elems.push_back({ "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+
+	Create(elems);
+	return true;
+}
+
+
 bool cVertexLayout::Create(const sRawMesh2 &rawMesh)
 {
 	CreateDecl(rawMesh.vertices,

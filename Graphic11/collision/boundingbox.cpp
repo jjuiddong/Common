@@ -194,7 +194,10 @@ Vector3 cBoundingBox::Center() const
 
 void cBoundingBox::Scale(const Vector3 &scale)
 {
-	m_bbox.Extents = *(XMFLOAT3*)&scale;
+	//m_bbox.Extents = *(XMFLOAT3*)&scale;
+	m_bbox.Extents.x *= scale.x;
+	m_bbox.Extents.y *= scale.y;
+	m_bbox.Extents.z *= scale.z;
 }
 
 
@@ -264,7 +267,8 @@ Transform cBoundingBox::GetTransform() const
 }
 
 
-Vector3 cBoundingBox::BoundingPoint(const Vector3 &pos)
+// 인자로 들어온 pos 값이 항상 경계박스 안에 있도록 계산해서 리턴한다.
+Vector3 cBoundingBox::GetBoundingPoint(const Vector3 &pos) const
 {
 	Vector3 reVal;
 
@@ -276,6 +280,27 @@ Vector3 cBoundingBox::BoundingPoint(const Vector3 &pos)
 	reVal = _min.Maximum(pos);
 	reVal = _max.Minimum(reVal);
 	return reVal;
+}
+
+
+// 8개의 꼭지점을 리턴한다.
+// Returns the 8 vertices.
+void cBoundingBox::GetVertexPoint(OUT Vector3 out[8]) const
+{
+	Vector3 vertices[8] = {
+		Vector3(-1,1,-1)
+		, Vector3(1,1,-1)
+		, Vector3(-1,-1,-1)
+		, Vector3(1,-1,-1)
+		, Vector3(-1,1, 1)
+		, Vector3(1,1, 1)
+		, Vector3(-1,-1,1)
+		, Vector3(1,-1,1)
+	};
+
+	Matrix44 tm = GetMatrix();
+	for (int i = 0; i < 8; ++i)
+		out[i] = vertices[i] * tm;
 }
 
 
@@ -312,14 +337,40 @@ cBoundingBox cBoundingBox::operator * (const Matrix44 &rhs)
 }
 
 
-const cBoundingBox& cBoundingBox::operator *= (const Matrix44 &rhs) 
+cBoundingBox& cBoundingBox::operator *= (const Matrix44 &rhs) 
 {
 	*this = operator*(rhs.GetMatrixXM());
 	return *this;
 }
 
-const cBoundingBox& cBoundingBox::operator *= (const XMMATRIX &rhs)
+cBoundingBox& cBoundingBox::operator *= (const XMMATRIX &rhs)
 {
 	*this = operator*(rhs);
+	return *this;
+}
+
+
+// Add Two BoundingBox
+// return AABB Box
+cBoundingBox cBoundingBox::operator + (const cBoundingBox &rhs)
+{
+	Vector3 vertices[16];
+	GetVertexPoint(vertices);
+	rhs.GetVertexPoint(vertices + 8);
+
+	sMinMax minMax;
+	for (int i = 0; i < 16; ++i)
+		minMax.Update(vertices[i]);
+
+	cBoundingBox ret;
+	ret.SetBoundingBox(minMax);
+	return ret;
+}
+
+
+cBoundingBox& cBoundingBox::operator += (const cBoundingBox &rhs)
+{
+	if (this != &rhs)
+		*this = operator+(rhs);
 	return *this;
 }

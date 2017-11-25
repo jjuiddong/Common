@@ -40,16 +40,27 @@ bool cDbgMonitor::Create(graphic::cRenderer &renderer, const StrId &sharedMemory
 // 어플리케이션에서 호출하는 업데이트 함수
 void cDbgMonitor::UpdateApp(graphic::cRenderer &renderer)
 {
-	//m_mutex.Lock();
-	//m_sharedData->fps = ImGui::GetIO().Framerate;
-	//renderer.m_isDbgRender = m_sharedData->isDbgRender;
-	//renderer.m_dbgRenderStyle = m_sharedData->dbgRenderStyle;
-	//m_mutex.Unlock();
+	m_mutex.Lock();
+	m_sharedData->fps = ImGui::GetIO().Framerate;
+	renderer.m_isDbgRender = m_sharedData->isDbgRender;
+	renderer.m_dbgRenderStyle = m_sharedData->dbgRenderStyle;
+	m_mutex.Unlock();
 }
 
 
 // DebugMonitor 에서 호출하는 업데이트 함수
 void cDbgMonitor::UpdateTool(graphic::cRenderer &renderer)
 {
+}
 
+
+void cDbgMonitor::Lock()
+{
+	m_mutex.Lock();
+}
+
+
+void cDbgMonitor::Unlock()
+{
+	m_mutex.Unlock();
 }

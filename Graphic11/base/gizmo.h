@@ -57,7 +57,7 @@ namespace graphic
 		cNode *m_controlNode;
 		cQuad m_quad;
 		cTorus m_torus;
-		cDbgArrow m_arrow;
+		cDbgArrow m_arrow[3];
 		bool m_pick[6]; // x,y,z-axis, x-z, y-z, x-y plane (eGizmoEditAxis order)
 		POINT m_prevMousePos;
 		POINT m_mousePos; // window 2d mouse pos

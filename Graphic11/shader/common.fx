@@ -210,8 +210,8 @@ struct VSOUT_TEXDIFF
 {
 	float4 Pos : SV_POSITION;
 	float3 Normal : TEXCOORD0;
-	float4 Color : COLOR0;
 	float2 Tex : TEXCOORD1;
+	float4 Color : COLOR0;
 	float4 PosH : TEXCOORD2;
 	float3 toEye : TEXCOORD3;
 };

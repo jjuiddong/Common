@@ -16,11 +16,12 @@ cCube::cCube(cRenderer &renderer
 	, const cBoundingBox &bbox
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::WHITE
+	, const int uvFlag //= 1, 0=Create1, 1=Creat2 (cCubeShape)
 )
 	: cNode(common::GenerateId(), "cube", eNodeType::MODEL)
 {
 	m_subType = eSubType::CUBE;
-	Create(renderer, bbox, vtxType, color);
+	Create(renderer, bbox, vtxType, color, uvFlag);
 }
 
 
@@ -28,9 +29,10 @@ bool cCube::Create(cRenderer &renderer
 	, const cBoundingBox &bbox
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= Color::WHITE
+	, const int uvFlag //= 1, 0=Create1, 1=Creat2 (cCubeShape)
 )
 {
-	Create(renderer, vtxType, color);
+	Create(renderer, vtxType, color, uvFlag);
 	SetCube(bbox);
 	CalcBoundingSphere();
 	return true;
@@ -41,10 +43,15 @@ bool cCube::Create(
 	cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= Color::WHITE
+	, const int uvFlag //= 1, 0=Create1, 1=Creat2 (cCubeShape)
 )
 {
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
-	m_shape.Create2(renderer, vtxType, color);
+	if (uvFlag == 0)
+		m_shape.Create1(renderer, vtxType, color);
+	else
+		m_shape.Create2(renderer, vtxType, color);
+
 	CalcBoundingSphere();
 	m_color = color;
 	return true;
@@ -53,9 +60,8 @@ bool cCube::Create(
 
 void cCube::SetCube(const cBoundingBox &bbox)
 {
-	m_transform.scale = bbox.GetDimension() / 2.f;
-	m_transform.pos = bbox.Center();
-	//m_boundingBox = bbox;
+	m_transform = bbox.GetTransform();
+	//m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), m_transform.scale, m_transform.rot);
 }
 
 
@@ -97,9 +103,9 @@ bool cCube::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
 
-	Vector4 ambient = m_color.GetColor() * 0.3f;
+	Vector4 ambient = m_color.GetColor();// *0.3f;
 	ambient.w = m_color.GetColor().w;
-	Vector4 diffuse = m_color.GetColor() * 0.7f;
+	Vector4 diffuse = m_color.GetColor();// *0.7f;
 	diffuse.w = m_color.GetColor().w;
 	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, ambient.w);
 	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, diffuse.w);

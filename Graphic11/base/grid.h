@@ -14,7 +14,9 @@ namespace graphic
 		cGrid();
 		virtual ~cGrid();
 
-		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
+		void Create(cRenderer &renderer, const int rowCellCount, const int colCellCount
+			, const float cellSizeW
+			, const float cellSizeH
 			, const int vertexType = (eVertexType::POSITION | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE
 			, const char *textureFileName = g_defaultTexture
@@ -22,7 +24,6 @@ namespace graphic
 			, const Vector2 &uv1 = Vector2(1, 1)
 			, const float textureUVFactor = 1.f
 			, const bool isEditable = false
-
 		);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
 		void RenderLine(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1);
@@ -36,7 +37,8 @@ namespace graphic
 		bool m_isLineDrawing;
 		int m_rowCellCount;
 		int m_colCellCount;
-		float m_cellSize;
+		float m_cellSizeW;
+		float m_cellSizeH;
 		int m_faceCount; // no line count
 		int m_vertexType; // compose eVertexType::Enum
 		D3D_PRIMITIVE_TOPOLOGY m_primitiveType;

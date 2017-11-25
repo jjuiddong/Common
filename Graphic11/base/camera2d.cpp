@@ -66,6 +66,21 @@ void cCamera2D::Update(const float deltaSeconds)
 }
 
 
+void cCamera2D::CheckBoundingBox()
+{
+	RET(m_boundingType != eBoundingType::BOX);
+
+	// 줌이 적용되지 않은 eyePos에서 경계박스 위치를 검사한다.
+	const Matrix44 mZoom = GetZoomMatrix();
+	const Vector3 eyePos = m_eyePos * mZoom.Inverse();
+
+	// 경계박스를 벗어나지 않게 한다.
+	const Vector3 newEyePos = m_boundingBox.GetBoundingPoint(eyePos);
+	m_eyePos = newEyePos * mZoom;
+	UpdateViewMatrix();
+}
+
+
 // 카메라가 대상을 쫓아갈 때, 위치와 목표 값을 업데이트한다.
 // 2D 카메라는 Y 값은 업데이트 하지 않는다. Zoom 과 연관되기 때문.
 void cCamera2D::UpdateTrace(const float deltaSeconds)

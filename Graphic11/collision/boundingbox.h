@@ -39,12 +39,15 @@ namespace graphic
 		XMMATRIX GetMatrixXM() const;
 		Matrix44 GetMatrix() const;
 		Transform GetTransform() const;
-		Vector3 BoundingPoint(const Vector3 &pos);
+		Vector3 GetBoundingPoint(const Vector3 &pos) const;
+		void GetVertexPoint(OUT Vector3 out[8]) const;
 
+		cBoundingBox operator + (const cBoundingBox &rhs);
 		cBoundingBox operator * (const XMMATRIX &rhs);
 		cBoundingBox operator * (const Matrix44 &rhs);
-		const cBoundingBox& operator *= (const Matrix44 &rhs);
-		const cBoundingBox& operator *= (const XMMATRIX &rhs);
+		cBoundingBox& operator += (const cBoundingBox &rhs);
+		cBoundingBox& operator *= (const Matrix44 &rhs);
+		cBoundingBox& operator *= (const XMMATRIX &rhs);
 		cBoundingBox& operator=(const cCube &cube);
 
 

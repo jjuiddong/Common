@@ -14,6 +14,8 @@ cTerrain::cTerrain()
 	, m_cols(0)
 	, m_tileCols(0)
 	, m_tileRows(0)
+	, m_defaultHeight(0)
+	, m_lerpAlphaFactor(0.02f)
 {
 }
 
@@ -29,16 +31,19 @@ bool cTerrain::Create(cRenderer &renderer, const sRectf &rect)
 }
 
 
-bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt, const float cellSize
+bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt
+	, const float cellSizeW
+	, const float cellSizeH
 	, const int rowTileCnt, const int colTileCnt)
 {
 	m_rows = rowCnt;
 	m_cols = colCnt;
-	m_cellSize = cellSize;
+	m_cellSize = Vector2(cellSizeW, cellSizeH);
 	m_rowVtx = rowCnt + 1;
 	m_colVtx = colCnt + 1;
 	m_tileCols = colTileCnt;
 	m_tileRows = rowTileCnt;
+	m_rect = sRectf(0, 0, colCnt*cellSizeW, rowCnt*cellSizeH);
 	m_heightMap.resize(m_rowVtx * m_colVtx);
 
 	// initialize map
@@ -67,7 +72,7 @@ bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt, c
 	{
 		for (int c = 0; c < colCnt+1; ++c)
 		{
-			Vector3 p(c*cellSize, 0, r*cellSize);
+			Vector3 p(c*cellSizeW, 0, r*cellSizeH);
 			Vector3 n(0, 1, 0);
 			const int idx = r*(colCnt+1) + c;
 			m_heightMap[idx].p = p;
@@ -188,9 +193,11 @@ bool cTerrain::AddTile(cTile *tile)
 }
 
 
-bool cTerrain::RemoveTile(cTile *tile)
+bool cTerrain::RemoveTile(cTile *tile
+	, const bool rmInstance //= true
+)
 {
-	RemoveChild(tile);
+	RemoveChild(tile, rmInstance);
 
 	auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
 	if (m_tiles.end() == it)
@@ -298,8 +305,8 @@ inline float Lerp(float p1, float p2, float alpha)
 // x/z평면에서 월드 좌표 x,z 위치에 해당하는 높이 값 y를 리턴한다.
 float cTerrain::GetHeight(const float x, const float z)
 {
-	const float newX = x / m_cellSize;
-	const float newZ = z / m_cellSize;
+	const float newX = x / m_cellSize.x;
+	const float newZ = z / m_cellSize.y;
 
 	const float col = ::floorf(newX);
 	const float row = ::floorf(newZ);
@@ -423,12 +430,30 @@ Vector3 cTerrain::GetHeightFromRay(const Ray &ray)
 
 
 // 맵을 2차원 배열로 봤을 때, row, col 인덱스의 높이 값을 리턴한다.
+// 맵 범위를 벗어 났을 때, m_defaultHeight 값을 보간해서 리턴한다.
 float cTerrain::GetHeightMapEntry(int row, int col)
 {
 	if (0 > row || 0 > col)
-		return 0.f;
+	{
+		const int r = max(min(row, m_rows - 1), 0);
+		const int c = max(min(col, m_cols - 1), 0);
+		const float a = (float)sqrt((r - row)*(r - row) + (c - col)*(c - col)) * m_lerpAlphaFactor;
+
+		const float h = GetHeightMapEntry(r, c);
+		return lerp(h, m_defaultHeight, 0);
+	}
+
+	if (m_rows <= row || m_cols <= col)
+	{
+		const int r = max(min(row, m_rows - 1), 0);
+		const int c = max(min(col, m_cols - 1), 0);
+		const float a = (float)sqrt((r-row)*(r-row) + (c-col)*(c-col)) * m_lerpAlphaFactor;
+
+		const float h = GetHeightMapEntry(r,c);
+		return lerp(h, m_defaultHeight, 0);
+	}
 	if ((int)m_heightMap.size() <= (row * m_colVtx + col))
-		return 0.f;
+		return m_defaultHeight;
 
 	return m_heightMap[row*m_colVtx + col].p.y;
 }
@@ -446,7 +471,7 @@ void cTerrain::Clear()
 // Normalize All HeightMap
 void cTerrain::HeightmapNormalize()
 {
-	const float radius = sqrt((float)(m_cols*m_cols + m_rows*m_rows)) * m_cellSize;
+	const float radius = sqrt((float)(m_cols*m_cols + m_rows*m_rows)) * m_cellSize.Length();
 	HeightmapNormalize(Vector3(0, 0, 0), radius);
 }
 
@@ -455,12 +480,12 @@ void cTerrain::HeightmapNormalize(const Vector3 &cursorPos, const float radius)
 {
 	cTerrain &terrain = *this;
 
-	const float x = ((cursorPos.x - radius) / m_cellSize) - 2;
-	const float z = ((cursorPos.z - radius) / m_cellSize) - 2;
+	const float x = ((cursorPos.x - radius) / m_cellSize.x) - 2;
+	const float z = ((cursorPos.z - radius) / m_cellSize.y) - 2;
 	const int startX = (int)max(0, x);
 	const int startZ = (int)max(0, z);
-	const int rowSize = (int)((radius * 2) / m_cellSize) + 4;
-	const int colSize = (int)((radius * 2) / m_cellSize) + 4;
+	const int rowSize = (int)((radius * 2) / m_cellSize.y) + 4;
+	const int colSize = (int)((radius * 2) / m_cellSize.x) + 4;
 	const int endZ = min(startZ + rowSize, m_rowVtx);
 	const int endX = min(startX + colSize, m_colVtx);
 

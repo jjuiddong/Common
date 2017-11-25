@@ -8,13 +8,13 @@
 VSOUT_TEXDIFF VS( float4 Pos : POSITION
 	, float3 Normal : NORMAL
 	, float2 Tex : TEXCOORD0
-	, float4 Color : COLOR 
+	, float4 Color : COLOR
 	, uniform bool IsInstancing
 	)
 {
 	VSOUT_TEXDIFF output = (VSOUT_TEXDIFF)0;
     float4 PosW = mul( Pos, gWorld );
-    output.Pos = mul(PosW, gView );
+    output.Pos = mul( PosW, gView );
     output.Pos = mul( output.Pos, gProjection );
     output.Normal = normalize( mul(Normal, (float3x3)gWorld) );
     output.Tex = Tex;
@@ -31,8 +31,8 @@ VSOUT_TEXDIFF VS( float4 Pos : POSITION
 float4 PS(VSOUT_TEXDIFF In ) : SV_Target
 {
 	float4 color = GetLightingColor(In.Normal, In.toEye, 1.f);
-	float4 texColor = txDiffuse.Sample(samLinear, In.Tex);
-	float4 Out = color * In.Color * texColor;
+	float4 texColor = txDiffuse.Sample(samAnis, In.Tex);
+	float4 Out = color * In.Color *texColor;
 	return float4(Out.xyz, gMtrl_Diffuse.a * texColor.a);
 }
 

@@ -5,213 +5,6 @@
 
 namespace {
 
-	//-----------------------------------------------------------------------------
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
-	//   2 --- 3
-	//
-	Vector3 g_vertices1[24] = {
-		Vector3(-1.f, 1.f, -1.f),//0
-		Vector3(1.f, -1.f, -1.f),//3
-		Vector3(-1.f, -1.f, -1.f),//2
-		Vector3(1.f, 1.f, -1.f),//1
-		Vector3(-1.f, -1.f, -1.f),//2
-		Vector3(1.f, -1.f, 1.f),// 7
-		Vector3(-1.f, -1.f, 1.f),//6
-		Vector3(1.f, -1.f, -1.f),//3
-		Vector3(-1.f, -1.f, 1.f),
-		Vector3(1.f, 1.f, 1.f),
-		Vector3(-1.f, 1.f, 1.f),
-		Vector3(1.f, -1.f, 1.f),
-		Vector3(-1.f, 1.f, 1.f),
-		Vector3(1.f, 1.f, -1.f),
-		Vector3(-1.f, 1.f, -1.f),
-		Vector3(1.f, 1.f, 1.f),
-		Vector3(-1.f, -1.f, 1.f),
-		Vector3(-1.f, 1.f, -1.f),
-		Vector3(-1.f, -1.f, -1.f),
-		Vector3(-1.f, 1.f, 1.f),
-		Vector3(1.f, -1.f, 1.f),
-		Vector3(1.f, 1.f, -1.f),
-		Vector3(1.f, 1.f, 1.f),
-		Vector3(1.f, -1.f, -1.f),
-	};
-
-	Vector3 g_normals1[24] = {
-		Vector3(0.f, 0.f, -1.f),
-		Vector3(0.f, 0.f, -1.f),
-		Vector3(0.f, 0.f, -1.f),
-		Vector3(0.f, 0.f, -1.f),
-		Vector3(0.f, -1.f, 0.f),
-		Vector3(0.f, -1.f, 0.f),
-		Vector3(0.f, -1.f, 0.f),
-		Vector3(0.f, -1.f, 0.f),
-		Vector3(0.f, 0.f, 1.f),
-		Vector3(0.f, 0.f, 1.f),
-		Vector3(0.f, 0.f, 1.f),
-		Vector3(0.f, 0.f, 1.f),
-		Vector3(0.f, 1.f, 0.f),
-		Vector3(0.f, 1.f, 0.f),
-		Vector3(0.f, 1.f, 0.f),
-		Vector3(0.f, 1.f, 0.f),
-		Vector3(-1.f, 0.f, 0.f),
-		Vector3(-1.f, 0.f, 0.f),
-		Vector3(-1.f, 0.f, 0.f),
-		Vector3(-1.f, 0.f, 0.f),
-		Vector3(1.f, 0.f, 0.f),
-		Vector3(1.f, 0.f, 0.f),
-		Vector3(1.f, 0.f, 0.f),
-		Vector3(1.f, 0.f, 0.f),
-	};
-	Vector2 g_uv1[24] = {
-		Vector2(0.278796f, 0.399099f),
-		Vector2(0.008789f, 0.598055f),
-		Vector2(0.008789f, 0.399099f),
-		Vector2(0.278796f, 0.598055f),
-		Vector2(0.987252f, 0.399099f),
-		Vector2(0.768028f, 0.598055f),
-		Vector2(0.768028f, 0.399099f),
-		Vector2(0.987252f, 0.598055f),
-		Vector2(0.768028f, 0.399099f),
-		Vector2(0.49802f, 0.598055f),
-		Vector2(0.49802f, 0.399099f),
-		Vector2(0.768028f, 0.598055f),
-		Vector2(0.49802f, 0.399099f),
-		Vector2(0.278796f, 0.598055f),
-		Vector2(0.278796f, 0.399099f),
-		Vector2(0.49802f, 0.598055f),
-		Vector2(0.49802f, 0.198324f),
-		Vector2(0.278796f, 0.399099f),
-		Vector2(0.278796f, 0.198324f),
-		Vector2(0.49802f, 0.399099f),
-		Vector2(0.49802f, 0.79883f),
-		Vector2(0.278796f, 0.598055f),
-		Vector2(0.49802f, 0.598055f),
-		Vector2(0.278796f, 0.79883f),
-	};
-	WORD g_indices1[36] = {
-		0, 1, 2,
-		1, 0, 3,
-		4, 5, 6,
-		5, 4, 7,
-		8, 9, 10,
-		9, 8, 11,
-		12, 13, 14,
-		13, 12, 15,
-		16, 17, 18,
-		17, 16, 19,
-		20, 21, 22,
-		21, 20, 23,
-	};
-
-	//-----------------------------------------------------------------------------
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
-	//   2 --- 3
-	//
-	// vertices
-	Vector3 g_vertices2[8] = {
-		Vector3(-1,1,-1)
-		, Vector3(1,1,-1)
-		, Vector3(-1,-1,-1)
-		, Vector3(1,-1,-1)
-		, Vector3(-1,1, 1)
-		, Vector3(1,1, 1)
-		, Vector3(-1,-1,1)
-		, Vector3(1,-1,1)
-	};
-	Vector3 g_normals2[6] = {
-		Vector3(0,0,-1), // front
-		Vector3(0,0,1), // back
-		Vector3(0,1,0), // top
-		Vector3(0,-1,0), // bottom
-		Vector3(-1,0,0), // left
-		Vector3(1,0,0) // right
-	};
-
-	Vector2 g_uv2[36] = {
-		// 032 013
-		Vector2(0, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-
-		// 567 546
-		Vector2(0, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-
-		// 410 451
-		Vector2(0, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-
-		// 276 237
-		Vector2(0, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-
-		// 426 402
-		Vector2(0, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-
-		// 173 157
-		Vector2(0, 0),
-		Vector2(1, 1),
-		Vector2(0, 1),
-
-		Vector2(0, 0),
-		Vector2(1, 0),
-		Vector2(1, 1),
-	};
-
-	WORD g_indices2[36] = {
-		// front
-		0, 3, 2,
-		0 ,1, 3,
-		// back
-		5, 6, 7,
-		5, 4, 6,
-		// top
-		4, 1, 0,
-		4, 5, 1,
-		// bottom
-		2, 7, 6,
-		2, 3, 7,
-		// left
-		4, 2, 6,
-		4, 0, 2,
-		// right
-		1, 7, 3,
-		1, 5, 7,
-	};
-
 }
 
 using namespace graphic;
@@ -252,7 +45,7 @@ bool cCubeShape::InitCube1(cRenderer &renderer
 	, const cColor &color //= Color::BLACK
 )
 {
-	return CreateShape1(renderer, g_vertices1, g_normals1, g_uv1, g_indices1, vtxType, color);
+	return CreateShape1(renderer, g_cubeVertices1, g_cubeNormals1, g_cubeUV1, g_cubeIndices1, vtxType, color);
 }
 
 
@@ -261,7 +54,7 @@ bool cCubeShape::InitCube2(cRenderer &renderer
 	, const cColor &color //= Color::BLACK
 )
 {
-	return CreateShape2(renderer, g_vertices2, g_indices2, g_uv2, vtxType, color);
+	return CreateShape2(renderer, g_cubeVertices2, g_cubeIndices2, g_cubeUV2, vtxType, color);
 }
 
 
@@ -274,18 +67,8 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return false;
 
-	vector<D3D11_INPUT_ELEMENT_DESC> elems;
-	if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
-		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::NORMAL)
-		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::COLOR)
-		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::TEXTURE)
-		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	cVertexLayout vtxLayout;
-	vtxLayout.Create(elems);
-
+	vtxLayout.Create(vtxType);
 	const int posOffset = vtxLayout.GetOffset("POSITION");
 	const int normOffset = vtxLayout.GetOffset("NORMAL");
 	const int colorOffset = vtxLayout.GetOffset("COLOR");
@@ -361,18 +144,8 @@ bool cCubeShape::CreateShape1(cRenderer &renderer, const Vector3 vertices[24]
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return false;
 
-	vector<D3D11_INPUT_ELEMENT_DESC> elems;
-	if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
-		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::NORMAL)
-		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::COLOR)
-		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::TEXTURE)
-		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	cVertexLayout vtxLayout;
-	vtxLayout.Create(elems);
-
+	vtxLayout.Create(vtxType);
 	const int posOffset = vtxLayout.GetOffset("POSITION");
 	const int normOffset = vtxLayout.GetOffset("NORMAL");
 	const int colorOffset = vtxLayout.GetOffset("COLOR");
@@ -425,7 +198,7 @@ void cCubeShape::SetCube(cRenderer &renderer, const Vector3 vertices[8]
 	, const cColor &color //= cColor::BLACK
 )
 {
-	SetShape2(renderer, vertices, g_indices2, color);
+	SetShape2(renderer, vertices, g_cubeIndices2, color);
 }
 
 
@@ -435,18 +208,8 @@ void cCubeShape::SetShape2(cRenderer &renderer, const Vector3 vertices[8]
 	, const cColor &color // = cColor::BLACK
 )
 {
-	vector<D3D11_INPUT_ELEMENT_DESC> elems;
-	if (m_vtxType & eVertexType::POSITION)
-		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (m_vtxType & eVertexType::NORMAL)
-		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (m_vtxType & eVertexType::COLOR)
-		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (m_vtxType & eVertexType::TEXTURE)
-		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	cVertexLayout vtxLayout;
-	vtxLayout.Create(elems);
-
+	vtxLayout.Create(m_vtxType);
 	const int posOffset = vtxLayout.GetOffset("POSITION");
 	const int normOffset = vtxLayout.GetOffset("NORMAL");
 	const int colorOffset = vtxLayout.GetOffset("COLOR");

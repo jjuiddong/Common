@@ -28,7 +28,7 @@ cQuad::~cQuad()
 
 
 // 쿼드를 초기화 한다.
-// width, height : 쿼드 크기
+// width, height : 쿼드 크기, 중점을 기준으로한 폭, 높이 크기
 // pos : 쿼드 위치
 bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	const Vector3 &pos 
@@ -39,7 +39,7 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 {
 	m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
 	m_transform.pos = pos;
-	m_transform.scale = Vector3(width, height, 1);
+	m_transform.scale = Vector3(width, height, 0.1f); // Z축으로 얇은 X-Y 평면
 	m_boundingBox.SetBoundingBox(m_transform);
 
 	return true;
@@ -66,7 +66,7 @@ bool cQuad::Render(cRenderer &renderer
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
 	m_shape.Render(renderer);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 

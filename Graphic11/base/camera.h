@@ -96,8 +96,15 @@ namespace graphic
 		Matrix44 m_proj; // Projection Matrix
 		Matrix44 m_viewProj; // m_view X m_proj
 		bool m_isOrthogonal;
-		bool m_isMovingLimitation;
+
+		struct eBoundingType {
+			enum Enum {
+				NONE, BOX, HALF_SPHERE
+			};
+		};
+		eBoundingType::Enum m_boundingType;
 		cBoundingHalfSphere m_boundingHSphere;
+		cBoundingBox m_boundingBox;
 
 		cNode *m_traceNode;
 		Matrix44 m_traceTm;

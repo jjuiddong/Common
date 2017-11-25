@@ -35,7 +35,7 @@ namespace framework
 		virtual void PreRender(const float deltaSeconds);
 		virtual void PostRender(const float deltaSeconds);
 		virtual void DefaultEventProc(const sf::Event &evt);
-		virtual void TriggerPickingEvent();
+		virtual void TriggerPickingEvent(const POINT &mousePos);
 		virtual void RenderTab();
 		virtual bool RemoveTab(cDockWindow *tab);
 		virtual void ResizeEnd(const eDockResize::Enum type, const sRectf &rect);

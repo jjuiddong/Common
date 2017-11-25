@@ -15,10 +15,10 @@ namespace graphic
 	class cBoundingHalfSphere
 	{
 	public:
-		cBoundingHalfSphere() {
+		cBoundingHalfSphere() : m_outlineHeight(0) {
 		}
-		cBoundingHalfSphere(const Vector3 &center, const float radius) :
-			m_center(center), m_radius(radius) {			
+		cBoundingHalfSphere(const Vector3 &center, const float radius, const float outlineHeight=0) :
+			m_center(center), m_radius(radius), m_outlineHeight(outlineHeight) {
 		}
 		virtual ~cBoundingHalfSphere() {
 		}
@@ -61,6 +61,22 @@ namespace graphic
 			return ret;
 		}
 
+		bool GetBoundingPoint(const Vector3 &pos, OUT Vector3 &out) {
+			Vector3 v = pos - m_center;
+			const float len = v.Length();
+			if ((m_radius < len) || (m_center.y > pos.y))
+			{
+				const float minLen = min(m_radius, len);
+				out = m_center + v.Normal() * minLen;
+				out.y = max(m_center.y, out.y);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 		cBoundingHalfSphere operator * (const Matrix44 &rhs) {
 			const float scale = rhs.GetScale().Length();
 			return cBoundingHalfSphere(m_center * rhs, m_radius * scale);
@@ -75,6 +91,7 @@ namespace graphic
 	public:
 		Vector3 m_center;
 		float m_radius;
+		float m_outlineHeight; // ground like funnel, (default: 0)
 	};
 
 }

@@ -156,25 +156,30 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				const StrPath fileNameUTF8 = vt.second.get<string>("filename", ""); // UTF-8
 				const StrPath fileName = fileNameUTF8.ansi();
 
-				const float tileSize = width;
+				const float tileSizeW = width;
+				const float tileSizeH = height;
 				cTile *tile = new cTile();
-				const float x = pos.x - tileSize / 2;
-				const float z = pos.z - tileSize / 2;
+				const float x = pos.x - tileSizeW / 2;
+				const float z = pos.z - tileSizeH / 2;
 
-				const sRectf rect(x, z, x + tileSize, z + tileSize);
+				//const sRectf rect(x, z, x + tileSizeW, z + tileSizeH);
+				Transform transform;
+				transform.pos = Vector3(x + tileSizeW/2.f, 0, z + tileSizeH/2.f);
+				transform.scale = Vector3(tileSizeW / 2.f, tileSizeH / 2.f, tileSizeH / 2.f);
 
 				if (!terrainCr)
 				{
 					terrainCr = true;
-					m_terrain->Create(renderer, row, col, tileSize/16, tilerow, tilecol);
+					m_terrain->Create(renderer, row, col, tileSizeW /16, tileSizeH / 16, tilerow, tilecol);
 				}
 
-				tile->Create(renderer 
+				tile->Create(renderer
 					, common::GenerateId()
 					, fileName.GetFileNameExceptExt().c_str()
 					, location.x // row
 					, location.y // col
-					, rect
+					//, rect
+					, transform
 					, fileName.c_str()
 				);
 
@@ -306,11 +311,17 @@ cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 	else
 	{
 		// Load Model File
-		StrPath fileName = tree.get<string>("filename");
+		StrPath fileName = tree.get<string>("filename", "");
+		assert(!fileName.empty());
 		cModel *model = new cModel();
+
+		// 모델이 병렬로 로딩되기 때문에, transform, boundingBox는 먼저 로딩한다.
+		model->m_transform = ParseTransform(tree);
+		model->m_boundingBox = ParseBoundingBox(tree, Transform());
+		
+		// 모델 병렬 로딩
 		model->Create(renderer, common::GenerateId(), fileName.ansi(), true);
 
-		model->m_transform = ParseTransform(tree);
 		model->m_animationSpeed = tree.get<float>("animation speed", 1.f);
 		return model;
 	}
@@ -403,9 +414,9 @@ cBoundingBox cTerrainLoader::ParseBoundingBox(const boost::property_tree::ptree 
 	ss >> _min.x >> _min.y >> _min.z >> _max.x >> _max.y >> _max.z;
 
 	bbox.SetBoundingBox(transform.pos
-		, Vector3(abs(_max.x - _min.x)*transform.scale.x
-				, abs(_max.y - _min.y)*transform.scale.y
-				, abs(_max.z - _min.z)*transform.scale.z)
+		, Vector3(abs(_max.x - _min.x)*0.5f*transform.scale.x
+				, abs(_max.y - _min.y)*0.5f*transform.scale.y
+				, abs(_max.z - _min.z)*0.5f*transform.scale.z)
 		, transform.rot);
 
 	return bbox;

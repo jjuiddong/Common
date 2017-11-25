@@ -44,7 +44,9 @@ cGrid::~cGrid()
 //
 // Vertex Store Order
 //
-void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount, const float cellSize
+void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCellCount
+	, const float cellSizeW
+	, const float cellSizeH
 	, const int vertexType //= (eVertexType::POSITION | eVertexType::COLOR)
 	, const cColor &color //= cColor::WHITE
 	, const char *textureFileName //= g_defaultTexture
@@ -56,7 +58,8 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 {
 	m_rowCellCount = rowCellCount;
 	m_colCellCount = colCellCount;
-	m_cellSize = cellSize;
+	m_cellSizeW = cellSizeW;
+	m_cellSizeH = cellSizeH;
 	m_vertexType = vertexType;
 	m_mtrl.m_diffuse = color.GetColor();
 
@@ -89,19 +92,19 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	BYTE *vertices = &buffer0[0];
 	BYTE *pvtx = vertices;
 	{
-		const float startx = -cellSize*(colCellCount / 2);
-		const float starty = cellSize*(rowCellCount / 2);
-		const float endx = startx + cellSize*colCellCount;
-		const float endy = starty - cellSize*rowCellCount;
+		const float startx = -cellSizeW*(colCellCount / 2);
+		const float starty = cellSizeH*(rowCellCount / 2);
+		const float endx = startx + cellSizeW*colCellCount;
+		const float endy = starty - cellSizeH*rowCellCount;
 
 		const float uCoordIncrementSize = (uv1.x - uv0.x) / (float)colCellCount * textureUVFactor;
 		const float vCoordIncrementSize = (uv1.y - uv0.y) / (float)rowCellCount * textureUVFactor;
 
 		int i = 0;
-		for (float y = starty; y >= endy; y -= cellSize, ++i)
+		for (float y = starty; y >= endy; y -= cellSizeH, ++i)
 		{
 			int k = 0;
-			for (float x = startx; x <= endx; x += cellSize, ++k)
+			for (float x = startx; x <= endx; x += cellSizeW, ++k)
 			{
 				if (vertexType & eVertexType::POSITION)
 					*(Vector3*)(pvtx + posOffset) = Vector3(x, 0, y);
@@ -180,7 +183,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0)
-		, Vector3(rowCellCount*cellSize*0.5f, 1, colCellCount*cellSize*0.5f)
+		, Vector3(rowCellCount*cellSizeW*0.5f, 1, colCellCount*cellSizeH*0.5f)
 		, Quaternion());
 	CalcBoundingSphere();
 }
