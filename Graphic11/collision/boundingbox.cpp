@@ -110,13 +110,16 @@ bool cBoundingBox::Collision(cBoundingSphere &sphere)
 
 
 // X-Y, Z-Y Plane Collision Test
-// return Collision Position
+// return Collision Position, Collision Plane
+// collision Pos : boundingbox 면에 부딪친 위치
+// collision Plane : 부딪친 boundingbox 면
 bool cBoundingBox::Collision2D(cBoundingSphere &sphere
-	, OUT Vector3 *out //= NULL
+	, OUT Vector3 *outPos //= NULL
+	, OUT Plane *outPlane //= NULL
 )
 {
 	const Quaternion &q = *(Quaternion*)&m_bbox.Orientation;
-	const Vector3 zyN = Vector3(1, 0, 0) * q; 
+	const Vector3 zyN = Vector3(1, 0, 0) * q;
 	Plane planeZY(zyN, Center());
 	const float distZY = planeZY.Collision(sphere.GetPos());
 	const float r1 = m_bbox.Extents.x;
@@ -133,17 +136,56 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 	if (d2 > sphere.GetRadius())
 		return false;
 
-	const bool isZy = abs(d1) < abs(d2);
-	const float dist = isZy? abs(distZY) : abs(distXY);
-	const float r = isZy ? r1 : r2;
+	// 꼭지점에 부딪쳤을 때, 거리를 계산해 충돌여부를 따진다.
+	if ((d1 * d2 > 0) && (d1 > 0))
+	{
+		const float len = sqrt(d1*d1 + d2*d2);
+		if (len > sphere.GetRadius())
+			return false;
+	}
 
-	const Vector3 N = isZy ? zyN : xyN;
-	const float minDist = isZy ? distZY : distXY;
-	const float rr = (minDist < 0) ? -(dist - r) : dist - r;
+	// Sphere가 BoundingBox 내부에서 충돌 했을 때.
+	if ((d1 * d2 > 0) && (d1 < 0))
+	{
+		// 가까운 평면으로 튀어 나간다. (Solid Mode)
+		const bool isZy = abs(d1) < abs(d2);
+		const float f1 = distZY >= 0 ? 1.f : -1.f;
+		const float f2 = distXY >= 0 ? 1.f : -1.f;
+		const float l1 = isZy ? f1*r1 : distZY;
+		const float l2 = !isZy ? f2*r2 : distXY;
+		const float n1 = isZy ? f1 : 0.f;
+		const float n2 = !isZy ? f2 : 0.f;
 
-	// Collision Position
-	if (out)
-		*out = sphere.GetPos() + -N * rr;
+		const Vector3 vertexPos = Center() + (planeZY.N * f1 * r1) + (planeXY.N * f2 * r2);
+		const Vector3 collisionPos = Center() + (planeZY.N * l1) + (planeXY.N * l2);
+		const Vector3 vertexN = ((planeZY.N * n1) + (planeXY.N * n2)).Normal();
+
+		// Collision Position
+		if (outPos)
+			*outPos = collisionPos;
+		if (outPlane)
+			*outPlane = Plane(vertexN, vertexPos);
+	}
+	else
+	{
+		// X,Z 축을 따로계산한 후, 합산해서 최종 좌표를 구한다.
+		const float f1 = distZY >= 0 ? 1.f : -1.f;
+		const float f2 = distXY >= 0 ? 1.f : -1.f;
+		const float l1 = d1 > 0 ? f1*r1 : distZY;
+		const float l2 = d2 > 0 ? f2*r2 : distXY;
+		const float n1 = d1 > 0 ? f1 : 0.f;
+		const float n2 = d2 > 0 ? f2 : 0.f;
+
+		const Vector3 vertexPos = Center() + (planeZY.N * f1 * r1) + (planeXY.N * f2 * r2);
+		const Vector3 collisionPos = Center() + (planeZY.N * l1) + (planeXY.N * l2);
+		const Vector3 vertexN = ((planeZY.N * n1) + (planeXY.N * n2)).Normal();
+
+		// Collision Position
+		if (outPos)
+			*outPos = collisionPos;
+		if (outPlane)
+			*outPlane = Plane(vertexN, collisionPos);
+	}
 
 	return true;
 }

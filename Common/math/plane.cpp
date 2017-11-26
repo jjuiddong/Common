@@ -26,7 +26,7 @@ Plane::Plane( float a, float b, float c, float d )
 	D = d;
 }
 
-Plane::Plane( Vector3& vN, float d )
+Plane::Plane( const Vector3& vN, float d )
 {
 	N = vN.Normal();
 	D = d;

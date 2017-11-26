@@ -9,7 +9,7 @@ namespace common
 	{
 		Plane();
 		Plane( float a, float b, float c, float d );
-		Plane( Vector3& vN, float d );
+		Plane( const Vector3& vN, float d );
 		Plane( const Vector3& vN, const Vector3& vPos );
 		Plane( const Vector3& vA, const Vector3& vB, const Vector3& vC );
 

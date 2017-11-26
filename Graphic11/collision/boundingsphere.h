@@ -36,7 +36,7 @@ namespace graphic
 			m_bsphere.Center = *(XMFLOAT3*)&pos;
 		}
 
-		Vector3 GetPos() const {
+		const Vector3& GetPos() const {
 			return *(Vector3*)&m_bsphere.Center;
 		}
 

@@ -29,6 +29,8 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
+		float GetRadius() const;
+
 
 	public:
 		cSphereShape m_shape;
@@ -36,4 +38,6 @@ namespace graphic
 		float m_radius;
 	};	
 
+
+	inline float cSphere::GetRadius() const { return m_radius; }
 }
