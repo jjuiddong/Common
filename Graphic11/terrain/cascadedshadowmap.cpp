@@ -124,3 +124,36 @@ void cCascadedShadowMap::DebugRender(cRenderer &renderer)
 		m_dbgLightFrustums[i].Render(renderer);
 	}
 }
+
+
+void cCascadedShadowMap::BuildShadowMap(cRenderer &renderer, cNode *node
+	, const XMMATRIX &parentTm // = XMIdentity
+)
+{
+	node->SetTechnique("BuildShadowMap");
+
+	UpdateParameter(renderer, GetMainCamera());
+	for (int i = 0; i < cCascadedShadowMap::SHADOWMAP_COUNT; ++i)
+	{
+		node->CullingTest(m_frustums[i], parentTm, true);
+
+		Begin(renderer, i);
+		node->Render(renderer, parentTm, eRenderFlag::SHADOW);
+		End(renderer, i);
+	}
+
+	cFrustum frustum;
+	frustum.SetFrustum(GetMainCamera().GetViewProjectionMatrix());
+	node->CullingTest(frustum, parentTm, true); // Recovery Culling
+}
+
+
+void cCascadedShadowMap::RenderShadowMap(cRenderer &renderer, cNode *node
+	, const XMMATRIX &parentTm // = XMIdentity
+)
+{
+	node->SetTechnique("ShadowMap");
+	Bind(renderer);
+	node->Render(renderer, parentTm, eRenderFlag::TERRAIN);
+	node->Render(renderer, parentTm, eRenderFlag::MODEL | eRenderFlag::NOALPHABLEND);
+}

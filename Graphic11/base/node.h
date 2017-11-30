@@ -38,6 +38,7 @@ namespace graphic
 			, NOALPHABLEND = 1 << 4
 			, SHADOW = 1 << 5
 			, OUTLINE = 1 << 6
+			, TEXT = 1 << 7
 		};
 	};
 
@@ -132,6 +133,9 @@ namespace graphic
 		Str32 m_techniqueName;
 		cBoundingBox m_boundingBox; // Local Space
 		cBoundingSphere m_boundingSphere; // Local Space
+		float m_alphaRadius; // simple bounding sphere radius (calculate in CalcBoundingSphere)
+		Vector3 m_alphaNormal; // for plane normal vector for alpha blending sorting (optimize)
+							   // default: Vector3(0,1,0)
 	};
 
 

@@ -78,7 +78,7 @@ void cDbgLineList::Render(cRenderer &renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(XMIdentity);
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tm);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	const Vector4 color = m_color.GetColor();

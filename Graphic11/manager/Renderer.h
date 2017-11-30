@@ -57,9 +57,10 @@ namespace graphic
 		bool CheckResetDevice(const float width=0, const float height=0);
 		bool ResetDevice(const float width=0, const float height=0, const bool forceReset=false
 			, const bool resetResource=true);
-		void AddRenderAlpha(cNode *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
-		void AddRenderAlpha(sAlphaBlendSpace *space, cNode *node, const Vector3 &normal = Vector3(0, 0, 1), const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
-		void AddAlphaBlendSpace(const cBoundingBox &bbox);
+		void AddRenderAlphaAll(cNode *node, const XMMATRIX &parentTm = XMIdentity);
+		void AddRenderAlpha(cNode *node, const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
+		void AddRenderAlpha(sAlphaBlendSpace *space, cNode *node, const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
+		sAlphaBlendSpace* AddAlphaBlendSpace(const cBoundingBox &bbox);
 		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
 
 		bool ClearScene(const bool updateRenderTarget = true

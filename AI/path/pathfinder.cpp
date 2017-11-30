@@ -2,8 +2,10 @@
 #include "stdafx.h"
 #include "pathfinder.h"
 
-
 using namespace ai;
+
+float g_edges_len[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
+bool  g_edges_visit[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
 
 
 cPathFinder::cPathFinder()
@@ -253,7 +255,7 @@ int cPathFinder::GetNearestVertex(const Vector3 &pos) const
 	RETV(m_vertices.empty(), -1);
 	
 	int cnt = 0;
-	int indices[128];
+	int indices[sVertex::MAX_VERTEX];
 
 	if (m_areas.empty())
 	{
@@ -299,7 +301,7 @@ int cPathFinder::GetNearestVertex(const Vector3 &pos, const Vector3 &end) const
 	RETV(m_vertices.empty(), -1);
 
 	int cnt = 0;
-	int indices[128];
+	int indices[sVertex::MAX_VERTEX];
 
 	if (m_areas.empty())
 	{
@@ -363,8 +365,8 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 	if (endIdx < 0)
 		return false;
 
-	ZeroMemory(m_edges_visit, sizeof(m_edges_visit));
-	ZeroMemory(m_edges_len, sizeof(m_edges_len));
+	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
+	ZeroMemory(g_edges_len, sizeof(g_edges_len));
 
 	vector<int> candidate;
 	candidate.reserve(m_vertices.size());
@@ -396,15 +398,15 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 			const int nextIdx = curVtx.edge[i];
 			sVertex &nextVtx = m_vertices[nextIdx];
 
-			if (m_edges_visit[curIdx][nextIdx])
+			if (g_edges_visit[curIdx][nextIdx])
 				continue;
 
 			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos) + 0.00001f;
 			nextVtx.endLen = Distance(end, nextVtx.pos);
-			m_edges_visit[curIdx][nextIdx] = true;
-			m_edges_visit[nextIdx][curIdx] = true;
-			m_edges_len[curIdx][nextIdx] = nextVtx.startLen + nextVtx.endLen;
-			m_edges_len[nextIdx][curIdx] = nextVtx.startLen + nextVtx.endLen;
+			g_edges_visit[curIdx][nextIdx] = true;
+			g_edges_visit[nextIdx][curIdx] = true;
+			g_edges_len[curIdx][nextIdx] = nextVtx.startLen + nextVtx.endLen;
+			g_edges_len[nextIdx][curIdx] = nextVtx.startLen + nextVtx.endLen;
 
 			// sorting candidate
 			// value = minimum( startLen + endLen )
@@ -440,10 +442,10 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 	out.push_back(m_vertices[endIdx].pos);
 	verticesIndices.push_back(endIdx);
 
-	ZeroMemory(m_edges_visit, sizeof(m_edges_visit));
+	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
 
 	int curIdx = endIdx;
-	while (curIdx != startIdx)
+	while ((curIdx != startIdx) && (verticesIndices.size() < 1000))
 	{
 		float minEdge = FLT_MAX;
 		int minIdx = -1;
@@ -452,10 +454,10 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 		{
 			if (vtx.edge[i] < 0)
 				break;
-			if (m_edges_visit[curIdx][vtx.edge[i]])
+			if (g_edges_visit[curIdx][vtx.edge[i]])
 				continue;
 
-			const float len = m_edges_len[curIdx][vtx.edge[i]];
+			const float len = g_edges_len[curIdx][vtx.edge[i]];
 			if (0 == len)
 				continue;
 
@@ -469,13 +471,15 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 		if (minIdx < 0)
 			break; // error occur
 
-		m_edges_visit[curIdx][minIdx] = true;
-		m_edges_visit[minIdx][curIdx] = true;
+		g_edges_visit[curIdx][vtx.edge[minIdx]] = true;
+		g_edges_visit[vtx.edge[minIdx]][curIdx] = true;
 		const int parentIdx = vtx.edge[minIdx];
 		out.push_back(m_vertices[parentIdx].pos);
 		verticesIndices.push_back(parentIdx);
 		curIdx = parentIdx;	
 	}
+
+	assert(verticesIndices.size() < 1000);
 
 	std::reverse(out.begin(), out.end());
 	std::reverse(verticesIndices.begin(), verticesIndices.end());

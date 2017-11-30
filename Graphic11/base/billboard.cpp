@@ -7,6 +7,8 @@ using namespace graphic;
 
 
 cBillboard::cBillboard()
+	: m_dynScaleMin(1.f)
+	, m_dynScaleMax(2.5f)
 {
 }
 
@@ -98,7 +100,7 @@ void cBillboard::Rotate()
 		Vector3 pos = m_transform.pos;
 		const float len = (pos - GetMainCamera().GetEyePos()).Length();
 		//const Vector3 scale = m_scale * min(1.5f, max(1.f, len / 50.f));
-		const Vector3 scale = m_scale * min(2.5f, max(1.f, len / 100.f));
+		const Vector3 scale = m_scale * min(m_dynScaleMax, max(m_dynScaleMin, len / 100.f));
 
 		Matrix44 S;
 		S.SetScale(scale);

@@ -41,10 +41,11 @@ cNode::cNode()
 	, m_subType(eSubType::NONE)
 	, m_isEnable(true)
 	, m_parent(NULL)
-	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW | eRenderFlag::NOALPHABLEND)
 	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
+	, m_alphaNormal(0,1,0)
 {
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion());
 }
@@ -60,10 +61,11 @@ cNode::cNode(const int id
 	, m_parent(NULL)
 	, m_type(type)
 	, m_subType(eSubType::NONE)
-	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW)
+	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::MODEL | eRenderFlag::SHADOW | eRenderFlag::NOALPHABLEND)
 	, m_opFlags(eOpFlag::COLLISION | eOpFlag::PICK)
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
+	, m_alphaNormal(0, 1, 0)
 {
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion());
 }
@@ -82,6 +84,7 @@ bool cNode::Render(cRenderer &renderer
 {
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
+	//RETV(((m_renderFlags & flags) != flags), false);
 
 	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
 
@@ -270,6 +273,7 @@ bool cNode::RemoveChild(cNode *rmNode
 void cNode::CalcBoundingSphere()
 {
 	m_boundingSphere.SetBoundingSphere(m_boundingBox);
+	m_alphaRadius = m_transform.scale.Length();
 }
 
 

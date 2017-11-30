@@ -28,10 +28,15 @@ namespace graphic
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
 		bool Collision( cBoundingBox &box );
 		bool Collision( cBoundingSphere &sphere);
-		bool Collision2D(cBoundingSphere &sphere, OUT Vector3 *outPos=NULL, OUT Plane *outPlane=NULL);
+		bool Collision2D(cBoundingSphere &sphere
+			, OUT Vector3 *outPos=NULL
+			, OUT Plane *outPlane=NULL
+			, OUT Vector3 *outVertex1=NULL
+			, OUT Vector3 *outVertex2=NULL
+		);
 
-		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance=NULL);
-		bool Pick(const Ray &ray, OUT float *distance = NULL);
+		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance=NULL) const;
+		bool Pick(const Ray &ray, OUT float *distance = NULL) const;
 
 		Vector3 Center() const;
 		void Scale(const Vector3 &scale);

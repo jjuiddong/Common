@@ -39,7 +39,6 @@ namespace graphic
 		bool RemoveTile(cTile *model, const bool rmInstance = true);
 		bool AddModel(cNode *model);
 		bool UpdateModel(cNode *model);
-		void SetDbgRendering(const bool isRender);
 		void SetShadowRendering(const bool isRender);
 
 		// Heightmap

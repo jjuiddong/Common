@@ -196,7 +196,10 @@ void cTextManager::Render(cRenderer &renderer
 		Sorting();
 
 	for (auto &p : m_renders)
-		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_quad.m_normal, p->text.m_transform.GetMatrix());
+	{
+		p->text.m_alphaNormal = p->text.m_quad.m_normal;
+		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_transform.GetMatrix());
+	}
 }
 
 

@@ -20,11 +20,11 @@ namespace graphic
 			, const cColor &color = cColor::WHITE
 			, const int uvFlag = 1);
 
-		bool Create(cRenderer &renderer, const cBoundingBox &bbox
+		virtual bool Create(cRenderer &renderer, const cBoundingBox &bbox
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE
 			, const int uvFlag = 1);
-		bool Create(cRenderer &renderer
+		virtual bool Create(cRenderer &renderer
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE
 			, const int uvFlag = 1);

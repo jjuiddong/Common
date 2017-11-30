@@ -99,6 +99,7 @@ namespace graphic
 
 		const cBoundingSphere& operator *= (const Matrix44 &rhs) {
 			*(Vector3*)&m_bsphere.Center *= rhs;
+			// no radius calculate
 			return *this;
 		}
 

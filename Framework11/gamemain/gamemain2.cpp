@@ -40,7 +40,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		int elapseT = curT - oldT;
 		if (elapseT > 100)
 			elapseT = 100;
-		const float t = elapseT * 0.001f;
+		const float t = elapseT * 0.001f * gameMain->m_slowFactor;
 		oldT = curT;
 
 		cDockManager::Get()->UpdateRender(t);
@@ -62,6 +62,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 cGameMain2::cGameMain2()
 	: m_hWnd(NULL)
 	, m_isLazyMode(false)
+	, m_slowFactor(1.f)
 {
 }
 

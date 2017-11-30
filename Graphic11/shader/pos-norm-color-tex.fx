@@ -38,6 +38,18 @@ float4 PS(VSOUT_TEXDIFF In ) : SV_Target
 
 
 //--------------------------------------------------------------------------------------
+// Pixel Shader
+//--------------------------------------------------------------------------------------
+float4 PS_Outline(VSOUT_TEXDIFF In) : SV_Target
+{
+	const float fOutline = GetOutline(In.PosH);
+	clip(fOutline - 0.000001f);
+	return GetOutlineColor(fOutline);
+}
+
+
+
+//--------------------------------------------------------------------------------------
 // Vertex Shader ShadowMap
 //--------------------------------------------------------------------------------------
 VSOUT_SHADOW VS_ShadowMap(float4 Pos : POSITION
@@ -125,6 +137,32 @@ float4 PS_BuildShadowMap(VSOUT_BUILDSHADOW In) : SV_Target
 
 //------------------------------------------------------------------------
 // Techinique
+
+technique11 DepthTech
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(NULL);
+	}
+}
+
+
+technique11 Outline
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Outline()));
+	}
+}
+
 
 technique11 Unlit
 {

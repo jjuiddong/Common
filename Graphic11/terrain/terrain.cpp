@@ -17,6 +17,7 @@ cTerrain::cTerrain()
 	, m_defaultHeight(0)
 	, m_lerpAlphaFactor(0.02f)
 {
+	SetRenderFlag(eRenderFlag::TERRAIN, true);
 }
 
 cTerrain::~cTerrain()
@@ -100,7 +101,7 @@ void cTerrain::BuildCascadedShadowMap(cRenderer &renderer
 
 		ccsm.Begin(renderer, i);
 		for (auto &p : m_tiles)
-			p->PreRender(renderer, tm);
+			p->PreRender(renderer, tm, eRenderFlag::SHADOW);
 		ccsm.End(renderer, i);
 	}
 
@@ -133,10 +134,9 @@ bool cTerrain::RenderCascadedShadowMap(cRenderer &renderer
 	GetMainLight().Bind(renderer);
 
 	ccsm.Bind(renderer);
-	//__super::Render(renderer, tm, flags);
 	__super::Render(renderer, tm, eRenderFlag::TERRAIN);
-	__super::Render(renderer, tm, eRenderFlag::MODEL);
-
+	__super::Render(renderer, tm, eRenderFlag::MODEL | eRenderFlag::NOALPHABLEND);
+	
 	if (m_isShowDebug)
 		ccsm.DebugRender(renderer);
 
@@ -272,20 +272,6 @@ cTile* cTerrain::GetNearestTile(const cNode *node)
 	}
 
 	return nearTile;
-}
-
-
-void cTerrain::SetDbgRendering(const bool isRender)
-{
-	m_isShowDebug = isRender;
-
-	for (auto &p : m_tiles)
-	{
-		p->m_isDbgRender = isRender;
-
-		//for (auto &ch : p->m_children)
-		//	((cTile*)ch)->m_isDbgRender = isRender;
-	}
 }
 
 

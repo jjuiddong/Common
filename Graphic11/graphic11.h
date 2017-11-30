@@ -174,7 +174,6 @@ namespace graphic
 	struct sRenderObj
 	{
 		int opt;
-		Vector3 normal;
 		Matrix44 tm;
 		cNode *p;
 	};

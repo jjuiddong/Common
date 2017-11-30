@@ -66,7 +66,6 @@ namespace graphic
 		Vector2i m_location; // Tile Location row, col
 		cGrid *m_ground;
 		bool m_isHilight;
-		bool m_isDbgRender;	
 	};
 
 }

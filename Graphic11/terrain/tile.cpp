@@ -6,10 +6,11 @@ using namespace graphic;
 
 cTile::cTile()
 	: cNode(common::GenerateId(), "tile", eNodeType::TERRAIN)
-	, m_isDbgRender(false)
 	, m_location(-1,-1)
 	, m_isHilight(false)
 {
+	SetRenderFlag(eRenderFlag::MODEL, false);
+	SetRenderFlag(eRenderFlag::TERRAIN, true);
 }
 
 cTile::~cTile()
@@ -55,7 +56,6 @@ bool cTile::Create(cRenderer &renderer
 	m_id = id;
 	m_name = name;
 	m_location = Vector2i(row, col);
-	SetRenderFlag(eRenderFlag::SHADOW, true);
 
 	//const float cellSizeW = rect.Width() / 2.f;
 	//const float cellSizeH = rect.Height() / 2.f;
@@ -66,7 +66,7 @@ bool cTile::Create(cRenderer &renderer
 		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
 		, cColor::WHITE, textureFileName, uv0, uv1, uvFactor
 		, true);
-	m_ground->m_renderFlags = eRenderFlag::VISIBLE | eRenderFlag::TERRAIN | eRenderFlag::SHADOW;
+	m_ground->m_renderFlags = eRenderFlag::VISIBLE | eRenderFlag::TERRAIN | eRenderFlag::SHADOW | eRenderFlag::NOALPHABLEND;
 	m_ground->SetOpFlag(eOpFlag::COLLISION, false);
 	m_ground->m_isLineDrawing = true;
 	//m_ground->m_transform.pos.y = -3.f;
@@ -120,7 +120,8 @@ bool cTile::Render(cRenderer &renderer
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
 
-	if ((flags & 0x1) && m_isDbgRender)
+	//if ((flags & 0x1) && renderer.m_isDbgRender)
+	if (renderer.m_isDbgRender)
 		DebugRender(renderer, tm);
 
 	if (m_isHilight)

@@ -39,6 +39,8 @@ namespace graphic
 		BILLBOARD_TYPE::TYPE m_type;
 		Vector3 m_scale;
 		Vector3 m_normal;
+		float m_dynScaleMin; // default: 1.f
+		float m_dynScaleMax; // default: 2.5f
 	};
 
 }

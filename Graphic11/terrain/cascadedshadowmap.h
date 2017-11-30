@@ -24,6 +24,8 @@ namespace graphic
 		bool Bind(cRenderer &renderer);
 		bool Begin(cRenderer &renderer, const int shadowMapIndex, const bool isClear=true);
 		bool End(cRenderer &renderer, const int shadowMapIndex);
+		void BuildShadowMap(cRenderer &renderer, cNode *node, const XMMATRIX &parentTm = XMIdentity);
+		void RenderShadowMap(cRenderer &renderer, cNode *node, const XMMATRIX &parentTm  = XMIdentity);
 		void DebugRender(cRenderer &renderer);
 
 

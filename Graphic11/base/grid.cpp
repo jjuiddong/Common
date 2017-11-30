@@ -194,8 +194,9 @@ bool cGrid::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	if (!(flags & m_renderFlags))
-		return false;
+	RETV(!m_isEnable, false);
+	RETV(!IsVisible(), false);
+	RETV(((m_renderFlags & flags) != flags), false);
 
 	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_vertexType);
 	assert(shader);

@@ -92,6 +92,7 @@ bool cCube::Render(cRenderer &renderer
 {
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
+	RETV(((m_renderFlags & flags) != flags), false);
 
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);

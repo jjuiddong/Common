@@ -60,7 +60,9 @@ namespace common
 		Matrix44& Transpose();
 
 #ifdef USE_D3D11_MATH
+		Matrix44(const XMMATRIX &rhs);
 		XMMATRIX GetMatrixXM() const;
+		Matrix44& operator = (const XMMATRIX &rhs);
 #endif
 
 		Matrix44 operator * ( const Matrix44& rhs ) const;
@@ -75,10 +77,21 @@ namespace common
 
 
 #ifdef USE_D3D11_MATH
+	inline Matrix44::Matrix44(const XMMATRIX &rhs)
+	{
+		operator=(rhs);
+	}
+
 	inline XMMATRIX Matrix44::GetMatrixXM() const
 	{
 		XMMATRIX m = XMLoadFloat4x4((XMFLOAT4X4*)this);
 		return m;
+	}
+
+	inline Matrix44& Matrix44::operator = (const XMMATRIX &rhs)
+	{
+		XMStoreFloat4x4((XMFLOAT4X4*)this, rhs);
+		return *this;
 	}
 #endif
 

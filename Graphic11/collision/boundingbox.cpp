@@ -113,9 +113,12 @@ bool cBoundingBox::Collision(cBoundingSphere &sphere)
 // return Collision Position, Collision Plane
 // collision Pos : boundingbox 면에 부딪친 위치
 // collision Plane : 부딪친 boundingbox 면
+// outVertexLen1, outVertexLen2 : 부딪친 면에, 충돌지점에서 좌우 꼭지점까지의 거리, (좌우 순서는 바뀔수 있다.)
 bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 	, OUT Vector3 *outPos //= NULL
 	, OUT Plane *outPlane //= NULL
+	, OUT Vector3 *outVertex1 //= NULL
+	, OUT Vector3 *outVertex2 //= NULL
 )
 {
 	const Quaternion &q = *(Quaternion*)&m_bbox.Orientation;
@@ -155,8 +158,11 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 		const float l2 = !isZy ? f2*r2 : distXY;
 		const float n1 = isZy ? f1 : 0.f;
 		const float n2 = !isZy ? f2 : 0.f;
+		const float if1 = isZy ? f1 : -f1;
+		const float if2 = !isZy ? f2 : -f2;
 
-		const Vector3 vertexPos = Center() + (planeZY.N * f1 * r1) + (planeXY.N * f2 * r2);
+		const Vector3 vertexPos1 = Center() + (planeZY.N * f1 * r1) + (planeXY.N * f2 * r2);
+		const Vector3 vertexPos2 = Center() + (planeZY.N * if1 * r1) + (planeXY.N * if2 * r2);
 		const Vector3 collisionPos = Center() + (planeZY.N * l1) + (planeXY.N * l2);
 		const Vector3 vertexN = ((planeZY.N * n1) + (planeXY.N * n2)).Normal();
 
@@ -164,19 +170,39 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 		if (outPos)
 			*outPos = collisionPos;
 		if (outPlane)
-			*outPlane = Plane(vertexN, vertexPos);
+			*outPlane = Plane(vertexN, vertexPos1);
+
+		if (outVertex1 && outVertex2)
+		{
+			if ((n1 > 0) && (n2 > 0)) // 꼭지점에 부딪쳤을 때,
+			{
+				// 꼭지점을 중심으로 Sphere 반지름의 두배 만큼을 충돌면으로 한다.
+				const Vector3 rightV = Vector3(0, 1, 0).CrossProduct(vertexN).Normal();
+				*outVertex1 = collisionPos + rightV * sphere.GetRadius()*2.f;
+				*outVertex2 = collisionPos + rightV * -sphere.GetRadius()*2.f;
+			}
+			else
+			{
+				*outVertex1 = vertexPos1;
+				*outVertex2 = vertexPos2;
+			}
+		}
 	}
 	else
 	{
 		// X,Z 축을 따로계산한 후, 합산해서 최종 좌표를 구한다.
+		const bool isZy = d1 >= 0.f;
 		const float f1 = distZY >= 0 ? 1.f : -1.f;
 		const float f2 = distXY >= 0 ? 1.f : -1.f;
 		const float l1 = d1 > 0 ? f1*r1 : distZY;
 		const float l2 = d2 > 0 ? f2*r2 : distXY;
 		const float n1 = d1 > 0 ? f1 : 0.f;
 		const float n2 = d2 > 0 ? f2 : 0.f;
+		const float if1 = isZy ? f1 : -f1;
+		const float if2 = !isZy ? f2 : -f2;
 
-		const Vector3 vertexPos = Center() + (planeZY.N * f1 * r1) + (planeXY.N * f2 * r2);
+		const Vector3 vertexPos1 = Center() + (planeZY.N * f1 * r1) + (planeXY.N * f2 * r2);
+		const Vector3 vertexPos2 = Center() + (planeZY.N * if1 * r1) + (planeXY.N * if2 * r2);
 		const Vector3 collisionPos = Center() + (planeZY.N * l1) + (planeXY.N * l2);
 		const Vector3 vertexN = ((planeZY.N * n1) + (planeXY.N * n2)).Normal();
 
@@ -185,6 +211,22 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 			*outPos = collisionPos;
 		if (outPlane)
 			*outPlane = Plane(vertexN, collisionPos);
+
+		if (outVertex1 && outVertex2)
+		{
+			if ((n1 > 0) && (n2 > 0)) // 꼭지점에 부딪쳤을 때,
+			{
+				// 꼭지점을 중심으로 Sphere 반지름의 두배 만큼을 충돌면으로 한다.
+				const Vector3 rightV = Vector3(0,1,0).CrossProduct(vertexN).Normal();
+				*outVertex1 = collisionPos + rightV * sphere.GetRadius()*2.f;
+				*outVertex2 = collisionPos + rightV * -sphere.GetRadius()*2.f;
+			}
+			else
+			{
+				*outVertex1 = vertexPos1;
+				*outVertex2 = vertexPos2;
+			}
+		}
 	}
 
 	return true;
@@ -195,7 +237,7 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 // orig, dir : ray 값.
 bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
 	, OUT float *distance //=NULL
-)
+) const
 {
 	XMVECTOR o = XMLoadFloat3((XMFLOAT3*)&orig);
 	XMVECTOR d = XMLoadFloat3((XMFLOAT3*)&dir);
@@ -212,7 +254,7 @@ bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
 
 bool cBoundingBox::Pick(const Ray &ray
 	, OUT float *distance //= NULL
-)
+) const
 {
 	return Pick(ray.orig, ray.dir, distance);
 }

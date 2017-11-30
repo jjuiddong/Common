@@ -378,19 +378,19 @@ void cRenderer::EndScene()
 		std::sort(space->renders.begin(), space->renders.end(),
 			[&](const sRenderObj &a, const sRenderObj &b)
 			{
-				const Vector3 c1 = a.p->m_boundingBox.Center() * a.tm;
-				const Vector3 c2 = b.p->m_boundingBox.Center() * b.tm;
-				const Plane plane1(a.normal, c1);
-				const Plane plane2(b.normal, c2);
+				const Vector3 c1 = a.p->m_transform.pos * a.tm;
+				const Vector3 c2 = b.p->m_transform.pos * b.tm;
+				const Plane plane1(a.p->m_alphaNormal, c1);
+				const Plane plane2(b.p->m_alphaNormal, c2);
 				const Vector3 dir1 = (c1 - ray.orig).Normal();
 				const Vector3 dir2 = (c2 - ray.orig).Normal();
 
 				Vector3 p1 = plane1.Pick(ray.orig, dir2);
-				if (a.p->m_boundingSphere.m_bsphere.Radius*2 < (p1 - c1).Length())
+				if (a.p->m_alphaRadius *2 < (p1 - c1).Length())
 					p1 = plane1.Pick(ray.orig, dir1);
 
 				Vector3 p2 = plane2.Pick(ray.orig, dir1);
-				if (b.p->m_boundingSphere.m_bsphere.Radius*2 < (p2 - c2).Length())
+				if (b.p->m_alphaRadius *2 < (p2 - c2).Length())
 					p2 = plane2.Pick(ray.orig, dir2);
 
 				const float l1 = p1.LengthRoughly(ray.orig);
@@ -400,9 +400,30 @@ void cRenderer::EndScene()
 		);
 	}
 
+	// Sorting AlphaBlending Space
+	std::sort(m_alphaSpace.begin(), m_alphaSpace.end(),
+		[&](const sAlphaBlendSpace *a, const sAlphaBlendSpace *b)
+		{
+			const Vector3 c1 = a->bbox.Center();
+			const Vector3 c2 = b->bbox.Center();
+			const Vector3 dir1 = (c1 - ray.orig).Normal();
+			const Vector3 dir2 = (c2 - ray.orig).Normal();
+
+			float l1;
+			if (!a->bbox.Pick(ray.orig, dir2, &l1))
+				a->bbox.Pick(ray.orig, dir1, &l1);
+
+			float l2;
+			if (!b->bbox.Pick(ray.orig, dir1, &l2))
+				b->bbox.Pick(ray.orig, dir2, &l2);
+
+			return l1 > l2;
+		}
+	);
+
 	for (auto &p : m_alphaSpace)
 		for (auto &data : p->renders)
-			data.p->Render(*this, data.tm.GetMatrixXM(), -1);
+			data.p->Render(*this, data.tm.GetMatrixXM(), data.p->m_renderFlags);
 
 	for (auto &p : m_alphaSpace)
 	{
@@ -539,29 +560,47 @@ bool cRenderer::ResetDevice(
 }
 
 
+// 알파 블렌딩 노드를, AlphaBlend Space에 추가한다.
+void cRenderer::AddRenderAlphaAll(cNode *node
+	, const XMMATRIX &parentTm //= XMIdentity
+)
+{
+	RET(!node);
+	RET(!node->m_isEnable);
+	RET(!node->IsVisible());
+
+	if (node->IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		Matrix44 tm = parentTm;
+		AddRenderAlpha(node, tm);
+	}
+
+	for (auto &p : node->m_children)
+		AddRenderAlphaAll(p);
+}
+
+
 void cRenderer::AddRenderAlpha(cNode *node
-	, const Vector3 &normal //= Vector3(0, 0, 1),
 	, const Matrix44 &tm // = Matrix44::Identity
 	, const int opt // = 1
 )
 {
 	assert(!m_alphaSpace.empty());
-	m_alphaSpace.back()->renders.push_back({ opt, normal ,tm, node });
+	m_alphaSpace.back()->renders.push_back({ opt, tm, node });
 }
 
 
 void cRenderer::AddRenderAlpha(sAlphaBlendSpace *space
 	, cNode *node
-	, const Vector3 &normal //= Vector3(0, 0, 1),
 	, const Matrix44 &tm // = Matrix44::Identity
 	, const int opt // = 1
 )
 {
-	space->renders.push_back({ opt, normal ,tm, node });
+	space->renders.push_back({ opt, tm, node });
 }
 
 
-void cRenderer::AddAlphaBlendSpace(const cBoundingBox &bbox)
+sAlphaBlendSpace* cRenderer::AddAlphaBlendSpace(const cBoundingBox &bbox)
 {
 	if (m_alphaSpaceBuffer.empty())
 	{
@@ -576,6 +615,7 @@ void cRenderer::AddAlphaBlendSpace(const cBoundingBox &bbox)
 
 	p->bbox = bbox;
 	m_alphaSpace.push_back(p);
+	return p;
 }
 
 

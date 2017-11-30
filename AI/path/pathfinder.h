@@ -1,6 +1,7 @@
 //
 // 2017-06-19, jjuiddong
 // path finder
+// Does Not Multi Thread Safe
 //
 #pragma once
 
@@ -10,7 +11,7 @@ namespace ai
 
 	struct sVertex
 	{
-		enum {MAX_EDGE = 10};
+		enum {MAX_EDGE = 10, MAX_VERTEX=1024};
 
 		int type; // 0:path point, 1:destination1, 2:destination2
 		Vector3 pos;
@@ -69,8 +70,6 @@ namespace ai
 	public:
 		vector<sVertex> m_vertices;
 		vector<sArea> m_areas;
-		float m_edges_len[128][128];
-		bool  m_edges_visit[128][128];
 	};
 
 }
