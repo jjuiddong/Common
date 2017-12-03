@@ -25,7 +25,7 @@ namespace graphic
 		ID3DX11EffectTechnique* GetTechnique(const char *id);
 		ID3DX11EffectVariable* GetVariable(const char *id);
 		ID3DX11EffectMatrixVariable* GetMatrix(const char *id);
-		ID3DX11EffectVectorVariable** GetVector(const char *id);
+		ID3DX11EffectVectorVariable* GetVector(const char *id);
 
 		static bool Compile(const char *fileName, Str512 *outMsg = NULL );
 

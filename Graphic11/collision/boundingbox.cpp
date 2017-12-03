@@ -214,12 +214,12 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 
 		if (outVertex1 && outVertex2)
 		{
-			if ((n1 > 0) && (n2 > 0)) // 꼭지점에 부딪쳤을 때,
+			if ((d1 > 0) && (d2 > 0)) // 꼭지점에 부딪쳤을 때,
 			{
-				// 꼭지점을 중심으로 Sphere 반지름의 두배 만큼을 충돌면으로 한다.
+				// 꼭지점을 중심으로 Sphere 반지름의 0.1배 만큼을 충돌면으로 한다.
 				const Vector3 rightV = Vector3(0,1,0).CrossProduct(vertexN).Normal();
-				*outVertex1 = collisionPos + rightV * sphere.GetRadius()*2.f;
-				*outVertex2 = collisionPos + rightV * -sphere.GetRadius()*2.f;
+				*outVertex1 = collisionPos + rightV * sphere.GetRadius() * 0.1f;
+				*outVertex2 = collisionPos + rightV * -sphere.GetRadius() * 0.1f;
 			}
 			else
 			{

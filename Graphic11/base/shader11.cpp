@@ -86,26 +86,38 @@ bool cShader11::SetTechnique(const char *id)
 
 ID3DX11EffectTechnique* cShader11::GetTechnique(const char *id)
 {
-	return NULL;
+	ID3DX11EffectTechnique *var = m_effect->GetTechniqueByName(id);
+	RETV(!var->IsValid(), NULL);
+	return var;
 }
 
 
 ID3DX11EffectVariable* cShader11::GetVariable(const char *id)
 {
-	return NULL;
+	RETV(!m_effect, NULL);
+	ID3DX11EffectVariable *var = m_effect->GetVariableByName(id);
+	RETV(!var->IsValid(), NULL);
+	return var;
 }
 
 
 ID3DX11EffectMatrixVariable* cShader11::GetMatrix(const char *id)
 {
-	//return mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
-	return NULL;
+	RETV(!m_effect, NULL);
+	ID3DX11EffectVariable *var = m_effect->GetVariableByName(id);
+	RETV(!var->IsValid(), NULL);
+	RETV(!var->AsMatrix()->IsValid(), NULL);
+	return var->AsMatrix();
 }
 
 
-ID3DX11EffectVectorVariable** cShader11::GetVector(const char *id)
+ID3DX11EffectVectorVariable* cShader11::GetVector(const char *id)
 {
-	return NULL;
+	RETV(!m_effect, NULL);
+	ID3DX11EffectVariable *var = m_effect->GetVariableByName(id);
+	RETV(!var->IsValid(), NULL);
+	RETV(!var->AsVector()->IsValid(), NULL);
+	return var->AsVector();
 }
 
 

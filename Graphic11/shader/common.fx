@@ -6,6 +6,8 @@
 #define DepthMapSize		1024.f
 #define DepthMapSize_Scaled (DepthMapSize - 500.f)
 
+float4 g_outlineColor = float4(0.8f, 0.f, 0.f, 1.f);
+
 
 //--------------------------------------------------------------------------------------
 // Texture
@@ -140,6 +142,7 @@ cbuffer cbSkinning : register(b5)
 {
 	matrix gPalette[64];
 }
+
 
 
 //--------------------------------------------------------------------------------------
@@ -371,7 +374,7 @@ float GetOutline(float4 PosH)
 // return Outline Color
 float4 GetOutlineColor(float outlineVal)
 {
-	return float4(0.8f, 0, 0, outlineVal*2.5f);
+	return float4(g_outlineColor.xyz, outlineVal*2.5f);
 }
 
 

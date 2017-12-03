@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "billboard.h"
 
-
 using namespace graphic;
 
 

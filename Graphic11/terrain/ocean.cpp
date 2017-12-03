@@ -426,7 +426,7 @@ void cOcean::SetupReflectionView(graphic::cCamera3D *cam)
 	
 	mView = mWorld.Inverse();
 	mProj.SetProjection(camera_fov * MATH_PI / 360.0f, aspectRatio, scene_z_near, scene_z_far);
-	mViewProj=mView*mProj;
+	mViewProj = mView * mProj;
 	mViewProjInv = mViewProj.Inverse();
 
 	pEffect->GetVariableByName("g_ModelViewProjectionMatrix")->AsMatrix()->SetMatrix((float*)&mViewProj);

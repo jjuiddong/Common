@@ -5,19 +5,80 @@
 using namespace graphic;
 
 
-cGrid::cGrid() 
+cGrid::cGrid()
 	: cNode(common::GenerateId(), "grid", eNodeType::MODEL)
 	//, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	, m_texture(NULL)
 	, m_isLineDrawing(false)
 	, m_faceCount(0)
+	, m_lineColor(0.7f, 0.7f, 0.7f, 0.5f)
 {
 	m_mtrl.InitWhite();
 }
 
 cGrid::~cGrid()
 {
+}
+
+
+// Grid 인덱스 버퍼를 생성할 때 쓰일, 배열을 생성한다.
+template<class T>
+void CreateIndexArray(const int rowCellCount, const int colCellCount
+	, OUT vector<BYTE> &out)
+{
+	const int rowVtxCnt = rowCellCount + 1;
+	const int colVtxCnt = colCellCount + 1;
+	const int cellCnt = rowCellCount * colCellCount;
+
+	// We Need Additional Indexbuffer for Draw Grid Line
+	const int addLineCount = rowCellCount + colCellCount;
+	out.resize( ((cellCnt * 2 * 3) + (addLineCount * 3)) * sizeof(T), 0);
+	T *indices = (T*)&out[0];
+	{
+		int baseIndex = 0;
+		for (int i = 0; i < rowCellCount; ++i)
+		{
+			for (int k = 0; k < colCellCount; ++k)
+			{
+				//
+				//  0 ----- 1,4
+				//  |    /  |
+				//  |   /   |
+				//  |  /    |
+				//  2,3 --- 5
+
+				indices[baseIndex] = (i * colVtxCnt) + k;
+				indices[baseIndex + 1] = (i   * colVtxCnt) + k + 1;
+				indices[baseIndex + 2] = ((i + 1) * colVtxCnt) + k;
+
+				indices[baseIndex + 3] = ((i + 1) * colVtxCnt) + k;
+				indices[baseIndex + 4] = (i   * colVtxCnt) + k + 1;
+				indices[baseIndex + 5] = ((i + 1) * colVtxCnt) + k + 1;
+
+				// next quad
+				baseIndex += 6;
+			}
+		}
+	}
+
+	// Add Grid Line Index
+	{
+		int baseIndex = cellCnt * 2 * 3;
+		for (int i = 0; i < rowCellCount; ++i)
+		{
+			indices[baseIndex] = (i * colVtxCnt);
+			indices[baseIndex + 1] = ((i + 1) * colVtxCnt);
+			baseIndex += 2;
+		}
+
+		for (int i = 0; i < colCellCount; ++i)
+		{
+			indices[baseIndex] = (rowCellCount * colVtxCnt) + i;
+			indices[baseIndex + 1] = (rowCellCount * colVtxCnt) + i + 1;
+			baseIndex += 2;
+		}
+	}
 }
 
 
@@ -122,59 +183,22 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	m_vtxBuff.Create(renderer, vtxCount, vertexStride, &buffer0[0]
 		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
 
-	// We Need Additional Indexbuffer for Draw Grid Line
-	const int addLineCount = rowCellCount + colCellCount;
-	vector<WORD> buffer1((cellCnt * 2 * 3) + (addLineCount*3), 0);
-	WORD *indices = &buffer1[0];
-	{
-		int baseIndex = 0;
-		for (int i = 0; i < rowCellCount; ++i)
-		{
-			for (int k = 0; k < colCellCount; ++k)
-			{
-				//
-				//  0 ----- 1,4
-				//  |    /  |
-				//  |   /   |
-				//  |  /    |
-				//  2,3 --- 5
+	// Create Index Buffer
+	const bool is32bit = WORD_MAX <= vtxCount;
+	vector<BYTE> buffer1;
+	if (is32bit)
+		CreateIndexArray<DWORD>(rowCellCount, colCellCount, buffer1);
+	else
+		CreateIndexArray<WORD>(rowCellCount, colCellCount, buffer1);
 
-				indices[baseIndex] = (i * colVtxCnt) + k;
-				indices[baseIndex + 1] = (i   * colVtxCnt) + k + 1;
-				indices[baseIndex + 2] = ((i + 1) * colVtxCnt) + k;
+	const int idxSizeOfBytes = is32bit ? sizeof(DWORD) : sizeof(WORD);
+	const int faceCount = (buffer1.size() / idxSizeOfBytes) / 3;
+	m_idxBuff.Create(renderer, faceCount, (BYTE*)&buffer1[0]
+		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT
+		, is32bit? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT);
+	//
 
-				indices[baseIndex + 3] = ((i + 1) * colVtxCnt) + k;
-				indices[baseIndex + 4] = (i   * colVtxCnt) + k + 1;
-				indices[baseIndex + 5] = ((i + 1) * colVtxCnt) + k + 1;
-
-				// next quad
-				baseIndex += 6;
-			}
-		}
-	}
-
-	// Add Grid Line Index
-	{
-		int baseIndex = cellCnt * 2 * 3;
-		for (int i = 0; i < rowCellCount; ++i)
-		{
-			indices[baseIndex] = (i * colVtxCnt);
-			indices[baseIndex + 1] = ((i+1) * colVtxCnt);
-			baseIndex += 2;
-		}
-
-		for (int i = 0; i < colCellCount; ++i)
-		{
-			indices[baseIndex] = (rowCellCount * colVtxCnt) + i;
-			indices[baseIndex + 1] = (rowCellCount * colVtxCnt) + i + 1;
-			baseIndex += 2;
-		}
-	}
-
-	m_faceCount = cellCnt * 2;
-	m_idxBuff.Create(renderer, (cellCnt * 2) + addLineCount, (BYTE*)&buffer1[0]
-		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT);
-
+	m_faceCount = faceCount;
 	m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
 	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
 		, textureFileName, (void**)&m_texture));
@@ -251,7 +275,7 @@ void cGrid::RenderLine(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
-	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(0.7f, 0.7f, 0.7f, 0.5f));
+	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&m_lineColor.GetColor());
 	renderer.m_cbMaterial.Update(renderer, 2);
 	renderer.m_cbClipPlane.Update(renderer, 4);
 
