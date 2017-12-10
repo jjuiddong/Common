@@ -426,12 +426,15 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				// 현재 노드와 다음 노드에서 중복된 버텍스 2개에서, (인접 버텍스)
 				// 인접하지 않는 변에 속하는 버텍스가, 충돌되는 꼭지점이다.
 				// 이 버텍스를 중심으로 다시 최적 경로를 탐색한다.
-				int pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
-					, curNodeIdx, nextNodeIdx);
+				//int pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
+				//	, curNodeIdx, nextNodeIdx);
 
-				if (pointIdx < 0)
-					pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
-						, preTestNodeIdx, nextTestNodeIdx);
+				//if (pointIdx < 0)
+				//	pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
+				//		, preTestNodeIdx, nextTestNodeIdx);
+
+				int pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
+					, nodeIndices, !collision1 && collision2);
 
 				if (pointIdx < 0)
 				{
@@ -474,6 +477,50 @@ int cNavigationMesh::GetAdjacentCollisionVertexIdx(
 			if (adjVtxIdx2 == idxs[i])
 				return adjVtxIdx2;
 			if (adjVtxIdx2 == idxs[(i + 1) % 3])
+				return adjVtxIdx2;
+		}
+	}
+
+	return -1;
+}
+
+
+// 경로상에서 adjVtxIdx1, adjVtxIdx2와 겹치는 노드에서, 가장먼저 연결된
+// Vertex Index를 리턴한다.
+int cNavigationMesh::GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const int adjVtxIdx2
+	, const vector<int> nodeIndices
+	, const bool isReverse //= true
+)
+{
+	if (isReverse)
+	{
+		for (int i = (int)nodeIndices.size() - 1; i >= 0; --i)
+		{
+			const sNaviNode &node = m_naviNodes[nodeIndices[i]];
+			if ((node.idx1 == adjVtxIdx1)
+				|| (node.idx2 == adjVtxIdx1)
+				|| (node.idx3 == adjVtxIdx1))
+				return adjVtxIdx1;
+
+			if ((node.idx1 == adjVtxIdx2)
+				|| (node.idx2 == adjVtxIdx2)
+				|| (node.idx3 == adjVtxIdx2))
+				return adjVtxIdx2;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < nodeIndices.size(); ++i)
+		{
+			const sNaviNode &node = m_naviNodes[nodeIndices[i]];
+			if ((node.idx1 == adjVtxIdx1)
+				|| (node.idx2 == adjVtxIdx1)
+				|| (node.idx3 == adjVtxIdx1))
+				return adjVtxIdx1;
+
+			if ((node.idx1 == adjVtxIdx2)
+				|| (node.idx2 == adjVtxIdx2)
+				|| (node.idx3 == adjVtxIdx2))
 				return adjVtxIdx2;
 		}
 	}
