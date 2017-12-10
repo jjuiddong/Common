@@ -2,11 +2,6 @@
 #include "stdafx.h"
 #include "cubeshape.h"
 
-
-namespace {
-
-}
-
 using namespace graphic;
 
 

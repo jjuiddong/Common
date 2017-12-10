@@ -128,6 +128,7 @@ void cCascadedShadowMap::DebugRender(cRenderer &renderer)
 
 void cCascadedShadowMap::BuildShadowMap(cRenderer &renderer, cNode *node
 	, const XMMATRIX &parentTm // = XMIdentity
+	, const bool isClear //= true;
 )
 {
 	node->SetTechnique("BuildShadowMap");
@@ -137,7 +138,7 @@ void cCascadedShadowMap::BuildShadowMap(cRenderer &renderer, cNode *node
 	{
 		node->CullingTest(m_frustums[i], parentTm, true);
 
-		Begin(renderer, i);
+		Begin(renderer, i, isClear);
 		node->Render(renderer, parentTm, eRenderFlag::SHADOW);
 		End(renderer, i);
 	}

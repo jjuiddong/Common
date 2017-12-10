@@ -32,6 +32,8 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	if (!gameMain->Init())
 		return 0;
 
+	gameMain->m_state = cGameMain2::RUN;
+
 	using namespace std::chrono_literals;
 	int oldT = timeGetTime();
 	while (gameMain->isOpen())
@@ -40,15 +42,17 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		int elapseT = curT - oldT;
 		if (elapseT > 100)
 			elapseT = 100;
-		const float t = elapseT * 0.001f * gameMain->m_slowFactor;
+		//const float t = elapseT * 0.001f * gameMain->m_slowFactor;
+		const float t = (cGameMain2::PAUSE == gameMain->m_state) ? 0.f : (elapseT * 0.001f * gameMain->m_slowFactor);
 		oldT = curT;
 
 		cDockManager::Get()->UpdateRender(t);
 
-		if (gameMain->m_isLazyMode) // 100 frame
-			std::this_thread::sleep_for(10ms);
+		if (gameMain->m_isLazyMode) // 30 frame
+			std::this_thread::sleep_for(33ms);
 	}
 
+	gameMain->m_state = cGameMain2::SHUTDOWN;
 	gameMain->Shutdown();
 	graphic::ReleaseRenderer();
 	cDockManager::Release();
@@ -74,6 +78,7 @@ cGameMain2::~cGameMain2()
 
 bool cGameMain2::Init()
 {
+	m_state = INIT;
 	m_hWnd = getSystemHandle();
 	graphic::cResourceManager::Get()->LoadTexture(m_renderer, g_defaultTexture);
 
@@ -112,4 +117,16 @@ void cGameMain2::Shutdown()
 {
 	OnShutdown();
 	Clear();
+}
+
+
+void cGameMain2::Pause() {
+	if (RUN == m_state)
+		m_state = PAUSE;
+}
+
+void cGameMain2::Resume()
+{
+	if (PAUSE == m_state)
+		m_state = RUN;
 }

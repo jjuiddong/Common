@@ -100,6 +100,7 @@ namespace graphic {
 
 
 #include "base/grid.h"
+#include "base/gridline.h"
 #include "base/pyramid.h"
 #include "base/line.h"
 #include "base/line2d.h"

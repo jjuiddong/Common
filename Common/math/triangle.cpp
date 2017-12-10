@@ -25,8 +25,10 @@ void Triangle::Create( const Vector3& v1, const Vector3& v2, const Vector3& v3 )
 
 
 // Triangle::Intersect
-//pfT, pfU, pfV : out
-BOOL Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT, float *pfU, float *pfV	)  const
+// pfT, pfU, pfV : out
+// pfT : distance
+// collision pos = lerp(c, b, pfU) + lerp(c, a, pfV) - c
+bool Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT, float *pfU, float *pfV	)  const
 {
 	static float u, v;
 
@@ -48,7 +50,7 @@ BOOL Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT,
 	float fDet = vEdge1.DotProduct( vP );
 	if( fDet < 0.0001F )
 	{
-		return FALSE;
+		return false;
 	} //if
 
 	// Calculate distance from vert0 to ray origin
@@ -61,7 +63,7 @@ BOOL Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT,
 	u = vT.DotProduct( vP );
 	if( u < 0.0F || u > fDet )
 	{
-		return FALSE;
+		return false;
 	} //if
 
 	// Prepare to test V parameter
@@ -75,18 +77,26 @@ BOOL Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT,
 
 	if( v < 0.0F || u + v > fDet )
 	{
-		return FALSE;
+		return false;
 	} //if
 
 	// Calculate t, scale parameters, ray intersects triangle
 
 	float fInvDet = 1.0F / fDet;
 
-	if (pfT) *pfT = vEdge2.DotProduct( vQ ) * fInvDet;
-	if (pfU) *pfU = u * fInvDet;
-	if (pfV) *pfV = v * fInvDet;
+	const float _t = vEdge2.DotProduct(vQ) * fInvDet;
+	const float _u = u * fInvDet;
+	const float _v = v * fInvDet;
 
-	return TRUE;
+	if (pfT) *pfT = _t;
+	if (pfU) *pfU = _u;
+	if (pfV) *pfV = _v;
+
+	// intersect back of triangle return false
+	if (_t < -0.001f)
+		return false;
+
+	return true;
 }
 
 

@@ -16,6 +16,14 @@ namespace framework
 		cGameMain2();
 		virtual ~cGameMain2();
 
+		enum STATE
+		{
+			INIT,
+			RUN,
+			PAUSE,
+			SHUTDOWN,
+		};
+
 		virtual bool Init();
 		virtual void Update(const float deltaSeconds) override;
 		virtual void LostDevice() override;
@@ -23,16 +31,21 @@ namespace framework
 		virtual void Shutdown() override;
 		virtual void Exit();
 
+		void Pause();
+		void Resume();
+		void Slow(const float rate);
+
 
 	protected:
 		virtual bool OnInit() { return true; }
 
 
 	public:
+		STATE m_state;
 		HWND m_hWnd;
 		WStrId m_windowName;
 		sRectf m_windowRect;
-		bool m_isLazyMode; // FPS 100 이하 유지
+		bool m_isLazyMode; // FPS 30 이하 유지
 		float m_slowFactor; // default: 1.f
 	};
 

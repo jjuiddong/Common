@@ -317,6 +317,9 @@
     <ClInclude Include="base\rect3d.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\gridline.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -609,6 +612,9 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\rect3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\gridline.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

@@ -29,6 +29,7 @@ bool cPyramid::Create(cRenderer &renderer
 	m_transform.pos = pos;
 	m_boundingBox.SetBoundingBox(m_transform);
 	m_color = color;
+	m_vtxType = vtxType;
 	return true;
 }
 
@@ -53,7 +54,8 @@ bool cPyramid::Render(cRenderer &renderer
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_shape.Render(renderer);
-	return true;
+
+	return __super::Render(renderer, parentTm, flags);
 }
 
 

@@ -7,6 +7,7 @@ using namespace graphic;
 
 cText3d3::cText3d3()
 	: cNode(common::GenerateId(), "text", eNodeType::TEXT)
+	, m_isDepthNone(false)
 {
 }
 
@@ -82,9 +83,17 @@ bool cText3d3::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->RSSetState(states.Wireframe());
-	m_quad.Render(renderer);
-	renderer.GetDevContext()->RSSetState(NULL);
-	return true;
+	if (m_isDepthNone)
+	{
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetDepthStencilState(state.DepthNone(), 0);
+		m_quad.Render(renderer);
+		renderer.GetDevContext()->OMSetDepthStencilState(state.DepthDefault(), 0);
+	}
+	else
+	{
+		m_quad.Render(renderer);
+	}
+	
+	return __super::Render(renderer, parentTm, flags);
 }

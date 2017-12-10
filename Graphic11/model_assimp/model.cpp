@@ -11,6 +11,7 @@ cModel::cModel()
 	, m_state(eState::NORMAL)
 	, m_animationSpeed(1)
 	, m_aniIncT(0)
+	, m_isLoad(false)
 {
 }
 
@@ -34,6 +35,7 @@ bool cModel::Create(cRenderer &renderer
 	m_name = fileName.GetFileNameExceptExt().c_str();
 	m_fileName = fileName;
 	m_techniqueName = "Unlit";
+	m_isLoad = false;
 	m_aniIncT = 0;
 	SetRenderFlag(eRenderFlag::SHADOW, isShadow);
 
@@ -181,24 +183,25 @@ bool cModel::CheckLoadProcess(cRenderer &renderer)
 
 void cModel::InitModel(cRenderer &renderer)
 {
-	if (m_model)
-	{
-		if (m_animationName.empty()) // 애니메이션이 설정된 상태라면, 덮어 씌우지 않는다.
-			m_animationName = m_model->m_storedAnimationName;
-		m_boundingBox = m_model->m_boundingBox;
-		m_boundingSphere.SetBoundingSphere(m_model->m_boundingBox);
+	RET(!m_model);
 
-		m_skeleton = m_model->m_skeleton;
-		const int curAniIdx = m_animation.m_curAniIdx;
-		m_animation = m_model->m_animation;
-		m_animation.m_skeleton = &m_skeleton;
+	if (m_animationName.empty()) // 애니메이션이 설정된 상태라면, 덮어 씌우지 않는다.
+		m_animationName = m_model->m_storedAnimationName;
 
-		// 모델이 로딩 되기전에 애니메이션 정보를 설정했다면, 그대로 유지한다. (병렬로 로딩 되었을 경우)
-		if (curAniIdx >= 0)
-			m_animation.m_curAniIdx = curAniIdx;
-		else
-			SetAnimation(m_animationName);
-	}
+	m_isLoad = true;
+	m_boundingBox = m_model->m_boundingBox;
+	m_boundingSphere.SetBoundingSphere(m_model->m_boundingBox);
+
+	m_skeleton = m_model->m_skeleton;
+	const int curAniIdx = m_animation.m_curAniIdx;
+	m_animation = m_model->m_animation;
+	m_animation.m_skeleton = &m_skeleton;
+
+	// 모델이 로딩 되기전에 애니메이션 정보를 설정했다면, 그대로 유지한다. (병렬로 로딩 되었을 경우)
+	if (curAniIdx >= 0)
+		m_animation.m_curAniIdx = curAniIdx;
+	else
+		SetAnimation(m_animationName);
 }
 
 

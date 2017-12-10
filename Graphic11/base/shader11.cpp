@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "shader11.h"
+#include "Shellapi.h"
 
 
 using namespace graphic;
@@ -22,6 +23,7 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 {
 	Clear();
 
+	// *.fxo file read
 	std::ifstream fin(fileName.c_str(), std::ios::binary);
 	if (!fin.is_open())
 		return false;
@@ -33,7 +35,9 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 
 	fin.read(&compiledShader[0], size);
 	fin.close();
+	//
 
+	// Create Effect
 	HRESULT hr = D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, renderer.GetDevice(), &m_effect);
 	if (FAILED(hr))
 		return false;
@@ -55,18 +59,88 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 }
 
 
+// fileName : *.fxo file
+// vtxType : Composition eVertexType
+bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
+	, const char *techniqueName, const int vtxType)
+{
+	Clear();
+
+	// *.fxo file read
+	std::ifstream fin(fileName.c_str(), std::ios::binary);
+	if (!fin.is_open())
+		return false;
+
+	fin.seekg(0, std::ios_base::end);
+	int size = (int)fin.tellg();
+	fin.seekg(0, std::ios_base::beg);
+	std::vector<char> compiledShader(size);
+
+	fin.read(&compiledShader[0], size);
+	fin.close();
+	//
+
+	// Create Effect
+	HRESULT hr = D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, renderer.GetDevice(), &m_effect);
+	if (FAILED(hr))
+		return false;
+
+	m_technique = m_effect->GetTechniqueByName(techniqueName);
+	RETV(!m_technique, false);
+
+	// Create the input layout
+	D3DX11_PASS_DESC passDesc;
+	m_technique->GetPassByIndex(0)->GetDesc(&passDesc);
+
+	if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, vtxType))
+		return false;
+
+	m_name = fileName.GetFileName();
+	m_fxoFileName = fileName;
+
+	return true;
+}
+
+
 bool cShader11::CompileAndReload(cRenderer &renderer)
 {
 	if (m_fxoFileName.empty())
 		return false;
 
-	//remove(m_fxoFileName.c_str()); // remove file
-	const StrPath fxFileName = m_fxoFileName.GetFileNameExceptExt2() + ".fx";
-	if (!Compile(fxFileName.c_str()))
+	// Shader 원본 파일은 Shader Root 디렉토리에 있다.
+	const StrPath path = renderer.m_shaderMgr.GetShaderRootDirectory();
+	const StrPath fxFileName = m_fxoFileName.GetFileNameExceptExt() + ".fx";
+	const StrPath fullPath = path + fxFileName;
+
+	if (!Compile(fullPath.c_str()))
 		return false;
+
+	// Compile 된 후, 출력파일을 Media 폴더에 복사한다.
+	const StrPath outputFullPath = fullPath.GetFileNameExceptExt2() + ".fxo";
+	common::FileOperationFunc(FO_COPY, m_fxoFileName.c_str(), outputFullPath.c_str());
 
 	if (!Create(renderer, m_fxoFileName, "Unlit", &m_vtxLayout.m_elements[0], m_vtxLayout.m_elements.size()))
 		return false;
+
+	return true;
+}
+
+
+// *.fx file open
+bool cShader11::OpenFile(cRenderer &renderer
+	, const char *operation //= "edit" ("edit" or "open")
+) const
+{
+	const StrPath path = renderer.m_shaderMgr.GetShaderRootDirectory();
+	const StrPath fxFileName = m_fxoFileName.GetFileNameExceptExt() + ".fx";
+	const StrPath fullPath = path + fxFileName;
+
+	if (StrId("edit") == operation)
+		ShellExecuteA(NULL, "edit", fullPath.c_str(), NULL, NULL, SW_NORMAL);
+	else if (StrId("open") == operation)
+		ShellExecuteA(NULL, "open", path.c_str(), NULL, NULL, SW_NORMAL);
+	else
+		ShellExecuteA(NULL, operation, fullPath.c_str(), NULL, NULL, SW_NORMAL);
 
 	return true;
 }
@@ -195,10 +269,10 @@ bool cShader11::Compile(const char *fileName
 	StartupInfo.hStdOutput = hWritePipe;
 	StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-	WStr128 srcFileName(Str128(fileName).wstr());
-	WStr128 outputFileName = srcFileName.GetFileNameExceptExt2() + L".fxo";
+	WStr256 srcFileName(Str256(fileName).wstr());
+	WStr256 outputFileName = srcFileName.GetFileNameExceptExt2() + L".fxo";
 
-	WStr128 cmdLine;
+	WStr256 cmdLine;
 	cmdLine = L"/Fc /Od /Zi /T fx_5_0 /Fo ";
 	cmdLine += outputFileName.c_str(); // output filename 
 	cmdLine += L" "; // space

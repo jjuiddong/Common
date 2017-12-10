@@ -24,6 +24,7 @@ bool cTorus::Create(cRenderer &renderer, const float outerRadius, const float in
 {
 	m_shape.Create(renderer, outerRadius, innerRadius, stack, slice, vtxType);
 	m_color = color;
+	m_vtxType = vtxType;
 	return true;
 }
 
@@ -48,5 +49,11 @@ bool cTorus::Render(cRenderer &renderer
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_shape.Render(renderer);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 	return true;
 }

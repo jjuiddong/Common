@@ -28,25 +28,35 @@ bool cDbgLineList::Create(cRenderer &renderer, const int maxLines
 }
 
 
-bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1)
+bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
+	, const bool isUpdateBuffer //= true
+)
 {
-	if ((u_int)m_vtxBuff.GetVertexCount() <= (m_lines.size() + 1))
+	if ((u_int)m_vtxBuff.GetVertexCount() <= ((m_lines.size() * 2) + 1))
 		return false; // full buffer
 
 	m_lines.push_back({ p0, p1 });
-	UpdateBuffer(renderer);
+
+	if (isUpdateBuffer)
+		UpdateBuffer(renderer);
+
 	return true;
 }
 
 
-bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0)
+bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0
+	, const bool isUpdateBuffer //= true
+)
 {
-	if ((u_int)m_vtxBuff.GetVertexCount() <= (m_lines.size() + 1))
+	if ((u_int)m_vtxBuff.GetVertexCount() <= ((m_lines.size()*2) + 1))
 		return false; // full buffer
 
-	Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;
+	const Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;
 	m_lines.push_back({ p, p0 });
-	UpdateBuffer(renderer);
+
+	if (isUpdateBuffer)
+		UpdateBuffer(renderer);
+
 	return true;
 }
 
@@ -72,6 +82,9 @@ void cDbgLineList::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
+	if (m_lines.empty())
+		return;
+
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
 	assert(shader);
 	shader->SetTechnique("Unlit");
@@ -88,6 +101,12 @@ void cDbgLineList::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	renderer.GetDevContext()->DrawInstanced(m_lines.size()*2, 1, 0, 0);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[eVertexType::POSITION];
+#endif
 }
 
 

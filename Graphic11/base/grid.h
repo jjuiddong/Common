@@ -40,7 +40,6 @@ namespace graphic
 		float m_cellSizeW;
 		float m_cellSizeH;
 		int m_faceCount; // no line count
-		int m_vertexType; // compose eVertexType::Enum
 		D3D_PRIMITIVE_TOPOLOGY m_primitiveType;
 		cColor m_lineColor;
 	};

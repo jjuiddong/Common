@@ -125,7 +125,7 @@ bool cWater::Render(cRenderer &renderer
 	m_grid.m_vtxBuff.Bind(renderer);
 	m_grid.m_idxBuff.Bind(renderer);
 
-	if ((m_grid.m_vertexType & eVertexType::TEXTURE) && m_grid.m_texture)
+	if ((m_grid.m_vtxType & eVertexType::TEXTURE) && m_grid.m_texture)
 		m_grid.m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());

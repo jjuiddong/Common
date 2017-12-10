@@ -39,6 +39,7 @@ namespace graphic
 		cBillboard m_quad;
 		cColor m_color;
 		Vector3 m_originalScale;
+		bool m_isDepthNone;
 	};
 
 }

@@ -67,6 +67,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 	, const cColor &outlineColor //= cColor::BLACK
 	, BILLBOARD_TYPE::TYPE type //= BILLBOARD_TYPE::Y_AXIS
 	, const Transform &tm //= Transform::Identity
+	, const bool isDepthNone //= false
 	, const int width //=8
 	, const int height//=1
 )
@@ -84,6 +85,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 
 		text->space = renderer.GetCurrentAlphaBlendSpace();
 		text->used = true;
+		text->depthNone = isDepthNone;
 		text->initTime = timeGetTime();
 
 		if (m_renderMap.end() == m_renderMap.find(id))
@@ -101,6 +103,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 		cmd.outlineColor = c2;
 		cmd.type = type;
 		cmd.tm = tm;
+		cmd.depthNone = isDepthNone;
 		cmd.width = width;
 		cmd.height = height;
 		cmd.space = renderer.GetCurrentAlphaBlendSpace();
@@ -198,6 +201,8 @@ void cTextManager::Render(cRenderer &renderer
 	for (auto &p : m_renders)
 	{
 		p->text.m_alphaNormal = p->text.m_quad.m_normal;
+		p->text.m_isDepthNone = p->depthNone;
+		p->text.SetRenderFlag(eRenderFlag::NODEPTH, p->depthNone);
 		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_transform.GetMatrix());
 	}
 }
@@ -212,6 +217,7 @@ void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sComm
 
 	text->id = cmd.id;
 	text->used = true;
+	text->depthNone = cmd.depthNone;
 	text->space = cmd.space;
 	text->initTime = timeGetTime();
 	m_cacheMap[cmd.id] = text;

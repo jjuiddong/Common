@@ -24,6 +24,7 @@ bool cRect3D::Create(cRenderer &renderer
 )
 {
 	m_vtxBuff.Create(renderer, maxEdgeLineCount * 4, sizeof(sVertex), D3D11_USAGE_DYNAMIC);
+	m_vtxType = eVertexType::POSITION;
 	return true;
 }
 
@@ -53,6 +54,12 @@ bool cRect3D::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	renderer.GetDevContext()->DrawInstanced(m_lineCount, 1, 0, 0);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 	return true;
 }
 

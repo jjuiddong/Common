@@ -39,6 +39,7 @@ namespace graphic
 			, SHADOW = 1 << 5
 			, OUTLINE = 1 << 6
 			, TEXT = 1 << 7
+			, NODEPTH = 1 << 8
 		};
 	};
 
@@ -124,6 +125,7 @@ namespace graphic
 		bool m_isEnable; // if false, didn't show
 		int m_renderFlags; // eRenderFlag, default : VISIBLE
 		int m_opFlags; // eOpFlag, defalut : NONE
+		int m_vtxType; // Composition eVertexType
 		eNodeType::Enum m_type;
 		eSubType::Enum m_subType;
 		cNode *m_parent;

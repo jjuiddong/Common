@@ -6,6 +6,7 @@
 using namespace graphic;
 
 cShaderManager::cShaderManager()
+	: m_shaderRootPath("C://")
 {
 }
 
@@ -35,6 +36,46 @@ cShader11* cShaderManager::LoadShader(cRenderer &renderer, const StrPath &fileNa
 	if (shader)
 	{
 		m_shaders[ StrPath(fileName.GetFileName()).GetHashCode()] = shader;
+
+		// Check Already Exist
+		if (isVtxTypeHash)
+		{
+			assert(m_vtxTypeShaders.end() == m_vtxTypeShaders.find(shader->m_vtxLayout.m_vertexType));
+			m_vtxTypeShaders[shader->m_vtxLayout.m_vertexType] = shader;
+		}
+	}
+	return shader;
+
+
+error:
+	StrPath msg = StrPath("Error LoadShader ") + fileName + " 파일이 존재하지 않습니다.";
+	MessageBoxA(NULL, msg.c_str(), "ERROR", MB_OK);
+	dbg::ErrLog("%s\n", msg.c_str());
+	SAFE_DELETE(shader);
+	return NULL;
+}
+
+
+cShader11* cShaderManager::LoadShader(cRenderer &renderer, const StrPath &fileName
+	, const int vtxType
+	, const bool isVtxTypeHash //= true
+)
+{
+	if (cShader11 *p = FindShader(fileName))
+		return p;
+
+	cShader11 *shader = NULL;
+	const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(fileName);
+	if (resourcePath.empty())
+		goto error;
+
+	shader = new cShader11();
+	if (!shader->Create(renderer, resourcePath, "Unlit", vtxType))
+		goto error;
+
+	if (shader)
+	{
+		m_shaders[StrPath(fileName.GetFileName()).GetHashCode()] = shader;
 
 		// Check Already Exist
 		if (isVtxTypeHash)

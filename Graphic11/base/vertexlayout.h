@@ -19,6 +19,8 @@ namespace graphic
 		bool Create(cRenderer &renderer, ID3DBlob *vsBlob, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(cRenderer &renderer, const BYTE *pIAInputSignature, const SIZE_T IAInputSignatureSize
 			, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
+		bool Create(cRenderer &renderer, const BYTE *pIAInputSignature, const SIZE_T IAInputSignatureSize
+			, const int vtxType);
 		bool Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout);
 		bool Create(const int vtxType);

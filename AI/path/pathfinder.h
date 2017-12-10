@@ -72,4 +72,8 @@ namespace ai
 		vector<sArea> m_areas;
 	};
 
+
+	// search table
+	extern float g_edges_len[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
+	extern bool  g_edges_visit[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
 }

@@ -133,6 +133,7 @@ bool  cSkyBox::CreateVertexBuffer(cRenderer &renderer)
 	const int vtxSize = 24;
 	m_vtxBuff.Create(renderer, vtxSize, sizeof(sVertexTex), SkyboxMesh);
 
+	m_vtxType = eVertexType::POSITION | eVertexType::TEXTURE;
 	return true;
 }
 
@@ -172,6 +173,11 @@ bool cSkyBox::Render(cRenderer &renderer
 	GetMainCamera().Bind(renderer);
 	GetMainLight().Bind(renderer);
 
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 	return true;
 }
 

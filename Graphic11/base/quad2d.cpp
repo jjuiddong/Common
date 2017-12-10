@@ -19,15 +19,19 @@ cQuad2D::~cQuad2D()
 // Äõµå¸¦ ÃÊ±âÈ­ ÇÑ´Ù.
 // width, height : Äõµå Å©±â
 // pos : Äõµå À§Ä¡
-bool cQuad2D::Create(cRenderer &renderer, const float x, const float y, const float width, const float height
+bool cQuad2D::Create(cRenderer &renderer, const float x, const float y
+	, const float width, const float height
 	, const char *textureFileName // = " "
 )
 {
-	m_shape.Create(renderer, eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE, cColor::WHITE);
+	const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE;
+	m_shape.Create(renderer, vtxType, cColor::WHITE);
 
 	SetPosition(x, y, width, height);
 
 	m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName? textureFileName : g_defaultTexture);
+
+	m_vtxType = vtxType;
 
 	return true;
 }

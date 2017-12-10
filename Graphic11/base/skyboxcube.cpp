@@ -83,6 +83,7 @@ bool cSkyBoxCube::CreateVertexBuffer(cRenderer &renderer)
 	}
 
 	m_vtxBuff.Create(renderer, sky_gridpoints*(sky_gridpoints + 2) * 2, sizeof(sVertexTex2), sky_vertexdata);
+	m_vtxType = eVertexType::POSITION | eVertexType::TEXTURE;
 
 	free(sky_vertexdata);
 
@@ -123,6 +124,11 @@ bool cSkyBoxCube::Render(cRenderer &renderer
 	GetMainCamera().Bind(renderer);
 	GetMainLight().Bind(renderer);
 
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 	return true;
 }
 

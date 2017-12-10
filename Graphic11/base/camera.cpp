@@ -91,15 +91,15 @@ void cCamera::UpdateMove(const float deltaSeconds)
 
 	// eyepos move
 	int check = 0;
-	static Vector3 oldPosDir;
+	m_oldPosDir;
 	Vector3 posDir = mover.eyePos - m_eyePos;
 	const float len = posDir.Length();
 	if (len > 0.5f)
 	{
 		Vector3 dv;
-		if (!oldPosDir.IsEmpty())
-			dv = posDir - oldPosDir;
-		oldPosDir = posDir;
+		if (!m_oldPosDir.IsEmpty())
+			dv = posDir - m_oldPosDir;
+		m_oldPosDir = posDir;
 
 		m_eyePos += posDir * dt * Ki + (dv * dt * Kd);
 	}
@@ -109,15 +109,14 @@ void cCamera::UpdateMove(const float deltaSeconds)
 	}
 
 	// lookat move
-	static Vector3 oldLookAtDir;
 	Vector3 lookDir = mover.lookAt - m_lookAt;
 	const float len2 = lookDir.Length();
 	if (len2 > 0.5f)
 	{
 		Vector3 dv;
-		if (!oldLookAtDir.IsEmpty())
-			dv = lookDir - oldLookAtDir;
-		oldLookAtDir = lookDir;
+		if (!m_oldLookAtDir.IsEmpty())
+			dv = lookDir - m_oldLookAtDir;
+		m_oldLookAtDir = lookDir;
 
 		m_lookAt += lookDir * dt * Ki + (dv * dt * Kd);
 	}

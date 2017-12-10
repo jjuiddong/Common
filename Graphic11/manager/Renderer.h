@@ -141,6 +141,11 @@ namespace graphic
 		int m_dbgRenderStyle; // 0:Sphere, 1:Box, 2:None
 		int m_textGenerateCount; // cTextManager generate count
 		int m_textCacheCount; // cTextManager cache count
+		int m_drawCallCount;
+		int m_preDrawCallCount;
+		map<int, int> m_shadersDrawCall; // key = vertex type, value = count
+		map<int, int> m_preShadersDrawCall; // key = vertex type, value = count
+
 		cDbgBox m_dbgBox;
 		cDbgLine m_dbgLine;
 		cDbgArrow m_dbgArrow;

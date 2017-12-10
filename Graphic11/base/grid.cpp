@@ -117,25 +117,16 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	, const bool isEditable //= false
 )
 {
+	m_vtxType = vertexType;
 	m_rowCellCount = rowCellCount;
 	m_colCellCount = colCellCount;
 	m_cellSizeW = cellSizeW;
 	m_cellSizeH = cellSizeH;
-	m_vertexType = vertexType;
+	m_vtxType = vertexType;
 	m_mtrl.m_diffuse = color.GetColor();
 
-	vector<D3D11_INPUT_ELEMENT_DESC> elems;
-	if (vertexType & eVertexType::POSITION)
-		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vertexType & eVertexType::NORMAL)
-		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vertexType & eVertexType::COLOR)
-		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vertexType & eVertexType::TEXTURE)
-		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	cVertexLayout vtxLayout;
-	vtxLayout.Create(elems);
-
+	vtxLayout.Create(vertexType);
 	const int posOffset = vtxLayout.GetOffset("POSITION");
 	const int normOffset = vtxLayout.GetOffset("NORMAL");
 	const int colorOffset = vtxLayout.GetOffset("COLOR");
@@ -222,7 +213,7 @@ bool cGrid::Render(cRenderer &renderer
 	RETV(!IsVisible(), false);
 	RETV(((m_renderFlags & flags) != flags), false);
 
-	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_vertexType);
+	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
 	assert(shader);
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
@@ -238,7 +229,7 @@ bool cGrid::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	if ((m_vertexType & eVertexType::TEXTURE) && m_texture)
+	if ((m_vtxType & eVertexType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
@@ -264,7 +255,7 @@ void cGrid::RenderLine(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vertexType);
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
 	assert(shader);
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
@@ -282,16 +273,21 @@ void cGrid::RenderLine(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	if ((m_vertexType & eVertexType::TEXTURE) && m_texture)
+	if ((m_vtxType & eVertexType::TEXTURE) && m_texture)
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	renderer.m_cbMaterial.m_v;
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
 	// recovery material
 	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 }

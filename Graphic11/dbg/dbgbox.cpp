@@ -78,7 +78,7 @@ void cDbgBox::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::COLOR);
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();
@@ -97,6 +97,12 @@ void cDbgBox::Render(cRenderer &renderer
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);
 	renderer.GetDevContext()->RSSetState(oldState);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[eVertexType::POSITION];
+#endif
 }
 
 

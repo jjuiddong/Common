@@ -61,6 +61,7 @@ namespace graphic
 			};
 		};
 
+		bool m_isLoad; // is Model Loaded?
 		StrPath m_fileName;
 		StrId m_animationName;
 		eState::Enum m_state;

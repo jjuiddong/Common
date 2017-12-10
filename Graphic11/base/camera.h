@@ -129,6 +129,8 @@ namespace graphic
 			float velocityLookAt;
 		};
 		vector<sCamMoving> m_mover;
+		Vector3 m_oldPosDir;
+		Vector3 m_oldLookAtDir;
 	};
 
 

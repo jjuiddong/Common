@@ -208,6 +208,12 @@ void cMeshBuffer::Render(cRenderer &renderer
 	m_idxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	renderer.GetDevContext()->DrawIndexed((faceCount==0)? (m_idxBuff.GetFaceCount() * 3) : (faceCount * 3), faceStart, m_offset);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 }
 
 

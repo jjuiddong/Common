@@ -6,8 +6,9 @@
 // Vertex Shader
 //--------------------------------------------------------------------------------------
 VSOUT_POSDIFFUSE_TEX VS( float4 Pos : POSITION
+	, float2 Tex : TEXCOORD0
 	, float4 Color : COLOR
-	, float2 Tex : TEXCOORD0 )
+ )
 {
 	VSOUT_POSDIFFUSE_TEX output = (VSOUT_POSDIFFUSE_TEX)0;
     output.Pos = mul( Pos, gWorld );

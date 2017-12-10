@@ -19,14 +19,13 @@ namespace graphic
 		virtual ~cDbgLineList();
 
 		bool Create(cRenderer &renderer, const int maxLines, const cColor &color=cColor::BLACK);
-		bool AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1);
-		bool AddNextPoint(cRenderer &renderer, const Vector3 &p0);
+		bool AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
+			, const bool isUpdateBuffer = true);
+		bool AddNextPoint(cRenderer &renderer, const Vector3 &p0
+			, const bool isUpdateBuffer = true);
+		void UpdateBuffer(cRenderer &renderer);
 		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);
 		void ClearLines();
-
-
-	protected:
-		void UpdateBuffer(cRenderer &renderer);
 
 
 	public:

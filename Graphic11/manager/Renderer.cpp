@@ -34,6 +34,8 @@ cRenderer::cRenderer()
 	, m_dbgRenderStyle(0)
 	, m_textGenerateCount(0)
 	, m_textCacheCount(0)
+	, m_drawCallCount(0)
+	, m_preDrawCallCount(0)
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }
@@ -133,111 +135,31 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 
 	//---------------------------------------------------------
 	// Initialize Shader
-	D3D11_INPUT_ELEMENT_DESC pos[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos.fxo", pos, ARRAYSIZE(pos));
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos.fxo", eVertexType::POSITION);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-color.fxo", eVertexType::POSITION | eVertexType::COLOR);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color.fxo", eVertexType::POSITION_RHW | eVertexType::COLOR);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", eVertexType::POSITION | eVertexType::TEXTURE);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm.fxo", eVertexType::POSITION | eVertexType::NORMAL);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color-tex.fxo"
+		, eVertexType::POSITION_RHW | eVertexType::TEXTURE | eVertexType::COLOR);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE | eVertexType::COLOR);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/water.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE, false);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-bump.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE | eVertexType::TANGENT | eVertexType::BINORMAL);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE | eVertexType::BLENDINDICES | eVertexType::BLENDWEIGHT);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin-bump.fxo"
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE 
+		| eVertexType::TANGENT | eVertexType::BINORMAL
+		| eVertexType::BLENDINDICES | eVertexType::BLENDWEIGHT);
 
-	D3D11_INPUT_ELEMENT_DESC pos_color[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-color.fxo", pos_color, ARRAYSIZE(pos_color));
-
-	D3D11_INPUT_ELEMENT_DESC posrhw_color[] =
-	{
-		{ "POSITION_RHW", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color.fxo", posrhw_color, ARRAYSIZE(posrhw_color));
-
-	D3D11_INPUT_ELEMENT_DESC pos_tex[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", pos_tex, ARRAYSIZE(pos_tex));
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm.fxo", pos_norm, ARRAYSIZE(pos_norm));
-
-
-	D3D11_INPUT_ELEMENT_DESC posrhw_color_tex[] =
-	{
-		{ "POSITION_RHW", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color-tex.fxo", posrhw_color_tex, ARRAYSIZE(posrhw_color_tex));
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm_color[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color.fxo", pos_norm_color, ARRAYSIZE(pos_norm_color));
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm_tex[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex.fxo", pos_norm_tex, ARRAYSIZE(pos_norm_tex));
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm_color_tex[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo", pos_norm_color_tex, ARRAYSIZE(pos_norm_color_tex));
-
-	m_shaderMgr.LoadShader(*this, "../media/shader11/water.fxo", pos_norm_tex, ARRAYSIZE(pos_norm_tex), false);
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_bump[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-bump.fxo", pos_norm_tex_bump, ARRAYSIZE(pos_norm_tex_bump));
-
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_skin[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin.fxo", pos_norm_tex_skin, ARRAYSIZE(pos_norm_tex_skin));
-
-
-	D3D11_INPUT_ELEMENT_DESC pos_norm_tex_skin_bump[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin-bump.fxo", pos_norm_tex_skin_bump, ARRAYSIZE(pos_norm_tex_skin_bump));
-
-
+	// POSITION => R32G32B32A32 4개를 사용함.
 	D3D11_INPUT_ELEMENT_DESC skyboxcube_layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -299,6 +221,14 @@ void cRenderer::Update(const float elapseT)
 		m_elapseTime = 0;
 	}
 	//--------------------------------------------------
+
+	m_preDrawCallCount = m_drawCallCount;
+	m_drawCallCount = 0;
+
+#ifdef _DEBUG
+	m_preShadersDrawCall = m_shadersDrawCall;
+#endif
+	m_shadersDrawCall.clear();
 }
 
 
@@ -378,6 +308,19 @@ void cRenderer::EndScene()
 		std::sort(space->renders.begin(), space->renders.end(),
 			[&](const sRenderObj &a, const sRenderObj &b)
 			{
+				// 최상위 출력(NoDepth)과 비교 할 경우, 최상위 출력이 항상 나중에 출력되게 한다.
+				if (a.p->IsRenderFlag(eRenderFlag::NODEPTH)
+					&& !b.p->IsRenderFlag(eRenderFlag::NODEPTH))
+				{
+					return true;
+				}
+
+				if (!a.p->IsRenderFlag(eRenderFlag::NODEPTH)
+					&& b.p->IsRenderFlag(eRenderFlag::NODEPTH))
+				{
+					return false;
+				}
+
 				const Vector3 c1 = a.p->m_transform.pos * a.tm;
 				const Vector3 c2 = b.p->m_transform.pos * b.tm;
 				const Plane plane1(a.p->m_alphaNormal, c1);
@@ -423,7 +366,14 @@ void cRenderer::EndScene()
 
 	for (auto &p : m_alphaSpace)
 		for (auto &data : p->renders)
-			data.p->Render(*this, data.tm.GetMatrixXM(), data.p->m_renderFlags);
+			if (!data.p->IsRenderFlag(eRenderFlag::NODEPTH))
+				data.p->Render(*this, data.tm.GetMatrixXM(), data.p->m_renderFlags);
+
+	// NoDepth 옵션을 가장 나중에 출력한다.
+	for (auto &p : m_alphaSpace)
+		for (auto &data : p->renders)
+			if (data.p->IsRenderFlag(eRenderFlag::NODEPTH))
+				data.p->Render(*this, data.tm.GetMatrixXM(), data.p->m_renderFlags);
 
 	for (auto &p : m_alphaSpace)
 	{

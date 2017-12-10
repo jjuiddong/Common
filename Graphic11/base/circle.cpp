@@ -16,12 +16,14 @@ cCircle::~cCircle()
 
 
 // ¿ø »ý¼º
-bool cCircle::Create(cRenderer &renderer, const Vector3 &center, const float radius, const int slice
+bool cCircle::Create(cRenderer &renderer, const Vector3 &center
+	, const float radius, const int slice
 	, const cColor &color //= cColor::BLACK
 )
 {
 	m_radius = radius;
 	m_shape.Create(renderer, center, radius, slice, color);
+	m_vtxType = m_shape.m_vtxType;
 	return true;
 }
 

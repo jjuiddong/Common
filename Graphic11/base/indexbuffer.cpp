@@ -8,6 +8,7 @@ using namespace graphic;
 cIndexBuffer::cIndexBuffer() :
 	m_idxBuff(NULL)
 	, m_faceCount(0)
+	, m_primitiveSize(3)
 	, m_format(DXGI_FORMAT_R16_UINT)
 {
 }
@@ -28,6 +29,7 @@ cIndexBuffer::~cIndexBuffer()
 bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount
 	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
 	, const DXGI_FORMAT fmt //= DXGI_FORMAT_R16_UINT
+	, const int primitiveSize //= 3
 )
 {
 	SAFE_RELEASE(m_idxBuff);
@@ -35,7 +37,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = usage;
-	bd.ByteWidth = sizeof(WORD) * faceCount * 3;
+	bd.ByteWidth = sizeof(WORD) * faceCount * primitiveSize;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	switch (usage)
 	{
@@ -54,6 +56,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount
 		return false;
 
 	m_faceCount = faceCount;
+	m_primitiveSize = primitiveSize;
 	m_format = fmt;
 	return true;
 }
@@ -62,6 +65,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount
 bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount, BYTE *indices
 	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
 	, const DXGI_FORMAT fmt //= DXGI_FORMAT_R16_UINT
+	, const int primitiveSize //= 3
 )
 {
 	SAFE_RELEASE(m_idxBuff);
@@ -69,7 +73,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount, BYTE *indice
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = usage;
-	bd.ByteWidth = BitsPerPixel(fmt)/8 * faceCount * 3;
+	bd.ByteWidth = BitsPerPixel(fmt)/8 * faceCount * primitiveSize;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	switch (usage)
 	{
@@ -92,6 +96,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount, BYTE *indice
 		return false;
 
 	m_faceCount = faceCount;
+	m_primitiveSize = primitiveSize;
 	m_format = fmt;
 	return true;
 }

@@ -24,6 +24,7 @@ cLine::cLine(cRenderer &renderer
 	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);
 	m_color = color;
+	m_vtxType = vtxType;
 }
 
 
@@ -38,6 +39,7 @@ bool cLine::Create(cRenderer &renderer
 	m_shape.Create2(renderer, vtxType, color);
 	SetLine(p0, p1, width);
 	m_color = color;
+	m_vtxType = vtxType;
 	return true;
 }
 
@@ -72,7 +74,7 @@ bool cLine::Render(cRenderer &renderer
 	
 	m_shape.Render(renderer);
 
-	return true;
+	return __super::Render(renderer, parentTm, flags);
 }
 
 

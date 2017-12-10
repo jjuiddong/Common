@@ -34,6 +34,7 @@ void cSphere::Create(cRenderer &renderer, const float radius, const int stacks, 
 {
 	m_mtrl.m_diffuse = color.GetColor();
 	m_radius = radius;
+	m_vtxType = vtxType;
 	m_shape.Create(renderer, radius, stacks, slices, vtxType);
 }
 

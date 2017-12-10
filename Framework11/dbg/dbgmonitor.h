@@ -18,12 +18,14 @@ namespace framework
 		Vector3 lookPos;
 		Vector3 eyePos2D;
 		Vector3 lookPos2D;
+		int drawCallCount;
+		int shaderDrawCall[2][10]; // 0:vtxType, 1:count
 
 		// shared memory -> app
 		bool isDbgRender;
 		int dbgRenderStyle;
 
-		char dummy[256];
+		//char dummy[256];
 	};
 
 	

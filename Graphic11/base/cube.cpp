@@ -46,6 +46,7 @@ bool cCube::Create(
 	, const int uvFlag //= 1, 0=Create1, 1=Creat2 (cCubeShape)
 )
 {
+	m_vtxType = vtxType;
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion(0, 0, 0, 1));
 	if (uvFlag == 0)
 		m_shape.Create1(renderer, vtxType, color);

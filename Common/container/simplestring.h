@@ -414,7 +414,7 @@ namespace common
 		wchar_t* Format(const wchar_t* fmt, ...) {
 			va_list args;
 			va_start(args, fmt);
-			vswprintf_s(m_str, sizeof(m_str) - 1, fmt, args);
+			vswprintf_s(m_str, fmt, args);
 			va_end(args);
 			return m_str;
 		}
@@ -743,6 +743,7 @@ namespace common
 	typedef String<char, 64> Str64;
 	typedef String<char, 64> StrId;
 	typedef String<char, 128> Str128;
+	typedef String<char, 256> Str256;
 	typedef String<char, 512> Str512;
 	typedef String<char, 128> StrPath;
 	typedef String<char, 256> StrGlobalPath;
@@ -752,6 +753,7 @@ namespace common
 	typedef String<wchar_t, 64> WStr64;
 	typedef String<wchar_t, 64> WStrId;
 	typedef String<wchar_t, 128> WStr128;
+	typedef String<wchar_t, 256> WStr256;
 	typedef String<wchar_t, 512> WStr512;
 	typedef String<wchar_t, 128> WStrPath;
 	typedef String<wchar_t, 256> WStrGlobalPath;

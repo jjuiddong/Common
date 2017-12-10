@@ -27,6 +27,7 @@ namespace graphic
 			, const cColor &outlineColor = cColor::BLACK
 			, BILLBOARD_TYPE::TYPE type = BILLBOARD_TYPE::Y_AXIS
 			, const Transform &tm = Transform::Identity
+			, const bool isDepthNone=false
 			, const int width=8, const int height=1);
 
 		void Render(cRenderer &renderer, const bool isSort=false);
@@ -40,6 +41,7 @@ namespace graphic
 		{
 			int id;
 			bool used;
+			bool depthNone;
 			int initTime;
 			sAlphaBlendSpace *space;
 			cText3d3 text;
@@ -55,6 +57,7 @@ namespace graphic
 			cColor color;
 			cColor outlineColor;
 			Transform tm;
+			bool depthNone;
 			sAlphaBlendSpace *space;
 			int width;
 			int height;

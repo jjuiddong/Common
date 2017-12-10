@@ -4,8 +4,11 @@
 
 using namespace ai;
 
-float g_edges_len[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
-bool  g_edges_visit[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
+namespace ai
+{
+	float g_edges_len[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
+	bool  g_edges_visit[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
+}
 
 
 cPathFinder::cPathFinder()
@@ -448,7 +451,7 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 	while ((curIdx != startIdx) && (verticesIndices.size() < 1000))
 	{
 		float minEdge = FLT_MAX;
-		int minIdx = -1;
+		int nextIdx = -1;
 		sVertex &vtx = m_vertices[curIdx];
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
@@ -464,19 +467,21 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 			if (minEdge > len)
 			{
 				minEdge = len;
-				minIdx = i;
+				nextIdx = vtx.edge[i];
 			}
 		}
 
-		if (minIdx < 0)
+		if (nextIdx < 0)
+		{
+			assert(0);
 			break; // error occur
+		}
 
-		g_edges_visit[curIdx][vtx.edge[minIdx]] = true;
-		g_edges_visit[vtx.edge[minIdx]][curIdx] = true;
-		const int parentIdx = vtx.edge[minIdx];
-		out.push_back(m_vertices[parentIdx].pos);
-		verticesIndices.push_back(parentIdx);
-		curIdx = parentIdx;	
+		g_edges_visit[curIdx][nextIdx] = true;
+		g_edges_visit[nextIdx][curIdx] = true;
+		out.push_back(m_vertices[nextIdx].pos);
+		verticesIndices.push_back(nextIdx);
+		curIdx = nextIdx;
 	}
 
 	assert(verticesIndices.size() < 1000);

@@ -22,6 +22,7 @@ cLine2D::cLine2D(cRenderer &renderer
 	m_shape.Create2(renderer, vtxType | eVertexType::COLOR, color);
 	SetLine(p0, p1, width);
 	m_color = color;
+	m_vtxType = vtxType;
 }
 
 
@@ -36,6 +37,7 @@ bool cLine2D::Create(cRenderer &renderer
 	m_shape.Create2(renderer, vtxType | eVertexType::COLOR, color);
 	SetLine(p0, p1, width);
 	m_color = color;
+	m_vtxType = vtxType;
 	return true;
 }
 

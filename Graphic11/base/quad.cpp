@@ -38,6 +38,7 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 )
 {
 	m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
+	m_vtxType = vtxType;
 	m_transform.pos = pos;
 	m_transform.scale = Vector3(width, height, 0.1f); // Z축으로 얇은 X-Y 평면
 	m_boundingBox.SetBoundingBox(m_transform);
@@ -70,7 +71,7 @@ bool cQuad::Render(cRenderer &renderer
 	m_shape.Render(renderer);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 
-	return true;
+	return __super::Render(renderer, parentTm, flags);
 }
 
 //

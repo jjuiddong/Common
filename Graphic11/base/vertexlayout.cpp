@@ -51,6 +51,23 @@ bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, c
 }
 
 
+bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, const SIZE_T IAInputSignatureSize
+	, const int vtxType)
+{
+	Clear();
+
+	Create(vtxType);
+
+	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
+		, pIAInputSignature
+		, IAInputSignatureSize
+		, &m_vertexLayout)))
+		return false;
+
+	return true;
+}
+
+
 bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
 {
 	int size = 0;
@@ -101,8 +118,10 @@ bool cVertexLayout::Create(const int vtxType)
 {
 	vector<D3D11_INPUT_ELEMENT_DESC> elems;
 
-	if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
+	if (vtxType & eVertexType::POSITION)
 		elems.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::POSITION_RHW)
+		elems.push_back({ "POSITION_RHW", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::TEXTURE)

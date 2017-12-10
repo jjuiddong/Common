@@ -16,10 +16,13 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const StrPath &fileName
 			, const char *techniqueName , const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
+		bool Create(cRenderer &renderer, const StrPath &fileName
+			, const char *techniqueName, const int vtxType);
 		int Begin();
 		void BeginPass(cRenderer &renderer, const int pass);
 		bool SetTechnique(const char *id);
 		bool CompileAndReload(cRenderer &renderer);
+		bool OpenFile(cRenderer &renderer, const char *operation = "edit") const;
 		void Clear();
 
 		ID3DX11EffectTechnique* GetTechnique(const char *id);

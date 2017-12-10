@@ -54,6 +54,12 @@ void cDbgSphere::Render(cRenderer &renderer
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);
 	renderer.GetDevContext()->RSSetState(NULL);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[eVertexType::POSITION];
+#endif
 }
 
 

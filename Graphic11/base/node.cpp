@@ -46,6 +46,7 @@ cNode::cNode()
 	, m_shader(NULL)
 	, m_techniqueName("Unlit")
 	, m_alphaNormal(0,1,0)
+	, m_vtxType(0)
 {
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), Vector3(1, 1, 1), Quaternion());
 }
@@ -84,7 +85,6 @@ bool cNode::Render(cRenderer &renderer
 {
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
-	//RETV(((m_renderFlags & flags) != flags), false);
 
 	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
 
@@ -110,6 +110,12 @@ bool cNode::Render(cRenderer &renderer
 			renderer.m_dbgAxis.Render(renderer, tm);
 		}
 	}
+
+	// for Debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 
 	return true;
 }
