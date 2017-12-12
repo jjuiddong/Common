@@ -463,7 +463,7 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				//		, preTestNodeIdx, nextTestNodeIdx);
 
 				int pointIdx;
-				if (collision1)
+				if (collision1 || (curVtxEdge1 < 0))
 					pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3], nodeIndices, false);
 				else
 					pointIdx = GetAdjacentCollisionVertexIdx(curVtxEdge1, curVtxEdge2, nodeIndices, true);
