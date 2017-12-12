@@ -54,7 +54,7 @@ bool cWater::Create(cRenderer &renderer)
 
 	m_grid.Create(renderer
 		, m_initInfo.vertRows, m_initInfo.vertCols, m_initInfo.cellSize, m_initInfo.cellSize
-		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
+		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0)
 		, cColor::WHITE
 		, g_defaultTexture
 		//, "sora.jpg"
@@ -125,7 +125,7 @@ bool cWater::Render(cRenderer &renderer
 	m_grid.m_vtxBuff.Bind(renderer);
 	m_grid.m_idxBuff.Bind(renderer);
 
-	if ((m_grid.m_vtxType & eVertexType::TEXTURE) && m_grid.m_texture)
+	if ((m_grid.m_vtxType & eVertexType::TEXTURE0) && m_grid.m_texture)
 		m_grid.m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());

@@ -85,7 +85,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 		//	*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
-		//if (vtxType & eVertexType::TEXTURE)
+		//if (vtxType & eVertexType::TEXTURE0)
 		//	*(Vector2*)(pvtx + texOffset) = uv[i];
 		pvtx += vertexStride;
 	}

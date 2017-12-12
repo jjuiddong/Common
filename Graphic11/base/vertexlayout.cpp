@@ -89,7 +89,12 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 		else if (Str32("NORMAL") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::NORMAL;
 		else if (Str32("TEXCOORD") == layout[i].SemanticName)
-			m_vertexType |= eVertexType::TEXTURE;
+		{
+			if (m_vertexType & eVertexType::TEXTURE0)
+				m_vertexType |= eVertexType::TEXTURE1;
+			else
+				m_vertexType |= eVertexType::TEXTURE0;
+		}
 		else if (Str32("COLOR") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::COLOR;
 		else if (Str32("TANGENT") == layout[i].SemanticName)
@@ -124,7 +129,9 @@ bool cVertexLayout::Create(const int vtxType)
 		elems.push_back({ "POSITION_RHW", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::NORMAL)
 		elems.push_back({ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
-	if (vtxType & eVertexType::TEXTURE)
+	if (vtxType & eVertexType::TEXTURE0)
+		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	if (vtxType & eVertexType::TEXTURE1)
 		elems.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 	if (vtxType & eVertexType::COLOR)
 		elems.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 });

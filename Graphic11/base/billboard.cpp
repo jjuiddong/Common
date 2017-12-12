@@ -22,7 +22,7 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	const Vector3 &pos, const StrPath &textureFileName, const bool isSizePow2)
 {
 	if (!__super::Create(renderer, width, height, pos
-		, eVertexType::POSITION | eVertexType::TEXTURE, textureFileName, true))
+		, eVertexType::POSITION | eVertexType::TEXTURE0, textureFileName, true))
 		return false;
 
 	m_type = type;

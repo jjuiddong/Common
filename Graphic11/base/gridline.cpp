@@ -8,6 +8,7 @@ using namespace graphic;
 cGridLine::cGridLine()
 	: cNode(common::GenerateId(), "gridline", eNodeType::MODEL)
 	, m_lineColor(0.7f, 0.7f, 0.7f, 0.7f)
+	, m_offsetY(0.1f)
 {
 }
 
@@ -219,7 +220,7 @@ bool cGridLine::Render(cRenderer &renderer
 	shader->BeginPass(renderer, 0);
 
 	Transform tfm = m_transform;
-	tfm.pos.y += 0.1f;
+	tfm.pos.y += m_offsetY;
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);

@@ -90,7 +90,7 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 			*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
-		if (vtxType & eVertexType::TEXTURE)
+		if (vtxType & eVertexType::TEXTURE0)
 			*(Vector2*)(pvtx + texOffset) = uv1;
 		pvtx += vertexStride;
 
@@ -100,7 +100,7 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 			*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
-		if (vtxType & eVertexType::TEXTURE)
+		if (vtxType & eVertexType::TEXTURE0)
 			*(Vector2*)(pvtx + texOffset) = uv2;
 		pvtx += vertexStride;
 
@@ -110,7 +110,7 @@ bool cCubeShape::CreateShape2(cRenderer &renderer
 			*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
-		if (vtxType & eVertexType::TEXTURE)
+		if (vtxType & eVertexType::TEXTURE0)
 			*(Vector2*)(pvtx + texOffset) = uv3;
 		pvtx += vertexStride;
 	}
@@ -160,7 +160,7 @@ bool cCubeShape::CreateShape1(cRenderer &renderer, const Vector3 vertices[24]
 			*(Vector3*)(pvtx + normOffset) = normals[i];
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
-		if (vtxType & eVertexType::TEXTURE)
+		if (vtxType & eVertexType::TEXTURE0)
 			*(Vector2*)(pvtx + texOffset) = uvs[i];
 		pvtx += vertexStride;
 	}

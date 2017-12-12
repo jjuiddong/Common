@@ -83,7 +83,7 @@ bool cSkyBoxCube::CreateVertexBuffer(cRenderer &renderer)
 	}
 
 	m_vtxBuff.Create(renderer, sky_gridpoints*(sky_gridpoints + 2) * 2, sizeof(sVertexTex2), sky_vertexdata);
-	m_vtxType = eVertexType::POSITION | eVertexType::TEXTURE;
+	m_vtxType = eVertexType::POSITION | eVertexType::TEXTURE0;
 
 	free(sky_vertexdata);
 

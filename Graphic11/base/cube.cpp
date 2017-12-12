@@ -113,7 +113,7 @@ bool cCube::Render(cRenderer &renderer
 	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, diffuse.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
-	if ((m_shape.m_vtxType & eVertexType::TEXTURE) && m_texture)
+	if ((m_shape.m_vtxType & eVertexType::TEXTURE0) && m_texture)
 		m_texture->Bind(renderer, 0);
 
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))

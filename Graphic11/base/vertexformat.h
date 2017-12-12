@@ -17,14 +17,6 @@ namespace graphic
 	};
 
 
-	struct sVertexPoint
-	{
-		Vector3 p;
-		float size;
-		DWORD c;
-	};
-
-
 	struct sVertexTex
 	{
 		Vector3 p;
@@ -58,14 +50,6 @@ namespace graphic
 		Vector3 n;
 	};
 
-	struct sVertexNormDiffuse
-	{
-		Vector3 p;
-		Vector3 n;
-		Vector4 c;
-	};
-
-
 	struct sVertexNormTex
 	{
 		Vector3 p;
@@ -73,13 +57,6 @@ namespace graphic
 		float u,v;
 	};
 
-	struct sVertexNormDiffuseTex
-	{
-		Vector3 p;
-		Vector3 n;
-		DWORD c;
-		float u, v;
-	};
 
 	// 스키닝 + 범프 매핑
 	struct sVertexNTBTex
@@ -89,8 +66,6 @@ namespace graphic
 		float u,v;
 		Vector3 t; // tangent;
 	};
-
-
 
 	// vertex skinning
 	// using texcoord

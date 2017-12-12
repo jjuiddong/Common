@@ -365,6 +365,8 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 
 	Vector3 curPos = path[0] + Vector3(0, 1, 0); // start pos
 	int curVtxIdx = -1; // 선회 Vertex Index
+	int curVtxEdge1 = -1; // 선회면 Vertex Index1-2
+	int curVtxEdge2 = -1;
 
 	int s = 0; // 첫번째 노드부터 검사
 	for (int i = 0; i < (int)nodeIndices.size()-1; ++i)
@@ -398,11 +400,15 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				// Vertex 위치를 dir 방향으로 조금 이동한다, 그렇지 않으면 버텍스가 
 				// 면에 붙어있기 때문에, 항상 충돌 판정이 일어난다.
 				Vector3 offset;
-				if ((curVtxIdx >= 0)
-					&& ((idxs[k] == curVtxIdx) || (idxs[(k + 1) % 3] == curVtxIdx)))
+				if (curVtxIdx >= 0)
 				{
 					offset = dir * 0.1f;
 				}
+				//if ((curVtxIdx >= 0)
+				//	&& ((idxs[k] == curVtxIdx) || (idxs[(k + 1) % 3] == curVtxIdx)))
+				//{
+				//	offset = dir * 0.1f;
+				//}
 
 				const Vector3 offsetY(0, 10, 0);
 				const Vector3 p1 = m_vertices[idxs[k]];
@@ -417,8 +423,31 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 					tri1.Intersect(curPos + offset, dir, &t, &u)
 					|| tri2.Intersect(curPos + offset, dir, &t, &u);
 
-				const bool collision2 = tri1.Intersect(nextPos, -dir, &t, &u)
-					|| tri2.Intersect(nextPos, -dir, &t, &u);
+				bool collision2 = false;
+				if ((curVtxEdge1 >= 0) && (curVtxEdge2 >= 0))
+				{
+					const Vector3 p2_1 = m_vertices[curVtxEdge1];
+					const Vector3 p2_2 = m_vertices[curVtxEdge2];
+					const Vector3 p2_3 = p2_1 + offsetY;
+					const Triangle tri3(p2_1, p2_2, p2_3);
+					const Triangle tri4(p2_1 + offsetY, p2_2, p2_2 + offsetY);
+
+					const Vector3 edgeCenter = (p2_1 + p2_2) * 0.5f;
+					Vector3 dir2 = (edgeCenter - nextPos);
+					dir2.y = 0;
+					dir2.Normalize();
+
+					collision2 = tri3.Intersect(nextPos, dir2, &t, &u)
+						|| tri4.Intersect(nextPos, dir2, &t, &u);
+				}
+				else
+				{
+					collision2 = tri1.Intersect(nextPos, -dir, &t, &u)
+						|| tri2.Intersect(nextPos, -dir, &t, &u);
+				}
+
+				//const bool collision2 = tri1.Intersect(nextPos, -dir, &t, &u)
+				//	|| tri2.Intersect(nextPos, -dir, &t, &u);
 
 				if (!collision1 && !collision2)
 					continue; // 충돌이 일어나지 않는다면, 무시
@@ -433,8 +462,11 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				//	pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
 				//		, preTestNodeIdx, nextTestNodeIdx);
 
-				int pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
-					, nodeIndices, !collision1 && collision2);
+				int pointIdx;
+				if (collision1)
+					pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3], nodeIndices, false);
+				else
+					pointIdx = GetAdjacentCollisionVertexIdx(curVtxEdge1, curVtxEdge2, nodeIndices, true);
 
 				if (pointIdx < 0)
 				{
@@ -442,10 +474,11 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 					break;
 				}
 
-				curPos = m_vertices[pointIdx];
+				curPos = m_vertices[pointIdx] + Vector3(0,1,0);
 				curVtxIdx = pointIdx;
-
-				s = GetNearestNodeFromVertexIdx(nodeIndices, pointIdx).second;
+				curVtxEdge1 = idxs[k];
+				curVtxEdge2 = idxs[(k + 1) % 3];
+				s = GetNearestNodeFromVertexIdx(nodeIndices, idxs[k], idxs[(k + 1) % 3]).second;
 				out.push_back(curPos);
 				break;
 			} // for k
@@ -510,7 +543,7 @@ int cNavigationMesh::GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const i
 	}
 	else
 	{
-		for (int i = 0; i < nodeIndices.size(); ++i)
+		for (int i = 0; i < (int)nodeIndices.size(); ++i)
 		{
 			const sNaviNode &node = m_naviNodes[nodeIndices[i]];
 			if ((node.idx1 == adjVtxIdx1)
@@ -541,6 +574,28 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 		if ((node.idx1 == vtxIdx)
 			|| (node.idx2 == vtxIdx)
 			|| (node.idx3 == vtxIdx))
+		{
+			return{ nodeIndices[i], i };
+		}
+	}
+
+	return{ -1,-1 };
+}
+
+// nodeIndices에서 vtxIdx1, vtxIdx2 가 포함된 node index 를 리턴한다.
+// 이 때, 가장 처음의 node index 를 리턴한다.
+// 없다면, -1을 리턴한다.
+// return = {node index, order of nodeIndices}
+std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> nodeIndices
+	, const int vtxIdx1, const int vtxIdx2)
+{
+	for (u_int i = 0; i < nodeIndices.size(); ++i)
+	{
+		const sNaviNode &node = m_naviNodes[nodeIndices[i]];
+		if (
+			((node.idx1 == vtxIdx1) || (node.idx2 == vtxIdx1) || (node.idx3 == vtxIdx1))
+			&& ((node.idx1 == vtxIdx2) || (node.idx2 == vtxIdx2) || (node.idx3 == vtxIdx2))
+			)
 		{
 			return{ nodeIndices[i], i };
 		}

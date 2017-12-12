@@ -138,24 +138,24 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos.fxo", eVertexType::POSITION);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-color.fxo", eVertexType::POSITION | eVertexType::COLOR);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color.fxo", eVertexType::POSITION_RHW | eVertexType::COLOR);
-	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", eVertexType::POSITION | eVertexType::TEXTURE);
+	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-tex.fxo", eVertexType::POSITION | eVertexType::TEXTURE0);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm.fxo", eVertexType::POSITION | eVertexType::NORMAL);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos_rhw-color-tex.fxo"
-		, eVertexType::POSITION_RHW | eVertexType::TEXTURE | eVertexType::COLOR);
+		, eVertexType::POSITION_RHW | eVertexType::TEXTURE0 | eVertexType::COLOR);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color.fxo"
 		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex.fxo"
-		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE);
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-color-tex.fxo"
-		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE | eVertexType::COLOR);
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0 | eVertexType::COLOR);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/water.fxo"
-		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE, false);
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0, false);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-bump.fxo"
-		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE | eVertexType::TANGENT | eVertexType::BINORMAL);
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0 | eVertexType::TANGENT | eVertexType::BINORMAL);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin.fxo"
-		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE | eVertexType::BLENDINDICES | eVertexType::BLENDWEIGHT);
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0 | eVertexType::BLENDINDICES | eVertexType::BLENDWEIGHT);
 	m_shaderMgr.LoadShader(*this, "../media/shader11/pos-norm-tex-skin-bump.fxo"
-		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE 
+		, eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0
 		| eVertexType::TANGENT | eVertexType::BINORMAL
 		| eVertexType::BLENDINDICES | eVertexType::BLENDWEIGHT);
 

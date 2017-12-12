@@ -93,9 +93,9 @@ bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
 
 bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 {
-	assert(0);
+	//assert(0);
 
-	//return DISJOINT != m_frustum.Contains(bbox.m_bbox);
+	return DISJOINT != m_frustum.Contains(bbox.m_bbox);
 
 	//const Vector3 vertices[] = {
 	//	bbox.m_min

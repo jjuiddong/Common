@@ -14,7 +14,7 @@ cQuad::cQuad()
 
 cQuad::cQuad(cRenderer &renderer, const float width, const float height
 	, const Vector3 &pos
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const StrPath &textureFileName // = " "
 )
 {
@@ -32,7 +32,7 @@ cQuad::~cQuad()
 // pos : Äõµå À§Ä¡
 bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	const Vector3 &pos 
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const StrPath &textureFileName // = " "
 	, const bool isDynamic // = false
 )

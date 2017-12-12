@@ -14,11 +14,12 @@ namespace graphic
 			, POSITION_RHW	= 1 << 1
 			, NORMAL		= 1 << 2
 			, COLOR			= 1 << 3
-			, TEXTURE		= 1 << 4
-			, TANGENT		= 1 << 5
-			, BINORMAL		= 1 << 6
-			, BLENDINDICES	= 1 << 7
-			, BLENDWEIGHT	= 1 << 8
+			, TEXTURE0		= 1 << 4
+			, TEXTURE1		= 1 << 5
+			, TANGENT		= 1 << 6
+			, BINORMAL		= 1 << 7
+			, BLENDINDICES	= 1 << 8
+			, BLENDWEIGHT	= 1 << 9
 		};
 	};
 

@@ -25,13 +25,13 @@ namespace graphic
 	public:
 		cQuadShape();
 		cQuadShape(cRenderer &renderer
-			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE0)
 			, const cColor &color = cColor::WHITE);
 
 		virtual ~cQuadShape();
 
 		bool Create(cRenderer &renderer
-			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE)
+			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE0)
 			, const cColor &color = cColor::WHITE
 			, const float width = 2
 			, const float height = 2

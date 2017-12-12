@@ -12,7 +12,7 @@ cQuadShape::cQuadShape()
 }
 
 cQuadShape::cQuadShape(cRenderer &renderer
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const cColor &color //= cColor::WHITE
 )
 	: m_width(0)
@@ -28,7 +28,7 @@ cQuadShape::~cQuadShape()
 
 
 bool cQuadShape::Create(cRenderer &renderer
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE)
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const cColor &color //= cColor::WHITE
 	, const float width //= 2
 	, const float height //= 2
@@ -68,7 +68,7 @@ bool cQuadShape::Create(cRenderer &renderer
 		//	*(Vector3*)(pvtx + normOffset) = normals[i];
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
-		if (vtxType & eVertexType::TEXTURE)
+		if (vtxType & eVertexType::TEXTURE0)
 			*(Vector2*)(pvtx + texOffset) = uv[i];
 		pvtx += vertexStride;
 	}

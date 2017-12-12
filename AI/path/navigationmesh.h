@@ -33,6 +33,8 @@ namespace ai
 			, const vector<int> nodeIndices, const bool isReverse=true);
 
 		std::pair<int,int> GetNearestNodeFromVertexIdx(const vector<int> nodeIndices, const int vtxIdx);
+		std::pair<int, int> GetNearestNodeFromVertexIdx(const vector<int> nodeIndices
+			, const int vtxIdx1, const int vtxIdx2);
 
 		void OptimizePath(const vector<int> &nodeIndices
 			, const vector<Vector3> &path

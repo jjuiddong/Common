@@ -24,7 +24,7 @@ bool cQuad2D::Create(cRenderer &renderer, const float x, const float y
 	, const char *textureFileName // = " "
 )
 {
-	const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE;
+	const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0;
 	m_shape.Create(renderer, vtxType, cColor::WHITE);
 
 	SetPosition(x, y, width, height);

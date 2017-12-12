@@ -34,6 +34,7 @@ namespace graphic
 		float m_cellSizeW;
 		float m_cellSizeH;
 		cColor m_lineColor;
+		float m_offsetY; // default: 0.1f
 	};
 
 }

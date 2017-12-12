@@ -63,7 +63,7 @@ bool cTile::Create(cRenderer &renderer
 	const float cellSizeH = transform.scale.z;
 	m_ground = new cGrid();
 	m_ground->Create(renderer, 16, 16, cellSizeW/8.f, cellSizeH / 8.f
-		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE)
+		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0)
 		, cColor::WHITE, textureFileName, uv0, uv1, uvFactor
 		, true);
 	m_ground->m_renderFlags = eRenderFlag::VISIBLE | eRenderFlag::TERRAIN | eRenderFlag::SHADOW | eRenderFlag::NOALPHABLEND;

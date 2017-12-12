@@ -164,7 +164,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 					*(Vector3*)(pvtx + normOffset) = Vector3(0, 1, 0);
 				if (vertexType & eVertexType::COLOR)
 					*(Vector4*)(pvtx + colorOffset) = vcolor;
-				if (vertexType & eVertexType::TEXTURE)
+				if (vertexType & eVertexType::TEXTURE0)
 					*(Vector2*)(pvtx + texOffset) = uv0 + Vector2(k*uCoordIncrementSize, i*vCoordIncrementSize);
 				pvtx += vertexStride;
 			}
@@ -194,7 +194,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
 		, textureFileName, (void**)&m_texture));
 
-	if (vertexType & eVertexType::TEXTURE)
+	if (vertexType & eVertexType::TEXTURE0)
 		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0)
@@ -229,7 +229,7 @@ bool cGrid::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	if ((m_vtxType & eVertexType::TEXTURE) && m_texture)
+	if ((m_vtxType & eVertexType::TEXTURE0) && m_texture)
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
@@ -273,7 +273,7 @@ void cGrid::RenderLine(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	if ((m_vtxType & eVertexType::TEXTURE) && m_texture)
+	if ((m_vtxType & eVertexType::TEXTURE0) && m_texture)
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());

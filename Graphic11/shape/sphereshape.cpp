@@ -100,7 +100,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n1;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u1,v1);
 				//pVertex.n = n1;
 				//pVertex.u = u1;
@@ -113,7 +113,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n3;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u2, v2);
 				//pVertex.p = vertex3;
 				//pVertex.c = vColor;
@@ -128,7 +128,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n4;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u1, v2);
 				//pVertex.p = vertex4;
 				//pVertex.c = vColor;
@@ -149,7 +149,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n3;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u2, v2);
 				//pVertex.p = vertex3;
 				//pVertex.c = vColor;
@@ -164,7 +164,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n1;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u1, v1);
 				//pVertex.p = vertex1;
 				//pVertex.c = vColor;
@@ -179,7 +179,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n2;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u2, v1);
 				//pVertex.p = vertex2;
 				//pVertex.c = vColor;
@@ -202,7 +202,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n1;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u1, v1);
 				//pVertex.p = vertex1;
 				//pVertex.c = vColor;
@@ -217,7 +217,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n2;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u2, v1);
 				//pVertex.p = vertex2;
 				//pVertex.c = vColor;
@@ -232,7 +232,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n3;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u2, v2);
 				//pVertex.p = vertex3;
 				//pVertex.c = vColor;
@@ -247,7 +247,7 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 					*(Vector4*)(pVertex + colorOffset) = vColor;
 				if (vtxType & eVertexType::NORMAL)
 					*(Vector3*)(pVertex + normOffset) = n4;
-				if (vtxType & eVertexType::TEXTURE)
+				if (vtxType & eVertexType::TEXTURE0)
 					*(Vector2*)(pVertex + texOffset) = Vector2(u1, v2);
 				//pVertex.p = vertex4;
 				//pVertex.c = vColor;

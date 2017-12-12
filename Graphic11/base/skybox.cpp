@@ -133,7 +133,7 @@ bool  cSkyBox::CreateVertexBuffer(cRenderer &renderer)
 	const int vtxSize = 24;
 	m_vtxBuff.Create(renderer, vtxSize, sizeof(sVertexTex), SkyboxMesh);
 
-	m_vtxType = eVertexType::POSITION | eVertexType::TEXTURE;
+	m_vtxType = eVertexType::POSITION | eVertexType::TEXTURE0;
 	return true;
 }
 
@@ -143,7 +143,7 @@ bool cSkyBox::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::TEXTURE);
+	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(eVertexType::POSITION | eVertexType::TEXTURE0);
 	assert(shader);
 	shader->SetTechnique("Skybox");
 	shader->Begin();
