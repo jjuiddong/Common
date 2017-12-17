@@ -367,23 +367,50 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 	int curVtxIdx = -1; // 선회 Vertex Index
 	int curVtxEdge1 = -1; // 선회면 Vertex Index1-2
 	int curVtxEdge2 = -1;
+	Triangle turnTri1, turnTri2; // 선회면
+
+	Vector3 nextLocs[3];
+	int nextLocsCnt = 0;
 
 	int s = 0; // 첫번째 노드부터 검사
-	for (int i = 0; i < (int)nodeIndices.size()-1; ++i)
+	for (int i = 0; i < (int)nodeIndices.size(); ++i)
 	{
-		const int curNodeIdx = nodeIndices[i];
-		const int nextNodeIdx = nodeIndices[i+1];
-		sNaviNode &curNode = m_naviNodes[curNodeIdx];
-		sNaviNode &nextNode = m_naviNodes[nextNodeIdx];
+		//sNaviNode &curNode = m_naviNodes[curNodeIdx];
+		//sNaviNode &nextNode = m_naviNodes[nextNodeIdx];
 
-		Vector3 nextPos = nextNode.center + Vector3(0,1,0);
+		// 마지막 노드일 때, 최종 도착지를 기준으로 검사한다.
+		//Vector3 nextPos = ((nodeIndices.size()-2) == i)? 
+		//	path.back() : nextNode.center;
+		//nextPos += Vector3(0, 1, 0); // for collision
+
+		//Vector3 nextPos;
+		if ((nodeIndices.size() - 1) == i)
+		{
+			//nextPos = path.back();
+			nextLocs[0] = path.back();
+			nextLocsCnt = 1;
+		}
+		else
+		{
+			// 두 노드 인접면의 중점
+			const int curNodeIdx = nodeIndices[i];
+			const int nextNodeIdx = nodeIndices[i + 1];
+			std::pair<int,int> adjIdx = GetAdjacentVertexIdx(curNodeIdx, nextNodeIdx);
+			//nextPos = (m_vertices[adjIdx.first] + m_vertices[adjIdx.second]) * 0.5f;
+
+			nextLocs[0] = m_vertices[adjIdx.first].Interpolate(m_vertices[adjIdx.second], 0.1f);
+			nextLocs[1] = m_vertices[adjIdx.first].Interpolate(m_vertices[adjIdx.second], 0.5f);
+			nextLocs[2] = m_vertices[adjIdx.first].Interpolate(m_vertices[adjIdx.second], 0.9f);
+			nextLocsCnt = 3;
+		}
+		//nextPos += Vector3(0, 1, 0); // for Triangle Collision
 
 		// Node의 변 중에, 인접하지 않는 변을, 통과한다면, 이동할 수 없는
 		// 경로이기 때문에, 그 방향으로는 이동해서는 안된다.
-		const Vector3 dir = (nextPos - curPos).Normal();
+		//const Vector3 dir = (nextPos - curPos).Normal();
 
 		// 전체 경로에서 인접변 충돌 테스트
-		for (int o = s; o <= i; ++o)
+		for (int o = s; o < i; ++o)
 		{
 			const int preTestNodeIdx = nodeIndices[o];
 			const int nextTestNodeIdx = nodeIndices[o+1];
@@ -399,17 +426,6 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				// Vertex를 중심으로 선회할 때, 같은 Vertex Index를 포함하면,
 				// Vertex 위치를 dir 방향으로 조금 이동한다, 그렇지 않으면 버텍스가 
 				// 면에 붙어있기 때문에, 항상 충돌 판정이 일어난다.
-				Vector3 offset;
-				if (curVtxIdx >= 0)
-				{
-					offset = dir * 0.1f;
-				}
-				//if ((curVtxIdx >= 0)
-				//	&& ((idxs[k] == curVtxIdx) || (idxs[(k + 1) % 3] == curVtxIdx)))
-				//{
-				//	offset = dir * 0.1f;
-				//}
-
 				const Vector3 offsetY(0, 10, 0);
 				const Vector3 p1 = m_vertices[idxs[k]];
 				const Vector3 p2 = m_vertices[idxs[(k + 1) % 3]];
@@ -418,36 +434,55 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				const Triangle tri2(p1 + offsetY, p2, p2 + offsetY);
 
 				// 인접하지 않는 변과 충돌 (갈 수 없는 길을 통과할 경우)
-				float t, u;
-				const bool collision1 =
-					tri1.Intersect(curPos + offset, dir, &t, &u)
-					|| tri2.Intersect(curPos + offset, dir, &t, &u);
-
+				bool collision1 = false;
 				bool collision2 = false;
-				if ((curVtxEdge1 >= 0) && (curVtxEdge2 >= 0))
+				int collIdx = -1;
+				for (int p = 0; p < nextLocsCnt; ++p)
 				{
-					const Vector3 p2_1 = m_vertices[curVtxEdge1];
-					const Vector3 p2_2 = m_vertices[curVtxEdge2];
-					const Vector3 p2_3 = p2_1 + offsetY;
-					const Triangle tri3(p2_1, p2_2, p2_3);
-					const Triangle tri4(p2_1 + offsetY, p2_2, p2_2 + offsetY);
+					collIdx = p;
+					Vector3 nextPos = nextLocs[p] + Vector3(0, 1, 0);
+					const Vector3 dir = (nextPos - curPos).Normal();
 
-					const Vector3 edgeCenter = (p2_1 + p2_2) * 0.5f;
-					Vector3 dir2 = (edgeCenter - nextPos);
-					dir2.y = 0;
-					dir2.Normalize();
+					float t, u;
+					collision1 = tri1.Intersect(curPos, dir, &t, &u)
+								|| tri2.Intersect(curPos, dir, &t, &u);
 
-					collision2 = tri3.Intersect(nextPos, dir2, &t, &u)
-						|| tri4.Intersect(nextPos, dir2, &t, &u);
+					//bool collision2 = false;
+					if ((curVtxEdge1 >= 0) && (curVtxEdge2 >= 0))
+					{
+						// 면의 뒤쪽에 있을 경우, nextPos와 가까운 버텍스가 선회포인트가 되어야 한다.
+						Plane plane(turnTri1.a, turnTri1.b, turnTri1.c);
+						if (plane.Distance(nextPos) < 0)
+						{
+							if (nextPos.LengthRoughly(m_vertices[curVtxEdge1]) 
+								> nextPos.LengthRoughly(m_vertices[curVtxEdge2]))
+							{
+								collision2 = true;
+							}
+						}
+						else
+						{
+							collision2 = turnTri1.Intersect(nextPos, -dir, &t, &u)
+								|| turnTri2.Intersect(nextPos, -dir, &t, &u);
+						}
+					}
+					else
+					{
+						collision2 = tri1.Intersect(nextPos, -dir, &t, &u)
+							|| tri2.Intersect(nextPos, -dir, &t, &u);
+
+						if (collision2)
+						{
+							curVtxEdge1 = idxs[k];
+							curVtxEdge2 = idxs[(k + 1) % 3];
+							turnTri1 = tri1;
+							turnTri2 = tri2;
+						}
+					}
+
+					if (collision1 || collision2)
+						break;
 				}
-				else
-				{
-					collision2 = tri1.Intersect(nextPos, -dir, &t, &u)
-						|| tri2.Intersect(nextPos, -dir, &t, &u);
-				}
-
-				//const bool collision2 = tri1.Intersect(nextPos, -dir, &t, &u)
-				//	|| tri2.Intersect(nextPos, -dir, &t, &u);
 
 				if (!collision1 && !collision2)
 					continue; // 충돌이 일어나지 않는다면, 무시
@@ -455,31 +490,48 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				// 현재 노드와 다음 노드에서 중복된 버텍스 2개에서, (인접 버텍스)
 				// 인접하지 않는 변에 속하는 버텍스가, 충돌되는 꼭지점이다.
 				// 이 버텍스를 중심으로 다시 최적 경로를 탐색한다.
-				//int pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
-				//	, curNodeIdx, nextNodeIdx);
-
-				//if (pointIdx < 0)
-				//	pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3]
-				//		, preTestNodeIdx, nextTestNodeIdx);
-
-				int pointIdx;
-				if (collision1 || (curVtxEdge1 < 0))
-					pointIdx = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3], nodeIndices, false);
-				else
-					pointIdx = GetAdjacentCollisionVertexIdx(curVtxEdge1, curVtxEdge2, nodeIndices, true);
-
-				if (pointIdx < 0)
+				int pointIdx1, pointIdx2;
+				if (collision1)// || (curVtxEdge1 < 0))
 				{
-					assert(pointIdx >= 0);
+					pointIdx1 = GetAdjacentCollisionVertexIdx(idxs[k], idxs[(k + 1) % 3], nodeIndices, false);
+					pointIdx2 = (pointIdx1 == idxs[k]) ? idxs[(k + 1) % 3] : idxs[k];
+				}
+				else
+				{
+					pointIdx1 = GetAdjacentCollisionVertexIdx(curVtxEdge1, curVtxEdge2, nodeIndices, true);
+					pointIdx2 = (pointIdx1 == curVtxEdge1) ? curVtxEdge2 : curVtxEdge1;
+				}
+
+				if (pointIdx1 < 0)
+				{
+					assert(pointIdx1 >= 0);
 					break;
 				}
 
-				curPos = m_vertices[pointIdx] + Vector3(0,1,0);
-				curVtxIdx = pointIdx;
-				curVtxEdge1 = idxs[k];
-				curVtxEdge2 = idxs[(k + 1) % 3];
-				s = GetNearestNodeFromVertexIdx(nodeIndices, idxs[k], idxs[(k + 1) % 3]).second;
-				out.push_back(curPos);
+				//if (pointIdx1 == curVtxEdge1)
+				//	continue; // 중복 버텍스, 무시
+
+				if (collision1)
+				{
+					const Vector3 dir = (m_vertices[pointIdx1] - m_vertices[pointIdx2]).Normal();
+					curPos = m_vertices[pointIdx1] + dir*0.1f + tri1.Normal() * -0.1f + Vector3(0, 1, 0);
+
+					turnTri1 = tri1;
+					turnTri2 = tri2;
+				}
+				else // collision2
+				{
+					const Vector3 dir = (m_vertices[pointIdx1] - m_vertices[pointIdx2]).Normal();
+					curPos = m_vertices[pointIdx1] + dir*0.1f + turnTri1.Normal() * -0.1f + Vector3(0, 1, 0);
+				}
+
+				curVtxIdx = pointIdx1;
+				curVtxEdge1 = pointIdx1;
+				curVtxEdge2 = pointIdx2;
+
+				s = GetNearestNodeFromVertexIdx(nodeIndices, curVtxEdge1, curVtxEdge2).second;
+				out.push_back(curPos - Vector3(0,1,0));
+
 				break;
 			} // for k
 		} // for o
@@ -521,7 +573,7 @@ int cNavigationMesh::GetAdjacentCollisionVertexIdx(
 // 경로상에서 adjVtxIdx1, adjVtxIdx2와 겹치는 노드에서, 가장먼저 연결된
 // Vertex Index를 리턴한다.
 int cNavigationMesh::GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const int adjVtxIdx2
-	, const vector<int> nodeIndices
+	, const vector<int> &nodeIndices
 	, const bool isReverse //= true
 )
 {
@@ -566,7 +618,8 @@ int cNavigationMesh::GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const i
 // 이 때, 가장 처음의 node index 를 리턴한다.
 // 없다면, -1을 리턴한다.
 // return = {node index, order of nodeIndices}
-std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> nodeIndices, const int vtxIdx)
+std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
+	, const int vtxIdx)
 {
 	for (u_int i = 0; i < nodeIndices.size(); ++i)
 	{
@@ -586,7 +639,7 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 // 이 때, 가장 처음의 node index 를 리턴한다.
 // 없다면, -1을 리턴한다.
 // return = {node index, order of nodeIndices}
-std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> nodeIndices
+std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
 	, const int vtxIdx1, const int vtxIdx2)
 {
 	for (u_int i = 0; i < nodeIndices.size(); ++i)
@@ -600,6 +653,26 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 			return{ nodeIndices[i], i };
 		}
 	}
-
 	return{ -1,-1 };
+}
+
+
+// 두 노드 nodeIndex1, nodeIndex2 의 인접한 버텍스 2개를 리턴한다.
+// 없다면 -1을 리턴한다.
+std::pair<int, int> cNavigationMesh::GetAdjacentVertexIdx(
+	const int nodeIndex1, const int nodeIndex2)
+{
+	sNaviNode &node1 = m_naviNodes[nodeIndex1];
+	sNaviNode &node2 = m_naviNodes[nodeIndex2];
+
+	const int idxs[3] = { node1.idx1, node1.idx2, node1.idx3 };
+	for (int i = 0; i < 3; ++i)
+	{
+		if (node1.adjacent[i] == nodeIndex2)
+		{
+			return { idxs[i], idxs[(i + 1) % 3] };
+		}
+	}
+
+	return {-1, -1};
 }

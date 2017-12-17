@@ -78,6 +78,7 @@ namespace graphic
 		void BindTexture(cDepthBuffer &db, const int stage);
 		void UnbindTexture(const int stage);
 		void UnbindTextureAll();
+		void UnbindShaderAll();
 
 		void RenderAxis();
 		void RenderFPS();

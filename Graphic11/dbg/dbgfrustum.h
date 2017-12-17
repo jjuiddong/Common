@@ -23,6 +23,7 @@ namespace graphic
 
 	public:
 		cDbgBox m_box;
+		cDbgLineList m_lineList;
 	};
 
 }

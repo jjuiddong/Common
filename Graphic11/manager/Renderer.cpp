@@ -611,3 +611,13 @@ void cRenderer::UnbindTextureAll()
 	ID3D11ShaderResourceView *ns[MAX_TEXTURE_STAGE] = { NULL, NULL, NULL, NULL, NULL, NULL };
 	GetDevContext()->PSSetShaderResources(0, MAX_TEXTURE_STAGE, ns);
 }
+
+
+void cRenderer::UnbindShaderAll()
+{
+	GetDevContext()->VSSetShader(NULL, NULL, 0);
+	GetDevContext()->CSSetShader(NULL, NULL, 0);
+	GetDevContext()->DSSetShader(NULL, NULL, 0);
+	GetDevContext()->HSSetShader(NULL, NULL, 0);
+	GetDevContext()->PSSetShader(NULL, NULL, 0);
+}

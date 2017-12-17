@@ -1,7 +1,7 @@
 //
 // 2017-06-30, jjuiddong
 // Pyramid
-// Vertex = Pos + Diffuse
+// Vertex = Pos + Color
 //
 //			(head)
 //            0
@@ -38,6 +38,7 @@ namespace graphic
 			, const Vector3 &pos=Vector3(0,0,0)
 			, const int vtxType = (eVertexType::POSITION)
 			, const cColor &color=cColor::BLACK);
+
 		void SetDimension(const float width, const float height);
 		void SetPos(const Vector3 &pos);
 		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float width=1);

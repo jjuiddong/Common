@@ -30,11 +30,15 @@ namespace ai
 		int GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const int adjVtxIdx2
 			, const int nodeFromIdx, const int nodeToIdx);
 		int GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const int adjVtxIdx2
-			, const vector<int> nodeIndices, const bool isReverse=true);
+			, const vector<int> &nodeIndices, const bool isReverse=true);
+		std::pair<int, int> GetAdjacentVertexIdx(const int nodeIndex1, const int nodeIndex2);
 
-		std::pair<int,int> GetNearestNodeFromVertexIdx(const vector<int> nodeIndices, const int vtxIdx);
-		std::pair<int, int> GetNearestNodeFromVertexIdx(const vector<int> nodeIndices
+		std::pair<int,int> GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
+			, const int vtxIdx);
+		std::pair<int, int> GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
 			, const int vtxIdx1, const int vtxIdx2);
+		
+		
 
 		void OptimizePath(const vector<int> &nodeIndices
 			, const vector<Vector3> &path
