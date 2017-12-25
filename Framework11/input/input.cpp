@@ -13,7 +13,10 @@ cInputManager::cInputManager()
 	m_mousePt.x = 0;
 	m_mousePt.y = 0;
 	ZeroMemory(m_mouseDown, sizeof(m_mouseDown));
-	ZeroMemory(m_mouseClicked, sizeof(m_mouseClicked));	
+	ZeroMemory(m_mouseClicked, sizeof(m_mouseClicked));
+
+	m_timer.Create();
+
 }
 
 cInputManager::~cInputManager()
@@ -43,14 +46,14 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_LBUTTONDOWN:
 	{
-		const int curT = GetTickCount();
-		if ((curT - m_clickTime) < 300) // Double Click Check
+		const double curT = m_timer.GetMilliSeconds();
+		if ((curT - m_clickTime) < 300.f) // Double Click Check
 		{
 			m_lBtnDbClick = true;
 			m_dbClickTime = curT;
 		}
 
-		if (curT - m_dbClickTime > 200)
+		if (curT - m_dbClickTime > 200.f)
 		{
 			m_mouseDown[0] = true;
 			m_clickTime = curT;
@@ -60,8 +63,8 @@ void cInputManager::MouseProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_LBUTTONUP:
 	{
-		const int curT = GetTickCount();
-		if (curT - m_dbClickTime > 200)
+		const double curT = m_timer.GetMilliSeconds();
+		if (curT - m_dbClickTime > 200.f)
 		{
 			m_mouseDown[0] = false;
 			m_mouseClicked[0] = true;
@@ -92,14 +95,14 @@ void cInputManager::MouseProc(const sf::Event &evt)
 			const float len = (float)sqrt((pt.x - m_mousePt.x) * (pt.x - m_mousePt.x) + (pt.y - m_mousePt.y) * (pt.y - m_mousePt.y));
 			const bool isNear = len < 10;
 
-			const int curT = GetTickCount();
-			if (isNear && ((curT - m_clickTime) < 300)) // Double Click Check
+			const double curT = m_timer.GetMilliSeconds();
+			if ((m_clickTime>0) && isNear && ((curT - m_clickTime) < 300.f)) // Double Click Check
 			{
 				m_lBtnDbClick = true;
 				m_dbClickTime = curT;
 			}
 
-			if (curT - m_dbClickTime > 200)
+			if (curT - m_dbClickTime > 200.f)
 			{
 				m_mouseDown[0] = true;
 				m_clickTime = curT;
@@ -109,7 +112,7 @@ void cInputManager::MouseProc(const sf::Event &evt)
 
 		case sf::Mouse::Right:
 		{
-			const int curT = GetTickCount();
+			const double curT = m_timer.GetMilliSeconds();
 			m_mouseDown[1] = true;
 			m_clickTime = curT;
 		}
@@ -128,12 +131,12 @@ void cInputManager::MouseProc(const sf::Event &evt)
 			const float len = (float)sqrt((pt.x - m_mouseClickPt.x) * (pt.x - m_mouseClickPt.x) + (pt.y - m_mouseClickPt.y) * (pt.y - m_mouseClickPt.y));
 			const bool isNear = len < 10;
 
-			const int curT = GetTickCount();
-			if (curT - m_dbClickTime > 200)
+			const double curT = m_timer.GetMilliSeconds();
+			if (curT - m_dbClickTime > 200.f)
 			{
 				m_mouseDown[0] = false;
 
-				if (isNear && ((curT - m_clickTime) < 300))
+				if (isNear && ((curT - m_clickTime) < 300.f))
 					m_mouseClicked[0] = true;
 			}
 		}
@@ -147,8 +150,8 @@ void cInputManager::MouseProc(const sf::Event &evt)
 
 			m_mouseDown[1] = false;
 
-			const int curT = GetTickCount();
-			if (isNear && ((curT - m_clickTime) < 300))
+			const double curT = m_timer.GetMilliSeconds();
+			if (isNear && ((curT - m_clickTime) < 300.f))
 				m_mouseClicked[1] = true;
 		}
 		break;

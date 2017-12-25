@@ -99,7 +99,6 @@ using std::wstringstream;
 #include "etc/singleton.h"
 #include "etc/filepath.h"
 #include "etc/stringfunc.h"
-#include "etc/dbg.h"
 #include "etc/observer.h"
 #include "etc/observer2.h"
 #include "etc/recttype.h"
@@ -121,4 +120,5 @@ using std::wstringstream;
 #include "thread/task.h"
 #include "thread/mutex.h"
 #include "thread/thread.h"
+#include "etc/dbg.h"
 

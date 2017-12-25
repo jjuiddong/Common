@@ -37,6 +37,15 @@ double cTimer::GetSeconds()
 }
 
 
+// return milliseconds
+double cTimer::GetMilliSeconds()
+{
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	return double(li.QuadPart - m_counterStart) / (m_pcFreq / 1000.f); // milliseconds unit
+}
+
+
 // return seconds 
 double cTimer::GetDeltaSeconds()
 {

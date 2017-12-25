@@ -45,6 +45,8 @@ bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt
 	m_tileCols = colTileCnt;
 	m_tileRows = rowTileCnt;
 	m_rect = sRectf(0, 0, colCnt*cellSizeW, rowCnt*cellSizeH);
+	const float tileWidth = colCnt*cellSizeW / colTileCnt;
+	const float tileHeight = rowCnt*cellSizeH / rowTileCnt;
 	m_heightMap.resize(m_rowVtx * m_colVtx);
 
 	// initialize map
@@ -73,7 +75,7 @@ bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt
 	{
 		for (int c = 0; c < colCnt+1; ++c)
 		{
-			Vector3 p(c*cellSizeW, 0, r*cellSizeH);
+			Vector3 p(c*cellSizeW - (tileWidth/2.f), 0, r*cellSizeH - (tileHeight/2.f));
 			Vector3 n(0, 1, 0);
 			const int idx = r*(colCnt+1) + c;
 			m_heightMap[idx].p = p;

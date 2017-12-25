@@ -2,7 +2,6 @@
 // 2017-07-31, jjuiddong
 // Upgrade DX9 - DX11 
 // Texture Class
-// IDirect3DTexture9 인터페이스를 쉽게 사용하기위해 만들어짐.
 //
 // 2017-07-24
 //	- TextDesigner
@@ -39,7 +38,6 @@ namespace graphic
 		void Bind(cRenderer &renderer, const int stage=0);
 		void Bind(cShader &shader, const Str32 &key);
 		void Unbind(cRenderer &renderer, const int stage);
-		void Render2D(cRenderer &renderer);
 		void* Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out);
 		void Unlock(cRenderer &renderer);
 		const StrPath& GetTextureName() const;
@@ -48,8 +46,6 @@ namespace graphic
 		bool IsLoaded();
 		int Width();
 		int Height();
-		void LostDevice();
-		void ResetDevice(cRenderer &renderer);
 		void Clear();
 		
 		static StrPath ConvertTextureFileName(const char *fileName);
@@ -61,7 +57,6 @@ namespace graphic
 		bool m_isReferenceMode;
 		ID3D11Texture2D *m_texture;
 		ID3D11ShaderResourceView *m_texSRV;
-		//bool m_customTexture; // using LostDevice, ResetDevice
 	};
 
 

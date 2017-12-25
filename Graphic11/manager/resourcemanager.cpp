@@ -78,7 +78,7 @@ sRawMeshGroup2* cResourceManager::LoadRawMesh(const StrPath &fileName)
 
 
 error:
-	dbg::ErrLog("Err LoadRawMesh2 %s \n", fileName.c_str());
+	dbg::ErrLogp("Err LoadRawMesh2 %s \n", fileName.c_str());
 	return NULL;
 }
 
@@ -150,7 +150,7 @@ cAssimpModel* cResourceManager::LoadAssimpModel( cRenderer &renderer
 
 
 error:
-	dbg::ErrLog("Err LoadAssimpModel %s \n", fileName.c_str());
+	dbg::ErrLogp("Err LoadAssimpModel %s \n", fileName.c_str());
 	SAFE_DELETE(model);
 	return NULL;
 }
@@ -176,7 +176,7 @@ std::pair<bool, cAssimpModel*> cResourceManager::LoadAssimpModelParallel(cRender
 
 
 error:
-	dbg::ErrLog("Err LoadAssimpModelParallel %s \n", fileName.c_str());
+	dbg::ErrLogp("Err LoadAssimpModelParallel %s \n", fileName.c_str());
 	return{ false, NULL };
 }
 
@@ -201,7 +201,7 @@ sRawAniGroup* cResourceManager::LoadAnimation( const StrId &fileName )
 	goto error;
 
 error:
-	dbg::ErrLog("Err LoadAnimation %s \n", fileName.c_str());
+	dbg::ErrLogp("Err LoadAnimation %s \n", fileName.c_str());
 	return NULL;
 }
 
@@ -249,6 +249,7 @@ sRawAniGroup* cResourceManager::FindAnimation( const StrId &fileName )
 // 텍스쳐 로딩.
 cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &fileName
 	, const bool isRecursive //= true
+	, const bool isMustMatch //= false
 )
 {
 	auto result = FindTexture(fileName);
@@ -256,7 +257,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &file
 		return result.second;
 
 	cTexture *texture = NULL;
-	const StrPath resourcePath = GetResourceFilePath(fileName);
+	const StrPath resourcePath = GetResourceFilePath(fileName, isMustMatch);
 	if (resourcePath.empty())
 		goto error;
 
@@ -279,7 +280,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &file
 
 
 error:
-	dbg::ErrLog("Error LoadTexture1 %s \n", fileName.c_str());
+	dbg::ErrLogp("Error LoadTexture1 %s \n", fileName.c_str());
 	SAFE_DELETE(texture);
 	if (isRecursive)
 		return cResourceManager::LoadTexture(renderer, g_defaultTexture, false);
@@ -310,7 +311,7 @@ cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const StrPa
 
 
 error:
-	dbg::ErrLog("Error LoadTextureParallel %s \n", fileName.c_str());
+	dbg::ErrLogp("Error LoadTextureParallel %s \n", fileName.c_str());
 	return NULL;
 }
 
@@ -406,7 +407,7 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 	}
 	else
 	{
-		dbg::ErrLog("Error LoadTexture %s \n", fileName.c_str());
+		dbg::ErrLogp("Error LoadTexture %s \n", fileName.c_str());
 
 		// load error
 		if (!texture)
@@ -457,7 +458,7 @@ cTexture* cResourceManager::LoadTexture2(cRenderer &renderer, const StrPath &dir
 
 
 error:
-	dbg::ErrLog("Error LoadTexture2 %s \n", fileName.c_str());
+	dbg::ErrLogp("Error LoadTexture2 %s \n", fileName.c_str());
 	SAFE_DELETE(texture);
 	if (isRecursive)
 		return cResourceManager::LoadTexture(renderer, g_defaultTexture, false);
@@ -515,21 +516,28 @@ void cResourceManager::AddTask(cTask *task)
 
 //
 // media 폴더내에 fileName이 있으면, 경로를 리턴한다.
-StrPath cResourceManager::GetResourceFilePath(const StrPath &fileName)
+// isMustMatch : true - 파일명이 완전히 똑같을 때에만, 파일이름을 리턴한다.
+//				 false - fileName의 파일이 없다면, 같은 파일명을 다른 디렉토리에서
+//						찾아서 리턴한다.
+StrPath cResourceManager::GetResourceFilePath(const StrPath &fileName
+	, const bool isMustMatch //= false
+)
 {
-	return GetResourceFilePath(m_mediaDirectory, fileName);
+	return GetResourceFilePath(m_mediaDirectory, fileName, isMustMatch);
 }
 
 
 // dir 폴더내에 fileName이 있으면, 경로를 리턴한다.
 // 하위 5단계의 디렉토리까지만 검사한다.
-StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath &fileName)
+StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath &fileName
+	, const bool isMustMatch //= false
+)
 {
 	if (common::IsFileExist(fileName))
 	{
 		return fileName;
 	}
-	else
+	else if (!isMustMatch)
 	{
 		const StrPath composeMediaFileName = dir + fileName;
 		if (composeMediaFileName.IsFileExist())

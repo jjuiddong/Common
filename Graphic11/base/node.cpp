@@ -371,8 +371,6 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 	float retDist = 0;
 	for (auto &kv : picks)
 	{
-		//const Vector3 modelPos = kv.first->GetWorldTransform().pos + -ray.dir * kv.second;
-		//const float len = ray.orig.LengthRoughly(modelPos);
 		const float len = kv.second;
 		if (nearLen > len)
 		{

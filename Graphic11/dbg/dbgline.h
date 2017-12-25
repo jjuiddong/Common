@@ -12,7 +12,7 @@
 namespace graphic
 {
 
-	class cDbgLine : public cLine
+	class cDbgLine
 	{
 	public:
 		cDbgLine();
@@ -30,9 +30,15 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
 
+		void SetLine(const Vector3 &p0, const Vector3 &p1, const float width);
+		void SetColor(const cColor &color);
+
 
 	public:
 		bool m_isSolid;
+		Transform m_transform;
+		cCubeShape m_shape;
+		cColor m_color;
 	};
 
 }

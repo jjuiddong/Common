@@ -184,7 +184,9 @@
     <ClInclude Include="base\viewport.h" />
     <ClInclude Include="collision\boundingbox.h" />
     <ClInclude Include="collision\boundinghalfsphere.h" />
+    <ClInclude Include="collision\boundingplane.h" />
     <ClInclude Include="collision\boundingsphere.h" />
+    <ClInclude Include="collision\collisionobj.h" />
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="dbg\dbgarrow.h" />
     <ClInclude Include="dbg\dbgaxis.h" />
@@ -293,6 +295,8 @@
     <ClCompile Include="base\viewport.cpp" />
     <ClCompile Include="collision\boundingbox.cpp" />
     <ClCompile Include="collision\boundinghalfsphere.cpp" />
+    <ClCompile Include="collision\boundingplane.cpp" />
+    <ClCompile Include="collision\boundingsphere.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="dbg\dbgarrow.cpp" />
     <ClCompile Include="dbg\dbgaxis.cpp" />
@@ -521,6 +525,28 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shader\tess-pos.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\tess-pos-norm.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\tess-pos-norm-tex.fx">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>

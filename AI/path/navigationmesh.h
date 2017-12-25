@@ -16,9 +16,11 @@ namespace ai
 		virtual ~cNavigationMesh();
 
 		bool ReadFromPathFile(const char *fileName);
+
 		bool Find(const Vector3 &start, const Vector3 &end
-			, OUT vector<Vector3> &out1
-			, OUT vector<Vector3> &out2);
+			, OUT vector<Vector3> &out
+			, OUT vector<int> &outNodePath
+		);
 
 
 	protected:
@@ -37,8 +39,6 @@ namespace ai
 			, const int vtxIdx);
 		std::pair<int, int> GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
 			, const int vtxIdx1, const int vtxIdx2);
-		
-		
 
 		void OptimizePath(const vector<int> &nodeIndices
 			, const vector<Vector3> &path

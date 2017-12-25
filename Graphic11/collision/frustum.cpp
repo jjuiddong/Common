@@ -19,9 +19,9 @@ cFrustum::~cFrustum()
 bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 {
 	//      4 --- 5
-	//    / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
+	//    / |  | /|
+	//   0 --- 1  |
+	//   |  6 -|- 7
 	//   | /   | /
 	//   2 --- 3
 	//
@@ -59,10 +59,6 @@ bool cFrustum::IsIn( const Vector3 &point ) const
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
-		//if (!m_fullCheck && (i < 3))
-		//	continue;
-
 		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
 		const float dist = m_plane[i].Distance(point);
 		if (dist > m_epsilon)
@@ -72,16 +68,11 @@ bool cFrustum::IsIn( const Vector3 &point ) const
 }
 
 
-
 bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
 {
 	const Vector3 pos = sphere.GetPos();
 	for (int i = 0; i < 6; ++i)
 	{
-		// m_fullCheck 가 false 라면 near, top, bottom  평면 체크는 제외 된다.
-		//if (!m_fullCheck && (i < 3))
-		//	continue;
-
 		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
 		const float dist = m_plane[i].Distance(pos);
 		if (dist > (sphere.GetRadius() + m_epsilon))
@@ -93,31 +84,29 @@ bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
 
 bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 {
-	//assert(0);
+	//      4 --- 5
+	//     /|  | /|
+	//   0 --- 1  |
+	//   |  6- |--7
+	//   | /   | /
+	//   2 --- 3
+	//
+	const Matrix44 tm = bbox.GetMatrix();
+	Vector3 vertices[8];
+	for (int i = 0; i < 8; ++i)
+		vertices[i] = g_cubeVertices2[i] * tm;
 
-	return DISJOINT != m_frustum.Contains(bbox.m_bbox);
+	for (int i = 0; i < 8; ++i)
+	{
+		if (IsIn(vertices[i]))
+			return true;
+	}
 
-	//const Vector3 vertices[] = {
-	//	bbox.m_min
-	//	, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_min.z)
-	//	, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_min.z)
-	//	, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
-	//	, bbox.m_max
-	//	, Vector3(bbox.m_min.x, bbox.m_max.y, bbox.m_max.z)
-	//	, Vector3(bbox.m_max.x, bbox.m_min.y, bbox.m_max.z)
-	//	, Vector3(bbox.m_max.x, bbox.m_max.y, bbox.m_min.z)
-	//};
-
-	//for (int i = 0; i < 8; ++i)
-	//{
-	//	if (IsIn(vertices[i]))
-	//		return true;
-	//}
-
-	//Vector3 size = bbox.m_max - bbox.m_min;
-	//const float radius = size.Length() * 0.5f;
-	//return IsInSphere(bbox.Center() * tm, radius);
-	return false;
+	const float x = tm.GetScale().x;
+	const float r = (float)sqrt(x*x + x*x + x*x);
+	cBoundingSphere bsphere;
+	bsphere.SetBoundingSphere(bbox.Center(), r);
+	return IsInSphere(bsphere);
 }
 
 

@@ -1,9 +1,64 @@
 
 #include "stdafx.h"
 #include "dbg.h"
+#include <chrono>
 
 using namespace common;
 using namespace dbg;
+
+
+//-----------------------------------------------------------------------
+// Log Thread
+common::cThread g_logThread;
+struct sLogData
+{
+	int type; // 0=log, 1=error log
+	Str256 str;
+};
+vector<sLogData> g_logStrs;
+CriticalSection g_logCS;
+
+class cLogTask : public cTask
+{
+public:
+	cLogTask() : cTask(0, "cLogTask") {
+	}
+	virtual ~cLogTask() {
+	}
+
+	virtual eRunResult::Enum Run(const double deltaSeconds) override
+	{
+		g_logCS.Lock();
+		if (!g_logStrs.empty())
+		{
+			std::ofstream ofs1("log.txt", std::ios::app);
+			std::ofstream ofs2("errlog.txt", std::ios::app);
+			for (auto &data : g_logStrs)
+			{
+				switch (data.type)
+				{
+				case 0:
+					if (ofs1.is_open())
+						ofs1 << data.str.c_str();
+					break;
+				case 1:
+					if (ofs2.is_open())
+						ofs2 << data.str.c_str();
+					break;
+				}
+			}
+			g_logStrs.clear();	
+		}
+		g_logCS.Unlock();
+
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(33ms);
+
+		return eRunResult::CONTINUE;
+	}
+};
+//-----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------
 // 출력창에 스트링을 출력한다.
@@ -43,13 +98,30 @@ void dbg::Log(const char* fmt, ...)
 	std::ofstream ofs("log.txt", std::ios::app);
 	if (ofs.is_open())
 		ofs << textString;
+}
 
-// 	FILE *fp = fopen("log.txt", "a+");
-// 	if (fp)
-// 	{
-// 		fputs(textString, fp);
-// 		fclose(fp);
-// 	}
+
+// log parallel thread
+void dbg::Logp(const char* fmt, ...)
+{
+	sLogData data;
+	data.type = 0;
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf_s(data.str.m_str, sizeof(data.str.m_str) - 1, _TRUNCATE, fmt, args);
+	va_end(args);
+
+	//------------------------------------------------------------------------
+	// add string to log thread
+	g_logCS.Lock();
+	g_logStrs.push_back(data);// { 0, textString });
+	g_logCS.Unlock();
+
+	if (!g_logThread.IsRun())
+	{
+		g_logThread.AddTask(new cLogTask());
+		g_logThread.Start();
+	}
 }
 
 
@@ -88,6 +160,27 @@ void dbg::ErrLog(const char* fmt, ...)
 
 	// 로그파일에도 에러 메세지를 저장한다.
 	Log( "Error : %s", textString);
+}
+
+
+// errlog parallel 
+void dbg::ErrLogp(const char* fmt, ...)
+{
+	sLogData data;
+	data.type = 1;
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf_s(data.str.m_str, sizeof(data.str.m_str), _TRUNCATE, fmt, args);
+	va_end(args);
+
+	//------------------------------------------------------------------------
+	// add string to log thread
+	g_logCS.Lock();
+	g_logStrs.push_back(data);
+	g_logCS.Unlock();
+
+	// 로그파일에도 에러 메세지를 저장한다.
+	Logp("Error : %s", data.str.m_str);
 }
 
 

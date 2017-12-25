@@ -51,6 +51,7 @@ int framework::FrameWorkWinMain(
 	cGameMain::Get()->ShutDown();
 	cGameMain::Release();
 	Gdiplus::GdiplusShutdown(gdiplusToken);
+	g_logThread.Clear();
 
 	return 0;
 }

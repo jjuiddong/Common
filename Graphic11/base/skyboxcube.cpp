@@ -15,6 +15,7 @@ using namespace graphic;
 
 cSkyBoxCube::cSkyBoxCube()
 	: m_texture(NULL)
+	, m_isDepthNone(false)
 {
 }
 
@@ -40,42 +41,41 @@ bool cSkyBoxCube::Create(cRenderer &renderer, const char *textureFileName)
 bool cSkyBoxCube::CreateVertexBuffer(cRenderer &renderer)
 {
 	// creating sky vertex buffer
-	//float *sky_vertexdata;
-	//int floatnum;
+	const float r = 4000.0f;
 	float *sky_vertexdata = new float[sky_gridpoints*(sky_gridpoints + 2) * 2 * 6];
 
 	for (int j = 0; j<sky_gridpoints; j++)
 	{
 		int i = 0;
 		int floatnum = (j*(sky_gridpoints + 2) * 2) * 6;
-		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 1] = r*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
 		sky_vertexdata[floatnum + 3] = 1;
 		sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
 		sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)j / (float)sky_gridpoints;
 		floatnum += 6;
 		for (i = 0; i<sky_gridpoints + 1; i++)
 		{
-			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 1] = r*sin(-0.5f*MATH_PI + MATH_PI*(float)(j) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)j / (float)sky_gridpoints);
 			sky_vertexdata[floatnum + 3] = 1;
 			sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
 			sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)j / (float)sky_gridpoints;
 			floatnum += 6;
-			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 1] = r*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+			sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
 			sky_vertexdata[floatnum + 3] = 1;
 			sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
 			sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)(j + 1) / (float)sky_gridpoints;
 			floatnum += 6;
 		}
 		i = sky_gridpoints;
-		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 1] = 4000.0f*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
-		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + 4000.0f*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 0] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*cos(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 1] = r*sin(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
+		sky_vertexdata[floatnum + 2] = terrain_gridpoints*terrain_geometry_scale*0.5f + r*sin(2.0f*MATH_PI*(float)i / (float)sky_gridpoints)*cos(-0.5f*MATH_PI + MATH_PI*(float)(j + 1) / (float)sky_gridpoints);
 		sky_vertexdata[floatnum + 3] = 1;
 		sky_vertexdata[floatnum + 4] = (sky_texture_angle + (float)i / (float)sky_gridpoints);
 		sky_vertexdata[floatnum + 5] = 2.0f - 2.0f*(float)(j + 1) / (float)sky_gridpoints;
@@ -118,7 +118,18 @@ bool cSkyBoxCube::Render(cRenderer &renderer
 
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	renderer.GetDevContext()->Draw(sky_gridpoints*(sky_gridpoints + 2) * 2, 0);
+
+	if (m_isDepthNone)
+	{
+		CommonStates states(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
+		renderer.GetDevContext()->Draw(sky_gridpoints*(sky_gridpoints + 2) * 2, 0);
+		renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
+	}
+	else
+	{
+		renderer.GetDevContext()->Draw(sky_gridpoints*(sky_gridpoints + 2) * 2, 0);
+	}
 
 	// recovery camera constant buffer
 	GetMainCamera().Bind(renderer);

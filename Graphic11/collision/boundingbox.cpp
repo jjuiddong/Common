@@ -7,17 +7,20 @@ using namespace graphic;
 
 cBoundingBox::cBoundingBox()
 {
+	m_type = eCollisionType::BOX;
 	SetBoundingBox(Vector3(0,0,0), Vector3(1,1,1), Quaternion(0,0,0,1));
 }
 
 cBoundingBox::cBoundingBox(const cCube &cube)
 {
+	m_type = eCollisionType::BOX;
 	operator=(cube);
 }
 
 
 cBoundingBox::cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q )
 {
+	m_type = eCollisionType::BOX;
 	SetBoundingBox(center, scale, q);
 }
 
@@ -81,30 +84,50 @@ bool overlaps( float min1, float max1, float min2, float max2 )
 }
 
 
-// OBB vs OBB 面倒贸府.
-bool cBoundingBox::Collision( cBoundingBox &box )
+bool cBoundingBox::Collision(const cCollisionObj &obj
+	, OUT Vector3 *outPos //= NULL
+	, OUT float *distance //= NULL
+) const
 {
-	const ContainmentType result = m_bbox.Contains(box.m_bbox);
-	switch (result)
+	switch (obj.m_type)
 	{
-	case INTERSECTS:
-	case CONTAINS:
-		return true;
-	}
-	return false;
-}
-
-
-// OBB vs Sphere 面倒贸府
-bool cBoundingBox::Collision(cBoundingSphere &sphere)
-{
-	const ContainmentType result = m_bbox.Contains(sphere.m_bsphere);
-	switch (result)
+	// OBB vs OBB 面倒贸府.
+	case eCollisionType::BOX:
 	{
-	case INTERSECTS:
-	case CONTAINS:
-		return true;
+		if (const cBoundingBox *p = dynamic_cast<const cBoundingBox*>(&obj))
+		{
+			const ContainmentType result = m_bbox.Contains(p->m_bbox);
+			switch (result)
+			{
+			case INTERSECTS:
+			case CONTAINS:
+				return true;
+			}
+		}
 	}
+	break;
+
+	// OBB vs Sphere 面倒贸府
+	case eCollisionType::SPHERE:
+	{
+		if (const cBoundingSphere *p = dynamic_cast<const cBoundingSphere*>(&obj))
+		{
+			const ContainmentType result = m_bbox.Contains(p->m_bsphere);
+			switch (result)
+			{
+			case INTERSECTS:
+			case CONTAINS:
+				return true;
+			}
+		}
+	}
+	break;
+
+	default:
+		assert(0);
+		break;
+	}
+
 	return false;
 }
 
@@ -252,6 +275,12 @@ bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
 }
 
 
+//bool cBoundingBox::Pick(const Ray &ray
+//	, OUT float *distance //= NULL
+//) const
+//{
+//	return Pick(ray.orig, ray.dir, distance);
+//}
 bool cBoundingBox::Pick(const Ray &ray
 	, OUT float *distance //= NULL
 ) const

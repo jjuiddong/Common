@@ -26,6 +26,7 @@ namespace graphic
 	public:
 		cTexture *m_texture; // reference
 		cVertexBuffer m_vtxBuff;
+		bool m_isDepthNone; //default: false
 	};
 
 }

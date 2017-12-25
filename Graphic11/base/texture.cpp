@@ -10,7 +10,6 @@ cTexture::cTexture()
 	: m_texSRV(NULL)
 	, m_texture(NULL)
 	,  m_isReferenceMode(false)
-	//, m_customTexture(false)
 {
 }
 
@@ -83,12 +82,6 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdesc, &m_texSRV)))
 		return false;
 
-	//D3DLOCKED_RECT lockrect;
-	//m_texture->LockRect( 0, &lockrect, NULL, 0 );
-	//memset( lockrect.pBits, 0x00, lockrect.Pitch*height );
-	//m_texture->UnlockRect( 0 );
-
-	//m_customTexture = true;
 	m_imageInfo.Width = width;
 	m_imageInfo.Height = height;
 	m_imageInfo.Format = format;
@@ -128,12 +121,11 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	ZeroMemory(&rdesc, sizeof(rdesc));
 	rdesc.Format = format;
 	rdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	rdesc.Texture2D.MipLevels = 1;
+	rdesc.Texture2D.MipLevels = desc.MipLevels;
 
 	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdesc, &m_texSRV)))
 		return false;
 
-	//m_customTexture = true;
 	m_imageInfo.Width = width;
 	m_imageInfo.Height = height;
 	m_imageInfo.Format = format;
@@ -145,6 +137,8 @@ void cTexture::Bind(cRenderer &renderer
 	, const int stage //= 0
 )
 {
+	renderer.GetDevContext()->HSSetShaderResources(stage, 1, &m_texSRV);
+	renderer.GetDevContext()->DSSetShaderResources(stage, 1, &m_texSRV);
 	renderer.GetDevContext()->PSSetShaderResources(stage, 1, &m_texSRV);
 }
 
@@ -155,40 +149,11 @@ void cTexture::Bind(cShader &shader, const Str32 &key)
 	//shader.SetTexture(key, *this);
 }
 
+
 void cTexture::Unbind(cRenderer &renderer, const int stage)
 {
 	ID3D11ShaderResourceView *ns[1] = { NULL };
 	renderer.GetDevContext()->PSSetShaderResources(stage, 1, ns);
-}
-
-
-void cTexture::Render2D(cRenderer &renderer)
-{
-	//renderer.GetDevice()->SetTransform(D3DTS_WORLD, ToDxM(Matrix44::Identity));
-	//renderer.GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-	//renderer.GetDevice()->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	//renderer.GetDevice()->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-
-	////renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	////renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_NONE);
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_NONE);
-	//renderer.GetDevice()->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
-
-	//typedef struct { FLOAT p[4]; FLOAT tu, tv; } TVERTEX;
-	//TVERTEX Vertex[4] = {
-	//	// x  y  z rhw tu tv
-	//	{ 0, 0, 0, 1, 0, 0, },
-	//	{ (float)m_imageInfo.Width-1, 0,0, 1, 1, 0, },
-	//	{ (float)m_imageInfo.Width-1, (float)m_imageInfo.Height-1, 1, 1, 1, 1},
-	//	{ 0, (float)m_imageInfo.Height-1,0, 1, 0, 1, },
-	//};
-	//renderer.GetDevice()->SetTexture(0, m_texture);
-	//renderer.GetDevice()->SetVertexShader(NULL);
-	//renderer.GetDevice()->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1);
-	//renderer.GetDevice()->SetPixelShader(NULL);
-	//renderer.GetDevice()->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Vertex, sizeof(TVERTEX));
 }
 
 
@@ -316,39 +281,13 @@ int cTexture::Height()
 }
 
 
-void cTexture::LostDevice()
-{
-	//RET(!m_texture);
-	//
-	//if (m_customTexture)
-	//	SAFE_RELEASE(m_texture);
-}
-
-
-void cTexture::ResetDevice(cRenderer &renderer)
-{
-	//RET(!m_customTexture);
-
-	//SAFE_RELEASE(m_texSRV);
-
-	//if (m_fileName.empty())
-	//{
-	//	//Create(renderer, m_imageInfo.Width, m_imageInfo.Height, m_imageInfo.Format);
-	//}
-	//else
-	//{
-	//	Create(renderer, StrPath(m_fileName));
-	//}
-}
-
-
 bool cTexture::IsLoaded()
 {
 	return m_texSRV? true : false;
 }
 
 
-// return true if converting filName
+// return true if converting fileName
 // convert file extention TGA -> DDS
 // because, did not load tga format, you must change format tga to dds
 StrPath cTexture::ConvertTextureFileName(const char *fileName)

@@ -33,7 +33,7 @@ cQuad::~cQuad()
 bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	const Vector3 &pos 
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
-	, const StrPath &textureFileName // = " "
+	, const StrPath &textureFileName // = ""
 	, const bool isDynamic // = false
 )
 {
@@ -42,6 +42,13 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	m_transform.pos = pos;
 	m_transform.scale = Vector3(width, height, 0.1f); // Z축으로 얇은 X-Y 평면
 	m_boundingBox.SetBoundingBox(m_transform);
+
+	if (!textureFileName.empty())
+	{
+		m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
+		cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
+			, textureFileName, (void**)&m_texture));
+	}
 
 	return true;
 }

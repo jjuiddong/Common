@@ -45,7 +45,6 @@ bool cTile::Create(cRenderer &renderer
 	, const Str64 &name
 	, const int row  // tile row index from terrain
 	, const int col  // tile column index from terrain
-	//, const sRectf &rect // (x-z axis)
 	, const Transform &transform
 	, const char *textureFileName //= g_defaultTexture
 	, const float uvFactor //= 1.f,
@@ -57,8 +56,6 @@ bool cTile::Create(cRenderer &renderer
 	m_name = name;
 	m_location = Vector2i(row, col);
 
-	//const float cellSizeW = rect.Width() / 2.f;
-	//const float cellSizeH = rect.Height() / 2.f;
 	const float cellSizeW = transform.scale.x;
 	const float cellSizeH = transform.scale.z;
 	m_ground = new cGrid();
@@ -74,7 +71,6 @@ bool cTile::Create(cRenderer &renderer
 		m_ground->m_mtrl.InitWhite();
 	AddChild(m_ground);
 	
-	//m_transform.pos = Vector3(rect.left + cellSizeW, 0, rect.top + cellSizeH);
 	m_transform.pos = transform.pos;
 	m_transform.rot = transform.rot;
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0), transform.scale, Quaternion());

@@ -16,6 +16,7 @@ namespace common
 
 		bool Create();
 		double GetSeconds();
+		double GetMilliSeconds();
 		double GetDeltaSeconds();
 
 

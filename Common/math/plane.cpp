@@ -95,7 +95,7 @@ float Plane::GetZ( float fX, float fY ) const
 }
 
 
-float Plane::Collision( const Vector3& vP )
+float Plane::Collision( const Vector3& vP ) const
 {
 	return N.x * vP.x + N.y * vP.y + N.z * vP.z + D;
 }

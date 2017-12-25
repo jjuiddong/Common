@@ -27,7 +27,7 @@ void Triangle::Create( const Vector3& v1, const Vector3& v2, const Vector3& v3 )
 // Triangle::Intersect
 // pfT, pfU, pfV : out
 // pfT : distance
-// collision pos = lerp(c, b, pfU) + lerp(c, a, pfV) - c
+// collision pos = lerp(a, b, pfU) + lerp(a, c, pfV) - a
 bool Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT, float *pfU, float *pfV	)  const
 {
 	static float u, v;

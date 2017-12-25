@@ -257,9 +257,6 @@
       <Filter>terrain</Filter>
     </ClInclude>
     <ClInclude Include="base\graphicdef.h" />
-    <ClInclude Include="terrain\cascadedshadowmap.h" />
-    <ClInclude Include="terrain\terraincursor.h" />
-    <ClInclude Include="base\temporalbuffer.h" />
     <ClInclude Include="shape\torusshape.h">
       <Filter>shape</Filter>
     </ClInclude>
@@ -319,6 +316,21 @@
     </ClInclude>
     <ClInclude Include="base\gridline.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\cascadedshadowmap.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\temporalbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terraincursor.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collisionobj.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingplane.h">
+      <Filter>collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -557,9 +569,6 @@
     <ClCompile Include="terrain\water.cpp">
       <Filter>terrain</Filter>
     </ClCompile>
-    <ClCompile Include="terrain\cascadedshadowmap.cpp" />
-    <ClCompile Include="terrain\terraincursor.cpp" />
-    <ClCompile Include="base\temporalbuffer.cpp" />
     <ClCompile Include="shape\torusshape.cpp">
       <Filter>shape</Filter>
     </ClCompile>
@@ -616,6 +625,21 @@
     </ClCompile>
     <ClCompile Include="base\gridline.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\cascadedshadowmap.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\temporalbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terraincursor.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingsphere.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingplane.cpp">
+      <Filter>collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -718,6 +742,12 @@
       <Filter>shader</Filter>
     </CustomBuild>
     <CustomBuild Include="shader\tess-pos.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-norm.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-norm-tex.fx">
       <Filter>shader</Filter>
     </CustomBuild>
   </ItemGroup>

@@ -1,4 +1,9 @@
+//
+// 2017-12-21, jjuiddong
+// add log thread
+//
 #pragma once
+
 
 namespace common { namespace dbg
 {
@@ -9,7 +14,15 @@ namespace common { namespace dbg
 	void Log2(const char *fileName, const char* fmt, ...);
 	void ErrLog(const char* fmt, ...);
 
+	// multithreading log
+	void Logp(const char* fmt, ...);
+	void ErrLogp(const char* fmt, ...);
+
 	void RemoveLog();
 	void RemoveLog2(const char *fileName);
 	void RemoveErrLog();
+
 }}
+
+
+extern common::cThread g_logThread;

@@ -34,6 +34,15 @@ namespace graphic
 		XMMATRIX mPalette[64];
 	};
 
+	struct sTessellationBuffer
+	{
+		float tessellationAmount;
+		Vector2 size; // quad size
+		float level;
+		float edgeLevel[4]; // west-north-east-south, adjacent quad level
+		float uvs[4]; // uv coordinate
+	};
+
 
 	class cTexture;
 	class cDepthBuffer;
@@ -131,6 +140,7 @@ namespace graphic
 		cConstantBuffer<sCbInstancing> m_cbInstancing;
 		cConstantBuffer<cCbClipPlane> m_cbClipPlane;
 		cConstantBuffer<cCbSkinning> m_cbSkinning;
+		graphic::cConstantBuffer<sTessellationBuffer> m_cbTessellation;
 		
 		// Display FPS 
 		cText m_textFps;

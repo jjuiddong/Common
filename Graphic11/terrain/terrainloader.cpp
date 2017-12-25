@@ -178,7 +178,6 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 					, fileName.GetFileNameExceptExt().c_str()
 					, location.x // row
 					, location.y // col
-					//, rect
 					, transform
 					, fileName.c_str()
 				);

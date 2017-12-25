@@ -32,8 +32,9 @@ namespace framework
 		bool m_lBtnDbClick;
 		POINT m_mousePt;
 		POINT m_mouseClickPt;
-		int m_clickTime;
-		int m_dbClickTime;
+		double m_clickTime;
+		double m_dbClickTime;
+		cTimer m_timer;
 	};
 
 }

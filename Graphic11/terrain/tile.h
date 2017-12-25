@@ -42,7 +42,6 @@ namespace graphic
 			, const Str64 &name
 			, const int row
 			, const int col
-			//, const sRectf &rect
 			, const Transform &transform
 			, const char *textureFileName = g_defaultTexture
 			, const float uvFactor=1.f

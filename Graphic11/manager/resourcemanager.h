@@ -33,7 +33,7 @@ namespace graphic
 		sRawAniGroup* LoadAnimation( const StrId &fileName );
 		bool LoadAnimation(const StrPath &fileName, sRawAniGroup *anies);
 
-		cTexture* LoadTexture(cRenderer &renderer, const StrPath &fileName, const bool isRecursive=true);
+		cTexture* LoadTexture(cRenderer &renderer, const StrPath &fileName, const bool isRecursive=true, const bool isMustMatch= false);
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isRecursive = true);
 		cTexture* LoadTexture2(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isRecursive = true);
 		cTexture* LoadTextureParallel(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true);
@@ -52,8 +52,8 @@ namespace graphic
 		void SetMediaDirectory( const StrPath &path );
 		const StrPath& GetMediaDirectory() const;
 		StrPath GetRelativePathToMedia( const StrPath &fileName );
-		StrPath GetResourceFilePath(const StrPath &fileName);
-		StrPath GetResourceFilePath(const StrPath &dir, const StrPath &fileName);
+		StrPath GetResourceFilePath(const StrPath &fileName, const bool isMustMatch=false);
+		StrPath GetResourceFilePath(const StrPath &dir, const StrPath &fileName, const bool isMustMatch=false);
 		void Clear();
 
 

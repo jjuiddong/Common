@@ -24,6 +24,7 @@ namespace graphic
 
 
 	public:
+		bool m_isAlphaBlending;
 		cDbgLine m_lines[3]; // x-y-z
 	};
 

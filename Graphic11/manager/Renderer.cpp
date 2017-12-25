@@ -128,6 +128,7 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_cbInstancing.Create(*this);
 	m_cbClipPlane.Create(*this);
 	m_cbSkinning.Create(*this);
+	m_cbTessellation.Create(*this);
 	float f2[4] = { 1, 1, 1, 100000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 
@@ -185,6 +186,8 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_dbgAxis.SetAxis(bbox2, false);
 
 	m_defaultMtrl.InitWhite();
+	m_cbMaterial = m_defaultMtrl.GetMaterial();
+	m_cbMaterial.Update(*this, 2);
 }
 
 

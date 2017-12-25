@@ -57,8 +57,9 @@ void cBillboard::Rotate()
 	case BILLBOARD_TYPE::Y_AXIS:
 	{
 		// Y축 빌보드 행렬을 계산한다.
-		Matrix44 view;
-		view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), Vector3(0, 1, 0));
+		//Matrix44 view;
+		//view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), Vector3(0, 1, 0));
+		Matrix44 view = GetMainCamera().GetViewMatrix();
 
 		mat._11 = view._11;
 		mat._13 = view._13;
@@ -71,9 +72,7 @@ void cBillboard::Rotate()
 	case BILLBOARD_TYPE::ALL_AXIS:
 	{
 		// 모든 축에서 빌보드 행렬을 계산한다.
-		Matrix44 view;
-		view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), Vector3(0, 1, 0));
-
+		Matrix44 view = GetMainCamera().GetViewMatrix();
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
 		mat.Transpose();
@@ -83,8 +82,8 @@ void cBillboard::Rotate()
 	case BILLBOARD_TYPE::ALL_AXIS_Z:
 	{
 		// 모든 축에서 빌보드 행렬을 계산한다.
-		Matrix44 view;
-		view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), GetMainCamera().GetUpVector());
+		Matrix44 view = GetMainCamera().GetViewMatrix();
+		//view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), GetMainCamera().GetUpVector());
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
@@ -104,8 +103,9 @@ void cBillboard::Rotate()
 		Matrix44 S;
 		S.SetScale(scale);
 
-		Matrix44 view;
-		view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), Vector3(0, 1, 0));
+		//Matrix44 view;
+		//view.SetView2(m_transform.pos, GetMainCamera().GetEyePos(), Vector3(0, 1, 0));
+		Matrix44 view = GetMainCamera().GetViewMatrix();
 
 		mat = view;
 		mat._41 = mat._42 = mat._43 = 0;
@@ -115,9 +115,10 @@ void cBillboard::Rotate()
 	break;
 	}
 
-	Matrix44 R;
-	R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
-	m_transform.rot = (R * mat).GetQuaternion();
+	//Matrix44 R;
+	//R.SetRotationY(ANGLE2RAD(180)); // treaky code, didn't understand
+	//m_transform.rot = (R * mat).GetQuaternion();
+	m_transform.rot = mat.GetQuaternion();
 	m_normal = (GetMainCamera().GetEyePos() - m_transform.pos).Normal();
 }
 

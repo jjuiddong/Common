@@ -180,8 +180,8 @@ float Distance(const Vector3 &p0, const Vector3 &p1)
 
 // Search Navigation Mesh
 bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
-	, OUT vector<Vector3> &out1
-	, OUT vector<Vector3> &out2 
+	, OUT vector<Vector3> &out
+	, OUT vector<int> &outNodePath
 )
 {
 	const int startIdx = GetNearestNode(start);
@@ -259,7 +259,8 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 	// tracking end point to start point
 	vector<int> nodeIndices;
 
-	out1.push_back(m_naviNodes[endIdx].center);
+	vector<Vector3> path;
+	path.push_back(m_naviNodes[endIdx].center);
 	nodeIndices.push_back(endIdx);
 
 	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
@@ -297,20 +298,22 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 
 		g_edges_visit[curIdx][nextIdx] = true;
 		g_edges_visit[nextIdx][curIdx] = true;
-		out1.push_back(m_naviNodes[nextIdx].center);
+		path.push_back(m_naviNodes[nextIdx].center);
 		nodeIndices.push_back(nextIdx);
 		curIdx = nextIdx;
 	}
 
 	assert(nodeIndices.size() < 1000);
 
-	out1.push_back(start);
-	std::reverse(out1.begin(), out1.end());
+	path.push_back(start);
+	std::reverse(path.begin(), path.end());
 	std::reverse(nodeIndices.begin(), nodeIndices.end());
 
-	out1.push_back(end);
+	path.push_back(end);
 
-	OptimizePath(nodeIndices, out1, out2);
+	OptimizePath(nodeIndices, path, out);
+
+	outNodePath = nodeIndices;
 
 	return true;
 }
@@ -410,11 +413,11 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 		//const Vector3 dir = (nextPos - curPos).Normal();
 
 		// 전체 경로에서 인접변 충돌 테스트
-		for (int o = s; o < i; ++o)
+		for (int o = s; o <= i; ++o)
 		{
 			const int preTestNodeIdx = nodeIndices[o];
-			const int nextTestNodeIdx = nodeIndices[o+1];
-			sNaviNode &testNode = m_naviNodes[nextTestNodeIdx];
+			//const int nextTestNodeIdx = nodeIndices[o+1];
+			sNaviNode &testNode = m_naviNodes[preTestNodeIdx];
 			const int idxs[3] = { testNode.idx1, testNode.idx2, testNode.idx3 };
 
 			// 인접변을 제외한 충돌 테스트
@@ -526,10 +529,12 @@ void cNavigationMesh::OptimizePath(const vector<int> &nodeIndices
 				}
 
 				curVtxIdx = pointIdx1;
-				curVtxEdge1 = pointIdx1;
-				curVtxEdge2 = pointIdx2;
+				//curVtxEdge1 = pointIdx1;
+				//curVtxEdge2 = pointIdx2;
+				curVtxEdge1 = -1;
+				curVtxEdge2 = -1;
 
-				s = GetNearestNodeFromVertexIdx(nodeIndices, curVtxEdge1, curVtxEdge2).second;
+				s = GetNearestNodeFromVertexIdx(nodeIndices, pointIdx1, pointIdx2).second;
 				out.push_back(curPos - Vector3(0,1,0));
 
 				break;
@@ -676,3 +681,4 @@ std::pair<int, int> cNavigationMesh::GetAdjacentVertexIdx(
 
 	return {-1, -1};
 }
+

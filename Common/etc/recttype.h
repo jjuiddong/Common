@@ -52,6 +52,9 @@ namespace common
 		Vector2 Center() const {
 			return Vector2((float)(left + right)*0.5f, (float)(top + bottom)*0.5f);
 		}
+		Vector3 Center3D() const {
+			return Vector3((float)(left + right)*0.5f, 0, (float)(top + bottom)*0.5f);
+		}
 
 		sRect1 operator-(const sRect1 &rhs) {
 			return sRect1(left - rhs.left, 

@@ -16,7 +16,7 @@ namespace graphic
 	class cCube;
 	class cBoundingSphere;
 
-	class cBoundingBox
+	class cBoundingBox : public cCollisionObj
 	{
 	public:
 		cBoundingBox();
@@ -26,8 +26,6 @@ namespace graphic
 		void SetBoundingBox(const Transform &tfm);
 		void SetBoundingBox(const sMinMax &minMax );
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
-		bool Collision( cBoundingBox &box );
-		bool Collision( cBoundingSphere &sphere);
 		bool Collision2D(cBoundingSphere &sphere
 			, OUT Vector3 *outPos=NULL
 			, OUT Plane *outPlane=NULL
@@ -35,15 +33,17 @@ namespace graphic
 			, OUT Vector3 *outVertex2=NULL
 		);
 
+		virtual bool Collision(const cCollisionObj &obj
+			, OUT Vector3 *outPos = NULL, OUT float *distance = NULL) const override;
+		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
 		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance=NULL) const;
-		bool Pick(const Ray &ray, OUT float *distance = NULL) const;
 
 		Vector3 Center() const;
 		void Scale(const Vector3 &scale);
 		Vector3 GetDimension() const;
 		XMMATRIX GetMatrixXM() const;
 		Matrix44 GetMatrix() const;
-		Transform GetTransform() const;
+		virtual Transform GetTransform() const override;
 		Vector3 GetBoundingPoint(const Vector3 &pos) const;
 		void GetVertexPoint(OUT Vector3 out[8]) const;
 
