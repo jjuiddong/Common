@@ -183,7 +183,7 @@
     <ClInclude Include="base\vertexformat.h" />
     <ClInclude Include="base\viewport.h" />
     <ClInclude Include="collision\boundingbox.h" />
-    <ClInclude Include="collision\boundinghalfsphere.h" />
+    <ClInclude Include="collision\boundinghemisphere.h" />
     <ClInclude Include="collision\boundingplane.h" />
     <ClInclude Include="collision\boundingsphere.h" />
     <ClInclude Include="collision\collisionobj.h" />
@@ -294,7 +294,7 @@
     <ClCompile Include="base\vertexlayout.cpp" />
     <ClCompile Include="base\viewport.cpp" />
     <ClCompile Include="collision\boundingbox.cpp" />
-    <ClCompile Include="collision\boundinghalfsphere.cpp" />
+    <ClCompile Include="collision\boundinghemisphere.cpp" />
     <ClCompile Include="collision\boundingplane.cpp" />
     <ClCompile Include="collision\boundingsphere.cpp" />
     <ClCompile Include="collision\frustum.cpp" />

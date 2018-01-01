@@ -5,10 +5,15 @@
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VSOUT_POS VS( float4 Pos : POSITION )
+VSOUT_POS VS( float4 Pos : POSITION
+			, uint instID : SV_InstanceID
+			, uniform bool IsInstancing
+)
 {
 	VSOUT_POS output = (VSOUT_POS)0;
-    output.Pos = mul( Pos, gWorld );
+	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
+
+    output.Pos = mul( Pos, mWorld);
     output.Pos = mul( output.Pos, gView );
     output.Pos = mul( output.Pos, gProjection );
 	output.PosH = output.Pos;
@@ -41,7 +46,7 @@ technique11 DepthTech
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
 		SetGeometryShader(NULL);
 		SetHullShader(NULL);
 		SetDomainShader(NULL);
@@ -54,7 +59,7 @@ technique11 Outline
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
 		SetGeometryShader(NULL);
 		SetHullShader(NULL);
 		SetDomainShader(NULL);
@@ -67,10 +72,23 @@ technique11 Unlit
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
       	SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+
+technique11 Unlit_Instancing
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }

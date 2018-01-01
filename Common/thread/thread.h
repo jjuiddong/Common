@@ -47,6 +47,7 @@ namespace common
 		cTask* GetTask(const int taskId);
 		void Clear();
 		bool IsRun();
+		void Join();
 		int Run();
 		void Exit(); // call exit thread
 
@@ -72,7 +73,8 @@ namespace common
 		list<SExternalMsg> m_externalMsgs;	// send to another process message
 
 		std::thread m_thread;
-		cMutex m_mutex; // 쓰레드 Run, Pause 동기화 객체
+		//cMutex m_mutex; // 쓰레드 Run, Pause 동기화 객체
+		CriticalSection m_taskCS;
 	};
 
 }

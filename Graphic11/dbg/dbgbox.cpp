@@ -106,6 +106,45 @@ void cDbgBox::Render(cRenderer &renderer
 }
 
 
+void cDbgBox::RenderInstancing(cRenderer &renderer
+	, const int count
+	, const XMMATRIX *transforms
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
+	assert(shader);
+	shader->SetTechnique("Unlit_Instancing");
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	const XMMATRIX tm = m_boundingBox.GetMatrixXM();
+	for (int i = 0; i < count; ++i)
+		renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm * transforms[i] * parentTm);
+	renderer.m_cbInstancing.Update(renderer, 3);
+
+	renderer.m_cbPerFrame.Update(renderer);
+
+	const Vector4 color = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
+	CommonStates states(renderer.GetDevice());
+	ID3D11RasterizerState *oldState = NULL;
+	renderer.GetDevContext()->RSGetState(&oldState);
+	renderer.GetDevContext()->RSSetState(states.Wireframe());
+	m_shape.RenderInstancing(renderer, count);
+	renderer.GetDevContext()->RSSetState(oldState);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[eVertexType::POSITION];
+#endif
+}
+
+
 XMMATRIX cDbgBox::GetTransform() const
 {
 	return m_boundingBox.GetMatrixXM();

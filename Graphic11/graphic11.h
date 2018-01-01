@@ -73,7 +73,7 @@ namespace graphic {
 #include "collision/collisionobj.h"
 #include "collision/boundingbox.h"
 #include "collision/boundingsphere.h"
-#include "collision/boundinghalfsphere.h"
+#include "collision/boundinghemisphere.h"
 #include "collision/boundingplane.h"
 
 

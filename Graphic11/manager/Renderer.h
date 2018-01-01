@@ -21,7 +21,7 @@ namespace graphic
 	
 	struct sCbInstancing
 	{
-		XMMATRIX worlds[100];
+		XMMATRIX worlds[256];
 	};
 
 	struct cCbClipPlane
@@ -40,7 +40,8 @@ namespace graphic
 		Vector2 size; // quad size
 		float level;
 		float edgeLevel[4]; // west-north-east-south, adjacent quad level
-		float uvs[4]; // uv coordinate
+		float tuvs[4]; // texture uv coordinate
+		float huvs[4]; // heightmap uv coordinate
 	};
 
 

@@ -189,6 +189,21 @@ void cCubeShape::Render(cRenderer &renderer)
 }
 
 
+void cCubeShape::RenderInstancing(cRenderer &renderer, const int count)
+{
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	renderer.GetDevContext()->DrawIndexedInstanced(
+		m_idxBuff.GetFaceCount() * 3
+		, count
+		, 0
+		, 0
+		, 0);
+}
+
+
 void cCubeShape::SetCube(cRenderer &renderer, const Vector3 vertices[8]
 	, const cColor &color //= cColor::BLACK
 )

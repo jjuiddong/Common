@@ -74,25 +74,29 @@ bool cText::Create(cRenderer &renderer
 }
 
 
-void cText::Render(cRenderer &renderer, 
-	const float x, const float y, const wchar_t *text)
+void cText::Render(cRenderer &renderer
+	, const float x, const float y, const wchar_t *text
+	, const bool restore //= false
+)
 {
 	RET(!m_fontWrapper);
 
 	m_fontWrapper->DrawString(
-		renderer.GetDevContext(),
-		text,
-		m_fontSize,
-		x, y, 
-		m_color,
-		FW1_CENTER | FW1_VCENTER// Flags
+		renderer.GetDevContext()
+		, text
+		, m_fontSize
+		, x, y
+		, m_color
+		, (restore)? (FW1_CENTER | FW1_VCENTER | FW1_RESTORESTATE) : (FW1_CENTER | FW1_VCENTER)
 	);
 
 }
 
 
-void cText::Render(cRenderer &renderer,
-	const float x, const float y)
+void cText::Render(cRenderer &renderer
+	, const float x, const float y
+	, const bool restore //= false
+)
 {
 	RET(!m_fontWrapper);
 
@@ -103,17 +107,14 @@ void cText::Render(cRenderer &renderer,
 	else
 	{
 		m_fontWrapper->DrawString(
-			renderer.GetDevContext(),
-			m_text.c_str(),
-			m_fontSize,
-			x, y,
-			m_color,
-			FW1_CENTER | FW1_VCENTER// Flags
+			renderer.GetDevContext()
+			, m_text.c_str()
+			, m_fontSize
+			, x, y
+			, m_color
+			, (restore) ? (FW1_CENTER | FW1_VCENTER | FW1_RESTORESTATE) : (FW1_CENTER | FW1_VCENTER)
 		);
 	}
-
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 }
 
 

@@ -29,6 +29,12 @@ namespace graphic
 		void SetBox(cRenderer &renderer, const Vector3 vertices[8], const cColor &color = cColor::BLACK);
 		void SetColor(const cColor &color);
 		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);
+		void RenderInstancing(cRenderer &renderer
+			, const int count
+			, const XMMATRIX *transforms
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1
+		);
 		XMMATRIX GetTransform() const;
 
 

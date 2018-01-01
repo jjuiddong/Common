@@ -8,7 +8,9 @@ using namespace graphic;
 
 cMesh::cMesh()
 	: m_buffers(NULL)
+	, m_shader(NULL)
 	, m_renderFlags(eRenderFlag::VISIBLE | eRenderFlag::NOALPHABLEND)
+	, m_isBeginShader(true)
 {
 }
 
@@ -111,11 +113,16 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 	, const XMMATRIX &transform //= XMIdentity
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_buffers->m_vtxType);
+	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_buffers->m_vtxType);
 	assert(shader);
-	shader->SetTechnique(techniqueName);
-	shader->Begin();
-	shader->BeginPass(renderer, 0);
+
+	if (m_isBeginShader)
+	{
+		shader->SetTechnique(techniqueName);
+		shader->Begin();
+		shader->BeginPass(renderer, 0);
+	}
+
 	renderer.m_cbClipPlane.Update(renderer, 4);
 
 	const XMMATRIX nodeGlobalTm = m_transform.GetMatrixXM() * parentTm;

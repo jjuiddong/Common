@@ -221,7 +221,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				CollectFiles( findExt, modifySearchPath + string(fd.cFileName) + "/", out);
+				CollectFiles( findExt, modifySearchPath + string(fd.cFileName) + "\\", out);
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)

@@ -103,7 +103,7 @@ namespace graphic
 			};
 		};
 		eBoundingType::Enum m_boundingType;
-		cBoundingHalfSphere m_boundingHSphere;
+		cBoundingHemiSphere m_boundingHSphere;
 		cBoundingBox m_boundingBox;
 
 		cNode *m_traceNode;

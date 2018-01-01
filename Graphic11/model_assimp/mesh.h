@@ -60,6 +60,8 @@ namespace graphic {
 		vector<cTexture*> m_specularMap;  // reference
 		vector<cTexture*> m_selfIllumMap;  // reference
 		vector<sMeshBone> m_bones; // mesh bone
+		cShader11 *m_shader;
+		bool m_isBeginShader; // default: true, for external constant buffer initialize
 		cMeshBuffer *m_buffers;
 	};
 

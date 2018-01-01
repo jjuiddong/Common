@@ -130,7 +130,7 @@ cbuffer cbMaetrial : register(b2)
 
 cbuffer cbPerFrameInstancing : register(b3)
 {
-	matrix gWorldInst[100];
+	matrix gWorldInst[256];
 }
 
 cbuffer cbClipPlane : register(b4)

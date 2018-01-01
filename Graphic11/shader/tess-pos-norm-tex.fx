@@ -19,7 +19,8 @@ cbuffer TessellationBuffer : register(b6)
 	float2 gSize;
 	float gLevel;
 	float4 gEdgeLevel;
-	float4 gUVs;
+	float4 gTUVs;
+	float4 gHUVs;
 };
 
 struct HullInputType
@@ -51,6 +52,14 @@ struct PixelInputType
 	float3 toEye : TEXCOORD1;
 };
 
+struct PixelInputType2
+{
+	float4 pos : SV_POSITION;
+	float3 Normal : NORMAL;
+	float2 Tex1 : TEXCOORD0;
+	float2 Tex2 : TEXCOORD1;
+	float3 toEye : TEXCOORD2;
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,10 +160,104 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	output.pos = mul(output.pos, gProjection);
 
 	// Send the input color into the pixel shader.
-	float u = lerp(gUVs.x, gUVs.z, uv.x);
-	float v = lerp(gUVs.y, gUVs.w, uv.y);
+	float u = lerp(gTUVs.x, gTUVs.z, uv.x);
+	float v = lerp(gTUVs.y, gTUVs.w, uv.y);
+	//float u = lerp(gHUVs.x, gHUVs.z, uv.x);
+	//float v = lerp(gHUVs.y, gHUVs.w, uv.y);
 	output.Normal = normal;
 	output.Tex = float2(u,v);
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+
+	return output;
+}
+
+
+[domain("quad")]
+
+PixelInputType ColorDomainShader_Heightmap(ConstantOutputType input
+	, float2 uv : SV_DomainLocation
+	, const OutputPatch<HullOutputType, 4> patch)
+{
+	float3 vertexPosition;
+	PixelInputType output = (PixelInputType)0;
+
+	float2 v1 = lerp(patch[0].pos, patch[1].pos, uv.x) * gSize;
+	float2 v2 = lerp(patch[2].pos, patch[3].pos, uv.x) * gSize;
+	vertexPosition.xz = lerp(v1, v2, uv.y);
+	vertexPosition.y = 0.1f;
+
+	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+	//PosW.y = abs((sin(PosW.x*0.02f) + sin(PosW.x*0.03f) + sin(PosW.x*0.01f)) * 10.f);// 0.1f;
+	//PosW.y += abs(sin(PosW.x*0.01f) * 3.f);// 0.1f;
+
+	//const float2 tex = float2(PosW.x / 4096.f, PosW.z / 4096.f);
+	//float heightMap = txHeight.SampleLevel(samLinear, tex, 0).x;
+	//float heightMap = txHeight.SampleLevel(SamplerLinearWrap, float2(0.5f,0.5f), 0).x;
+
+	float dx = 0.01f;
+	float y0 = (sin(PosW.x*0.02f) + sin(PosW.x*0.03f)) * 10.f;// 0.1f;
+	float y1 = (sin((PosW.x*0.02f) + dx) + sin((PosW.x*0.03f) + dx)) * 10.f;// 0.1f;
+	float3 normal = normalize(float3(dx, y1 - y0, 0));
+
+	PosW.y = 0;// heightMap * 1000.f;// y0;
+
+	output.pos = mul(PosW, gView);
+	output.pos = mul(output.pos, gProjection);
+
+	// Send the input color into the pixel shader.
+	//float u = lerp(gTUVs.x, gTUVs.z, uv.x);
+	//float v = lerp(gTUVs.y, gTUVs.w, uv.y);
+	float u = lerp(gHUVs.x, gHUVs.z, uv.x);
+	float v = lerp(gHUVs.y, gHUVs.w, uv.y);
+	output.Normal = normal;
+	output.Tex = float2(u, v);
+	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+
+	return output;
+}
+
+
+
+[domain("quad")]
+
+PixelInputType2 ColorDomainShader_LightHeightmap(ConstantOutputType input
+	, float2 uv : SV_DomainLocation
+	, const OutputPatch<HullOutputType, 4> patch)
+{
+	float3 vertexPosition;
+	PixelInputType2 output = (PixelInputType2)0;
+
+	float2 p1 = lerp(patch[0].pos, patch[1].pos, uv.x) * gSize;
+	float2 p2 = lerp(patch[2].pos, patch[3].pos, uv.x) * gSize;
+	vertexPosition.xz = lerp(p1, p2, uv.y);
+	vertexPosition.y = 0.1f;
+
+	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+	//PosW.y = abs((sin(PosW.x*0.02f) + sin(PosW.x*0.03f) + sin(PosW.x*0.01f)) * 10.f);// 0.1f;
+	//PosW.y += abs(sin(PosW.x*0.01f) * 3.f);// 0.1f;
+
+	//const float2 tex = float2(PosW.x / 4096.f, PosW.z / 4096.f);
+	//float heightMap = txHeight.SampleLevel(samLinear, tex, 0).x;
+	//float heightMap = txHeight.SampleLevel(SamplerLinearWrap, float2(0.5f,0.5f), 0).x;
+
+	float dx = 0.01f;
+	float y0 = (sin(PosW.x*0.02f) + sin(PosW.x*0.03f)) * 10.f;// 0.1f;
+	float y1 = (sin((PosW.x*0.02f) + dx) + sin((PosW.x*0.03f) + dx)) * 10.f;// 0.1f;
+	float3 normal = normalize(float3(dx, y1 - y0, 0));
+
+	PosW.y = 0;// heightMap * 1000.f;// y0;
+
+	output.pos = mul(PosW, gView);
+	output.pos = mul(output.pos, gProjection);
+
+	// Send the input color into the pixel shader.
+	float u1 = lerp(gTUVs.x, gTUVs.z, uv.x);
+	float v1 = lerp(gTUVs.y, gTUVs.w, uv.y);
+	float u2 = lerp(gHUVs.x, gHUVs.z, uv.x);
+	float v2 = lerp(gHUVs.y, gHUVs.w, uv.y);
+	output.Normal = normal;
+	output.Tex1 = float2(u1, v1);
+	output.Tex2 = float2(u2, v2);
 	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
 
 	return output;
@@ -174,10 +277,23 @@ float4 PS_Light(PixelInputType input) : SV_TARGET
 {
 	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
 	float4 texColor = txDiffuse.Sample(samLinear, float2(input.Tex.x, input.Tex.y));
-	//float4 texColor = txHeight.Sample(samLinear, float2(0.5f, 0.5f));
-	//return float4(0, 0, 0, 1); //input.color;
-	//return texColor;// 
 	return float4(texColor.xyz, 1);
+}
+
+
+float4 PS_Heightmap(PixelInputType input) : SV_TARGET
+{
+	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
+	float4 texColor = txHeight.Sample(samLinear, float2(input.Tex.x, input.Tex.y));
+	return float4(texColor.xyz, 1) * 100.f;
+}
+
+float4 PS_LightHeightmap(PixelInputType2 input) : SV_TARGET
+{
+	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
+	float4 texColor1 = txDiffuse.Sample(samLinear, float2(input.Tex1.x, input.Tex1.y));
+	float4 texColor2 = txHeight.Sample(samLinear, float2(input.Tex2.x, input.Tex2.y));
+	return float4(texColor1.xyz, 1) + float4(texColor2.x, 0, 0, 0)*100.f;
 }
 
 
@@ -204,3 +320,28 @@ technique11 Light
 		SetPixelShader(CompileShader(ps_5_0, PS_Light()));
 	}
 }
+
+
+technique11 Heightmap
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, main()));
+		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
+		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_Heightmap()));
+		SetPixelShader(CompileShader(ps_5_0, PS_Heightmap()));
+	}
+}
+
+
+technique11 Light_Heightmap
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, main()));
+		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
+		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_LightHeightmap()));
+		SetPixelShader(CompileShader(ps_5_0, PS_LightHeightmap()));
+	}
+}
+

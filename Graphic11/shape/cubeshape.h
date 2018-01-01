@@ -33,7 +33,8 @@ namespace graphic
 		void SetCube(cRenderer &renderer, const Vector3 vertices[8]
 			, const cColor &color = cColor::BLACK);
 
-		void Render(cRenderer &renderer) override;
+		virtual void Render(cRenderer &renderer) override;
+		virtual void RenderInstancing(cRenderer &renderer, const int count) override;
 
 
 	protected:

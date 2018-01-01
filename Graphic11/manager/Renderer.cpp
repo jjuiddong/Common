@@ -201,7 +201,7 @@ void cRenderer::RenderAxis()
 // FPS Ãâ·Â.
 void cRenderer::RenderFPS()
 {
-	m_textFps.Render(*this, 70, 17);
+	m_textFps.Render(*this, 70, 17, true);
 }
 
 

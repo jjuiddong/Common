@@ -12,15 +12,15 @@
 namespace graphic
 {
 
-	class cBoundingHalfSphere
+	class cBoundingHemiSphere
 	{
 	public:
-		cBoundingHalfSphere() : m_outlineHeight(0) {
+		cBoundingHemiSphere() : m_outlineHeight(0) {
 		}
-		cBoundingHalfSphere(const Vector3 &center, const float radius, const float outlineHeight=0) :
+		cBoundingHemiSphere(const Vector3 &center, const float radius, const float outlineHeight=0) :
 			m_center(center), m_radius(radius), m_outlineHeight(outlineHeight) {
 		}
-		virtual ~cBoundingHalfSphere() {
+		virtual ~cBoundingHemiSphere() {
 		}
 
 		void SetBoundingHalfSphere(const Vector3 &center, const float radius) {
@@ -77,12 +77,12 @@ namespace graphic
 			}
 		}
 
-		cBoundingHalfSphere operator * (const Matrix44 &rhs) {
+		cBoundingHemiSphere operator * (const Matrix44 &rhs) {
 			const float scale = rhs.GetScale().Length();
-			return cBoundingHalfSphere(m_center * rhs, m_radius * scale);
+			return cBoundingHemiSphere(m_center * rhs, m_radius * scale);
 		}
 
-		const cBoundingHalfSphere& operator *= (const Matrix44 &rhs) {
+		const cBoundingHemiSphere& operator *= (const Matrix44 &rhs) {
 			*this = operator*(rhs);
 			return *this;
 		}

@@ -33,7 +33,7 @@ cThread::cThread(const StrId &name) :
 	m_state(eState::WAIT)
 	, m_name(name)
 	, m_procTaskIndex(0)
-	, m_mutex("cThread::Mutex::jjuiddong")
+	//, m_mutex("cThread::Mutex::jjuiddong")
 {
 	m_tasks.reserve(32);
 }
@@ -68,7 +68,8 @@ bool cThread::Pause()
 {
 	if (eState::RUN == m_state)
 	{
-		m_mutex.Lock(); // Run() 함수와 동기화 한다.
+		//m_mutex.Lock(); // Run() 함수와 동기화 한다.
+		m_taskCS.Lock();
 		m_state = eState::PAUSE;
 		return true;
 	}
@@ -81,7 +82,8 @@ bool cThread::Resume()
 {
 	if ((eState::PAUSE == m_state) || (eState::IDLE == m_state))
 	{
-		m_mutex.Unlock(); // Run() 함수와 동기화 한다.
+		//m_mutex.Unlock(); // Run() 함수와 동기화 한다.
+		m_taskCS.Unlock();
 		m_state = eState::RUN;
 		return true;
 	}
@@ -241,7 +243,8 @@ int cThread::Run()
 	while ((eState::RUN == m_state)
 		|| (eState::PAUSE == m_state))
 	{
-		m_mutex.Lock();
+		//m_mutex.Lock();
+		m_taskCS.Lock();
 
 		//1. Add & Remove Task
 		UpdateTask();
@@ -280,10 +283,12 @@ int cThread::Run()
 		//3. Message Process
 		DispatchMessage();
 
-		m_mutex.Unlock();
+		//m_mutex.Unlock();
+		m_taskCS.Unlock();
 	}
 
-	m_mutex.Unlock();
+	//m_mutex.Unlock();
+	m_taskCS.Unlock();
 
 	// 남았을지도 모를 메세지를 마지막으로 처리한다.
 	DispatchMessage();
@@ -396,6 +401,12 @@ bool cThread::IsRun()
 	return false;
 }
 
+
+void cThread::Join()
+{
+	if (IsRun() && m_thread.joinable())
+		m_thread.join();
+}
 
 
 //------------------------------------------------------------------------

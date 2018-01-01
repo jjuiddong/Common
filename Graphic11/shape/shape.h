@@ -31,6 +31,7 @@ namespace graphic
 		virtual ~cShape() {}
 
 		virtual void Render(cRenderer &renderer) = 0;
+		virtual void RenderInstancing(cRenderer &renderer, const int count) {};
 
 		int m_vtxType;
 	};
