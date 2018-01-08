@@ -8,6 +8,7 @@ using namespace graphic;
 cVertexLayout::cVertexLayout()
 	: m_vertexLayout(NULL)
 	, m_vertexType(0)
+	, m_isNullLayout(false)
 {
 }
 
@@ -41,6 +42,12 @@ bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, c
 
 	Create(layout, numElements);
 
+	if (m_elements.empty()) // NULL VertexLayout
+	{
+		m_isNullLayout = true;
+		return true;
+	}
+
 	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
 		, pIAInputSignature
 		, IAInputSignatureSize
@@ -57,6 +64,12 @@ bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, c
 	Clear();
 
 	Create(vtxType);
+
+	if (m_elements.empty()) // NULL VertexLayout
+	{
+		m_isNullLayout = true;
+		return true;
+	}
 
 	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
 		, pIAInputSignature
@@ -114,7 +127,7 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 
 bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 {
-	RETV(layout.empty(), false);
+	RETV(layout.empty(), true);
 	return Create(&layout[0], layout.size());
 }
 
@@ -220,7 +233,11 @@ void cVertexLayout::CreateDecl(
 
 void cVertexLayout::Bind(cRenderer &renderer)
 {
-	assert(m_vertexLayout);
+	if (!m_isNullLayout)
+	{
+		assert(m_vertexLayout);
+	}
+
 	renderer.GetDevContext()->IASetInputLayout(m_vertexLayout);
 }
 

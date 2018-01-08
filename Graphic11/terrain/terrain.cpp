@@ -671,7 +671,7 @@ void cTerrain::UpdateHeightmapToTile(cRenderer &renderer, cTile *tiles[], const 
 				const int mapIdx = mapStartIdx - (r * terrain.m_colVtx) + c;
 				const int srcIdx = (r * vertexCountPerTile_Col) + c;
 				dst[srcIdx] = src[srcIdx];
-				dst[srcIdx].p = terrain.m_heightMap[mapIdx].p * invTm;
+				dst[srcIdx].p = terrain.m_heightMap[mapIdx].p * invTm; // 타일 로컬좌표로 바꾼다.
 				dst[srcIdx].n = terrain.m_heightMap[mapIdx].n;
 			}
 		}

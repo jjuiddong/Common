@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	class cTexture;
 	class cTemporalBuffer
 	{
 	public:
@@ -16,8 +17,10 @@ namespace graphic
 		bool Create(cRenderer &renderer, const int bytesSize, const int stride);
 		bool Create(cRenderer &renderer, const cVertexBuffer &vtxBuff);
 		bool Create(cRenderer &renderer, const cIndexBuffer &idxBuff);
+		bool Create(cRenderer &renderer, const cTexture &texture);
 		bool CopyFrom(cRenderer &renderer, const cVertexBuffer &vtxBuff);
 		bool CopyFrom(cRenderer &renderer, const cIndexBuffer &idxBuff);
+		bool CopyFrom(cRenderer &renderer, const cTexture &texture);
 
 		void* Lock(cRenderer &renderer, const D3D11_MAP flag = D3D11_MAP_READ);
 		void Unlock(cRenderer &renderer);

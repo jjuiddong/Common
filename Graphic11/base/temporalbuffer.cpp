@@ -54,6 +54,13 @@ bool cTemporalBuffer::Create(cRenderer &renderer, const cIndexBuffer &idxBuff)
 }
 
 
+bool cTemporalBuffer::Create(cRenderer &renderer, const cTexture &texture)
+{
+	assert(0);
+	return true;
+}
+
+
 bool cTemporalBuffer::CopyFrom(cRenderer &renderer, const cVertexBuffer &vtxBuff)
 {
 	if (m_buff)
@@ -90,6 +97,13 @@ bool cTemporalBuffer::CopyFrom(cRenderer &renderer, const cIndexBuffer &idxBuff)
 	}
 
 	renderer.GetDevContext()->CopyResource(m_buff, idxBuff.m_idxBuff);
+	return true;
+}
+
+
+bool cTemporalBuffer::CopyFrom(cRenderer &renderer, const cTexture &texture)
+{
+	assert(0);
 	return true;
 }
 

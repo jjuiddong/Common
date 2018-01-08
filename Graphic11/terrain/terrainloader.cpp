@@ -159,12 +159,15 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				const float tileSizeW = width;
 				const float tileSizeH = height;
 				cTile *tile = new cTile();
-				const float x = pos.x - tileSizeW / 2;
-				const float z = pos.z - tileSizeH / 2;
+				//const float x = pos.x - tileSizeW / 2;
+				//const float z = pos.z - tileSizeH / 2;
+				const float x = pos.x;
+				const float z = pos.z;
 
 				//const sRectf rect(x, z, x + tileSizeW, z + tileSizeH);
 				Transform transform;
-				transform.pos = Vector3(x + tileSizeW/2.f, 0, z + tileSizeH/2.f);
+				//transform.pos = Vector3(x + tileSizeW/2.f, 0, z + tileSizeH/2.f);
+				transform.pos = Vector3(x, 0, z);
 				transform.scale = Vector3(tileSizeW / 2.f, tileSizeH / 2.f, tileSizeH / 2.f);
 
 				if (!terrainCr)

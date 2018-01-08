@@ -15,7 +15,7 @@ namespace common
 			return sRect1<T>(x, y, x + width, y + height);
 		}
 
-		sRect1() {
+		sRect1() : left(0), top(0), right(0), bottom(0) {
 		}
 
 		sRect1(T left, T top, T right, T bottom) {
@@ -54,6 +54,9 @@ namespace common
 		}
 		Vector3 Center3D() const {
 			return Vector3((float)(left + right)*0.5f, 0, (float)(top + bottom)*0.5f);
+		}
+		bool IsEmpty() const {
+			return (0 == left) && (0 == right) && (0 == top) && (0 == bottom);
 		}
 
 		sRect1 operator-(const sRect1 &rhs) {

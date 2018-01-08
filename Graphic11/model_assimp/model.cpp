@@ -13,6 +13,8 @@ cModel::cModel()
 	, m_aniIncT(0)
 	, m_isLoad(false)
 {
+	SetRenderFlag(eRenderFlag::NOALPHABLEND, false);
+	SetRenderFlag(eRenderFlag::ALPHABLEND, true);
 }
 
 cModel::~cModel()
@@ -73,13 +75,19 @@ bool cModel::Render(cRenderer &renderer
 	if (!(flags & m_renderFlags))
 		return false;
 
-	CommonStates state(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
-	
-	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
-	m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
-	
-	renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
+	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
+		const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+		m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
+		renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
+	}
+	else
+	{
+		const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+		m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
+	}
 
 	__super::Render(renderer, parentTm, flags);
 	return true;

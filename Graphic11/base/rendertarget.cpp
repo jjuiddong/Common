@@ -32,6 +32,7 @@ bool cRenderTarget::Create(cRenderer &renderer
 	, const DXGI_FORMAT depthDSVFormat //= DXGI_FORMAT_D24_UNORM_S8_UINT
 )
 {
+	Unbind(renderer);
 	Clear();
 
 	m_rtvFormat = rtvFormat;
@@ -215,12 +216,19 @@ void cRenderTarget::Bind(cRenderer &renderer
 }
 
 
+void cRenderTarget::Unbind(cRenderer &renderer)
+{
+	ID3D11RenderTargetView *rtv[] = { NULL };
+	renderer.GetDevContext()->OMSetRenderTargets(1, rtv, NULL);
+}
+
+
 void cRenderTarget::Clear()
 {
-	SAFE_RELEASE(m_texture);
-	SAFE_RELEASE(m_resolvedTex);
 	SAFE_RELEASE(m_texSRV);
 	SAFE_RELEASE(m_texRTV);
+	SAFE_RELEASE(m_texture);
+	SAFE_RELEASE(m_resolvedTex);
 	SAFE_RELEASE(m_depthDSV);
 	SAFE_RELEASE(m_depthSRV);
 	SAFE_RELEASE(m_resolvedSRV);

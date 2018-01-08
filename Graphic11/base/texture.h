@@ -26,12 +26,14 @@ namespace graphic
 		bool Create(cRenderer &renderer, const StrPath &fileName);
 
 		bool Create(cRenderer &renderer, const int width, const int height
-			, const DXGI_FORMAT format= DXGI_FORMAT_R8G8B8A8_UNORM);
+			, const DXGI_FORMAT format= DXGI_FORMAT_R8G8B8A8_UNORM
+			, const D3D11_USAGE usage = D3D11_USAGE_DYNAMIC);
 
 		bool Create(cRenderer &renderer, const int width, const int height
 			, const DXGI_FORMAT format
 			, const void *pMem
-			, const int pitchLength );
+			, const int pitchLength
+			, const D3D11_USAGE usage = D3D11_USAGE_DEFAULT);
 
 		bool WritePNGFile(cRenderer &renderer, const StrPath &fileName );
 

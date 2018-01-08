@@ -5,6 +5,8 @@
 using namespace graphic;
 
 cLight::cLight()
+	: m_specExp(0.5f)
+	, m_specIntensity(1.f)
 {
 }
 
@@ -63,5 +65,6 @@ sCbLight cLight::GetLight()
 	cb.specular = XMLoadFloat4((XMFLOAT4*)&m_specular);
 	cb.direction = XMLoadFloat3((XMFLOAT3*)&m_direction);
 	cb.posW = XMLoadFloat3((XMFLOAT3*)&m_pos);
+	cb.specIntensity = XMLoadFloat3((XMFLOAT3*)&Vector3(m_specExp, m_specIntensity, 0));
 	return cb;
 }

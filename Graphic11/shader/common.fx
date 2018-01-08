@@ -64,6 +64,13 @@ SamplerState samAnis : register(s3)
 	AddressV = WRAP;
 };
 
+SamplerState samPoint : register(s4)
+{
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	BorderColor = float4(1, 1, 1, 1);
+};
 
 
 

@@ -47,6 +47,7 @@ namespace graphic
 		vector<D3D11_INPUT_ELEMENT_DESC> m_elements;
 		int m_elementSize;
 		int m_vertexType; // compose eVertexType
+		bool m_isNullLayout;
 	};
 
 

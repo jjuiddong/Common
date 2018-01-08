@@ -644,6 +644,9 @@ Matrix44 Matrix44::Inverse() const
 	Matrix44 ret;
 	XMStoreFloat4x4((XMFLOAT4X4*)&ret, matInverse);
 	return ret;
+	//Matrix44 ret;
+	//InverseMatrix(ret);
+	//return ret;
 #endif // USE_D3D9_MATH
 }
 

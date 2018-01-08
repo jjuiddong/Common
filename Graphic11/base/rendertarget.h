@@ -35,6 +35,7 @@ namespace graphic
 			, const bool isClear = true);
 		void End(cRenderer &renderer);
 		void Bind(cRenderer &renderer, const int stage = 0);
+		void Unbind(cRenderer &renderer);
 		void Clear();
 
 

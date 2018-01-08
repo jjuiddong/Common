@@ -21,8 +21,8 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const float fontSize = 18.f, const bool isBold = true, const char *fontName = "±¼¸²"
 			, const cColor &color=cColor::WHITE, const wchar_t *text=NULL);
-		void Render(cRenderer &renderer, const float x, const float y, const wchar_t *text, const bool restore=false);
-		void Render(cRenderer &renderer, const float x, const float y, const bool restore = false);
+		void Render(cRenderer &renderer, const float x, const float y, const wchar_t *text, const bool restore=false, const bool center=true);
+		void Render(cRenderer &renderer, const float x, const float y, const bool restore = false, const bool center = true);
 
 		void SetText(const wchar_t *text);
 		void SetColor(const cColor color);

@@ -88,12 +88,19 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 4> input
 	ConstantOutputType output;
 
 	// Set the tessellation factors for the three edges of the triangle.
-	output.edges[0] = max(1, pow(2, abs(gLevel - gEdgeLevel.x)));
-	output.edges[1] = max(1, pow(2, abs(gLevel - gEdgeLevel.y)));
-	output.edges[2] = max(1, pow(2, abs(gLevel - gEdgeLevel.z)));
-	output.edges[3] = max(1, pow(2, abs(gLevel - gEdgeLevel.w)));
-	output.inside[0] = 1;
-	output.inside[1] = 1;
+	//output.edges[0] = max(1, pow(2, abs(gLevel - gEdgeLevel.x)));
+	//output.edges[1] = max(1, pow(2, abs(gLevel - gEdgeLevel.y)));
+	//output.edges[2] = max(1, pow(2, abs(gLevel - gEdgeLevel.z)));
+	//output.edges[3] = max(1, pow(2, abs(gLevel - gEdgeLevel.w)));
+	//output.inside[0] = 1;
+	//output.inside[1] = 1;
+	
+	output.edges[0] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.x))));
+	output.edges[1] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.y))));
+	output.edges[2] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.z))));
+	output.edges[3] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.w))));
+	output.inside[0] = 64;
+	output.inside[1] = 64;
 
 	// Set the tessellation factor for tessallating inside the triangle.
 	output.pos = inputPatch[0].pos;
@@ -146,7 +153,8 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	//PosW.y += abs(sin(PosW.x*0.01f) * 3.f);// 0.1f;
 
 	//const float2 tex = float2(PosW.x / 4096.f, PosW.z / 4096.f);
-	//float heightMap = txHeight.SampleLevel(samLinear, tex, 0).x;
+	const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
+	float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
 	//float heightMap = txHeight.SampleLevel(SamplerLinearWrap, float2(0.5f,0.5f), 0).x;
 
 	float dx = 0.01f;
@@ -154,7 +162,8 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	float y1 = (sin((PosW.x*0.02f)+dx) + sin((PosW.x*0.03f)+dx)) * 10.f;// 0.1f;
 	float3 normal = normalize(float3(dx, y1 - y0, 0));
 
-	PosW.y = 0;// heightMap * 1000.f;// y0;
+	//PosW.y = 0;
+	PosW.y = heightMap * 500.f;// y0;
 
 	output.pos = mul(PosW, gView);
 	output.pos = mul(output.pos, gProjection);
@@ -191,7 +200,7 @@ PixelInputType ColorDomainShader_Heightmap(ConstantOutputType input
 	//PosW.y += abs(sin(PosW.x*0.01f) * 3.f);// 0.1f;
 
 	//const float2 tex = float2(PosW.x / 4096.f, PosW.z / 4096.f);
-	//float heightMap = txHeight.SampleLevel(samLinear, tex, 0).x;
+	//float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
 	//float heightMap = txHeight.SampleLevel(SamplerLinearWrap, float2(0.5f,0.5f), 0).x;
 
 	float dx = 0.01f;
@@ -237,7 +246,7 @@ PixelInputType2 ColorDomainShader_LightHeightmap(ConstantOutputType input
 	//PosW.y += abs(sin(PosW.x*0.01f) * 3.f);// 0.1f;
 
 	//const float2 tex = float2(PosW.x / 4096.f, PosW.z / 4096.f);
-	//float heightMap = txHeight.SampleLevel(samLinear, tex, 0).x;
+	//float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
 	//float heightMap = txHeight.SampleLevel(SamplerLinearWrap, float2(0.5f,0.5f), 0).x;
 
 	float dx = 0.01f;
@@ -284,7 +293,7 @@ float4 PS_Light(PixelInputType input) : SV_TARGET
 float4 PS_Heightmap(PixelInputType input) : SV_TARGET
 {
 	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
-	float4 texColor = txHeight.Sample(samLinear, float2(input.Tex.x, input.Tex.y));
+	float4 texColor = txHeight.Sample(samPoint, float2(input.Tex.x, input.Tex.y));
 	return float4(texColor.xyz, 1) * 100.f;
 }
 
@@ -292,7 +301,7 @@ float4 PS_LightHeightmap(PixelInputType2 input) : SV_TARGET
 {
 	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
 	float4 texColor1 = txDiffuse.Sample(samLinear, float2(input.Tex1.x, input.Tex1.y));
-	float4 texColor2 = txHeight.Sample(samLinear, float2(input.Tex2.x, input.Tex2.y));
+	float4 texColor2 = txHeight.Sample(samPoint, float2(input.Tex2.x, input.Tex2.y));
 	return float4(texColor1.xyz, 1) + float4(texColor2.x, 0, 0, 0)*100.f;
 }
 

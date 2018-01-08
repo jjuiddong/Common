@@ -190,9 +190,10 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	//
 
 	m_faceCount = faceCount;
-	m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
-	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
-		, textureFileName, (void**)&m_texture));
+	m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName);
+	//m_texture = cResourceManager::Get()->LoadTextureParallel(renderer, textureFileName);
+	//cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
+	//	, textureFileName, (void**)&m_texture));
 
 	if (vertexType & eVertexType::TEXTURE0)
 		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

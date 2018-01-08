@@ -54,6 +54,7 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 
 bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	, const DXGI_FORMAT format //=DXGI_FORMAT_R8G8B8A8_UNORM
+	, const D3D11_USAGE usage //= D3D11_USAGE_DYNAMIC
 )
 {
 	Clear();
@@ -66,7 +67,7 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	desc.ArraySize = 1;
 	desc.Format = format;
 	desc.SampleDesc.Count = 1;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.Usage = usage;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
@@ -92,7 +93,9 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	, const DXGI_FORMAT format
 	, const void *pMem
-	, const int pitchLength)
+	, const int pitchLength
+	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
+)
 {
 	Clear();
 
@@ -104,9 +107,9 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	desc.ArraySize = 1;
 	desc.Format = format;
 	desc.SampleDesc.Count = 1;
-	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.Usage = usage;
+	desc.CPUAccessFlags = (D3D11_USAGE_DEFAULT == usage)? 0 : D3D11_CPU_ACCESS_WRITE;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA subresource_data;
 	ZeroMemory(&subresource_data, sizeof(subresource_data));

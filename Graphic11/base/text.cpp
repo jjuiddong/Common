@@ -77,9 +77,12 @@ bool cText::Create(cRenderer &renderer
 void cText::Render(cRenderer &renderer
 	, const float x, const float y, const wchar_t *text
 	, const bool restore //= false
+	, const bool center //= true
 )
 {
 	RET(!m_fontWrapper);
+
+	const int flags = (center) ? (FW1_CENTER | FW1_VCENTER) : 0;
 
 	m_fontWrapper->DrawString(
 		renderer.GetDevContext()
@@ -87,7 +90,7 @@ void cText::Render(cRenderer &renderer
 		, m_fontSize
 		, x, y
 		, m_color
-		, (restore)? (FW1_CENTER | FW1_VCENTER | FW1_RESTORESTATE) : (FW1_CENTER | FW1_VCENTER)
+		, (restore)? (flags | FW1_RESTORESTATE) : flags
 	);
 
 }
@@ -96,9 +99,12 @@ void cText::Render(cRenderer &renderer
 void cText::Render(cRenderer &renderer
 	, const float x, const float y
 	, const bool restore //= false
+	, const bool center //= true
 )
 {
 	RET(!m_fontWrapper);
+
+	const int flags = (center) ? (FW1_CENTER | FW1_VCENTER) : 0;
 
 	if (m_textLayout)
 	{
@@ -112,7 +118,7 @@ void cText::Render(cRenderer &renderer
 			, m_fontSize
 			, x, y
 			, m_color
-			, (restore) ? (FW1_CENTER | FW1_VCENTER | FW1_RESTORESTATE) : (FW1_CENTER | FW1_VCENTER)
+			, (restore) ? (flags | FW1_RESTORESTATE) : flags
 		);
 	}
 }

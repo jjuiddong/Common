@@ -16,6 +16,7 @@ namespace graphic
 		XMVECTOR specular;
 		XMVECTOR direction;
 		XMVECTOR posW;
+		XMVECTOR specIntensity; // x = specular intensity exp, y = specular intensity
 	};
 
 	class cCamera;
@@ -56,6 +57,8 @@ namespace graphic
 		Vector4 m_specular;
 		Vector3 m_direction;
 		Vector3 m_pos;
+		float m_specExp;
+		float m_specIntensity;
 	};
 
 
