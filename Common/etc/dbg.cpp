@@ -114,7 +114,8 @@ void dbg::Logp(const char* fmt, ...)
 	//------------------------------------------------------------------------
 	// add string to log thread
 	g_logCS.Lock();
-	g_logStrs.push_back(data);// { 0, textString });
+	if (g_logStrs.size() < 256)
+		g_logStrs.push_back(data);
 	g_logCS.Unlock();
 
 	if (!g_logThread.IsRun())
@@ -176,7 +177,8 @@ void dbg::ErrLogp(const char* fmt, ...)
 	//------------------------------------------------------------------------
 	// add string to log thread
 	g_logCS.Lock();
-	g_logStrs.push_back(data);
+	if (g_logStrs.size() < 256)
+		g_logStrs.push_back(data);
 	g_logCS.Unlock();
 
 	// 로그파일에도 에러 메세지를 저장한다.

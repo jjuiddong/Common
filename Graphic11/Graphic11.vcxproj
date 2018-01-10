@@ -197,6 +197,7 @@
     <ClInclude Include="dbg\dbgquad.h" />
     <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
+    <ClInclude Include="importer\fileloader.h" />
     <ClInclude Include="importer\parallelloader.h" />
     <ClInclude Include="manager\fontmanager.h" />
     <ClInclude Include="manager\lightmanager.h" />

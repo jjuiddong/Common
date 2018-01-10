@@ -3,7 +3,6 @@
 //	- Upgrade DX11
 //	게임에서 사용될 리소스를 관리하는 클래스
 //	재활용 할 수 있는 리소스를 다시 로딩하지 않고 쓸 수 있게 한다.
-//	재활용 리소스
 // - model
 // - animation
 // - texture
@@ -36,7 +35,7 @@ namespace graphic
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &fileName, const bool isRecursive=true, const bool isMustMatch= false);
 		cTexture* LoadTexture(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isRecursive = true);
 		cTexture* LoadTexture2(cRenderer &renderer, const StrPath &dirPath, const StrPath &fileName, const bool isRecursive = true);
-		cTexture* LoadTextureParallel(cRenderer &renderer, const StrPath &fileName, const bool isSizePow2 = true);
+		cTexture* LoadTextureParallel(cRenderer &renderer, const StrPath &fileName);
 		void InsertTexture(const StrPath &fileName, cTexture *p);
 		
 		sRawMeshGroup2* FindModel2(const StrId &fileName);
@@ -59,7 +58,6 @@ namespace graphic
 
 	protected:
 		bool ReadSequenceFile(const StrPath &modelFileName, sRawAniGroup &rawAnies);
-
 
 
 	private:

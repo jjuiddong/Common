@@ -247,7 +247,8 @@ sRawAniGroup* cResourceManager::FindAnimation( const StrId &fileName )
 
 
 // 텍스쳐 로딩.
-cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &fileName
+cTexture* cResourceManager::LoadTexture(cRenderer &renderer
+	, const StrPath &fileName
 	, const bool isRecursive //= true
 	, const bool isMustMatch //= false
 )
@@ -289,9 +290,7 @@ error:
 
 
 // Parallel Load Texture
-cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const StrPath &fileName
-	, const bool isSizePow2 //= true
-)
+cTexture* cResourceManager::LoadTextureParallel(cRenderer &renderer, const StrPath &fileName)
 {
 	auto result = FindTexture(fileName);
 	if (result.first)

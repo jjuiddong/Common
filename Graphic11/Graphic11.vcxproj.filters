@@ -332,6 +332,9 @@
     <ClInclude Include="collision\boundinghemisphere.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="importer\fileloader.h">
+      <Filter>importer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
