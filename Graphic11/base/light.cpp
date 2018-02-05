@@ -68,3 +68,40 @@ sCbLight cLight::GetLight()
 	cb.specIntensity = XMLoadFloat3((XMFLOAT3*)&Vector3(m_specExp, m_specIntensity, 0));
 	return cb;
 }
+
+
+// 광원 위치와 방향을 이용해, 카메라 행렬을 만들어 리턴한다.
+// pair<Mat,Mat> : View Matrix, Projection Matrix
+std::pair<Matrix44, Matrix44> cLight::GetCameraMatrix(const float fov
+	, const float aspect, const float nearPlane, const float farPlane)
+{
+	Matrix44 view;
+	view.SetView(m_pos, m_direction, Vector3(0,1,0));
+
+	Matrix44 proj;
+	proj.SetProjection(fov, aspect, nearPlane, farPlane);
+
+	return{ view, proj };
+}
+
+
+// 광원 위치와 방향을 이용해, 카메라 행렬을 만들어 리턴한다.
+// tuple<Mat,Mat,Mat> : View Matrix
+//						Projection Matrix
+//						transform Texture UV Coords Matrix
+std::tuple<Matrix44, Matrix44, Matrix44> cLight::GetShadowMatrix(const float fov
+	, const float aspect, const float nearPlane, const float farPlane)
+{
+	Matrix44 view;
+	view.SetView(m_pos, m_direction, Vector3(0, 1, 0));
+
+	Matrix44 proj;
+	proj.SetProjection(fov, aspect, nearPlane, farPlane);
+
+	Matrix44 mTT(0.5f, 0.0f, 0.0f, 0.0f
+		, 0.0f, -0.5f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, 0.5f, 0.5f, 0.0f, 1.0f);
+
+	return std::make_tuple(view, proj, mTT);
+}

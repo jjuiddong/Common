@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "quad.h"
 
-
 using namespace graphic;
 
 
@@ -20,7 +19,6 @@ cQuad::cQuad(cRenderer &renderer, const float width, const float height
 {
 	Create(renderer, width, height, pos, vtxType, textureFileName);
 }
-
 
 cQuad::~cQuad()
 {

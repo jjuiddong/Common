@@ -22,10 +22,10 @@ namespace graphic
 			, const DXGI_FORMAT DSVFormat = DXGI_FORMAT_D32_FLOAT
 		);
 
-		void SetRenderTarget(cRenderer &renderer);
-		void RecoveryRenderTarget(cRenderer &renderer);
 		bool Begin(cRenderer &renderer, const bool isClear = true, const Vector4 &clearColor=Vector4(1,1,1,1));
 		void End(cRenderer &renderer);
+		void SetRenderTarget(cRenderer &renderer);
+		void RecoveryRenderTarget(cRenderer &renderer);
 		void Bind(cRenderer &renderer, const int stage = 0);
 		void DebugRender(cRenderer &renderer);
 		void Clear();

@@ -49,6 +49,12 @@ namespace graphic
 		void Bind(cRenderer &renderer);
 		sCbLight GetLight();
 
+		std::pair<Matrix44, Matrix44> GetCameraMatrix(const float fov
+			, const float aspect, const float nearPlane, const float farPlane);
+
+		std::tuple<Matrix44, Matrix44, Matrix44> GetShadowMatrix(const float fov
+			, const float aspect, const float nearPlane, const float farPlane);
+
 
 	public:
 		TYPE m_type;

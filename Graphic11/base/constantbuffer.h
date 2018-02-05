@@ -43,6 +43,7 @@ namespace graphic
 			RETV(!m_constantBuffer, false);
 			renderer.GetDevContext()->UpdateSubresource(m_constantBuffer, 0, NULL, m_v, 0, 0);
 			renderer.GetDevContext()->VSSetConstantBuffers(slot, 1, &m_constantBuffer);
+			renderer.GetDevContext()->GSSetConstantBuffers(slot, 1, &m_constantBuffer);
 			renderer.GetDevContext()->HSSetConstantBuffers(slot, 1, &m_constantBuffer);
 			renderer.GetDevContext()->DSSetConstantBuffers(slot, 1, &m_constantBuffer);
 			renderer.GetDevContext()->PSSetConstantBuffers(slot, 1, &m_constantBuffer);

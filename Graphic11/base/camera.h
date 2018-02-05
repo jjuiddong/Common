@@ -76,6 +76,8 @@ namespace graphic
 		virtual void FitFrustum(const cCamera &camera, const float farPlaneRate = 1.f);
 		virtual void FitFrustum(const Matrix44 &matViewProj);
 		virtual void FitQuad(const Vector3 vertices[4]);
+		virtual cBoundingSphere GetBoundingSphere() const;
+		virtual cBoundingSphere GetBoundingSphere(const float nearPlane, const float farPlane) const;
 
 
 	protected:

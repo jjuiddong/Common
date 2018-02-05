@@ -29,6 +29,7 @@ namespace graphic
 			, cFrustum &out1, cFrustum &out2, cFrustum &out3);
 
 		void GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertices[4]) const;
+		void GetVertices(OUT Vector3 out[8]);
 
 		cFrustum& operator=(const cFrustum &rhs);
 

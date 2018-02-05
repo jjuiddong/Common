@@ -17,7 +17,7 @@ VSOUT_DIFFUSE VS( float4 Pos : POSITION
     output.Pos = mul( output.Pos, gProjection );
     output.Normal = normalize( mul(Normal, (float3x3)gWorld) );
 	output.PosH = output.Pos;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+	output.toEye = normalize(gEyePosW - PosW).xyz;
     output.Color = Color;
 
     return output;
@@ -65,7 +65,7 @@ VSOUT_SHADOW VS_ShadowMap(float4 Pos : POSITION
 	output.Normal = normalize(mul(Normal, (float3x3)mWorld));
 	output.Color = Color;
 	output.PosH = output.Pos;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+	output.toEye = normalize(gEyePosW - PosW).xyz;
 
 	matrix mLVP[3];
 	matrix mVPT[3];

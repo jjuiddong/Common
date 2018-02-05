@@ -38,7 +38,7 @@ VSOUT_TEX VS( float4 Pos : POSITION
 
     output.Normal = normalize( mul(n, (float3x3)mWorld) );
     output.Tex = Tex;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+	output.toEye = normalize(gEyePosW - PosW).xyz;
 	output.PosH = output.Pos;
     output.clip = dot(mul(Pos, mWorld), gClipPlane);
 
@@ -104,7 +104,7 @@ VSOUT_SHADOW VS_ShadowMap(float4 Pos : POSITION
 	output.Pos = mul(output.Pos, gProjection);
 	output.Normal = normalize(mul(n, (float3x3)mWorld));
 	output.Tex = Tex;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+	output.toEye = normalize(gEyePosW - PosW).xyz;
 
 	matrix mLVP[3];
 	matrix mVPT[3];

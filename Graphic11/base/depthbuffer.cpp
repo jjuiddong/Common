@@ -74,28 +74,12 @@ bool cDepthBuffer::Create(cRenderer &renderer
 }
 
 
-void cDepthBuffer::SetRenderTarget(cRenderer &renderer)
-{
-	renderer.SetRenderTargetDepth(m_depthDSV);
-	m_viewPort.Bind(renderer);
-}
-
-
-void cDepthBuffer::RecoveryRenderTarget(cRenderer &renderer)
-{
-	renderer.SetRenderTarget(NULL, NULL);
-	renderer.m_viewPort.Bind(renderer);
-}
-
-
 bool cDepthBuffer::Begin(cRenderer &renderer
 	, const bool isClear //= true
 	, const Vector4 &clearColor // = Vector4(1,1,1,1)
 )
 {
-	renderer.SetRenderTargetDepth(m_depthDSV);
-
-	m_viewPort.Bind(renderer);
+	SetRenderTarget(renderer);
 
 	if (isClear)
 	{
@@ -118,6 +102,20 @@ bool cDepthBuffer::Begin(cRenderer &renderer
 void cDepthBuffer::End(cRenderer &renderer)
 {
 	renderer.EndScene();
+	renderer.SetRenderTarget(NULL, NULL);
+	renderer.m_viewPort.Bind(renderer);
+}
+
+
+void cDepthBuffer::SetRenderTarget(cRenderer &renderer)
+{
+	renderer.SetRenderTargetDepth(m_depthDSV);
+	m_viewPort.Bind(renderer);
+}
+
+
+void cDepthBuffer::RecoveryRenderTarget(cRenderer &renderer)
+{
 	renderer.SetRenderTarget(NULL, NULL);
 	renderer.m_viewPort.Bind(renderer);
 }

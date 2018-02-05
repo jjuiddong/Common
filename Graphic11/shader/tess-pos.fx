@@ -131,7 +131,7 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	vertexPosition.y = 0.1f;
 	//vertexPosition.y = sin(uv.x);// 0.1f;
 
-	float3 oPos = mul(float4(vertexPosition, 1.0f), gWorld);
+	float3 oPos = mul(float4(vertexPosition, 1.0f), gWorld).xyz;
 	vertexPosition.y = (sin(oPos.x*0.02f) + sin(oPos.x*0.03f)) * 10.f;// 0.1f;
 
 

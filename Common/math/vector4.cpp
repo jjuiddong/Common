@@ -26,6 +26,14 @@ float Vector4::DotProduct(const Vector4& v) const
 }
 
 
+#ifdef USE_D3D11_MATH
+XMVECTOR Vector4::GetVectorXM() const
+{
+	return XMLoadFloat4((XMFLOAT4*)this);
+}
+#endif
+
+
 Vector4 Vector4::operator * ( const float & rhs ) const
 {
 	return Vector4(x*rhs, y*rhs, z*rhs, w*rhs);
@@ -46,7 +54,7 @@ Vector4 Vector4::operator * ( const Matrix44& rhs ) const
 }
 
 
-Vector4& Vector4::operator *= ( Matrix44& rhs )
+Vector4& Vector4::operator *= ( const Matrix44& rhs )
 {
 	float	RHW = 1.0f / (x*rhs._14 + y*rhs._24 + z*rhs._34 + w*rhs._44);
 	if (RHW >= FLT_MAX)
