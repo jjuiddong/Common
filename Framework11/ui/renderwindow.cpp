@@ -563,7 +563,8 @@ void cRenderWindow::RenderTitleBar()
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, childBg);
 
 	ImGui::SetCursorPos(ImVec2(0, 1));
-	ImGui::Button(m_title.c_str(), ImVec2((float)getSize().x-150, TITLEBAR_HEIGHT));
+	const float systemBtnSize = (TITLEBAR_HEIGHT * 3) + 28;
+	ImGui::Button(m_title.c_str(), ImVec2((float)getSize().x- systemBtnSize, TITLEBAR_HEIGHT));
 
 	// TitleBar Click?
 	if (ImGui::IsMouseDown(0) 
