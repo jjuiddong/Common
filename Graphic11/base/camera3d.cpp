@@ -43,7 +43,7 @@ void cCamera3D::Bind(cRenderer &renderer)
 		const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&m_proj);
 		renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(zoom.GetMatrixXM()*mView);
 		renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
-		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
+		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos.GetVectorXM();
 	}
 	else
 	{
@@ -51,7 +51,7 @@ void cCamera3D::Bind(cRenderer &renderer)
 		const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&m_proj);
 		renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(mView);
 		renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
-		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
+		renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos.GetVectorXM();
 	}
 }
 
@@ -344,4 +344,29 @@ Vector3 cCamera3D::GetRight() const
 Vector3 cCamera3D::GetUpVector() const 
 { 
 	return GetDirection().CrossProduct(GetRight()).Normal(); 
+}
+
+
+// 카메라 프러스텀 영역크기를 리턴한다.
+cBoundingSphere cCamera3D::GetBoundingSphere() const
+{
+	return GetBoundingSphere(m_near, m_far);
+}
+
+
+// 카메라 프러스텀 영역크기를 리턴한다.
+cBoundingSphere cCamera3D::GetBoundingSphere(const float nearPlane, const float farPlane) const 
+{
+	const float fTanFOVX = tanf(m_aspect * m_fov);
+	const float fTanFOVY = tanf(m_aspect);
+
+	const Vector3 dir = GetDirection();
+	const Vector3 right = Vector3(0, 1, 0).CrossProduct(dir).Normal();
+	const Vector3 up = dir.CrossProduct(right).Normal();
+	const Vector3 center = m_eyePos + dir * (nearPlane + 0.5f * (nearPlane + farPlane));
+	const Vector3 boundSpan = m_eyePos
+		+ (-right * fTanFOVX + up * fTanFOVY + dir) * farPlane - center;
+
+	const float radius = boundSpan.Length();
+	return cBoundingSphere(center, radius);
 }

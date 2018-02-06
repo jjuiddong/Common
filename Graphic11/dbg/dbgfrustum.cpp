@@ -20,7 +20,6 @@ bool cDbgFrustum::Create(cRenderer &renderer, const Matrix44 &viewProj
 {
 	cFrustum::SetFrustum(viewProj);
 	m_box.Create(renderer);
-	//m_lineList.Create(renderer);
 	SetFrustum(renderer, viewProj, color);
 
 	return true;

@@ -19,7 +19,7 @@ VSOUT_POSNORM VS( float4 Pos : POSITION
     output.Pos = mul( output.Pos, gProjection );
     output.Normal = normalize( mul(Normal, (float3x3)mWorld) );
 	output.PosH = output.Pos;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+	output.toEye = normalize(gEyePosW - PosW).xyz;
     output.clip = dot(mul(Pos, mWorld), gClipPlane);
 
     return output;

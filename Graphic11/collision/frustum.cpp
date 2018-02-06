@@ -85,7 +85,7 @@ bool cFrustum::IsInSphere(const cBoundingSphere &sphere) const
 bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 {
 	//      4 --- 5
-	//     /|  | /|
+	//     /|    /|
 	//   0 --- 1  |
 	//   |  6- |--7
 	//   | /   | /
@@ -167,11 +167,11 @@ void cFrustum::Split3_2(const cCamera &cam, const float f1, const float f2, cons
 // Plane is Usually Ground Plane
 void cFrustum::GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertices[4]) const
 {
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
+	//      4 --- 5
+	//     /|    /|
+	//   0 --- 1  |
+	//   |  6- |--7
+	//   | /   | /
 	//   2 --- 3
 	//
 	Vector3 vertices[8] = {
@@ -210,6 +210,26 @@ void cFrustum::GetGroundPlaneVertices(const Plane &plane, OUT Vector3 outVertice
 float cFrustum::LengthRoughly(const Vector3 &pos) const
 {
 	return (*(Vector3*)&m_frustum.Origin).LengthRoughly(pos);
+}
+
+
+void cFrustum::GetVertices(OUT Vector3 out[8])
+{
+	//      4 --- 5
+	//     /|    /|
+	//   0 --- 1  |
+	//   |  6- |--7
+	//   | /   | /
+	//   2 --- 3
+	//
+	Vector3 vertices[8] = {
+		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	};
+
+	Matrix44 matInv = m_viewProj.Inverse();
+	for (int i = 0; i < 8; ++i)
+		out[i] = vertices[i] * matInv;
 }
 
 

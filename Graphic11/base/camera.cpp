@@ -529,6 +529,24 @@ void cCamera::FitQuad(const Vector3 vertices[4])
 }
 
 
+// 카메라 프러스텀 영역크기를 리턴한다.
+cBoundingSphere cCamera::GetBoundingSphere() const
+{
+	// 파생되는 클래스에서 구현한다.
+	assert(0);
+	return{};
+}
+
+
+// 카메라 프러스텀 영역크기를 리턴한다.
+cBoundingSphere cCamera::GetBoundingSphere(const float nearPlane, const float farPlane) const
+{
+	// 파생되는 클래스에서 구현한다.
+	assert(0);
+	return{};
+}
+
+
 // lookAt 은 고정된채로 eyePos 를 이동한다.
 void cCamera::Zoom(const float len)
 {

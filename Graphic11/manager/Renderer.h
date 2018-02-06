@@ -16,7 +16,8 @@ namespace graphic
 		XMMATRIX mLightView[3];
 		XMMATRIX mLightProj[3];
 		XMMATRIX mLightTT;
-		Vector3 eyePosW;
+		XMVECTOR eyePosW;
+		XMVECTOR fogColor; // fog color r,g,b, fog distance rcp
 	};
 	
 	struct sCbInstancing

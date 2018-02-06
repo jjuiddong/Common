@@ -31,6 +31,8 @@ namespace graphic
 
 		void KeepHorizontal();
 		void UpdateParameterFromViewMatrix();
+		virtual cBoundingSphere GetBoundingSphere() const override;
+		virtual cBoundingSphere GetBoundingSphere(const float nearPlane, const float farPlane) const override;
 
 
 		// Override;

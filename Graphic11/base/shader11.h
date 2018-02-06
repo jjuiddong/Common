@@ -18,6 +18,8 @@ namespace graphic
 			, const char *techniqueName , const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements);
 		bool Create(cRenderer &renderer, const StrPath &fileName
 			, const char *techniqueName, const int vtxType);
+		bool CreateFromFile(cRenderer &renderer, const StrPath &fileName
+			, const char *techniqueName, const int vtxType);
 		int Begin();
 		void BeginPass(cRenderer &renderer, const int pass);
 		bool SetTechnique(const char *id);

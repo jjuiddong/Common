@@ -170,7 +170,7 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	//output.Normal = float3(0, 1, 0);
 	output.Normal = normal;
 	output.tex = uv;
-	output.toEye = normalize(float4(gEyePosW, 1) - PosW).xyz;
+	output.toEye = normalize(gEyePosW - PosW).xyz;
 
 	return output;
 }

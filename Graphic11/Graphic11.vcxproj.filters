@@ -696,10 +696,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shader\Island11.fx">
+    <CustomBuild Include="shader\common.fx">
       <Filter>shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="shader\water.fx">
+    <CustomBuild Include="shader\Island11.fx">
       <Filter>shader</Filter>
     </CustomBuild>
     <CustomBuild Include="shader\pos.fx">
@@ -741,9 +741,6 @@
     <CustomBuild Include="shader\skyboxcube.fx">
       <Filter>shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="shader\common.fx">
-      <Filter>shader</Filter>
-    </CustomBuild>
     <CustomBuild Include="shader\tess-pos.fx">
       <Filter>shader</Filter>
     </CustomBuild>
@@ -751,6 +748,9 @@
       <Filter>shader</Filter>
     </CustomBuild>
     <CustomBuild Include="shader\tess-pos-norm-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\water.fx">
       <Filter>shader</Filter>
     </CustomBuild>
   </ItemGroup>

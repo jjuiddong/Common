@@ -21,6 +21,9 @@ namespace graphic
 		cShader11* LoadShader(cRenderer &renderer, const StrPath &fileName
 			, const int vtxType, const bool isVtxTypeHash = true);
 
+		cShader11* LoadShaderFromFile(cRenderer &renderer, const StrPath &fileName
+			, const int vtxType, const bool isVtxTypeHash = true);
+
 		cShader11* FindShader(const int vertexType);
 		cShader11* FindShader(const StrPath &fileName);
 		void SetShaderRootDirectory(const StrPath &path);

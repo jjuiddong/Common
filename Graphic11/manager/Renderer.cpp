@@ -619,6 +619,7 @@ void cRenderer::UnbindTextureAll()
 void cRenderer::UnbindShaderAll()
 {
 	GetDevContext()->VSSetShader(NULL, NULL, 0);
+	GetDevContext()->GSSetShader(NULL, NULL, 0);
 	GetDevContext()->CSSetShader(NULL, NULL, 0);
 	GetDevContext()->DSSetShader(NULL, NULL, 0);
 	GetDevContext()->HSSetShader(NULL, NULL, 0);

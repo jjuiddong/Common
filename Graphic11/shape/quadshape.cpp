@@ -64,8 +64,8 @@ bool cQuadShape::Create(cRenderer &renderer
 	{
 		if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
 			*(Vector3*)(pvtx + posOffset) = vertices[i];
-		//if (vtxType & eVertexType::NORMAL)
-		//	*(Vector3*)(pvtx + normOffset) = normals[i];
+		if (vtxType & eVertexType::NORMAL)
+			*(Vector3*)(pvtx + normOffset) = Vector3(0,0,-1.f);
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
 		if (vtxType & eVertexType::TEXTURE0)

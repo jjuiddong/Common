@@ -240,7 +240,7 @@ namespace graphic
 			const bool isFind = std::get<0>(result);
 			const STATE state = (STATE)std::get<1>(result);
 			T *ptr = std::get<2>(result);
-			if (isFind) // is find?
+			if (isFind)
 			{
 				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
 				if (LOADING == state)
@@ -287,7 +287,7 @@ namespace graphic
 			const bool isFind = std::get<0>(result);
 			const STATE state = (STATE)std::get<1>(result);
 			T *ptr = std::get<2>(result);
-			if (isFind) // is find?
+			if (isFind)
 			{
 				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
 				if (LOADING == state)

@@ -103,7 +103,7 @@ void cCamera2D::Bind(cRenderer &renderer)
 	const XMMATRIX mProj = XMLoadFloat4x4((XMFLOAT4X4*)&m_proj);
 	renderer.m_cbPerFrame.m_v->mView = XMMatrixTranspose(zoom.GetMatrixXM()*mView);
 	renderer.m_cbPerFrame.m_v->mProjection = XMMatrixTranspose(mProj);
-	renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos;
+	renderer.m_cbPerFrame.m_v->eyePosW = m_eyePos.GetVectorXM();
 }
 
 

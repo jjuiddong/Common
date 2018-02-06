@@ -112,7 +112,8 @@ cbuffer cbPerFrame : register(b0)
 	matrix gLightView[3];
 	matrix gLightProj[3];
 	matrix gLightTT;
-	float3 gEyePosW;
+	float4 gEyePosW;
+	float4 gFogColor; // fog color r,g,b, fog distance rcp
 }
 
 

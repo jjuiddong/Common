@@ -53,14 +53,6 @@ namespace graphic
 		cAnimation m_animation;		// 원본 애니메이션 데이타, cModel에서 복사해서 사용한다.
 		cBoundingBox m_boundingBox;
 		StrId m_storedAnimationName;
-
-
-		//struct sRenderData {
-		//	XMMATRIX tm;
-		//	XMMATRIX transform;
-		//	cMesh *mesh;
-		//};
-		//vector<sRenderData*>
 	};
 
 }

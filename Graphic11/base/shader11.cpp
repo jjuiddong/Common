@@ -17,6 +17,7 @@ cShader11::~cShader11()
 }
 
 
+// Create Shader From *.FXO File (compiled shader file)
 // fileName : *.fxo file
 bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 	, const char *techniqueName, const D3D11_INPUT_ELEMENT_DESC layout[], const int numElements)
@@ -59,6 +60,7 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 }
 
 
+// Create Shader From *.FXO File (compiled shader file)
 // fileName : *.fxo file
 // vtxType : Composition eVertexType
 bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
@@ -82,6 +84,38 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 
 	// Create Effect
 	HRESULT hr = D3DX11CreateEffectFromMemory(&compiledShader[0], size, 0, renderer.GetDevice(), &m_effect);
+	if (FAILED(hr))
+		return false;
+
+	m_technique = m_effect->GetTechniqueByName(techniqueName);
+	RETV(!m_technique, false);
+
+	// Create the input layout
+	D3DX11_PASS_DESC passDesc;
+	hr = m_technique->GetPassByIndex(0)->GetDesc(&passDesc);
+	if (FAILED(hr))
+		return false;
+
+	if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, vtxType))
+		return false;
+
+	m_name = fileName.GetFileName();
+	m_fxoFileName = fileName;
+
+	return true;
+}
+
+
+// Create Shader From *.FX File
+bool cShader11::CreateFromFile(cRenderer &renderer, const StrPath &fileName
+	, const char *techniqueName, const int vtxType)
+{
+	WStrPath wfileName = fileName.wstr();
+	// Create Effect
+	HRESULT hr = D3DX11CompileEffectFromFile(wfileName.c_str()
+		, NULL, NULL
+		, D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_PREFER_FLOW_CONTROL
+		, 0, renderer.GetDevice(), &m_effect, NULL);
 	if (FAILED(hr))
 		return false;
 

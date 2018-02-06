@@ -232,6 +232,16 @@ void cModel::SetAnimation(const int animationIndex
 }
 
 
+void cModel::SetShader(cShader11 *shader)
+{
+	__super::SetShader(shader);
+	RET(!m_model);
+
+	for (auto &mesh : m_model->m_meshes)
+		mesh->m_shader = shader;
+}
+
+
 cNode* cModel::Clone(cRenderer &renderer) const
 {
 	cModel *model = new cModel();
