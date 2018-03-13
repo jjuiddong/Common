@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cCamera3D : public cCamera
 	{

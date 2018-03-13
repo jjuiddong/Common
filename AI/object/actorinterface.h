@@ -11,6 +11,7 @@ namespace graphic {
 
 namespace ai
 {
+	using namespace common;
 	static Transform g_tempTransform;
 
 	template<class T>

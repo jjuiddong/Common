@@ -15,6 +15,7 @@
 
 namespace graphic
 {
+	using namespace common;
 	using namespace Assimp;
 
 	class cAssimpLoader

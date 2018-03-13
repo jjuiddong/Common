@@ -13,6 +13,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cSphere : public cNode
 	{

@@ -11,6 +11,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cText3d3 : public cNode
 	{

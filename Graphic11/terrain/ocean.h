@@ -26,6 +26,8 @@
 
 namespace graphic
 {
+	using namespace common;
+
 	class cOcean
 	{
 	public:

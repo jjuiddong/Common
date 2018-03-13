@@ -8,6 +8,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	struct sCbMaterial
 	{

@@ -9,6 +9,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cRenderer;
 	class cCube : public cNode

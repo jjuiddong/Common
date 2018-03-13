@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cRect2D : public cNode
 	{

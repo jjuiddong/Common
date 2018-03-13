@@ -17,6 +17,7 @@
 
 namespace ai
 {
+	using namespace common;
 
 	template <class T>
 	class cAction
@@ -73,10 +74,11 @@ namespace ai
 
 	template<class T>
 	cAction<T>::cAction(
-		iActorInterface<T> *agent = NULL,
-		const StrId &name = "action",
-		const StrId &animationName = "",
-		const eActionType::Enum type = eActionType::NONE)
+		iActorInterface<T> *agent //= NULL
+		, const StrId &name //= "action"
+		, const StrId &animationName //= ""
+		, const eActionType::Enum type //= eActionType::NONE
+	)
 		: m_agent(agent)
 		, m_name(name)
 		, m_animationName(animationName)
@@ -259,7 +261,8 @@ namespace ai
 
 
 	template<class T>
-	cAction<T>* cAction<T>::FindAction(const StrId &actionName, bool isFindChild = true)
+	cAction<T>* cAction<T>::FindAction(const StrId &actionName, bool isFindChild //= true
+	)
 	{
 		for (u_int i = 0; i < m_children.size(); ++i)
 		{
@@ -281,7 +284,8 @@ namespace ai
 
 
 	template<class T>
-	cAction<T>* cAction<T>::FindAction(const eActionType::Enum type, bool isFindChild = true)
+	cAction<T>* cAction<T>::FindAction(const eActionType::Enum type, bool isFindChild //= true
+	)
 	{
 		for (u_int i = 0; i < m_children.size(); ++i)
 		{

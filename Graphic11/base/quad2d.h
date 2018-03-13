@@ -15,6 +15,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cQuad2D : public cNode
 	{

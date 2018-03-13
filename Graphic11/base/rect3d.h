@@ -18,6 +18,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cRect3D : public cNode
 	{

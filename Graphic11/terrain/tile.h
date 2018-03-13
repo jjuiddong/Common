@@ -30,6 +30,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cTile : public cNode
 	{

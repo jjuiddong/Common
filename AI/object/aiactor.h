@@ -8,6 +8,7 @@
 
 namespace ai
 {
+	using namespace common;
 
 	template <class T>
 	class cActor : public cObject

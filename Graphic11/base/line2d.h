@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cLine2D : public cNode
 	{

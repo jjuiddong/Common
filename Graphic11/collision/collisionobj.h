@@ -7,6 +7,8 @@
 
 namespace graphic
 {
+	using namespace common;
+
 	struct eCollisionType {
 		enum Enum {
 			NONE, BOX, SPHERE, HALFSPHERE, PLANE, FRUSTUM,

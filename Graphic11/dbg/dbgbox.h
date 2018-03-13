@@ -14,6 +14,7 @@
 
 namespace graphic
 {
+	using namespace common;
 	class cRenderer;
 
 	class cDbgBox

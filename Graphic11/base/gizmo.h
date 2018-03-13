@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	struct eGizmoEditType {
 		enum Enum {TRANSLATE, ROTATE, SCALE};

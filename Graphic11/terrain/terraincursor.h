@@ -9,6 +9,8 @@
 
 namespace graphic
 {
+	using namespace common;
+
 	struct eGeoEditType {
 		enum Enum { UP, DOWN, FLAT };
 	};

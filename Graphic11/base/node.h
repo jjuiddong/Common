@@ -7,6 +7,8 @@
 
 namespace graphic
 {
+	using namespace common;
+
 	class cRenderer;
 	class cFrustum;
 	class cShader11;

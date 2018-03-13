@@ -5,7 +5,7 @@
 
 namespace graphic
 {
-
+	using namespace common;
 
 	class cLightManager : public common::cSingleton<cLightManager>
 	{

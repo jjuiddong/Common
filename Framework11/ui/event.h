@@ -3,6 +3,7 @@
 
 namespace framework
 {
+	using namespace common;
 
 	class cEvent
 	{

@@ -3,7 +3,7 @@
 
 
 #include "../Common/common.h"
-using namespace common;
+//using namespace common;
 
 // 부스트 메모리 풀 이용.
 #include <boost/pool/object_pool.hpp>

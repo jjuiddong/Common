@@ -6,6 +6,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cMainCamera : public common::cSingleton<cMainCamera>
 	{

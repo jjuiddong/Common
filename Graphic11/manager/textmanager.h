@@ -10,6 +10,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cTextManager
 	{

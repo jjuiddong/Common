@@ -9,6 +9,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	interface iPickListener {
 		virtual void OnPickEvent(graphic::cNode *node, const graphic::ePickState::Enum state) = 0;

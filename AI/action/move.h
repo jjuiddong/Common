@@ -11,6 +11,7 @@
 
 namespace ai
 {
+	using namespace common;
 
 	template<class T>
 	class cMove : public cAction<T>

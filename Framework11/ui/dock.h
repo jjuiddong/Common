@@ -7,6 +7,7 @@
 
 namespace framework
 {
+	using namespace common;
 
 	struct eDockState
 	{

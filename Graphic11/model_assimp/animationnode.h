@@ -6,7 +6,8 @@
 
 namespace graphic
 {
-	
+	using namespace common;
+
 	class cAnimationNode
 	{
 	public:

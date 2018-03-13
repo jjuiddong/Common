@@ -47,7 +47,7 @@ using namespace DirectX;
 #include <gdiplus.h> 
 
 #include "../Common/common.h"
-using namespace common;
+//using namespace common;
 
 //#include "../wxMemMonitorLib/wxMemMonitor.h" // debug library
 

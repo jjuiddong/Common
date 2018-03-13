@@ -33,7 +33,7 @@ namespace common
 		bool insert(const value_type &vt)
 		{
 			// insert map
-			MapType::iterator it = m_RandomAccess.find(vt.first);
+			iterator it = m_RandomAccess.find(vt.first);
 			if (m_RandomAccess.end() != it)
 				return false; // 이미 존재 함
 			m_RandomAccess.insert( vt );
@@ -45,7 +45,7 @@ namespace common
 
 		bool remove(const KeyType &key)
 		{
-			MapType::iterator it = m_RandomAccess.find(key);
+			iterator it = m_RandomAccess.find(key);
 			if (m_RandomAccess.end() == it)
 				return false; // 없다면 리턴
 
@@ -57,7 +57,7 @@ namespace common
 		// Type 이 유니크할 때만 사용할 수 있는 함수다.
 		bool removebytype(const Type &ty)
 		{
-			MapType::iterator it = m_RandomAccess.begin();
+			iterator it = m_RandomAccess.begin();
 			while (m_RandomAccess.end() != it)
 			{
 				if (ty == it->second)
@@ -96,8 +96,8 @@ namespace common
 		iterator end() { return m_RandomAccess.end(); }
 
 	public:
-		std::map<KeyType, Type>	m_RandomAccess;
-		std::vector<Type> m_Seq;
+		MapType	m_RandomAccess;
+		VectorType m_Seq;
 	};
 
 }

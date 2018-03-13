@@ -18,6 +18,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cBoundingPlane : public cCollisionObj
 	{

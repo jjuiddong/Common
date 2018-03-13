@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	struct eVertexType {
 		enum Enum {
