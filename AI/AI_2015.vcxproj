@@ -18,6 +18,7 @@
     <ProjectGuid>{C7F9EBA2-B553-483B-BC34-D25F1C718255}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AI</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,10 +145,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
+    <ProjectReference Include="..\Common\Common_2015.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Graphic11\Graphic11.vcxproj">
+    <ProjectReference Include="..\Graphic11\Graphic11_2015.vcxproj">
       <Project>{6e994653-a69c-4be2-b830-97676e805f29}</Project>
     </ProjectReference>
   </ItemGroup>

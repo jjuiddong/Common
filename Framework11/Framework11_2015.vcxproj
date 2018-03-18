@@ -250,7 +250,10 @@
     <ClCompile Include="window\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Graphic11\Graphic11.vcxproj">
+    <ProjectReference Include="..\Common\Common_2015.vcxproj">
+      <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Graphic11\Graphic11_2015.vcxproj">
       <Project>{6e994653-a69c-4be2-b830-97676e805f29}</Project>
     </ProjectReference>
   </ItemGroup>
