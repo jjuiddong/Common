@@ -1,0 +1,563 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6E994653-A69C-4BE2-B830-97676E805F29}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Graphic11</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="base\billboard.h" />
+    <ClInclude Include="base\camera.h" />
+    <ClInclude Include="base\camera2d.h" />
+    <ClInclude Include="base\camera3d.h" />
+    <ClInclude Include="base\circle.h" />
+    <ClInclude Include="base\color.h" />
+    <ClInclude Include="base\constantbuffer.h" />
+    <ClInclude Include="base\cube.h" />
+    <ClInclude Include="base\d3dx11effect.h" />
+    <ClInclude Include="base\depthbuffer.h" />
+    <ClInclude Include="base\dxInit.h" />
+    <ClInclude Include="base\gizmo.h" />
+    <ClInclude Include="base\graphicdef.h" />
+    <ClInclude Include="base\grid.h" />
+    <ClInclude Include="base\gridline.h" />
+    <ClInclude Include="base\indexbuffer.h" />
+    <ClInclude Include="base\light.h" />
+    <ClInclude Include="base\line.h" />
+    <ClInclude Include="base\line2d.h" />
+    <ClInclude Include="base\material.h" />
+    <ClInclude Include="base\meshbuffer.h" />
+    <ClInclude Include="base\node.h" />
+    <ClInclude Include="base\pyramid.h" />
+    <ClInclude Include="base\quad.h" />
+    <ClInclude Include="base\quad2d.h" />
+    <ClInclude Include="base\rect2d.h" />
+    <ClInclude Include="base\rect3d.h" />
+    <ClInclude Include="base\rendertarget.h" />
+    <ClInclude Include="base\samplerstate.h" />
+    <ClInclude Include="base\shader11.h" />
+    <ClInclude Include="base\skybox.h" />
+    <ClInclude Include="base\skyboxcube.h" />
+    <ClInclude Include="base\sphere.h" />
+    <ClInclude Include="base\temporalbuffer.h" />
+    <ClInclude Include="base\text.h" />
+    <ClInclude Include="base\text3d3.h" />
+    <ClInclude Include="base\texture.h" />
+    <ClInclude Include="base\torus.h" />
+    <ClInclude Include="base\vertexbuffer.h" />
+    <ClInclude Include="base\vertexlayout.h" />
+    <ClInclude Include="base\vertexformat.h" />
+    <ClInclude Include="base\viewport.h" />
+    <ClInclude Include="collision\boundingbox.h" />
+    <ClInclude Include="collision\boundinghemisphere.h" />
+    <ClInclude Include="collision\boundingplane.h" />
+    <ClInclude Include="collision\boundingsphere.h" />
+    <ClInclude Include="collision\collisionobj.h" />
+    <ClInclude Include="collision\frustum.h" />
+    <ClInclude Include="dbg\dbgarrow.h" />
+    <ClInclude Include="dbg\dbgaxis.h" />
+    <ClInclude Include="dbg\dbgbox.h" />
+    <ClInclude Include="dbg\dbgfrustum.h" />
+    <ClInclude Include="dbg\dbgline.h" />
+    <ClInclude Include="dbg\dbglinelist.h" />
+    <ClInclude Include="dbg\dbgquad.h" />
+    <ClInclude Include="dbg\dbgsphere.h" />
+    <ClInclude Include="graphic11.h" />
+    <ClInclude Include="importer\fileloader.h" />
+    <ClInclude Include="importer\parallelloader.h" />
+    <ClInclude Include="manager\fontmanager.h" />
+    <ClInclude Include="manager\lightmanager.h" />
+    <ClInclude Include="manager\maincamera.h" />
+    <ClInclude Include="manager\pickmanager.h" />
+    <ClInclude Include="manager\Renderer.h" />
+    <ClInclude Include="manager\resourcemanager.h" />
+    <ClInclude Include="manager\shadermanager.h" />
+    <ClInclude Include="manager\task_resource.h" />
+    <ClInclude Include="manager\textmanager.h" />
+    <ClInclude Include="model_assimp\animation.h" />
+    <ClInclude Include="model_assimp\animationnode.h" />
+    <ClInclude Include="model_assimp\assimploader.h" />
+    <ClInclude Include="model_assimp\mesh.h" />
+    <ClInclude Include="model_assimp\model.h" />
+    <ClInclude Include="model_assimp\model_assimp.h" />
+    <ClInclude Include="model_assimp\rawani.h" />
+    <ClInclude Include="model_assimp\rawmesh.h" />
+    <ClInclude Include="model_assimp\skeleton.h" />
+    <ClInclude Include="shape\circleshape.h" />
+    <ClInclude Include="shape\cubeshape.h" />
+    <ClInclude Include="shape\pyramidshape.h" />
+    <ClInclude Include="shape\quadshape.h" />
+    <ClInclude Include="shape\shape.h" />
+    <ClInclude Include="shape\sphereshape.h" />
+    <ClInclude Include="shape\torusshape.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="terrain\cascadedshadowmap.h" />
+    <ClInclude Include="terrain\ocean.h" />
+    <ClInclude Include="terrain\terrain.h" />
+    <ClInclude Include="terrain\terraincursor.h" />
+    <ClInclude Include="terrain\terrainloader.h" />
+    <ClInclude Include="terrain\tile.h" />
+    <ClInclude Include="terrain\water.h" />
+    <ClInclude Include="textdesigner\BmpOutlineText.h" />
+    <ClInclude Include="textdesigner\Canvas.h" />
+    <ClInclude Include="textdesigner\DiffusedShadowStrategy.h" />
+    <ClInclude Include="textdesigner\DrawGradient.h" />
+    <ClInclude Include="textdesigner\ExtrudeStrategy.h" />
+    <ClInclude Include="textdesigner\GDIPath.h" />
+    <ClInclude Include="textdesigner\IOutlineText.h" />
+    <ClInclude Include="textdesigner\ITextStrategy.h" />
+    <ClInclude Include="textdesigner\MaskColor.h" />
+    <ClInclude Include="textdesigner\NonSystemFontLoader.h" />
+    <ClInclude Include="textdesigner\OutlineText.h" />
+    <ClInclude Include="textdesigner\PngOutlineText.h" />
+    <ClInclude Include="textdesigner\TextDblGlowStrategy.h" />
+    <ClInclude Include="textdesigner\TextDblOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextGlowStrategy.h" />
+    <ClInclude Include="textdesigner\TextGradOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextImplGetHeight.h" />
+    <ClInclude Include="textdesigner\TextNoOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h" />
+    <ClInclude Include="textdesigner\TextOutlineStrategy.h" />
+    <ClInclude Include="utility\utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="base\billboard.cpp" />
+    <ClCompile Include="base\camera.cpp" />
+    <ClCompile Include="base\camera2d.cpp" />
+    <ClCompile Include="base\camera3d.cpp" />
+    <ClCompile Include="base\circle.cpp" />
+    <ClCompile Include="base\color.cpp" />
+    <ClCompile Include="base\cube.cpp" />
+    <ClCompile Include="base\depthbuffer.cpp" />
+    <ClCompile Include="base\dxinit.cpp" />
+    <ClCompile Include="base\gizmo.cpp" />
+    <ClCompile Include="base\grid.cpp" />
+    <ClCompile Include="base\gridline.cpp" />
+    <ClCompile Include="base\indexbuffer.cpp" />
+    <ClCompile Include="base\light.cpp" />
+    <ClCompile Include="base\line.cpp" />
+    <ClCompile Include="base\line2d.cpp" />
+    <ClCompile Include="base\material.cpp" />
+    <ClCompile Include="base\meshbuffer.cpp" />
+    <ClCompile Include="base\node.cpp" />
+    <ClCompile Include="base\pyramid.cpp" />
+    <ClCompile Include="base\quad.cpp" />
+    <ClCompile Include="base\quad2d.cpp" />
+    <ClCompile Include="base\rect2d.cpp" />
+    <ClCompile Include="base\rect3d.cpp" />
+    <ClCompile Include="base\rendertarget.cpp" />
+    <ClCompile Include="base\samplerstate.cpp" />
+    <ClCompile Include="base\shader11.cpp" />
+    <ClCompile Include="base\skybox.cpp" />
+    <ClCompile Include="base\skyboxcube.cpp" />
+    <ClCompile Include="base\sphere.cpp" />
+    <ClCompile Include="base\temporalbuffer.cpp" />
+    <ClCompile Include="base\text.cpp" />
+    <ClCompile Include="base\text3d3.cpp" />
+    <ClCompile Include="base\texture.cpp" />
+    <ClCompile Include="base\torus.cpp" />
+    <ClCompile Include="base\vertexbuffer.cpp" />
+    <ClCompile Include="base\vertexlayout.cpp" />
+    <ClCompile Include="base\viewport.cpp" />
+    <ClCompile Include="collision\boundingbox.cpp" />
+    <ClCompile Include="collision\boundinghemisphere.cpp" />
+    <ClCompile Include="collision\boundingplane.cpp" />
+    <ClCompile Include="collision\boundingsphere.cpp" />
+    <ClCompile Include="collision\frustum.cpp" />
+    <ClCompile Include="dbg\dbgarrow.cpp" />
+    <ClCompile Include="dbg\dbgaxis.cpp" />
+    <ClCompile Include="dbg\dbgbox.cpp" />
+    <ClCompile Include="dbg\dbgfrustum.cpp" />
+    <ClCompile Include="dbg\dbgline.cpp" />
+    <ClCompile Include="dbg\dbglinelist.cpp" />
+    <ClCompile Include="dbg\dbgquad.cpp" />
+    <ClCompile Include="dbg\dbgsphere.cpp" />
+    <ClCompile Include="importer\parallelloader.cpp" />
+    <ClCompile Include="manager\fontmanager.cpp" />
+    <ClCompile Include="manager\lightmanager.cpp" />
+    <ClCompile Include="manager\maincamera.cpp" />
+    <ClCompile Include="manager\pickmanager.cpp" />
+    <ClCompile Include="manager\Renderer.cpp" />
+    <ClCompile Include="manager\resourcemanager.cpp" />
+    <ClCompile Include="manager\shadermanager.cpp" />
+    <ClCompile Include="manager\textmanager.cpp" />
+    <ClCompile Include="model_assimp\animation.cpp" />
+    <ClCompile Include="model_assimp\animationnode.cpp" />
+    <ClCompile Include="model_assimp\assimploader.cpp" />
+    <ClCompile Include="model_assimp\mesh.cpp" />
+    <ClCompile Include="model_assimp\model.cpp" />
+    <ClCompile Include="model_assimp\model_assimp.cpp" />
+    <ClCompile Include="model_assimp\rawmesh.cpp" />
+    <ClCompile Include="model_assimp\skeleton.cpp" />
+    <ClCompile Include="shape\circleshape.cpp" />
+    <ClCompile Include="shape\cubeshape.cpp" />
+    <ClCompile Include="shape\pyramidshape.cpp" />
+    <ClCompile Include="shape\quadshape.cpp" />
+    <ClCompile Include="shape\sphereshape.cpp" />
+    <ClCompile Include="shape\torusshape.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="terrain\cascadedshadowmap.cpp" />
+    <ClCompile Include="terrain\ocean.cpp" />
+    <ClCompile Include="terrain\terrain.cpp" />
+    <ClCompile Include="terrain\terraincursor.cpp" />
+    <ClCompile Include="terrain\terrainloader.cpp" />
+    <ClCompile Include="terrain\tile.cpp" />
+    <ClCompile Include="terrain\water.cpp" />
+    <ClCompile Include="textdesigner\BmpOutlineText.cpp" />
+    <ClCompile Include="textdesigner\Canvas.cpp" />
+    <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp" />
+    <ClCompile Include="textdesigner\DrawGradient.cpp" />
+    <ClCompile Include="textdesigner\ExtrudeStrategy.cpp" />
+    <ClCompile Include="textdesigner\GDIPath.cpp" />
+    <ClCompile Include="textdesigner\IOutlineText.cpp" />
+    <ClCompile Include="textdesigner\ITextStrategy.cpp" />
+    <ClCompile Include="textdesigner\MaskColor.cpp" />
+    <ClCompile Include="textdesigner\NonSystemFontLoader.cpp" />
+    <ClCompile Include="textdesigner\OutlineText.cpp" />
+    <ClCompile Include="textdesigner\PngOutlineText.cpp" />
+    <ClCompile Include="textdesigner\TextDblGlowStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextDblOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextGlowStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextGradOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextImplGetHeight.cpp" />
+    <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp" />
+    <ClCompile Include="textdesigner\TextOutlineStrategy.cpp" />
+    <ClCompile Include="utility\utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\water.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\Island11.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\pos-color.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-color-tex.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-color.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-bump.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-skin-bump.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-skin.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-tex.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw-color-tex.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw-color.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\skyboxcube.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\common.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\tess-pos.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\tess-pos-norm.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\tess-pos-norm-tex.fx">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Gfp /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">fxc compile for debug: %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\..\Media\shader11\%(Filename).fxo</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
