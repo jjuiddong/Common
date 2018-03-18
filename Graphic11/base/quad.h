@@ -12,6 +12,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cQuad : public cNode
 	{

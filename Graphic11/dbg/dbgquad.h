@@ -17,6 +17,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cDbgQuad
 	{

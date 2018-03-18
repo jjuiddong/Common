@@ -2,6 +2,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	// Direct3D11 Initialize
 	bool InitDirectX11(

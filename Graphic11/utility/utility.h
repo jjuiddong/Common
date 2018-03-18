@@ -7,6 +7,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	const static XMMATRIX XMIdentity(
 		1, 0, 0, 0

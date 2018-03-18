@@ -5,6 +5,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cSkeleton
 	{

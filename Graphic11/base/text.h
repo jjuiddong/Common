@@ -8,6 +8,8 @@
 
 namespace graphic
 {
+	using namespace common;
+
 	class cSprite;
 
 	class cText
@@ -41,5 +43,5 @@ namespace graphic
 
 	inline void cText::SetText(const wchar_t *text) { m_text = text; }
 	inline void cText::SetColor(const cColor color) { m_color = color.GetAbgr(); }
-	inline cColor cText::GetColor() const { return m_color; }
+	inline cColor cText::GetColor() const { return cColor(m_color); }
 }

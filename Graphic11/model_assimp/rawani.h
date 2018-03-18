@@ -3,6 +3,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	struct sKeyPos
 	{

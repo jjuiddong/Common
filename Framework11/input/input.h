@@ -10,6 +10,7 @@
 
 namespace framework
 {
+	using namespace common;
 	class cDockWindow;
 
 	class cInputManager

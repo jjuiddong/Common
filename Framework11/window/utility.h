@@ -4,6 +4,7 @@
 
 namespace framework
 {
+	using namespace common;
 
 	// 윈도우 생성
 	HWND InitWindow(HINSTANCE hInstance, 

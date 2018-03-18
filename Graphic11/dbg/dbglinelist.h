@@ -11,7 +11,8 @@
 
 namespace graphic
 {
-	
+	using namespace common;
+
 	class cDbgLineList
 	{
 	public:

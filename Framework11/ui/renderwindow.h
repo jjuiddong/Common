@@ -9,6 +9,7 @@
 
 namespace framework
 {
+	using namespace common;
 
 	class cDockWindow;
 	class cRenderWindow : public sf::Window

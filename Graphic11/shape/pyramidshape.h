@@ -25,6 +25,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cPyramidShape : public cShape
 	{

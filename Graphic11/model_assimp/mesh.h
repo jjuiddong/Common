@@ -8,6 +8,8 @@
 
 namespace graphic {
 
+	using namespace common;
+
 	class cMesh
 	{
 	public:

@@ -19,6 +19,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cQuadShape : public cShape
 	{

@@ -9,6 +9,7 @@
 
 namespace framework
 {
+	using namespace common;
 
 	class cGameMain2 : public cRenderWindow
 	{

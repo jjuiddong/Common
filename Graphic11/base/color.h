@@ -16,6 +16,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cColor
 	{
@@ -25,6 +26,7 @@ namespace graphic
 		cColor(const BYTE r, const BYTE g, const BYTE b, const BYTE a = 255);
 		cColor(const Vector3 &color);
 		cColor(const Vector4 &color);
+		cColor(const DWORD color);
 
 		static const cColor BLACK;
 		static const cColor WHITE;

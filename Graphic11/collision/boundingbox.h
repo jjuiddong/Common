@@ -13,6 +13,8 @@
 
 namespace graphic
 {
+	using namespace common;
+
 	class cCube;
 	class cBoundingSphere;
 

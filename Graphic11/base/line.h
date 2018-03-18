@@ -9,6 +9,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cLine : public cNode
 	{

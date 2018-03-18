@@ -11,6 +11,7 @@
 
 namespace graphic
 {
+	using namespace common;
 	struct sRawMesh;
 	struct sRawAni;
 	struct sRawBone;

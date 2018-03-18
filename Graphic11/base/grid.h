@@ -6,6 +6,7 @@
 
 namespace graphic
 {
+	using namespace common;
 
 	class cRenderer;
 	class cGrid : public cNode

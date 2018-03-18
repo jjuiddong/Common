@@ -8,6 +8,7 @@
 
 namespace ai
 {
+	using namespace common;
 
 	struct sVertex
 	{

@@ -6,6 +6,8 @@
 
 namespace ai
 {
+	using namespace common;
+
 	class cObject;
 
 	struct eActionState {

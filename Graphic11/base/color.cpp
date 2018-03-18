@@ -42,6 +42,11 @@ cColor::cColor(const Vector4 &color)
 	SetColor(color);
 }
 
+cColor::cColor(const DWORD color)
+	: m_color(color)
+{	
+}
+
 cColor::~cColor()
 {
 }

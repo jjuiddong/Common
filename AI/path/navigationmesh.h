@@ -7,6 +7,8 @@
 
 namespace ai
 {
+	using namespace common;
+
 	class cPathFinder;
 
 	class cNavigationMesh

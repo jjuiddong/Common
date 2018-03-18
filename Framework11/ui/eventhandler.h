@@ -3,7 +3,7 @@
 
 namespace framework
 {
-
+	using namespace common;
 	class cEvent;
 	class cEventHandler;
 	typedef void (cEventHandler::*EventFunction)(cEvent &);
