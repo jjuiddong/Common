@@ -782,7 +782,7 @@ bool cDockWindow::IsInSizerSpace(const Vector2 &pos)
 {
 	RETV(m_state != eDockState::VIRTUAL, false);
 
-	const float SPACE = 10;
+	const float SPACE = 4; //=10
 
 	sRectf rect;
 	const eDockSlot::Enum dockType = m_lower->m_dockSlot;
