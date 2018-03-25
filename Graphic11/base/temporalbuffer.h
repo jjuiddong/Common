@@ -23,8 +23,10 @@ namespace graphic
 		bool CopyFrom(cRenderer &renderer, const cVertexBuffer &vtxBuff);
 		bool CopyFrom(cRenderer &renderer, const cIndexBuffer &idxBuff);
 		bool CopyFrom(cRenderer &renderer, const cTexture &texture);
+		bool CopyFrom(cRenderer &renderer, ID3D11Texture2D *texture);
 
 		void* Lock(cRenderer &renderer, const D3D11_MAP flag = D3D11_MAP_READ);
+		void* Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out);
 		void Unlock(cRenderer &renderer);
 
 

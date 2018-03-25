@@ -158,6 +158,7 @@ struct VSOUT_POS
 {
 	float4 Pos : SV_POSITION;
 	float4 PosH : TEXCORRD0;
+	float4 PosW : TEXCORRD1;
 };
 
 struct VSOUT_POSDIFFUSE

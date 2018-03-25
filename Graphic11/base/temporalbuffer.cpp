@@ -108,6 +108,13 @@ bool cTemporalBuffer::CopyFrom(cRenderer &renderer, const cTexture &texture)
 }
 
 
+bool cTemporalBuffer::CopyFrom(cRenderer &renderer, ID3D11Texture2D *texture)
+{
+	renderer.GetDevContext()->CopyResource(m_buff, texture);
+	return true;
+}
+
+
 void* cTemporalBuffer::Lock(cRenderer &renderer
 	, const D3D11_MAP flag //= D3D11_MAP_READ
 )
@@ -119,6 +126,17 @@ void* cTemporalBuffer::Lock(cRenderer &renderer
 	if (FAILED(hr))
 		return NULL;
 	return res.pData;
+}
+
+
+void* cTemporalBuffer::Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out)
+{
+	assert(m_buff);
+	ZeroMemory(&out, sizeof(out));
+	HRESULT hr = renderer.GetDevContext()->Map(m_buff, 0, D3D11_MAP_READ, 0, &out);
+	if (FAILED(hr))
+		return NULL;
+	return out.pData;
 }
 
 

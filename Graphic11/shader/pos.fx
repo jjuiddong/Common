@@ -13,10 +13,12 @@ VSOUT_POS VS( float4 Pos : POSITION
 	VSOUT_POS output = (VSOUT_POS)0;
 	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
 
-    output.Pos = mul( Pos, mWorld);
-    output.Pos = mul( output.Pos, gView );
+	float4 PosW = mul(Pos, mWorld);
+    //output.Pos = mul( Pos, mWorld);
+    output.Pos = mul( PosW, gView );
     output.Pos = mul( output.Pos, gProjection );
 	output.PosH = output.Pos;
+	output.PosW = PosW;
     return output;
 }
 
@@ -27,6 +29,13 @@ VSOUT_POS VS( float4 Pos : POSITION
 float4 PS(VSOUT_POS In ) : SV_Target
 {
 	return gMtrl_Diffuse;
+}
+
+
+//--------------------------------------------------------------------------------------
+float4 PS_Heightmap(VSOUT_POS In) : SV_Target
+{
+	return In.PosW.y / 500.f;
 }
 
 
@@ -77,6 +86,20 @@ technique11 Unlit
         SetHullShader(NULL);
       	SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+
+
+technique11 Heightmap
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Heightmap()));
 	}
 }
 
