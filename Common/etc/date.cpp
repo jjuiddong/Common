@@ -7,8 +7,8 @@
 
 using namespace common;
 
-// 2017-01-08-10-10-10
-// year-month-day-hour-minutes-seconds
+// 2017-01-08-11-05-010
+// year-month-day-hour-minutes-seconds-millseconds
 string common::GetCurrentDateTime()
 {
 	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
@@ -25,8 +25,13 @@ string common::GetCurrentDateTime()
 	date::ymd_type ymd = second_clock::local_time().date().year_month_day();
 
 	stringstream ss;
-	ss << ymd.year << "-" << ymd.month.as_number() << "-" << ymd.day << "-"
-		<< td.hours() << "-" << td.minutes() << "-" << td.seconds();
+	ss << ymd.year 
+		<< "-" << std::setfill('0') << std::setw(2) << ymd.month.as_number() 
+		<< "-" << std::setfill('0') << std::setw(2) << ymd.day
+		<< "-" << std::setfill('0') << std::setw(2) << td.hours() 
+		<< "-" << std::setfill('0') << std::setw(2) << td.minutes() 
+		<< "-" << std::setfill('0') << std::setw(2) << td.seconds() 
+		<< "-" << std::setfill('0') << std::setw(3) << td.total_milliseconds()%1000;
 
 	return ss.str();
 }

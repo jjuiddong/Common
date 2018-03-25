@@ -22,7 +22,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv/cvaux.h>
 #include <opencv2/calib3d.hpp>
-#include <opencv2/xfeatures2d.hpp>
+//#include <opencv2/xfeatures2d.hpp>
 
 
 #include "../Common/common.h"
