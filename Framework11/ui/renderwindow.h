@@ -118,6 +118,8 @@ namespace framework
 		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
 		sf::Vector2u m_resetSize;
+
+		ImFont *m_fontBig;
 	};
 
 }

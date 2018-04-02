@@ -387,6 +387,7 @@ namespace common
 
 	public:
 		char m_str[MAX];
+		const size_t SIZE = MAX;
 	};
 
 
@@ -733,6 +734,7 @@ namespace common
 
 	public:
 		wchar_t m_str[MAX];
+		const size_t SIZE = MAX;
 	};
 
 

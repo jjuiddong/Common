@@ -83,7 +83,10 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//const float fontSize = 14;
 		//const float fontSize = 18;
 		const float fontSize = 26;
+		const float bigFontSize = 36;
+
 		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		m_fontBig = io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		io.ImeWindowHandle = (HWND)this->getSystemHandle();
 
 		//ImVector<ImWchar> ranges;
@@ -612,6 +615,16 @@ void cRenderWindow::RenderTitleBar()
 
 	ImGui::PopStyleColor(3);
 
+
+	// Title -+X Button Color
+	const float col_main_hue = 0.0f / 255.0f;
+	const float col_main_sat = 0.0f / 255.0f;
+	const float col_main_val = 80.0f / 255.0f;
+	const ImVec4 col_main = ImColor::HSV(col_main_hue, col_main_sat, col_main_val);
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(col_main.x, col_main.y, col_main.z, 0.44f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(col_main.x, col_main.y, col_main.z, 0.86f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(col_main.x, col_main.y, col_main.z, 1.00f));
+
 	ImGui::SameLine(); 
 	if (ImGui::Button("-", ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT))) // Minimize Button
 	{
@@ -632,6 +645,7 @@ void cRenderWindow::RenderTitleBar()
 	{
 		close();
 	}
+	ImGui::PopStyleColor(3);
 
 	ImGui::PopStyleVar(1);
 	ImGui::End();
