@@ -212,9 +212,10 @@ namespace graphic
 #pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
 
 #ifdef _DEBUG
-	#pragma comment(lib, "Effects11/effects11d.lib")
+	//#pragma comment(lib, "Effects11/effects11d.lib")
+#pragma comment(lib, "Effects11/effects11d_2017.lib")
 	#pragma comment( lib, "assimp-vc140-mtd.lib" ) 
 #else
-	#pragma comment(lib, "Effects11/effects11.lib")
+	#pragma comment(lib, "Effects11/effects11_2017.lib")
 	#pragma comment( lib, "assimp-vc140-mt.lib" ) 
 #endif
