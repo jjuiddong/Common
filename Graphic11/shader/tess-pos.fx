@@ -33,6 +33,7 @@ struct HullOutputType
 struct PixelInputType
 {
 	float4 pos : SV_POSITION;
+	float4 posW : TEXCOORD0;
 };
 
 
@@ -126,7 +127,8 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 
 	// x-z 축으로 quad를 만든다.
 	output.pos = mul(float4(vertexPosition, 1.0f), gWorld);
-	output.pos.xz = output.pos.xz + uv * 0.66f;
+	output.pos.xz = output.pos.xz + uv * gSize;
+	output.posW = output.pos; // world coordinate 
 
 	output.pos = mul(output.pos, gView);
 	output.pos = mul(output.pos, gProjection);
@@ -144,8 +146,10 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 float4 ColorPixelShader(PixelInputType input) : SV_TARGET
 {
 	//float4 texColor = txDiffuse.Sample(samLinear, input.tex);
-	return float4(1, 1, 1, 1); //input.color;
-	//return texColor;// 
+	//return float4(1, 1, 1, 1); //input.color;
+	//return texColor;
+
+	return input.posW.y / 500.f;
 }
 
 
