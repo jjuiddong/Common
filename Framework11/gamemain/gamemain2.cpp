@@ -40,8 +40,8 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	{
 		const int curT = timeGetTime();
 		int elapseT = curT - oldT;
-		if (elapseT > 100)
-			elapseT = 100;
+		if (elapseT > 1000)
+			elapseT = 1000;
 		//const float t = elapseT * 0.001f * gameMain->m_slowFactor;
 		const float t = (cGameMain2::PAUSE == gameMain->m_state) ? 0.f : (elapseT * 0.001f * gameMain->m_slowFactor);
 		oldT = curT;

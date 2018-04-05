@@ -80,7 +80,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 	ImGuiIO& io = ImGui::GetIO();
 	if (!mainWindow)
 	{
-		const float fontSize = 16;
+		const float fontSize = 15;
 		//const float fontSize = 18;
 		const float bigFontSize = 26;
 

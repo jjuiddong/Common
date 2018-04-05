@@ -365,6 +365,16 @@ namespace common
 			return *this;
 		}
 
+		String& operator += (const char c) {
+			const size_t len1 = strlen(m_str);
+			if ((len1+1) >= (MAX - 1))
+				return *this;
+
+			m_str[len1] = c;
+			m_str[len1 + 1] = NULL;
+			return *this;
+		}
+
 		String& operator += (const String &str) {
 			if (this == &str)
 				return *this;
@@ -711,6 +721,17 @@ namespace common
 			m_str[len1 + cpLen] = NULL;
 			return *this;
 		}
+
+		String& operator += (const wchar_t c) {
+			const size_t len1 = wcslen(m_str);
+			if ((len1+1) >= (MAX - 1))
+				return *this;
+
+			m_str[len1] = c;
+			m_str[len1 + 1] = NULL;
+			return *this;
+		}
+
 
 		String& operator += (const String &str) {
 			if (this == &str)
