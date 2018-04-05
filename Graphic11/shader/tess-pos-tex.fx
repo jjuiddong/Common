@@ -14,7 +14,8 @@ cbuffer TessellationBuffer : register(b6)
 
 struct HullInputType
 {
-	float3 pos : POSITION;
+	float2 pos : ORIGIN;
+	float2 tex : TEXCOORD0;
 };
 
 struct ConstantOutputType
@@ -22,17 +23,20 @@ struct ConstantOutputType
 	float edges[4] : SV_TessFactor;
 	float inside[2] : SV_InsideTessFactor;
 
-	float3 pos : POSITION;
+	float2 pos : ORIGIN;
+	float2 tex : TEXCOORD0;
 };
 
 struct HullOutputType
 {
-	float3 pos : POSITION;
+	float2 pos : ORIGIN;
+	float2 tex : TEXCOORD0;
 };
 
 struct PixelInputType
 {
 	float4 pos : SV_POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 
@@ -43,10 +47,12 @@ struct PixelInputType
 
 HullInputType main(
 	float4 Pos : POSITION
+	, float2 Tex : TEXCOORD0
 )
 {
 	HullInputType output;
-	output.pos = Pos.xyz;
+	output.pos = Pos.xz;
+	output.tex = Tex;
 	return output;
 }
 
@@ -65,14 +71,10 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 1> input
 	const float tessFactor = gTessellationAmount;
 
 	// Set the tessellation factors for the three edges of the triangle.
-	//output.edges[0] = max(1, pow(2, abs(gLevel - gEdgeLevel.x)));
-	//output.edges[1] = max(1, pow(2, abs(gLevel - gEdgeLevel.y)));
-	//output.edges[2] = max(1, pow(2, abs(gLevel - gEdgeLevel.z)));
-	//output.edges[3] = max(1, pow(2, abs(gLevel - gEdgeLevel.w)));
-	output.edges[0] = 1;
-	output.edges[1] = 1;
-	output.edges[2] = 1;
-	output.edges[3] = 1;
+	output.edges[0] = max(1, pow(2, abs(gLevel - gEdgeLevel.x)));
+	output.edges[1] = max(1, pow(2, abs(gLevel - gEdgeLevel.y)));
+	output.edges[2] = max(1, pow(2, abs(gLevel - gEdgeLevel.z)));
+	output.edges[3] = max(1, pow(2, abs(gLevel - gEdgeLevel.w)));
 	output.inside[0] = 1;
 	output.inside[1] = 1;
 
@@ -86,6 +88,7 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 1> input
 	//output.inside[1] = pow(2, gLevel);
 
 	output.pos = inputPatch[0].pos;
+	output.tex = inputPatch[0].tex;
 
 	return output;
 }
@@ -96,7 +99,7 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 1> input
 ////////////////////////////////////////////////////////////////////////////////
 [domain("quad")]
 [partitioning("integer")]
-[outputtopology("triangle_cw")]
+[outputtopology("triangle_ccw")]
 [outputcontrolpoints(1)]
 [patchconstantfunc("ColorPatchConstantFunction")]
 
@@ -106,6 +109,7 @@ HullOutputType ColorHullShader(InputPatch<HullInputType, 1> patch
 {
 	HullOutputType output = (HullOutputType)0;
 	output.pos = patch[pointId].pos;
+	output.tex = patch[pointId].tex;
 	return output;
 }
 
@@ -122,17 +126,27 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 {
 	float3 vertexPosition;
 	PixelInputType output = (PixelInputType)0;
-	vertexPosition = input.pos;
 
-	// x-z 축으로 quad를 만든다.
+	vertexPosition.xz = input.pos + uv * gSize;
+	vertexPosition.y = 0.1f;
+	//vertexPosition.y = sin(uv.x);// 0.1f;
+
+	float3 oPos = mul(float4(vertexPosition, 1.0f), gWorld).xyz;
+	vertexPosition.y = (sin(oPos.x*0.02f) + sin(oPos.x*0.03f)) * 10.f;// 0.1f;
+
+
+	//float2 v1 = lerp(patch[0].origin, patch[1].origin, uv.x);
+	//float2 v2 = lerp(patch[2].origin, patch[3].origin, uv.x);
+	//vertexPosition.xz = lerp(v1, v2, uv.y);
+	//vertexPosition.y = 0.1f;
+
 	output.pos = mul(float4(vertexPosition, 1.0f), gWorld);
-	output.pos.xz = output.pos.xz + uv * 0.66f;
-
 	output.pos = mul(output.pos, gView);
 	output.pos = mul(output.pos, gProjection);
 
 	// Send the input color into the pixel shader.
 	//output.color = float4(0,0,0,1);
+	output.tex = uv;
 
 	return output;
 }
@@ -144,7 +158,7 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 float4 ColorPixelShader(PixelInputType input) : SV_TARGET
 {
 	//float4 texColor = txDiffuse.Sample(samLinear, input.tex);
-	return float4(1, 1, 1, 1); //input.color;
+	return float4(0, 0, 0, 1); //input.color;
 	//return texColor;// 
 }
 
