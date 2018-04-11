@@ -315,7 +315,8 @@ bool cImGui::CreateFontsTexture()
         srvDesc.Texture2D.MipLevels = desc.MipLevels;
         srvDesc.Texture2D.MostDetailedMip = 0;
         m_pd3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &m_pFontTextureView);
-        pTexture->Release();
+		if (pTexture)
+			pTexture->Release();
     }
 
     // Store our identifier
