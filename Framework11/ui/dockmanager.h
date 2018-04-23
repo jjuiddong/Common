@@ -26,11 +26,14 @@ namespace framework
 		void DeleteDockWindow(cDockWindow *p);
 		void UpdateRender(const float deltaSeconds);
 		void Clear();
+		void SetNormalState();
+		void SetClickState();
 		void SetDragState(cRenderWindow *drag, const bool isDragStart=true);
 		void SetMoveState(cRenderWindow *drag, const bool isMove=true);
 		void SetDragTarget(cDockWindow *target);
 		cRenderWindow* GetMainWindow();
 		graphic::cRenderer* GetMainRenderer();
+		bool IsClickState();
 		bool IsDragState();
 		bool IsMoveState();
 		void LostDevice();
@@ -46,6 +49,7 @@ namespace framework
 			enum Enum {
 				NORMAL,
 				MOVE,
+				CLICK,
 				DRAG,
 				DRAG_END,
 		};};

@@ -19,10 +19,10 @@ namespace framework
 			enum Enum {
 				NORMAL,
 				NORMAL_DOWN, // docking, resize bugfix
-				NORMAL_DOWN_TITLE, // titlebar click
 				NORMAL_DOWN_ETC, // mouse down, exceptra
 				WINDOW_RESIZE,
 				DOCK_SIZE, // docking window sizing
+				TAB_CLICK,
 				DRAG,
 				MOVE,
 				DRAG_BIND,
@@ -61,6 +61,7 @@ namespace framework
 		void RequestResetDeviceNextFrame();
 		void Sleep();
 		void WakeUp(const StrId &title, const float width, const float height);
+		void SetTabClickState();
 		void SetDragState();
 		void SetDragBindState();
 		void SetFinishDragBindState();
@@ -76,7 +77,7 @@ namespace framework
 	protected:
 		void RenderTitleBar();
 		void Resize();
-		void ChangeState(const eState::Enum nextState, const int option=0);
+		void ChangeState(const eState::Enum nextState);
 		const char* GetStateString(const eState::Enum state);
 		virtual void DefaultEventProc(const sf::Event &evt);
 		virtual void MouseProc(const float deltaSeconds);

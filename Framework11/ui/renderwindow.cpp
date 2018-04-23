@@ -134,6 +134,9 @@ void cRenderWindow::Update(const float deltaSeconds)
 	RET(!isOpen());
 	RET(!m_isVisible);
 
+	m_gui.SetContext();
+	m_gui.NewFrame();
+
 	if (m_isRequestResetDevice)
 	{
 		ChangeDevice();
@@ -144,7 +147,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 	if (eState::WINDOW_RESIZE == m_state)
 	{
 		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // Mouse Left Button Up, state change bug fix
-			ChangeState(eState::NORMAL, 8);
+			ChangeState(eState::NORMAL);
 	}
 
 	// Maximize Window HotKey
@@ -185,6 +188,15 @@ void cRenderWindow::Update(const float deltaSeconds)
 
 void cRenderWindow::MouseProc(const float deltaSeconds)
 {
+	// 창을 옮기거나, 도킹 중일 때는, 해당 창의 마우스 이벤트만 처리한다.
+	if (cDockManager::Get()->IsDragState())
+	{
+		if ((m_state != eState::DRAG) && (m_state != eState::DRAG_BIND))
+			return;
+	}
+	if (cDockManager::Get()->IsClickState())
+		return;
+
 	const Vector2 pos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 	switch (m_state)
 	{
@@ -217,11 +229,11 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 
 	case eState::NORMAL_DOWN:
 	case eState::NORMAL_DOWN_ETC:
-	case eState::NORMAL_DOWN_TITLE:
+	case eState::TAB_CLICK:
 	{
 		if (ImGui::IsMouseReleased(0))
 		{
-			ChangeState(eState::NORMAL, 1);
+			ChangeState(eState::NORMAL);
 			m_sizingWindow = NULL;
 		}
 	}
@@ -243,7 +255,7 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 
 		if (ImGui::IsMouseReleased(0))
 		{
-			ChangeState(eState::NORMAL, 2);
+			ChangeState(eState::NORMAL);
 			if (m_sizingWindow)
 				m_sizingWindow->ResizeEnd(eDockResize::DOCK_WINDOW, m_sizingWindow->m_rect);
 			m_sizingWindow = NULL;
@@ -255,10 +267,10 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 	{
 		POINT mousePos;
 		GetCursorPos(&mousePos);
-		setPosition(sf::Vector2i((int)mousePos.x - 30, (int)mousePos.y - 60));
+		setPosition(sf::Vector2i((int)mousePos.x - 30, (int)mousePos.y - (int)TITLEBAR_HEIGHT - (int)(TAB_H/2.f)));
 
 		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
-			ChangeState(eState::NORMAL, 3);
+			ChangeState(eState::NORMAL);
 	}
 	break;
 
@@ -330,14 +342,12 @@ void cRenderWindow::Resize()
 
 	if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000))  // Mouse Left Button Up
 	{
-		ChangeState(eState::NORMAL, 4);
+		ChangeState(eState::NORMAL);
 	}
 }
 
 
-void cRenderWindow::ChangeState( const eState::Enum nextState
-	, const int option //=0
-)
+void cRenderWindow::ChangeState( const eState::Enum nextState)
 {
 	if (m_state == nextState)
 		return;
@@ -347,7 +357,6 @@ void cRenderWindow::ChangeState( const eState::Enum nextState
 	case eState::NORMAL:
 	case eState::NORMAL_DOWN:
 	case eState::NORMAL_DOWN_ETC:
-	case eState::NORMAL_DOWN_TITLE:
 		break;
 
 	case eState::WINDOW_RESIZE:
@@ -361,6 +370,9 @@ void cRenderWindow::ChangeState( const eState::Enum nextState
 		break;
 
 	case eState::DOCK_SIZE:
+		break;
+
+	case eState::TAB_CLICK:
 		break;
 
 	case eState::DRAG:
@@ -383,9 +395,12 @@ void cRenderWindow::ChangeState( const eState::Enum nextState
 	case eState::NORMAL:
 	case eState::NORMAL_DOWN:
 	case eState::NORMAL_DOWN_ETC:
-	case eState::NORMAL_DOWN_TITLE:
 	case eState::WINDOW_RESIZE:
 	case eState::DOCK_SIZE:
+		break;
+
+	case eState::TAB_CLICK:
+		cDockManager::Get()->SetClickState();
 		break;
 
 	case eState::DRAG:
@@ -414,10 +429,13 @@ void cRenderWindow::ChangeState( const eState::Enum nextState
 
 
 // return first == true  --> window resize
-//					== false --> dock window resize
+//				== false --> dock window resize
 std::pair<bool, cDockWindow*> cRenderWindow::UpdateCursor()
 {
-	const Vector2 pos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+	POINT tmpPos;
+	::GetCursorPos(&tmpPos);
+	const Vector2 pos((float)(tmpPos.x - getPosition().x), (float)(tmpPos.y - getPosition().y));
+
 	eDockSizingType::Enum cursorType = eDockSizingType::NONE;
 	eResizeCursor::Enum resizeCursor = eResizeCursor::NONE;
 
@@ -427,17 +445,18 @@ std::pair<bool, cDockWindow*> cRenderWindow::UpdateCursor()
 	// Window ReSize check
 	const Vector2 size((float)getSize().x, (float)getSize().y);
 	const Vector2 delta = size - pos;
-	
-	if (!m_isFullScreen) // Only Check Normal Window
+	const sRectf rect(0, 0, size.x, size.y);
+	const int Gap = 10;
+	if (!m_isFullScreen && rect.IsIn(delta.x, delta.y)) // Only Check Normal Window
 	{
-		if ((delta.x < 10) && (delta.y < 10)) resizeCursor = eResizeCursor::RIGHT_BOTTOM;
-		else if((delta.x > size.x-10) && (delta.y > size.y - 10)) resizeCursor = eResizeCursor::LEFT_TOP;
-		else if ((delta.x < 10) && (delta.y > size.y - 10)) resizeCursor = eResizeCursor::RIGHT_TOP;
-		else if ((delta.x > size.x - 10) && (delta.y < 10)) resizeCursor = eResizeCursor::LEFT_BOTTOM;
-		else if (delta.x < 10) resizeCursor = eResizeCursor::RIGHT;
-		else if (delta.x > size.x-10) resizeCursor = eResizeCursor::LEFT;
-		else if (delta.y < 10) resizeCursor = eResizeCursor::BOTTOM;
-		else if (delta.y > size.y - 10) resizeCursor = eResizeCursor::TOP;
+		if ((delta.x < Gap) && (delta.y < Gap)) resizeCursor = eResizeCursor::RIGHT_BOTTOM;
+		else if((delta.x > size.x - Gap) && (delta.y > size.y - Gap)) resizeCursor = eResizeCursor::LEFT_TOP;
+		else if ((delta.x < Gap) && (delta.y > size.y - Gap)) resizeCursor = eResizeCursor::RIGHT_TOP;
+		else if ((delta.x > size.x - Gap) && (delta.y < Gap)) resizeCursor = eResizeCursor::LEFT_BOTTOM;
+		else if (delta.x < Gap) resizeCursor = eResizeCursor::RIGHT;
+		else if (delta.x > size.x- Gap) resizeCursor = eResizeCursor::LEFT;
+		else if (delta.y < Gap) resizeCursor = eResizeCursor::BOTTOM;
+		else if (delta.y > size.y - Gap) resizeCursor = eResizeCursor::TOP;
 	}
 
 	if (eResizeCursor::NONE == resizeCursor)
@@ -497,9 +516,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 		m_renderer.Present();
 		return;
 	}
-
-	m_gui.SetContext();
-	m_gui.NewFrame();
 
 	PreRender(deltaSeconds);
 
@@ -580,7 +596,7 @@ void cRenderWindow::RenderTitleBar()
 	{
 		if (ImGui::IsMouseDoubleClicked(0)) // Double Click, Maximize Window
 		{
-			ChangeState(eState::NORMAL, 5);
+			ChangeState(eState::NORMAL);
 			ImGui::GetIO().MouseDown[0] = false; // maximize window move bug fix
 
 			WINDOWPLACEMENT wndPl;
@@ -607,7 +623,7 @@ void cRenderWindow::RenderTitleBar()
 		// TitleBar Click Release?
 		if (IsMoveState() && !ImGui::IsMouseDown(0))
 		{
-			ChangeState(eState::NORMAL, 6);
+			ChangeState(eState::NORMAL);
 		}
 		else if (eState::NORMAL_DOWN == m_state)
 		{
@@ -828,6 +844,11 @@ cDockWindow* cRenderWindow::GetSizerTargetWindow(const Vector2 &mousePt)
 }
 
 
+void cRenderWindow::SetTabClickState()
+{
+	ChangeState(eState::TAB_CLICK);
+}
+
 void cRenderWindow::SetDragState()
 {
 	ChangeState(eState::DRAG);
@@ -842,7 +863,7 @@ void cRenderWindow::SetDragBindState()
 
 void cRenderWindow::SetFinishDragBindState()
 {
-	ChangeState(eState::NORMAL, 7);
+	ChangeState(eState::NORMAL);
 }
 
 
@@ -866,7 +887,7 @@ void cRenderWindow::Sleep()
 
 void cRenderWindow::WakeUp(const StrId &title, const float width, const float height)
 {
-	ChangeState(eState::NORMAL, 9);
+	ChangeState(eState::NORMAL);
 
 	m_title = StrId(" - ") + title + StrId(" - ");
 	setTitle(title.c_str());
@@ -950,7 +971,6 @@ const char* cRenderWindow::GetStateString(const eState::Enum state)
 	{
 	case eState::NORMAL: return "Normal";
 	case eState::NORMAL_DOWN: return "Normal_Down";
-	case eState::NORMAL_DOWN_TITLE: return "Normal_Title";
 	case eState::NORMAL_DOWN_ETC: return "Normal_Etc";
 	case eState::WINDOW_RESIZE: return "Window_Resize";
 	case eState::DOCK_SIZE: return "Resize";

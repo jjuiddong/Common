@@ -468,15 +468,21 @@ void cDockWindow::RenderTab()
 			m_selectTab = i;
 		}
 
-		if (ImGui::IsItemActive() && 
-			!cDockManager::Get()->IsDragState() && !cDockManager::Get()->IsMoveState())
+		if (ImGui::IsItemActive()  
+			&& (GetAsyncKeyState(VK_LBUTTON) & 0x8000) // drag bug fix
+													// flicking docking windowMouse Left Button Down
+			&& !cDockManager::Get()->IsDragState() 
+			&& !cDockManager::Get()->IsMoveState())
 		{
+			const bool IsMainWindow = cDockManager::Get()->m_mainWindow == m_owner;
+			if (!IsMainWindow)
+				m_owner->SetTabClickState();
+
 			const float delta = m_owner->m_clickPos.y - ImGui::GetIO().MousePos.y;
 			if (!m_parent && !m_upper && !m_lower && m_tabs.empty())
 			{ // SingleTab DockWindow
 				if (delta < -2 || delta > 2)
 				{
-					const bool IsMainWindow = cDockManager::Get()->m_mainWindow == m_owner;
 					if (!IsMainWindow)
 						m_owner->SetDragState();
 				}

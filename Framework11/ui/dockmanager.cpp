@@ -148,6 +148,18 @@ void cDockManager::Clear()
 }
 
 
+void cDockManager::SetNormalState()
+{
+	m_state = eState::NORMAL;
+}
+
+
+void cDockManager::SetClickState()
+{
+	m_state = eState::CLICK;
+}
+
+
 void cDockManager::SetMoveState(cRenderWindow *drag
 	, const bool isMove //= true
 )
@@ -165,15 +177,13 @@ void cDockManager::SetDragState(cRenderWindow *drag
 
 	if (isDragStart)
 	{
-		dbg::Log("start drag\n");
-
+		//dbg::Log("start drag\n");
 		m_dockTarget = NULL;
 		m_state = eState::DRAG;
 	}
 	else
 	{
-		dbg::Log("end drag\n");
-
+		//dbg::Log("end drag\n");
 		m_dragWindow = drag;
 		m_state = eState::DRAG_END;
 	}
@@ -194,9 +204,15 @@ void cDockManager::SetDragTarget(cDockWindow *dock)
 }
 
 
+bool cDockManager::IsClickState()
+{
+	return m_state == eState::CLICK;
+}
+
+
 bool cDockManager::IsDragState()
 {
-	return m_state == eState::DRAG;
+	return (m_state == eState::DRAG) || (m_state == eState::DRAG_END);
 }
 
 
