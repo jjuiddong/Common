@@ -1,4 +1,5 @@
 // memory pool  using boost pool library
+// No Thread - Safe
 //
 #pragma once
 

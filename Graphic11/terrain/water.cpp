@@ -132,7 +132,7 @@ bool cWater::Render(cRenderer &renderer
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
 	//renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 
-	renderer.GetDevContext()->IASetPrimitiveTopology(m_grid.m_primitiveType);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	renderer.GetDevContext()->DrawIndexed(m_grid.m_idxBuff.GetFaceCount() * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 

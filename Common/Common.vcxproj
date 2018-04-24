@@ -393,6 +393,7 @@
     <ClInclude Include="etc\inifile.h" />
     <ClInclude Include="etc\ip.h" />
     <ClInclude Include="etc\memorypool.h" />
+    <ClInclude Include="etc\memorypool2.h" />
     <ClInclude Include="etc\observer.h" />
     <ClInclude Include="etc\observer2.h" />
     <ClInclude Include="etc\path.h" />

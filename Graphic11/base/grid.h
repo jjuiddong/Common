@@ -27,7 +27,6 @@ namespace graphic
 			, const bool isEditable = false
 		);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
-		void RenderLine(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1);
 
 
 	public:
@@ -35,14 +34,11 @@ namespace graphic
 		cIndexBuffer m_idxBuff;
 		cTexture *m_texture; // reference
 		cMaterial m_mtrl;
-		bool m_isLineDrawing;
 		int m_rowCellCount;
 		int m_colCellCount;
 		float m_cellSizeW;
 		float m_cellSizeH;
 		int m_faceCount; // no line count
-		D3D_PRIMITIVE_TOPOLOGY m_primitiveType;
-		cColor m_lineColor;
 	};
 
 }

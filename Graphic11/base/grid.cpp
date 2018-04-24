@@ -7,12 +7,8 @@ using namespace graphic;
 
 cGrid::cGrid()
 	: cNode(common::GenerateId(), "grid", eNodeType::MODEL)
-	//, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST) // D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-	, m_primitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	, m_texture(NULL)
-	, m_isLineDrawing(false)
 	, m_faceCount(0)
-	, m_lineColor(0.7f, 0.7f, 0.7f, 0.5f)
 {
 	m_mtrl.InitWhite();
 }
@@ -31,9 +27,8 @@ void CreateIndexArray(const int rowCellCount, const int colCellCount
 	const int colVtxCnt = colCellCount + 1;
 	const int cellCnt = rowCellCount * colCellCount;
 
-	// We Need Additional Indexbuffer for Draw Grid Line
 	const int addLineCount = rowCellCount + colCellCount;
-	out.resize( ((cellCnt * 2 * 3) + (addLineCount * 3)) * sizeof(T), 0);
+	out.resize((cellCnt * 2 * 3) * sizeof(T), 0);
 	T *indices = (T*)&out[0];
 	{
 		int baseIndex = 0;
@@ -59,24 +54,6 @@ void CreateIndexArray(const int rowCellCount, const int colCellCount
 				// next quad
 				baseIndex += 6;
 			}
-		}
-	}
-
-	// Add Grid Line Index
-	{
-		int baseIndex = cellCnt * 2 * 3;
-		for (int i = 0; i < rowCellCount; ++i)
-		{
-			indices[baseIndex] = (i * colVtxCnt);
-			indices[baseIndex + 1] = ((i + 1) * colVtxCnt);
-			baseIndex += 2;
-		}
-
-		for (int i = 0; i < colCellCount; ++i)
-		{
-			indices[baseIndex] = (rowCellCount * colVtxCnt) + i;
-			indices[baseIndex + 1] = (rowCellCount * colVtxCnt) + i + 1;
-			baseIndex += 2;
 		}
 	}
 }
@@ -195,9 +172,6 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	//cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
 	//	, textureFileName, (void**)&m_texture));
 
-	if (vertexType & eVertexType::TEXTURE0)
-		m_primitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
 	m_boundingBox.SetBoundingBox(Vector3(0, 0, 0)
 		, Vector3(rowCellCount*cellSizeW*0.5f, 1, colCellCount*cellSizeH*0.5f)
 		, Quaternion());
@@ -235,60 +209,11 @@ bool cGrid::Render(cRenderer &renderer
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
-	renderer.GetDevContext()->IASetPrimitiveTopology(m_primitiveType);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	renderer.GetDevContext()->DrawIndexed(m_faceCount * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
-
-	// Line Drawing (ignore shadow map building)
-	if (m_isLineDrawing && !(flags & eRenderFlag::SHADOW))
-	{
-		RenderLine(renderer, tm, flags);
-	}
 
 	__super::Render(renderer, tm, flags);
 	return true;
 }
 
-
-// 라인만 그린다.
-void cGrid::RenderLine(cRenderer &renderer
-	, const XMMATRIX &tm //= XMIdentity
-	, const int flags //= 1
-)
-{
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
-	assert(shader);
-	shader->SetTechnique(m_techniqueName.c_str());
-	shader->Begin();
-	shader->BeginPass(renderer, 0);
-
-	Transform tfm = m_transform;
-	tfm.pos.y += 0.1f;
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
-	renderer.m_cbPerFrame.Update(renderer);
-	renderer.m_cbLight.Update(renderer, 1);
-	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&m_lineColor.GetColor());
-	renderer.m_cbMaterial.Update(renderer, 2);
-	renderer.m_cbClipPlane.Update(renderer, 4);
-
-	m_vtxBuff.Bind(renderer);
-	m_idxBuff.Bind(renderer);
-
-	if ((m_vtxType & eVertexType::TEXTURE0) && m_texture)
-		m_texture->Bind(renderer, 0);
-
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
-	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
-	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
-
-	// recovery material
-	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
-
-	// debugging
-	++renderer.m_drawCallCount;
-#ifdef _DEBUG
-	++renderer.m_shadersDrawCall[m_vtxType];
-#endif
-}

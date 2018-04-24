@@ -104,6 +104,7 @@ using std::wstringstream;
 #include "etc/recttype.h"
 #include "etc/genid.h"
 #include "etc/memorypool.h"
+#include "etc/memorypool2.h"
 #include "etc/rand.h"
 #include "etc/config.h"
 #include "etc/autocs.h"
