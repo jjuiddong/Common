@@ -121,19 +121,27 @@ bool cIndexBuffer::Create2(cRenderer &renderer
 }
 
 
-void* cIndexBuffer::Lock()
+void* cIndexBuffer::Lock(cRenderer &renderer
+	, const D3D11_MAP flag //= D3D11_MAP_WRITE_DISCARD
+)
 {
+	assert(0); // 쓰기 모드로만 되어있기 때문에, Lock을 걸면 정보가 사라진다. 일단 쓰지말것
+
 	RETV(!m_idxBuff, NULL);
 
-	WORD *indices = NULL;
-	//m_idxBuff->Lock(0, 0, (void**)&indices, 0);
-	return indices;
+	D3D11_MAPPED_SUBRESOURCE res;
+	ZeroMemory(&res, sizeof(res));
+	HRESULT hr = renderer.GetDevContext()->Map(m_idxBuff, 0, flag, 0, &res);
+	if (FAILED(hr))
+		return NULL;
+	return res.pData;
 }
 
 
-void cIndexBuffer::Unlock()
+void cIndexBuffer::Unlock(cRenderer &renderer)
 {
-	//m_idxBuff->Unlock();
+	RET(!m_idxBuff);
+	renderer.GetDevContext()->Unmap(m_idxBuff, 0);
 }
 
 

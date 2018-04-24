@@ -30,8 +30,8 @@ namespace graphic
 			, const int primitiveSize = 3);
 
 		bool Create2(cRenderer &renderer, const int primitiveCount, const int primitiveSize);
-		void* Lock();
-		void Unlock();
+		void* Lock(cRenderer &renderer, const D3D11_MAP flag = D3D11_MAP_WRITE_DISCARD);
+		void Unlock(cRenderer &renderer);
 		void Bind(cRenderer &renderer) const;
 		int GetFaceCount() const;
 		int GetPrimitiveSize() const;
