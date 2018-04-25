@@ -30,6 +30,7 @@ namespace graphic
 		cAssimpModel * LoadAssimpModel(cRenderer &renderer, const StrPath &fileName);
 		std::pair<bool, cAssimpModel*> LoadAssimpModelParallel(cRenderer &renderer, const StrPath &fileName);
 		void InsertAssimpModel(const StrPath &fileName, cAssimpModel *p);
+		void InsertRawMesh(const StrPath &fileName, sRawMeshGroup2 *p);
 		sRawAniGroup* LoadAnimation( const StrId &fileName );
 		bool LoadAnimation(const StrPath &fileName, sRawAniGroup *anies);
 

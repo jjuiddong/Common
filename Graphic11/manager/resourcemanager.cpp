@@ -189,6 +189,13 @@ void cResourceManager::InsertAssimpModel(const StrPath &fileName, cAssimpModel *
 }
 
 
+void cResourceManager::InsertRawMesh(const StrPath &fileName, sRawMeshGroup2 *p)
+{
+	AutoCSLock cs(m_cs);
+	m_meshes2[fileName.GetHashCode()] = p;
+}
+
+
 // 애니메이션 파일 로딩.
 sRawAniGroup* cResourceManager::LoadAnimation( const StrId &fileName )
 {
