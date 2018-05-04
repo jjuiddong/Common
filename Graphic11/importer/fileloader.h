@@ -36,9 +36,11 @@ namespace graphic
 
 		T* Load(cRenderer &renderer, const char *fileName);
 		T* Load(cRenderer &renderer, const T *src, const char *fileName, const Args &args);
-		std::pair<bool, T*> LoadParallel(cRenderer &renderer, const char *fileName, void **outPtr);
+		std::pair<bool, T*> LoadParallel(cRenderer &renderer, const char *fileName, int *outFlag, void **outPtr
+			, const bool isTopPriority = false);
 		std::pair<bool, T*> LoadParallel(cRenderer &renderer, const T *src, const char *fileName
-			, const Args &args, void **outFlag, void **outPtr);
+			, const Args &args, int *outFlag, void **outPtr
+			, const bool isTopPriority = false);
 		std::tuple<bool, int, T*> Find(const char *fileName);
 		bool Insert(const char *fileName, T *data);
 		bool FailLoad(const char *fileName);
@@ -49,7 +51,7 @@ namespace graphic
 
 	public:
 		map<hashcode, sChunk> m_files; //key = fileName hashcode
-		map< hashcode, std::set< std::pair<void**,void**> > > m_updatePtrs; // update pointers
+		map< hashcode, std::set< std::pair<void**,int*> > > m_updatePtrs; // update pointers
 		CriticalSection m_cs;
 		cThread m_thread;
 	};
@@ -62,16 +64,17 @@ namespace graphic
 	class cTaskFileLoader : public common::cTask
 	{
 	public:
-		cTaskFileLoader(cFileLoader<T,MAX,Args> *fileLoader, cRenderer *renderer, const char *fileName)
-			: cTask(common::GenerateId(), "cTaskFileLoader")
+		cTaskFileLoader(cFileLoader<T,MAX,Args> *fileLoader, cRenderer *renderer, const char *fileName
+			, const bool isTopPriority = false )
+			: cTask(common::GenerateId(), "cTaskFileLoader", isTopPriority)
 			, m_renderer(renderer)
 			, m_fileName(fileName)
 			, m_fileLoader(fileLoader)
 			, m_loadType(0) {
 		}
 		cTaskFileLoader(cFileLoader<T,MAX,Args> *fileLoader, cRenderer *renderer, const T *src, const char *fileName
-			, const Args &args)
-			: cTask(common::GenerateId(), "cTaskFileLoader")
+			, const Args &args, const bool isTopPriority = false)
+			: cTask(common::GenerateId(), "cTaskFileLoader", isTopPriority)
 			, m_renderer(renderer)
 			, m_fileName(fileName)
 			, m_fileLoader(fileLoader)
@@ -233,66 +236,26 @@ namespace graphic
 	// LoadParallel
 	template<class T, size_t MAX, class Args = sFileLoaderArg>
 	std::pair<bool, T*> cFileLoader<T, MAX, Args>::LoadParallel(graphic::cRenderer &renderer, const char *fileName
-		, void **outPtr)
+		, int *outFlag, void **outPtr
+		, const bool isTopPriority //= false
+	)
 	{
-		// is exist?
-		{
-			auto result = Find(fileName);
-			const bool isFind = std::get<0>(result);
-			const STATE state = (STATE)std::get<1>(result);
-			T *ptr = std::get<2>(result);
-			if (isFind)
-			{
-				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
-				if (LOADING == state)
-				{
-					const StrPath path(fileName);
-					m_updatePtrs[path.GetHashCode()].insert({ outPtr, NULL });
-				}
-
-				if (outPtr)
-					*outPtr = ptr;
-				return std::make_pair(isFind, ptr);
-			}
-		}
-
-		// loading
 		{
 			AutoCSLock cs(m_cs);
 
-			if (m_files.size() >= MAX)
-				return{ false, NULL };
-
-			// 중복로딩을 막기위해, 미리 NULL로 저장한다.
+			// is exist?
 			StrPath path(fileName);
-			m_files[path.GetHashCode()] = { 0, LOADING, NULL };
-			m_updatePtrs[path.GetHashCode()].insert({ outPtr, NULL });
-		}
-
-		m_thread.AddTask(new cTaskFileLoader<T,MAX,Args>(this, &renderer, fileName));
-		if (!m_thread.IsRun())
-			m_thread.Start();
-
-		return { true, NULL };
-	}
-
-
-	// LoadParallel
-	template<class T, size_t MAX, class Args = sFileLoaderArg>
-	std::pair<bool, T*> cFileLoader<T, MAX, Args>::LoadParallel(graphic::cRenderer &renderer, const T *src
-		, const char *fileName, const Args &args, void **outFlag, void **outPtr)
-	{
-		// is exist?
-		{
-			auto result = Find(fileName);
-			const bool isFind = std::get<0>(result);
-			const STATE state = (STATE)std::get<1>(result);
-			T *ptr = std::get<2>(result);
+			auto it = m_files.find(path.GetHashCode());
+			const bool isFind = (m_files.end() != it);
+			const STATE state = (m_files.end() != it) ? it->second.state : NONE;
+			T *ptr = it->second.data;
 			if (isFind)
 			{
 				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
 				if (LOADING == state)
 				{
+					if (outFlag)
+						*outFlag = 1;
 					const StrPath path(fileName);
 					m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
 				}
@@ -303,29 +266,94 @@ namespace graphic
 					if (outFlag)
 						*outFlag = 0;
 				}
+				else
+					assert(0);
 
-				return std::make_pair(true, ptr);
+				return std::make_pair(isFind, ptr);
+			}
+			else // // Not Found, loading
+			{				
+				if (m_files.size() >= MAX)
+				{
+					if (outFlag)
+						*outFlag = 0;
+					return{ false, NULL };
+				}
+
+				// 중복로딩을 막기위해, 미리 NULL로 저장한다.
+				if (outFlag)
+					*outFlag = 1;
+				StrPath path(fileName);
+				m_files[path.GetHashCode()] = { 0, LOADING, NULL };
+				m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
 			}
 		}
 
-		// loading
+		m_thread.AddTask(new cTaskFileLoader<T,MAX,Args>(this, &renderer, fileName, isTopPriority));
+		if (!m_thread.IsRun())
+			m_thread.Start();
+
+		return { true, NULL };
+	}
+
+
+	// LoadParallel
+	template<class T, size_t MAX, class Args = sFileLoaderArg>
+	std::pair<bool, T*> cFileLoader<T, MAX, Args>::LoadParallel(graphic::cRenderer &renderer, const T *src
+		, const char *fileName, const Args &args, int *outFlag, void **outPtr
+		, const bool isTopPriority //= false
+	)
+	{
 		{
 			AutoCSLock cs(m_cs);
 
-			if (m_files.size() >= MAX)
-			{
-				if (outFlag)
-					*outFlag = 0;
-				return{ false, NULL };
-			}
-
-			// 중복로딩을 막기위해, 미리 NULL로 저장한다.
+			// is exist?
 			StrPath path(fileName);
-			m_files[path.GetHashCode()] = { 0, LOADING, NULL };
-			m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
+			auto it = m_files.find(path.GetHashCode());
+			const bool isFind = (m_files.end() != it);
+			const STATE state = (m_files.end() != it) ? it->second.state : NONE;
+			T *ptr = it->second.data;
+			if (isFind)
+			{
+				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
+				if (LOADING == state)
+				{
+					if (outFlag)
+						*outFlag = 1;
+					const StrPath path(fileName);
+					m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
+				}
+				else if (COMPLETE == state)
+				{
+					if (outPtr)
+						*outPtr = ptr;
+					if (outFlag)
+						*outFlag = 0;
+				}
+				else
+					assert(0);
+
+				return std::make_pair(true, ptr);
+			}
+			else // Not Found, Loading
+			{
+				if (m_files.size() >= MAX)
+				{
+					if (outFlag)
+						*outFlag = 0;
+					return{ false, NULL };
+				}
+
+				// 중복로딩을 막기위해, 미리 NULL로 저장한다.
+				if (outFlag)
+					*outFlag = 1;
+				StrPath path(fileName);
+				m_files[path.GetHashCode()] = { 0, LOADING, NULL };
+				m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
+			}
 		}
 
-		m_thread.AddTask(new cTaskFileLoader<T, MAX, Args>(this, &renderer, src, fileName, args));
+		m_thread.AddTask(new cTaskFileLoader<T, MAX, Args>(this, &renderer, src, fileName, args, isTopPriority));
 		if (!m_thread.IsRun())
 			m_thread.Start();
 
@@ -338,12 +366,10 @@ namespace graphic
 	inline std::tuple<bool, int, T*> cFileLoader<T, MAX, Args>::Find(const char *fileName)
 	{
 		StrPath path(fileName);
-
 		AutoCSLock cs(m_cs);
 		auto it = m_files.find(path.GetHashCode());
 		if (m_files.end() == it)
-			return{ false, NONE, NULL }; // not exist
-		
+			return{ false, NONE, NULL }; // not exist		
 		return std::make_tuple(true, it->second.state, it->second.data);
 	}
 
@@ -352,13 +378,14 @@ namespace graphic
 	template<class T, size_t MAX, class Args = sFileLoaderArg>
 	inline bool cFileLoader<T, MAX, Args>::Insert(const char *fileName, T *data)
 	{
-		StrPath path(fileName);
+		AutoCSLock cs(m_cs);
 
+		StrPath path(fileName);
 		auto &updatePtrs = m_updatePtrs[path.GetHashCode()];
 		for (auto ptrs : updatePtrs)
 		{
 			void **outPtr = ptrs.first;
-			void **outFlag = ptrs.second;
+			int *outFlag = ptrs.second;
 
 			if (outPtr)
 				*outPtr = data;
@@ -376,12 +403,14 @@ namespace graphic
 	template<class T, size_t MAX, class Args = sFileLoaderArg>
 	inline bool cFileLoader<T, MAX, Args>::FailLoad(const char *fileName)
 	{
+		AutoCSLock cs(m_cs);
+
 		StrPath path(fileName);
 		auto &updatePtrs = m_updatePtrs[path.GetHashCode()];
 		for (auto ptrs : updatePtrs)
 		{
 			void **outPtr = ptrs.first;
-			void **outFlag = ptrs.second;
+			int *outFlag = ptrs.second;
 
 			if (outPtr)
 				*outPtr = NULL;
@@ -434,9 +463,15 @@ namespace graphic
 	template<class T, size_t MAX, class Args = sFileLoaderArg>
 	inline void cFileLoader<T, MAX, Args>::Clear()
 	{
+		AutoCSLock cs(m_cs);
+
+		m_thread.Terminate();
+		m_thread.Clear();
+
 		for (auto &kv : m_files)
 			delete kv.second.data;
 		m_files.clear();
+		m_updatePtrs.clear();
 	}
 
 }

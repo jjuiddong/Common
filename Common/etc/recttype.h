@@ -90,6 +90,7 @@ namespace common
 
 	typedef sRect1<LONG> sRecti;
 	typedef sRect1<float> sRectf;
+	typedef sRect1<double> sRectd;
 
 
 

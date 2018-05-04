@@ -23,7 +23,7 @@ namespace common
 	static bool IsSameId(T *p, int id)
 	{
 		if (!p) return false;
-		return p->m_Id == id;
+		return p->m_id == id;
 	}
 }
 using namespace common;
@@ -52,10 +52,14 @@ void cThread::Start()
 	if ((eState::WAIT == m_state) || (eState::END == m_state))
 	{
 		if (eState::END != m_state)
+		{
 			Terminate(INFINITE);
-
-		if (m_thread.joinable())
-			m_thread.join();
+		}
+		else
+		{
+			if (m_thread.joinable())
+				m_thread.join();
+		}
 
 		m_state = eState::RUN;
 		m_thread = std::thread(ThreadProcess, this);
@@ -259,9 +263,11 @@ int cThread::Run()
 				m_procTaskIndex = 0;
 
 			const double dt = (float)timer.GetDeltaSeconds();
+			int taskProcCnt = 0;
 
 			do
 			{
+				++taskProcCnt;
 				cTask *task = m_tasks[m_procTaskIndex];
 				if (cTask::eRunResult::END == task->Run(dt))
 				{
@@ -277,7 +283,9 @@ int cThread::Run()
 			} while (((eState::RUN == m_state)
 				//|| (eState::PAUSE == m_state)
 				)
-				&& (m_procTaskIndex < (int)m_tasks.size()));
+				&& (m_procTaskIndex < (int)m_tasks.size())
+				&& (taskProcCnt < 5)				
+				);
 		}
 
 		//3. Message Process
@@ -312,11 +320,23 @@ void cThread::UpdateTask()
 
 	for (auto &p : m_addTasks)
 	{
-		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(p->m_Id));
+		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(p->m_id));
 		if (m_tasks.end() == it) // not exist
-			m_tasks.push_back(p);
+		{
+			if (p->m_isTopPriority)
+			{
+				m_tasks.push_back(p);
+				common::rotateright(m_tasks); // 오른쪽으로 회전시켜, 추가한것이 가장 앞으로 오게한다.
+			}
+			else
+			{
+				m_tasks.push_back(p);
+			}
+		}
 		else
+		{
 			assert(0); // already exist
+		}
 	}
 	m_addTasks.clear();
 

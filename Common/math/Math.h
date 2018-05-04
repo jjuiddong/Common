@@ -41,6 +41,7 @@ using std::vector;
 #include "vectortype.h"
 #include "vector2.h"
 #include "vector3.h"
+#include "vector3_comm.h"
 #include "vector4.h"
 #include "matrix44.h"
 #include "quaternion.h"

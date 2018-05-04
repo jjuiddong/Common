@@ -21,6 +21,7 @@ namespace common { namespace dbg
 	void RemoveLog();
 	void RemoveLog2(const char *fileName);
 	void RemoveErrLog();
+	void TerminateLogThread();
 
 }}
 

@@ -17,6 +17,7 @@ struct sLogData
 };
 vector<sLogData> g_logStrs;
 CriticalSection g_logCS;
+static bool m_enableLogThread = true;
 
 class cLogTask : public cTask
 {
@@ -104,6 +105,8 @@ void dbg::Log(const char* fmt, ...)
 // log parallel thread
 void dbg::Logp(const char* fmt, ...)
 {
+	RET(!m_enableLogThread);
+
 	sLogData data;
 	data.type = 0;
 	va_list args;
@@ -218,3 +221,9 @@ void dbg::RemoveLog()
 	}
 }
 
+
+void dbg::TerminateLogThread()
+{
+	m_enableLogThread = false;
+	g_logThread.Clear();
+}

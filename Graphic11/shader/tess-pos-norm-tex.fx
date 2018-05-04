@@ -90,10 +90,15 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 4> input
 	ConstantOutputType output;
 
 	// Set the tessellation factors for the three edges of the triangle.
-	output.edges[0] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.x))));
-	output.edges[1] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.y))));
-	output.edges[2] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.z))));
-	output.edges[3] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.w))));
+	//output.edges[0] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.x))));
+	//output.edges[1] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.y))));
+	//output.edges[2] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.z))));
+	//output.edges[3] = max(1, pow(2, (6 - max(0, gLevel - gEdgeLevel.w))));
+
+	output.edges[0] = 64;
+	output.edges[1] = 64;
+	output.edges[2] = 64;
+	output.edges[3] = 64;
 	output.inside[0] = 64;
 	output.inside[1] = 64;
 
@@ -138,27 +143,69 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	float3 vertexPosition;
 	PixelInputType output = (PixelInputType)0;
 
-	float2 v1 = lerp(patch[0].Pos, patch[1].Pos, uv.x) * gSize;
-	float2 v2 = lerp(patch[2].Pos, patch[3].Pos, uv.x) * gSize;
-	vertexPosition.xz = lerp(v1, v2, uv.y);
+	const float ac1 = 1.0f / 64.0f;
+	const float2 ac2 = gSize * (2.0f / 64.0f);
+
+	float u2 = saturate((uv.x - ac1) * (64.f/62.f));
+	float v2 = saturate((uv.y - ac1)* (64.f / 62.f));
+
+	float2 p1 = lerp(patch[0].Pos, patch[1].Pos, uv.x) * gSize;
+	float2 p2 = lerp(patch[2].Pos, patch[3].Pos, uv.x) * gSize;
+	float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u2) * gSize;
+	float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u2) * gSize;
+
+	float2 pos1 = lerp(p1, p2, uv.y);
+	float2 pos2 = lerp(p12, p22, v2);
+	
+	vertexPosition.xz = float2(min(pos2.x, gSize.x), min(pos2.y, (gSize.y)));
+	//vertexPosition.xz = pos2;
 	vertexPosition.y = 0.1f;
 
 	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
 	const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
 	float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
 
-	PosW.y = heightMap * 500.f;
+	PosW.y = (heightMap - 0.1f) * 2500.f;
 
 	output.Pos = mul(PosW, gView);
 	output.Pos = mul(output.Pos, gProjection);
 
 	// Send the input color into the pixel shader.
-	float u = lerp(gTUVs.x, gTUVs.z, uv.x);
-	float v = lerp(gTUVs.y, gTUVs.w, uv.y);
-	output.Normal = float3(0,1,0);
-	output.Tex = float2(u,v);
+	float2 tuv = float2((uv.x - ac1) * (64.f / 62.f), (uv.y - ac1) * (64.f / 62.f));
+	float u = lerp(gTUVs.x, gTUVs.z, tuv.x);
+	float v = lerp(gTUVs.y, gTUVs.w, tuv.y);
+
+	//float u = lerp(gTUVs.x, gTUVs.z, uv.x);
+	//float v = lerp(gTUVs.y, gTUVs.w, uv.y);
+	output.Normal = float3(0, 1, 0);
+	output.Tex = float2(u, v);
 	output.toEye = normalize(gEyePosW - PosW).xyz;
 	output.PosW = PosW.xyz;
+
+
+
+
+	//float2 v1 = lerp(patch[0].Pos, patch[1].Pos, uv.x) * gSize;
+	//float2 v2 = lerp(patch[2].Pos, patch[3].Pos, uv.x) * gSize;
+	//vertexPosition.xz = lerp(v1, v2, uv.y);
+	//vertexPosition.y = 0.1f;
+
+	//float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+	//const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
+	//float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
+
+	//PosW.y = heightMap * 500.f;
+
+	//output.Pos = mul(PosW, gView);
+	//output.Pos = mul(output.Pos, gProjection);
+
+	//// Send the input color into the pixel shader.
+	//float u = lerp(gTUVs.x, gTUVs.z, uv.x);
+	//float v = lerp(gTUVs.y, gTUVs.w, uv.y);
+	//output.Normal = float3(0,1,0);
+	//output.Tex = float2(u,v);
+	//output.toEye = normalize(gEyePosW - PosW).xyz;
+	//output.PosW = PosW.xyz;
 
 	return output;
 }

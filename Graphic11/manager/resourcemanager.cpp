@@ -513,7 +513,7 @@ void cResourceManager::AddParallelLoader(cParallelLoader *p)
 
 void cResourceManager::AddTask(cTask *task)
 {
-	task->m_Id = ++m_loadId;
+	task->m_id = ++m_loadId;
 	m_loadThread.AddTask(task);
 	if (!m_loadThread.IsRun())
 		m_loadThread.Start();

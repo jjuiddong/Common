@@ -57,7 +57,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 	graphic::ReleaseRenderer();
 	cDockManager::Release();
 	Gdiplus::GdiplusShutdown(gdiplusToken);
-	g_logThread.Clear();
+	dbg::TerminateLogThread();
 
 	return 0;
 }
