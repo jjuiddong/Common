@@ -320,8 +320,8 @@ float4 PS_Light(PixelInputType input) : SV_TARGET
 	float4 Out = color * texColor;
 
 	// Fog
-	const float d = distance(input.PosW, gEyePosW.xyz);
-	Out = lerp(Out, float4(gFogColor.rgb, 1), saturate(d*gFogColor.w));
+	//const float d = distance(input.PosW, gEyePosW.xyz);
+	//Out = lerp(Out, float4(gFogColor.rgb, 1), saturate(d*gFogColor.w));
 	return float4(Out.xyz, 1);
 }
 

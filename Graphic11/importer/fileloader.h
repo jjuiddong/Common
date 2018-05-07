@@ -95,7 +95,7 @@ namespace graphic
 					data = new T(*m_renderer, m_fileName.c_str());
 					if (m_fileLoader->Insert(m_fileName.c_str(), data))
 					{
-						dbg::Logp("Success Parallel Load1 File %s\n", m_fileName.c_str());
+						//dbg::Logp("Success Parallel Load1 File %s\n", m_fileName.c_str());
 					}
 					else
 					{
@@ -108,7 +108,7 @@ namespace graphic
 					data = new T(*m_renderer, m_src, m_fileName.c_str(), m_args);
 					if (m_fileLoader->Insert(m_fileName.c_str(), data))
 					{
-						dbg::Logp("Success Parallel Load2 File %s\n", m_fileName.c_str());
+						//dbg::Logp("Success Parallel Load2 File %s\n", m_fileName.c_str());
 					}
 					else
 					{
@@ -173,7 +173,7 @@ namespace graphic
 			data = new T(renderer, fileName);
 			if (Insert(fileName, data))
 			{
-				dbg::Logp("Success Load File %s\n", fileName);
+				//dbg::Logp("Success Load File %s\n", fileName);
 			}
 			else
 			{
@@ -212,7 +212,7 @@ namespace graphic
 			data = new T(renderer, src, fileName, args);
 			if (Insert(fileName, data))
 			{
-				dbg::Logp("Success Load File %s\n", fileName);
+				//dbg::Logp("Success Load File %s\n", fileName);
 			}
 			else
 			{
