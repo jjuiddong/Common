@@ -60,7 +60,8 @@ bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int
 }
 
 
-bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex, void *vertices
+bool cVertexBuffer::Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex
+	, const void *vertices
 	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
 )
 {

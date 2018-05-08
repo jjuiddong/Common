@@ -21,7 +21,8 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex
 			, const D3D11_USAGE usage= D3D11_USAGE_DEFAULT);
-		bool Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex, void *vertices
+		bool Create(cRenderer &renderer, const int vertexCount, const int sizeofVertex
+			, const void *vertices
 			, const D3D11_USAGE usage = D3D11_USAGE_DEFAULT);
 
 		void* Lock(cRenderer &renderer, const D3D11_MAP flag = D3D11_MAP_WRITE_DISCARD);

@@ -81,9 +81,10 @@ namespace common
 	}
 
 	// val : 0 ~ 1
-	inline float lerp(const float _min, const float _max, const float val)
+	template <class T>
+	inline T lerp(const T _min, const T _max, const T val)
 	{
-		return (1 - val) * _min + (val * _max);
+		return (1.f - val) * _min + (val * _max);
 	}
 
 	inline float clamp(const float _min, const float _max, const float val)

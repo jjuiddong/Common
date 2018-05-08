@@ -428,7 +428,7 @@ float cTerrain::GetHeightMapEntry(int row, int col)
 		const float a = (float)sqrt((r - row)*(r - row) + (c - col)*(c - col)) * m_lerpAlphaFactor;
 
 		const float h = GetHeightMapEntry(r, c);
-		return lerp(h, m_defaultHeight, 0);
+		return lerp(h, m_defaultHeight, 0.f);
 	}
 
 	if (m_rows <= row || m_cols <= col)
@@ -438,7 +438,7 @@ float cTerrain::GetHeightMapEntry(int row, int col)
 		const float a = (float)sqrt((r-row)*(r-row) + (c-col)*(c-col)) * m_lerpAlphaFactor;
 
 		const float h = GetHeightMapEntry(r,c);
-		return lerp(h, m_defaultHeight, 0);
+		return lerp(h, m_defaultHeight, 0.f);
 	}
 	if ((int)m_heightMap.size() <= (row * m_colVtx + col))
 		return m_defaultHeight;
