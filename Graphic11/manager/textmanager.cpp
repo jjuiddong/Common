@@ -61,7 +61,7 @@ void cTextManager::NewFrame()
 
 
 void cTextManager::AddTextRender(cRenderer &renderer
-	, const int id
+	, const __int64 id
 	, const wchar_t *str
 	, const cColor &color //= cColor::WHITE
 	, const cColor &outlineColor //= cColor::BLACK
@@ -224,7 +224,7 @@ void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sComm
 }
 
 
-cTextManager::sText* cTextManager::GetCacheText(const int id)
+cTextManager::sText* cTextManager::GetCacheText(const __int64 id)
 {
 	auto it = m_cacheMap.find(id);
 	if (it == m_cacheMap.end())

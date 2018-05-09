@@ -200,6 +200,7 @@ namespace graphic
 #include "manager/task_resource.h"
 
 #include "importer/parallelloader.h"
+#include "importer/fileloader.h"
 
 #include "../ai/ai.h"
 

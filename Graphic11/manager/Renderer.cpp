@@ -132,7 +132,8 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	float f2[4] = { 1, 1, 1, 100000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 
-	m_textMgr.Create(256);
+	//m_textMgr.Create(256);
+	m_textMgr.Create(512);
 
 	//---------------------------------------------------------
 	// Initialize Shader

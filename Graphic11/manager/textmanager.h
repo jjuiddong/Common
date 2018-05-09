@@ -18,11 +18,11 @@ namespace graphic
 		cTextManager();
 		virtual ~cTextManager();
 
-		void Create(const u_int maxTextCount = 100, const int textureSizeX=256, const int textureSizeY = 32);
+		void Create(const u_int maxTextCount = 128, const int textureSizeX=256, const int textureSizeY = 32);
 		void NewFrame();
 		
 		void AddTextRender(cRenderer &renderer
-			, const int id
+			, const __int64 id
 			, const wchar_t *str 
 			, const cColor &color = cColor::WHITE
 			, const cColor &outlineColor = cColor::BLACK
@@ -40,7 +40,7 @@ namespace graphic
 	public:
 		struct sText
 		{
-			int id;
+			__int64 id;
 			bool used;
 			bool depthNone;
 			int initTime;
@@ -52,7 +52,7 @@ namespace graphic
 		{
 			enum {MAX_STR=64};
 
-			int id;
+			__int64 id;
 			String<wchar_t, MAX_STR> str;
 			BILLBOARD_TYPE::TYPE type;
 			cColor color;
@@ -64,7 +64,7 @@ namespace graphic
 			int height;
 		};
 
-		sText* GetCacheText(const int id);
+		sText* GetCacheText(const __int64 id);
 		void SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd);
 		void GarbageCollection();
 
@@ -76,9 +76,9 @@ namespace graphic
 		vector<sText*> m_renders; // reference m_buffer
 		vector<sText*> m_buffer; // m_renders, m_buffer chainning system, has original memory
 		vector<sCommand> m_cmds;
-		map<int, sText*> m_renderMap; // reference m_buffer
-		map<int, sText*> m_bufferMap; // reference m_buffer
-		map<int, sText*> m_cacheMap; // reference m_buffer
+		map<__int64, sText*> m_renderMap; // reference m_buffer
+		map<__int64, sText*> m_bufferMap; // reference m_buffer
+		map<__int64, sText*> m_cacheMap; // reference m_buffer
 
 		int m_textureSizeX;
 		int m_textureSizeY;
