@@ -322,6 +322,8 @@ namespace common
 
 
 		String& operator = (const char *str) {
+			if (!str) 
+				return *this;
 			const size_t len = min(strlen(str), MAX - 1);
 			strncpy_s(m_str, str, len);
 			m_str[len] = NULL;
