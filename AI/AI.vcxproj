@@ -63,6 +63,7 @@
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
     <IncludePath>C:\wxWidgets-3.0.2\include\msvc\wx;C:\wxWidgets-3.0.2\include\msvc;D:\Project\assimp\include\assimp;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Project\assimp\build\Debug;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MD|Win32'">
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>

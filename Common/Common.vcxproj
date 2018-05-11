@@ -164,6 +164,7 @@
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MT|Win32'">
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
