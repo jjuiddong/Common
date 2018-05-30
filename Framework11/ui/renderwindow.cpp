@@ -80,12 +80,12 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 	ImGuiIO& io = ImGui::GetIO();
 	if (!mainWindow)
 	{
-		const float fontSize = 15;
+		//const float fontSize = 15;
 		//const float fontSize = 18;
-		const float bigFontSize = 26;
+		//const float bigFontSize = 26;
 
-		//const float fontSize = 26;
-		//const float bigFontSize = 36;
+		const float fontSize = 26;
+		const float bigFontSize = 36;
 
 		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		m_fontBig = io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());

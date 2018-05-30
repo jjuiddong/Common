@@ -105,7 +105,7 @@ void* cVertexBuffer::Lock(cRenderer &renderer
 	, const D3D11_MAP flag //= D3D11_MAP_WRITE_DISCARD
 )
 {
-	assert(m_vtxBuff);
+	RETV(!m_vtxBuff, NULL);
 
 	D3D11_MAPPED_SUBRESOURCE res;
 	ZeroMemory(&res, sizeof(res));
@@ -118,7 +118,7 @@ void* cVertexBuffer::Lock(cRenderer &renderer
 
 void cVertexBuffer::Unlock(cRenderer &renderer)
 {
-	assert(m_vtxBuff);
+	RET(!m_vtxBuff);
 	renderer.GetDevContext()->Unmap(m_vtxBuff, 0);
 }
 

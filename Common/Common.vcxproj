@@ -214,7 +214,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_HAS_ITERATOR_DEBUGGING=0;_LIB;_ITERATOR_DEBUG_LEVEL=0;</PreprocessorDefinitions>
-      <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)/MP</AdditionalOptions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -308,7 +308,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP -Zm200 %(AdditionalOptions)/MP</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
