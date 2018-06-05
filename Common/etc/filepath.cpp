@@ -483,8 +483,8 @@ bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLe
 		return FALSE;
 
 	int count = 0;
-	char temp[5];
-	for (int i=0; i < len && i < 4; ++i)
+	char temp[16];
+	for (int i=0; i < len && i < 15; ++i)
 	{
 		const char c = srcFileName[ len-i-1];
 		if ('.' == c)
@@ -498,7 +498,7 @@ bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLe
 	}
 	temp[ count] = NULL;
 
-	char extendName[5];
+	char extendName[16];
 	for (int i=0; i < count; ++i)
 		extendName[ i] = temp[ count-i-1];
 	extendName[ count] = NULL;
