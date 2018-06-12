@@ -251,7 +251,7 @@ namespace ai
 	template<class T>
 	void cAction<T>::ClearChildAction()
 	{
-		for each (auto action in m_children)
+		for (auto action : m_children)
 		{
 			delete action;
 		}

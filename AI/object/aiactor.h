@@ -232,7 +232,7 @@ namespace ai
 			m_rootAction->MessageProccess(msg);
 
 		// children message loop
-		for each (auto &actor in m_children.m_Seq)
+		for (auto &actor : m_children.m_Seq)
 		{
 			actor->DispatchMsg(msg);
 		}
