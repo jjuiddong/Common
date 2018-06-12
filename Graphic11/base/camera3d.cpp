@@ -59,6 +59,7 @@ void cCamera3D::Bind(cRenderer &renderer)
 void cCamera3D::UpdateViewMatrix()
 {
 	m_view.SetView2(m_eyePos, m_lookAt, m_up);
+	m_viewProj = m_view * m_proj;
 }
 
 

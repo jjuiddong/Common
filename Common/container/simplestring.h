@@ -497,7 +497,7 @@ namespace common
 			{
 				wchar_t curDir[MAX];
 				GetCurrentDirectory(MAX, curDir);
-				wcsscat_s(curDir, L"/");
+				wcscat_s(curDir, L"/");
 				wcscat_s(curDir, m_str);
 				GetFullPathName(curDir, MAX, str.m_str, NULL);
 			}

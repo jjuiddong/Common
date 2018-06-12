@@ -29,7 +29,9 @@ namespace graphic
 			, BILLBOARD_TYPE::TYPE type = BILLBOARD_TYPE::Y_AXIS
 			, const Transform &tm = Transform::Identity
 			, const bool isDepthNone=false
-			, const int width=8, const int height=1);
+			//, const int width=8
+			, const int width=16
+			, const int height=1);
 
 		void Render(cRenderer &renderer, const bool isSort=false);
 		void ProcessTextCmd(cRenderer &renderer);

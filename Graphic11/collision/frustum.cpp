@@ -102,11 +102,128 @@ bool cFrustum::IsInBox(const cBoundingBox &bbox) const
 			return true;
 	}
 
-	const float x = tm.GetScale().x;
+	//const float x = tm.GetScale().x;
+	const float x = tm.GetScale().y;
 	const float r = (float)sqrt(x*x + x*x + x*x);
 	cBoundingSphere bsphere;
 	bsphere.SetBoundingSphere(bbox.Center(), r);
 	return IsInSphere(bsphere);
+}
+
+
+// false if fully outside, true if inside or intersects
+bool cFrustum::boxInFrustum(const cBoundingBox &bbox) const
+{
+	const Vector4 plane[6] = {
+		{m_plane[0].N.x, m_plane[0].N.y, m_plane[0].N.z, 0}//m_plane[0].D }
+		,{ m_plane[1].N.x, m_plane[1].N.y, m_plane[1].N.z, 0 }//m_plane[1].D }
+		,{ m_plane[2].N.x, m_plane[2].N.y, m_plane[2].N.z, 0 }//m_plane[2].D }
+		,{ m_plane[3].N.x, m_plane[3].N.y, m_plane[3].N.z, 0 }//m_plane[3].D }
+		,{ m_plane[4].N.x, m_plane[4].N.y, m_plane[4].N.z, 0 }//m_plane[4].D }
+		,{ m_plane[5].N.x, m_plane[5].N.y, m_plane[5].N.z, 0 }//m_plane[5].D }
+	};
+	
+	struct sBox {
+		float mMinX, mMinY, mMinZ;
+		float mMaxX, mMaxY, mMaxZ;
+	};
+	
+	const Matrix44 tm = bbox.GetMatrix();
+	const Vector3 scale = tm.GetScale();
+	const Vector3 center = bbox.Center();
+	sBox box;
+	box.mMinX = center.x - scale.x;
+	box.mMaxX = center.x + scale.x;
+	box.mMinY = center.y - scale.y;
+	box.mMaxY = center.y + scale.y;
+	box.mMinZ = center.z - scale.z;
+	box.mMaxZ = center.z + scale.z;
+
+	// check box outside/inside of frustum
+	for (int i = 0; i<6; i++)
+	{
+		int out = 0;
+		out += ((plane[i].DotProduct(Vector4(box.mMinX, box.mMinY, box.mMinZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMaxX, box.mMinY, box.mMinZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMinX, box.mMaxY, box.mMinZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMaxX, box.mMaxY, box.mMinZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMinX, box.mMinY, box.mMaxZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMaxX, box.mMinY, box.mMaxZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMinX, box.mMaxY, box.mMaxZ, 1.0f)) < 0.0) ? 1 : 0);
+		out += ((plane[i].DotProduct(Vector4(box.mMaxX, box.mMaxY, box.mMaxZ, 1.0f)) < 0.0) ? 1 : 0);
+		if (out == 8) return false;
+	}
+
+	//return true;
+
+	Vector3 vertices[8] = {
+		Vector3(-1,1,0), Vector3(1,1,0), Vector3(-1,-1,0), Vector3(1,-1,0),
+		Vector3(-1,1, 1), Vector3(1,1, 1), Vector3(-1,-1,1), Vector3(1,-1,1),
+	};
+
+	// view * proj의 역행렬을 구한다.
+	Matrix44 matInv = m_viewProj.Inverse();
+
+	for (int i = 0; i < 8; i++)
+		vertices[i] *= matInv;
+
+	// check frustum outside/inside box
+	int out;
+	out = 0; for (int i = 0; i<8; i++) out += ((vertices[i].x > box.mMaxX) ? 1 : 0); if (out == 8) return false;
+	out = 0; for (int i = 0; i<8; i++) out += ((vertices[i].x < box.mMinX) ? 1 : 0); if (out == 8) return false;
+	out = 0; for (int i = 0; i<8; i++) out += ((vertices[i].y > box.mMaxY) ? 1 : 0); if (out == 8) return false;
+	out = 0; for (int i = 0; i<8; i++) out += ((vertices[i].y < box.mMinY) ? 1 : 0); if (out == 8) return false;
+	out = 0; for (int i = 0; i<8; i++) out += ((vertices[i].z > box.mMaxZ) ? 1 : 0); if (out == 8) return false;
+	out = 0; for (int i = 0; i<8; i++) out += ((vertices[i].z < box.mMinZ) ? 1 : 0); if (out == 8) return false;
+
+	return true;
+}
+
+
+// https://www.gamedev.net/forums/topic/512123-fast--and-correct-frustum---aabb-intersection/
+int cFrustum::FrustumAABBIntersect(const cBoundingBox &bbox) const
+{
+	const Matrix44 tm = bbox.GetMatrix();
+	const Vector3 scale = tm.GetScale();
+	const Vector3 center = bbox.Center();
+	Vector3 mins = center - scale;
+	Vector3 maxs = center + scale;
+	Vector3 vmin, vmax;
+
+	for (int i = 0; i < 6; ++i) {
+		// X axis 
+		if (m_plane[i].N.x > 0) {
+			vmin.x = mins.x;
+			vmax.x = maxs.x;
+		}
+		else {
+			vmin.x = maxs.x;
+			vmax.x = mins.x;
+		}
+		// Y axis 
+		if (m_plane[i].N.y > 0) {
+			vmin.y = mins.y;
+			vmax.y = maxs.y;
+		}
+		else {
+			vmin.y = maxs.y;
+			vmax.y = mins.y;
+		}
+		// Z axis 
+		if (m_plane[i].N.z > 0) {
+			vmin.z = mins.z;
+			vmax.z = maxs.z;
+		}
+		else {
+			vmin.z = maxs.z;
+			vmax.z = mins.z;
+		}
+		if (m_plane[i].N.DotProduct(vmin) + m_plane[i].D > 0)
+			return false;
+		//if (m_plane[i].N.DotProduct(vmax) + m_plane[i].D >= 0)
+		//	return true;
+	}
+	return true;
 }
 
 
