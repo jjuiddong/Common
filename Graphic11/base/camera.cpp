@@ -380,6 +380,8 @@ void cCamera::SetProjection(const float fov, const float aspect, const float nea
 	m_near = nearPlane;
 	m_far = farPlane;
 	m_proj.SetProjection(fov, aspect, nearPlane, farPlane);
+
+	m_viewProj = m_view * m_proj;
 }
 
 

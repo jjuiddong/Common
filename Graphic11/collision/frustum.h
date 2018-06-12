@@ -21,6 +21,8 @@ namespace graphic
 		bool IsIn( const Vector3 &point ) const;
 		bool IsInSphere(const cBoundingSphere &sphere) const;
 		bool IsInBox(const cBoundingBox &bbox) const;
+		bool boxInFrustum(const cBoundingBox &bbox) const;		
+		int FrustumAABBIntersect(const cBoundingBox &bbox) const;
 		float LengthRoughly(const Vector3 &pos) const;
 		
 		static void Split2(const cCamera &cam, const float f1, const float f2
