@@ -381,20 +381,31 @@ namespace graphic
 		AutoCSLock cs(m_cs);
 
 		StrPath path(fileName);
-		auto &updatePtrs = m_updatePtrs[path.GetHashCode()];
-		for (auto ptrs : updatePtrs)
+		const hashcode hcode = path.GetHashCode();
+		auto it = m_files.find(hcode);
+
+		if (m_files.end() == it) // not found, already remove
 		{
-			void **outPtr = ptrs.first;
-			int *outFlag = ptrs.second;
-
-			if (outPtr)
-				*outPtr = data;
-			if (outFlag)
-				*outFlag = 0; // complete flag
+			delete data;
 		}
-		updatePtrs.clear();
+		else
+		{
+			auto &updatePtrs = m_updatePtrs[hcode];
+			for (auto ptrs : updatePtrs)
+			{
+				void **outPtr = ptrs.first;
+				int *outFlag = ptrs.second;
 
-		m_files[path.GetHashCode()] = { 0, COMPLETE, data };
+				if (outPtr)
+					*outPtr = data;
+				if (outFlag)
+					*outFlag = 0; // complete flag
+			}
+			updatePtrs.clear();
+
+			m_files[path.GetHashCode()] = { 0, COMPLETE, data };
+
+		}
 		return true;
 	}
 

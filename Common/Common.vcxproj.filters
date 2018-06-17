@@ -145,6 +145,9 @@
     <ClInclude Include="math\vector3_comm.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="etc\memorypool3.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

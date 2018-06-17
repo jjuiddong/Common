@@ -109,6 +109,7 @@ using std::wstringstream;
 #include "etc/genid.h"
 #include "etc/memorypool.h"
 #include "etc/memorypool2.h"
+#include "etc/memorypool3.h"
 #include "etc/rand.h"
 #include "etc/config.h"
 #include "etc/autocs.h"
