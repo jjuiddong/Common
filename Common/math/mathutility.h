@@ -102,6 +102,7 @@ namespace common
 	}
 
 
+	// http://www.gisdeveloper.co.kr/?p=89
 	// 두 직선 AP1,AP2 - BP1,BP2 의 교점을 계산해 리턴한다.
 	inline bool GetIntersectPoint(const Vector2& AP1, const Vector2& AP2, const Vector2& BP1, const Vector2& BP2, Vector2* IP)
 	{
