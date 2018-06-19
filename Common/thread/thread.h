@@ -13,6 +13,8 @@
 // 2017-10-31
 //		- Pause, Resume, Optimize Loop
 //		- list -> vector
+//2018-06-19
+//		- Max Task
 //------------------------------------------------------------------------
 #pragma once
 
@@ -30,7 +32,7 @@ namespace common
 			enum Enum { REMOVE, KEEP, };
 		};
 
-		cThread(const StrId &name="");
+		cThread(const StrId &name="", const int maxTask=-1);
 		virtual ~cThread();
 
 		void Start();
@@ -63,6 +65,7 @@ namespace common
 		struct eState {enum Enum { WAIT, RUN, PAUSE, IDLE, END, };};
 		eState::Enum m_state;
 		StrId m_name;
+		int m_maxTask; // default: -1 (infinity)
 		CriticalSection m_msgCS;
 		CriticalSection m_containerCS;
 		int m_procTaskIndex;

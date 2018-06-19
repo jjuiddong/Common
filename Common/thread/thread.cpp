@@ -29,10 +29,13 @@ namespace common
 using namespace common;
 
 
-cThread::cThread(const StrId &name) :
-	m_state(eState::WAIT)
+cThread::cThread(const StrId &name
+	, const int maxTask //= -1
+) 
+	: m_state(eState::WAIT)
 	, m_name(name)
 	, m_procTaskIndex(0)
+	, m_maxTask(maxTask)
 	//, m_mutex("cThread::Mutex::jjuiddong")
 {
 	m_tasks.reserve(32);
@@ -308,7 +311,7 @@ int cThread::Run()
 //------------------------------------------------------------------------
 // call exit thread
 //------------------------------------------------------------------------
-void	cThread::Exit()
+void cThread::Exit()
 {
 	m_state = eState::END;
 }
@@ -323,14 +326,37 @@ void cThread::UpdateTask()
 		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(p->m_id));
 		if (m_tasks.end() == it) // not exist
 		{
-			if (p->m_isTopPriority)
+			if (m_maxTask < 0) // infinity
 			{
-				m_tasks.push_back(p);
-				common::rotateright(m_tasks); // 오른쪽으로 회전시켜, 추가한것이 가장 앞으로 오게한다.
+				if (p->m_isTopPriority)
+				{
+					m_tasks.push_back(p);
+					common::rotateright(m_tasks); // 오른쪽으로 회전시켜, 추가한것이 가장 앞으로 오게한다.
+				}
+				else
+				{
+					m_tasks.push_back(p);
+				}
 			}
 			else
 			{
-				m_tasks.push_back(p);
+				if (m_tasks.size() >= m_maxTask)
+				{
+					// remove most old task
+					auto &task = m_tasks.back();
+					delete task;
+					m_tasks.pop_back();
+				}
+
+				if (p->m_isTopPriority)
+				{
+					m_tasks.push_back(p);
+					common::rotateright(m_tasks); // 오른쪽으로 회전시켜, 추가한것이 가장 앞으로 오게한다.
+				}
+				else
+				{
+					m_tasks.push_back(p);
+				}
 			}
 		}
 		else

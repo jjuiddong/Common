@@ -387,6 +387,7 @@ namespace graphic
 		if (m_files.end() == it) // not found, already remove
 		{
 			delete data;
+			m_updatePtrs[hcode].clear();
 		}
 		else
 		{
@@ -404,7 +405,6 @@ namespace graphic
 			updatePtrs.clear();
 
 			m_files[path.GetHashCode()] = { 0, COMPLETE, data };
-
 		}
 		return true;
 	}
@@ -417,20 +417,30 @@ namespace graphic
 		AutoCSLock cs(m_cs);
 
 		StrPath path(fileName);
-		auto &updatePtrs = m_updatePtrs[path.GetHashCode()];
-		for (auto ptrs : updatePtrs)
+		auto it = m_files.find(path.GetHashCode());
+
+		if (m_files.end() == it) // not found, already remove
 		{
-			void **outPtr = ptrs.first;
-			int *outFlag = ptrs.second;
-
-			if (outPtr)
-				*outPtr = NULL;
-			if (outFlag)
-				*outFlag = 0; // complete flag
+			m_updatePtrs[path.GetHashCode()].clear();
 		}
-		updatePtrs.clear();
+		else
+		{
+			auto &updatePtrs = m_updatePtrs[path.GetHashCode()];
+			for (auto ptrs : updatePtrs)
+			{
+				void **outPtr = ptrs.first;
+				int *outFlag = ptrs.second;
 
-		m_files[path.GetHashCode()] = { 0, COMPLETE, NULL};
+				if (outPtr)
+					*outPtr = NULL;
+				if (outFlag)
+					*outFlag = 0; // complete flag
+			}
+			updatePtrs.clear();
+
+			m_files[path.GetHashCode()] = { 0, COMPLETE, NULL};
+		}
+
 		return true;
 	}
 
@@ -443,8 +453,12 @@ namespace graphic
 
 		AutoCSLock cs(m_cs);
 		auto it = m_files.find(path.GetHashCode());
+		m_updatePtrs[path.GetHashCode()].clear();
+
 		if (m_files.end() == it)
+		{
 			return false; // not exist
+		}
 
 		delete it->second.data;
 		m_files.erase(it);
@@ -463,6 +477,7 @@ namespace graphic
 			{
 				delete kv.second.data;
 				m_files.erase(kv.first);
+				m_updatePtrs[kv.first].clear();
 				break;
 			}
 		}
