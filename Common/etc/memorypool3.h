@@ -8,20 +8,28 @@
 
 namespace common
 {
+	// trick code, for cThread memorypool
+	class iMemoryPool3Destructor
+	{
+	public:
+		virtual bool Free(void* p) = 0;
+	};
+
 
 	template<class T, size_t Size=16>
-	class cMemoryPool3
+	class cMemoryPool3 : public iMemoryPool3Destructor
 	{
 	public:
 		cMemoryPool3();
 		virtual ~cMemoryPool3();
 
 		T* Alloc();
-		bool Free(T* p);
+		virtual bool Free(void *p) override;
 		void Clear();
 
 
 	public:
+		CriticalSection m_cs;
 		vector<T*> m_freePtrs;
 		vector<T*> m_allocPtrs;
 	};
@@ -40,6 +48,8 @@ namespace common
 
 	template<class T, size_t Size = 100>
 	T* cMemoryPool3<T, Size>::Alloc() {
+		AutoCSLock cs(m_cs);
+
 		T *p = NULL;
 		if (m_freePtrs.empty())
 		{
@@ -59,18 +69,20 @@ namespace common
 	}
 
 	template<class T, size_t Size = 100>
-	bool cMemoryPool3<T, Size>::Free(T* p) {
-		if (!removevector(m_allocPtrs, p))
+	bool cMemoryPool3<T, Size>::Free(void* p) {
+		AutoCSLock cs(m_cs);
+		if (!removevector(m_allocPtrs, (T*)p))
 		{
 			assert(0);
 			return false;
 		}
-		m_freePtrs.push_back(p);
+		m_freePtrs.push_back((T*)p);
 		return false;
 	}
 
 	template<class T, size_t Size = 100>
 	void cMemoryPool3<T, Size>::Clear() {
+		AutoCSLock cs(m_cs);
 		for (auto &ptr : m_freePtrs)
 			delete ptr;
 		m_freePtrs.clear();

@@ -32,7 +32,7 @@ namespace common
 			enum Enum { REMOVE, KEEP, };
 		};
 
-		cThread(const StrId &name="", const int maxTask=-1);
+		cThread(const StrId &name="", const int maxTask=-1, iMemoryPool3Destructor *memPool=NULL);
 		virtual ~cThread();
 
 		void Start();
@@ -59,6 +59,7 @@ namespace common
 	protected:
 		void DispatchMessage();
 		void UpdateTask();
+		void ReleaseTask(cTask *task);
 
 
 	public:
@@ -72,6 +73,7 @@ namespace common
 		vector<cTask*> m_tasks;
 		vector<cTask*> m_addTasks;
 		vector<int> m_removeTasks;
+		iMemoryPool3Destructor *m_memPoolTask; // task memory pool destructor
 		list<SExternalMsg> m_threadMsgs;	// receive message
 		list<SExternalMsg> m_externalMsgs;	// send to another process message
 

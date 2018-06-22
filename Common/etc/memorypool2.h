@@ -19,6 +19,8 @@ namespace common
 	{
 	public:
 		const size_t SIZE = Size;
+		cMemoryPool2() : m_pool(Size) {
+		}
 
 		void* Alloc() 
 		{
@@ -34,13 +36,13 @@ namespace common
 
 
 	private:
-		static boost::pool<> m_pool;
-		static CriticalSection m_cs;
+		boost::pool<> m_pool;
+		CriticalSection m_cs;
 	};
 
-	template<size_t Size>
-	boost::pool<> cMemoryPool2<Size>::m_pool(Size);
+	//template<size_t Size>
+	//boost::pool<> cMemoryPool2<Size>::m_pool(Size);
 
-	template<size_t Size>
-	CriticalSection cMemoryPool2<Size>::m_cs;
+	//template<size_t Size>
+	//CriticalSection cMemoryPool2<Size>::m_cs;
 }

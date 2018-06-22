@@ -30,6 +30,7 @@ namespace common
 		virtual ~cTask() {}
 		virtual eRunResult::Enum Run(const double deltaSeconds) { return eRunResult::END; }
 		virtual void MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added ) {}
+		virtual void Clear() {}
 
 
 	public:

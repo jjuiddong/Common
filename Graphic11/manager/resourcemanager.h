@@ -62,7 +62,7 @@ namespace graphic
 		bool ReadSequenceFile(const StrPath &modelFileName, sRawAniGroup &rawAnies);
 
 
-	private:
+	public:
 		CriticalSection m_cs;
 		map<hashcode, sRawMeshGroup2*> m_meshes2; // key = fileName
 		map<hashcode, cAssimpModel*> m_assimpModels; // key = fileName

@@ -31,12 +31,13 @@ using namespace common;
 
 cThread::cThread(const StrId &name
 	, const int maxTask //= -1
+	, iMemoryPool3Destructor *memPool //= NULL
 ) 
 	: m_state(eState::WAIT)
 	, m_name(name)
 	, m_procTaskIndex(0)
 	, m_maxTask(maxTask)
-	//, m_mutex("cThread::Mutex::jjuiddong")
+	, m_memPoolTask(memPool)
 {
 	m_tasks.reserve(32);
 }
@@ -276,7 +277,7 @@ int cThread::Run()
 				{
 					// finish task , remove taks
 					common::rotatepopvector(m_tasks, m_procTaskIndex);
-					delete task;
+					ReleaseTask(task);
 				}
 				else
 				{
@@ -340,11 +341,11 @@ void cThread::UpdateTask()
 			}
 			else
 			{
-				if (m_tasks.size() >= m_maxTask)
+				if ((int)m_tasks.size() >= m_maxTask)
 				{
 					// remove most old task
 					auto &task = m_tasks.back();
-					delete task;
+					ReleaseTask(task);
 					m_tasks.pop_back();
 				}
 
@@ -373,10 +374,26 @@ void cThread::UpdateTask()
 		{
 			cTask *p = *it;
 			m_tasks.erase(it);
-			delete p;
+			ReleaseTask(p);
 		}
 	}
 	m_removeTasks.clear();
+}
+
+
+void cThread::ReleaseTask(cTask *task)
+{
+	RET(!task);
+
+	if (m_memPoolTask)
+	{
+		task->Clear();
+		m_memPoolTask->Free(task);
+	}
+	else
+	{
+		delete task;
+	}
 }
 
 
@@ -426,7 +443,7 @@ void cThread::MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPA
 				bind( &IsSameId<common::cTask>, _1, (int)wParam) );
 			if (m_tasks.end() != it)
 			{
-				delete *it;
+				ReleaseTask(*it);
 				m_tasks.erase(it);
 			}
 		}
@@ -465,7 +482,7 @@ void cThread::Clear()
 	{
 		AutoCSLock cs(m_containerCS);
 		for (auto &p : m_addTasks)
-			delete p;
+			ReleaseTask(p);
 		m_addTasks.clear();
 	}
 
@@ -473,7 +490,7 @@ void cThread::Clear()
 	while (m_tasks.end() != it)
 	{
 		cTask *p = *it++;
-		delete p;
+		ReleaseTask(p);
 	}
 	m_tasks.clear();
 
