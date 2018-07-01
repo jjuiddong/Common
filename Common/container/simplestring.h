@@ -9,6 +9,7 @@
 //
 #pragma once
 
+#include <sys/stat.h>
 #include <shlwapi.h> // file path library
 #pragma comment(lib, "shlwapi")
 
@@ -472,7 +473,7 @@ namespace common
 		}
 
 		__int64 FileSize() const {
-			struct __wstat64 buf;
+			struct __stat64 buf;
 			if (_wstat64(m_str, &buf) != 0)
 				return -1; // error, could use errno to find out more
 			return buf.st_size;

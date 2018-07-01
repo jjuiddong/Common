@@ -381,28 +381,31 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 	}
 	else
 	{
-		StrPath newPath;
-		StrPath searchPath = m_mediaDirectory + dirPath;
-		if (searchPath.empty())
-			searchPath = ".";
+		// Too much search time
+		// ignore this code
 
-		key = newPath;
-		if (common::FindFile(cvtFileName.GetFileName(), searchPath + "/", newPath))
-		{
-			if (isRecursive)
-			{
-				if (texture = cResourceManager::LoadTexture(renderer, newPath, false))
-					return texture;
-			}
-			else
-			{
-				if (common::IsFileExist(newPath))
-				{
-					texture = new cTexture();
-					texture->Create(renderer, newPath);
-				}
-			}
-		}
+		//StrPath newPath;
+		//StrPath searchPath = m_mediaDirectory + dirPath;
+		//if (searchPath.empty())
+		//	searchPath = ".";
+
+		//key = newPath;
+		//if (common::FindFile(cvtFileName.GetFileName(), searchPath + "/", newPath))
+		//{
+		//	if (isRecursive)
+		//	{
+		//		if (texture = cResourceManager::LoadTexture(renderer, newPath, false))
+		//			return texture;
+		//	}
+		//	else
+		//	{
+		//		if (common::IsFileExist(newPath))
+		//		{
+		//			texture = new cTexture();
+		//			texture->Create(renderer, newPath);
+		//		}
+		//	}
+		//}
 	}
 
 	if (texture && texture->IsLoaded())
