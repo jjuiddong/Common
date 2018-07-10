@@ -37,7 +37,7 @@ void cImGui::Render()
 	ImGui::Render();
 
 	ImGuiContext *context = ImGui::GetCurrentContext();
-	RenderDrawLists(&context->RenderDrawData);
+	RenderDrawLists(&context->DrawData);
 }
 
 
@@ -513,6 +513,8 @@ bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* devi
     m_pd3dDevice = device;
     m_pd3dDeviceContext = device_context;
 
+	m_context = ImGui::CreateContext();
+
     if (!QueryPerformanceFrequency((LARGE_INTEGER *)&m_TicksPerSecond))
         return false;
     if (!QueryPerformanceCounter((LARGE_INTEGER *)&m_Time))
@@ -543,7 +545,7 @@ bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* devi
     io.ImeWindowHandle = m_hWnd;
 	
 	m_FontAtlas = (font) ? font : new ImFontAtlas;
-	m_context = ImGui::CreateContext();
+	//m_context = ImGui::CreateContext();
 	m_context->IO.Fonts = m_FontAtlas;
 
     return true;
@@ -552,7 +554,7 @@ bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* devi
 void cImGui::Shutdown()
 {
     InvalidateDeviceObjects();
-    ImGui::Shutdown();
+    ImGui::Shutdown(m_context);
     m_pd3dDevice = NULL;
     m_pd3dDeviceContext = NULL;
     m_hWnd = (HWND)0;
@@ -606,7 +608,7 @@ void cImGui::SetContext()
 	{
 		memcpy(&pContext->Style, &prevContext->Style, sizeof(ImGuiStyle));
 		memcpy(&pContext->IO.KeyMap, &prevContext->IO.KeyMap, sizeof(prevContext->IO.KeyMap));
-		memcpy(&pContext->MouseCursorData, &prevContext->MouseCursorData, sizeof(pContext->MouseCursorData));
+		memcpy(&pContext->MouseCursor, &prevContext->MouseCursor, sizeof(pContext->MouseCursor));
 		pContext->IO.IniFilename = prevContext->IO.IniFilename;
 		pContext->IO.RenderDrawListsFn = prevContext->IO.RenderDrawListsFn;
 		pContext->Initialized = prevContext->Initialized;

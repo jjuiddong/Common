@@ -87,8 +87,12 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//const float fontSize = 26;
 		//const float bigFontSize = 36;
 
-		io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
-		m_fontBig = io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		StrPath path1 = "../Media/extra_fonts/³ª´®°íµñBold.ttf";
+		io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		m_fontBig = io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+
+		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		//m_fontBig = io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		io.ImeWindowHandle = (HWND)this->getSystemHandle();
 
 		//ImVector<ImWchar> ranges;

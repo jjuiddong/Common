@@ -160,9 +160,6 @@
     <ClInclude Include="external\imgui\imgui_internal.h">
       <Filter>external\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="external\imgui\imgui_impl_dx11.h">
-      <Filter>external\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\renderwindow.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -180,6 +177,9 @@
     </ClInclude>
     <ClInclude Include="dbg\dbgmonitor.h">
       <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_impl_dx11.h">
+      <Filter>external\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -283,9 +283,6 @@
     <ClCompile Include="external\imgui\imgui.cpp">
       <Filter>external\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="external\imgui\imgui_impl_dx11.cpp">
-      <Filter>external\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\renderwindow.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -300,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="dbg\dbgmonitor.cpp">
       <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_impl_dx11.cpp">
+      <Filter>external\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
