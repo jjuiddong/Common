@@ -79,3 +79,9 @@ void cDbgSphere::SetRadius(const float radius)
 {
 	m_transform.scale = Vector3(1, 1, 1)*radius;
 }
+
+
+void cDbgSphere::SetColor(const cColor &color)
+{
+	m_color = color;
+}

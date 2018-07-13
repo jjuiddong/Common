@@ -20,6 +20,7 @@ namespace graphic
 		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 		void SetPos(const Vector3 &pos);
 		void SetRadius(const float radius);
+		void SetColor(const cColor &color);
 		XMMATRIX GetTransform() const;
 
 
