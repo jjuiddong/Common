@@ -74,7 +74,8 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 	//m_renderer.SetLightEnable(0, true);
 	m_light.Bind(m_renderer);
 
-	m_gui.Init(getSystemHandle(), m_renderer.GetDevice(), m_renderer.GetDevContext(), ((mainWindow) ? mainWindow->m_gui.m_FontAtlas : NULL));
+	m_gui.Init(getSystemHandle(), m_renderer.GetDevice(), m_renderer.GetDevContext()
+		, ((mainWindow) ? mainWindow->m_gui.m_FontAtlas : NULL));
 
 	m_gui.SetContext();
 	ImGuiIO& io = ImGui::GetIO();

@@ -15,7 +15,7 @@ namespace common
 		Vector3(float x0, float y0, float z0) : x(x0), y(y0), z(z0) {}
 		Vector3(const Vector4 &rhs);
 
-		bool IsEmpty() const;
+		inline bool IsEmpty() const;
 		float Length() const;
 		float Length2() const;
 		float LengthRoughly(const Vector3 &rhs) const;
@@ -109,4 +109,9 @@ namespace common
 		static Vector3 Forward;
 	};
 
+
+	inline bool Vector3::IsEmpty() const
+	{
+		return (x == 0) && (y == 0) && (z == 0);
+	}
 }

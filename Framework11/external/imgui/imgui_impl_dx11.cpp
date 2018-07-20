@@ -547,6 +547,9 @@ bool    cImGui::Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* devi
 	m_FontAtlas = (font) ? font : new ImFontAtlas;
 	//m_context = ImGui::CreateContext();
 	m_context->IO.Fonts = m_FontAtlas;
+	
+	// font복사본을 쓸 때, 두번 메모리를 제거하지 않게 한다.
+	m_context->FontAtlasOwnedByContext = (font) ? false : true; 
 
     return true;
 }

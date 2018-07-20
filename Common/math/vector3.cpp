@@ -17,10 +17,10 @@ Vector3::Vector3(const Vector4 &rhs) :
 {
 }
 
-bool Vector3::IsEmpty() const
-{
-	return (x==0) && (y==0) && (z==0);
-}
+//bool Vector3::IsEmpty() const
+//{
+//	return (x==0) && (y==0) && (z==0);
+//}
 
 float Vector3::Length() const
 {
