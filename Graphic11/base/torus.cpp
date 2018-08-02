@@ -57,3 +57,9 @@ bool cTorus::Render(cRenderer &renderer
 #endif
 	return true;
 }
+
+
+void cTorus::SetColor(const cColor &color)
+{
+	m_color = color;
+}

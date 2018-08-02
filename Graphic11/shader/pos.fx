@@ -45,7 +45,7 @@ float4 PS_Outline(VSOUT_POS In) : SV_Target
 	float4 Out = gMtrl_Diffuse;
 	const float fOutline = GetOutline(In.PosH);
 	clip(fOutline - 0.000001f);
-	return float4(0.8f, 0, 0, fOutline*2.5f);
+	return float4(1.f, 1.f, 1.f, fOutline*2.5f);
 }
 
 

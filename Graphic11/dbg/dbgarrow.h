@@ -22,6 +22,8 @@ namespace graphic
 		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity
 			, const bool isSpherePicking = true
 			, OUT float *dist = NULL);
+		void SetColor(const cColor &color);
+		void SetTechnique(const char *techniqName);
 
 
 	public:

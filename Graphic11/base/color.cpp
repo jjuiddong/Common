@@ -8,6 +8,7 @@ using namespace graphic;
 const cColor cColor::BLACK(0.f, 0.f, 0.f, 1.f);
 const cColor cColor::WHITE(1.f, 1.f, 1.f, 1.f);
 const cColor cColor::GRAY(.5f, .5f, .5f, 1.f);
+const cColor cColor::GRAY2(.95f, .95f, .95f, 1.f);
 const cColor cColor::BLUE(0.f, 0.f, 1.f, 1.f);
 const cColor cColor::GREEN(0.f, 1.f, 0.f, 1.f);
 const cColor cColor::RED(1.f, 0.f, 0.f, 1.f);

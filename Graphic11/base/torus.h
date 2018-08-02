@@ -22,6 +22,8 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
 
+		void SetColor(const cColor &color);
+
 
 	public:
 		cTorusShape m_shape;

@@ -43,7 +43,7 @@ VSOUT_POSTEX VS_Skybox( float4 Pos : POSITION
 //--------------------------------------------------------------------------------------
 float4 PS(VSOUT_POSTEX input ) : SV_Target
 {
-    return txDiffuse.Sample( samLinear, input.Tex );
+	return txDiffuse.Sample(samAnis, input.Tex);
 }
 
 

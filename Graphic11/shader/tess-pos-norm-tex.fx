@@ -316,7 +316,7 @@ float4 PS(PixelInputType input) : SV_TARGET
 float4 PS_Light(PixelInputType input) : SV_TARGET
 {
 	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
-	float4 texColor = txDiffuse.Sample(samLinear, float2(input.Tex.x, input.Tex.y));
+	float4 texColor = txDiffuse.Sample(samAnis, float2(input.Tex.x, input.Tex.y));
 	float4 Out = color * texColor;
 
 	// Fog

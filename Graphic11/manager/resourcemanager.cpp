@@ -233,6 +233,8 @@ sRawMeshGroup2* cResourceManager::FindModel2(const StrId &fileName)
 }
 
 
+// pair::first : is find?
+// pair::second : pointer
 std::pair<bool, cAssimpModel*> cResourceManager::FindAssimpModel(const StrPath &fileName)
 {
 	AutoCSLock cs(m_cs);

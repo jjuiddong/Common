@@ -12,10 +12,14 @@ cTextManager::cTextManager()
 	, m_textureSizeY(TEXTURE_SIZEY)
 	, m_generateCount(0)
 	, m_cacheCount(0)
+	, m_timePrevSecond(0)
+	, m_timeLoadBalance(0)
 {
 	m_renders.reserve(m_maxTextCount);
 	m_buffer.reserve(m_maxTextCount);
 	m_cmds.reserve(m_maxTextCount);
+	m_delayGens.reserve(m_maxTextCount);
+	m_timer.Create();
 }
 
 cTextManager::~cTextManager()
@@ -33,6 +37,7 @@ void cTextManager::Create(const u_int maxTextCount //= 100
 	m_renders.reserve(maxTextCount);
 	m_buffer.reserve(maxTextCount);
 	m_cmds.reserve(maxTextCount);
+	m_delayGens.reserve(maxTextCount);
 
 	m_textureSizeX = textureSizeX;
 	m_textureSizeY = textureSizeY;
@@ -68,8 +73,10 @@ void cTextManager::AddTextRender(cRenderer &renderer
 	, BILLBOARD_TYPE::TYPE type //= BILLBOARD_TYPE::Y_AXIS
 	, const Transform &tm //= Transform::Identity
 	, const bool isDepthNone //= false
-	, const int width //=8
+	, const int width //=16
 	, const int height//=1
+	, const float dynScaleMin //= 0.5f
+	, const float dynScaleMax //= 200.5f
 )
 {
 	const cColor c1 = color.GetAbgr();
@@ -78,15 +85,20 @@ void cTextManager::AddTextRender(cRenderer &renderer
 	sText *text = GetCacheText(id);
 	if (text)
 	{
-		if (text->text.SetTextRect(renderer, tm, str, c1, c2, type))
-			++m_generateCount;
-		else
-			++m_cacheCount;
+		if (text->gen)
+		{
+			if (text->text.SetTextRect(renderer, tm, str, c1, c2, type))
+				++m_generateCount;
+			else
+				++m_cacheCount;
+		}
 
 		text->space = renderer.GetCurrentAlphaBlendSpace();
 		text->used = true;
 		text->depthNone = isDepthNone;
 		text->initTime = timeGetTime();
+		text->text.m_quad.m_dynScaleMin = dynScaleMin;
+		text->text.m_quad.m_dynScaleMax = dynScaleMax;
 
 		if (m_renderMap.end() == m_renderMap.find(id))
 		{
@@ -106,6 +118,8 @@ void cTextManager::AddTextRender(cRenderer &renderer
 		cmd.depthNone = isDepthNone;
 		cmd.width = width;
 		cmd.height = height;
+		cmd.dynScaleMin = dynScaleMin;
+		cmd.dynScaleMax = dynScaleMax;
 		cmd.space = renderer.GetCurrentAlphaBlendSpace();
 		m_cmds.push_back(cmd);
 	}
@@ -141,7 +155,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 
 				SetCommand2Text(renderer, text, cmd);
 
-				m_renders.push_back(text);
+				//m_renders.push_back(text);
 
 				isFindEmptyText = true;
 				bufferStartIdx = i + 1; // set search buffer index
@@ -155,12 +169,13 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 				break; // buffer full, Finish
 
 			sText *text = new sText;
-			text->text.Create(renderer, cmd.type, cmd.width, cmd.height, m_textureSizeX, m_textureSizeY);
+			text->text.Create(renderer, cmd.type, cmd.width, cmd.height
+				, m_textureSizeX, m_textureSizeY, cmd.dynScaleMin, cmd.dynScaleMax);
 			m_buffer.push_back(text);
 
 			SetCommand2Text(renderer, text, cmd);
 
-			m_renders.push_back(text);
+			//m_renders.push_back(text);
 			bufferStartIdx = m_buffer.size();
 		}
 	}
@@ -168,7 +183,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 
 	// clear cache if not use buffer
 	const int curT = timeGetTime();
-	set<int> rmIds;
+	set<__int64> rmIds;
 	for (auto kv : m_cacheMap)
 	{
 		sText *text = kv.second;
@@ -180,6 +195,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 				continue;
 			rmIds.insert(text->id);
 			text->id = -1;
+			text->gen = false;
 		}
 	}
 	for (auto id : rmIds)
@@ -189,11 +205,48 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 }
 
 
+void cTextManager::DelayGenerateText(cRenderer &renderer)
+{
+	const double curT = m_timer.GetSeconds();
+	if (curT - m_timePrevSecond > 1.f)
+	{
+		m_timePrevSecond = curT;
+		m_timeLoadBalance = 0;
+	}
+
+	while (!m_delayGens.empty() && (m_timeLoadBalance < 0.033f))
+	{
+		sDelayGenerateText text = m_delayGens.back();
+		m_delayGens.pop_back();
+		m_delayGenSet.erase(text.id);
+
+		if (!text.stext->used)
+			continue;
+
+		const double t0 = m_timer.GetSeconds();
+		{
+			if (text.stext->text.SetTextRect(renderer, text.tm, text.str.c_str(), text.color, text.outlineColor, text.type))
+				++m_generateCount;
+			else
+				++m_cacheCount;
+		}
+		const double t1 = m_timer.GetSeconds();
+
+		m_timeLoadBalance += (t1 - t0);
+
+		text.stext->gen = true;
+	}
+
+	assert(m_delayGens.size() == m_delayGenSet.size());
+}
+
+
 void cTextManager::Render(cRenderer &renderer
 	, const bool isSort //= false
 )
 {
 	ProcessTextCmd(renderer);
+	DelayGenerateText(renderer);
 
 	if (isSort)
 		Sorting();
@@ -210,16 +263,32 @@ void cTextManager::Render(cRenderer &renderer
 
 void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sCommand &cmd)
 {
-	if (text->text.SetTextRect(renderer, cmd.tm, cmd.str.c_str(), cmd.color, cmd.outlineColor, cmd.type))
-		++m_generateCount;
-	else
-		++m_cacheCount;
+	if (m_delayGenSet.end() == m_delayGenSet.find(cmd.id))
+	{
+		sDelayGenerateText delayTxt;
+		delayTxt.id = cmd.id;
+		delayTxt.str = cmd.str;
+		delayTxt.type = cmd.type;
+		delayTxt.color = cmd.color;
+		delayTxt.outlineColor = cmd.outlineColor;
+		delayTxt.tm = cmd.tm;
+		delayTxt.stext = text;
+		m_delayGens.push_back(delayTxt);
+		m_delayGenSet.insert(cmd.id);
+	}
+
+	//if (text->text.SetTextRect(renderer, cmd.tm, cmd.str.c_str(), cmd.color, cmd.outlineColor, cmd.type))
+	//	++m_generateCount;
+	//else
+	//	++m_cacheCount;
 
 	text->id = cmd.id;
 	text->used = true;
 	text->depthNone = cmd.depthNone;
 	text->space = cmd.space;
 	text->initTime = timeGetTime();
+	text->text.m_quad.m_dynScaleMin = cmd.dynScaleMin;
+	text->text.m_quad.m_dynScaleMax = cmd.dynScaleMax;
 	m_cacheMap[cmd.id] = text;
 }
 
@@ -240,14 +309,14 @@ void cTextManager::GarbageCollection()
 		return;	
 	oldT = timeGetTime();
 
-	set<int> checkIds;
+	set<__int64> checkIds;
 	for (auto &p : m_buffer)
 		checkIds.insert(p->id);
 
 	// Error Found
 	if (checkIds.size() != m_buffer.size())
 	{
-		map<int, std::pair<int,sText*>> duplicateCheck;
+		map<__int64, std::pair<int,sText*>> duplicateCheck;
 		for (auto &p : m_buffer)
 		{
 			++duplicateCheck[p->id].first;

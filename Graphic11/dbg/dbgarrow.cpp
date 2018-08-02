@@ -86,3 +86,16 @@ bool cDbgArrow::Picking(const Ray &ray
 
 	return r1 || r2;
 }
+
+
+void cDbgArrow::SetColor(const cColor &color)
+{
+	m_color = color;
+}
+
+
+void cDbgArrow::SetTechnique(const char *techniqName)
+{
+	m_head.SetTechnique(techniqName);
+	m_body.SetTechnique(techniqName);
+}

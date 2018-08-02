@@ -20,12 +20,15 @@ bool cText3d3::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	const int width, const int height
 	, const int textWidth // = 256
 	, const int textHeight // = 32
+	, const float dynScaleMin //= 0.5f
+	, const float dynScaleMax //= 200.5f
 )
 {
 	if (!m_texture.Create(renderer, textWidth, textHeight, DXGI_FORMAT_R8G8B8A8_UNORM))
 		return false;
 
-	if (!m_quad.Create(renderer, type, (float)width, (float)height, Vector3(0, 0, 0)))
+	if (!m_quad.Create(renderer, type, (float)width, (float)height, Vector3(0, 0, 0)
+		, "", true, dynScaleMin, dynScaleMax))
 		return false;
 
 	m_originalScale = m_quad.m_transform.scale;
@@ -53,7 +56,7 @@ bool cText3d3::SetTextRect(
 	m_quad.m_transform.pos = tm.pos;
 	m_quad.m_transform.rot = tm.rot;
 
-	// 텍스트 정보가 바뀌면, 텍스쳐에 다시 그린다.
+	// 텍스트 정보, 칼라가 바뀌면, 텍스쳐에 다시 그린다.
 	if ((m_color != color) || (m_text != text))
 	{
 		m_color = color;

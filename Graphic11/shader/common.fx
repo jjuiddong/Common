@@ -60,8 +60,11 @@ SamplerComparisonState samDepth : register(s2)
 SamplerState samAnis : register(s3)
 {
 	Filter = ANISOTROPIC;
-	AddressU = WRAP;
-	AddressV = WRAP;
+	//AddressU = WRAP;
+	//AddressV = WRAP;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	BorderColor = float4(1, 1, 1, 1);
 };
 
 SamplerState samPoint : register(s4)

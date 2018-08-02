@@ -20,7 +20,12 @@ namespace graphic
 		virtual ~cText3d3();
 
 		bool Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
-			const int width, const int height, const int textWidth = 256, const int textHeight = 32);
+			const int width, const int height
+			, const int textWidth = 256
+			, const int textHeight = 32
+			, const float dynScaleMin = 0.5f
+			, const float dynScaleMax = 200.5f
+		);
 
 		bool SetTextRect(
 			cRenderer &renderer
