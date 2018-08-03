@@ -38,6 +38,7 @@ cThread::cThread(const StrId &name
 	, m_procTaskIndex(0)
 	, m_maxTask(maxTask)
 	, m_memPoolTask(memPool)
+	, m_sortObj(NULL)
 {
 	m_tasks.reserve(32);
 }
@@ -76,7 +77,6 @@ bool cThread::Pause()
 {
 	if (eState::RUN == m_state)
 	{
-		//m_mutex.Lock(); // Run() 함수와 동기화 한다.
 		m_taskCS.Lock();
 		m_state = eState::PAUSE;
 		return true;
@@ -90,7 +90,6 @@ bool cThread::Resume()
 {
 	if ((eState::PAUSE == m_state) || (eState::IDLE == m_state))
 	{
-		//m_mutex.Unlock(); // Run() 함수와 동기화 한다.
 		m_taskCS.Unlock();
 		m_state = eState::RUN;
 		return true;
@@ -193,6 +192,19 @@ bool cThread::GetExternalMsg( OUT SExternalMsg *out
 }
 
 
+// m_tasks, m_addTasks sorting
+// 인자로 넘어온 compareFn 는 동적으로 생성된 (new) 객체여야 한다.
+// 소팅이 끝나고 compareFn 객체는 제거된다. (delete)
+// 멀티 쓰레딩으로 동작하기 때문에, 동기화를 위해 이렇게 처리했다.
+void cThread::SortTasks(iSortingTasks *sortObj)
+{	
+	AutoCSLock cs(m_containerCS);
+
+	SAFE_DELETE(m_sortObj);
+	m_sortObj = sortObj;
+}
+
+
 //------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------
@@ -251,7 +263,6 @@ int cThread::Run()
 	while ((eState::RUN == m_state)
 		|| (eState::PAUSE == m_state))
 	{
-		//m_mutex.Lock();
 		m_taskCS.Lock();
 
 		//1. Add & Remove Task
@@ -295,11 +306,9 @@ int cThread::Run()
 		//3. Message Process
 		DispatchMessage();
 
-		//m_mutex.Unlock();
 		m_taskCS.Unlock();
 	}
 
-	//m_mutex.Unlock();
 	m_taskCS.Unlock();
 
 	// 남았을지도 모를 메세지를 마지막으로 처리한다.
@@ -322,6 +331,14 @@ void cThread::UpdateTask()
 {
 	AutoCSLock cs1(m_containerCS);
 
+	// Sorting
+	if (m_sortObj)
+	{
+		m_sortObj->Sorting(m_tasks);
+		m_sortObj->Sorting(m_addTasks);
+		SAFE_DELETE(m_sortObj);
+	}
+
 	for (auto &p : m_addTasks)
 	{
 		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(p->m_id));
@@ -343,6 +360,8 @@ void cThread::UpdateTask()
 			{
 				if ((int)m_tasks.size() >= m_maxTask)
 				{
+					dbg::Logp("Err Over Maximize Task Count\n");
+
 					// remove most old task
 					auto &task = m_tasks.back();
 					ReleaseTask(task);
@@ -483,6 +502,7 @@ void cThread::Clear()
 		AutoCSLock cs(m_containerCS);
 		for (auto &p : m_addTasks)
 			ReleaseTask(p);
+		SAFE_DELETE(m_sortObj);
 		m_addTasks.clear();
 	}
 

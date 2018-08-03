@@ -23,6 +23,10 @@
 
 namespace common
 {
+	interface iSortingTasks {
+		virtual void Sorting(vector<cTask*> &tasks) = 0;
+	};
+
 
 	class cTask;
 	class cThread
@@ -43,6 +47,7 @@ namespace common
 		void Send2ExternalMessage( int msg, WPARAM wParam, LPARAM lParam, LPARAM added=0 );
 		bool GetThreadMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );
 		bool GetExternalMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );
+		void SortTasks(iSortingTasks *obj);
 		bool AddTask(cTask *pTask);
 		bool RemoveTask(const int id);
 		int GetTaskCount();
@@ -76,9 +81,9 @@ namespace common
 		iMemoryPool3Destructor *m_memPoolTask; // task memory pool destructor
 		list<SExternalMsg> m_threadMsgs;	// receive message
 		list<SExternalMsg> m_externalMsgs;	// send to another process message
+		iSortingTasks *m_sortObj;
 
 		std::thread m_thread;
-		//cMutex m_mutex; // 쓰레드 Run, Pause 동기화 객체
 		CriticalSection m_taskCS;
 	};
 
