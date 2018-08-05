@@ -35,3 +35,20 @@ string common::GetCurrentDateTime()
 
 	return ss.str();
 }
+
+
+
+//--------------------------------------------------------------------------------------
+cDateTime::cDateTime()
+{
+}
+
+cDateTime::cDateTime(const string &strDate)
+{
+
+}
+
+cDateTime::~cDateTime()
+{
+}
+
