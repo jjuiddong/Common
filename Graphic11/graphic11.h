@@ -89,6 +89,7 @@ namespace graphic {
 #include "base/meshbuffer.h"
 #include "base/samplerstate.h"
 #include "base/texture.h"
+#include "base/texture3d.h"
 //#include "base/texturecube.h"
 #include "base/vertexformat.h"
 
@@ -126,6 +127,8 @@ namespace graphic {
 #include "base/text.h"
 #include "base/text3d3.h"
 #include "base/rendertarget.h"
+#include "base/rendertarget2d.h"
+#include "base/rendertarget3d.h"
 #include "base/depthbuffer.h"
 //
 //

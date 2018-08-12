@@ -335,6 +335,15 @@
     <ClInclude Include="importer\fileloader.h">
       <Filter>importer</Filter>
     </ClInclude>
+    <ClInclude Include="base\texture3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rendertarget2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rendertarget3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -643,6 +652,15 @@
     </ClCompile>
     <ClCompile Include="collision\boundinghemisphere.cpp">
       <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="base\texture3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rendertarget2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rendertarget3d.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

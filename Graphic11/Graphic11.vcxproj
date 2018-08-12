@@ -170,6 +170,8 @@
     <ClInclude Include="base\rect2d.h" />
     <ClInclude Include="base\rect3d.h" />
     <ClInclude Include="base\rendertarget.h" />
+    <ClInclude Include="base\rendertarget2d.h" />
+    <ClInclude Include="base\rendertarget3d.h" />
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
     <ClInclude Include="base\skybox.h" />
@@ -179,6 +181,7 @@
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d3.h" />
     <ClInclude Include="base\texture.h" />
+    <ClInclude Include="base\texture3d.h" />
     <ClInclude Include="base\torus.h" />
     <ClInclude Include="base\vertexbuffer.h" />
     <ClInclude Include="base\vertexlayout.h" />
@@ -283,6 +286,8 @@
     <ClCompile Include="base\rect2d.cpp" />
     <ClCompile Include="base\rect3d.cpp" />
     <ClCompile Include="base\rendertarget.cpp" />
+    <ClCompile Include="base\rendertarget2d.cpp" />
+    <ClCompile Include="base\rendertarget3d.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
     <ClCompile Include="base\skybox.cpp" />
@@ -292,6 +297,7 @@
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d3.cpp" />
     <ClCompile Include="base\texture.cpp" />
+    <ClCompile Include="base\texture3d.cpp" />
     <ClCompile Include="base\torus.cpp" />
     <ClCompile Include="base\vertexbuffer.cpp" />
     <ClCompile Include="base\vertexlayout.cpp" />
