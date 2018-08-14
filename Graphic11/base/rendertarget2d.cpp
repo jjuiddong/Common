@@ -46,6 +46,7 @@ bool cRenderTarget2d::Create(cRenderer &renderer
 		return false;
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
 	rtvDesc.Format = rtvFormat;
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;

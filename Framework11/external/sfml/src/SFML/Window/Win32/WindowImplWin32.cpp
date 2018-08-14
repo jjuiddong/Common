@@ -139,7 +139,8 @@ m_fullscreen      (false),
 m_cursorGrabbed   (false)
 {
     // Set that this process is DPI aware and can handle DPI scaling
-    setProcessDpiAware();
+    // ignore high resolution dpi
+	//setProcessDpiAware();
 
     if (m_handle)
     {
@@ -168,7 +169,8 @@ m_fullscreen      ( ((style & Style::Fullscreen) > 0)? true : false),
 m_cursorGrabbed   (m_fullscreen)
 {
     // Set that this process is DPI aware and can handle DPI scaling
-    setProcessDpiAware();
+	// ignore high resolution dpi
+	//setProcessDpiAware();
 
     // Register the window class at first call
     if (windowCount == 0)
