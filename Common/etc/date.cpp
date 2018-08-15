@@ -52,3 +52,9 @@ cDateTime::~cDateTime()
 {
 }
 
+
+bool cDateTime::Parse(const char *str)
+{
+
+	return true;
+}
