@@ -11,6 +11,12 @@ float Vector2::Length() const
 }
 
 
+float Vector2::Distance(const Vector2 &rhs) const
+{
+	Vector2 v = *this - rhs;
+	return v.Length();
+}
+
 Vector2 Vector2::Normal() const
 {
 	const float len = Length();

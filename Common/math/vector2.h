@@ -12,6 +12,7 @@ namespace common
 
 		float Length() const;
 		Vector2 Normal() const;
+		float Distance(const Vector2 &rhs) const;
 		void Normalize();
 
 		Vector2 operator + () const;
