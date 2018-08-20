@@ -116,7 +116,14 @@ Texture3D multiple_scattering_texture           : register(t3);
 Texture2D delta_irradiance_texture              : register(t4);
 Texture3D scattering_density_texture            : register(t1);
 
-SamplerState atmosphere_sampler : register(s0);
+SamplerState atmosphere_sampler : register(s0)
+//SamplerState samLinear : register(s0)
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	AddressW = Clamp;
+};
 
 
 VsOutput VS(uint vertex_id : SV_VERTEXID, uint inst_id : SV_INSTANCEID)

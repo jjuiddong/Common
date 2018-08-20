@@ -684,12 +684,15 @@ float3 GetSkyRadiance(
     float mu_s = dot(camera, sun_direction) / r;
     float nu = dot(view_ray, sun_direction);
     bool ray_r_mu_intersects_ground = RayIntersectsGround(atmosphere, r, mu);
-    transmittance = ray_r_mu_intersects_ground ? (float3) (0.0) : GetTransmittanceToTopAtmosphereBoundary(atmosphere, transmittance_texture, atmo_sampler, r, mu);
+    transmittance = ray_r_mu_intersects_ground ? 
+		(float3) (0.0) : GetTransmittanceToTopAtmosphereBoundary(atmosphere, transmittance_texture, atmo_sampler, r, mu);
     float3 single_mie_scattering;
     float3 scattering;
     if (shadow_length == 0.0)
     {
-        scattering = GetCombinedScattering(atmosphere, scattering_texture, single_mie_scattering_texture, atmo_sampler, r, mu, mu_s, nu, ray_r_mu_intersects_ground, single_mie_scattering);
+        scattering = GetCombinedScattering(atmosphere, scattering_texture
+			, single_mie_scattering_texture, atmo_sampler
+			, r, mu, mu_s, nu, ray_r_mu_intersects_ground, single_mie_scattering);
     }
     else
     {
