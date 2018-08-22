@@ -780,6 +780,9 @@
     <CustomBuild Include="shader\atmosphere_precompute.fx">
       <Filter>shader</Filter>
     </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-box.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

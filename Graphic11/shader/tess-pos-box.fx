@@ -1,5 +1,5 @@
 //
-// Tessellation Box, 1 control point
+// Tessellation Quad, 1 control point
 //
 #include "common.fx"
 
@@ -60,32 +60,13 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 1> input
 {
 	ConstantOutputType output;
 
-	//const float2 center = inputPatch[0].origin + inputPatch[0].size * 0.5f;
-	//const float distance = length(center - eyePos.xz);
-	//float tessFactor = lerp(1.f, (1 / (0.005*distance)), 1);
 	const float tessFactor = gTessellationAmount;
-
-	// Set the tessellation factors for the three edges of the triangle.
-	//output.edges[0] = max(1, pow(2, abs(gLevel - gEdgeLevel.x)));
-	//output.edges[1] = max(1, pow(2, abs(gLevel - gEdgeLevel.y)));
-	//output.edges[2] = max(1, pow(2, abs(gLevel - gEdgeLevel.z)));
-	//output.edges[3] = max(1, pow(2, abs(gLevel - gEdgeLevel.w)));
 	output.edges[0] = 1;
 	output.edges[1] = 1;
 	output.edges[2] = 1;
 	output.edges[3] = 1;
 	output.inside[0] = 1;
 	output.inside[1] = 1;
-
-	//output.edges[0] = max(1, pow(2, gLevel) * pow(4, abs(gLevel - gEdgeLevel.x)));
-	//output.edges[1] = max(1, pow(2, gLevel) * pow(4, abs(gLevel - gEdgeLevel.y)));
-	//output.edges[2] = max(1, pow(2, gLevel) * pow(4, abs(gLevel - gEdgeLevel.z)));
-	//output.edges[3] = max(1, pow(2, gLevel) * pow(4, abs(gLevel - gEdgeLevel.w)));
-
-	//// Set the tessellation factor for tessallating inside the triangle.
-	//output.inside[0] = pow(2, gLevel);
-	//output.inside[1] = pow(2, gLevel);
-
 	output.pos = inputPatch[0].pos;
 
 	return output;
@@ -148,8 +129,13 @@ float4 ColorPixelShader(PixelInputType input) : SV_TARGET
 	//float4 texColor = txDiffuse.Sample(samLinear, input.tex);
 	//return float4(1, 1, 1, 1); //input.color;
 	//return texColor;
+	//return input.posW.y / 500.f;
 
-	return input.posW.y / 500.f;
+	//return float4(1, 1, 1, 0.5);
+	return float4(
+		float3(gMtrl_Diffuse.xyz)*0.3f * saturate(input.posW.y * 300)
+		+ gMtrl_Diffuse.xyz * (input.posW.y/300)
+		, gMtrl_Diffuse.w);
 }
 
 
