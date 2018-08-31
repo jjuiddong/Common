@@ -18,6 +18,8 @@ cConfig::~cConfig()
 
 bool cConfig::Read(const string &fileName)
 {
+	m_options.clear();
+
 	if (!Parse(fileName))
 	{
 		InitDefault();
