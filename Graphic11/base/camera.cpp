@@ -136,7 +136,7 @@ void cCamera::UpdateMove(const float deltaSeconds)
 // 카메라가 대상을 쫓아갈 때, 위치와 목표 값을 업데이트한다.
 void cCamera::UpdateTrace(const float deltaSeconds)
 {
-	if ((eState::TRACE == m_state) && m_traceNode)
+	if ((eState::TRAC == m_state) && m_traceNode)
 	{
 		m_eyePos = m_traceTm.GetPosition() + m_traceNode->GetWorldMatrix().GetPosition();
 		m_lookAt = m_traceNode->GetWorldMatrix().GetPosition();
@@ -355,7 +355,7 @@ void cCamera::Trace(cNode *trace, const Matrix44 &tm)
 {
 	m_traceNode = trace;
 	m_traceTm = tm;
-	m_state = eState::TRACE;
+	m_state = eState::TRAC;
 }
 
 

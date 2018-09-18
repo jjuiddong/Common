@@ -30,7 +30,7 @@ namespace motion
 	public:
 		DEVICE m_device;
 		HWND m_hWnd;
-		cJoyPad m_joyPad;
+		//cJoyPad m_joyPad;
 		mathscript::cMathParser m_mathParser;
 		mathscript::cMathInterpreter m_matInterpreter;
 		cMotionWaveModulator m_modulator;

@@ -1,14 +1,18 @@
+//
+// 2018-09-18, jjuiddong
+// DX3D11 View
+//
 #pragma once
 
 #define IDD_DIALOG_3D_2	123456
 
 
 // C3DDialog dialog
-class C3DView : public CDockablePaneChildView
+class C3DView11 : public CDockablePaneChildView
 {
 public:
-	C3DView(CWnd* pParent = NULL);   // standard constructor
-	virtual ~C3DView();
+	C3DView11(CWnd* pParent = NULL);   // standard constructor
+	virtual ~C3DView11();
 
 // Dialog Data
 	enum { IDD = IDD_DIALOG_3D_2 };
@@ -32,7 +36,7 @@ protected:
 	graphic::cCube m_box;
 	graphic::cSphere m_sphere;
 	graphic::cCube m_cube;
-	graphic::cCamera m_camera;
+	graphic::cCamera3D m_camera;
 	graphic::cLight m_light;
 	cCubeCar m_car;
 	graphic::cRenderer m_renderer;
@@ -66,7 +70,7 @@ public:
 };
 
 
-inline void C3DView::SetFixedFrame(const bool isFixedFrame) { m_isFixedFrame = isFixedFrame;  }
-inline void C3DView::SetRenderCube(const bool isRender) { m_isRenderCube = isRender;  }
-inline graphic::cRenderer& C3DView::GetRenderer() { return m_renderer;  }
-inline cCubeCar& C3DView::GetCar() { return m_car; }
+inline void C3DView11::SetFixedFrame(const bool isFixedFrame) { m_isFixedFrame = isFixedFrame;  }
+inline void C3DView11::SetRenderCube(const bool isRender) { m_isRenderCube = isRender;  }
+inline graphic::cRenderer& C3DView11::GetRenderer() { return m_renderer;  }
+inline cCubeCar& C3DView11::GetCar() { return m_car; }

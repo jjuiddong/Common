@@ -48,11 +48,11 @@ bool cJoyStickInput::Init2(const DEVICE device, const HWND hWnd, const string &m
 
 bool cJoyStickInput::Start()
 {
-	if (!m_joyPad.Init(m_hWnd))
-	{
-		dbg::ErrLog("Error!! Init JoyPad \n");
-		return false;
-	}
+	//if (!m_joyPad.Init(m_hWnd))
+	//{
+	//	dbg::ErrLog("Error!! Init JoyPad \n");
+	//	return false;
+	//}
 
 	m_state = MODULE_STATE::START;
 
@@ -63,7 +63,7 @@ bool cJoyStickInput::Start()
 bool cJoyStickInput::Stop()
 {
 	m_state = MODULE_STATE::STOP;
-	m_joyPad.Clear();
+	//m_joyPad.Clear();
 
 	return true;
 }
@@ -77,29 +77,29 @@ bool cJoyStickInput::Update(const float deltaSeconds)
 	if (m_incTime < 0.033f)
 		return true;
 
-	m_joyPad.Update(deltaSeconds);
+	//m_joyPad.Update(deltaSeconds);
 	
 	// Joystick 데이타 저장
-	{
-		script::sFieldData data;
-		data.type = script::FIELD_TYPE::T_FLOAT;
-		data.fVal = (float)m_joyPad.m_axisX;
-		script::g_symbols["@xaxis"] = data;
-		data.fVal = (float)m_joyPad.m_axisY;
-		script::g_symbols["@yaxis"] = data;
-		data.fVal = (float)m_joyPad.m_axisZ;
-		script::g_symbols["@zaxis"] = data;
+	//{
+	//	script::sFieldData data;
+	//	data.type = script::FIELD_TYPE::T_FLOAT;
+	//	data.fVal = (float)m_joyPad.m_axisX;
+	//	script::g_symbols["@xaxis"] = data;
+	//	data.fVal = (float)m_joyPad.m_axisY;
+	//	script::g_symbols["@yaxis"] = data;
+	//	data.fVal = (float)m_joyPad.m_axisZ;
+	//	script::g_symbols["@zaxis"] = data;
 
-		data.fVal = (float)m_joyPad.m_axisRx;
-		script::g_symbols["@xrot"] = data;
-		data.fVal = (float)m_joyPad.m_axisRy;
-		script::g_symbols["@yrot"] = data;
-		data.fVal = (float)m_joyPad.m_axisRz;
-		script::g_symbols["@zrot"] = data;
+	//	data.fVal = (float)m_joyPad.m_axisRx;
+	//	script::g_symbols["@xrot"] = data;
+	//	data.fVal = (float)m_joyPad.m_axisRy;
+	//	script::g_symbols["@yrot"] = data;
+	//	data.fVal = (float)m_joyPad.m_axisRz;
+	//	script::g_symbols["@zrot"] = data;
 
-		data.fVal = (float)m_joyPad.m_axisH;
-		script::g_symbols["@slider"] = data;
-	}
+	//	data.fVal = (float)m_joyPad.m_axisH;
+	//	script::g_symbols["@slider"] = data;
+	//}
 
 	// Excute Math Script
 	m_matInterpreter.Excute(m_mathParser.m_stmt);

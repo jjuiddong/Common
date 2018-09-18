@@ -85,7 +85,7 @@ void cCamera2D::CheckBoundingBox()
 // 2D 카메라는 Y 값은 업데이트 하지 않는다. Zoom 과 연관되기 때문.
 void cCamera2D::UpdateTrace(const float deltaSeconds)
 {
-	if ((eState::TRACE == m_state) && m_traceNode)
+	if ((eState::TRAC == m_state) && m_traceNode)
 	{
 		const Vector3 newPos = m_traceTm.GetPosition() + (m_traceNode->GetWorldMatrix().GetPosition() * m_zoom);
 		m_eyePos.x = newPos.x;
@@ -249,7 +249,7 @@ void cCamera2D::Trace(cNode *trace, const Matrix44 &tm)
 {
 	m_traceNode = trace;
 	m_traceTm = tm;
-	m_state = eState::TRACE;
+	m_state = eState::TRAC;
 }
 
 

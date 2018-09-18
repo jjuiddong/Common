@@ -36,7 +36,7 @@ namespace VITCON_SER
 #include "motionmonitorconfig.h"
 #include "simplemodulator.h"
 #include "motionwave.h"
-#include "joypad.h"
+//#include "joypad.h"
 
 
 #include "script/script.h"

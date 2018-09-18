@@ -337,6 +337,18 @@ bool CPlotWindow::SetPlot(const plot::SPlotInfo &info)
 }
 
 
+Vector2* D3DXVec2CatmullRom(Vector2 *pout
+	, const Vector2 *pv0
+	, const Vector2 *pv1
+	, const Vector2 *pv2
+	, const Vector2 *pv3, float s)
+{
+	pout->x = 0.5f * (2.0f * pv1->x + (pv2->x - pv0->x) *s + (2.0f *pv0->x - 5.0f * pv1->x + 4.0f * pv2->x - pv3->x) * s * s + (pv3->x - 3.0f * pv2->x + 3.0f * pv1->x - pv0->x) * s * s * s);
+	pout->y = 0.5f * (2.0f * pv1->y + (pv2->y - pv0->y) *s + (2.0f *pv0->y - 5.0f * pv1->y + 4.0f * pv2->y - pv3->y) * s * s + (pv3->y - 3.0f * pv2->y + 3.0f * pv1->y - pv0->y) * s * s * s);
+	return pout;
+}
+
+
 // 그래프 정보 추가.
 void CPlotWindow::SetPlotY(const float y, const int plotIndex)
 {
@@ -385,11 +397,7 @@ void CPlotWindow::SetPlotY(const float y, const int plotIndex)
 			while (t < 1.f)
 			{
 				Vector2 p;
-				D3DXVec2CatmullRom((D3DXVECTOR2*)&p,
-					(D3DXVECTOR2*)&p1,
-					(D3DXVECTOR2*)&p2,
-					(D3DXVECTOR2*)&p3,
-					(D3DXVECTOR2*)&p4, t);
+				D3DXVec2CatmullRom(&p, &p1, &p2, &p3, &p4, t);
 
 				// insert spline curve b3
 				SetPlotXY(p.x, p.y, plotIndex);

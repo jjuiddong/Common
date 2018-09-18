@@ -18,21 +18,46 @@ cCubeCar::~cCubeCar()
 // 클래스 초기화.
 bool cCubeCar::Init(cRenderer &renderer)
 {
-	m_mesh[0].SetCube(renderer, Vector3(-1, -1, -1), Vector3(1, 1, 1));
-	m_mesh[1].SetCube(renderer, Vector3(1, -1, -1), Vector3(3, 1, 1));
-	m_mesh[2].SetCube(renderer, Vector3(-1, 1, -1), Vector3(1, 2, 1));
+	cBoundingBox bbox;
+	sMinMax mmax;
+
+	mmax._min = Vector3(-1, -1, -1);
+	mmax._max = Vector3(1, 1, 1);
+	bbox.SetBoundingBox(mmax);
+	m_mesh[0].Create(renderer, bbox);
+
+	mmax._min = Vector3(1, -1, -1);
+	mmax._max = Vector3(3, 1, 1);
+	bbox.SetBoundingBox(mmax);
+	m_mesh[1].Create(renderer, bbox);
+
+	mmax._min = Vector3(-1, 1, -1);
+	mmax._max = Vector3(1, 2, 1);
+	bbox.SetBoundingBox(mmax);
+	m_mesh[2].Create(renderer, bbox);
+
 	const float weight = 0.15f;
-	m_mesh[3].SetCube(renderer, Vector3(-4, -weight, -weight), Vector3(6, weight, weight));
-	m_mesh[4].SetCube(renderer, Vector3(-weight, -6, -weight), Vector3(weight, 6, weight));
-	m_mesh[5].SetCube(renderer, Vector3(-weight, -weight, -6), Vector3(weight, weight, 6));
+	mmax._min = Vector3(-4, -weight, -weight);
+	mmax._max = Vector3(6, weight, weight);
+	bbox.SetBoundingBox(mmax);
+	m_mesh[3].Create(renderer, bbox);
 
-	m_mesh[0].GetMaterial().InitBlue();
-	m_mesh[1].GetMaterial().InitBlue();
-	m_mesh[2].GetMaterial().InitBlue();
-	m_mesh[3].GetMaterial().InitRed();
-	m_mesh[4].GetMaterial().InitGreen();
-	m_mesh[5].GetMaterial().InitWhite();
+	mmax._min = Vector3(-weight, -6, -weight);
+	mmax._max = Vector3(weight, 6, weight);
+	bbox.SetBoundingBox(mmax);
+	m_mesh[4].Create(renderer, bbox);
 
+	mmax._min = Vector3(-weight, -weight, -6);
+	mmax._max = Vector3(weight, weight, 6);
+	bbox.SetBoundingBox(mmax);
+	m_mesh[5].Create(renderer, bbox);
+
+	m_mesh[0].SetColor(cColor::BLUE);
+	m_mesh[1].SetColor(cColor::BLUE);
+	m_mesh[2].SetColor(cColor::BLUE);
+	m_mesh[3].SetColor(cColor::RED);
+	m_mesh[4].SetColor(cColor::GREEN);
+	m_mesh[5].SetColor(cColor::WHITE);
 	return true;
 }
 
@@ -40,12 +65,13 @@ bool cCubeCar::Init(cRenderer &renderer)
 // 화면에 출력한다.
 void cCubeCar::Render(graphic::cRenderer &renderer)
 {
-	m_mesh[0].Render(renderer, m_tm);
-	m_mesh[1].Render(renderer, m_tm);
-	m_mesh[2].Render(renderer, m_tm);
-	m_mesh[3].Render(renderer, m_tm);
-	m_mesh[4].Render(renderer, m_tm);
-	m_mesh[5].Render(renderer, m_tm);
+	const XMMATRIX tm = m_tm.GetMatrixXM();
+	m_mesh[0].Render(renderer, tm);
+	m_mesh[1].Render(renderer, tm);
+	m_mesh[2].Render(renderer, tm);
+	m_mesh[3].Render(renderer, tm);
+	m_mesh[4].Render(renderer, tm);
+	m_mesh[5].Render(renderer, tm);
 }
 
 

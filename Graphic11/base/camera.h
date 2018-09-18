@@ -87,7 +87,9 @@ namespace graphic
 
 
 	public:
-		struct eState { enum Enum { STOP, MOVE, TRACE }; };
+		struct eState { 
+			enum Enum { STOP, MOVE, TRAC }; 
+		};
 
 		eState::Enum m_state;
 		StrId m_name;
