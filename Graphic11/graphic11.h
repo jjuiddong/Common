@@ -111,6 +111,7 @@ namespace graphic {
 #include "base/rect3d.h"
 #include "base/cube.h"
 #include "base/shader11.h"
+#include "manager/RendererInterface.h"
 #include "base/constantbuffer.h"
 #include "base/camera.h"
 #include "base/camera2d.h"

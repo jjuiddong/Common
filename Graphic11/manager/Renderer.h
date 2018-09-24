@@ -4,6 +4,8 @@
 //
 #pragma once
 
+#include "RendererInterface.h"
+
 
 namespace graphic
 {
@@ -50,7 +52,7 @@ namespace graphic
 	class cTexture;
 	class cDepthBuffer;
 
-	class cRenderer
+	class cRenderer : public iRenderer
 	{
 	public:
 		cRenderer();
@@ -63,8 +65,8 @@ namespace graphic
 			, ID3D11Device *device, ID3D11DeviceContext *devContext);
 
 		void Update(const float elpaseT);
-		ID3D11Device* GetDevice();
-		ID3D11DeviceContext* GetDevContext();
+		virtual ID3D11Device* GetDevice() override;
+		virtual ID3D11DeviceContext* GetDevContext() override;
 		HWND GetHwnd() const;
 		bool CheckResetDevice(const float width=0, const float height=0);
 		bool ResetDevice(const float width=0, const float height=0, const bool forceReset=false

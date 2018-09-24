@@ -672,7 +672,7 @@ namespace common
 			return !(operator==(rhs));
 		}
 
-		bool operator != (const std::string &rhs) const {
+		bool operator != (const std::wstring &rhs) const {
 			return !(operator==(rhs));
 		}
 

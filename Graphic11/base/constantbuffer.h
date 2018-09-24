@@ -21,7 +21,7 @@ namespace graphic
 			Clear();
 		}
 
-		bool Create(cRenderer &renderer)
+		bool Create(iRenderer &renderer)
 		{
 			D3D11_BUFFER_DESC bd;
 			ZeroMemory(&bd, sizeof(bd));
@@ -39,7 +39,7 @@ namespace graphic
 		}
 
 		
-		bool Update(cRenderer &renderer, const int slot=0)
+		bool Update(iRenderer &renderer, const int slot = 0)
 		{
 			RETV(!m_constantBuffer, false);
 			renderer.GetDevContext()->UpdateSubresource(m_constantBuffer, 0, NULL, m_v, 0, 0);
@@ -48,7 +48,6 @@ namespace graphic
 			renderer.GetDevContext()->HSSetConstantBuffers(slot, 1, &m_constantBuffer);
 			renderer.GetDevContext()->DSSetConstantBuffers(slot, 1, &m_constantBuffer);
 			renderer.GetDevContext()->PSSetConstantBuffers(slot, 1, &m_constantBuffer);
-
 			return true;
 		}
 

@@ -47,5 +47,5 @@ namespace network {
 #include "tcpclient2.h"
 //#include "FtpClient/FTPClient.h"
 
-#include "sql/mysqlquery.h"
-#pragma comment(lib, "libmysql.lib")
+//#include "sql/mysqlquery.h"
+//#pragma comment(lib, "libmysql.lib")

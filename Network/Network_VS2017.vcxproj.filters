@@ -77,9 +77,6 @@
     <ClInclude Include="tcpclient2.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="sql\mysqlquery.h">
-      <Filter>sql</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -123,9 +120,6 @@
     </ClCompile>
     <ClCompile Include="tcpclient2.cpp">
       <Filter>헤더 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="sql\mysqlquery.cpp">
-      <Filter>sql</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

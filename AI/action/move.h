@@ -49,7 +49,7 @@ namespace ai
 
 		virtual bool ActionExecute(const float deltaSeconds) override
 		{
-			const Vector3 curPos = m_agent->aiGetTransform().pos;
+			const Vector3 curPos = cAction::m_agent->aiGetTransform().pos;
 
 			// 회전 보간 계산
 			if (m_rotateTime < m_rotateInterval)
@@ -67,7 +67,7 @@ namespace ai
 			tfm.pos = pos;
 			//m_agent->aiGetTransform() = m_S * m_R;
 			//m_agent->aiGetTransform().SetPosition(pos);
-			m_agent->aiGetTransform() = tfm;
+			cAction::m_agent->aiGetTransform() = tfm;
 
 			// 목적지에 가깝다면 종료.
 			// 프레임이 낮을 때, 통과되는 문제가 있을 수 있다.

@@ -205,6 +205,7 @@
     <ClInclude Include="importer\fileloader.h" />
     <ClInclude Include="importer\parallelloader.h" />
     <ClInclude Include="manager\fontmanager.h" />
+    <ClInclude Include="manager\RendererInterface.h" />
     <ClInclude Include="manager\lightmanager.h" />
     <ClInclude Include="manager\maincamera.h" />
     <ClInclude Include="manager\pickmanager.h" />

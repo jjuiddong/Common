@@ -383,31 +383,31 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 	}
 	else
 	{
-		// Too much search time
-		// ignore this code
+		StrPath newPath;
+		StrPath searchPath = m_mediaDirectory + dirPath;
+		if (searchPath.empty())
+			searchPath = ".";
 
-		//StrPath newPath;
-		//StrPath searchPath = m_mediaDirectory + dirPath;
-		//if (searchPath.empty())
-		//	searchPath = ".";
-
-		//key = newPath;
-		//if (common::FindFile(cvtFileName.GetFileName(), searchPath + "/", newPath))
-		//{
-		//	if (isRecursive)
-		//	{
-		//		if (texture = cResourceManager::LoadTexture(renderer, newPath, false))
-		//			return texture;
-		//	}
-		//	else
-		//	{
-		//		if (common::IsFileExist(newPath))
-		//		{
-		//			texture = new cTexture();
-		//			texture->Create(renderer, newPath);
-		//		}
-		//	}
-		//}
+		key = newPath;
+		list<string> ignors;
+		ignors.push_back("VWorld");
+		ignors.push_back("WorldTerrain");
+		if (common::FindFile2(cvtFileName.GetFileName(), searchPath + "/", ignors, newPath))
+		{
+			if (isRecursive)
+			{
+				if (texture = cResourceManager::LoadTexture(renderer, newPath, false))
+					return texture;
+			}
+			else
+			{
+				if (common::IsFileExist(newPath))
+				{
+					texture = new cTexture();
+					texture->Create(renderer, newPath);
+				}
+			}
+		}
 	}
 
 	if (texture && texture->IsLoaded())
@@ -502,7 +502,10 @@ std::pair<bool,cTexture*> cResourceManager::FindTexture( const StrPath &fileName
 StrPath cResourceManager::FindFile( const StrPath &fileName )
 {
 	StrPath newPath;
-	if (common::FindFile(fileName, m_mediaDirectory, newPath))
+	list<string> ignors;
+	ignors.push_back("VWorld");
+	ignors.push_back("WorldTerrain");
+	if (common::FindFile2(fileName, m_mediaDirectory, ignors, newPath))
 	{
 		return newPath;
 	}
@@ -565,7 +568,10 @@ StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath 
 				searchPath += "/";
 
 			StrPath onlyFileName = fileName.GetFileName();
-			if (common::FindFile(onlyFileName, searchPath, newPath, 5))
+			list<string> ignors;
+			ignors.push_back("VWorld");
+			ignors.push_back("WorldTerrain");
+			if (common::FindFile2(onlyFileName, searchPath, ignors, newPath, 5))
 			{
 				return newPath;
 			}

@@ -198,7 +198,6 @@ __int64  common::FileSize(const string &fileName)
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out)
-// isRelativePath=false
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -255,6 +254,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 	
 	return true;
 }
+
 
 // same CollectFiles() function
 // return  Relative Path
@@ -316,6 +316,77 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 	return true;
 }
 
+
+//-----------------------------------------------------------------------------//
+// searchPath폴더에 findExt 확장자 리스트에 포함된 파일을 out에 저장한다.
+//	ignoreDirs 에 포함된 폴더는 검색에서 제외된다.
+//
+// searchPath: 탐색하고자 하는 디렉토리 경로
+//		- 마지막에 / 넣어야한다.
+// findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+// out: 일치하는 확장자를 가진 파일이름을 저장한다.
+//-----------------------------------------------------------------------------//
+bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
+	, const list<string> &ignoreDirs, OUT list<string> &out)
+{
+	string modifySearchPath;
+	if (!searchPath.empty() &&
+		(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath.empty() ? "" : searchPath + "\\";
+	}
+
+	WIN32_FIND_DATAA fd;
+	const string searchDir = modifySearchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
+			{
+				if (ignoreDirs.end() == std::find(ignoreDirs.begin(), ignoreDirs.end(), fd.cFileName))
+				{
+					CollectFiles3(findExt, modifySearchPath + string(fd.cFileName) + "\\", ignoreDirs, out);
+				}
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			const string fileName = fd.cFileName;
+
+			if (findExt.empty())
+			{
+				out.push_back(modifySearchPath + fileName);
+			}
+			else
+			{
+				auto it = findExt.begin();
+				while (findExt.end() != it)
+				{
+					if (CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
+					{
+						out.push_back(modifySearchPath + fileName);
+						break;
+					}
+					++it;
+				}
+			}
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
 
 
 // 파일명과 날짜 정보를 저장해 리턴한다.
@@ -472,6 +543,77 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 }
 
 
+//-----------------------------------------------------------------------------//
+// searchPath폴더에 findExt 확장자 리스트에 포함된 파일을 out에 저장한다.
+//	ignoreDirs 에 포함된 폴더는 검색에서 제외된다.
+//
+// searchPath: 탐색하고자 하는 디렉토리 경로
+//		- 마지막에 / 넣어야한다.
+// findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+// out: 일치하는 확장자를 가진 파일이름을 저장한다.
+//-----------------------------------------------------------------------------//
+bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchPath
+	, const vector<WStr64> &ignoreDirs, OUT vector<WStrPath> &out)
+{
+	WStrPath modifySearchPath;
+	const int searchLen = wcslen(searchPath);
+	if ((searchLen != 0) &&
+		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath;
+		modifySearchPath += L"\\";
+	}
+
+	WIN32_FIND_DATAW fd;
+	WStrPath searchDir = modifySearchPath + L"*.*";
+	HANDLE hFind = FindFirstFileW(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
+			{
+				if (ignoreDirs.end() == std::find(ignoreDirs.begin(), ignoreDirs.end(), fd.cFileName))
+				{
+					const WStrPath newPath = modifySearchPath + fd.cFileName + L"/";
+					CollectFiles(findExt, newPath.c_str(), out);
+				}
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			if (findExt.empty())
+			{
+				out.push_back(modifySearchPath + fd.cFileName);
+			}
+			else
+			{
+				for (auto &ext : findExt)
+				{
+					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					{
+						out.push_back(modifySearchPath + fd.cFileName);
+						break;
+					}
+				}
+			}
+		}
+
+		if (!FindNextFileW(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
+
 //------------------------------------------------------------------------
 // srcFileName의 확장자와 compareExtendName 이름이 같다면 true를 리턴한다.
 // 확장자는 srcFileName 끝에서 '.'이 나올 때까지 이다.
@@ -548,7 +690,6 @@ bool common::CompareExtendName(const wchar_t *srcFileName, const int srcStringMa
 }
 
 
-
 // searchPath 디렉토리 안에서 findName 의 파일이름을 가진 파일이 있다면 해당 경로를
 // out 에 저장하고 true 를 리턴한다.
 // depth 크기만큼 하위 디렉토리를 검색한다.  -1이면 끝까지 검색한다.
@@ -574,6 +715,60 @@ bool common::FindFile( const StrPath &findName, const StrPath &searchPath, StrPa
 			{
 				if (FindFile( findName, searchPath + fd.cFileName + "/", out, depth-1 ))
 					break;
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			StrPath fileName = fd.cFileName;
+			// 속도가 느려져서 주석처리함, GetFileName()호출은 외부에서 할 것
+			//if (lowerCase(fileName) == lowerCase(GetFileName(findName)))
+			if (fileName.lowerCase() == lowerCaseFindFileName)
+			{
+				out = searchPath + findName.GetFileName();
+				break;
+			}
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return !out.empty();
+}
+
+
+// searchPath 디렉토리 안에서 findName 의 파일이름을 가진 파일이 있다면 해당 경로를
+// out 에 저장하고 true 를 리턴한다.
+// depth 크기만큼 하위 디렉토리를 검색한다.  -1이면 끝까지 검색한다.
+// ignoreDirs 에 포함된 폴더명은 검색에서 제외된다.
+bool common::FindFile2(const StrPath &findName, const StrPath &searchPath
+	, const list<string> &ignoreDirs, StrPath &out
+	, const int depth //= -1
+)
+{
+	if (depth == 0)
+		return false;
+
+	StrPath lowerCaseFindFileName = findName;
+	lowerCaseFindFileName.lowerCase();
+
+	WIN32_FIND_DATAA fd;
+	const StrPath searchDir = searchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (strcmp(".", fd.cFileName) && strcmp("..", fd.cFileName))
+			{
+				if (ignoreDirs.end() == std::find(ignoreDirs.begin(), ignoreDirs.end(), fd.cFileName))
+				{
+					if (FindFile(findName, searchPath + fd.cFileName + "/", out, depth - 1))
+						break;
+				}
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
