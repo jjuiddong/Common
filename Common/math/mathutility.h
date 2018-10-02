@@ -130,4 +130,16 @@ namespace common
 	}
 
 
+	// Line : p0 - p1
+	// Point : p
+	// Calc Shortest Length Point - Line
+	inline float GetShortestLen(const Vector3 &p0, const Vector3 &p1, const Vector3 &p)
+	{
+		const float a = (p - p0).DotProduct((p1 - p0).Normal());
+		const float b = p.Distance(p0);
+		const float len = sqrt(b*b - a * a);
+		return len;
+	}
+
+
 }
