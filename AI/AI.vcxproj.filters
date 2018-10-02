@@ -20,12 +20,6 @@
     <ClInclude Include="action\move.h">
       <Filter>action</Filter>
     </ClInclude>
-    <ClInclude Include="object\actorinterface.h">
-      <Filter>object</Filter>
-    </ClInclude>
-    <ClInclude Include="object\aiactor.h">
-      <Filter>object</Filter>
-    </ClInclude>
     <ClInclude Include="control\object.h">
       <Filter>control</Filter>
     </ClInclude>
@@ -34,6 +28,12 @@
     </ClInclude>
     <ClInclude Include="path\navigationmesh.h">
       <Filter>path</Filter>
+    </ClInclude>
+    <ClInclude Include="object\brain.h">
+      <Filter>object</Filter>
+    </ClInclude>
+    <ClInclude Include="object\agent.h">
+      <Filter>object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

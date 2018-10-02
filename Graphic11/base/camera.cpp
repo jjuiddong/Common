@@ -20,6 +20,7 @@ cCamera::cCamera(const char *name)
 	, m_state(eState::STOP)
 	, m_boundingType(eBoundingType::NONE)
 	, m_traceNode(NULL)
+	, m_isKeepHorizontal(true)
 {
 	m_boundingHSphere.SetBoundingHalfSphere(Vector3(0, 0, 0), 500);
 }

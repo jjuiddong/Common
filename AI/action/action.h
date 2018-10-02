@@ -24,7 +24,7 @@ namespace ai
 	{
 	public:
 		cAction(
-			iActorInterface<T> *agent = NULL,
+			iAgent<T> *agent = NULL,
 			const StrId &name = "action",
 			const StrId &animationName = "",
 			const eActionType::Enum type = eActionType::NONE);
@@ -63,7 +63,7 @@ namespace ai
 		eActionType::Enum m_type;
 		StrId m_name;
 		StrId m_animationName;
-		iActorInterface<T> *m_agent;
+		iAgent<T> *m_agent;
 		vector<cAction<T>*> m_children;
 		cAction<T> *m_current;
 	};
@@ -74,7 +74,7 @@ namespace ai
 
 	template<class T>
 	cAction<T>::cAction(
-		iActorInterface<T> *agent //= NULL
+		iAgent<T> *agent //= NULL
 		, const StrId &name //= "action"
 		, const StrId &animationName //= ""
 		, const eActionType::Enum type //= eActionType::NONE

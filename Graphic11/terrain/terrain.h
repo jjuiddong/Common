@@ -22,7 +22,7 @@ namespace graphic
 
 		virtual bool Create(cRenderer &renderer, const sRectf &rect);
 		virtual bool Create(cRenderer &renderer, const int rowCnt, const int colCnt
-			, const float cellSizeW, const float cellSizeH
+			, const float tileCellSizeW, const float tileCellSizeH
 			, const int rowTileCnt, const int colTileCnt );
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
@@ -72,7 +72,7 @@ namespace graphic
 										 // m_map[row][col];
 		int m_cols;  // column cell count
 		int m_rows;	 // row cell count
-		Vector2 m_cellSize;
+		Vector2 m_tileCellSize;
 		int m_colVtx;  // column vertex count
 		int m_rowVtx;	// row vertex count
 		int m_tileCols; // row tile count

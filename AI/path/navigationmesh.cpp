@@ -280,7 +280,7 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 				continue;
 
 			const float len = g_edges_len[curIdx][node.adjacent[i]];
-			if (0 == len)
+			if (0 == len) // not visit this node
 				continue;
 
 			if (minEdge > len)

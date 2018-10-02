@@ -14,10 +14,10 @@
 #include "control/messagemanager.h"
 #include "control/aimain.h"
 
-#include "object/actorinterface.h"
+#include "object/agent.h"
 #include "action/action.h"
 #include "action/rootaction.h"
-#include "object/aiactor.h"
+#include "object/brain.h"
 
 #include "action/move.h"
 

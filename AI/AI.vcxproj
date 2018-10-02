@@ -129,8 +129,8 @@
     <ClInclude Include="control\aimain.h" />
     <ClInclude Include="control\object.h" />
     <ClInclude Include="control\messagemanager.h" />
-    <ClInclude Include="object\actorinterface.h" />
-    <ClInclude Include="object\aiactor.h" />
+    <ClInclude Include="object\agent.h" />
+    <ClInclude Include="object\brain.h" />
     <ClInclude Include="path\navigationmesh.h" />
     <ClInclude Include="path\pathfinder.h" />
     <ClInclude Include="stdafx.h" />

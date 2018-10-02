@@ -47,6 +47,7 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 	m_plane[5].Init(vertices[1], vertices[5], vertices[7]);	// ¿ì Æò¸é(right)
 
 	m_viewProj = matViewProj;
+	m_dir = -m_plane[0].N;
 
 	return true;
 }

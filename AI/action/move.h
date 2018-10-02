@@ -6,7 +6,7 @@
 
 
 #include "action.h"
-#include "../object/actorinterface.h"
+#include "../object/agent.h"
 
 
 namespace ai
@@ -18,7 +18,7 @@ namespace ai
 				, public common::cMemoryPool< cMove<T> >
 	{
 	public:
-		cMove(ai::iActorInterface<T> *agent, const Vector3 &dest, const float speed=3.f)
+		cMove(ai::iAgent<T> *agent, const Vector3 &dest, const float speed=3.f)
 			: cAction<T>(agent, "move", "zealot_walk.ani", eActionType::MOVE)
 			, m_rotateTime(0)
 			, m_speed(speed)

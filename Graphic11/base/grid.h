@@ -27,6 +27,7 @@ namespace graphic
 			, const bool isEditable = false
 		);
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
+		bool RenderLine(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
 
 
 	public:

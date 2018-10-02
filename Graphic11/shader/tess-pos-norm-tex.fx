@@ -18,6 +18,7 @@ cbuffer TessellationBuffer : register(b6)
 	float gTessellationAmount;
 	float2 gSize;
 	float gLevel;
+	float4 gVtxDir[2];
 	float4 gEdgeLevel;
 	float4 gTUVs;
 	float4 gHUVs;
@@ -143,72 +144,95 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	float3 vertexPosition;
 	PixelInputType output = (PixelInputType)0;
 
+	// 64x64 버텍스에서, 최외곽 버텍스는 다른 타일을 가려주는 역할을 한다.
+	// Box모양 버텍스를 만들기위한 작업
+
 	const float ac1 = 1.0f / 64.0f;
-	const float2 ac2 = gSize * (2.0f / 64.0f);
+	//const float2 ac2 = gSize * (2.0f / 64.0f);
 
-	float u2 = saturate((uv.x - ac1) * (64.f/62.f));
-	float v2 = saturate((uv.y - ac1)* (64.f / 62.f));
+	const float u = saturate((uv.x - ac1) * (64.f / 62.f));
+	const float v = saturate((uv.y - ac1) * (64.f / 62.f));
 
-	float2 p1 = lerp(patch[0].Pos, patch[1].Pos, uv.x) * gSize;
-	float2 p2 = lerp(patch[2].Pos, patch[3].Pos, uv.x) * gSize;
-	float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u2) * gSize;
-	float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u2) * gSize;
-
-	float2 pos1 = lerp(p1, p2, uv.y);
-	float2 pos2 = lerp(p12, p22, v2);
-	
-	vertexPosition.xz = float2(min(pos2.x, gSize.x), min(pos2.y, (gSize.y)));
-	//vertexPosition.xz = pos2;
+	const float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
+	const float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
+	const float2 pos2 = lerp(p12, p22, v);
+	vertexPosition.xz = pos2.xy;
 	vertexPosition.y = 0.1f;
 
 	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
 	const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
-	float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
-
-	PosW.y = (heightMap - 0.1f) * 2500.f;
+	const float height = txHeight.SampleLevel(samPoint, tex, 0).x;
+	PosW.y = (height - 0.1f) * 2500.f;
 
 	output.Pos = mul(PosW, gView);
 	output.Pos = mul(output.Pos, gProjection);
 
-	// Send the input color into the pixel shader.
-	float2 tuv = float2((uv.x - ac1) * (64.f / 62.f), (uv.y - ac1) * (64.f / 62.f));
-	float u = lerp(gTUVs.x, gTUVs.z, tuv.x);
-	float v = lerp(gTUVs.y, gTUVs.w, tuv.y);
+	const float2 tuv = float2((uv.x - ac1) * (64.f / 62.f), (uv.y - ac1) * (64.f / 62.f));
+	const float tu = lerp(gTUVs.x, gTUVs.z, tuv.x);
+	const float tv = lerp(gTUVs.y, gTUVs.w, tuv.y);
 
-	//float u = lerp(gTUVs.x, gTUVs.z, uv.x);
-	//float v = lerp(gTUVs.y, gTUVs.w, uv.y);
 	output.Normal = float3(0, 1, 0);
-	output.Tex = float2(u, v);
+	output.Tex = float2(tu, tv);
 	output.toEye = normalize(gEyePosW - PosW).xyz;
 	output.PosW = PosW.xyz;
 
+	return output;
+}
 
 
+//
+// Globe Sphere Domain Shader 
+//
+[domain("quad")]
+PixelInputType ColorDomainShader_Sphere(ConstantOutputType input
+	, float2 uv : SV_DomainLocation
+	, const OutputPatch<HullOutputType, 4> patch)
+{
+	float3 vertexPosition;
+	PixelInputType output = (PixelInputType)0;
 
-	//float2 v1 = lerp(patch[0].Pos, patch[1].Pos, uv.x) * gSize;
-	//float2 v2 = lerp(patch[2].Pos, patch[3].Pos, uv.x) * gSize;
-	//vertexPosition.xz = lerp(v1, v2, uv.y);
-	//vertexPosition.y = 0.1f;
+	// 64x64 버텍스에서, 최외곽 버텍스는 다른 타일을 가려주는 역할을 한다.
+	// Box모양 버텍스를 만들기위한 작업
 
-	//float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
-	//const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
-	//float heightMap = txHeight.SampleLevel(samPoint, tex, 0).x;
+	const float ac1 = 1.0f / 64.0f;
+	//const float2 ac2 = gSize * (2.0f / 64.0f);
 
-	//PosW.y = heightMap * 500.f;
+	const float u = saturate((uv.x - ac1) * (64.f / 62.f));
+	const float v = saturate((uv.y - ac1) * (64.f / 62.f));
 
-	//output.Pos = mul(PosW, gView);
-	//output.Pos = mul(output.Pos, gProjection);
+	float2 p12 = lerp(gVtxDir[0].xy, gVtxDir[0].zw, u);
+	float2 p22 = lerp(gVtxDir[1].xy, gVtxDir[1].zw, u);
+	float2 pos2 = lerp(p12, p22, v);
 
-	//// Send the input color into the pixel shader.
-	//float u = lerp(gTUVs.x, gTUVs.z, uv.x);
-	//float v = lerp(gTUVs.y, gTUVs.w, uv.y);
-	//output.Normal = float3(0,1,0);
-	//output.Tex = float2(u,v);
-	//output.toEye = normalize(gEyePosW - PosW).xyz;
-	//output.PosW = PosW.xyz;
+	// lonLat to normal vector
+	float3 longitude = float3(sin(pos2.x), 0, (float)-cos(pos2.x));
+	normalize(longitude);
+	float3 normal = longitude * cos(pos2.y) + float3(0, 1, 0) * sin(pos2.y);
+	normalize(normal);
+
+	vertexPosition = normal * 100000;
+
+	const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
+	const float height = txHeight.SampleLevel(samPoint, tex, 0).x;
+	//vertexPosition = normal * (100000 + ((height - 0.1f) * 250.f));
+
+	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+
+	output.Pos = mul(PosW, gView);
+	output.Pos = mul(output.Pos, gProjection);
+
+	const float2 tuv = float2((uv.x - ac1) * (64.f / 62.f), (uv.y - ac1) * (64.f / 62.f));
+	const float tu = lerp(gTUVs.x, gTUVs.z, tuv.x);
+	const float tv = lerp(gTUVs.y, gTUVs.w, tuv.y);
+
+	output.Normal = float3(0, 1, 0);
+	output.Tex = float2(tu, tv);
+	output.toEye = normalize(gEyePosW - PosW).xyz;
+	output.PosW = PosW.xyz;
 
 	return output;
 }
+
 
 
 [domain("quad")]
@@ -377,7 +401,7 @@ technique11 Light
 	{
 		SetVertexShader(CompileShader(vs_5_0, main()));
 		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
-		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader()));
+		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_Sphere()));
 		SetPixelShader(CompileShader(ps_5_0, PS_Light()));
 	}
 }

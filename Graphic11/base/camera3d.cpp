@@ -28,7 +28,10 @@ cCamera3D::~cCamera3D()
 void cCamera3D::Update(const float deltaSeconds)
 {
 	__super::Update(deltaSeconds);
-	KeepHorizontal();
+
+	if (m_isKeepHorizontal)
+		KeepHorizontal();
+
 	UpdateViewMatrix();
 }
 

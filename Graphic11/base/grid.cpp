@@ -217,3 +217,42 @@ bool cGrid::Render(cRenderer &renderer
 	return true;
 }
 
+
+bool cGrid::RenderLine(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+)
+{
+	RETV(!m_isEnable, false);
+	RETV(!IsVisible(), false);
+
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
+	assert(shader);
+	shader->SetTechnique(m_techniqueName.c_str());
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	Transform tfm = m_transform;
+	tfm.pos.y += 0.01f;
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * tm);
+	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0,0,0,0.6f);
+	renderer.m_cbMaterial.Update(renderer, 2);
+	renderer.m_cbClipPlane.Update(renderer, 4);
+
+	m_vtxBuff.Bind(renderer);
+	m_idxBuff.Bind(renderer);
+
+	if ((m_vtxType & eVertexType::TEXTURE0) && m_texture)
+		m_texture->Bind(renderer, 0);
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.Wireframe());
+	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	renderer.GetDevContext()->DrawIndexed(m_faceCount * 3, 0, 0);
+	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+
+	return true;
+}

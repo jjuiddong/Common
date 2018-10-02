@@ -158,6 +158,8 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 
 				const float tileSizeW = width;
 				const float tileSizeH = height;
+				const float tileCellSizeW = width / 16.f;
+				const float tileCellSizeH = height / 16.f;
 				cTile *tile = new cTile();
 				//const float x = pos.x - tileSizeW / 2;
 				//const float z = pos.z - tileSizeH / 2;
@@ -173,7 +175,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 				if (!terrainCr)
 				{
 					terrainCr = true;
-					m_terrain->Create(renderer, row, col, tileSizeW /16, tileSizeH / 16, tilerow, tilecol);
+					m_terrain->Create(renderer, row, col, tileCellSizeW, tileCellSizeH, tilerow, tilecol);
 				}
 
 				tile->Create(renderer

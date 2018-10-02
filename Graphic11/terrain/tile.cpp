@@ -8,6 +8,7 @@ cTile::cTile()
 	: cNode(common::GenerateId(), "tile", eNodeType::TERRAIN)
 	, m_location(-1,-1)
 	, m_isHilight(false)
+	, m_isRenderLine(true)
 {
 	SetRenderFlag(eRenderFlag::MODEL, false);
 	SetRenderFlag(eRenderFlag::TERRAIN, true);
@@ -125,6 +126,12 @@ bool cTile::Render(cRenderer &renderer
 		const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
 		renderer.m_dbgBox.SetBox(m_boundingBox);
 		renderer.m_dbgBox.Render(renderer, transform);
+	}
+
+	if (m_isRenderLine)
+	{
+		const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
+		m_ground->RenderLine(renderer, transform);
 	}
 
 	return __super::Render(renderer, tm, flags);

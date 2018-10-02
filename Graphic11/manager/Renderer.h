@@ -43,6 +43,7 @@ namespace graphic
 		float tessellationAmount;
 		Vector2 size; // quad size
 		float level;
+		Vector4 vtxDir[2]; // lonLat vector2 x 2
 		float edgeLevel[4]; // west-north-east-south, adjacent quad level
 		float tuvs[4]; // texture uv coordinate
 		float huvs[4]; // heightmap uv coordinate

@@ -2,6 +2,9 @@
 // 2017-11-03, jjuiddong
 // 카메라 클래스. Refactoring
 //
+// 2018-09-26
+//	- keephorizontal switch
+//
 #pragma once
 
 

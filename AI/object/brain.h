@@ -1,7 +1,7 @@
 //
 // 2016-05-01, jjuiddong
 // Action을 처리하는 인공지능 객체
-// Actor 는 트리행태다.  자식으로 Actor를 가질 수 있다.
+// Brain은 트리행태다. 자식으로 Brain을 가질 수 있다.
 //
 #pragma once
 
@@ -11,11 +11,11 @@ namespace ai
 	using namespace common;
 
 	template <class T>
-	class cActor : public cObject
+	class cBrain : public cObject
 	{
 	public:
-		cActor(iActorInterface<T> *agent = NULL);
-		virtual ~cActor();
+		cBrain(iAgent<T> *agent = NULL);
+		virtual ~cBrain();
 
 		virtual bool Init();
 		virtual bool Update(const float deltaSeconds);
@@ -39,13 +39,13 @@ namespace ai
 		void ClearChildActor();
 		virtual void DispatchMsg(const sMsg &msg) override;
 
-		bool operator==(const cActor &rhs);
-		bool operator<(const cActor &rhs);
-		bool Equal(const cActor &rhs);
+		bool operator==(const cBrain &rhs);
+		bool operator<(const cBrain &rhs);
+		bool Equal(const cBrain &rhs);
 
 
 	public:
-		iActorInterface<T> *m_agent;
+		iAgent<T> *m_agent;
 		cAction<T> *m_rootAction;
 		typedef VectorMap<int, cObject* > ChildType;
 		ChildType m_children;
@@ -56,7 +56,7 @@ namespace ai
 	// Implements
 	
 	template <class T>
-	cActor<T>::cActor(iActorInterface<T> *agent //= NULL
+	cBrain<T>::cBrain(iAgent<T> *agent //= NULL
 	)
 		: m_agent(agent)
 	{
@@ -64,21 +64,21 @@ namespace ai
 
 
 	template <class T>
-	cActor<T>::~cActor()
+	cBrain<T>::~cBrain()
 	{
 		Clear();
 	}
 
 
 	template <class T>
-	bool cActor<T>::Init()
+	bool cBrain<T>::Init()
 	{
 		return true;
 	}
 
 
 	template <class T>
-	bool cActor<T>::Update(const float deltaSeconds)
+	bool cBrain<T>::Update(const float deltaSeconds)
 	{
 		if (m_rootAction)
 			m_rootAction->Traverse(deltaSeconds);
@@ -87,7 +87,7 @@ namespace ai
 
 
 	template <class T>
-	void cActor<T>::Clear()
+	void cBrain<T>::Clear()
 	{
 		ClearAction();
 		ClearChildActor();
@@ -96,7 +96,7 @@ namespace ai
 
 	// Action
 	template <class T>
-	void cActor<T>::SetAction(cAction<T> *action)
+	void cBrain<T>::SetAction(cAction<T> *action)
 	{
 		RET(!action);
 
@@ -110,7 +110,7 @@ namespace ai
 
 
 	template <class T>
-	void cActor<T>::PushAction(cAction<T> *action)
+	void cBrain<T>::PushAction(cAction<T> *action)
 	{
 		RET(!action);
 
@@ -127,7 +127,7 @@ namespace ai
 
 
 	template <class T>
-	void cActor<T>::PushFrontAction(cAction<T> *action)
+	void cBrain<T>::PushFrontAction(cAction<T> *action)
 	{
 		RET(!action);
 
@@ -144,7 +144,7 @@ namespace ai
 
 
 	template <class T>
-	cAction<T>* cActor<T>::GetAction()
+	cAction<T>* cBrain<T>::GetAction()
 	{
 		RETV(!m_rootAction, NULL);
 		return m_rootAction->GetLeafAction();
@@ -152,7 +152,7 @@ namespace ai
 
 
 	template <class T>
-	bool cActor<T>::IsAction(const eActionType::Enum type)
+	bool cBrain<T>::IsAction(const eActionType::Enum type)
 	{
 		RETV(!m_rootAction, false);
 		return m_rootAction->IsAction(type);
@@ -160,7 +160,7 @@ namespace ai
 
 
 	template <class T>
-	bool cActor<T>::IsCurrentAction(const eActionType::Enum type)
+	bool cBrain<T>::IsCurrentAction(const eActionType::Enum type)
 	{
 		RETV(!m_rootAction, false);
 		return m_rootAction->GetLeafAction()->IsCurrentAction(type);
@@ -168,7 +168,7 @@ namespace ai
 
 
 	template <class T>
-	void cActor<T>::ClearAction()
+	void cBrain<T>::ClearAction()
 	{
 		SAFE_DELETE(m_rootAction);
 	}
@@ -176,7 +176,7 @@ namespace ai
 
 	// Children Actor
 	template <class T>
-	bool cActor<T>::AddActor(cObject *actor)
+	bool cBrain<T>::AddActor(cObject *actor)
 	{
 		if (IsExistActor(actor))
 			return false;
@@ -187,14 +187,14 @@ namespace ai
 
 
 	template <class T>
-	bool cActor<T>::RemoveActor(const int actorId)
+	bool cBrain<T>::RemoveActor(const int actorId)
 	{
 		return m_children.remove(actorId);
 	}
 
 
 	template <class T>
-	cObject* cActor<T>::GetActor(const int actorId)
+	cObject* cBrain<T>::GetActor(const int actorId)
 	{
 		auto it = m_children.find(actorId);
 		if (m_children.end() == it)
@@ -204,14 +204,14 @@ namespace ai
 
 
 	template <class T>
-	bool cActor<T>::IsExistActor(cObject *actor)
+	bool cBrain<T>::IsExistActor(cObject *actor)
 	{
 		return IsExistActor(actor->m_id) ? true : false;
 	}
 
 
 	template <class T>
-	bool cActor<T>::IsExistActor(const int actorId)
+	bool cBrain<T>::IsExistActor(const int actorId)
 	{
 		return GetActor(actorId) ? true : false;
 	}
@@ -219,14 +219,14 @@ namespace ai
 
 	// 메모리는 외부에서 제거한다.
 	template <class T>
-	void cActor<T>::ClearChildActor()
+	void cBrain<T>::ClearChildActor()
 	{
 		m_children.clear();
 	}
 
 
 	template <class T>
-	void cActor<T>::DispatchMsg(const sMsg &msg)
+	void cBrain<T>::DispatchMsg(const sMsg &msg)
 	{
 		if (m_rootAction)
 			m_rootAction->MessageProccess(msg);
@@ -240,21 +240,21 @@ namespace ai
 
 
 	template <class T>
-	bool cActor<T>::operator==(const cActor &rhs)
+	bool cBrain<T>::operator==(const cBrain &rhs)
 	{
 		return Equal(rhs);
 	}
 
 
 	template <class T>
-	bool cActor<T>::operator<(const cActor &rhs)
+	bool cBrain<T>::operator<(const cBrain &rhs)
 	{
 		return m_id < rhs.m_id;
 	}
 
 
 	template <class T>
-	bool cActor<T>::Equal(const cActor &rhs)
+	bool cBrain<T>::Equal(const cBrain &rhs)
 	{
 		return rhs.m_id == m_id;
 	}

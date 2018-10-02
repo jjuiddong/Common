@@ -41,6 +41,7 @@ namespace graphic
 	public:
 		vector<Plane> m_plane; // frustum의 6개 평면
 		Vector3 m_pos; // Position, near plane center
+		Vector3 m_dir; // Direction
 		float m_epsilon;
 
 		Matrix44 m_viewProj;

@@ -33,20 +33,20 @@ bool cTerrain::Create(cRenderer &renderer, const sRectf &rect)
 
 
 bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt
-	, const float cellSizeW
-	, const float cellSizeH
+	, const float tileCellSizeW
+	, const float tileCellSizeH
 	, const int rowTileCnt, const int colTileCnt)
 {
 	m_rows = rowCnt;
 	m_cols = colCnt;
-	m_cellSize = Vector2(cellSizeW, cellSizeH);
 	m_rowVtx = rowCnt + 1;
 	m_colVtx = colCnt + 1;
 	m_tileCols = colTileCnt;
 	m_tileRows = rowTileCnt;
-	m_rect = sRectf(0, 0, colCnt*cellSizeW, rowCnt*cellSizeH);
-	const float tileWidth = colCnt*cellSizeW / colTileCnt;
-	const float tileHeight = rowCnt*cellSizeH / rowTileCnt;
+	m_tileCellSize = Vector2(tileCellSizeW, tileCellSizeH);
+	m_rect = sRectf(0, 0, colCnt * tileCellSizeW, rowCnt*tileCellSizeH);
+	const float tileWidth = colCnt * tileCellSizeW / colTileCnt;
+	const float tileHeight = rowCnt * tileCellSizeH / rowTileCnt;
 	m_heightMap.resize(m_rowVtx * m_colVtx);
 
 	// initialize map
@@ -71,11 +71,11 @@ bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt
 	//
 	// Vertex Store Order
 	//
-	for (int r = 0; r < rowCnt+1; ++r)
+	for (int r = 0; r < m_rowVtx; ++r)
 	{
-		for (int c = 0; c < colCnt+1; ++c)
+		for (int c = 0; c < m_colVtx; ++c)
 		{
-			Vector3 p(c*cellSizeW - (tileWidth/2.f), 0, r*cellSizeH - (tileHeight/2.f));
+			Vector3 p(c*tileCellSizeW - (tileWidth/2.f), 0, r*tileCellSizeH - (tileHeight/2.f));
 			Vector3 n(0, 1, 0);
 			const int idx = r*(colCnt+1) + c;
 			m_heightMap[idx].p = p;
@@ -293,8 +293,8 @@ inline float Lerp(float p1, float p2, float alpha)
 // x/z평면에서 월드 좌표 x,z 위치에 해당하는 높이 값 y를 리턴한다.
 float cTerrain::GetHeight(const float x, const float z)
 {
-	const float newX = x / m_cellSize.x;
-	const float newZ = z / m_cellSize.y;
+	const float newX = x / m_tileCellSize.x;
+	const float newZ = z / m_tileCellSize.y;
 
 	const float col = ::floorf(newX);
 	const float row = ::floorf(newZ);
@@ -459,7 +459,7 @@ void cTerrain::Clear()
 // Normalize All HeightMap
 void cTerrain::HeightmapNormalize()
 {
-	const float radius = sqrt((float)(m_cols*m_cols + m_rows*m_rows)) * m_cellSize.Length();
+	const float radius = sqrt((float)(m_cols*m_cols + m_rows*m_rows)) * m_tileCellSize.Length();
 	HeightmapNormalize(Vector3(0, 0, 0), radius);
 }
 
@@ -468,12 +468,12 @@ void cTerrain::HeightmapNormalize(const Vector3 &cursorPos, const float radius)
 {
 	cTerrain &terrain = *this;
 
-	const float x = ((cursorPos.x - radius) / m_cellSize.x) - 2;
-	const float z = ((cursorPos.z - radius) / m_cellSize.y) - 2;
+	const float x = ((cursorPos.x - radius) / m_tileCellSize.x) - 2;
+	const float z = ((cursorPos.z - radius) / m_tileCellSize.y) - 2;
 	const int startX = (int)max(0, x);
 	const int startZ = (int)max(0, z);
-	const int rowSize = (int)((radius * 2) / m_cellSize.y) + 4;
-	const int colSize = (int)((radius * 2) / m_cellSize.x) + 4;
+	const int rowSize = (int)((radius * 2) / m_tileCellSize.y) + 4;
+	const int colSize = (int)((radius * 2) / m_tileCellSize.x) + 4;
 	const int endZ = min(startZ + rowSize, m_rowVtx);
 	const int endX = min(startX + colSize, m_colVtx);
 
