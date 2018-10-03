@@ -59,7 +59,7 @@ namespace graphic
 
 	public:
 		map<hashcode, sChunk> m_files; //key = fileName hashcode
-		map< hashcode, std::set< std::pair<void**,int*> > > m_updatePtrs; // update pointers
+		map<hashcode, std::set< std::pair<void**,int*>>> m_updatePtrs; // update pointers
 		CriticalSection m_cs;
 		cThread m_thread;
 	};

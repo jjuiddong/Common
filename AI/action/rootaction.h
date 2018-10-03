@@ -11,7 +11,7 @@ namespace ai
 	class cRootAction : public cAction<T>
 	{
 	public:
- 		cRootAction(iAgent<T> *agent = NULL)
+ 		cRootAction(T *agent = NULL)
  			: cAction(agent, "Root", "", eActionType::ROOT)
  		{
  		}

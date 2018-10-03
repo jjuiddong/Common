@@ -14,7 +14,7 @@ namespace ai
 	class cBrain : public cObject
 	{
 	public:
-		cBrain(iAgent<T> *agent = NULL);
+		cBrain(T *agent = NULL);
 		virtual ~cBrain();
 
 		virtual bool Init();
@@ -45,7 +45,7 @@ namespace ai
 
 
 	public:
-		iAgent<T> *m_agent;
+		T *m_agent;
 		cAction<T> *m_rootAction;
 		typedef VectorMap<int, cObject* > ChildType;
 		ChildType m_children;
@@ -56,7 +56,7 @@ namespace ai
 	// Implements
 	
 	template <class T>
-	cBrain<T>::cBrain(iAgent<T> *agent //= NULL
+	cBrain<T>::cBrain(T *agent //= NULL
 	)
 		: m_agent(agent)
 	{
