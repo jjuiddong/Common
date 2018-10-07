@@ -640,6 +640,7 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 	return{ -1,-1 };
 }
 
+
 // nodeIndices에서 vtxIdx1, vtxIdx2 가 포함된 node index 를 리턴한다.
 // 이 때, 가장 처음의 node index 를 리턴한다.
 // 없다면, -1을 리턴한다.
@@ -659,6 +660,61 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 		}
 	}
 	return{ -1,-1 };
+}
+
+
+// 네비게이션 매쉬의 버텍스를 포함하는 노드들을 리턴한다.
+void cNavigationMesh::GetNodesFromVertexIdx(const int vtxIdx, OUT set<int> &out)
+{
+	for (u_int i = 0; i < m_naviNodes.size(); ++i)
+	{
+		const sNaviNode &node = m_naviNodes[i];
+		if ((node.idx1 == vtxIdx) || (node.idx2 == vtxIdx) || (node.idx3 == vtxIdx))
+		{
+			out.insert(i);
+		}
+	}
+}
+
+
+// pos위치의 네비게이션 메쉬 노드를 리턴한다.
+void cNavigationMesh::GetNodesFromPosition(const Vector3 &pos, OUT set<int> &out)
+{
+	const int nodeIdx = GetNearestNode(pos);
+	if (nodeIdx < 0)
+		return;
+
+	const sNaviNode &node = m_naviNodes[nodeIdx];
+	const int idx[] = { node.idx1, node.idx2, node.idx3 };
+	for (int i = 0; i < 3; ++i)
+		GetNodesFromVertexIdx(idx[i], out);
+}
+
+
+// 노드의 벽을 생성해서 리턴한다.
+void cNavigationMesh::GetWallPlane(const set<int> &nodeIndices
+	, OUT vector<cBoundingPlane> &out)
+{
+	for (auto idx : nodeIndices)
+	{
+		const ai::cNavigationMesh::sNaviNode &node = m_naviNodes[idx];
+		const int idxs[] = { node.idx1, node.idx2, node.idx3 };
+		for (int i = 0; i < 3; ++i)
+		{
+			if (node.adjacent[i] >= 0)
+				continue;
+
+			// no adjacent edge, we need collision plane
+			const Vector3 offsetY(0, 10, 0);
+			const Vector3 p1 = m_vertices[idxs[i]];
+			const Vector3 p2 = m_vertices[idxs[(i + 1) % 3]];
+			const Vector3 p3 = p1 + offsetY;
+			const Vector3 p4 = p2 + offsetY;
+
+			cBoundingPlane bplane(p3, p4, p2, p1);
+			out.push_back(bplane);
+		}
+	}
 }
 
 

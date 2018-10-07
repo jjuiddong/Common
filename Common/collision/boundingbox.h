@@ -11,18 +11,16 @@
 #pragma once
 
 
-namespace graphic
+namespace common
 {
-	using namespace common;
-
-	class cCube;
+	//class cCube;
 	class cBoundingSphere;
 
 	class cBoundingBox : public cCollisionObj
 	{
 	public:
 		cBoundingBox();
-		cBoundingBox(const cCube &cube);
+		//cBoundingBox(const cCube &cube);
 		cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q);
 		void SetBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q);
 		void SetBoundingBox(const Transform &tfm);
@@ -55,7 +53,7 @@ namespace graphic
 		cBoundingBox& operator += (const cBoundingBox &rhs);
 		cBoundingBox& operator *= (const Matrix44 &rhs);
 		cBoundingBox& operator *= (const XMMATRIX &rhs);
-		cBoundingBox& operator=(const cCube &cube);
+		//cBoundingBox& operator=(const cCube &cube);
 
 
 	public:

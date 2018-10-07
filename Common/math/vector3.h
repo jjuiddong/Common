@@ -102,11 +102,11 @@ namespace common
 		}
 
 
-		static Vector3 Min;
-		static Vector3 Max;
-		static Vector3 Up;
-		static Vector3 Right;
-		static Vector3 Forward;
+		static const Vector3 Min;
+		static const Vector3 Max;
+		static const Vector3 Up;
+		static const Vector3 Right;
+		static const Vector3 Forward;
 	};
 
 

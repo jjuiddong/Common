@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "boundingbox.h"
 
-using namespace graphic;
+using namespace common;
 
 
 cBoundingBox::cBoundingBox()
@@ -11,11 +11,11 @@ cBoundingBox::cBoundingBox()
 	SetBoundingBox(Vector3(0,0,0), Vector3(1,1,1), Quaternion(0,0,0,1));
 }
 
-cBoundingBox::cBoundingBox(const cCube &cube)
-{
-	m_type = eCollisionType::BOX;
-	operator=(cube);
-}
+//cBoundingBox::cBoundingBox(const cCube &cube)
+//{
+//	m_type = eCollisionType::BOX;
+//	operator=(cube);
+//}
 
 
 cBoundingBox::cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q )
@@ -290,12 +290,12 @@ bool cBoundingBox::Pick(const Ray &ray
 
 
 // 할당 연산자.
-cBoundingBox& cBoundingBox::operator=(const cCube &cube)
-{
-	*this = cube.m_boundingBox;
-	*this *= cube.GetWorldMatrix();
-	return *this;
-}
+//cBoundingBox& cBoundingBox::operator=(const cCube &cube)
+//{
+//	*this = cube.m_boundingBox;
+//	*this *= cube.GetWorldMatrix();
+//	return *this;
+//}
 
 
 // 경계박스 중점을 리턴한다.

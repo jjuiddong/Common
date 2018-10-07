@@ -96,6 +96,15 @@ namespace common
 		return val;
 	}
 
+	inline float clamp2(const float val, const float _min, const float _max)
+	{
+		if (val < _min)
+			return _min;
+		if (val > _max)
+			return _max;
+		return val;
+	}
+
 	inline float centerRate(const float rate0, const float center, const float val)
 	{
 		return ((val - center) * rate0) + center;

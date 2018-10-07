@@ -376,6 +376,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="collision\boundingbox.h" />
+    <ClInclude Include="collision\boundinghemisphere.h" />
+    <ClInclude Include="collision\boundingplane.h" />
+    <ClInclude Include="collision\boundingsphere.h" />
+    <ClInclude Include="collision\collision.h" />
+    <ClInclude Include="collision\collisionobj.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="container\shmmap.h" />
     <ClInclude Include="container\simplestring.h" />
@@ -429,6 +435,10 @@
     <ClInclude Include="thread\threaddef.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="collision\boundingbox.cpp" />
+    <ClCompile Include="collision\boundinghemisphere.cpp" />
+    <ClCompile Include="collision\boundingplane.cpp" />
+    <ClCompile Include="collision\boundingsphere.cpp" />
     <ClCompile Include="etc\BufferedSerial.cpp" />
     <ClCompile Include="etc\config.cpp" />
     <ClCompile Include="etc\date.cpp" />

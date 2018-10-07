@@ -9,9 +9,8 @@
 #pragma once
 
 
-namespace graphic
+namespace common
 {
-	using namespace common;
 
 	class cBoundingSphere : public cCollisionObj
 	{

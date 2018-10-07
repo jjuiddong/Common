@@ -16,9 +16,8 @@
 #pragma once
 
 
-namespace graphic
+namespace common
 {
-	using namespace common;
 
 	class cBoundingPlane : public cCollisionObj
 	{

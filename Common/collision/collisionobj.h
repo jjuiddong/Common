@@ -5,9 +5,8 @@
 #pragma once
 
 
-namespace graphic
+namespace common
 {
-	using namespace common;
 
 	struct eCollisionType {
 		enum Enum {

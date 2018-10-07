@@ -3,7 +3,7 @@
 #include "boundingplane.h"
 
 
-using namespace graphic;
+using namespace common;
 
 cBoundingPlane::cBoundingPlane()
 {
@@ -61,36 +61,59 @@ bool cBoundingPlane::Collision(const cCollisionObj &obj
 
 		const Triangle tri1(m_vertices[0], m_vertices[1], m_vertices[2]);
 		const Triangle tri2(m_vertices[0], m_vertices[2], m_vertices[3]);
-		const Vector3 norm = tri1.Normal();
+		//const Vector3 norm = tri1.Normal();
+		//float u1, v1, t1 = FLT_MAX;
+		//float u2, v2, t2 = FLT_MAX;
+		//tri1.Intersect(pos, -norm, &t1, &u1, &v1);
+		//tri2.Intersect(pos, -norm, &t2, &u2, &v2);
+		const Vector3 closetPt1 = tri1.GetClosesPointOnTriangle(pos);
+		const Vector3 closetPt2 = tri2.GetClosesPointOnTriangle(pos);
 
-		float u1, v1, t1 = FLT_MAX;
-		float u2, v2, t2 = FLT_MAX;
-		tri1.Intersect(pos, -norm, &t1, &u1, &v1);
-		tri2.Intersect(pos, -norm, &t2, &u2, &v2);
-
-		if (min(t1, t2) <= p->m_bsphere.Radius)
+		const float len1 = closetPt1.Distance(pos);
+		const float len2 = closetPt2.Distance(pos);
+		if (min(len1, len2) <= p->m_bsphere.Radius)
 		{
-			if (t1 < t2)
+			if (len1 < len2)
 			{
 				if (distance)
-					*distance = t1;
+					*distance = len1;
 				if (outPos)
-					*outPos = tri1.a.Interpolate(tri1.b, u1)
-						+ tri1.a.Interpolate(tri1.c, v1)
-						- tri1.a;
+					*outPos = closetPt1;
 			}
 			else
 			{
 				if (distance)
-					*distance = t2;
+					*distance = len2;
 				if (outPos)
-					*outPos = tri2.a.Interpolate(tri2.b, u2)
-						+ tri2.a.Interpolate(tri2.c, v2)
-						- tri2.a;
+					*outPos = closetPt2;
 			}
 
 			return true;
 		}
+
+		//if (min(t1, t2) <= p->m_bsphere.Radius)
+		//{
+		//	if (t1 < t2)
+		//	{
+		//		if (distance)
+		//			*distance = t1;
+		//		if (outPos)
+		//			*outPos = tri1.a.Interpolate(tri1.b, u1)
+		//				+ tri1.a.Interpolate(tri1.c, v1)
+		//				- tri1.a;
+		//	}
+		//	else
+		//	{
+		//		if (distance)
+		//			*distance = t2;
+		//		if (outPos)
+		//			*outPos = tri2.a.Interpolate(tri2.b, u2)
+		//				+ tri2.a.Interpolate(tri2.c, v2)
+		//				- tri2.a;
+		//	}
+
+		//	return true;
+		//}
 	}
 	break;
 

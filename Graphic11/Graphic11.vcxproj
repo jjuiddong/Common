@@ -187,11 +187,6 @@
     <ClInclude Include="base\vertexlayout.h" />
     <ClInclude Include="base\vertexformat.h" />
     <ClInclude Include="base\viewport.h" />
-    <ClInclude Include="collision\boundingbox.h" />
-    <ClInclude Include="collision\boundinghemisphere.h" />
-    <ClInclude Include="collision\boundingplane.h" />
-    <ClInclude Include="collision\boundingsphere.h" />
-    <ClInclude Include="collision\collisionobj.h" />
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="dbg\dbgarrow.h" />
     <ClInclude Include="dbg\dbgaxis.h" />
@@ -303,10 +298,6 @@
     <ClCompile Include="base\vertexbuffer.cpp" />
     <ClCompile Include="base\vertexlayout.cpp" />
     <ClCompile Include="base\viewport.cpp" />
-    <ClCompile Include="collision\boundingbox.cpp" />
-    <ClCompile Include="collision\boundinghemisphere.cpp" />
-    <ClCompile Include="collision\boundingplane.cpp" />
-    <ClCompile Include="collision\boundingsphere.cpp" />
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="dbg\dbgarrow.cpp" />
     <ClCompile Include="dbg\dbgaxis.cpp" />

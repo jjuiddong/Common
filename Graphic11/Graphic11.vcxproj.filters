@@ -70,12 +70,6 @@
     <ClInclude Include="base\dxInit.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="collision\boundingbox.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\boundingsphere.h">
-      <Filter>collision</Filter>
-    </ClInclude>
     <ClInclude Include="collision\frustum.h">
       <Filter>collision</Filter>
     </ClInclude>
@@ -323,15 +317,6 @@
     <ClInclude Include="terrain\terraincursor.h">
       <Filter>terrain</Filter>
     </ClInclude>
-    <ClInclude Include="collision\collisionobj.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\boundingplane.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\boundinghemisphere.h">
-      <Filter>collision</Filter>
-    </ClInclude>
     <ClInclude Include="importer\fileloader.h">
       <Filter>importer</Filter>
     </ClInclude>
@@ -417,9 +402,6 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="collision\frustum.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundingbox.cpp">
       <Filter>collision</Filter>
     </ClCompile>
     <ClCompile Include="base\texture.cpp">
@@ -646,15 +628,6 @@
     </ClCompile>
     <ClCompile Include="terrain\terraincursor.cpp">
       <Filter>terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundingsphere.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundingplane.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundinghemisphere.cpp">
-      <Filter>collision</Filter>
     </ClCompile>
     <ClCompile Include="base\texture3d.cpp">
       <Filter>base</Filter>

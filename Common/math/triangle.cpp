@@ -100,7 +100,7 @@ bool Triangle::Intersect( const Vector3& vOrig, const Vector3& vDir, float *pfT,
 }
 
 
-// vPos와 Triangle의 거리를 리턴한다.
+// vPos와 Triangle 중점의 거리를 리턴한다.
 float Triangle::Distance( const Vector3& vPos )  const
 {
 	Vector3 center;
@@ -116,4 +116,104 @@ Vector3 Triangle::Normal() const
 	const Vector3 v0 = (b - a).Normal();
 	const Vector3 v1 = (c - a).Normal();
 	return v0.CrossProduct(v1).Normal();
+}
+
+
+Vector3 Triangle::GetClosesPointOnTriangle(const Vector3 &sourcePosition) const
+{
+	const Vector3 triangle[3] = { a, b, c };
+
+	Vector3 edge0 = triangle[1] - triangle[0];
+	Vector3 edge1 = triangle[2] - triangle[0];
+	Vector3 v0 = triangle[0] - sourcePosition;
+
+	float a = edge0.DotProduct(edge0);
+	float b = edge0.DotProduct(edge1);
+	float c = edge1.DotProduct(edge1);
+	float d = edge0.DotProduct(v0);
+	float e = edge1.DotProduct(v0);
+
+	float det = a * c - b * b;
+	float s = b * e - c * d;
+	float t = b * d - a * e;
+
+	if (s + t < det)
+	{
+		if (s < 0.f)
+		{
+			if (t < 0.f)
+			{
+				if (d < 0.f)
+				{
+					s = clamp2(-d / a, 0.f, 1.f);
+					t = 0.f;
+				}
+				else
+				{
+					s = 0.f;
+					t = clamp2(-e / c, 0.f, 1.f);
+				}
+			}
+			else
+			{
+				s = 0.f;
+				t = clamp2(-e / c, 0.f, 1.f);
+			}
+		}
+		else if (t < 0.f)
+		{
+			s = clamp2(-d / a, 0.f, 1.f);
+			t = 0.f;
+		}
+		else
+		{
+			float invDet = 1.f / det;
+			s *= invDet;
+			t *= invDet;
+		}
+	}
+	else
+	{
+		if (s < 0.f)
+		{
+			float tmp0 = b + d;
+			float tmp1 = c + e;
+			if (tmp1 > tmp0)
+			{
+				float numer = tmp1 - tmp0;
+				float denom = a - 2 * b + c;
+				s = clamp2(numer / denom, 0.f, 1.f);
+				t = 1 - s;
+			}
+			else
+			{
+				t = clamp2(-e / c, 0.f, 1.f);
+				s = 0.f;
+			}
+		}
+		else if (t < 0.f)
+		{
+			if (a + d > b + e)
+			{
+				float numer = c + e - b - d;
+				float denom = a - 2 * b + c;
+				s = clamp2(numer / denom, 0.f, 1.f);
+				t = 1 - s;
+			}
+			else
+			{
+				s = clamp2(-e / c, 0.f, 1.f);
+				t = 0.f;
+			}
+		}
+		else
+		{
+			float numer = c + e - b - d;
+			float denom = a - 2 * b + c;
+			s = clamp2(numer / denom, 0.f, 1.f);
+			t = 1.f - s;
+		}
+	}
+
+	return triangle[0] + edge0 * s + edge1 * t;
 }

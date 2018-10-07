@@ -12,6 +12,8 @@ namespace common
 		
 		bool Intersect(	const Vector3& vOrig, const Vector3& vDir,
 			float* pfT = NULL, float* pfU = NULL, float* pfV = NULL ) const;
+
+		Vector3 GetClosesPointOnTriangle(const Vector3 &sourcePosition) const;
 		
 		float Distance( const Vector3& vPos )  const;
 		

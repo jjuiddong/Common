@@ -9,8 +9,6 @@
 
 
 namespace graphic {
-	class cBoundingSphere;
-	class cBoundingPlane;
 	class cNode;
 }
 

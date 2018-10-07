@@ -70,11 +70,6 @@ namespace graphic {
 #include "base/graphicdef.h"
 #include "model_assimp/rawmesh.h"
 #include "model_assimp/rawani.h"
-#include "collision/collisionobj.h"
-#include "collision/boundingbox.h"
-#include "collision/boundingsphere.h"
-#include "collision/boundinghemisphere.h"
-#include "collision/boundingplane.h"
 
 
 #include "base/node.h"

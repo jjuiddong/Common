@@ -4,8 +4,6 @@
 
 
 using namespace common;
-
-
 const Transform Transform::Identity;
 
 
@@ -14,11 +12,10 @@ Transform::Transform()
 , scale(1,1,1)
 , rot(0,0,0,1)
 {
-
 }
 
 
-// Scale * Rotation * Traslation
+// Scale * Rotation * Translation
 Matrix44 Transform::GetMatrix() const
 {
 	Matrix44 S;
@@ -45,7 +42,7 @@ Transform Transform::Inverse() const
 }
 
 
-// Scale * Rotation * Traslation
+// Scale * Rotation * Translation
 Transform Transform::operator*(const Transform &rhs) const
 {
 	const Matrix44 tm1 = rhs.rot.GetMatrix();
