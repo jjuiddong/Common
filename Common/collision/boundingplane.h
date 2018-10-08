@@ -30,12 +30,16 @@ namespace common
 		virtual bool Collision(const cCollisionObj &obj
 			, OUT Vector3 *pos = NULL, OUT float *distance = NULL) const override;
 		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
+		bool Intersect(const Ray &ray, const float radius, OUT float *distance = NULL
+			, const int recursiveCnt = 0
+		) const;
 		virtual Transform GetTransform() const override;
 		Vector3 Normal() const;
 
 
 	public:
 		Vector3 m_vertices[4];
+		Plane m_plane;
 	};
 
 }

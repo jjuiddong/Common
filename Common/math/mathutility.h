@@ -146,9 +146,19 @@ namespace common
 	{
 		const float a = (p - p0).DotProduct((p1 - p0).Normal());
 		const float b = p.Distance(p0);
-		const float len = sqrt(b*b - a * a);
+		const float len = sqrt(abs(b*b - a * a));
 		return len;
 	}
 
+	// Ray : ray
+	// Point : p
+	// Calc Shortest Length Point - Line
+	inline float GetShortestLen(const Ray &ray, const Vector3 &p)
+	{
+		const float a = (p - ray.orig).DotProduct(ray.dir);
+		const float b = p.Distance(ray.orig);
+		const float len = sqrt(abs(b*b - a*a));
+		return len;
+	}
 
 }
