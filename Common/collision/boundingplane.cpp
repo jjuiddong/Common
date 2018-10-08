@@ -167,7 +167,7 @@ bool cBoundingPlane::Intersect(const Ray &ray, const float radius
 	, const int recursiveCnt // = 0
 ) const
 {
-	const Vector3 &pos = ray.orig;
+	//const Vector3 &pos = ray.orig;
 	const float d0 = m_plane.Collision(ray.orig);
 	if (d0 < 0) // back plane test
 		return false;
@@ -215,11 +215,33 @@ bool cBoundingPlane::Intersect(const Ray &ray, const float radius
 		return false;
 
 //	if ((recursiveCnt < 5) && (idx != 0)) // side intersection
-	if ((recursiveCnt < 5) && (abs(dist[idx]-dist[0]) > (radius * 0.1f))) // side intersection
+	//if ((recursiveCnt < 5) && (abs(dist[idx]-dist[0]) > (radius * 0.1f))) // side intersection
+	if ((idx != 0) && (dist[0] >= FLT_MAX))
 	{
+		const Vector3 closetPt1 = tri1.GetClosesPointOnTriangle(ray.orig);
+		const Vector3 closetPt2 = tri2.GetClosesPointOnTriangle(ray.orig);
+		const float len1 = closetPt1.Distance(ray.orig);
+		const float len2 = closetPt2.Distance(ray.orig);
+		const float closetLen1 = common::GetShortestLen(ray, closetPt1);
+		const float closetLen2 = common::GetShortestLen(ray, closetPt2);
+
+		if (closetLen1 < closetLen2)
+		{
+			if (distance)
+				*distance = len1;
+		}
+		else
+		{
+			if (distance)
+				*distance = len2;
+		}
+
+		return true;
+
+
 		// center와 side의 사잇값으로 다시한번 체크
-		Intersect(Ray((rayAr[idx].orig + rayAr[0].orig) / 2.f, rayAr[idx].dir)
-			, radius * 0.5f, distance, recursiveCnt+1);
+		//Intersect(Ray((rayAr[idx].orig + rayAr[0].orig) / 2.f, rayAr[idx].dir)
+		//	, radius * 0.5f, distance, recursiveCnt+1);
 
 
 		//// bounding plane tangent vector n

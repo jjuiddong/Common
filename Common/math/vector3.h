@@ -102,6 +102,7 @@ namespace common
 		}
 
 
+		static const Vector3 Ones;
 		static const Vector3 Min;
 		static const Vector3 Max;
 		static const Vector3 Up;
