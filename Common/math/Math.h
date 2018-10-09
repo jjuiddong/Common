@@ -45,6 +45,7 @@ using std::vector;
 #include "matrix44.h"
 #include "quaternion.h"
 #include "transform.h"
+#include "vector2_comm.h"
 #include "vector3_comm.h"
 #include "triangle.h"
 #include "plane.h"

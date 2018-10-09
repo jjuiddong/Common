@@ -106,14 +106,13 @@ namespace common
 
 
 	//---------------------------------------------------------------------
-	template <class T>
-	struct typeVector2
-	{
-		T x,y;
+	//template <class T>
+	//struct typeVector2
+	//{
+	//	T x,y;
 
-		typeVector2() :x(0), y(0) {}
-		typeVector2(const T _x, const T _y) : x(_x), y(_y) {}
-	};
-
-	typedef typeVector2<int> Vector2i;
+	//	typeVector2() :x(0), y(0) {}
+	//	typeVector2(const T _x, const T _y) : x(_x), y(_y) {}
+	//};
+	//typedef typeVector2<int> Vector2i;
 }

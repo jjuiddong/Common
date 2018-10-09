@@ -46,10 +46,12 @@ void cDbgArrow::Render(cRenderer &renderer
 	else
 	{
 		CommonStates states(renderer.GetDevice());
+		ID3D11RasterizerState *oldState = NULL;
+		renderer.GetDevContext()->RSGetState(&oldState);
 		renderer.GetDevContext()->RSSetState(states.Wireframe());
 		m_head.Render(renderer, tm);
 		m_body.Render(renderer, tm);
-		renderer.GetDevContext()->RSSetState(NULL);
+		renderer.GetDevContext()->RSSetState(oldState);
 	}
 }
 

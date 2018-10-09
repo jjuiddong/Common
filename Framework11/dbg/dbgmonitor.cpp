@@ -41,7 +41,8 @@ bool cDbgMonitor::Create(graphic::cRenderer &renderer, const StrId &sharedMemory
 void cDbgMonitor::UpdateApp(graphic::cRenderer &renderer)
 {
 	m_mutex.Lock();
-	m_sharedData->fps = ImGui::GetIO().Framerate;
+	if (ImGui::GetCurrentContext())
+		m_sharedData->fps = ImGui::GetIO().Framerate;
 	renderer.m_isDbgRender = m_sharedData->isDbgRender;
 	renderer.m_dbgRenderStyle = m_sharedData->dbgRenderStyle;
 	m_mutex.Unlock();

@@ -70,9 +70,11 @@ bool cDbgLine::Render(cRenderer &renderer
 	}
 	else
 	{
+		ID3D11RasterizerState *oldState = NULL;
+		renderer.GetDevContext()->RSGetState(&oldState);
 		renderer.GetDevContext()->RSSetState(states.Wireframe());
 		m_shape.Render(renderer);
-		renderer.GetDevContext()->RSSetState(NULL);
+		renderer.GetDevContext()->RSSetState(oldState);
 	}
 
 	return true;

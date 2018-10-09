@@ -14,7 +14,10 @@ cRect2D::cRect2D()
 void cRect2D::SetRect(const Vector2 &leftTop, const Vector2 &rightBottom, const float width)
 {
 	const Vector2 size = rightBottom - leftTop;
-	m_transform.pos = Vector3(leftTop.x, leftTop.y, 0);
+	// normalize
+	const float x = min(leftTop.x, rightBottom.x);
+	const float y = min(leftTop.y, rightBottom.y);
+	m_transform.pos = Vector3(x, y, 0);
 	m_transform.scale = Vector3(abs(size.x), abs(size.y), width);
 }
 

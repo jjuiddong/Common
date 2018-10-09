@@ -26,9 +26,6 @@ namespace ai
 
 		virtual Transform& aiGetTransform() { return g_tempTransform; }
 		virtual void aiSetAnimation(const Str64 &animationName) {}
-		//virtual graphic::cNode* aiCollision(const graphic::cBoundingSphere &srcBSphere
-		//	, OUT graphic::cBoundingSphere &collisionSphrere) {return NULL;}
-		//virtual bool aiCollisionWall(OUT graphic::cBoundingPlane &out) {return false;}
 
 
 	public:

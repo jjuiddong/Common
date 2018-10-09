@@ -51,9 +51,11 @@ void cDbgSphere::Render(cRenderer &renderer
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	CommonStates states(renderer.GetDevice());
+	ID3D11RasterizerState *oldState = NULL;
+	renderer.GetDevContext()->RSGetState(&oldState);
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	m_shape.Render(renderer);
-	renderer.GetDevContext()->RSSetState(NULL);
+	renderer.GetDevContext()->RSSetState(oldState);
 
 	// debugging
 	++renderer.m_drawCallCount;

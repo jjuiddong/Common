@@ -34,9 +34,28 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 	// view * proj의 역행렬을 구한다.
 	Matrix44 matInv = matViewProj.Inverse();
 
+	// 3차원 상의 World Space 좌표로 변환한다.
 	for (int i = 0; i < 8; i++)
 		vertices[i] *= matInv;
 
+	m_viewProj = matViewProj;
+	SetFrustum(vertices);
+	return true;
+}
+
+
+// SetFrustum
+// 3차원 상의 점 8개를 입력받아 프러스텀을 생성한다.
+// World Space 좌표여야 한다.
+//      4 --- 5
+//    / |  | /|
+//   0 --- 1  |
+//   |  6 -|- 7
+//   | /   | /
+//   2 --- 3
+//
+bool cFrustum::SetFrustum(const Vector3 vertices[8])
+{
 	m_pos = (vertices[0] + vertices[3]) / 2.0f;
 
 	m_plane[0].Init(vertices[0], vertices[1], vertices[2]);	// 근 평면(near)
@@ -46,9 +65,7 @@ bool cFrustum::SetFrustum(const Matrix44 &matViewProj)
 	m_plane[4].Init(vertices[0], vertices[2], vertices[6]);	// 좌 평면(left)
 	m_plane[5].Init(vertices[1], vertices[5], vertices[7]);	// 우 평면(right)
 
-	m_viewProj = matViewProj;
 	m_dir = -m_plane[0].N;
-
 	return true;
 }
 

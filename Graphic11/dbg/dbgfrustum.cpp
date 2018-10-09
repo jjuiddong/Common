@@ -65,6 +65,14 @@ bool cDbgFrustum::SetFrustum(cRenderer &renderer, const cFrustum &frustum)
 }
 
 
+bool cDbgFrustum::SetFrustum(cRenderer &renderer, const Vector3 vertices[8])
+{
+	cFrustum::SetFrustum(vertices);
+	m_box.SetBox(renderer, vertices);
+	return true;
+}
+
+
 void cDbgFrustum::Render(cRenderer &renderer)
 {
 	m_box.Render(renderer);

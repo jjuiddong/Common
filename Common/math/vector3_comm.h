@@ -17,7 +17,7 @@ namespace common
 		T x, y, z;
 
 		Vector3Comm<T>() : x(0), y(0), z(0) {}
-		Vector3Comm<T>(float x0, float y0, float z0) : x(x0), y(y0), z(z0) {}
+		Vector3Comm<T>(T x0, T y0, T z0) : x(x0), y(y0), z(z0) {}
 		Vector3Comm<T>(const Vector4 &rhs) : x(rhs.x), y(rhs.y), z(rhs.z) {}
 
 		bool IsEmpty() const;
@@ -38,7 +38,7 @@ namespace common
 		Vector3Comm<T> operator * (const XMMATRIX &m) const;
 #endif
 
-		float DotProduct(const Vector3Comm<T>& v) const;
+		T DotProduct(const Vector3Comm<T>& v) const;
 		Vector3Comm<T> CrossProduct(const Vector3Comm<T>& v) const;
 
 		Vector3Comm<T> operator + () const;
@@ -192,7 +192,7 @@ namespace common
 #endif
 
 	template<class T>
-	float Vector3Comm<T>::DotProduct(const Vector3Comm<T>& v) const
+	T Vector3Comm<T>::DotProduct(const Vector3Comm<T>& v) const
 	{
 		return x * v.x + y * v.y + z * v.z;
 	}
@@ -334,6 +334,7 @@ namespace common
 	}
 
 
+	typedef Vector3Comm<int> Vector3i;
 	typedef Vector3Comm<float> Vector3f;
 	typedef Vector3Comm<double> Vector3d;
 }

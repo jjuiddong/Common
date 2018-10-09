@@ -166,6 +166,9 @@
     <ClInclude Include="collision\collision.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="math\vector2_comm.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

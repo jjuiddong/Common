@@ -421,6 +421,7 @@
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\triangle.h" />
+    <ClInclude Include="math\vector2_comm.h" />
     <ClInclude Include="math\vectortype.h" />
     <ClInclude Include="math\vector2.h" />
     <ClInclude Include="math\vector3.h" />

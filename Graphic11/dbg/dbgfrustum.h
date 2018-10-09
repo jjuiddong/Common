@@ -19,6 +19,7 @@ namespace graphic
 		bool Create(cRenderer &renderer, const Matrix44 &viewProj, const cColor &color = cColor::BLACK);
 		bool SetFrustum(cRenderer &renderer, const Matrix44 &viewProj, const cColor &color = cColor::BLACK);
 		bool SetFrustum(cRenderer &renderer, const cFrustum &frustum);
+		bool SetFrustum(cRenderer &renderer, const Vector3 vertices[8]);
 		void Render(cRenderer &renderer);
 
 

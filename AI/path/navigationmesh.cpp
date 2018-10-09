@@ -25,7 +25,7 @@ bool cNavigationMesh::ReadFromPathFile(const char *fileName)
 	m_vertices.reserve(pathFinder.m_vertices.size());
 
 	vector<WORD> indices;
-	indices.reserve(pathFinder.m_vertices.size()*3);
+	indices.reserve(pathFinder.m_vertices.size() * 3);
 
 	for (auto &vtx : pathFinder.m_vertices)
 		m_vertices.push_back(vtx.pos);
@@ -43,6 +43,25 @@ bool cNavigationMesh::ReadFromPathFile(const char *fileName)
 
 	if (indices.empty())
 		return false;
+
+	// build wall
+	{
+		for (u_int idx =0; idx < m_naviNodes.size(); ++idx)
+		{
+			set<int> nodeIndices;
+			nodeIndices.insert(idx);
+			vector<cBoundingPlane> bplanes;
+			GetWallPlane(nodeIndices, bplanes);
+
+			vector<u_int> indices;
+			for (auto &bplane : bplanes)
+			{
+				m_walls.push_back({ idx, false, bplane });
+				indices.push_back(m_walls.size() - 1);
+			}
+			m_wallMap[idx] = indices;
+		}
+	}
 
 	return true;
 }

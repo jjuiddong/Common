@@ -247,12 +247,14 @@ bool cGrid::RenderLine(cRenderer &renderer
 		m_texture->Bind(renderer, 0);
 
 	CommonStates states(renderer.GetDevice());
+	ID3D11RasterizerState *oldState = NULL;
+	renderer.GetDevContext()->RSGetState(&oldState);
 	renderer.GetDevContext()->RSSetState(states.Wireframe());
 	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	renderer.GetDevContext()->DrawIndexed(m_faceCount * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
-	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+	renderer.GetDevContext()->RSSetState(oldState);
 
 	return true;
 }
