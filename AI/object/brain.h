@@ -18,7 +18,8 @@ namespace ai
 		virtual ~cBrain();
 
 		virtual bool Init();
-		virtual bool Update(const float deltaSeconds);
+		virtual bool Update(const float deltaSeconds) override;
+		virtual void DispatchMsg(const sMsg &msg) override;
 		virtual void Clear();
 
 		// Action
@@ -30,14 +31,13 @@ namespace ai
 		bool IsCurrentAction(const eActionType::Enum type);
 		void ClearAction();
 
-		// Children Actor
-		bool AddActor(cObject *actor);
-		bool RemoveActor(const int actorId);
-		cObject* GetActor(const int actorId);
-		bool IsExistActor(cObject *actor);
-		bool IsExistActor(const int actorId);
-		void ClearChildActor();
-		virtual void DispatchMsg(const sMsg &msg) override;
+		// Children Brain
+		bool AddBrain(cObject *brain);
+		bool RemoveBrain(const int brainId);
+		cObject* GetBrain(const int brainId);
+		bool IsExistBrain(cObject *brain);
+		bool IsExistBrain(const int brainId);
+		void ClearChildBrain();
 
 		bool operator==(const cBrain &rhs);
 		bool operator<(const cBrain &rhs);
@@ -82,6 +82,10 @@ namespace ai
 	{
 		if (m_rootAction)
 			m_rootAction->Traverse(deltaSeconds);
+		
+		for (auto &brain : m_children.m_Seq)
+			brain->Update(deltaSeconds);
+
 		return true;
 	}
 
@@ -90,7 +94,7 @@ namespace ai
 	void cBrain<T>::Clear()
 	{
 		ClearAction();
-		ClearChildActor();
+		ClearChildBrain();
 	}
 
 
@@ -174,29 +178,29 @@ namespace ai
 	}
 
 
-	// Children Actor
+	// Children Brain
 	template <class T>
-	bool cBrain<T>::AddActor(cObject *actor)
+	bool cBrain<T>::AddBrain(cObject *brain)
 	{
-		if (IsExistActor(actor))
+		if (IsExistBrain(brain))
 			return false;
 
-		m_children.insert(ChildType::value_type(actor->m_id, actor));
+		m_children.insert(ChildType::value_type(brain->m_id, brain));
 		return true;
 	}
 
 
 	template <class T>
-	bool cBrain<T>::RemoveActor(const int actorId)
+	bool cBrain<T>::RemoveBrain(const int brainId)
 	{
-		return m_children.remove(actorId);
+		return m_children.remove(brainId);
 	}
 
 
 	template <class T>
-	cObject* cBrain<T>::GetActor(const int actorId)
+	cObject* cBrain<T>::GetBrain(const int brainId)
 	{
-		auto it = m_children.find(actorId);
+		auto it = m_children.find(brainId);
 		if (m_children.end() == it)
 			return NULL;
 		return it->second;
@@ -204,22 +208,22 @@ namespace ai
 
 
 	template <class T>
-	bool cBrain<T>::IsExistActor(cObject *actor)
+	bool cBrain<T>::IsExistBrain(cObject *brain)
 	{
-		return IsExistActor(actor->m_id) ? true : false;
+		return IsExistBrain(brain->m_id) ? true : false;
 	}
 
 
 	template <class T>
-	bool cBrain<T>::IsExistActor(const int actorId)
+	bool cBrain<T>::IsExistBrain(const int brainId)
 	{
-		return GetActor(actorId) ? true : false;
+		return GetBrain(brainId) ? true : false;
 	}
 
 
 	// 메모리는 외부에서 제거한다.
 	template <class T>
-	void cBrain<T>::ClearChildActor()
+	void cBrain<T>::ClearChildBrain()
 	{
 		m_children.clear();
 	}
@@ -232,9 +236,9 @@ namespace ai
 			m_rootAction->MessageProccess(msg);
 
 		// children message loop
-		for (auto &actor : m_children.m_Seq)
+		for (auto &brain : m_children.m_Seq)
 		{
-			actor->DispatchMsg(msg);
+			brain->DispatchMsg(msg);
 		}
 	}
 
