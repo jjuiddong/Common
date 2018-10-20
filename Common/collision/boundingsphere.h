@@ -24,6 +24,7 @@ namespace common
 		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
 
 		bool Intersects(const Ray &ray, OUT float *distance = NULL) const;
+		bool Intersects(const Ray &ray, const float radius, OUT float *distance = NULL) const;
 		bool Intersects(const cBoundingSphere &bspere) const;
 
 		void SetBoundingSphere(const Vector3 &center, const float radius);

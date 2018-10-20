@@ -205,6 +205,49 @@ bool cBoundingSphere::Intersects(const Ray &ray
 }
 
 
+// Ray가 radius 반지름을 가진 원기둥이라고 가정하고,
+// 충돌 계산을 한다. x축으로만 확장해서 검사한다.
+bool cBoundingSphere::Intersects(const Ray &ray
+	, const float radius
+	, OUT float *distance //= NULL
+) const
+{
+	const Vector3 right = Vector3(0, 1, 0).CrossProduct(ray.dir).Normal();
+	const Ray rayAr[3] = {
+		ray
+		, Ray(ray.orig + (right * radius), ray.dir)
+		, Ray(ray.orig - (right * radius), ray.dir)
+	};
+	float dist[3] = {
+		FLT_MAX, FLT_MAX, FLT_MAX
+	};
+
+	float minDist = FLT_MAX;
+	int idx = -1;
+	for (int i = 0; i < ARRAYSIZE(rayAr); ++i)
+	{
+		float t;
+		if (Intersects(rayAr[i], &t))
+		{
+			dist[i] = t;
+			if (t < minDist)
+			{
+				minDist = t;
+				idx = i;
+			}
+		}
+	}
+
+	if (idx < 0)
+		return false;
+
+	if (distance)
+		*distance = minDist;
+
+	return true;
+}
+
+
 bool cBoundingSphere::Intersects(const cBoundingSphere &bspere) const 
 {
 	return m_bsphere.Intersects(bspere.m_bsphere);

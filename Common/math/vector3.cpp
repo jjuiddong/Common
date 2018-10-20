@@ -5,6 +5,7 @@
 using namespace common;
 
 
+const Vector3 Vector3::Zeroes(0, 0, 0);
 const Vector3 Vector3::Ones(1, 1, 1);
 const Vector3 Vector3::Min(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 const Vector3 Vector3::Max(FLT_MAX, FLT_MAX, FLT_MAX);

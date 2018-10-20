@@ -101,7 +101,8 @@ namespace common
 			return *this;
 		}
 
-
+		
+		static const Vector3 Zeroes;
 		static const Vector3 Ones;
 		static const Vector3 Min;
 		static const Vector3 Max;

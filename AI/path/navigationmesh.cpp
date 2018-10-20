@@ -200,7 +200,7 @@ float Distance(const Vector3 &p0, const Vector3 &p1)
 // Search Navigation Mesh
 bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 	, OUT vector<Vector3> &out
-	, OUT vector<int> &outNodePath
+	, OUT vector<int> *outNodePath //= NULL
 )
 {
 	const int startIdx = GetNearestNode(start);
@@ -332,7 +332,8 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 
 	OptimizePath(nodeIndices, path, out);
 
-	outNodePath = nodeIndices;
+	if (outNodePath)
+		*outNodePath = nodeIndices;
 
 	return true;
 }

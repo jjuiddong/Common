@@ -65,7 +65,7 @@ namespace ai
 		StrId m_animationName;
 		T *m_agent;
 		vector<cAction<T>*> m_children;
-		cAction<T> *m_current;
+		cAction<T> *m_current; // execute action (reference)
 	};
 
 
@@ -101,13 +101,23 @@ namespace ai
 	bool cAction<T>::Traverse(const float deltaSeconds)
 	{
 		if (m_state != eActionState::RUN)
-			if (!StartAction())
+		{
+			if (StartAction())
+			{
+				m_state = eActionState::RUN;
+				return true;
+			}
+			else
+			{
 				NextAction();
-
-		m_state = eActionState::RUN;
+				if (!m_current) // no more action execute, remove this node
+					return false;
+			}
+		}
 
 		if (m_current)
 		{
+			// Parent Node Action
 			if (!ActionThrough(deltaSeconds))
 				return true;
 
@@ -116,6 +126,7 @@ namespace ai
 		}
 		else
 		{
+			// Leaf Node, Exectue Action
 			if (!ActionExecute(deltaSeconds))
 				return false;
 		}

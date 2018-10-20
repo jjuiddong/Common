@@ -21,7 +21,7 @@ namespace ai
 
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
-			, OUT vector<int> &outNodePath
+			, OUT vector<int> *outNodePath = NULL
 		);
 
 		void GetNodesFromVertexIdx(const int vtxIdx, OUT set<int> &out);

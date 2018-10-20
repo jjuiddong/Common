@@ -3,6 +3,9 @@
 // Action을 처리하는 인공지능 객체
 // Brain은 트리행태다. 자식으로 Brain을 가질 수 있다.
 //
+// 2018-10-20
+//	- naming change, cActor -> cBrain
+//
 #pragma once
 
 
@@ -38,6 +41,10 @@ namespace ai
 		bool IsExistBrain(cObject *brain);
 		bool IsExistBrain(const int brainId);
 		void ClearChildBrain();
+
+		// Message
+		void PostMsg(const sMsg &msg);
+		void SendMsg(const sMsg &msg);
 
 		bool operator==(const cBrain &rhs);
 		bool operator<(const cBrain &rhs);
@@ -105,10 +112,11 @@ namespace ai
 		RET(!action);
 
 		if (m_rootAction)
-			ClearAction();
+			m_rootAction->ClearChildAction();
+		if (!m_rootAction)
+			m_rootAction = new cRootAction<T>(m_agent);
 
 		action->m_agent = m_agent;
-		m_rootAction = new cRootAction<T>(m_agent);
 		m_rootAction->PushAction(action);
 	}
 
@@ -237,9 +245,20 @@ namespace ai
 
 		// children message loop
 		for (auto &brain : m_children.m_Seq)
-		{
 			brain->DispatchMsg(msg);
-		}
+	}
+
+
+	template <class T>
+	void cBrain<T>::PostMsg(const sMsg &msg)
+	{
+		cMessageManager::Get()->PostMsg(msg);
+	}
+
+	template <class T>
+	void cBrain<T>::SendMsg(const sMsg &msg)
+	{
+		cMessageManager::Get()->SendMsg(msg);
 	}
 
 

@@ -12,23 +12,33 @@ namespace ai
 
 	struct eActionState {
 		enum Enum {
-			WAIT,
-			RUN,
-			STOP,
+			WAIT
+			, RUN
+			, STOP
 		};
 	};
 
 	struct eActionType {
 		enum Enum {
-			NONE,
-			ROOT,
+			NONE
+			, ROOT
+			
+			, WAIT
+			, MOVE
+			, GROUP_MOVE
+			, ATTACK
+			, PATROL
+			
+			,MAX_ACTION_TYPE0,
+		};
+	};
 
-			MOVE, 
-			GROUP_MOVE,
-			ATTACK,
-			PATROL,
+	struct eMsgType {
+		enum Enum {
+			NONE
 
-			MAX_ACTION_TYPE0,
+			, UNIT_SIDEMOVE
+				// unit - unit collision message
 		};
 	};
 
@@ -37,25 +47,31 @@ namespace ai
 	{
 		cObject *receiver;
 		cObject *sender;
-		int msg;
+		eMsgType::Enum msg;
 		int param1;
 		int param2;
+		Vector3 v;
 		int sendTime;
-		char comment[ 32];
-
-		sMsg() : param1(0) 
-		{
-			comment[0]=NULL;
-		}
+		//char comment[32];
 
 		sMsg(
-			cObject *rcv, cObject *snd, int msg0,
-			int parameter1, int parameter2, int time) 
-			: receiver(rcv), sender(snd), msg(msg0), 
-			param1(parameter1), param2(parameter2), 
-			sendTime(time)
+			cObject *rcv = NULL
+			, cObject *snd = NULL
+			, eMsgType::Enum msg0 = eMsgType::NONE
+			, int parameter1 = 0
+			, int parameter2 = 0
+			, const Vector3 &v0 = Vector3(0,0,0)
+			, int time = 0
+		) 
+			: receiver(rcv)
+			, sender(snd)
+			, msg(msg0)
+			, param1(parameter1)
+			, param2(parameter2)
+			, v(v0)
+			, sendTime(time)
 		{
-			comment[0]=NULL;
+			//comment[0]=NULL;
 		}
 	};
 
