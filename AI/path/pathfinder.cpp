@@ -559,6 +559,7 @@ float cPathFinder::Distance_Manhatan(const Vector3 &p0, const Vector3 &p1) const
 	return abs(p0.x - p1.x) + abs(p0.y - p1.y) + abs(p0.z - p1.z);
 }
 
+
 // Normal Distance
 float cPathFinder::Distance(const Vector3 &p0, const Vector3 &p1) const
 {

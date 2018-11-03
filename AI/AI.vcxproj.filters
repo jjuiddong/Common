@@ -35,6 +35,9 @@
     <ClInclude Include="object\agent.h">
       <Filter>object</Filter>
     </ClInclude>
+    <ClInclude Include="path\spathfinder.h">
+      <Filter>path</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -48,6 +51,9 @@
       <Filter>path</Filter>
     </ClCompile>
     <ClCompile Include="path\navigationmesh.cpp">
+      <Filter>path</Filter>
+    </ClCompile>
+    <ClCompile Include="path\spathfinder.cpp">
       <Filter>path</Filter>
     </ClCompile>
   </ItemGroup>

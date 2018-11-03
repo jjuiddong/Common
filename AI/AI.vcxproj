@@ -133,6 +133,7 @@
     <ClInclude Include="object\brain.h" />
     <ClInclude Include="path\navigationmesh.h" />
     <ClInclude Include="path\pathfinder.h" />
+    <ClInclude Include="path\spathfinder.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -141,6 +142,7 @@
     <ClCompile Include="control\messagemanager.cpp" />
     <ClCompile Include="path\navigationmesh.cpp" />
     <ClCompile Include="path\pathfinder.cpp" />
+    <ClCompile Include="path\spathfinder.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_MD|Win32'">Create</PrecompiledHeader>

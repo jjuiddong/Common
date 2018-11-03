@@ -149,12 +149,12 @@ namespace common
 
 	template<class T>
 	Vector2Comm<T> Vector2Comm<T>::operator - () const {
-		return Vector3(-x, -y);
+		return Vector2Comm<T>(-x, -y);
 	}
 
 	template<class T>
 	Vector2Comm<T> Vector2Comm<T>::operator + (const Vector2Comm<T>& rhs) const {
-		return Vector3(x + rhs.x, y + rhs.y);
+		return Vector2Comm<T>(x + rhs.x, y + rhs.y);
 	}
 
 	template<class T>

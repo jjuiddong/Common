@@ -22,4 +22,5 @@
 #include "action/move.h"
 
 #include "path\pathfinder.h"
+#include "path/spathfinder.h"
 #include "path\navigationmesh.h"
