@@ -48,6 +48,7 @@ namespace framework
 
 		void CalcResizeWindow(const eDockResize::Enum type, const sRectf &rect);
 		void CalcResizeWindow(const eDockResize::Enum type, const int deltaSize);
+		sRectf GetWindowSizeAvailible(const bool ignoreRightSide =false);
 		bool IsInSizerSpace(const Vector2 &pos);
 		bool IsInWindow(const Vector2 &pos);
 		bool IsInWindow(const POINT &pos);

@@ -757,6 +757,26 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const int delta
 }
 
 
+// 도킹화면에서 탭버튼을 제외한 실제 사용할 수 있는 윈도우화면 크기를 리턴한다.
+sRectf cDockWindow::GetWindowSizeAvailible(
+	const bool ignoreRightSide //= false
+)
+{
+	sRectf r;
+	r.left = 9.f; // side border
+	r.top = (TAB_H + 3.f); // tab button
+	r.right = m_rect.Width() - 9.f; // side border
+	r.bottom = m_rect.Height() - 20.f; // scrollbar bug fix
+
+	// 윈도우 화면의 오른쪽 부분을 일정크기만큼 제외한다.
+	// 도킹윈도우에서 화면크기를 제어할 때, 겹치는 것을 막기위해서다.
+	if (ignoreRightSide)
+		r.right -= 10.f;
+
+	return r;
+}
+
+
 // 탭에서 빠진 윈도우는 외부에서 메모리를 제거한다.
 bool cDockWindow::RemoveTab(cDockWindow *tab)
 {
