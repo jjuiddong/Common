@@ -1,8 +1,12 @@
 //
 // 2018-11-02, jjuiddong
-// simple AStar path finder
-//	- 2 dimensional map path finder
+// 2 Dimensional map path finder
 //
+//	- node character type
+//		- 0 : no move
+//		- 1 : slow node
+//		- 2 : fast node
+//		- 3 : wide road node
 //
 // sample data
 //
@@ -29,39 +33,48 @@
 
 namespace ai
 {
+	class cPathFinder;
 
-	class cSPathFinder
+	class cPathFinder2D
 	{
-	public:
-		cSPathFinder();
-		virtual ~cSPathFinder();
-
-		bool Read(const char *fileName);
-		bool Find(const Vector2i &startPos
-			, const Vector2i &endPos
-			, OUT vector<Vector2i> &out);
-		void Clear();
-
-
-	protected:
-		std::pair<int, int> GetRowsCols(const char *fileName);
-		float Distance_Manhatan(const Vector2i &p0, const Vector2i &p1) const;
-
-
 	public:
 		struct sVertex
 		{
 			int type;
 			float startLen;
 			float endLen;
-			sVertex() :type(0)
-			{
-			}
+			sVertex() : type(0) {}
 		};
 
-		sVertex *m_map; // y*m_cols + x
+		cPathFinder2D();
+		virtual ~cPathFinder2D();
+
+		bool Read(const char *fileName);
+		bool Find(const Vector2i &startPos
+			, const Vector2i &endPos
+			, OUT vector<Vector2i> &out);
+		bool FindEnumeration(const Vector2i &startPos
+			, const Vector2i &endPos
+			, OUT vector<vector<Vector2i>> &out);
+		void Clear();
+
+
+	protected:
+		inline sVertex& GetMap(const int idx);
+		inline sVertex& GetMap(const Vector2i &pos);
+		std::pair<int, int> GetRowsCols(const char *fileName);
+		bool GenerateGraphNode();
+		inline bool CheckRange(const Vector2i &pos);
+		float Distance_Manhatan(const Vector2i &p0, const Vector2i &p1) const;
+
+
+	public:
+		sVertex *m_map; // size = m_rows*m_cols, access = y*m_cols + x
+		cPathFinder *m_graph;
 		int m_rows;
 		int m_cols;
+		vector<Vector2i> m_waypoints;
+		static sVertex m_dummy;
 	};
 
 }

@@ -37,6 +37,7 @@ namespace common
 		Vector2Comm<T>& operator *= (const Vector2Comm<T>& rhs);
 		Vector2Comm<T>& operator /= (const Vector2Comm<T>& rhs);
 
+		bool operator < (const Vector2Comm<T> &rhs) const; // for sorting
 		bool operator == (const Vector2Comm<T> &rhs) const;
 		bool operator != (const Vector2Comm<T> &rhs) const;
 		Vector2Comm<T> operator * (const Vector2Comm<T> &v) const;
@@ -188,6 +189,12 @@ namespace common
 		x /= rhs.x;
 		y /= rhs.y;
 		return *this;
+	}
+
+	template<class T>
+	bool Vector2Comm<T>::operator < (const Vector2Comm<T> &rhs) const
+	{
+		return (x < rhs.x) || ((x == rhs.x) && (y < rhs.y));
 	}
 
 	template<class T>

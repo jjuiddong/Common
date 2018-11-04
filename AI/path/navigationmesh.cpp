@@ -75,17 +75,17 @@ int cNavigationMesh::BuildPolygonFromPathFinder(const ai::cPathFinder &pathFinde
 	, INOUT vector<WORD> &indices )
 {
 	bool isFind = false;
-	const ai::sVertex vtx1 = pathFinder.m_vertices[vtxIdx1];
-	const ai::sVertex vtx2 = pathFinder.m_vertices[vtxIdx2];
+	const cPathFinder::sVertex vtx1 = pathFinder.m_vertices[vtxIdx1];
+	const cPathFinder::sVertex vtx2 = pathFinder.m_vertices[vtxIdx2];
 
 	// vtxIdx1, vtxIdx2 두개와 연결된 버텍스를 찾는다.
 	// 서로 같은 버텍스를 가르키면, 하나의 폴리곤에 있음을 뜻한다.
-	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	for (int i = 0; i < cPathFinder::sVertex::MAX_EDGE; ++i)
 	{
 		if (vtx1.edge[i] < 0)
 			break;
 
-		for (int k = 0; k < ai::sVertex::MAX_EDGE; ++k)
+		for (int k = 0; k < cPathFinder::sVertex::MAX_EDGE; ++k)
 		{
 			if (vtx2.edge[k] < 0)
 				break;

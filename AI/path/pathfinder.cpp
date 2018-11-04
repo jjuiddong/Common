@@ -6,8 +6,8 @@ using namespace ai;
 
 namespace ai
 {
-	float g_edges_len[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
-	bool  g_edges_visit[sVertex::MAX_VERTEX][sVertex::MAX_VERTEX];
+	float g_edges_len[cPathFinder::sVertex::MAX_VERTEX][cPathFinder::sVertex::MAX_VERTEX];
+	bool  g_edges_visit[cPathFinder::sVertex::MAX_VERTEX][cPathFinder::sVertex::MAX_VERTEX];
 }
 
 
@@ -37,7 +37,7 @@ bool cPathFinder::Read(const StrPath &fileName)
 	RETV(!ifs.is_open(), false);
 
 	int state = 0;
-	ai::sVertex vtx;
+	sVertex vtx;
 
 	char line[256];
 	while (ifs.getline(line, sizeof(line)))
@@ -91,12 +91,12 @@ bool cPathFinder::Read(const StrPath &fileName)
 			do {
 				ss >> vtx.edge[idx++];
 				++cnt;
-			} while (!ss.eof() && (cnt < ai::sVertex::MAX_EDGE));
+			} while (!ss.eof() && (cnt < sVertex::MAX_EDGE));
 
 			AddVertex(vtx);
 			
 			state = 0;
-			for (int i=0; i < ai::sVertex::MAX_EDGE; ++i)
+			for (int i=0; i < sVertex::MAX_EDGE; ++i)
 				vtx.edge[i] = -1;
 		}
 		break;
@@ -154,10 +154,10 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 	RETV((int)m_vertices.size() <= vtxIdx, false);
 	RETV(vtxIdx == addEdgeIdx, false);
 
-	ai::sVertex &vtx = m_vertices[vtxIdx];
+	sVertex &vtx = m_vertices[vtxIdx];
 
 	bool isAlreadyExist = false;
-	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
 		if (0 > vtx.edge[i])
 			break;
@@ -172,7 +172,7 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 	RETV(isAlreadyExist, false);
 
 	// push back
-	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
 		if (0 > vtx.edge[i])
 		{
@@ -201,18 +201,18 @@ bool cPathFinder::RemoveEdge(const int vtxIdx, const int removeEdgeIdx)
 	RETV(vtxIdx < 0, false);
 	RETV((int)m_vertices.size() <= vtxIdx, false);
 
-	ai::sVertex &vtx = m_vertices[vtxIdx];
+	sVertex &vtx = m_vertices[vtxIdx];
 
-	for (int i = 0; i < ai::sVertex::MAX_EDGE; ++i)
+	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
 		if (0 > vtx.edge[i])
 			break;
 
 		if (removeEdgeIdx == vtx.edge[i])
 		{
-			for (int k = i; k < ai::sVertex::MAX_EDGE - 1; ++k)
+			for (int k = i; k < sVertex::MAX_EDGE - 1; ++k)
 				vtx.edge[k] = vtx.edge[k + 1];
-			vtx.edge[ai::sVertex::MAX_EDGE - 1] = -1;
+			vtx.edge[sVertex::MAX_EDGE - 1] = -1;
 			return true;
 		}
 	}
@@ -233,9 +233,9 @@ bool cPathFinder::RemoveVertex(const int index)
 
 			if (index == v.edge[i]) // rotate left
 			{
-				for (int k = i; k < ai::sVertex::MAX_EDGE - 1; ++k)
+				for (int k = i; k < sVertex::MAX_EDGE - 1; ++k)
 					v.edge[k] = v.edge[k + 1];
-				v.edge[ai::sVertex::MAX_EDGE - 1] = -1;
+				v.edge[sVertex::MAX_EDGE - 1] = -1;
 
 				--i; // for loop bugfix
 			}
@@ -356,8 +356,9 @@ int cPathFinder::GetNearestArea(const Vector3 &pos) const
 }
 
 
-bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
-	OUT vector<Vector3> &out
+bool cPathFinder::Find(const Vector3 &start, const Vector3 &end
+	, OUT vector<Vector3> &out
+	, OUT vector<int> *trackVertexIndices //= NULL
 )
 {
 	const int startIdx = m_areas.empty()? GetNearestVertex(start) : GetNearestVertex(start, end);
@@ -488,6 +489,9 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end,
 
 	std::reverse(out.begin(), out.end());
 	std::reverse(verticesIndices.begin(), verticesIndices.end());
+
+	if (trackVertexIndices)
+		*trackVertexIndices = verticesIndices;
 
 	// Optimize Start Area
 	const int startAreaId = GetNearestArea(start);

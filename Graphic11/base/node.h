@@ -125,8 +125,8 @@ namespace graphic
 		int m_id; // unique id
 		StrId m_name;
 		bool m_isEnable; // if false, didn't show
-		int m_renderFlags; // eRenderFlag, default : VISIBLE
-		int m_opFlags; // eOpFlag, defalut : NONE
+		int m_renderFlags; // Composition eRenderFlag, default : VISIBLE
+		int m_opFlags; // Composition eOpFlag, defalut : NONE
 		int m_vtxType; // Composition eVertexType
 		eNodeType::Enum m_type;
 		eSubType::Enum m_subType;

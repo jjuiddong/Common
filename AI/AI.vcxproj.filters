@@ -35,7 +35,7 @@
     <ClInclude Include="object\agent.h">
       <Filter>object</Filter>
     </ClInclude>
-    <ClInclude Include="path\spathfinder.h">
+    <ClInclude Include="path\pathfinder2d.h">
       <Filter>path</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClCompile Include="path\navigationmesh.cpp">
       <Filter>path</Filter>
     </ClCompile>
-    <ClCompile Include="path\spathfinder.cpp">
+    <ClCompile Include="path\pathfinder2d.cpp">
       <Filter>path</Filter>
     </ClCompile>
   </ItemGroup>
