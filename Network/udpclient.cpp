@@ -23,7 +23,7 @@ cUDPClient::~cUDPClient()
 
 
 // UDP 클라언트 생성, ip, port 에 접속을 시도한다.
-bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis, const bool isIgnoreHeader) 
+bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis) 
 //sleepMillis=30, isIgnoreHeader=true
 {
 	Close();
@@ -36,7 +36,7 @@ bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis, c
 	{
 		dbg::Log("Connect UDP Client ip=%s, port=%d\n", ip.c_str(), port);
 
-		if (!m_sndQueue.Init(m_maxBuffLen, 512, isIgnoreHeader))
+		if (!m_sndQueue.Init(m_maxBuffLen, 512))
 		{
 			Close();
 			return false;
@@ -61,9 +61,9 @@ bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis, c
 
 
 // 전송할 정보를 설정한다.
-void cUDPClient::SendData(const BYTE *buff, const int buffLen)
+void cUDPClient::SendData(const char protocol[4], const BYTE *buff, const int buffLen)
 {
-	m_sndQueue.Push(m_socket, buff, buffLen);
+	m_sndQueue.Push(m_socket, protocol, buff, buffLen);
 }
 
 

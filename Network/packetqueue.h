@@ -2,6 +2,7 @@
 // 2015-11-29, jjuiddong
 //
 // - 패킷을 저장한다. Thread Safe, 최대한 심플하게 만들었다.
+// - 스트리밍으로 온 데이타를 정해진 패킷 크기만큼 나눠서 관리한다.
 // - 큐가 가득차면, 가장 오래된 패킷을 제거하고, 추가한다.
 // - 각 소켓마다 packetSize 크기만큼 채울 때까지 다음으로 넘어가지 않는다.
 // - 패킷을 큐에 저장할 때, 헤더(sHeader)가 추가된다.
@@ -16,7 +17,13 @@
 //		- 네트워크로 부터 온 패킷이 2개 이상의 프로토콜을 포함할 경우, 나눠서 처리한다.
 //
 // 2016-09-24, jjuiddong
-//		- 메모리풀을 모두 차면, 들어오는 패킷을 무시한다.
+//		- 메모리풀이 모두 차면, 들어오는 패킷을 무시한다.
+//
+// 2018-11-07, jjuiddong
+//		- header 수정
+//		- [0 ~ 3] : protocol ascii code
+//		- [4 ~ 7] : packet bytes length by ascii (ex 0085, 85 bytes)
+//
 //
 #pragma once
 
@@ -28,11 +35,12 @@ namespace network
 	struct sSockBuffer
 	{
 		SOCKET sock; // 세션 소켓
+		char protocol[4];
 		BYTE *buffer;
-		int totalLen;
+		int totalLen; // = sizeof(sHeader) + buffer size
 		bool full; // 버퍼가 다 채워지면 true가 된다.
 		int readLen;
-		int actualLen; // 실제 패킷의 크기를 나타낸다. totalLen - sizeof(sHeader)
+		int actualLen; // 실제 패킷의 크기를 나타낸다. buffer size(bytes) {= totalLen - sizeof(sHeader)}
 	};
 
 	struct sSession;
@@ -44,13 +52,13 @@ namespace network
 
 		struct sHeader
 		{
-			BYTE head[3]; // $@
-			BYTE protocol; // protocol id
-			int length;	// packet length (byte)
+			BYTE protocol[4];
+			BYTE packetLength[4]; // ascii packet length, ex) 0085
 		};
 
-		bool Init(const int packetSize, const int maxPacketCount, const bool isIgnoreHeader=false);
-		void Push(const SOCKET sock, const BYTE *data, const int len, const bool fromNetwork=false);
+		bool Init(const int packetSize, const int maxPacketCount);
+		void Push(const SOCKET sock, const char protocol[4], const BYTE *data, const int len);
+		void PushFromNetwork(const SOCKET sock, const BYTE *data, const int len);
 		bool Front(OUT sSockBuffer &out);
 		void Pop();
 		void SendAll();
@@ -59,7 +67,6 @@ namespace network
 		void Lock();
 		void Unlock();
 		int GetSize();
-		bool IsIgnoreHeader();
 		int GetPacketSize();
 		int GetMaxPacketCount();
 
@@ -71,13 +78,17 @@ namespace network
 		bool m_isStoreTempHeaderBuffer; // 임시로 저장하고 있을 때 true
 		BYTE *m_tempBuffer; // 임시로 저장될 버퍼
 		int m_tempBufferSize;
-		bool m_isIgnoreHeader; // sHeader 데이타가 없는 패킷을 받을 때, true
 		bool m_isLogIgnorePacket; // 무시한 패킷 로그를 남길지 여부, default = false
+
 
 	protected:
 		sSockBuffer* FindSockBuffer(const SOCKET sock);
 		int CopySockBuffer(sSockBuffer *dst, const BYTE *data, const int len);
-		int AddSockBuffer(const SOCKET sock, const BYTE *data, const int len, const bool fromNetwork);
+		int AddSockBuffer(const SOCKET sock, const char protocol[4]
+			, const BYTE *data, const int len);
+		int AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, const int len);
+		sHeader MakeHeader(const char protocol[4], const int len);
+		sHeader GetHeader(const BYTE *data, OUT int &byteSize);
 
 		//---------------------------------------------------------------------
 		// Simple Queue Memory Pool
@@ -93,14 +104,13 @@ namespace network
 		};
 		vector<sChunk> m_memPool;
 		BYTE *m_memPoolPtr;
-		int m_packetBytes;	// 순수한 패킷 크기
-		int m_chunkBytes;	// sHeader 헤더를 포함한 패킷 크기
+		int m_packetBytes; // sHeader 헤더를 포함한 패킷 크기
+		int m_chunkBytes; // 순수한 패킷 크기 (actual size)
 		int m_totalChunkCount;
 		CRITICAL_SECTION m_criticalSection;
 	};
 
 
-	inline bool cPacketQueue::IsIgnoreHeader() { return  m_isIgnoreHeader;  }
 	inline int cPacketQueue::GetPacketSize() { return m_packetBytes;  }
 	inline int cPacketQueue::GetMaxPacketCount() { return m_totalChunkCount; }
 }

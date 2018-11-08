@@ -24,7 +24,8 @@ namespace network
 		cTCPServer();
 		virtual ~cTCPServer();
 
-		bool Init(const int port, const int packetSize=512, const int maxPacketCount=10, const int sleepMillis = 30);
+		bool Init(const int port, const int packetSize = 512
+			, const int maxPacketCount = 10, const int sleepMillis = 30);
 		void SetListener(iSessionListener *listener);
 		void Close();
 		bool IsConnect() const;

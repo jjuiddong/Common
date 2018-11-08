@@ -138,17 +138,30 @@ namespace common
 		return true;
 	}
 
+	// 0 ~ +1
+	inline float Saturate(const float f)
+	{
+		return min(1.f, max(0.f, f));
+	}
+
 
 	// Line : p0 - p1
 	// Point : p
 	// Calc Shortest Length Point - Line
 	inline float GetShortestLen(const Vector3 &p0, const Vector3 &p1, const Vector3 &p)
 	{
-		const float a = (p - p0).DotProduct((p1 - p0).Normal());
-		const float b = p.Distance(p0);
-		const float len = sqrt(abs(b*b - a * a));
-		return len;
+		const Vector3 center = (p0 + p1) / 2.f;
+		const Vector3 dir = (p1 - p0).Normal();
+		const float lineLen = (p1 - p0).Length() / 2.f;
+		const Vector3 toPoint = p - center;
+		float distOnLine = toPoint.DotProduct(dir) / lineLen;
+		distOnLine = clamp(-1.f, 1.f, distOnLine) * lineLen;
+		const Vector3 pointOnLine = center + dir * distOnLine;
+		const float dist = pointOnLine.Distance(p);
+
+		return dist;
 	}
+
 
 	// Ray : ray
 	// Point : p

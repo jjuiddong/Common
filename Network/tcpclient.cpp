@@ -26,8 +26,7 @@ cTCPClient::~cTCPClient()
 
 
 bool cTCPClient::Init(const string &ip, const int port, 
-	const int packetSize, const int maxPacketCount, const int sleepMillis,
-	const bool isIgnoreHeader)
+	const int packetSize, const int maxPacketCount, const int sleepMillis)
 	// packetSize = 512, maxPacketCount = 10, int sleepMillis = 30, isIgnoreHeader=false
 {
 	Close();
@@ -42,13 +41,13 @@ bool cTCPClient::Init(const string &ip, const int port,
 		if (m_isLog)
 			common::dbg::Log("Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
 
-		if (!m_recvQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
+		if (!m_recvQueue.Init(packetSize, maxPacketCount))
 		{
 			Close();
 			return false;
 		}
 
-		if (!m_sendQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
+		if (!m_sendQueue.Init(packetSize, maxPacketCount))
 		{
 			Close();
 			return false;
@@ -73,10 +72,10 @@ bool cTCPClient::Init(const string &ip, const int port,
 }
 
 
-void cTCPClient::Send(BYTE *buff, const int len)
+void cTCPClient::Send(const char protocol[4], BYTE *buff, const int len)
 {
 	RET(!m_isConnect);
-	m_sendQueue.Push(m_socket, buff, len);
+	m_sendQueue.Push(m_socket, protocol, buff, len);
 }
 
 
@@ -120,7 +119,7 @@ unsigned WINAPI TCPClientThreadFunction(void* arg)
 			else
 			{
 				client->m_recvBytes += result;
-				client->m_recvQueue.Push(readSockets.fd_array[0], (BYTE*)buff, result, true);
+				client->m_recvQueue.PushFromNetwork(readSockets.fd_array[0], (BYTE*)buff, result);
 			}
 		}
 		//-----------------------------------------------------------------------------------

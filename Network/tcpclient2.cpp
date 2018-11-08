@@ -24,8 +24,7 @@ cTCPClient2::~cTCPClient2()
 
 
 bool cTCPClient2::Init(const string &ip, const int port,
-	const int packetSize, const int maxPacketCount, const int sleepMillis,
-	const bool isIgnoreHeader)
+	const int packetSize, const int maxPacketCount, const int sleepMillis)
 	// packetSize = 512, maxPacketCount = 10, int sleepMillis = 30, isIgnoreHeader=false
 {
 	Close();
@@ -38,13 +37,13 @@ bool cTCPClient2::Init(const string &ip, const int port,
 	m_state = READYCONNECT;
 	m_thread = std::thread(TCPClient2ThreadFunction, this);
 
-	if (!m_recvQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
+	if (!m_recvQueue.Init(packetSize, maxPacketCount))
 	{
 		Close();
 		return false;
 	}
 
-	if (!m_sendQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
+	if (!m_sendQueue.Init(packetSize, maxPacketCount))
 	{
 		Close();
 		return false;
@@ -56,10 +55,10 @@ bool cTCPClient2::Init(const string &ip, const int port,
 }
 
 
-void cTCPClient2::Send(BYTE *buff, const int len)
+void cTCPClient2::Send(const char protocol[4], BYTE *buff, const int len)
 {
 	RET(!IsConnect());
-	m_sendQueue.Push(m_socket, buff, len);
+	m_sendQueue.Push(m_socket, protocol, buff, len);
 }
 
 
@@ -119,7 +118,7 @@ void TCPClient2ThreadFunction(network::cTCPClient2 *client)
 			{
 				//cout << "recv packet size = " << result << endl;
 				client->m_recvBytes += result;
-				client->m_recvQueue.Push(readSockets.fd_array[0], (BYTE*)buff, result, true);
+				client->m_recvQueue.PushFromNetwork(readSockets.fd_array[0], (BYTE*)buff, result);
 			}
 		}
 		//-----------------------------------------------------------------------------------

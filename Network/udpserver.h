@@ -24,8 +24,7 @@ namespace network
 		virtual ~cUDPServer();
 
 		bool Init(const int id, const int port 
-			,const int packetSize = 1024, const int maxPacketCount = 512, const int sleepMillis = 1
-			,const bool isIgnoreHeader = true);
+			,const int packetSize = 1024, const int maxPacketCount = 512, const int sleepMillis = 1);
 
 		int GetRecvData(OUT BYTE *dst, const int maxSize);
 		void SetMaxBufferLength(const int length);

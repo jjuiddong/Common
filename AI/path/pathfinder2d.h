@@ -64,13 +64,16 @@ namespace ai
 		inline sVertex& GetMap(const Vector2i &pos);
 		std::pair<int, int> GetRowsCols(const char *fileName);
 		bool GenerateGraphNode();
+		bool AddTemporaryVertexAndEdges(const Vector3 &pos);
+		bool RemoveTemporaryVertexAndEdges(const Vector3 &pos);
+
 		inline bool CheckRange(const Vector2i &pos);
 		float Distance_Manhatan(const Vector2i &p0, const Vector2i &p1) const;
 
 
 	public:
 		sVertex *m_map; // size = m_rows*m_cols, access = y*m_cols + x
-		cPathFinder *m_graph;
+		cPathFinder *m_graph; // fast path search
 		int m_rows;
 		int m_cols;
 		vector<Vector2i> m_waypoints;

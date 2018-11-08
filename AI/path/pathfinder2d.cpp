@@ -351,110 +351,241 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 
 // 길찾기 열거
 // 모든 가능한 길을 열거한다.
-// WayPoint가 중복일 때는 제외한다.
+// Edge가 중복일 때는 제외한다.
 bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 	, const Vector2i &endPos
 	, OUT vector<vector<Vector2i>> &out)
 {
 	RETV(!m_graph, false);
 
-	Vector3 p0((float)startPos.x, 0, (float)startPos.y);
-	Vector3 p1((float)endPos.x, 0, (float)endPos.y);
+	const Vector3 p0((float)startPos.x, 0, (float)startPos.y);
+	const Vector3 p1((float)endPos.x, 0, (float)endPos.y);
 
-	vector<vector<int>> totWps;
-	vector<int> wpsSet;
-	vector<std::pair<int, int>> blockWps; // from -> to vertex index
-	int combination = 0; // waypoint combination
+	typedef vector<cPathFinder::sEdge> epath; // edge path
+	vector<epath> allEpath; // total edge path
+	vector<cPathFinder::sEdge> edgeSet;
+	set<cPathFinder::sEdge> disableEdges;
+	int combination = 0; // disable edge combination
+	
+	// 다양한 경로를 생성하기위해, 특정 엣지를 막는다.
+	// 전체 경로의 앞부분 과, 뒷부분 몇개를 조합해서, 막는다.
+	// front
+	const int comboSize = 3;
+	int combinationIndices1[][comboSize] = {
+		{0, -1}
+		,{ 0, -1}
+		,{ 0, -1}
+		,{ 1, -1}
+		,{ 1, -1}
+		,{ 1, -1}
+		,{ 2, -1 }
+		,{ 2, -1 }
+		,{ 2, -1 }
+		,{ 0, 2, -1 }
+		,{ 0, 2, -1 }
+		,{ 0, 2, -1 }
+	};
 
-	while (0)
+	// back (path.size() - offset)
+	int combinationIndices2[][comboSize] = {
+		{ -1 }
+		,{ 1, -1 }
+		,{ 2, -1 }
+		,{ -1 }
+		,{ 1, -1 }
+		,{ 2, -1 }
+		,{ -1 }
+		,{ 1, -1 }
+		,{ 2, -1 }
+		,{ -1 }
+		,{ 1, -1 }
+		,{ 2, -1 }
+	};
+
+	// start, end node 를 추가한다.
+	AddTemporaryVertexAndEdges(p0);
+	AddTemporaryVertexAndEdges(p1);
+
+	while (combination < 12) 
 	{
 		// find path
-		vector<Vector3> path;
+		vector<Vector3> vpath;
 		vector<int> wayPoints;
-		if (!m_graph->Find(p0, p1, path, &wayPoints))
-			continue;
-
-		// search already stored waypoint list
+		epath edges;
+		if (m_graph->Find(p0, p1, vpath, &wayPoints, &edges, &disableEdges))
 		{
-			auto it = std::find(totWps.begin(), totWps.end(), wayPoints);
-			if (totWps.end() != it)
-				continue; // if find, ignore this path
+			// search already stored path list
+			{
+				auto it = std::find(allEpath.begin(), allEpath.end(), edges);
+				if (allEpath.end() != it)
+					goto next; // if find, ignore this path
+			}
+
+			allEpath.push_back(edges);
+
+			// add all path edges
+			for (auto &e : edges)
+			{
+				if (edgeSet.end() == std::find(edgeSet.begin(), edgeSet.end(), e))
+					edgeSet.push_back(e);
+			}
+
+			// next edge on/off combination
+			if ((int)edgeSet.size() <= combination)
+				continue;
 		}
 
-		totWps.push_back(wayPoints);
+	next:
+		// composite disable edge 
+		disableEdges.clear();
 
-		for (auto &wp : wayPoints)
+		// front path skip
+		for (int i = 0; i < comboSize; ++i)
 		{
-			if (wpsSet.end() == std::find(wpsSet.begin(), wpsSet.end(), wp))
-				wpsSet.push_back(wp);
+			const int idx = combinationIndices1[combination][i];
+			if (idx < 0)
+				break;
+			if (idx < (int)edgeSet.size())
+				disableEdges.insert(edgeSet[idx]);
 		}
 
-		// recovery waypoint on/off
-		for (auto &idx : blockWps)
-			m_graph->AddEdge(idx.first, idx.second);
-		blockWps.clear();
-
-		// next waypoint on/off combination
-		if ((int)wpsSet.size() <= combination)
-			continue;
+		// back path skip
+		for (int i = 0; i < comboSize; ++i)
+		{
+			const int idx = (int)edgeSet.size() - combinationIndices2[combination][i];
+			if ((idx < 0) || ((int)edgeSet.size() <= idx))
+				break;
+			if (idx > comboSize)
+				disableEdges.insert(edgeSet[idx]);
+		}
 
 		++combination;
-
-		//for (u_int i = 0; i < wpsSet.size(); ++i)
-		//{
-		//	const int f = combination >> i;
-		//	if (0x01 & f)
-		//	{
-		//		// block waypoint
-		//		auto &from = m_graph->m_vertices[wpsSet[i]];
-		//		for (int k = 0; k < cPathFinder::sVertex::MAX_EDGE; ++k)
-		//		{
-		//			if (0 > from.edge[k])
-		//				continue;
-
-		//			auto &to = m_graph->m_vertices[from.edge[k]];
-
-
-		//		}
-		//	}
-		//}
-
-
-		//vector<Vector2i> path;
-		//if (!Find(startPos, endPos, path))
-		//	continue; // not found path
-
-		// find waypoint
-		//set<Vector2i> wps;
-		//for (auto &wp : m_waypoints)
-		//{
-		//	auto it = std::find(path.begin(), path.end(), wp);
-		//	if (path.end() != it)
-		//		wps.insert(*it);
-		//}
-
-		// clear block waypoint
-		//for (auto &wp : m_waypoints)
-		//	GetMap(wp).type = 3;
-
-		// search already stored waypoint list
-		//{
-		//	auto it = std::find(totWps.begin(), totWps.end(), wps);
-		//	if (totWps.end() != it)
-		//		continue; // if find, ignore this path
-
-		//	totWps.push_back(wps);
-		//}
 	}
 
-	//if (wps.empty())
-	//	return true;
+	// Store Enumeration Path
+	out.reserve(allEpath.size());
+	for (u_int i = 0; i < allEpath.size(); ++i)
+	{
+		out.push_back({});
+		out[i].reserve(allEpath.size());
+		for (u_int k = 0; k < allEpath[i].size(); ++k)
+		{
+			const int from = allEpath[i][k].from;
+			out[i].push_back(
+				Vector2i((int)m_graph->m_vertices[from].pos.x
+					, (int)m_graph->m_vertices[from].pos.z));
+		}
 
-	//GetMap(*wps.begin()).type = 4;
+		const int to = allEpath[i].back().to;
+		out[i].push_back(
+			Vector2i((int)m_graph->m_vertices[to].pos.x
+				, (int)m_graph->m_vertices[to].pos.z));
+	}
 
-	//vector<Vector2i> path2;
-	//if (!Find(startPos, endPos, path2))
-	//	return false;
+	RemoveTemporaryVertexAndEdges(p0);
+	RemoveTemporaryVertexAndEdges(p1);
+
+	return true;
+}
+
+
+// 임시 노드를 추가한다.
+// 현재 위치가 노드 위에 있다면, Pos 노드를 추가하지 않는다.
+// 이미 있기 때문에~
+// 노드에 없는 위치에 Pos가 있다면, 새 노드를 추가한다.
+bool cPathFinder2D::AddTemporaryVertexAndEdges(const Vector3 &pos)
+{
+	RETV(!m_graph, false);
+
+	const int nearVtx = m_graph->GetNearestVertex(pos);
+	if (nearVtx < 0)
+		return true;
+
+	if (pos == m_graph->m_vertices[nearVtx].pos)
+		return true;
+
+	// 노드를 추가하기 전에, 추가될 노드 주위의 엣지를 제거하고
+	// 재연결한다.
+	std::pair<int,int> edge = m_graph->GetNearestEdge(pos);
+	if (edge.first < 0)
+		return false; // error occur
+
+	const int from = edge.first;
+	const int to = edge.second;
+	m_graph->RemoveEdge(from, to);
+	m_graph->RemoveEdge(to, from);
+
+	cPathFinder::sVertex vertex;
+	vertex.type = 3; // temporary node
+	vertex.pos = pos;
+	m_graph->AddVertex(vertex);
+	const int addVtxIdx = m_graph->m_vertices.size() - 1;
+
+	if (!m_graph->AddEdge(addVtxIdx, to))
+	{
+		int a = 0;
+	}
+	if (!m_graph->AddEdge(to, addVtxIdx))
+	{
+		int a = 0;
+	}
+	if (!m_graph->AddEdge(addVtxIdx, from))
+	{
+		int a = 0;
+	}
+	if (!m_graph->AddEdge(from, addVtxIdx))
+	{
+		int a = 0;
+	}
+
+	return true;
+}
+
+
+// 임시 노드로 추가한 것을 제거하고, 기존 graph를 복구한다.
+bool cPathFinder2D::RemoveTemporaryVertexAndEdges(const Vector3 &pos)
+{
+	RETV(!m_graph, false);
+
+	const int temporaryVtxIdx = m_graph->GetNearestVertex(pos);
+	if (temporaryVtxIdx < 0)
+		return true;
+
+	// temporary node?
+	cPathFinder::sVertex &tvertex = m_graph->m_vertices[temporaryVtxIdx];
+	if (tvertex.type != 3)
+		return true;
+
+	// 노드를 제거하기 전에, 노드 주변 노드를 연결한다.
+	int state = 0;
+	int from, to;
+	for (int i = 0; i < cPathFinder::sVertex::MAX_EDGE; ++i)
+	{
+		if (tvertex.edge[i] < 0)
+			break;
+		if (0 == state)
+		{
+			from = tvertex.edge[i];
+			state = 1;
+		}
+		else if (1 == state)
+		{
+			to = tvertex.edge[i];
+			state = 2;
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+
+	if (state != 2)
+		return false;
+
+	// edge 복구, 순서 중요
+	m_graph->AddEdge(from, to);
+	m_graph->AddEdge(to, from);
+	m_graph->RemoveVertex(temporaryVtxIdx);
 
 	return true;
 }

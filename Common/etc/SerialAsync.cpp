@@ -73,7 +73,6 @@ void cSerialAsync::Close()
 }
 
 
-// UDP 서버 쓰레드
 unsigned WINAPI SerialThreadFunction(void* arg)
 {
 	cSerialAsync *serial = (cSerialAsync*)arg;

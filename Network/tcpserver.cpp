@@ -25,8 +25,11 @@ cTCPServer::~cTCPServer()
 }
 
 
-bool cTCPServer::Init(const int port, const int packetSize, const int maxPacketCount, const int sleepMillis)
-// packetSize=512, maxPacketCout=10, sleepMillis=30
+bool cTCPServer::Init(const int port
+	, const int packetSize //=512
+	, const int maxPacketCount //=10
+	, const int sleepMillis //=30
+)
 {
 	Close();
 
@@ -150,15 +153,18 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 	char *buff = new char[server->m_maxBuffLen];
  	const int maxBuffLen = server->m_maxBuffLen;
 
-	int lastAcceptTime = timeGetTime();
+	common::cTimer m_timer;
+	m_timer.Create();
+
+	double lastAcceptTime = m_timer.GetMilliSeconds();
 
 	while (server->m_threadLoop)
 	{
 		const timeval t = { 0, 1};
 
 		// Accept는 가끔씩 처리한다.
-		const int curT = timeGetTime();
-		if (curT - lastAcceptTime > 300)
+		const double curT = m_timer.GetMilliSeconds();
+		if (curT - lastAcceptTime > 300.f)
 		{
 			lastAcceptTime = curT;
 
@@ -170,7 +176,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 			const int ret1 = select(acceptSockets.fd_count, &acceptSockets, NULL, NULL, &t);
 			if (ret1 != 0 && ret1 != SOCKET_ERROR)
 			{
-				// accept(요청을 받으 소켓, 선택 클라이언트 주소)
+				// accept(요청을 받은 소켓, 선택 클라이언트 주소)
 				SOCKET remoteSocket = accept(acceptSockets.fd_array[0], NULL, NULL);
 				if (remoteSocket == INVALID_SOCKET)
 				{
@@ -204,7 +210,7 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 				}
 				else
 				{
-					server->m_recvQueue.Push(sockets.fd_array[i], (BYTE*)buff, result, true);
+					server->m_recvQueue.PushFromNetwork(sockets.fd_array[i], (BYTE*)buff, result);
 				}
 			}
 		}
@@ -217,7 +223,8 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 		//-----------------------------------------------------------------------------------
 
 		const int sleepTime = server->m_sessions.empty() ? 100 : server->m_sleepMillis;
-		std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+		if (sleepTime > 0)
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}
 
 	delete[] buff;

@@ -22,8 +22,7 @@ cUDPServer::~cUDPServer()
 
 
 bool cUDPServer::Init(const int id, const int port
-	, const int packetSize, const int maxPacketCount, const int sleepMillis
-	, const bool isIgnoreHeader)
+	, const int packetSize, const int maxPacketCount, const int sleepMillis)
 // packetSize = 512, maxPacketCount = 10, sleepMillis = 30, isIgnoreHeader=true
 {
 	m_id = id;
@@ -40,7 +39,7 @@ bool cUDPServer::Init(const int id, const int port
 
 		if (network::LaunchUDPServer(port, m_socket))
 		{
-			if (!m_recvQueue.Init(packetSize, maxPacketCount, isIgnoreHeader))
+			if (!m_recvQueue.Init(packetSize, maxPacketCount))
 			{
 				Close();
 				return false;
@@ -93,8 +92,7 @@ void cUDPServer::Close(const bool isWait) // isWait = false
 void cUDPServer::SetMaxBufferLength(const int length)
 {
 	if (!m_recvQueue.Init(length, 
-		m_recvQueue.GetMaxPacketCount(), 
-		m_recvQueue.IsIgnoreHeader()))
+		m_recvQueue.GetMaxPacketCount()))
 	{
 		Close();
 	}
@@ -126,7 +124,7 @@ unsigned WINAPI UDPServerThreadFunction(void* arg)
 			}
 			else
 			{
-				udp->m_recvQueue.Push(readSockets.fd_array[0], buff, result, true);
+				udp->m_recvQueue.PushFromNetwork(readSockets.fd_array[0], buff, result);
 			}
 		}
 		

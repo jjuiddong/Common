@@ -18,9 +18,8 @@ namespace network
 		virtual ~cTCPClient2();
 
 		bool Init(const string &ip, const int port,
-			const int packetSize = 512, const int maxPacketCount = 10, const int sleepMillis = 30,
-			const bool isIgnoreHeader = false);
-		void Send(BYTE *buff, const int len);
+			const int packetSize = 512, const int maxPacketCount = 10, const int sleepMillis = 30);
+		void Send(const char protocol[4], BYTE *buff, const int len);
 		void Close();
 		bool IsConnect() const;
 		bool IsFailConnection() const;

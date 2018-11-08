@@ -177,13 +177,12 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 		if (0 > vtx.edge[i])
 		{
 			vtx.edge[i] = addEdgeIdx;
-			return true;			
+			return true;
 		}
 	}
 
 	return false;
 }
-
 
 
 // remove edge vtxIdx <-> removeEdgeIdx
@@ -234,7 +233,12 @@ bool cPathFinder::RemoveVertex(const int index)
 			if (index == v.edge[i]) // rotate left
 			{
 				for (int k = i; k < sVertex::MAX_EDGE - 1; ++k)
+				{
+					if (v.edge[k] < 0)
+						break;
 					v.edge[k] = v.edge[k + 1];
+				}
+
 				v.edge[sVertex::MAX_EDGE - 1] = -1;
 
 				--i; // for loop bugfix
@@ -356,9 +360,65 @@ int cPathFinder::GetNearestArea(const Vector3 &pos) const
 }
 
 
+// pos 와 가장 가까운 edge 를 리턴한다. 없으면 = -1 리턴
+std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
+{
+	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
+
+	int from = -1, to = -1;
+	float minLen = FLT_MAX;
+	for (int i = 0; i < (int)m_vertices.size(); ++i)
+	{
+		auto &vertex = m_vertices[i];
+		for (int k = 0; k < sVertex::MAX_EDGE; ++k)
+		{
+			if (vertex.edge[k] < 0)
+				break;
+			
+			const int e = vertex.edge[k];
+			if (g_edges_visit[i][e])
+				continue;
+
+			g_edges_visit[i][e] = true;
+			g_edges_visit[e][i] = true;
+
+			const float len = common::GetShortestLen(m_vertices[i].pos, m_vertices[e].pos, pos);
+			if (len < minLen)
+			{
+				from = i;
+				to = e;
+				minLen = len;
+			}
+		}
+	}
+
+	return { from, to };
+
+	//for (auto &kv : m_edges)
+	//{
+	//	const sEdge &edge = kv.second;
+
+	//	const float len = common::GetShortestLen(m_vertices[edge.from].pos, m_vertices[edge.to].pos, pos);
+	//	if (len < minLen)
+	//	{
+	//		edgeKey = kv.first;
+	//		minLen = len;
+	//	}
+	//}
+
+	//const auto it = m_edges.find(edgeKey);
+	//if (m_edges.end() == it)
+	//	return { -1 };
+
+	//return it->second;
+}
+
+
 bool cPathFinder::Find(const Vector3 &start, const Vector3 &end
 	, OUT vector<Vector3> &out
-	, OUT vector<int> *trackVertexIndices //= NULL
+	, OUT vector<int> *outTrackVertexIndices //= NULL
+	, OUT vector<sEdge> *outTrackEdges //= NULL
+	, const set<sEdge> *disableEdges //= NULL
 )
 {
 	const int startIdx = m_areas.empty()? GetNearestVertex(start) : GetNearestVertex(start, end);
@@ -404,6 +464,12 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end
 
 			if (g_edges_visit[curIdx][nextIdx])
 				continue;
+
+			if (disableEdges)
+			{
+				if (disableEdges->end() != disableEdges->find(sEdge(curIdx, nextIdx)))
+					continue;
+			}
 
 			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos) + 0.00001f;
 			nextVtx.endLen = Distance(end, nextVtx.pos);
@@ -490,8 +556,20 @@ bool cPathFinder::Find(const Vector3 &start, const Vector3 &end
 	std::reverse(out.begin(), out.end());
 	std::reverse(verticesIndices.begin(), verticesIndices.end());
 
-	if (trackVertexIndices)
-		*trackVertexIndices = verticesIndices;
+	if (outTrackVertexIndices)
+		*outTrackVertexIndices = verticesIndices;
+
+	// Store Tracking Edge Key
+	if (outTrackEdges)
+	{
+		outTrackEdges->reserve(verticesIndices.size());
+		for (u_int i = 0; i < verticesIndices.size()-1; ++i)
+		{
+			const int from = verticesIndices[i];
+			const int to = verticesIndices[i+1];
+			outTrackEdges->push_back(sEdge(from, to));
+		}
+	}
 
 	// Optimize Start Area
 	const int startAreaId = GetNearestArea(start);
@@ -569,6 +647,12 @@ float cPathFinder::Distance(const Vector3 &p0, const Vector3 &p1) const
 {
 	return p0.Distance(p1);
 }
+
+
+//inline int cPathFinder::MakeEdgeKey(const int from, const int to)
+//{
+//	return from * 1000 + to;
+//}
 
 
 // Add Area

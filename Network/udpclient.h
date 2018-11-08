@@ -22,8 +22,8 @@ namespace network
 		cUDPClient();
 		virtual ~cUDPClient();
 
-		bool Init(const string &ip, const int port, const int sleepMillis=30, const bool isIgnoreHeader = true);
-		void SendData(const BYTE *buff, const int buffLen);
+		bool Init(const string &ip, const int port, const int sleepMillis=30);
+		void SendData(const char protocol[4], const BYTE *buff, const int buffLen);
 		void SetMaxBufferLength(const int length);
 		void Close();
 		bool IsConnect() const;

@@ -17,7 +17,7 @@ namespace ai
 		{
 			enum { MAX_EDGE = 10, MAX_VERTEX = 1024 };
 
-			int type; // 0:path point, 1:destination1, 2:destination2
+			int type; // 0:path point, 1:destination1, 2:destination2, 3:temporary node
 			Vector3 pos;
 			int edge[MAX_EDGE];
 			float startLen;
@@ -32,8 +32,18 @@ namespace ai
 
 		struct sEdge
 		{
-			bool visit;
-			float len;
+			int from, to;
+		
+			sEdge() : from(0), to(0) {}
+			sEdge(int _from, int _to) : from(_from), to(_to) {}
+			
+			bool operator==(const sEdge &rhs) const {
+				return (from == rhs.from) && (to == rhs.to);
+			}
+			
+			bool operator<(const sEdge &rhs) const {
+				return (from < rhs.from) || ((from == rhs.from) && (to < rhs.to));
+			}		
 		};
 
 		struct sArea
@@ -51,7 +61,10 @@ namespace ai
 		bool Write(const StrPath &fileName);
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
-			, OUT vector<int> *trackVertexIndices = NULL);
+			, OUT vector<int> *outTrackVertexIndices = NULL
+			, OUT vector<sEdge> *outTrackEdges = NULL
+			, const set<sEdge> *disableEdges = NULL
+		);
 
 		bool AddVertex(const sVertex &vtx);
 		bool AddEdge(const int vtxIdx, const int addEdgeIdx);
@@ -62,6 +75,7 @@ namespace ai
 		int GetNearestVertex(const Vector3 &pos) const;
 		int GetNearestVertex(const Vector3 &pos, const Vector3 &end) const;
 		int GetNearestArea(const Vector3 &pos) const;
+		std::pair<int,int> GetNearestEdge(const Vector3 &pos) const;
 		void Clear();
 
 
