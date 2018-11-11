@@ -29,6 +29,7 @@ namespace graphic
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE
 			, const int uvFlag = 1);
+		void SetCube(const Transform &tfm);
 		void SetCube(const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cBoundingBox &bbox);
 		void SetCube(cRenderer &renderer, const cCube &cube);

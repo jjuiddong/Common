@@ -36,6 +36,14 @@ namespace graphic
 		static const cColor GREEN;
 		static const cColor RED;
 		static const cColor YELLOW;
+		static const cColor ORANGE;
+		static const cColor KHAKI;
+		static const cColor VIOLET;
+		static const cColor INDIGO;
+		static const cColor SKYBLUE;
+		static const cColor IVORY;
+		static const cColor AQUA;
+		static const cColor DARKBLUE;
 
 		virtual ~cColor();
 

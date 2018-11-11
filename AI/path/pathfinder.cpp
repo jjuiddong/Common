@@ -4,12 +4,6 @@
 
 using namespace ai;
 
-namespace ai
-{
-	float g_edges_len[cPathFinder::sVertex::MAX_VERTEX][cPathFinder::sVertex::MAX_VERTEX];
-	bool  g_edges_visit[cPathFinder::sVertex::MAX_VERTEX][cPathFinder::sVertex::MAX_VERTEX];
-}
-
 
 cPathFinder::cPathFinder()
 {
@@ -138,6 +132,254 @@ bool cPathFinder::Write(const StrPath &fileName)
 	}
 
 	return true;
+}
+
+
+// 길찾기
+// start, end : 길찾기 시작, 종료 위치
+//				sVertex상의 pos좌표 값이어야 한다.
+// out : 길찾기가 성공하면, 최종 경로를 위치로 저장한다.
+// outTrackVertexIndices: 길찾기가 성공하면, 최종 경로를 버텍스 인덱스로 저장한다.
+// outTrackEdges : 길찾기가 성공하면, 최종 경로를 엣지로 저장한다.
+// disableEdges: 길찾기에서 제외될 엣지
+bool cPathFinder::Find(const Vector3 &start
+	, const Vector3 &end
+	, OUT vector<Vector3> &out
+	, OUT vector<int> *outTrackVertexIndices //= NULL
+	, OUT vector<sEdge> *outTrackEdges //= NULL
+	, const set<sEdge> *disableEdges //= NULL
+)
+{
+	const int startIdx = m_areas.empty() ? GetNearestVertex(start) : GetNearestVertex(start, end);
+	if (startIdx < 0)
+		return false;
+
+	const int endIdx = m_areas.empty() ? GetNearestVertex(end) : GetNearestVertex(end, start);
+	if (endIdx < 0)
+		return false;
+
+	set<int> visitSet;
+	map<int, float> lenSet; // key = edgeKey, data = length
+
+	vector<int> candidate;
+	candidate.reserve(m_vertices.size());
+	candidate.push_back(startIdx);
+	m_vertices[startIdx].startLen = 0;
+	m_vertices[startIdx].endLen = Distance(start, end);
+
+	int loopCount1 = 0; // debug, loop count
+	int loopCount2 = 0; // debug, insertion count
+	bool isFind = false;
+	while (!candidate.empty())
+	{
+		const int curIdx = candidate.front();
+		rotatepopvector(candidate, 0);
+
+		sVertex &curVtx = m_vertices[curIdx];
+
+		if (endIdx == curIdx)
+		{
+			isFind = true;
+			break;
+		}
+
+		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
+		{
+			if (curVtx.edge[i] < 0)
+				break;
+
+			const int nextIdx = curVtx.edge[i];
+			sVertex &nextVtx = m_vertices[nextIdx];
+
+			const int edgeKey1 = MakeEdgeKey(curIdx, nextIdx);
+			const int edgeKey2 = MakeEdgeKey(nextIdx, curIdx);
+			if (visitSet.end() != visitSet.find(edgeKey1))
+				continue; // is visit?
+
+			if (disableEdges)
+			{
+				if (disableEdges->end() != disableEdges->find(sEdge(curIdx, nextIdx)))
+					continue;
+			}
+
+			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos) + 0.00001f;
+			nextVtx.endLen = Distance(end, nextVtx.pos);
+
+			visitSet.insert(edgeKey1);
+			visitSet.insert(edgeKey2);
+			lenSet[edgeKey1] = nextVtx.startLen + nextVtx.endLen;
+			lenSet[edgeKey2] = nextVtx.startLen + nextVtx.endLen;
+
+			// sorting candidate
+			// value = minimum( startLen + endLen )
+			bool isInsert = false;
+			for (u_int k = 0; k < candidate.size(); ++k)
+			{
+				++loopCount1;
+
+				sVertex &compVtx = m_vertices[candidate[k]];
+				if ((compVtx.endLen + compVtx.startLen)
+			> (nextVtx.endLen + nextVtx.startLen))
+				{
+					++loopCount2;
+
+					candidate.push_back(nextIdx);
+					common::rotateright2(candidate, k);
+					isInsert = true;
+					break;
+				}
+			}
+
+			if (!isInsert)
+				candidate.push_back(nextIdx);
+		}
+	}
+
+	if (!isFind)
+		return false;
+
+	// backward tracking
+	// end point to start point
+	vector<int> verticesIndices;
+
+	out.push_back(m_vertices[endIdx].pos);
+	verticesIndices.push_back(endIdx);
+
+	visitSet.clear();
+
+	int curIdx = endIdx;
+	while ((curIdx != startIdx) && (verticesIndices.size() < 1000))
+	{
+		float minEdge = FLT_MAX;
+		int nextIdx = -1;
+		sVertex &vtx = m_vertices[curIdx];
+		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
+		{
+			if (vtx.edge[i] < 0)
+				break;
+			
+			const int edgeKey = MakeEdgeKey(curIdx, vtx.edge[i]);
+			if (visitSet.end() != visitSet.find(edgeKey))
+				continue; // is visit?
+
+			auto it = lenSet.find(edgeKey);
+			if (lenSet.end() == it)
+				continue;
+
+			if (minEdge > it->second)
+			{
+				minEdge = it->second;
+				nextIdx = vtx.edge[i];
+			}
+		}
+
+		if (nextIdx < 0)
+		{
+			assert(0);
+			break; // error occur
+		}
+
+		visitSet.insert(MakeEdgeKey(curIdx, nextIdx));
+		visitSet.insert(MakeEdgeKey(nextIdx, curIdx));
+		out.push_back(m_vertices[nextIdx].pos);
+		verticesIndices.push_back(nextIdx);
+		curIdx = nextIdx;
+	}
+
+	assert(verticesIndices.size() < 1000);
+
+	std::reverse(out.begin(), out.end());
+	std::reverse(verticesIndices.begin(), verticesIndices.end());
+
+	if (outTrackVertexIndices)
+		*outTrackVertexIndices = verticesIndices;
+
+	// Store Tracking Edge
+	if (outTrackEdges)
+	{
+		outTrackEdges->reserve(verticesIndices.size());
+		for (u_int i = 0; i < verticesIndices.size() - 1; ++i)
+		{
+			const int from = verticesIndices[i];
+			const int to = verticesIndices[i + 1];
+			outTrackEdges->push_back(sEdge(from, to));
+		}
+	}
+
+	OptimizeAreaPath(start, end, out, verticesIndices);
+
+	out.push_back(end);
+
+	return true;
+}
+
+
+void cPathFinder::OptimizeAreaPath(const Vector3 &start
+	, const Vector3 &end
+	, INOUT vector<Vector3> &out
+	, INOUT vector<int> &verticesIndices
+)
+{
+	// Optimize Start Area
+	if (m_areas.empty())
+		return;
+
+	const int startAreaId = GetNearestArea(start);
+	if (startAreaId >= 0)
+	{
+		int cnt = 0;
+		bool isPathNode = false;
+		for (u_int i = 0; i < out.size() - 1; ++i)
+		{
+			auto &p = out[i];
+			if (!m_areas[startAreaId].rect.IsIn(p.x, p.z))
+				break;
+
+			if (1 == m_vertices[verticesIndices[i]].type)
+				isPathNode = true;
+
+			++cnt;
+		}
+
+		if (isPathNode)
+			--cnt;
+
+		for (int i = 0; i < cnt; ++i)
+		{
+			common::rotatepopvector(out, 0);
+			common::rotatepopvector(verticesIndices, 0);
+		}
+	}
+
+	// Optimize End Area
+	const int endAreaId = GetNearestArea(end);
+	if (endAreaId >= 0)
+	{
+		int cnt = 0;
+		bool isPathNode = false;
+		for (int i = (int)out.size() - 1; i >= 0; --i)
+		{
+			auto &p = out[i];
+			if (!m_areas[endAreaId].rect.IsIn(p.x, p.z))
+				break;
+
+			if (1 == m_vertices[verticesIndices[i]].type)
+				isPathNode = true;
+
+			++cnt;
+		}
+
+		if (isPathNode)
+			--cnt;
+
+		for (int i = 0; i < cnt; ++i)
+			out.pop_back();
+	}
+
+	// 같은 에어리어에서 움직일 때, path 버텍스 타입으로 인해 없어지지 않았던 버텍스를
+	// 지운다. 같은 에어리어 내에서는 기준 버텍스 없이 움직일 수 있다.
+	if ((startAreaId >= 0) && (startAreaId == endAreaId) && !out.empty())
+		out.pop_back();
 }
 
 
@@ -363,7 +605,7 @@ int cPathFinder::GetNearestArea(const Vector3 &pos) const
 // pos 와 가장 가까운 edge 를 리턴한다. 없으면 = -1 리턴
 std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
 {
-	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
+	set<int> visitSet;
 
 	int from = -1, to = -1;
 	float minLen = FLT_MAX;
@@ -376,11 +618,12 @@ std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
 				break;
 			
 			const int e = vertex.edge[k];
-			if (g_edges_visit[i][e])
-				continue;
+			const int edgeKey = MakeEdgeKey(i, e);
+			if (visitSet.end() != visitSet.find(edgeKey))
+				continue; // is visit?
 
-			g_edges_visit[i][e] = true;
-			g_edges_visit[e][i] = true;
+			visitSet.insert(edgeKey);
+			visitSet.insert(MakeEdgeKey(e, i));
 
 			const float len = common::GetShortestLen(m_vertices[i].pos, m_vertices[e].pos, pos);
 			if (len < minLen)
@@ -393,245 +636,6 @@ std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
 	}
 
 	return { from, to };
-
-	//for (auto &kv : m_edges)
-	//{
-	//	const sEdge &edge = kv.second;
-
-	//	const float len = common::GetShortestLen(m_vertices[edge.from].pos, m_vertices[edge.to].pos, pos);
-	//	if (len < minLen)
-	//	{
-	//		edgeKey = kv.first;
-	//		minLen = len;
-	//	}
-	//}
-
-	//const auto it = m_edges.find(edgeKey);
-	//if (m_edges.end() == it)
-	//	return { -1 };
-
-	//return it->second;
-}
-
-
-bool cPathFinder::Find(const Vector3 &start, const Vector3 &end
-	, OUT vector<Vector3> &out
-	, OUT vector<int> *outTrackVertexIndices //= NULL
-	, OUT vector<sEdge> *outTrackEdges //= NULL
-	, const set<sEdge> *disableEdges //= NULL
-)
-{
-	const int startIdx = m_areas.empty()? GetNearestVertex(start) : GetNearestVertex(start, end);
-	if (startIdx < 0)
-		return false;
-
-	const int endIdx = m_areas.empty() ? GetNearestVertex(end) : GetNearestVertex(end, start);
-	if (endIdx < 0)
-		return false;
-
-	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
-	ZeroMemory(g_edges_len, sizeof(g_edges_len));
-
-	vector<int> candidate;
-	candidate.reserve(m_vertices.size());
-	candidate.push_back(startIdx);
-	m_vertices[startIdx].startLen = 0;
-	m_vertices[startIdx].endLen = Distance(start, end);
-
-	int loopCount1 = 0; // debug, loop count
-	int loopCount2 = 0; // debug, insertion count
-	bool isFind = false;
-	while (!candidate.empty())
-	{
-		const int curIdx = candidate.front();
-		rotatepopvector(candidate, 0);
-
-		sVertex &curVtx = m_vertices[curIdx];
-
-		if (endIdx == curIdx)
-		{
-			isFind = true;
-			break;
-		}
-
-		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
-		{
-			if (curVtx.edge[i] < 0)
-				break;
-
-			const int nextIdx = curVtx.edge[i];
-			sVertex &nextVtx = m_vertices[nextIdx];
-
-			if (g_edges_visit[curIdx][nextIdx])
-				continue;
-
-			if (disableEdges)
-			{
-				if (disableEdges->end() != disableEdges->find(sEdge(curIdx, nextIdx)))
-					continue;
-			}
-
-			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos) + 0.00001f;
-			nextVtx.endLen = Distance(end, nextVtx.pos);
-			g_edges_visit[curIdx][nextIdx] = true;
-			g_edges_visit[nextIdx][curIdx] = true;
-			g_edges_len[curIdx][nextIdx] = nextVtx.startLen + nextVtx.endLen;
-			g_edges_len[nextIdx][curIdx] = nextVtx.startLen + nextVtx.endLen;
-
-			// sorting candidate
-			// value = minimum( startLen + endLen )
-			bool isInsert = false;
-			for (u_int k = 0; k < candidate.size(); ++k)
-			{
-				++loopCount1;
-
-				sVertex &compVtx = m_vertices[candidate[k]];
-				if ((compVtx.endLen + compVtx.startLen) 
-						> (nextVtx.endLen + nextVtx.startLen))
-				{
-					++loopCount2;
-
-					candidate.push_back(nextIdx);
-					common::rotateright2(candidate, k);
-					isInsert = true;
-					break;
-				}
-			}
-
-			if (!isInsert)
-				candidate.push_back(nextIdx);
-		}
-	}
-
-	if (!isFind)
-		return false;
-
-	// tracking end point to start point
-	vector<int> verticesIndices;
-
-	out.push_back(m_vertices[endIdx].pos);
-	verticesIndices.push_back(endIdx);
-
-	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
-
-	int curIdx = endIdx;
-	while ((curIdx != startIdx) && (verticesIndices.size() < 1000))
-	{
-		float minEdge = FLT_MAX;
-		int nextIdx = -1;
-		sVertex &vtx = m_vertices[curIdx];
-		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
-		{
-			if (vtx.edge[i] < 0)
-				break;
-			if (g_edges_visit[curIdx][vtx.edge[i]])
-				continue;
-
-			const float len = g_edges_len[curIdx][vtx.edge[i]];
-			if (0 == len)
-				continue;
-
-			if (minEdge > len)
-			{
-				minEdge = len;
-				nextIdx = vtx.edge[i];
-			}
-		}
-
-		if (nextIdx < 0)
-		{
-			assert(0);
-			break; // error occur
-		}
-
-		g_edges_visit[curIdx][nextIdx] = true;
-		g_edges_visit[nextIdx][curIdx] = true;
-		out.push_back(m_vertices[nextIdx].pos);
-		verticesIndices.push_back(nextIdx);
-		curIdx = nextIdx;
-	}
-
-	assert(verticesIndices.size() < 1000);
-
-	std::reverse(out.begin(), out.end());
-	std::reverse(verticesIndices.begin(), verticesIndices.end());
-
-	if (outTrackVertexIndices)
-		*outTrackVertexIndices = verticesIndices;
-
-	// Store Tracking Edge Key
-	if (outTrackEdges)
-	{
-		outTrackEdges->reserve(verticesIndices.size());
-		for (u_int i = 0; i < verticesIndices.size()-1; ++i)
-		{
-			const int from = verticesIndices[i];
-			const int to = verticesIndices[i+1];
-			outTrackEdges->push_back(sEdge(from, to));
-		}
-	}
-
-	// Optimize Start Area
-	const int startAreaId = GetNearestArea(start);
-	if (startAreaId >= 0)
-	{
-		int cnt = 0;
-		bool isPathNode = false;
-		for (u_int i = 0; i < out.size()-1; ++i)
-		{
-			auto &p = out[i];
-			if (!m_areas[startAreaId].rect.IsIn(p.x, p.z))
-				break;
-
-			if (1 == m_vertices[verticesIndices[i]].type)
-				isPathNode = true;
-
-			++cnt;
-		}
-
-		if (isPathNode)
-			--cnt;
-
-		for (int i = 0; i < cnt; ++i)
-		{
-			common::rotatepopvector(out, 0);
-			common::rotatepopvector(verticesIndices, 0);				
-		}
-	}
-
-	// Optimize End Area
-	const int endAreaId = GetNearestArea(end);
-	if (endAreaId >= 0)
-	{
-		int cnt = 0;
-		bool isPathNode = false;
-		for (int i = (int)out.size() - 1; i >= 0; --i)
-		{
-			auto &p = out[i];
-			if (!m_areas[endAreaId].rect.IsIn(p.x, p.z))
-				break;
-
-			if (1 == m_vertices[verticesIndices[i]].type)
-				isPathNode = true;
-
-			++cnt;
-		}
-
-		if (isPathNode)
-			--cnt;
-
-		for (int i = 0; i < cnt; ++i)
-			out.pop_back();
-	}
-
-	// 같은 에어리어에서 움직일 때, path 버텍스 타입으로 인해 없어지지 않았던 버텍스를
-	// 지운다. 같은 에어리어 내에서는 기준 버텍스 없이 움직일 수 있다.
-	if ((startAreaId >= 0) && (startAreaId == endAreaId) && !out.empty())
-		out.pop_back();
-
-	out.push_back(end);
-
-	return true;
 }
 
 
@@ -647,12 +651,6 @@ float cPathFinder::Distance(const Vector3 &p0, const Vector3 &p1) const
 {
 	return p0.Distance(p1);
 }
-
-
-//inline int cPathFinder::MakeEdgeKey(const int from, const int to)
-//{
-//	return from * 1000 + to;
-//}
 
 
 // Add Area
@@ -680,6 +678,12 @@ bool cPathFinder::AddArea(const sRectf &area)
 
 	m_areas.push_back(data);
 	return true;
+}
+
+
+inline int cPathFinder::MakeEdgeKey(const int from, const int to) const
+{
+	return from * 1000 + to;
 }
 
 

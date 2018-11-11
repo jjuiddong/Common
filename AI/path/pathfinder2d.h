@@ -1,6 +1,7 @@
 //
 // 2018-11-02, jjuiddong
-// 2 Dimensional map path finder
+//	2 Dimensional map path finder
+//	thread safe
 //
 //	- node character type
 //		- 0 : no move
@@ -33,7 +34,6 @@
 
 namespace ai
 {
-	class cPathFinder;
 
 	class cPathFinder2D
 	{
@@ -41,10 +41,15 @@ namespace ai
 		struct sVertex
 		{
 			int type;
+			int edgeKey; // m_fastmap unique edge key (= max(from,to)*1000 + min(from,to))
 			float startLen;
 			float endLen;
 			sVertex() : type(0) {}
 		};
+
+		typedef vector<Vector2i> ppath;	// position path
+		typedef vector<u_int> vpath;	// vertex index path
+		typedef vector<cPathFinder::sEdge> epath; // edge path
 
 		cPathFinder2D();
 		virtual ~cPathFinder2D();
@@ -55,7 +60,13 @@ namespace ai
 			, OUT vector<Vector2i> &out);
 		bool FindEnumeration(const Vector2i &startPos
 			, const Vector2i &endPos
-			, OUT vector<vector<Vector2i>> &out);
+			, OUT vector<ppath> &outPos
+			, OUT vector<ppath> &outVertexPos
+			, OUT vector<epath> &outEdges);
+		bool GetEdgePath2PosPath(const epath &edgePath, OUT ppath &out);
+		inline int MakeEdgeKey(const int from, const int to) const;
+		inline int MakeUniqueEdgeKey(const int from, const int to) const;
+		inline std::pair<int, int> SeparateEdgeKey(const int edgeKey) const;
 		void Clear();
 
 
@@ -66,6 +77,8 @@ namespace ai
 		bool GenerateGraphNode();
 		bool AddTemporaryVertexAndEdges(const Vector3 &pos);
 		bool RemoveTemporaryVertexAndEdges(const Vector3 &pos);
+		bool CollectEdgeVertices(const int from, const int to, const int uniqueEdgeKey
+			, OUT ppath &out);
 
 		inline bool CheckRange(const Vector2i &pos);
 		float Distance_Manhatan(const Vector2i &p0, const Vector2i &p1) const;
@@ -73,7 +86,7 @@ namespace ai
 
 	public:
 		sVertex *m_map; // size = m_rows*m_cols, access = y*m_cols + x
-		cPathFinder *m_graph; // fast path search
+		cPathFinder *m_fastmap; // fast path search
 		int m_rows;
 		int m_cols;
 		vector<Vector2i> m_waypoints;

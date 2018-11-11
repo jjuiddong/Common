@@ -4,13 +4,6 @@
 #include "pathfinder2d.h"
 
 
-namespace ai
-{
-	enum { MAX_VERTEX = 1024};
-	float g_edges_len2[MAX_VERTEX][MAX_VERTEX];
-	bool  g_edges_visit2[MAX_VERTEX][MAX_VERTEX];
-}
-
 using namespace ai;
 cPathFinder2D::sVertex cPathFinder2D::m_dummy;
 
@@ -18,7 +11,7 @@ cPathFinder2D::sVertex cPathFinder2D::m_dummy;
 
 cPathFinder2D::cPathFinder2D()
 	: m_map(NULL)
-	, m_graph(NULL)
+	, m_fastmap(NULL)
 {
 }
 
@@ -88,10 +81,11 @@ bool cPathFinder2D::GenerateGraphNode()
 
 	m_dummy = sVertex(); // 혹시 모를 버그를 막기위해 초기화
 
-	if (!m_graph)
-		m_graph = new cPathFinder();
-	m_graph->Clear();
+	if (!m_fastmap)
+		m_fastmap = new cPathFinder();
+	m_fastmap->Clear();
 
+	set<Vector2i> visitSet;
 	map<Vector2i, int> waypoints; // pos, vertex index
 
 	vector<Vector2i> q;
@@ -110,11 +104,16 @@ bool cPathFinder2D::GenerateGraphNode()
 		for (int i = 0; i < ARRAYSIZE(offsetPos); ++i)
 		{
 			Vector2i nextPos = curPos + offsetPos[i];
-		
+
+			if (visitSet.end() != visitSet.find(nextPos))
+				continue; // already visit
+			visitSet.insert(nextPos);
+
 			while (CheckRange(nextPos))
 			{
 				// check edge?
 				// 진행 방향으로 90도 꺽은 방향으로 노드가 있으면 waypoint다.
+				// offsetPos[]가 시계방향으로 저장되기 때문에 +1은 항상 90도 꺽은 방향이다.
 				const Vector2i orthoEdge = offsetPos[(i + 1) % ARRAYSIZE(offsetPos)];
 				if ( (CheckRange(nextPos + orthoEdge) && (0 != GetMap(nextPos + orthoEdge).type))
 					|| (CheckRange(nextPos - orthoEdge) && (0 != GetMap(nextPos - orthoEdge).type)))
@@ -128,16 +127,25 @@ bool cPathFinder2D::GenerateGraphNode()
 						cPathFinder::sVertex vtx;
 						vtx.type = 0;
 						vtx.pos = Vector3((float)nextPos.x, 0, (float)nextPos.y);
-						m_graph->AddVertex(vtx);
+						m_fastmap->AddVertex(vtx);
 
-						const int addVertexIdx = (int)m_graph->m_vertices.size() - 1;
+						const int addVertexIdx = (int)m_fastmap->m_vertices.size() - 1;
 						waypoints[nextPos] = addVertexIdx;
 
 						// link vertex
 						if (curVertexIdx >= 0)
 						{
-							m_graph->AddEdge(curVertexIdx, addVertexIdx);
-							m_graph->AddEdge(addVertexIdx, curVertexIdx);
+							m_fastmap->AddEdge(curVertexIdx, addVertexIdx);
+							m_fastmap->AddEdge(addVertexIdx, curVertexIdx);
+
+							// move backward to update edgekey
+							GetMap(curPos).edgeKey = -1; // waypoint hasn't edgeKey
+							Vector2i back = nextPos - offsetPos[i];
+							while (curPos != back)
+							{
+								GetMap(back).edgeKey = MakeUniqueEdgeKey(curVertexIdx, addVertexIdx);
+								back -= offsetPos[i];
+							}
 						}
 					}
 					else
@@ -146,8 +154,17 @@ bool cPathFinder2D::GenerateGraphNode()
 						if (curVertexIdx >= 0)
 						{
 							const int linkVertexIdx = waypoints.find(nextPos)->second;
-							m_graph->AddEdge(curVertexIdx, linkVertexIdx);
-							m_graph->AddEdge(linkVertexIdx, curVertexIdx);
+							m_fastmap->AddEdge(curVertexIdx, linkVertexIdx);
+							m_fastmap->AddEdge(linkVertexIdx, curVertexIdx);
+
+							// move backward to update edgekey
+							GetMap(curPos).edgeKey = -1; // waypoint hasn't edgeKey
+							Vector2i back = nextPos - offsetPos[i];
+							while (curPos != back)
+							{
+								GetMap(back).edgeKey = MakeUniqueEdgeKey(curVertexIdx, linkVertexIdx);
+								back -= offsetPos[i];
+							}
 						}
 					}
 
@@ -196,8 +213,8 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 	, const Vector2i &endPos
 	, OUT vector<Vector2i> &out)
 {
-	ZeroMemory(g_edges_visit2, sizeof(g_edges_visit2));
-	ZeroMemory(g_edges_len2, sizeof(g_edges_len2));
+	set<int> visitSet;
+	map<int, float> lenSet; // key = edgeKey, data = length
 
 	vector<Vector2i> candidate;
 	candidate.reserve(m_rows * m_cols);
@@ -241,8 +258,10 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 				|| (4 == nextVtx.type)) // block waypoint node
 				continue; // ignore this node
 
-			if (g_edges_visit2[curIdx][nextIdx])
-				continue;
+			const int edgeKey1 = MakeEdgeKey(curIdx, nextIdx);
+			const int edgeKey2 = MakeEdgeKey(nextIdx, curIdx);
+			if (visitSet.end() != visitSet.find(edgeKey1))
+				continue; // is visit?
 
 			float alpha = 0.f;
 			if (1 == nextVtx.type)
@@ -250,10 +269,10 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 
 			nextVtx.startLen = curVtx.startLen + Distance_Manhatan(curPos, nextPos) + alpha + 0.00001f;
 			nextVtx.endLen = Distance_Manhatan(endPos, nextPos);
-			g_edges_visit2[curIdx][nextIdx] = true;
-			g_edges_visit2[nextIdx][curIdx] = true;
-			g_edges_len2[curIdx][nextIdx] = nextVtx.startLen + nextVtx.endLen;
-			g_edges_len2[nextIdx][curIdx] = nextVtx.startLen + nextVtx.endLen;
+			visitSet.insert(edgeKey1);
+			visitSet.insert(edgeKey2);
+			lenSet[edgeKey1] = nextVtx.startLen + nextVtx.endLen;
+			lenSet[edgeKey2] = nextVtx.startLen + nextVtx.endLen;
 
 			// sorting candidate
 			// value = minimum( startLen + endLen )
@@ -289,7 +308,7 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 	out.push_back(endPos);
 	verticesIndices.push_back(endPos);
 
-	ZeroMemory(g_edges_visit2, sizeof(g_edges_visit2));
+	visitSet.clear();
 
 	Vector2i curPos = endPos;
 	while ((curPos != startPos) && (verticesIndices.size() < 1000))
@@ -311,10 +330,14 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 				continue;
 
 			const int edgeIdx = edgePos.y*m_cols + edgePos.x;
-			if (g_edges_visit2[curIdx][edgeIdx])
-				continue;
+			const int edgeKey = MakeEdgeKey(curIdx, edgeIdx);
+			if (visitSet.end() != visitSet.find(edgeKey))
+				continue; // is visit?
 
-			const float len = g_edges_len2[curIdx][edgeIdx];
+			auto it = lenSet.find(edgeKey);
+			if (lenSet.end() == it)
+				continue;
+			const float len = it->second;
 			if (0 == len)
 				continue;
 
@@ -333,8 +356,8 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 
 		const int nextIdx = nextPos.y*m_cols + nextPos.x;
 
-		g_edges_visit2[curIdx][nextIdx] = true;
-		g_edges_visit2[nextIdx][curIdx] = true;
+		visitSet.insert(MakeEdgeKey(curIdx, nextIdx));
+		visitSet.insert(MakeEdgeKey(nextIdx, curIdx));
 		out.push_back(nextPos);
 		verticesIndices.push_back(nextPos);
 		curPos = nextPos;
@@ -354,16 +377,18 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 // Edge가 중복일 때는 제외한다.
 bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 	, const Vector2i &endPos
-	, OUT vector<vector<Vector2i>> &out)
+	, OUT vector<ppath> &outPos
+	, OUT vector<ppath> &outVertexPos
+	, OUT vector<epath> &outEdges
+)
 {
-	RETV(!m_graph, false);
+	RETV(!m_fastmap, false);
 
 	const Vector3 p0((float)startPos.x, 0, (float)startPos.y);
 	const Vector3 p1((float)endPos.x, 0, (float)endPos.y);
 
-	typedef vector<cPathFinder::sEdge> epath; // edge path
 	vector<epath> allEpath; // total edge path
-	vector<cPathFinder::sEdge> edgeSet;
+	epath edgeSet;
 	set<cPathFinder::sEdge> disableEdges;
 	int combination = 0; // disable edge combination
 	
@@ -412,7 +437,7 @@ bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 		vector<Vector3> vpath;
 		vector<int> wayPoints;
 		epath edges;
-		if (m_graph->Find(p0, p1, vpath, &wayPoints, &edges, &disableEdges))
+		if (m_fastmap->Find(p0, p1, vpath, &wayPoints, &edges, &disableEdges))
 		{
 			// search already stored path list
 			{
@@ -463,23 +488,33 @@ bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 	}
 
 	// Store Enumeration Path
-	out.reserve(allEpath.size());
+	outPos.reserve(allEpath.size());
+	outVertexPos.reserve(allEpath.size());
+	outEdges.reserve(allEpath.size());
 	for (u_int i = 0; i < allEpath.size(); ++i)
 	{
-		out.push_back({});
-		out[i].reserve(allEpath.size());
+		if (allEpath[i].empty())
+			continue;
+
+		outEdges.push_back(allEpath[i]);
+
+		outPos.push_back({});
+		GetEdgePath2PosPath(allEpath[i], outPos[i]);
+
+		outVertexPos.push_back({});
+		outVertexPos[i].reserve(allEpath[i].size());
 		for (u_int k = 0; k < allEpath[i].size(); ++k)
 		{
 			const int from = allEpath[i][k].from;
-			out[i].push_back(
-				Vector2i((int)m_graph->m_vertices[from].pos.x
-					, (int)m_graph->m_vertices[from].pos.z));
+			outVertexPos[i].push_back(
+				Vector2i((int)m_fastmap->m_vertices[from].pos.x
+					, (int)m_fastmap->m_vertices[from].pos.z));
 		}
 
 		const int to = allEpath[i].back().to;
-		out[i].push_back(
-			Vector2i((int)m_graph->m_vertices[to].pos.x
-				, (int)m_graph->m_vertices[to].pos.z));
+		outVertexPos[i].push_back(
+			Vector2i((int)m_fastmap->m_vertices[to].pos.x
+				, (int)m_fastmap->m_vertices[to].pos.z));
 	}
 
 	RemoveTemporaryVertexAndEdges(p0);
@@ -489,53 +524,146 @@ bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 }
 
 
+// m_fastmap의 edge path 정보로 position path 를 생성해서 리턴한다.
+// 첫번째 버텍스와 마지막 버텍스는 동적으로 추가된 버텍스이기 때문에, sVertex::edgeKey가 
+// 존재하지 않는다. 그래서 replaceFromIdx 를 참조해서 검색한다.
+// 나머지 버텍스도 비슷하지만, edgeKey가 존재하기 때문에, 조금 더 간단하다.
+bool cPathFinder2D::GetEdgePath2PosPath(const epath &edgePath, OUT ppath &out)
+{
+	RETV(!m_fastmap, false);
+	RETV(edgePath.empty(), false);
+
+	// front vertex
+	// 거꾸로 검색한 후, 뒤집는다.
+	// 시작 버텍스가 어느방향으로 가야할지 모르기 때문임.
+	{
+		const cPathFinder::sEdge &front = edgePath.front();
+		const auto &frontV = m_fastmap->m_vertices[front.from];
+
+		int from = front.from;
+		if (frontV.replaceFromIdx >= 0) // temporary added vertex?
+			from = (frontV.replaceToIdx == front.to) ? frontV.replaceFromIdx : frontV.replaceToIdx;
+
+		CollectEdgeVertices(front.to, front.from, MakeUniqueEdgeKey(front.to, from), out);
+
+		out.push_back(Vector2i((int)frontV.pos.x, (int)frontV.pos.z));
+		std::reverse(out.begin(), out.end());
+		out.pop_back(); // 마지막 노드는 중복이기 때문에 제거
+	}
+
+	for (u_int i = 1; i < edgePath.size() - 1; ++i)
+	{
+		const cPathFinder::sEdge &edge = edgePath[i];
+		CollectEdgeVertices(edge.from, edge.to, MakeUniqueEdgeKey(edge.to, edge.from), out);
+	}
+
+	// back vertex
+	if (edgePath.size() > 1)
+	{
+		// 마지막 버텍스가 어느방향으로 가야할지 모르기 때문에 
+		// replaceFromIdx, replaceToIdx를 참조한다.
+		const cPathFinder::sEdge &back = edgePath.back();
+		const auto &backV = m_fastmap->m_vertices[back.to];
+
+		int to = back.to;
+		if (backV.replaceFromIdx >= 0) // temporary added vertex?
+			to = (backV.replaceFromIdx == back.from) ? backV.replaceToIdx : backV.replaceFromIdx;
+
+		CollectEdgeVertices(back.from, back.to, MakeUniqueEdgeKey(back.from, to), out);
+		out.push_back(Vector2i((int)backV.pos.x, (int)backV.pos.z));
+	}
+
+	return true;
+}
+
+
+// fastmap의 엣지 정보를 토대로, from에서 to로 향하는 버텍스 위치 정보를
+// out에 저장해서 리턴한다.
+bool cPathFinder2D::CollectEdgeVertices(const int from, const int to
+	, const int uniqueEdgeKey, OUT ppath &out)
+{
+	auto &fromV = m_fastmap->m_vertices[from];
+	const auto &destV = m_fastmap->m_vertices[to];
+	const Vector2i destPos = Vector2i((int)destV.pos.x, (int)destV.pos.z);
+
+	const Vector2i curPos = Vector2i((int)fromV.pos.x, (int)fromV.pos.z);
+	const Vector2i offsetPos[] = { Vector2i(-1,0), Vector2i(0,-1), Vector2i(1,0), Vector2i(0,1) };
+	for (int i = 0; i < ARRAYSIZE(offsetPos); ++i)
+	{
+		const Vector2i nextPos = curPos + offsetPos[i];
+		if (!CheckRange(nextPos))
+			continue;
+
+		//const auto separateKey = SeparateEdgeKey(GetMap(nextPos).edgeKey);
+		//if ((to == separateKey.first) || (to == separateKey.second))
+		if (uniqueEdgeKey == GetMap(nextPos).edgeKey)
+		{
+			// to waypoint로 향하는 버텍스 발견
+			// to 버텍스에 도착할 때까지 위치 저장
+			Vector2i p = curPos;
+			while (CheckRange(p) && (destPos != p))
+			{
+				out.push_back(p);
+				p += offsetPos[i];
+			}
+			
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 // 임시 노드를 추가한다.
-// 현재 위치가 노드 위에 있다면, Pos 노드를 추가하지 않는다.
+// 현재 위치가 버텍스 위에 있다면, Pos 버텍스를 추가하지 않는다.
 // 이미 있기 때문에~
-// 노드에 없는 위치에 Pos가 있다면, 새 노드를 추가한다.
+// 노드에 없는 위치에 Pos가 있다면, 새 버텍스를 추가한다.
 bool cPathFinder2D::AddTemporaryVertexAndEdges(const Vector3 &pos)
 {
-	RETV(!m_graph, false);
+	RETV(!m_fastmap, false);
 
-	const int nearVtx = m_graph->GetNearestVertex(pos);
+	const int nearVtx = m_fastmap->GetNearestVertex(pos);
 	if (nearVtx < 0)
 		return true;
 
-	if (pos == m_graph->m_vertices[nearVtx].pos)
+	if (pos == m_fastmap->m_vertices[nearVtx].pos)
 		return true;
 
 	// 노드를 추가하기 전에, 추가될 노드 주위의 엣지를 제거하고
 	// 재연결한다.
-	std::pair<int,int> edge = m_graph->GetNearestEdge(pos);
+	std::pair<int,int> edge = m_fastmap->GetNearestEdge(pos);
 	if (edge.first < 0)
 		return false; // error occur
 
 	const int from = edge.first;
 	const int to = edge.second;
-	m_graph->RemoveEdge(from, to);
-	m_graph->RemoveEdge(to, from);
+	m_fastmap->RemoveEdge(from, to);
+	m_fastmap->RemoveEdge(to, from);
 
 	cPathFinder::sVertex vertex;
 	vertex.type = 3; // temporary node
+	vertex.replaceFromIdx = from;
+	vertex.replaceToIdx = to;
 	vertex.pos = pos;
-	m_graph->AddVertex(vertex);
-	const int addVtxIdx = m_graph->m_vertices.size() - 1;
+	m_fastmap->AddVertex(vertex);
+	const int addVtxIdx = m_fastmap->m_vertices.size() - 1;
 
-	if (!m_graph->AddEdge(addVtxIdx, to))
+	if (!m_fastmap->AddEdge(addVtxIdx, to))
 	{
-		int a = 0;
+		assert(0);
 	}
-	if (!m_graph->AddEdge(to, addVtxIdx))
+	if (!m_fastmap->AddEdge(to, addVtxIdx))
 	{
-		int a = 0;
+		assert(0);
 	}
-	if (!m_graph->AddEdge(addVtxIdx, from))
+	if (!m_fastmap->AddEdge(addVtxIdx, from))
 	{
-		int a = 0;
+		assert(0);
 	}
-	if (!m_graph->AddEdge(from, addVtxIdx))
+	if (!m_fastmap->AddEdge(from, addVtxIdx))
 	{
-		int a = 0;
+		assert(0);
 	}
 
 	return true;
@@ -545,14 +673,14 @@ bool cPathFinder2D::AddTemporaryVertexAndEdges(const Vector3 &pos)
 // 임시 노드로 추가한 것을 제거하고, 기존 graph를 복구한다.
 bool cPathFinder2D::RemoveTemporaryVertexAndEdges(const Vector3 &pos)
 {
-	RETV(!m_graph, false);
+	RETV(!m_fastmap, false);
 
-	const int temporaryVtxIdx = m_graph->GetNearestVertex(pos);
+	const int temporaryVtxIdx = m_fastmap->GetNearestVertex(pos);
 	if (temporaryVtxIdx < 0)
 		return true;
 
 	// temporary node?
-	cPathFinder::sVertex &tvertex = m_graph->m_vertices[temporaryVtxIdx];
+	cPathFinder::sVertex &tvertex = m_fastmap->m_vertices[temporaryVtxIdx];
 	if (tvertex.type != 3)
 		return true;
 
@@ -583,9 +711,9 @@ bool cPathFinder2D::RemoveTemporaryVertexAndEdges(const Vector3 &pos)
 		return false;
 
 	// edge 복구, 순서 중요
-	m_graph->AddEdge(from, to);
-	m_graph->AddEdge(to, from);
-	m_graph->RemoveVertex(temporaryVtxIdx);
+	m_fastmap->AddEdge(from, to);
+	m_fastmap->AddEdge(to, from);
+	m_fastmap->RemoveVertex(temporaryVtxIdx);
 
 	return true;
 }
@@ -623,8 +751,28 @@ std::pair<int, int> cPathFinder2D::GetRowsCols(const char *fileName)
 }
 
 
+inline int cPathFinder2D::MakeEdgeKey(const int from, const int to) const
+{
+	return from * 1000 + to;
+}
+
+
+// 자기자신으로 향하는 노드는 생성할 수 없다.
+inline int cPathFinder2D::MakeUniqueEdgeKey(const int from, const int to) const
+{
+	return max(from, to)*1000 + min(from, to);
+}
+
+
+// edgeKey 분리
+inline std::pair<int, int> cPathFinder2D::SeparateEdgeKey(const int edgeKey) const
+{
+	return {edgeKey/1000, edgeKey%1000};
+}
+
+
 void cPathFinder2D::Clear()
 {
 	SAFE_DELETEA(m_map);
-	SAFE_DELETE(m_graph);
+	SAFE_DELETE(m_fastmap);
 }

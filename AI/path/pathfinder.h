@@ -1,7 +1,14 @@
 //
 // 2017-06-19, jjuiddong
 // path finder
-// Does Not Multi Thread Safe
+//	- Thread Safe
+//
+// 2017-11-09, jjuiddong
+//	- Path Find, disable edge list
+//
+// 2017-11-10, jjuiddong
+//	- thread safe
+//	- edge weight
 //
 #pragma once
 
@@ -16,31 +23,34 @@ namespace ai
 		struct sVertex
 		{
 			enum { MAX_EDGE = 10, MAX_VERTEX = 1024 };
-
 			int type; // 0:path point, 1:destination1, 2:destination2, 3:temporary node
 			Vector3 pos;
 			int edge[MAX_EDGE];
+			float w[MAX_EDGE]; // edge weight
+			int replaceFromIdx; // using temporary vertex, replace vertex from, to
+			int replaceToIdx;
 			float startLen;
 			float endLen;
 
-			sVertex() : type(0)
-			{
+			sVertex() : type(0) {
 				for (int i = 0; i < MAX_EDGE; ++i)
 					edge[i] = -1;
+				for (int i = 0; i < MAX_EDGE; ++i)
+					w[i] = 1.f;
+				replaceFromIdx = -1;
+				replaceToIdx = -1;
 			}
 		};
 
 		struct sEdge
 		{
-			int from, to;
+			int from, to; // sVertexIndex
 		
 			sEdge() : from(0), to(0) {}
 			sEdge(int _from, int _to) : from(_from), to(_to) {}
-			
 			bool operator==(const sEdge &rhs) const {
 				return (from == rhs.from) && (to == rhs.to);
 			}
-			
 			bool operator<(const sEdge &rhs) const {
 				return (from < rhs.from) || ((from == rhs.from) && (to < rhs.to));
 			}		
@@ -76,10 +86,16 @@ namespace ai
 		int GetNearestVertex(const Vector3 &pos, const Vector3 &end) const;
 		int GetNearestArea(const Vector3 &pos) const;
 		std::pair<int,int> GetNearestEdge(const Vector3 &pos) const;
+		inline int MakeEdgeKey(const int from, const int to) const;
 		void Clear();
 
 
 	protected:
+		void OptimizeAreaPath(const Vector3 &start
+			, const Vector3 &end
+			, INOUT vector<Vector3> &out
+			, INOUT vector<int> &verticesIndices
+		);		
 		float Distance_Manhatan(const Vector3 &p0, const Vector3 &p1) const;
 		float Distance(const Vector3 &p0, const Vector3 &p1) const;
 
@@ -89,8 +105,4 @@ namespace ai
 		vector<sArea> m_areas;
 	};
 
-
-	// search table
-	extern float g_edges_len[cPathFinder::sVertex::MAX_VERTEX][cPathFinder::sVertex::MAX_VERTEX];
-	extern bool  g_edges_visit[cPathFinder::sVertex::MAX_VERTEX][cPathFinder::sVertex::MAX_VERTEX];
 }

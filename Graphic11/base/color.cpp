@@ -5,6 +5,7 @@
 using namespace graphic;
 
 
+// http://simplesolace.tistory.com/entry/%EC%83%89%EC%83%81%ED%85%8C%EC%9D%B4%EB%B8%94
 const cColor cColor::BLACK(0.f, 0.f, 0.f, 1.f);
 const cColor cColor::WHITE(1.f, 1.f, 1.f, 1.f);
 const cColor cColor::GRAY(.5f, .5f, .5f, 1.f);
@@ -13,7 +14,14 @@ const cColor cColor::BLUE(0.f, 0.f, 1.f, 1.f);
 const cColor cColor::GREEN(0.f, 1.f, 0.f, 1.f);
 const cColor cColor::RED(1.f, 0.f, 0.f, 1.f);
 const cColor cColor::YELLOW(1.f, 1.f, 0.f, 1.f);
-
+const cColor cColor::ORANGE(1.f, 165.f/255.f, 0.f, 1.f);
+const cColor cColor::KHAKI(240.f/255.f, 230.f/255.f, 140.f/255.f, 1.f);
+const cColor cColor::VIOLET(1.f, 0.f, 1.f, 1.f);
+const cColor cColor::INDIGO(75.f/255.f, 0.f, 130.f/255.f, 1.f);
+const cColor cColor::SKYBLUE(135.f / 255.f, 206.f/255.f, 235.f / 255.f, 1.f);
+const cColor cColor::IVORY(255.f / 255.f, 255.f / 255.f, 240.f / 255.f, 1.f);
+const cColor cColor::AQUA(0.f, 1.f, 1.f, 1.f);
+const cColor cColor::DARKBLUE(0.f, 0.f, 139.f/255.f, 1.f);
 
 
 cColor::cColor()

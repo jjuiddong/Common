@@ -38,6 +38,9 @@
     <ClInclude Include="path\pathfinder2d.h">
       <Filter>path</Filter>
     </ClInclude>
+    <ClInclude Include="path\pathestimater.h">
+      <Filter>path</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -54,6 +57,9 @@
       <Filter>path</Filter>
     </ClCompile>
     <ClCompile Include="path\pathfinder2d.cpp">
+      <Filter>path</Filter>
+    </ClCompile>
+    <ClCompile Include="path\pathestimater.cpp">
       <Filter>path</Filter>
     </ClCompile>
   </ItemGroup>

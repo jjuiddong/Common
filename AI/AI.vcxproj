@@ -132,6 +132,7 @@
     <ClInclude Include="object\agent.h" />
     <ClInclude Include="object\brain.h" />
     <ClInclude Include="path\navigationmesh.h" />
+    <ClInclude Include="path\pathestimater.h" />
     <ClInclude Include="path\pathfinder.h" />
     <ClInclude Include="path\pathfinder2d.h" />
     <ClInclude Include="stdafx.h" />
@@ -141,6 +142,7 @@
     <ClCompile Include="control\aimain.cpp" />
     <ClCompile Include="control\messagemanager.cpp" />
     <ClCompile Include="path\navigationmesh.cpp" />
+    <ClCompile Include="path\pathestimater.cpp" />
     <ClCompile Include="path\pathfinder.cpp" />
     <ClCompile Include="path\pathfinder2d.cpp" />
     <ClCompile Include="stdafx.cpp">

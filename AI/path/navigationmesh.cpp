@@ -209,8 +209,10 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 	if ((startIdx == -1) || (endIdx == -1))
 		return false;
 
-	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
-	ZeroMemory(g_edges_len, sizeof(g_edges_len));
+	set<int> visitSet;
+	map<int, float> lenSet; // key = edgeKey, data = length
+	//ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
+	//ZeroMemory(g_edges_len, sizeof(g_edges_len));
 
 	vector<int> candidate;
 	candidate.reserve(m_vertices.size());
@@ -239,18 +241,26 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 				continue;
 
 			const int nextIdx = curNode.adjacent[i];
-
-			if (g_edges_visit[curIdx][nextIdx])
-				continue;
+			const int edgeKey1 = MakeEdgeKey(curIdx, nextIdx);
+			const int edgeKey2 = MakeEdgeKey(nextIdx, curIdx);
+			if (visitSet.end() != visitSet.find(edgeKey1))
+				continue; // is visit?
+			//if (g_edges_visit[curIdx][nextIdx])
+			//	continue;
 
 			sNaviNode &nextNode = m_naviNodes[nextIdx];
 			
 			nextNode.startLen = curNode.startLen + Distance(curNode.center, nextNode.center) + 0.00001f;
 			nextNode.endLen = Distance(end, nextNode.center);
-			g_edges_visit[curIdx][nextIdx] = true;
-			g_edges_visit[nextIdx][curIdx] = true;
-			g_edges_len[curIdx][nextIdx] = nextNode.startLen + nextNode.endLen;
-			g_edges_len[nextIdx][curIdx] = nextNode.startLen + nextNode.endLen;
+
+			visitSet.insert(edgeKey1);
+			visitSet.insert(edgeKey2);
+			lenSet[edgeKey1] = nextNode.startLen + nextNode.endLen;
+			lenSet[edgeKey2] = nextNode.startLen + nextNode.endLen;
+			//g_edges_visit[curIdx][nextIdx] = true;
+			//g_edges_visit[nextIdx][curIdx] = true;
+			//g_edges_len[curIdx][nextIdx] = nextNode.startLen + nextNode.endLen;
+			//g_edges_len[nextIdx][curIdx] = nextNode.startLen + nextNode.endLen;
 
 			// sorting candidate
 			// value = minimum( startLen + endLen )
@@ -282,7 +292,8 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 	path.push_back(m_naviNodes[endIdx].center);
 	nodeIndices.push_back(endIdx);
 
-	ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
+	//ZeroMemory(g_edges_visit, sizeof(g_edges_visit));
+	visitSet.clear();
 
 	int curIdx = endIdx;
 	while ((curIdx != startIdx) && (nodeIndices.size() < 1000))
@@ -295,10 +306,17 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 		{
 			if (node.adjacent[i] < 0)
 				continue;
-			if (g_edges_visit[curIdx][node.adjacent[i]])
-				continue;
+			const int edgeKey1 = MakeEdgeKey(curIdx, node.adjacent[i]);
+			if (visitSet.end() != visitSet.find(edgeKey1))
+				continue; // is visit?
+			//if (g_edges_visit[curIdx][node.adjacent[i]])
+			//	continue;
 
-			const float len = g_edges_len[curIdx][node.adjacent[i]];
+			auto it = lenSet.find(edgeKey1);
+			if (lenSet.end() == it)
+				continue; // error occur
+			const float len = it->second;
+			//const float len = g_edges_len[curIdx][node.adjacent[i]];
 			if (0 == len) // not visit this node
 				continue;
 
@@ -315,8 +333,10 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 			break; // error occur
 		}
 
-		g_edges_visit[curIdx][nextIdx] = true;
-		g_edges_visit[nextIdx][curIdx] = true;
+		visitSet.insert(MakeEdgeKey(curIdx, nextIdx));
+		visitSet.insert(MakeEdgeKey(nextIdx, curIdx));
+		//g_edges_visit[curIdx][nextIdx] = true;
+		//g_edges_visit[nextIdx][curIdx] = true;
 		path.push_back(m_naviNodes[nextIdx].center);
 		nodeIndices.push_back(nextIdx);
 		curIdx = nextIdx;
@@ -758,3 +778,8 @@ std::pair<int, int> cNavigationMesh::GetAdjacentVertexIdx(
 	return {-1, -1};
 }
 
+
+inline int cNavigationMesh::MakeEdgeKey(const int from, const int to) const
+{
+	return from * 1000 + to;
+}

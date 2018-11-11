@@ -59,6 +59,12 @@ bool cCube::Create(
 }
 
 
+void cCube::SetCube(const Transform &tfm)
+{
+	m_transform = tfm;
+}
+
+
 void cCube::SetCube(const cBoundingBox &bbox)
 {
 	m_transform = bbox.GetTransform();
