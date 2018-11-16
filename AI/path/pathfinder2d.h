@@ -79,6 +79,9 @@ namespace ai
 		bool RemoveTemporaryVertexAndEdges(const Vector3 &pos);
 		bool CollectEdgeVertices(const int from, const int to, const int uniqueEdgeKey
 			, OUT ppath &out);
+		bool CollectEdgeAddedVertices(const int from, const int to, const int uniqueEdgeKey
+			, const int addedVertexFrom, const int addedVertexTo
+			, OUT ppath &out);
 
 		inline bool CheckRange(const Vector2i &pos);
 		float Distance_Manhatan(const Vector2i &p0, const Vector2i &p1) const;

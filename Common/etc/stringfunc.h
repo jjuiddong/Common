@@ -19,7 +19,6 @@ namespace common
 	string format(const char* fmt, ...);
 	wstring formatw(const char* fmt, ...);
 
-
 	template<size_t MAX>
 	String<char, MAX> format(const char* fmt, ...) {
 		String<char, MAX> textString;
@@ -33,6 +32,9 @@ namespace common
 	void tokenizer(const string &str, const string &delimeter, const string &ignoreStr, OUT vector<string> &out);
 	void wtokenizer(const wstring &str, const wstring &delimeter, const wstring &ignoreStr, OUT vector<wstring> &out);
 	void tokenizer2(const string &str, const string &delimeters, OUT vector<string> &out);
+	void tokenizer3(const char *data, const int size, const char delimeter, OUT vector<int> &out);
+
+	int strcomposite(char *buff, const int maxSize, const char delimter, const vector<int> &datas);
 
 	int scanner(const wchar_t *buf, const wchar_t *fmt, ...);
 }

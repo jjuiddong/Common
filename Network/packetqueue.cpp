@@ -229,7 +229,7 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const char protocol[4]
 	if (!sockBuffer.buffer)
 		return 0; // Error!! 
 
-	sHeader header = MakeHeader(protocol, len);
+	sHeader header = MakeHeader(protocol, len + sizeof(sHeader));
 	CopySockBuffer(&sockBuffer, (BYTE*)&header, sizeof(sHeader));
 
 	const int copyLen = CopySockBuffer(&sockBuffer, data, len);

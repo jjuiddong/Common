@@ -180,7 +180,6 @@ void common::tokenizer(const string &str, const string &delimeter, const string 
 				out.push_back(tmp.substr(first, pos-first));
 				first = offset;
 			}
-
 		}
 	}
 }
@@ -211,7 +210,6 @@ void common::wtokenizer(const wstring &str, const wstring &delimeter, const wstr
 				out.push_back(tmp.substr(first, pos - first));
 				first = offset;
 			}
-
 		}
 	}
 }
@@ -245,6 +243,81 @@ void common::tokenizer2(const string &str, const string &delimeters, OUT vector<
 		if (!tok.empty())
 			out.push_back(tok);
 	}
+}
+
+
+// delimeter로 구분된 스트링을 파싱해서 int형으로 변환한 후 리턴한다.
+// 동적메모리 생성, 메모리 복사를 최소화하기 위해 따로 만들었다.
+void common::tokenizer3(const char *data, const int size, const char delimeter, OUT vector<int> &out)
+{
+	char buff[32];
+	const char *src = data;
+	char *dst = buff;
+	int remain = size;
+	while (remain > 0)
+	{
+		if ((*src == '\0') 
+			|| (*src == delimeter)
+			|| ((int)(dst - buff) > (ARRAYSIZE(buff)-1))
+			)
+		{
+			*dst++ = NULL;
+			out.push_back(atoi(buff));
+			dst = buff;
+		}
+		else
+		{
+			*dst++ = *src;
+		}
+		++src;
+		--remain;
+	}
+
+	// 마지막 토큰 저장, 저장한 정보가 있다면 ~
+	if ((int)(dst - buff) > 0)
+	{
+		// null 추가
+		if ((int)(dst - buff) < ARRAYSIZE(buff))
+		{
+			*dst++ = NULL;
+			out.push_back(atoi(buff));
+		}
+	}
+}
+
+
+// int형 배열을 delimeter를 구분자로해서 스트링으로 변환한다.
+// 동적 메모리생성을 최소화한 함수.
+// datas -> string 
+int common::strcomposite(char *buff, const int maxSize, const char delimter, const vector<int> &datas)
+{
+	char temp[32];
+	char *dst = buff;
+	int remain = maxSize;
+	for (auto &data : datas)
+	{
+		sprintf_s(temp, "%d", data);
+		const int len = strlen(temp);
+		if (len < remain)
+		{
+			strncpy(dst, temp, len);
+			dst += len;
+			remain -= len;
+		}
+
+		if (remain > 1)
+		{
+			*dst++ = NULL;
+			--remain;
+		}
+	}
+
+	if (remain >= 1)
+	{
+		*dst++ = NULL;
+		--remain;
+	}
+	return maxSize - remain;
 }
 
 

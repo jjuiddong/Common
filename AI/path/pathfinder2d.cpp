@@ -536,6 +536,56 @@ bool cPathFinder2D::GetEdgePath2PosPath(const epath &edgePath, OUT ppath &out)
 	// front vertex
 	// 거꾸로 검색한 후, 뒤집는다.
 	// 시작 버텍스가 어느방향으로 가야할지 모르기 때문임.
+	bool isFrontReverse = false;
+
+	if (edgePath.size() == 1)
+	{
+		const cPathFinder::sEdge &front = edgePath.front();
+		const auto &frontV = m_fastmap->m_vertices[front.from];
+		const auto &backV = m_fastmap->m_vertices[front.to];
+
+		// 추가된 버텍스인지 아닌지에 따라 collect 되는 방식이 다르다.
+		const bool b1 = (frontV.replaceFromIdx >= 0);
+		const bool b2 = (backV.replaceFromIdx >= 0);
+
+		// 1. 한 엣지 안에 start, end가 있을 경우
+		if (b1 && b2)
+		{
+			CollectEdgeAddedVertices(frontV.replaceFromIdx, frontV.replaceToIdx
+				, MakeUniqueEdgeKey(frontV.replaceFromIdx, frontV.replaceToIdx)
+				, front.from, front.to
+				, out);
+		}
+		// 2. from만 추가된 버텍스 일 경우
+		else if (b1 && !b2)
+		{
+			// 거꾸로 검색한 뒤, 뒤집는다.
+			isFrontReverse = true;
+		}
+		// 3. to만 추가된 버텍스 일 경우
+		else if (!b1 && b2)
+		{
+			const int to = (front.from == backV.replaceFromIdx) ? backV.replaceToIdx : backV.replaceFromIdx;
+			CollectEdgeVertices(front.from, front.to, MakeUniqueEdgeKey(front.from, to), out);
+
+			const auto &toV = m_fastmap->m_vertices[front.to];
+			out.push_back(Vector2i((int)toV.pos.x, (int)toV.pos.z));
+		}
+		// 4. 둘다 추가된 버텍스가 아닐 경우
+		else if (!b1 && !b2)
+		{
+			CollectEdgeVertices(front.from, front.to, MakeUniqueEdgeKey(front.to, front.from), out);
+
+			const auto &toV = m_fastmap->m_vertices[front.to];
+			out.push_back(Vector2i((int)toV.pos.x, (int)toV.pos.z));
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+
+	if (isFrontReverse || (edgePath.size() > 1))
 	{
 		const cPathFinder::sEdge &front = edgePath.front();
 		const auto &frontV = m_fastmap->m_vertices[front.from];
@@ -548,7 +598,9 @@ bool cPathFinder2D::GetEdgePath2PosPath(const epath &edgePath, OUT ppath &out)
 
 		out.push_back(Vector2i((int)frontV.pos.x, (int)frontV.pos.z));
 		std::reverse(out.begin(), out.end());
-		out.pop_back(); // 마지막 노드는 중복이기 때문에 제거
+		
+		if (!isFrontReverse) // 엣지 리스트가 2개 이상일 때만 해당된다.
+			out.pop_back(); // 마지막 노드는 중복이기 때문에 제거
 	}
 
 	for (u_int i = 1; i < edgePath.size() - 1; ++i)
@@ -594,8 +646,6 @@ bool cPathFinder2D::CollectEdgeVertices(const int from, const int to
 		if (!CheckRange(nextPos))
 			continue;
 
-		//const auto separateKey = SeparateEdgeKey(GetMap(nextPos).edgeKey);
-		//if ((to == separateKey.first) || (to == separateKey.second))
 		if (uniqueEdgeKey == GetMap(nextPos).edgeKey)
 		{
 			// to waypoint로 향하는 버텍스 발견
@@ -607,6 +657,79 @@ bool cPathFinder2D::CollectEdgeVertices(const int from, const int to
 				p += offsetPos[i];
 			}
 			
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+// fastmap의 엣지 정보를 토대로, from에서 to로 향하는 버텍스 위치 정보를
+// out에 저장해서 리턴한다.
+// 이 때, 추가된 버텍스는 edgekey가 설정되어 있지 않으므로, from에서 to로 향하는 엣지 중에 
+// 추가된 버텍스가 나타나면 out에 저장하는 방식으로 처리한다. 
+// 한 엣지에 추가된 버텍스가 2개가 있을 때 처리하는 함수다.
+bool cPathFinder2D::CollectEdgeAddedVertices(const int from, const int to, const int uniqueEdgeKey
+	, const int addedVertexFrom, const int addedVertexTo
+	, OUT ppath &out)
+{
+	const auto &fromV = m_fastmap->m_vertices[from];
+	const auto &destV = m_fastmap->m_vertices[to];
+	const Vector2i destPos = Vector2i((int)destV.pos.x, (int)destV.pos.z);
+
+	const auto &addedFromV = m_fastmap->m_vertices[addedVertexFrom];
+	const auto &addedToV = m_fastmap->m_vertices[addedVertexTo];
+	const Vector2i addedFromPos = Vector2i((int)addedFromV.pos.x, (int)addedFromV.pos.z);
+	const Vector2i addedToPos = Vector2i((int)addedToV.pos.x, (int)addedToV.pos.z);
+
+	const Vector2i curPos = Vector2i((int)fromV.pos.x, (int)fromV.pos.z);
+	const Vector2i offsetPos[] = { Vector2i(-1,0), Vector2i(0,-1), Vector2i(1,0), Vector2i(0,1) };
+	for (int i = 0; i < ARRAYSIZE(offsetPos); ++i)
+	{
+		const Vector2i nextPos = curPos + offsetPos[i];
+		if (!CheckRange(nextPos))
+			continue;
+
+		if (uniqueEdgeKey == GetMap(nextPos).edgeKey)
+		{
+			// to waypoint로 향하는 버텍스 발견
+			// to 버텍스에 도착할 때까지 위치 저장
+			int state = 1;
+			Vector2i p = curPos;
+			while (CheckRange(p) && (state != 4))
+			{
+				switch (state)
+				{
+				case 1:
+					if (p == addedFromPos)
+					{
+						out.push_back(p);
+						state = 2;
+					}
+					else if (p == addedToPos)
+					{
+						out.push_back(p);
+						state = 3;
+					}
+					break;
+
+				case 2:
+					out.push_back(p);
+					if (addedToPos == p)
+						state = 4; // finisth
+					break;
+
+				case 3:
+					out.push_back(p);
+					if (addedFromPos == p)
+						state = 4; // finisth
+					break;
+				}
+
+				p += offsetPos[i];
+			}
+
 			return true;
 		}
 	}

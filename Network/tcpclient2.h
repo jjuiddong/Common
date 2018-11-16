@@ -22,6 +22,7 @@ namespace network
 		void Send(const char protocol[4], BYTE *buff, const int len);
 		void Close();
 		bool IsConnect() const;
+		bool IsReadyConnect() const;
 		bool IsFailConnection() const;
 
 
@@ -49,5 +50,6 @@ namespace network
 
 
 	inline bool cTCPClient2::IsConnect() const { return m_state == CONNECT; }
+	inline bool cTCPClient2::IsReadyConnect() const { return (m_state == READYCONNECT) || (m_state == TRYCONNECT); }
 	inline bool cTCPClient2::IsFailConnection() const {return m_state == DISCONNECT; }
 }

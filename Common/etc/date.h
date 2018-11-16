@@ -8,7 +8,8 @@ namespace common
 {
 	// year-month-day-hour-minutes-seconds-millseconds
 	string GetCurrentDateTime();
-	
+	string GetCurrentDateTime2();
+
 
 	class cDateTime
 	{

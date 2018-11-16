@@ -45,7 +45,10 @@ bool cPathFinder::Read(const StrPath &fileName)
 		{
 			ss >> token;
 			if (!strcmp(token, "Vertex"))
+			{
+				vtx = sVertex();
 				state = 1;
+			}
 		}
 		break;
 
@@ -79,19 +82,31 @@ bool cPathFinder::Read(const StrPath &fileName)
 		case 4:
 		{
 			ss >> token;
-			assert(!strcmp(token, "edge"));
-			int idx = 0;
-			int cnt = 0;
-			do {
-				ss >> vtx.edge[idx++];
-				++cnt;
-			} while (!ss.eof() && (cnt < sVertex::MAX_EDGE));
 
-			AddVertex(vtx);
+			// data1 ~ 4 parsing
+			if (!strcmp(token, "data"))
+			{
+				int idx = 0;
+				int cnt = 0;
+				do {
+					ss >> vtx.data[idx++];
+					++cnt;
+				} while (!ss.eof() && (cnt < ARRAYSIZE(vtx.data)));
+			}
+			else
+			{
+				assert(!strcmp(token, "edge"));
+				int idx = 0;
+				int cnt = 0;
+				do {
+					ss >> vtx.edge[idx++];
+					++cnt;
+				} while (!ss.eof() && (cnt < sVertex::MAX_EDGE));
+
+				AddVertex(vtx);
 			
-			state = 0;
-			for (int i=0; i < sVertex::MAX_EDGE; ++i)
-				vtx.edge[i] = -1;
+				state = 0;
+			}
 		}
 		break;
 		}
@@ -308,7 +323,8 @@ bool cPathFinder::Find(const Vector3 &start
 
 	OptimizeAreaPath(start, end, out, verticesIndices);
 
-	out.push_back(end);
+	if (!out.empty() && (out.back() != end))
+		out.push_back(end);
 
 	return true;
 }

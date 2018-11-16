@@ -27,6 +27,7 @@ namespace ai
 			Vector3 pos;
 			int edge[MAX_EDGE];
 			float w[MAX_EDGE]; // edge weight
+			int data[4];
 			int replaceFromIdx; // using temporary vertex, replace vertex from, to
 			int replaceToIdx;
 			float startLen;
@@ -37,6 +38,8 @@ namespace ai
 					edge[i] = -1;
 				for (int i = 0; i < MAX_EDGE; ++i)
 					w[i] = 1.f;
+				for (int i = 0; i < ARRAYSIZE(data); ++i)
+					data[i] = -1;
 				replaceFromIdx = -1;
 				replaceToIdx = -1;
 			}
@@ -63,6 +66,9 @@ namespace ai
 			vector<int> indices; // sVertex Indices
 		};
 
+		typedef vector<Vector3> ppath;	// position path
+		typedef vector<u_int> vpath;	// vertex index path
+		typedef vector<sEdge> epath;	// edge path
 
 		cPathFinder();
 		virtual ~cPathFinder();
