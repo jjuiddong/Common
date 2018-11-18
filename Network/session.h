@@ -17,6 +17,8 @@ namespace network
 	{
 		SESSION_STATE::TYPE state;
 		SOCKET socket;
+		char ip[16];
+		int port;
 	};
 
 }

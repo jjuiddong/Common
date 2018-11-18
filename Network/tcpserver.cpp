@@ -93,7 +93,7 @@ void cTCPServer::MakeFdSet(OUT fd_set &out)
 }
 
 
-bool cTCPServer::AddSession(const SOCKET remoteSock)
+bool cTCPServer::AddSession(const SOCKET remoteSock, const string &ip, const int port)
 {
 	AutoCSLock cs(m_criticalSection);
 
@@ -103,13 +103,16 @@ bool cTCPServer::AddSession(const SOCKET remoteSock)
 			return false; // 이미 있다면 종료.
 	}
 
-	if (m_listener)
-		m_listener->AddSession(remoteSock);
-
 	sSession session;
 	session.state = SESSION_STATE::LOGIN_WAIT;
 	session.socket = remoteSock;
+	strcpy_s(session.ip, ip.c_str());
+	session.port = port;
 	m_sessions.push_back(session);
+
+	if (m_listener)
+		m_listener->AddSession(session);
+
 	return true;
 }
 
@@ -123,7 +126,7 @@ void cTCPServer::RemoveSession(const SOCKET remoteSock)
 		if (remoteSock == m_sessions[i].socket)
 		{
 			if (m_listener)
-				m_listener->RemoveSession(remoteSock);
+				m_listener->RemoveSession(m_sessions[i]);
 
 			closesocket(m_sessions[i].socket);
 			common::rotatepopvector(m_sessions, i);
@@ -177,13 +180,19 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 			if (ret1 != 0 && ret1 != SOCKET_ERROR)
 			{
 				// accept(요청을 받은 소켓, 선택 클라이언트 주소)
-				SOCKET remoteSocket = accept(acceptSockets.fd_array[0], NULL, NULL);
+				int sockLen = sizeof(sockaddr_in);
+				sockaddr_in addr;
+				SOCKET remoteSocket = accept(acceptSockets.fd_array[0], (sockaddr*)&addr, &sockLen);
 				if (remoteSocket == INVALID_SOCKET)
 				{
 	 				//Client를 Accept하는 도중에 에러가 발생함
 					continue;
 				}
-				server->AddSession(remoteSocket);
+
+				getpeername(remoteSocket, (struct sockaddr*)&addr, &sockLen);
+				char *clientAddr = inet_ntoa(addr.sin_addr);
+				const int port = htons(addr.sin_port);
+				server->AddSession(remoteSocket, clientAddr, port);
 			}
 			//-----------------------------------------------------------------------------------
 		}

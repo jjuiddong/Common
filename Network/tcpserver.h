@@ -14,8 +14,8 @@ namespace network
 	class iSessionListener
 	{
 	public:
-		virtual void RemoveSession(const SOCKET remoteSock) = 0;
-		virtual void AddSession(const SOCKET remoteSock) = 0;
+		virtual void RemoveSession(const sSession &session) = 0;
+		virtual void AddSession(const sSession &session) = 0;
 	};
 
 	class cTCPServer
@@ -30,7 +30,7 @@ namespace network
 		void Close();
 		bool IsConnect() const;
 		void MakeFdSet(OUT fd_set &out);
-		bool AddSession(const SOCKET remoteSock);
+		bool AddSession(const SOCKET remoteSock, const string &ip, const int port);
 		void RemoveSession(const SOCKET remoteSock);
 		bool IsExistSession();
 
