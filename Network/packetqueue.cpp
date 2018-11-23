@@ -243,12 +243,15 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const char protocol[4]
 // 새 패킷 버퍼를 추가한다.
 int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, const int len)
 {
-
 	// 네트워크를 통해 온 패킷이라면, 이미 패킷헤더가 포함된 상태다.
 	// 전체 패킷 크기를 저장해서, 분리된 패킷인지를 판단한다.
 	int byteSize = 0;
 	const sHeader header = GetHeader(data, byteSize);
-	if ((byteSize > sizeof(sHeader)) && (byteSize <= m_packetBytes))
+	if (isalpha(header.protocol[0])
+		&& isalpha(header.protocol[1])
+		&& isalpha(header.protocol[2])
+		&& isalpha(header.protocol[3])
+		&& (byteSize > sizeof(sHeader)) && (byteSize <= m_packetBytes))
 	{
 		// nothing~ continue~
 	}
@@ -262,7 +265,10 @@ int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, co
 		return len;
 	}
 
-	// 새로 추가될 소켓의 패킷이라면
+	// 헤더를 제외한 데이타크기
+	const int actualDataSize = byteSize - sizeof(sHeader);
+
+	// 네트워크로부터 받은 패킷은 헤더부분을 제외한 실제 데이타만 복사한다.
 	sSockBuffer sockBuffer;
 	sockBuffer.sock = sock;
 	sockBuffer.protocol[0] = header.protocol[0];
@@ -270,8 +276,8 @@ int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, co
 	sockBuffer.protocol[2] = header.protocol[2];
 	sockBuffer.protocol[3] = header.protocol[3];
 	sockBuffer.readLen = 0;
-	sockBuffer.totalLen = byteSize;
-	sockBuffer.actualLen = byteSize - sizeof(sHeader);
+	sockBuffer.totalLen = actualDataSize;
+	sockBuffer.actualLen = actualDataSize; 
 	sockBuffer.buffer = Alloc();
 	sockBuffer.full = false;
 
@@ -284,11 +290,13 @@ int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, co
 		return len;
 	}
 
-	const int copyLen = CopySockBuffer(&sockBuffer, data, len);
+	// 헤더 이후의 데이타를 복사한다.
+	const int copyLen = CopySockBuffer(&sockBuffer, data + sizeof(sHeader)
+		, min(len - (int)sizeof(sHeader), actualDataSize));
 	m_queue.push_back(sockBuffer);
 
-	// 패킷헤더 크기는 제외(순수하게 data에서 복사된 크기를 리턴한다.)
-	return copyLen;
+	// 패킷헤더 크기까지 포함.
+	return copyLen + sizeof(sHeader);
 }
 
 
@@ -332,7 +340,7 @@ bool cPacketQueue::Front(OUT sSockBuffer &out)
 	RETV(!m_queue[0].full, false);
 
 	out = m_queue[0];
-	out.buffer = m_queue[0].buffer + sizeof(sHeader); // 헤더부를 제외한 패킷 데이타를 리턴한다.
+	out.buffer = m_queue[0].buffer; // 네트워크로부터 받은 패킷이라면, 헤더부는 제외한 데이타부만 존재한다.
 
 	return true;
 }
