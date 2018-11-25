@@ -49,13 +49,11 @@ bool cTCPClient2::Init(const string &ip, const int port,
 		return false;
 	}
 
-	//cout << "Error!! Connect TCP/IP Client ip=" << ip << ", port=" << port << endl;
- 	//common::dbg::ErrLog("Error!! Connect TCP/IP Client ip= %s, port=%d \n", ip.c_str(), port);
 	return true;
 }
 
 
-void cTCPClient2::Send(const char protocol[4], BYTE *buff, const int len)
+void cTCPClient2::Send(const char protocol[4], const BYTE *buff, const int len)
 {
 	RET(!IsConnect());
 	m_sendQueue.Push(m_socket, protocol, buff, len);
@@ -87,6 +85,7 @@ void TCPClient2ThreadFunction(network::cTCPClient2 *client)
 	if (!network::LaunchTCPClient(client->m_ip, client->m_port, client->m_socket))
 	{
 		client->m_state = cTCPClient2::DISCONNECT;
+		std::cout << "Error!! Connection, ip=" << client->m_ip << ", port=" << client->m_port << std::endl;
 		return;
 	}
 
