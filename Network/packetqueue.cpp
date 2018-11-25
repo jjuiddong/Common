@@ -34,10 +34,13 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 	m_packetBytes = packetSize + sizeof(sHeader);
 	m_chunkBytes = packetSize;
 	m_totalChunkCount = maxPacketCount;
-	m_memPoolPtr = new BYTE[(packetSize+sizeof(sHeader)) * maxPacketCount];
+	//m_memPoolPtr = new BYTE[(packetSize+sizeof(sHeader)) * maxPacketCount];
 	m_memPool.reserve(maxPacketCount);
 	for (int i = 0; i < maxPacketCount; ++i)
-		m_memPool.push_back({ false, m_memPoolPtr + (i*(packetSize + sizeof(sHeader))) });
+	{
+		m_memPool.push_back({ false, new BYTE[ (packetSize + sizeof(sHeader)) ] });
+		//m_memPool.push_back({ false, m_memPoolPtr + (i*(packetSize + sizeof(sHeader))) });
+	}
 	//
 
 	m_queue.reserve(maxPacketCount);
@@ -471,7 +474,14 @@ void cPacketQueue::Clear()
 	SAFE_DELETEA(m_memPoolPtr);
 	SAFE_DELETEA(m_tempBuffer);
 	SAFE_DELETEA(m_tempHeaderBuffer);
+	
+	for (auto &pool : m_memPool)
+	{
+		SAFE_DELETEA(pool.p);
+	}
 	m_memPool.clear();
+
+
 	m_queue.clear();
 }
 

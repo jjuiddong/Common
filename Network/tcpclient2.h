@@ -18,7 +18,8 @@ namespace network
 		virtual ~cTCPClient2();
 
 		bool Init(const string &ip, const int port
-			, const int packetSize = 512, const int maxPacketCount = 10, const int sleepMillis = 30);
+			, const int packetSize = 512, const int maxPacketCount = 10, const int sleepMillis = 30
+			, const int clientSidePort = -1);
 		void Send(const char protocol[4], const BYTE *buff, const int len);
 		void Close();
 		bool IsConnect() const;
@@ -38,6 +39,7 @@ namespace network
 		STATE m_state;
 		string m_ip;
 		int m_port;
+		int m_clientSidePort;
 		SOCKET m_socket; // server socket
 		int m_maxBuffLen;
 		cPacketQueue m_sendQueue;

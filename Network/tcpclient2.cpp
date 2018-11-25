@@ -14,6 +14,7 @@ cTCPClient2::cTCPClient2()
 	, m_maxBuffLen(BUFFER_LENGTH)
 	, m_recvBytes(0)
 	, m_state(DISCONNECT)
+	, m_clientSidePort(-1)
 {
 }
 
@@ -23,14 +24,18 @@ cTCPClient2::~cTCPClient2()
 }
 
 
-bool cTCPClient2::Init(const string &ip, const int port,
-	const int packetSize, const int maxPacketCount, const int sleepMillis)
-	// packetSize = 512, maxPacketCount = 10, int sleepMillis = 30, isIgnoreHeader=false
+bool cTCPClient2::Init(const string &ip, const int port
+	, const int packetSize //= 512
+	, const int maxPacketCount //= 10
+	, const int sleepMillis //= 30
+	, const int clientSidePort //= -1
+)
 {
 	Close();
 
 	m_ip = ip;
 	m_port = port;
+	m_clientSidePort = clientSidePort;
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
 
@@ -82,7 +87,7 @@ void TCPClient2ThreadFunction(network::cTCPClient2 *client)
 
 	client->m_state = cTCPClient2::TRYCONNECT;
 
-	if (!network::LaunchTCPClient(client->m_ip, client->m_port, client->m_socket))
+	if (!network::LaunchTCPClient(client->m_ip, client->m_port, client->m_socket, true, client->m_clientSidePort))
 	{
 		client->m_state = cTCPClient2::DISCONNECT;
 		std::cout << "Error!! Connection, ip=" << client->m_ip << ", port=" << client->m_port << std::endl;

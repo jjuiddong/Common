@@ -9,7 +9,11 @@ using namespace common;
 //------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------
-bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET &out, const bool isLog)
+bool network::LaunchTCPClient(const std::string &ip, const int port
+	, OUT SOCKET &out
+	, const bool isLog // = true
+	, const int clientSidePort //= -1
+)
 {
 	const string tmpIp = ip; // thread safety
 
@@ -45,6 +49,35 @@ bool	network::LaunchTCPClient(const std::string &ip, const int port, OUT SOCKET 
 		if (isLog)
 			dbg::ErrLog("socket() error\n");
 		return false;
+	}
+
+	linger lin;
+	lin.l_onoff = 0;
+	lin.l_linger = 0;
+	if (setsockopt(clientSocket, SOL_SOCKET, SO_LINGER, (const char*)&lin, sizeof(int)) < 0)
+	{
+		if (isLog)
+			dbg::ErrLog("setsockopt(SO_REUSEADDR) failed\n");
+		closesocket(clientSocket);
+		return false;
+	}
+
+	// Client Side Port Setting
+	// https://stackoverflow.com/questions/18050065/specifying-port-number-on-client-side
+	if (clientSidePort > 0)
+	{
+		SOCKADDR_IN saClient;
+		saClient.sin_family = AF_INET;
+		saClient.sin_addr.s_addr = INADDR_ANY;
+		saClient.sin_port = htons(clientSidePort);
+		nRet = bind(clientSocket, (LPSOCKADDR)&saClient, sizeof(struct sockaddr));
+		if (nRet == SOCKET_ERROR)
+		{
+			if (isLog)
+				dbg::ErrLog("client bind() error port=%d\n", clientSidePort);
+			closesocket(clientSocket);
+			return false;
+		}
 	}
 
 	// 주소 구조체를 채웁니다.
