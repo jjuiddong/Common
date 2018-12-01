@@ -85,7 +85,9 @@ void cTextManager::AddTextRender(cRenderer &renderer
 	sText *text = GetCacheText(id);
 	if (text)
 	{
-		if (text->gen)
+		// cache에 있는 것은, 대부분 고정된 문자열이기 때문에, 다시 업데이트 될 일이
+		// 거의 없으므로, 바뀌는 문자열을 바로 업데이트 해도 문제가 없다.
+		//if (text->gen)
 		{
 			if (text->text.SetTextRect(renderer, tm, str, c1, c2, type))
 				++m_generateCount;
@@ -95,8 +97,9 @@ void cTextManager::AddTextRender(cRenderer &renderer
 
 		text->space = renderer.GetCurrentAlphaBlendSpace();
 		text->used = true;
+		//text->gen = true;
 		text->depthNone = isDepthNone;
-		text->initTime = timeGetTime();
+		text->initTime = m_timer.GetSeconds();
 		text->text.m_quad.m_dynScaleMin = dynScaleMin;
 		text->text.m_quad.m_dynScaleMax = dynScaleMax;
 
@@ -182,7 +185,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 	m_cmds.clear();
 
 	// clear cache if not use buffer
-	const int curT = timeGetTime();
+	const double curT = m_timer.GetSeconds();
 	set<__int64> rmIds;
 	for (auto kv : m_cacheMap)
 	{
@@ -191,11 +194,11 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 			continue;
 		if (text->id >= 0)
 		{
-			if ((curT - text->initTime) < 3000)
+			if ((curT - text->initTime) < 3.f)
 				continue;
 			rmIds.insert(text->id);
 			text->id = -1;
-			text->gen = false;
+			//text->gen = false;
 		}
 	}
 	for (auto id : rmIds)
@@ -225,16 +228,21 @@ void cTextManager::DelayGenerateText(cRenderer &renderer)
 
 		const double t0 = m_timer.GetSeconds();
 		{
-			if (text.stext->text.SetTextRect(renderer, text.tm, text.str.c_str(), text.color, text.outlineColor, text.type))
+			if (text.stext->text.SetTextRect(renderer, text.tm, text.str.c_str()
+				, text.color, text.outlineColor, text.type))
+			{
 				++m_generateCount;
+			}
 			else
+			{
 				++m_cacheCount;
+			}
 		}
 		const double t1 = m_timer.GetSeconds();
 
 		m_timeLoadBalance += (t1 - t0);
 
-		text.stext->gen = true;
+		//text.stext->gen = true;
 	}
 
 	assert(m_delayGens.size() == m_delayGenSet.size());
@@ -284,9 +292,10 @@ void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sComm
 
 	text->id = cmd.id;
 	text->used = true;
+	//text->gen = true;
 	text->depthNone = cmd.depthNone;
 	text->space = cmd.space;
-	text->initTime = timeGetTime();
+	text->initTime = m_timer.GetSeconds();
 	text->text.m_quad.m_dynScaleMin = cmd.dynScaleMin;
 	text->text.m_quad.m_dynScaleMax = cmd.dynScaleMax;
 	m_cacheMap[cmd.id] = text;
@@ -304,10 +313,11 @@ cTextManager::sText* cTextManager::GetCacheText(const __int64 id)
 
 void cTextManager::GarbageCollection()
 {
-	static int oldT = timeGetTime();
-	if (timeGetTime() - oldT < 1000) // check 1 seconds
+	static double oldT = m_timer.GetSeconds();
+	const double curT = m_timer.GetSeconds();
+	if (curT - oldT < 1.f) // check 1 seconds
 		return;	
-	oldT = timeGetTime();
+	oldT = curT;
 
 	set<__int64> checkIds;
 	for (auto &p : m_buffer)
@@ -325,10 +335,11 @@ void cTextManager::GarbageCollection()
 
 		for (auto &it : duplicateCheck)
 		{
-			if ((it.first >=0) && (it.second.first > 1))
+			if ((it.first >= 0) && (it.second.first > 1))
 			{
-				it.second.second->id = -1;
-				it.second.second->used = false;
+				sText* stext = it.second.second;
+				stext->id = -1;
+				stext->used = false;
 				m_cacheMap.erase(it.first);
 			}
 		}

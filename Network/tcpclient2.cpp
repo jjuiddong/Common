@@ -58,6 +58,20 @@ bool cTCPClient2::Init(const string &ip, const int port
 }
 
 
+bool cTCPClient2::ReConnect()
+{
+	if (IsReadyConnect())
+		return false; // already try connect
+
+	Close();
+
+	m_state = READYCONNECT;
+	m_thread = std::thread(TCPClient2ThreadFunction, this);
+
+	return true;
+}
+
+
 void cTCPClient2::Send(const char protocol[4], const BYTE *buff, const int len)
 {
 	RET(!IsConnect());

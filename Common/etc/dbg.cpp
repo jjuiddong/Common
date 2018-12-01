@@ -117,7 +117,7 @@ void dbg::Logp(const char* fmt, ...)
 	//------------------------------------------------------------------------
 	// add string to log thread
 	g_logCS.Lock();
-	if (g_logStrs.size() < 256)
+	if (g_logStrs.size() < 1024)
 		g_logStrs.push_back(data);
 	g_logCS.Unlock();
 

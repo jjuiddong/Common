@@ -53,9 +53,9 @@ namespace graphic
 		{
 			__int64 id;
 			bool used;
-			bool gen;
+			//bool gen; // need generation?
 			bool depthNone;
-			int initTime;
+			double initTime;
 			sAlphaBlendSpace *space;
 			cText3d3 text;
 		};

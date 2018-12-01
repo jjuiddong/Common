@@ -21,6 +21,7 @@ namespace network
 			, const int packetSize = 512, const int maxPacketCount = 10, const int sleepMillis = 30
 			, const int clientSidePort = -1);
 		void Send(const char protocol[4], const BYTE *buff, const int len);
+		bool ReConnect();
 		void Close();
 		bool IsConnect() const;
 		bool IsReadyConnect() const;
