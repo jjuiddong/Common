@@ -294,8 +294,9 @@ int common::strcomposite(char *buff, const int maxSize, const char delimter, con
 	char temp[32];
 	char *dst = buff;
 	int remain = maxSize;
-	for (auto &data : datas)
+	for (int i=0; i < (int)datas.size(); ++i)
 	{
+		auto &data = datas[i];
 		sprintf_s(temp, "%d", data);
 		const int len = strlen(temp);
 		if (len < remain)
@@ -305,9 +306,9 @@ int common::strcomposite(char *buff, const int maxSize, const char delimter, con
 			remain -= len;
 		}
 
-		if (remain > 1)
+		if ((remain > 1) && (i != (int)datas.size()-1))
 		{
-			*dst++ = NULL;
+			*dst++ = delimter;
 			--remain;
 		}
 	}
@@ -315,7 +316,6 @@ int common::strcomposite(char *buff, const int maxSize, const char delimter, con
 	if (remain >= 1)
 	{
 		*dst++ = NULL;
-		--remain;
 	}
 	return maxSize - remain;
 }
