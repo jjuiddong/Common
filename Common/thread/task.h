@@ -26,7 +26,7 @@ namespace common
 			enum Enum { END, CONTINUE };
 		};
 
-		cTask(int id, const std::string &name="", const bool isTopPriority=false);
+		cTask(int id, const StrId &name="", const bool isTopPriority=false);
 		virtual ~cTask() {}
 		virtual eRunResult::Enum Run(const double deltaSeconds) { return eRunResult::END; }
 		virtual void MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added ) {}
@@ -37,10 +37,10 @@ namespace common
 		int m_id;
 		bool m_isTopPriority;
 		cThread *m_pThread;
-		std::string m_name;
+		StrId m_name;
 	};
 
-	inline cTask::cTask(int id, const std::string &name
+	inline cTask::cTask(int id, const StrId &name
 		, const bool isTopPriority //= false
 	) 
 		: m_id(id), m_pThread(NULL), m_name(name), m_isTopPriority(isTopPriority) { }

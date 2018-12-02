@@ -260,6 +260,8 @@ int cThread::Run()
 	cTimer timer;
 	timer.Create();
 
+	int delayTerminateCount = 0;
+
 	while ((eState::RUN == m_state)
 		|| (eState::PAUSE == m_state))
 	{
@@ -269,11 +271,18 @@ int cThread::Run()
 		UpdateTask();
 
 		if (m_tasks.empty()) // break no task
-			break;
+		{
+			// 5초 정도 기다리다가 쓰레드를 종료한다.
+			if (delayTerminateCount++ > 5)
+				break;
+			std::this_thread::sleep_for(1000ms);
+		}
 
 		//2. Task Process
 		if ((eState::RUN == m_state) && !m_tasks.empty())
 		{
+			delayTerminateCount = 0;
+
 			if ((int)m_tasks.size() <= m_procTaskIndex)
 				m_procTaskIndex = 0;
 
