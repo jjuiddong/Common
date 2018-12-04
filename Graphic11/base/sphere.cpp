@@ -57,7 +57,20 @@ bool cSphere::Render(cRenderer &renderer
 	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
-	m_shape.Render(renderer);
+	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		CommonStates states(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+		m_shape.Render(renderer);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	}
+	else
+	{
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
+		m_shape.Render(renderer);
+		renderer.GetDevContext()->OMSetBlendState(state.Opaque(), NULL, 0xffffffff);
+	}
 
 	__super::Render(renderer, parentTm, flags);
 	return true;

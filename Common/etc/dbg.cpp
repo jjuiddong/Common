@@ -9,7 +9,7 @@ using namespace dbg;
 
 //-----------------------------------------------------------------------
 // Log Thread
-common::cThread g_logThread;
+common::cThread g_logThread("log thread");
 struct sLogData
 {
 	int type; // 0=log, 1=error log
