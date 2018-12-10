@@ -4,6 +4,9 @@
 // TCP/IP 프로토콜을 이용해서 통신하는 객체다.
 // 최대한 심플하게 만들었다.
 //
+// 2018-12-09, jjuiddong
+//	- send all error, close socket
+//
 #pragma once
 
 #include "session.h"

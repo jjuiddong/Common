@@ -4,6 +4,8 @@
 // cTCPClient 를 대체하기위해 만들어졌다.
 // Connection 을 쓰레드로 처리한다.
 //
+// 2018-12-09, jjuiddong
+//	- send all error, close connection
 #pragma once
 
 #include "packetqueue.h"
