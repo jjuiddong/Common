@@ -169,6 +169,12 @@
     <ClInclude Include="math\vector2_comm.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="container\circularqueue.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\filelogger.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

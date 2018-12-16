@@ -100,6 +100,7 @@ using std::wstringstream;
 #include "container/shmmap.h"
 #include "container/vectormap.h"
 #include "container/simplestring.h"
+#include "container/circularqueue.h"
 #include "math/Math.h"
 #include "etc/singleton.h"
 #include "etc/filepath.h"
@@ -127,5 +128,6 @@ using std::wstringstream;
 #include "thread/task.h"
 #include "thread/mutex.h"
 #include "thread/thread.h"
+#include "etc/filelogger.h"
 #include "etc/dbg.h"
 
