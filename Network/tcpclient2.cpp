@@ -144,7 +144,13 @@ void TCPClient2ThreadFunction(network::cTCPClient2 *client)
 
 		//-----------------------------------------------------------------------------------
 		// Send Packet
-		client->m_sendQueue.SendAll();
+		{
+			vector<SOCKET> errSocks;
+			client->m_sendQueue.SendAll(&errSocks);
+
+			if (!errSocks.empty())
+				client->m_state = cTCPClient2::DISCONNECT;
+		}
 		//-----------------------------------------------------------------------------------
 	}
 

@@ -359,15 +359,20 @@ void cPacketQueue::Pop()
 }
 
 
-void cPacketQueue::SendAll()
+void cPacketQueue::SendAll(
+	OUT vector<SOCKET> *outErrSocks //= NULL
+)
 {
 	RET(m_queue.empty());
 
 	cAutoCS cs(m_criticalSection);
 	for (u_int i = 0; i < m_queue.size(); ++i)
 	{
-		send(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen, 0);
+		const int result = send(m_queue[i].sock, (const char*)m_queue[i].buffer, m_queue[i].totalLen, 0);
 		Free(m_queue[i].buffer);
+
+		if (outErrSocks && (result == SOCKET_ERROR))
+			outErrSocks->push_back(m_queue[i].sock);
 	}
 	m_queue.clear();
 }

@@ -111,7 +111,7 @@ bool network::LaunchTCPClient(const std::string &ip, const int port
 bool network::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog)
 {
 	// 윈속을 시작하고 버전을 확인합니다
-	WORD wVersionRequested = MAKEWORD(1, 1);
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA wsaData;
 	int nRet = WSAStartup(wVersionRequested, &wsaData);
 	if (wsaData.wVersion != wVersionRequested)
@@ -186,7 +186,7 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog)
 bool network::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog)
 {
 	// 윈속을 시작하고 버전을 확인합니다
-	WORD wVersionRequested = MAKEWORD(1, 1);
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA wsaData;
 	int nRet = WSAStartup(wVersionRequested, &wsaData);
 	if (wsaData.wVersion != wVersionRequested)
@@ -251,7 +251,7 @@ bool network::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog)
 bool network::LaunchUDPClient(const std::string &ip, const int port, OUT SOCKADDR_IN &sockAddr, OUT SOCKET &out, const bool isLog)
 {
 	// 윈속 버전을 확인 합니다.
-	WORD wVersionRequested = MAKEWORD(1, 1);
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA wsaData;
 	int nRet = WSAStartup(wVersionRequested, &wsaData);
 	if (wsaData.wVersion != wVersionRequested)

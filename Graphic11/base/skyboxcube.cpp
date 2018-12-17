@@ -96,7 +96,8 @@ bool cSkyBoxCube::Render(cRenderer &renderer
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = renderer.m_shaderMgr.FindShader("../media/shader11/skyboxcube.fxo");
+	cShader11 *shader = renderer.m_shaderMgr.FindShader(
+		cResourceManager::Get()->GetMediaDirectory() + "shader11/skyboxcube.fxo");
 	assert(shader);
 	shader->SetTechnique("Unlit");
 	shader->Begin();

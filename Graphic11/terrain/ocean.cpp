@@ -61,17 +61,20 @@ void cOcean::Create(cRenderer &renderer
 	m_BackbufferWidth = backBufferWidth;
 	m_BackbufferHeight = backBufferHeight;
 
+	const StrPath mediaDir = cResourceManager::Get()->GetMediaDirectory();
+
     D3D11_INPUT_ELEMENT_DESC TerrainLayout[] =
         { "PATCH_PARAMETERS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
-	m_shader = renderer.m_shaderMgr.LoadShader(renderer, "../media/ocean5/Island11.fxo", TerrainLayout, 1);
+	m_shader = renderer.m_shaderMgr.LoadShader(renderer, mediaDir + "ocean5/Island11.fxo", TerrainLayout, 1);
 	heightfield_inputlayout = m_shader->m_vtxLayout.m_vertexLayout;
 
 	ID3D11Device *pDevice = renderer.GetDevice();
 	ID3DX11Effect *pEffect = m_shader->m_effect;
 
-	m_waterBump = cResourceManager::Get()->LoadTextureParallel(renderer, "../media/TerrainTextures/water_bump.dds");
+	m_waterBump = cResourceManager::Get()->LoadTextureParallel(renderer
+		, mediaDir + "TerrainTextures/water_bump.dds");
 	cResourceManager::Get()->AddParallelLoader(new cParallelLoader(cParallelLoader::eType::TEXTURE
-		, "../media/TerrainTextures/water_bump.dds", (void**)&m_waterBump));
+		, mediaDir + "TerrainTextures/water_bump.dds", (void**)&m_waterBump));
 
 	CreateTerrain(renderer);
 	ReCreateBuffers(renderer);

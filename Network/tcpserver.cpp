@@ -228,7 +228,13 @@ unsigned WINAPI TCPServerThreadFunction(void* arg)
 
 		//-----------------------------------------------------------------------------------
 		// Send Packet
-		server->m_sendQueue.SendAll();
+		{
+			vector<SOCKET> errSocks;
+			server->m_sendQueue.SendAll(&errSocks);
+
+			for (auto sock : errSocks)
+				server->RemoveSession(sock);
+		}
 		//-----------------------------------------------------------------------------------
 
 		const int sleepTime = server->m_sessions.empty() ? 100 : server->m_sleepMillis;

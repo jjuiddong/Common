@@ -61,7 +61,7 @@ namespace network
 		void PushFromNetwork(const SOCKET sock, const BYTE *data, const int len);
 		bool Front(OUT sSockBuffer &out);
 		void Pop();
-		void SendAll();
+		void SendAll(OUT vector<SOCKET> *outErrSocks = NULL);
 		void SendAll(const sockaddr_in &sockAddr);
 		void SendBroadcast(vector<sSession> &sessions, const bool exceptOwner = true);
 		void Lock();

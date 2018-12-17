@@ -87,7 +87,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//const float fontSize = 26;
 		//const float bigFontSize = 36;
 
-		StrPath path1 = "../Media/extra_fonts/³ª´®°íµñBold.ttf";
+		StrPath path1 = cResourceManager::Get()->GetMediaDirectory() + "extra_fonts/³ª´®°íµñBold.ttf";
 		io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		m_fontBig = io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 
