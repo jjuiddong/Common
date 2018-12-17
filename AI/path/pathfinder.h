@@ -47,7 +47,7 @@ namespace ai
 
 		struct sEdge
 		{
-			int from, to; // sVertexIndex
+			int from, to; // sVertex Index
 		
 			sEdge() : from(0), to(0) {}
 			sEdge(int _from, int _to) : from(_from), to(_to) {}
