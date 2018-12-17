@@ -211,7 +211,7 @@ inline cPathFinder2D::sVertex& cPathFinder2D::GetMap(const Vector2i &pos)
 // a-star path finder
 bool cPathFinder2D::Find(const Vector2i &startPos
 	, const Vector2i &endPos
-	, OUT vector<Vector2i> &out)
+	, OUT ppath &out)
 {
 	set<int> visitSet;
 	map<int, float> lenSet; // key = edgeKey, data = length
@@ -375,6 +375,9 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 // 길찾기 열거
 // 모든 가능한 길을 열거한다.
 // Edge가 중복일 때는 제외한다.
+// outPos : vertex pos array
+// outVertexPos : fast graph vertex pos array
+// outEdges : fast graph edge array
 bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 	, const Vector2i &endPos
 	, OUT vector<ppath> &outPos
@@ -434,10 +437,10 @@ bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 	while (combination < 12) 
 	{
 		// find path
-		vector<Vector3> vpath;
+		vector<Vector3> posPath;
 		vector<int> wayPoints;
 		epath edges;
-		if (m_fastmap->Find(p0, p1, vpath, &wayPoints, &edges, &disableEdges))
+		if (m_fastmap->Find(p0, p1, posPath, &wayPoints, &edges, &disableEdges))
 		{
 			// search already stored path list
 			{

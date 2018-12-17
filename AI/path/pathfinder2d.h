@@ -57,7 +57,7 @@ namespace ai
 		bool Read(const char *fileName);
 		bool Find(const Vector2i &startPos
 			, const Vector2i &endPos
-			, OUT vector<Vector2i> &out);
+			, OUT ppath &out);
 		bool FindEnumeration(const Vector2i &startPos
 			, const Vector2i &endPos
 			, OUT vector<ppath> &outPos
