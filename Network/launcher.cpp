@@ -62,6 +62,19 @@ bool network::LaunchTCPClient(const std::string &ip, const int port
 		return false;
 	}
 
+	// Nagle Algorithm On/Off
+	if (0)
+	{
+		int opt_val = 1; // Nagle Algorithm Off
+		if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt_val, sizeof(int)) < 0)
+		{
+			if (isLog)
+				dbg::ErrLog("setsockopt(TCP_NODELAY) failed\n");
+			closesocket(clientSocket);
+			return false;
+		}
+	}
+
 	// Client Side Port Setting
 	// https://stackoverflow.com/questions/18050065/specifying-port-number-on-client-side
 	if (clientSidePort > 0)
@@ -130,6 +143,20 @@ bool network::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog)
 		if (isLog)
 			dbg::ErrLog("socket() error\n");
 		return false;
+	}
+
+
+	// Nagle Algorithm On/Off
+	if (0)
+	{
+		int opt_val = 1; // Nagle Algorithm Off
+		if (setsockopt(svrSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt_val, sizeof(int)) < 0)
+		{
+			if (isLog)
+				dbg::ErrLog("setsockopt(TCP_NODELAY) failed\n");
+			closesocket(svrSocket);
+			return false;
+		}
 	}
 
 	// 주소 구조체를 채웁니다.
