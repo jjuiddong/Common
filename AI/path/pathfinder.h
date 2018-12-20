@@ -6,9 +6,13 @@
 // 2017-11-09, jjuiddong
 //	- Path Find, disable edge list
 //
-// 2017-11-10, jjuiddong
+// 2018-11-10, jjuiddong
 //	- thread safe
 //	- edge weight
+//
+// 2018-12-20, jjuiddong
+//	- refactoring
+//
 //
 #pragma once
 
@@ -22,11 +26,20 @@ namespace ai
 	public:
 		struct sVertex
 		{
+			struct sEdge
+			{
+				int to; // link next vertex index
+				float distance; // edge distance
+				float w; // edge weight
+				bool enable; // edge enable/disable
+			};
+
 			enum { MAX_EDGE = 10, MAX_VERTEX = 1024 };
 			int type; // 0:path point, 1:destination1, 2:destination2, 3:temporary node
 			Vector3 pos;
-			int edge[MAX_EDGE];
-			float w[MAX_EDGE]; // edge weight
+			sEdge edge[MAX_EDGE];
+			//int edge[MAX_EDGE];
+			//float w[MAX_EDGE]; // edge weight
 			int data[4];
 			int replaceFromIdx; // using temporary vertex, replace vertex from, to
 			int replaceToIdx;
@@ -35,9 +48,11 @@ namespace ai
 
 			sVertex() : type(0) {
 				for (int i = 0; i < MAX_EDGE; ++i)
-					edge[i] = -1;
-				for (int i = 0; i < MAX_EDGE; ++i)
-					w[i] = 1.f;
+					edge[i].to = -1;
+				//for (int i = 0; i < MAX_EDGE; ++i)
+				//	edge[i] = -1;
+				//for (int i = 0; i < MAX_EDGE; ++i)
+				//	w[i] = 1.f;
 				for (int i = 0; i < ARRAYSIZE(data); ++i)
 					data[i] = -1;
 				replaceFromIdx = -1;

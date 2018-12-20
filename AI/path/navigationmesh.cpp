@@ -33,11 +33,11 @@ bool cNavigationMesh::ReadFromPathFile(const char *fileName)
 	for (u_int i = 0; i < pathFinder.m_vertices.size(); ++i)
 	{
 		auto &vtx = pathFinder.m_vertices[i];
-		if (vtx.edge[0] < 0)
+		if (vtx.edge[0].to < 0)
 			continue;
 
 		// 첫 번째 Polygon을 찾아서, Navigation Mesh를 생성한다.
-		BuildPolygonFromPathFinder(pathFinder, i, vtx.edge[0], -1, indices);
+		BuildPolygonFromPathFinder(pathFinder, i, vtx.edge[0].to, -1, indices);
 		break;
 	}
 
@@ -82,17 +82,17 @@ int cNavigationMesh::BuildPolygonFromPathFinder(const ai::cPathFinder &pathFinde
 	// 서로 같은 버텍스를 가르키면, 하나의 폴리곤에 있음을 뜻한다.
 	for (int i = 0; i < cPathFinder::sVertex::MAX_EDGE; ++i)
 	{
-		if (vtx1.edge[i] < 0)
+		if (vtx1.edge[i].to < 0)
 			break;
 
 		for (int k = 0; k < cPathFinder::sVertex::MAX_EDGE; ++k)
 		{
-			if (vtx2.edge[k] < 0)
+			if (vtx2.edge[k].to < 0)
 				break;
 
-			if (vtx1.edge[i] == vtx2.edge[k])
+			if (vtx1.edge[i].to == vtx2.edge[k].to)
 			{
-				const int nextIdx3 = vtx1.edge[i];
+				const int nextIdx3 = vtx1.edge[i].to;
 				if (vtxIdx3 == nextIdx3)
 					continue; // 상위단에서 이미 생성한 버텍스다.
 

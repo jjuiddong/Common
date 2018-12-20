@@ -815,16 +815,16 @@ bool cPathFinder2D::RemoveTemporaryVertexAndEdges(const Vector3 &pos)
 	int from, to;
 	for (int i = 0; i < cPathFinder::sVertex::MAX_EDGE; ++i)
 	{
-		if (tvertex.edge[i] < 0)
+		if (tvertex.edge[i].to < 0)
 			break;
 		if (0 == state)
 		{
-			from = tvertex.edge[i];
+			from = tvertex.edge[i].to;
 			state = 1;
 		}
 		else if (1 == state)
 		{
-			to = tvertex.edge[i];
+			to = tvertex.edge[i].to;
 			state = 2;
 		}
 		else

@@ -99,7 +99,7 @@ bool cPathFinder::Read(const StrPath &fileName)
 				int idx = 0;
 				int cnt = 0;
 				do {
-					ss >> vtx.edge[idx++];
+					ss >> vtx.edge[idx++].to;
 					++cnt;
 				} while (!ss.eof() && (cnt < sVertex::MAX_EDGE));
 
@@ -139,9 +139,9 @@ bool cPathFinder::Write(const StrPath &fileName)
 		ofs << "\tedge ";
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
-			if (v.edge[i] < 0)
+			if (v.edge[i].to < 0)
 				break;
-			ofs << v.edge[i] << " ";
+			ofs << v.edge[i].to << " ";
 		}
 		ofs << endl;
 	}
@@ -200,10 +200,10 @@ bool cPathFinder::Find(const Vector3 &start
 
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
-			if (curVtx.edge[i] < 0)
+			if (curVtx.edge[i].to < 0)
 				break;
 
-			const int nextIdx = curVtx.edge[i];
+			const int nextIdx = curVtx.edge[i].to;
 			sVertex &nextVtx = m_vertices[nextIdx];
 
 			const int edgeKey1 = MakeEdgeKey(curIdx, nextIdx);
@@ -270,10 +270,10 @@ bool cPathFinder::Find(const Vector3 &start
 		sVertex &vtx = m_vertices[curIdx];
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
-			if (vtx.edge[i] < 0)
+			if (vtx.edge[i].to < 0)
 				break;
 			
-			const int edgeKey = MakeEdgeKey(curIdx, vtx.edge[i]);
+			const int edgeKey = MakeEdgeKey(curIdx, vtx.edge[i].to);
 			if (visitSet.end() != visitSet.find(edgeKey))
 				continue; // is visit?
 
@@ -284,7 +284,7 @@ bool cPathFinder::Find(const Vector3 &start
 			if (minEdge > it->second)
 			{
 				minEdge = it->second;
-				nextIdx = vtx.edge[i];
+				nextIdx = vtx.edge[i].to;
 			}
 		}
 
@@ -417,10 +417,10 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 	bool isAlreadyExist = false;
 	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
-		if (0 > vtx.edge[i])
+		if (0 > vtx.edge[i].to)
 			break;
 
-		if (addEdgeIdx == vtx.edge[i])
+		if (addEdgeIdx == vtx.edge[i].to)
 		{
 			isAlreadyExist = true;
 			break;
@@ -432,9 +432,9 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 	// push back
 	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
-		if (0 > vtx.edge[i])
+		if (0 > vtx.edge[i].to)
 		{
-			vtx.edge[i] = addEdgeIdx;
+			vtx.edge[i].to = addEdgeIdx;
 			return true;
 		}
 	}
@@ -462,14 +462,14 @@ bool cPathFinder::RemoveEdge(const int vtxIdx, const int removeEdgeIdx)
 
 	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
-		if (0 > vtx.edge[i])
+		if (0 > vtx.edge[i].to)
 			break;
 
-		if (removeEdgeIdx == vtx.edge[i])
+		if (removeEdgeIdx == vtx.edge[i].to)
 		{
 			for (int k = i; k < sVertex::MAX_EDGE - 1; ++k)
-				vtx.edge[k] = vtx.edge[k + 1];
-			vtx.edge[sVertex::MAX_EDGE - 1] = -1;
+				vtx.edge[k].to = vtx.edge[k + 1].to;
+			vtx.edge[sVertex::MAX_EDGE - 1].to = -1;
 			return true;
 		}
 	}
@@ -485,25 +485,25 @@ bool cPathFinder::RemoveVertex(const int index)
 	{
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
-			if (0 > v.edge[i])
+			if (0 > v.edge[i].to)
 				break;
 
-			if (index == v.edge[i]) // rotate left
+			if (index == v.edge[i].to) // rotate left
 			{
 				for (int k = i; k < sVertex::MAX_EDGE - 1; ++k)
 				{
-					if (v.edge[k] < 0)
+					if (v.edge[k].to < 0)
 						break;
-					v.edge[k] = v.edge[k + 1];
+					v.edge[k].to = v.edge[k + 1].to;
 				}
 
-				v.edge[sVertex::MAX_EDGE - 1] = -1;
+				v.edge[sVertex::MAX_EDGE - 1].to = -1;
 
 				--i; // for loop bugfix
 			}
-			else if (index < v.edge[i])
+			else if (index < v.edge[i].to)
 			{
-				--v.edge[i]; // decrease index
+				--v.edge[i].to; // decrease index
 			}
 		}
 	}
@@ -630,10 +630,10 @@ std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
 		auto &vertex = m_vertices[i];
 		for (int k = 0; k < sVertex::MAX_EDGE; ++k)
 		{
-			if (vertex.edge[k] < 0)
+			if (vertex.edge[k].to < 0)
 				break;
 			
-			const int e = vertex.edge[k];
+			const int e = vertex.edge[k].to;
 			const int edgeKey = MakeEdgeKey(i, e);
 			if (visitSet.end() != visitSet.find(edgeKey))
 				continue; // is visit?
