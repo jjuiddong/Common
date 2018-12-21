@@ -174,7 +174,8 @@ bool cPathFinder::Find(const Vector3 &start
 		return false;
 
 	set<int> visitSet;
-	map<int, float> lenSet; // key = edgeKey, data = length
+	//map<int, float> lenSet; // key = edgeKey, data = length
+	m_lenSet.clear();
 
 	vector<int> candidate;
 	candidate.reserve(m_vertices.size());
@@ -222,8 +223,8 @@ bool cPathFinder::Find(const Vector3 &start
 
 			visitSet.insert(edgeKey1);
 			visitSet.insert(edgeKey2);
-			lenSet[edgeKey1] = nextVtx.startLen + nextVtx.endLen;
-			lenSet[edgeKey2] = nextVtx.startLen + nextVtx.endLen;
+			m_lenSet[edgeKey1] = nextVtx.startLen + nextVtx.endLen;
+			m_lenSet[edgeKey2] = nextVtx.startLen + nextVtx.endLen;
 
 			// sorting candidate
 			// value = minimum( startLen + endLen )
@@ -277,8 +278,8 @@ bool cPathFinder::Find(const Vector3 &start
 			if (visitSet.end() != visitSet.find(edgeKey))
 				continue; // is visit?
 
-			auto it = lenSet.find(edgeKey);
-			if (lenSet.end() == it)
+			auto it = m_lenSet.find(edgeKey);
+			if (m_lenSet.end() == it)
 				continue;
 
 			if (minEdge > it->second)
@@ -697,7 +698,7 @@ bool cPathFinder::AddArea(const sRectf &area)
 }
 
 
-inline int cPathFinder::MakeEdgeKey(const int from, const int to) const
+int cPathFinder::MakeEdgeKey(const int from, const int to)
 {
 	return from * 1000 + to;
 }

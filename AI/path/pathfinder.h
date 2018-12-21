@@ -107,7 +107,7 @@ namespace ai
 		int GetNearestVertex(const Vector3 &pos, const Vector3 &end) const;
 		int GetNearestArea(const Vector3 &pos) const;
 		std::pair<int,int> GetNearestEdge(const Vector3 &pos) const;
-		inline int MakeEdgeKey(const int from, const int to) const;
+		static int MakeEdgeKey(const int from, const int to);
 		void Clear();
 
 
@@ -124,6 +124,7 @@ namespace ai
 	public:
 		vector<sVertex> m_vertices;
 		vector<sArea> m_areas;
+		map<int, float> m_lenSet; // key = edgeKey, data = length, for debugging
 	};
 
 }
