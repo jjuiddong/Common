@@ -63,7 +63,7 @@ bool TextNoOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
@@ -92,7 +92,7 @@ bool TextNoOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
@@ -215,12 +215,12 @@ bool TextNoOutlineStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	return b;
@@ -241,12 +241,12 @@ bool TextNoOutlineStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	return b;
@@ -281,8 +281,8 @@ bool TextNoOutlineStrategy::GdiMeasureString(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(pPath)
@@ -322,8 +322,8 @@ bool TextNoOutlineStrategy::GdiMeasureString(
 		}
 		return false;
 	}
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(pPath)
@@ -364,8 +364,8 @@ bool TextNoOutlineStrategy::GdiMeasureStringRealHeight(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(pPath)
@@ -405,8 +405,8 @@ bool TextNoOutlineStrategy::GdiMeasureStringRealHeight(
 		}
 		return false;
 	}
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(pPath)

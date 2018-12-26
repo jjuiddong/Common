@@ -99,13 +99,13 @@ bool ExtrudeStrategy::DrawString(
 			wcslen(pszText),
 			pFontFamily,
 			fontStyle,
-			nfontSize,
+			(REAL)nfontSize,
 			Point(ptDraw.X+((i*(-m_nOffsetX))/nOffset),ptDraw.Y+((i*(-m_nOffsetY))/nOffset) ),
 			pStrFormat);
 		if(status!=Ok)
 			return false;
 
-		Pen pen(m_clrOutline,m_nThickness);
+		Pen pen(m_clrOutline, (REAL)m_nThickness);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, &path);
 
@@ -157,14 +157,14 @@ bool ExtrudeStrategy::DrawString(
 			wcslen(pszText),
 			pFontFamily,
 			fontStyle,
-			nfontSize,
+			(REAL)nfontSize,
 			Rect(rtDraw.X+((i*(-m_nOffsetX))/nOffset), rtDraw.Y+((i*(-m_nOffsetY))/nOffset), 
 				rtDraw.Width, rtDraw.Height),
 			pStrFormat);
 		if(status!=Ok)
 			return false;
 
-		Pen pen(m_clrOutline,m_nThickness);
+		Pen pen(m_clrOutline, (REAL)m_nThickness);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, &path);
 
@@ -226,7 +226,7 @@ bool ExtrudeStrategy::GdiDrawString(
 			return false;
 		}
 
-		Pen pen(m_clrOutline,m_nThickness);
+		Pen pen(m_clrOutline, (REAL)m_nThickness);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, pPath);
 
@@ -294,7 +294,7 @@ bool ExtrudeStrategy::GdiDrawString(
 			return false;
 		}
 
-		Pen pen(m_clrOutline,m_nThickness);
+		Pen pen(m_clrOutline, (REAL)m_nThickness);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, pPath);
 
@@ -333,19 +333,19 @@ bool ExtrudeStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
 		return false;
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics,(float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 		return false;
@@ -371,19 +371,19 @@ bool ExtrudeStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
 		return false;
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics,(float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 		return false;
@@ -423,8 +423,8 @@ bool ExtrudeStrategy::GdiMeasureString(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -438,7 +438,7 @@ bool ExtrudeStrategy::GdiMeasureString(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -489,8 +489,8 @@ bool ExtrudeStrategy::GdiMeasureString(
 		}
 		return false;
 	}
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -504,7 +504,7 @@ bool ExtrudeStrategy::GdiMeasureString(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -556,8 +556,8 @@ bool ExtrudeStrategy::GdiMeasureStringRealHeight(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -571,7 +571,7 @@ bool ExtrudeStrategy::GdiMeasureStringRealHeight(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -622,8 +622,8 @@ bool ExtrudeStrategy::GdiMeasureStringRealHeight(
 		}
 		return false;
 	}
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -637,7 +637,7 @@ bool ExtrudeStrategy::GdiMeasureStringRealHeight(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{

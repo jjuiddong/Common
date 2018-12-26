@@ -1653,7 +1653,7 @@ bool PngOutlineText::MeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1735,7 +1735,7 @@ bool PngOutlineText::MeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1808,7 +1808,7 @@ bool PngOutlineText::GdiMeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1881,7 +1881,7 @@ bool PngOutlineText::GdiMeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1954,7 +1954,7 @@ bool PngOutlineText::GdiMeasureStringRealHeight(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -2027,7 +2027,7 @@ bool PngOutlineText::GdiMeasureStringRealHeight(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -2100,9 +2100,9 @@ bool PngOutlineText::ProcessReflection()
 				else
 				{
 					if(m_fBegAlpha > m_fEndAlpha)
-						nMultiplyAlpha = (m_fBegAlpha - (diff * row / end)) * 255;
+						nMultiplyAlpha = (UINT)((m_fBegAlpha - (diff * row / end)) * 255);
 					else
-						nMultiplyAlpha = (m_fBegAlpha + (diff * row / end)) * 255;
+						nMultiplyAlpha = (UINT)((m_fBegAlpha + (diff * row / end)) * 255);
 				}
 			}
 			else

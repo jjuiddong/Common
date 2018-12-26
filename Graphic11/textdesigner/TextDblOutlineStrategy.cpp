@@ -82,14 +82,14 @@ bool TextDblOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	Pen pen2(m_clrOutline2,m_nThickness1+m_nThickness2);
+	Pen pen2(m_clrOutline2,(REAL)(m_nThickness1+m_nThickness2));
 	pen2.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen2, &path);
-	Pen pen1(m_clrOutline1,m_nThickness1);
+	Pen pen1(m_clrOutline1,(REAL)m_nThickness1);
 	pen1.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen1, &path);
 
@@ -118,14 +118,14 @@ bool TextDblOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	Pen pen2(m_clrOutline2,m_nThickness1+m_nThickness2);
+	Pen pen2(m_clrOutline2, (REAL)(m_nThickness1+m_nThickness2));
 	pen2.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen2, &path);
-	Pen pen1(m_clrOutline1,m_nThickness1);
+	Pen pen1(m_clrOutline1, (REAL)m_nThickness1);
 	pen1.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen1, &path);
 
@@ -168,10 +168,10 @@ bool TextDblOutlineStrategy::GdiDrawString(
 		return false;
 	}
 
-	Pen pen2(m_clrOutline2,m_nThickness1+m_nThickness2);
+	Pen pen2(m_clrOutline2, (REAL)(m_nThickness1+m_nThickness2));
 	pen2.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen2, pPath);
-	Pen pen1(m_clrOutline1,m_nThickness1);
+	Pen pen1(m_clrOutline1, (REAL)m_nThickness1);
 	pen1.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen1, pPath);
 
@@ -220,10 +220,10 @@ bool TextDblOutlineStrategy::GdiDrawString(
 		return false;
 	}
 
-	Pen pen2(m_clrOutline2,m_nThickness1+m_nThickness2);
+	Pen pen2(m_clrOutline2, (REAL)(m_nThickness1+m_nThickness2));
 	pen2.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen2, pPath);
-	Pen pen1(m_clrOutline1,m_nThickness1);
+	Pen pen1(m_clrOutline1, (REAL)m_nThickness1);
 	pen1.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen1, pPath);
 
@@ -261,19 +261,19 @@ bool TextDblOutlineStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
 		return false;
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness1+m_nThickness2,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics,(float)(m_nThickness1+m_nThickness2),0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 		return false;
@@ -299,19 +299,19 @@ bool TextDblOutlineStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
 		return false;
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness1+m_nThickness2,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics,(float)(m_nThickness1+m_nThickness2),0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 		return false;
@@ -351,8 +351,8 @@ bool TextDblOutlineStrategy::GdiMeasureString(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -366,7 +366,7 @@ bool TextDblOutlineStrategy::GdiMeasureString(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness1+m_nThickness2,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)(m_nThickness1+m_nThickness2),0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -418,8 +418,8 @@ bool TextDblOutlineStrategy::GdiMeasureString(
 		return false;
 	}
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -433,7 +433,7 @@ bool TextDblOutlineStrategy::GdiMeasureString(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness1+m_nThickness2,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)(m_nThickness1+m_nThickness2),0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -485,8 +485,8 @@ bool TextDblOutlineStrategy::GdiMeasureStringRealHeight(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -500,7 +500,7 @@ bool TextDblOutlineStrategy::GdiMeasureStringRealHeight(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness1+m_nThickness2,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)(m_nThickness1+m_nThickness2),0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -552,8 +552,8 @@ bool TextDblOutlineStrategy::GdiMeasureStringRealHeight(
 		return false;
 	}
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -567,7 +567,7 @@ bool TextDblOutlineStrategy::GdiMeasureStringRealHeight(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness1+m_nThickness2,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)(m_nThickness1+m_nThickness2),0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{

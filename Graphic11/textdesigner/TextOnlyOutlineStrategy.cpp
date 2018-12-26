@@ -52,11 +52,11 @@ bool TextOnlyOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	Pen pen(m_clrOutline,m_nThickness);
+	Pen pen(m_clrOutline,(REAL)m_nThickness);
 	if(m_bRoundedEdge)
 		pen.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen, &path);
@@ -75,11 +75,11 @@ bool TextOnlyOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,(REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	Pen pen(m_clrOutline,m_nThickness);
+	Pen pen(m_clrOutline, (REAL)m_nThickness);
 	if(m_bRoundedEdge)
 		pen.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen, &path);
@@ -113,7 +113,7 @@ bool TextOnlyOutlineStrategy::GdiDrawString(
 		return false;
 	}
 
-	Pen pen(m_clrOutline,m_nThickness);
+	Pen pen(m_clrOutline, (REAL)m_nThickness);
 	if(m_bRoundedEdge)
 		pen.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen, pPath);
@@ -152,7 +152,7 @@ bool TextOnlyOutlineStrategy::GdiDrawString(
 		return false;
 	}
 
-	Pen pen(m_clrOutline,m_nThickness);
+	Pen pen(m_clrOutline, (REAL)m_nThickness);
 	if(m_bRoundedEdge)
 		pen.SetLineJoin(LineJoinRound);
 	pGraphics->DrawPath(&pen, pPath);

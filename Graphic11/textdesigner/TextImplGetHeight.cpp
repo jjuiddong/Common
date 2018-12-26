@@ -29,19 +29,19 @@ bool TextImplGetHeight::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
 		return false;
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics,(float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 		return false;
@@ -67,19 +67,19 @@ bool TextImplGetHeight::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	bool b = GDIPath::MeasureGraphicsPath(pGraphics, &path, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
 		return false;
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics,(float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 		return false;
@@ -119,8 +119,8 @@ bool TextImplGetHeight::GdiMeasureString(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -134,7 +134,7 @@ bool TextImplGetHeight::GdiMeasureString(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -186,8 +186,8 @@ bool TextImplGetHeight::GdiMeasureString(
 		return false;
 	}
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPath(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -201,7 +201,7 @@ bool TextImplGetHeight::GdiMeasureString(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -253,8 +253,8 @@ bool TextImplGetHeight::GdiMeasureStringRealHeight(
 		return false;
 	}
 
-	*pfDestWidth= ptDraw.X;
-	*pfDestHeight= ptDraw.Y;
+	*pfDestWidth = (float)ptDraw.X;
+	*pfDestHeight = (float)ptDraw.Y;
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -268,7 +268,7 @@ bool TextImplGetHeight::GdiMeasureStringRealHeight(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{
@@ -320,8 +320,8 @@ bool TextImplGetHeight::GdiMeasureStringRealHeight(
 		return false;
 	}
 
-	*pfDestWidth= rtDraw.GetLeft();
-	*pfDestHeight= rtDraw.GetTop();
+	*pfDestWidth = (float)rtDraw.GetLeft();
+	*pfDestHeight = (float)rtDraw.GetTop();
 	b = GDIPath::MeasureGraphicsPathRealHeight(pGraphics, pPath, pfPixelsStartX, pfPixelsStartY, pfDestWidth, pfDestHeight);
 
 	if(false==b)
@@ -335,7 +335,7 @@ bool TextImplGetHeight::GdiMeasureStringRealHeight(
 	}
 
 	float pixelThick = 0.0f;
-	b = GDIPath::ConvertToPixels(pGraphics,m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
+	b = GDIPath::ConvertToPixels(pGraphics, (float)m_nThickness,0.0f,NULL,NULL,&pixelThick,NULL);
 
 	if(false==b)
 	{

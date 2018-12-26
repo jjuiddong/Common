@@ -91,7 +91,7 @@ bool TextGradOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
@@ -104,7 +104,7 @@ bool TextGradOutlineStrategy::DrawString(
 	for(int i=m_nThickness; i>=1; --i)
 	{
 		Gdiplus::Color clr = vec.at(i-1);
-		Pen pen(clr, i);
+		Pen pen(clr, (REAL)i);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, &path);
 	}
@@ -134,7 +134,7 @@ bool TextGradOutlineStrategy::DrawString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle,nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
@@ -147,7 +147,7 @@ bool TextGradOutlineStrategy::DrawString(
 	for(int i=m_nThickness; i>=1; --i)
 	{
 		Gdiplus::Color clr = vec.at(i-1);
-		Pen pen(clr, i);
+		Pen pen(clr, (REAL)i);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, &path);
 	}
@@ -200,7 +200,7 @@ bool TextGradOutlineStrategy::GdiDrawString(
 	for(int i=m_nThickness; i>=1; --i)
 	{
 		Gdiplus::Color clr = vec.at(i-1);
-		Pen pen(clr, i);
+		Pen pen(clr, (REAL)i);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, pPath);
 	}
@@ -259,7 +259,7 @@ bool TextGradOutlineStrategy::GdiDrawString(
 	for(int i=m_nThickness; i>=1; --i)
 	{
 		Gdiplus::Color clr = vec.at(i-1);
-		Pen pen(clr, i);
+		Pen pen(clr, (REAL)i);
 		pen.SetLineJoin(LineJoinRound);
 		pGraphics->DrawPath(&pen, pPath);
 	}

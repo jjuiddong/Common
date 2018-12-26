@@ -1143,7 +1143,7 @@ bool OutlineText::MeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1225,7 +1225,7 @@ bool OutlineText::MeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1298,7 +1298,7 @@ bool OutlineText::GdiMeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1371,7 +1371,7 @@ bool OutlineText::GdiMeasureString(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1444,7 +1444,7 @@ bool OutlineText::GdiMeasureStringRealHeight(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
@@ -1517,7 +1517,7 @@ bool OutlineText::GdiMeasureStringRealHeight(
 		{
 			float fDestWidth3 = 0.0f;
 			float fDestHeight3 = 0.0f;
-			b = GDIPath::ConvertToPixels(pGraphics,m_ptShadowOffset.X,m_ptShadowOffset.Y,
+			b = GDIPath::ConvertToPixels(pGraphics, (float)m_ptShadowOffset.X, (float)m_ptShadowOffset.Y,
 				NULL,NULL,&fDestWidth3,&fDestHeight3);
 			if(b)
 			{
