@@ -619,6 +619,17 @@ int cPathFinder::GetNearestArea(const Vector3 &pos) const
 }
 
 
+// return vertex index from linkId == linkId
+// return -1, not found
+int cPathFinder::GetVertexFromLinkId(const int linkId) const
+{
+	for (u_int i = 0; i < m_vertices.size(); ++i)
+		if (linkId == m_vertices[i].linkId)
+			return (int)i;
+	return -1;
+}
+
+
 // pos 와 가장 가까운 edge 를 리턴한다. 없으면 = -1 리턴
 std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
 {

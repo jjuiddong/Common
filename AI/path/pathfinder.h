@@ -38,25 +38,22 @@ namespace ai
 			int type; // 0:path point, 1:destination1, 2:destination2, 3:temporary node
 			Vector3 pos;
 			sEdge edge[MAX_EDGE];
-			//int edge[MAX_EDGE];
-			//float w[MAX_EDGE]; // edge weight
 			int data[4];
 			int replaceFromIdx; // using temporary vertex, replace vertex from, to
 			int replaceToIdx;
 			float startLen;
 			float endLen;
+			bool visit; // use iternal
+			int linkId; // virtual link vertex id (for fastmap)
 
 			sVertex() : type(0) {
 				for (int i = 0; i < MAX_EDGE; ++i)
 					edge[i].to = -1;
-				//for (int i = 0; i < MAX_EDGE; ++i)
-				//	edge[i] = -1;
-				//for (int i = 0; i < MAX_EDGE; ++i)
-				//	w[i] = 1.f;
 				for (int i = 0; i < ARRAYSIZE(data); ++i)
 					data[i] = -1;
 				replaceFromIdx = -1;
 				replaceToIdx = -1;
+				visit = false;
 			}
 		};
 
@@ -106,6 +103,7 @@ namespace ai
 		int GetNearestVertex(const Vector3 &pos) const;
 		int GetNearestVertex(const Vector3 &pos, const Vector3 &end) const;
 		int GetNearestArea(const Vector3 &pos) const;
+		int GetVertexFromLinkId(const int linkId) const;
 		std::pair<int,int> GetNearestEdge(const Vector3 &pos) const;
 		static int MakeEdgeKey(const int from, const int to);
 		void Clear();
