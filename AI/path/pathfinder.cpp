@@ -409,9 +409,9 @@ bool cPathFinder::AddVertex(const sVertex &vtx)
 
 bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 {
-	RETV(vtxIdx < 0, false);
-	RETV((int)m_vertices.size() <= vtxIdx, false);
-	RETV(vtxIdx == addEdgeIdx, false);
+	RETV2(vtxIdx < 0, false);
+	RETV2((int)m_vertices.size() <= vtxIdx, false);
+	RETV2(vtxIdx == addEdgeIdx, false);
 
 	sVertex &vtx = m_vertices[vtxIdx];
 
