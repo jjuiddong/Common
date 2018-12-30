@@ -715,6 +715,13 @@ int cPathFinder::MakeEdgeKey(const int from, const int to)
 }
 
 
+void cPathFinder::ClearVertexVisit()
+{
+	for (auto &vtx : m_vertices)
+		vtx.visit = false;
+}
+
+
 void cPathFinder::Clear()
 {
 	m_vertices.clear();

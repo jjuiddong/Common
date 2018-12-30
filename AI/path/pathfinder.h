@@ -45,6 +45,7 @@ namespace ai
 			float endLen;
 			bool visit; // use iternal
 			int linkId; // virtual link vertex id (for fastmap)
+			int edgeKey; // from-to vertex id edgekey (for fastmap)
 
 			sVertex() : type(0) {
 				for (int i = 0; i < MAX_EDGE; ++i)
@@ -54,6 +55,8 @@ namespace ai
 				replaceFromIdx = -1;
 				replaceToIdx = -1;
 				visit = false;
+				edgeKey = 0;
+				linkId = -1;
 			}
 		};
 
@@ -79,7 +82,7 @@ namespace ai
 		};
 
 		typedef vector<Vector3> ppath;	// position path
-		typedef vector<u_int> vpath;	// vertex index path
+		typedef vector<uint> vpath;		// vertex index path
 		typedef vector<sEdge> epath;	// edge path
 
 		cPathFinder();
@@ -106,6 +109,7 @@ namespace ai
 		int GetVertexFromLinkId(const int linkId) const;
 		std::pair<int,int> GetNearestEdge(const Vector3 &pos) const;
 		static int MakeEdgeKey(const int from, const int to);
+		void ClearVertexVisit();
 		void Clear();
 
 

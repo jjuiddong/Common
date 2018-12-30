@@ -65,6 +65,10 @@ typedef unsigned int	hashcode;
 	typedef wchar_t wchar;
 #endif
 
+#ifndef uint
+	typedef unsigned int uint;
+#endif
+
 
 // 포함 파일들.
 #include <windows.h>
