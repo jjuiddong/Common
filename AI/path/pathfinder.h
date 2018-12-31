@@ -35,7 +35,7 @@ namespace ai
 			};
 
 			enum { MAX_EDGE = 10, MAX_VERTEX = 1024 };
-			int type; // 0:path point, 1:destination1, 2:destination2, 3:temporary node
+			int type; // 0:path point, 1:destination1, 2:destination2, 10:temporary node
 			Vector3 pos;
 			sEdge edge[MAX_EDGE];
 			int data[4];
