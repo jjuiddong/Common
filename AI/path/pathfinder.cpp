@@ -174,7 +174,7 @@ bool cPathFinder::Find(const Vector3 &start
 		return false;
 
 	set<int> visitSet;
-	//map<int, float> lenSet; // key = edgeKey, data = length
+	map<int, set<int>> vtxEdges;
 	m_lenSet.clear();
 
 	vector<int> candidate;
@@ -221,6 +221,8 @@ bool cPathFinder::Find(const Vector3 &start
 			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos) + 0.00001f;
 			nextVtx.endLen = Distance(end, nextVtx.pos);
 
+			vtxEdges[curIdx].insert(nextIdx);
+			vtxEdges[nextIdx].insert(curIdx);
 			visitSet.insert(edgeKey1);
 			visitSet.insert(edgeKey2);
 			m_lenSet[edgeKey1] = nextVtx.startLen + nextVtx.endLen;
@@ -269,12 +271,10 @@ bool cPathFinder::Find(const Vector3 &start
 		float minEdge = FLT_MAX;
 		int nextIdx = -1;
 		sVertex &vtx = m_vertices[curIdx];
-		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
+		set<int> edges = vtxEdges[curIdx];
+		for (auto next : edges)
 		{
-			if (vtx.edge[i].to < 0)
-				break;
-			
-			const int edgeKey = MakeEdgeKey(curIdx, vtx.edge[i].to);
+			const int edgeKey = MakeEdgeKey(curIdx, next);
 			if (visitSet.end() != visitSet.find(edgeKey))
 				continue; // is visit?
 
@@ -285,7 +285,7 @@ bool cPathFinder::Find(const Vector3 &start
 			if (minEdge > it->second)
 			{
 				minEdge = it->second;
-				nextIdx = vtx.edge[i].to;
+				nextIdx = next;
 			}
 		}
 
@@ -429,7 +429,7 @@ bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
 	}
 
 	RETV(isAlreadyExist, false);
-
+	
 	// push back
 	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
