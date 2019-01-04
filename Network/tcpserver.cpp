@@ -6,22 +6,26 @@
 using namespace std;
 using namespace network;
 
-unsigned WINAPI TCPServerThreadFunction(void* arg);
 
-
-cTCPServer::cTCPServer()
+cTCPServer::cTCPServer(
+	iProtocol *protocol //= new cProtocol()
+)
 	: m_isConnect(false)
 	, m_listener(NULL)
 	, m_threadLoop(true)
 	, m_maxBuffLen(BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_sendBytes(0)
+	, m_protocol(protocol)
+	, m_sendQueue(protocol)
+	, m_recvQueue(protocol)
 {
 }
 
 cTCPServer::~cTCPServer()
 {
 	Close();
+	SAFE_DELETE(m_protocol);
 }
 
 
@@ -59,7 +63,7 @@ bool cTCPServer::Init(const int port
 
 		m_isConnect = true;
 		m_threadLoop = true;
-		m_thread = std::thread(TCPServerThreadFunction, this);
+		m_thread = std::thread(cTCPServer::TCPServerThreadFunction, this);
 	}
 	else
 	{
@@ -68,6 +72,12 @@ bool cTCPServer::Init(const int port
 	}
 
 	return true;
+}
+
+
+bool cTCPServer::IsConnect() const 
+{ 
+	return m_isConnect; 
 }
 
 
@@ -149,7 +159,7 @@ bool cTCPServer::IsExistSession()
 }
 
 
-unsigned WINAPI TCPServerThreadFunction(void* arg)
+unsigned WINAPI cTCPServer::TCPServerThreadFunction(void* arg)
 {
 	cTCPServer *server = (cTCPServer*)arg;
 

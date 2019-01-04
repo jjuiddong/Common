@@ -5,7 +5,7 @@
 using namespace network;
 
 
-cPacketQueue::cPacketQueue()
+cPacketQueue::cPacketQueue(iProtocol *protocol)
 	: m_memPoolPtr(NULL)
 	, m_chunkBytes(0)
 	, m_packetBytes(0)
@@ -14,6 +14,7 @@ cPacketQueue::cPacketQueue()
 	, m_tempBuffer(NULL)
 	, m_isStoreTempHeaderBuffer(false)
 	, m_isLogIgnorePacket(false)
+	, m_protocol(protocol)
 {
 	InitializeCriticalSectionAndSpinCount(&m_criticalSection, 0x00000400);
 }
@@ -31,22 +32,22 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 	Clear();
 
 	// Init Memory pool
-	m_packetBytes = packetSize + sizeof(sHeader);
+	m_packetBytes = packetSize + m_protocol->GetHeaderSize();
 	m_chunkBytes = packetSize;
 	m_totalChunkCount = maxPacketCount;
 	//m_memPoolPtr = new BYTE[(packetSize+sizeof(sHeader)) * maxPacketCount];
 	m_memPool.reserve(maxPacketCount);
 	for (int i = 0; i < maxPacketCount; ++i)
 	{
-		m_memPool.push_back({ false, new BYTE[ (packetSize + sizeof(sHeader)) ] });
+		m_memPool.push_back({ false, new BYTE[ (packetSize + m_protocol->GetHeaderSize()) ] });
 		//m_memPool.push_back({ false, m_memPoolPtr + (i*(packetSize + sizeof(sHeader))) });
 	}
 	//
 
 	m_queue.reserve(maxPacketCount);
-	m_tempBuffer = new BYTE[packetSize + sizeof(sHeader)];
-	m_tempBufferSize = packetSize + sizeof(sHeader);
-	m_tempHeaderBuffer = new BYTE[sizeof(sHeader)];
+	m_tempBuffer = new BYTE[packetSize + m_protocol->GetHeaderSize()];
+	m_tempBufferSize = packetSize + m_protocol->GetHeaderSize();
+	m_tempHeaderBuffer = new BYTE[m_protocol->GetHeaderSize()];
 	m_tempHeaderBufferSize = 0;
 
 	return true;
@@ -58,7 +59,7 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 // 쪼개진 패킷을 합치는 코드는 없다.
 // 네트워크로 부터 받아서 저장하는게 아니라, 사용자가 직접 패킷을 큐에 넣을 때
 // 사용하는 함수다.
-void cPacketQueue::Push(const SOCKET sock, const char protocol[4]
+void cPacketQueue::Push(const SOCKET sock, iProtocol *protocol
 	, const BYTE *data, const int len)
 {
 	cAutoCS cs(m_criticalSection);
@@ -130,7 +131,7 @@ void cPacketQueue::PushFromNetwork(const SOCKET sock, const BYTE *data, const in
 		{
 			// 남은 여분의 데이타가 sHeader 보다 작을 때, 임시로 
 			// 저장한 후, 나머지 패킷이 왔을 때 처리한다.
-			if (size < sizeof(sHeader))
+			if (size < m_protocol->GetHeaderSize())
 			{
 				m_tempHeaderBufferSize = size;
 				m_isStoreTempHeaderBuffer = true;
@@ -202,15 +203,12 @@ int cPacketQueue::CopySockBuffer(sSockBuffer *dst, const BYTE *data, const int l
 
 
 // 새 패킷 버퍼를 추가한다.
-int cPacketQueue::AddSockBuffer(const SOCKET sock, const char protocol[4]
+int cPacketQueue::AddSockBuffer(const SOCKET sock, iProtocol *protocol
 	, const BYTE *data, const int len)
 {
 	// 새로 추가될 소켓의 패킷이라면
 	sSockBuffer sockBuffer;
-	sockBuffer.protocol[0] = protocol[0];
-	sockBuffer.protocol[1] = protocol[1];
-	sockBuffer.protocol[2] = protocol[2];
-	sockBuffer.protocol[3] = protocol[3];
+	sockBuffer.protocol = protocol->GetProtocolType();
 	sockBuffer.sock = sock;
 	sockBuffer.totalLen = 0;
 	sockBuffer.readLen = 0;
@@ -218,7 +216,7 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const char protocol[4]
 
 	// 송신할 패킷을 추가할 경우, or 헤더가 없는 패킷을 받을 경우.
 	// 패킷 헤더를 추가한다.
-	sockBuffer.totalLen = len + sizeof(sHeader);
+	sockBuffer.totalLen = len + protocol->GetHeaderSize();
 	sockBuffer.actualLen = len;
 
 	if ((sockBuffer.totalLen < 0) || (sockBuffer.actualLen < 0))
@@ -232,8 +230,8 @@ int cPacketQueue::AddSockBuffer(const SOCKET sock, const char protocol[4]
 	if (!sockBuffer.buffer)
 		return 0; // Error!! 
 
-	sHeader header = MakeHeader(protocol, len + sizeof(sHeader));
-	CopySockBuffer(&sockBuffer, (BYTE*)&header, sizeof(sHeader));
+	protocol->WriteHeader(sockBuffer.buffer, len);
+	sockBuffer.readLen += protocol->GetHeaderSize();
 
 	const int copyLen = CopySockBuffer(&sockBuffer, data, len);
 	m_queue.push_back(sockBuffer);
@@ -249,12 +247,8 @@ int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, co
 	// 네트워크를 통해 온 패킷이라면, 이미 패킷헤더가 포함된 상태다.
 	// 전체 패킷 크기를 저장해서, 분리된 패킷인지를 판단한다.
 	int byteSize = 0;
-	const sHeader header = GetHeader(data, byteSize);
-	if (isalpha(header.protocol[0])
-		&& isalpha(header.protocol[1])
-		&& isalpha(header.protocol[2])
-		&& isalpha(header.protocol[3])
-		&& (byteSize > sizeof(sHeader)) && (byteSize <= m_packetBytes))
+	m_protocol->GetHeader(data, byteSize);
+	if (m_protocol->IsValidPacket() && (byteSize <= m_packetBytes))
 	{
 		// nothing~ continue~
 	}
@@ -269,15 +263,12 @@ int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, co
 	}
 
 	// 헤더를 제외한 데이타크기
-	const int actualDataSize = byteSize - sizeof(sHeader);
+	const int actualDataSize = byteSize - m_protocol->GetHeaderSize();
 
 	// 네트워크로부터 받은 패킷은 헤더부분을 제외한 실제 데이타만 복사한다.
 	sSockBuffer sockBuffer;
 	sockBuffer.sock = sock;
-	sockBuffer.protocol[0] = header.protocol[0];
-	sockBuffer.protocol[1] = header.protocol[1];
-	sockBuffer.protocol[2] = header.protocol[2];
-	sockBuffer.protocol[3] = header.protocol[3];
+	sockBuffer.protocol = m_protocol->GetProtocolType();
 	sockBuffer.readLen = 0;
 	sockBuffer.totalLen = actualDataSize;
 	sockBuffer.actualLen = actualDataSize; 
@@ -294,44 +285,12 @@ int cPacketQueue::AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, co
 	}
 
 	// 헤더 이후의 데이타를 복사한다.
-	const int copyLen = CopySockBuffer(&sockBuffer, data + sizeof(sHeader)
-		, min(len - (int)sizeof(sHeader), actualDataSize));
+	const int copyLen = CopySockBuffer(&sockBuffer, data + m_protocol->GetHeaderSize()
+		, min(len - m_protocol->GetHeaderSize(), actualDataSize));
 	m_queue.push_back(sockBuffer);
 
 	// 패킷헤더 크기까지 포함.
-	return copyLen + sizeof(sHeader);
-}
-
-
-// 헤더구조체를 생성한다.
-cPacketQueue::sHeader cPacketQueue::MakeHeader(const char protocol[4], const int len)
-{
-	sHeader header;
-	header.protocol[0] = protocol[0];
-	header.protocol[1] = protocol[1];
-	header.protocol[2] = protocol[2];
-	header.protocol[3] = protocol[3];
-
-	header.packetLength[0] = min(9, len / 1000) + '0';
-	header.packetLength[1] = min(9, (len % 1000) / 100) + '0';
-	header.packetLength[2] = min(9, (len % 100) / 10) + '0';
-	header.packetLength[3] = min(9,  len % 10) + '0';
-
-	return header;
-}
-
-
-// 바이트 스트림으로부터 헤더 구조체를 생성한다.
-cPacketQueue::sHeader cPacketQueue::GetHeader(const BYTE *data, OUT int &byteSize)
-{
-	sHeader header = *(sHeader*)data;
-
-	byteSize = (header.packetLength[0] - '0') * 1000
-		+ (header.packetLength[1] - '0') * 100
-		+ (header.packetLength[2] - '0') * 10
-		+ (header.packetLength[3] - '0') * 1;
-
-	return header;
+	return copyLen + m_protocol->GetHeaderSize();
 }
 
 

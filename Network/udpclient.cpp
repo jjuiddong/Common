@@ -5,20 +5,23 @@
 using namespace std;
 using namespace network;
 
-unsigned WINAPI UDPClientThreadFunction(void* arg);
 
-
-cUDPClient::cUDPClient() : 
+cUDPClient::cUDPClient(
+	iProtocol *protocol //= new cProtocol()
+) :
 	m_isConnect(false)
 	, m_threadLoop(true)
 	, m_sleepMillis(30)
 	, m_maxBuffLen(BUFFER_LENGTH)
+	, m_protocol(protocol)
+	, m_sndQueue(protocol)
 {
 }
 
 cUDPClient::~cUDPClient()
 {
 	Close();
+	SAFE_DELETE(m_protocol);
 }
 
 
@@ -48,7 +51,7 @@ bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis)
 
 		m_isConnect = true;
 		m_threadLoop = true;
-		m_thread = std::thread(UDPClientThreadFunction, this);
+		m_thread = std::thread(cUDPClient::UDPClientThreadFunction, this);
 	}
 	else
 	{
@@ -61,7 +64,7 @@ bool cUDPClient::Init(const string &ip, const int port, const int sleepMillis)
 
 
 // 전송할 정보를 설정한다.
-void cUDPClient::SendData(const char protocol[4], const BYTE *buff, const int buffLen)
+void cUDPClient::SendData(iProtocol *protocol, const BYTE *buff, const int buffLen)
 {
 	m_sndQueue.Push(m_socket, protocol, buff, buffLen);
 }
@@ -88,7 +91,7 @@ void cUDPClient::Close()
 
 
 // UDP 네트워크 쓰레드.
-unsigned WINAPI UDPClientThreadFunction(void* arg)
+unsigned WINAPI cUDPClient::UDPClientThreadFunction(void* arg)
 {
 	cUDPClient *udp = (cUDPClient*)arg;
 

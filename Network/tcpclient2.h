@@ -6,6 +6,10 @@
 //
 // 2018-12-09, jjuiddong
 //	- send all error, close connection
+//
+// 2019-01-04
+//		- update iProtocol
+//
 #pragma once
 
 #include "packetqueue.h"
@@ -16,18 +20,20 @@ namespace network
 	class cTCPClient2
 	{
 	public:
-		cTCPClient2();
+		cTCPClient2(iProtocol *protocol = new cProtocol());
 		virtual ~cTCPClient2();
 
 		bool Init(const string &ip, const int port
 			, const int packetSize = 512, const int maxPacketCount = 10, const int sleepMillis = 30
 			, const int clientSidePort = -1);
-		void Send(const char protocol[4], const BYTE *buff, const int len);
+		void Send(iProtocol *protocol, const BYTE *buff, const int len);
 		bool ReConnect();
 		void Close();
 		bool IsConnect() const;
 		bool IsReadyConnect() const;
 		bool IsFailConnection() const;
+
+		static void TCPClient2ThreadFunction(cTCPClient2 *client);
 
 
 	public:
@@ -45,6 +51,7 @@ namespace network
 		int m_clientSidePort;
 		SOCKET m_socket; // server socket
 		int m_maxBuffLen;
+		iProtocol *m_protocol;
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
 

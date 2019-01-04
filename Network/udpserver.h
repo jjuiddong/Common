@@ -11,6 +11,9 @@
 // 2016-08-30
 //		- packetqueue Ãß°¡
 //
+// 2019-01-04
+//		- update iProtocol
+//
 #pragma once
 
 
@@ -20,7 +23,7 @@ namespace network
 	class cUDPServer
 	{
 	public:
-		cUDPServer();
+		cUDPServer(iProtocol *protocol = new cProtocol());
 		virtual ~cUDPServer();
 
 		bool Init(const int id, const int port 
@@ -37,6 +40,7 @@ namespace network
 		SOCKET m_socket;
 		int m_port;
 		bool m_isConnect;
+		iProtocol *m_protocol;
 		cPacketQueue m_recvQueue;
 
 		std::thread m_thread;

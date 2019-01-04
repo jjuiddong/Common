@@ -24,6 +24,8 @@
 //		- [0 ~ 3] : protocol ascii code
 //		- [4 ~ 7] : packet bytes length by ascii (ex 0085, 85 bytes)
 //
+// 2019-01-04
+//		- update iProtocol
 //
 #pragma once
 
@@ -35,9 +37,9 @@ namespace network
 	struct sSockBuffer
 	{
 		SOCKET sock; // 세션 소켓
-		char protocol[4];
+		int protocol;
 		BYTE *buffer;
-		int totalLen; // = sizeof(sHeader) + buffer size
+		int totalLen; // = iProtocol::GetHeaderSize() + buffer size
 		bool full; // 버퍼가 다 채워지면 true가 된다.
 		int readLen;
 		int actualLen; // 실제 패킷의 크기를 나타낸다. buffer size(bytes) {= totalLen - sizeof(sHeader)}
@@ -47,17 +49,11 @@ namespace network
 	class cPacketQueue
 	{
 	public:
-		cPacketQueue();
+		cPacketQueue(iProtocol *protocol = NULL);
 		virtual ~cPacketQueue();
 
-		struct sHeader
-		{
-			BYTE protocol[4];
-			BYTE packetLength[4]; // ascii packet length, ex) 0085
-		};
-
 		bool Init(const int packetSize, const int maxPacketCount);
-		void Push(const SOCKET sock, const char protocol[4], const BYTE *data, const int len);
+		void Push(const SOCKET sock, iProtocol *protocol, const BYTE *data, const int len);
 		void PushFromNetwork(const SOCKET sock, const BYTE *data, const int len);
 		bool Front(OUT sSockBuffer &out);
 		void Pop();
@@ -70,9 +66,11 @@ namespace network
 		int GetPacketSize();
 		int GetMaxPacketCount();
 
+
+	public:
 		vector<sSockBuffer> m_queue;
 
-		// 임시 버퍼
+		iProtocol *m_protocol;
 		BYTE *m_tempHeaderBuffer; // 임시로 Header 저장하는 버퍼
 		int m_tempHeaderBufferSize;
 		bool m_isStoreTempHeaderBuffer; // 임시로 저장하고 있을 때 true
@@ -84,11 +82,9 @@ namespace network
 	protected:
 		sSockBuffer* FindSockBuffer(const SOCKET sock);
 		int CopySockBuffer(sSockBuffer *dst, const BYTE *data, const int len);
-		int AddSockBuffer(const SOCKET sock, const char protocol[4]
+		int AddSockBuffer(const SOCKET sock, iProtocol *protocol
 			, const BYTE *data, const int len);
 		int AddSockBufferByNetwork(const SOCKET sock, const BYTE *data, const int len);
-		sHeader MakeHeader(const char protocol[4], const int len);
-		sHeader GetHeader(const BYTE *data, OUT int &byteSize);
 
 		//---------------------------------------------------------------------
 		// Simple Queue Memory Pool
@@ -104,7 +100,7 @@ namespace network
 		};
 		vector<sChunk> m_memPool;
 		BYTE *m_memPoolPtr;
-		int m_packetBytes; // sHeader 헤더를 포함한 패킷 크기
+		int m_packetBytes; // header 헤더를 포함한 패킷 크기
 		int m_chunkBytes; // 순수한 패킷 크기 (actual size)
 		int m_totalChunkCount;
 		CRITICAL_SECTION m_criticalSection;

@@ -422,6 +422,7 @@
     <ClCompile Include="FtpClient\FTPListParse.cpp" />
     <ClCompile Include="launcher.cpp" />
     <ClCompile Include="packetqueue.cpp" />
+    <ClCompile Include="protocol.cpp" />
     <ClCompile Include="session.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

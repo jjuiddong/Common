@@ -6,21 +6,25 @@
 using namespace std;
 using namespace network;
 
-void TCPClient2ThreadFunction(network::cTCPClient2 *client);
 
-
-cTCPClient2::cTCPClient2()
+cTCPClient2::cTCPClient2(
+	iProtocol *protocol //= new cProtocol()
+)
 	: m_sleepMillis(30)
 	, m_maxBuffLen(BUFFER_LENGTH)
 	, m_recvBytes(0)
 	, m_state(DISCONNECT)
 	, m_clientSidePort(-1)
+	, m_protocol(protocol)
+	, m_sendQueue(protocol)
+	, m_recvQueue(protocol)
 {
 }
 
 cTCPClient2::~cTCPClient2()
 {
 	Close();
+	SAFE_DELETE(m_protocol);
 }
 
 
@@ -40,7 +44,7 @@ bool cTCPClient2::Init(const string &ip, const int port
 	m_maxBuffLen = packetSize;
 
 	m_state = READYCONNECT;
-	m_thread = std::thread(TCPClient2ThreadFunction, this);
+	m_thread = std::thread(cTCPClient2::TCPClient2ThreadFunction, this);
 
 	if (!m_recvQueue.Init(packetSize, maxPacketCount))
 	{
@@ -72,7 +76,7 @@ bool cTCPClient2::ReConnect()
 }
 
 
-void cTCPClient2::Send(const char protocol[4], const BYTE *buff, const int len)
+void cTCPClient2::Send(iProtocol *protocol, const BYTE *buff, const int len)
 {
 	RET(!IsConnect());
 	m_sendQueue.Push(m_socket, protocol, buff, len);
@@ -91,7 +95,7 @@ void cTCPClient2::Close()
 }
 
 
-void TCPClient2ThreadFunction(network::cTCPClient2 *client)
+void cTCPClient2::TCPClient2ThreadFunction(network::cTCPClient2 *client)
 {
 	if (client->m_state != cTCPClient2::READYCONNECT)
 	{

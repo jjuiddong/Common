@@ -7,17 +7,22 @@ using namespace network;
 unsigned WINAPI UDPServerThreadFunction(void* arg);
 
 
-cUDPServer::cUDPServer() 
+cUDPServer::cUDPServer(
+	iProtocol *protocol //= new cProtocol()
+)
 	: m_id(0)
 	, m_isConnect(false)
 	, m_threadLoop(true)
 	, m_sleepMillis(1)
+	, m_protocol(protocol)
+	, m_recvQueue(protocol)
 {
 }
 
 cUDPServer::~cUDPServer()
 {
 	Close(true);
+	SAFE_DELETE(m_protocol);
 }
 
 

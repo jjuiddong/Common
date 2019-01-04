@@ -7,6 +7,9 @@
 // 2018-12-09, jjuiddong
 //	- send all error, close socket
 //
+// 2019-01-04
+//		- update iProtocol
+//
 #pragma once
 
 #include "session.h"
@@ -24,7 +27,7 @@ namespace network
 	class cTCPServer
 	{
 	public:
-		cTCPServer();
+		cTCPServer(iProtocol *protocol = new cProtocol());
 		virtual ~cTCPServer();
 
 		bool Init(const int port, const int packetSize = 512
@@ -37,6 +40,8 @@ namespace network
 		void RemoveSession(const SOCKET remoteSock);
 		bool IsExistSession();
 
+		static unsigned WINAPI TCPServerThreadFunction(void* arg);
+
 
 	public:
 		SOCKET m_svrSocket;
@@ -45,6 +50,7 @@ namespace network
 		int m_port;
 		bool m_isConnect;
  		int m_maxBuffLen;
+		iProtocol *m_protocol;
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
 
@@ -55,6 +61,4 @@ namespace network
 		int m_sendBytes; // debug
 	};
 
-
-	inline bool cTCPServer::IsConnect() const { return m_isConnect; }
 }

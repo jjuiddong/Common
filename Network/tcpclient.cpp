@@ -5,23 +5,27 @@
 using namespace std;
 using namespace network;
 
-unsigned WINAPI TCPClientThreadFunction(void* arg);
 
-
-cTCPClient::cTCPClient()
-: m_isConnect(false)
-, m_socket(INVALID_SOCKET)
-, m_threadLoop(true)
-, m_sleepMillis(30)
-, m_maxBuffLen(BUFFER_LENGTH)
-, m_recvBytes(0)
-, m_isLog(true)
+cTCPClient::cTCPClient(
+	iProtocol *protocol //= new cProtocol()
+)
+	: m_isConnect(false)
+	, m_socket(INVALID_SOCKET)
+	, m_threadLoop(true)
+	, m_sleepMillis(30)
+	, m_maxBuffLen(BUFFER_LENGTH)
+	, m_recvBytes(0)
+	, m_isLog(true)
+	, m_protocol(protocol)
+	, m_sendQueue(protocol)
+	, m_recvQueue(protocol)
 {
 }
 
 cTCPClient::~cTCPClient()
 {
 	Close();
+	SAFE_DELETE(m_protocol);
 }
 
 
@@ -59,7 +63,7 @@ bool cTCPClient::Init(const string &ip, const int port,
 
  		m_isConnect = true;
  		m_threadLoop = true;
-		m_thread = std::thread(TCPClientThreadFunction, this);
+		m_thread = std::thread(cTCPClient::TCPClientThreadFunction, this);
 	}
 	else
 	{
@@ -72,7 +76,7 @@ bool cTCPClient::Init(const string &ip, const int port,
 }
 
 
-void cTCPClient::Send(const char protocol[4], BYTE *buff, const int len)
+void cTCPClient::Send(iProtocol *protocol, BYTE *buff, const int len)
 {
 	RET(!m_isConnect);
 	m_sendQueue.Push(m_socket, protocol, buff, len);
@@ -91,7 +95,7 @@ void cTCPClient::Close()
 }
 
 
-unsigned WINAPI TCPClientThreadFunction(void* arg)
+unsigned WINAPI cTCPClient::TCPClientThreadFunction(void* arg)
 {
 	cTCPClient *client = (cTCPClient*)arg;
 	char *buff = new char[client->m_maxBuffLen];

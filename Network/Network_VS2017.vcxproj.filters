@@ -119,7 +119,10 @@
       <Filter>FtpClient</Filter>
     </ClCompile>
     <ClCompile Include="tcpclient2.cpp">
-      <Filter>헤더 파일</Filter>
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

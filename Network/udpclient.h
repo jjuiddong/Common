@@ -10,6 +10,9 @@
 // 2016-08-30
 //		- packetqueue Ãß°¡
 //
+// 2019-01-04
+//		- update iProtocol
+//
 #pragma once
 
 
@@ -19,14 +22,16 @@ namespace network
 	class cUDPClient
 	{
 	public:
-		cUDPClient();
+		cUDPClient(iProtocol *protocol = new cProtocol());
 		virtual ~cUDPClient();
 
 		bool Init(const string &ip, const int port, const int sleepMillis=30);
-		void SendData(const char protocol[4], const BYTE *buff, const int buffLen);
+		void SendData(iProtocol *protocol, const BYTE *buff, const int buffLen);
 		void SetMaxBufferLength(const int length);
 		void Close();
 		bool IsConnect() const;
+
+		static unsigned WINAPI UDPClientThreadFunction(void* arg);
 
 
 	public:
@@ -37,6 +42,7 @@ namespace network
 		SOCKET m_socket;
 		sockaddr_in m_sockaddr;
 		int m_maxBuffLen;
+		iProtocol *m_protocol;
 		cPacketQueue m_sndQueue;
 
 		std::thread m_thread;
