@@ -1,14 +1,15 @@
 //
 // 2019-01-04, jjuiddong
-// packet protocol header class
+// packet protocol header class interface
 //
-// protocol type : 4 byte ascii type
-// packet length : 4 byte ascii type
+// cProtocol
+//		protocol type : 4 byte ascii type
+//		packet length : 4 byte ascii type
 //
-//	header {
-//		char protocol[4];
-//		char packetSize[4];
-//	};
+//		header {
+//			char protocol[4];
+//			char packetSize[4];
+//		};
 //
 #pragma once
 
