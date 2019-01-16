@@ -48,13 +48,13 @@
 #define INOUT
 #endif
 
-#define RET(exp)		{if((exp)) return; }			// exp가 true이면 리턴
-#define RET2(exp)		{if((exp)) {assert(0); return;} }			// exp가 true이면 리턴
+#define RET(exp)	{if((exp)) return; } // exp가 true이면 리턴
+#define RET2(exp)	{if((exp)) {assert(0); return;} } // exp가 true이면 리턴
 #define RETV(exp,val)	{if((exp)) return val; }
 #define RETV2(exp,val)	{if((exp)) {assert(0); return val;} }
-#define ASSERT_RET(exp)		{assert(exp); RET(!(exp) ); }
-#define ASSERT_RETV(exp,val)		{assert(exp); RETV(!(exp),val ); }
-#define BRK(exp)		{if((exp)) break; }			// exp가 break
+#define ASSERT_RET(exp)	{assert(exp); RET(!(exp) ); }
+#define ASSERT_RETV(exp,val)	{assert(exp); RETV(!(exp),val ); }
+#define BRK(exp)	{if((exp)) break; } // exp가 break
 
 
 typedef unsigned int    u_int;
@@ -106,12 +106,12 @@ using std::wstringstream;
 #include "container/simplestring.h"
 #include "container/circularqueue.h"
 #include "math/Math.h"
+#include "etc/recttype.h"
 #include "etc/singleton.h"
 #include "etc/filepath.h"
 #include "etc/stringfunc.h"
 #include "etc/observer.h"
 #include "etc/observer2.h"
-#include "etc/recttype.h"
 #include "etc/genid.h"
 #include "etc/memorypool.h"
 #include "etc/memorypool2.h"

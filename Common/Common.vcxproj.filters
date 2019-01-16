@@ -148,24 +148,6 @@
     <ClInclude Include="etc\memorypool3.h">
       <Filter>Etc</Filter>
     </ClInclude>
-    <ClInclude Include="collision\boundingbox.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\boundinghemisphere.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\boundingplane.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\boundingsphere.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\collisionobj.h">
-      <Filter>collision</Filter>
-    </ClInclude>
-    <ClInclude Include="collision\collision.h">
-      <Filter>collision</Filter>
-    </ClInclude>
     <ClInclude Include="math\vector2_comm.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -265,18 +247,6 @@
     <ClCompile Include="etc\timer.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
-    <ClCompile Include="collision\boundingbox.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundinghemisphere.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundingplane.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
-    <ClCompile Include="collision\boundingsphere.cpp">
-      <Filter>collision</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -290,9 +260,6 @@
     </Filter>
     <Filter Include="thread">
       <UniqueIdentifier>{c0ddb07d-9ea4-496a-99b4-3ec2ff75eaee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="collision">
-      <UniqueIdentifier>{1d2c1c06-1050-4fe5-8b88-ccd2a2c023ff}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -332,6 +332,30 @@
     <ClInclude Include="manager\RendererInterface.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="collision\boundingbox.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingbox2.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundinghemisphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingplane.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingsphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collision.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collisionable.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collisionobj.h">
+      <Filter>collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -637,6 +661,21 @@
     </ClCompile>
     <ClCompile Include="base\rendertarget3d.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox2.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundinghemisphere.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingplane.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingsphere.cpp">
+      <Filter>collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

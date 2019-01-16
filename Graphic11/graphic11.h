@@ -71,6 +71,7 @@ namespace graphic {
 #include "model_assimp/rawmesh.h"
 #include "model_assimp/rawani.h"
 
+#include "collision/collision.h"
 
 #include "base/node.h"
 #include "base/color.h"
