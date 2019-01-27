@@ -18,7 +18,6 @@
 #endif
 
 
-
 // 매크로 정의
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(p) {if (p) { delete p; p=NULL;} }
@@ -37,15 +36,15 @@
 #endif
 
 #ifndef IN
-#define IN
+	#define IN
 #endif
 
 #ifndef OUT
-#define OUT
+	#define OUT
 #endif
 
 #ifndef INOUT
-#define INOUT
+	#define INOUT
 #endif
 
 #define RET(exp)	{if((exp)) return; } // exp가 true이면 리턴
@@ -134,4 +133,5 @@ using std::wstringstream;
 #include "thread/thread.h"
 #include "etc/filelogger.h"
 #include "etc/dbg.h"
+#include "etc/macro.h"
 

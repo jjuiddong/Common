@@ -34,22 +34,22 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 
 	gameMain->m_state = cGameMain2::RUN;
 
+	common::cTimer timer;
+	timer.Create();
+
 	using namespace std::chrono_literals;
-	int oldT = timeGetTime();
+	double oldT = timer.GetSeconds();
 	while (gameMain->isOpen())
 	{
-		const int curT = timeGetTime();
-		int elapseT = curT - oldT;
-		if (elapseT > 1000)
-			elapseT = 1000;
-		//const float t = elapseT * 0.001f * gameMain->m_slowFactor;
-		const float t = (cGameMain2::PAUSE == gameMain->m_state) ? 0.f : (elapseT * 0.001f * gameMain->m_slowFactor);
+		const double curT = timer.GetSeconds();
+		const double deltaT = min(curT - oldT, gameMain->m_minDeltaTime);
+		const double dt = (cGameMain2::PAUSE == gameMain->m_state) ? 0.f : (deltaT * gameMain->m_slowFactor);
 		oldT = curT;
 
-		cDockManager::Get()->UpdateRender(t);
+		cDockManager::Get()->UpdateRender((float)dt);
 
 		if (gameMain->m_isLazyMode) // 30 frame
-			std::this_thread::sleep_for(33ms);
+			std::this_thread::sleep_for(10ms);
 	}
 
 	gameMain->m_state = cGameMain2::SHUTDOWN;
@@ -68,6 +68,7 @@ cGameMain2::cGameMain2()
 	: m_hWnd(NULL)
 	, m_isLazyMode(false)
 	, m_slowFactor(1.f)
+	, m_minDeltaTime(0.1f)
 {
 }
 

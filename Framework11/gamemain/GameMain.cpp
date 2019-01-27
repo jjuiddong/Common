@@ -96,6 +96,7 @@ cGameMain *cGameMain::m_pInstance = NULL;
 
 cGameMain::cGameMain()
 	: m_slowFactor(1.f)
+	, m_minDeltaTime(100)
 	, m_hWnd(NULL)
 	, m_hInstance(NULL)
 {
@@ -172,15 +173,14 @@ void cGameMain::Run()
 			DispatchMessage(&msg);
 		}
 
+		// 너무 간격이 크면, m_minDeltaTime를 넘지 않게 한다.
 		const int curT = timeGetTime();
-		int elapseT = curT - oldT;
-		if (elapseT > 100) // 너무 간격이 크면, 0.1초를 넘지 않게 한다.
-			elapseT = 100;
-		const float t = (PAUSE == m_state)? 0.f : (elapseT * 0.001f * m_slowFactor);
+		const int deltaTime = min(curT - oldT, m_minDeltaTime);
+		const float dt = (PAUSE == m_state)? 0.f : (deltaTime * 0.001f * m_slowFactor);
 		oldT = curT;
 
-		Update(t);
-		Render(t);
+		Update(dt);
+		Render(dt);
 	}
 }
 

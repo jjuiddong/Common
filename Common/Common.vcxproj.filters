@@ -157,6 +157,9 @@
     <ClInclude Include="etc\filelogger.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="etc\macro.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
