@@ -26,7 +26,6 @@ namespace ai
 
 		void GetNodesFromVertexIdx(const int vtxIdx, OUT set<int> &out);
 		void GetNodesFromPosition(const Vector3 &pos, OUT set<int> &out);
-		//void GetWallPlane(const set<int> &nodeIndices, OUT vector<cBoundingPlane> &out);
 		void GetWallPlane(const set<int> &nodeIndices, OUT vector<Plane> &out);
 		inline int MakeEdgeKey(const int from, const int to) const;
 
@@ -67,7 +66,6 @@ namespace ai
 		{
 			u_int nodeIdx;
 			bool collision;			
-			//cBoundingPlane bplane;
 			Plane bplane;
 		};
 

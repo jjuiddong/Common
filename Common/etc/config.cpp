@@ -7,8 +7,11 @@ using namespace common;
 using namespace std;
 
 
-cConfig::cConfig()
+cConfig::cConfig( const string &fileName //= ""
+)
 {
+	if (!fileName.empty())
+		Read(fileName);
 }
 
 cConfig::~cConfig()
@@ -39,8 +42,10 @@ bool cConfig::Parse(const string &fileName)
 		return false;
 	}
 
+	CheckUTF8withBOM(cfgfile);
+
 	string id, eq, val;
-	while (cfgfile >> id)// >> eq >> val)
+	while (cfgfile >> id)
 	{
 		val.clear();
 
@@ -128,12 +133,35 @@ void cConfig::ParseStr(const string &str)
 }
 
 
+// if UTF-8 with BOM, ignore BOM (byte order mark)
+// https://stackoverflow.com/questions/6769311/how-windows-notepad-interpret-characters
+bool cConfig::CheckUTF8withBOM(std::ifstream &ifs)
+{
+	BYTE buff[3];
+	ifs.read((char*)buff, sizeof(buff));
+
+	if ((buff[0] == 0xEF)
+		&& (buff[1] == 0xBB)
+		&& (buff[2] == 0xBF))
+	{
+		return true;
+	}
+	else
+	{
+		// return to begin file pointer
+		ifs.seekg(0, ifs.beg);
+	}
+
+	return false;
+}
+
+
 bool cConfig::GetBool(const string &key, const bool defaultValue)
 {
 	auto it = m_options.find(key);
 	if (m_options.end() == it)
 	{
-		cout << "not found id = " << key.c_str() << endl;
+		//dbg::Logc(2, "error!! not found id = %s\n", key.c_str());
 		return defaultValue;
 	}
 
@@ -146,7 +174,7 @@ float cConfig::GetFloat(const string &key, const float defaultValue)
 	auto it = m_options.find(key);
 	if (m_options.end() == it)
 	{
-		cout << "not found id = " << key.c_str() << endl;
+		//dbg::Logc(2, "error!! not found id = %s\n", key.c_str());
 		return defaultValue;
 	}
 
@@ -159,7 +187,7 @@ double cConfig::GetDouble(const string &key, const double defaultValue)
 	auto it = m_options.find(key);
 	if (m_options.end() == it)
 	{
-		cout << "not found id = " << key.c_str() << endl;
+		//dbg::Logc(2, "error!! not found id = %s\n", key.c_str());
 		return defaultValue;
 	}
 
@@ -172,7 +200,7 @@ int cConfig::GetInt(const string &key, const int defaultValue)
 	auto it = m_options.find(key);
 	if (m_options.end() == it)
 	{
-		cout << "not found id = " << key.c_str() << endl;
+		//dbg::Logc(2, "error!! not found id = %s\n", key.c_str());
 		return defaultValue;
 	}
 
@@ -185,11 +213,30 @@ string cConfig::GetString(const string &key, const string &defaultValue) //defau
 	auto it = m_options.find(key);
 	if (m_options.end() == it)
 	{
-		cout << "not found id = " << key.c_str() << endl;
+		//dbg::Logc(2, "error!! not found id = %s\n", key.c_str());
 		return defaultValue;
 	}
 
 	return it->second;
+}
+
+
+// format = x, y, z
+Vector3 cConfig::GetVector3(const string &key
+	, const Vector3 &defaultValue //= Vector3(0, 0, 0)
+)
+{
+	string str = GetString(key);
+	vector<string> strs;
+	tokenizer(str, ",", "", strs);
+	if (strs.size() < 3)
+		return Vector3::Zeroes;
+
+	const Vector3 ret(
+		(float)atof(strs[0].c_str())
+		, (float)atof(strs[1].c_str())
+		, (float)atof(strs[2].c_str()));
+	return ret;
 }
 
 

@@ -751,7 +751,6 @@ void cNavigationMesh::GetWallPlane(const set<int> &nodeIndices
 			const Vector3 p3 = p1 + offsetY;
 			const Vector3 p4 = p2 + offsetY;
 
-			//Plane bplane(p3, p4, p2, p1);
 			Plane bplane(p3, p4, p2);
 			out.push_back(bplane);
 		}

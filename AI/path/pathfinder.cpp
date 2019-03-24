@@ -31,6 +31,7 @@ bool cPathFinder::Read(const StrPath &fileName)
 	RETV(!ifs.is_open(), false);
 
 	int state = 0;
+	int edgeIdx = 0;
 	sVertex vtx;
 
 	char line[256];
@@ -38,33 +39,44 @@ bool cPathFinder::Read(const StrPath &fileName)
 	{
 		std::stringstream ss(line);
 		
-		char token[64];
+		Str64 token;
 		switch (state)
 		{
 		case 0:
 		{
-			ss >> token;
-			if (!strcmp(token, "Vertex"))
+			ss >> token.m_str;
+			if (token == "Vertex")
 			{
 				vtx = sVertex();
 				state = 1;
+				edgeIdx = 0;
 			}
 		}
 		break;
 
 		case 1:
 		{
-			ss >> token;
-			assert(!strcmp(token, "type"));
-			ss >> vtx.type;
-			state = 2;
+			ss >> token.m_str;
+			if (token == "type")
+			{
+				ss >> vtx.type;
+				state = 2;
+			}
+			else if (token == "name")
+			{
+				ss >> vtx.name.m_str;
+			}
+			else
+			{
+				assert(0);
+			}
 		}
 		break;
 
 		case 2:
 		{
-			ss >> token;
-			assert(!strcmp(token, "pos"));
+			ss >> token.m_str;
+			assert(token == "pos");
 			ss >> vtx.pos.x >> vtx.pos.y >> vtx.pos.z;
 			state = 3;
 		}
@@ -72,8 +84,8 @@ bool cPathFinder::Read(const StrPath &fileName)
 
 		case 3:
 		{
-			ss >> token;
-			assert(!strcmp(token, "dir"));
+			ss >> token.m_str;
+			assert(token == "dir");
 			//ss >> vtx.dir.x >> vtx.dir.y >> vtx.dir.z;
 			state = 4;
 		}
@@ -81,10 +93,10 @@ bool cPathFinder::Read(const StrPath &fileName)
 
 		case 4:
 		{
-			ss >> token;
+			ss >> token.m_str;
 
 			// data1 ~ 4 parsing
-			if (!strcmp(token, "data"))
+			if (token == "data")
 			{
 				int idx = 0;
 				int cnt = 0;
@@ -93,18 +105,46 @@ bool cPathFinder::Read(const StrPath &fileName)
 					++cnt;
 				} while (!ss.eof() && (cnt < ARRAYSIZE(vtx.data)));
 			}
-			else
+			else if (token == "edge")
 			{
-				assert(!strcmp(token, "edge"));
 				int idx = 0;
 				int cnt = 0;
 				do {
-					ss >> vtx.edge[idx++].to;
+					ss >> vtx.edge[idx].to;
+					vtx.edge[idx].enable = true;
+					vtx.edge[idx].w = 1.f;
+					vtx.edge[idx].prop = 0;
+					vtx.edge[idx].distance = 0.f;
+					idx++;
 					++cnt;
 				} while (!ss.eof() && (cnt < sVertex::MAX_EDGE));
 
 				AddVertex(vtx);
-			
+				state = 0;
+			}
+			else if (token == "edge2")
+			{
+				// to vertex index, edge weight
+				ss >> vtx.edge[edgeIdx].to;
+				ss >> vtx.edge[edgeIdx].w;
+				vtx.edge[edgeIdx].prop = 0;
+				ss >> vtx.edge[edgeIdx].prop;
+				vtx.edge[edgeIdx].enable = true;
+				vtx.edge[edgeIdx].distance = 0.f;
+				++edgeIdx;
+			}
+			else if (token == "Vertex")
+			{
+				AddVertex(vtx);
+
+				// read next vertex
+				vtx = sVertex();
+				state = 1;
+				edgeIdx = 0;
+			}
+			else
+			{
+				assert(0);
 				state = 0;
 			}
 		}
@@ -112,17 +152,27 @@ bool cPathFinder::Read(const StrPath &fileName)
 		}
 	}
 
+	if (state == 4)
+		AddVertex(vtx);
+
 	return true;
 }
 
 
 // Write Format
+// scale : coordinate space scale
+//
+// Sample
 // Vertex
 // type 1
 //	pos 1 1 1
 //	dir 0 0 1
 //	edge 0 1 2
-bool cPathFinder::Write(const StrPath &fileName)
+//	edge2 0 1 2
+//	edge2 0 1 2
+bool cPathFinder::Write(const StrPath &fileName
+	, const float scale //= 1.f
+)
 {
 	using namespace std;
 
@@ -132,18 +182,29 @@ bool cPathFinder::Write(const StrPath &fileName)
 	for (auto &v : m_vertices)
 	{
 		ofs << "Vertex" << endl;
+		ofs << "\tname " << v.name.c_str() << endl;
 		ofs << "\ttype " << v.type << endl;
-		ofs << "\tpos " << v.pos.x << " " << v.pos.y << " " << v.pos.z << endl;
+		ofs << "\tpos " << v.pos.x * scale 
+			<< " " << v.pos.y * scale  
+			<< " " << v.pos.z * scale << endl;
+
 		//ofs << "\tdir " << v.dir.x << " " << v.dir.y << " " << v.dir.z << endl;
 		ofs << "\tdir " << 0 << " " << 0 << " " << 0 << endl;
-		ofs << "\tedge ";
+		//ofs << "\tedge ";
+		//for (int i = 0; i < sVertex::MAX_EDGE; ++i)
+		//{
+		//	if (v.edge[i].to < 0)
+		//		break;
+		//	ofs << v.edge[i].to << " ";
+		//}
+		//ofs << endl;
+
 		for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 		{
 			if (v.edge[i].to < 0)
 				break;
-			ofs << v.edge[i].to << " ";
+			ofs << "\tedge2 " << v.edge[i].to << " " << v.edge[i].w << " " << v.edge[i].prop << endl;
 		}
-		ofs << endl;
 	}
 
 	return true;
@@ -172,6 +233,49 @@ bool cPathFinder::Find(const Vector3 &start
 	const int endIdx = m_areas.empty() ? GetNearestVertex(end) : GetNearestVertex(end, start);
 	if (endIdx < 0)
 		return false;
+
+	return Find(startIdx, endIdx, out, outTrackVertexIndices, outTrackEdges, disableEdges);
+}
+
+
+bool cPathFinder::Find(const int startIdx, const int endIdx
+	, OUT vector<Vector3> &out
+	, OUT vector<int> *outTrackVertexIndices //= NULL
+	, OUT vector<sEdge> *outTrackEdges //= NULL
+	, const set<sEdge> *disableEdges //= NULL
+)
+{
+	vector<int> verticesIndices;
+	Find(startIdx, endIdx, verticesIndices, disableEdges);
+
+	if (outTrackVertexIndices)
+		*outTrackVertexIndices = verticesIndices;
+
+	// Store Tracking Edge
+	if (outTrackEdges)
+	{
+		outTrackEdges->reserve(verticesIndices.size());
+		for (int i = 0; i < (int)verticesIndices.size() - 1; ++i)
+		{
+			const int from = verticesIndices[i];
+			const int to = verticesIndices[i + 1];
+			outTrackEdges->push_back(sEdge(from, to));
+		}
+	}
+
+	//OptimizeAreaPath(start, end, out, verticesIndices);
+
+	return true;
+}
+
+
+bool cPathFinder::Find(const int startIdx, const int endIdx
+	, OUT vector<int> &out
+	, const set<sEdge> *disableEdges //= NULL
+)
+{
+	const Vector3 start = m_vertices[startIdx].pos;
+	const Vector3 end = m_vertices[endIdx].pos;
 
 	set<int> visitSet;
 	map<int, set<int>> vtxEdges;
@@ -218,7 +322,8 @@ bool cPathFinder::Find(const Vector3 &start
 					continue;
 			}
 
-			nextVtx.startLen = curVtx.startLen + Distance(curVtx.pos, nextVtx.pos) + 0.00001f;
+			nextVtx.startLen = curVtx.startLen 
+				+ Distance(curVtx.pos, nextVtx.pos) * curVtx.edge[i].w + 0.00001f;
 			nextVtx.endLen = Distance(end, nextVtx.pos);
 
 			vtxEdges[curIdx].insert(nextIdx);
@@ -258,15 +363,12 @@ bool cPathFinder::Find(const Vector3 &start
 
 	// backward tracking
 	// end point to start point
-	vector<int> verticesIndices;
-
-	out.push_back(m_vertices[endIdx].pos);
-	verticesIndices.push_back(endIdx);
+	out.push_back(endIdx);
 
 	visitSet.clear();
 
 	int curIdx = endIdx;
-	while ((curIdx != startIdx) && (verticesIndices.size() < 1000))
+	while ((curIdx != startIdx) && (out.size() < 1000))
 	{
 		float minEdge = FLT_MAX;
 		int nextIdx = -1;
@@ -297,35 +399,16 @@ bool cPathFinder::Find(const Vector3 &start
 
 		visitSet.insert(MakeEdgeKey(curIdx, nextIdx));
 		visitSet.insert(MakeEdgeKey(nextIdx, curIdx));
-		out.push_back(m_vertices[nextIdx].pos);
-		verticesIndices.push_back(nextIdx);
+		out.push_back(nextIdx);
 		curIdx = nextIdx;
 	}
 
-	assert(verticesIndices.size() < 1000);
+	assert(out.size() < 1000);
 
 	std::reverse(out.begin(), out.end());
-	std::reverse(verticesIndices.begin(), verticesIndices.end());
 
-	if (outTrackVertexIndices)
-		*outTrackVertexIndices = verticesIndices;
-
-	// Store Tracking Edge
-	if (outTrackEdges)
-	{
-		outTrackEdges->reserve(verticesIndices.size());
-		for (u_int i = 0; i < verticesIndices.size() - 1; ++i)
-		{
-			const int from = verticesIndices[i];
-			const int to = verticesIndices[i + 1];
-			outTrackEdges->push_back(sEdge(from, to));
-		}
-	}
-
-	OptimizeAreaPath(start, end, out, verticesIndices);
-
-	if (!out.empty() && (out.back() != end))
-		out.push_back(end);
+	//if (!out.empty() && (out.back() != end))
+	//	out.push_back(end);
 
 	return true;
 }
@@ -407,37 +490,50 @@ bool cPathFinder::AddVertex(const sVertex &vtx)
 }
 
 
-bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx)
+bool cPathFinder::AddEdge(const int vtxIdx, const int addEdgeIdx
+	, const int prop //=0
+)
 {
 	RETV2(vtxIdx < 0, false);
 	RETV2((int)m_vertices.size() <= vtxIdx, false);
-	RETV2(vtxIdx == addEdgeIdx, false);
+	RETV(vtxIdx == addEdgeIdx, false);
 
 	sVertex &vtx = m_vertices[vtxIdx];
-
-	bool isAlreadyExist = false;
-	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
-	{
-		if (0 > vtx.edge[i].to)
-			break;
-
-		if (addEdgeIdx == vtx.edge[i].to)
-		{
-			isAlreadyExist = true;
-			break;
-		}
-	}
-
-	RETV(isAlreadyExist, false);
+	if (IsExistEdge(vtxIdx, addEdgeIdx))
+		return false;
 	
-	// push back
+	// add edge (push back)
 	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
 	{
 		if (0 > vtx.edge[i].to)
 		{
 			vtx.edge[i].to = addEdgeIdx;
+			vtx.edge[i].w = 1.f;
+			vtx.edge[i].prop = prop;
+			vtx.edge[i].enable = true;
+			vtx.edge[i].distance = 1.f;
 			return true;
 		}
+	}
+
+	return false;
+}
+
+
+// if already exist from -> to edge, return true
+bool cPathFinder::IsExistEdge(const int fromVtxIdx, const int toVtxIdx)
+{
+	RETV2(fromVtxIdx < 0, false);
+	RETV2((int)m_vertices.size() <= fromVtxIdx, false);
+	RETV(fromVtxIdx == toVtxIdx, false);
+
+	sVertex &vtx = m_vertices[fromVtxIdx];
+	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
+	{
+		if (0 > vtx.edge[i].to)
+			break;
+		if (toVtxIdx == vtx.edge[i].to)
+			return true;
 	}
 
 	return false;
@@ -516,7 +612,10 @@ bool cPathFinder::RemoveVertex(const int index)
 }
 
 
-int cPathFinder::GetNearestVertex(const Vector3 &pos) const
+int cPathFinder::GetNearestVertex(const Vector3 &pos
+	, const bool isIgnoreTempVtx //= false
+	, const int ignoreVtxType //= -1
+) const
 {
 	RETV(m_vertices.empty(), -1);
 	
@@ -549,6 +648,9 @@ int cPathFinder::GetNearestVertex(const Vector3 &pos) const
 	for (int i=0; i < cnt; ++i)
 	{
 		auto &vtx = m_vertices[ indices[i]];
+		if (isIgnoreTempVtx && (vtx.type == 10))
+			continue; // is temporary vertex?
+
 		const float len = vtx.pos.LengthRoughly(pos);
 		if (len < minLen)
 		{
@@ -630,6 +732,23 @@ int cPathFinder::GetVertexFromLinkId(const int linkId) const
 }
 
 
+// return vertex id from specific name
+// if not found, return -1
+int cPathFinder::GetVertexId(const Str16 &name) const
+{
+	if (name.empty())
+		return -1;
+
+	for (uint i = 0; i < m_vertices.size(); ++i)
+	{
+		const auto vtx = m_vertices[i];
+		if (!vtx.name.empty() && (name == vtx.name))
+			return (int)i;
+	}
+	return -1;
+}
+
+
 // pos 와 가장 가까운 edge 를 리턴한다. 없으면 = -1 리턴
 std::pair<int, int> cPathFinder::GetNearestEdge(const Vector3 &pos) const
 {
@@ -706,6 +825,35 @@ bool cPathFinder::AddArea(const sRectf &area)
 
 	m_areas.push_back(data);
 	return true;
+}
+
+
+// if same name, return true
+bool cPathFinder::CheckSameName() const
+{
+	set<hashcode> names;
+	for (auto &vtx : m_vertices)
+	{
+		if (vtx.name.empty())
+			continue;
+
+		if (names.end() != names.find(vtx.name.GetHashCode()))
+			return true;
+
+		names.insert(vtx.name.GetHashCode());
+	}
+
+	return false;
+}
+
+
+// if same name, return true
+bool cPathFinder::CheckEmptyName() const
+{
+	for (auto &vtx : m_vertices)
+		if (vtx.name.empty())
+			return true;
+	return false;
 }
 
 

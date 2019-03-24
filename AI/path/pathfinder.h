@@ -13,6 +13,12 @@
 // 2018-12-20, jjuiddong
 //	- refactoring
 //
+// 2019-01-25, jjuiddong
+//	- add edge2 token
+//		- edge to vertex index
+//		- edge weight
+//	- add vertex name
+//
 //
 #pragma once
 
@@ -31,11 +37,14 @@ namespace ai
 				int to; // link next vertex index
 				float distance; // edge distance
 				float w; // edge weight
+				int prop; // property, bidir
+				int toWaypoint; // direction waypoint id
 				bool enable; // edge enable/disable
 			};
 
-			enum { MAX_EDGE = 10, MAX_VERTEX = 1024 };
+			enum { MAX_EDGE = 20, MAX_VERTEX = 1024 };
 			int type; // 0:path point, 1:destination1, 2:destination2, 10:temporary node
+			Str16 name;
 			Vector3 pos;
 			sEdge edge[MAX_EDGE];
 			int data[4];
@@ -89,7 +98,8 @@ namespace ai
 		virtual ~cPathFinder();
 		bool Create(const int vertexCount);
 		bool Read(const StrPath &fileName);
-		bool Write(const StrPath &fileName);
+		bool Write(const StrPath &fileName, const float scale = 1.f);
+
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
 			, OUT vector<int> *outTrackVertexIndices = NULL
@@ -97,18 +107,34 @@ namespace ai
 			, const set<sEdge> *disableEdges = NULL
 		);
 
+		bool cPathFinder::Find(const int startIdx, const int endIdx
+			, OUT vector<Vector3> &out
+			, OUT vector<int> *outTrackVertexIndices = NULL
+			, OUT vector<sEdge> *outTrackEdges = NULL
+			, const set<sEdge> *disableEdges = NULL
+		);
+
+		bool Find(const int startIdx, const int endIdx
+			, OUT vector<int> &out
+			, const set<sEdge> *disableEdges = NULL
+		);
+
 		bool AddVertex(const sVertex &vtx);
-		bool AddEdge(const int vtxIdx, const int addEdgeIdx);
+		bool AddEdge(const int vtxIdx, const int addEdgeIdx, const int prop=0);
+		bool IsExistEdge(const int fromVtxIdx, const int toVtxIdx);
 		bool RemoveEdge(const int vtxIdx, const int removeEdgeIdx);
 		bool RemoveEdgeEachOther(const int vtxIdx, const int removeEdgeIdx);
 		bool RemoveVertex(const int index);
 		bool AddArea(const sRectf &area);
-		int GetNearestVertex(const Vector3 &pos) const;
+		int GetNearestVertex(const Vector3 &pos, const bool isIgnoreTempVtx = false, const int ignoreVtxType = -1) const;
 		int GetNearestVertex(const Vector3 &pos, const Vector3 &end) const;
 		int GetNearestArea(const Vector3 &pos) const;
 		int GetVertexFromLinkId(const int linkId) const;
+		int GetVertexId(const Str16 &name) const;
 		std::pair<int,int> GetNearestEdge(const Vector3 &pos) const;
 		static int MakeEdgeKey(const int from, const int to);
+		bool CheckSameName() const;
+		bool CheckEmptyName() const;
 		void ClearVertexVisit();
 		void Clear();
 
