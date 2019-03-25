@@ -275,8 +275,8 @@ bool cTerrainLoader::ReadHeightmap(const char *fileName)
 // 특수한 모델일 경우, 클래스를 상속받아서 메소드를 오버라이딩 한다.
 cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 { 
-	const string typeStr = tree.get<string>("type", "None");
-	const eSubType::Enum type = graphic::GetSubtype(typeStr.c_str());
+	string typeStr = tree.get<string>("type", "None");
+	const eSubType::Enum type = eSubType::FromString(common::upperCase(typeStr).c_str());
 
 	if (type == eSubType::AREA)
 	{
@@ -337,7 +337,7 @@ cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 bool cTerrainLoader::WriteModel(cNode *p, INOUT boost::property_tree::ptree &tree)
 {
 	tree.put("name", p->m_name.c_str());
-	tree.put("type", graphic::GetSubtypeStr(p->m_subType));
+	tree.put("type", eSubType::ToString(p->m_subType));
 
 	const Vector3 worldPos = p->GetWorldMatrix().GetPosition();
 	tree.put("pos", format<64>("%f %f %f"

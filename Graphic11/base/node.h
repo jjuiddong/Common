@@ -17,17 +17,9 @@ namespace graphic
 		enum Enum { NONE, MODEL, TEXT, TERRAIN, VIRTUAL };
 	};
 
-	struct eSubType {
-		enum Enum {
-			NONE = 0
-			, CUBE2
-			, AREA
-			, CUBE
-			, LINE
-		};
-	};
-	char* GetSubtypeStr(const eSubType::Enum type);
-	eSubType::Enum GetSubtype(const char *subTypeStr);
+	DECLARE_ENUM(eSubType, NONE, CUBE2, AREA, CUBE, LINE, RACK);
+	//char* GetSubtypeStr(const eSubType::Enum type);
+	//eSubType::Enum GetSubtype(const char *subTypeStr);
 
 
 	struct eRenderFlag {

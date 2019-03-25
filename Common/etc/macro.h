@@ -33,17 +33,17 @@ static void SplitEnumArgs(const char* szArgs, std::string Array[], int nMax)
 // This will to define an enum that is wrapped in a namespace of the same name along with ToString()
 // , FromString(), and COUNT
 #define DECLARE_ENUM(ename, ...) \
-    struct ename { \
+    namespace ename { \
         enum Enum { __VA_ARGS__, COUNT }; \
         static std::string _Strings[COUNT]; \
-        static const char* ToString(ename e) { \
+        static const char* ToString(Enum e) { \
             if (_Strings[0].empty()) { SplitEnumArgs(#__VA_ARGS__, _Strings, COUNT); } \
             return _Strings[e].c_str(); \
         } \
-        static ename FromString(const std::string& strEnum) { \
+        static Enum FromString(const std::string& strEnum) { \
             if (_Strings[0].empty()) { SplitEnumArgs(#__VA_ARGS__, _Strings, COUNT); } \
-            for (int i = 0; i < COUNT; i++) { if (_Strings[i] == strEnum) { return (ename)i; } } \
+            for (int i = 0; i < COUNT; i++) { if (_Strings[i] == strEnum) { return (Enum)i; } } \
             return COUNT; \
         } \
-    }
+    };
 
