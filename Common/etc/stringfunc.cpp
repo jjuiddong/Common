@@ -103,7 +103,7 @@ string common::wstr2utf8(const wstring &wstr)
 //------------------------------------------------------------------------
 std::string common::format(const char* fmt, ...)
 {
-	char textString[ 256] = {'\0'};
+	char textString[ 512] = {'\0'};
 	va_list args;
 	va_start ( args, fmt );
 	vsnprintf_s( textString, sizeof(textString), _TRUNCATE, fmt, args );
@@ -118,7 +118,7 @@ std::string common::format(const char* fmt, ...)
 //------------------------------------------------------------------------
 std::wstring common::formatw(const char* fmt, ...)
 {
-	char textString[ 256] = {'\0'};
+	char textString[ 512] = {'\0'};
 	va_list args;
 	va_start ( args, fmt );
 	vsnprintf_s( textString, sizeof(textString), _TRUNCATE, fmt, args );

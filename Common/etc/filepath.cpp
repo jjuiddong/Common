@@ -80,8 +80,8 @@ string common::CheckDirectoryPath(const string &fileName)
 	{
 		const char c1 = fileName[fileName.size() - 1];
 		const char c2 = fileName[fileName.size() - 2];
-		if (((c1 == '/') || (c1 == '\\')) &&
-			((c2 == '/') || (c2 == '\\')))
+		if (((c1 == '/') || (c1 == '\\')) 
+			&& ((c2 == '/') || (c2 == '\\')))
 		{
 			string temp = fileName;
 			temp.pop_back();
@@ -170,11 +170,13 @@ bool common::IsRelativePath(const StrPath &path)
 // ./dir1/dir2/file.ext  ==>  dir1/dir2/file.ext
 string common::DeleteCurrentPath(const string &fileName)
 {
-	const int pos = fileName.find(".\\");
-	if (pos == 0)
-	{
+	const int pos1 = fileName.find(".\\");
+	if (pos1 == 0)
 		return DeleteCurrentPath(fileName.substr(2));
-	}
+
+	const int pos2 = fileName.find("./");
+	if (pos2 == 0)
+		return DeleteCurrentPath(fileName.substr(2));
 
 	return fileName;
 }
@@ -816,9 +818,9 @@ bool common::IsFileExist(const StrPath &fileName)
 // Must Delete return value by DeleteFolderNode()
 //
 // root - child1
-//					- child1-1
-//			- child2
-//					- child2-1
+//			- child1-1
+//		- child2
+//			- child2-1
 //
 common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
 {
@@ -832,7 +834,7 @@ common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
 		sFolderNode *node = rootNode;
 		for (u_int i = 0; i < strs.size(); ++i)
 		{
-			if (i == (strs.size() - 1)) // Last String Is FileName, then Ignored
+			if (i == (strs.size() - 1)) // Last String Is FileName, so Ignored
 				continue;
 
 			const string name = strs[i];
