@@ -199,7 +199,10 @@ __int64  common::FileSize(const string &fileName)
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out)
+bool common::CollectFiles( const list<string> &findExt, const string &searchPath
+	, OUT list<string> &out
+	, const u_int maxFileCount //= 10000
+)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -218,6 +221,9 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 	while (1)
 	{
+		if (out.size() > maxFileCount)
+			break; // too much file search, finish
+
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
@@ -260,7 +266,10 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 // same CollectFiles() function
 // return  Relative Path
-bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out)
+bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath
+	, OUT list<string> &out
+	, const u_int maxFileCount //= 10000
+)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -279,6 +288,9 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 
 	while (1)
 	{
+		if (out.size() > maxFileCount)
+			break; // too much file search, finish
+
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
@@ -329,7 +341,10 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
-	, const list<string> &ignoreDirs, OUT list<string> &out)
+	, const list<string> &ignoreDirs
+	, OUT list<string> &out
+	, const u_int maxFileCount //= 10000
+)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -348,6 +363,9 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 
 	while (1)
 	{
+		if (out.size() > maxFileCount)
+			break; // too much file search, finish
+
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
@@ -392,8 +410,11 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 
 
 // 파일명과 날짜 정보를 저장해 리턴한다.
-bool CollectFilesRaw(const list<string> &findExt, const string &searchPath, 
-	OUT list<std::pair<FILETIME, string>> &out)
+bool CollectFilesRaw(const list<string> &findExt
+	, const string &searchPath
+	, OUT list<std::pair<FILETIME, string>> &out
+	, const u_int maxFileCount = 10000
+)
 {
 	WIN32_FIND_DATAA fd;
 	const string searchDir = searchPath + "*.*";
@@ -401,11 +422,14 @@ bool CollectFilesRaw(const list<string> &findExt, const string &searchPath,
 
 	while (1)
 	{
+		if (out.size() > maxFileCount)
+			break; // too much file search, finish
+
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				CollectFilesRaw(findExt, searchPath + string(fd.cFileName) + "/", out);
+				CollectFilesRaw(findExt, searchPath + string(fd.cFileName) + "/", out, maxFileCount);
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
@@ -451,12 +475,14 @@ bool CollectFilesRaw(const list<string> &findExt, const string &searchPath,
 // flag : 0 = 최근 수정된 날짜를 기준으로 정렬한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, 
-	const int flags) // flags=0
+	const int flags //=0
+	, const u_int maxFileCount //= 10000
+)
 {
 	using std::pair;
 
 	list< pair<FILETIME, string>> files;
-	CollectFilesRaw(findExt, searchPath, files);
+	CollectFilesRaw(findExt, searchPath, files, maxFileCount);
 
 	// 최근 수정된 날짜 순서대로 정렬.
 	// 파일과 폴더를 비교할 때는, 폴더가 항상 먼저 나오게 한다.
@@ -485,7 +511,10 @@ bool common::CollectFilesOrdered(const list<string> &findExt, const string &sear
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out)
+bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath
+	, OUT vector<WStrPath> &out
+	, const u_int maxFileCount //= 10000
+)
 {
 	WStrPath modifySearchPath;
 	//if (!searchPath.empty() &&
@@ -508,6 +537,9 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 
 	while (1)
 	{
+		if (out.size() > maxFileCount)
+			break; // too much file search, finish
+
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..",fd.cFileName))
@@ -555,7 +587,10 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchPath
-	, const vector<WStr64> &ignoreDirs, OUT vector<WStrPath> &out)
+	, const vector<WStr64> &ignoreDirs
+	, OUT vector<WStrPath> &out
+	, const u_int maxFileCount //= 10000
+)
 {
 	WStrPath modifySearchPath;
 	const int searchLen = wcslen(searchPath);
@@ -576,6 +611,9 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 
 	while (1)
 	{
+		if (out.size() > maxFileCount)
+			break; // too much file search, finish
+
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
@@ -620,7 +658,8 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 // srcFileName의 확장자와 compareExtendName 이름이 같다면 true를 리턴한다.
 // 확장자는 srcFileName 끝에서 '.'이 나올 때까지 이다.
 //------------------------------------------------------------------------
-bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLength, const char *compareExtendName)
+bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLength
+	, const char *compareExtendName)
 {
 	const int len = (int)strnlen_s(srcFileName, srcStringMaxLength);
 	if (len <= 0)
