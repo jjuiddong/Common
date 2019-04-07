@@ -121,6 +121,7 @@ namespace framework
 		sf::Vector2u m_resetSize;
 
 		ImFont *m_fontBig;
+		graphic::cTexture *m_titleBtn[4]; // reference, min-max-close-restore
 	};
 
 }

@@ -5,7 +5,7 @@
 
 namespace common
 {
-	int g_seedId = 10000;
+	std::atomic_int g_seedId = 10000;
 }
 
 using namespace common;

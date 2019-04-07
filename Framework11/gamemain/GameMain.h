@@ -56,7 +56,6 @@ namespace framework
 		sRectf m_windowRect;
 		graphic::cRenderer m_renderer;
 		float m_slowFactor; // default: 1.f
-		int m_minDeltaTime; // default : 100 (0.1 ms)
 
 
 	// singleton

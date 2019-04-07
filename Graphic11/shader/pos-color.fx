@@ -6,10 +6,15 @@
 // Vertex Shader
 //--------------------------------------------------------------------------------------
 VSOUT_POSDIFFUSE VS( float4 Pos : POSITION
-	, float4 Color : COLOR )
+	, float4 Color : COLOR 
+	, uint instID : SV_InstanceID
+	, uniform bool IsInstancing
+)
 {
 	VSOUT_POSDIFFUSE output = (VSOUT_POSDIFFUSE)0;
-    output.Pos = mul( Pos, gWorld );
+	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
+
+	output.Pos = mul( Pos, mWorld );
     output.Pos = mul( output.Pos, gView );
     output.Pos = mul( output.Pos, gProjection );
     output.Color = Color;
@@ -115,7 +120,7 @@ technique11 Unlit
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
@@ -149,3 +154,18 @@ technique11 BuildShadowMap
 	}
 }
 
+
+//---------------------------------------------------------------------------------
+// Instancing
+
+technique11 Unlit_Instancing
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}

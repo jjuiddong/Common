@@ -46,7 +46,7 @@ namespace framework
 		WStrId m_windowName;
 		sRectf m_windowRect;
 		bool m_isLazyMode; // FPS 30 이하 유지
-		double m_slowFactor; // default: 1.f
+		float m_slowFactor; // default: 1.f
 		double m_minDeltaTime; // default : 0.1 (0.1 sec)
 	};
 

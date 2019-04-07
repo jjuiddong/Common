@@ -8,7 +8,9 @@ using namespace graphic;
 cGridLine::cGridLine()
 	: cNode(common::GenerateId(), "gridline", eNodeType::MODEL)
 	, m_lineColor(0.7f, 0.7f, 0.7f, 0.7f)
-	, m_offsetY(0.1f)
+	//, m_offsetY(0.1f)
+	//, m_offsetY(0.001f)
+	, m_offsetY(0.0f)
 {
 }
 

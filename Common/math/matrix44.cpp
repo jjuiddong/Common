@@ -245,7 +245,7 @@ void Matrix44::SetProjectionOrthogonal(const float left, const float right, cons
 {
 #ifdef USE_D3D9_MATH
 	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, top, bottom, nearPlane, farPlane);
-#else
+#elif USE_D3D11_MATH
 	XMMATRIX view = XMMatrixOrthographicOffCenterLH(left, right, top, bottom, nearPlane, farPlane);
 	XMStoreFloat4x4((XMFLOAT4X4*)this, view);
 #endif
@@ -581,7 +581,7 @@ static void Matrix4x4_Inverse( const float b[][4], float a[][4] )
 } //Matrix44x4_Invert
 
 
-void Matrix44::InverseMatrix(Matrix44 &out) const
+void Matrix44::InverseMatrix(OUT Matrix44 &out) const
 {
 	Matrix44 &matInverse = out;
 
@@ -639,7 +639,7 @@ Matrix44 Matrix44::Inverse() const
 	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
 	return matInverse;
 
-#else
+#elif USE_D3D11_MATH
 	XMMATRIX matInverse = XMLoadFloat4x4((XMFLOAT4X4*)this);
 	matInverse = XMMatrixInverse(NULL, matInverse);
 	Matrix44 ret;
@@ -648,7 +648,11 @@ Matrix44 Matrix44::Inverse() const
 	//Matrix44 ret;
 	//InverseMatrix(ret);
 	//return ret;
-#endif // USE_D3D9_MATH
+#else
+	Matrix44 ret;
+	InverseMatrix(ret);
+	return ret;
+#endif
 }
 
 

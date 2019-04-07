@@ -1,7 +1,7 @@
 //
 // 2017-07-05, jjuiddong
 // simple string
-// use stack memory
+// use static stack memory
 //
 // 2017-08-24
 //	- add wchar_t type
@@ -51,6 +51,35 @@ namespace common
 			return m_str;
 		}
 
+		void trim() {
+			// trim forward
+			for (int i = 0; i < (int)size(); ++i)
+			{
+				if ((m_str[i] == '\n') || (m_str[i] == '\t') || (m_str[i] == '\r') || (m_str[i] == ' '))
+				{
+					const size_t len = size();
+					common::rotateleft(m_str, i+1, len);
+					m_str[len - 1] = NULL;
+
+					--i;
+				}
+				else
+					break;
+			}
+
+			// trim backward
+			for (int i = (int)size() - 1; i >= 0; --i)
+			{
+				if ((m_str[i] == '\n') || (m_str[i] == '\t') || (m_str[i] == '\r') || (m_str[i] == ' '))
+				{
+					m_str[i] = NULL;
+				}
+				else
+					break;
+			}
+
+		}
+
 		//------------------------------------------------------------------------------------
 		// shlwapi
 		bool IsRelativePath() const {
@@ -58,7 +87,7 @@ namespace common
 		}
 
 		bool IsFileExist() const {
-			return common::IsFileExist(*this);
+			return common::IsFileExist(m_str);
 		}
 
 		String convertToString(double num) const {

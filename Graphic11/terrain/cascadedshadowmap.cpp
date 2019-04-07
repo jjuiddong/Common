@@ -134,7 +134,7 @@ void cCascadedShadowMap::BuildShadowMap(cRenderer &renderer, cNode *node
 	node->SetTechnique("BuildShadowMap");
 
 	UpdateParameter(renderer, GetMainCamera());
-	for (int i = 0; i < cCascadedShadowMap::SHADOWMAP_COUNT; ++i)
+	for (int i = 0; i < SHADOWMAP_COUNT; ++i)
 	{
 		node->CullingTest(m_frustums[i], parentTm, true);
 

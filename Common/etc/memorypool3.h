@@ -35,18 +35,18 @@ namespace common
 	};
 
 
-	template<class T, size_t Size = 100>
+	template<class T, size_t Size = 16>
 	cMemoryPool3<T, Size>::cMemoryPool3() {
 		for (int i = 0; i < Size; ++i)
 			m_freePtrs.push_back(new T());
 	}
 
-	template<class T, size_t Size = 100>
+	template<class T, size_t Size = 16>
 	cMemoryPool3<T, Size>::~cMemoryPool3() {
 		Clear();
 	}
 
-	template<class T, size_t Size = 100>
+	template<class T, size_t Size = 16>
 	T* cMemoryPool3<T, Size>::Alloc() {
 		AutoCSLock cs(m_cs);
 
@@ -68,7 +68,7 @@ namespace common
 		return p;
 	}
 
-	template<class T, size_t Size = 100>
+	template<class T, size_t Size = 16>
 	bool cMemoryPool3<T, Size>::Free(void* p) {
 		AutoCSLock cs(m_cs);
 		if (!removevector(m_allocPtrs, (T*)p))
@@ -80,7 +80,7 @@ namespace common
 		return false;
 	}
 
-	template<class T, size_t Size = 100>
+	template<class T, size_t Size = 16>
 	void cMemoryPool3<T, Size>::Clear() {
 		AutoCSLock cs(m_cs);
 		for (auto &ptr : m_freePtrs)

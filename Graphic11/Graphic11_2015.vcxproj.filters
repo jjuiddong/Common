@@ -335,6 +335,9 @@
     <ClInclude Include="importer\fileloader.h">
       <Filter>importer</Filter>
     </ClInclude>
+    <ClInclude Include="base\slidelist.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -643,6 +646,9 @@
     </ClCompile>
     <ClCompile Include="collision\boundinghemisphere.cpp">
       <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="base\slidelist.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

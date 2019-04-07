@@ -1,5 +1,6 @@
 //
-// Boost의 date 객체를 이용하면 날짜 계산을 쉽게 할 수 있다.
+// 2019-03-28, jjuiddong
+// date time
 //
 #pragma once
 
@@ -9,6 +10,7 @@ namespace common
 	// year-month-day-hour-minutes-seconds-millseconds
 	string GetCurrentDateTime();
 	string GetCurrentDateTime2();
+	unsigned __int64 GetCurrentDateTime3();
 
 
 	class cDateTime

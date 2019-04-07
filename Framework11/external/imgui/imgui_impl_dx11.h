@@ -45,6 +45,8 @@ public:
 	bool CreateFontsTexture();
 	void SetContext();
 	void SetNullContext();
+	void SetStyleColorsDark();
+	void SetStyleColorsLight();
 
 
 public:

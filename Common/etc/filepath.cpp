@@ -7,6 +7,8 @@
 #pragma comment(lib, "shlwapi")
 //#include <sys/types.h>  
 #include <sys/stat.h>
+//#include <shobjidl_core.h>
+#include <shlobj.h>
 
 
 namespace common {
@@ -80,8 +82,8 @@ string common::CheckDirectoryPath(const string &fileName)
 	{
 		const char c1 = fileName[fileName.size() - 1];
 		const char c2 = fileName[fileName.size() - 2];
-		if (((c1 == '/') || (c1 == '\\')) 
-			&& ((c2 == '/') || (c2 == '\\')))
+		if (((c1 == '/') || (c1 == '\\')) &&
+			((c2 == '/') || (c2 == '\\')))
 		{
 			string temp = fileName;
 			temp.pop_back();
@@ -170,13 +172,11 @@ bool common::IsRelativePath(const StrPath &path)
 // ./dir1/dir2/file.ext  ==>  dir1/dir2/file.ext
 string common::DeleteCurrentPath(const string &fileName)
 {
-	const int pos1 = fileName.find(".\\");
-	if (pos1 == 0)
+	const int pos = fileName.find(".\\");
+	if (pos == 0)
+	{
 		return DeleteCurrentPath(fileName.substr(2));
-
-	const int pos2 = fileName.find("./");
-	if (pos2 == 0)
-		return DeleteCurrentPath(fileName.substr(2));
+	}
 
 	return fileName;
 }
@@ -196,13 +196,12 @@ __int64  common::FileSize(const string &fileName)
 //
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
+//		- ex) ".media/data/"
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			- ex) bmp, jpg, png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFiles( const list<string> &findExt, const string &searchPath
-	, OUT list<string> &out
-	, const u_int maxFileCount //= 10000
-)
+bool common::CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -221,9 +220,6 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 	while (1)
 	{
-		if (out.size() > maxFileCount)
-			break; // too much file search, finish
-
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
@@ -266,10 +262,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 // same CollectFiles() function
 // return  Relative Path
-bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath
-	, OUT list<string> &out
-	, const u_int maxFileCount //= 10000
-)
+bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -288,9 +281,6 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 
 	while (1)
 	{
-		if (out.size() > maxFileCount)
-			break; // too much file search, finish
-
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
@@ -341,10 +331,7 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
-	, const list<string> &ignoreDirs
-	, OUT list<string> &out
-	, const u_int maxFileCount //= 10000
-)
+	, const list<string> &ignoreDirs, OUT list<string> &out)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -363,9 +350,6 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 
 	while (1)
 	{
-		if (out.size() > maxFileCount)
-			break; // too much file search, finish
-
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
@@ -410,11 +394,8 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 
 
 // 파일명과 날짜 정보를 저장해 리턴한다.
-bool CollectFilesRaw(const list<string> &findExt
-	, const string &searchPath
-	, OUT list<std::pair<FILETIME, string>> &out
-	, const u_int maxFileCount = 10000
-)
+bool CollectFilesRaw(const list<string> &findExt, const string &searchPath, 
+	OUT list<std::pair<FILETIME, string>> &out)
 {
 	WIN32_FIND_DATAA fd;
 	const string searchDir = searchPath + "*.*";
@@ -422,14 +403,11 @@ bool CollectFilesRaw(const list<string> &findExt
 
 	while (1)
 	{
-		if (out.size() > maxFileCount)
-			break; // too much file search, finish
-
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				CollectFilesRaw(findExt, searchPath + string(fd.cFileName) + "/", out, maxFileCount);
+				CollectFilesRaw(findExt, searchPath + string(fd.cFileName) + "/", out);
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
@@ -475,14 +453,12 @@ bool CollectFilesRaw(const list<string> &findExt
 // flag : 0 = 최근 수정된 날짜를 기준으로 정렬한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, 
-	const int flags //=0
-	, const u_int maxFileCount //= 10000
-)
+	const int flags) // flags=0
 {
 	using std::pair;
 
 	list< pair<FILETIME, string>> files;
-	CollectFilesRaw(findExt, searchPath, files, maxFileCount);
+	CollectFilesRaw(findExt, searchPath, files);
 
 	// 최근 수정된 날짜 순서대로 정렬.
 	// 파일과 폴더를 비교할 때는, 폴더가 항상 먼저 나오게 한다.
@@ -511,10 +487,7 @@ bool common::CollectFilesOrdered(const list<string> &findExt, const string &sear
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath
-	, OUT vector<WStrPath> &out
-	, const u_int maxFileCount //= 10000
-)
+bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out)
 {
 	WStrPath modifySearchPath;
 	//if (!searchPath.empty() &&
@@ -537,12 +510,78 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 
 	while (1)
 	{
-		if (out.size() > maxFileCount)
-			break; // too much file search, finish
-
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..",fd.cFileName))
+			{
+				const WStrPath newPath = modifySearchPath + fd.cFileName + L"/";
+				CollectFiles(findExt, newPath.c_str(), out);
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			if (findExt.empty())
+			{
+				out.push_back(modifySearchPath + fd.cFileName);
+			}
+			else
+			{
+				for (auto &ext : findExt)
+				{
+					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					{
+						out.push_back(modifySearchPath + fd.cFileName);
+						break;
+					}
+				}
+			}
+		}
+
+		if (!FindNextFileW(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------//
+// searchPath폴더에 findExt 확장자 리스트에 포함된 파일을 out에 저장한다.
+//
+// searchPath: 탐색하고자 하는 디렉토리 경로
+//		- 마지막에 / 넣어야한다.
+// findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+// out: 일치하는 확장자를 가진 파일이름을 저장한다.
+//-----------------------------------------------------------------------------//
+bool common::CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath
+	, OUT list<WStrPath> &out)
+{
+	WStrPath modifySearchPath;
+	//if (!searchPath.empty() &&
+	//	(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
+	const int searchLen = wcslen(searchPath);
+	if ((searchLen != 0) &&
+		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath;
+		modifySearchPath += L"\\";
+	}
+
+	WIN32_FIND_DATAW fd;
+	WStrPath searchDir = modifySearchPath + L"*.*";
+	HANDLE hFind = FindFirstFileW(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
 			{
 				const WStrPath newPath = modifySearchPath + fd.cFileName + L"/";
 				CollectFiles(findExt, newPath.c_str(), out);
@@ -587,10 +626,7 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchPath
-	, const vector<WStr64> &ignoreDirs
-	, OUT vector<WStrPath> &out
-	, const u_int maxFileCount //= 10000
-)
+	, const vector<WStr64> &ignoreDirs, OUT vector<WStrPath> &out)
 {
 	WStrPath modifySearchPath;
 	const int searchLen = wcslen(searchPath);
@@ -611,9 +647,77 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 
 	while (1)
 	{
-		if (out.size() > maxFileCount)
-			break; // too much file search, finish
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
+			{
+				if (ignoreDirs.end() == std::find(ignoreDirs.begin(), ignoreDirs.end(), fd.cFileName))
+				{
+					const WStrPath newPath = modifySearchPath + fd.cFileName + L"/";
+					CollectFiles(findExt, newPath.c_str(), out);
+				}
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			if (findExt.empty())
+			{
+				out.push_back(modifySearchPath + fd.cFileName);
+			}
+			else
+			{
+				for (auto &ext : findExt)
+				{
+					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					{
+						out.push_back(modifySearchPath + fd.cFileName);
+						break;
+					}
+				}
+			}
+		}
 
+		if (!FindNextFileW(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------//
+// searchPath폴더에 findExt 확장자 리스트에 포함된 파일을 out에 저장한다.
+//	ignoreDirs 에 포함된 폴더는 검색에서 제외된다.
+//
+// searchPath: 탐색하고자 하는 디렉토리 경로
+//		- 마지막에 / 넣어야한다.
+// findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+// out: 일치하는 확장자를 가진 파일이름을 저장한다.
+//-----------------------------------------------------------------------------//
+bool common::CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPath
+	, const list<WStr64> &ignoreDirs, OUT list<WStrPath> &out)
+{
+	WStrPath modifySearchPath;
+	const int searchLen = wcslen(searchPath);
+	if ((searchLen != 0) &&
+		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath;
+		modifySearchPath += L"\\";
+	}
+
+	WIN32_FIND_DATAW fd;
+	WStrPath searchDir = modifySearchPath + L"*.*";
+	HANDLE hFind = FindFirstFileW(searchDir.c_str(), &fd);
+
+	while (1)
+	{
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
@@ -658,8 +762,7 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 // srcFileName의 확장자와 compareExtendName 이름이 같다면 true를 리턴한다.
 // 확장자는 srcFileName 끝에서 '.'이 나올 때까지 이다.
 //------------------------------------------------------------------------
-bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLength
-	, const char *compareExtendName)
+bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLength, const char *compareExtendName)
 {
 	const int len = (int)strnlen_s(srcFileName, srcStringMaxLength);
 	if (len <= 0)
@@ -834,6 +937,47 @@ bool common::FindFile2(const StrPath &findName, const StrPath &searchPath
 }
 
 
+// searchPath 하위 폴더를 찾아서 리턴한다.
+bool common::CollectFolder(const wchar_t *searchPath, OUT vector<WStrPath> &out)
+{
+	WStrPath modifySearchPath;
+	const int searchLen = wcslen(searchPath);
+	if ((searchLen != 0) &&
+		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath;
+		modifySearchPath += L"/";
+	}
+
+	WIN32_FIND_DATAW fd;
+	WStrPath searchDir = modifySearchPath + L"*.*";
+	HANDLE hFind = FindFirstFileW(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
+			{
+				const WStrPath newPath = modifySearchPath + fd.cFileName;
+				out.push_back(newPath);
+			}
+		}
+
+		if (!FindNextFileW(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
+
 bool common::IsFileExist(const char *fileName)
 {
 	return _access_s(fileName, 0) == 0;
@@ -857,9 +1001,9 @@ bool common::IsFileExist(const StrPath &fileName)
 // Must Delete return value by DeleteFolderNode()
 //
 // root - child1
-//			- child1-1
-//		- child2
-//			- child2-1
+//					- child1-1
+//			- child2
+//					- child2-1
 //
 common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
 {
@@ -873,7 +1017,7 @@ common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
 		sFolderNode *node = rootNode;
 		for (u_int i = 0; i < strs.size(); ++i)
 		{
-			if (i == (strs.size() - 1)) // Last String Is FileName, so Ignored
+			if (i == (strs.size() - 1)) // Last String Is FileName, then Ignored
 				continue;
 
 			const string name = strs[i];
@@ -926,4 +1070,165 @@ int common::FileOperationFunc(unsigned int func, const string &to, const string 
 	s.pFrom = src;
 	s.lpszProgressTitle = NULL;
 	return SHFileOperationA(&s);
+}
+
+
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+	if (uMsg == BFFM_INITIALIZED)
+	{
+		std::string tmp = (const char *)lpData;
+		//std::cout << "path: " << tmp << std::endl;
+		SendMessage(hwnd, BFFM_SETSELECTIONA, TRUE, lpData);
+	}
+	return 0;
+}
+
+
+// open select folder dialog
+string common::BrowseFolder(const HWND hWnd, const string &titleStr, const string &saved_path)
+{
+	char path[MAX_PATH];
+	const char *path_param = saved_path.c_str();
+
+	BROWSEINFOA bi = { 0 };
+	bi.hwndOwner = hWnd;
+	bi.lpszTitle = titleStr.c_str();
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_EDITBOX | BIF_NEWDIALOGSTYLE;
+	bi.lpfn = BrowseCallbackProc;
+	bi.lParam = (LPARAM)path_param;
+
+	LPITEMIDLIST pidl = SHBrowseForFolderA(&bi);
+
+	if (pidl != 0)
+	{
+		//get the name of the folder and put it in path
+		SHGetPathFromIDListA(pidl, path);
+
+		//free memory used
+		IMalloc * imalloc = 0;
+		if (SUCCEEDED(SHGetMalloc(&imalloc)))
+		{
+			imalloc->Free(pidl);
+			imalloc->Release();
+		}
+
+		return path;
+	}
+
+	return "";
+}
+
+
+// open file selection dialog
+// filters : filter spec array
+//			- first : filter name 
+//				- ex) L"Path File (*.txt; *.pmap)"
+//			- second : filter spec
+//				- ex) L"*.txt;*.pmap"
+//
+//
+// ex) StrPath path = common::OpenFileDialog(m_owner->getSystemHandle()
+//					, { {L"Path File (*.txt; *.pmap)", L"*.txt;*.pmap"}
+//					 , {L"All File (*.*)", L"*.*"} });
+//
+//
+string common::OpenFileDialog(const HWND hWnd
+	, const vector<std::pair<wstring, wstring>> &filters)
+{
+	IFileOpenDialog *pFileOpen;
+	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+		IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+	if (SUCCEEDED(hr))
+	{
+		vector<COMDLG_FILTERSPEC> filterSpecs;
+		for (auto &filter : filters)
+		{
+			COMDLG_FILTERSPEC spec;
+			spec.pszName = filter.first.c_str();
+			spec.pszSpec = filter.second.c_str();
+			filterSpecs.push_back(spec);
+		}
+
+		pFileOpen->SetFileTypes(filterSpecs.size(), &filterSpecs[0]);
+
+		hr = pFileOpen->Show(hWnd);
+		if (SUCCEEDED(hr))
+		{
+			IShellItem *pItem;
+			hr = pFileOpen->GetResult(&pItem);
+			if (SUCCEEDED(hr))
+			{
+				PWSTR pszFilePath;
+				hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+				if (SUCCEEDED(hr))
+				{
+					WStrPath path = pszFilePath;
+					CoTaskMemFree(pszFilePath);
+					return path.str().c_str();
+				}
+				pItem->Release();
+			}
+		}
+		pFileOpen->Release();
+	}
+	return "";
+}
+
+
+// open file save dialog
+// filters : filter spec array
+//			- first : filter name 
+//				- ex) L"Path File (*.txt; *.pmap)"
+//			- second : filter spec
+//				- ex) L"*.txt;*.pmap"
+//
+//
+// ex) StrPath path = common::SaveFileDialog(m_owner->getSystemHandle()
+//					, { {L"Path File (*.txt; *.pmap)", L"*.txt;*.pmap"}
+//					 , {L"All File (*.*)", L"*.*"} });
+//
+//
+string common::SaveFileDialog(const HWND hWnd
+	, const vector<std::pair<wstring, wstring>> &filters)
+{
+	IFileSaveDialog *pFileSave;
+	HRESULT hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL,
+		IID_IFileSaveDialog, reinterpret_cast<void**>(&pFileSave));
+
+	if (SUCCEEDED(hr))
+	{
+		vector<COMDLG_FILTERSPEC> filterSpecs;
+		for (auto &filter : filters)
+		{
+			COMDLG_FILTERSPEC spec;
+			spec.pszName = filter.first.c_str();
+			spec.pszSpec = filter.second.c_str();
+			filterSpecs.push_back(spec);
+		}
+		pFileSave->SetFileTypes(filterSpecs.size(), &filterSpecs[0]);
+
+		hr = pFileSave->Show(hWnd);
+		if (SUCCEEDED(hr))
+		{
+			IShellItem *pItem;
+			hr = pFileSave->GetResult(&pItem);
+			if (SUCCEEDED(hr))
+			{
+				PWSTR pszFilePath;
+				hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+				if (SUCCEEDED(hr))
+				{
+					WStrPath path = pszFilePath;
+					CoTaskMemFree(pszFilePath);
+					return path.str().c_str();
+				}
+				pItem->Release();
+			}
+		}
+		pFileSave->Release();
+	}
+
+	return "";
 }

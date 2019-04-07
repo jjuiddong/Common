@@ -86,4 +86,17 @@ namespace common
 				popvector(seq, i);
 	}
 
+	// rotate left idx -> 0
+	template <class T>
+	void rotateleft(T *p, const unsigned int idx, const unsigned int size)
+	{
+		if (idx == 0)
+			return;
+
+		for (uint i = idx; i < size; ++i)
+			p[i - idx] = p[i];
+
+		// todo : rotation
+	}
+
 }

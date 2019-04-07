@@ -105,6 +105,11 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, ranges.Data);
 	}
 
+	m_titleBtn[0] = cResourceManager::Get()->LoadTexture(m_renderer, "minbtn.png");
+	m_titleBtn[1] = cResourceManager::Get()->LoadTexture(m_renderer, "maxbtn.png");
+	m_titleBtn[2] = cResourceManager::Get()->LoadTexture(m_renderer, "closebtn.png");
+	m_titleBtn[3] = cResourceManager::Get()->LoadTexture(m_renderer, "restorebtn.png");
+
 	return true;
 }
 
@@ -638,7 +643,7 @@ void cRenderWindow::RenderTitleBar()
 	ImGui::PopStyleColor(3);
 
 
-	// Title -+X Button Color
+	// Title minimize, maximize, restore, close Button Color
 	const float col_main_hue = 0.0f / 255.0f;
 	const float col_main_sat = 0.0f / 255.0f;
 	const float col_main_val = 80.0f / 255.0f;
@@ -647,23 +652,38 @@ void cRenderWindow::RenderTitleBar()
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(col_main.x, col_main.y, col_main.z, 0.86f));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(col_main.x, col_main.y, col_main.z, 1.00f));
 
-	ImGui::SameLine(); 
-	if (ImGui::Button("-", ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT))) // Minimize Button
+	ImGui::SameLine();
+	if (ImGui::ImageButton(m_titleBtn[0]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+		, ImVec2(0,0), ImVec2(1,1), 0)) // Minimize Button
 	{
 		ShowWindow(getSystemHandle(), SW_MINIMIZE);
 	}
 
-	ImGui::SameLine(); 
-	if (ImGui::Button("+", ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT))) // Maximize Button
+	ImGui::SameLine();
+	WINDOWPLACEMENT wndPl;
+	GetWindowPlacement(getSystemHandle(), &wndPl); // Toggle Maximize or Restore
+	if (wndPl.showCmd == SW_MAXIMIZE)
 	{
-		WINDOWPLACEMENT wndPl;
-		GetWindowPlacement(getSystemHandle(), &wndPl); // Toggle Maximize or Restore
-		ShowWindow(getSystemHandle(), (wndPl.showCmd==SW_MAXIMIZE)? SW_RESTORE : SW_MAXIMIZE);
-		m_isFullScreen = (wndPl.showCmd != SW_MAXIMIZE);
+		if (ImGui::ImageButton(m_titleBtn[3]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+			, ImVec2(0, 0), ImVec2(1, 1), 0)) // Restore Button
+		{
+			ShowWindow(getSystemHandle(), SW_RESTORE);
+			m_isFullScreen = false;
+		}
+	}
+	else
+	{
+		if (ImGui::ImageButton(m_titleBtn[1]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+			, ImVec2(0, 0), ImVec2(1, 1), 0)) // Maximize Button
+		{
+			ShowWindow(getSystemHandle(), SW_MAXIMIZE);
+			m_isFullScreen = true;
+		}
 	}
 
 	ImGui::SameLine(); 
-	if (ImGui::Button("X", ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT))) // Close Button
+	if (ImGui::ImageButton(m_titleBtn[2]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+		, ImVec2(0, 0), ImVec2(1, 1), 0)) // Close Button
 	{
 		close();
 	}

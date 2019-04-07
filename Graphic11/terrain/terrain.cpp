@@ -92,6 +92,9 @@ void cTerrain::BuildCascadedShadowMap(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
+	GetMainCamera().Bind(renderer);
+	GetMainLight().Bind(renderer);
+
 	ccsm.UpdateParameter(renderer, GetMainCamera());
 	
 	SetTechnique("BuildShadowMap");
@@ -134,10 +137,12 @@ bool cTerrain::RenderCascadedShadowMap(cRenderer &renderer
 {
 	GetMainCamera().Bind(renderer);
 	GetMainLight().Bind(renderer);
+	SetTechnique("ShadowMap");
 
 	ccsm.Bind(renderer);
 	__super::Render(renderer, tm, eRenderFlag::TERRAIN);
 	__super::Render(renderer, tm, eRenderFlag::MODEL | eRenderFlag::NOALPHABLEND);
+	__super::Render(renderer, tm, eRenderFlag::MODEL | eRenderFlag::ALPHABLEND);
 	
 	if (m_isShowDebug)
 		ccsm.DebugRender(renderer);

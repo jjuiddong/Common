@@ -139,7 +139,7 @@ Vector3 Vector3::operator * ( const Matrix44& rhs ) const
 
 Vector3& Vector3::operator *= ( const Matrix44& rhs )
 {
-	float	RHW = 1.0f / (x * rhs._14 + y * rhs._24 + z * rhs._34 + rhs._44);
+	float RHW = 1.0f / (x * rhs._14 + y * rhs._24 + z * rhs._34 + rhs._44);
 	if (RHW >= FLT_MAX)
 	{
 		*this = Vector3(0,0,0);
@@ -222,19 +222,19 @@ Vector3 Vector3::Maximum(const Vector3 &rhs) const
 
 
 #ifdef USE_D3D11_MATH
-XMVECTOR Vector3::GetVectorXM() const
-{
-	return XMLoadFloat3((XMFLOAT3*)this);
-}
+	XMVECTOR Vector3::GetVectorXM() const
+	{
+		return XMLoadFloat3((XMFLOAT3*)this);
+	}
 
-Vector3 Vector3::operator * (const XMMATRIX &m) const 
-{
-	XMVECTOR v = XMLoadFloat3((XMFLOAT3*)this);
-	v = XMVector3Transform(v, m);
-	Vector3 ret;
-	XMStoreFloat3((XMFLOAT3*)&ret, v);
-	return ret;
-}
+	Vector3 Vector3::operator * (const XMMATRIX &m) const 
+	{
+		XMVECTOR v = XMLoadFloat3((XMFLOAT3*)this);
+		v = XMVector3Transform(v, m);
+		Vector3 ret;
+		XMStoreFloat3((XMFLOAT3*)&ret, v);
+		return ret;
+	}
 #endif
 
 

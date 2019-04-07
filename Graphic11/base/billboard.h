@@ -35,6 +35,7 @@ namespace graphic
 			, const bool isSizePow2 = true
 			, const float dynScaleMin = 0.5f
 			, const float dynScaleMax = 200.5f
+			, const float dynScaleAlpha = 1.f
 		);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
@@ -47,6 +48,7 @@ namespace graphic
 		Vector3 m_normal;
 		float m_dynScaleMin; // default: 0.5f
 		float m_dynScaleMax; // default: 200.5f
+		float m_dynScaleAlpha; // default: 1.f;
 	};
 
 }

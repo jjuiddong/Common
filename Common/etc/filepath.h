@@ -20,27 +20,26 @@ namespace common
 
 
 	// Find and Collect File
-	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out
-		, const u_int maxFileCount = 10000);
+	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out);
 	bool CollectFiles2(const list<string> &findExt, const string &searchPath
-		, const string &relativePath, OUT list<string> &out
-		, const u_int maxFileCount = 10000);
+		, const string &relativePath, OUT list<string> &out);
 	bool CollectFiles3(const list<string> &findExt, const string &searchPath, 
-		const list<string> &ignoreDirs, OUT list<string> &out
-		, const u_int maxFileCount = 10000);
+		const list<string> &ignoreDirs, OUT list<string> &out);
 
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath
-		, OUT list<string> &out, const int flags=0
-		, const u_int maxFileCount = 10000);
+		, OUT list<string> &out, const int flags=0);
 	bool FindFile( const StrPath &findName, const StrPath &searchPath, StrPath &out, const int depth=-1);
 	bool FindFile2(const StrPath &findName, const StrPath &searchPath
 		, const list<string> &ignoreDirs, StrPath &out, const int depth = -1);
 
-	bool CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out
-		, const u_int maxFileCount = 10000);
+	bool CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out);
+	bool CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath, OUT list<WStrPath> &out);
 	bool CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchPath
-		, const vector<WStr64> &ignoreDirs, OUT vector<WStrPath> &out
-		, const u_int maxFileCount = 10000);
+		, const vector<WStr64> &ignoreDirs, OUT vector<WStrPath> &out);
+	bool CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPath
+		, const list<WStr64> &ignoreDirs, OUT list<WStrPath> &out);
+
+	bool CollectFolder(const wchar_t *searchPath, OUT vector<WStrPath> &out);
 
 	bool IsFileExist(const char *fileName);
 	bool IsFileExist(const wchar_t *fileName);
@@ -56,5 +55,9 @@ namespace common
 	void DeleteFolderNode(sFolderNode *node);
 
 	int FileOperationFunc(unsigned int func, const string &to, const string &from);
+
+	string BrowseFolder(const HWND hWnd, const string &titleStr, const string &saved_path);
+	string OpenFileDialog(const HWND hWnd, const vector<std::pair<wstring,wstring>> &filters);
+	string SaveFileDialog(const HWND hWnd, const vector<std::pair<wstring, wstring>> &filters);
 
 }

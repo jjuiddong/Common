@@ -2,6 +2,9 @@
 // 2018-12-03, jjuiddong
 // data store and file log
 //
+// class T must implements WriteToString() function
+//	- int WriteToString(OUT char *str, const int maxSize, const bool isTerminalMark = true);
+//
 #pragma once
 
 
@@ -18,6 +21,7 @@ namespace common
 		bool Create(const char *fileName, const bool isMultiThread = true);
 		bool Add(const T &t);
 		void Clear();
+		void ClearThread();
 
 
 	public:
@@ -104,7 +108,7 @@ namespace common
 	template<class T, size_t MAX_SIZE>
 	bool cFileLogger<T, MAX_SIZE>::Add(const T &t)
 	{
-		m_q.Push(t);
+		m_q.push(t);
 
 		Str512 str;
 		const int len = t.WriteToString(str.m_str, str.SIZE, false);
@@ -114,7 +118,7 @@ namespace common
 			str.m_str[len + 1] = '\0';
 		}
 
-		m_strQ.Push(str);
+		m_strQ.push(str);
 
 		if (m_isMultiThread)
 		{
@@ -140,6 +144,14 @@ namespace common
 	template<class T, size_t MAX_SIZE>
 	void cFileLogger<T, MAX_SIZE>::Clear()
 	{
+	}
+
+
+	template<class T, size_t MAX_SIZE>
+	void cFileLogger<T, MAX_SIZE>::ClearThread()
+	{
+		s_refCount = 0;
+		s_thread.Clear();
 	}
 
 }

@@ -18,8 +18,6 @@ namespace graphic
 	};
 
 	DECLARE_ENUM(eSubType, NONE, CUBE2, AREA, CUBE, LINE, RACK);
-	//char* GetSubtypeStr(const eSubType::Enum type);
-	//eSubType::Enum GetSubtype(const char *subTypeStr);
 
 
 	struct eRenderFlag {

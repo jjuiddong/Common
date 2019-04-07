@@ -131,6 +131,7 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_cbTessellation.Create(*this);
 	float f2[4] = { 1, 1, 1, 100000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
+	m_cbClipPlane.m_v->reflectAlpha[0] = 0.1f;
 
 	//m_textMgr.Create(256);
 	m_textMgr.Create(512, 512);
@@ -614,7 +615,8 @@ void cRenderer::UnbindTextureAll()
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 
-	ID3D11ShaderResourceView *ns[MAX_TEXTURE_STAGE] = { NULL, NULL, NULL, NULL, NULL, NULL };
+	ID3D11ShaderResourceView *ns[MAX_TEXTURE_STAGE] = { NULL, NULL, NULL, NULL, NULL
+		, NULL, NULL, NULL, NULL, NULL };
 	GetDevContext()->PSSetShaderResources(0, MAX_TEXTURE_STAGE, ns);
 }
 

@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="network2.h" />
+    <ClInclude Include="protocol.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_dispatcher.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="packet.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_handler.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="packetqueue.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="packetheader.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="tcpserver.h">
+      <Filter>Service</Filter>
+    </ClInclude>
+    <ClInclude Include="launcher.h">
+      <Filter>Service</Filter>
+    </ClInclude>
+    <ClInclude Include="factory.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="tcpclient.h">
+      <Filter>Service</Filter>
+    </ClInclude>
+    <ClInclude Include="networknode.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="session.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="netcontroller.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="marshalling_bin.h">
+      <Filter>Marshalling</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_macro.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_basic_dispatcher.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="marshalling_ascii.h">
+      <Filter>Marshalling</Filter>
+    </ClInclude>
+    <ClInclude Include="packetheaderascii.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="udpserver.h">
+      <Filter>Service</Filter>
+    </ClInclude>
+    <ClInclude Include="udpclient.h">
+      <Filter>Service</Filter>
+    </ClInclude>
+    <ClInclude Include="socketbuffer.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="sql\mysqlquery.h">
+      <Filter>MySQL</Filter>
+    </ClInclude>
+    <ClInclude Include="prtcompiler\ProtocolDefine.h">
+      <Filter>PrtCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="prtcompiler\ProtocolParser.h">
+      <Filter>PrtCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="prtcompiler\ProtocolScanner.h">
+      <Filter>PrtCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="prtcompiler\protocolutil.h">
+      <Filter>PrtCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol_all_handler.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\all_protocol_displayer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\log.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\packetlog.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\sessionlog.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="protocol_dispatcher.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="packet.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="packetqueue.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="packetheader.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="tcpserver.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="launcher.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="tcpclient.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="networknode.cpp">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="session.cpp">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="netcontroller.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_basic_dispatcher.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="packetheaderascii.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="udpserver.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="udpclient.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="socketbuffer.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="sql\mysqlquery.cpp">
+      <Filter>MySQL</Filter>
+    </ClCompile>
+    <ClCompile Include="prtcompiler\ProtocolDefine.cpp">
+      <Filter>PrtCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="prtcompiler\ProtocolParser.cpp">
+      <Filter>PrtCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="prtcompiler\ProtocolScanner.cpp">
+      <Filter>PrtCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="prtcompiler\protocolutil.cpp">
+      <Filter>PrtCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol_all_handler.cpp">
+      <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\all_protocol_displayer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\log.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\packetlog.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\sessionlog.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{44bb5394-9a3c-4d66-a8e6-f01fe206a7ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packet">
+      <UniqueIdentifier>{64aad0a0-48b5-4f18-9cfa-12c489c8b6ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controller">
+      <UniqueIdentifier>{ca2b7140-a3d5-4621-8e2f-88168e3cdd84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service">
+      <UniqueIdentifier>{bdb465dd-f349-40d9-acce-dadee4748662}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{94b37ee1-9cd7-452a-a7c2-e8659b17b035}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Marshalling">
+      <UniqueIdentifier>{04ebec27-9347-4c12-8974-e7cfc05ba8ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySQL">
+      <UniqueIdentifier>{c7dc39c3-9147-4e46-9e71-5fcf9bf57fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FTP">
+      <UniqueIdentifier>{fa32367e-086c-4df6-bb12-b4e2bbf765d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PrtCompiler">
+      <UniqueIdentifier>{86dbbd06-2445-46df-a5b5-fb65a3229f91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{6351fb53-9da4-42e8-8a35-2c983ef5f2f0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

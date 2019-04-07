@@ -3,12 +3,10 @@
 // Author:  jjuiddong
 // Date:    2/28/2013
 // 
-// Map 과 Vector를 합쳐놓은 자료구조다.
-// 랜덤 액세스 때는 Map을 이용하고, 전체를 탐색할 때는
-// Vector를 이용한다.
+// Map 과 Vector를 합친 자료구조다.
+// Fast Access 때는 Map을 이용하고, 전체를 탐색할 때는 Vector를 이용한다.
 // 
-// VectorType 의 Type은 유니크한 데이터여야 한다. 같은 Type이
-// 있는 경우 Vector에서 제대로 제거하지 못하게 된다.
+// Type은 유니크한 데이터여야 한다.
 //------------------------------------------------------------------------
 #pragma once
 
@@ -28,76 +26,90 @@ namespace common
 		typedef typename VectorType::iterator viterator;
 
 		VectorMap() {}
-		VectorMap(int reserved) : m_Seq(reserved) {}
+		VectorMap(int reserved) : m_seq(reserved) {}
 
 		bool insert(const value_type &vt)
 		{
 			// insert map
-			iterator it = m_RandomAccess.find(vt.first);
-			if (m_RandomAccess.end() != it)
-				return false; // 이미 존재 함
-			m_RandomAccess.insert( vt );
+			iterator it = m_map.find(vt.first);
+			if (m_map.end() != it)
+				return false; // Already Exist
+			m_map.insert( vt );
 
 			// insert vector
-			putvector(m_Seq, m_RandomAccess.size() - 1, vt.second);
+			putvector(m_seq, m_map.size() - 1, vt.second);
 			return true;
 		}
 
+		// erase and removevector
 		bool remove(const KeyType &key)
 		{
-			iterator it = m_RandomAccess.find(key);
-			if (m_RandomAccess.end() == it)
-				return false; // 없다면 리턴
+			iterator it = m_map.find(key);
+			if (m_map.end() == it)
+				return false; // not found
 
-			removevector(m_Seq, it->second);
-			m_RandomAccess.erase(it);
+			removevector(m_seq, it->second);
+			m_map.erase(it);
 			return true;
 		}
+
+		// erase and popvector
+		bool remove2(const KeyType &key)
+		{
+			iterator it = m_map.find(key);
+			if (m_map.end() == it)
+				return false; // not found
+
+			popvector2(m_seq, it->second);
+			m_map.erase(it);
+			return true;
+		}
+
 
 		// Type 이 유니크할 때만 사용할 수 있는 함수다.
 		bool removebytype(const Type &ty)
 		{
-			iterator it = m_RandomAccess.begin();
-			while (m_RandomAccess.end() != it)
+			iterator it = m_map.begin();
+			while (m_map.end() != it)
 			{
 				if (ty == it->second)
 				{
-					removevector(m_Seq, it->second);
-					m_RandomAccess.erase(it);
+					removevector(m_seq, it->second);
+					m_map.erase(it);
 					return true;
 				}
 			}
-			return false; // 못찾음
+			return false; // not found
 		}
 
-		bool empty()
+		bool empty() const
 		{
-			return m_RandomAccess.empty();
+			return m_map.empty();
 		}
 
 		void clear()
 		{
-			m_RandomAccess.clear();
-			m_Seq.clear();
+			m_map.clear();
+			m_seq.clear();
 		}
 
-		size_t size()
+		size_t size() const
 		{
-			return m_RandomAccess.size();
+			return m_map.size();
 		}
 
 		void reserve(unsigned int size)
 		{
-			m_Seq.reserve(size);
+			m_seq.reserve(size);
 		}
 
-		iterator find(const KeyType &key) { return m_RandomAccess.find(key); }
-		iterator begin() { return m_RandomAccess.begin(); }
-		iterator end() { return m_RandomAccess.end(); }
+		iterator find(const KeyType &key) { return m_map.find(key); }
+		iterator begin() { return m_map.begin(); }
+		iterator end() { return m_map.end(); }
 
 	public:
-		MapType	m_RandomAccess;
-		VectorType m_Seq;
+		MapType	m_map;
+		VectorType m_seq;
 	};
 
 }

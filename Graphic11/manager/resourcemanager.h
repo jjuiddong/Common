@@ -76,7 +76,6 @@ namespace graphic
 	};
 
 
-	// ex : "./media/"
 	inline void cResourceManager::SetMediaDirectory( const StrPath &path ) { m_mediaDirectory = path; }
 	inline const StrPath& cResourceManager::GetMediaDirectory() const { return m_mediaDirectory; }
 }

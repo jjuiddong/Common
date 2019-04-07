@@ -31,6 +31,7 @@ namespace graphic
 	struct cCbClipPlane
 	{
 		float clipPlane[4];
+		float reflectAlpha[4];
 	};
 
 	struct cCbSkinning
@@ -128,7 +129,7 @@ namespace graphic
 		cFontManager m_fontMgr;
 		cTextManager m_textMgr;
 
-		enum {MAX_TEXTURE_STAGE=8, TEXTURE_OFFSET=4};
+		enum {MAX_TEXTURE_STAGE=10, TEXTURE_OFFSET=4};
 		// Diffuse
 		// Normal
 		// Specular

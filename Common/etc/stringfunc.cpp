@@ -97,13 +97,93 @@ string common::wstr2utf8(const wstring &wstr)
 }
 
 
+//------------------------------------------------------------------------
+// _variant_t 타입을 스트링으로 변환시킨다. 데이타 출력용을 만들어졌다.
+//------------------------------------------------------------------------
+std::string common::variant2str(const _variant_t &var)
+{
+	std::stringstream ss;
+	switch (var.vt)
+	{
+	case VT_I2: ss << var.iVal; break;
+	case VT_I4: ss << var.lVal; break;
+	case VT_R4: ss << var.fltVal; break;
+	case VT_R8: ss << var.dblVal; break;
+
+	case VT_BSTR:
+	{
+#ifdef _UNICODE
+		wstring str = (LPCTSTR)(_bstr_t)var.bstrVal;
+		ss << common::wstr2str(str);
+#else
+		string str = (LPCTSTR)(_bstr_t)var.bstrVal;
+		ss << str;
+#endif
+	}
+	break;
+
+	case VT_DECIMAL:
+	case VT_I1:
+	case VT_UI1:
+	case VT_UI2:
+	case VT_UI4:
+		break;
+
+	case VT_INT: ss << var.intVal; break;
+	case VT_UINT: ss << var.uintVal; break;
+	default:
+		break;
+	}
+
+	return ss.str();
+}
+
+
+//------------------------------------------------------------------------
+// string을 varType 형태로 변환해서 리턴한다.
+//------------------------------------------------------------------------
+_variant_t common::str2variant(const _variant_t &varType, const std::string &value)
+{
+	_variant_t var = varType;
+	switch (varType.vt)
+	{
+	case VT_I2: var.iVal = (short)atoi(value.c_str()); break;
+	case VT_I4: var.lVal = (long)atoi(value.c_str()); break;
+	case VT_R4: var.fltVal = (float)atof(value.c_str()); break;
+	case VT_R8: var.dblVal = atof(value.c_str()); break;
+
+	case VT_BSTR:
+	{
+#ifdef _UNICODE
+		var.bstrVal = (_bstr_t)common::str2wstr(value).c_str();
+#else
+		var.bstrVal = (_bstr_t)value.c_str();
+#endif
+	}
+	break;
+
+	case VT_DECIMAL:
+	case VT_I1:
+	case VT_UI1:
+	case VT_UI2:
+	case VT_UI4:
+		break;
+
+	case VT_INT: var.intVal = (int)atoi(value.c_str()); break;
+	case VT_UINT: var.uintVal = strtoul(value.c_str(), NULL, 0); break;
+	default:
+		break;
+	}
+	return var;
+}
+
 
 //------------------------------------------------------------------------
 // 스트링포맷
 //------------------------------------------------------------------------
 std::string common::format(const char* fmt, ...)
 {
-	char textString[ 512] = {'\0'};
+	char textString[ 256] = {'\0'};
 	va_list args;
 	va_start ( args, fmt );
 	vsnprintf_s( textString, sizeof(textString), _TRUNCATE, fmt, args );
@@ -118,7 +198,7 @@ std::string common::format(const char* fmt, ...)
 //------------------------------------------------------------------------
 std::wstring common::formatw(const char* fmt, ...)
 {
-	char textString[ 512] = {'\0'};
+	char textString[ 256] = {'\0'};
 	va_list args;
 	va_start ( args, fmt );
 	vsnprintf_s( textString, sizeof(textString), _TRUNCATE, fmt, args );
@@ -289,7 +369,7 @@ void common::tokenizer3(const char *data, const int size, const char delimeter, 
 // int형 배열을 delimeter를 구분자로해서 스트링으로 변환한다.
 // 동적 메모리생성을 최소화한 함수.
 // datas -> string 
-int common::strcomposite(char *buff, const int maxSize, const char delimter, const vector<int> &datas)
+int common::strcomposite(char *buff, const int maxSize, const char delimeter, const vector<int> &datas)
 {
 	char temp[32];
 	char *dst = buff;
@@ -308,7 +388,7 @@ int common::strcomposite(char *buff, const int maxSize, const char delimter, con
 
 		if ((remain > 1) && (i != (int)datas.size()-1))
 		{
-			*dst++ = delimter;
+			*dst++ = delimeter;
 			--remain;
 		}
 	}

@@ -25,6 +25,7 @@ namespace graphic
 			, const int textHeight = 32
 			, const float dynScaleMin = 0.5f
 			, const float dynScaleMax = 200.5f
+			, const float dynScaleAlpha = 1.f
 		);
 
 		bool SetTextRect(

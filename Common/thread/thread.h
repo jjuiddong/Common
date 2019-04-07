@@ -42,7 +42,7 @@ namespace common
 		void Start();
 		bool Pause();
 		bool Resume();
-		void Terminate(const int milliSeconds=-1);
+		bool Terminate(const int milliSeconds=-1);
 		void Send2ThreadMessage( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added=0);
 		void Send2ExternalMessage( int msg, WPARAM wParam, LPARAM lParam, LPARAM added=0 );
 		bool GetThreadMsg( OUT SExternalMsg *pMsg, eMessageOption::Enum opt = eMessageOption::REMOVE );

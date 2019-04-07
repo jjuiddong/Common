@@ -160,6 +160,18 @@
     <ClInclude Include="etc\macro.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="thread\semaphore.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\tpsemaphore.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread\wqsemaphore.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\date2.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -248,6 +260,15 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="etc\timer.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\tpsemaphore.cpp">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\wqsemaphore.cpp">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\date2.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>

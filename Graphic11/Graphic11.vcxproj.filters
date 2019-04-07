@@ -356,6 +356,12 @@
     <ClInclude Include="collision\collisionobj.h">
       <Filter>collision</Filter>
     </ClInclude>
+    <ClInclude Include="base\slidebar.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\slidelist.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -677,6 +683,12 @@
     <ClCompile Include="collision\boundingsphere.cpp">
       <Filter>collision</Filter>
     </ClCompile>
+    <ClCompile Include="base\slidebar.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\slidelist.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">
@@ -796,6 +808,9 @@
       <Filter>shader</Filter>
     </CustomBuild>
     <CustomBuild Include="shader\atmosphere_precompute.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-reflect.fx">
       <Filter>shader</Filter>
     </CustomBuild>
   </ItemGroup>

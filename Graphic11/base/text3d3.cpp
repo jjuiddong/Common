@@ -22,13 +22,14 @@ bool cText3d3::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	, const int textHeight // = 32
 	, const float dynScaleMin //= 0.5f
 	, const float dynScaleMax //= 200.5f
+	, const float dynScaleAlpha //= 1.f
 )
 {
 	if (!m_texture.Create(renderer, textWidth, textHeight, DXGI_FORMAT_R8G8B8A8_UNORM))
 		return false;
 
 	if (!m_quad.Create(renderer, type, (float)width, (float)height, Vector3(0, 0, 0)
-		, "", true, dynScaleMin, dynScaleMax))
+		, "", true, dynScaleMin, dynScaleMax, dynScaleAlpha))
 		return false;
 
 	m_originalScale = m_quad.m_transform.scale;

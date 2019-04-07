@@ -2,6 +2,11 @@
 // 2017-09-27, jjuiddong
 // Cascaded ShadowMap for Terrain
 //
+// 1. object
+//	- SetTechnique("BuildShadowMap");
+// 2. render obect
+// 
+//
 #pragma once
 
 

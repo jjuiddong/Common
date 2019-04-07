@@ -79,7 +79,7 @@
 // SFML
 #pragma warning(push)
 #pragma warning (disable: 4603) //warning C4603: '_WIN32_WINDOWS' : macro is not defined or definition is different after precompiled header use
-#include "SFML/Window.hpp"
+#include "external/sfml/include/SFML/Window.hpp"
 #pragma warning(pop)
 
 #include "input/input.h"

@@ -23,16 +23,23 @@ namespace graphic
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::BLACK);
 
-		bool InitCube1(cRenderer &renderer
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::BLACK);
+		bool Create2(cRenderer &renderer
+			, const cColor colors[8]
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR));
 
-		bool InitCube2(cRenderer &renderer
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::BLACK);
+		//bool InitCube1(cRenderer &renderer
+		//	, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
+		//	, const cColor &color = cColor::BLACK);
+
+		//bool InitCube2(cRenderer &renderer
+		//	, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
+		//	, const cColor &color = cColor::BLACK);
 
 		void SetCube(cRenderer &renderer, const Vector3 vertices[8]
 			, const cColor &color = cColor::BLACK);
+
+		void SetCube(cRenderer &renderer, const Vector3 vertices[8]
+			, const cColor colors[8] );
 
 		virtual void Render(cRenderer &renderer) override;
 		virtual void RenderInstancing(cRenderer &renderer, const int count) override;
@@ -49,8 +56,15 @@ namespace graphic
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::BLACK);
 
+		bool CreateShape2(cRenderer &renderer, const Vector3 vertices[8], const WORD indices[36]
+			, const Vector2 uvs[36], const cColor colors[8]
+			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR));
+
 		void SetShape2(cRenderer &renderer, const Vector3 vertices[8]
 			, const WORD indices[36], const cColor &color = cColor::BLACK);
+
+		void SetShape2(cRenderer &renderer, const Vector3 vertices[8]
+			, const WORD indices[36], const cColor colors[8] );
 
 
 	public:

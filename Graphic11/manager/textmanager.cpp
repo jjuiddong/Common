@@ -77,6 +77,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 	, const int height//=1
 	, const float dynScaleMin //= 0.5f
 	, const float dynScaleMax //= 200.5f
+	, const float dynScaleAlpha //= 1.f
 )
 {
 	const cColor c1 = color.GetAbgr();
@@ -102,6 +103,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 		text->initTime = m_timer.GetSeconds();
 		text->text.m_quad.m_dynScaleMin = dynScaleMin;
 		text->text.m_quad.m_dynScaleMax = dynScaleMax;
+		text->text.m_quad.m_dynScaleAlpha = dynScaleAlpha;
 
 		if (m_renderMap.end() == m_renderMap.find(id))
 		{
@@ -123,6 +125,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 		cmd.height = height;
 		cmd.dynScaleMin = dynScaleMin;
 		cmd.dynScaleMax = dynScaleMax;
+		cmd.dynScaleAlpha = dynScaleMax;
 		cmd.space = renderer.GetCurrentAlphaBlendSpace();
 		m_cmds.push_back(cmd);
 	}
@@ -173,7 +176,8 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 
 			sText *text = new sText;
 			text->text.Create(renderer, cmd.type, cmd.width, cmd.height
-				, m_textureSizeX, m_textureSizeY, cmd.dynScaleMin, cmd.dynScaleMax);
+				, m_textureSizeX, m_textureSizeY, cmd.dynScaleMin, cmd.dynScaleMax
+				, cmd.dynScaleAlpha);
 			m_buffer.push_back(text);
 
 			SetCommand2Text(renderer, text, cmd);
@@ -298,6 +302,7 @@ void cTextManager::SetCommand2Text(cRenderer &renderer, sText *text, const sComm
 	text->initTime = m_timer.GetSeconds();
 	text->text.m_quad.m_dynScaleMin = cmd.dynScaleMin;
 	text->text.m_quad.m_dynScaleMax = cmd.dynScaleMax;
+	text->text.m_quad.m_dynScaleAlpha = cmd.dynScaleAlpha;
 	m_cacheMap[cmd.id] = text;
 }
 

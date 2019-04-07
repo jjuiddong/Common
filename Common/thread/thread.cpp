@@ -101,12 +101,19 @@ bool cThread::Resume()
 //------------------------------------------------------------------------
 // 쓰레드 종료
 //------------------------------------------------------------------------
-void cThread::Terminate(const int milliSeconds) //milliSeconds = -1
+bool cThread::Terminate(const int milliSeconds) //milliSeconds = -1
 {
+	if (!m_thread.joinable())
+	{
+		// Already Terminate
+		m_state = eState::END;
+		return false;
+	}
+
 	m_state = eState::END;
-	DWORD timeOutTime = (milliSeconds>=0)? milliSeconds : INFINITE;
 	if (m_thread.joinable())
 		m_thread.join();
+	return true;
 }
 
 
@@ -505,7 +512,8 @@ void cThread::Join()
 //------------------------------------------------------------------------
 void cThread::Clear()
 {
-	Terminate(INFINITE);
+	if (!Terminate(INFINITE))
+		return; // already terminate
 
 	{
 		AutoCSLock cs(m_containerCS);

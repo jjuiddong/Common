@@ -46,6 +46,11 @@ float4 PS(VSOUT_POSTEX input ) : SV_Target
 	return txDiffuse.Sample(samAnis, input.Tex);
 }
 
+float4 PS_Point(VSOUT_POSTEX input) : SV_Target
+{
+	return txDiffuse.Sample(samPoint, input.Tex);
+}
+
 
 technique11 Unlit
 {
@@ -54,6 +59,17 @@ technique11 Unlit
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+
+technique11 Unlit_Point
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Point()));
 	}
 }
 

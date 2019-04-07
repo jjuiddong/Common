@@ -18,33 +18,34 @@
 #endif
 
 
+
 // 매크로 정의
 #ifndef SAFE_DELETE
-#define SAFE_DELETE(p) {if (p) { delete p; p=NULL;} }
+	#define SAFE_DELETE(p) {if (p) { delete p; p=NULL;} }
 #endif
 #ifndef SAFE_DELETEA
-#define SAFE_DELETEA(p) {if (p) { delete[] p; p=NULL;} }
+	#define SAFE_DELETEA(p) {if (p) { delete[] p; p=NULL;} }
 #endif
 #ifndef SAFE_RELEASE
-#define SAFE_RELEASE(p) {if (p) { p->Release(); p=NULL;} }
+	#define SAFE_RELEASE(p) {if (p) { p->Release(); p=NULL;} }
 #endif
 #ifndef SAFE_RELEASE2
-#define SAFE_RELEASE2(p) {if (p) { p->release(); p=NULL;} }
+	#define SAFE_RELEASE2(p) {if (p) { p->release(); p=NULL;} }
 #endif
 #ifndef DX_SAFE_RELEASE
-#define DX_SAFE_RELEASE(p) {if (p) { p->Release(); p=NULL;} }
+	#define DX_SAFE_RELEASE(p) {if (p) { p->Release(); p=NULL;} }
 #endif
 
 #ifndef IN
-	#define IN
+#define IN
 #endif
 
 #ifndef OUT
-	#define OUT
+#define OUT
 #endif
 
 #ifndef INOUT
-	#define INOUT
+#define INOUT
 #endif
 
 #define RET(exp)	{if((exp)) return; } // exp가 true이면 리턴
@@ -56,9 +57,9 @@
 #define BRK(exp)	{if((exp)) break; } // exp가 break
 
 
-typedef unsigned int    u_int;
-typedef unsigned char   u_char;
-typedef unsigned int	hashcode;
+typedef unsigned int u_int;
+typedef unsigned char u_char;
+typedef unsigned int hashcode;
 
 #ifndef wchar
 	typedef wchar_t wchar;
@@ -68,9 +69,18 @@ typedef unsigned int	hashcode;
 	typedef unsigned int uint;
 #endif
 
+#ifndef int64
+	typedef __int64 int64;
+#endif
+
+#ifndef uint64
+	typedef unsigned __int64 uint64;
+#endif 
+
 
 // 포함 파일들.
 #include <windows.h>
+#include <comdef.h> // _variant_t type
 #include <string>
 #include <map>
 #include <vector>
@@ -84,8 +94,6 @@ typedef unsigned int	hashcode;
 #include <process.h>
 #include <shlwapi.h>
 #include <iterator>
-#include <boost/foreach.hpp>
-#include <boost\functional\hash.hpp>
 
 
 using std::string;
@@ -115,6 +123,7 @@ using std::wstringstream;
 #include "etc/memorypool.h"
 #include "etc/memorypool2.h"
 #include "etc/memorypool3.h"
+#include "etc/memorypool4.h"
 #include "etc/rand.h"
 #include "etc/config.h"
 #include "etc/autocs.h"
@@ -123,15 +132,20 @@ using std::wstringstream;
 #include "etc/SerialAsync.h"
 #include "etc/ip.h"
 #include "etc/date.h"
+#include "etc/date2.h"
 #include "etc/inifile.h"
 #include "etc/shmmem.h"
 #include "etc/fastmemloader.h"
 #include "etc/path.h"
 #include "etc/timer.h"
+#include "thread/semaphore.h"
 #include "thread/task.h"
 #include "thread/mutex.h"
 #include "thread/thread.h"
+#include "thread/wqsemaphore.h"
+#include "thread/tpsemaphore.h"
 #include "etc/filelogger.h"
 #include "etc/dbg.h"
 #include "etc/macro.h"
+
 

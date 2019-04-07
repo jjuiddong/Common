@@ -282,7 +282,7 @@ void cOcean::Render(cRenderer &renderer
 	effect->GetVariableByName("g_WaterMicroBumpTexcoordScale")->AsVector()->SetFloatVector(m_microBumpTexScale);
 	effect->GetVariableByName("g_WaterBumpTexcoordScale")->AsVector()->SetFloatVector(m_waterBumpTexScale);
 
-	tex_variable=pEffect->GetVariableByName("g_WaterBumpTexture")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_WaterBumpTexture")->AsShaderResource();
 	if (m_waterBump)
 		tex_variable->SetResource(m_waterBump->m_texSRV);
 
@@ -354,7 +354,7 @@ void cOcean::Render(cRenderer &renderer
 	m_mainColor.BeginSimple(renderer, ClearColor);
 	SetupNormalView(cam);
 
-	tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
 	tex_variable->SetResource(NULL);
 	//tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
 	//tex_variable->SetResource(NULL);
@@ -371,17 +371,17 @@ void cOcean::Render(cRenderer &renderer
 	pContext->RSSetViewports(1, &currentViewport);
 
 	// drawing water surface to main buffer
-	tex_variable=pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_DepthTexture")->AsShaderResource();
 	//tex_variable->SetResource(shadowmap_resourceSRV);
 	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_ReflectionTexture")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_ReflectionTexture")->AsShaderResource();
 	tex_variable->SetResource(m_reflection.m_texSRV);
-	tex_variable=pEffect->GetVariableByName("g_RefractionTexture")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_RefractionTexture")->AsShaderResource();
 	//tex_variable->SetResource(refraction_color_resourceSRV);
 	tex_variable->SetResource(NULL);
-	tex_variable=pEffect->GetVariableByName("g_RefractionDepthTextureResolved")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_RefractionDepthTextureResolved")->AsShaderResource();
 	tex_variable->SetResource(m_refractionDepth.m_texSRV);
-	tex_variable=pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
+	tex_variable = pEffect->GetVariableByName("g_WaterNormalMapTexture")->AsShaderResource();
 	tex_variable->SetResource(NULL); // add test code
 
 	pEffect->GetVariableByName("g_TerrainBeingRendered")->AsScalar()->SetFloat(0.0f);

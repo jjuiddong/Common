@@ -3,62 +3,102 @@
 #include "dbg.h"
 #include <chrono>
 
+
+namespace common {
+	namespace dbg {
+
+		// Log Thread
+		common::cWQSemaphore g_logThread;
+		struct sLogData
+		{
+			int type; // 0:log, 1:error log, 2:log + error log
+			Str256 str;
+		};
+
+		StrPath g_logPath = "log.txt";
+		StrPath g_errLogPath = "errlog.txt";
+	}
+}
+
 using namespace common;
 using namespace dbg;
 
 
-//-----------------------------------------------------------------------
-// Log Thread
-common::cThread g_logThread("log thread");
-struct sLogData
-{
-	int type; // 0=log, 1=error log
-	Str256 str;
-};
-vector<sLogData> g_logStrs;
-CriticalSection g_logCS;
-static bool m_enableLogThread = true;
-
+//------------------------------------------------------------------------
+// LogThread Task
 class cLogTask : public cTask
+				, public common::cMemoryPool4<cLogTask>
 {
 public:
-	cLogTask() : cTask(0, "cLogTask") {
+	sLogData m_logData;
+	cLogTask() : cTask(0, "cLogTask") {}
+	cLogTask(const sLogData &logData) 
+		: cTask(0, "cLogTask"), m_logData(logData) {
 	}
 	virtual ~cLogTask() {
 	}
 
 	virtual eRunResult::Enum Run(const double deltaSeconds) override
 	{
-		g_logCS.Lock();
-		if (!g_logStrs.empty())
+		const string timeStr = common::GetCurrentDateTime();
+
+		std::ofstream ofs1(g_logPath.c_str(), std::ios::app);
+		std::ofstream ofs2(g_errLogPath.c_str(), std::ios::app);
+		switch (m_logData.type)
 		{
-			std::ofstream ofs1("log.txt", std::ios::app);
-			std::ofstream ofs2("errlog.txt", std::ios::app);
-			for (auto &data : g_logStrs)
+		case 0:
+			if (ofs1.is_open())
 			{
-				switch (data.type)
-				{
-				case 0:
-					if (ofs1.is_open())
-						ofs1 << data.str.c_str();
-					break;
-				case 1:
-					if (ofs2.is_open())
-						ofs2 << data.str.c_str();
-					break;
-				}
+				ofs1 << timeStr << " : ";
+				ofs1 << m_logData.str.c_str();
 			}
-			g_logStrs.clear();	
+			break;
+		case 1:
+			if (ofs2.is_open())
+			{
+				ofs2 << timeStr << " : ";
+				ofs2 << m_logData.str.c_str();
+			}
+			break;
+		case 2:
+			if (ofs1.is_open())
+			{
+				ofs1 << timeStr << " : ";
+				ofs1 << m_logData.str.c_str();
+			}
+			if (ofs2.is_open())
+			{
+				ofs2 << timeStr << " : ";
+				ofs2 << m_logData.str.c_str();
+			}
+			break;
 		}
-		g_logCS.Unlock();
-
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(33ms);
-
-		return eRunResult::CONTINUE;
+		return eRunResult::END;
 	}
 };
 //-----------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------
+// Set Log File Path
+// ex) "./server/"  --> "./server/log.txt"
+// ex) "./client/" --> "./client/log.txt"
+//------------------------------------------------------------------------
+void dbg::SetLogPath(const char *path)
+{
+	g_logPath = StrPath(path) + g_logPath;
+}
+
+
+//------------------------------------------------------------------------
+// Set ErrLog File Path
+// ex) "./server/"  --> "./server/errlog.txt"
+// ex) "./client/" --> "./client/errlog.txt"
+//------------------------------------------------------------------------
+void dbg::SetErrLogPath(const char *path)
+{
+	g_errLogPath = StrPath(path) + g_errLogPath;
+}
 
 
 //------------------------------------------------------------------------
@@ -96,7 +136,7 @@ void dbg::Log(const char* fmt, ...)
 	vsnprintf_s(textString, sizeof(textString)-1, _TRUNCATE, fmt, args);
 	va_end(args);
 
-	std::ofstream ofs("log.txt", std::ios::app);
+	std::ofstream ofs(g_logPath.c_str(), std::ios::app);
 	if (ofs.is_open())
 		ofs << textString;
 }
@@ -105,8 +145,6 @@ void dbg::Log(const char* fmt, ...)
 // log parallel thread
 void dbg::Logp(const char* fmt, ...)
 {
-	RET(!m_enableLogThread);
-
 	sLogData data;
 	data.type = 0;
 	va_list args;
@@ -116,15 +154,10 @@ void dbg::Logp(const char* fmt, ...)
 
 	//------------------------------------------------------------------------
 	// add string to log thread
-	g_logCS.Lock();
-	if (g_logStrs.size() < 1024)
-		g_logStrs.push_back(data);
-	g_logCS.Unlock();
-
-	if (!g_logThread.IsRun())
 	{
-		g_logThread.AddTask(new cLogTask());
-		g_logThread.Start();
+		cLogTask *task = new cLogTask();
+		task->m_logData = data;
+		g_logThread.PushTask(task);
 	}
 }
 
@@ -155,7 +188,7 @@ void dbg::ErrLog(const char* fmt, ...)
 	vsnprintf_s(textString, sizeof(textString), _TRUNCATE, fmt, args);
 	va_end(args);
 
-	FILE *fp = fopen("errlog.txt", "a+");
+	FILE *fp = fopen(g_errLogPath.c_str(), "a+");
 	if (fp)
 	{
 		fputs(textString, fp);
@@ -179,10 +212,11 @@ void dbg::ErrLogp(const char* fmt, ...)
 
 	//------------------------------------------------------------------------
 	// add string to log thread
-	g_logCS.Lock();
-	if (g_logStrs.size() < 256)
-		g_logStrs.push_back(data);
-	g_logCS.Unlock();
+	{
+		cLogTask *task = new cLogTask();
+		task->m_logData = data;
+		g_logThread.PushTask(task);
+	}
 
 	// 로그파일에도 에러 메세지를 저장한다.
 	Logp("Error : %s", data.str.m_str);
@@ -191,7 +225,7 @@ void dbg::ErrLogp(const char* fmt, ...)
 
 void dbg::RemoveErrLog()
 {
-	FILE *fp = fopen("errlog.txt", "w");
+	FILE *fp = fopen(g_errLogPath.c_str(), "w");
 	if (fp)
 	{
 		fputs("", fp);
@@ -213,7 +247,7 @@ void dbg::RemoveLog2(const char *fileName)
 
 void dbg::RemoveLog()
 {
-	FILE *fp = fopen("log.txt", "w");
+	FILE *fp = fopen(g_logPath.c_str(), "w");
 	if (fp)
 	{
 		fputs("", fp);
@@ -224,6 +258,50 @@ void dbg::RemoveLog()
 
 void dbg::TerminateLogThread()
 {
-	m_enableLogThread = false;
 	g_logThread.Clear();
+}
+
+
+// log classfy
+// print/log/errlog, multithread
+//
+// level 0 : printf
+//		 1 : printf + log
+//		 2 : printf + log + err log
+//		 3 : printf + log + err log + assertion
+void dbg::Logc(const int level, const char* fmt, ...)
+{
+	sLogData data;
+	data.type = -1;
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf_s(data.str.m_str, sizeof(data.str.m_str), _TRUNCATE, fmt, args);
+	va_end(args);
+
+	switch (level)
+	{
+	case 3:
+		assert(0);
+	case 2:
+		data.type = 2;
+	case 1:
+		if (level == 1)
+			data.type = 0;
+	case 0:
+		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
+		//std::cout << data.str.m_str;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	//------------------------------------------------------------------------
+	// add string to log thread
+	if (data.type >= 0)
+	{
+		cLogTask *task = new cLogTask();
+		task->m_logData = data;
+		g_logThread.PushTask(task);
+	}
 }

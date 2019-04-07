@@ -10,6 +10,7 @@ cBillboard::cBillboard()
 	//, m_dynScaleMax(2.5f)
 	: m_dynScaleMin(0.5f)
 	, m_dynScaleMax(200.5f)
+	, m_dynScaleAlpha(1.f)
 {
 }
 
@@ -26,6 +27,7 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	, const bool isSizePow2 //=true
 	, const float dynScaleMin //= 0.5f
 	, const float dynScaleMax //= 200.5f
+	, const float dynScaleAlpha //= 1.f
 )
 {
 	if (!__super::Create(renderer, width, height, pos
@@ -37,6 +39,7 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 	m_transform.pos = pos;
 	m_dynScaleMin = dynScaleMin;
 	m_dynScaleMax = dynScaleMax;
+	m_dynScaleAlpha = dynScaleAlpha;
 	return true;
 }
 
@@ -103,7 +106,8 @@ void cBillboard::Rotate()
 		// Fixed Scale Model
 		Vector3 pos = m_transform.pos;
 		const float len = (pos - GetMainCamera().GetEyePos()).Length();
-		const Vector3 scale = Vector3(1,1,1)*min(m_dynScaleMax, max(m_dynScaleMin, len / 100.f));
+		const Vector3 scale = Vector3(1,1,1)*min(m_dynScaleMax
+			, max(m_dynScaleMin, (len / 100.f) * m_dynScaleAlpha));
 		m_scale = scale;
 
 		Matrix44 view = GetMainCamera().GetViewMatrix();

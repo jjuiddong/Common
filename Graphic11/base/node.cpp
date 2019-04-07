@@ -5,35 +5,6 @@
 using namespace graphic;
 
 
-////--------------------------------------------------------------------------------
-//// eSubType
-//char* graphic::GetSubtypeStr(const eSubType::Enum type)
-//{
-//	switch (type)
-//	{
-//	case eSubType::NONE: return "None";
-//	case eSubType::CUBE2: return "Cube2";
-//	case eSubType::AREA: return "Area";
-//	case eSubType::CUBE: return "Cube";
-//	case eSubType::LINE: return "Line";
-//	}
-//	return "";
-//}
-//
-//eSubType::Enum graphic::GetSubtype(const char *subTypeStr)
-//{
-//#define COMPSTR(str, type) if (!strcmp(subTypeStr, str)) {return type;}
-//	COMPSTR("None", eSubType::NONE);
-//	COMPSTR("Cube2", eSubType::CUBE2);
-//	COMPSTR("Area", eSubType::AREA);
-//	COMPSTR("Cube", eSubType::CUBE);
-//	COMPSTR("Line", eSubType::LINE);	
-//	return eSubType::NONE;
-//}
-//--------------------------------------------------------------------------------
-
-
-
 cNode::cNode()
 	: m_id(common::GenerateId())
 	, m_name("none")

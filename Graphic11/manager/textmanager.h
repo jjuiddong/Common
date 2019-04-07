@@ -39,6 +39,7 @@ namespace graphic
 			, const int height=1
 			, const float dynScaleMin = 0.5f
 			, const float dynScaleMax = 200.5f
+			, const float dynScaleAlpha = 1.f
 		);
 
 		void Render(cRenderer &renderer, const bool isSort=false);
@@ -74,6 +75,7 @@ namespace graphic
 			int height;
 			float dynScaleMin;
 			float dynScaleMax;
+			float dynScaleAlpha;
 		};
 
 		struct sDelayGenerateText

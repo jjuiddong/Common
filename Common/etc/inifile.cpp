@@ -7,7 +7,8 @@ using namespace common;
 using namespace uiutil;
 
 
-int uiutil::GetProfileInt(const string &appName, const string &keyName, const int defaultValue, const string &fileName)
+int uiutil::GetIniFileInt(const string &appName, const string &keyName, const int defaultValue
+	, const string &fileName)
 {
 	wchar_t buff[128];
 	const int ret = GetPrivateProfileStringW(
@@ -22,7 +23,8 @@ int uiutil::GetProfileInt(const string &appName, const string &keyName, const in
 }
 
 
-float uiutil::GetProfileFloat(const string &appName, const string &keyName, const float defaultValue, const string &fileName)
+float uiutil::GetIniFileFloat(const string &appName, const string &keyName, const float defaultValue
+	, const string &fileName)
 {
 	wchar_t buff[128];
 	const int ret = GetPrivateProfileStringW(
@@ -34,19 +36,4 @@ float uiutil::GetProfileFloat(const string &appName, const string &keyName, cons
 		str2wstr(fileName).c_str());
 
 	return (float)_wtof(buff);
-}
-
-
-string uiutil::GetProfileString(const string &appName, const string &keyName, const string &defaultValue, const string &fileName)
-{
-	wchar_t buff[128];
-	const int ret = GetPrivateProfileStringW(
-		str2wstr(appName).c_str(),
-		str2wstr(keyName).c_str(),
-		str2wstr(defaultValue).c_str(),
-		buff,
-		(DWORD)sizeof(buff),
-		str2wstr(fileName).c_str());
-
-	return wstr2str(buff);
 }

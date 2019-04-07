@@ -2,17 +2,26 @@
 // 2017-12-21, jjuiddong
 // add log thread
 //
+// 2019-02-20
+//	- add classfy logc
+//	- add log path
+//
 #pragma once
 
 
 namespace common { namespace dbg
 {
-	void Print( const std::string &str );
-	void Print( const char* fmt, ...);
+
+	void SetLogPath(const char *path);
+	void SetErrLogPath(const char *path);
+
+	void Print(const std::string &str);
+	void Print(const char* fmt, ...);
 
 	void Log(const char* fmt, ...);
 	void Log2(const char *fileName, const char* fmt, ...);
 	void ErrLog(const char* fmt, ...);
+
 
 	// multithreading log
 	void Logp(const char* fmt, ...);
@@ -23,7 +32,16 @@ namespace common { namespace dbg
 	void RemoveErrLog();
 	void TerminateLogThread();
 
+
+	// log classfy
+	// print/log/errlog, multithread
+	//
+	// level 0 : printf
+	//		 1 : printf + log
+	//		 2 : printf + log + errlog
+	//		 3 : printf + log + errlog + assertion
+	void Logc(const int level, const char* fmt, ...);
+
+
 }}
 
-
-extern common::cThread g_logThread;

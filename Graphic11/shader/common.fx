@@ -7,6 +7,7 @@
 #define DepthMapSize_Scaled (DepthMapSize - 500.f)
 
 float4 g_outlineColor = float4(0.8f, 0.f, 0.f, 1.f);
+//float4 g_outlineColor = float4(0.8f, 0.8f, 0.8f, 1.f);
 
 
 //--------------------------------------------------------------------------------------
@@ -20,6 +21,8 @@ Texture2D txShadow0	: register(t4);
 Texture2D txShadow1	: register(t5);
 Texture2D txShadow2	: register(t6);
 Texture2D txDepth : register(t7);
+Texture2D txReflect: register(t8);
+Texture2D txRefract: register(t9);
 
 
 //--------------------------------------------------------------------------------------
@@ -130,7 +133,7 @@ cbuffer cbLight : register(b1)
 }
 
 
-cbuffer cbMaetrial : register(b2)
+cbuffer cbMaterial : register(b2)
 {
 	float4 gMtrl_Ambient;
 	float4 gMtrl_Diffuse;
@@ -146,7 +149,8 @@ cbuffer cbPerFrameInstancing : register(b3)
 
 cbuffer cbClipPlane : register(b4)
 {
-	float4	gClipPlane;
+	float4 gClipPlane;
+	float gReflectionAlpha; // 0 ~ 1 (source ~ reflectmap) (default: 0.1f)
 }
 
 cbuffer cbSkinning : register(b5)
