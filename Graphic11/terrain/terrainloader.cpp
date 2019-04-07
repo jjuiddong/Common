@@ -73,7 +73,8 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 		{
 			for (auto &p : tile->m_children)
 			{
-				if (p->m_name == "grid")
+				//trick code, todo: bugfix general solution
+				if ((p->m_name == "grid") || (p->m_name == "Ground"))
 					continue;
 
 				ptree tree;
@@ -314,6 +315,12 @@ cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 	}
 	else
 	{
+		if (type == eSubType::NONE)
+		{
+			assert(!"terrainloader read error!!, eSubType::None");
+			return NULL;
+		}
+
 		// Load Model File
 		StrPath fileName = tree.get<string>("filename", "");
 		assert(!fileName.empty());

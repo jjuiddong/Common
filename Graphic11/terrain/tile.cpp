@@ -70,6 +70,7 @@ bool cTile::Create(cRenderer &renderer
 	//m_ground->m_transform.pos.y = -3.f;
 	if (!textureFileName)
 		m_ground->m_mtrl.InitWhite();
+	m_ground->m_name = "Ground";
 	AddChild(m_ground);
 	
 	m_transform.pos = transform.pos;
