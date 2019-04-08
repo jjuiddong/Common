@@ -198,7 +198,7 @@ __int64  common::FileSize(const string &fileName)
 //		- 마지막에 / 넣어야한다.
 //		- ex) ".media/data/"
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
-//			- ex) bmp, jpg, png
+//			- ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out)
@@ -261,6 +261,7 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 
 
 // same CollectFiles() function
+// findExt: .bmp, .jpg, .png
 // return  Relative Path
 bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out)
 {
@@ -328,6 +329,7 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
@@ -394,6 +396,7 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 
 
 // 파일명과 날짜 정보를 저장해 리턴한다.
+// findExt: .bmp, .jpg, .png
 bool CollectFilesRaw(const list<string> &findExt, const string &searchPath, 
 	OUT list<std::pair<FILETIME, string>> &out)
 {
@@ -449,11 +452,12 @@ bool CollectFilesRaw(const list<string> &findExt, const string &searchPath,
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 // flag : 0 = 최근 수정된 날짜를 기준으로 정렬한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFilesOrdered(const list<string> &findExt, const string &searchPath, OUT list<string> &out, 
-	const int flags) // flags=0
+bool common::CollectFilesOrdered(const list<string> &findExt, const string &searchPath
+	, OUT list<string> &out, const int flags) // flags=0
 {
 	using std::pair;
 
@@ -485,9 +489,11 @@ bool common::CollectFilesOrdered(const list<string> &findExt, const string &sear
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out)
+bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath
+	, OUT vector<WStrPath> &out)
 {
 	WStrPath modifySearchPath;
 	//if (!searchPath.empty() &&
@@ -553,6 +559,7 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath
@@ -623,6 +630,7 @@ bool common::CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchPath
@@ -694,6 +702,7 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 // searchPath: 탐색하고자 하는 디렉토리 경로
 //		- 마지막에 / 넣어야한다.
 // findExt: 찾고자 하는 확장자, 2개이상 설정할수있게 하기위해서 리스트 자료형태가 되었다.
+//			ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
 bool common::CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPath
@@ -760,77 +769,64 @@ bool common::CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPat
 
 //------------------------------------------------------------------------
 // srcFileName의 확장자와 compareExtendName 이름이 같다면 true를 리턴한다.
-// 확장자는 srcFileName 끝에서 '.'이 나올 때까지 이다.
+// compareExtendName : .bmp, .jpg, .fbx
 //------------------------------------------------------------------------
-bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLength, const char *compareExtendName)
+bool common::CompareExtendName(const char *srcFileName, const int srcStringMaxLength
+	, const char *compareExtendName)
 {
 	const int len = (int)strnlen_s(srcFileName, srcStringMaxLength);
 	if (len <= 0)
 		return FALSE;
 
+	const int TEMPSIZE = 16;
 	int count = 0;
-	char temp[16];
-	for (int i=0; i < len && i < 15; ++i)
+	char temp[TEMPSIZE];
+	for (int i=0; i < len && i < (ARRAYSIZE(temp)-1); ++i)
 	{
 		const char c = srcFileName[ len-i-1];
+		temp[count++] = c;
 		if ('.' == c)
-		{
 			break;
-		}
-		else
-		{
-			temp[ count++] = c;
-		}
 	}
 	temp[ count] = NULL;
 
-	char extendName[16];
+	char extendName[TEMPSIZE];
 	for (int i=0; i < count; ++i)
 		extendName[ i] = temp[ count-i-1];
 	extendName[ count] = NULL;
 
-	if (!strcmp(extendName, compareExtendName))
-	{
-		return true;
-	}
-
-	return false;
+	return !strcmp(extendName, compareExtendName);
 }
 
 
-bool common::CompareExtendName(const wchar_t *srcFileName, const int srcStringMaxLength, const wchar_t *compareExtendName)
+// compare extend filename
+// compareExtendName : .bmp, .jpg, .fbx
+bool common::CompareExtendName(const wchar_t *srcFileName, const int srcStringMaxLength
+	, const wchar_t *compareExtendName)
 {
 	const int len = (int)wcslen(srcFileName);
 	if (len <= 0)
 		return FALSE;
 
+	const int TEMPSIZE = 16;
 	int count = 0;
-	wchar_t temp[16];
-	for (int i = 0; i < len && i < 15; ++i)
+	wchar_t temp[TEMPSIZE];
+	for (int i = 0; i < len && i < (ARRAYSIZE(temp)-1); ++i)
 	{
 		const wchar_t c = srcFileName[len - i - 1];
+		temp[count++] = c;
 		if ('.' == c)
-		{
 			break;
-		}
-		else
-		{
-			temp[count++] = c;
-		}
 	}
+
 	temp[count] = NULL;
 
-	wchar_t extendName[16];
+	wchar_t extendName[TEMPSIZE];
 	for (int i = 0; i < count; ++i)
 		extendName[i] = temp[count - i - 1];
 	extendName[count] = NULL;
 
-	if (!wcscmp(extendName, compareExtendName))
-	{
-		return true;
-	}
-
-	return false;
+	return !wcscmp(extendName, compareExtendName);
 }
 
 

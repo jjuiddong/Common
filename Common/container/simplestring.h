@@ -447,7 +447,7 @@ namespace common
 		}
 		String(const std::wstring &str) {
 			const size_t len = min(str.size(), MAX - 1);
-			wcssncpy_s(m_str, str.c_str(), len);
+			wcsncpy_s(m_str, str.c_str(), len);
 			m_str[len] = NULL;
 		}
 
