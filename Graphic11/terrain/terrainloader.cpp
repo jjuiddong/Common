@@ -315,15 +315,21 @@ cNode* cTerrainLoader::CreateNode(cRenderer &renderer, const ptree &tree)
 	}
 	else
 	{
-		if (type == eSubType::NONE)
+		//if (type == eSubType::NONE)
+		//{
+		//	assert(!"terrainloader read error!!, eSubType::None");
+		//	return NULL;
+		//}
+
+		// Load Model File
+		StrPath fileName = tree.get<string>("filename", "");
+		//assert(!fileName.empty());
+		if (fileName.empty())
 		{
 			assert(!"terrainloader read error!!, eSubType::None");
 			return NULL;
 		}
 
-		// Load Model File
-		StrPath fileName = tree.get<string>("filename", "");
-		assert(!fileName.empty());
 		cModel *model = new cModel();
 
 		// 모델이 병렬로 로딩되기 때문에, transform, boundingBox는 먼저 로딩한다.
