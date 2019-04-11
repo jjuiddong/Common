@@ -99,7 +99,7 @@ namespace framework
 		HINSTANCE m_hInstance;
 		graphic::cRenderer m_renderer;
 		eState::Enum m_state;
-		StrId m_title;
+		Str512 m_title;
 		cImGui m_gui;
 		graphic::cCamera3D m_camera;
 		graphic::cLight m_light;

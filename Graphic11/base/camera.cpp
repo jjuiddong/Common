@@ -439,7 +439,7 @@ void cCamera::FitFrustum(const cCamera &camera
 
 // use ShadowMap, Calc Light Camera Projection
 // Light Camera is Orthogonal Projection
-// this class is Light Camera instance
+// this class is Light Camera Method
 void cCamera::FitFrustum(const Matrix44 &matViewProj)
 {
 	//        4 --- 5
@@ -478,19 +478,34 @@ void cCamera::FitFrustum(const Matrix44 &matViewProj)
 	for each (auto &v in vertices)
 		mm.Update(v);
 
-	Matrix44 newProj;
-	newProj.SetProjectionOrthogonal(
-		mm._min.x, mm._max.x,
-		mm._min.y, mm._max.y,
-		mm._min.z, mm._max.z + 100);
+	if ((mm._min != Vector3::Zeroes)
+		|| (mm._max != Vector3::Zeroes))
+	{
+		Matrix44 newProj;
+		newProj.SetProjectionOrthogonal(
+			mm._min.x, mm._max.x,
+			mm._min.y, mm._max.y,
+			mm._min.z, mm._max.z + 100);
+
+		m_proj = newProj;
+	}
+	else
+	{
+		// no assume boundngbox
+		Matrix44 newProj;
+		newProj.SetProjectionOrthogonal(
+			-1, 1,
+			-1, 1,
+			0, 1 + 100.f);
+		m_proj = newProj;
+	}
 
 	m_eyePos = pos;
 	m_lookAt = center;
 	m_view = newView;
-	m_proj = newProj;
 	m_near = mm._min.z;
 	m_far = mm._max.z;
-	m_viewProj = newView * newProj;
+	m_viewProj = m_view * m_proj;
 }
 
 

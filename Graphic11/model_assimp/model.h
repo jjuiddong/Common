@@ -49,6 +49,7 @@ namespace graphic
 	protected:
 		virtual void InitModel(cRenderer &renderer);
 		bool CheckLoadProcess(cRenderer &renderer);
+		bool ReadModelInformation(const StrPath &modelInfoFileName);
 
 
 	public:
@@ -70,6 +71,8 @@ namespace graphic
 		cAssimpModel *m_model; // reference
 		cSkeleton m_skeleton;
 		cAnimation m_animation;
+		Transform m_localTm; // tricky code (solution: change mesh position, orientation)
+		vector<int> m_meshInVisible; // mesh invisible index array, tricky code, need optimize,
 		float m_aniIncT;
 		float m_animationSpeed;
 	};

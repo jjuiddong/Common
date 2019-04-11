@@ -147,5 +147,6 @@ using std::wstringstream;
 #include "etc/filelogger.h"
 #include "etc/dbg.h"
 #include "etc/macro.h"
+#include "etc/simpledata.h"
 
 

@@ -408,6 +408,7 @@
     <ClInclude Include="etc\Serial.h" />
     <ClInclude Include="etc\SerialAsync.h" />
     <ClInclude Include="etc\shmmem.h" />
+    <ClInclude Include="etc\simpledata.h" />
     <ClInclude Include="etc\singleton.h" />
     <ClInclude Include="etc\stringfunc.h" />
     <ClInclude Include="etc\timer.h" />
@@ -454,6 +455,7 @@
     <ClCompile Include="etc\Serial.cpp" />
     <ClCompile Include="etc\SerialAsync.cpp" />
     <ClCompile Include="etc\shmmem.cpp" />
+    <ClCompile Include="etc\simpledata.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />
     <ClCompile Include="etc\timer.cpp" />
     <ClCompile Include="math\matrix44.cpp" />

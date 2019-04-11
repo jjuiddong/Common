@@ -157,6 +157,12 @@ void cAssimpModel::UpdateBoundingBox()
 			const Vector3 dim = bbox.GetDimension();
 			const Vector3 _min = center - (dim * 0.5f);
 			const Vector3 _max = center + (dim * 0.5f);
+
+			// todo: something wrong~ check boundingbox calculation
+			// bounding orientation has garbage memory
+			if ((_min.Length() > 1000000) || (_max.Length() > 1000000))
+				continue;
+
 			mm.Update(_min);
 			mm.Update(_max);
 		}

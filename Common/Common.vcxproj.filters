@@ -172,6 +172,9 @@
     <ClInclude Include="etc\date2.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="etc\simpledata.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -269,6 +272,9 @@
       <Filter>thread</Filter>
     </ClCompile>
     <ClCompile Include="etc\date2.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\simpledata.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>

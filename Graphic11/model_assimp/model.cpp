@@ -38,6 +38,7 @@ bool cModel::Create(cRenderer &renderer
 	m_fileName = fileName;
 	m_techniqueName = "Unlit";
 	m_isLoad = false;
+	ReadModelInformation(fileName + ".inf");
 	m_aniIncT = 0;
 	SetRenderFlag(eRenderFlag::SHADOW, isShadow);
 
@@ -55,6 +56,51 @@ bool cModel::Create(cRenderer &renderer
 
 	if (!m_model)
 		return false;
+
+	return true;
+}
+
+
+// modelfilename + .inf 파일을 읽어서 Mesh Visible, Model LocalTm 값을 업데이트 한다.
+// *.inf 파일은 simpledata 형식으로 저장되어 있다.
+bool cModel::ReadModelInformation(const StrPath &modelInfoFileName)
+{
+	m_localTm = Transform();
+	m_meshInVisible.clear();
+
+	StrPath fileName = cResourceManager::Get()->GetResourceFilePath(modelInfoFileName);
+
+	cSimpleData sd;
+	if (!sd.Read(fileName.c_str()))
+		return false;
+
+	for (auto &row : sd.m_table)
+	{
+		if ((row.size() == 4) && (row[0] == "pos"))
+		{
+			m_localTm.pos = Vector3((float)atof(row[1].c_str())
+				, (float)atof(row[2].c_str())
+				, (float)atof(row[3].c_str()));
+		}
+		else if ((row.size() == 5) && (row[0] == "rot"))
+		{
+			m_localTm.rot = Quaternion((float)atof(row[1].c_str())
+				, (float)atof(row[2].c_str())
+				, (float)atof(row[3].c_str())
+				, (float)atof(row[4].c_str()));
+		}
+		else if ((row.size() == 4) && (row[0] == "scale"))
+		{
+			m_localTm.scale = Vector3((float)atof(row[1].c_str())
+				, (float)atof(row[2].c_str())
+				, (float)atof(row[3].c_str()));
+		}
+		else if ((row.size() == 3) && (row[0] == "meshvisible"))
+		{
+			const int meshIdx = atoi(row[1].c_str());
+			m_meshInVisible.push_back(meshIdx);
+		}
+	}
 
 	return true;
 }
@@ -79,13 +125,13 @@ bool cModel::Render(cRenderer &renderer
 	{
 		CommonStates state(renderer.GetDevice());
 		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
-		const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+		const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 		m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
 		renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
 	}
 	else
 	{
-		const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+		const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 		m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
 	}
 
@@ -210,6 +256,13 @@ void cModel::InitModel(cRenderer &renderer)
 		m_animation.m_curAniIdx = curAniIdx;
 	else
 		SetAnimation(m_animationName);
+
+	// 메쉬 Invisible 설정 (MapEditor에서 설정한다.)
+	for (auto &idx : m_meshInVisible)
+	{
+		if (m_model && (m_model->m_meshes.size() > (uint)idx))
+			m_model->m_meshes[idx]->SetRenderFlag(eRenderFlag::VISIBLE, false);
+	}
 }
 
 
@@ -255,6 +308,7 @@ cNode* cModel::Clone(cRenderer &renderer) const
 void cModel::Clear()
 {
 	m_model = NULL;
+	m_meshInVisible.clear();
 }
 
 
