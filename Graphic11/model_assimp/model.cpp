@@ -67,6 +67,7 @@ bool cModel::ReadModelInformation(const StrPath &modelInfoFileName)
 {
 	m_localTm = Transform();
 	m_meshInVisible.clear();
+	m_meshMaterial.clear();
 
 	StrPath fileName = cResourceManager::Get()->GetResourceFilePath(modelInfoFileName);
 
@@ -99,6 +100,55 @@ bool cModel::ReadModelInformation(const StrPath &modelInfoFileName)
 		{
 			const int meshIdx = atoi(row[1].c_str());
 			m_meshInVisible.push_back(meshIdx);
+		}
+		else if ((row.size() >= 4) && (row[0] == "mesh_material"))
+		{
+			const int meshIdx = atoi(row[1].c_str());
+			auto it = std::find_if(m_meshMaterial.begin(), m_meshMaterial.end()
+				, [&](const auto &a1) {return a1.first == meshIdx; });
+			cMaterial *mtrl = NULL;
+			if (it == m_meshMaterial.end())
+			{
+				m_meshMaterial.push_back({ meshIdx, cMaterial() });
+				mtrl = &m_meshMaterial.back().second;
+			}
+			else
+			{
+				mtrl = &it->second;
+			}
+
+			if ((row[2] == "ambient") && (row.size() == 7))
+			{
+				mtrl->m_ambient = Vector4((float)atof(row[3].c_str())
+					, (float)atof(row[4].c_str())
+					, (float)atof(row[5].c_str())
+					, (float)atof(row[6].c_str()));
+			}
+			else if ((row[2] == "diffuse") && (row.size() == 7))
+			{
+				mtrl->m_diffuse = Vector4((float)atof(row[3].c_str())
+					, (float)atof(row[4].c_str())
+					, (float)atof(row[5].c_str())
+					, (float)atof(row[6].c_str()));
+			}
+			else if ((row[2] == "specular") && (row.size() == 7))
+			{
+				mtrl->m_specular = Vector4((float)atof(row[3].c_str())
+					, (float)atof(row[4].c_str())
+					, (float)atof(row[5].c_str())
+					, (float)atof(row[6].c_str()));
+			}
+			else if ((row[2] == "emissive") && (row.size() == 7))
+			{
+				mtrl->m_emissive = Vector4((float)atof(row[3].c_str())
+					, (float)atof(row[4].c_str())
+					, (float)atof(row[5].c_str())
+					, (float)atof(row[6].c_str()));
+			}
+			else if ((row[2] == "power") && (row.size() == 4))
+			{
+				mtrl->m_power = (float)atof(row[3].c_str());
+			}
 		}
 	}
 
@@ -257,11 +307,21 @@ void cModel::InitModel(cRenderer &renderer)
 	else
 		SetAnimation(m_animationName);
 
-	// 메쉬 Invisible 설정 (MapEditor에서 설정한다.)
+	// Mesh Invisible 설정 (MapEditor에서 설정한다.)
 	for (auto &idx : m_meshInVisible)
 	{
 		if (m_model && (m_model->m_meshes.size() > (uint)idx))
 			m_model->m_meshes[idx]->SetRenderFlag(eRenderFlag::VISIBLE, false);
+	}
+
+	// Mesh Material 설정 (MapEditor에서 설정한다.)
+	for (auto &val : m_meshMaterial)
+	{
+		if (m_model && (m_model->m_meshes.size() > (uint)val.first))
+		{
+			if (!m_model->m_meshes[val.first]->m_mtrls.empty())
+				m_model->m_meshes[val.first]->m_mtrls[0] = val.second;
+		}
 	}
 }
 

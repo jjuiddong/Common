@@ -57,7 +57,7 @@ bool cNode::Render(cRenderer &renderer
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
 
-	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 
 	for (auto &node : m_children)
 		node->Render(renderer, tm, flags);
@@ -102,7 +102,7 @@ bool cNode::RenderInstancing(cRenderer &renderer
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
 
-	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 
 	for (auto &node : m_children)
 		node->RenderInstancing(renderer, count, transforms, tm, flags);
@@ -250,7 +250,7 @@ bool cNode::RemoveChild(cNode *rmNode
 void cNode::CalcBoundingSphere()
 {
 	m_boundingSphere.SetBoundingSphere(m_boundingBox);
-	m_alphaRadius = m_transform.scale.Length();
+	m_alphaRadius = m_localTm.scale.Length() * m_transform.scale.Length();
 }
 
 
@@ -261,7 +261,7 @@ float cNode::CullingTest(const cFrustum &frustum
 {
 	RETV(!m_isEnable, -1.f);
 
-	const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
+	const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * tm;
 	const cBoundingSphere bsphere = m_boundingSphere * transform;
 	if (frustum.IsInSphere(bsphere))
 	{
@@ -300,7 +300,7 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 	vector< std::pair<cNode*, float>> picks;
 	picks.reserve(4);
 
-	const XMMATRIX tm = m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 
 	float chDist = 0.f;
 	if (type == m_type)
@@ -383,11 +383,11 @@ void cNode::Clear()
 
 Matrix44 cNode::GetWorldMatrix() const
 {
-	Matrix44 ret = m_transform.GetMatrix();
+	Matrix44 ret = m_localTm.GetMatrix() * m_transform.GetMatrix();
 	cNode *node = m_parent;
 	while (node)
 	{
-		ret *= node->m_transform.GetMatrix();
+		ret *= node->m_localTm.GetMatrix() * node->m_transform.GetMatrix();
 		node = node->m_parent;
 	}
 	return ret;
@@ -402,11 +402,11 @@ Matrix44 cNode::GetParentWorldMatrix() const
 
 Transform cNode::GetWorldTransform() const
 {
-	Transform ret = m_transform;
+	Transform ret = m_localTm * m_transform;
 	cNode *node = m_parent;
 	while (node)
 	{
-		ret *= node->m_transform;
+		ret *= node->m_localTm * node->m_transform;
 		node = node->m_parent;
 	}
 	return ret;

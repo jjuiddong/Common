@@ -71,10 +71,13 @@ namespace graphic
 		cAssimpModel *m_model; // reference
 		cSkeleton m_skeleton;
 		cAnimation m_animation;
-		Transform m_localTm; // tricky code (solution: change mesh position, orientation)
-		vector<int> m_meshInVisible; // mesh invisible index array, tricky code, need optimize,
 		float m_aniIncT;
 		float m_animationSpeed;
+
+		vector<int> m_meshInVisible; // mesh invisible index array, tricky code, need optimize
+		vector<std::pair<int, cMaterial>> m_meshMaterial; // mesh material arry, tricky code
+														// solution: modify assimp material
+														// pair: first=mesh index, second=material
 	};
 
 }

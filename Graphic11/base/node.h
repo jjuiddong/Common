@@ -122,6 +122,7 @@ namespace graphic
 		eSubType::Enum m_subType;
 		cNode *m_parent;
 		vector<cNode*> m_children;
+		Transform m_localTm; // tricky code (solution: change mesh position, orientation)
 		Transform m_transform;
 		cShader11 *m_shader;
 		Str32 m_techniqueName;

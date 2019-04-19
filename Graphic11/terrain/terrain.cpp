@@ -240,7 +240,7 @@ bool cTerrain::UpdateModel(cNode *model)
 	RETV(!nearTile, false);
 
 	Transform transform = model->GetWorldTransform();
-	model->m_transform = transform * nearTile->m_transform.Inverse();
+	model->m_transform = model->m_localTm.Inverse() * transform * nearTile->m_transform.Inverse();
 	model->CalcBoundingSphere();
 
 	if (model->m_parent)
