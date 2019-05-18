@@ -6,7 +6,7 @@
 #define DepthMapSize		1024.f
 #define DepthMapSize_Scaled (DepthMapSize - 500.f)
 
-float4 g_outlineColor = float4(0.8f, 0.f, 0.f, 1.f);
+//float4 g_outlineColor = float4(0.8f, 0.f, 0.f, 1.f);
 //float4 g_outlineColor = float4(0.8f, 0.8f, 0.8f, 1.f);
 
 
@@ -120,6 +120,7 @@ cbuffer cbPerFrame : register(b0)
 	matrix gLightTT;
 	float4 gEyePosW;
 	float4 gFogColor; // fog color r,g,b, fog distance rcp
+	float4 gOutlineColor;
 }
 
 
@@ -390,7 +391,7 @@ float GetOutline(float4 PosH)
 // return Outline Color
 float4 GetOutlineColor(float outlineVal)
 {
-	return float4(g_outlineColor.xyz, outlineVal*2.5f);
+	return float4(gOutlineColor.xyz, outlineVal*2.5f);
 }
 
 

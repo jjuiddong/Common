@@ -1,7 +1,7 @@
 //
 // 2017-07-05, jjuiddong
 // simple string
-// use static stack memory
+// use stack memory
 //
 // 2017-08-24
 //	- add wchar_t type
@@ -447,7 +447,7 @@ namespace common
 		}
 		String(const std::wstring &str) {
 			const size_t len = min(str.size(), MAX - 1);
-			wcsncpy_s(m_str, str.c_str(), len);
+			wcssncpy_s(m_str, str.c_str(), len);
 			m_str[len] = NULL;
 		}
 

@@ -129,6 +129,8 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_cbClipPlane.Create(*this);
 	m_cbSkinning.Create(*this);
 	m_cbTessellation.Create(*this);
+
+	m_cbPerFrame.m_v->outlineColor = Vector4(0.8f, 0, 0, 1).GetVectorXM();
 	float f2[4] = { 1, 1, 1, 100000 }; // default clipplane always positive return
 	memcpy(m_cbClipPlane.m_v->clipPlane, f2, sizeof(f2));
 	m_cbClipPlane.m_v->reflectAlpha[0] = 0.1f;

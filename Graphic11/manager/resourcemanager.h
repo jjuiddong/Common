@@ -71,7 +71,7 @@ namespace graphic
 		//map<hashcode, cCubeTexture*> m_cubeTextures; // key = fileName
 		StrPath m_mediaDirectory; // default : ../media/
 		vector<cParallelLoader*> m_ploaders;
-		cThread m_loadThread;
+		common::cTPSemaphore m_tpLoader;
 		int m_loadId;
 	};
 

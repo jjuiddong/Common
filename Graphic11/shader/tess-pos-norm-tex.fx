@@ -401,7 +401,8 @@ technique11 Light
 	{
 		SetVertexShader(CompileShader(vs_5_0, main()));
 		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
-		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_Sphere()));
+		//SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_Sphere()));
+		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader()));
 		SetPixelShader(CompileShader(ps_5_0, PS_Light()));
 	}
 }

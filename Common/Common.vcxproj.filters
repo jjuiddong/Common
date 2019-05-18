@@ -175,6 +175,9 @@
     <ClInclude Include="etc\simpledata.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="math\line.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -276,6 +279,9 @@
     </ClCompile>
     <ClCompile Include="etc\simpledata.cpp">
       <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="math\line.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

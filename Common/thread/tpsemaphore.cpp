@@ -16,23 +16,22 @@ cTPSemaphore::~cTPSemaphore()
 }
 
 
-
 // if threadCount -1, threadCount = processor count
 bool cTPSemaphore::Init(const int threadCount //=-1
 )
 {
 	Clear();
 
-	int gerateThreadCount = threadCount;
+	int generateThreadCount = threadCount;
 	if (threadCount < 0)
 	{
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
-		gerateThreadCount = (int)si.dwNumberOfProcessors;
+		generateThreadCount = (int)si.dwNumberOfProcessors;
 	}
 
 	m_isThreadLoop = true;
-	for (int i = 0; i < gerateThreadCount; ++i)
+	for (int i = 0; i < generateThreadCount; ++i)
 		m_threads.push_back(new std::thread(cTPSemaphore::ThreadFunction, this));
 
 	return true;
@@ -69,10 +68,17 @@ void cTPSemaphore::Wait()
 }
 
 
+// is initialize?
+bool cTPSemaphore::IsInit()
+{
+	return !m_threads.empty();
+}
+
+
 // thread terminate
 void cTPSemaphore::Terminate()
 {
-	m_isThreadLoop = true;
+	m_isThreadLoop = false;
 
 	for (auto th : m_threads)
 		if (th->joinable())
@@ -94,6 +100,8 @@ void cTPSemaphore::Clear()
 	for (auto th : m_threads)
 		if (th->joinable())
 			PushTask(NULL); // finish thread
+
+	m_isThreadLoop = false;
 
 	for (auto th : m_threads)
 	{

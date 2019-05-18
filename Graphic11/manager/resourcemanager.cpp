@@ -9,11 +9,8 @@ using namespace graphic;
 
 cResourceManager::cResourceManager() 
 	: m_mediaDirectory("../media/")
-	, m_loadThread("Parallel Loader")
 	, m_loadId(0)
 {
-	// 대부분의 리소스가 로딩되기 전까지, 로딩 쓰레드를 종료시키지 않기 위한, 지연 태스크다.
-	AddTask(new graphic::cTaskDelay(5));
 }
 
 cResourceManager::~cResourceManager()
@@ -521,10 +518,11 @@ void cResourceManager::AddParallelLoader(cParallelLoader *p)
 
 void cResourceManager::AddTask(cTask *task)
 {
+	if (!m_tpLoader.IsInit())
+		m_tpLoader.Init(5);
+
 	task->m_id = ++m_loadId;
-	m_loadThread.AddTask(task);
-	if (!m_loadThread.IsRun())
-		m_loadThread.Start();
+	m_tpLoader.PushTask(task);
 }
 
 
@@ -584,7 +582,7 @@ StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath 
 // remove all data
 void cResourceManager::Clear()
 {
-	m_loadThread.Clear();
+	m_tpLoader.Clear();
 
 	// remove raw mesh2
 	for each (auto kv in m_meshes2)

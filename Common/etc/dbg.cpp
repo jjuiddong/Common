@@ -281,7 +281,8 @@ void dbg::Logc(const int level, const char* fmt, ...)
 	switch (level)
 	{
 	case 3:
-		assert(0);
+		//DebugBreak();
+		assert(!"dbg::Logc()");
 	case 2:
 		data.type = 2;
 	case 1:

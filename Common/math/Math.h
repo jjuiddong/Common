@@ -50,4 +50,5 @@ using std::vector;
 #include "triangle.h"
 #include "plane.h"
 #include "ray.h"
+#include "line.h"
 #include "mathutility.h"

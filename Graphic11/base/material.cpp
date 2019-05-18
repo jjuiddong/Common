@@ -155,7 +155,6 @@ Str64 cMaterial::EmissiveColor()
 	return str;
 }
 
-
 // return Special Color Name
 // r,g,b = 0 ~ 1
 Str64 cMaterial::SpecialColor(const float r, const float g, const float b)

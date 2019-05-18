@@ -238,7 +238,7 @@ bool cGrid::RenderLine(cRenderer &renderer
 	renderer.m_cbLight.Update(renderer, 1);
 
 	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(0,0,0,0);
-	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0,0,0,0.1f);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0, 0, 0, 0.5f); //XMVectorSet(0,0,0,0.1f);
 	renderer.m_cbMaterial.Update(renderer, 2);
 	renderer.m_cbClipPlane.Update(renderer, 4);
 

@@ -76,14 +76,20 @@ namespace common
 	}
 
 	template <class Seq>
-	void popvector2(Seq &seq, const typename Seq::value_type &ty)
+	bool popvector2(Seq &seq, const typename Seq::value_type &ty)
 	{
 		if (seq.empty())
-			return;
-
-		for (int i = (int)seq.size()-1; i >= 0; --i)
+			return false;
+		bool reval = false;
+		for (int i = (int)seq.size() - 1; i >= 0; --i)
+		{
 			if (seq[i] == ty)
+			{
 				popvector(seq, i);
+				reval = true;
+			}
+		}
+		return reval;
 	}
 
 	// rotate left idx -> 0
@@ -98,5 +104,27 @@ namespace common
 
 		// todo : rotation
 	}
+
+	
+	// unique vector
+	template <class Seq>
+	void uniquevector(Seq &seq)
+	{
+		for (uint i = 0; i < seq.size(); ++i)
+		{
+			for (uint k = i + 1; k < seq.size();)
+			{
+				if (seq[i] == seq[k])
+				{
+					rotatepopvector(seq, k);
+				}
+				else
+				{
+					++k;
+				}
+			}
+		}
+	}
+
 
 }

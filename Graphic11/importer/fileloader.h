@@ -3,6 +3,9 @@
 // fileloader, multithread
 //	- parallel load
 //
+// 2019-05-18
+//	- thread pool loading
+//
 #pragma once
 
 
@@ -22,7 +25,11 @@ namespace graphic
 	};
 
 
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
+	template<class T
+		, size_t MAX
+		, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData
+		, size_t TP_MAX = 1>
 	class cFileLoader
 	{
 	public:
@@ -61,18 +68,23 @@ namespace graphic
 		map<hashcode, sChunk> m_files; //key = fileName hashcode
 		map<hashcode, std::set< std::pair<void**,int*>>> m_updatePtrs; // update pointers
 		CriticalSection m_cs;
-		cThread m_thread;
+		cTPSemaphore m_tpLoader;
 	};
 
 
 	//-----------------------------------------------------------------------
 	// Declare cTaskFileLoad 
 	//-----------------------------------------------------------------------
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
+	template<class T
+		, size_t MAX
+		, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData
+		, size_t TP_MAX = 1>
 	class cTaskFileLoader : public common::cTask
+						, public common::cMemoryPool4<cTaskFileLoader<T, MAX, Args, CompareData, TP_MAX>>
 	{
 	public:
-		cTaskFileLoader(cFileLoader<T,MAX,Args,CompareData> *fileLoader, cRenderer *renderer, const char *fileName
+		cTaskFileLoader(cFileLoader<T, MAX, Args, CompareData, TP_MAX> *fileLoader, cRenderer *renderer, const char *fileName
 			, const bool isTopPriority = false
 			, const CompareData &compData = {})
 			: cTask(common::GenerateId(), "cTaskFileLoader", isTopPriority)
@@ -82,7 +94,7 @@ namespace graphic
 			, m_loadType(0)
 			, m_compare(compData) {
 		}
-		cTaskFileLoader(cFileLoader<T,MAX,Args,CompareData> *fileLoader, cRenderer *renderer, const T *src, const char *fileName
+		cTaskFileLoader(cFileLoader<T, MAX, Args, CompareData, TP_MAX> *fileLoader, cRenderer *renderer, const T *src, const char *fileName
 			, const Args &args, const bool isTopPriority = false
 			, const CompareData &compData = {})
 			: cTask(common::GenerateId(), "cTaskFileLoader", isTopPriority)
@@ -147,7 +159,7 @@ namespace graphic
 		int m_loadType; // 0 or 1
 		StrPath m_fileName;
 		cRenderer *m_renderer; // reference
-		cFileLoader<T,MAX,Args,CompareData> *m_fileLoader; // reference
+		cFileLoader<T, MAX, Args, CompareData, TP_MAX> *m_fileLoader; // reference
 		const T *m_src; // reference
 		Args m_args;
 		CompareData m_compare;
@@ -157,21 +169,23 @@ namespace graphic
 	//-----------------------------------------------------------------------
 	// Implements cFileLoader 
 	//-----------------------------------------------------------------------
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline cFileLoader<T,MAX,Args,CompareData>::cFileLoader() {
-		m_thread.AddTask(new graphic::cTaskDelay(5));
-		m_thread.Start();
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline cFileLoader<T, MAX, Args, CompareData, TP_MAX>::cFileLoader() {
 	}
 
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline cFileLoader<T, MAX, Args, CompareData>::~cFileLoader() {
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+
+	inline cFileLoader<T, MAX, Args, CompareData, TP_MAX>::~cFileLoader() {
 		Clear();
 	}
 
 
 	// Load
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline T* cFileLoader<T, MAX, Args, CompareData>::Load(graphic::cRenderer &renderer, const char *fileName)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline T* cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Load(graphic::cRenderer &renderer, const char *fileName)
 	{
 		auto result = Find(fileName);
 		if (std::get<0>(result))
@@ -212,8 +226,9 @@ namespace graphic
 
 
 	// Load
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline T* cFileLoader<T, MAX, Args, CompareData>::Load(cRenderer &renderer, const T *src, const char *fileName, const Args &args)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline T* cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Load(cRenderer &renderer, const T *src, const char *fileName, const Args &args)
 	{
 		auto result = Find(fileName);
 		if (std::get<0>(result))
@@ -253,8 +268,10 @@ namespace graphic
 
 
 	// LoadParallel
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	std::pair<bool, T*> cFileLoader<T, MAX, Args, CompareData>::LoadParallel(graphic::cRenderer &renderer
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	std::pair<bool, T*> cFileLoader<T, MAX, Args, CompareData, TP_MAX>::LoadParallel(
+		graphic::cRenderer &renderer
 		, const char *fileName
 		, int *outFlag, void **outPtr
 		, const bool isTopPriority //= false
@@ -312,17 +329,18 @@ namespace graphic
 			}
 		}
 
-		m_thread.AddTask(new cTaskFileLoader<T,MAX,Args,CompareData>(this, &renderer, fileName, isTopPriority, compData));
-		if (!m_thread.IsRun())
-			m_thread.Start();
+		if (!m_tpLoader.IsInit())
+			m_tpLoader.Init(TP_MAX);
+		m_tpLoader.PushTask(new cTaskFileLoader<T, MAX, Args, CompareData, TP_MAX>(this, &renderer, fileName, isTopPriority, compData));
 
 		return { true, NULL };
 	}
 
 
 	// LoadParallel
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	std::pair<bool, T*> cFileLoader<T, MAX, Args, CompareData>::LoadParallel(graphic::cRenderer &renderer, const T *src
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	std::pair<bool, T*> cFileLoader<T, MAX, Args, CompareData, TP_MAX>::LoadParallel(graphic::cRenderer &renderer, const T *src
 		, const char *fileName, const Args &args, int *outFlag, void **outPtr
 		, const bool isTopPriority //= false
 		, const CompareData &compData //={}
@@ -379,17 +397,18 @@ namespace graphic
 			}
 		}
 
-		m_thread.AddTask(new cTaskFileLoader<T, MAX, Args, CompareData>(this, &renderer, src, fileName, args, isTopPriority, compData));
-		if (!m_thread.IsRun())
-			m_thread.Start();
+		if (!m_tpLoader.IsInit())
+			m_tpLoader.Init(TP_MAX);
+		m_tpLoader.PushTask(new cTaskFileLoader<T, MAX, Args, CompareData, TP_MAX>(this, &renderer, src, fileName, args, isTopPriority, compData));
 
 		return{ true, NULL };
 	}
 
 
 	// Find
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline std::tuple<bool, int, T*> cFileLoader<T, MAX, Args, CompareData>::Find(const char *fileName)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline std::tuple<bool, int, T*> cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Find(const char *fileName)
 	{
 		StrPath path(fileName);
 		AutoCSLock cs(m_cs);
@@ -401,8 +420,9 @@ namespace graphic
 
 	
 	// Insert
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline bool cFileLoader<T, MAX, Args, CompareData>::Insert(const char *fileName, T *data)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline bool cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Insert(const char *fileName, T *data)
 	{
 		AutoCSLock cs(m_cs);
 
@@ -437,8 +457,9 @@ namespace graphic
 
 
 	// FailLoad
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline bool cFileLoader<T, MAX, Args, CompareData>::FailLoad(const char *fileName)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline bool cFileLoader<T, MAX, Args, CompareData, TP_MAX>::FailLoad(const char *fileName)
 	{
 		AutoCSLock cs(m_cs);
 
@@ -472,8 +493,9 @@ namespace graphic
 
 
 	// Remove
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline bool cFileLoader<T, MAX, Args, CompareData>::Remove(const char *fileName)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline bool cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Remove(const char *fileName)
 	{
 		StrPath path(fileName);
 
@@ -493,8 +515,9 @@ namespace graphic
 
 	
 	// Remove
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline bool cFileLoader<T, MAX, Args, CompareData>::Remove(T *data)
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline bool cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Remove(T *data)
 	{
 		AutoCSLock cs(m_cs);
 		for (auto &kv : m_files)
@@ -512,18 +535,21 @@ namespace graphic
 
 
 	// Clear
-	template<class T, size_t MAX, class Args = sFileLoaderArg, class CompareData = sFileCompareData>
-	inline void cFileLoader<T, MAX, Args, CompareData>::Clear()
+	template<class T, size_t MAX, class Args = sFileLoaderArg
+		, class CompareData = sFileCompareData, size_t TP_MAX = 1>
+	inline void cFileLoader<T, MAX, Args, CompareData, TP_MAX>::Clear()
 	{
-		AutoCSLock cs(m_cs);
+		m_tpLoader.Clear();
+		common::cMemoryPool4<cTaskFileLoader<T, MAX, Args, CompareData, TP_MAX>>::Clear();
 
-		m_thread.Terminate();
-		m_thread.Clear();
+		{
+			AutoCSLock cs(m_cs);
+			for (auto &kv : m_files)
+				delete kv.second.data;
+			m_files.clear();
+			m_updatePtrs.clear();
+		}
 
-		for (auto &kv : m_files)
-			delete kv.second.data;
-		m_files.clear();
-		m_updatePtrs.clear();
 	}
 
 }

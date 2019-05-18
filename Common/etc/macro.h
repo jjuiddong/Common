@@ -38,7 +38,7 @@ static void SplitEnumArgs(const char* szArgs, std::string Array[], int nMax)
         static std::string _Strings[COUNT]; \
         static const char* ToString(Enum e) { \
             if (_Strings[0].empty()) { SplitEnumArgs(#__VA_ARGS__, _Strings, COUNT); } \
-            return _Strings[e].c_str(); \
+            return (COUNT > e)? _Strings[e].c_str() : ""; \
         } \
         static Enum FromString(const std::string& strEnum) { \
             if (_Strings[0].empty()) { SplitEnumArgs(#__VA_ARGS__, _Strings, COUNT); } \

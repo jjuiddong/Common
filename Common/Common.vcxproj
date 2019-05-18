@@ -412,6 +412,7 @@
     <ClInclude Include="etc\singleton.h" />
     <ClInclude Include="etc\stringfunc.h" />
     <ClInclude Include="etc\timer.h" />
+    <ClInclude Include="math\line.h" />
     <ClInclude Include="math\Math.h" />
     <ClInclude Include="math\mathutility.h" />
     <ClInclude Include="math\matrix44.h" />
@@ -458,6 +459,7 @@
     <ClCompile Include="etc\simpledata.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />
     <ClCompile Include="etc\timer.cpp" />
+    <ClCompile Include="math\line.cpp" />
     <ClCompile Include="math\matrix44.cpp" />
     <ClCompile Include="math\plane.cpp" />
     <ClCompile Include="math\quaternion.cpp" />

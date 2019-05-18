@@ -22,6 +22,7 @@ namespace common
 		bool PushTask(cTask *task);
 		cTask* PopTask();
 		void Wait();
+		bool IsInit();
 		void Terminate();
 		void Clear();
 

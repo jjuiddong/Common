@@ -55,7 +55,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 			return false;
 	}
 
-	m_title = string(" - ") + title.c_str() + string(" - ");
+	m_title = StrId(" - ") + title + StrId(" - ");
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	m_camera.SetProjection(MATH_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
 	m_camera.SetViewPort((float)width, (float)height);
@@ -913,7 +913,7 @@ void cRenderWindow::WakeUp(const StrId &title, const float width, const float he
 {
 	ChangeState(eState::NORMAL);
 
-	m_title = string(" - ") + title.c_str() + string(" - ");
+	m_title = StrId(" - ") + title + StrId(" - ");
 	setTitle(title.c_str());
 	setSize(sf::Vector2u((u_int)width, (u_int)height));
 	m_isFullScreen = false;

@@ -72,7 +72,7 @@ namespace common
 
 		static T* Alloc();
 		static bool Free(void *p);
-		void Clear();
+		static void Clear();
 
 
 	public:
