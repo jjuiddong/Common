@@ -589,6 +589,30 @@ void cCamera::Zoom(const Vector3 &dir, const float len)
 }
 
 
+void cCamera::Move(const Vector3 &lookAt)
+{
+	// Initialize mover vector
+	m_mover.clear();
+
+	const Vector3 dir = GetDirection();
+	const float dist = m_eyePos.Distance(m_lookAt);
+	const Vector3 eyePos = lookAt + (dir * -dist);
+
+	sCamMoving info;
+	info.eyePos = eyePos;
+	info.lookAt = lookAt;
+
+	const float eyePosVelocity = (eyePos - m_eyePos).Length();
+	const float lookAtVelocity = (lookAt - m_lookAt).Length();
+
+	info.velocityLookAt = lookAtVelocity;
+	info.velocityPos = eyePosVelocity;
+
+	m_mover.push_back(info);
+	m_state = eState::MOVE;
+}
+
+
 void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt)
 {
 	// Initialize mover vector
