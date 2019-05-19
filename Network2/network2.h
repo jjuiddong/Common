@@ -20,7 +20,7 @@
 
 
 
-#include "../NetCommon/netcommon.h"
+#include "../Common/common.h"
 using namespace common;
 
 #include <winsock2.h>

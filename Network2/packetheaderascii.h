@@ -20,6 +20,7 @@ namespace network2
 	{
 	public:
 		cPacketHeaderAscii(const int protocolId = 100);
+		virtual bool IsNoFormat() override { return false; }
 		virtual uint GetHeaderSize() override;
 		virtual int GetProtocolId(const BYTE *src) override;
 		virtual uint GetPacketId(const BYTE *src) override;

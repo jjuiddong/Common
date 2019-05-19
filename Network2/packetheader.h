@@ -21,6 +21,7 @@ namespace network2
 
 	interface iPacketHeader
 	{
+		virtual bool IsNoFormat() = 0;
 		virtual uint GetHeaderSize() = 0;
 		virtual int GetProtocolId(const BYTE *src) = 0;
 		virtual uint GetPacketId(const BYTE *src) = 0;
@@ -38,6 +39,7 @@ namespace network2
 	class cPacketHeader : public iPacketHeader
 	{
 	public:
+		virtual bool IsNoFormat() override { return false; }
 		virtual uint GetHeaderSize() override;
 		virtual int GetProtocolId(const BYTE *src) override;
 		virtual uint GetPacketId(const BYTE *src) override;
@@ -48,6 +50,24 @@ namespace network2
 		virtual int SetPacketTerminator(BYTE *dst, const int remainSize) override { return 0; } // nothing
 		virtual int SetDelimeter(BYTE *dst) override { return 0; }; // nothing
 		virtual bool IsValidPacket(const BYTE *src) override;
+	};
+
+	
+	// No Format Packet Header
+	class cPacketHeaderNoFormat : public iPacketHeader
+	{
+	public:
+		virtual bool IsNoFormat() override { return true; }
+		virtual uint GetHeaderSize() override { return 0; }
+		virtual int GetProtocolId(const BYTE *src) override { return 0; }
+		virtual uint GetPacketId(const BYTE *src) override { return 0; }
+		virtual uint GetPacketLength(const BYTE *src) override { return 0; }
+		virtual void SetProtocolId(BYTE *dst, const int protocolId) override {}
+		virtual void SetPacketId(BYTE *dst, const uint packetId) override {}
+		virtual void SetPacketLength(BYTE *dst, const uint packetLength) override {}
+		virtual int SetPacketTerminator(BYTE *dst, const int remainSize) override { return 0; } // nothing
+		virtual int SetDelimeter(BYTE *dst) override { return 0; }; // nothing
+		virtual bool IsValidPacket(const BYTE *src) override { return true; }
 	};
 
 }

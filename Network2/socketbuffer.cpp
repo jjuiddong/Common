@@ -64,7 +64,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 
 			offset += cpSize;
 		}
-		else if (len < headerSize)
+		else if ((0 != headerSize) && (len < headerSize))
 		{
 			// need full packet hearder
 			m_isHeaderCopy = true;
@@ -74,7 +74,10 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 		}
 		else
 		{
-			const uint totalLen = packetHeader->GetPacketLength(ptr);
+			// headerSize == 0 is no formatting packet
+			// read all packet data
+			const uint totalLen = (packetHeader->IsNoFormat())?
+				len : packetHeader->GetPacketLength(ptr);
 			if (totalLen > DEFAULT_PACKETSIZE)
 				break; // error occur, packet size error, maybe data corrupt
 
@@ -110,24 +113,33 @@ bool cSocketBuffer::Pop(cPacket &out)
 	RETV(m_q.empty(), false);
 
 	const uint size = m_q.size();
-	BYTE tempHeader[64];
-	const uint headerSize = out.m_packetHeader->GetHeaderSize();
-	if (!m_q.front(tempHeader, headerSize))
-		return false;
-
-	const uint packetSize = out.m_packetHeader->GetPacketLength(tempHeader);
-	if ((packetSize <= 0) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
+	if (out.m_packetHeader->IsNoFormat())
 	{
-		std::cout << "socketbuffer clear" << std::endl;
-		m_q.clear();
-		return false;
-	}
-
-	if (packetSize <= size)
-	{
-		out.m_writeIdx = packetSize;
-		m_q.frontPop(out.m_data, min(sizeof(out.m_data), packetSize));
+		out.m_writeIdx = (int)min(sizeof(out.m_data), size);
+		m_q.frontPop(out.m_data, min(sizeof(out.m_data), size));
 		return true;
+	}
+	else
+	{
+		BYTE tempHeader[64];
+		const uint headerSize = out.m_packetHeader->GetHeaderSize();
+		if (!m_q.front(tempHeader, headerSize))
+			return false;
+
+		const uint packetSize = out.m_packetHeader->GetPacketLength(tempHeader);
+		if ((packetSize <= 0) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
+		{
+			std::cout << "socketbuffer clear" << std::endl;
+			m_q.clear();
+			return false;
+		}
+
+		if (packetSize <= size)
+		{
+			out.m_writeIdx = packetSize;
+			m_q.frontPop(out.m_data, min(sizeof(out.m_data), packetSize));
+			return true;
+		}
 	}
 
 	return false;
