@@ -11,6 +11,7 @@ namespace common
 	string GetCurrentDateTime();
 	string GetCurrentDateTime2();
 	unsigned __int64 GetCurrentDateTime3();
+	string GetCurrentDateTime4();
 
 
 	class cDateTime
