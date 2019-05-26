@@ -119,6 +119,7 @@ bool cRenderWindow::TranslateEvent()
 {
 	m_gui.SetContext();
 	m_input.NewFrame();
+	m_gui.NewFrame();
 
 	sf::Event evt;
 	while (pollEvent(evt))
@@ -142,9 +143,6 @@ void cRenderWindow::Update(const float deltaSeconds)
 {
 	RET(!isOpen());
 	RET(!m_isVisible);
-
-	m_gui.SetContext();
-	m_gui.NewFrame();
 
 	if (m_isRequestResetDevice)
 	{
@@ -778,9 +776,11 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		{
 		case sf::Mouse::Left: {
 			m_clickPos = Vector2((float)evt.mouseButton.x, (float)evt.mouseButton.y);
+			io.MousePos.x = (float)evt.mouseButton.x;
+			io.MousePos.y = (float)evt.mouseButton.y;
 			io.MouseDown[0] = true;
 		}
-			break;
+		break;
 		case sf::Mouse::Right: io.MouseDown[1] = true; break;
 		case sf::Mouse::Middle: io.MouseDown[2] = true; break;
 		}
@@ -798,6 +798,15 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 	case sf::Event::MouseWheelScrolled:
 		io.MouseWheel += (evt.mouseWheelScroll.delta) >= 0 ? +1.0f : -1.0f;
 		break;
+
+	case sf::Event::TouchBegan:
+	{
+		m_clickPos = Vector2((float)evt.touch.x, (float)evt.touch.y);
+		io.MouseDown[0] = true;
+		io.MousePos.x = (float)evt.touch.x;
+		io.MousePos.y = (float)evt.touch.y;
+	}
+	break;
 
 	case sf::Event::Resized:
 	{

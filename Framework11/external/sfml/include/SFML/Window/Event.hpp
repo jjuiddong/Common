@@ -168,6 +168,13 @@ public:
         int y;               ///< Y position of the touch, relative to the top of the owner window
     };
 
+	// jjuiddong
+	struct GestureEvent
+	{
+		int id;
+	};
+
+
     ////////////////////////////////////////////////////////////
     /// \brief Sensor event parameters (SensorChanged)
     ///
@@ -208,6 +215,7 @@ public:
         TouchBegan,             ///< A touch event began (data in event.touch)
         TouchMoved,             ///< A touch moved (data in event.touch)
         TouchEnded,             ///< A touch event ended (data in event.touch)
+		Gestured,				/// jjuiddong
         SensorChanged,          ///< A sensor value changed (data in event.sensor)
 
         Count                   ///< Keep last -- the total number of event types
@@ -231,6 +239,7 @@ public:
         JoystickButtonEvent   joystickButton;    ///< Joystick button event parameters (Event::JoystickButtonPressed, Event::JoystickButtonReleased)
         JoystickConnectEvent  joystickConnect;   ///< Joystick (dis)connect event parameters (Event::JoystickConnected, Event::JoystickDisconnected)
         TouchEvent            touch;             ///< Touch events parameters (Event::TouchBegan, Event::TouchMoved, Event::TouchEnded)
+		GestureEvent		  gesture;
         SensorEvent           sensor;            ///< Sensor event parameters (Event::SensorChanged)
     };
 };

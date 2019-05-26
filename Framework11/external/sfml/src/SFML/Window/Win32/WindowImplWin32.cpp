@@ -997,6 +997,83 @@ void WindowImplWin32::processEvent(UINT message, WPARAM wParam, LPARAM lParam)
             pushEvent(event);
             break;
         }
+
+		case WM_TOUCH:
+		{
+			// jjuiddong
+			// https://docs.microsoft.com/en-us/windows/desktop/wintouch/getting-started-with-multi-touch-messages
+			const UINT cInputs = LOWORD(wParam);
+			if (cInputs > 1)
+			{
+				UnregisterTouchWindow(getSystemHandle());
+				break; // gesture input, ignore touch event
+			}
+
+			TOUCHINPUT pInputs[1];
+			if (!GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT)))
+				break;
+
+			for (UINT i = 0; i < cInputs; i++) 
+			{
+				TOUCHINPUT ti = pInputs[i];
+				if (ti.dwFlags & TOUCHEVENTF_DOWN) 
+				{
+					Event event;
+					event.type = Event::TouchBegan;
+					event.touch.finger = 0;;
+					POINT pos = { (int)((float)ti.x * 0.01f), (int)((float)ti.y * 0.01f) };
+					ScreenToClient(getSystemHandle(), &pos);
+					event.touch.x = pos.x;
+					event.touch.y = pos.y;
+					pushEvent(event);
+				}
+				else if (ti.dwFlags & TOUCHEVENTF_UP)
+				{
+					Event event;
+					event.type = Event::TouchEnded;
+					event.touch.finger = 0;;
+					POINT pos = { (int)((float)ti.x * 0.01f), (int)((float)ti.y * 0.01f) };
+					ScreenToClient(getSystemHandle(), &pos);
+					event.touch.x = pos.x;
+					event.touch.y = pos.y;
+					pushEvent(event);
+				}
+				else if (ti.dwFlags & TOUCHEVENTF_MOVE)
+				{
+					Event event;
+					event.type = Event::TouchMoved;
+					event.touch.finger = 0;;
+					POINT pos = { (int)((float)ti.x * 0.01f), (int)((float)ti.y * 0.01f) };
+					ScreenToClient(getSystemHandle(), &pos);
+					event.touch.x = pos.x;
+					event.touch.y = pos.y;
+					pushEvent(event);
+				}
+			}
+
+			CloseTouchInputHandle((HTOUCHINPUT)lParam);
+		}
+		break;
+
+		case WM_GESTURE:
+		{
+			GESTUREINFO gestureInfo = { 0 };
+			gestureInfo.cbSize = sizeof(gestureInfo);
+			BOOL bResult = GetGestureInfo((HGESTUREINFO)lParam, &gestureInfo);
+			if (!bResult)
+				break;
+
+			if ((gestureInfo.dwID == 6)
+				|| (gestureInfo.dwID == 7))
+			{
+				ULONG flags;
+				if (!IsTouchWindow(getSystemHandle(), &flags))
+				{
+					RegisterTouchWindow(getSystemHandle(), 0);
+				}
+			}
+		}
+		break;
     }
 }
 
