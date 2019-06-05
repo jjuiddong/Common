@@ -97,12 +97,19 @@ void cCamera::UpdateMove(const float deltaSeconds)
 	const float len = posDir.Length();
 	if (len > 0.5f)
 	{
-		Vector3 dv;
-		if (!m_oldPosDir.IsEmpty())
-			dv = posDir - m_oldPosDir;
-		m_oldPosDir = posDir;
-
-		m_eyePos += posDir * dt * Ki + (dv * dt * Kd);
+		if (mover.velocityPos == 0.f)
+		{
+				// PID Move
+				Vector3 dv;
+				if (!m_oldPosDir.IsEmpty())
+					dv = posDir - m_oldPosDir;
+				m_oldPosDir = posDir;
+				m_eyePos += posDir * dt * Ki + (dv * dt * Kd);
+		}
+		else
+		{
+			m_eyePos += posDir.Normal() * mover.velocityPos * dt;
+		}
 	}
 	else
 	{
@@ -114,12 +121,19 @@ void cCamera::UpdateMove(const float deltaSeconds)
 	const float len2 = lookDir.Length();
 	if (len2 > 0.5f)
 	{
-		Vector3 dv;
-		if (!m_oldLookAtDir.IsEmpty())
-			dv = lookDir - m_oldLookAtDir;
-		m_oldLookAtDir = lookDir;
-
-		m_lookAt += lookDir * dt * Ki + (dv * dt * Kd);
+		if (mover.velocityLookAt == 0.f)
+		{
+			// PID Move
+			Vector3 dv;
+			if (!m_oldLookAtDir.IsEmpty())
+				dv = lookDir - m_oldLookAtDir;
+			m_oldLookAtDir = lookDir;
+			m_lookAt += lookDir * dt * Ki + (dv * dt * Kd);
+		}
+		else
+		{
+			m_lookAt += lookDir.Normal() * mover.velocityLookAt * dt;
+		}
 	}
 	else
 	{
@@ -613,7 +627,9 @@ void cCamera::Move(const Vector3 &lookAt)
 }
 
 
-void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt)
+void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt
+	, const float velocity //= 0.f
+)
 {
 	// Initialize mover vector
 	m_mover.clear();
@@ -622,18 +638,19 @@ void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt)
 	info.eyePos = eyePos;
 	info.lookAt = lookAt;
 
-	const float eyePosVelocity = (eyePos - m_eyePos).Length();
-	const float lookAtVelocity = (lookAt - m_lookAt).Length();
-
-	info.velocityLookAt = lookAtVelocity;
-	info.velocityPos = eyePosVelocity;
+	//const float eyePosVelocity = (eyePos - m_eyePos).Length();
+	//const float lookAtVelocity = (lookAt - m_lookAt).Length();
+	info.velocityLookAt = velocity;
+	info.velocityPos = velocity;
 
 	m_mover.push_back(info);
 	m_state = eState::MOVE;
 }
 
 
-void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
+void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt
+	, const float velocity //= 0.f
+)
 {
 	sCamMoving info;
 	info.eyePos = eyePos;
@@ -642,11 +659,10 @@ void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt)
 	Vector3 curEyePos = (m_mover.empty()) ? m_eyePos : m_mover.back().eyePos;
 	Vector3 curLookAt = (m_mover.empty()) ? m_lookAt : m_mover.back().lookAt;
 
-	const float eyePosVelocity = (eyePos - curEyePos).Length();
-	const float lookAtVelocity = (lookAt - curLookAt).Length();
-
-	info.velocityLookAt = lookAtVelocity;
-	info.velocityPos = eyePosVelocity;
+	//const float eyePosVelocity = (eyePos - curEyePos).Length();
+	//const float lookAtVelocity = (lookAt - curLookAt).Length();
+	info.velocityLookAt = velocity;
+	info.velocityPos = velocity;
 
 	m_mover.push_back(info);
 	m_state = eState::MOVE;

@@ -48,8 +48,10 @@ namespace graphic
 		// EyePos 가 이동한다.
 		void Roll2(const float radian);
 
-		virtual void Move(const Vector3 &eyePos, const Vector3 &lookAt) override;
-		virtual void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt) override;
+		virtual void Move(const Vector3 &eyePos, const Vector3 &lookAt
+			, const float velocity = 0.f) override;
+		virtual void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt
+			, const float velocity = 0.f) override;
 		void Move(const cBoundingBox &bbox);
 
 		virtual void MoveFront(const float len) override;

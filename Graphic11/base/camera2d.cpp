@@ -159,7 +159,9 @@ void cCamera2D::Roll2(const float radian)
 }
 
 
-void cCamera2D::Move(const Vector3 &eyePos, const Vector3&)
+void cCamera2D::Move(const Vector3 &eyePos, const Vector3 &lookAt
+	, const float velocity //= 0.f
+)
 {
 	// Initialize mover vector
 	m_mover.clear();
@@ -179,7 +181,9 @@ void cCamera2D::Move(const Vector3 &eyePos, const Vector3&)
 }
 
 
-void cCamera2D::MoveNext(const Vector3 &eyePos, const Vector3&)
+void cCamera2D::MoveNext(const Vector3 &eyePos, const Vector3&
+	, const float velocity //= 0.f
+)
 {
 	const Vector3 lookAt(eyePos.x, 0, eyePos.z);
 
