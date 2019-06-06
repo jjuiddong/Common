@@ -79,7 +79,7 @@ namespace framework
 		void Resize();
 		void ChangeState(const eState::Enum nextState);
 		const char* GetStateString(const eState::Enum state);
-		virtual void DefaultEventProc(const sf::Event &evt);
+		virtual int DefaultEventProc(const sf::Event &evt);
 		virtual void MouseProc(const float deltaSeconds);
 		std::pair<bool, cDockWindow*> UpdateCursor();
 		void ChangeDevice(const int width = 0, const int height = 0, const bool forceReset=false);
@@ -116,6 +116,7 @@ namespace framework
 		eResizeCursor::Enum m_resizeCursor;
 
 		bool m_isVisible;
+		bool m_isTitleBar; // default: false
 		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
 		sf::Vector2u m_resetSize;

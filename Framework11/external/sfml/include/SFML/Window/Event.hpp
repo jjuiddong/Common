@@ -172,6 +172,8 @@ public:
 	struct GestureEvent
 	{
 		int id;
+		int x;
+		int y;
 	};
 
 

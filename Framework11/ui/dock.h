@@ -82,8 +82,10 @@ namespace framework
 
 
 	// Low Screen Resolution
-	const float TITLEBAR_HEIGHT = 30.f;
-	const float TAB_H = 22;
+	const float TITLEBAR_HEIGHT = 22.f;
+	const float TAB_H = 20;
+	//const float TITLEBAR_HEIGHT = 30.f;
+	//const float TAB_H = 22;
 
 	// High Screen Resolution
 	//const float TITLEBAR_HEIGHT = 40.f;

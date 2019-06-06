@@ -1063,15 +1063,12 @@ void WindowImplWin32::processEvent(UINT message, WPARAM wParam, LPARAM lParam)
 			if (!bResult)
 				break;
 
-			if ((gestureInfo.dwID == 6)
-				|| (gestureInfo.dwID == 7))
-			{
-				ULONG flags;
-				if (!IsTouchWindow(getSystemHandle(), &flags))
-				{
-					RegisterTouchWindow(getSystemHandle(), 0);
-				}
-			}
+			Event event;
+			event.type = Event::Gestured;
+			event.gesture.id = gestureInfo.dwID;
+			event.gesture.x = gestureInfo.ptsLocation.x;
+			event.gesture.y = gestureInfo.ptsLocation.y;
+			pushEvent(event);
 		}
 		break;
     }

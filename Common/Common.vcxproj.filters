@@ -178,6 +178,9 @@
     <ClInclude Include="math\line.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="etc\memorypool4.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

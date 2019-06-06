@@ -59,7 +59,9 @@ namespace graphic
 		virtual void MoveFront(const float len);
 		virtual void MoveFrontHorizontal(const float len);
 		virtual void MoveUp(const float len);
+		virtual void MoveUp2(const float len);
 		virtual void MoveRight(const float len);
+		virtual void MoveRight2(const float len);
 		virtual void MoveAxis(const Vector3 &dir, const float len);
 		virtual void Trace(cNode *trace, const Matrix44 &tm);
 

@@ -30,6 +30,7 @@ cRenderer::cRenderer()
 	, m_refRTV(NULL)
 	, m_refDSV(NULL)
 	, m_fps(0)
+	, m_calcFps(0)
 	, m_isDbgRender(false)
 	, m_dbgRenderStyle(0)
 	, m_textGenerateCount(0)
@@ -221,12 +222,13 @@ void cRenderer::RenderGrid()
 void cRenderer::Update(const float elapseT)
 {
 	// fps °è»ê ---------------------------------------
-	++m_fps;
+	++m_calcFps;
 	m_elapseTime += elapseT;
 	if( 1.f <= m_elapseTime )
 	{
-		m_textFps.SetText(formatw("fps: %d", m_fps).c_str());
-		m_fps = 0;
+		m_textFps.SetText(formatw("fps: %d", m_calcFps).c_str());
+		m_fps = m_calcFps;
+		m_calcFps = 0;
 		m_elapseTime = 0;
 	}
 	//--------------------------------------------------

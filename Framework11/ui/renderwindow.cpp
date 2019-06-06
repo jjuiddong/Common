@@ -19,6 +19,7 @@ cRenderWindow::cRenderWindow()
 	, m_isRequestResetDevice(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
+	, m_isTitleBar(false)
 	, m_isFullScreen(false)
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
@@ -122,6 +123,7 @@ bool cRenderWindow::TranslateEvent()
 	m_gui.NewFrame();
 
 	sf::Event evt;
+	int n = 0;
 	while (pollEvent(evt))
 	{
 		if (evt.type == sf::Event::Closed)
@@ -131,7 +133,9 @@ bool cRenderWindow::TranslateEvent()
 		}
 		else
 		{
-			DefaultEventProc(evt);
+			// 마우스 이벤트는 한프레임에 한번씩 처리
+			if (DefaultEventProc(evt) > 0)
+				break;
 		}
 	}
 
@@ -532,7 +536,8 @@ void cRenderWindow::Render(const float deltaSeconds)
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(size.x), static_cast<float>(size.y)));
 
-		RenderTitleBar();
+		if (!m_isTitleBar)
+			RenderTitleBar();
 
 		const ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoTitleBar
@@ -736,8 +741,15 @@ void cRenderWindow::ResetDevice()
 }
 
 
-void cRenderWindow::DefaultEventProc(const sf::Event &evt)
+// 2019-06-06
+// 터치 이벤트를 받기 위해서, 리턴값 추가
+// 속도가 느릴 때, MouseButton Up/Down, Touch Down/Up이 동시에 
+// 처리되어서 버튼 입력을 못받는 경우가 있다. 
+// 그래서 마우스, 터치패드 입력을 받을 경우, 한 이벤트만 처리하고,
+// 나머지 이벤트는 다음 프레임 때 처리하게 한다.
+int cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
+	int mouseEvent = 0;
 	m_input.MouseProc(evt);
 
 	OnEventProc(evt);
@@ -784,6 +796,7 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		case sf::Mouse::Right: io.MouseDown[1] = true; break;
 		case sf::Mouse::Middle: io.MouseDown[2] = true; break;
 		}
+		mouseEvent = 1;
 		break;
 
 	case sf::Event::MouseButtonReleased:
@@ -793,6 +806,7 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		case sf::Mouse::Right: io.MouseDown[1] = false; break;
 		case sf::Mouse::Middle: io.MouseDown[2] = false; break;
 		}
+		mouseEvent = 1;
 		break;
 
 	case sf::Event::MouseWheelScrolled:
@@ -821,6 +835,8 @@ void cRenderWindow::DefaultEventProc(const sf::Event &evt)
 	}
 	break;
 	}
+
+	return mouseEvent;
 }
 
 
@@ -941,7 +957,20 @@ void cRenderWindow::ChangeDevice(
 	const bool restResource = (cDockManager::Get()->m_mainWindow == this);
 	m_renderer.ResetDevice(0, 0, forceReset, restResource);
 
-	const sRectf rect(0, TITLEBAR_HEIGHT2, (float)((width==0)? getSize().x : width), (float)((height==0)? getSize().y : height));
+	sRectf rect;
+	if (m_isTitleBar)
+	{
+		rect = sRectf(0, 0
+			, (float)((width == 0) ? getSize().x : width)
+			, (float)((height == 0) ? getSize().y - 5 : height - 5));
+	}
+	else
+	{
+		rect = sRectf(0, TITLEBAR_HEIGHT2
+			, (float)((width == 0) ? getSize().x : width)
+			, (float)((height == 0) ? getSize().y : height));
+	}
+
 	if (m_dock)
 		m_dock->CalcResizeWindow(eDockResize::RENDER_WINDOW, rect);
 

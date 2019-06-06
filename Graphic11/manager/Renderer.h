@@ -154,6 +154,7 @@ namespace graphic
 		cText m_textFps;
 		float m_elapseTime;
 		int m_fps;
+		int m_calcFps;
 
 		// Debug Render
 		bool m_isDbgRender; // Debug Render
