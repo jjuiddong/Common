@@ -48,7 +48,8 @@ namespace graphic
 
 		virtual void SetViewPort(const float width, const float height);
 
-		virtual void Move(const Vector3 &lookAt);
+		virtual void Move(const Vector3 &lookAt
+			, const float velocity = 0.f);
 		virtual void Move(const Vector3 &eyePos, const Vector3 &lookAt
 			, const float velocity = 0.f);
 		virtual void MoveNext(const Vector3 &eyePos, const Vector3 &lookAt

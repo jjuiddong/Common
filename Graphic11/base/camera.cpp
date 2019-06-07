@@ -619,7 +619,9 @@ void cCamera::Zoom(const Vector3 &dir, const float len)
 }
 
 
-void cCamera::Move(const Vector3 &lookAt)
+void cCamera::Move(const Vector3 &lookAt
+	, const float velocity //= 0.f
+)
 {
 	// Initialize mover vector
 	m_mover.clear();
@@ -632,11 +634,10 @@ void cCamera::Move(const Vector3 &lookAt)
 	info.eyePos = eyePos;
 	info.lookAt = lookAt;
 
-	const float eyePosVelocity = (eyePos - m_eyePos).Length();
-	const float lookAtVelocity = (lookAt - m_lookAt).Length();
-
-	info.velocityLookAt = lookAtVelocity;
-	info.velocityPos = eyePosVelocity;
+	//const float eyePosVelocity = (eyePos - m_eyePos).Length();
+	//const float lookAtVelocity = (lookAt - m_lookAt).Length();
+	info.velocityLookAt = velocity;
+	info.velocityPos = velocity;
 
 	m_mover.push_back(info);
 	m_state = eState::MOVE;
@@ -654,8 +655,6 @@ void cCamera::Move(const Vector3 &eyePos, const Vector3 &lookAt
 	info.eyePos = eyePos;
 	info.lookAt = lookAt;
 
-	//const float eyePosVelocity = (eyePos - m_eyePos).Length();
-	//const float lookAtVelocity = (lookAt - m_lookAt).Length();
 	info.velocityLookAt = velocity;
 	info.velocityPos = velocity;
 
@@ -675,8 +674,6 @@ void cCamera::MoveNext(const Vector3 &eyePos, const Vector3 &lookAt
 	Vector3 curEyePos = (m_mover.empty()) ? m_eyePos : m_mover.back().eyePos;
 	Vector3 curLookAt = (m_mover.empty()) ? m_lookAt : m_mover.back().lookAt;
 
-	//const float eyePosVelocity = (eyePos - curEyePos).Length();
-	//const float lookAtVelocity = (lookAt - curLookAt).Length();
 	info.velocityLookAt = velocity;
 	info.velocityPos = velocity;
 
