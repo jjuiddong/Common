@@ -191,6 +191,26 @@ string common::GetCurrentDateTime5()
 }
 
 
+// 2017-01-08-11-05-30-010 -> 20170108110530010
+// year-month-day-hour-minutes-seconds-millseconds
+uint64 common::GetCurrentDateTime6(const string &dateTime)
+{
+	vector<string> out;
+	tokenizer(dateTime, "-", "", out);
+	if (out.size() < 7)
+		return 0;
+
+	const uint64 ret = (uint64)atoi(out[0].c_str()) * 10000000000000
+		+ (uint64)atoi(out[1].c_str()) * 100000000000
+		+ (uint64)atoi(out[2].c_str()) * 1000000000
+		+ (uint64)atoi(out[3].c_str()) * 10000000
+		+ (uint64)atoi(out[4].c_str()) * 100000
+		+ (uint64)atoi(out[5].c_str()) * 1000
+		+ (uint64)atoi(out[6].c_str()) % 1000;
+
+	return ret;
+}
+
 
 //--------------------------------------------------------------------------------------
 cDateTime::cDateTime()

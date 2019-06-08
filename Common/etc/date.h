@@ -13,6 +13,7 @@ namespace common
 	unsigned __int64 GetCurrentDateTime3();
 	string GetCurrentDateTime4();
 	string GetCurrentDateTime5();
+	uint64 GetCurrentDateTime6(const string &dateTime);
 
 
 	class cDateTime

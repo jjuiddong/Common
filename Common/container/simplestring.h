@@ -354,9 +354,12 @@ namespace common
 		String& operator = (const char *str) {
 			if (!str) 
 				return *this;
-			const size_t len = min(strlen(str), MAX - 1);
-			strncpy_s(m_str, str, len);
-			m_str[len] = NULL;
+			if (m_str != str)
+			{
+				const size_t len = min(strlen(str), MAX - 1);
+				strncpy_s(m_str, str, len);
+				m_str[len] = NULL;
+			}
 			return *this;
 		}
 
@@ -711,9 +714,15 @@ namespace common
 
 
 		String& operator = (const wchar_t *str) {
-			const size_t len = min(wcslen(str), MAX - 1);
-			wcsncpy_s(m_str, str, len);
-			m_str[len] = NULL;
+			if (!str)
+				return *this;
+
+			if (m_str != str)
+			{
+				const size_t len = min(wcslen(str), MAX - 1);
+				wcsncpy_s(m_str, str, len);
+				m_str[len] = NULL;
+			}
 			return *this;
 		}
 
