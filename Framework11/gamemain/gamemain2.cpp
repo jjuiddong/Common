@@ -45,6 +45,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		const double deltaT = min(curT - oldT, gameMain->m_minDeltaTime);
 		const double dt = (cGameMain2::PAUSE == gameMain->m_state) ? 0.f : (deltaT * gameMain->m_slowFactor);
 		oldT = curT;
+		gameMain->m_deltaSeconds = dt;
 
 		cDockManager::Get()->UpdateRender((float)dt);
 
@@ -69,6 +70,7 @@ cGameMain2::cGameMain2()
 	, m_isLazyMode(false)
 	, m_slowFactor(1.f)
 	, m_minDeltaTime(0.1f)
+	, m_deltaSeconds(0)
 {
 }
 

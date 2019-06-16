@@ -123,6 +123,13 @@ namespace framework
 
 		ImFont *m_fontBig;
 		graphic::cTexture *m_titleBtn[4]; // reference, min-max-close-restore
+
+		// analysis
+		common::cTimer m_timer;
+		double m_t0;
+		double m_t1;
+		double m_t2;
+		double m_t3;
 	};
 
 }

@@ -25,6 +25,7 @@ namespace common { namespace dbg
 
 	// multithreading log
 	void Logp(const char* fmt, ...);
+	void Logp2(const char *fileName, const char* fmt, ...);
 	void ErrLogp(const char* fmt, ...);
 
 	void RemoveLog();

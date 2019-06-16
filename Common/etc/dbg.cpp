@@ -11,12 +11,24 @@ namespace common {
 		common::cWQSemaphore g_logThread;
 		struct sLogData
 		{
-			int type; // 0:log, 1:error log, 2:log + error log
+			int type; // 0:log, 1:error log, 2:log + error log, 3:others file
 			Str256 str;
 		};
 
 		StrPath g_logPath = "log.txt";
 		StrPath g_errLogPath = "errlog.txt";
+
+
+// make sLogData from argument list
+#define MAKE_LOGDATA(logData, logType, fmt) \
+		{\
+			logData.type = logType;\
+			va_list args;\
+			va_start(args, fmt);\
+			vsnprintf_s(logData.str.m_str, sizeof(logData.str.m_str) - 1, _TRUNCATE, fmt, args);\
+			va_end(args);\
+		}
+
 	}
 }
 
@@ -30,10 +42,11 @@ class cLogTask : public cTask
 				, public common::cMemoryPool4<cLogTask>
 {
 public:
+	const char *m_fileName;
 	sLogData m_logData;
 	cLogTask() : cTask(0, "cLogTask") {}
-	cLogTask(const sLogData &logData) 
-		: cTask(0, "cLogTask"), m_logData(logData) {
+	cLogTask(const sLogData &logData, const char *fileName = NULL)
+		: cTask(0, "cLogTask"), m_logData(logData), m_fileName(fileName){
 	}
 	virtual ~cLogTask() {
 	}
@@ -42,25 +55,34 @@ public:
 	{
 		const string timeStr = common::GetCurrentDateTime();
 
-		std::ofstream ofs1(g_logPath.c_str(), std::ios::app);
-		std::ofstream ofs2(g_errLogPath.c_str(), std::ios::app);
 		switch (m_logData.type)
 		{
 		case 0:
+		{
+			std::ofstream ofs1(g_logPath.c_str(), std::ios::app);
 			if (ofs1.is_open())
 			{
 				ofs1 << timeStr << " : ";
 				ofs1 << m_logData.str.c_str();
 			}
-			break;
+		}
+		break;
+
 		case 1:
+		{
+			std::ofstream ofs2(g_errLogPath.c_str(), std::ios::app);
 			if (ofs2.is_open())
 			{
 				ofs2 << timeStr << " : ";
 				ofs2 << m_logData.str.c_str();
 			}
-			break;
+		}
+		break;
+
 		case 2:
+		{
+			std::ofstream ofs1(g_logPath.c_str(), std::ios::app);
+			std::ofstream ofs2(g_errLogPath.c_str(), std::ios::app);
 			if (ofs1.is_open())
 			{
 				ofs1 << timeStr << " : ";
@@ -71,7 +93,21 @@ public:
 				ofs2 << timeStr << " : ";
 				ofs2 << m_logData.str.c_str();
 			}
-			break;
+		}
+		break;
+
+		case 3:
+		{
+			std::ofstream ofs1(m_fileName, std::ios::app);
+			if (ofs1.is_open())
+			{
+				ofs1 << timeStr << " : ";
+				ofs1 << m_logData.str.c_str();
+			}
+		}
+		break;
+
+		default: assert(0); break;
 		}
 		return eRunResult::END;
 	}
@@ -146,35 +182,34 @@ void dbg::Log(const char* fmt, ...)
 void dbg::Logp(const char* fmt, ...)
 {
 	sLogData data;
-	data.type = 0;
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf_s(data.str.m_str, sizeof(data.str.m_str) - 1, _TRUNCATE, fmt, args);
-	va_end(args);
+	MAKE_LOGDATA(data, 0, fmt);
 
-	//------------------------------------------------------------------------
 	// add string to log thread
-	{
-		cLogTask *task = new cLogTask();
-		task->m_logData = data;
-		g_logThread.PushTask(task);
-	}
+	g_logThread.PushTask(new cLogTask(data));
+}
+
+
+// log specific file, parallel thread
+void dbg::Logp2(const char *fileName, const char* fmt, ...)
+{
+	sLogData data;
+	MAKE_LOGDATA(data, 0, fmt);
+
+	// add string to log thread
+	g_logThread.PushTask(new cLogTask(data, fileName));
 }
 
 
 // fileName 의 파일에 로그를 남긴다.
 void dbg::Log2(const char *fileName, const char* fmt, ...)
 {
-	char textString[256] = { '\0' };
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf_s(textString, sizeof(textString), _TRUNCATE, fmt, args);
-	va_end(args);
+	sLogData data;
+	MAKE_LOGDATA(data, 0, fmt);
 
 	FILE *fp = fopen(fileName, "a+");
 	if (fp)
 	{
-		fputs(textString, fp);
+		fputs(data.str.c_str(), fp);
 		fclose(fp);
 	}
 }
@@ -182,21 +217,18 @@ void dbg::Log2(const char *fileName, const char* fmt, ...)
 
 void dbg::ErrLog(const char* fmt, ...)
 {
-	char textString[256] = { '\0' };
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf_s(textString, sizeof(textString), _TRUNCATE, fmt, args);
-	va_end(args);
+	sLogData data;
+	MAKE_LOGDATA(data, 1, fmt);
 
 	FILE *fp = fopen(g_errLogPath.c_str(), "a+");
 	if (fp)
 	{
-		fputs(textString, fp);
+		fputs(data.str.c_str(), fp);
 		fclose(fp);
 	}
 
 	// 로그파일에도 에러 메세지를 저장한다.
-	Log( "Error : %s", textString);
+	Log( "Error : %s", data.str.c_str());
 }
 
 
@@ -204,19 +236,10 @@ void dbg::ErrLog(const char* fmt, ...)
 void dbg::ErrLogp(const char* fmt, ...)
 {
 	sLogData data;
-	data.type = 1;
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf_s(data.str.m_str, sizeof(data.str.m_str), _TRUNCATE, fmt, args);
-	va_end(args);
+	MAKE_LOGDATA(data, 1, fmt);
 
-	//------------------------------------------------------------------------
 	// add string to log thread
-	{
-		cLogTask *task = new cLogTask();
-		task->m_logData = data;
-		g_logThread.PushTask(task);
-	}
+	g_logThread.PushTask(new cLogTask(data));
 
 	// 로그파일에도 에러 메세지를 저장한다.
 	Logp("Error : %s", data.str.m_str);
@@ -272,11 +295,7 @@ void dbg::TerminateLogThread()
 void dbg::Logc(const int level, const char* fmt, ...)
 {
 	sLogData data;
-	data.type = -1;
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf_s(data.str.m_str, sizeof(data.str.m_str), _TRUNCATE, fmt, args);
-	va_end(args);
+	MAKE_LOGDATA(data, -1, fmt);
 
 	switch (level)
 	{
@@ -301,8 +320,6 @@ void dbg::Logc(const int level, const char* fmt, ...)
 	// add string to log thread
 	if (data.type >= 0)
 	{
-		cLogTask *task = new cLogTask();
-		task->m_logData = data;
-		g_logThread.PushTask(task);
+		g_logThread.PushTask(new cLogTask(data));
 	}
 }

@@ -24,6 +24,10 @@ cRenderWindow::cRenderWindow()
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
 	, m_captureDock(NULL)
+	, m_t0(0.f)
+	, m_t1(0.f)
+	, m_t2(0.f)
+	, m_t3(0.f)
 {
 }
 
@@ -111,6 +115,8 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 	m_titleBtn[2] = cResourceManager::Get()->LoadTexture(m_renderer, "closebtn.png");
 	m_titleBtn[3] = cResourceManager::Get()->LoadTexture(m_renderer, "restorebtn.png");
 
+	m_timer.Create();
+
 	return true;
 }
 
@@ -118,6 +124,8 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 // return value : return false if close window
 bool cRenderWindow::TranslateEvent()
 {
+	const double t0 = m_timer.GetSeconds();
+
 	m_gui.SetContext();
 	m_input.NewFrame();
 	m_gui.NewFrame();
@@ -139,12 +147,16 @@ bool cRenderWindow::TranslateEvent()
 		}
 	}
 
+	const double t1 = m_timer.GetSeconds();
+	m_t0 = t1 - t0;
 	return true;
 }
 
 
 void cRenderWindow::Update(const float deltaSeconds)
 {
+	const double t0 = m_timer.GetSeconds();
+
 	RET(!isOpen());
 	RET(!m_isVisible);
 
@@ -194,6 +206,9 @@ void cRenderWindow::Update(const float deltaSeconds)
 	m_renderer.Update(deltaSeconds);
 
 	OnUpdate(deltaSeconds);
+
+	const double t1 = m_timer.GetSeconds();
+	m_t1 = t1 - t0;
 }
 
 
@@ -520,6 +535,8 @@ std::pair<bool, cDockWindow*> cRenderWindow::UpdateCursor()
 
 void cRenderWindow::Render(const float deltaSeconds)
 {
+	const double t0 = m_timer.GetSeconds();
+
 	RET(!isOpen());
 	RET(!m_isVisible);
 	if (eState::WINDOW_RESIZE == m_state)
@@ -529,6 +546,8 @@ void cRenderWindow::Render(const float deltaSeconds)
 	}
 
 	PreRender(deltaSeconds);
+
+	const double t1 = m_timer.GetSeconds();
 
 	if (m_dock)
 	{
@@ -552,6 +571,8 @@ void cRenderWindow::Render(const float deltaSeconds)
 		ImGui::End();
 	}
 
+	const double t2 = m_timer.GetSeconds();
+
 	m_camera.Bind(m_renderer);
 	m_light.Bind(m_renderer);
 
@@ -572,6 +593,10 @@ void cRenderWindow::Render(const float deltaSeconds)
 	}
 
 	PostRender(deltaSeconds);
+
+	const double t3 = m_timer.GetSeconds();
+	m_t2 = t1 - t0;
+	m_t3 = t3 - t1;
 }
 
 

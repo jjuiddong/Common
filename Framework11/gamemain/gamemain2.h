@@ -48,6 +48,7 @@ namespace framework
 		bool m_isLazyMode; // FPS 30 이하 유지
 		float m_slowFactor; // default: 1.f
 		double m_minDeltaTime; // default : 0.1 (0.1 sec)
+		double m_deltaSeconds;
 	};
 
 
