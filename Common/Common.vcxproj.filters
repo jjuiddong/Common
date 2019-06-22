@@ -181,6 +181,12 @@
     <ClInclude Include="etc\memorypool4.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="etc\port.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\enumser.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -285,6 +291,12 @@
     </ClCompile>
     <ClCompile Include="math\line.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\port.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\enumser.cpp">
+      <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

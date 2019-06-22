@@ -24,17 +24,21 @@ namespace common
 		void Close();
 
 
+	public:
+		static unsigned SerialThreadFunction(cSerialAsync *serial);
+
+
+	public:
 		enum { BUFLEN = 512, };
 		bool m_isConnect;
 		char m_buffer[BUFLEN];
 		int m_bufferLen;
 		bool m_isSendData;
-		CBufferedSerial m_serial;
+		cBufferedSerial m_serial;
 		int m_sleepMillis; // default = 10
 
-		HANDLE m_handle;
-		DWORD m_threadId;
-		CRITICAL_SECTION m_CriticalSection;
+		std::thread m_thread;
+		CriticalSection m_cs;
 		bool m_threadLoop;
 	};
 

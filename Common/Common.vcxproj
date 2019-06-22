@@ -390,6 +390,7 @@
     <ClInclude Include="etc\date.h" />
     <ClInclude Include="etc\date2.h" />
     <ClInclude Include="etc\dbg.h" />
+    <ClInclude Include="etc\enumser.h" />
     <ClInclude Include="etc\FastMemLoader.h" />
     <ClInclude Include="etc\filelogger.h" />
     <ClInclude Include="etc\filepath.h" />
@@ -404,6 +405,7 @@
     <ClInclude Include="etc\observer.h" />
     <ClInclude Include="etc\observer2.h" />
     <ClInclude Include="etc\path.h" />
+    <ClInclude Include="etc\port.h" />
     <ClInclude Include="etc\rand.h" />
     <ClInclude Include="etc\recttype.h" />
     <ClInclude Include="etc\Serial.h" />
@@ -445,6 +447,7 @@
     <ClCompile Include="etc\date.cpp" />
     <ClCompile Include="etc\date2.cpp" />
     <ClCompile Include="etc\dbg.cpp" />
+    <ClCompile Include="etc\enumser.cpp" />
     <ClCompile Include="etc\FastMemLoader.cpp" />
     <ClCompile Include="etc\filepath.cpp" />
     <ClCompile Include="etc\genid.cpp" />
@@ -453,6 +456,7 @@
     <ClCompile Include="etc\observer.cpp" />
     <ClCompile Include="etc\observer2.cpp" />
     <ClCompile Include="etc\path.cpp" />
+    <ClCompile Include="etc\port.cpp" />
     <ClCompile Include="etc\recttype.cpp" />
     <ClCompile Include="etc\Serial.cpp" />
     <ClCompile Include="etc\SerialAsync.cpp" />
