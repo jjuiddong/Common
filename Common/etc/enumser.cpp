@@ -8,7 +8,7 @@ History: PJN / 23-02-1999 Code now uses QueryDosDevice if running on NT to deter
                           the ports at all. It should operate a lot faster in addition.
          PJN / 12-12-1999 Fixed a problem in the Win9x code path when trying to detect 
                           deactivated IRDA-ports. When trying to open those, you will 
-                          get the error-code ERROR_GEN_FAILURE. 
+                          get the error-code ERROR_GEN_FAILURE.?
          PJN / 17-05-2000 Code now uses GetDefaultCommConfig in all cases to detect 
                           the ports.
          PJN / 29-03-2001 1. Reverted code to use CreateFile or QueryDosDevice as it is 
