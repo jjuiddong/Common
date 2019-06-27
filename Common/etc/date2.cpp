@@ -179,6 +179,38 @@ Str32 cDateTime2::GetTimeStr(const uint64 dateTime)
 }
 
 
+// return time string
+// 20170108110530010 -> 2017-01-08-11-05-30-010
+Str32 cDateTime2::GetTimeStr2(const uint64 dateTime)
+{
+	const uint64 year = dateTime / 10000000000000;
+	const uint64 month = (dateTime / 100000000000) % 100;
+	const uint64 day = (dateTime / 1000000000) % 100;
+	const uint64 hour = (dateTime / 10000000) % 100;
+	const uint64 minute = (dateTime / 100000) % 100;
+	const uint64 second = (dateTime / 1000) % 100;
+	const uint64 millis = (dateTime) % 1000;
+
+	Str32 ret;
+	ret.Format("%d-%02d-%02d-%02d-%02d-%02d-%03d"
+		, (uint)year, (uint)month, (uint)day
+		, (uint)hour, (uint)minute, (uint)second, (uint)millis);
+	return ret;
+}
+
+
+void cDateTime2::GetTimeValue(const uint64 dateTime, sDateTime &out)
+{
+	out.year = (int)(dateTime / 10000000000000);
+	out.month = (int)((dateTime / 100000000000) % 100);
+	out.day = (int)((dateTime / 1000000000) % 100);
+	out.hour = (int)((dateTime / 10000000) % 100);
+	out.min = (int)((dateTime / 100000) % 100);
+	out.sec = (int)((dateTime / 1000) % 100);
+	out.millis = (int)((dateTime) % 1000);
+}
+
+
 //-------------------------------------------------
 // cDateTimeRange
 //-------------------------------------------------

@@ -14,6 +14,17 @@
 namespace common
 {
 
+	struct sDateTime
+	{
+		int year;
+		int month;
+		int day;
+		int hour;
+		int min;
+		int sec;
+		int millis;
+	};
+
 	// Date Time by milliseconds
 	class cDateTime2
 	{
@@ -28,6 +39,8 @@ namespace common
 		uint64 GetTimeInt64() const;
 		Str32 GetTimeStr() const;
 		static Str32 GetTimeStr(const uint64 dateTime);
+		static Str32 GetTimeStr2(const uint64 dateTime);
+		static void GetTimeValue(const uint64 dateTime, sDateTime &out);
 
 		cDateTime2& operator+=(const uint64 &microSeconds);
 		bool operator<(const cDateTime2 &rhs) const;
