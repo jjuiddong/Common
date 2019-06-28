@@ -41,7 +41,7 @@ bool cTPSemaphore::Init(const int threadCount //=-1
 bool cTPSemaphore::PushTask(cTask *task)
 {
 	m_cs.Lock();
-	m_tasks.push(task);
+	m_tasks.push_front(task);
 	m_cs.Unlock();
 	m_sema.Signal();
 	return true;
@@ -50,12 +50,38 @@ bool cTPSemaphore::PushTask(cTask *task)
 
 cTask* cTPSemaphore::PopTask()
 {
+	cTask *task = NULL;
+
 	m_sema.Wait();
 	m_cs.Lock();
-	cTask *task = m_tasks.front();
-	m_tasks.pop();
+	if (m_tasks.empty())
+	{
+		m_cs.Unlock();
+		return PopTask();
+	}
+	else
+	{ 
+		task = m_tasks.back();
+		m_tasks.pop_back();
+	}
 	m_cs.Unlock();
 	return task;
+}
+
+
+bool cTPSemaphore::RemoveTask(const StrId &taskName)
+{
+	m_cs.Lock();
+	auto it = std::find_if(m_tasks.begin(), m_tasks.end()
+		, [&](auto &t) { return t->m_name == taskName; });
+	const bool isExist = (m_tasks.end() != it);
+	if (isExist)
+	{
+		delete *it;
+		m_tasks.erase(it);
+	}
+	m_cs.Unlock();
+	return true;
 }
 
 
@@ -116,8 +142,8 @@ void cTPSemaphore::Clear()
 	AutoCSLock cs(m_cs);
 	while (!m_tasks.empty())
 	{
-		delete m_tasks.front();
-		m_tasks.pop();
+		delete m_tasks.back();
+		m_tasks.pop_back();
 	}
 }
 

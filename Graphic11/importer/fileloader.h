@@ -93,6 +93,7 @@ namespace graphic
 			, m_fileLoader(fileLoader)
 			, m_loadType(0)
 			, m_compare(compData) {
+			m_name = fileName;
 		}
 		cTaskFileLoader(cFileLoader<T, MAX, Args, CompareData, TP_MAX> *fileLoader, cRenderer *renderer, const T *src, const char *fileName
 			, const Args &args, const bool isTopPriority = false
@@ -105,6 +106,7 @@ namespace graphic
 			, m_args(args)
 			, m_loadType(1)
 			, m_compare(compData) {
+			m_name = fileName;
 		}
 		virtual ~cTaskFileLoader() {
 		}
@@ -510,6 +512,7 @@ namespace graphic
 
 		delete it->second.data;
 		m_files.erase(it);
+		m_tpLoader.RemoveTask(fileName);
 		return true;
 	}
 

@@ -21,6 +21,7 @@ namespace common
 		bool Init(const int threadCount = -1);
 		bool PushTask(cTask *task);
 		cTask* PopTask();
+		bool RemoveTask(const StrId &taskName);
 		void Wait();
 		bool IsInit();
 		void Terminate();
@@ -32,7 +33,7 @@ namespace common
 	public:
 		CriticalSection m_cs;
 		cSemaphore m_sema;
-		queue<cTask*> m_tasks;
+		std::deque<cTask*> m_tasks;
 		vector<std::thread*> m_threads;
 		bool m_isThreadLoop;
 	};
