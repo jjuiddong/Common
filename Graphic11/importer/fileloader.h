@@ -530,6 +530,7 @@ namespace graphic
 				delete kv.second.data;
 				m_files.erase(kv.first);
 				m_updatePtrs[kv.first].clear();
+				//m_tpLoader.RemoveTask(fileName); // todo: remove task
 				break;
 			}
 		}
