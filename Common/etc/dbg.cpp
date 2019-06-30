@@ -101,7 +101,6 @@ public:
 			std::ofstream ofs1(m_fileName, std::ios::app);
 			if (ofs1.is_open())
 			{
-				ofs1 << timeStr << " : ";
 				ofs1 << m_logData.str.c_str();
 			}
 		}
@@ -193,7 +192,7 @@ void dbg::Logp(const char* fmt, ...)
 void dbg::Logp2(const char *fileName, const char* fmt, ...)
 {
 	sLogData data;
-	MAKE_LOGDATA(data, 0, fmt);
+	MAKE_LOGDATA(data, 3, fmt);
 
 	// add string to log thread
 	g_logThread.PushTask(new cLogTask(data, fileName));
