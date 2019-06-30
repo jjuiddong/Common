@@ -88,6 +88,5 @@ unsigned cSerialAsync::SerialThreadFunction(cSerialAsync * serial)
 	}
 
 	serial->m_serial.Close();
-
 	return 0;
 }
