@@ -214,7 +214,7 @@ namespace graphic
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
+#pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
 
 #ifdef _VS2015
 	#ifdef _DEBUG
