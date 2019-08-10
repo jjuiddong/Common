@@ -24,13 +24,13 @@ namespace common
 	class cSimpleData
 	{
 	public:
-		cSimpleData();
+		cSimpleData(const char *fileName = NULL);
 		virtual ~cSimpleData();
 
 		bool Read(const char *fileName);
 		bool Write(const char *fileName);
+		bool IsLoad();
 		void Clear();
-
 
 	public:
 		vector<vector<string>> m_table;

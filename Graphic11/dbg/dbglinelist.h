@@ -1,6 +1,6 @@
 //
 // 2017-06-20, jjuiddong
-// debug line strip
+// debug line list
 // Vertex = Position + Diffuse
 //
 // 2017-08-07

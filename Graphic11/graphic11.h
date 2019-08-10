@@ -142,6 +142,7 @@ namespace graphic {
 #include "dbg/dbgsphere.h"
 #include "dbg/dbgline.h"
 #include "dbg/dbglinelist.h"
+#include "dbg/dbglinestrip.h"
 #include "dbg/dbgarrow.h"
 #include "dbg/dbgfrustum.h"
 #include "dbg/dbgquad.h"

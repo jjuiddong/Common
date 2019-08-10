@@ -362,6 +362,9 @@
     <ClInclude Include="base\slidelist.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbglinestrip.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -688,6 +691,9 @@
     </ClCompile>
     <ClCompile Include="base\slidelist.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbglinestrip.cpp">
+      <Filter>dbg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

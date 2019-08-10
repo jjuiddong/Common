@@ -5,8 +5,11 @@
 using namespace common;
 
 
-cSimpleData::cSimpleData()
+cSimpleData::cSimpleData(const char *fileName // = NULL
+)
 {
+	if (fileName)
+		Read(fileName);
 }
 
 cSimpleData::~cSimpleData()
@@ -58,6 +61,12 @@ bool cSimpleData::Write(const char *fileName)
 		ofs << endl;
 	}
 	return true;
+}
+
+
+bool cSimpleData::IsLoad()
+{
+	return !m_table.empty();
 }
 
 

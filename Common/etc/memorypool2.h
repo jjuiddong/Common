@@ -35,7 +35,7 @@ namespace common
 		}
 
 
-	private:
+	public:
 		boost::pool<> m_pool;
 		CriticalSection m_cs;
 	};
