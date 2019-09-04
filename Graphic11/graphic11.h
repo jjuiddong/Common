@@ -142,6 +142,7 @@ namespace graphic {
 #include "dbg/dbgsphere.h"
 #include "dbg/dbgline.h"
 #include "dbg/dbglinelist.h"
+#include "dbg/dbglinestrip.h"
 #include "dbg/dbgarrow.h"
 #include "dbg/dbgfrustum.h"
 #include "dbg/dbgquad.h"
@@ -214,7 +215,7 @@ namespace graphic
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
+#pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
 
 #ifdef _VS2015
 	#ifdef _DEBUG

@@ -4,9 +4,9 @@
 // 2019-03-05, jjuiddong
 //	- check UTF-8 with BOM
 //		- https://stackoverflow.com/questions/6769311/how-windows-notepad-interpret-characters
-//		- Notepad normally uses ANSI encoding, so if it reads the file as UTF - 8 
+//		- Notepad normally uses ANSI encoding, so if it reads the file as UTF-8 
 //		  then it has to guess the encoding based on the data in the file.
-//		  If you save a file as UTF - 8, Notepad will put the BOM(byte order mark) 
+//		  If you save a file as UTF-8, Notepad will put the BOM(byte order mark) 
 //		  EF BB BF at the beginning of the file.
 //
 // 2019-03-30
@@ -77,7 +77,9 @@ namespace common
 		bool Parse(const string &fileName);
 		bool CheckUTF8withBOM(std::ifstream &ifs);
 		bool GetToken(std::istream &stream, OUT Str512 &out
-			, const bool isTokenizingSpecialChar = false);
+			, const bool isTokenizingSpecialChar = false
+			, const bool isScanSpacing = false
+			, OUT int *eofState = NULL);
 		sReservedKeyword::TYPE GetToken2(std::istream &stream, OUT Str512 &out
 			, const bool isTokenizingSpecialChar = false);
 		sReservedKeyword::TYPE GetReservedKeyword(const char *str);

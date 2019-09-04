@@ -204,6 +204,7 @@
     <ClInclude Include="dbg\dbgfrustum.h" />
     <ClInclude Include="dbg\dbgline.h" />
     <ClInclude Include="dbg\dbglinelist.h" />
+    <ClInclude Include="dbg\dbglinestrip.h" />
     <ClInclude Include="dbg\dbgquad.h" />
     <ClInclude Include="dbg\dbgsphere.h" />
     <ClInclude Include="graphic11.h" />
@@ -322,6 +323,7 @@
     <ClCompile Include="dbg\dbgfrustum.cpp" />
     <ClCompile Include="dbg\dbgline.cpp" />
     <ClCompile Include="dbg\dbglinelist.cpp" />
+    <ClCompile Include="dbg\dbglinestrip.cpp" />
     <ClCompile Include="dbg\dbgquad.cpp" />
     <ClCompile Include="dbg\dbgsphere.cpp" />
     <ClCompile Include="importer\parallelloader.cpp" />

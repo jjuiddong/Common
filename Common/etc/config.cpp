@@ -63,8 +63,14 @@ bool cConfig::Parse(const string &fileName)
 	int state = 0; // -1:finish
 	while (!cfgfile.eof())
 	{
-		if (!GetToken(cfgfile, tok))
-			continue;
+		int state = 0;
+		if (!GetToken(cfgfile, tok, false, false, &state))
+		{
+			if (state == 1) // eof?
+				break;
+			else
+				continue;
+		}
 
 		switch (state)
 		{
@@ -75,10 +81,12 @@ bool cConfig::Parse(const string &fileName)
 			{
 			case sReservedKeyword::NONE:
 			{
-				GetToken(cfgfile, eq);
+				if (!GetToken(cfgfile, eq))
+					break;
+
 				if (eq == "=")
 				{
-					if (GetToken(cfgfile, val))
+					if (GetToken(cfgfile, val, false, true))
 						m_options[tok.c_str()] = val.c_str();
 				}
 				else
@@ -146,8 +154,11 @@ bool cConfig::Parse(const string &fileName)
 
 // parse stream, return token
 // isTokenizingSpecialChar: if true, special character detect = ,
+// state: eof state 1
 bool cConfig::GetToken(std::istream &stream, OUT Str512 &out
 	, const bool isTokenizingSpecialChar // =false
+	, const bool isScanSpacing // =false
+	, OUT int *eofState // =NULL
 ) 
 {
 	out.m_str[0] = NULL;
@@ -161,14 +172,22 @@ bool cConfig::GetToken(std::istream &stream, OUT Str512 &out
 		&& (dst - out.m_str < (int)out.SIZE - 1))
 	{
 		if ((1 == state) 
-			&& ((stream.peek() == '\n') || ((stream.peek() == '\r') 
-				|| (stream.peek() == ' ') || (stream.peek() == '\t'))))
+			&& ((stream.peek() == '\n') 
+				|| (stream.peek() == '\r') 
+				|| (!isScanSpacing && (stream.peek() == ' '))
+				|| (stream.peek() == '\t')))
 			break; // end of line
 
-		char c = NULL;
-		stream >> c;
+		char c = stream.get();
 
-		if ((state == 0) && ((' ' == c) || ('\t' == c) || (NULL == c))) // ignore space mode?
+		if (c == -1) // eof?
+		{
+			if (eofState)
+				*eofState = 1;
+			break;
+		}
+
+		if ((state == 0) && ((' ' == c) || ('\t' == c) || (NULL == c) || ('\n' == c))) // ignore space mode?
 			continue;
 
 		switch (c)
@@ -360,6 +379,8 @@ cConfig::sExpr* cConfig::expr(std::istream &stream)
 	const sReservedKeyword::TYPE type = GetToken2(stream, m_tok);
 	if (sReservedKeyword::EOF0 == type)
 		return NULL;
+	if (m_tok.empty())
+		return NULL;
 
 	sExpr *p = NULL;
 	sReservedKeyword::TYPE endType = sReservedKeyword::NONE;
@@ -384,6 +405,8 @@ cConfig::sExpr* cConfig::expr(std::istream &stream)
 		p->next = NULL;
 		p->ifExpr = NULL;
 		p->assignExpr = expr_assign(stream, m_tok);
+		if (!p->assignExpr)
+			SAFE_DELETE(p);
 		break;
 
 	case sReservedKeyword::ELSE:
@@ -411,7 +434,7 @@ cConfig::sAssignExpr* cConfig::expr_assign(std::istream &stream, const Str512 &t
 	GetToken(stream, m_tok);
 	if (m_tok != "=")
 	{ 
-		dbg::Logc(2, "config syntax error, not exist '='\n");
+		dbg::Logc(2, "config syntax error, [ %s ] not exist '='\n", p->id.c_str());
 		delete p;
 		return NULL;
 	}

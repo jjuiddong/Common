@@ -327,15 +327,15 @@ namespace common
 		const char* c_str() const { return (const char*)m_str; }
 
 		bool operator == (const String &rhs) const {
-			return !strcmp(m_str, rhs.m_str);
+			return (size() == rhs.size()) && !strcmp(m_str, rhs.m_str);
 		}
 
 		bool operator == (const std::string &rhs) const {
-			return rhs == m_str;
+			return (size() == rhs.size()) && (rhs == m_str);
 		}
 
 		bool operator == (const char *str) const {
-			return !strcmp(m_str, str);
+			return (size() == (size_t)strlen(str)) && !strcmp(m_str, str);
 		}
 
 		bool operator != (const String &rhs) const {
@@ -689,15 +689,15 @@ namespace common
 		const wchar_t* c_str() const { return (const wchar_t*)m_str; }
 
 		bool operator == (const String &rhs) const {
-			return !wcscmp(m_str, rhs.m_str);
+			return (size() == rhs.size()) && !wcscmp(m_str, rhs.m_str);
 		}
 
 		bool operator == (const std::wstring &rhs) const {
-			return rhs == m_str;
+			return (size() == rhs.size()) && (rhs == m_str);
 		}
 
 		bool operator == (const wchar_t *str) const {
-			return !wcscmp(m_str, str);
+			return (size() == (size_t)wcslen(str)) && !wcscmp(m_str, str);
 		}
 
 		bool operator != (const String &rhs) const {
