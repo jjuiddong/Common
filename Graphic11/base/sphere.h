@@ -37,6 +37,7 @@ namespace graphic
 		cSphereShape m_shape;
 		cMaterial m_mtrl;
 		float m_radius;
+		cTexture *m_texture;
 	};	
 
 

@@ -8,6 +8,7 @@ using namespace graphic;
 cSphere::cSphere() 
 	: cNode(common::GenerateId(), "sphere", eNodeType::MODEL)
 	, m_radius(0)
+	, m_texture(NULL)
 {
 	m_mtrl.InitWhite();
 }
@@ -18,6 +19,7 @@ cSphere::cSphere(cRenderer &renderer, const float radius, const int stacks, cons
 )
 	: cNode(common::GenerateId(), "sphere", eNodeType::MODEL)
 	, m_radius(0)
+	, m_texture(NULL)
 {
 	Create(renderer, radius, stacks, slices, vtxType, color);	
 }
@@ -56,6 +58,9 @@ bool cSphere::Render(cRenderer &renderer
 
 	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
+
+	if ((m_shape.m_vtxType & eVertexType::TEXTURE0) && m_texture)
+		m_texture->Bind(renderer, 0);
 
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
 	{
