@@ -13,6 +13,11 @@ cSphereShape::~cSphereShape()
 }
 
 
+//
+// 0µµ -> xyz = (1,0,0)
+// 90µµ -> xyz = (0,0,1)
+// 180µµ -> xyz = (-1,0,0)
+//
 bool cSphereShape::Create(cRenderer &renderer, const float radius, const int stacks, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::BLACK
