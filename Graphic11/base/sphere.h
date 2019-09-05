@@ -38,6 +38,7 @@ namespace graphic
 		cMaterial m_mtrl;
 		cTexture *m_texture; // reference
 		float m_radius;
+		cTexture *m_texture;
 	};	
 
 

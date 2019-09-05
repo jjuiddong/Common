@@ -819,6 +819,9 @@
     <CustomBuild Include="shader\pos-norm-tex-reflect.fx">
       <Filter>shader</Filter>
     </CustomBuild>
+    <CustomBuild Include="shader\uvcolor.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
