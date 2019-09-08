@@ -22,10 +22,12 @@ cQuad2D::~cQuad2D()
 bool cQuad2D::Create(cRenderer &renderer, const float x, const float y
 	, const float width, const float height
 	, const char *textureFileName // = " "
+	, const Vector3 *quadVertices //= NULL
+	, const Vector2 *quadUVs //= NULL
 )
 {
 	const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0;
-	m_shape.Create(renderer, vtxType, cColor::WHITE);
+	m_shape.Create(renderer, vtxType, cColor::WHITE, 2.f, 2.f, false, quadVertices, quadUVs);
 
 	SetPosition(x, y, width, height);
 

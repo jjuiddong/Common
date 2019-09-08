@@ -36,7 +36,9 @@ namespace graphic
 			, const cColor &color = cColor::WHITE
 			, const float width = 2
 			, const float height = 2
-			, const bool isDynamic = false);
+			, const bool isDynamic = false
+			, const Vector3 *quadVertices = NULL
+			, const Vector2 *quadUVs = NULL);
 
 		void Render(cRenderer &renderer) override;
 

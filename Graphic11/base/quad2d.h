@@ -23,10 +23,14 @@ namespace graphic
 		cQuad2D();
 		virtual ~cQuad2D();
 
-		bool Create(cRenderer &renderer, const float x, const float y, const float width, const float height
-			, const char *textureFileName = NULL );
+		bool Create(cRenderer &renderer
+			, const float x, const float y, const float width, const float height
+			, const char *textureFileName = NULL
+			, const Vector3 *quadVertices = NULL
+			, const Vector2 *quadUVs = NULL);
 
-		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1) override;
 
 		void SetPosition(const float x, const float y
 			, const float width, const float height );

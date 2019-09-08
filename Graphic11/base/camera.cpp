@@ -699,6 +699,12 @@ void cCamera::Pitch(const float radian)
 
 	Vector3 v = m_lookAt - m_eyePos;
 	v *= mat;
+	Vector3 lookAt = m_eyePos + v;
+
+	const Vector3 dir = (lookAt - m_eyePos).Normal();
+	if (abs(dir.DotProduct(Vector3(0,1,0))) > 0.95f)
+		return;
+
 	m_lookAt = m_eyePos + v;
 
 	UpdateViewMatrix();

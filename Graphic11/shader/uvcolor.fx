@@ -1,6 +1,18 @@
 
 #include "common.fx"
 
+//--------------------------------------------------------------------------------------
+// SamplerState
+//--------------------------------------------------------------------------------------
+SamplerState samWrap : register(s5)
+{
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = WRAP;
+	AddressV = WRAP;
+	BorderColor = float4(1, 1, 1, 1);
+};
+
+
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -25,7 +37,7 @@ float4 PS(VSOUT_POSDIFFUSE_TEX In ) : SV_Target
 {
 	//return txDiffuse.Sample( samLinear, In.Tex );
 	//return float4(1,0,0,1);
-	return txDiffuse.Sample(samLinear, float2(gEyePosW.x, gEyePosW.y));
+	return txDiffuse.Sample(samWrap, float2(gEyePosW.x + In.Tex.x, gEyePosW.y + In.Tex.y));
 }
 
 
