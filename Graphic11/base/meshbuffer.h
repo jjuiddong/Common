@@ -23,6 +23,7 @@ namespace graphic
 			, const int faceStart = 0
 			, const int faceCount = 0
 			);
+		void RenderTessellation(cRenderer &renderer, const int controlPointCount);
 
 		cMeshBuffer* Clone();
 		vector<sAttribute>& GetAttributes();

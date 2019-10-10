@@ -46,3 +46,12 @@ void Ray::Create( const int nX, const int nY, const int width, const int height,
 	orig.y = m._42;
 	orig.z = m._43;
 }
+
+
+// Ray와 pos 간의 거리를 리턴한다.
+// 최단 거리를 리턴한다. (Ray와 수직으로 만나는 점에서의 거리)
+float Ray::Distance(const Vector3 &pos)
+{
+	const Line line(dir, orig, 1000.f);
+	return line.GetDistance(pos);
+}

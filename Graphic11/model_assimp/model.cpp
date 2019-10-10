@@ -214,6 +214,48 @@ bool cModel::RenderInstancing(cRenderer &renderer
 }
 
 
+bool cModel::RenderTessellation(cRenderer &renderer
+	, const int controlPointCount
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	if (CheckLoadProcess(renderer))
+		return true;
+
+	RETV(!m_isEnable, false);
+	RETV(!IsVisible(), false);
+	RETV(!m_model, false);
+
+	if (!(flags & m_renderFlags))
+		return false;
+
+	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
+		const XMMATRIX transform = m_localTm.GetMatrixXM() 
+			* m_transform.GetMatrixXM() 
+			* parentTm;
+		m_model->RenderTessellation(renderer, m_techniqueName.c_str()
+			, controlPointCount, &m_skeleton, transform);
+		renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
+	}
+	else
+	{
+		const XMMATRIX transform = m_localTm.GetMatrixXM() 
+			* m_transform.GetMatrixXM() 
+			* parentTm;
+		m_model->RenderTessellation(renderer, m_techniqueName.c_str()
+			, controlPointCount, &m_skeleton, transform);
+	}
+
+	__super::Render(renderer, parentTm, flags);
+
+	return true;
+}
+
+
 // return true if end of animation
 bool cModel::Update(cRenderer &renderer, const float deltaSeconds)
 {

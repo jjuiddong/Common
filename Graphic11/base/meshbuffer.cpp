@@ -233,6 +233,37 @@ void cMeshBuffer::RenderInstancing(cRenderer &renderer
 		, faceStart
 		, m_offset
 		, 0);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
+}
+
+
+void cMeshBuffer::RenderTessellation(cRenderer &renderer, const int controlPointCount)
+{
+	m_vtxBuff.Bind(renderer);
+
+	D3D_PRIMITIVE_TOPOLOGY flag;
+	switch (controlPointCount)
+	{
+	case 1: flag = D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST; break;
+	case 2: flag = D3D11_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST; break;
+	case 3: flag = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST; break;
+	case 4: flag = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST; break;
+	default: assert(0); break;
+	}
+
+	renderer.GetDevContext()->IASetPrimitiveTopology(flag);
+	renderer.GetDevContext()->Draw(m_vtxBuff.GetVertexCount(), 0);
+
+	// debugging
+	++renderer.m_drawCallCount;
+#ifdef _DEBUG
+	++renderer.m_shadersDrawCall[m_vtxType];
+#endif
 }
 
 

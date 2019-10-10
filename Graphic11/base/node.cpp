@@ -130,6 +130,24 @@ bool cNode::RenderInstancing(cRenderer &renderer
 }
 
 
+bool cNode::RenderTessellation(cRenderer &renderer
+	, const int controlPointCount
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	RETV(!m_isEnable, false);
+	RETV(!IsVisible(), false);
+
+	const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
+
+	for (auto &node : m_children)
+		node->RenderTessellation(renderer, controlPointCount, tm, flags);
+
+	return true;
+}
+
+
 bool cNode::Update(cRenderer &renderer, const float deltaSeconds)
 {
 	RETV(!m_isEnable, false);

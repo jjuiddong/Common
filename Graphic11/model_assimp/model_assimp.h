@@ -29,6 +29,14 @@ namespace graphic
 			, const XMMATRIX *transforms
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);
+
+		bool RenderTessellation(cRenderer &renderer
+			, const char *techniqueName
+			, const int controlPointCount
+			, cSkeleton *skeleton
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1);
+
 		bool Update(const float deltaSeconds);
 		int GetVertexType();
 		void Clear();
@@ -43,6 +51,16 @@ namespace graphic
 			, const XMMATRIX &parentTm = XMIdentity
 			, const XMMATRIX &transformTm = XMIdentity
 			, const int flags = 1);
+
+		bool RenderNode_Tessellation(cRenderer &renderer
+			, const char *techniqueName
+			, const int controlPointCount
+			, cSkeleton *skeleton
+			, const sRawNode &node
+			, const XMMATRIX &parentTm = XMIdentity
+			, const XMMATRIX &transformTm = XMIdentity
+			, const int flags = 1);
+
 		bool HasAlphaBlend();
 
 

@@ -28,7 +28,9 @@ namespace graphic
 			, const bool isShadow=true
 		);
 
-		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
+		virtual bool Render(cRenderer &renderer
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1) override;
 
 		virtual bool RenderInstancing(cRenderer &renderer
 			, const int count
@@ -36,6 +38,11 @@ namespace graphic
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1
 			) override;
+
+		virtual bool RenderTessellation(cRenderer &renderer
+			, const int controlPointCount
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1) override;
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		void SetAnimation(const Str64 &animationName, const bool isMerge = false);
@@ -75,7 +82,7 @@ namespace graphic
 		float m_animationSpeed;
 
 		vector<int> m_meshInVisible; // mesh invisible index array, tricky code, need optimize
-		vector<std::pair<int, cMaterial>> m_meshMaterial; // mesh material arry, tricky code
+		vector<std::pair<int, cMaterial>> m_meshMaterial; // mesh material array, tricky code
 														// solution: modify assimp material
 														// pair: first=mesh index, second=material
 	};

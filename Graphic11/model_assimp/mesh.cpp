@@ -106,11 +106,28 @@ void cMesh::RenderInstancing(cRenderer &renderer
 }
 
 
-void cMesh::UpdateConstantBuffer(cRenderer &renderer
+void cMesh::RenderTessellation(cRenderer &renderer
 	, const char *techniqueName
+	, const int controlPointCount
 	, cSkeleton *skeleton
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const XMMATRIX &transform //= XMIdentity
+)
+{
+	RET(!IsVisible());
+	RET(!m_buffers);
+
+	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, transform, true);
+	m_buffers->RenderTessellation(renderer, controlPointCount);
+}
+
+
+void cMesh::UpdateConstantBuffer(cRenderer &renderer
+	, const char *techniqueName
+	, cSkeleton *skeleton
+	, const XMMATRIX &parentTm
+	, const XMMATRIX &transform
+	, const bool isTessellation //= false
 )
 {
 	cShader11 *shader = (m_shader)? m_shader : renderer.m_shaderMgr.FindShader(m_buffers->m_vtxType);
@@ -161,6 +178,9 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 
 	if (!m_bones.empty())
 		renderer.m_cbSkinning.Update(renderer, 5);
+
+	if (isTessellation)
+		renderer.m_cbTessellation.Update(renderer, 6);
 }
 
 

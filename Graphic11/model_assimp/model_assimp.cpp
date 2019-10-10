@@ -59,7 +59,8 @@ bool cAssimpModel::Render(cRenderer &renderer
 {
 	RETV(m_nodes.empty(), false);
 
-	RenderNode(renderer, techniqueName, skeleton, m_nodes[0], XMIdentity, parentTm, (eRenderFlag::NOALPHABLEND));
+	RenderNode(renderer, techniqueName, skeleton
+		, m_nodes[0], XMIdentity, parentTm, (eRenderFlag::NOALPHABLEND));
 
 	if (HasAlphaBlend())
 	{
@@ -67,7 +68,8 @@ bool cAssimpModel::Render(cRenderer &renderer
 		CommonStates state(renderer.GetDevice());
 		renderer.GetDevContext()->RSSetState(state.CullNone());
 
-		RenderNode(renderer, techniqueName, skeleton, m_nodes[0], XMIdentity, parentTm, eRenderFlag::ALPHABLEND);
+		RenderNode(renderer, techniqueName, skeleton
+			, m_nodes[0], XMIdentity, parentTm, eRenderFlag::ALPHABLEND);
 
 		renderer.GetDevContext()->RSSetState(state.CullCounterClockwise());
 	}
@@ -100,6 +102,34 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 }
 
 
+bool cAssimpModel::RenderTessellation(cRenderer &renderer
+	, const char *techniqueName
+	, const int controlPointCount
+	, cSkeleton *skeleton
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	RETV(m_nodes.empty(), false);
+
+	RenderNode_Tessellation(renderer, techniqueName, controlPointCount
+		, skeleton, m_nodes[0], XMIdentity, parentTm, (eRenderFlag::NOALPHABLEND));
+
+	if (HasAlphaBlend())
+	{
+		// 알파 블랜딩 메쉬는 컬링을 하지 않는다.
+		CommonStates state(renderer.GetDevice());
+		renderer.GetDevContext()->RSSetState(state.CullNone());
+
+		RenderNode_Tessellation(renderer, techniqueName, controlPointCount
+			, skeleton, m_nodes[0], XMIdentity, parentTm, eRenderFlag::ALPHABLEND);
+
+		renderer.GetDevContext()->RSSetState(state.CullCounterClockwise());
+	}
+	return true;
+}
+
+
 // Render From Node
 bool cAssimpModel::RenderNode(cRenderer &renderer
 	, const char *techniqueName
@@ -120,6 +150,34 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 	// Render Child Node
 	for (auto idx : node.children)
 		RenderNode(renderer, techniqueName, skeleton, m_nodes[idx], tm, transformTm, flags);
+
+	return true;
+}
+
+
+// Render From Node
+bool cAssimpModel::RenderNode_Tessellation(cRenderer &renderer
+	, const char *techniqueName
+	, const int controlPointCount
+	, cSkeleton *skeleton
+	, const sRawNode &node
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const XMMATRIX &transformTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	const XMMATRIX tm = node.localTm.GetMatrixXM() * parentTm;
+
+	// Render Meshes
+	for (auto idx : node.meshes)
+		if (m_meshes[idx]->m_renderFlags & flags)
+			m_meshes[idx]->RenderTessellation(renderer, techniqueName
+				, controlPointCount, skeleton, tm, transformTm);
+
+	// Render Child Node
+	for (auto idx : node.children)
+		RenderNode_Tessellation(renderer, techniqueName
+			, controlPointCount, skeleton, m_nodes[idx], tm, transformTm, flags);
 
 	return true;
 }

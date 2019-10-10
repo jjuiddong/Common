@@ -42,8 +42,6 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 		aiProcess_SplitLargeMeshes |			// split large, unrenderable meshes into sub-meshes
 		aiProcess_Triangulate |					// triangulate polygons with more than 3 edges
 		aiProcess_ConvertToLeftHanded |			// convert everything to D3D left handed space
-		//aiProcess_MakeLeftHanded |
-		//aiProcess_FlipUVs | 
 		aiProcess_SortByPType);					// make 'clean' meshes which consist of a single type of primitives
 
 	// If the import failed, report it

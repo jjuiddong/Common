@@ -62,13 +62,23 @@ namespace graphic
 		virtual ~cNode();
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds);
-		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
+		
+		virtual bool Render(cRenderer &renderer
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1);
+
 		virtual bool RenderInstancing(cRenderer &renderer
 			, const int count
 			, const XMMATRIX *transforms
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1
 		);
+
+		virtual bool RenderTessellation(cRenderer &renderer
+			, const int controlPointCount
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1);
+
 
 		virtual bool AddChild(cNode *node);
 		virtual cNode* FindNode(const int id);

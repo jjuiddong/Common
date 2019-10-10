@@ -31,6 +31,14 @@ namespace graphic {
 			, cSkeleton *skeleton
 			, const int count, const XMMATRIX &parentTm = XMIdentity);
 
+		void RenderTessellation(cRenderer &renderer
+			, const char *techniqueName
+			, const int controlPointCount
+			, cSkeleton *skeleton
+			, const XMMATRIX &parentTm = XMIdentity
+			, const XMMATRIX &transform = XMIdentity
+		);
+
 		inline bool IsVisible() const;
 		inline int SetRenderFlag(const eRenderFlag::Enum val, const bool enable);
 		inline bool IsRenderFlag(const eRenderFlag::Enum val);
@@ -40,8 +48,13 @@ namespace graphic {
 
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
-		void UpdateConstantBuffer(cRenderer &renderer, const char *techniqueName
-			, cSkeleton *skeleton, const XMMATRIX &parentTm, const XMMATRIX &transform);
+		void UpdateConstantBuffer(cRenderer &renderer
+			, const char *techniqueName
+			, cSkeleton *skeleton
+			, const XMMATRIX &parentTm
+			, const XMMATRIX &transform
+			, const bool isTessellation = false);
+
 		void CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh);
 		void CalculateTangentBinormal(
 			const graphic::sVertexNormTex &vertex1

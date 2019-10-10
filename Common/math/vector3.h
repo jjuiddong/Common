@@ -16,6 +16,7 @@ namespace common
 		Vector3(const Vector4 &rhs);
 
 		inline bool IsEmpty() const;
+		inline bool IsEqual(const Vector3 &rhs, const float epsilon) const;
 		float Length() const;
 		float Length2() const;
 		float LengthRoughly(const Vector3 &rhs) const;
@@ -115,5 +116,10 @@ namespace common
 	inline bool Vector3::IsEmpty() const
 	{
 		return (x == 0) && (y == 0) && (z == 0);
+	}
+
+	inline bool Vector3::IsEqual(const Vector3 &rhs, const float epsilon) const
+	{
+		return Distance(rhs) < epsilon;
 	}
 }
