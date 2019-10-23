@@ -1,6 +1,8 @@
 //
 // 2017-07-05, jjuiddong
 // Quad 2D
+//	- Simple 2d Rendering Quad class
+//	- Independent from Camera
 //
 // 2017-09-06
 //	- Upgrade DX11
@@ -23,14 +25,11 @@ namespace graphic
 		cQuad2D();
 		virtual ~cQuad2D();
 
-		bool Create(cRenderer &renderer
-			, const float x, const float y, const float width, const float height
-			, const char *textureFileName = NULL
-			, const Vector3 *quadVertices = NULL
-			, const Vector2 *quadUVs = NULL);
+		bool Create(cRenderer &renderer, const float x, const float y, const float width, const float height
+			, const int vtxType = (eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0)
+			, const char *textureFileName = NULL );
 
-		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity
-			, const int flags = 1) override;
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
 		void SetPosition(const float x, const float y
 			, const float width, const float height );
@@ -43,7 +42,9 @@ namespace graphic
 
 	public:
 		cQuadShape m_shape;
+		cColor m_color;
 		cTexture *m_texture; // reference
+		bool m_isDepthNone; // default true
 	};
 
 }

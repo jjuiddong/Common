@@ -27,6 +27,7 @@ namespace graphic
 	struct sCbInstancing
 	{
 		XMMATRIX worlds[256];
+		XMVECTOR diffuses[256];
 	};
 
 	struct cCbClipPlane
@@ -54,6 +55,7 @@ namespace graphic
 
 	class cTexture;
 	class cDepthBuffer;
+	class cRenderList;
 
 	class cRenderer : public iRenderer
 	{
@@ -75,9 +77,10 @@ namespace graphic
 		bool ResetDevice(const float width=0, const float height=0, const bool forceReset=false
 			, const bool resetResource=true);
 		void AddRenderAlphaAll(cNode *node, const XMMATRIX &parentTm = XMIdentity);
-		void AddRenderAlpha(cNode *node, const Matrix44 &tm=Matrix44::Identity, const int opt= 1);
-		void AddRenderAlpha(sAlphaBlendSpace *space, cNode *node, const Matrix44 &tm = Matrix44::Identity, const int opt = 1);
-		sAlphaBlendSpace* AddAlphaBlendSpace(const cBoundingBox &bbox);
+		void AddRenderAlpha(cNode *node, const int opt = 1);
+		void AddRenderAlpha(sAlphaBlendSpace *space, cNode *node, const int opt = 1);
+		sAlphaBlendSpace* PushAlphaBlendSpace(const cBoundingBox &bbox);
+		void PopAlphaBlendSpace();
 		sAlphaBlendSpace* GetCurrentAlphaBlendSpace();
 
 		bool ClearScene(const bool updateRenderTarget = true
@@ -89,6 +92,7 @@ namespace graphic
 		void SetRenderTargetDepth(ID3D11DepthStencilView *depthStencilView);
 		void ExecuteCommandList(ID3D11CommandList *cmdList);
 		void FinishCommandList();
+		void ReadConfig(const StrPath &fileName);
 
 		void BindTexture(cTexture *texture, const int stage);
 		void BindTexture(cRenderTarget &rt, const int stage);
@@ -122,13 +126,16 @@ namespace graphic
 
 		cViewport m_viewPort;
 
-		vector<sAlphaBlendSpace*> m_alphaSpace;
-		vector<sAlphaBlendSpace*> m_alphaSpaceBuffer;
+		vector<sAlphaBlendSpace*> m_renderAlphaSpace;
+		vector<sAlphaBlendSpace*> m_alphaSpaceStack; // stack
+		vector<sAlphaBlendSpace*> m_alphaSpaceBuffer; // buffer
+		uint m_alphaSpaceBufferCount;
 		cMaterial m_defaultMtrl;
 
 		cShaderManager m_shaderMgr;
 		cFontManager m_fontMgr;
 		cTextManager m_textMgr;
+		cRenderList *m_renderList;
 
 		enum {MAX_TEXTURE_STAGE=10, TEXTURE_OFFSET=4};
 		// Diffuse
@@ -154,7 +161,6 @@ namespace graphic
 		cText m_textFps;
 		float m_elapseTime;
 		int m_fps;
-		int m_calcFps;
 
 		// Debug Render
 		bool m_isDbgRender; // Debug Render

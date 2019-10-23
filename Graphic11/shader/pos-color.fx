@@ -3,7 +3,7 @@
 
 
 //--------------------------------------------------------------------------------------
-// Vertex Shader
+// Vertex Shader1
 //--------------------------------------------------------------------------------------
 VSOUT_POSDIFFUSE VS( float4 Pos : POSITION
 	, float4 Color : COLOR 
@@ -19,6 +19,27 @@ VSOUT_POSDIFFUSE VS( float4 Pos : POSITION
     output.Pos = mul( output.Pos, gProjection );
     output.Color = Color;
     return output;
+}
+
+
+//--------------------------------------------------------------------------------------
+// Vertex Shader2
+//--------------------------------------------------------------------------------------
+VSOUT_POSDIFFUSE VS2(float4 Pos : POSITION
+	, float4 Color : COLOR
+	, uint instID : SV_InstanceID
+	, uniform bool IsInstancing
+)
+{
+	VSOUT_POSDIFFUSE output = (VSOUT_POSDIFFUSE)0;
+	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
+	const float4 color = IsInstancing ? gDiffuseInst[instID] : Color;
+
+	output.Pos = mul(Pos, mWorld);
+	output.Pos = mul(output.Pos, gView);
+	output.Pos = mul(output.Pos, gProjection);
+	output.Color = color;
+	return output;
 }
 
 
@@ -163,6 +184,19 @@ technique11 Unlit_Instancing
 	pass P0
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+
+technique11 Unlit_Instancing2
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS2(Instancing)));
 		SetGeometryShader(NULL);
 		SetHullShader(NULL);
 		SetDomainShader(NULL);

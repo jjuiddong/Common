@@ -21,7 +21,7 @@ bool cBufferedSerial::ReadStringUntil(const char ch, OUT char *out
 {
 	if (m_q.full())
 	{
-		m_q.frontPop(out, maxSize);
+		m_q.pop(out, maxSize);
 		outLen = maxSize;
 		return true;
 	}
@@ -51,7 +51,7 @@ bool cBufferedSerial::ReadStringUntil(const char ch, OUT char *out
 	if (!isFind)
 		return false;
 
-	m_q.frontPop(out, i);
+	m_q.pop(out, i);
 	outLen = (int)i;
 	return true;
 }

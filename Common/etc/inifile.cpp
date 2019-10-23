@@ -7,8 +7,8 @@ using namespace common;
 using namespace uiutil;
 
 
-int uiutil::GetIniFileInt(const string &appName, const string &keyName, const int defaultValue
-	, const string &fileName)
+int uiutil::GetIniFileInt(const string &appName, const string &keyName
+	, const int defaultValue, const string &fileName)
 {
 	wchar_t buff[128];
 	const int ret = GetPrivateProfileStringW(
@@ -23,8 +23,8 @@ int uiutil::GetIniFileInt(const string &appName, const string &keyName, const in
 }
 
 
-float uiutil::GetIniFileFloat(const string &appName, const string &keyName, const float defaultValue
-	, const string &fileName)
+float uiutil::GetIniFileFloat(const string &appName, const string &keyName
+	, const float defaultValue, const string &fileName)
 {
 	wchar_t buff[128];
 	const int ret = GetPrivateProfileStringW(

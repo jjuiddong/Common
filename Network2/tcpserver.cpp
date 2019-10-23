@@ -42,6 +42,7 @@ bool cTcpServer::Init(const int bindPort
 {
 	Close();
 
+	m_ip = "localhost";
 	m_port = bindPort;
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
@@ -128,10 +129,10 @@ bool cTcpServer::AcceptProcess()
 	fd_set acceptSockets;
 	FD_ZERO(&acceptSockets);
 	FD_SET(m_socket, &acceptSockets);
-	const int ret1 = select(acceptSockets.fd_count, &acceptSockets, NULL, NULL, &t);
-	if (ret1 == 0)
+	const int ret = select(acceptSockets.fd_count, &acceptSockets, NULL, NULL, &t);
+	if (ret == 0)
 		return true; // nothing~
-	if (ret1 == SOCKET_ERROR)
+	if (ret == SOCKET_ERROR)
 		return true; // error occur
 
 	int sockLen = sizeof(sockaddr_in);
@@ -208,7 +209,6 @@ void cTcpServer::Close()
 
 	{
 		AutoCSLock cs(m_cs);
-
 		for (auto &session : m_sessions.m_seq)
 			SAFE_DELETE(session);
 		m_sessions.clear();
@@ -253,7 +253,6 @@ netid cTcpServer::GetNetIdFromSocket(const SOCKET sock)
 
 	{
 		common::AutoCSLock cs(m_cs);
-
 		auto it = m_sockets.find(sock);
 		if (it == m_sockets.end())
 			return INVALID_NETID;
@@ -363,6 +362,17 @@ cSession* cTcpServer::FindSessionByNetId(const netid netId)
 	if (m_sessions.end() == it)
 		return NULL; // not found session
 	return it->second;
+}
+
+
+cSession* cTcpServer::FindSessionByName(const StrId &name)
+{
+	common::AutoCSLock cs(m_cs);
+
+	for (auto &session : m_sessions.m_seq)
+		if (session->m_name == name)
+			return session;
+	return NULL; // not found session
 }
 
 

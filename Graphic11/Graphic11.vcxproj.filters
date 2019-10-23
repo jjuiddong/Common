@@ -365,6 +365,15 @@
     <ClInclude Include="dbg\dbglinestrip.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="base\circle2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\bezierline.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\renderlist.h">
+      <Filter>manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -694,6 +703,15 @@
     </ClCompile>
     <ClCompile Include="dbg\dbglinestrip.cpp">
       <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\circle2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\bezierline.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\renderlist.cpp">
+      <Filter>manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

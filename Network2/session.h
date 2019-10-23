@@ -41,7 +41,7 @@ namespace network2
 	};
 
 
-	// Listener Change Session
+	// Change Session State Listener
 	class iSessionListener
 	{
 	public:

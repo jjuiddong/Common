@@ -9,7 +9,7 @@ namespace common
 {
 
 	template<class T>
-	class cCircularQueue2
+	struct cCircularQueue2
 	{
 	public:
 		cCircularQueue2(const int maxSize);
@@ -17,11 +17,11 @@ namespace common
 
 		void push(const T &t);
 		uint push(const T *t, const uint size);
-		void pop();
-		void pop(const uint size);
+		bool pop();
+		bool pop(const uint size);
+		bool pop(T *dst, const uint size);
 		T& front();
-		bool frontPop(T *dst, const uint size);
-		bool front(T *dst, const uint size);
+		bool frontCopy(T *dst, const uint size);
 		T* frontPtr();
 		T& back();
 		T* backPtr();
@@ -90,10 +90,12 @@ namespace common
 			totalCpSize += remainCpSize;
 
 			m_rear = remainCpSize;
+			m_rear %= SIZE;
 		}
 		else
 		{
 			m_rear += cpSize;
+			m_rear %= SIZE;
 		}
 
 		return totalCpSize;
@@ -101,38 +103,85 @@ namespace common
 
 
 	template<class T>
-	void cCircularQueue2<T>::pop()
+	bool cCircularQueue2<T>::pop()
 	{
 		if (empty())
-			return;
+			return false;
 		m_front = (m_front + 1) % SIZE;
+		return true;
 	}
 
 
 	template<class T>
-	void cCircularQueue2<T>::pop(const uint size0)
+	bool cCircularQueue2<T>::pop(const uint size0)
 	{
 		if (empty())
-			return;
+			return false;
 		const uint curSize = size();
 		if (curSize < size0)
-			return;
+			return false;
 
-		const int popSize = min(SIZE, (int)size0);
-		const uint maxSize = (m_rear > m_front) ? (m_rear - m_front) : (SIZE - m_front);
-		const uint rmSize = min(popSize, maxSize);
-
-		if ((rmSize < popSize) && (m_front > m_rear))
+		if (m_front < m_rear)
 		{
-			// pop remain data
-			const uint remainSize = max(0, m_rear);
-			const uint remainRmSize = min(remainSize, popSize - rmSize);
-			m_front = remainRmSize;
+			const uint popSize = min(curSize, size0);
+			m_front += popSize;
+			m_front %= SIZE;
+			return popSize == size0;
 		}
 		else
 		{
-			m_front += rmSize;
+			const uint popSize = min((uint)(SIZE - m_front), size0);
+			m_front += popSize;
+			m_front %= SIZE;
+
+			if (popSize < size0)
+			{
+				const uint popRemainSize = min((uint)m_rear, size0 - popSize);
+				m_front = popRemainSize;
+				m_front %= SIZE;
+				return size0 == (popSize + popRemainSize);
+			}
 		}
+		return true;
+	}
+
+
+	// copy front size0, pop size0
+	template<class T>
+	bool cCircularQueue2<T>::pop(T *dst, const uint size0)
+	{
+		if (empty())
+			return false;
+		const uint curSize = size();
+		if (curSize < size0)
+			return false;
+
+		if (m_front < m_rear)
+		{
+			const uint popSize = min(curSize, size0);
+			memcpy(dst, &m_datas[m_front], popSize);
+			m_front += popSize;
+			m_front %= SIZE;
+			return popSize == size0;
+		}
+		else
+		{
+			const uint popSize = min((uint)(SIZE - m_front), size0);
+			memcpy(dst, &m_datas[m_front], popSize);
+			m_front += popSize;
+			m_front %= SIZE;
+
+			if (popSize < size0)
+			{
+				const uint popRemainSize = min((uint)m_rear, size0 - popSize);
+				memcpy(dst + popSize, &m_datas[0], popRemainSize);
+				m_front = popRemainSize;
+				m_front %= SIZE;
+				return size0 == (popSize + popRemainSize);
+			}
+		}
+
+		return true;
 	}
 
 
@@ -143,8 +192,9 @@ namespace common
 	}
 
 
+	// copy front, size0, no remove
 	template<class T>
-	bool cCircularQueue2<T>::front(T *dst, const uint size0)
+	bool cCircularQueue2<T>::frontCopy(T *dst, const uint size0)
 	{
 		if (empty())
 			return false;
@@ -167,41 +217,6 @@ namespace common
 			{
 				const uint cpRemainSize = min((uint)m_rear, size0 - cpSize);
 				memcpy(dst + cpSize, &m_datas[0], cpRemainSize);
-				return size0 == (cpSize + cpRemainSize);
-			}
-		}
-
-		return true;
-	}
-
-
-	template<class T>
-	bool cCircularQueue2<T>::frontPop(T *dst, const uint size0)
-	{
-		if (empty())
-			return false;
-		const uint curSize = size();
-		if (curSize < size0)
-			return false;
-
-		if (m_front < m_rear)
-		{
-			const uint cpSize = min(curSize, size0);
-			memcpy(dst, &m_datas[m_front], cpSize);
-			m_front += cpSize;
-			return cpSize == size0;
-		}
-		else
-		{
-			const uint cpSize = min((uint)(SIZE - m_front), size0);
-			memcpy(dst, &m_datas[m_front], cpSize);
-			m_front += cpSize;
-
-			if (cpSize < size0)
-			{
-				const uint cpRemainSize = min((uint)m_rear, size0 - cpSize);
-				memcpy(dst + cpSize, &m_datas[0], cpRemainSize);
-				m_front = cpRemainSize;
 				return size0 == (cpSize + cpRemainSize);
 			}
 		}

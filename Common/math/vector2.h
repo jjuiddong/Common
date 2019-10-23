@@ -10,6 +10,7 @@ namespace common
 		Vector2() {}
 		Vector2(float x0, float y0) : x(x0), y(y0) {}
 
+		inline bool IsEmpty() const;
 		float Length() const;
 		Vector2 Normal() const;
 		float Distance(const Vector2 &rhs) const;
@@ -53,4 +54,9 @@ namespace common
 
 	};
 
+
+	inline bool Vector2::IsEmpty() const
+	{
+		return (x == 0) && (y == 0);
+	}
 }

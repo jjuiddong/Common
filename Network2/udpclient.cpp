@@ -141,11 +141,8 @@ int cUdpClient::ThreadFunction(cUdpClient *udp)
 			std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 			continue;
 		}
-
 		udp->Process();
-
 		std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 	}
-
 	return 0;
 }

@@ -9,9 +9,10 @@ cPacketQueue::cPacketQueue(cNetworkNode *node
 	, const bool isPacketLog //= false
 )
 	: m_isPacketLog(isPacketLog)
-	, m_isLogIgnorePacket(false)
+	, m_isLogIgnorePacket(true)
 	, m_netNode(node)
 	, m_nextFrontIdx(0)
+	, m_sockBufferSize(0)
 {
 	InitializeCriticalSectionAndSpinCount(&m_cs, 0x00000400);
 }
@@ -28,15 +29,14 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 {
 	Clear();
 
+	m_sockBufferSize = packetSize * maxPacketCount;
 	return true;
 }
 
 
 // 패킷을 큐에 저장한다.
 // data는 정확히 패킷 크기만큼의 정보를 가져야한다.
-// 쪼개진 패킷을 합치는 코드는 없다.
-// 네트워크로 부터 받아서 저장하는게 아니라, 사용자가 직접 패킷을 큐에 넣을 때
-// 사용하는 함수다.
+// 네트워크로부터 받아서 저장하는게 아니라, 사용자가 직접 패킷을 큐에 넣을 때, 사용하는 함수.
 // return true : 성공
 //		  false : 실패
 bool cPacketQueue::Push(const netid rcvId, const cPacket &packet)
@@ -47,7 +47,7 @@ bool cPacketQueue::Push(const netid rcvId, const cPacket &packet)
 	auto it = m_sockBuffers.find(rcvId);
 	if (m_sockBuffers.end() == it)
 	{
-		sockBuff = new cSocketBuffer(rcvId);
+		sockBuff = new cSocketBuffer(rcvId, m_sockBufferSize);
 		m_sockBuffers.insert({ rcvId, sockBuff });
 	}
 	else
@@ -59,15 +59,15 @@ bool cPacketQueue::Push(const netid rcvId, const cPacket &packet)
 	if (0 == addLen)
 	{
 		if (m_isLogIgnorePacket)
-			common::dbg::ErrLog("packetqueue push Alloc error!! \n");
+			common::dbg::ErrLog("packetqueue Push alloc error!! \n");
 	}
 	return 0 != addLen;
 }
 
 
-// 네트워크로 부터 온 패킷일 경우,
-// 여러개로 나눠진 패킷을 처리할 때도 호출할 수 있다.
-// *data가 두개 이상의 패킷을 포함할 때도, 이를 처리한다.
+// 네트워크로부터 온 패킷일 경우 사용.
+// 여러개로 나눠진 패킷을 처리할 때 사용.
+// *data가 두개 이상의 패킷을 포함할 때도 사용 가능.
 // senderId : 패킷을 송신한 유저의 network id
 // return true : 성공
 //		  false : 실패
@@ -79,7 +79,7 @@ bool cPacketQueue::PushFromNetwork(const netid senderId, const BYTE *data, const
 	auto it = m_sockBuffers.find(senderId);
 	if (m_sockBuffers.end() == it)
 	{
-		sockBuff = new cSocketBuffer(senderId);
+		sockBuff = new cSocketBuffer(senderId, m_sockBufferSize);
 		m_sockBuffers.insert({ senderId, sockBuff });
 	}
 	else
@@ -91,7 +91,7 @@ bool cPacketQueue::PushFromNetwork(const netid senderId, const BYTE *data, const
 	if (0 == addLen)
 	{
 		if (m_isLogIgnorePacket)
-			common::dbg::ErrLog("packetqueue PushFromNetwork Alloc error!! \n");
+			common::dbg::ErrLog("packetqueue PushFromNetwork alloc error!! \n");
 	}
 
 	return true;
@@ -128,6 +128,7 @@ void cPacketQueue::SendAll(
 
 	cAutoCS cs(m_cs);
 
+	bool isSendError = false;
 	for (u_int i = 0; i < m_sockBuffers.m_seq.size(); ++i)
 	{
 		cSocketBuffer *sockBuffer = m_sockBuffers.m_seq[i];
@@ -149,12 +150,19 @@ void cPacketQueue::SendAll(
 		while (1)
 		{
 			cPacket packet(m_netNode->GetPacketHeader());
-			if (!sockBuffer->Pop(packet))
+			if (!sockBuffer->PopNoRemove(packet))
 				break;
 
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
-				SendBroadcast(socks, packet, outErrSocks);
+				const bool result = SendBroadcast(socks, packet, outErrSocks);
+				if (!result)
+				{
+					// error!!, no remove buffer, resend
+					dbg::Logc(2, "Error Send Packet\n");
+					isSendError = true;
+					break;
+				}
 
 				// write packet log
 				if (m_isPacketLog)
@@ -166,6 +174,13 @@ void cPacketQueue::SendAll(
 				if (INVALID_SOCKET != sock)
 				{
 					result = send(sock, (const char*)packet.m_data, packet.GetPacketSize(), 0);
+					if (result != packet.GetPacketSize())
+					{
+						// error!!, no remove buffer, resend
+						dbg::Logc(2, "Error Send Packet\n");
+						isSendError = true;
+						break;
+					}
 
 					// write packet log
 					if (m_isPacketLog && (result != SOCKET_ERROR))
@@ -173,11 +188,22 @@ void cPacketQueue::SendAll(
 				}
 
 				if (outErrSocks && (result == SOCKET_ERROR))
+				{
+					// error!!, close socket
 					outErrSocks->insert(sockBuffer->m_netId);
-			}
+				}
+			} //~else ALL_NETID
+
+			sockBuffer->Pop(packet.m_writeIdx);
 
 		} // ~while
 	} // ~for
+
+	if (isSendError)
+	{
+		// send 에러가 발생하면, 딜레이를 줘서 다른 쓰레드로 스위칭할 수 있게한다.
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
 }
 
 
@@ -213,7 +239,7 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 
 // exceptOwner 가 true 일때, 패킷을 보낸 클라이언트를 제외한 나머지 클라이언트들에게 모두
 // 패킷을 보낸다.
-void cPacketQueue::SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner)
+bool cPacketQueue::SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner)
 {
 	cAutoCS cs(m_cs);
 
@@ -236,14 +262,18 @@ void cPacketQueue::SendBroadcast(const vector<cSession*> &sessions, const bool e
 			}
 		}
 	}
+
+	return true;
 }
 
 
-void cPacketQueue::SendBroadcast(const map<netid, SOCKET> &socks
+// return false if send error
+bool cPacketQueue::SendBroadcast(const map<netid, SOCKET> &socks
 	, const cPacket &packet
 	, OUT set<netid> *outErrSocks //= NULL
 )
 {
+	bool isSendError = false;
 	for (auto &kv : socks)
 	{
 		if (kv.first == SERVER_NETID)
@@ -253,8 +283,12 @@ void cPacketQueue::SendBroadcast(const map<netid, SOCKET> &socks
 		const int result = send(sock, (const char*)packet.m_data, packet.GetPacketSize(), 0);
 
 		if (outErrSocks && (result == SOCKET_ERROR))
+		{
+			isSendError = true;
 			outErrSocks->insert(kv.first);
+		}
 	}
+	return !isSendError;
 }
 
 

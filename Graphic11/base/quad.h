@@ -20,13 +20,15 @@ namespace graphic
 		cQuad();
 		cQuad(cRenderer &renderer, const float width, const float height, const Vector3 &pos
 			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE0)
-			, const StrPath &textureFileName = "");
+			, const StrPath &textureFileName = ""
+			, const cQuadShape::ePlaneType planeType = cQuadShape::ePlaneType::XY);
 		virtual ~cQuad();
 
 		bool Create(cRenderer &renderer, const float width, const float height, const Vector3 &pos
 			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE0)
 			, const StrPath &textureFileName = ""
-			, const bool isDynamic = false );
+			, const bool isDynamic = false
+			, const cQuadShape::ePlaneType planeType = cQuadShape::ePlaneType::XY);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
@@ -35,6 +37,7 @@ namespace graphic
 
 	public:
 		cQuadShape m_shape;
+		cColor m_color;
 		cTexture *m_texture; // reference
 	};
 

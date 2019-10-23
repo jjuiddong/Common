@@ -6,7 +6,7 @@ Date:    9/24/2013
 	랜덤 액세스 때는 Vector을 이용하고, 전체를 탐색할 때는
 	Set 를 이용한다.
 
-	 VectorType 의 Type은 유니크한 데이터여야 한다. 같은 Type이
+	VectorType 의 Type은 유니크한 데이터여야 한다. 같은 Type이
 	있는 경우 Vector에서 제대로 제거하지 못하게 된다.
 */
 #pragma once

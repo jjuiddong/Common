@@ -79,14 +79,14 @@ void cMesh::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
 void cMesh::Render( cRenderer &renderer
 	, const char *techniqueName
 	, cSkeleton *skeleton
-	, const XMMATRIX &parentTm // = XMIdentity
-	, const XMMATRIX &transform //= XMIdentity
+	, const XMMATRIX &nodeParentTm // = XMIdentity
+	, const XMMATRIX &parentTm //= XMIdentity
 )
 {
 	RET(!IsVisible());
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, transform);
+	UpdateConstantBuffer(renderer, techniqueName, skeleton, nodeParentTm, parentTm);
 	m_buffers->Render(renderer);
 }
 
@@ -95,13 +95,23 @@ void cMesh::RenderInstancing(cRenderer &renderer
 	, const char *techniqueName
 	, cSkeleton *skeleton
 	, const int count
+	, const Matrix44 *transforms
+	, const XMMATRIX &nodeParentTm //= XMIdentity
 	, const XMMATRIX &parentTm //= XMIdentity
 )
 {
 	RET(!IsVisible());
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, XMIdentity);
+	for (int i = 0; i < count; ++i)
+	{
+		const XMMATRIX &localTm = m_transform.GetMatrixXM();
+		const XMMATRIX transformTm = transforms[i].GetMatrixXM();
+		renderer.m_cbInstancing.m_v->worlds[i] 
+			= XMMatrixTranspose(localTm * nodeParentTm * transformTm * parentTm);
+	}
+
+	UpdateConstantBuffer(renderer, techniqueName, skeleton, XMIdentity, XMIdentity, true);
 	m_buffers->RenderInstancing(renderer, count);
 }
 
@@ -117,7 +127,7 @@ void cMesh::RenderTessellation(cRenderer &renderer
 	RET(!IsVisible());
 	RET(!m_buffers);
 
-	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, transform, true);
+	UpdateConstantBuffer(renderer, techniqueName, skeleton, parentTm, transform, false, true);
 	m_buffers->RenderTessellation(renderer, controlPointCount);
 }
 
@@ -125,8 +135,9 @@ void cMesh::RenderTessellation(cRenderer &renderer
 void cMesh::UpdateConstantBuffer(cRenderer &renderer
 	, const char *techniqueName
 	, cSkeleton *skeleton
-	, const XMMATRIX &parentTm
-	, const XMMATRIX &transform
+	, const XMMATRIX &nodeParentTm //= XMIdentity
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const bool isInstancing //= false
 	, const bool isTessellation //= false
 )
 {
@@ -142,14 +153,17 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 
 	renderer.m_cbClipPlane.Update(renderer, 4);
 
-	const XMMATRIX nodeGlobalTm = m_transform.GetMatrixXM() * parentTm;
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(nodeGlobalTm * transform);
+	const XMMATRIX nodeGlobalTm = m_transform.GetMatrixXM() * nodeParentTm;
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(nodeGlobalTm * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 
 	renderer.m_cbLight.Update(renderer, 1);
 	if (!m_mtrls.empty())
 		renderer.m_cbMaterial = m_mtrls[0].GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
+
+	if (isInstancing)
+		renderer.m_cbInstancing.Update(renderer, 3);
 
 	if (!m_colorMap.empty())
 		if (m_colorMap[0])

@@ -688,6 +688,12 @@ Matrix44 cCamera::GetZoomMatrix() const
 }
 
 
+float cCamera::GetZoom() const
+{
+	return 1.f;
+}
+
+
 // Right 축으로 회전한다.
 void cCamera::Pitch(const float radian)
 {

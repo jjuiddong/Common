@@ -30,13 +30,14 @@ cRenderer::cRenderer()
 	, m_refRTV(NULL)
 	, m_refDSV(NULL)
 	, m_fps(0)
-	, m_calcFps(0)
 	, m_isDbgRender(false)
 	, m_dbgRenderStyle(0)
 	, m_textGenerateCount(0)
 	, m_textCacheCount(0)
 	, m_drawCallCount(0)
 	, m_preDrawCallCount(0)
+	, m_renderList(NULL)
+	, m_alphaSpaceBufferCount(0)
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }
@@ -45,9 +46,11 @@ cRenderer::~cRenderer()
 {
 	m_textMgr.Clear();
 
-	for (auto &p : m_alphaSpace)
-		delete p;
-	m_alphaSpace.clear();
+	SAFE_DELETE(m_renderList);
+
+	//for (auto &p : m_alphaSpace)
+	//	delete p;
+	//m_alphaSpace.clear();
 
 	for (auto &p : m_alphaSpaceBuffer)
 		delete p;
@@ -139,11 +142,14 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	//m_textMgr.Create(256);
 	m_textMgr.Create(512, 512);
 
+	m_renderList = new cRenderList();
+
 	//---------------------------------------------------------
 	// Initialize Shader
 	const StrPath mediaDir = cResourceManager::Get()->GetMediaDirectory();
 	m_shaderMgr.LoadShader(*this, mediaDir + "shader11/pos.fxo", eVertexType::POSITION);
 	m_shaderMgr.LoadShader(*this, mediaDir + "shader11/pos-color.fxo", eVertexType::POSITION | eVertexType::COLOR);
+	m_shaderMgr.LoadShader(*this, mediaDir + "shader11/pos_rhw.fxo", eVertexType::POSITION_RHW);
 	m_shaderMgr.LoadShader(*this, mediaDir + "shader11/pos_rhw-color.fxo", eVertexType::POSITION_RHW | eVertexType::COLOR);
 	m_shaderMgr.LoadShader(*this, mediaDir + "shader11/pos-tex.fxo", eVertexType::POSITION | eVertexType::TEXTURE0);
 	m_shaderMgr.LoadShader(*this, mediaDir + "shader11/pos-norm.fxo", eVertexType::POSITION | eVertexType::NORMAL);
@@ -222,13 +228,12 @@ void cRenderer::RenderGrid()
 void cRenderer::Update(const float elapseT)
 {
 	// fps 계산 ---------------------------------------
-	++m_calcFps;
+	++m_fps;
 	m_elapseTime += elapseT;
 	if( 1.f <= m_elapseTime )
 	{
-		m_textFps.SetText(formatw("fps: %d", m_calcFps).c_str());
-		m_fps = m_calcFps;
-		m_calcFps = 0;
+		m_textFps.SetText(formatw("fps: %d", m_fps).c_str());
+		m_fps = 0;
 		m_elapseTime = 0;
 	}
 	//--------------------------------------------------
@@ -262,7 +267,7 @@ bool cRenderer::ClearScene(
 
 void cRenderer::BeginScene()
 {
-	AddAlphaBlendSpace(cBoundingBox());
+	PushAlphaBlendSpace(cBoundingBox());
 }
 
 
@@ -282,6 +287,15 @@ void cRenderer::FinishCommandList()
 {
 	SAFE_RELEASE(m_cmdList);
 	m_devContext->FinishCommandList(false, &m_cmdList);
+}
+
+
+// read config file to debugging renderer
+void cRenderer::ReadConfig(const StrPath &fileName)
+{
+	cConfig config(fileName.c_str());
+	m_isDbgRender = config.GetBool("dbgrender", false);
+	m_dbgRenderStyle = config.GetInt("dbgrender-style", 0);
 }
 
 
@@ -306,6 +320,9 @@ void cRenderer::SetRenderTargetDepth(ID3D11DepthStencilView *depthStencilView)
 
 void cRenderer::EndScene()
 {
+	if (m_renderList)
+		m_renderList->Render(*this);
+
 	// Text Render
 	m_textMgr.Render(*this);
 
@@ -314,7 +331,7 @@ void cRenderer::EndScene()
 
 	// AlphaBlending Render, Sorting Camera Position
 	// Descent Distance from Camera
-	for (auto &space : m_alphaSpace)
+	for (auto &space : m_renderAlphaSpace)
 	{
 		std::sort(space->renders.begin(), space->renders.end(),
 			[&](const sRenderObj &a, const sRenderObj &b)
@@ -332,8 +349,11 @@ void cRenderer::EndScene()
 					return false;
 				}
 
-				const Vector3 c1 = a.p->m_transform.pos * a.tm;
-				const Vector3 c2 = b.p->m_transform.pos * b.tm;
+				const Matrix44 parentTm = space->parentTm;
+				//const Vector3 c1 = a.p->m_transform.pos * a.tm;
+				//const Vector3 c2 = b.p->m_transform.pos * b.tm;
+				const Vector3 c1 = a.p->m_transform.pos * parentTm;
+				const Vector3 c2 = b.p->m_transform.pos * parentTm;
 				const Plane plane1(a.p->m_alphaNormal, c1);
 				const Plane plane2(b.p->m_alphaNormal, c2);
 				const Vector3 dir1 = (c1 - ray.orig).Normal();
@@ -355,7 +375,7 @@ void cRenderer::EndScene()
 	}
 
 	// Sorting AlphaBlending Space
-	std::sort(m_alphaSpace.begin(), m_alphaSpace.end(),
+	std::sort(m_renderAlphaSpace.begin(), m_renderAlphaSpace.end(),
 		[&](const sAlphaBlendSpace *a, const sAlphaBlendSpace *b)
 		{
 			const Vector3 c1 = a->bbox.Center();
@@ -375,23 +395,26 @@ void cRenderer::EndScene()
 		}
 	);
 
-	for (auto &p : m_alphaSpace)
+	for (auto &p : m_renderAlphaSpace)
+	{
+		const XMMATRIX parentTm = p->parentTm.GetMatrixXM();
 		for (auto &data : p->renders)
 			if (!data.p->IsRenderFlag(eRenderFlag::NODEPTH))
-				data.p->Render(*this, data.tm.GetMatrixXM(), data.p->m_renderFlags);
+				data.p->Render(*this, parentTm, data.p->m_renderFlags);
+	}
 
 	// NoDepth 옵션을 가장 나중에 출력한다.
-	for (auto &p : m_alphaSpace)
+	for (auto &p : m_renderAlphaSpace)
+	{
+		const XMMATRIX parentTm = p->parentTm.GetMatrixXM();
 		for (auto &data : p->renders)
 			if (data.p->IsRenderFlag(eRenderFlag::NODEPTH))
-				data.p->Render(*this, data.tm.GetMatrixXM(), data.p->m_renderFlags);
-
-	for (auto &p : m_alphaSpace)
-	{
-		p->renders.clear();
-		m_alphaSpaceBuffer.push_back(p);
+				data.p->Render(*this, parentTm, data.p->m_renderFlags);
 	}
-	m_alphaSpace.clear();
+
+	m_alphaSpaceBufferCount = 0;
+	m_renderAlphaSpace.clear();
+	m_alphaSpaceStack.clear();
 
 	m_textGenerateCount = m_textMgr.m_generateCount;
 	m_textCacheCount = m_textMgr.m_cacheCount;
@@ -532,8 +555,11 @@ void cRenderer::AddRenderAlphaAll(cNode *node
 
 	if (node->IsRenderFlag(eRenderFlag::ALPHABLEND))
 	{
-		Matrix44 tm = parentTm;
-		AddRenderAlpha(node, tm);
+		if (m_alphaSpaceStack.empty())
+			return;
+
+		m_alphaSpaceStack.back()->parentTm = parentTm;
+		AddRenderAlpha(node);
 	}
 
 	for (auto &p : node->m_children)
@@ -542,48 +568,60 @@ void cRenderer::AddRenderAlphaAll(cNode *node
 
 
 void cRenderer::AddRenderAlpha(cNode *node
-	, const Matrix44 &tm // = Matrix44::Identity
 	, const int opt // = 1
 )
 {
-	assert(!m_alphaSpace.empty());
-	m_alphaSpace.back()->renders.push_back({ opt, tm, node });
+	assert(!m_alphaSpaceStack.empty());
+	m_alphaSpaceStack.back()->renders.push_back({ opt, node });
 }
 
 
 void cRenderer::AddRenderAlpha(sAlphaBlendSpace *space
 	, cNode *node
-	, const Matrix44 &tm // = Matrix44::Identity
 	, const int opt // = 1
 )
 {
-	space->renders.push_back({ opt, tm, node });
+	space->renders.push_back({ opt, node });
 }
 
 
-sAlphaBlendSpace* cRenderer::AddAlphaBlendSpace(const cBoundingBox &bbox)
+sAlphaBlendSpace* cRenderer::PushAlphaBlendSpace(const cBoundingBox &bbox)
 {
-	if (m_alphaSpaceBuffer.empty())
+	if (m_alphaSpaceBufferCount >= m_alphaSpaceBuffer.size())
 	{
 		sAlphaBlendSpace *pNew = new sAlphaBlendSpace;
 		pNew->renders.reserve(256);	
 		m_alphaSpaceBuffer.push_back(pNew);
 	}
 
-	sAlphaBlendSpace *p = m_alphaSpaceBuffer.back();
+	sAlphaBlendSpace *p = m_alphaSpaceBuffer[m_alphaSpaceBufferCount++];
 	p->renders.clear();
-	m_alphaSpaceBuffer.pop_back();
-
 	p->bbox = bbox;
-	m_alphaSpace.push_back(p);
+
+	m_alphaSpaceStack.push_back(p);
+	
+	// check same alpha space
+	if (m_renderAlphaSpace.end() == std::find(
+		m_renderAlphaSpace.begin(), m_renderAlphaSpace.end(), p))
+	{
+		m_renderAlphaSpace.push_back(p);
+	}
+
 	return p;
+}
+
+
+void cRenderer::PopAlphaBlendSpace()
+{
+	assert(!m_alphaSpaceStack.empty());
+	return m_alphaSpaceStack.pop_back();
 }
 
 
 sAlphaBlendSpace* cRenderer::GetCurrentAlphaBlendSpace()
 {
-	assert(!m_alphaSpace.empty());
-	return m_alphaSpace.back();
+	assert(!m_alphaSpaceStack.empty());
+	return m_alphaSpaceStack.back();
 }
 
 

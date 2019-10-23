@@ -74,6 +74,44 @@ bool cLine::Render(cRenderer &renderer
 }
 
 
+bool cLine::RenderInstancing(cRenderer &renderer
+	, const int count
+	, const Matrix44 *transforms
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	const Str32 technique = m_techniqueName + "_Instancing";
+	shader->SetTechnique(technique.c_str());
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	for (int i = 0; i < count; ++i)
+	{
+		const XMMATRIX tm = transforms[i].GetMatrixXM();
+		renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm * transform);
+	}
+
+	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbInstancing.Update(renderer, 3);
+
+	const Vector4 color = m_color.GetColor();
+	Vector4 ambient = m_color.GetColor();
+	Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, ambient.w);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, diffuse.w);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
+	m_shape.RenderInstancing(renderer, count);
+
+	return __super::RenderInstancing(renderer, count, transforms, parentTm, flags);
+}
+
+
 void cLine::SetLine(const Vector3 &p0, const Vector3 &p1, const float width)
 {
 	Vector3 v = p1 - p0;

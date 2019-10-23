@@ -187,6 +187,9 @@
     <ClInclude Include="etc\enumser.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="container\circularqueue2.h">
+      <Filter>container</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

@@ -34,7 +34,6 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 		return false;
 	}
 
-	// socket(주소 계열, 소켓 형태, 프로토콜)
 	SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (clientSocket == INVALID_SOCKET)
 	{
@@ -67,6 +66,49 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 		}
 	}
 
+	// Receive, Send Buffer
+	if (1)
+	{
+		// https://notes.shichao.io/unp/ch7/
+		// https://m.blog.naver.com/PostView.nhn?blogId=bringmelove1&logNo=119147326&proxyReferer=https%3A%2F%2Fwww.google.com%2F
+
+		int optval;
+		int optlen = sizeof(optval);
+		if (getsockopt(clientSocket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_RCVBUF) failed\n");
+			closesocket(clientSocket);
+			return false;
+		}
+
+		optval = optval * 2;
+		if (setsockopt(clientSocket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval)) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_SNDBUF) failed\n");
+			closesocket(clientSocket);
+			return false;
+		}
+
+		if (getsockopt(clientSocket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_RCVBUF) failed\n");
+			closesocket(clientSocket);
+			return false;
+		}
+
+		optval = optval * 2;
+		if (setsockopt(clientSocket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval)) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_RCVBUF) failed\n");
+			closesocket(clientSocket);
+			return false;
+		}
+	}
+
 	// Client Side Port Setting
 	// https://stackoverflow.com/questions/18050065/specifying-port-number-on-client-side
 	if (clientSidePort > 0)
@@ -90,7 +132,6 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 	saServer.sin_addr = *((LPIN_ADDR)*lpHostEntry->h_addr_list); // 서버 주소
 	saServer.sin_port = htons(port);
 
-	// connect(소켓, 서버 주소, 서버 주소의 길이
 	nRet = connect(clientSocket, (LPSOCKADDR)&saServer, sizeof(struct sockaddr) );
 	if (nRet == SOCKET_ERROR)
 	{
@@ -121,7 +162,6 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	// socket(주소계열, 소켓 형식, 프로토콜)
 	SOCKET svrSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(svrSocket == INVALID_SOCKET)
 	{
@@ -143,12 +183,55 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 		}
 	}
 
+	// Receive, Send Buffer
+	if (1)
+	{
+		// https://notes.shichao.io/unp/ch7/
+		// https://m.blog.naver.com/PostView.nhn?blogId=bringmelove1&logNo=119147326&proxyReferer=https%3A%2F%2Fwww.google.com%2F
+
+		int optval;
+		int optlen = sizeof(optval);
+		if (getsockopt(svrSocket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, &optlen) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_RCVBUF) failed\n");
+			closesocket(svrSocket);
+			return false;
+		}
+
+		optval = optval * 2;
+		if (setsockopt(svrSocket, SOL_SOCKET, SO_SNDBUF, (char*)&optval, sizeof(optval)) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_SNDBUF) failed\n");
+			closesocket(svrSocket);
+			return false;
+		}
+
+		if (getsockopt(svrSocket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, &optlen) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_RCVBUF) failed\n");
+			closesocket(svrSocket);
+			return false;
+		}
+
+		optval = optval * 2;
+		if (setsockopt(svrSocket, SOL_SOCKET, SO_RCVBUF, (char*)&optval, sizeof(optval)) < 0)
+		{
+			if (isLog)
+				dbg::Logc(2, "setsockopt(SO_RCVBUF) failed\n");
+			closesocket(svrSocket);
+			return false;
+		}
+	}
+
+
 	SOCKADDR_IN saServer;
 	saServer.sin_family = AF_INET;
 	saServer.sin_addr.s_addr = INADDR_ANY;
 	saServer.sin_port = htons(port);
 
-	// bind(소켓, 서버 주소, 주소 구조체의 길이
 	nRet = bind(svrSocket, (LPSOCKADDR)&saServer, sizeof(struct sockaddr) );
 	if (nRet == SOCKET_ERROR)
 	{
@@ -198,7 +281,6 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	// socket(주소계열, 소켓 형식, 프로토콜)
 	SOCKET svrSocket = socket(AF_INET, SOCK_DGRAM, 0);
 	if (svrSocket == INVALID_SOCKET)
 	{
@@ -212,7 +294,6 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 	saServer.sin_addr.s_addr = INADDR_ANY;
 	saServer.sin_port = htons(port);
 
-	// bind(소켓, 서버 주소, 주소 구조체의 길이)
 	nRet = bind(svrSocket, (LPSOCKADDR)&saServer, sizeof(struct sockaddr));
 	if (nRet == SOCKET_ERROR)
 	{
@@ -261,7 +342,6 @@ bool network2::LaunchUDPClient(const std::string &ip, const int port
 		return false;
 	}
 
-	// socket(주소 계열, 소켓 형태, 프로토콜)
 	SOCKET clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
 	if (clientSocket == INVALID_SOCKET)
 	{
@@ -274,7 +354,6 @@ bool network2::LaunchUDPClient(const std::string &ip, const int port
 	sockAddr.sin_addr = *((LPIN_ADDR)*lpHostEntry->h_addr_list);
 	sockAddr.sin_port = htons(port);
 
-	// connect(소켓, 서버 주소, 서버 주소의 길이)
 	nRet = connect(clientSocket, (LPSOCKADDR)&sockAddr, sizeof(struct sockaddr));
 	if (nRet == SOCKET_ERROR)
 	{

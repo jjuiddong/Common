@@ -57,6 +57,11 @@ bool cText3d3::SetTextRect(
 	m_quad.m_transform.pos = tm.pos;
 	m_quad.m_transform.rot = tm.rot;
 
+	// 텍스트를 Quad 가운데 출력하게 한다. (X축만 해당)
+	m_quad.m_transform.scale = Vector3(m_uv.x * m_originalScale.x * tm.scale.x
+		, m_originalScale.y * tm.scale.y
+		, m_originalScale.z * tm.scale.z);
+
 	// 텍스트 정보, 칼라가 바뀌면, 텍스쳐에 다시 그린다.
 	if ((m_color != color) || (m_text != text))
 	{
@@ -67,6 +72,7 @@ bool cText3d3::SetTextRect(
 		{
 			// 텍스트를 Quad 가운데 출력하게 한다. (X축만 해당)
 			const float u = textSize.x / (float)m_texture.m_imageInfo.Width;
+			m_uv = Vector2(u, 0);
 			m_quad.m_shape.SetUV(renderer, Vector2(0, 0), Vector2(u, 0), Vector2(0, 1), Vector2(u, 1));
 			m_quad.m_transform.scale = Vector3(
 				u * m_originalScale.x * tm.scale.x
@@ -91,12 +97,12 @@ bool cText3d3::Render(cRenderer &renderer
 	{
 		CommonStates state(renderer.GetDevice());
 		renderer.GetDevContext()->OMSetDepthStencilState(state.DepthNone(), 0);
-		m_quad.Render(renderer);
+		m_quad.Render(renderer, parentTm);
 		renderer.GetDevContext()->OMSetDepthStencilState(state.DepthDefault(), 0);
 	}
 	else
 	{
-		m_quad.Render(renderer);
+		m_quad.Render(renderer, parentTm);
 	}
 	
 	return __super::Render(renderer, parentTm, flags);

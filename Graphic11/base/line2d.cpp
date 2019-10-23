@@ -69,8 +69,9 @@ bool cLine2D::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
 
-	const Vector4 color = m_color.GetColor();
-	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
+	const Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = diffuse.GetVectorXM();
+	//renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	CommonStates state(renderer.GetDevice());

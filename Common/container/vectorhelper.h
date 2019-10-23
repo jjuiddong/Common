@@ -13,7 +13,7 @@ namespace common
 	{
 		for (size_t i=0; i < seq.size(); ++i)
 		{
-			if (seq[ i] == ty)
+			if (seq[i] == ty)
 			{
 				if ((seq.size()-1) > i) // elements를 회전해서 제거한다.
 					std::rotate( seq.begin()+i, seq.begin()+i+1, seq.end() );

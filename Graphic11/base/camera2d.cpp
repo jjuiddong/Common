@@ -485,6 +485,12 @@ Matrix44 cCamera2D::GetZoomMatrix() const
 }
 
 
+float cCamera2D::GetZoom() const
+{
+	return m_zoom;
+}
+
+
 Vector3 cCamera2D::GetLookAt() const
 {
 	return Vector3(m_eyePos.x, 0, m_eyePos.z);

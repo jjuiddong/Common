@@ -26,7 +26,7 @@ namespace graphic
 			, const char *techniqueName
 			, cSkeleton *skeleton
 			, const int count
-			, const XMMATRIX *transforms
+			, const Matrix44 *transforms
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);
 
@@ -48,8 +48,18 @@ namespace graphic
 			, const char *techniqueName
 			, cSkeleton *skeleton
 			, const sRawNode &node
+			, const XMMATRIX &nodeParentTm = XMIdentity
 			, const XMMATRIX &parentTm = XMIdentity
-			, const XMMATRIX &transformTm = XMIdentity
+			, const int flags = 1);
+
+		bool RenderNode_Instacing(cRenderer &renderer
+			, const char *techniqueName
+			, cSkeleton *skeleton
+			, const sRawNode &node
+			, const int count
+			, const Matrix44 *transforms
+			, const XMMATRIX &nodeParentTm = XMIdentity
+			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1);
 
 		bool RenderNode_Tessellation(cRenderer &renderer

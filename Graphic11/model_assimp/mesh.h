@@ -22,14 +22,18 @@ namespace graphic {
 		void Render(cRenderer &renderer
 			, const char *techniqueName
 			, cSkeleton *skeleton
+			, const XMMATRIX &nodeParentTm = XMIdentity
 			, const XMMATRIX &parentTm = XMIdentity
-			, const XMMATRIX &transform = XMIdentity
 		);
 
 		void RenderInstancing(cRenderer &renderer
 			, const char *techniqueName
 			, cSkeleton *skeleton
-			, const int count, const XMMATRIX &parentTm = XMIdentity);
+			, const int count
+			, const Matrix44 *transforms
+			, const XMMATRIX &nodeParentTm = XMIdentity
+			, const XMMATRIX &parentTm = XMIdentity
+		);
 
 		void RenderTessellation(cRenderer &renderer
 			, const char *techniqueName
@@ -48,12 +52,13 @@ namespace graphic {
 
 	protected:
 		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
-		void UpdateConstantBuffer(cRenderer &renderer
-			, const char *techniqueName
+		void UpdateConstantBuffer(cRenderer &renderer, const char *techniqueName
 			, cSkeleton *skeleton
+			, const XMMATRIX &nodeParentTm
 			, const XMMATRIX &parentTm
-			, const XMMATRIX &transform
-			, const bool isTessellation = false);
+			, const bool isInstancing = false
+			, const bool isTessellation = false
+		);
 
 		void CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh);
 		void CalculateTangentBinormal(

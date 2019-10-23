@@ -46,7 +46,7 @@ public:
 	sLogData m_logData;
 	cLogTask() : cTask(0, "cLogTask") {}
 	cLogTask(const sLogData &logData, const char *fileName = NULL)
-		: cTask(0, "cLogTask"), m_logData(logData), m_fileName(fileName){
+		: cTask(0, "cLogTask"), m_logData(logData), m_fileName(fileName) {
 	}
 	virtual ~cLogTask() {
 	}
@@ -285,12 +285,12 @@ void dbg::TerminateLogThread()
 
 
 // log classfy
-// print/log/errlog, multithread
+// none/log/errlog, multithread
 //
-// level 0 : printf
-//		 1 : printf + log
-//		 2 : printf + log + err log
-//		 3 : printf + log + err log + assertion
+// level 0 : none
+//		 1 : log
+//		 2 : log + err log
+//		 3 : log + err log + assertion
 void dbg::Logc(const int level, const char* fmt, ...)
 {
 	sLogData data;
@@ -308,7 +308,6 @@ void dbg::Logc(const int level, const char* fmt, ...)
 			data.type = 0;
 	case 0:
 		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
-		//std::cout << data.str.m_str;
 		break;
 	default:
 		assert(0);
@@ -318,7 +317,42 @@ void dbg::Logc(const int level, const char* fmt, ...)
 	//------------------------------------------------------------------------
 	// add string to log thread
 	if (data.type >= 0)
-	{
 		g_logThread.PushTask(new cLogTask(data));
+}
+
+
+// log classfy
+// print/log/errlog, multithread
+//
+// level 0 : printf
+//		 1 : printf + log
+//		 2 : printf + log + err log
+//		 3 : printf + log + err log + assertion
+void dbg::Logc2(const int level, const char* fmt, ...)
+{
+	sLogData data;
+	MAKE_LOGDATA(data, -1, fmt);
+
+	switch (level)
+	{
+	case 3:
+		//DebugBreak();
+		assert(!"dbg::Logc()");
+	case 2:
+		data.type = 2;
+	case 1:
+		if (level == 1)
+			data.type = 0;
+	case 0:
+		std::cout << data.str.m_str;
+		break;
+	default:
+		assert(0);
+		break;
 	}
+
+	//------------------------------------------------------------------------
+	// add string to log thread
+	if (data.type >= 0)
+		g_logThread.PushTask(new cLogTask(data));
 }

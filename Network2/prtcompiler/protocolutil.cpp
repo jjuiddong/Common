@@ -37,7 +37,7 @@ void network2::InsertProtocol(sRmi *pRmi, sProtocol *pProtocol)
 bool network2::Init()
 {
 	list<string> exts;
-	exts.push_back("prt");
+	exts.push_back(".prt");
 	string protocolDir = "./media/protocol/";
 	list<string> fileList;
 	common::CollectFiles(exts, protocolDir, fileList);

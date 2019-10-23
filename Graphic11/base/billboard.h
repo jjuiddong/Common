@@ -49,6 +49,7 @@ namespace graphic
 		float m_dynScaleMin; // default: 0.5f
 		float m_dynScaleMax; // default: 200.5f
 		float m_dynScaleAlpha; // default: 1.f;
+		bool m_isSwitchingMode;
 	};
 
 }

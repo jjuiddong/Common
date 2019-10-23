@@ -70,6 +70,47 @@ bool cFrustum::SetFrustum(const Vector3 vertices[8])
 }
 
 
+// todo: 작동 안됨.
+//
+// lefttop + rightbottom 두개의 점으로 구성된 frustum을 생성한다.
+//   0 ----- +
+//   |       |
+//   |       |
+//   |       |
+//   + ----- 1
+// h0, h1 바닥과의 거리, h1이 더 높아야 한다.
+// 카메라가 위에서 바닥을 내려보면서 frustum을 생성할 때 사용함.
+bool cFrustum::SetFrustum(const Vector3 vertices[2], const float h0, const float h1)
+{
+	const Vector3 leftTop(min(vertices[0].x, vertices[1].x)
+		, h0, min(vertices[0].z, vertices[1].z));
+	const Vector3 rightBottom(max(vertices[0].x, vertices[1].x)
+		, h0, max(vertices[0].z, vertices[1].z));
+
+	//      4 --- 5
+	//    / |  | /|
+	//   0 --- 1  |
+	//   |  6 -|- 7
+	//   | /   | /
+	//   2 --- 3
+	// 0,1,2,3 : near plane
+	// 4,5,6,7 : far plane
+
+	const Vector3 vtx[8] = {
+		Vector3(leftTop.x, h1, leftTop.z)
+		, Vector3(rightBottom.x, h1, leftTop.z)
+		, Vector3(leftTop.x, h1, rightBottom.z)
+		, Vector3(rightBottom.x, h1, rightBottom.z)
+		, Vector3(leftTop.x, h0, leftTop.z)
+		, Vector3(rightBottom.x, h0, leftTop.z)
+		, Vector3(leftTop.x, h0, rightBottom.z)
+		, Vector3(rightBottom.x, h0, rightBottom.z)
+	};
+
+	return SetFrustum(vtx);
+}
+
+
 //-----------------------------------------------------------------------------//
 // 한점 point가 프러스텀안에 있으면 TRUE를 반환, 아니면 FALSE를 반환한다.
 //-----------------------------------------------------------------------------//
@@ -77,7 +118,7 @@ bool cFrustum::IsIn( const Vector3 &point ) const
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		// 평면과 중심점의 거리가 반지름보다 크면 프러스텀에 없음
+		// 평면과 점의 거리가 반지름보다 크면 프러스텀에 없음
 		const float dist = m_plane[i].Distance(point);
 		if (dist > m_epsilon)
 			return false;

@@ -217,3 +217,104 @@ Vector3 Triangle::GetClosesPointOnTriangle(const Vector3 &sourcePosition) const
 
 	return triangle[0] + edge0 * s + edge1 * t;
 }
+
+
+// check similar triangle
+// if similar, return true
+// limitLen: length
+bool Triangle::Similar(const Triangle &tri, const float limitLen) const
+{
+	const float lenA0 = a.Distance(b);
+	const float lenB0 = a.Distance(c);
+	const float lenC0 = b.Distance(c);
+
+	const float lenA1 = tri.a.Distance(tri.b);
+	const float lenB1 = tri.a.Distance(tri.c);
+	const float lenC1 = tri.b.Distance(tri.c);
+
+	int state = 0;
+	float len0 = 0.f, len1 = 0.f, len2 = 0.f;
+	{
+		const float l0 = abs(lenA0 - lenA1);
+		const float l1 = abs(lenA0 - lenB1);
+		const float l2 = abs(lenA0 - lenC1);
+		if ((l0 <= l1) && (l0 <= l2))
+		{
+			len0 = l0;
+			state = 0;
+		}
+		else if ((l1 <= l0) && (l1 <= l2))
+		{
+			len0 = l1;
+			state = 1;
+		}
+		else
+		{
+			len0 = l2;
+			state = 2;
+		}
+	}
+
+	switch (state)
+	{
+	case 0: // lenA0 - lenA1
+	{
+		const float l0 = abs(lenB0 - lenB1);
+		const float l1 = abs(lenB0 - lenC1);
+		if (l0 < l1) // lenB0 - lenB1
+		{
+			len1 = l0;
+			len2 = abs(lenC0 - lenC1);
+		}
+		else // lenB0 - lenC1
+		{
+			len1 = l1;
+			len2 = abs(lenC0 - lenB1);
+		}
+	}
+	break;
+
+	case 1: // lenA0 - lenB1
+	{
+		const float l0 = abs(lenB0 - lenA1);
+		const float l1 = abs(lenB0 - lenC1);
+		if (l0 < l1) // lenB0 - lenA1
+		{
+			len1 = l0;
+			len2 = abs(lenC0 - lenC1);
+		}
+		else // lenB0 - lenC1
+		{
+			len1 = l1;
+			len2 = abs(lenC0 - lenA1);
+		}
+	}
+	break;
+
+	case 2: // lenA0 - lenC1
+	{
+		const float l0 = abs(lenB0 - lenA1);
+		const float l1 = abs(lenB0 - lenB1);
+		if (l0 < l1) // lenB0 - lenA1
+		{
+			len1 = l0;
+			len2 = abs(lenC0 - lenB1);
+		}
+		else // lenB0 - lenB1
+		{
+			len1 = l1;
+			len2 = abs(lenC0 - lenA1);
+		}
+	}
+	break;
+
+	default: assert(0); break;
+	}
+
+	if ((len0 < limitLen)
+		&& (len1 < limitLen)
+		&& (len2 < limitLen))
+		return true;
+
+	return false;
+}

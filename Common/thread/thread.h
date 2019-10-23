@@ -4,7 +4,7 @@
 // Date:    2012-12-02
 // 
 // 쓰레드 라이브러리
-// CTask 를 실행한다.
+// cTask 를 실행한다.
 //
 // 2016-06-06
 //		- refactoring
@@ -36,7 +36,12 @@ namespace common
 			enum Enum { REMOVE, KEEP, };
 		};
 
-		cThread(const StrId &name="", const int maxTask=-1, iMemoryPool3Destructor *memPool=NULL);
+		cThread(const StrId &name=""
+			, const int maxTask=-1
+			, iMemoryPool3Destructor *memPool=NULL
+			, const uint maxProcTaskSize = 5
+			, const int sleepMillis = 1);
+
 		virtual ~cThread();
 
 		void Start();
@@ -72,9 +77,11 @@ namespace common
 		eState::Enum m_state;
 		StrId m_name;
 		int m_maxTask; // default: -1 (infinity)
+		int m_sleepMillis; // for context change, milliseconds
 		CriticalSection m_msgCS;
 		CriticalSection m_containerCS;
 		int m_procTaskIndex;
+		uint m_maxProcTaskSize;
 		vector<cTask*> m_tasks;
 		vector<cTask*> m_addTasks;
 		vector<int> m_removeTasks;

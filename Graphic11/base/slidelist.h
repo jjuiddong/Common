@@ -18,6 +18,7 @@ namespace graphic
 			float apos; // animation pos, length
 			float len; // distance p0 - p1, for animation
 			Vector3 pos[2]; //p0, p1
+			Vector4 color[3];
 			Transform tfm[3];
 
 			bool operator==(const sSlideInfo &rhs) const {
@@ -37,7 +38,10 @@ namespace graphic
 
 		virtual bool Update(cRenderer &renderer, const float deltaSeconds) override;
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
-		int Add(const int id, const Vector3 &p0, const Vector3 &p1, const float slidePos);
+		int Add(const int id, const Vector3 &p0, const Vector3 &p1, const float slidePos
+			, const cColor &c0 = cColor::BLACK
+			, const cColor &c1 = cColor::WHITE
+		);
 		bool Remove(const int id);
 		bool SetSlide(const int id, const Vector3 &p0, const Vector3 &p1, const float slidePos);
 		void SetAlpha(const float alpha);

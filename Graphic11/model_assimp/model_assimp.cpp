@@ -82,22 +82,15 @@ bool cAssimpModel::RenderInstancing(cRenderer &renderer
 	, const char *techniqueName
 	, cSkeleton *skeleton
 	, const int count
-	, const XMMATRIX *transforms
+	, const Matrix44 *transforms
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
 {
-	for (auto &mesh : m_meshes)
-	{
-		for (int i = 0; i < count; ++i)
-		{
-			const XMMATRIX &tm1 = transforms[i];
-			const XMMATRIX &tm2 = mesh->m_transform.GetMatrixXM();
-			renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm2 * tm1 * parentTm);
-		}
-		renderer.m_cbInstancing.Update(renderer, 3);
-		mesh->RenderInstancing(renderer, techniqueName, skeleton, count, parentTm);
-	}
+	RETV(m_nodes.empty(), false);
+
+	RenderNode_Instacing(renderer, techniqueName, skeleton, m_nodes[0]
+		, count, transforms, XMIdentity, parentTm, (eRenderFlag::NOALPHABLEND));
 	return true;
 }
 
@@ -135,24 +128,52 @@ bool cAssimpModel::RenderNode(cRenderer &renderer
 	, const char *techniqueName
 	, cSkeleton *skeleton
 	, const sRawNode &node
+	, const XMMATRIX &nodeParentTm //= XMIdentity
 	, const XMMATRIX &parentTm //= XMIdentity
-	, const XMMATRIX &transformTm //= XMIdentity
 	, const int flags //= 1
 )
 {
-	const XMMATRIX tm = node.localTm.GetMatrixXM() * parentTm;
+	const XMMATRIX tm = node.localTm.GetMatrixXM() * nodeParentTm;
 
 	// Render Meshes
 	for (auto idx : node.meshes)
 		if (m_meshes[idx]->m_renderFlags & flags)
-			m_meshes[idx]->Render(renderer, techniqueName, skeleton, tm, transformTm);
+			m_meshes[idx]->Render(renderer, techniqueName, skeleton, tm, parentTm);
 
 	// Render Child Node
 	for (auto idx : node.children)
-		RenderNode(renderer, techniqueName, skeleton, m_nodes[idx], tm, transformTm, flags);
+		RenderNode(renderer, techniqueName, skeleton, m_nodes[idx], tm, parentTm, flags);
 
 	return true;
 }
+
+
+bool cAssimpModel::RenderNode_Instacing(cRenderer &renderer
+	, const char *techniqueName
+	, cSkeleton *skeleton
+	, const sRawNode &node
+	, const int count
+	, const Matrix44 *transforms
+	, const XMMATRIX &nodeParentTm //= XMIdentity
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	const XMMATRIX tm = node.localTm.GetMatrixXM() * nodeParentTm;
+
+	// Render Meshes
+	for (auto idx : node.meshes)
+		if (m_meshes[idx]->m_renderFlags & flags)
+			m_meshes[idx]->RenderInstancing(renderer, techniqueName, skeleton
+				, count, transforms, tm, parentTm);
+
+	// Render Child Node
+	for (auto idx : node.children)
+		RenderNode_Instacing(renderer, techniqueName, skeleton, m_nodes[idx]
+			, count, transforms, tm, parentTm, flags);
+	return true;
+}
+
 
 
 // Render From Node
@@ -181,6 +202,7 @@ bool cAssimpModel::RenderNode_Tessellation(cRenderer &renderer
 
 	return true;
 }
+
 
 
 bool cAssimpModel::Update(const float deltaSeconds)

@@ -53,6 +53,7 @@ namespace graphic
 		void SetColor(const BYTE r, const BYTE g, const BYTE b, const BYTE a=255);
 		void SetColor(const Vector3 &color);
 		void SetColor(const Vector4 &color);
+		void SetAlpha(const float alpha);
 		Vector4 GetColor() const;
 		void GetColor(OUT float out[4]) const;
 		DWORD GetAbgr() const;

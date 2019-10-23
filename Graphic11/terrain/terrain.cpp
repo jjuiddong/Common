@@ -9,13 +9,16 @@ using namespace graphic;
 
 cTerrain::cTerrain()
 	: cNode(common::GenerateId(), "terrain", eNodeType::TERRAIN)
+	, m_isLoad(false)
 	, m_isShowDebug(false)
+	, m_showText(false)
 	, m_rows(0)
 	, m_cols(0)
 	, m_tileCols(0)
 	, m_tileRows(0)
 	, m_defaultHeight(0)
 	, m_lerpAlphaFactor(0.02f)
+	, m_textMgr(NULL)
 {
 	SetRenderFlag(eRenderFlag::TERRAIN, true);
 }
@@ -83,6 +86,9 @@ bool cTerrain::Create(cRenderer &renderer, const int rowCnt, const int colCnt
 		}
 	}
 
+	m_textMgr = new cTextManager();
+	m_textMgr->Create();
+
 	return true;
 }
 
@@ -110,7 +116,7 @@ void cTerrain::BuildCascadedShadowMap(cRenderer &renderer
 		ccsm.End(renderer, i);
 	}
 
-	CullingTestOnly(renderer, GetMainCamera()); // Recovery Culling
+	CullingTestOnly(renderer, GetMainCamera(), true, tm); // Recovery Culling
 }
 
 
@@ -125,6 +131,9 @@ bool cTerrain::Render(cRenderer &renderer
 	CullingTestOnly(renderer, GetMainCamera(), true, tm); // Recovery Culling
 	__super::Render(renderer, tm, eRenderFlag::TERRAIN);
 	__super::Render(renderer, tm, eRenderFlag::MODEL);
+
+	if (m_showText)
+		RenderNodeText(renderer, tm, flags);
 	return true;
 }
 
@@ -146,6 +155,9 @@ bool cTerrain::RenderCascadedShadowMap(cRenderer &renderer
 	
 	if (m_isShowDebug)
 		ccsm.DebugRender(renderer);
+
+	if (m_showText)
+		RenderNodeText(renderer, tm, flags);
 
 	return true;
 }
@@ -279,6 +291,48 @@ cTile* cTerrain::GetNearestTile(const cNode *node)
 	}
 
 	return nearTile;
+}
+
+
+// node 이름을 출력한다.
+bool cTerrain::RenderNodeText(cRenderer &renderer
+	, const XMMATRIX &tm //= XMIdentity
+	, const int flags //= eRenderFlag::MODEL
+)
+{
+	renderer.PushAlphaBlendSpace(cBoundingBox());
+	const bool result = RenderNodeText(renderer, this, tm, flags);
+	renderer.PopAlphaBlendSpace();
+	return result;
+}
+
+
+bool cTerrain::RenderNodeText(cRenderer &renderer
+	, cNode *node
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= eRenderFlag::MODEL
+)
+{
+	RETV(!node->m_isEnable, false);
+	RETV(!node->IsVisible(), false);
+	RETV(((node->m_renderFlags & flags) != flags), false);
+
+	const XMMATRIX tm = node->m_localTm.GetMatrixXM() * node->m_transform.GetMatrixXM() * parentTm;
+	for (auto &p : node->m_children)
+		RenderNodeText(renderer, p, tm, flags);
+
+	{
+		Transform tfm = tm;
+		tfm.pos.y += 1.f;
+		tfm.scale = Vector3(1, 1, 1) * 0.3f;
+		WStrId strId = node->m_name.wstr().c_str();
+		renderer.m_textMgr.AddTextRender(renderer, node->m_id, strId.c_str()
+			, cColor::WHITE, cColor::BLACK
+			, graphic::BILLBOARD_TYPE::ALL_AXIS
+			, tfm, true, 16, 1);
+	}
+
+	return true;
 }
 
 
@@ -455,9 +509,11 @@ float cTerrain::GetHeightMapEntry(int row, int col)
 void cTerrain::Clear()
 {
 	__super::Clear();
+	m_isLoad = false;
 	m_tiles.clear();
 	m_tilemap.clear();
 	m_tilemap2.clear();
+	SAFE_DELETE(m_textMgr);
 }
 
 

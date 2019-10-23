@@ -341,20 +341,19 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	renderer.GetDevContext()->RSSetState(states.CullNone());
 	{
 		// X-Z Plane
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[3] ? Vector4(0.8f, 0.8f, 0, 0.8f) : Vector4(0.6f, 0.6f, 0, 0.6f)));
+		m_quad.m_color = m_pick[3] ? cColor(0.8f, 0.8f, 0, 0.8f) : cColor(0.6f, 0.6f, 0, 0.6f);
 		m_quad.Render(renderer, planeTm[0]);
 		// Y-Z Plane
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[4] ? Vector4(0.8f, 0.8f, 0, 0.8f) : Vector4(0.6f, 0.6f, 0, 0.6f)));
+		m_quad.m_color = m_pick[4] ? cColor(0.8f, 0.8f, 0, 0.8f) : cColor(0.6f, 0.6f, 0, 0.6f);
 		m_quad.Render(renderer, planeTm[1]);
 		// X-Y Plane
-		renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&(m_pick[5] ? Vector4(0.8f, 0.8f, 0, 0.8f) : Vector4(0.6f, 0.6f, 0, 0.6f)));
+		m_quad.m_color = m_pick[5] ? cColor(0.8f, 0.8f, 0, 0.8f) : cColor(0.6f, 0.6f, 0, 0.6f);
 		m_quad.Render(renderer, planeTm[2]);
 	}
 	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
 
-
 	// recovery material
-	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+	m_quad.m_color = cColor::WHITE;
 
 
 	if (m_isKeepEdit)
@@ -462,7 +461,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 	m_arrow[2].Render(renderer, ptm);
 
 	// recovery material
-	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+	m_quad.m_color = cColor::WHITE;
 
 	if (m_isKeepEdit)
 	{
@@ -694,5 +693,5 @@ void cGizmo::RenderRotate(cRenderer &renderer
 	}
 
 	// recovery material
-	renderer.m_cbMaterial.m_v->diffuse = XMLoadFloat4((XMFLOAT4*)&Vector4(1, 1, 1, 1));
+	m_quad.m_color = cColor::WHITE;
 }

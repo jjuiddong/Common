@@ -74,6 +74,7 @@ namespace graphic
 		virtual void Zoom(const float len);
 		virtual void Zoom(const Vector3 &dir, const float len);
 		virtual Matrix44 GetZoomMatrix() const;
+		virtual float GetZoom() const;
 		virtual void UpdateViewMatrix() {}
 
 		Vector2 GetScreenPos(const Vector3& vPos) const;

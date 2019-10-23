@@ -14,11 +14,12 @@ cQuadShape::cQuadShape()
 cQuadShape::cQuadShape(cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const cColor &color //= cColor::WHITE
+	, const ePlaneType planeType //= ePlaneType::XY
 )
 	: m_width(0)
 	, m_height(0)
 {
-	Create(renderer, vtxType, color);
+	Create(renderer, vtxType, color, 2, 2, false, planeType);
 }
 
 
@@ -27,43 +28,35 @@ cQuadShape::~cQuadShape()
 }
 
 
-//
-// quadVertices, quadUVs
-//	0 ---- 1
-//  |      |
-//  |      |
-//  2 ---- 3
-//
 bool cQuadShape::Create(cRenderer &renderer
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const cColor &color //= cColor::WHITE
 	, const float width //= 2
 	, const float height //= 2
 	, const bool isDynamic //= false
-	, const Vector3 *quadVertices //= NULL
-	, const Vector2 *quadUVs //= NULL
+	, const ePlaneType planeType //= ePlaneType::XY
 )
 {
-	const Vector3 vertices[4] = {
+	const Vector3 vertices_xy[4] = {
 		Vector3(-width / 2.f, height / 2.f, 0),
 		Vector3(width / 2.f, height / 2.f, 0),
 		Vector3(-width / 2.f,-height / 2.f, 0),
 		Vector3(width / 2.f,-height / 2.f, 0),
 	};
 
-	const Vector2 uv[4] = {
+	const Vector3 vertices_xz[4] = {
+		Vector3(-width / 2.f, 0, height / 2.f),
+		Vector3(width / 2.f, 0, height / 2.f),
+		Vector3(-width / 2.f, 0, -height / 2.f),
+		Vector3(width / 2.f, 0, -height / 2.f),
+	};
+
+	Vector2 uv[4] = {
 		Vector2(0,0)
 		, Vector2(1,0)
 		, Vector2(0,1)
 		, Vector2(1,1)
 	};
-
-	const Vector3 *srcVertices = quadVertices;
-	const Vector2 *srcUVs = quadUVs;
-	if (!quadVertices)
-		srcVertices = vertices;
-	if (!quadUVs)
-		srcUVs = uv;
 
 	m_vtxLayout.Create(vtxType);
 	const int posOffset = m_vtxLayout.GetOffset("POSITION");
@@ -74,18 +67,19 @@ bool cQuadShape::Create(cRenderer &renderer
 	vector<BYTE> buffer(vertexStride * 24);
 	BYTE *initVertices = &buffer[0];
 
+	const Vector3 *vertices = (planeType == ePlaneType::XY) ? vertices_xy : vertices_xz;
 	const Vector4 vColor = color.GetColor();
 	BYTE *pvtx = initVertices;
 	for (int i = 0; i < 4; ++i)
 	{
 		if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
-			*(Vector3*)(pvtx + posOffset) = srcVertices[i];
+			*(Vector3*)(pvtx + posOffset) = vertices[i];
 		if (vtxType & eVertexType::NORMAL)
 			*(Vector3*)(pvtx + normOffset) = Vector3(0,0,-1.f);
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
 		if (vtxType & eVertexType::TEXTURE0)
-			*(Vector2*)(pvtx + texOffset) = srcUVs[i];
+			*(Vector2*)(pvtx + texOffset) = uv[i];
 		pvtx += vertexStride;
 	}
 

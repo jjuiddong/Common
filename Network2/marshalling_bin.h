@@ -11,21 +11,48 @@ namespace network2
 	{
 		cPacket& AddDelimeter(cPacket &packet);
 
+		cPacket& operator<<(cPacket& packet, const bool& rhs);
+		cPacket& operator<<(cPacket& packet, const char& rhs);
+		cPacket& operator<<(cPacket& packet, const unsigned char& rhs);
+		cPacket& operator<<(cPacket& packet, const short& rhs);
+		cPacket& operator<<(cPacket& packet, const unsigned short& rhs);
+		cPacket& operator<<(cPacket& packet, const int& rhs);
+		cPacket& operator<<(cPacket& packet, const unsigned int& rhs);
+		cPacket& operator<<(cPacket& packet, const long& rhs);
+		cPacket& operator<<(cPacket& packet, const unsigned long& rhs);
+		cPacket& operator<<(cPacket& packet, const int64& rhs);
+		cPacket& operator<<(cPacket& packet, const uint64& rhs);
+		cPacket& operator<<(cPacket& packet, const float& rhs);
+		cPacket& operator<<(cPacket& packet, const double& rhs);
 		cPacket& operator<<(cPacket &packet, const string &rhs);
-		template<class T> cPacket& operator<<(cPacket& packet, const T& rhs);
 		template<class T, size_t N> cPacket& operator<<(cPacket &packet, const T(&rhs)[N]);
 		template<class T> cPacket& operator<<(cPacket& packet, const vector<T> &v);
 		template<class T> cPacket& operator<<(cPacket& packet, const list<T> &v);
+		template<class T> cPacket& operator<<(cPacket& packet, const set<T> &v);
 
+		cPacket& operator>>(cPacket& packet, OUT bool& rhs);
+		cPacket& operator>>(cPacket& packet, OUT char& rhs);
+		cPacket& operator>>(cPacket& packet, OUT unsigned char& rhs);
+		cPacket& operator>>(cPacket& packet, OUT short& rhs);
+		cPacket& operator>>(cPacket& packet, OUT unsigned short& rhs);
+		cPacket& operator>>(cPacket& packet, OUT int& rhs);
+		cPacket& operator>>(cPacket& packet, OUT unsigned int& rhs);
+		cPacket& operator>>(cPacket& packet, OUT long& rhs);
+		cPacket& operator>>(cPacket& packet, OUT unsigned long& rhs);
+		cPacket& operator>>(cPacket& packet, OUT int64& rhs);
+		cPacket& operator>>(cPacket& packet, OUT uint64& rhs);
+		cPacket& operator>>(cPacket& packet, OUT float& rhs);
+		cPacket& operator>>(cPacket& packet, OUT double& rhs);
 		cPacket& operator>>(cPacket& packet, OUT string &rhs);
 		cPacket& operator>>(cPacket& packet, OUT _variant_t &rhs);
-		template<class T> cPacket& operator>>(cPacket& packet, OUT T& rhs);
 		template<class T, size_t N> cPacket& operator>>(cPacket &packet, OUT T(&rhs)[N]);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT vector<T> &v);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT list<T> &v);
+		template<class T> cPacket& operator>>(cPacket& packet, OUT set<T> &v);
 
 		template<class Seq> cPacket& AppendSequence(cPacket &packet, const Seq &seq);
-		template<class Seq> void GetSequence(cPacket& packet, OUT Seq& seq);
+		template<class Seq> cPacket& GetSequence(cPacket& packet, OUT Seq& seq);
+		template<class Seq> cPacket& GetUnOrderedSequence(cPacket& packet, OUT Seq& seq);
 	}
 
 
@@ -38,10 +65,79 @@ namespace network2
 		return packet;
 	}
 
-	// 모든 타입이 binary 단위로 복사되기 때문에, 
-	// 생성자 호출은 되지 않는다.
-	template<class T>
-	inline cPacket& marshalling::operator<<(cPacket& packet, const T& rhs)
+	inline cPacket& marshalling::operator<<(cPacket& packet, const bool& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const char& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const unsigned char& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const short& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const unsigned short& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const int& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const long& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const unsigned long& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const unsigned int& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const int64& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const uint64& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const float& rhs)
+	{
+		packet.Append(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const double& rhs)
 	{
 		packet.Append(rhs);
 		return packet;
@@ -77,8 +173,92 @@ namespace network2
 		return packet;
 	}
 
+	template<class T>
+	inline cPacket& marshalling::operator<<(cPacket& packet, const set<T> &v)
+	{
+		AppendSequence(packet, v);
+		return packet;
+	}
 
 	//--------------------------------------------------------------------------
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT bool& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT char& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT unsigned char& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT short& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT unsigned short& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+	
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT int& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT long& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT unsigned long& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT unsigned int& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT int64& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT uint64& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT float& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT double& rhs)
+	{
+		packet.GetData(rhs);
+		return packet;
+	}
+
 	inline cPacket& marshalling::operator>>(cPacket& packet, OUT string &rhs)
 	{
 		packet.GetDataString(rhs);
@@ -123,14 +303,6 @@ namespace network2
 		}
 		return packet;
 	}
-	
-	template<class T>
-	inline cPacket& marshalling::operator>>(cPacket& packet, OUT T& rhs)
-	{
-		packet.GetData(rhs);
-		return packet;
-	}
-
 
 	template<class T, size_t N>
 	inline cPacket& marshalling::operator>>(cPacket &packet, OUT T(&rhs)[N])
@@ -146,45 +318,39 @@ namespace network2
 	template<class T>
 	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::vector<T> &v)
 	{
-		GetSequence(packet, v);
-		return packet;
+		return GetSequence(packet, v);
 	}
 
 	template<class T>
 	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::list<T> &v)
 	{
-		GetSequence(packet, v);
-		return packet;
+		return GetSequence(packet, v);
+	}
+
+	template<class T>
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::set<T> &v)
+	{
+		return GetUnOrderedSequence(packet, v);
 	}
 
 
 	template<class Seq>
 	inline cPacket& marshalling::AppendSequence(cPacket &packet, const Seq &seq)
 	{
-		packet << (int)seq.size();
-		for (auto &v : seq)
-			packet << v;
-		return packet;
+		MARSHALLING_BIN_APPEND_SEQ(packet, seq);
+	}
+
+
+	template<class Seq>
+	inline cPacket& marshalling::GetSequence(cPacket& packet, OUT Seq& seq)
+	{
+		MARSHALLING_BIN_GET_SEQ(packet, Seq, seq);
 	}
 
 	template<class Seq>
-	inline void marshalling::GetSequence(cPacket& packet, OUT Seq& seq)
+	inline cPacket& marshalling::GetUnOrderedSequence(cPacket& packet, OUT Seq& seq)
 	{
-		int size = 0;
-		packet >> size;
-		if (size < 0)
-			return; // todo: log, error!! 
-		if (size > 10000)
-			return; // todo: too many size data in packet, log, error!!	
-
-		typedef Seq::value_type type;
-		seq.reserve(size);
-		for (int i = 0; i < size; ++i)
-		{
-			type t;
-			packet >> t;
-			seq.push_back(t);
-		}
+		MARSHALLING_BIN_GET_SEQ2(packet, Seq, seq);
 	}
 
 }

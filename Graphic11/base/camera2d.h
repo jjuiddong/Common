@@ -34,7 +34,8 @@ namespace graphic
 		virtual Vector3 GetDirection() const override;
 		virtual Vector3 GetRight() const override;
 		virtual float GetDistance() const override;
-		virtual Matrix44 GetZoomMatrix() const;
+		virtual Matrix44 GetZoomMatrix() const override;
+		virtual float GetZoom() const override;
 
 		void GetShadowMatrix(OUT Matrix44 &view, OUT Matrix44 &proj, OUT Matrix44 &tt) const;
 		void FitFrustum(const cCamera &camera, const float farPlaneRate = 1.f);

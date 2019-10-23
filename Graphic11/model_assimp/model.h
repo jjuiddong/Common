@@ -34,10 +34,10 @@ namespace graphic
 
 		virtual bool RenderInstancing(cRenderer &renderer
 			, const int count
-			, const XMMATRIX *transforms
+			, const Matrix44 *transforms
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1
-			) override;
+		) override;
 
 		virtual bool RenderTessellation(cRenderer &renderer
 			, const int controlPointCount

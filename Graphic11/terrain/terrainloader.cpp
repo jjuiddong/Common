@@ -128,6 +128,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 		const string version = props.get<string>("version");
 
 		m_terrain->Clear();
+		m_terrain->m_isLoad = true;
 
 		// 대부분의 리소스가 로딩되기 전까지, 로딩 쓰레드를 종료시키지 않기 위한, 지연 태스크다.
 		cResourceManager::Get()->AddTask(new graphic::cTaskDelay(5));

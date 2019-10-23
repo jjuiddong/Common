@@ -153,7 +153,7 @@ int cTPSemaphore::ThreadFunction(cTPSemaphore *tpSemaphore)
 	while (tpSemaphore->m_isThreadLoop)
 	{
 		cTask *task = tpSemaphore->PopTask();
-		if (!task) // end thread command
+		if (!task) // end thread command?
 			break;
 
 		task->Run(0.f);

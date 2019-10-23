@@ -8,7 +8,7 @@
 
 namespace common
 {
-	// trick code, for cThread memorypool
+	// tricky code, for cThread memorypool
 	class iMemoryPool3Destructor
 	{
 	public:

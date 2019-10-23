@@ -69,6 +69,16 @@ namespace common
 		common::lerp(bccd, bc, cd, t);
 		common::lerp(out, abbc, bccd, t);
 	}
+	inline void bezier(OUT Vector3 &out, const Vector3 points[4], const float t)
+	{
+		Vector3 ab, bc, cd, abbc, bccd;
+		common::lerp(ab, points[0], points[1], t);
+		common::lerp(bc, points[1], points[2], t);
+		common::lerp(cd, points[2], points[3], t);
+		common::lerp(abbc, ab, bc, t);
+		common::lerp(bccd, bc, cd, t);
+		common::lerp(out, abbc, bccd, t);
+	}
 	inline void bezier(OUT Vector2 &out, const vector<Vector2> &points, const float t)
 	{
 		Vector2 ab, bc, cd, abbc, bccd;

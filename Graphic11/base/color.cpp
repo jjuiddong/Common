@@ -95,6 +95,18 @@ void cColor::SetColor(const Vector4 &color)
 }
 
 
+// set alpha 
+void cColor::SetAlpha(const float alpha)
+{
+	Vector4 v;
+	v.w = (m_color >> 24) / 255.f; // A
+	v.x = ((m_color >> 16) & 0xFF) / 255.f; // R
+	v.y = ((m_color >> 8) & 0xFF) / 255.f; // G
+	v.z = (m_color & 0xFF) / 255.f; // B
+	SetColor(v.x, v.y, v.z, alpha);
+}
+
+
 // red-green-blue-alpha : 0 ~ 1
 Vector4 cColor::GetColor() const
 {

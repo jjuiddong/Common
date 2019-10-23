@@ -34,6 +34,13 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1);
 
+		virtual bool RenderInstancing(cRenderer &renderer
+			, const int count
+			, const Matrix44 *transforms
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1
+		) override;
+
 
 	public:
 		cCubeShape m_shape;

@@ -2,7 +2,7 @@
 // 2019-01-09, jjuiddong
 //
 // 패킷을 저장한다. Thread Safe
-// - 한 패킷이 분리되어서 네트워크로 들어올 때, 합치는 기능이 있다.
+// - 한 패킷이 분리되어서 네트워크로 들어올 때, 합치는 기능이 있다. (cSocketBuffer에서 처리)
 // - 각 소켓마다 packetSize 크기만큼 채울 때까지 다음으로 넘어가지 않는다.
 // - 버퍼가 가득차면 들어온 패킷은 무시한다.
 //
@@ -36,8 +36,8 @@ namespace network2
 		bool Front(OUT cPacket &out);
 		void SendAll(const map<netid, SOCKET> &socks, OUT set<netid> *outErrSocks = NULL);
 		void SendAll(const sockaddr_in &sockAddr);
-		void SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner = true);
-		void SendBroadcast(const map<netid, SOCKET> &socks, const cPacket &packet
+		bool SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner = true);
+		bool SendBroadcast(const map<netid, SOCKET> &socks, const cPacket &packet
 			, OUT set<netid> *outErrSocks = NULL);
 		void Lock();
 		void Unlock();
@@ -46,6 +46,7 @@ namespace network2
 
 	public:
 		bool m_isPacketLog;
+		int m_sockBufferSize; // packetSize * maxPacketCount
 		cNetworkNode *m_netNode; // owner networknode, reference
 		common::VectorMap<netid, cSocketBuffer*> m_sockBuffers;
 		int m_nextFrontIdx; // for Front() load balancing

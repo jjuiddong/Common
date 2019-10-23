@@ -255,7 +255,9 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 
 		// Check Ascii or Binary Format Packet (²Ç¼ö ÄÚµå)
 		{
-			const bool isAsciiFormat = isalpha(tmpBuff[0]) > 0;
+			const bool isAsciiFormat = (isalpha(tmpBuff[0]) > 0) 
+				&& (isalpha(tmpBuff[1]) > 0)
+				&& (isalpha(tmpBuff[2]) > 0);
 			cPacket *packet = m_packetMemPool.Alloc();
 			iPacketHeader *packetHeader = (isAsciiFormat ?
 				(iPacketHeader*)&m_asciiPacketHeader : (iPacketHeader*)&m_binPacketHeader);

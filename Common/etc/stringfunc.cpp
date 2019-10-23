@@ -366,6 +366,68 @@ void common::tokenizer3(const char *data, const int size, const char delimeter, 
 }
 
 
+// 공백문자와 (space, newline, tab) 쌍따옴표(double quote) 를 기준으로 문자를 구분한다.
+// 쌍따옴표 사이의 문자는 어떤 문자든지 (delimeter 여부와 상관없이) 문자로 인식한다.
+void common::tokenizer_space(const string &str, OUT vector<string> &out)
+{
+	int state = 0;
+	string tok;
+	const char *c = str.c_str();
+	while (*c)
+	{
+		if (state == 0)
+		{
+			switch (*c)
+			{
+			case '\n':
+			case ' ':
+			case '\t':
+			case '\r':
+				if (!tok.empty())
+				{
+					out.push_back(tok);
+					tok.clear();
+				}
+				break;
+
+			case '\"':
+				state = 1;
+				break;
+
+			default: 
+				tok += *c;
+				break;
+			}
+		}
+		else if (state == 1)
+		{
+			if (*c == '\"')
+			{
+				if (!tok.empty())
+				{
+					out.push_back(tok);
+					tok.clear();
+					state = 0;
+				}
+			}
+			else
+			{
+				tok += *c;
+			}
+		}
+		else
+		{
+			assert(0);
+		}
+
+		++c;
+	}
+
+	if (!tok.empty())
+		out.push_back(tok);
+}
+
+
 // int형 배열을 delimeter를 구분자로해서 스트링으로 변환한다.
 // 동적 메모리생성을 최소화한 함수.
 // datas -> string 

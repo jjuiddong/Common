@@ -247,17 +247,17 @@ public:
 
    bool Attach(T p)
    {
-	  if (find(p)!=base_type::end())
+	  if (base_type::find(p)!=base_type::end())
 		 return false;
-	  insert(p);
+	  base_type::insert(p);
 	  p->Attach(static_cast<T2>(this));
 	  return true;
    }
    bool Detach(T p)
    {
-	  if (find(p)==base_type::end())
+	  if (base_type::find(p)==base_type::end())
 		 return false;
-	  erase(p);
+	  base_type::erase(p);
 	  p->Detach(static_cast<T2>(this));
 	  return true;
    }

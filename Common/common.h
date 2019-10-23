@@ -5,6 +5,16 @@
 #pragma once
 
 
+// pre processor environment setting
+//#ifndef _VS2015
+//	#define _VS2015
+//#endif
+
+#ifndef _VS2017
+	#define _VS2017
+#endif
+
+
 #ifndef _CRT_SECURE_NO_WARNINGS
 	#define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -112,6 +122,7 @@ using std::wstringstream;
 #include "container/vectormap.h"
 #include "container/simplestring.h"
 #include "container/circularqueue.h"
+#include "container/circularqueue2.h"
 #include "math/Math.h"
 #include "etc/recttype.h"
 #include "etc/singleton.h"

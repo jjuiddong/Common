@@ -15,10 +15,11 @@ cCircleShape::~cCircleShape()
 
 
 bool cCircleShape::Create(cRenderer &renderer, const Vector3 &center, const float radius, const int slice
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::COLOR)
 	, const cColor &color //=cColor::BLACK
+	, const ePlaneType &planeType //= ePlaneType::XY
 )
 {
-	const int vtxType = eVertexType::POSITION | eVertexType::COLOR;
 	cVertexLayout vtxLayout;
 	vtxLayout.Create(vtxType);
 	const int posOffset = vtxLayout.GetOffset("POSITION");
@@ -32,7 +33,7 @@ bool cCircleShape::Create(cRenderer &renderer, const Vector3 &center, const floa
 	const Vector4 vColor = color.GetColor();
 	BYTE *pvtx = initVertices;
 
-	if (vtxType & eVertexType::POSITION)
+	if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
 		*(Vector3*)(pvtx + posOffset) = center;
 	//if (vtxType & eVertexType::NORMAL)
 	//	*(Vector3*)(pvtx + normOffset) = normal;
@@ -43,8 +44,12 @@ bool cCircleShape::Create(cRenderer &renderer, const Vector3 &center, const floa
 	const float inc = MATH_PI * 2.f / (float)(slice);
 	for (int i=0; i < slice; ++i)
 	{
-		if (vtxType & eVertexType::POSITION)
-			*(Vector3*)(pvtx + posOffset) = center + Vector3(cosf(inc*i) * radius, sinf(inc*i) * radius, 0);
+		const Vector3 pos = (planeType == ePlaneType::XY) ?
+			Vector3(cosf(inc*i) * radius, sinf(inc*i) * radius, 0.f)
+			: Vector3(cosf(inc*i) * radius, 0.f, -sinf(inc*i) * radius);
+
+		if ((vtxType & eVertexType::POSITION) || (vtxType & eVertexType::POSITION_RHW))
+			*(Vector3*)(pvtx + posOffset) = center + pos;
 		//if (vtxType & eVertexType::NORMAL)
 		//	*(Vector3*)(pvtx + normOffset) = normal;
 		if (vtxType & eVertexType::COLOR)

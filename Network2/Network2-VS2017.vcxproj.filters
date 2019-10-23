@@ -96,6 +96,21 @@
     <ClInclude Include="utility\sessionlog.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="udpclientmap.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="udpservermap.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="marshalling.h">
+      <Filter>Marshalling</Filter>
+    </ClInclude>
+    <ClInclude Include="definition.h">
+      <Filter>Definition</Filter>
+    </ClInclude>
+    <ClInclude Include="definition_marshalling.h">
+      <Filter>Definition</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -174,6 +189,12 @@
     <ClCompile Include="utility\sessionlog.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="udpclientmap.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="udpservermap.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Protocol">
@@ -205,6 +226,9 @@
     </Filter>
     <Filter Include="Utility">
       <UniqueIdentifier>{6351fb53-9da4-42e8-8a35-2c983ef5f2f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Definition">
+      <UniqueIdentifier>{765a2790-67eb-400f-a919-e3b21e87d074}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

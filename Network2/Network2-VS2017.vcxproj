@@ -152,6 +152,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="definition.h" />
+    <ClInclude Include="definition_marshalling.h" />
+    <ClInclude Include="marshalling.h" />
     <ClInclude Include="protocol_all_handler.h" />
     <ClInclude Include="factory.h" />
     <ClInclude Include="launcher.h" />
@@ -180,7 +183,9 @@
     <ClInclude Include="tcpclient.h" />
     <ClInclude Include="tcpserver.h" />
     <ClInclude Include="udpclient.h" />
+    <ClInclude Include="udpclientmap.h" />
     <ClInclude Include="udpserver.h" />
+    <ClInclude Include="udpservermap.h" />
     <ClInclude Include="utility\all_protocol_displayer.h" />
     <ClInclude Include="utility\log.h" />
     <ClInclude Include="utility\packetlog.h" />
@@ -213,7 +218,9 @@
     <ClCompile Include="tcpclient.cpp" />
     <ClCompile Include="tcpserver.cpp" />
     <ClCompile Include="udpclient.cpp" />
+    <ClCompile Include="udpclientmap.cpp" />
     <ClCompile Include="udpserver.cpp" />
+    <ClCompile Include="udpservermap.cpp" />
     <ClCompile Include="utility\all_protocol_displayer.cpp" />
     <ClCompile Include="utility\log.cpp" />
     <ClCompile Include="utility\packetlog.cpp" />

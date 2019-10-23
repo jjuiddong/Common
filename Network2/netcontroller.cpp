@@ -95,7 +95,7 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 {
 	int procPacketCnt = 0;
 
-	while (100 > procPacketCnt)
+	while (1000 > procPacketCnt)
 	{
 		cPacket packet(netNode->GetPacketHeader());
 		if (!netNode->m_recvQueue.Front(packet))

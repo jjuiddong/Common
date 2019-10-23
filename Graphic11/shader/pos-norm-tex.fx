@@ -244,3 +244,29 @@ technique11 BuildShadowMap_Instancing
 		SetPixelShader(CompileShader(ps_5_0, PS_BuildShadowMap()));
 	}
 }
+
+
+technique11 DepthTech_Instancing
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(NULL);
+	}
+}
+
+
+technique11 Outline_Instancing
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Outline()));
+	}
+}

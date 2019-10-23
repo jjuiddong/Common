@@ -39,6 +39,7 @@ namespace common
 	void wtokenizer(const wstring &str, const wstring &delimeter, const wstring &ignoreStr, OUT vector<wstring> &out);
 	void tokenizer2(const string &str, const string &delimeters, OUT vector<string> &out);
 	void tokenizer3(const char *data, const int size, const char delimeter, OUT vector<int> &out);
+	void tokenizer_space(const string &str, OUT vector<string> &out);
 
 	int strcomposite(char *buff, const int maxSize, const char delimter, const vector<int> &datas);
 

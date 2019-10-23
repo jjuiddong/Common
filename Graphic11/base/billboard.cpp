@@ -11,6 +11,7 @@ cBillboard::cBillboard()
 	: m_dynScaleMin(0.5f)
 	, m_dynScaleMax(200.5f)
 	, m_dynScaleAlpha(1.f)
+	, m_isSwitchingMode(false)
 {
 }
 
@@ -46,16 +47,31 @@ bool cBillboard::Create(cRenderer &renderer, const BILLBOARD_TYPE::TYPE type,
 
 void cBillboard::Rotate()
 {
+	// 2D,3D 카메라 모드가 바뀌면, scale을 초기화해야 한다.
+	if (m_isSwitchingMode != GetMainCamera().Is2DMode())
+	{
+		m_isSwitchingMode = GetMainCamera().Is2DMode();
+		m_scale = Vector3(1, 1, 1);
+	}
+
 	if (GetMainCamera().Is2DMode())
 	{
 		// 직교투영 꽁수처리, jjuiddong
 		// 2017-11-10
-		m_transform.pos.y = GetMainCamera().GetEyePos().y - 50;
+		//m_transform.pos.y = GetMainCamera().GetEyePos().y - 50;
+
+		// 2019-09-15, jjuiddong
+		// parentTm 연산처리, 꽁수 조금 제거함.
+		m_transform.pos.y = 1.0f;
+
 		m_transform.rot.SetRotationArc(Vector3(0, 1, 0), Vector3(0, 0, 1));
 		Quaternion q; // Camera Roll Rotation
 		q.SetRotationArc(Vector3(0, 0, 1), GetMainCamera().m_up);
 		m_transform.rot *= q;
-		m_transform.scale = m_scale * 15;
+
+		// 2019-09-15, jjuiddong
+		// tricky code remove
+		//m_transform.scale = m_scale * 15;
 		return;
 	}
 

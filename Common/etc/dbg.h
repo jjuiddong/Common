@@ -42,7 +42,7 @@ namespace common { namespace dbg
 	//		 2 : printf + log + errlog
 	//		 3 : printf + log + errlog + assertion
 	void Logc(const int level, const char* fmt, ...);
-
+	void Logc2(const int level, const char* fmt, ...);
 
 }}
 

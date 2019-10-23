@@ -74,7 +74,7 @@ namespace common
 
 	template<class T>
 	float Vector2Comm<T>::Length() const {
-		return sqrt((float)(x*x + y*y));
+		return (float)sqrt(x * x + y * y);
 	}
 
 	template<class T>

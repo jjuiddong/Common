@@ -35,6 +35,9 @@ namespace common
 				else
 					m_mutex = CreateMutexA(NULL, TRUE, m_name.c_str());
 
+				if (!m_mutex)
+					return false;
+
 			} while (GetLastError() == ERROR_ALREADY_EXISTS);
 
 			return true;

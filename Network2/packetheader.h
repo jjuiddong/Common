@@ -52,7 +52,7 @@ namespace network2
 		virtual bool IsValidPacket(const BYTE *src) override;
 	};
 
-	
+
 	// No Format Packet Header
 	class cPacketHeaderNoFormat : public iPacketHeader
 	{

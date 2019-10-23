@@ -14,6 +14,7 @@ namespace graphic
 	using namespace common;
 
 	class cTile;
+	class cTextManager;
 	class cTerrain : public cNode
 	{
 	public:
@@ -41,6 +42,7 @@ namespace graphic
 		bool AddModel(cNode *model);
 		bool UpdateModel(cNode *model);
 		void SetShadowRendering(const bool isRender);
+		bool IsLoad() const { return m_isLoad; }
 
 		// Heightmap
 		float GetHeight(const float x, const float z);
@@ -60,9 +62,17 @@ namespace graphic
 
 	protected:
 		cTile* GetNearestTile(const cNode *node);
+		bool RenderNodeText(cRenderer &renderer
+			, const XMMATRIX &tm = XMIdentity
+			, const int flags = eRenderFlag::MODEL);
 
+		bool RenderNodeText(cRenderer &renderer
+			, cNode *node
+			, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = eRenderFlag::MODEL);
 
 	public:
+		bool m_isLoad;
 		vector<cTile*> m_tiles; // reference
 		map<hashcode, cTile*> m_tilemap; // reference (key = name hashcode)
 		map<int, cTile*> m_tilemap2; // reference (key = id)
@@ -83,8 +93,9 @@ namespace graphic
 		cTemporalBuffer m_cpyVtxBuff;
 		cTemporalBuffer m_cpyIdxBuff;
 
-		// Debug Display
-		bool m_isShowDebug;
+		bool m_showText;
+		bool m_isShowDebug; // Debug Display
+		cTextManager *m_textMgr;
 	};
 
 }

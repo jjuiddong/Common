@@ -133,18 +133,34 @@ namespace network2
 	}
 
 	// delimeter가 나올 때까지 ascii를 복사해서 리턴한다.
+	// 문자열이 쌍따옴표로 시작했다면, 쌍따옴표로 끝날때 까지 읽는다.
+	// 이때 delimeter는 무시된다.
 	inline int cPacket::GetDataString(const char delimeter1, const char delimeter2, OUT string &str)
 	{
 		int i = 0;
 		char c = NULL;
+		bool isStart = true;
+		bool isDoubleQuote = false;
 		char buff[DEFAULT_PACKETSIZE] = { NULL, };
 		while ((m_readIdx < DEFAULT_PACKETSIZE) && (i < (DEFAULT_PACKETSIZE - 1)))
 		{
 			c = m_data[m_readIdx++];
-			if ((c == delimeter1) || (c == delimeter2) || (c == NULL))
+			if (isStart && (c == '\"'))
+			{
+				isStart = false;
+				isDoubleQuote = true;
+				continue;
+			}
+
+			if (isDoubleQuote && ((c == '\"') || (c == NULL)))
 				break;
+			if (!isDoubleQuote && ((c == delimeter1) || (c == delimeter2) || (c == NULL)))
+				break;
+
 			buff[i++] = c;
+			isStart = false;
 		}
+
 		if (i < DEFAULT_PACKETSIZE)
 			buff[i] = NULL;
 		str = buff;

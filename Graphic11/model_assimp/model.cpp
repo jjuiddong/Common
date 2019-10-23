@@ -171,18 +171,26 @@ bool cModel::Render(cRenderer &renderer
 	if (!(flags & m_renderFlags))
 		return false;
 
-	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	if (0)
 	{
-		CommonStates state(renderer.GetDevice());
-		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
-		const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
-		m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
-		renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
+		const Matrix44 tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
+		renderer.m_renderList->AddRender(this, tm, flags);
 	}
 	else
 	{
-		const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
-		m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
+		if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+		{
+			CommonStates state(renderer.GetDevice());
+			renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
+			const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
+			m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
+			renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
+		}
+		else
+		{
+			const XMMATRIX transform = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
+			m_model->Render(renderer, m_techniqueName.c_str(), &m_skeleton, transform);
+		}
 	}
 
 	__super::Render(renderer, parentTm, flags);
@@ -192,7 +200,7 @@ bool cModel::Render(cRenderer &renderer
 
 bool cModel::RenderInstancing(cRenderer &renderer
 	, const int count
-	, const XMMATRIX *transforms
+	, const Matrix44 *transforms
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
@@ -200,14 +208,18 @@ bool cModel::RenderInstancing(cRenderer &renderer
 	if (CheckLoadProcess(renderer))
 		return true;
 
-	RETV(!m_isEnable, false);
-	RETV(!IsVisible(), false);
+	CommonStates state(renderer.GetDevice());
+	renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
 
-	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
-
+	// todo: treacky code, trasnforms contain local transform
+	//const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX transform = XMIdentity;
 	const Str32 technique = m_techniqueName + "_Instancing";
 	if (m_model)
-		m_model->RenderInstancing(renderer, technique.c_str(), &m_skeleton, count, transforms, transform);
+		m_model->RenderInstancing(renderer, technique.c_str(), &m_skeleton
+			, count, transforms, transform);
+
+	renderer.GetDevContext()->OMSetBlendState(NULL, NULL, 0xffffffff);
 
 	__super::RenderInstancing(renderer, count, transforms, parentTm, flags);
 	return true;

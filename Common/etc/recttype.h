@@ -31,6 +31,14 @@ namespace common
 				&& (top <= y)
 				&& (bottom >= y);
 		}
+
+		bool IsContain(const sRect1 &rect) const {
+			return !((this->left > rect.right)
+				|| (this->top > rect.bottom)
+				|| (this->right < rect.left)
+				|| (this->bottom < rect.top));
+		}
+
 		void SetX(const T x) {
 			*this = sRect1<T>(x, top, x + Width(), bottom);
 		}
@@ -42,6 +50,12 @@ namespace common
 		}
 		void SetHeight(const T height) {
 			*this = sRect1(left, top, right, height);
+		}
+		void Offset(const T x, const T y) {
+			this->left += x;
+			this->top += y;
+			this->right += x;
+			this->bottom += y;
 		}
 		T Width() const {
 			return abs(right - left);

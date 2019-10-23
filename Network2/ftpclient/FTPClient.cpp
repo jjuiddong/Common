@@ -697,9 +697,11 @@ bool CFTPClient::DownloadFile(const tstring& strRemoteFile, const tstring& strLo
       ReportError(CError::GetErrorDescription(), CCnv::ConvertToTString(__FILE__), __LINE__);
       return false;
    }
+
    file.Seek(0, CFile::orEnd);
 
-   return DownloadFile(strRemoteFile, file, repType, fPasv);
+   const bool ret = DownloadFile(strRemoteFile, file, repType, fPasv);
+   return ret;
 }
 
 /// Gets a file from the FTP server.
@@ -716,7 +718,7 @@ bool CFTPClient::DownloadFile(const tstring& strRemoteFile, ITransferNotificatio
    for( TObserverSet::const_iterator it=m_setObserver.begin(); it!=m_setObserver.end(); it++ )
       (*it)->OnPreReceiveFile(strRemoteFile, Observer.GetLocalStreamName(), lRemoteFileSize);
 
-   const bool fRet = ExecuteDatachannelCommand(CCommand::RETR(), strRemoteFile, repType, fPasv, 
+  const bool fRet = ExecuteDatachannelCommand(CCommand::RETR(), strRemoteFile, repType, fPasv, 
                                                m_fResumeIfPossible ? Observer.GetLocalStreamSize() : 0, Observer);
 
    for( TObserverSet::const_iterator it2=m_setObserver.begin(); it2!=m_setObserver.end(); it2++ )
@@ -900,7 +902,7 @@ bool CFTPClient::ExecuteDatachannelCommand(const CCommand& crDatachannelCmd, con
 
    if( fPasv )
    {
-      if( !OpenPassiveDataConnection(*apSckDataConnection, crDatachannelCmd, strPath, dwByteOffset) )
+	   if( !OpenPassiveDataConnection(*apSckDataConnection, crDatachannelCmd, strPath, dwByteOffset) )
          return false;
    }
    else

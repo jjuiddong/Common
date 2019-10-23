@@ -21,6 +21,7 @@ struct ConstantOutputType
 {
 	float edges[4] : SV_TessFactor;
 	float inside[2] : SV_InsideTessFactor;
+
 	float3 pos : POSITION;
 };
 

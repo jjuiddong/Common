@@ -13,11 +13,13 @@ namespace network2
 	class cSocketBuffer
 	{
 	public:
-		cSocketBuffer(const netid netId);
+		cSocketBuffer(const netid netId, const int maxBufferSize);
 		virtual ~cSocketBuffer();
 
 		uint Push(iPacketHeader *packetHeader, const BYTE *data, const uint size);
-		bool Pop(cPacket &out);
+		bool Pop(OUT cPacket &out);
+		bool Pop(const uint size);
+		bool PopNoRemove(OUT cPacket &out);
 		void Clear();
 
 
@@ -27,7 +29,7 @@ namespace network2
 		uint m_readLen;
 		bool m_isHeaderCopy;
 		BYTE m_tempHeader[DEFAULT_PACKETSIZE * 2];
-		common::cCircularQueue<BYTE, DEFAULT_SOCKETBUFFER_SIZE> m_q;
+		common::cCircularQueue2<BYTE> m_q;
 	};
 
 }

@@ -116,6 +116,7 @@ namespace graphic {
 #include "base/skyboxcube.h"
 #include "base/sphere.h"
 #include "base/circle.h"
+#include "base/circle2d.h"
 //#include "base/circleline.h"
 #include "base/quad.h"
 #include "base/quad2d.h"
@@ -129,6 +130,7 @@ namespace graphic {
 #include "base/depthbuffer.h"
 #include "base/slidebar.h"
 #include "base/slidelist.h"
+#include "base/bezierline.h"
 
 
 //
@@ -182,13 +184,13 @@ namespace graphic
 	struct sRenderObj
 	{
 		int opt;
-		Matrix44 tm;
 		cNode *p;
 	};
 
 	struct sAlphaBlendSpace
 	{
 		cBoundingBox bbox;
+		Matrix44 parentTm;
 		std::vector<sRenderObj> renders;
 	};
 }
@@ -203,6 +205,7 @@ namespace graphic
 #include "manager/maincamera.h"
 #include "manager/lightmanager.h"
 #include "manager/task_resource.h"
+#include "manager/renderlist.h"
 
 #include "importer/parallelloader.h"
 #include "importer/fileloader.h"
@@ -215,24 +218,27 @@ namespace graphic
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#pragma comment (lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
 
-#ifdef _VS2015
+#if defined(_VS2017)
 	#ifdef _DEBUG
-		//#pragma comment(lib, "Effects11/effects11d.lib")
-		#pragma comment(lib, "Effects11/effects11d_2015.lib")
-		#pragma comment( lib, "assimp-vc140-mtd.lib" ) 
-	#else
-		#pragma comment(lib, "Effects11/effects11_2015.lib")
-		#pragma comment( lib, "assimp-vc140-mt.lib" ) 
-	#endif
-#else
-	#ifdef _DEBUG
-		//#pragma comment(lib, "Effects11/effects11d.lib")
+		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
 		#pragma comment(lib, "Effects11/effects11d_2017.lib")
-		#pragma comment( lib, "assimp-vc140-mtd.lib" ) 
+		#pragma comment(lib, "assimp-vc140-mtd.lib" ) 
 	#else
+		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
 		#pragma comment(lib, "Effects11/effects11_2017.lib")
-		#pragma comment( lib, "assimp-vc140-mt.lib" ) 
+		#pragma comment(lib, "assimp-vc140-mt.lib" ) 
 	#endif
+
+#elif defined(_VS2015)
+	#ifdef _DEBUG
+		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
+		#pragma comment(lib, "Effects11/effects11d_2015.lib")
+		#pragma comment(lib, "assimp-vc140-mtd.lib" ) 
+	#else
+		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
+		#pragma comment(lib, "Effects11/effects11_2015.lib")
+		#pragma comment(lib, "assimp-vc140-mt.lib" ) 
+	#endif
+
 #endif

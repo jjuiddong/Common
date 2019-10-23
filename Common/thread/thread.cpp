@@ -32,6 +32,8 @@ using namespace common;
 cThread::cThread(const StrId &name
 	, const int maxTask //= -1
 	, iMemoryPool3Destructor *memPool //= NULL
+	, const uint maxProcTaskSize //= 5
+	, const int sleepMillis //= 1
 ) 
 	: m_state(eState::WAIT)
 	, m_name(name)
@@ -39,6 +41,8 @@ cThread::cThread(const StrId &name
 	, m_maxTask(maxTask)
 	, m_memPoolTask(memPool)
 	, m_sortObj(NULL)
+	, m_maxProcTaskSize(maxProcTaskSize)
+	, m_sleepMillis(sleepMillis)
 {
 	m_tasks.reserve(32);
 }
@@ -315,7 +319,7 @@ int cThread::Run()
 				//|| (eState::PAUSE == m_state)
 				)
 				&& (m_procTaskIndex < (int)m_tasks.size())
-				&& (taskProcCnt < 5)				
+				&& ((uint)taskProcCnt < m_maxProcTaskSize)
 				);
 		}
 
@@ -323,6 +327,9 @@ int cThread::Run()
 		DispatchMessage();
 
 		m_taskCS.Unlock();
+
+		if (m_sleepMillis >= 0)
+			std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepMillis));
 	}
 
 	m_taskCS.Unlock();

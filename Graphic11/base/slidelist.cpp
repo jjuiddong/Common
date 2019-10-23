@@ -28,7 +28,9 @@ bool cSlideList::Create(cRenderer &renderer
 	, const float width // = 0.5f
 )
 {
-	const int vtxType = (eVertexType::POSITION | eVertexType::COLOR);
+	const int vtxType = (eVertexType::POSITION 
+		| eVertexType::COLOR
+		);
 	m_vtxType = vtxType;
 	m_barSize = barSize;
 	m_width = width;
@@ -78,7 +80,7 @@ bool cSlideList::Render(cRenderer &renderer
 
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
 	assert(shader);
-	shader->SetTechnique("Unlit_Instancing");
+	shader->SetTechnique("Unlit_Instancing2");
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
@@ -102,20 +104,29 @@ bool cSlideList::Render(cRenderer &renderer
 	{
 		uint count = 0;
 		for (uint i = offset; i < m_slides.size() && (count < size); ++i, ++count)
-			renderer.m_cbInstancing.m_v->worlds[i-offset] = XMMatrixTranspose(m_slides[i].tfm[0].GetMatrixXM());
+		{
+			renderer.m_cbInstancing.m_v->worlds[i-offset] = XMMatrixTranspose(m_slides[i].tfm[0].GetMatrixXM() * tm);
+			renderer.m_cbInstancing.m_v->diffuses[i-offset] = m_slides[i].color[0].GetVectorXM();
+		}
 		renderer.m_cbInstancing.Update(renderer, 3);
 
 		m_shape[0].RenderInstancing(renderer, count);
 
 		count = 0;
 		for (uint i = offset; i < m_slides.size() && (count < size); ++i, ++count)
-			renderer.m_cbInstancing.m_v->worlds[i-offset] = XMMatrixTranspose(m_slides[i].tfm[1].GetMatrixXM());
+		{
+			renderer.m_cbInstancing.m_v->worlds[i-offset] = XMMatrixTranspose(m_slides[i].tfm[1].GetMatrixXM() * tm);
+			renderer.m_cbInstancing.m_v->diffuses[i-offset] = m_slides[i].color[1].GetVectorXM();
+		}
 		renderer.m_cbInstancing.Update(renderer, 3);
 		m_shape[1].RenderInstancing(renderer, count);
 
 		count = 0;
 		for (uint i = offset; i < m_slides.size() && (count < size); ++i, ++count)
-			renderer.m_cbInstancing.m_v->worlds[i - offset] = XMMatrixTranspose(m_slides[i].tfm[2].GetMatrixXM());
+		{
+			renderer.m_cbInstancing.m_v->worlds[i-offset] = XMMatrixTranspose(m_slides[i].tfm[2].GetMatrixXM() * tm);
+			renderer.m_cbInstancing.m_v->diffuses[i-offset] = m_slides[i].color[2].GetVectorXM();
+		}
 		renderer.m_cbInstancing.Update(renderer, 3);
 		m_shape[2].RenderInstancing(renderer, count);
 
@@ -132,12 +143,18 @@ bool cSlideList::Render(cRenderer &renderer
 }
 
 
-int cSlideList::Add(const int id, const Vector3 &p0, const Vector3 &p1, const float slidePos)
+int cSlideList::Add(const int id, const Vector3 &p0, const Vector3 &p1, const float slidePos
+	, const cColor &c0 //= cColor::BLACK
+	, const cColor &c1 //= cColor::WHITE
+)
 {
 	sSlideInfo slide;
 	slide.id = id;
 	slide.pos[0] = p0;
 	slide.pos[1] = p1;
+	slide.color[0] = c0.GetColor();
+	slide.color[1] = c1.GetColor();
+	slide.color[2] = c0.GetColor();
 	slide.spos = slidePos;
 	slide.apos = 0.f;
 	slide.len = p0.Distance(p1);

@@ -142,11 +142,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="base\bezierline.h" />
     <ClInclude Include="base\billboard.h" />
     <ClInclude Include="base\camera.h" />
     <ClInclude Include="base\camera2d.h" />
     <ClInclude Include="base\camera3d.h" />
     <ClInclude Include="base\circle.h" />
+    <ClInclude Include="base\circle2d.h" />
     <ClInclude Include="base\color.h" />
     <ClInclude Include="base\constantbuffer.h" />
     <ClInclude Include="base\cube.h" />
@@ -216,6 +218,7 @@
     <ClInclude Include="manager\maincamera.h" />
     <ClInclude Include="manager\pickmanager.h" />
     <ClInclude Include="manager\Renderer.h" />
+    <ClInclude Include="manager\renderlist.h" />
     <ClInclude Include="manager\resourcemanager.h" />
     <ClInclude Include="manager\shadermanager.h" />
     <ClInclude Include="manager\task_resource.h" />
@@ -268,11 +271,13 @@
     <ClInclude Include="utility\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="base\bezierline.cpp" />
     <ClCompile Include="base\billboard.cpp" />
     <ClCompile Include="base\camera.cpp" />
     <ClCompile Include="base\camera2d.cpp" />
     <ClCompile Include="base\camera3d.cpp" />
     <ClCompile Include="base\circle.cpp" />
+    <ClCompile Include="base\circle2d.cpp" />
     <ClCompile Include="base\color.cpp" />
     <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\depthbuffer.cpp" />
@@ -332,6 +337,7 @@
     <ClCompile Include="manager\maincamera.cpp" />
     <ClCompile Include="manager\pickmanager.cpp" />
     <ClCompile Include="manager\Renderer.cpp" />
+    <ClCompile Include="manager\renderlist.cpp" />
     <ClCompile Include="manager\resourcemanager.cpp" />
     <ClCompile Include="manager\shadermanager.cpp" />
     <ClCompile Include="manager\textmanager.cpp" />

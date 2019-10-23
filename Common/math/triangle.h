@@ -15,7 +15,9 @@ namespace common
 
 		Vector3 GetClosesPointOnTriangle(const Vector3 &sourcePosition) const;
 		
-		float Distance( const Vector3& vPos )  const;
+		float Distance( const Vector3& vPos ) const;
+
+		bool Similar(const Triangle &tri, const float limitLen) const;
 		
 		Vector3 Normal() const;
 

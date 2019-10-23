@@ -8,6 +8,8 @@ using namespace graphic;
 cQuad2D::cQuad2D()
 	: cNode(common::GenerateId(), "Quad2d", eNodeType::MODEL)
 	, m_texture(NULL)
+	, m_color(cColor::WHITE)
+	, m_isDepthNone(true)
 {
 }
 
@@ -21,13 +23,12 @@ cQuad2D::~cQuad2D()
 // pos : 쿼드 위치
 bool cQuad2D::Create(cRenderer &renderer, const float x, const float y
 	, const float width, const float height
+	, const int vtxType //= (eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0)
 	, const char *textureFileName // = " "
-	, const Vector3 *quadVertices //= NULL
-	, const Vector2 *quadUVs //= NULL
 )
 {
-	const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0;
-	m_shape.Create(renderer, vtxType, cColor::WHITE, 2.f, 2.f, false, quadVertices, quadUVs);
+	//const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR;// | eVertexType::TEXTURE0;
+	m_shape.Create(renderer, vtxType, cColor::WHITE);
 
 	SetPosition(x, y, width, height);
 
@@ -59,20 +60,25 @@ bool cQuad2D::Render(cRenderer &renderer
 	// 바로 Projection 좌표계로 변환한다.
 	// Shader에서는 View * Projection을 적용하지 않는다.
 
-	const float halfWidth = m_transform.scale.x*2 / vp.Width;
-	const float halfHeight = m_transform.scale.y*2 / vp.Height;
+	const float halfWidth = m_transform.scale.x * 2 / vp.Width;
+	const float halfHeight = m_transform.scale.y * 2 / vp.Height;
 
 	Transform tfm = m_transform;
-	tfm.pos.x = -1 + halfWidth + (m_transform.pos.x*2 / vp.Width);
+	tfm.pos.x = -1 + halfWidth + (m_transform.pos.x * 2 / vp.Width);
 	tfm.pos.y = 1 - halfHeight - (m_transform.pos.y * 2 / vp.Height);
 	tfm.scale *= Vector3(2.f/ vp.Width, 2.f/ vp.Height, 1);
 
-	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM());
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
+
+	Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = diffuse.GetVectorXM();
+	renderer.m_cbMaterial.Update(renderer, 2);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
-	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
+	if (m_isDepthNone)
+		renderer.GetDevContext()->OMSetDepthStencilState(states.DepthNone(), 0);
 
 	if (m_texture)
 		m_texture->Bind(renderer, 0);
@@ -80,7 +86,9 @@ bool cQuad2D::Render(cRenderer &renderer
 	m_shape.Render(renderer);
 
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
-	renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
+
+	if (m_isDepthNone)
+		renderer.GetDevContext()->OMSetDepthStencilState(states.DepthDefault(), 0);
 	return true;
 }
 

@@ -73,8 +73,8 @@ bool cDbgArrow::Picking(const Ray &ray
 )
 {
 	float out[2] = { FLT_MAX, FLT_MAX };
-	const bool r1 = m_head.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking, &out[0]);
-	const bool r2 = m_body.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking, &out[1]);
+	const bool r1 = m_head.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking, &out[0]) ? true : false;
+	const bool r2 = m_body.Picking(ray, eNodeType::MODEL, parentTm, isSpherePicking, &out[1]) ? true : false;
 
 	if (dist)
 	{

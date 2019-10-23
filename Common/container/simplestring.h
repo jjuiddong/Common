@@ -176,6 +176,11 @@ namespace common
 			return str;
 		}
 
+		String& GetCurrentDirectory_() {
+			::GetCurrentDirectoryA((DWORD)SIZE, m_str);
+			return *this;
+		}
+
 
 		//------------------------------------------------------------------------------------
 		// STL
@@ -241,6 +246,11 @@ namespace common
 		hashcode GetHashCode() const {
 			boost::hash<std::string> string_hash;
 			return string_hash(m_str);
+		}
+
+		hashcode GetHashCode(const String &key) const {
+			boost::hash<std::string> string_hash;
+			return string_hash((*this + key).c_str());
 		}
 
 		size_t size() const {
@@ -626,7 +636,12 @@ namespace common
 
 		hashcode GetHashCode() const {
 			boost::hash<std::wstring> string_hash;
-			return string_hash(m_str);
+			return string_hash(m_str + L"unique-key");
+		}
+
+		hashcode GetHashCode(const String &key) const {
+			boost::hash<std::wstring> string_hash;
+			return string_hash((*this + key).c_str());
 		}
 
 		size_t size() const {

@@ -94,7 +94,7 @@ bool cNode::Render(cRenderer &renderer
 
 bool cNode::RenderInstancing(cRenderer &renderer
 	, const int count
-	, const XMMATRIX *transforms
+	, const Matrix44 *transforms
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
@@ -102,7 +102,8 @@ bool cNode::RenderInstancing(cRenderer &renderer
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
 
-	const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
+	//const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX tm = m_localTm.GetMatrixXM() * parentTm;
 
 	for (auto &node : m_children)
 		node->RenderInstancing(renderer, count, transforms, tm, flags);
@@ -306,17 +307,13 @@ float cNode::CullingTest(const cFrustum &frustum
 }
 
 
-cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
-	, const XMMATRIX &parentTm //= XMIdentity
-	, const bool isSpherePicking //= true
-	, OUT float *dist //= NULL
-)
+void cNode::Picking(const Ray &ray, const eNodeType::Enum type
+	, const XMMATRIX &parentTm
+	, const bool isSpherePicking
+	, OUT vector<std::pair<cNode*, float>> &out)
 {
 	if (!(m_opFlags & eOpFlag::COLLISION))
-		return NULL;
-
-	vector< std::pair<cNode*, float>> picks;
-	picks.reserve(4);
+		return;
 
 	const XMMATRIX tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 
@@ -330,20 +327,33 @@ cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
 			cBoundingSphere bsphere;
 			bsphere.SetBoundingSphere(bbox);
 			if (bsphere.Intersects(ray, &chDist))
-				picks.push_back({ this, chDist });
+				out.push_back({ this, chDist });
 		}
 		else
 		{
 			if (bbox.Pick(ray.orig, ray.dir, &chDist))
-				picks.push_back({ this, chDist });
+				out.push_back({ this, chDist });
 		}
 	}
 
 	for (auto &p : m_children)
 	{
 		if (cNode *n = p->Picking(ray, type, tm, isSpherePicking, &chDist))
-			picks.push_back({ n, chDist });
+			out.push_back({ n, chDist });
 	}
+}
+
+
+cNode* cNode::Picking(const Ray &ray, const eNodeType::Enum type
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const bool isSpherePicking //= true
+	, OUT float *dist //= NULL
+)
+{
+	vector< std::pair<cNode*, float>> picks;
+	picks.reserve(4);
+
+	Picking(ray, type, parentTm, isSpherePicking, picks);
 
 	if (picks.empty())
 		return NULL;

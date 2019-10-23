@@ -42,10 +42,14 @@ namespace graphic
 			, const float dynScaleAlpha = 1.f
 		);
 
-		void Render(cRenderer &renderer, const bool isSort=false);
+		void Render(cRenderer &renderer
+			, const XMMATRIX &parentTm = XMIdentity
+			, const bool isSort=false);
+
 		void ProcessTextCmd(cRenderer &renderer);
 		void DelayGenerateText(cRenderer &renderer);
 		void Sorting();
+		void ClearCache();
 		void Clear();
 
 

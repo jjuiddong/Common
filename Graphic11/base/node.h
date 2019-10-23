@@ -69,7 +69,7 @@ namespace graphic
 
 		virtual bool RenderInstancing(cRenderer &renderer
 			, const int count
-			, const XMMATRIX *transforms
+			, const Matrix44 *transforms
 			, const XMMATRIX &parentTm = XMIdentity
 			, const int flags = 1
 		);
@@ -100,6 +100,10 @@ namespace graphic
 		virtual cNode* Picking(const Ray &ray, const eNodeType::Enum type
 			, const bool isSpherePicking = true
 			, OUT float *dist = NULL);
+
+		virtual void Picking(const Ray &ray, const eNodeType::Enum type
+			, const XMMATRIX &parentTm, const bool isSpherePicking
+			, OUT vector<std::pair<cNode*, float>> &out);
 
 		virtual cNode* Clone(cRenderer &renderer) const { return NULL; }
 		virtual void Clear();

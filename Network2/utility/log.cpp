@@ -119,7 +119,6 @@ bool network2::LogPacket(const netid rcvId, const cPacket &packet)
 	memcpy(task->m_logData.data, packet.m_data, packet.GetPacketSize());
 	task->m_logData.size = packet.GetPacketSize();
 	
-	g_logThread.PushTask(task);
-	
+	g_logThread.PushTask(task);	
 	return true;
 }

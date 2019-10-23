@@ -31,6 +31,7 @@ namespace network2
 		bool IsExist(const netid netId);
 		cSession* FindSessionBySocket(const SOCKET sock);
 		cSession* FindSessionByNetId(const netid netId);
+		cSession* FindSessionByName(const StrId &name);
 		void MakeFdSet(OUT fd_set &out);
 		virtual void Close() override;
 

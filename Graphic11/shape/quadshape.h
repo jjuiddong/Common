@@ -1,7 +1,8 @@
 //
 // 2017-08-07, jjuiddong
 // DX11 Quad Shape
-// X-Y Plane Quad
+//
+// 1. X-Y Plane Quad
 //
 //     Y
 //     |
@@ -14,6 +15,20 @@
 //     |
 //
 //
+//
+// 2. X-Z Plane Quad
+//
+//     Z
+//     |
+//     |
+//     |
+//     |
+//     |
+//     |
+//  ---|--------------------- X
+//     |
+
+//
 #pragma once
 
 
@@ -24,10 +39,13 @@ namespace graphic
 	class cQuadShape : public cShape
 	{
 	public:
+		enum class ePlaneType {XY, XZ};
+
 		cQuadShape();
 		cQuadShape(cRenderer &renderer
 			, const int vtxType = (eVertexType::POSITION | eVertexType::TEXTURE0)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const ePlaneType planeType = ePlaneType::XY);
 
 		virtual ~cQuadShape();
 
@@ -37,8 +55,7 @@ namespace graphic
 			, const float width = 2
 			, const float height = 2
 			, const bool isDynamic = false
-			, const Vector3 *quadVertices = NULL
-			, const Vector2 *quadUVs = NULL);
+			, const ePlaneType planeType = ePlaneType::XY);
 
 		void Render(cRenderer &renderer) override;
 

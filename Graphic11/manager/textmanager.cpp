@@ -29,8 +29,8 @@ cTextManager::~cTextManager()
 
 
 void cTextManager::Create(const u_int maxTextCount //= 100
-	, const int textureSizeX //= 256
-	, const int textureSizeY //= 32
+	, const int textureSizeX //= TEXTURE_SIZEX
+	, const int textureSizeY //= TEXTURE_SIZEY
 )
 {
 	m_maxTextCount = maxTextCount;
@@ -254,6 +254,7 @@ void cTextManager::DelayGenerateText(cRenderer &renderer)
 
 
 void cTextManager::Render(cRenderer &renderer
+	, const XMMATRIX &parentTm //= XMIdentity
 	, const bool isSort //= false
 )
 {
@@ -263,12 +264,21 @@ void cTextManager::Render(cRenderer &renderer
 	if (isSort)
 		Sorting();
 
+	const Matrix44 tm = parentTm;
+	sAlphaBlendSpace *alphaSpace = NULL;
 	for (auto &p : m_renders)
 	{
 		p->text.m_alphaNormal = p->text.m_quad.m_normal;
 		p->text.m_isDepthNone = p->depthNone;
 		p->text.SetRenderFlag(eRenderFlag::NODEPTH, p->depthNone);
-		renderer.AddRenderAlpha(p->space, &p->text, p->text.m_transform.GetMatrix());
+
+		if (p->space != alphaSpace)
+		{
+			// 중복 업데이트를 막기위해 처리함.
+			alphaSpace = p->space;
+			alphaSpace->parentTm = tm;
+		}
+		renderer.AddRenderAlpha(p->space, &p->text);// , tm);// p->text.m_transform.GetMatrix());
 	}
 }
 
@@ -367,6 +377,19 @@ void cTextManager::Sorting()
 			return l1 > l2;
 		}
 	);
+}
+
+
+// 캐시를 초기화 한다.
+// 문자열을 다시 그리기 위해서 사용된다.
+void cTextManager::ClearCache()
+{
+	m_cacheMap.clear();
+	for (auto &text : m_buffer)
+	{
+		text->text.m_text.clear();
+		text->text.m_color = cColor::BLACK;
+	}
 }
 
 

@@ -15,9 +15,10 @@ cQuad::cQuad(cRenderer &renderer, const float width, const float height
 	, const Vector3 &pos
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const StrPath &textureFileName // = " "
+	, const cQuadShape::ePlaneType planeType //= cQuadShape::ePlaneType::XY
 )
 {
-	Create(renderer, width, height, pos, vtxType, textureFileName);
+	Create(renderer, width, height, pos, vtxType, textureFileName, false, planeType);
 }
 
 cQuad::~cQuad()
@@ -33,12 +34,15 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::TEXTURE0)
 	, const StrPath &textureFileName // = ""
 	, const bool isDynamic // = false
+	, const cQuadShape::ePlaneType planeType //= cQuadShape::ePlaneType::XY
 )
 {
-	m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic);
+	m_shape.Create(renderer, vtxType, cColor::WHITE, 2, 2, isDynamic, planeType);
 	m_vtxType = vtxType;
+	m_color = cColor::WHITE;
 	m_transform.pos = pos;
-	m_transform.scale = Vector3(width, height, 0.1f); // Z축으로 얇은 X-Y 평면
+	m_transform.scale = (planeType == cQuadShape::ePlaneType::XY)? 
+		Vector3(width, height, 0.1f) : Vector3(width, 0.1f, height);
 	m_boundingBox.SetBoundingBox(m_transform);
 
 	if (!textureFileName.empty())
@@ -66,6 +70,9 @@ bool cQuad::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+
+	Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->diffuse = diffuse.GetVectorXM();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	if (m_texture)

@@ -378,6 +378,7 @@
   <ItemGroup>
     <ClInclude Include="common.h" />
     <ClInclude Include="container\circularqueue.h" />
+    <ClInclude Include="container\circularqueue2.h" />
     <ClInclude Include="container\shmmap.h" />
     <ClInclude Include="container\simplestring.h" />
     <ClInclude Include="container\stablevectormap.h" />

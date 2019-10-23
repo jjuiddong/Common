@@ -146,6 +146,7 @@ cbuffer cbMaterial : register(b2)
 cbuffer cbPerFrameInstancing : register(b3)
 {
 	matrix gWorldInst[256];
+	float4 gDiffuseInst[256];
 }
 
 cbuffer cbClipPlane : register(b4)

@@ -46,6 +46,7 @@ namespace graphic
 		cBillboard m_quad;
 		cColor m_color;
 		Vector3 m_originalScale;
+		Vector2 m_uv; // text uv
 		bool m_isDepthNone;
 	};
 

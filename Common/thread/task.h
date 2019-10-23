@@ -46,7 +46,7 @@ namespace common
 		: m_id(id), m_pThread(NULL), m_name(name), m_isTopPriority(isTopPriority) { }
 
 
-	// list<CTask*>에서 CTask를 찾는 객체
+	// list<CTask*>에서 cTask를 찾는 객체
 	class IsTask : public std::unary_function<cTask*, bool>
 	{
 	public:

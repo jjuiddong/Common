@@ -19,6 +19,7 @@ namespace graphic
 
 		bool SetFrustum(const Matrix44 &matViewProj);
 		bool SetFrustum(const Vector3 vertices[8]);
+		bool SetFrustum(const Vector3 vertices[2], const float h0, const float h1);
 		bool IsIn( const Vector3 &point ) const;
 		bool IsInSphere(const cBoundingSphere &sphere) const;
 		bool IsInBox(const cBoundingBox &bbox) const;
