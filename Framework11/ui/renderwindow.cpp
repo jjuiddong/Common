@@ -128,7 +128,7 @@ bool cRenderWindow::TranslateEvent()
 
 	m_gui.SetContext();
 	m_input.NewFrame();
-	m_gui.NewFrame();
+	//m_gui.NewFrame(); // move to Render()
 
 	sf::Event evt;
 	int n = 0;
@@ -536,6 +536,8 @@ std::pair<bool, cDockWindow*> cRenderWindow::UpdateCursor()
 void cRenderWindow::Render(const float deltaSeconds)
 {
 	const double t0 = m_timer.GetSeconds();
+
+	m_gui.NewFrame(); // for node editor work
 
 	RET(!isOpen());
 	RET(!m_isVisible);

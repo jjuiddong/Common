@@ -171,7 +171,7 @@ bool cModel::Render(cRenderer &renderer
 	if (!(flags & m_renderFlags))
 		return false;
 
-	if (0)
+	if (0) // draw render list
 	{
 		const Matrix44 tm = m_localTm.GetMatrixXM() * m_transform.GetMatrixXM() * parentTm;
 		renderer.m_renderList->AddRender(this, tm, flags);

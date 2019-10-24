@@ -181,6 +181,24 @@
     <ClInclude Include="external\imgui\imgui_impl_dx11.h">
       <Filter>external\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="external\NodeEditor\crude_json.h">
+      <Filter>external\NodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_bezier_math.h">
+      <Filter>external\NodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_canvas.h">
+      <Filter>external\NodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_extra_math.h">
+      <Filter>external\NodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_node_editor.h">
+      <Filter>external\NodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_node_editor_internal.h">
+      <Filter>external\NodeEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -301,6 +319,21 @@
     <ClCompile Include="external\imgui\imgui_impl_dx11.cpp">
       <Filter>external\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="external\imgui\imgui_widgets.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\crude_json.cpp">
+      <Filter>external\NodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\imgui_canvas.cpp">
+      <Filter>external\NodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\imgui_node_editor.cpp">
+      <Filter>external\NodeEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\imgui_node_editor_api.cpp">
+      <Filter>external\NodeEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="external">
@@ -336,5 +369,27 @@
     <Filter Include="dbg">
       <UniqueIdentifier>{30c73c4f-02f1-4c08-8438-8aa6b3e2361c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="external\NodeEditor">
+      <UniqueIdentifier>{0ca88eff-2f56-46a7-a9a7-a28864fe18ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\NodeEditor\Support">
+      <UniqueIdentifier>{ae35b064-b22e-48b3-bc70-1dc5dd499102}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\NodeEditor\Support\imgui_node_editor.natvis">
+      <Filter>external\NodeEditor\Support</Filter>
+    </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="external\NodeEditor\imgui_bezier_math.inl">
+      <Filter>external\NodeEditor</Filter>
+    </None>
+    <None Include="external\NodeEditor\imgui_extra_math.inl">
+      <Filter>external\NodeEditor</Filter>
+    </None>
+    <None Include="external\NodeEditor\imgui_node_editor_internal.inl">
+      <Filter>external\NodeEditor</Filter>
+    </None>
   </ItemGroup>
 </Project>
