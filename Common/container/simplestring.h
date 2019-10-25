@@ -283,7 +283,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf.m_str, len);
 			return buf;
 		}
@@ -294,7 +294,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, buf.m_str, len);
 			return buf;
 		}
@@ -307,7 +307,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, buf.m_str, len);
 
 			String buf2;
@@ -323,7 +323,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf.m_str, len);
 
 			String buf2;
@@ -672,7 +672,7 @@ namespace common
 			const int slength = (int)size() + 1;
 			int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
 			String<char, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
 			return buf;
 		}
@@ -683,7 +683,7 @@ namespace common
 			const int slength = (int)size() + 1;
 			int len = ::WideCharToMultiByte(CP_UTF8, 0, m_str, slength, 0, 0, NULL, FALSE);
 			String<char, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::WideCharToMultiByte(CP_UTF8, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
 			return buf;
 		}
@@ -694,7 +694,7 @@ namespace common
 			const int slength = (int)size() + 1;
 			int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
 			String<char, MAX> buf;
-			len = min(MAX - 1, len);
+			len = min(MAX - 1, (size_t)len);
 			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
 			return buf;
 		}

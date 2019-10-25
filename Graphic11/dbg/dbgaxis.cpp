@@ -36,7 +36,7 @@ void cDbgAxis::SetAxis(const cBoundingBox &bbox
 {
 	const Vector3 dim = bbox.GetDimension();
 	const float size = max(dim.x, max(dim.y, dim.z)) * 0.005f;
-	SetAxis(max(0.1f, min(1,size)), bbox, approximate);
+	SetAxis(max(0.1f, min(1.f,size)), bbox, approximate);
 }
 
 

@@ -531,8 +531,8 @@ void cTerrain::HeightmapNormalize(const Vector3 &cursorPos, const float radius)
 
 	const float x = ((cursorPos.x - radius) / m_tileCellSize.x) - 2;
 	const float z = ((cursorPos.z - radius) / m_tileCellSize.y) - 2;
-	const int startX = (int)max(0, x);
-	const int startZ = (int)max(0, z);
+	const int startX = (int)max(0.f, x);
+	const int startZ = (int)max(0.f, z);
 	const int rowSize = (int)((radius * 2) / m_tileCellSize.y) + 4;
 	const int colSize = (int)((radius * 2) / m_tileCellSize.x) + 4;
 	const int endZ = min(startZ + rowSize, m_rowVtx);

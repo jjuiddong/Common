@@ -76,6 +76,10 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "external/imgui/imgui.h"
 #include "external/imgui/imgui_impl_dx11.h"
+// ImGui NodeEditor
+#include "external/nodeeditor/ax/builders.h"
+#include "external/nodeeditor/ax/widgets.h"
+
 
 // SFML
 #pragma warning(push)

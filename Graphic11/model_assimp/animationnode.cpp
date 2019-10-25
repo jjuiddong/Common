@@ -48,7 +48,7 @@ bool cAnimationNode::GetPosKey(const float t, OUT Vector3 &out)
 
 			const float totTime = m_boneAni->pos[i].t - prev.t;
 			const float curTime = t - prev.t;
-			const float r = (totTime > 0) ? min(1, curTime / totTime) : 1.f;
+			const float r = (totTime > 0) ? min(1.f, curTime / totTime) : 1.f;
 			out = prev.p.Interpolate(m_boneAni->pos[i].p, r);
 			return true;
 		}
@@ -70,7 +70,7 @@ bool cAnimationNode::GetRotKey(const float t, OUT Quaternion &out)
 
 			const float totTime = m_boneAni->rot[i].t - prev.t;
 			const float curTime = t - prev.t;
-			const float r = (totTime > 0) ? min(1, curTime / totTime) : 1.f;
+			const float r = (totTime > 0) ? min(1.f, curTime / totTime) : 1.f;
 			out = prev.q.Interpolate(m_boneAni->rot[i].q, r);
 			return true;
 		}
@@ -92,7 +92,7 @@ bool cAnimationNode::GetScaleKey(const float t, OUT Vector3 &out)
 
 			const float totTime = m_boneAni->scale[i].t - prev.t;
 			const float curTime = t - prev.t;
-			const float r = (totTime > 0) ? min(1, curTime / totTime) : 1.f;
+			const float r = (totTime > 0) ? min(1.f, curTime / totTime) : 1.f;
 			out = prev.s.Interpolate(m_boneAni->scale[i].s, r);
 			return true;
 		}

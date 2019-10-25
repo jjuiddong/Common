@@ -27,7 +27,7 @@ void cRenderList::Render(cRenderer &renderer)
 		while (start < inst->tms.size())
 		{
 			// max instancing size 256, depend on shader (common.fx)
-			const uint size = min(256, inst->tms.size() - start);
+			const uint size = min((uint)256, inst->tms.size() - start);
 			inst->model->RenderInstancing(renderer, (int)size
 				, &inst->tms[start], XMIdentity, inst->flags);
 			start += size;

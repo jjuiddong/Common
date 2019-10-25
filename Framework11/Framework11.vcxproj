@@ -85,7 +85,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;USE_D3D11_MATH;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;_ITERATOR_DEBUG_LEVEL=0;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>./external/sfml/include/;./external/sfml/src/;./external/imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./external/sfml/include/;./external/sfml/src/;./external/imgui/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;USE_D3D11_MATH;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>./external/sfml/include/;./external/sfml/src/;./external/imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./external/sfml/include/;./external/sfml/src/;./external/imgui/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -150,6 +150,11 @@
     <ClInclude Include="external\imgui\stb_rect_pack.h" />
     <ClInclude Include="external\imgui\stb_textedit.h" />
     <ClInclude Include="external\imgui\stb_truetype.h" />
+    <ClInclude Include="external\NodeEditor\ax\Builders.h" />
+    <ClInclude Include="external\NodeEditor\ax\Drawing.h" />
+    <ClInclude Include="external\NodeEditor\ax\Interop.h" />
+    <ClInclude Include="external\NodeEditor\ax\Math2D.h" />
+    <ClInclude Include="external\NodeEditor\ax\Widgets.h" />
     <ClInclude Include="external\NodeEditor\crude_json.h" />
     <ClInclude Include="external\NodeEditor\imgui_bezier_math.h" />
     <ClInclude Include="external\NodeEditor\imgui_canvas.h" />
@@ -217,6 +222,9 @@
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="external\NodeEditor\ax\Builders.cpp" />
+    <ClCompile Include="external\NodeEditor\ax\Drawing.cpp" />
+    <ClCompile Include="external\NodeEditor\ax\Widgets.cpp" />
     <ClCompile Include="external\NodeEditor\crude_json.cpp" />
     <ClCompile Include="external\NodeEditor\imgui_canvas.cpp" />
     <ClCompile Include="external\NodeEditor\imgui_node_editor.cpp" />
@@ -271,6 +279,7 @@
     <Natvis Include="external\NodeEditor\Support\imgui_node_editor.natvis" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="external\NodeEditor\ax\Math2D.inl" />
     <None Include="external\NodeEditor\imgui_bezier_math.inl" />
     <None Include="external\NodeEditor\imgui_extra_math.inl" />
     <None Include="external\NodeEditor\imgui_node_editor_internal.inl" />

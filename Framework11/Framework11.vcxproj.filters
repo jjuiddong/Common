@@ -199,6 +199,21 @@
     <ClInclude Include="external\NodeEditor\imgui_node_editor_internal.h">
       <Filter>external\NodeEditor</Filter>
     </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Builders.h">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Drawing.h">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Interop.h">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Math2D.h">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Widgets.h">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -334,6 +349,15 @@
     <ClCompile Include="external\NodeEditor\imgui_node_editor_api.cpp">
       <Filter>external\NodeEditor</Filter>
     </ClCompile>
+    <ClCompile Include="external\NodeEditor\ax\Builders.cpp">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\ax\Drawing.cpp">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\ax\Widgets.cpp">
+      <Filter>external\NodeEditor\ax</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="external">
@@ -375,6 +399,9 @@
     <Filter Include="external\NodeEditor\Support">
       <UniqueIdentifier>{ae35b064-b22e-48b3-bc70-1dc5dd499102}</UniqueIdentifier>
     </Filter>
+    <Filter Include="external\NodeEditor\ax">
+      <UniqueIdentifier>{c68c9616-0701-45a9-84ba-6cbb7354e631}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="external\NodeEditor\Support\imgui_node_editor.natvis">
@@ -390,6 +417,9 @@
     </None>
     <None Include="external\NodeEditor\imgui_node_editor_internal.inl">
       <Filter>external\NodeEditor</Filter>
+    </None>
+    <None Include="external\NodeEditor\ax\Math2D.inl">
+      <Filter>external\NodeEditor\ax</Filter>
     </None>
   </ItemGroup>
 </Project>

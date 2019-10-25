@@ -210,7 +210,7 @@ namespace common
 		}
 		else
 		{
-			const uint cpSize = min((uint)(SIZE - m_front), (int)size0);
+			const uint cpSize = min((uint)(SIZE - m_front), size0);
 			memcpy(dst, &m_datas[m_front], cpSize);
 
 			if (cpSize < size0)

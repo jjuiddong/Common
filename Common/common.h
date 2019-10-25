@@ -5,7 +5,7 @@
 #pragma once
 
 
-// pre processor environment setting
+// Pre Processor Environment Setting
 //#ifndef _VS2015
 //	#define _VS2015
 //#endif
@@ -25,6 +25,14 @@
 
 #ifndef _WINSOCKAPI_
 	#define _WINSOCKAPI_
+#endif
+
+
+// https://stackoverflow.com/questions/4913922/possible-problems-with-nominmax-on-visual-c
+// https://bspfp.pe.kr/archives/591
+// remove min, max macro in "Windows.h"
+#ifndef NOMINMAX
+	#define NOMINMAX
 #endif
 
 
@@ -105,6 +113,12 @@ typedef unsigned int hashcode;
 #include <shlwapi.h>
 #include <iterator>
 
+#include <atlbase.h>
+#include <atlstr.h>
+#include <setupapi.h>
+#include <winspool.h>
+#include <WBemCli.h>
+#include <msports.h>
 
 using std::string;
 using std::wstring;
@@ -115,6 +129,8 @@ using std::set;
 using std::queue;
 using std::stringstream;
 using std::wstringstream;
+using std::min;
+using std::max;
 
 
 #include "container/vectorhelper.h"

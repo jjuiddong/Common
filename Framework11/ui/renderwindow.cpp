@@ -93,11 +93,14 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//const float bigFontSize = 36;
 
 		StrPath path1 = cResourceManager::Get()->GetMediaDirectory() + "extra_fonts/³ª´®°íµñBold.ttf";
+		//char* windir = nullptr;
+		//if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
+		//	return nullptr;
+		//StrPath path1 = std::string(windir) + "\\Fonts\\" + "segoeui.ttf";
+
 		io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		m_fontBig = io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 
-		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
-		//m_fontBig = io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		io.ImeWindowHandle = (HWND)this->getSystemHandle();
 
 		//ImVector<ImWchar> ranges;

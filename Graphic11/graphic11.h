@@ -42,6 +42,13 @@ using namespace DirectX;
 //--------------------------------------------------------------------------------------------------------------
 
 
+// Windows.h NOMINMAX problem solumtion
+// https://stackoverflow.com/questions/4913922/possible-problems-with-nominmax-on-visual-c
+namespace Gdiplus
+{
+	using std::min;
+	using std::max;
+}
 
 #include <objidl.h>
 #include <gdiplus.h> 

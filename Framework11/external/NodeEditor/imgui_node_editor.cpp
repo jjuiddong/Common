@@ -253,7 +253,7 @@ static void ImDrawList_SwapSplitter(ImDrawList* drawList, ImDrawListSplitter& sp
 //        for (auto i = 1u; i < idxCount; ++i)
 //        {
 //            auto idx = idxRead[indexOffset + i];
-//            minIndex = std::min(minIndex, idx);
+//            minIndex = min(minIndex, idx);
 //            maxIndex = ImMax(maxIndex, idx);
 //        }
 //
@@ -297,8 +297,8 @@ static void ImDrawList_SwapSplitter(ImDrawList* drawList, ImDrawListSplitter& sp
 //    {
 //        cmd.ClipRect.x = ImMax(cmd.ClipRect.x + offset.x, clipRect.x);
 //        cmd.ClipRect.y = ImMax(cmd.ClipRect.y + offset.y, clipRect.y);
-//        cmd.ClipRect.z = std::min(cmd.ClipRect.z + offset.x, clipRect.z);
-//        cmd.ClipRect.w = std::min(cmd.ClipRect.w + offset.y, clipRect.w);
+//        cmd.ClipRect.z = min(cmd.ClipRect.z + offset.x, clipRect.z);
+//        cmd.ClipRect.w = min(cmd.ClipRect.w + offset.y, clipRect.w);
 //    }
 //}
 
@@ -2728,7 +2728,7 @@ void ed::FlowAnimation::ClearPath()
 
 ImVec2 ed::FlowAnimation::SamplePath(float distance)
 {
-    //distance = ImMax(0.0f, std::min(distance, PathLength));
+    //distance = ImMax(0.0f, min(distance, PathLength));
 
     auto endPointIt = std::find_if(m_Path.begin(), m_Path.end(), [distance](const CurvePoint& p) { return distance < p.Distance; });
     if (endPointIt == m_Path.end())
@@ -3704,12 +3704,12 @@ void ed::SelectAction::Draw(ImDrawList* drawList)
 
     drawList->ChannelsSetCurrent(c_BackgroundChannel_SelectionRect);
 
-    auto min  = ImVec2(min(m_StartPoint.x, m_EndPoint.x), min(m_StartPoint.y, m_EndPoint.y));
-    auto max  = ImVec2(ImMax(m_StartPoint.x, m_EndPoint.x), ImMax(m_StartPoint.y, m_EndPoint.y));
+    auto min0  = ImVec2(min(m_StartPoint.x, m_EndPoint.x), min(m_StartPoint.y, m_EndPoint.y));
+    auto max0  = ImVec2(ImMax(m_StartPoint.x, m_EndPoint.x), ImMax(m_StartPoint.y, m_EndPoint.y));
 
-    drawList->AddRectFilled(min, max, fillColor);
+    drawList->AddRectFilled(min0, max0, fillColor);
     FringeScaleScope fringe(1.0f);
-    drawList->AddRect(min, max, outlineColor);
+    drawList->AddRect(min0, max0, outlineColor);
 }
 
 

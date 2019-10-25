@@ -31,7 +31,7 @@ IMGUI_API LRESULT   ImGui_ImplDX11_WndProcHandler(HWND hWnd, UINT msg, WPARAM wP
 class cImGui
 {
 public:
-	cImGui();
+    cImGui();
 	virtual ~cImGui();
 
 	bool Init(void* hwnd, ID3D11Device* device, ID3D11DeviceContext* device_context, ImFontAtlas *font);
@@ -45,8 +45,8 @@ public:
 	bool CreateFontsTexture();
 	void SetContext();
 	void SetNullContext();
-	void SetStyleColorsDark();
-	void SetStyleColorsLight();
+    void SetStyleColorsDark();
+    void SetStyleColorsLight();
 
 
 public:

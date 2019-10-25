@@ -640,11 +640,11 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const sRectf &r
 			{
 			case eDockSlot::LEFT: 
 				pixel = (lowerOpt == eDockSizingOption::PIXEL) ? m_lower->m_rect.Width() : (nw - m_upper->m_rect.Width()); 
-				pixel = min(max(30, pixel), nw-30);
+				pixel = min(max(30.f, pixel), nw-30.f);
 				break;
 			case eDockSlot::TOP: 
 				pixel = (lowerOpt == eDockSizingOption::PIXEL) ? m_lower->m_rect.Height() : (nh - m_upper->m_rect.Height());
-				pixel = min(max(30, pixel), nh-30);
+				pixel = min(max(30.f, pixel), nh-30.f);
 				break;
 			default: assert(0); break;
 			}

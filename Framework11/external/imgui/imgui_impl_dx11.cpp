@@ -19,8 +19,9 @@
 
 struct VERTEX_CONSTANT_BUFFER
 {
-    float        mvp[4][4];
+    float mvp[4][4];
 };
+
 
 cImGui::cImGui()
 	: m_context(NULL)

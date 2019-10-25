@@ -646,7 +646,7 @@ void cAssimpLoader::CreateAnimation()
 						continue;
 				}
 
-				t = max(0, t);
+				t = max(0.f, t);
 
 				if (t < minT)
 					minT = t;
@@ -698,7 +698,7 @@ void cAssimpLoader::CreateAnimation()
 						continue;
 				}
 
-				t = max(0, t);
+				t = max(0.f, t);
 
 				if (t < minT)
 					minT = t;
@@ -750,7 +750,7 @@ void cAssimpLoader::CreateAnimation()
 						continue;
 				}
 
-				t = max(0, t);
+				t = max(0.f, t);
 
 				if (t < minT)
 					minT = t;

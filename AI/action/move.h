@@ -56,7 +56,7 @@ namespace ai
 			{
 				m_rotateTime += deltaSeconds;
 
-				const float alpha = min(1, m_rotateTime / m_rotateInterval);
+				const float alpha = min(1.f, m_rotateTime / m_rotateInterval);
 				const Quaternion q = m_fromDir.Interpolate(m_toDir, alpha);
 				m_R = q.GetMatrix();
 			}
