@@ -213,6 +213,12 @@
     <ClInclude Include="ui\eventhandler.h" />
     <ClInclude Include="ui\renderwindow.h" />
     <ClInclude Include="ui\uidef.h" />
+    <ClInclude Include="vprogeditor\editmanager.h" />
+    <ClInclude Include="vprogeditor\link.h" />
+    <ClInclude Include="vprogeditor\node.h" />
+    <ClInclude Include="vprogeditor\nodefile.h" />
+    <ClInclude Include="vprogeditor\pin.h" />
+    <ClInclude Include="vprogeditor\vprog.h" />
     <ClInclude Include="window\utility.h" />
   </ItemGroup>
   <ItemGroup>
@@ -268,6 +274,10 @@
     <ClCompile Include="ui\event.cpp" />
     <ClCompile Include="ui\eventhandler.cpp" />
     <ClCompile Include="ui\renderwindow.cpp" />
+    <ClCompile Include="vprogeditor\editmanager.cpp" />
+    <ClCompile Include="vprogeditor\node.cpp" />
+    <ClCompile Include="vprogeditor\nodefile.cpp" />
+    <ClCompile Include="vprogeditor\vprog.cpp" />
     <ClCompile Include="window\utility.cpp" />
   </ItemGroup>
   <ItemGroup>

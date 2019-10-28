@@ -1,8 +1,9 @@
-// Serial.h
+//
+// 201x-xx-xx, jjuiddong
+// Serial Communication Class
+//
 
-#ifndef __SERIAL_H__
-#define __SERIAL_H__
-
+#pragma once
 
 #define FC_DTRDSR       0x01
 #define FC_RTSCTS       0x02
@@ -13,6 +14,7 @@
 #define ASCII_CR        0x0D
 #define ASCII_XON       0x11
 #define ASCII_XOFF      0x13
+
 
 namespace common
 {
@@ -43,5 +45,3 @@ namespace common
 	};
 
 }
-
-#endif

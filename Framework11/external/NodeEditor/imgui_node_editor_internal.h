@@ -1256,6 +1256,8 @@ struct EditorContext
 
     bool DoLink(LinkId id, PinId startPinId, PinId endPinId, ImU32 color, float thickness);
 
+	void Clear(); // 2019-10-28, jjuiddong
+
 
     NodeBuilder& GetNodeBuilder() { return m_NodeBuilder; }
     HintBuilder& GetHintBuilder() { return m_HintBuilder; }
@@ -1324,6 +1326,11 @@ struct EditorContext
     Node*  GetNode(NodeId id);
     Pin*   GetPin(PinId id, PinKind kind);
     Link*  GetLink(LinkId id);
+
+	// 2019-10-28, jjuiddong 
+	bool   DeleteNode(NodeId id);
+	bool   DeletePin(PinId id);
+	bool   DeleteLink(LinkId id);
 
     Link* FindLinkAt(const ImVec2& p);
 

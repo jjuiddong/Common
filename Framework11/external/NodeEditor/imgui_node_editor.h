@@ -220,6 +220,7 @@ void SetCurrentEditor(EditorContext* ctx);
 EditorContext* GetCurrentEditor();
 EditorContext* CreateEditor(const Config* config = nullptr);
 void DestroyEditor(EditorContext* ctx);
+void ClearEditor(); // 2019-10-28, jjuiddong
 
 Style& GetStyle();
 const char* GetStyleColorName(StyleColor colorIndex);

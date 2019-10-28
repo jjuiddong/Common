@@ -59,6 +59,12 @@ void ax::NodeEditor::DestroyEditor(EditorContext* ctx)
     delete editor;
 }
 
+// 2019-10-28, jjuiddong
+void ax::NodeEditor::ClearEditor()
+{
+	s_Editor->Clear();
+}
+
 void ax::NodeEditor::SetCurrentEditor(EditorContext* ctx)
 {
     s_Editor = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(ctx);

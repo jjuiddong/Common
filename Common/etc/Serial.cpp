@@ -20,6 +20,7 @@ cSerial::~cSerial()
 	Close();
 }
 
+
 BOOL cSerial::Open( int nPort, int nBaud )
 {
 	if( m_bOpened ) return( TRUE );
@@ -75,6 +76,7 @@ BOOL cSerial::Open( int nPort, int nBaud )
 
  }
 
+
 BOOL cSerial::Close( void )
 {
 	if( !m_bOpened || m_hIDComDev == NULL ) return( TRUE );
@@ -122,6 +124,7 @@ int cSerial::SendData( const char *buffer, int size )
 	return( (int) dwBytesWritten );
 }
 
+
 int cSerial::ReadDataWaiting( void )
 {
 	if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
@@ -133,6 +136,7 @@ int cSerial::ReadDataWaiting( void )
 
 	return( (int) ComStat.cbInQue );
 }
+
 
 int cSerial::ReadData( void *buffer, int limit )
 {

@@ -1481,6 +1481,20 @@ bool ed::EditorContext::DoLink(LinkId id, PinId startPinId, PinId endPinId, ImU3
     return true;
 }
 
+
+// 2019-10-28, jjuiddong
+// clear all node, pin, link
+void ed::EditorContext::Clear()
+{
+	m_Nodes.clear();
+	m_Pins.clear();
+	m_Links.clear();
+	m_SelectedObjects.clear();
+	m_LastSelectedObjects.clear();
+	m_LastActiveLink = NULL;
+}
+
+
 void ed::EditorContext::SetNodePosition(NodeId nodeId, const ImVec2& position)
 {
     auto node = FindNode(nodeId);
@@ -1795,6 +1809,23 @@ static inline auto FindItemIn(C& container, Id id)
         return static_cast<decltype(it->m_Object)>(nullptr);
 }
 
+// 2019-10-28, jjuiddong 
+template <typename C, typename Id>
+static bool RemoveItem(C& container, Id id)
+{
+	for (uint i = 0; i < container.size(); ++i)
+	{
+		auto &item = container[i];
+		if (item.m_ID == id)
+		{
+			common::rotatepopvector(container, i);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 ed::Node* ed::EditorContext::FindNode(NodeId id)
 {
     return FindItemInLinear(m_Nodes, id);
@@ -1848,6 +1879,28 @@ ed::Link* ed::EditorContext::GetLink(LinkId id)
     else
         return CreateLink(id);
 }
+
+
+// 2019-10-28, jjuiddong 
+bool ed::EditorContext::DeleteNode(NodeId id)
+{
+	return RemoveItem(m_Nodes, id);
+}
+
+
+// 2019-10-28, jjuiddong 
+bool ed::EditorContext::DeletePin(PinId id)
+{
+	return RemoveItem(m_Pins, id);
+}
+
+
+// 2019-10-28, jjuiddong 
+bool ed::EditorContext::DeleteLink(LinkId id)
+{
+	return RemoveItem(m_Links, id);
+}
+
 
 void ed::EditorContext::LoadSettings()
 {

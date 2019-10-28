@@ -182,37 +182,55 @@
       <Filter>external\imgui</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\crude_json.h">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\imgui_bezier_math.h">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\imgui_canvas.h">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\imgui_extra_math.h">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\imgui_node_editor.h">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\imgui_node_editor_internal.h">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\ax\Builders.h">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\ax\Drawing.h">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\ax\Interop.h">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\ax\Math2D.h">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </ClInclude>
     <ClInclude Include="external\NodeEditor\ax\Widgets.h">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\node.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\vprog.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\editmanager.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\pin.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\link.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\nodefile.h">
+      <Filter>vprogeditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -338,25 +356,37 @@
       <Filter>external\imgui</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\crude_json.cpp">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\imgui_canvas.cpp">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\imgui_node_editor.cpp">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\imgui_node_editor_api.cpp">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\ax\Builders.cpp">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\ax\Drawing.cpp">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </ClCompile>
     <ClCompile Include="external\NodeEditor\ax\Widgets.cpp">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\node.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\vprog.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\editmanager.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\nodefile.cpp">
+      <Filter>vprogeditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -393,33 +423,36 @@
     <Filter Include="dbg">
       <UniqueIdentifier>{30c73c4f-02f1-4c08-8438-8aa6b3e2361c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="external\NodeEditor">
+    <Filter Include="external\nodeeditor">
       <UniqueIdentifier>{0ca88eff-2f56-46a7-a9a7-a28864fe18ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="external\NodeEditor\Support">
+    <Filter Include="external\nodeeditor\Support">
       <UniqueIdentifier>{ae35b064-b22e-48b3-bc70-1dc5dd499102}</UniqueIdentifier>
     </Filter>
-    <Filter Include="external\NodeEditor\ax">
+    <Filter Include="external\nodeeditor\ax">
       <UniqueIdentifier>{c68c9616-0701-45a9-84ba-6cbb7354e631}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vprogeditor">
+      <UniqueIdentifier>{93f20343-5b97-423e-bab8-70aa186c8a6f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="external\NodeEditor\Support\imgui_node_editor.natvis">
-      <Filter>external\NodeEditor\Support</Filter>
+      <Filter>external\nodeeditor\Support</Filter>
     </Natvis>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\NodeEditor\imgui_bezier_math.inl">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </None>
     <None Include="external\NodeEditor\imgui_extra_math.inl">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </None>
     <None Include="external\NodeEditor\imgui_node_editor_internal.inl">
-      <Filter>external\NodeEditor</Filter>
+      <Filter>external\nodeeditor</Filter>
     </None>
     <None Include="external\NodeEditor\ax\Math2D.inl">
-      <Filter>external\NodeEditor\ax</Filter>
+      <Filter>external\nodeeditor\ax</Filter>
     </None>
   </ItemGroup>
 </Project>
