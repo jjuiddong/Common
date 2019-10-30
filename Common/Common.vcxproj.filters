@@ -199,7 +199,19 @@
     <ClInclude Include="interpreter\symboltable.h">
       <Filter>interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\interpreter_definition.h">
+    <ClInclude Include="interpreter\vprogfile.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\event.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\node.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\intermediatecode.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\definition.h">
       <Filter>interpreter</Filter>
     </ClInclude>
   </ItemGroup>
@@ -322,7 +334,19 @@
     <ClCompile Include="interpreter\symboltable.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter\interpreter_definition.cpp">
+    <ClCompile Include="interpreter\vprogfile.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\event.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\node.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\intermediatecode.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\definition.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,5 +12,11 @@ cSymbolTable::cSymbolTable()
 
 cSymbolTable::~cSymbolTable()
 {
+	Clear();
 }
 
+
+void cSymbolTable::Clear()
+{
+
+}

@@ -177,4 +177,11 @@ using std::max;
 #include "etc/simpledata.h"
 #include "etc/port.h"
 
-
+#include "interpreter/definition.h"
+#include "interpreter/event.h"
+#include "interpreter/node.h"
+#include "interpreter/intermediatecode.h"
+#include "interpreter/symboltable.h"
+#include "interpreter/virtualmachine.h"
+#include "interpreter/vprogfile.h"
+#include "interpreter/interpreter.h"

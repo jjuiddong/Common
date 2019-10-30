@@ -9,7 +9,6 @@ namespace common
 {
 	namespace script
 	{
-
 		class cEvent
 		{
 		public:

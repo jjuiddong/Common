@@ -16,6 +16,8 @@ namespace common
 			cSymbolTable();
 			virtual ~cSymbolTable();
 
+			void Clear();
+
 
 		public:
 		};

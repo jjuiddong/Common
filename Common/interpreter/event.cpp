@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "interpreter_definition.h"
+#include "event.h"
 
 using namespace common;
 using namespace common::script;
