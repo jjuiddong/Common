@@ -121,7 +121,7 @@ void util::BlueprintNodeBuilder::Input(ed::PinId id)
     if (applyPadding)
         ImGui::Spring(0);
 
-    Pin(id, PinKind::Input);
+    Pin(id, ePinKind::Input);
 
     ImGui::BeginHorizontal(id.AsPointer());
 }
@@ -153,7 +153,7 @@ void util::BlueprintNodeBuilder::Output(ed::PinId id)
     if (applyPadding)
         ImGui::Spring(0);
 
-    Pin(id, PinKind::Output);
+    Pin(id, ePinKind::Output);
 
     ImGui::BeginHorizontal(id.AsPointer());
 }
@@ -299,7 +299,7 @@ bool util::BlueprintNodeBuilder::SetStage(Stage stage)
     return true;
 }
 
-void util::BlueprintNodeBuilder::Pin(ed::PinId id, ed::PinKind kind)
+void util::BlueprintNodeBuilder::Pin(ed::PinId id, ed::ePinKind kind)
 {
     ed::BeginPin(id, kind);
 }

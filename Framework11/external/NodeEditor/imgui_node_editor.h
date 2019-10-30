@@ -77,7 +77,7 @@ struct Config
 
 
 //------------------------------------------------------------------------------
-enum class PinKind
+enum class ePinKind
 {
     Input,
     Output
@@ -237,7 +237,7 @@ void Begin(const char* id, const ImVec2& size = ImVec2(0, 0));
 void End();
 
 void BeginNode(NodeId id);
-void BeginPin(PinId id, PinKind kind);
+void BeginPin(PinId id, ePinKind kind);
 void PinRect(const ImVec2& a, const ImVec2& b);
 void PinPivotRect(const ImVec2& a, const ImVec2& b);
 void PinPivotSize(const ImVec2& size);

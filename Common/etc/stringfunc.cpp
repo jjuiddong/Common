@@ -105,6 +105,7 @@ std::string common::variant2str(const _variant_t &var)
 	std::stringstream ss;
 	switch (var.vt)
 	{
+	case VT_BOOL: ss << var.boolVal; break;
 	case VT_I2: ss << var.iVal; break;
 	case VT_I4: ss << var.lVal; break;
 	case VT_R4: ss << var.fltVal; break;
@@ -147,6 +148,7 @@ _variant_t common::str2variant(const _variant_t &varType, const std::string &val
 	_variant_t var = varType;
 	switch (varType.vt)
 	{
+	case VT_BOOL: var.boolVal = (bool)atoi(value.c_str()); break;
 	case VT_I2: var.iVal = (short)atoi(value.c_str()); break;
 	case VT_I4: var.lVal = (long)atoi(value.c_str()); break;
 	case VT_R4: var.fltVal = (float)atof(value.c_str()); break;

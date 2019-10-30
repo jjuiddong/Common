@@ -16,13 +16,13 @@ namespace framework
 		{
 			ed::PinId id;
 			cNode* node;
-			string name;
-			PinType::Enum type;
-			PinKind::Enum kind;
+			StrId name;
+			ePinType::Enum type;
+			ePinKind::Enum kind;
 
-			sPin(int id0, const char* name0, PinType::Enum type0)
+			sPin(int id0, const StrId &name0, ePinType::Enum type0)
 				: id(id0), node(nullptr), name(name0), type(type0)
-				, kind(PinKind::Input) {
+				, kind(ePinKind::Input) {
 			}
 		};
 

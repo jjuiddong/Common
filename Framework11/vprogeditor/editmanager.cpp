@@ -58,9 +58,26 @@ bool cEditManager::Read(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_nodes = nodeFile.m_nodes;
+	m_symbTable = nodeFile.m_symbTable;
 	BuildNodes();
+
 	for (auto &node : m_nodes)
+	{
+		if (node.m_varName.empty())
+			node.m_varName = node.m_name;
 		ed::SetNodePosition(node.m_id, node.m_pos);
+
+		// add variable type to symboltable
+		if (eNodeType::Variable == node.m_type)
+		{
+			for (auto &pin : node.m_outputs)
+			{
+				cSymbolTable::sValue *value = m_symbTable.FindSymbol(pin.id);
+				if (!value)
+					m_symbTable.AddSymbolStr(pin, "");
+			}
+		}
+	}
 
 	// link id 가 중복될 수 있기 때문에, 새로 생성해야 한다.
 	for (auto &link : nodeFile.m_links)
@@ -72,9 +89,13 @@ bool cEditManager::Read(const StrPath &fileName)
 
 bool cEditManager::Write(const StrPath &fileName)
 {
+	if (m_nodes.empty())
+		return false; // empty data
+
 	cNodeFile nodeFile;
 	nodeFile.m_nodes = m_nodes;
 	nodeFile.m_links = m_links;
+	nodeFile.m_symbTable = m_symbTable;
 	for (auto &node : nodeFile.m_nodes)
 	{
 		node.m_pos = ed::GetNodePosition(node.m_id);
@@ -152,7 +173,7 @@ bool cEditManager::EditOperation()
 
 			m_newLinkPin = startPin ? startPin : endPin;
 
-			if (startPin->kind == PinKind::Input)
+			if (startPin->kind == ePinKind::Input)
 			{
 				std::swap(startPin, endPin);
 				std::swap(fromPinId, toPinId);
@@ -268,36 +289,36 @@ bool cEditManager::RenderPopup(graphic::cRenderer &renderer)
 
 		vprog::cNode* node = nullptr;
 		if (ImGui::MenuItem("Input Action"))
-			node = Generate_InputActionNode();
+			node = Generate_ReservedDefinition("InputAction Fire");
 		if (ImGui::MenuItem("Output Action"))
-			node = Generate_OutputActionNode();
+			node = Generate_ReservedDefinition("OutputAction");
 		if (ImGui::MenuItem("Branch"))
-			node = Generate_BranchNode();
-		if (ImGui::MenuItem("Do N"))
-			node = Generate_DoNNode();
+			node = Generate_ReservedDefinition("Branch");
+		//if (ImGui::MenuItem("Do N"))
+		//	node = Generate_DoNNode();
 		if (ImGui::MenuItem("Set Timer"))
-			node = Generate_SetTimerNode();
+			node = Generate_ReservedDefinition("Set Timer");
 		if (ImGui::MenuItem("Less"))
-			node = Generate_LessNode();
-		if (ImGui::MenuItem("Weird"))
-			node = Generate_WeirdNode();
-		if (ImGui::MenuItem("Trace by Channel"))
-			node = Generate_TraceByChannelNode();
+			node = Generate_ReservedDefinition("<");
+		//if (ImGui::MenuItem("Weird"))
+		//	node = Generate_WeirdNode();
+		//if (ImGui::MenuItem("Trace by Channel"))
+		//	node = Generate_TraceByChannelNode();
 		if (ImGui::MenuItem("Print String"))
-			node = Generate_PrintStringNode();
-		ImGui::Separator();
-		if (ImGui::MenuItem("Comment"))
-			node = Generate_Comment();
-		ImGui::Separator();
-		if (ImGui::MenuItem("Sequence"))
-			node = Generate_TreeSequenceNode();
-		if (ImGui::MenuItem("Move To"))
-			node = Generate_TreeTaskNode();
-		if (ImGui::MenuItem("Random Wait"))
-			node = Generate_TreeTask2Node();
-		ImGui::Separator();
-		if (ImGui::MenuItem("Message"))
-			node = Generate_MessageNode();
+			node = Generate_ReservedDefinition("Print String");
+		//ImGui::Separator();
+		//if (ImGui::MenuItem("Comment"))
+		//	node = Generate_Comment();
+		//ImGui::Separator();
+		//if (ImGui::MenuItem("Sequence"))
+		//	node = Generate_TreeSequenceNode();
+		//if (ImGui::MenuItem("Move To"))
+		//	node = Generate_TreeTaskNode();
+		//if (ImGui::MenuItem("Random Wait"))
+		//	node = Generate_TreeTask2Node();
+		//ImGui::Separator();
+		//if (ImGui::MenuItem("Message"))
+		//	node = Generate_MessageNode();
 
 		if (node)
 		{
@@ -307,7 +328,7 @@ bool cEditManager::RenderPopup(graphic::cRenderer &renderer)
 
 			if (auto startPin = m_newNodeLinkPin)
 			{
-				auto& pins = startPin->kind == vprog::PinKind::Input ?
+				auto& pins = startPin->kind == vprog::ePinKind::Input ?
 					node->m_outputs : node->m_inputs;
 
 				for (auto& pin : pins)
@@ -315,7 +336,7 @@ bool cEditManager::RenderPopup(graphic::cRenderer &renderer)
 					if (CanCreateLink(startPin, &pin))
 					{
 						auto endPin = &pin;
-						if (startPin->kind == PinKind::Input)
+						if (startPin->kind == ePinKind::Input)
 							std::swap(startPin, endPin);
 
 						m_links.emplace_back(vprog::sLink(GetUniqueId(), startPin->id, endPin->id));
@@ -380,6 +401,26 @@ sPin* cEditManager::FindPin(const ed::PinId id)
 	return nullptr;
 }
 
+// find contain pin node
+cNode* cEditManager::FindContainNode(const ed::PinId id)
+{
+	if (!id)
+		return nullptr;
+
+	for (auto& node : m_nodes)
+	{
+		for (auto& pin : node.m_inputs)
+			if (pin.id == id)
+				return &node;
+
+		for (auto& pin : node.m_outputs)
+			if (pin.id == id)
+				return &node;
+	}
+
+	return nullptr;
+}
+
 
 bool cEditManager::IsPinLinked(const ed::PinId id)
 {
@@ -399,13 +440,13 @@ void BuildNode(cNode* node)
 	for (auto& input : node->m_inputs)
 	{
 		input.node = node;
-		input.kind = PinKind::Input;
+		input.kind = ePinKind::Input;
 	}
 
 	for (auto& output : node->m_outputs)
 	{
 		output.node = node;
-		output.kind = PinKind::Output;
+		output.kind = ePinKind::Output;
 	}
 }
 
@@ -414,198 +455,6 @@ void cEditManager::BuildNodes()
 {
 	for (auto& node : m_nodes)
 		BuildNode(&node);
-}
-
-
-cNode* cEditManager::Generate_InputActionNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "InputAction Fire", ImColor(255, 128, 128));
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Delegate);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Pressed", PinType::Flow);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Released", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_BranchNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Branch");
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Condition", PinType::Bool);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "True", PinType::Flow);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "False", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_DoNNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Do N");
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Enter", PinType::Flow);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "N", PinType::Int);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Reset", PinType::Flow);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Exit", PinType::Flow);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Counter", PinType::Int);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_OutputActionNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "OutputAction");
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Sample", PinType::Float);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Condition", PinType::Bool);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Event", PinType::Delegate);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_PrintStringNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Print String");
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "In String", PinType::String);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_MessageNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "", ImColor(128, 195, 248));
-	m_nodes.back().m_type = NodeType::Variable;
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Message", PinType::String);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_SetTimerNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Set Timer", ImColor(128, 195, 248));
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Object", PinType::Object);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Function Name", PinType::Function);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Time", PinType::Float);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Looping", PinType::Bool);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_LessNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "<", ImColor(128, 195, 248));
-	m_nodes.back().m_type = NodeType::Operator;
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Float);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Float);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Float);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_WeirdNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "o.O", ImColor(128, 195, 248));
-	m_nodes.back().m_type = NodeType::Operator;
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Float);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Float);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Float);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_TraceByChannelNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Single Line Trace by Channel", ImColor(255, 128, 64));
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Start", PinType::Flow);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "End", PinType::Int);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Trace Channel", PinType::Float);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Trace Complex", PinType::Bool);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Actors to Ignore", PinType::Int);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Draw Debug Type", PinType::Bool);
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "Ignore Self", PinType::Bool);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Out Hit", PinType::Float);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "Return Value", PinType::Bool);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_TreeSequenceNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Sequence");
-	m_nodes.back().m_type = NodeType::Tree;
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-	m_nodes.back().m_outputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_TreeTaskNode()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Move To");
-	m_nodes.back().m_type = NodeType::Tree;
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_TreeTask2Node()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Random Wait");
-	m_nodes.back().m_type = NodeType::Tree;
-	m_nodes.back().m_inputs.emplace_back(GetUniqueId(), "", PinType::Flow);
-
-	BuildNode(&m_nodes.back());
-
-	return &m_nodes.back();
-}
-
-
-cNode* cEditManager::Generate_Comment()
-{
-	m_nodes.emplace_back(GetUniqueId(), "Test Comment");
-	m_nodes.back().m_type = NodeType::Comment;
-	m_nodes.back().m_size = ImVec2(300, 200);
-
-	return &m_nodes.back();
 }
 
 
@@ -626,11 +475,21 @@ cNode* cEditManager::Generate_ReservedDefinition(const StrId &name)
 		return NULL;
 
 	cNode newNode = *defNode;
+	newNode.m_varName = defNode->m_name;
+
+	// generate unique id
 	newNode.m_id = GetUniqueId();
 	for (auto &pin : newNode.m_inputs)
 		pin.id = GetUniqueId();
 	for (auto &pin : newNode.m_outputs)
 		pin.id = GetUniqueId();
+
+	// add symbol table when variable type
+	if (eNodeType::Variable == newNode.m_type)
+	{
+		for (auto &pin : newNode.m_outputs)
+			m_symbTable.AddSymbol(pin, "");
+	}
 
 	newNode.m_pos = ImVec2(0, 0);
 	m_nodes.push_back(newNode);
@@ -681,18 +540,21 @@ int cEditManager::GetUniqueId()
 		for (auto &node : m_nodes)
 		{
 			if (node.m_id == nid)
-				continue;
+				goto $same;
 			for (auto &pin : node.m_inputs)
 				if (pin.id == pid)
-					continue;
+					goto $same;
 			for (auto &pin : node.m_outputs)
 				if (pin.id == pid)
-					continue;
+					goto $same;
 		}
 		for (auto &link : m_links)
 			if (link.id == lid)
-				continue;
+				goto $same;
 		return id;
+
+	$same:
+		continue; // continue generate unique id
 	}	
 	return 0;
 }
@@ -704,4 +566,5 @@ void cEditManager::Clear()
 	ed::ClearEditor();
 	m_nodes.clear();
 	m_links.clear();
+	m_symbTable.Clear();
 }

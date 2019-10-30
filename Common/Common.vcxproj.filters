@@ -190,6 +190,18 @@
     <ClInclude Include="container\circularqueue2.h">
       <Filter>container</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\interpreter.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\virtualmachine.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\symboltable.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\interpreter_definition.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -301,6 +313,18 @@
     <ClCompile Include="etc\enumser.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
+    <ClCompile Include="interpreter\interpreter.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\virtualmachine.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\symboltable.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\interpreter_definition.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -314,6 +338,9 @@
     </Filter>
     <Filter Include="thread">
       <UniqueIdentifier>{c0ddb07d-9ea4-496a-99b4-3ec2ff75eaee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interpreter">
+      <UniqueIdentifier>{71c7fbbf-fa74-4d99-8314-5610708a095e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

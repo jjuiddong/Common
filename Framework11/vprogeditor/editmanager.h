@@ -26,25 +26,11 @@ namespace framework
 			cNode* FindNode(const ed::NodeId id);
 			sLink* FindLink(const ed::LinkId id);
 			sPin* FindPin(const ed::PinId id);
+			cNode* FindContainNode(const ed::PinId id);
 			bool IsPinLinked(const ed::PinId id);
 			void BuildNodes();
 			void Clear();
 
-			// Generate Node Function
-			cNode* Generate_InputActionNode();
-			cNode* Generate_BranchNode();
-			cNode* Generate_DoNNode();
-			cNode* Generate_OutputActionNode();
-			cNode* Generate_PrintStringNode();
-			cNode* Generate_MessageNode();
-			cNode* Generate_SetTimerNode();
-			cNode* Generate_LessNode();
-			cNode* Generate_WeirdNode();
-			cNode* Generate_TraceByChannelNode();
-			cNode* Generate_TreeSequenceNode();
-			cNode* Generate_TreeTaskNode();
-			cNode* Generate_TreeTask2Node();
-			cNode* Generate_Comment();
 			cNode* Generate_ReservedDefinition(const StrId &name);
 
 			// Link Function
@@ -62,7 +48,8 @@ namespace framework
 			vector<cNode> m_nodes;
 			vector<sLink> m_links;
 			vector<cNode> m_definitions; // definition function, operator
-			graphic::cTexture *m_headerBackground;
+			cSymbolTable m_symbTable;
+			graphic::cTexture *m_headerBackground;			
 
 			// edit variable
 			ed::NodeId m_contextNodeId = 0;

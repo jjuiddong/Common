@@ -416,6 +416,10 @@
     <ClInclude Include="etc\singleton.h" />
     <ClInclude Include="etc\stringfunc.h" />
     <ClInclude Include="etc\timer.h" />
+    <ClInclude Include="interpreter\interpreter.h" />
+    <ClInclude Include="interpreter\interpreter_definition.h" />
+    <ClInclude Include="interpreter\symboltable.h" />
+    <ClInclude Include="interpreter\virtualmachine.h" />
     <ClInclude Include="math\line.h" />
     <ClInclude Include="math\Math.h" />
     <ClInclude Include="math\mathutility.h" />
@@ -465,6 +469,10 @@
     <ClCompile Include="etc\simpledata.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />
     <ClCompile Include="etc\timer.cpp" />
+    <ClCompile Include="interpreter\interpreter.cpp" />
+    <ClCompile Include="interpreter\interpreter_definition.cpp" />
+    <ClCompile Include="interpreter\symboltable.cpp" />
+    <ClCompile Include="interpreter\virtualmachine.cpp" />
     <ClCompile Include="math\line.cpp" />
     <ClCompile Include="math\matrix44.cpp" />
     <ClCompile Include="math\plane.cpp" />

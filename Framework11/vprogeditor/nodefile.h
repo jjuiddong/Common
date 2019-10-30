@@ -40,13 +40,14 @@ namespace framework {
 
 
 		protected:
-			bool AddPin(const int parseState
-				, cNode &node, const sPin &pin);
+			sPin* FindPin(const ed::PinId id);
+			bool AddPin(const int parseState, cNode &node, const sPin &pin);
 
 
 		public:
 			vector<cNode> m_nodes;
 			vector<sLink> m_links;
+			cSymbolTable m_symbTable;
 		};
 	}
 }

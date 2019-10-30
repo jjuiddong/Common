@@ -135,7 +135,7 @@ enum class ObjectType
     Pin
 };
 
-using ax::NodeEditor::PinKind;
+using ax::NodeEditor::ePinKind;
 using ax::NodeEditor::StyleColor;
 using ax::NodeEditor::StyleVar;
 using ax::NodeEditor::SaveReasonFlags;
@@ -280,7 +280,7 @@ struct Pin final: Object
     using IdType = PinId;
 
     PinId   m_ID;
-    PinKind m_Kind;
+    ePinKind m_Kind;
     Node*   m_Node;
     ImRect  m_Bounds;
     ImRect  m_Pivot;
@@ -298,7 +298,7 @@ struct Pin final: Object
     bool    m_HasConnection;
     bool    m_HadConnection;
 
-    Pin(EditorContext* editor, PinId id, PinKind kind)
+    Pin(EditorContext* editor, PinId id, ePinKind kind)
         : Object(editor)
         , m_ID(id)
         , m_Kind(kind)
@@ -340,7 +340,7 @@ struct Pin final: Object
     virtual Pin* AsPin() override final { return this; }
 };
 
-enum class NodeType
+enum class eNodeType
 {
     Node,
     Group
@@ -370,7 +370,7 @@ struct Node final: Object
     using IdType = NodeId;
 
     NodeId   m_ID;
-    NodeType m_Type;
+    eNodeType m_Type;
     ImRect   m_Bounds;
     int      m_Channel;
     Pin*     m_LastPin;
@@ -393,7 +393,7 @@ struct Node final: Object
     Node(EditorContext* editor, NodeId id)
         : Object(editor)
         , m_ID(id)
-        , m_Type(NodeType::Node)
+        , m_Type(eNodeType::Node)
         , m_Bounds()
         , m_Channel(0)
         , m_LastPin(nullptr)
@@ -1153,7 +1153,7 @@ struct NodeBuilder
     void Begin(NodeId nodeId);
     void End();
 
-    void BeginPin(PinId pinId, PinKind kind);
+    void BeginPin(PinId pinId, ePinKind kind);
     void EndPin();
 
     void PinRect(const ImVec2& a, const ImVec2& b);
@@ -1314,7 +1314,7 @@ struct EditorContext
     void MakeDirty(SaveReasonFlags reason);
     void MakeDirty(SaveReasonFlags reason, Node* node);
 
-    Pin*    CreatePin(PinId id, PinKind kind);
+    Pin*    CreatePin(PinId id, ePinKind kind);
     Node*   CreateNode(NodeId id);
     Link*   CreateLink(LinkId id);
 
@@ -1324,7 +1324,7 @@ struct EditorContext
     Object* FindObject(ObjectId id);
 
     Node*  GetNode(NodeId id);
-    Pin*   GetPin(PinId id, PinKind kind);
+    Pin*   GetPin(PinId id, ePinKind kind);
     Link*  GetLink(LinkId id);
 
 	// 2019-10-28, jjuiddong 

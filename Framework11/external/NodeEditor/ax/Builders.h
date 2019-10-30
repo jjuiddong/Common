@@ -59,7 +59,7 @@ private:
 
     bool SetStage(Stage stage);
 
-    void Pin(PinId id, ax::NodeEditor::PinKind kind);
+    void Pin(PinId id, ax::NodeEditor::ePinKind kind);
     void EndPin();
 
     ImTextureID HeaderTextureId;

@@ -12,8 +12,9 @@ cNode::cNode(int id, const StrId &name
 )
 	: m_id(id)
 	, m_name(name)
+	, m_varName(name)
 	, m_color(color)
-	, m_type(NodeType::Function)
+	, m_type(eNodeType::Function)
 	, m_size(0, 0)
 {
 }
@@ -32,20 +33,20 @@ bool cNode::Render(cEditManager &editMgr
 {
 	cNode &node = *this;
 
-	if (node.m_type != NodeType::Function 
-		&& node.m_type != NodeType::Operator
-		&& node.m_type != NodeType::Event
-		&& node.m_type != NodeType::Control
-		&& node.m_type != NodeType::Variable)
+	if (node.m_type != eNodeType::Function 
+		&& node.m_type != eNodeType::Operator
+		&& node.m_type != eNodeType::Event
+		&& node.m_type != eNodeType::Control
+		&& node.m_type != eNodeType::Variable)
 		return true;
 
-	const auto isSimple = (node.m_type == NodeType::Variable) 
-		|| (node.m_type == NodeType::Operator);
+	const auto isSimple = (node.m_type == eNodeType::Variable) 
+		|| (node.m_type == eNodeType::Operator);
 
 	bool hasOutputDelegates = false;
 	for (auto& output : node.m_outputs)
 	{
-		if (output.type == PinType::Delegate)
+		if (output.type == ePinType::Delegate)
 			hasOutputDelegates = true;
 	}
 
@@ -63,14 +64,14 @@ bool cNode::Render(cEditManager &editMgr
 			ImGui::Spring(1, 0);
 			for (auto& output : node.m_outputs)
 			{
-				if (output.type != PinType::Delegate)
+				if (output.type != ePinType::Delegate)
 					continue;
 
 				auto alpha = ImGui::GetStyle().Alpha;
 				if (newLinkPin && !CanCreateLink(newLinkPin, &output) && &output != newLinkPin)
 					alpha = alpha * (48.0f / 255.0f);
 
-				ed::BeginPin(output.id, ed::PinKind::Output);
+				ed::BeginPin(output.id, ed::ePinKind::Output);
 				ed::PinPivotAlignment(ImVec2(1.0f, 0.5f));
 				ed::PinPivotSize(ImVec2(0, 0));
 				ImGui::BeginHorizontal(output.id.AsPointer());
@@ -112,7 +113,7 @@ bool cNode::Render(cEditManager &editMgr
 			ImGui::TextUnformatted(input.name.c_str());
 			ImGui::Spring(0);
 		}
-		if (input.type == PinType::Bool)
+		if (input.type == ePinType::Bool)
 		{
 			ImGui::Button("Hello");
 			ImGui::Spring(0);
@@ -126,13 +127,13 @@ bool cNode::Render(cEditManager &editMgr
 		builder.Middle();
 
 		ImGui::Spring(1, 0);
-		ImGui::TextUnformatted(node.m_name.c_str());
+		ImGui::TextUnformatted(node.m_varName.c_str());
 		ImGui::Spring(1, 0);
 	}
 
 	for (auto& output : node.m_outputs)
 	{
-		if (!isSimple && output.type == PinType::Delegate)
+		if (!isSimple && output.type == ePinType::Delegate)
 			continue;
 
 		auto alpha = ImGui::GetStyle().Alpha;
@@ -141,23 +142,30 @@ bool cNode::Render(cEditManager &editMgr
 
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
 		builder.Output(output.id);
-		if (output.type == PinType::String)
+		if ((eNodeType::Variable == m_type) 
+			&& (output.type == ePinType::String))
 		{
-			static char buffer[128] = "Edit Me\nMultiline!";
-			static bool wasActive = false;
+			//static char buffer[128] = "Edit Me\nMultiline!";
+			cSymbolTable::sValue *value = editMgr.m_symbTable.FindSymbol(output.id);
+			if (value)
+			{
+				Str128 buffer = value->str;
+				static bool wasActive = false;
 
-			ImGui::PushItemWidth(100.0f);
-			ImGui::InputText("##edit", buffer, 127);
-			ImGui::PopItemWidth();
-			if (ImGui::IsItemActive() && !wasActive)
-			{
-				ed::EnableShortcuts(false);
-				wasActive = true;
-			}
-			else if (!ImGui::IsItemActive() && wasActive)
-			{
-				ed::EnableShortcuts(true);
-				wasActive = false;
+				ImGui::PushItemWidth(100.0f);
+				if (ImGui::InputText("##edit", buffer.m_str, buffer.SIZE))
+					value->str = buffer.c_str();
+				ImGui::PopItemWidth();
+				if (ImGui::IsItemActive() && !wasActive)
+				{
+					ed::EnableShortcuts(false);
+					wasActive = true;
+				}
+				else if (!ImGui::IsItemActive() && wasActive)
+				{
+					ed::EnableShortcuts(true);
+					wasActive = false;
+				}
 			}
 			ImGui::Spring(0);
 		}

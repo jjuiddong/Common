@@ -130,7 +130,7 @@ void ax::NodeEditor::BeginNode(NodeId id)
     s_Editor->GetNodeBuilder().Begin(id);
 }
 
-void ax::NodeEditor::BeginPin(PinId id, PinKind kind)
+void ax::NodeEditor::BeginPin(PinId id, ePinKind kind)
 {
     s_Editor->GetNodeBuilder().BeginPin(id, kind);
 }

@@ -29,8 +29,9 @@ namespace framework
 
 		public:
 			ed::NodeId m_id;
+			eNodeType::Enum m_type;
 			StrId m_name;
-			NodeType::Enum m_type;
+			StrId m_varName; // if variable type, variable name
 			ImColor m_color;
 			ImVec2 m_pos; // use only initialize 
 			ImVec2 m_size;

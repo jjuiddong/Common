@@ -5,15 +5,6 @@
 using namespace framework;
 using namespace framework::vprog;
 
-namespace {
-	//const char *g_nodeTypes[] = {
-	//	"None", "Function", "Variable", "Operator", "Comment", "Tree"
-	//};
-	//const char *g_pinTypes[] = {
-	//	"Flow", "Bool", "Int", "Float", "String", "Object", "Function", "Delegate"
-	//};
-}
-
 
 cNodeFile::cNodeFile()
 {
@@ -32,7 +23,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 		return false;
 
 	cNode node(0,"");
-	sPin pin(0, "", PinType::Flow);
+	sPin pin(0, "", ePinType::Flow);
 
 	int state = 0;
 	string line;
@@ -52,12 +43,17 @@ bool cNodeFile::Read(const StrPath &fileName)
 				state = 1;
 				node.Clear();
 			}
+			else if (toks[0] == "symbol")
+			{
+				state = 4;
+				node.Clear();
+			}
 			break;
 
 		case 1: // state parsing
 			if ((toks[0] == "type") && (toks.size() >= 2))
 			{
-				node.m_type = NodeType::FromString(toks[1]);
+				node.m_type = eNodeType::FromString(toks[1]);
 			}
 			else if ((toks[0] == "id") && (toks.size() >= 2))
 			{
@@ -66,6 +62,10 @@ bool cNodeFile::Read(const StrPath &fileName)
 			else if ((toks[0] == "name") && (toks.size() >= 2))
 			{
 				node.m_name = toks[1];
+			}
+			else if ((toks[0] == "varname") && (toks.size() >= 2))
+			{
+				node.m_varName = toks[1];
 			}
 			else if ((toks[0] == "rect") && (toks.size() >= 5))
 			{
@@ -104,7 +104,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 		case 3: // output parsing
 			if ((toks[0] == "type") && (toks.size() >= 2))
 			{
-				pin.type = PinType::FromString(toks[1]);
+				pin.type = ePinType::FromString(toks[1]);
 			}
 			else if ((toks[0] == "id") && (toks.size() >= 2))
 			{
@@ -149,7 +149,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 				state = 3;
 				pin.name.clear();
 			}
-			else if (toks[0] == "node")
+			else if ((toks[0] == "node") || (toks[0] == "symbol"))
 			{
 				if (!pin.name.empty())
 					AddPin(state, node, pin);
@@ -160,13 +160,35 @@ bool cNodeFile::Read(const StrPath &fileName)
 					node.Clear();
 				}
 
-				state = 1;
+				if (toks[0] == "node")
+					state = 1;
+				else if (toks[0] == "symbol")
+					state = 4;
 			}
 			break;
+
+		case 4: // symbol
+		{
+			if ((toks[0] == "id") && (toks.size() >= 2))
+			{
+				pin.name = "@symbol@";
+				pin.id = atoi(toks[1].c_str());
+			}
+			else if ((toks[0] == "value") && (toks.size() >= 2))
+			{
+				if (!m_symbTable.AddSymbolStr(pin, toks[1]))
+				{
+					// error occurred
+					assert(!"nodefile::Read() symbol parse error!!");
+				}
+				pin.name.clear();
+			}
+		}
+		break;
 		}
 	}
 
-	if (!pin.name.empty())
+	if (!pin.name.empty() && (pin.name != "@symbol@"))
 		AddPin(state, node, pin);
 
 	if (!node.m_name.empty())
@@ -189,13 +211,14 @@ bool cNodeFile::Write(const StrPath &fileName)
 	for (cNode &node : m_nodes)
 	{
 		ofs << "node" << endl;
-		ofs << "\t" << "type " << NodeType::ToString(node.m_type) << endl;
+		ofs << "\t" << "type " << eNodeType::ToString(node.m_type) << endl;
 		ofs << "\t" << "id " << node.m_id.Get() << endl;
 		if (node.m_name.empty())
 			ofs << "\t" << "name \" \"" << endl; // blank name
 		else
 			ofs << "\t" << "name \"" << node.m_name.c_str() << "\"" << endl;
-
+		if (eNodeType::Variable == node.m_type)
+			ofs << "\t" << "varname \"" << node.m_varName.c_str() << "\"" << endl;
 		ofs << "\t" << "rect " << node.m_pos.x << " "
 			<< node.m_pos.y << " "
 			<< node.m_pos.x + node.m_size.x << " "
@@ -210,7 +233,7 @@ bool cNodeFile::Write(const StrPath &fileName)
 		for (auto &pin : node.m_inputs)
 		{
 			ofs << "\tinput" << endl;
-			ofs << "\t\t" << "type " << PinType::ToString(pin.type) << endl;
+			ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
 			ofs << "\t\t" << "id " << pin.id.Get() << endl;
 			if (pin.name.empty())
 				ofs << "\t\t" << "name \" \"" << endl; // blank name
@@ -228,7 +251,7 @@ bool cNodeFile::Write(const StrPath &fileName)
 		for (auto &pin : node.m_outputs)
 		{
 			ofs << "\toutput" << endl;
-			ofs << "\t\t" << "type " << PinType::ToString(pin.type) << endl;
+			ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
 			ofs << "\t\t" << "id " << pin.id.Get() << endl;
 			if (pin.name.empty())
 				ofs << "\t\t" << "name \" \"" << endl; // blank name
@@ -242,7 +265,38 @@ bool cNodeFile::Write(const StrPath &fileName)
 			ofs << endl;
 		}
 	}
+
+	for (auto &kv : m_symbTable.m_symbols)
+	{
+		ofs << "symbol" << endl;
+		ofs << "\tid " << kv.first << endl;
+
+		const variant_t var = kv.second.var;
+		string str = common::variant2str(var);
+		if (var.vt == VT_BSTR)
+			ofs << "\tvalue \"" << kv.second.str << "\"" << endl;
+		else
+			ofs << "\tvalue " << str << endl;
+	}
+
 	return true;
+}
+
+
+// find pin in m_nodes
+// if not exist, return null
+sPin* cNodeFile::FindPin(const ed::PinId id)
+{
+	for (auto &node : m_nodes)
+	{
+		for (auto &pin : node.m_inputs)
+			if (pin.id == id)
+				return &pin;
+		for (auto &pin : node.m_outputs)
+			if (pin.id == id)
+				return &pin;
+	}
+	return nullptr;
 }
 
 

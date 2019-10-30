@@ -218,6 +218,7 @@
     <ClInclude Include="vprogeditor\node.h" />
     <ClInclude Include="vprogeditor\nodefile.h" />
     <ClInclude Include="vprogeditor\pin.h" />
+    <ClInclude Include="vprogeditor\symboltable.h" />
     <ClInclude Include="vprogeditor\vprog.h" />
     <ClInclude Include="window\utility.h" />
   </ItemGroup>
@@ -277,6 +278,7 @@
     <ClCompile Include="vprogeditor\editmanager.cpp" />
     <ClCompile Include="vprogeditor\node.cpp" />
     <ClCompile Include="vprogeditor\nodefile.cpp" />
+    <ClCompile Include="vprogeditor\symboltable.cpp" />
     <ClCompile Include="vprogeditor\vprog.cpp" />
     <ClCompile Include="window\utility.cpp" />
   </ItemGroup>

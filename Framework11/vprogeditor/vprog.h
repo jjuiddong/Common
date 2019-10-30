@@ -8,7 +8,7 @@
 
 namespace framework { 
 	namespace vprog {
-		DECLARE_ENUM( PinType,
+		DECLARE_ENUM( ePinType,
 			Flow,
 			Bool,
 			Int,
@@ -19,12 +19,12 @@ namespace framework {
 			Delegate
 		);
 
-		DECLARE_ENUM( PinKind,
+		DECLARE_ENUM( ePinKind,
 			Output,
 			Input
 		);
 
-		DECLARE_ENUM( NodeType,
+		DECLARE_ENUM( eNodeType,
 			None, 
 			Function,
 			Event,
@@ -41,12 +41,13 @@ namespace framework {
 #include "pin.h"
 #include "node.h"
 #include "link.h"
+#include "symboltable.h"
 #include "nodefile.h"
 #include "editmanager.h"
 
 
 namespace framework { namespace vprog {
-		ImColor GetIconColor(PinType::Enum type);
+		ImColor GetIconColor(ePinType::Enum type);
  		void DrawPinIcon(const sPin& pin, bool connected, int alpha);
 		bool CanCreateLink(sPin* a, sPin* b);
  	}

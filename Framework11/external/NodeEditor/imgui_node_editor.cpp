@@ -149,7 +149,7 @@ void ed::Log(const char* fmt, ...)
 //------------------------------------------------------------------------------
 static bool IsGroup(const ed::Node* node)
 {
-    if (node && node->m_Type == ed::NodeType::Group)
+    if (node && node->m_Type == ed::eNodeType::Group)
         return true;
     else
         return false;
@@ -690,12 +690,12 @@ void ed::Node::GetGroupedNodes(std::vector<Node*>& result, bool append)
 
 ImRect ed::Node::GetRegionBounds(NodeRegion region) const
 {
-    if (m_Type == NodeType::Node)
+    if (m_Type == eNodeType::Node)
     {
         if (region == NodeRegion::Header)
             return m_Bounds;
     }
-    else if (m_Type == NodeType::Group)
+    else if (m_Type == eNodeType::Group)
     {
         const float activeAreaMinimumSize = ImMax(ImMax(
             Editor->GetView().InvScale * c_GroupSelectThickness,
@@ -783,14 +783,14 @@ ImRect ed::Node::GetRegionBounds(NodeRegion region) const
 
 ed::NodeRegion ed::Node::GetRegion(const ImVec2& point) const
 {
-    if (m_Type == NodeType::Node)
+    if (m_Type == eNodeType::Node)
     {
         if (m_Bounds.Contains(point))
             return NodeRegion::Header;
         else
             return NodeRegion::None;
     }
-    else if (m_Type == NodeType::Group)
+    else if (m_Type == eNodeType::Group)
     {
         static const NodeRegion c_Regions[] =
         {
@@ -1714,7 +1714,7 @@ bool ed::EditorContext::IsActive()
     return m_IsWindowActive;
 }
 
-ed::Pin* ed::EditorContext::CreatePin(PinId id, PinKind kind)
+ed::Pin* ed::EditorContext::CreatePin(PinId id, ePinKind kind)
 {
     IM_ASSERT(nullptr == FindObject(id));
     auto pin = new Pin(this, id, kind);
@@ -1746,7 +1746,7 @@ ed::Node* ed::EditorContext::CreateNode(NodeId id)
 
     if (settings->m_GroupSize.x > 0 || settings->m_GroupSize.y > 0)
     {
-        node->m_Type            = NodeType::Group;
+        node->m_Type            = eNodeType::Group;
         node->m_GroupBounds.Min = settings->m_Location;
         node->m_GroupBounds.Max = node->m_GroupBounds.Min + settings->m_GroupSize;
         node->m_GroupBounds.Floor();
@@ -1861,7 +1861,7 @@ ed::Node* ed::EditorContext::GetNode(NodeId id)
     return node;
 }
 
-ed::Pin* ed::EditorContext::GetPin(PinId id, PinKind kind)
+ed::Pin* ed::EditorContext::GetPin(PinId id, ePinKind kind)
 {
     if (auto pin = FindPin(id))
     {
@@ -2110,7 +2110,7 @@ ed::Control ed::EditorContext::BuildControl(bool allowOffscreen)
         }
 
         // Check for interactions with node.
-        if (node->m_Type == NodeType::Group)
+        if (node->m_Type == eNodeType::Group)
         {
             // Node with a hole
             ImGui::PushID(node->m_ID.AsPointer());
@@ -4179,9 +4179,9 @@ bool ed::CreateItemAction::Process(const Control& control)
 
     if (m_DraggedPin && control.ActivePin == m_DraggedPin && (m_CurrentStage == Possible))
     {
-        const auto draggingFromSource = (m_DraggedPin->m_Kind == PinKind::Output);
+        const auto draggingFromSource = (m_DraggedPin->m_Kind == ePinKind::Output);
 
-        ed::Pin cursorPin(Editor, 0, draggingFromSource ? PinKind::Input : PinKind::Output);
+        ed::Pin cursorPin(Editor, 0, draggingFromSource ? ePinKind::Input : ePinKind::Output);
         cursorPin.m_Pivot    = ImRect(ImGui::GetMousePos(), ImGui::GetMousePos());
         cursorPin.m_Dir      = -m_DraggedPin->m_Dir;
         cursorPin.m_Strength =  m_DraggedPin->m_Strength;
@@ -4844,17 +4844,17 @@ void ed::NodeBuilder::End()
         for (auto pin = m_CurrentNode->m_LastPin; pin; pin = pin->m_PreviousPin)
             pin->Reset();
 
-        m_CurrentNode->m_Type        = NodeType::Group;
+        m_CurrentNode->m_Type        = eNodeType::Group;
         m_CurrentNode->m_GroupBounds = m_GroupBounds;
         m_CurrentNode->m_LastPin     = nullptr;
     }
     else
-        m_CurrentNode->m_Type        = NodeType::Node;
+        m_CurrentNode->m_Type        = eNodeType::Node;
 
     m_CurrentNode = nullptr;
 }
 
-void ed::NodeBuilder::BeginPin(PinId pinId, PinKind kind)
+void ed::NodeBuilder::BeginPin(PinId pinId, ePinKind kind)
 {
     IM_ASSERT(nullptr != m_CurrentNode);
     IM_ASSERT(nullptr == m_CurrentPin);
@@ -4874,7 +4874,7 @@ void ed::NodeBuilder::BeginPin(PinId pinId, PinKind kind)
     m_CurrentPin->m_Radius      = editorStyle.PinRadius;
     m_CurrentPin->m_ArrowSize   = editorStyle.PinArrowSize;
     m_CurrentPin->m_ArrowWidth  = editorStyle.PinArrowWidth;
-    m_CurrentPin->m_Dir         = kind == PinKind::Output ? editorStyle.SourceDirection : editorStyle.TargetDirection;
+    m_CurrentPin->m_Dir         = kind == ePinKind::Output ? editorStyle.SourceDirection : editorStyle.TargetDirection;
     m_CurrentPin->m_Strength    = editorStyle.LinkStrength;
 
     m_CurrentPin->m_PreviousPin = m_CurrentNode->m_LastPin;
