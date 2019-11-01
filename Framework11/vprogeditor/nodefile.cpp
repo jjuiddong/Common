@@ -3,7 +3,7 @@
 #include "nodefile.h"
 
 using namespace framework;
-using namespace framework::vprog;
+using namespace vprog;
 
 
 cNodeFile::cNodeFile()
@@ -173,6 +173,11 @@ bool cNodeFile::Read(const StrPath &fileName)
 			{
 				pin.name = "@symbol@";
 				pin.id = atoi(toks[1].c_str());
+				if (sPin *p = FindPin(pin.id))
+				{
+					pin.type = p->type;
+					pin.kind = p->kind;
+				}
 			}
 			else if ((toks[0] == "value") && (toks.size() >= 2))
 			{
@@ -244,7 +249,7 @@ bool cNodeFile::Write(const StrPath &fileName)
 			ofs << "\t\t" << "links ";
 			for (auto &link : m_links)
 				if (link.toId == pin.id)
-					ofs << link.toId.Get() << " ";
+					ofs << link.fromId.Get() << " ";
 			ofs << endl;
 		}
 

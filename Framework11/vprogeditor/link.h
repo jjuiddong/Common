@@ -5,23 +5,21 @@
 #pragma once
 
 
-namespace framework
+namespace vprog
 {
-	namespace vprog
+	namespace ed = ax::NodeEditor;
+
+	struct sLink
 	{
-		namespace ed = ax::NodeEditor;
+		ed::LinkId id;
+		ed::PinId fromId;
+		ed::PinId toId;
+		ImColor color;
 
-		struct sLink
-		{
-			ed::LinkId id;
-			ed::PinId fromId;
-			ed::PinId toId;
-			ImColor color;
-
-			sLink(ed::LinkId id0, ed::PinId fromPinId, ed::PinId toPinId) :
-				id(id0), fromId(fromPinId), toId(toPinId)
-				, color(255, 255, 255) {
-			}
-		};
-	}
+		sLink(ed::LinkId id0, ed::PinId fromPinId, ed::PinId toPinId) :
+			id(id0), fromId(fromPinId), toId(toPinId)
+			, color(255, 255, 255) {
+		}
+	};
 }
+

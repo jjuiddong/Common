@@ -6,7 +6,7 @@
 #include <imgui_internal.h>
 
 using namespace framework;
-using namespace framework::vprog;
+using namespace vprog;
 
 void BuildNode(cNode* node);
 

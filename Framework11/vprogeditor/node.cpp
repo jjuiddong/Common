@@ -4,7 +4,7 @@
 #include "editmanager.h"
 
 using namespace framework;
-using namespace framework::vprog;
+using namespace vprog;
 
 
 cNode::cNode(int id, const StrId &name
@@ -37,6 +37,7 @@ bool cNode::Render(cEditManager &editMgr
 		&& node.m_type != eNodeType::Operator
 		&& node.m_type != eNodeType::Event
 		&& node.m_type != eNodeType::Control
+		&& node.m_type != eNodeType::Macro
 		&& node.m_type != eNodeType::Variable)
 		return true;
 

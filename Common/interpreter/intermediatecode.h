@@ -2,6 +2,43 @@
 // 2019-10-30, jjuiddong
 // script intermediate code
 //
+//
+// ---------------------------------------------------------
+// Sample
+//
+// # script intermediate language sample
+//
+// main:
+// nop
+//
+// Event_SeqWork:
+// geti Event_SeqWork, Loading, val0
+// seti GetFrontNode, node, val0
+// call GetFrontNode
+// geti GetFrontNode, front, val0
+// seti ReqMove, Dest, val0
+// call ReqMove
+// geti ReqMove, Result, val0
+// eqic val0, 0
+// jnz jump1
+// jmp jump2
+// nop
+//
+// jump1:
+// geti Event_Seqwork, Loading, val0
+// seti ReqLoading, station, val0
+// geti Event_Seqwork, lLayer, val1
+// seti ReqLoading, lLayer, val1
+// call ReqLoading
+// nop
+//
+// jump2:
+// geti ReqMove, Result, val0
+// seti ErrorState, errorCode, val0
+// call ErrorState
+// nop
+// ---------------------------------------------------------
+//
 #pragma once
 
 
@@ -28,7 +65,7 @@ namespace common
 
 
 		public:
-			vector<sCommandSet> m_cmds;
+			vector<sCommandSet> m_codes;
 			map<StrId, uint> m_jmpMap; //key: jump name, data: code line
 		};
 

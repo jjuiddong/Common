@@ -39,7 +39,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		if (trim(toks[0]) == "#")
 			continue; // comment line
 
-		sCommandSet cmd;
+		sCommandSet code;
 
 		if (((toks[0] == "geti") 
 			|| (toks[0] == "getb")
@@ -47,10 +47,10 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "gets"))
 			&& (toks.size() >= 4))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.str1 = toks[1];
-			cmd.str2 = toks[2];
-			cmd.reg1 = GetRegisterIndex(toks[3]);
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
+			code.str2 = toks[2];
+			code.reg1 = GetRegisterIndex(toks[3]);
 		}
 		else if (((toks[0] == "seti")
 			|| (toks[0] == "setb")
@@ -58,10 +58,42 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "sets"))
 			&& (toks.size() >= 4))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.str1 = toks[1];
-			cmd.str2 = toks[2];
-			cmd.reg1 = GetRegisterIndex(toks[3]);
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
+			code.str2 = toks[2];
+			code.reg1 = GetRegisterIndex(toks[3]);
+		}
+		else if (((toks[0] == "ldbc")
+			|| (toks[0] == "ldic")
+			|| (toks[0] == "ldfc")
+			|| (toks[0] == "ldsc"))
+			&& (toks.size() >= 3))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
+			variant_t type;
+			switch (code.cmd)
+			{
+			case eCommand::ldbc:
+				type.vt = VT_BOOL;
+				code.var1 = common::str2variant(type, toks[2]);
+				break;
+			case eCommand::ldic:
+				type.vt = VT_I4;
+				code.var1 = common::str2variant(type, toks[2]);
+				break;
+			case eCommand::ldfc:
+				type.vt = VT_R4;
+				code.var1 = common::str2variant(type, toks[2]);
+				break;
+			case eCommand::ldsc:
+				type.vt = VT_BSTR;
+				code.var1 = common::str2variant(type, toks[2]);
+				break;
+			default:
+				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
+				break;
+			}
 		}
 		else if (((toks[0] == "lesi")
 			|| (toks[0] == "lesf")
@@ -76,58 +108,60 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "greqf"))
 			&& (toks.size() >= 3))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.reg1 = GetRegisterIndex(toks[1]);
-			cmd.reg2 = GetRegisterIndex(toks[2]);
+			code.cmd = eCommand::FromString(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
+			code.reg2 = GetRegisterIndex(toks[2]);
 		}
 		else if (((toks[0] == "eqic")
 			|| (toks[0] == "eqfc")
 			|| (toks[0] == "eqsc"))
 			&& (toks.size() >= 3))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.reg1 = GetRegisterIndex(toks[1]);
+			code.cmd = eCommand::FromString(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
 
 			variant_t type;
-			switch (cmd.cmd)
+			switch (code.cmd)
 			{
 			case eCommand::eqic:
 				type.vt = VT_I4;
-				cmd.var1 = common::str2variant(type, toks[2]);
+				code.var1 = common::str2variant(type, toks[2]);
 				break;
 			case eCommand::eqfc:
 				type.vt = VT_R4;
-				cmd.var1 = common::str2variant(type, toks[2]);
+				code.var1 = common::str2variant(type, toks[2]);
 				break;
 			case eCommand::eqsc:
-				cmd.str1 = toks[2];
+				type.vt = VT_BSTR;
+				//code.str1 = toks[2];
+				code.var1 = common::str2variant(type, toks[2]);
 				break;
 			default:
-				assert(!"Error!! cIntermediateCode::Read() parse error");
+				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 				break;
 			}
 		}
 		else if ((toks[0] == "call")
 			&& (toks.size() >= 2))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.str1 = toks[1];
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
 		}
 		else if ((toks[0] == "jnz")
 			&& (toks.size() >= 2))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.str1 = toks[1];
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
 		}
 		else if ((toks[0] == "jmp")
 			&& (toks.size() >= 2))
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
-			cmd.str1 = toks[1];
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
 		}
-		else if (toks[0] == "end")
+		else if (toks[0] == "nop")
 		{
-			cmd.cmd = eCommand::FromString(toks[0]);
+			code.cmd = eCommand::FromString(toks[0]);
 		}
 		else
 		{
@@ -137,29 +171,29 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 				if (n != string::npos)
 				{
 					// jump label
-					cmd.cmd = eCommand::label;
-					cmd.str1 = toks[0].substr(0, n);
+					code.cmd = eCommand::label;
+					code.str1 = toks[0].substr(0, n);
 				}
 				else
 				{
-					assert(!"Error!! cIntermediateCode::Read() parse error");
+					dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 				}
 			}
 			else
 			{
-				assert(!"Error!! cIntermediateCode::Read() parse error");
+				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 			}
 		}
 
-		if (cmd.cmd != eCommand::none)
-			m_cmds.push_back(cmd);
+		if (code.cmd != eCommand::none)
+			m_codes.push_back(code);
 	}
 
-	for (uint i=0; i < m_cmds.size(); ++i)
+	for (uint i=0; i < m_codes.size(); ++i)
 	{
-		auto &cmd = m_cmds[i];
-		if (eCommand::label == cmd.cmd)
-			m_jmpMap.insert({ cmd.str1, i });
+		auto &code = m_codes[i];
+		if (eCommand::label == code.cmd)
+			m_jmpMap.insert({ code.str1, i });
 	}
 
 	return true;
@@ -174,9 +208,9 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 	if (!ofs.is_open())
 		return false;
 
-	for (auto &cmd : m_cmds)
+	for (auto &code : m_codes)
 	{
-		switch (cmd.cmd)
+		switch (code.cmd)
 		{
 		case eCommand::getb:
 		case eCommand::geti:
@@ -186,36 +220,36 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::seti:
 		case eCommand::setf:
 		case eCommand::sets:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << cmd.str1;
-			ofs << ", " << cmd.str2;
-			ofs << ", " << GetRegisterName(cmd.reg1);
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << code.str1;
+			ofs << ", " << code.str2;
+			ofs << ", " << GetRegisterName(code.reg1);
 			break;
 
 		case eCommand::eqi:
 		case eCommand::eqf:
 		case eCommand::eqs:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << GetRegisterName(cmd.reg1);
-			ofs << ", " << GetRegisterName(cmd.reg2);
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << GetRegisterName(code.reg2);
 			break;
 
 		case eCommand::eqic:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << GetRegisterName(cmd.reg1);
-			ofs << ", " << cmd.var1.intVal;
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << code.var1.intVal;
 			break;
 
 		case eCommand::eqfc:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << GetRegisterName(cmd.reg1);
-			ofs << ", " << cmd.var1.fltVal;
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << code.var1.fltVal;
 			break;
 
 		case eCommand::eqsc:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << GetRegisterName(cmd.reg1);
-			ofs << ", " << cmd.str1;
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << code.str1;
 			break;
 
 		case eCommand::lesi:
@@ -226,28 +260,28 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::grf:
 		case eCommand::greqi:
 		case eCommand::greqf:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << GetRegisterName(cmd.reg1);
-			ofs << ", " << GetRegisterName(cmd.reg2);
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << GetRegisterName(code.reg2);
 			break;
 
 		case eCommand::call:
 		case eCommand::jnz:
 		case eCommand::jmp:
-			ofs << eCommand::ToString(cmd.cmd);
-			ofs << " " << cmd.str1;
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << code.str1;
 			break;
 
-		case eCommand::end:
-			ofs << eCommand::ToString(cmd.cmd);
+		case eCommand::nop:
+			ofs << eCommand::ToString(code.cmd);
 			break;
 
 		case eCommand::label:
-			ofs << cmd.str1 << ":";
+			ofs << code.str1 << ":";
 			break;
 
 		default:
-			assert(!"Error cIntermediateCode::Write()");
+			dbg::Logc(3, "Error cIntermediateCode::Write()\n");
 			break;
 		}
 
@@ -260,7 +294,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 
 bool cIntermediateCode::IsLoaded()
 {
-	return !m_cmds.empty();
+	return !m_codes.empty();
 }
 
 
@@ -287,6 +321,6 @@ const char* cIntermediateCode::GetRegisterName(const uint regIdx)
 
 void cIntermediateCode::Clear()
 {
-	m_cmds.clear();
+	m_codes.clear();
 	m_jmpMap.clear();
 }

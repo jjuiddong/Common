@@ -102,7 +102,7 @@ namespace graphic
 		u_int m_maxTextCount;
 		vector<sText*> m_renders; // reference m_buffer
 		vector<sText*> m_buffer; // m_renders, m_buffer chainning system, has original memory
-		vector<sCommand> m_cmds;
+		vector<sCommand> m_codes;
 		vector<sDelayGenerateText> m_delayGens;
 		map<__int64, sText*> m_renderMap; // reference m_buffer
 		map<__int64, sText*> m_bufferMap; // reference m_buffer

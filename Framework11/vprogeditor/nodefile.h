@@ -26,28 +26,26 @@
 #pragma once
 
 
-namespace framework {
-	namespace vprog {
+namespace vprog {
 
-		class cNodeFile
-		{
-		public:
-			cNodeFile();
-			virtual ~cNodeFile();
+	class cNodeFile
+	{
+	public:
+		cNodeFile();
+		virtual ~cNodeFile();
 
-			bool Read(const StrPath &fileName);
-			bool Write(const StrPath &fileName);
-
-
-		protected:
-			sPin* FindPin(const ed::PinId id);
-			bool AddPin(const int parseState, cNode &node, const sPin &pin);
+		bool Read(const StrPath &fileName);
+		bool Write(const StrPath &fileName);
 
 
-		public:
-			vector<cNode> m_nodes;
-			vector<sLink> m_links;
-			cSymbolTable m_symbTable;
-		};
-	}
+	protected:
+		sPin* FindPin(const ed::PinId id);
+		bool AddPin(const int parseState, cNode &node, const sPin &pin);
+
+
+	public:
+		vector<cNode> m_nodes;
+		vector<sLink> m_links;
+		cSymbolTable m_symbTable;
+	};
 }

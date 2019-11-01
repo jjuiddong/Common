@@ -793,13 +793,13 @@ int cRenderWindow::DefaultEventProc(const sf::Event &evt)
 	switch (evt.type)
 	{
 	case sf::Event::KeyPressed:
-		if (evt.key.code < 256)
-			io.KeysDown[KeyboardToAscii(evt.key.code)] = 1;
+		if (evt.key.cmd < 256)
+			io.KeysDown[KeyboardToAscii(evt.key.cmd)] = 1;
 		break;
 
 	case sf::Event::KeyReleased:
-		if (evt.key.code < 256)
-			io.KeysDown[KeyboardToAscii(evt.key.code)] = 0;
+		if (evt.key.cmd < 256)
+			io.KeysDown[KeyboardToAscii(evt.key.cmd)] = 0;
 		break;
 
 	case sf::Event::TextEntered:

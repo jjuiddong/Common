@@ -5,26 +5,24 @@
 #pragma once
 
 
-namespace framework
+namespace vprog
 {
-	namespace vprog
+	namespace ed = ax::NodeEditor;
+	class cNode;
+
+	struct sPin
 	{
-		namespace ed = ax::NodeEditor;
-		class cNode;
+		ed::PinId id;
+		cNode* node;
+		StrId name;
+		ePinType::Enum type;
+		ePinKind::Enum kind;
 
-		struct sPin
-		{
-			ed::PinId id;
-			cNode* node;
-			StrId name;
-			ePinType::Enum type;
-			ePinKind::Enum kind;
+		sPin(int id0, const StrId &name0, ePinType::Enum type0)
+			: id(id0), node(nullptr), name(name0), type(type0)
+			, kind(ePinKind::Input) {
+		}
+	};
 
-			sPin(int id0, const StrId &name0, ePinType::Enum type0)
-				: id(id0), node(nullptr), name(name0), type(type0)
-				, kind(ePinKind::Input) {
-			}
-		};
-
-	}
 }
+

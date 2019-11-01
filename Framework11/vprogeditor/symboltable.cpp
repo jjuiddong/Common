@@ -3,7 +3,7 @@
 #include "symboltable.h"
 
 using namespace framework;
-using namespace framework::vprog;
+using namespace vprog;
 
 
 cSymbolTable::cSymbolTable()

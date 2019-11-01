@@ -5,60 +5,57 @@
 #pragma once
 
 
-namespace framework
+namespace vprog
 {
-	namespace vprog
+	namespace ed = ax::NodeEditor;
+
+	class cEditManager
 	{
-		namespace ed = ax::NodeEditor;
+	public:
+		cEditManager();
+		virtual ~cEditManager();
 
-		class cEditManager
-		{
-		public:
-			cEditManager();
-			virtual ~cEditManager();
+		bool Init(graphic::cRenderer &renderer);
+		bool Read(const StrPath &fileName);
+		bool ReadDefinitionFile(const StrPath &fileName);
+		bool Write(const StrPath &fileName);
+		bool Render(graphic::cRenderer &renderer);
 
-			bool Init(graphic::cRenderer &renderer);
-			bool Read(const StrPath &fileName);
-			bool ReadDefinitionFile(const StrPath &fileName);
-			bool Write(const StrPath &fileName);
-			bool Render(graphic::cRenderer &renderer);
+		cNode* FindNode(const ed::NodeId id);
+		sLink* FindLink(const ed::LinkId id);
+		sPin* FindPin(const ed::PinId id);
+		cNode* FindContainNode(const ed::PinId id);
+		bool IsPinLinked(const ed::PinId id);
+		void BuildNodes();
+		void Clear();
 
-			cNode* FindNode(const ed::NodeId id);
-			sLink* FindLink(const ed::LinkId id);
-			sPin* FindPin(const ed::PinId id);
-			cNode* FindContainNode(const ed::PinId id);
-			bool IsPinLinked(const ed::PinId id);
-			void BuildNodes();
-			void Clear();
+		cNode* Generate_ReservedDefinition(const StrId &name);
 
-			cNode* Generate_ReservedDefinition(const StrId &name);
-
-			// Link Function
-			bool AddLink(const ed::PinId from, const ed::PinId to);
+		// Link Function
+		bool AddLink(const ed::PinId from, const ed::PinId to);
 
 
-		protected:
-			bool EditOperation();
-			bool RenderPopup(graphic::cRenderer &renderer);
-			int GetUniqueId();
+	protected:
+		bool EditOperation();
+		bool RenderPopup(graphic::cRenderer &renderer);
+		int GetUniqueId();
 
 
-		public:
-			ed::EditorContext* m_editor;
-			vector<cNode> m_nodes;
-			vector<sLink> m_links;
-			vector<cNode> m_definitions; // definition function, operator
-			cSymbolTable m_symbTable;
-			graphic::cTexture *m_headerBackground;			
+	public:
+		ed::EditorContext* m_editor;
+		vector<cNode> m_nodes;
+		vector<sLink> m_links;
+		vector<cNode> m_definitions; // definition function, operator
+		cSymbolTable m_symbTable;
+		graphic::cTexture *m_headerBackground;			
 
-			// edit variable
-			ed::NodeId m_contextNodeId = 0;
-			ed::LinkId m_contextLinkId = 0;
-			ed::PinId  m_contextPinId = 0;
-			bool m_isCreateNewNode = false;
-			sPin* m_newNodeLinkPin = nullptr;
-			sPin* m_newLinkPin = nullptr;
-		};
+		// edit variable
+		ed::NodeId m_contextNodeId = 0;
+		ed::LinkId m_contextLinkId = 0;
+		ed::PinId  m_contextPinId = 0;
+		bool m_isCreateNewNode = false;
+		sPin* m_newNodeLinkPin = nullptr;
+		sPin* m_newLinkPin = nullptr;
+	};
 
-	}
 }

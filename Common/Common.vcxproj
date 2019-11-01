@@ -420,9 +420,9 @@
     <ClInclude Include="interpreter\intermediatecode.h" />
     <ClInclude Include="interpreter\interpreter.h" />
     <ClInclude Include="interpreter\definition.h" />
-    <ClInclude Include="interpreter\node.h" />
     <ClInclude Include="interpreter\symboltable.h" />
     <ClInclude Include="interpreter\virtualmachine.h" />
+    <ClInclude Include="interpreter\vprog.h" />
     <ClInclude Include="interpreter\vprogfile.h" />
     <ClInclude Include="math\line.h" />
     <ClInclude Include="math\Math.h" />
@@ -477,7 +477,6 @@
     <ClCompile Include="interpreter\intermediatecode.cpp" />
     <ClCompile Include="interpreter\interpreter.cpp" />
     <ClCompile Include="interpreter\definition.cpp" />
-    <ClCompile Include="interpreter\node.cpp" />
     <ClCompile Include="interpreter\symboltable.cpp" />
     <ClCompile Include="interpreter\virtualmachine.cpp" />
     <ClCompile Include="interpreter\vprogfile.cpp" />

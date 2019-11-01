@@ -205,13 +205,13 @@
     <ClInclude Include="interpreter\event.h">
       <Filter>interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\node.h">
-      <Filter>interpreter</Filter>
-    </ClInclude>
     <ClInclude Include="interpreter\intermediatecode.h">
       <Filter>interpreter</Filter>
     </ClInclude>
     <ClInclude Include="interpreter\definition.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\vprog.h">
       <Filter>interpreter</Filter>
     </ClInclude>
   </ItemGroup>
@@ -338,9 +338,6 @@
       <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="interpreter\event.cpp">
-      <Filter>interpreter</Filter>
-    </ClCompile>
-    <ClCompile Include="interpreter\node.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="interpreter\intermediatecode.cpp">

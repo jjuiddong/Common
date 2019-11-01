@@ -18,7 +18,8 @@ namespace common
 			cInterpreter();
 			virtual ~cInterpreter();
 
-			bool Init(const StrPath &fileName);
+			bool Init(const StrPath &fileName, iFunctionCallback *callback
+				, void *arg = nullptr);
 			bool Update(const float deltaSeconds);
 			bool Run();
 			bool Stop();
@@ -34,6 +35,8 @@ namespace common
 			cIntermediateCode m_code;
 			queue<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms;
+			iFunctionCallback *m_callback;
+			void *m_callbackArgPtr;
 		};
 
 	}

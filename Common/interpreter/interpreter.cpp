@@ -8,6 +8,8 @@ using namespace common::script;
 
 cInterpreter::cInterpreter()
 	: m_state(eState::Stop)
+	, m_callback(nullptr)
+	, m_callbackArgPtr(nullptr)
 {
 }
 
@@ -17,22 +19,27 @@ cInterpreter::~cInterpreter()
 }
 
 
-bool cInterpreter::Update(const float deltaSeconds)
-{
-	RETV(eState::Stop == m_state, true);
-
-
-
-	return true;
-}
-
-
 // read intermediate code
-bool cInterpreter::Init(const StrPath &fileName)
+bool cInterpreter::Init(const StrPath &fileName, iFunctionCallback *callback
+	, void *arg //= nullptr
+)
 {
 	m_fileName = fileName;
 	if (!m_code.Read(fileName))
 		return false;
+
+	m_callback = callback;
+	m_callbackArgPtr = arg;
+	return true;
+}
+
+
+bool cInterpreter::Update(const float deltaSeconds)
+{
+	RETV(eState::Stop == m_state, true);
+
+	for (auto &vm : m_vms)
+		vm->Update(deltaSeconds);
 
 	return true;
 }
@@ -55,8 +62,10 @@ bool cInterpreter::Run()
 	}
 
 	m_state = eState::Run;
-	if (!vm->Init(m_code))
+	if (!vm->Init(m_code, m_callback, m_callbackArgPtr))
 		return false;
+
+	vm->Run();
 
 	return true;
 }

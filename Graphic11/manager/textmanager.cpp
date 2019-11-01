@@ -17,7 +17,7 @@ cTextManager::cTextManager()
 {
 	m_renders.reserve(m_maxTextCount);
 	m_buffer.reserve(m_maxTextCount);
-	m_cmds.reserve(m_maxTextCount);
+	m_codes.reserve(m_maxTextCount);
 	m_delayGens.reserve(m_maxTextCount);
 	m_timer.Create();
 }
@@ -36,7 +36,7 @@ void cTextManager::Create(const u_int maxTextCount //= 100
 	m_maxTextCount = maxTextCount;
 	m_renders.reserve(maxTextCount);
 	m_buffer.reserve(maxTextCount);
-	m_cmds.reserve(maxTextCount);
+	m_codes.reserve(maxTextCount);
 	m_delayGens.reserve(maxTextCount);
 
 	m_textureSizeX = textureSizeX;
@@ -61,7 +61,7 @@ void cTextManager::NewFrame()
 	for (auto &p : m_buffer)
 		p->used = false;
 
-	m_cmds.clear();
+	m_codes.clear();
 }
 
 
@@ -127,7 +127,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 		cmd.dynScaleMax = dynScaleMax;
 		cmd.dynScaleAlpha = dynScaleMax;
 		cmd.space = renderer.GetCurrentAlphaBlendSpace();
-		m_cmds.push_back(cmd);
+		m_codes.push_back(cmd);
 	}
 }
 
@@ -136,7 +136,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 void cTextManager::ProcessTextCmd(cRenderer &renderer)
 {
 	u_int bufferStartIdx = 0;
-	for (auto &cmd : m_cmds)
+	for (auto &cmd : m_codes)
 	{
 		bool isFindEmptyText = false;
 
@@ -186,7 +186,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 			bufferStartIdx = m_buffer.size();
 		}
 	}
-	m_cmds.clear();
+	m_codes.clear();
 
 	// clear cache if not use buffer
 	const double curT = m_timer.GetSeconds();

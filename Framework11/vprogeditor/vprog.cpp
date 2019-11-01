@@ -3,7 +3,7 @@
 #include "vprog.h"
 
 using namespace framework;
-using namespace framework::vprog;
+using namespace vprog;
 
 
 ImColor vprog::GetIconColor(ePinType::Enum type)

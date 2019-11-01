@@ -749,7 +749,7 @@ void WindowImplWin32::processEvent(UINT message, WPARAM wParam, LPARAM lParam)
                 event.key.control = HIWORD(GetAsyncKeyState(VK_CONTROL)) != 0;
                 event.key.shift   = HIWORD(GetAsyncKeyState(VK_SHIFT))   != 0;
                 event.key.system  = HIWORD(GetAsyncKeyState(VK_LWIN)) || HIWORD(GetAsyncKeyState(VK_RWIN));
-                event.key.code    = virtualKeyCodeToSF(wParam, lParam);
+                event.key.cmd    = virtualKeyCodeToSF(wParam, lParam);
                 pushEvent(event);
             }
             break;
@@ -765,7 +765,7 @@ void WindowImplWin32::processEvent(UINT message, WPARAM wParam, LPARAM lParam)
             event.key.control = HIWORD(GetAsyncKeyState(VK_CONTROL)) != 0;
             event.key.shift   = HIWORD(GetAsyncKeyState(VK_SHIFT))   != 0;
             event.key.system  = HIWORD(GetAsyncKeyState(VK_LWIN)) || HIWORD(GetAsyncKeyState(VK_RWIN));
-            event.key.code    = virtualKeyCodeToSF(wParam, lParam);
+            event.key.cmd    = virtualKeyCodeToSF(wParam, lParam);
             pushEvent(event);
             break;
         }
