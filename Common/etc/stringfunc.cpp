@@ -99,8 +99,11 @@ string common::wstr2utf8(const wstring &wstr)
 
 //------------------------------------------------------------------------
 // _variant_t 타입을 스트링으로 변환시킨다. 데이타 출력용을 만들어졌다.
+// isStringDoubleQuoto: 스트링 타입일 경우, 양쪽에 쌍따옴표로 묶는다.
 //------------------------------------------------------------------------
-std::string common::variant2str(const _variant_t &var)
+std::string common::variant2str(const _variant_t &var
+	, const bool isStringDoubleQuoto //= false
+)
 {
 	std::stringstream ss;
 	switch (var.vt)
@@ -115,10 +118,24 @@ std::string common::variant2str(const _variant_t &var)
 	{
 #ifdef _UNICODE
 		wstring str = (LPCTSTR)(_bstr_t)var.bstrVal;
-		ss << common::wstr2str(str);
+		if (isStringDoubleQuoto)
+		{
+			ss << "\"" << common::wstr2str(str) << "\"";
+		}
+		else
+		{
+			ss << common::wstr2str(str);
+		}
 #else
 		string str = (LPCTSTR)(_bstr_t)var.bstrVal;
-		ss << str;
+		if (isStringDoubleQuoto)
+		{
+			ss << "\"" << str << "\"";
+		}
+		else
+		{
+			ss << str;
+		}
 #endif
 	}
 	break;
@@ -143,10 +160,11 @@ std::string common::variant2str(const _variant_t &var)
 //------------------------------------------------------------------------
 // string을 varType 형태로 변환해서 리턴한다.
 //------------------------------------------------------------------------
-_variant_t common::str2variant(const _variant_t &varType, const std::string &value)
+_variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 {
-	_variant_t var = varType;
-	switch (varType.vt)
+	_variant_t var;
+	var.vt = vt;
+	switch (vt)
 	{
 	case VT_BOOL: var.boolVal = (bool)atoi(value.c_str()); break;
 	case VT_I2: var.iVal = (short)atoi(value.c_str()); break;
@@ -368,7 +386,8 @@ void common::tokenizer3(const char *data, const int size, const char delimeter, 
 }
 
 
-// 공백문자와 (space, newline, tab) 쌍따옴표(double quote) 를 기준으로 문자를 구분한다.
+// 공백문자와 (space, newline, tab) 쌍따옴표(double quote), 콤마(,)를 
+// 기준으로 문자를 구분한다.
 // 쌍따옴표 사이의 문자는 어떤 문자든지 (delimeter 여부와 상관없이) 문자로 인식한다.
 void common::tokenizer_space(const string &str, OUT vector<string> &out)
 {
@@ -385,6 +404,7 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 			case ' ':
 			case '\t':
 			case '\r':
+			case ',':
 				if (!tok.empty())
 				{
 					out.push_back(tok);

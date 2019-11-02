@@ -23,7 +23,7 @@ namespace common
 			cVirtualMachine();
 			virtual ~cVirtualMachine();
 
-			bool Init(const cIntermediateCode &cmd, iFunctionCallback *callback
+			bool Init(const cIntermediateCode &code, iFunctionCallback *callback
 				, void *arg = nullptr);
 			bool Update(const float deltaSeconds);
 			bool Run();
@@ -42,6 +42,7 @@ namespace common
 			sRegister m_reg;
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;
+			queue<cEvent> m_events;
 			iFunctionCallback *m_callback;
 			void *m_callbackArgPtr;
 		};

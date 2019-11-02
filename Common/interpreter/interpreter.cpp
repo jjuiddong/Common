@@ -20,6 +20,7 @@ cInterpreter::~cInterpreter()
 
 
 // read intermediate code
+// fileName : intermediatecode file name
 bool cInterpreter::Init(const StrPath &fileName, iFunctionCallback *callback
 	, void *arg //= nullptr
 )
@@ -37,6 +38,14 @@ bool cInterpreter::Init(const StrPath &fileName, iFunctionCallback *callback
 bool cInterpreter::Update(const float deltaSeconds)
 {
 	RETV(eState::Stop == m_state, true);
+
+	while (!m_events.empty())
+	{
+		cEvent &evt = m_events.front();
+		for (auto &vm : m_vms)
+			vm->PushEvent(evt);
+		m_events.pop();
+	}
 
 	for (auto &vm : m_vms)
 		vm->Update(deltaSeconds);

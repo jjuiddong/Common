@@ -19,8 +19,8 @@ namespace common
 	string wstr2str(const wstring &wstr);
 	wstring str2wstr(const string &str);
 	string wstr2utf8(const wstring &wstr);
-	string variant2str(const _variant_t &var);
-	_variant_t str2variant(const _variant_t &varType, const string &value);
+	string variant2str(const _variant_t &var, const bool isStringDoubleQuoto=false);
+	_variant_t str2variant(const VARTYPE &vt, const string &value);
 
 	string format(const char* fmt, ...);
 	wstring formatw(const char* fmt, ...);

@@ -14,13 +14,13 @@ namespace common
 		public:
 			cEvent();
 			cEvent(const StrId &name
-				, const map<StrId, variant_t> &vars = {});
+				, const map<string, variant_t> &vars = {});
 			virtual ~cEvent();
 
 
 		public:
 			StrId m_name;
-			map<StrId, variant_t> m_vars;
+			map<string, variant_t> m_vars;
 		};
 
 	}

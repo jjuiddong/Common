@@ -19,7 +19,7 @@ cVirtualMachine::~cVirtualMachine()
 }
 
 
-bool cVirtualMachine::Init(const cIntermediateCode &cmd, iFunctionCallback *callback
+bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *callback
 	, void *arg //= nullptr
 )
 {
@@ -28,9 +28,11 @@ bool cVirtualMachine::Init(const cIntermediateCode &cmd, iFunctionCallback *call
 	m_reg.idx = 0;
 	m_reg.cmp = false;
 
-	m_code = cmd;
+	m_code = code;
+	m_symbTable = code.m_variables; // initial variable
 	m_callback = callback;
 	m_callbackArgPtr = arg;
+
 	return true;
 }
 
@@ -39,6 +41,26 @@ bool cVirtualMachine::Update(const float deltaSeconds)
 {
 	RETV(eState::Stop == m_state, true);
 	RETV(!m_code.IsLoaded(), true);
+
+	// only waitting state, process external event
+	if ((eState::Wait == m_state) && (!m_events.empty()))
+	{
+		auto &evt = m_events.front();
+		const uint addr = m_code.FindJumpAddress(evt.m_name);
+		if (UINT_MAX != addr)
+		{
+			for (auto &kv : evt.m_vars)
+			{
+				vector<string> out;
+				common::tokenizer(kv.first.c_str(), "::", "", out);
+				if (out.size() >= 2)
+					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+			}
+			m_reg.idx = addr + 1;
+		}
+
+		m_events.pop();		
+	}
 
 	Execute(m_reg);
 
@@ -73,7 +95,7 @@ bool cVirtualMachine::Stop()
 
 bool cVirtualMachine::PushEvent(const cEvent &evt)
 {
-
+	m_events.push(evt);
 	return true;
 }
 
@@ -97,6 +119,13 @@ bool cVirtualMachine::Execute(sRegister &reg)
 		if (GetVarType(code.cmd) != code.var1.vt)
 			goto $error_semantic;
 		reg.val[code.reg1] = code.var1;
+		++reg.idx;
+		break;
+
+	case eCommand::ldcmp:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		reg.val[code.reg1] = (reg.cmp) ? variant_t((bool)true) : variant_t((bool)false);
 		++reg.idx;
 		break;
 
@@ -172,6 +201,11 @@ bool cVirtualMachine::Execute(sRegister &reg)
 	case eCommand::eqfc:
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
+		if (reg.val[code.reg1].vt == VT_BOOL)
+		{
+			reg.val[code.reg1].vt = VT_INT; // force converting
+			reg.val[code.reg1].intVal = (int)reg.val[code.reg1].boolVal;
+		}
 		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
 			goto $error_semantic;
 		if (GetVarType(code.cmd) != code.var1.vt)
@@ -339,12 +373,13 @@ bool cVirtualMachine::Execute(sRegister &reg)
 		if (!m_callback)
 			goto $error;
 		
-		vector<string> out;
-		common::tokenizer(code.str1, "::", "", out);
-		if (out.empty())
+		string funcName;
+		int nodeId;
+		std::tie(funcName, nodeId) = cSymbolTable::ParseScopeName(code.str1);
+		if (funcName.empty())
 			goto $error;
 
-		m_callback->Function(m_symbTable, code.str1.c_str(), out[0], m_callbackArgPtr);
+		m_callback->Function(m_symbTable, code.str1, funcName, m_callbackArgPtr);
 		++reg.idx;
 	}
 	break;
@@ -387,4 +422,6 @@ void cVirtualMachine::Clear()
 	Stop();
 	m_symbTable.Clear();
 	m_code.Clear();
+	while (!m_events.empty())
+		m_events.pop();
 }

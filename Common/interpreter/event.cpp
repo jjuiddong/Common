@@ -11,7 +11,7 @@ cEvent::cEvent()
 }
 
 cEvent::cEvent(const StrId &name
-	, const map<StrId, variant_t> &vars //= {}
+	, const map<string, variant_t> &vars //= {}
 )
 	: m_name(name)
 	, m_vars(vars)

@@ -19,13 +19,13 @@ cSymbolTable::~cSymbolTable()
 // add string type symbol
 bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 {
-	_variant_t varType;
+	VARTYPE vt = VT_VOID;
 	switch (pin.type)
 	{
-	case ePinType::Bool: varType.vt = VT_BOOL; break;
-	case ePinType::Int: varType.vt = VT_I4; break;
-	case ePinType::Float: varType.vt = VT_R4; break;
-	case ePinType::String: varType.vt = VT_BSTR; break;
+	case ePinType::Bool: vt = VT_BOOL; break;
+	case ePinType::Int: vt = VT_INT; break;
+	case ePinType::Float: vt = VT_R4; break;
+	case ePinType::String: vt = VT_BSTR; break;
 	default:
 		assert(!"nodefile::AddSymbol() symbol parse error!!");
 		break;
@@ -33,8 +33,8 @@ bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 
 	sValue v;
 	v.str = value;
-	v.var = common::str2variant(varType, v.str);
-	v.var.vt = varType.vt;
+	v.var = common::str2variant(vt, v.str);
+	v.var.vt = vt;
 	m_symbols.insert({ pin.id.Get(), v });
 	return true;
 }
@@ -43,13 +43,13 @@ bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 // add variant type symbol
 bool cSymbolTable::AddSymbol(const sPin &pin, const variant_t &value)
 {
-	_variant_t varType;
+	VARTYPE vt;
 	switch (pin.type)
 	{
-	case ePinType::Bool: varType.vt = VT_BOOL; break;
-	case ePinType::Int: varType.vt = VT_I4; break;
-	case ePinType::Float: varType.vt = VT_R4; break;
-	case ePinType::String: varType.vt = VT_BSTR; break;
+	case ePinType::Bool: vt = VT_BOOL; break;
+	case ePinType::Int: vt = VT_INT; break;
+	case ePinType::Float: vt = VT_R4; break;
+	case ePinType::String: vt = VT_BSTR; break;
 	default:
 		assert(!"nodefile::AddSymbol() symbol parse error!!");
 		break;
@@ -59,7 +59,7 @@ bool cSymbolTable::AddSymbol(const sPin &pin, const variant_t &value)
 	v.var = value;
 	v.str = common::variant2str(value);
 	if (ePinType::String == pin.type)
-		v.var = common::str2variant(varType, v.str); // for string pointer
+		v.var = common::str2variant(vt, v.str); // for string pointer
 	m_symbols.insert({ pin.id.Get(), v });
 	return true;
 }

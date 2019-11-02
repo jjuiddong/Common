@@ -55,6 +55,7 @@ namespace common
 
 			bool Read(const StrPath &fileName);
 			bool Write(const StrPath &fileName);
+			uint FindJumpAddress(const StrId &label);
 			bool IsLoaded();
 			void Clear();
 
@@ -67,6 +68,7 @@ namespace common
 		public:
 			vector<sCommandSet> m_codes;
 			map<StrId, uint> m_jmpMap; //key: jump name, data: code line
+			cSymbolTable m_variables; // initial variable symboltable
 		};
 
 	}

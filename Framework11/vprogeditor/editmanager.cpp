@@ -61,6 +61,7 @@ bool cEditManager::Read(const StrPath &fileName)
 	m_symbTable = nodeFile.m_symbTable;
 	BuildNodes();
 
+	// update node position and symboltable
 	for (auto &node : m_nodes)
 	{
 		if (node.m_varName.empty())

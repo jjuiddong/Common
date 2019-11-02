@@ -17,26 +17,17 @@ cSymbolTable::~cSymbolTable()
 
 
 // add or update variable in symboltable
-bool cSymbolTable::Set(const StrId &scopeName, const StrId &symbolName
+bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 	, const variant_t &var)
 {
-	m_symbols[scopeName][symbolName] = var;
-
-	// string table for variant_t bstr type
-	if (VT_BSTR == var.vt)
-	{
-		const StrId id = scopeName + "::" + symbolName;
-		m_strTable[id] = (LPCTSTR)var.pbstrVal; // copy string to management memory
-		// update bstr pointer to management memory pointer
-		m_symbols[scopeName][symbolName].pbstrVal = (BSTR*)m_strTable[id].c_str();
-	}
-
+	variant_t tmp = var; // to avoid bstr memory move bug
+	m_symbols[scopeName][symbolName] = tmp;
 	return true;
 }
 
 
 // get variable in symboltable
-bool cSymbolTable::Get(const StrId &scopeName, const StrId &symbolName
+bool cSymbolTable::Get(const string &scopeName, const string &symbolName
 	, OUT variant_t &out)
 {
 	auto it = m_symbols.find(scopeName);
@@ -50,7 +41,7 @@ bool cSymbolTable::Get(const StrId &scopeName, const StrId &symbolName
 }
 
 
-bool cSymbolTable::IsExist(const StrId &scopeName, const StrId &symbolName)
+bool cSymbolTable::IsExist(const string &scopeName, const string &symbolName)
 {
 	auto it = m_symbols.find(scopeName);
 	RETV(m_symbols.end() == it, false);
@@ -62,8 +53,26 @@ bool cSymbolTable::IsExist(const StrId &scopeName, const StrId &symbolName)
 }
 
 
+// return scope name
+string cSymbolTable::MakeScopeName(const string &name, const int id)
+{
+	string scopeName = common::format("%s-%d", name.c_str(), id);
+	return scopeName;
+}
+
+
+// parse scope name -> node name , node id
+std::pair<string, int> cSymbolTable::ParseScopeName(const string &scopeName)
+{
+	vector<string> out;
+	common::tokenizer(scopeName.c_str(), "-", "", out);
+	if (out.size() < 2)
+		return std::make_pair("", 0);
+	return std::make_pair(out[0], atoi(out[1].c_str()));
+}
+
+
 void cSymbolTable::Clear()
 {
 	m_symbols.clear();
-	m_strTable.clear();
 }

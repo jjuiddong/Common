@@ -77,6 +77,12 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Function(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_Branch(const sNode &node
+			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_Operator(const sNode &node
+			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_Variable(const sNode &node
+			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Pin(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_TemporalPin(const sNode &node, const sPin &pin, const uint reg
@@ -84,11 +90,12 @@ namespace vprog
 
 		bool AddPin(const int parseState, sNode &node, const sPin &pin);
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
+		string MakeScopeName(const sNode &node);
 
 
 	public:
 		vector<sNode> m_nodes;
-		vector<sLink> m_links;
+		common::script::cSymbolTable m_variables;
 		set<int> m_visit; // visit node, use generate intermediate code
 	};
 

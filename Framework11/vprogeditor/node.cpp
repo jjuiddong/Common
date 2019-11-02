@@ -191,6 +191,7 @@ void cNode::Clear()
 {
 	m_id = 0;
 	m_name.clear();
+	m_varName.clear();
 	m_inputs.clear();
 	m_outputs.clear();
 }
