@@ -169,7 +169,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 				{
 					string scopeName = MakeScopeName(*n);
 					string varName = p->name.c_str();
-					VARTYPE vt = VT_VOID;
+					VARTYPE vt = VT_EMPTY;
 					switch (p->type)
 					{
 					case ePinType::Bool: vt = VT_BOOL; break;
@@ -188,6 +188,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 						common::dbg::Logc(1
 							, "Error!! cVProgFile::Read() symbol parse error!!\n");
 					}
+					common::clearvariant(val);
 				}
 				else
 				{
@@ -231,7 +232,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 
 	{
 		out.m_codes.push_back({ script::eCommand::nop });
-		script::sCommandSet code;
+		script::sInstruction code;
 		code.cmd = script::eCommand::label;
 		code.str1 = "main";
 		out.m_codes.push_back(code);
@@ -248,7 +249,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 	{
 		for (auto &kv2 : kv1.second)
 		{
-			script::sCommandSet code;
+			script::sInstruction code;
 			switch (kv2.second.vt)
 			{
 			case VT_BOOL: code.cmd = script::eCommand::symbolb; break;
@@ -369,7 +370,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &node
 	}
 
 	// call function
-	script::sCommandSet code;
+	script::sInstruction code;
 	code.cmd = script::eCommand::call;
 	code.str1 = MakeScopeName(node);
 	out.m_codes.push_back(code);
@@ -441,7 +442,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &node
 	// insert branch code
 	// compare condition is zero?
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		code.cmd = script::eCommand::eqic;
 		code.reg1 = condReg;
 		code.var1 = variant_t((int)0);
@@ -468,14 +469,14 @@ bool cVProgFile::GenerateCode_Branch(const sNode &node
 		if (jumpLabel.empty())
 		{
 			// no branch node, nop
-			script::sCommandSet code;
+			script::sInstruction code;
 			code.cmd = script::eCommand::nop;
 			out.m_codes.push_back(code);
 			common::dbg::Logc(1, "cVProgFile::GenerateCode_Control, no branch label\n");
 		}
 		else
 		{
-			script::sCommandSet code;
+			script::sInstruction code;
 			code.cmd = script::eCommand::jnz;
 			code.str1 = jumpLabel;
 			out.m_codes.push_back(code);
@@ -512,13 +513,13 @@ bool cVProgFile::GenerateCode_Branch(const sNode &node
 			{
 				// insert nop
 				{
-					script::sCommandSet code;
+					script::sInstruction code;
 					code.cmd = script::eCommand::nop;
 					out.m_codes.push_back(code);
 				}
 				// insert jump label
 				{
-					script::sCommandSet code;
+					script::sInstruction code;
 					code.cmd = script::eCommand::label;
 					code.str1 = MakeScopeName(*next);
 					out.m_codes.push_back(code);
@@ -544,7 +545,6 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 
 	// get input variable
 	uint reg = 8;
-	VARTYPE vt = VT_VOID;
 	for (auto &pin : node.inputs)
 	{
 		switch (pin.type)
@@ -573,24 +573,27 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			GenerateCode_TemporalPin(node, pin, reg, out);
 			++reg;
 		}
-		
-		if (VT_VOID == vt)
+	}
+
+	// get operator type (by input pin type)
+	VARTYPE vt = VT_EMPTY;
+	for (auto &pin : node.inputs)
+	{
+		switch (pin.type)
 		{
-			switch (pin.type)
-			{
-			case ePinType::Bool: vt = VT_BOOL; break;
-			case ePinType::Int: vt = VT_INT; break;
-			case ePinType::Float: vt = VT_R4; break;
-			case ePinType::String: vt = VT_BSTR; break;
-			default: break;
-			}
+		case ePinType::Bool: vt = VT_BOOL; break;
+		case ePinType::Int: vt = VT_INT; break;
+		case ePinType::Float: vt = VT_R4; break;
+		case ePinType::String: vt = VT_BSTR; break;
+		default: break;
 		}
+		break;
 	}
 
 	// insert compare code
 	if (node.name == "<")
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (vt)
 		{
 		case VT_INT: code.cmd = script::eCommand::lesi; break;
@@ -606,7 +609,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	}
 	else if (node.name == "<=")
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (vt)
 		{
 		case VT_INT: code.cmd = script::eCommand::leqi; break;
@@ -622,7 +625,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	}
 	else if (node.name == ">")
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (vt)
 		{
 		case VT_INT: code.cmd = script::eCommand::gri; break;
@@ -638,7 +641,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	}
 	else if (node.name == ">=")
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (vt)
 		{
 		case VT_INT: code.cmd = script::eCommand::greqi; break;
@@ -652,10 +655,28 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
 	}
-
-	// load compare flag to register
+	else if (node.name == "==")
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
+		switch (vt)
+		{
+		case VT_BOOL:
+		case VT_INT: code.cmd = script::eCommand::eqi; break;
+		case VT_R4: code.cmd = script::eCommand::eqf; break;
+		case VT_BSTR: code.cmd = script::eCommand::eqs; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
+		out.m_codes.push_back(code);
+	}
+
+	// load compare flag
+	{
+		script::sInstruction code;
 		code.cmd = script::eCommand::ldcmp;
 		code.reg1 = 9;
 		out.m_codes.push_back(code);
@@ -663,7 +684,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 
 	// insert compare data to symboltable
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		code.cmd = script::eCommand::setb;
 		code.str1 = MakeScopeName(node);
 		code.str2 = "O";
@@ -696,7 +717,7 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 
 	if (ePinKind::Input == pin.kind)
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (pin.type)
 		{
 		case ePinType::Bool: code.cmd = script::eCommand::setb; break;
@@ -714,7 +735,7 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 	}
 	else // output
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (pin.type)
 		{
 		case ePinType::Bool: code.cmd = script::eCommand::getb; break;
@@ -742,7 +763,7 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 
 	if (ePinKind::Input == pin.kind)
 	{
-		script::sCommandSet code;
+		script::sInstruction code;
 		switch (pin.type)
 		{
 		case ePinType::Bool: 

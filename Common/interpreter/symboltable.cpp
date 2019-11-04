@@ -9,7 +9,10 @@ using namespace common::script;
 cSymbolTable::cSymbolTable()
 {
 }
-
+cSymbolTable::cSymbolTable(const cSymbolTable &rhs)
+{
+	operator=(rhs);
+}
 cSymbolTable::~cSymbolTable()
 {
 	Clear();
@@ -20,8 +23,9 @@ cSymbolTable::~cSymbolTable()
 bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 	, const variant_t &var)
 {
-	variant_t tmp = var; // to avoid bstr memory move bug
-	m_symbols[scopeName][symbolName] = tmp;
+	// to avoid bstr memory move bug
+	common::clearvariant(m_symbols[scopeName][symbolName]);
+	m_symbols[scopeName][symbolName] = common::copyvariant(var);
 	return true;
 }
 
@@ -72,7 +76,25 @@ std::pair<string, int> cSymbolTable::ParseScopeName(const string &scopeName)
 }
 
 
+cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
+{
+	if (this != &rhs)
+	{
+		Clear();
+
+		// copy all symbols
+		for (auto &kv1 : rhs.m_symbols)
+			for (auto &kv2 : kv1.second)
+				m_symbols[kv1.first][kv2.first] = common::copyvariant(kv2.second);
+	}
+	return *this;
+}
+
+
 void cSymbolTable::Clear()
 {
+	for (auto &kv1 : m_symbols)
+		for (auto &kv2 : kv1.second)
+			common::clearvariant(kv2.second);
 	m_symbols.clear();
 }

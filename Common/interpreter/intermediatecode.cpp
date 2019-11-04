@@ -10,6 +10,11 @@ cIntermediateCode::cIntermediateCode()
 {
 }
 
+cIntermediateCode::cIntermediateCode(const cIntermediateCode &rhs)
+{
+	operator=(rhs);
+}
+
 cIntermediateCode::~cIntermediateCode()
 {
 	Clear();
@@ -39,7 +44,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		if (trim(toks[0]) == "#")
 			continue; // comment line
 
-		sCommandSet code;
+		sInstruction code;
 
 		if (((toks[0] == "geti") 
 			|| (toks[0] == "getb")
@@ -73,7 +78,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.reg1 = GetRegisterIndex(toks[1]);
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[2]);
-			if (vt == VT_VOID)
+			if (vt == VT_EMPTY)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if ((toks[0] == "ldcmp") && (toks.size() >= 2))
@@ -108,7 +113,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[2]);
-			if (vt == VT_VOID)
+			if (vt == VT_EMPTY)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if ((toks[0] == "call")
@@ -346,6 +351,18 @@ const char* cIntermediateCode::GetRegisterName(const uint regIdx)
 	static char regName[5] = "val0";
 	regName[3] = (char)('0' + min((uint)9, regIdx));
 	return regName;
+}
+
+
+cIntermediateCode& cIntermediateCode::operator=(const cIntermediateCode &rhs)
+{
+	if (this != &rhs)
+	{
+		m_codes = rhs.m_codes;
+		m_variables = rhs.m_variables;
+		m_jmpMap = rhs.m_jmpMap;
+	}
+	return *this;
 }
 
 

@@ -15,6 +15,11 @@ namespace vprog
 		struct sValue {
 			variant_t var;
 			string str;
+
+			sValue();
+			~sValue();
+			sValue(const sValue &rhs);
+			sValue& operator=(const sValue &rhs);
 		};
 
 		cSymbolTable();

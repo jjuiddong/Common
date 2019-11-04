@@ -6,6 +6,35 @@ using namespace framework;
 using namespace vprog;
 
 
+//-------------------------------------------------------------------
+// cSymbolTable::sValue
+//-------------------------------------------------------------------
+cSymbolTable::sValue::sValue()
+{
+}
+cSymbolTable::sValue::~sValue()
+{
+	common::clearvariant(var);
+}
+cSymbolTable::sValue::sValue(const sValue &rhs)
+{
+	operator=(rhs);
+}
+cSymbolTable::sValue& cSymbolTable::sValue::operator=(const sValue &rhs)
+{
+	if (this != &rhs)
+	{
+		common::clearvariant(var);
+		var = common::copyvariant(rhs.var);
+		str = rhs.str;
+	}
+	return *this;
+}
+
+
+//-------------------------------------------------------------------
+// cSymbolTable
+//-------------------------------------------------------------------
 cSymbolTable::cSymbolTable()
 {
 }
@@ -19,7 +48,7 @@ cSymbolTable::~cSymbolTable()
 // add string type symbol
 bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 {
-	VARTYPE vt = VT_VOID;
+	VARTYPE vt = VT_EMPTY;
 	switch (pin.type)
 	{
 	case ePinType::Bool: vt = VT_BOOL; break;
@@ -34,7 +63,6 @@ bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 	sValue v;
 	v.str = value;
 	v.var = common::str2variant(vt, v.str);
-	v.var.vt = vt;
 	m_symbols.insert({ pin.id.Get(), v });
 	return true;
 }
@@ -56,10 +84,8 @@ bool cSymbolTable::AddSymbol(const sPin &pin, const variant_t &value)
 	}
 
 	sValue v;
-	v.var = value;
+	v.var = copyvariant(value);
 	v.str = common::variant2str(value);
-	if (ePinType::String == pin.type)
-		v.var = common::str2variant(vt, v.str); // for string pointer
 	m_symbols.insert({ pin.id.Get(), v });
 	return true;
 }

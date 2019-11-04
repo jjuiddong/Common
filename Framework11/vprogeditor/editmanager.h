@@ -29,7 +29,8 @@ namespace vprog
 		void BuildNodes();
 		void Clear();
 
-		cNode* Generate_ReservedDefinition(const StrId &name);
+		cNode* Generate_ReservedDefinition(const StrId &name
+			, const StrId &varName="");
 
 		// Link Function
 		bool AddLink(const ed::PinId from, const ed::PinId to);

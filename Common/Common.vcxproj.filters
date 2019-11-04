@@ -214,6 +214,9 @@
     <ClInclude Include="interpreter\vprog.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\debugger.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -344,6 +347,9 @@
       <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="interpreter\definition.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\debugger.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>

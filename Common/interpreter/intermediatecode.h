@@ -6,7 +6,7 @@
 // ---------------------------------------------------------
 // Sample
 //
-// # script intermediate language sample
+// # script intermediate code instruction sample
 //
 // main:
 // nop
@@ -51,6 +51,7 @@ namespace common
 		{
 		public:
 			cIntermediateCode();
+			cIntermediateCode(const cIntermediateCode &rhs);
 			virtual ~cIntermediateCode();
 
 			bool Read(const StrPath &fileName);
@@ -59,6 +60,8 @@ namespace common
 			bool IsLoaded();
 			void Clear();
 
+			cIntermediateCode& operator=(const cIntermediateCode &rhs);
+
 
 		protected:
 			uint GetRegisterIndex(const string &regName);
@@ -66,9 +69,9 @@ namespace common
 
 
 		public:
-			vector<sCommandSet> m_codes;
-			map<StrId, uint> m_jmpMap; //key: jump name, data: code line
+			vector<sInstruction> m_codes;
 			cSymbolTable m_variables; // initial variable symboltable
+			map<StrId, uint> m_jmpMap; //key: jump name, data: code line
 		};
 
 	}

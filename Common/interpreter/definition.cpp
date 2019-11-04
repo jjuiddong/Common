@@ -57,5 +57,33 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	default:
 		break;
 	}
-	return VT_VOID;
+	return VT_EMPTY;
+}
+
+
+
+//----------------------------------------------------
+// sInstruction
+//----------------------------------------------------
+sInstruction::sInstruction(const sInstruction &rhs)
+{
+	operator=(rhs);
+}
+sInstruction::~sInstruction()
+{
+	common::clearvariant(var1);
+}
+sInstruction& sInstruction::operator=(const sInstruction &rhs)
+{
+	if (this != &rhs)
+	{
+		cmd = rhs.cmd;
+		str1 = rhs.str1;
+		str2 = rhs.str2;
+		reg1 = rhs.reg1;
+		reg2 = rhs.reg2;
+		common::clearvariant(var1);
+		var1 = common::copyvariant(rhs.var1);
+	}
+	return *this;
 }

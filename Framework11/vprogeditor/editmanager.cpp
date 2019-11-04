@@ -461,12 +461,17 @@ void cEditManager::BuildNodes()
 
 // generate reserved definition node
 // from ReadDefinitionFile()
-cNode* cEditManager::Generate_ReservedDefinition(const StrId &name)
+cNode* cEditManager::Generate_ReservedDefinition(const StrId &name
+	, const StrId &varName //= ""
+)
 {
 	cNode *defNode = NULL;
 	for (auto &def : m_definitions)
 	{
-		if (def.m_name == name)
+		if ((def.m_name == name)
+			&& (varName.empty()
+				|| (!varName.empty() 
+					&& (varName == def.m_varName))))
 		{
 			defNode = &def;
 			break;

@@ -14,6 +14,7 @@ namespace common
 		{
 		public:
 			cSymbolTable();
+			cSymbolTable(const cSymbolTable &rhs);
 			virtual ~cSymbolTable();
 
 			bool Set(const string &scopeName, const string &symbolName
@@ -25,6 +26,8 @@ namespace common
 
 			static string MakeScopeName(const string &name, const int id);
 			static std::pair<string,int> ParseScopeName(const string &scopeName);
+
+			cSymbolTable& operator=(const cSymbolTable &rhs);
 
 
 		public:

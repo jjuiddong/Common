@@ -159,6 +159,10 @@ std::string common::variant2str(const _variant_t &var
 
 //------------------------------------------------------------------------
 // string을 varType 형태로 변환해서 리턴한다.
+// VT_BSTR 타입일 경우 ::SysAllocString()로 생성하고,
+// ::SysFreeString() 으로 해제해야 한다.
+// https://manylee.tistory.com/entry/VariantCopy-VariantInit-VariantClear
+// https://panpro.tistory.com/75
 //------------------------------------------------------------------------
 _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 {
@@ -175,9 +179,10 @@ _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 	case VT_BSTR:
 	{
 #ifdef _UNICODE
-		var.bstrVal = (_bstr_t)common::str2wstr(value).c_str();
+		//var.bstrVal = (_bstr_t)common::str2wstr(value).c_str();
+		var.bstrVal = ::SysAllocString(common::str2wstr(value).c_str());
 #else
-		var.bstrVal = (_bstr_t)value.c_str();
+		var.bstrVal = ::SysAllocString(common::str2wstr(value).c_str());
 #endif
 	}
 	break;
@@ -192,9 +197,33 @@ _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 	case VT_INT: var.intVal = (int)atoi(value.c_str()); break;
 	case VT_UINT: var.uintVal = strtoul(value.c_str(), NULL, 0); break;
 	default:
-		break;
+		return false;
 	}
 	return var;
+}
+
+
+// Deep Copy variant
+// VT_BSTR 타입일 경우 복사해서 리턴한다.
+_variant_t common::copyvariant(const _variant_t &var)
+{
+	_variant_t v = var;
+	if (VT_BSTR == var.vt)
+		v.bstrVal = ::SysAllocString(var.bstrVal);
+	return v;
+}
+
+
+// VT_BSTR 타입일 경우 ::SysFreeString() 으로 해제해야 한다.
+// https://manylee.tistory.com/entry/VariantCopy-VariantInit-VariantClear
+// https://panpro.tistory.com/75
+void common::clearvariant(INOUT _variant_t &var)
+{
+	if (VT_BSTR == var.vt)
+	{
+		::SysFreeString(var.bstrVal);
+		var.vt = VT_EMPTY;
+	}
 }
 
 

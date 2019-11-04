@@ -183,4 +183,5 @@ using std::max;
 #include "interpreter/intermediatecode.h"
 #include "interpreter/virtualmachine.h"
 #include "interpreter/interpreter.h"
+#include "interpreter/debugger.h"
 #include "interpreter/vprogfile.h"

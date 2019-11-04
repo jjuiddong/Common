@@ -2,6 +2,12 @@
 // 2019-02-23, jjuiddong
 // string utility functions
 //
+// 2019-11-04
+//	- update variant function
+//		- str2variant
+//		- copyvariant
+//		- clearvariant
+//
 #pragma once
 
 
@@ -21,6 +27,8 @@ namespace common
 	string wstr2utf8(const wstring &wstr);
 	string variant2str(const _variant_t &var, const bool isStringDoubleQuoto=false);
 	_variant_t str2variant(const VARTYPE &vt, const string &value);
+	_variant_t copyvariant(const _variant_t &var);
+	void clearvariant(INOUT _variant_t &var);
 
 	string format(const char* fmt, ...);
 	wstring formatw(const char* fmt, ...);

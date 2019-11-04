@@ -416,6 +416,7 @@
     <ClInclude Include="etc\singleton.h" />
     <ClInclude Include="etc\stringfunc.h" />
     <ClInclude Include="etc\timer.h" />
+    <ClInclude Include="interpreter\debugger.h" />
     <ClInclude Include="interpreter\event.h" />
     <ClInclude Include="interpreter\intermediatecode.h" />
     <ClInclude Include="interpreter\interpreter.h" />
@@ -473,6 +474,7 @@
     <ClCompile Include="etc\simpledata.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />
     <ClCompile Include="etc\timer.cpp" />
+    <ClCompile Include="interpreter\debugger.cpp" />
     <ClCompile Include="interpreter\event.cpp" />
     <ClCompile Include="interpreter\intermediatecode.cpp" />
     <ClCompile Include="interpreter\interpreter.cpp" />

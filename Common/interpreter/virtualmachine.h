@@ -20,12 +20,12 @@ namespace common
 				variant_t val[10]; // register
 			};
 
-			cVirtualMachine();
+			cVirtualMachine(const StrId &name);
 			virtual ~cVirtualMachine();
 
 			bool Init(const cIntermediateCode &code, iFunctionCallback *callback
 				, void *arg = nullptr);
-			bool Update(const float deltaSeconds);
+			bool Process(const float deltaSeconds);
 			bool Run();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
@@ -33,12 +33,14 @@ namespace common
 
 
 		protected:
-			bool Execute(sRegister &reg);
+			bool ProcessEvent();
+			bool ExecuteInstruction(sRegister &reg);
 
 
 		public:
 			enum class eState { Stop, Run, Wait };
 			eState m_state;
+			StrId m_name;
 			sRegister m_reg;
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;

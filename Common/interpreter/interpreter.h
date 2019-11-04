@@ -20,15 +20,23 @@ namespace common
 
 			bool Init(const StrPath &fileName, iFunctionCallback *callback
 				, void *arg = nullptr);
-			bool Update(const float deltaSeconds);
+			bool Process(const float deltaSeconds);
+			bool ProcessOneStep(const float deltaSeconds);
 			bool Run();
 			bool Stop();
+			bool DebugRun();
+			bool DebugBreak();
+			bool DebugCancel();
+			bool DebugToRun();
 			bool PushEvent(const cEvent &evt);
+			bool IsRun() const;
+			bool IsStop() const;
+			bool IsDebug() const;
 			void Clear();
 
 
 		public:
-			enum class eState {Stop, Run};
+			enum class eState {Stop, Run, Debug};
 
 			eState m_state;
 			StrPath m_fileName;

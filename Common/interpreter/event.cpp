@@ -20,5 +20,8 @@ cEvent::cEvent(const StrId &name
 
 cEvent::~cEvent()
 {
+	for (auto &kv : m_vars)
+		common::clearvariant(kv.second);
+	m_vars.clear();
 }
 

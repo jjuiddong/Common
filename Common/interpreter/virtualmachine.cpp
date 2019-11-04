@@ -6,10 +6,11 @@ using namespace common;
 using namespace common::script;
 
 
-cVirtualMachine::cVirtualMachine()
+cVirtualMachine::cVirtualMachine(const StrId &name)
 	: m_state(eState::Stop)
 	, m_callback(nullptr)
 	, m_callbackArgPtr(nullptr)
+	, m_name(name)
 {
 }
 
@@ -37,32 +38,13 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 }
 
 
-bool cVirtualMachine::Update(const float deltaSeconds)
+bool cVirtualMachine::Process(const float deltaSeconds)
 {
 	RETV(eState::Stop == m_state, true);
 	RETV(!m_code.IsLoaded(), true);
 
-	// only waitting state, process external event
-	if ((eState::Wait == m_state) && (!m_events.empty()))
-	{
-		auto &evt = m_events.front();
-		const uint addr = m_code.FindJumpAddress(evt.m_name);
-		if (UINT_MAX != addr)
-		{
-			for (auto &kv : evt.m_vars)
-			{
-				vector<string> out;
-				common::tokenizer(kv.first.c_str(), "::", "", out);
-				if (out.size() >= 2)
-					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
-			}
-			m_reg.idx = addr + 1;
-		}
-
-		m_events.pop();		
-	}
-
-	Execute(m_reg);
+	ProcessEvent();
+	ExecuteInstruction(m_reg);
 
 	return true;
 }
@@ -100,13 +82,49 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 }
 
 
-// execute intermediate code commandset
-bool cVirtualMachine::Execute(sRegister &reg)
+// process event
+// execute event only waitting state
+// waitting state is nop instruction state
+bool cVirtualMachine::ProcessEvent()
+{
+	RETV(eState::Wait != m_state, false);
+	RETV(m_events.empty(), true);
+
+	auto &evt = m_events.front();
+	const uint addr = m_code.FindJumpAddress(evt.m_name);
+	if (UINT_MAX != addr)
+	{
+		// update symboltable
+		for (auto &kv : evt.m_vars)
+		{
+			vector<string> out;
+			common::tokenizer(kv.first.c_str(), "::", "", out);
+			if (out.size() >= 2)
+				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+		}
+		m_reg.idx = addr + 1; // jump instruction code
+	}
+	else
+	{
+		// error occurred!!
+		// not found event handling
+		dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
+			, evt.m_name.c_str());
+	}
+
+	m_events.pop();
+
+	return true;
+}
+
+
+// execute intermediate code instruction
+bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 {
 	if (m_code.m_codes.size() <= reg.idx)
 		return false; // end of code
 
-	sCommandSet &code = m_code.m_codes[reg.idx];
+	sInstruction &code = m_code.m_codes[reg.idx];
 
 	switch (code.cmd)
 	{
@@ -171,6 +189,16 @@ bool cVirtualMachine::Execute(sRegister &reg)
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
+		if (reg.val[code.reg1].vt == VT_BOOL)
+		{
+			reg.val[code.reg1].vt = VT_INT; // force converting int
+			reg.val[code.reg1].intVal = (int)reg.val[code.reg1].boolVal;
+		}
+		if (reg.val[code.reg2].vt == VT_BOOL)
+		{
+			reg.val[code.reg2].vt = VT_INT; // force converting int
+			reg.val[code.reg2].intVal = (int)reg.val[code.reg2].boolVal;
+		}
 		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
 			goto $error_semantic;
 		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
@@ -350,7 +378,7 @@ bool cVirtualMachine::Execute(sRegister &reg)
 			auto it = m_code.m_jmpMap.find(code.str1);
 			if (m_code.m_jmpMap.end() == it)
 				goto $error; // not found jump address
-			reg.idx = it->second + 1;
+			reg.idx = it->second + 1; // jump instruction code
 		}
 		else
 		{
@@ -364,7 +392,7 @@ bool cVirtualMachine::Execute(sRegister &reg)
 		auto it = m_code.m_jmpMap.find(code.str1);
 		if (m_code.m_jmpMap.end() == it)
 			goto $error; // not found jump address
-		reg.idx = it->second + 1;
+		reg.idx = it->second + 1; // jump instruction code
 	}
 	break;
 
