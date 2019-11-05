@@ -5,6 +5,9 @@
 using namespace vprog;
 namespace script = common::script;
 
+const static cVProgFile::sNode nullNode = { 0, };
+
+
 cVProgFile::cVProgFile()
 {
 }
@@ -52,7 +55,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 			}
 			break;
 
-		case 1: // state parsing
+		case 1: // node parsing
 			if ((toks[0] == "type") && (toks.size() >= 2))
 			{
 				node.type = eNodeType::FromString(toks[1]);
@@ -298,7 +301,7 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (!next)
 				continue; // error occurred!!
-			GenerateCode_Node(*next, out);
+			GenerateCode_Node(node, *next, out);
 		}
 	}
 
@@ -308,14 +311,14 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 
 
 // generate intermediate code, node
-bool cVProgFile::GenerateCode_Node(const sNode &node
+bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	switch (node.type)
 	{
 	case eNodeType::Function:
-	case eNodeType::Macro: GenerateCode_Function(node, out); break;
-	case eNodeType::Control: GenerateCode_Branch(node, out); break;
+	case eNodeType::Macro: GenerateCode_Function(prevNode, node, out); break;
+	case eNodeType::Control: GenerateCode_Branch(prevNode, node, out); break;
 	case eNodeType::Operator: GenerateCode_Operator(node, out); break;
 	case eNodeType::Variable: GenerateCode_Variable(node, out); break;
 		break;
@@ -330,12 +333,14 @@ bool cVProgFile::GenerateCode_Node(const sNode &node
 
 
 // generate intermediate code, function node type
-bool cVProgFile::GenerateCode_Function(const sNode &node
+bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	// function, macro type
 	RETV(m_visit.find(node.id) != m_visit.end(), false);
 	m_visit.insert(node.id);
+
+	GenerateCode_DebugInfo(prevNode, node, out);
 
 	// get input variable
 	const uint reg = 0;
@@ -356,10 +361,11 @@ bool cVProgFile::GenerateCode_Function(const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(*prev, out);
+				GenerateCode_Node(nullNode, *prev, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
 			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
 		}
 		else
 		{
@@ -386,7 +392,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next)
 			{
-				GenerateCode_Node(*next, out);
+				GenerateCode_Node(node, *next, out);
 			}
 		}
 	}
@@ -396,12 +402,14 @@ bool cVProgFile::GenerateCode_Function(const sNode &node
 
 
 // generate intermediate code, control node
-bool cVProgFile::GenerateCode_Branch(const sNode &node
+bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
 	RETV(m_visit.find(node.id) != m_visit.end(), false);
 	m_visit.insert(node.id);
+
+	GenerateCode_DebugInfo(prevNode, node, out);
 
 	// get input variable
 	uint reg = 0;
@@ -423,9 +431,10 @@ bool cVProgFile::GenerateCode_Branch(const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(*prev, out);
+				GenerateCode_Node(nullNode, *prev, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
 			++reg;
 		}
 		else
@@ -494,7 +503,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "True"))
 			{
-				GenerateCode_Node(*next, out);
+				GenerateCode_Node(node, *next, out);
 			}
 		}
 	}
@@ -525,7 +534,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(*next, out);
+				GenerateCode_Node(node, *next, out);
 				break;
 			}
 		}
@@ -562,9 +571,10 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(*prev, out);
+				GenerateCode_Node(nullNode, *prev, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
 			++reg;
 		}
 		else
@@ -798,6 +808,67 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 	else // output
 	{
 		// nothing~
+	}
+
+	return true;
+}
+
+
+// insert flow debug information
+bool cVProgFile::GenerateCode_DebugInfo(const sPin &from, const sPin &to
+	, OUT common::script::cIntermediateCode &out)
+{
+	script::sInstruction inst;
+	inst.cmd = script::eCommand::cmt;
+	inst.str1 = "flow";
+	inst.reg1 = from.id;
+	inst.reg2 = to.id;
+	out.m_codes.push_back(inst);
+	return true;
+}
+
+
+// insert flow debug information, if from-to node was linked
+bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
+	, OUT common::script::cIntermediateCode &out)
+{
+	RETV(from.id == 0, false);
+
+	int fromId = -1;
+	int toId = -1;
+	for (auto &p1 : from.outputs)
+	{
+		if (p1.type != ePinType::Flow)
+			continue;
+		if ((fromId != -1) && (toId != -1))
+			break;
+		for (auto &p2 : to.inputs)
+		{
+			if (p2.type != ePinType::Flow)
+				continue;
+			if ((fromId != -1) && (toId != -1))
+				break;
+			for (auto &id : p2.links)
+			{
+				if (p1.id == id)
+				{
+					// two node link with flow pin
+					fromId = p1.id;
+					toId = p2.id;
+					break;
+				}
+			}
+		}
+	}
+
+	if ((fromId != -1) && (toId != -1))
+	{
+		script::sInstruction inst;
+		inst.cmd = script::eCommand::cmt;
+		inst.str1 = "flow";
+		inst.reg1 = fromId;
+		inst.reg2 = toId;
+		out.m_codes.push_back(inst);
 	}
 
 	return true;

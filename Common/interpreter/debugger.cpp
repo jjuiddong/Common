@@ -59,6 +59,8 @@ bool cDebugger::OneStep()
 
 	if (m_interpreter->IsStop())
 		m_interpreter->DebugRun(); // start debugging
+	else
+		m_interpreter->DebugBreak(); // debug mode
 
 	m_state = eState::DebugStep;
 	return true;

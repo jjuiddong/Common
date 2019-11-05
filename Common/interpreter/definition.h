@@ -23,7 +23,7 @@ namespace common
 			gri, grf, greqi, greqf,
 			call, jnz, jmp, label,
 			symbolb, symboli, symbolf, symbols,
-			nop
+			cmt, nop
 		);
 
 		VARTYPE GetVarType(const eCommand::Enum cmd);
@@ -89,6 +89,7 @@ namespace common
 		// symboli scope_name, varname, value ;initialize int type symbol table
 		// symbolf scope_name, varname, value ;initialize float type symbol table
 		// symbols scope_name, varname, value ;initialize string type symbol table
+		// #comment command string, from pinId, to pinId ;comment string, no instruction
 		// nop ;nothing to operate
 
 

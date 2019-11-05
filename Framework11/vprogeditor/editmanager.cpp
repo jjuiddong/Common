@@ -383,6 +383,16 @@ sLink* cEditManager::FindLink(const ed::LinkId id)
 }
 
 
+sLink* cEditManager::FindLink(const ed::PinId from, const ed::PinId to)
+{
+	for (auto& link : m_links)
+		if ((from == link.fromId)
+			&& (to == link.toId))
+			return &link;
+	return NULL;
+}
+
+
 sPin* cEditManager::FindPin(const ed::PinId id)
 {
 	if (!id)
@@ -456,6 +466,16 @@ void cEditManager::BuildNodes()
 {
 	for (auto& node : m_nodes)
 		BuildNode(&node);
+}
+
+
+bool cEditManager::ShowFlow(const ed::LinkId id)
+{
+	for (auto &link : m_links)
+		if (id == link.id)
+			ed::Flow(link.id);
+
+	return true;
 }
 
 

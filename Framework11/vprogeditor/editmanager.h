@@ -23,10 +23,12 @@ namespace vprog
 
 		cNode* FindNode(const ed::NodeId id);
 		sLink* FindLink(const ed::LinkId id);
+		sLink* FindLink(const ed::PinId from, const ed::PinId to);
 		sPin* FindPin(const ed::PinId id);
 		cNode* FindContainNode(const ed::PinId id);
 		bool IsPinLinked(const ed::PinId id);
 		void BuildNodes();
+		bool ShowFlow(const ed::LinkId id);
 		void Clear();
 
 		cNode* Generate_ReservedDefinition(const StrId &name

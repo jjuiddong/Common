@@ -73,11 +73,11 @@ namespace vprog
 	protected:
 		bool GenerateCode_Event(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Node(const sNode &node
+		bool GenerateCode_Node(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Function(const sNode &node
+		bool GenerateCode_Function(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Branch(const sNode &node
+		bool GenerateCode_Branch(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Operator(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
@@ -86,6 +86,10 @@ namespace vprog
 		bool GenerateCode_Pin(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_TemporalPin(const sNode &node, const sPin &pin, const uint reg
+			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_DebugInfo(const sPin &from, const sPin &to
+			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_DebugInfo(const sNode &from, const sNode &to
 			, OUT common::script::cIntermediateCode &out);
 
 		bool AddPin(const int parseState, sNode &node, const sPin &pin);

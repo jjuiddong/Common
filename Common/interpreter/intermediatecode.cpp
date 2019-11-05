@@ -146,6 +146,14 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[3]);
 		}
+		else if ((toks[0] == "#comment")
+			&& (toks.size() >= 4))
+		{
+			code.cmd = eCommand::cmt;
+			code.str1 = toks[1];
+			code.reg1 = atoi(toks[2].c_str());
+			code.reg2 = atoi(toks[3].c_str());
+		}
 		else if (toks[0] == "nop")
 		{
 			code.cmd = eCommand::FromString(toks[0]);
@@ -304,6 +312,13 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";
 			ofs << ", " << common::variant2str(code.var1, true);
+			break;
+
+		case eCommand::cmt:
+			ofs << "#comment";
+			ofs << " \"" << code.str1 << "\"";
+			ofs << ", " << code.reg1;
+			ofs << ", " << code.reg2;
 			break;
 
 		default:

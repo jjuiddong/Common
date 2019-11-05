@@ -102,7 +102,8 @@ bool cVirtualMachine::ProcessEvent()
 			if (out.size() >= 2)
 				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
 		}
-		m_reg.idx = addr + 1; // jump instruction code
+		m_reg.idx = addr; // jump instruction code
+		m_state = eState::Run;
 	}
 	else
 	{
@@ -378,7 +379,7 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 			auto it = m_code.m_jmpMap.find(code.str1);
 			if (m_code.m_jmpMap.end() == it)
 				goto $error; // not found jump address
-			reg.idx = it->second + 1; // jump instruction code
+			reg.idx = it->second; // jump instruction code
 		}
 		else
 		{
@@ -392,7 +393,7 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 		auto it = m_code.m_jmpMap.find(code.str1);
 		if (m_code.m_jmpMap.end() == it)
 			goto $error; // not found jump address
-		reg.idx = it->second + 1; // jump instruction code
+		reg.idx = it->second; // jump instruction code
 	}
 	break;
 
@@ -415,6 +416,10 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 	case eCommand::label:
 		++reg.idx; // no operation
 		break; 
+
+	case eCommand::cmt:
+		++reg.idx; // no operation
+		break;
 
 	case eCommand::nop:
 		// no operation, change wait state

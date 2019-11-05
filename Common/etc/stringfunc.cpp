@@ -224,6 +224,10 @@ void common::clearvariant(INOUT _variant_t &var)
 		::SysFreeString(var.bstrVal);
 		var.vt = VT_EMPTY;
 	}
+	else
+	{
+		::VariantInit(&var);
+	}
 }
 
 

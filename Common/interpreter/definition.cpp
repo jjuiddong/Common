@@ -54,6 +54,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::jmp:
 	case eCommand::nop:
 	case eCommand::label:
+	case eCommand::cmt:
 	default:
 		break;
 	}
