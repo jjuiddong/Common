@@ -6,7 +6,7 @@ using namespace network2;
 
 
 cRemoteDebugger::cRemoteDebugger()
-	: m_type(eDebugType::None)
+	: m_mode(eDebugMode::None)
 	, m_debugger(nullptr)
 	, m_incTime(0)
 	, m_state(eState::Stop)
@@ -19,7 +19,7 @@ cRemoteDebugger::~cRemoteDebugger()
 }
 
 
-bool cRemoteDebugger::Init(const eDebugType type
+bool cRemoteDebugger::Init(const eDebugMode mode
 	, const Str16 &ip
 	, const int port
 	, common::script::cDebugger *debugger
@@ -27,7 +27,7 @@ bool cRemoteDebugger::Init(const eDebugType type
 {
 	Clear();
 
-	m_type = type;
+	m_mode = mode;
 	m_ip = ip;
 	m_port = port;
 	m_debugger = debugger;
@@ -35,10 +35,10 @@ bool cRemoteDebugger::Init(const eDebugType type
 }
 
 
-bool cRemoteDebugger::Update(const float deltaSeconds)
+bool cRemoteDebugger::Process(const float deltaSeconds)
 {
 	m_netController.Process(deltaSeconds);
-	Process(deltaSeconds);
+	InternalProcess(deltaSeconds);
 	return true;
 }
 
@@ -48,16 +48,17 @@ bool cRemoteDebugger::Start()
 	Stop();
 
 	bool result = false;
-	switch (m_type)
+	switch (m_mode)
 	{
-	case eDebugType::Remote:
+	case eDebugMode::Remote:
 		m_dbgClient.AddProtocolHandler(this);
-		m_dbgClient.RegisterProtocol(&m_remotedbgProtocol);
+		m_dbgClient.RegisterProtocol(&m_remoteProtocol);
 		result = m_netController.StartTcpClient(&m_dbgClient, m_ip, m_port);
 		break;
 
-	case eDebugType::Host:
+	case eDebugMode::Host:
 		m_dbgServer.AddProtocolHandler(this);
+		m_dbgServer.RegisterProtocol(&m_hostProtocol);
 		result = m_netController.StartTcpServer(&m_dbgServer, m_port);
 		break;
 
@@ -75,14 +76,55 @@ bool cRemoteDebugger::Start()
 
 bool cRemoteDebugger::Stop()
 {
-	switch (m_type)
+	switch (m_mode)
 	{
-	case eDebugType::Remote: m_dbgClient.Close(); break;
-	case eDebugType::Host: m_dbgServer.Close(); break;
+	case eDebugMode::Remote: m_dbgClient.Close(); break;
+	case eDebugMode::Host: m_dbgServer.Close(); break;
 	default: assert(0); return false;
 	}
 	m_netController.Clear();
 	m_state = eState::Stop;
+	return true;
+}
+
+
+// one step debugging for remote client mode
+bool cRemoteDebugger::OneStep()
+{
+	RETV(eDebugMode::Remote != m_mode, false);
+	RETV(!m_dbgClient.IsConnect(), false);
+
+	m_remoteProtocol.ReqOneStep(network2::SERVER_NETID);
+	return true;
+}
+
+
+bool cRemoteDebugger::DebugRun()
+{
+	RETV(eDebugMode::Remote != m_mode, false);
+	RETV(!m_dbgClient.IsConnect(), false);
+
+	m_remoteProtocol.ReqDebugRun(network2::SERVER_NETID);
+	return true;
+}
+
+
+bool cRemoteDebugger::Break()
+{
+	RETV(eDebugMode::Remote != m_mode, false);
+	RETV(!m_dbgClient.IsConnect(), false);
+
+	m_remoteProtocol.ReqBreak(network2::SERVER_NETID);
+	return true;
+}
+
+
+bool cRemoteDebugger::Terminate()
+{
+	RETV(eDebugMode::Remote != m_mode, false);
+	RETV(!m_dbgClient.IsConnect(), false);
+
+	m_remoteProtocol.ReqTerminate(network2::SERVER_NETID);
 	return true;
 }
 
@@ -94,15 +136,15 @@ bool cRemoteDebugger::IsRun()
 
 
 // process remote debugger
-bool cRemoteDebugger::Process(const float deltaSeconds)
+bool cRemoteDebugger::InternalProcess(const float deltaSeconds)
 {
 	RETV(!m_debugger, false);
 	RETV(!m_debugger->IsLoad(), false);
 
-	switch (m_type)
+	switch (m_mode)
 	{
-	case eDebugType::Host: HostProcess(deltaSeconds); break;
-	case eDebugType::Remote: RemoteProcess(deltaSeconds); break;
+	case eDebugMode::Host: HostProcess(deltaSeconds); break;
+	case eDebugMode::Remote: RemoteProcess(deltaSeconds); break;
 	default: assert(0); break;
 	}
 
@@ -148,12 +190,13 @@ bool cRemoteDebugger::HostProcess(const float deltaSeconds)
 			continue;
 
 		common::script::cVirtualMachine *vm = *it;
-		m_remotedbgProtocol.UpdateState(ALL_NETID, vm->m_name.c_str()
+		m_hostProtocol.UpdateState(ALL_NETID, vm->m_name.c_str()
 			, m_checkMap[name]);
 	}
 
 	return true;
 }
+
 
 
 // remote debugger client process
@@ -164,41 +207,66 @@ bool cRemoteDebugger::RemoteProcess(const float deltaSeconds)
 }
 
 
+void cRemoteDebugger::Clear()
+{
+	if (eDebugMode::None != m_mode)
+		Stop();
+	m_checkMap.clear();
+	m_dbgClient.Close();
+	m_dbgServer.Close();
+}
+
+
+
+//-------------------------------------------------------------------
+// RemoteDebugger Host Side Protocol Handler
+//-------------------------------------------------------------------
 bool cRemoteDebugger::ReqOneStep(remotedbg::ReqOneStep_Packet &packet) 
 {
-	RETV(eDebugType::Host != m_type, true);
-
+	RETV(eDebugMode::Host != m_mode, true);
+	RETV(!m_debugger, true);
+	
+	m_debugger->OneStep();
 	return true; 
 }
 
 
 bool cRemoteDebugger::ReqDebugRun(remotedbg::ReqDebugRun_Packet &packet) 
 { 
-	RETV(eDebugType::Host != m_type, true);
+	RETV(eDebugMode::Host != m_mode, true);
+	RETV(!m_debugger, true);
 
+	m_debugger->Run();
 	return true; 
 }
 
 
 bool cRemoteDebugger::ReqBreak(remotedbg::ReqBreak_Packet &packet) 
 { 
-	RETV(eDebugType::Host != m_type, true);
+	RETV(eDebugMode::Host != m_mode, true);
+	RETV(!m_debugger, true);
 
+	m_debugger->Break();
 	return true; 
 }
 
 
 bool cRemoteDebugger::ReqTerminate(remotedbg::ReqTerminate_Packet &packet) 
 { 
-	RETV(eDebugType::Host != m_type, true);
+	RETV(eDebugMode::Host != m_mode, true);
+	RETV(!m_debugger, true);
 
+	m_debugger->Terminate();
 	return true; 
 }
 
 
+//-------------------------------------------------------------------
+// RemoteDebugger Remote Client Side Protocol Handler
+//-------------------------------------------------------------------
 bool cRemoteDebugger::UpdateInformation(remotedbg::UpdateInformation_Packet &packet) 
 {
-	RETV(eDebugType::Remote != m_type, true);
+	RETV(eDebugMode::Remote != m_mode, true);
 
 	return true; 
 }
@@ -206,25 +274,16 @@ bool cRemoteDebugger::UpdateInformation(remotedbg::UpdateInformation_Packet &pac
 
 bool cRemoteDebugger::UpdateState(remotedbg::UpdateState_Packet &packet) 
 {
-	RETV(eDebugType::Remote != m_type, true);
+	RETV(eDebugMode::Remote != m_mode, true);
 
+	m_vmDbgs[packet.vmName].push(packet.instIndex);
 	return true; 
 }
 
 
 bool cRemoteDebugger::UpdateSymbolTable(remotedbg::UpdateSymbolTable_Packet &packet) 
 {
-	RETV(eDebugType::Remote != m_type, true);
+	RETV(eDebugMode::Remote != m_mode, true);
 
 	return true; 
-}
-
-
-void cRemoteDebugger::Clear()
-{
-	if (eDebugType::None != m_type)
-		Stop();
-	m_checkMap.clear();
-	m_dbgClient.Close();
-	m_dbgServer.Close();
 }

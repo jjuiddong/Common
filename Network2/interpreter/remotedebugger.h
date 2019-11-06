@@ -16,25 +16,29 @@ namespace network2
 						, public remotedbg::c2s_ProtocolHandler
 	{
 	public:
-		enum class eDebugType { None, Host, Remote};
+		enum class eDebugMode { None, Host, Remote};
 
 		cRemoteDebugger();
 		virtual ~cRemoteDebugger();
 
-		bool Init(const eDebugType type
+		bool Init(const eDebugMode mode
 			, const Str16 &ip
 			, const int port
 			, common::script::cDebugger *debugger
 		);
-		bool Update(const float deltaSeconds);
+		bool Process(const float deltaSeconds);
 		bool Start();
 		bool Stop();
+		bool OneStep();
+		bool DebugRun();
+		bool Break();
+		bool Terminate();
 		bool IsRun();
 		void Clear();
 
 
 	protected:
-		bool Process(const float deltaSeconds);
+		bool InternalProcess(const float deltaSeconds);
 		bool HostProcess(const float deltaSeconds);
 		bool RemoteProcess(const float deltaSeconds);
 
@@ -54,12 +58,16 @@ namespace network2
 		enum class eState { Stop, Run };
 
 		eState m_state;
-		eDebugType m_type;
+		eDebugMode m_mode;
 		common::script::cDebugger *m_debugger; // reference
 											// synchronize debugger
 
 		map<StrId, int> m_checkMap; // key:vmName, value:state id
+									// work for host debugger
 									// check change interpreter to send state info
+
+		map<StrId, common::cCircularQueue<int, 100>> m_vmDbgs; // debug info queue
+									// from network recv host remote debugger
 
 		// network
 		Str16 m_ip;
@@ -67,7 +75,8 @@ namespace network2
 		float m_incTime;
 		network2::cTcpClient m_dbgClient;
 		network2::cTcpServer m_dbgServer;
-		remotedbg::s2c_Protocol m_remotedbgProtocol;
+		remotedbg::s2c_Protocol m_hostProtocol;
+		remotedbg::c2s_Protocol m_remoteProtocol;
 		network2::cNetController m_netController;
 	};
 

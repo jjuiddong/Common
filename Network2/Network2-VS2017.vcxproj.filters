@@ -260,7 +260,7 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="interpreter\remotedbg.prt">
-      <Filter>Interpreter</Filter>
+      <Filter>Interpreter\protocol</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
