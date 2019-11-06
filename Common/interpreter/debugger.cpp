@@ -106,6 +106,13 @@ bool cDebugger::Terminate()
 }
 
 
+// is load interpreter
+bool cDebugger::IsLoad()
+{
+	return m_interpreter ? true : false;
+}
+
+
 void cDebugger::Clear()
 {
 	m_interpreter = nullptr;

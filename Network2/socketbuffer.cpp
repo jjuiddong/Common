@@ -39,7 +39,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 	while (offset < dataSize)
 	{
 		const BYTE *ptr = data + offset;
-		const uint len = max(0, dataSize - offset);
+		const uint len = max((uint)0, dataSize - offset);
 
 		// 패킷이 쪼개져서 들어올 경우 (m_readLen > 0) 상태가 된다.
 		// 패킷 하나가 완성되기까지, 몇바이트의 데이타가 읽을게 남았다는 의미.

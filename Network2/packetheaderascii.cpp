@@ -56,10 +56,10 @@ void cPacketHeaderAscii::SetPacketId(BYTE *dst, const uint packetId)
 void cPacketHeaderAscii::SetPacketLength(BYTE *dst, const uint packetLength)
 {
 	const uint size = packetLength;
-	dst[4] = min(9, size / 1000) + '0';
-	dst[5] = min(9, (size % 1000) / 100) + '0';
-	dst[6] = min(9, (size % 100) / 10) + '0';
-	dst[7] = min(9, size % 10) + '0';
+	dst[4] = (BYTE)min((uint)9, size / 1000) + '0';
+	dst[5] = (BYTE)min((uint)9, (size % 1000) / 100) + '0';
+	dst[6] = (BYTE)min((uint)9, (size % 100) / 10) + '0';
+	dst[7] = (BYTE)min((uint)9, size % 10) + '0';
 }
 
 

@@ -26,6 +26,7 @@ namespace common
 		T& back();
 		T* backPtr();
 		bool empty() const;
+		bool full() const;
 		uint size() const;
 		void clear();
 
@@ -250,6 +251,14 @@ namespace common
 	bool cCircularQueue2<T>::empty() const
 	{
 		return m_front == m_rear;
+	}
+
+
+	template<class T>
+	bool cCircularQueue2<T>::full() const
+	{
+		const uint remainSize = SIZE - size();
+		return (remainSize == 0);
 	}
 
 

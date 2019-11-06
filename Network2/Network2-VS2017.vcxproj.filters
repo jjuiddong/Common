@@ -111,6 +111,18 @@
     <ClInclude Include="definition_marshalling.h">
       <Filter>Definition</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\remotedebugger.h">
+      <Filter>Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg_Protocol.h">
+      <Filter>Interpreter\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg_ProtocolData.h">
+      <Filter>Interpreter\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h">
+      <Filter>Interpreter\protocol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -195,6 +207,15 @@
     <ClCompile Include="udpservermap.cpp">
       <Filter>Controller</Filter>
     </ClCompile>
+    <ClCompile Include="interpreter\remotedebugger.cpp">
+      <Filter>Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp">
+      <Filter>Interpreter\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp">
+      <Filter>Interpreter\protocol</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Protocol">
@@ -230,5 +251,16 @@
     <Filter Include="Definition">
       <UniqueIdentifier>{765a2790-67eb-400f-a919-e3b21e87d074}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interpreter">
+      <UniqueIdentifier>{f071dda9-428f-4d08-b0f7-2ec977c09c1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interpreter\protocol">
+      <UniqueIdentifier>{716a1fe0-0bb7-4557-bbb7-a9ee984a3c1f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="interpreter\remotedbg.prt">
+      <Filter>Interpreter</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

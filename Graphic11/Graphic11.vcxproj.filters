@@ -374,6 +374,9 @@
     <ClInclude Include="manager\renderlist.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="base\quad2d2.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -712,6 +715,9 @@
     </ClCompile>
     <ClCompile Include="manager\renderlist.cpp">
       <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad2d2.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

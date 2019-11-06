@@ -47,7 +47,7 @@ namespace framework
 		virtual ~cRenderWindow();
 
 		virtual bool Create(const HINSTANCE hInst, const bool isMainWindow
-			, const StrId &title, const float width, const float height
+			, const common::Str128 &title, const float width, const float height
 			, cRenderWindow *mainWindow = NULL, bool isTitleBar=true);
 		virtual void Update(const float deltaSeconds);
 		virtual void PreRender(const float deltaSeconds);
@@ -58,9 +58,10 @@ namespace framework
 		virtual void ResetDevice();
 		virtual void Shutdown();
 		cDockWindow* GetSizerTargetWindow(const Vector2 &mousePt);
+		cDockWindow* GetTargetWindow(const Vector2 &mousePt);
 		void RequestResetDeviceNextFrame();
 		void Sleep();
-		void WakeUp(const StrId &title, const float width, const float height);
+		void WakeUp(const common::Str128 &title, const float width, const float height);
 		void SetTabClickState();
 		void SetDragState();
 		void SetDragBindState();
@@ -68,7 +69,9 @@ namespace framework
 		bool IsDragState();
 		bool IsMoveState();
 		void SetCapture(cDockWindow *dock);
+		void SetFocus(cDockWindow *dock);
 		cDockWindow* GetCapture();
+		cDockWindow* GetFocus();
 		void ReleaseCapture();
 		void SetIcon(int id);
 		void Clear();
@@ -99,13 +102,14 @@ namespace framework
 		HINSTANCE m_hInstance;
 		graphic::cRenderer m_renderer;
 		eState::Enum m_state;
-		StrId m_title;
+		common::Str128 m_title;
 		cImGui m_gui;
 		graphic::cCamera3D m_camera;
 		graphic::cLight m_light;
 		cRenderWindow *m_mainWindow; // reference
 		cDockWindow *m_dock;
 		cDockWindow *m_captureDock;
+		cDockWindow *m_focusDock;
 		cInputManager m_input;
 
 		Vector2 m_mousePos;
@@ -123,13 +127,6 @@ namespace framework
 
 		ImFont *m_fontBig;
 		graphic::cTexture *m_titleBtn[4]; // reference, min-max-close-restore
-
-		// analysis
-		common::cTimer m_timer;
-		double m_t0;
-		double m_t1;
-		double m_t2;
-		double m_t3;
 	};
 
 }

@@ -43,7 +43,7 @@ namespace framework
 	public:
 		STATE m_state;
 		HWND m_hWnd;
-		WStrId m_windowName;
+		WStr128 m_windowName;
 		sRectf m_windowRect;
 		bool m_isLazyMode; // FPS 30 이하 유지
 		float m_slowFactor; // default: 1.f

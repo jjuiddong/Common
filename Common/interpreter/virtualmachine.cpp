@@ -220,8 +220,13 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = string((LPCTSTR)reg.val[code.reg1].bstrVal) 
+#if defined(_UNICODE)
+		reg.cmp = wstring((LPCTSTR)reg.val[code.reg1].bstrVal) 
+			== wstring((LPCTSTR)reg.val[code.reg2].bstrVal);
+#else
+		reg.cmp = string((LPCTSTR)reg.val[code.reg1].bstrVal)
 			== string((LPCTSTR)reg.val[code.reg2].bstrVal);
+#endif
 		++reg.idx;
 	}
 	break;
@@ -253,8 +258,13 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 		if (GetVarType(code.cmd) != code.var1.vt)
 			goto $error_semantic;
 
+#if defined(_UNICODE)
+		reg.cmp = wstring((LPCTSTR)reg.val[code.reg1].bstrVal)
+			== wstring((LPCTSTR)code.var1.bstrVal);
+#else
 		reg.cmp = string((LPCTSTR)reg.val[code.reg1].bstrVal)
 			== string((LPCTSTR)code.var1.bstrVal);
+#endif
 		++reg.idx;
 	}
 	break;

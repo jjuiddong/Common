@@ -176,6 +176,10 @@ using std::max;
 #include "etc/macro.h"
 #include "etc/simpledata.h"
 #include "etc/port.h"
+#include "etc/setutil.h"
+#include "etc/file.h"
+#include "etc/graphscript.h"
+
 
 #include "interpreter/definition.h"
 #include "interpreter/event.h"

@@ -20,7 +20,7 @@ namespace framework
 		virtual ~cDockManager();
 
 		void InsertMainRenderWindow(cRenderWindow *main);
-		cRenderWindow* NewRenderWindow(const StrId &title, const float width, const float height);
+		cRenderWindow* NewRenderWindow(const Str128 &title, const float width, const float height);
 		void DeleteRenderWindow(cRenderWindow *wnd);
 		cDockWindow* NewDockWindow();
 		void DeleteDockWindow(cDockWindow *p);

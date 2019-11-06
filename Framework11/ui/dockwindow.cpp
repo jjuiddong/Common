@@ -10,7 +10,7 @@ using namespace graphic;
 using namespace framework;
 
 
-cDockWindow::cDockWindow(const StrId &name //=""
+cDockWindow::cDockWindow(const Str128 &name //=""
 )
 	: m_state(eDockState::DOCKWINDOW)
 	, m_name(name)

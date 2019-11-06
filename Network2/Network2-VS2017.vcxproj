@@ -154,6 +154,10 @@
   <ItemGroup>
     <ClInclude Include="definition.h" />
     <ClInclude Include="definition_marshalling.h" />
+    <ClInclude Include="interpreter\remotedebugger.h" />
+    <ClInclude Include="interpreter\Src\remotedbg_Protocol.h" />
+    <ClInclude Include="interpreter\Src\remotedbg_ProtocolData.h" />
+    <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h" />
     <ClInclude Include="marshalling.h" />
     <ClInclude Include="protocol_all_handler.h" />
     <ClInclude Include="factory.h" />
@@ -192,6 +196,9 @@
     <ClInclude Include="utility\sessionlog.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="interpreter\remotedebugger.cpp" />
+    <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp" />
+    <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp" />
     <ClCompile Include="protocol_all_handler.cpp" />
     <ClCompile Include="launcher.cpp" />
     <ClCompile Include="netcontroller.cpp" />
@@ -227,7 +234,18 @@
     <ClCompile Include="utility\sessionlog.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetCommon\NetCommon-VS2017.vcxproj">
+    <CustomBuild Include="interpreter\remotedbg.prt">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>
   </ItemGroup>

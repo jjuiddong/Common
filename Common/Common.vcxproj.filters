@@ -217,6 +217,15 @@
     <ClInclude Include="interpreter\debugger.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="etc\file.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\graphscript.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\setutil.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -351,6 +360,15 @@
     </ClCompile>
     <ClCompile Include="interpreter\debugger.cpp">
       <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\file.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\graphscript.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\setutil.cpp">
+      <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -393,9 +393,11 @@
     <ClInclude Include="etc\dbg.h" />
     <ClInclude Include="etc\enumser.h" />
     <ClInclude Include="etc\FastMemLoader.h" />
+    <ClInclude Include="etc\file.h" />
     <ClInclude Include="etc\filelogger.h" />
     <ClInclude Include="etc\filepath.h" />
     <ClInclude Include="etc\genid.h" />
+    <ClInclude Include="etc\graphscript.h" />
     <ClInclude Include="etc\inifile.h" />
     <ClInclude Include="etc\ip.h" />
     <ClInclude Include="etc\macro.h" />
@@ -411,6 +413,7 @@
     <ClInclude Include="etc\recttype.h" />
     <ClInclude Include="etc\Serial.h" />
     <ClInclude Include="etc\SerialAsync.h" />
+    <ClInclude Include="etc\setutil.h" />
     <ClInclude Include="etc\shmmem.h" />
     <ClInclude Include="etc\simpledata.h" />
     <ClInclude Include="etc\singleton.h" />
@@ -459,8 +462,10 @@
     <ClCompile Include="etc\dbg.cpp" />
     <ClCompile Include="etc\enumser.cpp" />
     <ClCompile Include="etc\FastMemLoader.cpp" />
+    <ClCompile Include="etc\file.cpp" />
     <ClCompile Include="etc\filepath.cpp" />
     <ClCompile Include="etc\genid.cpp" />
+    <ClCompile Include="etc\graphscript.cpp" />
     <ClCompile Include="etc\inifile.cpp" />
     <ClCompile Include="etc\ip.cpp" />
     <ClCompile Include="etc\observer.cpp" />
@@ -470,6 +475,7 @@
     <ClCompile Include="etc\recttype.cpp" />
     <ClCompile Include="etc\Serial.cpp" />
     <ClCompile Include="etc\SerialAsync.cpp" />
+    <ClCompile Include="etc\setutil.cpp" />
     <ClCompile Include="etc\shmmem.cpp" />
     <ClCompile Include="etc\simpledata.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />

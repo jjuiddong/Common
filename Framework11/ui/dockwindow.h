@@ -15,7 +15,7 @@ namespace framework
 	class cDockWindow
 	{
 	public:
-		cDockWindow(const StrId &name = "");
+		cDockWindow(const Str128 &name = "");
 		virtual ~cDockWindow();
 
 		virtual bool Create(const eDockState::Enum state, const eDockSlot::Enum type,
@@ -93,7 +93,7 @@ namespace framework
 		cDockWindow *m_parent;
 		vector<cDockWindow*> m_tabs;
 		int m_selectTab;
-		StrId m_name;
+		Str128 m_name;
 		sRectf m_rect; // DockWindow Rect in RenderWindow Coordinate System
 		eDockSlot::Enum m_dragSlot; // using drag dock window
 		graphic::cCamera3D m_camera;

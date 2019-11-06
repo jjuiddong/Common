@@ -24,10 +24,7 @@ cRenderWindow::cRenderWindow()
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
 	, m_captureDock(NULL)
-	, m_t0(0.f)
-	, m_t1(0.f)
-	, m_t2(0.f)
-	, m_t3(0.f)
+	, m_focusDock(NULL)
 {
 }
 
@@ -37,7 +34,7 @@ cRenderWindow::~cRenderWindow()
 }
 
 
-bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const StrId &title
+bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const common::Str128 &title
 	, const float width, const float height
 	, cRenderWindow *mainWindow //= NULL
 	, bool isTitleBar // = true
@@ -60,7 +57,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 			return false;
 	}
 
-	m_title = StrId(" - ") + title + StrId(" - ");
+	m_title = common::Str128(" - ") + title + common::Str128(" - ");
 	m_camera.SetCamera(Vector3(10, 10, -10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	m_camera.SetProjection(MATH_PI / 4.f, (float)width / (float)height, 1.f, 10000.0f);
 	m_camera.SetViewPort((float)width, (float)height);
@@ -118,8 +115,6 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 	m_titleBtn[2] = cResourceManager::Get()->LoadTexture(m_renderer, "closebtn.png");
 	m_titleBtn[3] = cResourceManager::Get()->LoadTexture(m_renderer, "restorebtn.png");
 
-	m_timer.Create();
-
 	return true;
 }
 
@@ -127,14 +122,11 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 // return value : return false if close window
 bool cRenderWindow::TranslateEvent()
 {
-	const double t0 = m_timer.GetSeconds();
-
 	m_gui.SetContext();
 	m_input.NewFrame();
 	//m_gui.NewFrame(); // move to Render()
 
 	sf::Event evt;
-	int n = 0;
 	while (pollEvent(evt))
 	{
 		if (evt.type == sf::Event::Closed)
@@ -150,16 +142,12 @@ bool cRenderWindow::TranslateEvent()
 		}
 	}
 
-	const double t1 = m_timer.GetSeconds();
-	m_t0 = t1 - t0;
 	return true;
 }
 
 
 void cRenderWindow::Update(const float deltaSeconds)
 {
-	const double t0 = m_timer.GetSeconds();
-
 	RET(!isOpen());
 	RET(!m_isVisible);
 
@@ -178,7 +166,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 
 	// Maximize Window HotKey
 	// Win + Up or LControl + Up 
-	if ((GetFocus() == getSystemHandle()) && 
+	if ((::GetFocus() == getSystemHandle()) && 
 		((GetAsyncKeyState(VK_LCONTROL) & 0x8000) || (GetAsyncKeyState(VK_LWIN) & 0x8000)) 
 		&& (GetAsyncKeyState(VK_UP) & 0x8000))
 	{
@@ -193,7 +181,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 
 	// Restore Window HotKey
 	// Win + Down or LControl + Down
-	if ((GetFocus() == getSystemHandle()) && ((GetAsyncKeyState(VK_LWIN) & 0x8000))
+	if ((::GetFocus() == getSystemHandle()) && ((GetAsyncKeyState(VK_LWIN) & 0x8000))
 		&& (GetAsyncKeyState(VK_DOWN) & 0x8000))
 	{
 		// Treaky Code, change m_isFullScreen Flag
@@ -209,9 +197,6 @@ void cRenderWindow::Update(const float deltaSeconds)
 	m_renderer.Update(deltaSeconds);
 
 	OnUpdate(deltaSeconds);
-
-	const double t1 = m_timer.GetSeconds();
-	m_t1 = t1 - t0;
 }
 
 
@@ -538,8 +523,6 @@ std::pair<bool, cDockWindow*> cRenderWindow::UpdateCursor()
 
 void cRenderWindow::Render(const float deltaSeconds)
 {
-	const double t0 = m_timer.GetSeconds();
-
 	m_gui.NewFrame(); // for node editor work
 
 	RET(!isOpen());
@@ -551,8 +534,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 	}
 
 	PreRender(deltaSeconds);
-
-	const double t1 = m_timer.GetSeconds();
 
 	if (m_dock)
 	{
@@ -576,8 +557,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 		ImGui::End();
 	}
 
-	const double t2 = m_timer.GetSeconds();
-
 	m_camera.Bind(m_renderer);
 	m_light.Bind(m_renderer);
 
@@ -598,10 +577,6 @@ void cRenderWindow::Render(const float deltaSeconds)
 	}
 
 	PostRender(deltaSeconds);
-
-	const double t3 = m_timer.GetSeconds();
-	m_t2 = t1 - t0;
-	m_t3 = t3 - t1;
 }
 
 
@@ -826,6 +801,7 @@ int cRenderWindow::DefaultEventProc(const sf::Event &evt)
 		case sf::Mouse::Right: io.MouseDown[1] = true; break;
 		case sf::Mouse::Middle: io.MouseDown[2] = true; break;
 		}
+ 		SetFocus(GetTargetWindow(Vector2((float)evt.mouseButton.x, (float)evt.mouseButton.y)));
 		mouseEvent = 1;
 		break;
 
@@ -895,6 +871,7 @@ unsigned char cRenderWindow::KeyboardToAscii(const sf::Keyboard::Key key)
 }
 
 
+// mousePt가 Docking Window 크기조절 영역에 위치할 때, 해당 DockWindow를 리턴한다.
 cDockWindow* cRenderWindow::GetSizerTargetWindow(const Vector2 &mousePt)
 {
 	RETV(!m_dock, false);
@@ -917,6 +894,51 @@ cDockWindow* cRenderWindow::GetSizerTargetWindow(const Vector2 &mousePt)
 			q.push(wnd->m_lower);
 		if (wnd->m_upper)
 			q.push(wnd->m_upper);
+	}
+
+	return NULL;
+}
+
+
+// mousePt가 위치해있는 Dock Window를 리턴한다.
+cDockWindow* cRenderWindow::GetTargetWindow(const Vector2 &mousePt)
+{
+	RETV(!m_dock, false);
+
+	queue<cDockWindow*> q;
+	q.push(m_dock);
+
+	while (!q.empty())
+	{
+		cDockWindow *wnd = q.front();
+		q.pop();
+
+		if (wnd->m_state == eDockState::VIRTUAL)
+		{
+			if (wnd->m_lower)
+				q.push(wnd->m_lower);
+			if (wnd->m_upper)
+				q.push(wnd->m_upper);
+		}
+		else
+		{
+			// convert screen pos -> docking window pos
+			Vector2 pos((float)mousePt.x, (float)mousePt.y);
+			pos.x -= wnd->m_rect.left;
+			pos.y -= wnd->m_rect.top;
+
+			if (0 == wnd->m_selectTab)
+			{
+				if (wnd->IsInWindow(pos))
+					return wnd;
+			}
+			else if((int)wnd->m_tabs.size() > wnd->m_selectTab - 1)
+			{
+				cDockWindow *p = wnd->m_tabs[wnd->m_selectTab - 1];
+				if (p->IsInWindow(pos))
+					return p;
+			}
+		}
 	}
 
 	return NULL;
@@ -964,11 +986,11 @@ void cRenderWindow::Sleep()
 }
 
 
-void cRenderWindow::WakeUp(const StrId &title, const float width, const float height)
+void cRenderWindow::WakeUp(const common::Str128 &title, const float width, const float height)
 {
 	ChangeState(eState::NORMAL);
 
-	m_title = StrId(" - ") + title + StrId(" - ");
+	m_title = common::Str128(" - ") + title + common::Str128(" - ");
 	setTitle(title.c_str());
 	setSize(sf::Vector2u((u_int)width, (u_int)height));
 	m_isFullScreen = false;
@@ -1021,9 +1043,21 @@ void cRenderWindow::SetCapture(cDockWindow *dock)
 }
 
 
+void cRenderWindow::SetFocus(cDockWindow *dock)
+{
+	m_focusDock = dock;
+}
+
+
 cDockWindow* cRenderWindow::GetCapture()
 {
 	return m_captureDock;
+}
+
+
+cDockWindow* cRenderWindow::GetFocus()
+{
+	return m_focusDock;
 }
 
 

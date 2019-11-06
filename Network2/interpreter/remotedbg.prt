@@ -1,0 +1,37 @@
+//
+// Script Remote Debugging Protocol
+//
+
+protocol s2c 5200
+{
+
+	AckOneStep();
+
+	AckDebugRun();
+
+	AckBreak();
+
+	AckTerminate();
+
+	UpdateInformation( string fileName, string vmName, int instIndex );
+
+	UpdateState( string vmName, int instIndex );
+
+	UpdateSymbolTable( int start, int count, string vmName
+		, vector<string> symbols, vector<int> symbolVals );
+
+}
+
+
+protocol c2s 5201
+{
+	
+	ReqOneStep();
+
+	ReqDebugRun();
+
+	ReqBreak();
+
+	ReqTerminate();
+
+}

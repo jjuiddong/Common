@@ -60,6 +60,8 @@ typedef int netid;
 #include "prtcompiler/ProtocolParser.h"
 #include "prtcompiler/protocolutil.h"
 
+#include "interpreter/remotedebugger.h"
+
 #include "utility/all_protocol_displayer.h"
 #include "utility/log.h"
 #include "utility/packetlog.h"

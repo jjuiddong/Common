@@ -29,7 +29,7 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
 {
-	m_writeIdx = min(byteSize, sizeof(m_data));
+	m_writeIdx = min((uint)byteSize, sizeof(m_data));
 	memcpy_s(m_data, sizeof(m_data), src, byteSize);
 }
 
@@ -95,7 +95,7 @@ uint cPacket::GetPacketId() const {
 	return m_packetHeader->GetPacketId(m_data);
 }
 uint cPacket::GetPacketSize() const {
-	return (uint)min(DEFAULT_PACKETSIZE, (int)m_packetHeader->GetPacketLength(m_data));
+	return (uint)min((uint)DEFAULT_PACKETSIZE, m_packetHeader->GetPacketLength(m_data));
 }
 int cPacket::GetWriteSize() const {
 	return m_writeIdx;
