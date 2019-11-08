@@ -39,7 +39,7 @@ namespace common
 			enum class eState {Stop, Run, Debug};
 
 			eState m_state;
-			StrPath m_fileName;
+			StrPath m_fileName; // intermediate code filename
 			cIntermediateCode m_code;
 			queue<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms;

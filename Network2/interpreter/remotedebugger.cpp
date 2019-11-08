@@ -10,6 +10,7 @@ cRemoteDebugger::cRemoteDebugger()
 	, m_debugger(nullptr)
 	, m_incTime(0)
 	, m_state(eState::Stop)
+	, m_dbgProtocolHandler(nullptr)
 {
 }
 
@@ -23,6 +24,7 @@ bool cRemoteDebugger::Init(const eDebugMode mode
 	, const Str16 &ip
 	, const int port
 	, common::script::cDebugger *debugger
+	, iProtocolHandler *dbgProtocolHandler //= nullptr
 )
 {
 	Clear();
@@ -31,6 +33,7 @@ bool cRemoteDebugger::Init(const eDebugMode mode
 	m_ip = ip;
 	m_port = port;
 	m_debugger = debugger;
+	m_dbgProtocolHandler = dbgProtocolHandler;
 	return true;
 }
 
@@ -52,12 +55,17 @@ bool cRemoteDebugger::Start()
 	{
 	case eDebugMode::Remote:
 		m_dbgClient.AddProtocolHandler(this);
+		if (m_dbgProtocolHandler)
+			m_dbgClient.AddProtocolHandler(m_dbgProtocolHandler);
 		m_dbgClient.RegisterProtocol(&m_remoteProtocol);
 		result = m_netController.StartTcpClient(&m_dbgClient, m_ip, m_port);
 		break;
 
 	case eDebugMode::Host:
 		m_dbgServer.AddProtocolHandler(this);
+		if (m_dbgProtocolHandler)
+			m_dbgServer.AddProtocolHandler(m_dbgProtocolHandler);
+		m_dbgServer.SetSessionListener(this);
 		m_dbgServer.RegisterProtocol(&m_hostProtocol);
 		result = m_netController.StartTcpServer(&m_dbgServer, m_port);
 		break;
@@ -82,6 +90,8 @@ bool cRemoteDebugger::Stop()
 	case eDebugMode::Host: m_dbgServer.Close(); break;
 	default: assert(0); return false;
 	}
+	if (m_debugger)
+		m_debugger->Terminate();
 	m_netController.Clear();
 	m_state = eState::Stop;
 	return true;
@@ -125,6 +135,8 @@ bool cRemoteDebugger::Terminate()
 	RETV(!m_dbgClient.IsConnect(), false);
 
 	m_remoteProtocol.ReqTerminate(network2::SERVER_NETID);
+	
+	Stop();
 	return true;
 }
 
@@ -214,6 +226,8 @@ void cRemoteDebugger::Clear()
 	m_checkMap.clear();
 	m_dbgClient.Close();
 	m_dbgServer.Close();
+	m_debugger = nullptr;
+	m_dbgProtocolHandler = nullptr;
 }
 
 
@@ -224,7 +238,6 @@ void cRemoteDebugger::AddSession(cSession &session)
 	RET(!m_debugger->IsLoad());
 
 	common::script::cInterpreter *interpreter = m_debugger->m_interpreter;
-	RET(!interpreter->IsDebug());
 	RET(interpreter->m_vms.empty());
 
 	const StrPath &fileName = interpreter->m_fileName;

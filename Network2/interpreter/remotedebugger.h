@@ -26,6 +26,7 @@ namespace network2
 			, const Str16 &ip
 			, const int port
 			, common::script::cDebugger *debugger
+			, iProtocolHandler *dbgProtocolHandler = nullptr
 		);
 		bool Process(const float deltaSeconds);
 		bool Start();
@@ -83,6 +84,7 @@ namespace network2
 		remotedbg::s2c_Protocol m_hostProtocol;
 		remotedbg::c2s_Protocol m_remoteProtocol;
 		network2::cNetController m_netController;
+		iProtocolHandler *m_dbgProtocolHandler; // to handle debug information
 	};
 
 }
