@@ -29,6 +29,7 @@ namespace vprog
 		bool IsPinLinked(const ed::PinId id);
 		void BuildNodes();
 		bool ShowFlow(const ed::LinkId id);
+		bool IsLoad();
 		void Clear();
 
 		cNode* Generate_ReservedDefinition(const StrId &name

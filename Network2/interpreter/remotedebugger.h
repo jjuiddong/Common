@@ -14,6 +14,7 @@ namespace network2
 
 	class cRemoteDebugger : public remotedbg::s2c_ProtocolHandler
 						, public remotedbg::c2s_ProtocolHandler
+						, public network2::iSessionListener
 	{
 	public:
 		enum class eDebugMode { None, Host, Remote};
@@ -41,6 +42,10 @@ namespace network2
 		bool InternalProcess(const float deltaSeconds);
 		bool HostProcess(const float deltaSeconds);
 		bool RemoteProcess(const float deltaSeconds);
+
+		// cTcpServer session listener handler
+		virtual void RemoveSession(cSession &session) override {} // nothing
+		virtual void AddSession(cSession &session) override;
 
 		// Remote Debugging Protocol Handler (Host)
 		virtual bool ReqOneStep(remotedbg::ReqOneStep_Packet &packet) override;

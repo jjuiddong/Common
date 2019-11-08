@@ -586,6 +586,12 @@ int cEditManager::GetUniqueId()
 }
 
 
+bool cEditManager::IsLoad()
+{
+	return !m_nodes.empty();
+}
+
+
 void cEditManager::Clear()
 {
 	ed::SetCurrentEditor(m_editor);

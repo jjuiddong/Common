@@ -217,6 +217,24 @@ void cRemoteDebugger::Clear()
 }
 
 
+// if remote debugger connection, send debug information
+void cRemoteDebugger::AddSession(cSession &session)
+{
+	RET(!m_debugger);
+	RET(!m_debugger->IsLoad());
+
+	common::script::cInterpreter *interpreter = m_debugger->m_interpreter;
+	RET(!interpreter->IsDebug());
+	RET(interpreter->m_vms.empty());
+
+	const StrPath &fileName = interpreter->m_fileName;
+	common::script::cVirtualMachine *vm = interpreter->m_vms.front();
+	const StrId &vmName = vm->m_name;
+
+	m_hostProtocol.UpdateInformation(network2::ALL_NETID
+		, fileName.GetFileName(), vmName.c_str(), vm->m_reg.idx);
+}
+
 
 //-------------------------------------------------------------------
 // RemoteDebugger Host Side Protocol Handler
