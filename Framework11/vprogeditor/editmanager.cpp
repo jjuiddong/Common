@@ -52,6 +52,7 @@ bool cEditManager::Read(const StrPath &fileName)
 {
 	Clear();
 
+	m_fileName = fileName.GetFullFileName();
 	ed::SetCurrentEditor(m_editor);
 
 	cNodeFile nodeFile;

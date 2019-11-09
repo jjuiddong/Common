@@ -51,7 +51,8 @@ namespace vprog
 		vector<sLink> m_links;
 		vector<cNode> m_definitions; // definition function, operator
 		cSymbolTable m_symbTable;
-		graphic::cTexture *m_headerBackground;			
+		StrPath m_fileName;
+		graphic::cTexture *m_headerBackground;
 
 		// edit variable
 		ed::NodeId m_contextNodeId = 0;

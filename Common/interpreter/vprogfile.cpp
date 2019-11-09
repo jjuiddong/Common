@@ -22,6 +22,8 @@ bool cVProgFile::Read(const StrPath &fileName)
 {
 	Clear();
 
+	m_fileName = fileName.GetFullFileName();
+
 	using namespace std;
 	ifstream ifs(fileName.c_str());
 	if (!ifs.is_open())
@@ -271,6 +273,8 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 	}
 
 	out.m_variables = m_variables;
+	out.m_fileName = m_fileName.GetFileNameExceptExt2();
+	out.m_fileName += ".icode";
 
 	return true;
 }

@@ -22,9 +22,12 @@ cIntermediateCode::~cIntermediateCode()
 
 
 // read intermediate code file
+// fileName: *.icode file
 bool cIntermediateCode::Read(const StrPath &fileName)
 {
 	Clear();
+
+	m_fileName = fileName.GetFullFileName();
 
 	using namespace std;
 	ifstream ifs(fileName.c_str());
@@ -373,6 +376,7 @@ cIntermediateCode& cIntermediateCode::operator=(const cIntermediateCode &rhs)
 {
 	if (this != &rhs)
 	{
+		m_fileName = rhs.m_fileName;
 		m_codes = rhs.m_codes;
 		m_variables = rhs.m_variables;
 		m_jmpMap = rhs.m_jmpMap;

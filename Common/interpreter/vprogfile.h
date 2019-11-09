@@ -98,6 +98,7 @@ namespace vprog
 
 
 	public:
+		StrPath m_fileName;
 		vector<sNode> m_nodes;
 		common::script::cSymbolTable m_variables;
 		set<int> m_visit; // visit node, use generate intermediate code
