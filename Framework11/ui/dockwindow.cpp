@@ -10,7 +10,7 @@ using namespace graphic;
 using namespace framework;
 
 
-cDockWindow::cDockWindow(const Str128 &name //=""
+cDockWindow::cDockWindow(const StrId &name //=""
 )
 	: m_state(eDockState::DOCKWINDOW)
 	, m_name(name)
@@ -150,7 +150,7 @@ bool cDockWindow::Undock(const bool newWindow // = true
 		const float width = 800;
 		const float height = 600;
 		cImGui *oldGui = &m_owner->m_gui;
-		cRenderWindow *window = cDockManager::Get()->NewRenderWindow(m_name, width, height);
+		cRenderWindow *window = cDockManager::Get()->NewRenderWindow(m_name.c_str(), width, height);
 		window->m_dock = this;
 		m_parent = NULL;
 		SendMessage(m_owner->getSystemHandle(), WM_LBUTTONUP, 0, 0); // bug fix (ImGui::ItemActive() bug)
