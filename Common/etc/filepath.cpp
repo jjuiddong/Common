@@ -934,10 +934,16 @@ bool common::FindFile2(const StrPath &findName, const StrPath &searchPath
 
 
 // searchPath 하위 폴더를 찾아서 리턴한다.
-bool common::CollectFolder(const wchar_t *searchPath, OUT vector<WStrPath> &out)
+// maxLoop : avoid too much process time
+// return : process loop
+int common::CollectFolder(const char *searchPath, OUT vector<string> &out
+	, const int maxLoop //= 10000
+)
 {
-	WStrPath modifySearchPath;
-	const int searchLen = wcslen(searchPath);
+	int loop = maxLoop; // count down, when search sub folder
+
+	string modifySearchPath;
+	const int searchLen = strlen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -946,49 +952,64 @@ bool common::CollectFolder(const wchar_t *searchPath, OUT vector<WStrPath> &out)
 	else
 	{
 		modifySearchPath = searchPath;
-		modifySearchPath += L"/";
+		modifySearchPath += "\\";
 	}
 
-	WIN32_FIND_DATAW fd;
-	WStrPath searchDir = modifySearchPath + L"*.*";
-	HANDLE hFind = FindFirstFileW(searchDir.c_str(), &fd);
+	WIN32_FIND_DATA fd;
+	string searchDir = modifySearchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
 
-	while (1)
+	while (loop > 0)
 	{
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			if (wcscmp(L".", fd.cFileName) && wcscmp(L"..", fd.cFileName))
+			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				const WStrPath newPath = modifySearchPath + fd.cFileName;
+				const string newPath = modifySearchPath + fd.cFileName;
 				out.push_back(newPath);
+
+				loop = CollectFolder(newPath.c_str(), out, loop-1);
 			}
 		}
 
-		if (!FindNextFileW(hFind, &fd))
+		if (!FindNextFileA(hFind, &fd))
 			break;
 	}
 
 	FindClose(hFind);
 
-	return true;
+	return loop;
 }
 
 
-bool common::IsFileExist(const char *fileName)
-{
+bool common::IsFileExist(const char *fileName) {
 	return _access_s(fileName, 0) == 0;
 }
-
-
-bool common::IsFileExist(const wchar_t *fileName)
-{
+bool common::IsFileExist(const wchar_t *fileName) {
 	return _waccess_s(fileName, 0) == 0;
 }
-
-
-bool common::IsFileExist(const StrPath &fileName)
-{
+bool common::IsFileExist(const StrPath &fileName) {
 	return _access_s(fileName.c_str(), 0) == 0;
+}
+
+bool common::IsDirectoryExist(const char *fileName) {
+	DWORD attribs = ::GetFileAttributesA(fileName);
+	if (attribs == INVALID_FILE_ATTRIBUTES) {
+		return false;
+	}
+	return (attribs & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+bool common::IsDirectoryExist(const wchar_t *fileName) {
+	DWORD attribs = ::GetFileAttributesW(fileName);
+	if (attribs == INVALID_FILE_ATTRIBUTES) {
+		return false;
+	}
+	return (attribs & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+bool common::IsDirectoryExist(const StrPath &fileName) {
+	return IsDirectoryExist(fileName.c_str());
 }
 
 
@@ -1001,20 +1022,31 @@ bool common::IsFileExist(const StrPath &fileName)
 //			- child2
 //					- child2-1
 //
-common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
+template <class Seq>
+common::sFolderNode* CreateFolderNode_(const Seq &fileList
+	, const bool isContainFile = false
+)
 {
+	using namespace common;
 	sFolderNode *rootNode = new sFolderNode;
 
 	for each (auto &str in fileList)
 	{
+		// check directory or file
+		const bool isDir = IsDirectoryExist(str.c_str());
+
 		vector<string> strs;
 		common::tokenizer(str, "/", ".", strs);
 
 		sFolderNode *node = rootNode;
 		for (u_int i = 0; i < strs.size(); ++i)
 		{
-			if (i == (strs.size() - 1)) // Last String Is FileName, then Ignored
-				continue;
+			if (i == (strs.size() - 1))
+			{
+				if (!isDir && isContainFile) // contain file?
+					node->files.push_back(strs[i]);
+				continue;// end
+			}
 
 			const string name = strs[i];
 			auto it = node->children.find(name);
@@ -1032,6 +1064,16 @@ common::sFolderNode* common::CreateFolderNode(const list<string> &fileList)
 	}
 
 	return rootNode;
+}
+common::sFolderNode* common::CreateFolderNode(const list<string> &fileList
+	, const bool isContainFile //= false
+) { 
+	return ::CreateFolderNode_(fileList, isContainFile); 
+}
+common::sFolderNode* common::CreateFolderNode(const vector<string> &fileList
+	, const bool isContainFile //= false
+) { 
+	return ::CreateFolderNode_(fileList, isContainFile);
 }
 
 

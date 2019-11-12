@@ -20,6 +20,7 @@ namespace common
 
 
 	// Find and Collect File
+	// char argument (ASCII)
 	bool CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out);
 	bool CollectFiles2(const list<string> &findExt, const string &searchPath
 		, const string &relativePath, OUT list<string> &out);
@@ -32,6 +33,7 @@ namespace common
 	bool FindFile2(const StrPath &findName, const StrPath &searchPath
 		, const list<string> &ignoreDirs, StrPath &out, const int depth = -1);
 
+	// wchar argument (UNICODE)
 	bool CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPath, OUT vector<WStrPath> &out);
 	bool CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath, OUT list<WStrPath> &out);
 	bool CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchPath
@@ -39,19 +41,27 @@ namespace common
 	bool CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPath
 		, const list<WStr64> &ignoreDirs, OUT list<WStrPath> &out);
 
-	bool CollectFolder(const wchar_t *searchPath, OUT vector<WStrPath> &out);
+	int CollectFolder(const char *searchPath, OUT vector<string> &out
+		, const int maxLoop = 10000);
 
 	bool IsFileExist(const char *fileName);
 	bool IsFileExist(const wchar_t *fileName);
 	bool IsFileExist(const StrPath &fileName);
+	bool IsDirectoryExist(const char *fileName);
+	bool IsDirectoryExist(const wchar_t *fileName);
+	bool IsDirectoryExist(const StrPath &fileName);
 
 	struct sFolderNode
 	{
 		map<string, sFolderNode*> children;
-		list< std::pair<string, sFolderNode*> > childrenFiles; // for Display Order of Folder and Files
-		int data; // special data
+		list<std::pair<string, sFolderNode*>> childrenFiles; // for Display Order of Folder and Files
+		list<string> files;
+		int data; // custom data
 	};
-	sFolderNode* CreateFolderNode(const list<string> &fileList);
+	sFolderNode* CreateFolderNode(const list<string> &fileList
+		, const bool isContainFile = false);
+	sFolderNode* CreateFolderNode(const vector<string> &fileList
+		, const bool isContainFile = false);
 	void DeleteFolderNode(sFolderNode *node);
 
 	int FileOperationFunc(unsigned int func, const string &to, const string &from);
