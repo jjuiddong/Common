@@ -33,7 +33,7 @@ bool cAssimpModel::Create(cRenderer &renderer, const StrPath &fileName)
 	for (auto &mesh : rawMeshes->meshes)
 	{
 		cMesh *p = new cMesh();
-		p->Create(renderer, mesh);
+		p->Create(renderer, mesh, false, fileName);
 		m_meshes.push_back(p);
 	}
 

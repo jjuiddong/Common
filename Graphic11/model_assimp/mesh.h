@@ -3,6 +3,11 @@
 // Assimp export mesh
 // tree architecture mesh
 //
+// 2019-11-13
+//	- texture file loading
+//		- 1. search texture in mesh directory
+//		- 2. search media directory
+//
 #pragma once
 
 
@@ -17,7 +22,8 @@ namespace graphic {
 		virtual ~cMesh();
 
 		bool Create(cRenderer &renderer, INOUT sRawMesh2 &mesh
-			, const bool calculateTangentBinormal=false);
+			, const bool calculateTangentBinormal=false
+			, const StrPath &modelFileName = "");
 
 		void Render(cRenderer &renderer
 			, const char *techniqueName
@@ -51,7 +57,8 @@ namespace graphic {
 
 
 	protected:
-		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh);
+		void CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh
+			, const StrPath &modelFileName = "");
 		void UpdateConstantBuffer(cRenderer &renderer, const char *techniqueName
 			, cSkeleton *skeleton
 			, const XMMATRIX &nodeParentTm

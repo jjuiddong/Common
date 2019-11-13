@@ -23,6 +23,7 @@ cMesh::~cMesh()
 // Create Mesh
 bool cMesh::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh
 	, const bool calculateTangentBinormal //= false
+	, const StrPath &modelFileName //= ""
 )
 {
 	Clear();
@@ -31,7 +32,7 @@ bool cMesh::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh
 	m_renderFlags = mesh.renderFlags;
 	m_bones = mesh.bones;
 
-	CreateMaterials(renderer, mesh);
+	CreateMaterials(renderer, mesh, modelFileName);
 	
 	m_buffers = new cMeshBuffer(renderer, mesh);
 
@@ -39,40 +40,65 @@ bool cMesh::Create(cRenderer &renderer, INOUT sRawMesh2 &mesh
 }
 
 
-void cMesh::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh)
+void cMesh::CreateMaterials(cRenderer &renderer, const sRawMesh2 &rawMesh
+	, const StrPath &modelFileName //= ""
+)
 {
 	m_mtrls.push_back(cMaterial());
 	m_mtrls.back().Init(rawMesh.mtrl);
 
+	cResourceManager *rm = cResourceManager::Get();
+
 	if (rawMesh.mtrl.texture.empty())
 	{
 		m_colorMap.push_back(
-			cResourceManager::Get()->LoadTexture2(renderer, "", g_defaultTexture));
+			rm->LoadTexture2(renderer, "", g_defaultTexture));
 	}
 	else
 	{
-		m_colorMap.push_back(
-			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.texture));
+		// 먼저, 모델파일이 있는 경로에서 먼저 텍스쳐를 찾는다.
+		cTexture *tex = nullptr;
+		if (modelFileName.empty())
+		{
+			// 모델파일명이 없다면 기본처리.
+			tex = rm->LoadTexture(renderer
+				, rawMesh.mtrl.directoryPath, rawMesh.mtrl.texture);
+		}
+		else
+		{
+			// 모델파일명에서, 경로정보를 가져온다.
+			StrPath dir = modelFileName.GetFilePathExceptFileName();
+			tex = rm->LoadTexture2(renderer, dir, rawMesh.mtrl.texture);
+
+			// 텍스쳐 파일을 못찾았다면 media 경로에서 검색한다.
+			if (tex && (tex->m_fileName == g_defaultTexture))
+			{
+				tex = rm->LoadTexture(renderer
+					, rawMesh.mtrl.directoryPath, rawMesh.mtrl.texture);
+			}
+		}
+
+		m_colorMap.push_back(tex);
 	}
 
 	if (!rawMesh.mtrl.bumpMap.empty())
 		m_normalMap.push_back(
-			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.bumpMap));
+			rm->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.bumpMap));
 
 	if (rawMesh.mtrl.specularMap.empty())
 	{
 		m_colorMap.push_back(
-			cResourceManager::Get()->LoadTexture2(renderer, "", g_defaultTexture));
+			rm->LoadTexture2(renderer, "", g_defaultTexture));
 	}
 	else
 	{
 		m_specularMap.push_back(
-			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.specularMap));
+			rm->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.specularMap));
 	}
 
 	if (!rawMesh.mtrl.selfIllumMap.empty())
 		m_selfIllumMap.push_back(
-			cResourceManager::Get()->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.selfIllumMap));
+			rm->LoadTexture(renderer, rawMesh.mtrl.directoryPath, rawMesh.mtrl.selfIllumMap));
 }
 
 

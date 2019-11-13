@@ -955,7 +955,7 @@ int common::CollectFolder(const char *searchPath, OUT vector<string> &out
 		modifySearchPath += "\\";
 	}
 
-	WIN32_FIND_DATA fd;
+	WIN32_FIND_DATAA fd;
 	string searchDir = modifySearchPath + "*.*";
 	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
 
