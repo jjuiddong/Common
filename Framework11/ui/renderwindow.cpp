@@ -20,6 +20,7 @@ cRenderWindow::cRenderWindow()
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
 	, m_isTitleBar(false)
+	, m_isMenuBar(false)
 	, m_isFullScreen(false)
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
@@ -544,6 +545,9 @@ void cRenderWindow::Render(const float deltaSeconds)
 		if (!m_isTitleBar)
 			RenderTitleBar();
 
+		if (m_isMenuBar)
+			RenderMenuBar();
+
 		const ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoTitleBar
 			| ImGuiWindowFlags_NoResize
@@ -699,6 +703,31 @@ void cRenderWindow::RenderTitleBar()
 
 	ImGui::PopStyleVar(1);
 	ImGui::End();
+}
+
+
+// render menu
+void cRenderWindow::RenderMenuBar()
+{
+	const float y = m_isTitleBar ? 0.f : TITLEBAR_HEIGHT + 1;
+	ImGui::SetNextWindowPos(ImVec2(3, y));
+	ImGui::SetNextWindowSize(ImVec2((float)getSize().x-5, MENUBAR_HEIGHT));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, MENUBAR_HEIGHT));
+
+	const ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoDecoration
+		| ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoBackground
+		| ImGuiWindowFlags_NoFocusOnAppearing
+		| ImGuiWindowFlags_MenuBar
+		;
+	if (ImGui::Begin("MenuBar", NULL, flags))
+	{
+		OnRenderMenuBar(); // override derivate class
+	}
+	ImGui::End();
+
+	ImGui::PopStyleVar(1);
 }
 
 
@@ -1012,13 +1041,13 @@ void cRenderWindow::ChangeDevice(
 	sRectf rect;
 	if (m_isTitleBar)
 	{
-		rect = sRectf(0, 0
+		rect = sRectf(0, ((m_isMenuBar) ? MENUBAR_HEIGHT2 : 0.f)
 			, (float)((width == 0) ? getSize().x : width)
 			, (float)((height == 0) ? getSize().y - 5 : height - 5));
 	}
 	else
 	{
-		rect = sRectf(0, TITLEBAR_HEIGHT2
+		rect = sRectf(0, TITLEBAR_HEIGHT2 + ((m_isMenuBar)? MENUBAR_HEIGHT2 : 0.f)
 			, (float)((width == 0) ? getSize().x : width)
 			, (float)((height == 0) ? getSize().y : height));
 	}

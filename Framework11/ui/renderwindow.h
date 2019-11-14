@@ -79,6 +79,7 @@ namespace framework
 
 	protected:
 		void RenderTitleBar();
+		void RenderMenuBar();
 		void Resize();
 		void ChangeState(const eState::Enum nextState);
 		const char* GetStateString(const eState::Enum state);
@@ -92,6 +93,7 @@ namespace framework
 		virtual void OnRender(const float deltaSeconds) {}
 		virtual void OnPreRender(const float deltaSeconds) {}
 		virtual void OnPostRender(const float deltaSeconds) {}
+		virtual void OnRenderMenuBar() {}
 		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void OnLostDevice() {}
 		virtual void OnResetDevice() {}
@@ -120,7 +122,8 @@ namespace framework
 		eResizeCursor::Enum m_resizeCursor;
 
 		bool m_isVisible;
-		bool m_isTitleBar; // default: false
+		bool m_isTitleBar; //window default tilte bar, default: false
+		bool m_isMenuBar; //menu bar, default: false
 		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
 		sf::Vector2u m_resetSize;

@@ -86,11 +86,12 @@ namespace framework
 	const float TAB_H = 20;
 	//const float TITLEBAR_HEIGHT = 30.f;
 	//const float TAB_H = 22;
-
 	// High Screen Resolution
 	//const float TITLEBAR_HEIGHT = 40.f;
 	//const float TAB_H = 32;
-
 	//const float TITLEBAR_HEIGHT = 37.f;
 	const float TITLEBAR_HEIGHT2 = TITLEBAR_HEIGHT + 3.f; // add frame gap
+	
+	const float MENUBAR_HEIGHT = 20.f;
+	const float MENUBAR_HEIGHT2 = MENUBAR_HEIGHT + 3.f; // add frame gap
 }
