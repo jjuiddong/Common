@@ -1,4 +1,3 @@
-// Serial.cpp
 
 #include "stdafx.h"
 #include "Serial.h"
@@ -7,12 +6,11 @@ using namespace common;
 
 
 cSerial::cSerial()
+	: m_dev(nullptr)
+	, m_isOpened(false)
 {
-	memset( &m_OverlappedRead, 0, sizeof( OVERLAPPED ) );
- 	memset( &m_OverlappedWrite, 0, sizeof( OVERLAPPED ) );
-	m_hIDComDev = NULL;
-	m_bOpened = FALSE;
-
+	memset(&m_read, 0, sizeof(m_read));
+ 	memset(&m_write, 0, sizeof(m_write));
 }
 
 cSerial::~cSerial()
@@ -21,21 +19,27 @@ cSerial::~cSerial()
 }
 
 
-BOOL cSerial::Open( int nPort, int nBaud )
+bool cSerial::Open( const int nPort, const int nBaud )
 {
-	if( m_bOpened ) return( TRUE );
+	if (m_isOpened)
+		return true;
 
 	TCHAR szPort[15];
-	TCHAR szComParams[50];
 	DCB dcb;
 
 	//wsprintf( szPort, TEXT("COM%d"), nPort );
 	wsprintf(szPort, TEXT("\\\\.\\COM%d"), nPort);
-	m_hIDComDev = CreateFile( szPort, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL );
-	if( m_hIDComDev == NULL ) return( FALSE );
+	m_dev = CreateFile( szPort
+		, GENERIC_READ | GENERIC_WRITE
+		, 0, NULL, OPEN_EXISTING
+		, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED
+		, NULL );
 
-	memset( &m_OverlappedRead, 0, sizeof( OVERLAPPED ) );
- 	memset( &m_OverlappedWrite, 0, sizeof( OVERLAPPED ) );
+	if (!m_dev) 
+		return false;
+
+	memset(&m_read, 0, sizeof(m_read));
+ 	memset(&m_write, 0, sizeof(m_write));
 
 	COMMTIMEOUTS CommTimeOuts;
 	CommTimeOuts.ReadIntervalTimeout = 0xFFFFFFFF;
@@ -43,131 +47,157 @@ BOOL cSerial::Open( int nPort, int nBaud )
 	CommTimeOuts.ReadTotalTimeoutConstant = 0;
 	CommTimeOuts.WriteTotalTimeoutMultiplier = 0;
 	CommTimeOuts.WriteTotalTimeoutConstant = 5000;
-	SetCommTimeouts( m_hIDComDev, &CommTimeOuts );
+	SetCommTimeouts( m_dev, &CommTimeOuts );
 
-	wsprintf( szComParams, TEXT("COM%d:%d,n,8,1"), nPort, nBaud );
+	m_read.hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+	m_write.hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
 
-	m_OverlappedRead.hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-	m_OverlappedWrite.hEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+	const DWORD inputBufferSize = 10000;
+	const DWORD outputBufferSize = 10000;
 
 	dcb.DCBlength = sizeof( DCB );
-	GetCommState( m_hIDComDev, &dcb );
+	GetCommState( m_dev, &dcb );
 	dcb.BaudRate = nBaud;
 	dcb.ByteSize = 8;
-	unsigned char ucSet;
-	ucSet = (unsigned char) ( ( FC_RTSCTS & FC_DTRDSR ) != 0 );
-	ucSet = (unsigned char) ( ( FC_RTSCTS & FC_RTSCTS ) != 0 );
-	ucSet = (unsigned char) ( ( FC_RTSCTS & FC_XONXOFF ) != 0 );
-	if (!SetCommState(m_hIDComDev, &dcb) ||
-		!SetupComm( m_hIDComDev, 10000, 10000 ) ||
-		m_OverlappedRead.hEvent == NULL ||
-		m_OverlappedWrite.hEvent == NULL)
+	if (!SetCommState(m_dev, &dcb) 
+		|| !SetupComm( m_dev, inputBufferSize, outputBufferSize)
+		|| !m_read.hEvent
+		|| !m_write.hEvent)
 	{
-		DWORD dwError = GetLastError();
-		if( m_OverlappedRead.hEvent != NULL ) CloseHandle( m_OverlappedRead.hEvent );
-		if( m_OverlappedWrite.hEvent != NULL ) CloseHandle( m_OverlappedWrite.hEvent );
-		CloseHandle( m_hIDComDev );
-		return( FALSE );
+		const DWORD dwError = GetLastError();
+		if (m_read.hEvent)
+		{
+			CloseHandle(m_read.hEvent);
+			m_read.hEvent = nullptr;
+		}
+		if (m_write.hEvent)
+		{
+			CloseHandle(m_write.hEvent);
+			m_write.hEvent = nullptr;
 		}
 
-	m_bOpened = TRUE;
+		CloseHandle(m_dev);
+		m_dev = nullptr;
+		return false;
+	}
 
-	return( m_bOpened );
+	m_isOpened = true;
 
+	return m_isOpened;
  }
 
 
-BOOL cSerial::Close( void )
+bool cSerial::Close()
 {
-	if( !m_bOpened || m_hIDComDev == NULL ) return( TRUE );
+	if (!m_isOpened || !m_dev)
+		return true;
 
-	if( m_OverlappedRead.hEvent != NULL ) CloseHandle( m_OverlappedRead.hEvent );
-	if( m_OverlappedWrite.hEvent != NULL ) CloseHandle( m_OverlappedWrite.hEvent );
-	CloseHandle( m_hIDComDev );
-	m_bOpened = FALSE;
-	m_hIDComDev = NULL;
+	if (m_read.hEvent)
+	{
+		CloseHandle(m_read.hEvent);
+		m_read.hEvent = nullptr;
+	}
+	
+	if (m_write.hEvent)
+	{
+		CloseHandle(m_write.hEvent);
+		m_write.hEvent = nullptr;
+	}
 
-	return( TRUE );
+	CloseHandle(m_dev);
+	m_isOpened = false;
+	m_dev = nullptr;
+
+	return true;
 }
 
 
-BOOL cSerial::WriteCommByte( unsigned char ucByte )
+bool cSerial::WriteCommByte( unsigned char ucByte )
 {
-	BOOL bWriteStat;
 	DWORD dwBytesWritten;
 
-	bWriteStat = WriteFile( m_hIDComDev, (LPSTR) &ucByte, 1, &dwBytesWritten, &m_OverlappedWrite );
-	if( !bWriteStat && ( GetLastError() == ERROR_IO_PENDING ) ){
-		if( WaitForSingleObject( m_OverlappedWrite.hEvent, 1000 ) ) dwBytesWritten = 0;
-		else{
-			GetOverlappedResult( m_hIDComDev, &m_OverlappedWrite, &dwBytesWritten, FALSE );
-			m_OverlappedWrite.Offset += dwBytesWritten;
-			}
+	const BOOL bWriteStat = WriteFile(m_dev, (LPSTR) &ucByte, 1, &dwBytesWritten
+		, &m_write);
+	if (!bWriteStat && (GetLastError() == ERROR_IO_PENDING))
+	{
+		if (WaitForSingleObject(m_write.hEvent, 1000))
+		{
+			dwBytesWritten = 0;
 		}
+		else
+		{
+			GetOverlappedResult(m_dev, &m_write
+				, &dwBytesWritten, FALSE);
+			m_write.Offset += dwBytesWritten;
+		}
+	}
 
-	return( TRUE );
+	return true;
 }
 
 
-int cSerial::SendData( const char *buffer, int size )
+int cSerial::SendData( const char *buffer, const int size )
 {
+	if (!m_isOpened || !m_dev)
+		return 0;
 
-	if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
+	int bytesWritten = 0;
+	for (int i=0; i < size; i++)
+	{
+		const bool result = WriteCommByte(buffer[i]);
+		bytesWritten++;
+	}
 
-	DWORD dwBytesWritten = 0;
-	int i;
-	for( i=0; i<size; i++ ){
-		BOOL result = WriteCommByte( buffer[i] );
-		dwBytesWritten++;
-		}
-
-	return( (int) dwBytesWritten );
+	return bytesWritten;
 }
 
 
-int cSerial::ReadDataWaiting( void )
+// return receive data size
+int cSerial::ReadDataWaiting()
 {
-	if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
+	if (!m_isOpened || !m_dev)
+		return 0;
+
+	DWORD dwErrorFlags;
+	COMSTAT ComStat;
+	ClearCommError( m_dev, &dwErrorFlags, &ComStat );
+	return (int)ComStat.cbInQue;
+}
+
+
+int cSerial::ReadData( void *buffer, const int limit )
+{
+	if (!m_isOpened || !m_dev)
+		return 0;
 
 	DWORD dwErrorFlags;
 	COMSTAT ComStat;
 
-	ClearCommError( m_hIDComDev, &dwErrorFlags, &ComStat );
+	const BOOL isSucceed = ClearCommError(m_dev, &dwErrorFlags, &ComStat);
+	if (!ComStat.cbInQue) 
+		return 0;
 
-	return( (int) ComStat.cbInQue );
-}
-
-
-int cSerial::ReadData( void *buffer, int limit )
-{
-	if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
-
-	BOOL bReadStatus;
-	DWORD dwBytesRead, dwErrorFlags;
-	COMSTAT ComStat;
-
-	const BOOL isSucceed = ClearCommError( m_hIDComDev, &dwErrorFlags, &ComStat );
-	if (!ComStat.cbInQue) return( 0 );
 	if (!isSucceed)
 	{
-		m_bOpened = FALSE;
+		m_isOpened = false;
 		return -1;
 	}
 
-	dwBytesRead = (DWORD) ComStat.cbInQue;
-	if( limit < (int) dwBytesRead ) dwBytesRead = (DWORD) limit;
+	DWORD dwBytesRead = (DWORD)ComStat.cbInQue;
+	if (limit < (int)dwBytesRead) 
+		dwBytesRead = (DWORD)limit;
 
-	bReadStatus = ReadFile( m_hIDComDev, buffer, dwBytesRead, &dwBytesRead, &m_OverlappedRead );
-	if( !bReadStatus )
+	const BOOL bReadStatus = ReadFile(m_dev, buffer
+		, dwBytesRead, &dwBytesRead, &m_read);
+	if (!bReadStatus)
 	{
-		if( GetLastError() == ERROR_IO_PENDING )
+		if (GetLastError() == ERROR_IO_PENDING)
 		{
-			WaitForSingleObject( m_OverlappedRead.hEvent, 2000 );
-			return( (int) dwBytesRead );
+			WaitForSingleObject(m_read.hEvent, 2000 );
+			return (int)dwBytesRead;
 		}
-		return( 0 );
+		return 0;
 	}
 
-	return( (int) dwBytesRead );
+	return (int)dwBytesRead;
 }
-

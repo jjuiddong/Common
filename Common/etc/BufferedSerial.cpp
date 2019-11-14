@@ -11,6 +11,7 @@ cBufferedSerial::cBufferedSerial()
 
 cBufferedSerial::~cBufferedSerial()
 {
+	ClearBuffer();
 }
 
 
@@ -27,8 +28,9 @@ bool cBufferedSerial::ReadStringUntil(const char ch, OUT char *out
 	}
 
 	char buffer[MAX_BUFFERSIZE];
-	const int readBytes = ReadData(buffer, sizeof(buffer));
-
+	const uint remainSize = m_q.SIZE - m_q.size();
+	const uint buffSize = min(remainSize, sizeof(buffer));
+	const int readBytes = ReadData(buffer, buffSize);
 	if (readBytes <= 0)
 		return false;
 
@@ -36,16 +38,16 @@ bool cBufferedSerial::ReadStringUntil(const char ch, OUT char *out
 
 	bool isFind = false;
 	const uint cnt = m_q.size();
-	int front = m_q.m_front;
+	int idx = m_q.m_front;
 	uint i = 0;
 	while (i++ < cnt)
 	{
-		if (ch == m_q.m_datas[front])
+		if (ch == m_q.m_datas[idx])
 		{
 			isFind = true;
 			break;
 		}
-		front = (front + 1) % m_q.SIZE;
+		idx = (idx + 1) % m_q.SIZE;
 	}
 
 	if (!isFind)
