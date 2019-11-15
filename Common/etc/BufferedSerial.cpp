@@ -31,10 +31,10 @@ bool cBufferedSerial::ReadStringUntil(const char ch, OUT char *out
 	const uint remainSize = m_q.SIZE - m_q.size();
 	const uint buffSize = min(remainSize, sizeof(buffer));
 	const int readBytes = ReadData(buffer, buffSize);
-	if (readBytes <= 0)
+	if (readBytes > 0)
+		m_q.push(buffer, readBytes);
+	if (m_q.empty())
 		return false;
-
-	m_q.push(buffer, readBytes);
 
 	bool isFind = false;
 	const uint cnt = m_q.size();
