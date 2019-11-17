@@ -140,7 +140,8 @@ unsigned cSerialAsync::SerialThreadFunction(cSerialAsync * asyncSer)
 			
 			// 2 byte read len (ushort)
 			// n byte read data
-			if (asyncSer->m_rcvQ.size() < (uint)(2 + rcvLen))
+			const uint remainSize = asyncSer->m_rcvQ.SIZE - asyncSer->m_rcvQ.size();
+			if (remainSize > (uint)(2 + rcvLen))
 			{
 				char buf[2];
 				*(u_short*)buf = (u_short)rcvLen;
