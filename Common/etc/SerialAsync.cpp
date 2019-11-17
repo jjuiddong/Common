@@ -103,11 +103,11 @@ void cSerialAsync::Close()
 
 unsigned cSerialAsync::SerialThreadFunction(cSerialAsync * asyncSer)
 {
-	char buffer[cSerialAsync::BUFLEN];
 	while (asyncSer->m_state == eState::CONNECT)
 	{
 		// 1. Send Process
 		int sndLen = 0;
+		char sndBuffer[cSerialAsync::BUFLEN];
 		if (!asyncSer->m_sndQ.empty())
 		{
 			AutoCSLock cs(asyncSer->m_cs);
@@ -117,10 +117,10 @@ unsigned cSerialAsync::SerialThreadFunction(cSerialAsync * asyncSer)
 			if (asyncSer->m_sndQ.pop(lbuff, 2))
 			{
 				u_short readLen = *(u_short*)lbuff;
-				if (sizeof(buffer) > (uint)readLen)
+				if (sizeof(sndBuffer) > (uint)readLen)
 				{
 					// read data
-					if (asyncSer->m_sndQ.pop((char*)buffer, readLen))
+					if (asyncSer->m_sndQ.pop(sndBuffer, readLen))
 					{
 						sndLen = readLen;
 					}
@@ -129,13 +129,17 @@ unsigned cSerialAsync::SerialThreadFunction(cSerialAsync * asyncSer)
 		}
 
 		if (sndLen > 0)
-			asyncSer->m_serial.SendData(buffer, sndLen);
+			asyncSer->m_serial.SendData(sndBuffer, sndLen);
 
 		// 2. Receive Process
 		int rcvLen = 0;
-		asyncSer->m_serial.ReadStringUntil(asyncSer->m_delimeter, buffer, rcvLen, sizeof(buffer));
+		char rcvBuffer[cSerialAsync::BUFLEN];
+		asyncSer->m_serial.ReadStringUntil(asyncSer->m_delimeter, rcvBuffer, rcvLen, sizeof(rcvBuffer));
 		if (rcvLen > 0)
 		{
+			if (rcvLen < sizeof(rcvBuffer))
+				rcvBuffer[rcvLen] = NULL;
+
 			AutoCSLock cs(asyncSer->m_cs);
 			
 			// 2 byte read len (ushort)
@@ -146,7 +150,7 @@ unsigned cSerialAsync::SerialThreadFunction(cSerialAsync * asyncSer)
 				char buf[2];
 				*(u_short*)buf = (u_short)rcvLen;
 				asyncSer->m_rcvQ.push(buf, 2); // store buffer length
-				asyncSer->m_rcvQ.push(buffer, rcvLen); // store buffer data
+				asyncSer->m_rcvQ.push(rcvBuffer, rcvLen); // store buffer data
 			}
 			else
 			{
