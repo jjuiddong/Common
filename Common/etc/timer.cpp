@@ -5,6 +5,7 @@
 using namespace common;
 
 cTimer::cTimer()
+	: m_prevCounter(0.f)
 {
 }
 
