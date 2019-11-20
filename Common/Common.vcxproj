@@ -418,6 +418,7 @@
     <ClInclude Include="etc\setutil.h" />
     <ClInclude Include="etc\shmmem.h" />
     <ClInclude Include="etc\simpledata.h" />
+    <ClInclude Include="etc\simpledata2.h" />
     <ClInclude Include="etc\singleton.h" />
     <ClInclude Include="etc\stringfunc.h" />
     <ClInclude Include="etc\timer.h" />
@@ -480,6 +481,7 @@
     <ClCompile Include="etc\setutil.cpp" />
     <ClCompile Include="etc\shmmem.cpp" />
     <ClCompile Include="etc\simpledata.cpp" />
+    <ClCompile Include="etc\simpledata2.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />
     <ClCompile Include="etc\timer.cpp" />
     <ClCompile Include="interpreter\debugger.cpp" />

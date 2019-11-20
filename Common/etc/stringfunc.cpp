@@ -207,9 +207,17 @@ _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 // VT_BSTR 타입일 경우 복사해서 리턴한다.
 _variant_t common::copyvariant(const _variant_t &var)
 {
-	_variant_t v = var;
+	_variant_t v;
 	if (VT_BSTR == var.vt)
+	{
+		v.vt = var.vt;
 		v.bstrVal = ::SysAllocString(var.bstrVal);
+	}
+	else
+	{
+		v = var;
+	}
+		
 	return v;
 }
 

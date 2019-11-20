@@ -226,6 +226,9 @@
     <ClInclude Include="etc\setutil.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="etc\simpledata2.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -368,6 +371,9 @@
       <Filter>Etc</Filter>
     </ClCompile>
     <ClCompile Include="etc\setutil.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\simpledata2.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>

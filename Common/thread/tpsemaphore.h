@@ -1,6 +1,6 @@
 //
 // 2019-02-06, jjuiddong
-// Thread Pool Semaphore
+// Thread Pool Semaphore (TPSemaphore)
 //
 // book: IT EXPERT 윈도우 시스템 프로그램을 구현하는 기술
 //	- Chapter 2.2.2

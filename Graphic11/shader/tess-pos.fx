@@ -15,6 +15,7 @@ cbuffer TessellationBuffer : register(b6)
 struct HullInputType
 {
 	float3 pos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct ConstantOutputType
@@ -23,17 +24,20 @@ struct ConstantOutputType
 	float inside[2] : SV_InsideTessFactor;
 
 	float3 pos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct HullOutputType
 {
 	float3 pos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct PixelInputType
 {
 	float4 pos : SV_POSITION;
 	float4 posW : TEXCOORD0;
+	float2 tex : TEXCOORD1;
 };
 
 
@@ -44,10 +48,14 @@ struct PixelInputType
 
 HullInputType main(
 	float4 Pos : POSITION
+	, float3 Normal : NORMAL
+	, float2 Tex : TEXCOORD0
+	, float4 Color : COLOR
 )
 {
 	HullInputType output;
 	output.pos = Pos.xyz;
+	output.tex = Tex;
 	return output;
 }
 
@@ -87,6 +95,7 @@ ConstantOutputType ColorPatchConstantFunction(InputPatch<HullInputType, 1> input
 	//output.inside[1] = pow(2, gLevel);
 
 	output.pos = inputPatch[0].pos;
+	output.tex = inputPatch[0].tex;
 
 	return output;
 }
@@ -107,6 +116,7 @@ HullOutputType ColorHullShader(InputPatch<HullInputType, 1> patch
 {
 	HullOutputType output = (HullOutputType)0;
 	output.pos = patch[pointId].pos;
+	output.tex = patch[pointId].tex;
 	return output;
 }
 
@@ -132,6 +142,7 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 
 	output.pos = mul(output.pos, gView);
 	output.pos = mul(output.pos, gProjection);
+	output.tex = input.tex;
 
 	// Send the input color into the pixel shader.
 	//output.color = float4(0,0,0,1);
@@ -145,11 +156,10 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 ////////////////////////////////////////////////////////////////////////////////
 float4 ColorPixelShader(PixelInputType input) : SV_TARGET
 {
-	//float4 texColor = txDiffuse.Sample(samLinear, input.tex);
+	float4 texColor = txDiffuse.Sample(samLinear, input.tex);
 	//return float4(1, 1, 1, 1); //input.color;
-	//return texColor;
-
-	return input.posW.y / 500.f;
+	return texColor;
+	//return input.posW.y / 500.f;
 }
 
 

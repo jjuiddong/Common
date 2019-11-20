@@ -24,197 +24,116 @@ bool cVProgFile::Read(const StrPath &fileName)
 
 	m_fileName = fileName.GetFullFileName();
 
-	using namespace std;
-	ifstream ifs(fileName.c_str());
-	if (!ifs.is_open())
-		return false;
+	vector<common::cSimpleData2::sRule> rules;
+	rules.push_back({ 0, "node", 1, -1 });
+	rules.push_back({ 1, "output", 2, -1 });
+	rules.push_back({ 2, "output", 2, 1 });
+	rules.push_back({ 3, "output", 2, 1 });
+	rules.push_back({ 1, "input", 3, -1 });
+	rules.push_back({ 3, "input", 3, 1 });
+	rules.push_back({ 2, "input", 3, 1 });
+	rules.push_back({ 2, "node", 1, 0 });
+	rules.push_back({ 3, "node", 1, 0 });
+	rules.push_back({ 1, "symbol", 4, 0 });
+	rules.push_back({ 2, "symbol", 4, 0 });
+	rules.push_back({ 3, "symbol", 4, 0 });
+	rules.push_back({ 4, "symbol", 4, 0 });
+	common::cSimpleData2 sdata(rules);
+	sdata.Read(fileName);
+	RETV(!sdata.m_root, false);
 
-	sNode node = { 0, };
-	sPin pin = { 0, "", ePinType::Flow };
-
-	int state = 0;
-	string line;
-	while (getline(ifs, line))
+	for (auto &p : sdata.m_root->children)
 	{
-		common::trim(line);
-		vector<string> toks;
-		common::tokenizer_space(line, toks);
-		if (toks.empty())
-			continue;
-
-		switch (state)
+		if (p->name == "node")
 		{
-		case 0:
-			if (toks[0] == "node")
+			sNode node;
+			node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
+			node.id = sdata.Get<int>(p, "id", 0);
+			node.name = sdata.Get<string>(p, "name", "name");
+			for (auto &c : p->children)
 			{
-				state = 1;
-				node = { 0, };
-			}
-			else if (toks[0] == "symbol")
-			{
-				state = 4;
-				node = { 0, };
-			}
-			break;
-
-		case 1: // node parsing
-			if ((toks[0] == "type") && (toks.size() >= 2))
-			{
-				node.type = eNodeType::FromString(toks[1]);
-			}
-			else if ((toks[0] == "id") && (toks.size() >= 2))
-			{
-				node.id = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "name") && (toks.size() >= 2))
-			{
-				node.name = toks[1];
-			}
-			else if ((toks[0] == "varname") && (toks.size() >= 2))
-			{
-				node.varName = toks[1];
-			}
-			else if ((toks[0] == "rect") && (toks.size() >= 5))
-			{
-				// no parsing
-			}
-			else if ((toks[0] == "color") && (toks.size() >= 5))
-			{
-				// no parsing
-			}
-			else if (toks[0] == "input")
-			{
-				state = 2;
-				pin = {};
-			}
-			else if (toks[0] == "output")
-			{
-				state = 3;
-				pin = {};
-			}
-			break;
-
-		case 2: // input slot parsing
-		case 3: // output parsing
-			if ((toks[0] == "type") && (toks.size() >= 2))
-			{
-				pin.type = ePinType::FromString(toks[1]);
-			}
-			else if ((toks[0] == "id") && (toks.size() >= 2))
-			{
-				pin.id = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "name") && (toks.size() >= 2))
-			{
-				pin.name = toks[1];
-				if (pin.name.empty())
-					pin.name = " ";
-			}
-			else if ((toks[0] == "value") && (toks.size() >= 2))
-			{
-				//pin.value = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "links") && (toks.size() >= 2))
-			{
-				for (uint i = 1; i < toks.size(); ++i)
+				if ((c->name == "output")
+					|| (c->name == "input"))
 				{
-					// maybe link id duplicated
-					const int toPinId = atoi(toks[i].c_str());
-					pin.links.push_back(toPinId);
-				}
-			}
-			else if (toks[0] == "input")
-			{
-				if (!pin.name.empty())
-					AddPin(state, node, pin);
-
-				state = 2;
-				pin = {};
-			}
-			else if (toks[0] == "output")
-			{
-				if (!pin.name.empty())
-					AddPin(state, node, pin);
-
-				state = 3;
-				pin = {};
-			}
-			else if ((toks[0] == "node") || (toks[0] == "symbol"))
-			{
-				if (!pin.name.empty())
-					AddPin(state, node, pin);
-
-				if (!node.name.empty())
-				{
-					m_nodes.push_back(node);
-					node = { 0, };
-				}
-
-				if (toks[0] == "node")
-					state = 1;
-				else if (toks[0] == "symbol")
-					state = 4;
-			}
-			break;
-
-		case 4: // symbol
-		{
-			if ((toks[0] == "id") && (toks.size() >= 2))
-			{
-				pin.name = "@symbol@";
-				pin.id = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "value") && (toks.size() >= 2))
-			{
-				// add variable table
-				sNode *n = nullptr;
-				sPin *p = nullptr;
-				std::tie(n, p) = FindContainPin(pin.id);
-				if (n && p)
-				{
-					string scopeName = MakeScopeName(*n);
-					string varName = p->name.c_str();
-					VARTYPE vt = VT_EMPTY;
-					switch (p->type)
+					sPin pin;
+					pin.type = ePinType::FromString(
+						sdata.Get<string>(c, "type", "Flow"));
+					pin.id = sdata.Get<int>(c, "id", 0);
+					pin.name = sdata.Get<string>(c, "name", "name");
+					auto &ar = sdata.GetArray(c, "links");
+					for (uint i = 1; i < ar.size(); ++i)
 					{
-					case ePinType::Bool: vt = VT_BOOL; break;
-					case ePinType::Int: vt = VT_INT; break;
-					case ePinType::Float: vt = VT_R4; break;
-					case ePinType::String: vt = VT_BSTR; break;
-					default:
-						common::dbg::Logc(1
-							, "Error!! cVProgFile::Read() symbol parse error!!\n");
-						break;
+						// maybe link id duplicated
+						const int toPinId = atoi(ar[i].c_str());
+						pin.links.push_back(toPinId);
 					}
 
-					variant_t val = common::str2variant(vt, toks[1]);
-					if (!m_variables.Set(scopeName, varName, val))
+					if (c->name == "output")
 					{
-						common::dbg::Logc(1
-							, "Error!! cVProgFile::Read() symbol parse error!!\n");
+						pin.kind = ePinKind::Output;
+						node.outputs.push_back(pin);
 					}
-					common::clearvariant(val);
+					else // input
+					{
+						pin.kind = ePinKind::Input;
+						node.inputs.push_back(pin);
+					}
 				}
-				else
+			}
+			m_nodes.push_back(node);
+		}
+		else if (p->name == "symbol")
+		{
+			sPin pin;
+			pin.name = "@symbol@";
+			pin.id = sdata.Get<int>(p, "id", 0);
+
+			// add variable table
+			sNode *n = nullptr;
+			sPin *pp = nullptr;
+			std::tie(n, pp) = FindContainPin(pin.id);
+			if (n && pp)
+			{
+				string scopeName = MakeScopeName(*n);
+				string varName = pp->name.c_str();
+				variant_t val;
+				switch (pp->type)
+				{
+				case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
+				case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
+				case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
+				case ePinType::String: 
+					val = common::str2variant(VT_BSTR
+						, sdata.Get<string>(p, "value", ""));
+					break;
+				default:
+					common::dbg::Logc(1
+						, "Error!! cVProgFile::Read() symbol parse error!!\n");
+					break;
+				}
+
+				if (!m_variables.Set(scopeName, varName, val))
 				{
 					common::dbg::Logc(1
 						, "Error!! cVProgFile::Read() symbol parse error!!\n");
 				}
-
-				pin = {};
+				common::clearvariant(val);
+			}
+			else
+			{
+				common::dbg::Logc(1
+					, "Error!! cVProgFile::Read() symbol parse error!!\n");
 			}
 		}
-		break;
+		else if (p->name == "type")
+		{
+
 		}
-	}
-
-	if (!pin.name.empty() && (pin.name != "@symbol@"))
-		AddPin(state, node, pin);
-
-	if (!node.name.empty())
-	{
-		m_nodes.push_back(node);
-		node = { 0, };
+		else
+		{
+			assert(0);
+			break;
+		}
 	}
 
 	return true;
@@ -774,7 +693,7 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 	, const uint reg, OUT common::script::cIntermediateCode &out)
 {
-
+	const _bstr_t emptyStr(""); // avoid crash local variable
 	if (ePinKind::Input == pin.kind)
 	{
 		script::sInstruction code;
@@ -801,7 +720,7 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 		case ePinType::String: 
 			code.cmd = script::eCommand::ldsc; 
 			code.var1.vt = VT_BSTR;
-			code.var1.bstrVal = (BSTR)"";
+			code.var1.bstrVal = emptyStr;
 			code.reg1 = reg;
 			break;
 		default:

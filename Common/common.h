@@ -175,6 +175,7 @@ using std::max;
 #include "etc/dbg.h"
 #include "etc/macro.h"
 #include "etc/simpledata.h"
+#include "etc/simpledata2.h"
 #include "etc/port.h"
 #include "etc/setutil.h"
 #include "etc/file.h"

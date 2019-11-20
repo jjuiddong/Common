@@ -16,6 +16,7 @@ cbuffer TessellationBuffer : register(b6)
 struct HullInputType
 {
 	float3 pos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct ConstantOutputType
@@ -23,17 +24,20 @@ struct ConstantOutputType
 	float edges[4] : SV_TessFactor;
 	float inside[2] : SV_InsideTessFactor;
 	float3 pos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct HullOutputType
 {
 	float3 pos : POSITION;
+	float2 tex : TEXCOORD0;
 };
 
 struct PixelInputType
 {
 	float4 pos : SV_POSITION;
 	float4 posW : TEXCOORD0;
+	float2 tex : TEXCOORD1;
 };
 
 
@@ -44,10 +48,14 @@ struct PixelInputType
 
 HullInputType VS(
 	float4 Pos : POSITION
+	, float3 Normal : NORMAL
+	, float2 Tex : TEXCOORD0
+	, float4 Color : COLOR
 )
 {
 	HullInputType output;
 	output.pos = Pos.xyz;
+	output.tex = Tex;
 	return output;
 }
 
@@ -68,7 +76,7 @@ ConstantOutputType PatchConstantFunction(InputPatch<HullInputType, 1> inputPatch
 	output.inside[0] = 1;
 	output.inside[1] = 1;
 	output.pos = inputPatch[0].pos;
-
+	output.tex = inputPatch[0].tex;
 	return output;
 }
 
@@ -88,6 +96,7 @@ HullOutputType HS(InputPatch<HullInputType, 1> patch
 {
 	HullOutputType output = (HullOutputType)0;
 	output.pos = patch[pointId].pos;
+	output.tex = patch[pointId].tex;
 	return output;
 }
 
@@ -119,6 +128,7 @@ PixelInputType DS(ConstantOutputType input
 
 	output.pos = mul(output.pos, gView);
 	output.pos = mul(output.pos, gProjection);
+	output.tex = input.tex;
 
 	return output;
 }
@@ -129,9 +139,9 @@ PixelInputType DS(ConstantOutputType input
 ////////////////////////////////////////////////////////////////////////////////
 float4 PS(PixelInputType input) : SV_TARGET
 {
-	//float4 texColor = txDiffuse.Sample(samLinear, input.tex);
+	float4 texColor = txDiffuse.Sample(samLinear, input.tex);
 	//return float4(1, 1, 1, 1); //input.color;
-	//return texColor;
+	return texColor;
 	//return input.posW.y / 500.f;
 
 	return float4(1, 1, 1, 0.5);
