@@ -328,6 +328,7 @@ int  GetActionContextLinks(LinkId* links, int size);
 void EndShortcut();
 
 float GetCurrentZoom();
+ImVec2 GetCurrentViewTransformPosition(); // 2019-11-24, jjuiddong
 
 NodeId GetDoubleClickedNode();
 PinId GetDoubleClickedPin();

@@ -1273,6 +1273,9 @@ struct EditorContext
     const ImRect& GetViewRect() const { return m_Canvas.ViewRect(); }
     const ImRect& GetRect() const { return m_Canvas.Rect(); }
 
+	//2019-11-24, jjuiddong
+	ImVec2 GetViewTransformPosition() const { return m_Canvas.GetViewTransformPosition(); }
+
     void SetNodePosition(NodeId nodeId, const ImVec2& screenPosition);
     ImVec2 GetNodePosition(NodeId nodeId);
     ImVec2 GetNodeSize(NodeId nodeId);

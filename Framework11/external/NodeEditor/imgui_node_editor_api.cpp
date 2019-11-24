@@ -598,6 +598,12 @@ float ax::NodeEditor::GetCurrentZoom()
     return s_Editor->GetView().InvScale;
 }
 
+// 2019-11-24, jjuiddong
+ImVec2 ax::NodeEditor::GetCurrentViewTransformPosition()
+{
+	return s_Editor->GetViewTransformPosition();
+}
+
 ax::NodeEditor::NodeId ax::NodeEditor::GetDoubleClickedNode()
 {
     return s_Editor->GetDoubleClickedNode();

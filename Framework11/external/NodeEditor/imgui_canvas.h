@@ -187,6 +187,9 @@ struct Canvas
     // Returns scale of the view.
     float ViewScale() const { return m_View.Scale; }
 
+	// 2019-11-24, jjuiddong
+	const ImVec2& GetViewTransformPosition()  const { return m_ViewTransformPosition; }
+
     // Returns true if canvas is suspended.
     //
     // See: Suspend()/Resume()

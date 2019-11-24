@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "node.h"
 #include "editmanager.h"
+#include "../external/NodeEditor/imgui_node_editor_internal.h"
 
 using namespace framework;
 using namespace vprog;
@@ -192,35 +193,22 @@ bool cNode::Render(cEditManager &editMgr
 				else
 					prevStr = type->enums[0].name.c_str();
 
-				//ImGui::PushItemWidth(100);
-				//ImGui::BeginGroup();
-				//if (ImGui::BeginCombo("##enum combo", prevStr))
-				//{
-				//	for (auto &e : type->enums)
-				//	{
-				//		ImGui::Selectable(e.name.c_str());
-				//	}
-				//	ImGui::EndCombo();
-				//}
-				//ImGui::EndGroup();
-				//ImGui::PopItemWidth();
-
-				//ImGui::Button("Test");
-
-				//const char *comboStr = "Bool\0Int\0Float\0String\0\0";
-				//static int combo = 1;
-				//ImGui::Combo("Type", &combo, comboStr);
-
-				//if (ImGui::BeginChild("testchild", ImVec2(100,100)))
-				//{
-				//}
-				//ImGui::EndChild();
-
-				//ImVec2 p = ImGui::GetCursorPos();
-				//if (ImGui::Begin("testwnd"))
-				//{
-				//}
-				//ImGui::End();
+				// enum selection combo
+				ImGui::PushItemWidth(200);
+				const ImVec2 offset = ed::GetCurrentViewTransformPosition();
+				const float scale = 1.f / ed::GetCurrentZoom();
+				if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
+				{
+					ed::Suspend();
+					for (auto &e : type->enums)
+					{
+						ImGui::Selectable(e.name.c_str());
+					}
+					ed::Resume();
+					ImGui::EndCombo();
+				}
+				ImGui::PopItemWidth();
+				//~combo
 
 				ImGui::Spring(0);
 			}
