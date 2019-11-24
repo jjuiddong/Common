@@ -16,9 +16,14 @@ namespace graphic
 		cSphereShape();
 		virtual ~cSphereShape();
 
-		bool Create(cRenderer &renderer, const float radius, const int stacks, const int slices
-			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::BLACK);
+		bool Create(cRenderer &renderer, const float radius
+			, const int stacks
+			, const int slices
+			, const int vtxType = (eVertexType::POSITION
+				| eVertexType::NORMAL
+				| eVertexType::COLOR)
+			, const cColor &color = cColor::BLACK
+			, const bool isClockWise = true );
 
 		void Render(cRenderer &renderer) override;
 

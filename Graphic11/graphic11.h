@@ -122,6 +122,7 @@ namespace graphic {
 #include "base/skybox.h"
 #include "base/skyboxcube.h"
 #include "base/sphere.h"
+#include "base/sphere2.h"
 #include "base/circle.h"
 #include "base/circle2d.h"
 //#include "base/circleline.h"

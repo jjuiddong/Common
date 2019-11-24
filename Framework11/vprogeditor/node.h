@@ -1,6 +1,6 @@
 //
 // 2019-10-26, jjuiddong
-// visual programming node ui
+// visual programming node ui moduel
 //
 #pragma once
 

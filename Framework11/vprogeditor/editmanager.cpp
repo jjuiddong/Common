@@ -548,6 +548,7 @@ bool cEditManager::ReadDefinitionFile(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_definitions = nodeFile.m_nodes;
+	m_typeTable = nodeFile.m_typeTable;
 	return true;
 }
 

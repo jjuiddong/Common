@@ -184,6 +184,7 @@
     <ClInclude Include="base\slidebar.h" />
     <ClInclude Include="base\slidelist.h" />
     <ClInclude Include="base\sphere.h" />
+    <ClInclude Include="base\sphere2.h" />
     <ClInclude Include="base\temporalbuffer.h" />
     <ClInclude Include="base\text.h" />
     <ClInclude Include="base\text3d3.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="base\slidebar.cpp" />
     <ClCompile Include="base\slidelist.cpp" />
     <ClCompile Include="base\sphere.cpp" />
+    <ClCompile Include="base\sphere2.cpp" />
     <ClCompile Include="base\temporalbuffer.cpp" />
     <ClCompile Include="base\text.cpp" />
     <ClCompile Include="base\text3d3.cpp" />

@@ -24,11 +24,11 @@ namespace common
 	class cSimpleData
 	{
 	public:
-		cSimpleData(const char *fileName = NULL);
+		cSimpleData(const StrPath &fileName = "");
 		virtual ~cSimpleData();
 
-		bool Read(const char *fileName);
-		bool Write(const char *fileName);
+		bool Read(const StrPath &fileName, const string &delimiter = ",");
+		bool Write(const StrPath &fileName, const string &delimiter = ",");
 		bool IsLoad();
 		void Clear();
 

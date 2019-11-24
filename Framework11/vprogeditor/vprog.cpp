@@ -15,6 +15,7 @@ ImColor vprog::GetIconColor(ePinType::Enum type)
 	case ePinType::Bool:     return ImColor(220, 48, 48);
 	case ePinType::Int:      return ImColor(68, 201, 156);
 	case ePinType::Float:    return ImColor(147, 226, 74);
+	case ePinType::Enums:    return ImColor(74, 226, 147);
 	case ePinType::String:   return ImColor(124, 21, 153);
 	case ePinType::Object:   return ImColor(51, 150, 215);
 	case ePinType::Function: return ImColor(218, 0, 183);
@@ -37,6 +38,7 @@ void vprog::DrawPinIcon(const sPin& pin, bool connected, int alpha)
 	case ePinType::Bool:     iconType = IconType::Circle; break;
 	case ePinType::Int:      iconType = IconType::Circle; break;
 	case ePinType::Float:    iconType = IconType::Circle; break;
+	case ePinType::Enums:    iconType = IconType::Circle; break;
 	case ePinType::String:   iconType = IconType::Circle; break;
 	case ePinType::Object:   iconType = IconType::Circle; break;
 	case ePinType::Function: iconType = IconType::Circle; break;

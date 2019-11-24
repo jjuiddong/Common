@@ -185,6 +185,7 @@ using std::max;
 #include "interpreter/definition.h"
 #include "interpreter/event.h"
 #include "interpreter/symboltable.h"
+#include "interpreter/typetable.h"
 #include "interpreter/intermediatecode.h"
 #include "interpreter/virtualmachine.h"
 #include "interpreter/interpreter.h"

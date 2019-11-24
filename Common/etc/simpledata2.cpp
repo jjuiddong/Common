@@ -95,9 +95,11 @@ cSimpleData2::sRule* cSimpleData2::FindRule(const int curState, const string &st
 
 
 // return key : value
+// return array, if array size more than 2
 vector<string>& cSimpleData2::GetArray(sNode *node, const string &key)
 {
 	static vector<string> emptyVal;
+
 	auto it = node->attrs.find(key);
 	if (node->attrs.end() == it)
 		return emptyVal;

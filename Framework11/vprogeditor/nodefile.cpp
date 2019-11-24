@@ -12,195 +12,188 @@ cNodeFile::cNodeFile()
 
 cNodeFile::~cNodeFile()
 {
+	Clear();
 }
 
 
 bool cNodeFile::Read(const StrPath &fileName)
 {
-	using namespace std;
-	ifstream ifs(fileName.c_str());
-	if (!ifs.is_open())
-		return false;
+	Clear();
 
-	cNode node(0,"");
-	sPin pin(0, "", ePinType::Flow);
+	vector<common::cSimpleData2::sRule> rules;
+	rules.push_back({ 0, "node", 1, -1 });
+	rules.push_back({ 1, "output", 2, -1 });
+	rules.push_back({ 2, "output", 2, 1 });
+	rules.push_back({ 3, "output", 2, 1 });
+	rules.push_back({ 1, "input", 3, -1 });
+	rules.push_back({ 3, "input", 3, 1 });
+	rules.push_back({ 2, "input", 3, 1 });
+	rules.push_back({ 1, "node", 1, 0 });
+	rules.push_back({ 2, "node", 1, 0 });
+	rules.push_back({ 3, "node", 1, 0 });
+	rules.push_back({ 4, "node", 1, 0 });
+	rules.push_back({ 5, "node", 1, 0 });
+	rules.push_back({ 1, "symbol", 4, 0 });
+	rules.push_back({ 2, "symbol", 4, 0 });
+	rules.push_back({ 3, "symbol", 4, 0 });
+	rules.push_back({ 4, "symbol", 4, 0 });
+	rules.push_back({ 5, "symbol", 4, 0 });
+	rules.push_back({ 0, "define", 5, 0 });
+	rules.push_back({ 1, "define", 5, 0 });
+	rules.push_back({ 2, "define", 5, 0 });
+	rules.push_back({ 3, "define", 5, 0 });
+	rules.push_back({ 4, "define", 5, 0 });
+	rules.push_back({ 5, "define", 5, 0 });
+	rules.push_back({ 5, "attr", 6, -1 });
+	rules.push_back({ 6, "attr", 6, 5 });
+	rules.push_back({ 6, "node", 1, 0 });
+	rules.push_back({ 6, "symbol", 4, 0 });
+	rules.push_back({ 6, "define", 5, 0 });
 
-	int state = 0;
-	string line;
-	while (getline(ifs, line))
+	common::cSimpleData2 sdata(rules);
+	sdata.Read(fileName);
+	RETV(!sdata.m_root, false);
+
+	for (auto &p : sdata.m_root->children)
 	{
-		common::trim(line);
-		vector<string> toks;
-		common::tokenizer_space(line, toks);
-		if (toks.empty())
-			continue;
-
-		switch (state)
+		if (p->name == "node")
 		{
-		case 0:
-			if (toks[0] == "node")
-			{
-				state = 1;
-				node.Clear();
-			}
-			else if (toks[0] == "symbol")
-			{
-				state = 4;
-				node.Clear();
-			}
-			break;
+			cNode node(0,"");
+			node.m_type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
+			node.m_id = sdata.Get<int>(p, "id", 0);
+			node.m_name = sdata.Get<string>(p, "name", "name");
+			node.m_varName = sdata.Get<string>(p, "varname", "varname");
 
-		case 1: // state parsing
-			if ((toks[0] == "type") && (toks.size() >= 2))
-			{
-				node.m_type = eNodeType::FromString(toks[1]);
-			}
-			else if ((toks[0] == "id") && (toks.size() >= 2))
-			{
-				node.m_id = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "name") && (toks.size() >= 2))
-			{
-				node.m_name = toks[1];
-			}
-			else if ((toks[0] == "varname") && (toks.size() >= 2))
-			{
-				node.m_varName = toks[1];
-			}
-			else if ((toks[0] == "rect") && (toks.size() >= 5))
+			const auto &rectAr = sdata.GetArray(p, "rect");
+			if (rectAr.size() >= 5)
 			{
 				const sRectf rect(
-					(float)atof(toks[1].c_str())
-					, (float)atof(toks[2].c_str())
-					, (float)atof(toks[3].c_str())
-					, (float)atof(toks[4].c_str())
+					(float)atof(rectAr[1].c_str())
+					, (float)atof(rectAr[2].c_str())
+					, (float)atof(rectAr[3].c_str())
+					, (float)atof(rectAr[4].c_str())
 				);
 				node.m_size = ImVec2(rect.Width(), rect.Height());
 				node.m_pos = ImVec2(rect.left, rect.top);
 			}
-			else if ((toks[0] == "color") && (toks.size() >= 5))
+
+			const auto &colorAr = sdata.GetArray(p, "color");
+			if (colorAr.size() >= 5)
 			{
 				const Vector4 color(
-					(float)atof(toks[1].c_str())
-					, (float)atof(toks[2].c_str())
-					, (float)atof(toks[3].c_str())
-					, (float)atof(toks[4].c_str())
+					(float)atof(colorAr[1].c_str())
+					, (float)atof(colorAr[2].c_str())
+					, (float)atof(colorAr[3].c_str())
+					, (float)atof(colorAr[4].c_str())
 				);
 				node.m_color = *(ImColor*)&color;
 			}
-			else if (toks[0] == "input")
-			{
-				state = 2;
-				pin.name.clear();
-			}
-			else if (toks[0] == "output")
-			{
-				state = 3;
-				pin.name.clear();
-			}
-			break;
 
-		case 2: // input slot parsing
-		case 3: // output parsing
-			if ((toks[0] == "type") && (toks.size() >= 2))
+			for (auto &c : p->children)
 			{
-				pin.type = ePinType::FromString(toks[1]);
-			}
-			else if ((toks[0] == "id") && (toks.size() >= 2))
-			{
-				pin.id = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "name") && (toks.size() >= 2))
-			{
-				pin.name = toks[1];
-				if (pin.name.empty())
-					pin.name = " ";
-			}
-			else if ((toks[0] == "value") && (toks.size() >= 2))
-			{
-				//pin.value = atoi(toks[1].c_str());
-			}
-			else if ((toks[0] == "links") && (toks.size() >= 2))
-			{
-				if (state == 3) // add link output pin(from) -> input pin(to)
+				if ((c->name == "output")
+					|| (c->name == "input"))
 				{
-					for (uint i = 1; i < toks.size(); ++i)
+					sPin pin(0, "", ePinType::Flow);
+					pin.type = ePinType::FromString(
+						sdata.Get<string>(c, "type", " "));
+					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
-						// maybe link id duplicated
-						const ed::PinId toPinId = atoi(toks[i].c_str());
-						m_links.push_back(sLink(ed::LinkId(common::GenerateId())
-							, pin.id, toPinId));
+						string typeStr = sdata.Get<string>(c, "type", " ");
+						if (m_typeTable.FindType(typeStr))
+						{
+							pin.type = ePinType::Enums;
+						}
+						else
+						{
+							assert(!"cNodeFile::Read() Error!, not defined type name");
+							pin.type = ePinType::Int;
+						}
+					}
+
+					pin.id = sdata.Get<int>(c, "id", 0);
+					pin.name = sdata.Get<string>(c, "name", "name");
+					if (pin.name.empty())
+						pin.name = " ";
+
+					if (c->name == "output")
+					{
+						// add link output pin(from) -> input pin(to)
+						auto &ar = sdata.GetArray(c, "links");
+						for (uint i = 1; i < ar.size(); ++i)
+						{
+							// maybe link id duplicated
+							const ed::PinId toPinId = atoi(ar[i].c_str());
+							m_links.push_back(sLink(ed::LinkId(common::GenerateId())
+								, pin.id, toPinId));
+						}
+
+						pin.kind = ePinKind::Output;
+						node.m_outputs.push_back(pin);
+					}
+					else // input
+					{
+						pin.kind = ePinKind::Input;
+						node.m_inputs.push_back(pin);
 					}
 				}
 			}
-			else if (toks[0] == "input")
-			{
-				if (!pin.name.empty())
-					AddPin(state, node, pin);
-
-				state = 2;
-				pin.name.clear();
-			}
-			else if (toks[0] == "output")
-			{
-				if (!pin.name.empty())
-					AddPin(state, node, pin);
-
-				state = 3;
-				pin.name.clear();
-			}
-			else if ((toks[0] == "node") || (toks[0] == "symbol"))
-			{
-				if (!pin.name.empty())
-					AddPin(state, node, pin);
-
-				if (!node.m_name.empty())
-				{
-					m_nodes.push_back(node);
-					node.Clear();
-				}
-
-				if (toks[0] == "node")
-					state = 1;
-				else if (toks[0] == "symbol")
-					state = 4;
-			}
-			break;
-
-		case 4: // symbol
+			m_nodes.push_back(node);
+		}
+		else if (p->name == "symbol")
 		{
-			if ((toks[0] == "id") && (toks.size() >= 2))
+			sPin pin(0, "", ePinType::Flow);
+			pin.name = "@symbol@";
+			pin.id = sdata.Get<int>(p, "id", 0);
+
+			if (sPin *pp = FindPin(pin.id))
 			{
-				pin.name = "@symbol@";
-				pin.id = atoi(toks[1].c_str());
-				if (sPin *p = FindPin(pin.id))
-				{
-					pin.type = p->type;
-					pin.kind = p->kind;
-				}
-			}
-			else if ((toks[0] == "value") && (toks.size() >= 2))
-			{
-				if (!m_symbTable.AddSymbolStr(pin, toks[1]))
+				pin.type = pp->type;
+				pin.kind = pp->kind;
+
+				string value = sdata.Get<string>(p, "value", "0");
+				if (!m_symbTable.AddSymbolStr(pin, value))
 				{
 					// error occurred
-					assert(!"nodefile::Read() symbol parse error!!");
+					assert(!"cNodefile::Read() symbol parse error!!");
 				}
-				pin.name.clear();
 			}
 		}
-		break;
+		else if (p->name == "define")
+		{
+			namespace script = common::script;
+			script::cTypeTable::sType type;
+			const string typeStr = sdata.Get<string>(p, "type", "Enum");
+			type.type = (typeStr == "Enum") ? 
+				script::cTypeTable::eType::Enum : script::cTypeTable::eType::None;
+			type.name = sdata.Get<string>(p, "name", " ");
+
+			if (type.type == script::cTypeTable::eType::Enum)
+			{
+				for (auto &c : p->children)
+				{
+					if (c->name == "attr")
+					{
+						script::cTypeTable::sEnum e;
+						e.name = sdata.Get<string>(c, "name", " ");
+						e.value = sdata.Get<int>(c, "value", 0);
+						type.enums.push_back(e);
+					}
+				}
+			}
+			else
+			{
+				assert(!"cNodeFile::Read() Error, not defined type parse");
+			}
+
+			m_typeTable.AddType(type);
 		}
-	}
-
-	if (!pin.name.empty() && (pin.name != "@symbol@"))
-		AddPin(state, node, pin);
-
-	if (!node.m_name.empty())
-	{
-		m_nodes.push_back(node);
-		node.Clear();
-	}
+		else
+		{
+			assert(!"cNodeFile::Read() Error, not defined node type");
+			break;
+		}
+	} //~for nodes, type, symbol
 
 	return true;
 }
@@ -305,16 +298,10 @@ sPin* cNodeFile::FindPin(const ed::PinId id)
 }
 
 
-// parsing 된 pin data를 node에 저장한다.
-bool cNodeFile::AddPin(const int parseState, cNode &node, const sPin &pin)
+void cNodeFile::Clear()
 {
-	if (parseState == 2) // input
-	{
-		node.m_inputs.push_back(pin);
-	}
-	else if (parseState == 3) // output
-	{
-		node.m_outputs.push_back(pin);
-	}
-	return true;
+	m_nodes.clear();
+	m_links.clear();
+	m_symbTable.Clear();
+	m_typeTable.Clear();
 }

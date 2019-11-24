@@ -48,17 +48,7 @@ cSymbolTable::~cSymbolTable()
 // add string type symbol
 bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 {
-	VARTYPE vt = VT_EMPTY;
-	switch (pin.type)
-	{
-	case ePinType::Bool: vt = VT_BOOL; break;
-	case ePinType::Int: vt = VT_INT; break;
-	case ePinType::Float: vt = VT_R4; break;
-	case ePinType::String: vt = VT_BSTR; break;
-	default:
-		assert(!"nodefile::AddSymbol() symbol parse error!!");
-		break;
-	}
+	const VARTYPE vt = vprog::GetPin2VarType(pin.type);
 
 	sValue v;
 	v.str = value;
@@ -71,17 +61,7 @@ bool cSymbolTable::AddSymbolStr(const sPin &pin, const string &value)
 // add variant type symbol
 bool cSymbolTable::AddSymbol(const sPin &pin, const variant_t &value)
 {
-	VARTYPE vt;
-	switch (pin.type)
-	{
-	case ePinType::Bool: vt = VT_BOOL; break;
-	case ePinType::Int: vt = VT_INT; break;
-	case ePinType::Float: vt = VT_R4; break;
-	case ePinType::String: vt = VT_BSTR; break;
-	default:
-		assert(!"nodefile::AddSymbol() symbol parse error!!");
-		break;
-	}
+	const VARTYPE vt = vprog::GetPin2VarType(pin.type);
 
 	sValue v;
 	v.var = copyvariant(value);

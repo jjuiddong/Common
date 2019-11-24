@@ -5,10 +5,10 @@
 using namespace common;
 
 
-cSimpleData::cSimpleData(const char *fileName // = NULL
+cSimpleData::cSimpleData(const StrPath &fileName // = ""
 )
 {
-	if (fileName)
+	if (!fileName.empty())
 		Read(fileName);
 }
 
@@ -18,10 +18,12 @@ cSimpleData::~cSimpleData()
 }
 
 
-bool cSimpleData::Read(const char *fileName)
+bool cSimpleData::Read(const StrPath &fileName
+	, const string &delimiter //= ","
+)
 {
 	using namespace std;
-	ifstream ifs(fileName);
+	ifstream ifs(fileName.c_str());
 	if (!ifs.is_open())
 		return false;
 
@@ -31,7 +33,7 @@ bool cSimpleData::Read(const char *fileName)
 	while (getline(ifs, line))
 	{
 		vector<string> out;
-		common::tokenizer2(line, ",", out);
+		common::tokenizer2(line, delimiter, out);
 		if (out.empty())
 			continue;
 
@@ -42,10 +44,12 @@ bool cSimpleData::Read(const char *fileName)
 }
 
 
-bool cSimpleData::Write(const char *fileName)
+bool cSimpleData::Write(const StrPath &fileName
+	, const string &delimiter //= ","
+)
 {
 	using namespace std;
-	ofstream ofs(fileName);
+	ofstream ofs(fileName.c_str());
 	if (!ofs.is_open())
 		return false;
 
@@ -56,7 +60,7 @@ bool cSimpleData::Write(const char *fileName)
 			auto &col = row[i];
 			ofs << col;
 			if (i != row.size() - 1)
-				ofs << ",";
+				ofs << delimiter;
 		}
 		ofs << endl;
 	}

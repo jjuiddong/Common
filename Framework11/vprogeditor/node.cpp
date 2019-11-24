@@ -114,11 +114,13 @@ bool cNode::Render(cEditManager &editMgr
 			ImGui::TextUnformatted(input.name.c_str());
 			ImGui::Spring(0);
 		}
+
 		if (input.type == ePinType::Bool)
 		{
-			ImGui::Button("Hello");
+			//ImGui::Button("Hello");
 			ImGui::Spring(0);
 		}
+
 		ImGui::PopStyleVar();
 		builder.EndInput();
 	} //~input
@@ -143,13 +145,16 @@ bool cNode::Render(cEditManager &editMgr
 
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
 		builder.Output(output.id);
-		if ((eNodeType::Variable == m_type) 
-			&& (output.type == ePinType::String))
+		if (eNodeType::Variable == m_type) 			
 		{
-			//static char buffer[128] = "Edit Me\nMultiline!";
-			cSymbolTable::sValue *value = editMgr.m_symbTable.FindSymbol(output.id);
-			if (value)
+			switch (output.type)
 			{
+			case ePinType::String:
+			{
+				cSymbolTable::sValue *value = editMgr.m_symbTable.FindSymbol(output.id);
+				if (!value)
+					break;
+
 				Str128 buffer = value->str;
 				static bool wasActive = false;
 
@@ -167,8 +172,60 @@ bool cNode::Render(cEditManager &editMgr
 					ed::EnableShortcuts(true);
 					wasActive = false;
 				}
+				ImGui::Spring(0);
 			}
-			ImGui::Spring(0);
+			break;
+			
+			case ePinType::Enums:
+			{
+				cSymbolTable::sValue *value = editMgr.m_symbTable.FindSymbol(output.id);
+				if (!value)
+					break;
+				auto *type = editMgr.m_typeTable.FindType(node.m_varName.c_str());
+				if (!type)
+					break;
+
+				auto &var = value->var;
+				const char *prevStr = nullptr;
+				if (type->enums.size() > (uint)var.intVal)
+					prevStr = type->enums[var.intVal].name.c_str();
+				else
+					prevStr = type->enums[0].name.c_str();
+
+				//ImGui::PushItemWidth(100);
+				//ImGui::BeginGroup();
+				//if (ImGui::BeginCombo("##enum combo", prevStr))
+				//{
+				//	for (auto &e : type->enums)
+				//	{
+				//		ImGui::Selectable(e.name.c_str());
+				//	}
+				//	ImGui::EndCombo();
+				//}
+				//ImGui::EndGroup();
+				//ImGui::PopItemWidth();
+
+				//ImGui::Button("Test");
+
+				//const char *comboStr = "Bool\0Int\0Float\0String\0\0";
+				//static int combo = 1;
+				//ImGui::Combo("Type", &combo, comboStr);
+
+				//if (ImGui::BeginChild("testchild", ImVec2(100,100)))
+				//{
+				//}
+				//ImGui::EndChild();
+
+				//ImVec2 p = ImGui::GetCursorPos();
+				//if (ImGui::Begin("testwnd"))
+				//{
+				//}
+				//ImGui::End();
+
+				ImGui::Spring(0);
+			}
+			break;
+			}
 		}
 		if (!output.name.empty())
 		{

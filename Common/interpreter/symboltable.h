@@ -42,7 +42,6 @@ namespace common
 
 		//---------------------------------------------------------------------------------------
 		// template function
-
 		template <class T>
 		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName, const T &var)
 		{

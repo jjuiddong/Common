@@ -18,9 +18,12 @@ cSphereShape::~cSphereShape()
 // 90µµ -> xyz = (0,0,1)
 // 180µµ -> xyz = (-1,0,0)
 //
-bool cSphereShape::Create(cRenderer &renderer, const float radius, const int stacks, const int slices
+bool cSphereShape::Create(cRenderer &renderer, const float radius
+	, const int stacks
+	, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::BLACK
+	, const bool isClockWise //= true
 )
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
@@ -58,8 +61,8 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius, const int sta
 
 		for (int p = 0; p < slices; p++) // slices are ORANGE SLICES so the count azimuth
 		{
-			const float phi1 = ((float)p / (float)slices) * 2 * MATH_PI; // azimuth goes around 0 .. 2*PI
-			const float phi2 = ((float)(p + 1) / (float)slices) * 2 * MATH_PI;
+			const float phi1 = -((float)p / (float)slices) * 2 * MATH_PI; // azimuth goes around 0 .. 2*PI
+			const float phi2 = -((float)(p + 1) / (float)slices) * 2 * MATH_PI;
 			const float u1 = (float)p / (float)slices;
 			const float u2 = (float)(p + 1) / (float)slices;
 

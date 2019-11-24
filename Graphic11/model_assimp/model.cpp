@@ -33,6 +33,9 @@ bool cModel::Create(cRenderer &renderer
 {
 	Clear();
 
+	if (fileName.empty())
+		return false;
+
 	m_id = id;
 	m_name = fileName.GetFileNameExceptExt().c_str();
 	m_fileName = fileName;

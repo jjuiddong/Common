@@ -36,16 +36,17 @@ namespace vprog {
 
 		bool Read(const StrPath &fileName);
 		bool Write(const StrPath &fileName);
+		void Clear();
 
 
 	protected:
 		sPin* FindPin(const ed::PinId id);
-		bool AddPin(const int parseState, cNode &node, const sPin &pin);
 
 
 	public:
 		vector<cNode> m_nodes;
 		vector<sLink> m_links;
 		cSymbolTable m_symbTable;
+		common::script::cTypeTable m_typeTable;
 	};
 }

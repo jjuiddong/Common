@@ -32,12 +32,28 @@ bool cVProgFile::Read(const StrPath &fileName)
 	rules.push_back({ 1, "input", 3, -1 });
 	rules.push_back({ 3, "input", 3, 1 });
 	rules.push_back({ 2, "input", 3, 1 });
+	rules.push_back({ 1, "node", 1, 0 });
 	rules.push_back({ 2, "node", 1, 0 });
 	rules.push_back({ 3, "node", 1, 0 });
+	rules.push_back({ 4, "node", 1, 0 });
+	rules.push_back({ 5, "node", 1, 0 });
 	rules.push_back({ 1, "symbol", 4, 0 });
 	rules.push_back({ 2, "symbol", 4, 0 });
 	rules.push_back({ 3, "symbol", 4, 0 });
 	rules.push_back({ 4, "symbol", 4, 0 });
+	rules.push_back({ 5, "symbol", 4, 0 });
+	rules.push_back({ 0, "define", 5, 0 });
+	rules.push_back({ 1, "define", 5, 0 });
+	rules.push_back({ 2, "define", 5, 0 });
+	rules.push_back({ 3, "define", 5, 0 });
+	rules.push_back({ 4, "define", 5, 0 });
+	rules.push_back({ 5, "define", 5, 0 });
+	rules.push_back({ 5, "attr", 6, -1 });
+	rules.push_back({ 6, "attr", 6, 5 });
+	rules.push_back({ 6, "node", 1, 0 });
+	rules.push_back({ 6, "symbol", 4, 0 });
+	rules.push_back({ 6, "define", 5, 0 });
+	
 	common::cSimpleData2 sdata(rules);
 	sdata.Read(fileName);
 	RETV(!sdata.m_root, false);
@@ -52,18 +68,31 @@ bool cVProgFile::Read(const StrPath &fileName)
 			node.name = sdata.Get<string>(p, "name", "name");
 			for (auto &c : p->children)
 			{
-				if ((c->name == "output")
-					|| (c->name == "input"))
+				if ((c->name == "output") || (c->name == "input"))
 				{
 					sPin pin;
 					pin.type = ePinType::FromString(
-						sdata.Get<string>(c, "type", "Flow"));
+						sdata.Get<string>(c, "type", " "));
+					if (pin.type == ePinType::COUNT) // not found type, check enum type
+					{
+						string typeStr = sdata.Get<string>(c, "type", " ");
+						if (m_typeTable.FindType(typeStr))
+						{
+							pin.type = ePinType::Enums;
+						}
+						else
+						{
+							assert(!"cVProgFile::Read() Error!, not defined type name");
+							pin.type = ePinType::Int;
+						}
+					}
+
 					pin.id = sdata.Get<int>(c, "id", 0);
 					pin.name = sdata.Get<string>(c, "name", "name");
 					auto &ar = sdata.GetArray(c, "links");
 					for (uint i = 1; i < ar.size(); ++i)
 					{
-						// maybe link id duplicated
+						//todo: maybe link id duplicated
 						const int toPinId = atoi(ar[i].c_str());
 						pin.links.push_back(toPinId);
 					}
@@ -100,6 +129,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 				switch (pp->type)
 				{
 				case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
+				case ePinType::Enums:
 				case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
 				case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
 				case ePinType::String: 
@@ -125,16 +155,41 @@ bool cVProgFile::Read(const StrPath &fileName)
 					, "Error!! cVProgFile::Read() symbol parse error!!\n");
 			}
 		}
-		else if (p->name == "type")
+		else if (p->name == "define")
 		{
+			namespace script = common::script;
+			script::cTypeTable::sType type;
+			const string typeStr = sdata.Get<string>(p, "type", "Enum");
+			type.type = (typeStr == "Enum") ?
+				script::cTypeTable::eType::Enum : script::cTypeTable::eType::None;
+			type.name = sdata.Get<string>(p, "name", " ");
 
+			if (type.type == script::cTypeTable::eType::Enum)
+			{
+				for (auto &c : p->children)
+				{
+					if (c->name == "attr")
+					{
+						script::cTypeTable::sEnum e;
+						e.name = sdata.Get<string>(c, "name", " ");
+						e.value = sdata.Get<int>(c, "value", 0);
+						type.enums.push_back(e);
+					}
+				}
+			}
+			else
+			{
+				assert(!"cVProgFile::Read() Error, not defined type parse");
+			}
+
+			m_typeTable.AddType(type);
 		}
 		else
 		{
-			assert(0);
+			assert(!"cVProgFile::Read() Error, not defined node type");
 			break;
 		}
-	}
+	} //~for nodes, type, symbol
 
 	return true;
 }
@@ -512,15 +567,9 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	VARTYPE vt = VT_EMPTY;
 	for (auto &pin : node.inputs)
 	{
-		switch (pin.type)
-		{
-		case ePinType::Bool: vt = VT_BOOL; break;
-		case ePinType::Int: vt = VT_INT; break;
-		case ePinType::Float: vt = VT_R4; break;
-		case ePinType::String: vt = VT_BSTR; break;
-		default: break;
-		}
-		break;
+		vt = vprog::GetPin2VarType(pin.type);
+		if (VT_EMPTY != vt)
+			break;
 	}
 
 	// insert compare code
@@ -654,6 +703,7 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 		switch (pin.type)
 		{
 		case ePinType::Bool: code.cmd = script::eCommand::setb; break;
+		case ePinType::Enums:
 		case ePinType::Int: code.cmd = script::eCommand::seti; break;
 		case ePinType::Float: code.cmd = script::eCommand::setf; break;
 		case ePinType::String: code.cmd = script::eCommand::sets; break;
@@ -672,6 +722,7 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 		switch (pin.type)
 		{
 		case ePinType::Bool: code.cmd = script::eCommand::getb; break;
+		case ePinType::Enums:
 		case ePinType::Int: code.cmd = script::eCommand::geti; break;
 		case ePinType::Float: code.cmd = script::eCommand::getf; break;
 		case ePinType::String: code.cmd = script::eCommand::gets; break;
@@ -705,6 +756,7 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 			code.var1.boolVal = false;
 			code.reg1 = reg;
 			break;
+		case ePinType::Enums:
 		case ePinType::Int: 
 			code.cmd = script::eCommand::ldic; 
 			code.var1.vt = VT_INT;
@@ -844,4 +896,5 @@ void cVProgFile::Clear()
 {
 	m_nodes.clear();
 	m_variables.Clear();
+	m_typeTable.Clear();
 }

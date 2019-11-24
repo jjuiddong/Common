@@ -51,6 +51,7 @@ namespace vprog
 		vector<sLink> m_links;
 		vector<cNode> m_definitions; // definition function, operator
 		cSymbolTable m_symbTable;
+		common::script::cTypeTable m_typeTable; // from definition file
 		StrPath m_fileName;
 		graphic::cTexture *m_headerBackground;
 

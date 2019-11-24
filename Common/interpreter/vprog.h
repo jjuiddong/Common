@@ -15,6 +15,7 @@ namespace vprog {
 		Bool,
 		Int,
 		Float,
+		Enums,
 		String,
 		Object,
 		Function,
@@ -37,5 +38,9 @@ namespace vprog {
 		Comment,
 		Tree
 	);
+
+
+	// convert ePinType to Value Type
+	VARTYPE GetPin2VarType(const ePinType::Enum type);
 
 }
