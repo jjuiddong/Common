@@ -428,7 +428,6 @@
     <ClInclude Include="interpreter\interpreter.h" />
     <ClInclude Include="interpreter\definition.h" />
     <ClInclude Include="interpreter\symboltable.h" />
-    <ClInclude Include="interpreter\typetable.h" />
     <ClInclude Include="interpreter\virtualmachine.h" />
     <ClInclude Include="interpreter\vprog.h" />
     <ClInclude Include="interpreter\vprogfile.h" />
@@ -491,7 +490,6 @@
     <ClCompile Include="interpreter\interpreter.cpp" />
     <ClCompile Include="interpreter\definition.cpp" />
     <ClCompile Include="interpreter\symboltable.cpp" />
-    <ClCompile Include="interpreter\typetable.cpp" />
     <ClCompile Include="interpreter\virtualmachine.cpp" />
     <ClCompile Include="interpreter\vprog.cpp" />
     <ClCompile Include="interpreter\vprogfile.cpp" />

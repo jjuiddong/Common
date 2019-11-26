@@ -13,7 +13,7 @@ cNode::cNode(int id, const StrId &name
 )
 	: m_id(id)
 	, m_name(name)
-	, m_varName(name)
+	, m_desc(name)
 	, m_color(color)
 	, m_type(eNodeType::Function)
 	, m_size(0, 0)
@@ -34,7 +34,7 @@ bool cNode::Render(cEditManager &editMgr
 {
 	cNode &node = *this;
 
-	if (node.m_type != eNodeType::Function 
+	if (node.m_type != eNodeType::Function
 		&& node.m_type != eNodeType::Operator
 		&& node.m_type != eNodeType::Event
 		&& node.m_type != eNodeType::Control
@@ -128,11 +128,20 @@ bool cNode::Render(cEditManager &editMgr
 
 	if (isSimple)
 	{
-		builder.Middle();
-
-		ImGui::Spring(1, 0);
-		ImGui::TextUnformatted(node.m_varName.c_str());
-		ImGui::Spring(1, 0);
+		if (eNodeType::Operator == node.m_type)
+		{
+			builder.Middle();
+			ImGui::Spring(1, 0);
+			ImGui::TextUnformatted(node.m_name.c_str());
+			ImGui::Spring(1, 0);
+		}
+		else
+		{
+			builder.Middle();
+			ImGui::Spring(1, 0);
+			ImGui::TextUnformatted("    ");
+			ImGui::Spring(1, 0);
+		}
 	}
 
 	for (auto& output : node.m_outputs)
@@ -152,7 +161,7 @@ bool cNode::Render(cEditManager &editMgr
 			{
 			case ePinType::String:
 			{
-				cSymbolTable::sValue *value = editMgr.m_symbTable.FindSymbol(output.id);
+				cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(output.id);
 				if (!value)
 					break;
 
@@ -179,10 +188,10 @@ bool cNode::Render(cEditManager &editMgr
 			
 			case ePinType::Enums:
 			{
-				cSymbolTable::sValue *value = editMgr.m_symbTable.FindSymbol(output.id);
+				cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(output.id);
 				if (!value)
 					break;
-				auto *type = editMgr.m_typeTable.FindType(node.m_varName.c_str());
+				auto *type = editMgr.m_symbTable.FindSymbol(node.m_name.c_str());
 				if (!type)
 					break;
 
@@ -200,9 +209,11 @@ bool cNode::Render(cEditManager &editMgr
 				if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
 				{
 					ed::Suspend();
-					for (auto &e : type->enums)
+					for (uint i=0; i < type->enums.size(); ++i)
 					{
-						ImGui::Selectable(e.name.c_str());
+						auto &e = type->enums[i];
+						if (ImGui::Selectable(e.name.c_str()))
+							var.intVal = (int)i;
 					}
 					ed::Resume();
 					ImGui::EndCombo();
@@ -236,7 +247,7 @@ void cNode::Clear()
 {
 	m_id = 0;
 	m_name.clear();
-	m_varName.clear();
+	m_desc.clear();
 	m_inputs.clear();
 	m_outputs.clear();
 }

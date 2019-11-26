@@ -40,6 +40,8 @@ namespace vprog {
 
 
 	protected:
+		bool Write_Node(std::ostream &ofs, cNode &node);
+		bool Write_Define(std::ostream &ofs, cNode &node);
 		sPin* FindPin(const ed::PinId id);
 
 
@@ -47,6 +49,5 @@ namespace vprog {
 		vector<cNode> m_nodes;
 		vector<sLink> m_links;
 		cSymbolTable m_symbTable;
-		common::script::cTypeTable m_typeTable;
 	};
 }

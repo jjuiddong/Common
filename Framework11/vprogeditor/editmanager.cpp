@@ -65,8 +65,8 @@ bool cEditManager::Read(const StrPath &fileName)
 	// update node position and symboltable
 	for (auto &node : m_nodes)
 	{
-		if (node.m_varName.empty())
-			node.m_varName = node.m_name;
+		if (node.m_desc.empty())
+			node.m_desc = node.m_name;
 		ed::SetNodePosition(node.m_id, node.m_pos);
 
 		// add variable type to symboltable
@@ -74,9 +74,9 @@ bool cEditManager::Read(const StrPath &fileName)
 		{
 			for (auto &pin : node.m_outputs)
 			{
-				cSymbolTable::sValue *value = m_symbTable.FindSymbol(pin.id);
+				cSymbolTable::sValue *value = m_symbTable.FindVar(pin.id);
 				if (!value)
-					m_symbTable.AddSymbolStr(pin, "");
+					m_symbTable.AddVarStr(pin, "");
 			}
 		}
 	}
@@ -89,13 +89,49 @@ bool cEditManager::Read(const StrPath &fileName)
 }
 
 
+// *.vprog 파일로 저장한다.
 bool cEditManager::Write(const StrPath &fileName)
 {
 	if (m_nodes.empty())
 		return false; // empty data
 
 	cNodeFile nodeFile;
-	nodeFile.m_nodes = m_nodes;
+
+	// enum 타입을 사용하고 있다면, node가 저장되기 전에
+	// 먼저 enum definition을 저장해야한다.
+	set<string> enumStrs;
+	for (auto &node : m_nodes)
+	{
+		for (auto &pin : node.m_inputs)
+			if (pin.type == ePinType::Enums)
+				enumStrs.insert(pin.typeStr.c_str());
+		for (auto &pin : node.m_outputs)
+			if (pin.type == ePinType::Enums)
+				enumStrs.insert(pin.typeStr.c_str());
+	}
+	for (auto &str : enumStrs)
+	{
+		auto *symbol = m_symbTable.FindSymbol(str);
+		if (!symbol)
+			continue;
+
+		// Make Define Node, and then insert node file
+		vprog::cNode defNode(0, symbol->name);
+		defNode.m_type = eNodeType::Define;
+		defNode.m_desc = "Enum";
+		for (auto &e : symbol->enums)
+		{
+			vprog::sPin pin(0, e.name, ePinType::Enums);
+			pin.value = e.value;
+			pin.kind = ePinKind::Output;
+			defNode.m_outputs.push_back(pin);
+		}
+		nodeFile.m_nodes.push_back(defNode);
+	}
+	//~ make enum node
+
+	// copy node files
+	std::copy(m_nodes.begin(), m_nodes.end(), std::back_inserter(nodeFile.m_nodes));
 	nodeFile.m_links = m_links;
 	nodeFile.m_symbTable = m_symbTable;
 	for (auto &node : nodeFile.m_nodes)
@@ -141,6 +177,26 @@ bool cEditManager::Render(graphic::cRenderer &renderer)
 }
 
 
+// show imgui label
+void showLabel(const char* label, ImColor color)
+{
+	ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetTextLineHeight());
+	auto size = ImGui::CalcTextSize(label);
+
+	auto padding = ImGui::GetStyle().FramePadding;
+	auto spacing = ImGui::GetStyle().ItemSpacing;
+
+	ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(spacing.x, -spacing.y));
+
+	auto rectMin = ImGui::GetCursorScreenPos() - padding;
+	auto rectMax = ImGui::GetCursorScreenPos() + size + padding;
+
+	auto drawList = ImGui::GetWindowDrawList();
+	drawList->AddRectFilled(rectMin, rectMax, color, size.y * 0.15f);
+	ImGui::TextUnformatted(label);
+}
+
+
 // new/delete node, link operation
 bool cEditManager::EditOperation()
 {
@@ -149,70 +205,7 @@ bool cEditManager::EditOperation()
 
 	if (ed::BeginCreate(ImColor(255, 255, 255), 2.0f))
 	{
-		auto showLabel = [](const char* label, ImColor color)
-		{
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetTextLineHeight());
-			auto size = ImGui::CalcTextSize(label);
-
-			auto padding = ImGui::GetStyle().FramePadding;
-			auto spacing = ImGui::GetStyle().ItemSpacing;
-
-			ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(spacing.x, -spacing.y));
-
-			auto rectMin = ImGui::GetCursorScreenPos() - padding;
-			auto rectMax = ImGui::GetCursorScreenPos() + size + padding;
-
-			auto drawList = ImGui::GetWindowDrawList();
-			drawList->AddRectFilled(rectMin, rectMax, color, size.y * 0.15f);
-			ImGui::TextUnformatted(label);
-		};
-
-		ed::PinId fromPinId = 0, toPinId = 0;
-		if (ed::QueryNewLink(&fromPinId, &toPinId))
-		{
-			auto startPin = FindPin(fromPinId);
-			auto endPin = FindPin(toPinId);
-
-			m_newLinkPin = startPin ? startPin : endPin;
-
-			if (startPin->kind == ePinKind::Input)
-			{
-				std::swap(startPin, endPin);
-				std::swap(fromPinId, toPinId);
-			}
-
-			if (startPin && endPin)
-			{
-				if (endPin == startPin)
-				{
-					ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-				}
-				else if (endPin->kind == startPin->kind)
-				{
-					showLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
-					ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-				}
-				//else if (endPin->Node == startPin->Node)
-				//{
-				//    showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
-				//    ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
-				//}
-				else if (endPin->type != startPin->type)
-				{
-					showLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
-					ed::RejectNewItem(ImColor(255, 128, 128), 1.0f);
-				}
-				else
-				{
-					showLabel("+ Create Link", ImColor(32, 45, 32, 180));
-					if (ed::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
-					{
-						m_links.emplace_back(vprog::sLink(GetUniqueId(), fromPinId, toPinId));
-						m_links.back().color = GetIconColor(startPin->type);
-					}
-				}
-			}
-		}
+		Proc_NewLink();
 
 		ed::PinId pinId = 0;
 		if (ed::QueryNewNode(&pinId))
@@ -269,6 +262,102 @@ bool cEditManager::EditOperation()
 		}
 	}
 	ed::EndDelete();
+
+	return true;
+}
+
+
+// Process QueryNewLink
+bool cEditManager::Proc_NewLink()
+{
+	ed::PinId fromPinId = 0, toPinId = 0;
+	if (!ed::QueryNewLink(&fromPinId, &toPinId))
+		return true;
+
+	auto startPin = FindPin(fromPinId);
+	auto endPin = FindPin(toPinId);
+
+	m_newLinkPin = startPin ? startPin : endPin;
+
+	// start (output) -> end (input)
+	if (startPin->kind == ePinKind::Input)
+	{
+		std::swap(startPin, endPin);
+		std::swap(fromPinId, toPinId);
+	}
+
+	if (startPin && endPin)
+	{
+		// can convert, enum -> int, int -> enum
+		const bool isEnumMatch = ((endPin->type == ePinType::Enums) && (startPin->type == ePinType::Int))
+			|| ((endPin->type == ePinType::Int) && (startPin->type == ePinType::Enums));
+
+		const bool isNotDefType = ((endPin->type == ePinType::NotDef) && vprog::IsVarType(startPin->type))
+			|| ((startPin->type == ePinType::NotDef) && vprog::IsVarType(endPin->type));
+
+		if (endPin == startPin)
+		{
+			ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+		}
+		else if (endPin->kind == startPin->kind)
+		{
+			showLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
+			ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+		}
+		else if (endPin->nodeId == startPin->nodeId)
+		{
+		    showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
+		    ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
+		}
+		else if ((endPin->type != startPin->type) && !isEnumMatch && !isNotDefType)
+		{
+			showLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
+			ed::RejectNewItem(ImColor(255, 128, 128), 1.0f);
+		}
+		else
+		{
+			showLabel("+ Create Link", ImColor(32, 45, 32, 180));
+			if (ed::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
+			{
+				m_links.emplace_back(vprog::sLink(GetUniqueId(), fromPinId, toPinId));
+				m_links.back().color = GetIconColor(startPin->type);
+
+				// if NotDef type pin, Update Pin Type
+				if (ePinType::NotDef == endPin->type)
+				{
+					endPin->type = startPin->type;
+					cNode *snode = FindNode(startPin->nodeId);
+					cNode *enode = FindNode(endPin->nodeId);
+
+					// if switch case node & input enum value, create output enum pins
+					if ((ePinType::Enums == startPin->type)
+						&& (enode->m_name == "Switch"))
+					{
+						enode->m_outputs.clear();
+
+						if (cSymbolTable::sSymbol *t 
+							= m_symbTable.FindSymbol(snode->m_name.c_str()))
+						{
+							endPin->typeStr = t->name; // selection typename
+							for (auto &e : t->enums)
+							{
+								vprog::sPin pin(GetUniqueId(), e.name, ePinType::Flow);
+								pin.typeStr = "Flow";
+								pin.nodeId = enode->m_id;
+								pin.kind = ePinKind::Output;
+								enode->m_outputs.push_back(pin);
+							}
+
+							//vprog::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
+							//pin.nodeId = enode->m_id;
+							//pin.kind = ePinKind::Output;
+							//enode->m_outputs.push_back(pin);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	return true;
 }
@@ -451,13 +540,13 @@ void BuildNode(cNode* node)
 {
 	for (auto& input : node->m_inputs)
 	{
-		input.node = node;
+		input.nodeId = node->m_id;
 		input.kind = ePinKind::Input;
 	}
 
 	for (auto& output : node->m_outputs)
 	{
-		output.node = node;
+		output.nodeId = node->m_id;
 		output.kind = ePinKind::Output;
 	}
 }
@@ -483,16 +572,16 @@ bool cEditManager::ShowFlow(const ed::LinkId id)
 // generate reserved definition node
 // from ReadDefinitionFile()
 cNode* cEditManager::Generate_ReservedDefinition(const StrId &name
-	, const StrId &varName //= ""
+	, const StrId &desc //= ""
 )
 {
 	cNode *defNode = NULL;
 	for (auto &def : m_definitions)
 	{
 		if ((def.m_name == name)
-			&& (varName.empty()
-				|| (!varName.empty() 
-					&& (varName == def.m_varName))))
+			&& (desc.empty()
+				|| (!desc.empty() 
+					&& (desc == def.m_desc))))
 		{
 			defNode = &def;
 			break;
@@ -502,7 +591,7 @@ cNode* cEditManager::Generate_ReservedDefinition(const StrId &name
 		return NULL;
 
 	cNode newNode = *defNode;
-	newNode.m_varName = defNode->m_name;
+	//newNode.m_desc = defNode->m_name;
 
 	// generate unique id
 	newNode.m_id = GetUniqueId();
@@ -515,7 +604,7 @@ cNode* cEditManager::Generate_ReservedDefinition(const StrId &name
 	if (eNodeType::Variable == newNode.m_type)
 	{
 		for (auto &pin : newNode.m_outputs)
-			m_symbTable.AddSymbol(pin, "");
+			m_symbTable.AddVar(pin, "");
 	}
 
 	newNode.m_pos = ImVec2(0, 0);
@@ -548,7 +637,7 @@ bool cEditManager::ReadDefinitionFile(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_definitions = nodeFile.m_nodes;
-	m_typeTable = nodeFile.m_typeTable;
+	m_symbTable = nodeFile.m_symbTable;
 	return true;
 }
 
@@ -598,7 +687,7 @@ void cEditManager::Clear()
 {
 	ed::SetCurrentEditor(m_editor);
 	ed::ClearEditor();
-	m_nodes.clear();
+	//m_nodes.clear();
 	m_links.clear();
 	m_symbTable.Clear();
 }

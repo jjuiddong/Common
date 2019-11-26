@@ -229,9 +229,6 @@
     <ClInclude Include="etc\simpledata2.h">
       <Filter>Etc</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\typetable.h">
-      <Filter>interpreter</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -378,9 +375,6 @@
     </ClCompile>
     <ClCompile Include="etc\simpledata2.cpp">
       <Filter>Etc</Filter>
-    </ClCompile>
-    <ClCompile Include="interpreter\typetable.cpp">
-      <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="interpreter\vprog.cpp">
       <Filter>interpreter</Filter>

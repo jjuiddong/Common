@@ -71,12 +71,13 @@ bool cVProgFile::Read(const StrPath &fileName)
 				if ((c->name == "output") || (c->name == "input"))
 				{
 					sPin pin;
-					pin.type = ePinType::FromString(
-						sdata.Get<string>(c, "type", " "));
+
+					const string typeStr = sdata.Get<string>(c, "type", " ");
+					pin.typeStr = typeStr;
+					pin.type = ePinType::FromString(typeStr);
 					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
-						string typeStr = sdata.Get<string>(c, "type", " ");
-						if (m_typeTable.FindType(typeStr))
+						if (m_variables.FindSymbol(typeStr))
 						{
 							pin.type = ePinType::Enums;
 						}
@@ -158,19 +159,19 @@ bool cVProgFile::Read(const StrPath &fileName)
 		else if (p->name == "define")
 		{
 			namespace script = common::script;
-			script::cTypeTable::sType type;
+			script::cSymbolTable::sSymbol type;
 			const string typeStr = sdata.Get<string>(p, "type", "Enum");
 			type.type = (typeStr == "Enum") ?
-				script::cTypeTable::eType::Enum : script::cTypeTable::eType::None;
+				script::cSymbolTable::eType::Enum : script::cSymbolTable::eType::None;
 			type.name = sdata.Get<string>(p, "name", " ");
 
-			if (type.type == script::cTypeTable::eType::Enum)
+			if (type.type == script::cSymbolTable::eType::Enum)
 			{
 				for (auto &c : p->children)
 				{
 					if (c->name == "attr")
 					{
-						script::cTypeTable::sEnum e;
+						script::cSymbolTable::sEnum e;
 						e.name = sdata.Get<string>(c, "name", " ");
 						e.value = sdata.Get<int>(c, "value", 0);
 						type.enums.push_back(e);
@@ -182,7 +183,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 				assert(!"cVProgFile::Read() Error, not defined type parse");
 			}
 
-			m_typeTable.AddType(type);
+			m_variables.AddSymbol(type);
 		}
 		else
 		{
@@ -209,6 +210,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 
 	m_visit.clear(); // avoid duplicate execution
 
+	// make main branch
 	{
 		out.m_codes.push_back({ script::eCommand::nop });
 		script::sInstruction code;
@@ -223,13 +225,23 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		if (eNodeType::Event == node.type)
 			GenerateCode_Event(node, out);
 
+	// make blank branch
+	{
+		out.m_codes.push_back({ script::eCommand::nop });
+		script::sInstruction code;
+		code.cmd = script::eCommand::label;
+		code.str1 = "blank";
+		out.m_codes.push_back(code);
+		out.m_codes.push_back({ script::eCommand::nop });
+	}
+
 	// make intermediate code, insert initial symbol
-	for (auto &kv1 : m_variables.m_symbols)
+	for (auto &kv1 : m_variables.m_vars)
 	{
 		for (auto &kv2 : kv1.second)
 		{
 			script::sInstruction code;
-			switch (kv2.second.vt)
+			switch (kv2.second.var.vt)
 			{
 			case VT_BOOL: code.cmd = script::eCommand::symbolb; break;
 			case VT_INT: code.cmd = script::eCommand::symboli; break;
@@ -241,7 +253,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 			}
 			code.str1 = kv1.first;
 			code.str2 = kv2.first;
-			code.var1 = kv2.second;
+			code.var1 = kv2.second.var;
 			out.m_codes.push_back(code);
 		}
 	}
@@ -296,7 +308,7 @@ bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
 	{
 	case eNodeType::Function:
 	case eNodeType::Macro: GenerateCode_Function(prevNode, node, out); break;
-	case eNodeType::Control: GenerateCode_Branch(prevNode, node, out); break;
+	case eNodeType::Control: GenerateCode_Control(prevNode, node, out); break;
 	case eNodeType::Operator: GenerateCode_Operator(node, out); break;
 	case eNodeType::Variable: GenerateCode_Variable(node, out); break;
 		break;
@@ -380,6 +392,19 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, control node
+bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	if (node.name == "Branch")
+		GenerateCode_Branch(prevNode, node, out);
+	else if (node.name == "Switch")
+		GenerateCode_Switch(prevNode, node, out);
+
+	return true;
+}
+
+
+// generate intermediate code, control node
 bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
@@ -427,7 +452,8 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 	}
 
 	// insert branch code
-	// compare condition is zero?
+
+	// compare condition is zero?  (false condition)
 	{
 		script::sInstruction code;
 		code.cmd = script::eCommand::eqic;
@@ -436,7 +462,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 		out.m_codes.push_back(code);
 	}
 	{
-		// jump if true
+		// jump if true, jump false flow
 		// find False branch pin
 		string jumpLabel;
 		for (auto &pin : node.outputs)
@@ -455,11 +481,12 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 
 		if (jumpLabel.empty())
 		{
-			// no branch node, nop
+			// no branch node, jump blank code
 			script::sInstruction code;
-			code.cmd = script::eCommand::nop;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			common::dbg::Logc(1, "cVProgFile::GenerateCode_Control, no branch label\n");
+			common::dbg::Logc(1, "cVProgFile::GenerateCode_Branch, no branch label\n");
 		}
 		else
 		{
@@ -516,6 +543,131 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 				break;
 			}
 		}
+	}
+
+	return true;
+}
+
+
+// generate intermediate code, switch case node
+bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	RETV(eNodeType::Control != node.type, false);
+	RETV(m_visit.find(node.id) != m_visit.end(), false);
+	m_visit.insert(node.id);
+
+	GenerateCode_DebugInfo(prevNode, node, out);
+
+	// get input variable
+	const sPin *selPin = nullptr;
+	for (auto &pin : node.inputs)
+	{
+		if (pin.name != "Selection")
+			continue;
+
+		sNode *prev = nullptr; // prev node
+		sPin *pp = nullptr; // prev pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(prev, pp) = FindContainPin(linkId);
+		if (prev)
+		{
+			if (m_visit.end() == m_visit.find(prev->id))
+				GenerateCode_Node(nullNode, *prev, out);
+
+			selPin = &pin;
+			GenerateCode_Pin(*prev, *pp, 0, out); // get data from prev output pin
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+		}
+		else
+		{
+			// load temporal variable
+			selPin = &pin;
+			GenerateCode_TemporalPin(node, pin, 0, out);
+		}
+		break;
+	}
+
+	if (!selPin)
+		return false; // error occurred!!
+
+	common::script::cSymbolTable::sSymbol *symbol = nullptr;
+	if (ePinType::Enums == selPin->type)
+		symbol = m_variables.FindSymbol(selPin->typeStr.c_str());
+
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow != pin.type)
+			continue;
+
+		int value = pin.value;
+		if (symbol)
+		{
+			auto it = std::find_if(symbol->enums.begin(), symbol->enums.end()
+				, [&](const auto &a) {return a.name == pin.name; });
+			if (symbol->enums.end() == it)
+			{
+				assert(!"cVProgFile::GenerateCode_Switch() error");
+				continue; // error occurred!!
+			}
+			value = it->value;
+		}
+
+		string jumpLabel = "blank";
+		sNode *next = nullptr; // next node
+		sPin *np = nullptr; // next pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(next, np) = FindContainPin(linkId);
+		if (next)
+			jumpLabel = MakeScopeName(*next);
+
+		// compare reg0, enum value (int type)
+		// if result is true, jump correspond flow code
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::eqic;
+			code.reg1 = 0;
+			code.var1 = value;
+			out.m_codes.push_back(code);
+		}
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = jumpLabel;
+			out.m_codes.push_back(code);
+		}
+	}//~for
+
+	// todo: switch case default jump code
+
+	// generate output flow node
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow != pin.type)
+			continue;
+
+		sNode *next = nullptr; // next node
+		sPin *np = nullptr; // next pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(next, np) = FindContainPin(linkId);
+		if (!next)
+			continue; // not connect flow
+
+		// insert nop
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::nop;
+			out.m_codes.push_back(code);
+		}
+		// insert jump label
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::label;
+			code.str1 = MakeScopeName(*next);
+			out.m_codes.push_back(code);
+		}
+
+		GenerateCode_Node(node, *next, out);
 	}
 
 	return true;
@@ -896,5 +1048,4 @@ void cVProgFile::Clear()
 {
 	m_nodes.clear();
 	m_variables.Clear();
-	m_typeTable.Clear();
 }

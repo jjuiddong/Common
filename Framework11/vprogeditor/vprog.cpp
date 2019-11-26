@@ -20,6 +20,7 @@ ImColor vprog::GetIconColor(ePinType::Enum type)
 	case ePinType::Object:   return ImColor(51, 150, 215);
 	case ePinType::Function: return ImColor(218, 0, 183);
 	case ePinType::Delegate: return ImColor(255, 48, 48);
+	case ePinType::NotDef:   return ImColor(68, 201, 156);
 	}
 };
 
@@ -43,8 +44,7 @@ void vprog::DrawPinIcon(const sPin& pin, bool connected, int alpha)
 	case ePinType::Object:   iconType = IconType::Circle; break;
 	case ePinType::Function: iconType = IconType::Circle; break;
 	case ePinType::Delegate: iconType = IconType::Square; break;
-	default:
-		return;
+	default:				 iconType = IconType::Circle; break;
 	}
 
 	ax::Widgets::Icon(ImVec2(PinIconSize, PinIconSize), iconType, connected, color, ImColor(32, 32, 32, alpha));
@@ -54,7 +54,7 @@ void vprog::DrawPinIcon(const sPin& pin, bool connected, int alpha)
 bool vprog::CanCreateLink(vprog::sPin* a, vprog::sPin* b)
 {
 	if (!a || !b || a == b || a->kind == b->kind
-		|| a->type != b->type || a->node == b->node)
+		|| a->type != b->type || a->nodeId == b->nodeId)
 		return false;
 	return true;
 }

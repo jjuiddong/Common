@@ -19,7 +19,8 @@ namespace vprog {
 		String,
 		Object,
 		Function,
-		Delegate
+		Delegate,
+		NotDef
 	);
 
 	DECLARE_ENUM(ePinKind,
@@ -36,11 +37,15 @@ namespace vprog {
 		Macro,
 		Variable,
 		Comment,
+		Define,
 		Tree
 	);
 
 
-	// convert ePinType to Value Type
+	// Convert ePinType to Value Type
 	VARTYPE GetPin2VarType(const ePinType::Enum type);
+
+	// Is Variable Type? int, float .. etc
+	bool IsVarType(const ePinType::Enum type);
 
 }

@@ -13,14 +13,16 @@ namespace vprog
 	struct sPin
 	{
 		ed::PinId id;
-		cNode* node;
+		ed::NodeId nodeId;
 		StrId name;
+		StrId typeStr; // type name
+		int value; // used definition type
 		ePinType::Enum type;
 		ePinKind::Enum kind;
 
 		sPin(int id0, const StrId &name0, ePinType::Enum type0)
-			: id(id0), node(nullptr), name(name0), type(type0)
-			, kind(ePinKind::Input) {
+			: id(id0), nodeId(0), name(name0), type(type0)
+			, kind(ePinKind::Input), value(0) {
 		}
 	};
 

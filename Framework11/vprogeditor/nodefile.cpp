@@ -62,7 +62,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 			node.m_type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
 			node.m_id = sdata.Get<int>(p, "id", 0);
 			node.m_name = sdata.Get<string>(p, "name", "name");
-			node.m_varName = sdata.Get<string>(p, "varname", "varname");
+			node.m_desc = sdata.Get<string>(p, "desc", "desc");
 
 			const auto &rectAr = sdata.GetArray(p, "rect");
 			if (rectAr.size() >= 5)
@@ -95,12 +95,13 @@ bool cNodeFile::Read(const StrPath &fileName)
 					|| (c->name == "input"))
 				{
 					sPin pin(0, "", ePinType::Flow);
-					pin.type = ePinType::FromString(
-						sdata.Get<string>(c, "type", " "));
+
+					const string typeStr = sdata.Get<string>(c, "type", " ");
+					pin.typeStr = typeStr;
+					pin.type = ePinType::FromString(typeStr);
 					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
-						string typeStr = sdata.Get<string>(c, "type", " ");
-						if (m_typeTable.FindType(typeStr))
+						if (m_symbTable.FindSymbol(typeStr))
 						{
 							pin.type = ePinType::Enums;
 						}
@@ -151,8 +152,9 @@ bool cNodeFile::Read(const StrPath &fileName)
 				pin.type = pp->type;
 				pin.kind = pp->kind;
 
-				string value = sdata.Get<string>(p, "value", "0");
-				if (!m_symbTable.AddSymbolStr(pin, value))
+				const string typeStr = pp->typeStr.c_str();
+				const string value = sdata.Get<string>(p, "value", "0");
+				if (!m_symbTable.AddVarStr(pin, value, typeStr))
 				{
 					// error occurred
 					assert(!"cNodefile::Read() symbol parse error!!");
@@ -161,20 +163,19 @@ bool cNodeFile::Read(const StrPath &fileName)
 		}
 		else if (p->name == "define")
 		{
-			namespace script = common::script;
-			script::cTypeTable::sType type;
+			cSymbolTable::sSymbol type;
 			const string typeStr = sdata.Get<string>(p, "type", "Enum");
 			type.type = (typeStr == "Enum") ? 
-				script::cTypeTable::eType::Enum : script::cTypeTable::eType::None;
+				cSymbolTable::eType::Enum : cSymbolTable::eType::None;
 			type.name = sdata.Get<string>(p, "name", " ");
 
-			if (type.type == script::cTypeTable::eType::Enum)
+			if (type.type == cSymbolTable::eType::Enum)
 			{
 				for (auto &c : p->children)
 				{
 					if (c->name == "attr")
 					{
-						script::cTypeTable::sEnum e;
+						cSymbolTable::sEnum e;
 						e.name = sdata.Get<string>(c, "name", " ");
 						e.value = sdata.Get<int>(c, "value", 0);
 						type.enums.push_back(e);
@@ -186,7 +187,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 				assert(!"cNodeFile::Read() Error, not defined type parse");
 			}
 
-			m_typeTable.AddType(type);
+			m_symbTable.AddSymbol(type);
 		}
 		else
 		{
@@ -208,63 +209,13 @@ bool cNodeFile::Write(const StrPath &fileName)
 
 	for (cNode &node : m_nodes)
 	{
-		ofs << "node" << endl;
-		ofs << "\t" << "type " << eNodeType::ToString(node.m_type) << endl;
-		ofs << "\t" << "id " << node.m_id.Get() << endl;
-		if (node.m_name.empty())
-			ofs << "\t" << "name \" \"" << endl; // blank name
+		if (eNodeType::Define == node.m_type)
+			Write_Define(ofs, node);
 		else
-			ofs << "\t" << "name \"" << node.m_name.c_str() << "\"" << endl;
-		if (eNodeType::Variable == node.m_type)
-			ofs << "\t" << "varname \"" << node.m_varName.c_str() << "\"" << endl;
-		ofs << "\t" << "rect " << node.m_pos.x << " "
-			<< node.m_pos.y << " "
-			<< node.m_pos.x + node.m_size.x << " "
-			<< node.m_pos.y + node.m_size.y << endl;
-
-		const Vector4 color = *(Vector4*)&node.m_color.Value;
-		ofs << "\t" << "color " << color.x << " "
-			<< color.y << " "
-			<< color.z << " "
-			<< color.w << endl;
-
-		for (auto &pin : node.m_inputs)
-		{
-			ofs << "\tinput" << endl;
-			ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
-			ofs << "\t\t" << "id " << pin.id.Get() << endl;
-			if (pin.name.empty())
-				ofs << "\t\t" << "name \" \"" << endl; // blank name
-			else
-				ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
-
-			//ofs << "\t\t" << "value " << pin.value << endl;
-			ofs << "\t\t" << "links ";
-			for (auto &link : m_links)
-				if (link.toId == pin.id)
-					ofs << link.fromId.Get() << " ";
-			ofs << endl;
-		}
-
-		for (auto &pin : node.m_outputs)
-		{
-			ofs << "\toutput" << endl;
-			ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
-			ofs << "\t\t" << "id " << pin.id.Get() << endl;
-			if (pin.name.empty())
-				ofs << "\t\t" << "name \" \"" << endl; // blank name
-			else
-				ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
-			//ofs << "\t\t" << "value " << pin.value << endl;
-			ofs << "\t\t" << "links ";
-			for (auto &link : m_links)
-				if (link.fromId == pin.id)
-					ofs << link.toId.Get() << " ";
-			ofs << endl;
-		}
+			Write_Node(ofs, node);
 	}
 
-	for (auto &kv : m_symbTable.m_symbols)
+	for (auto &kv : m_symbTable.m_vars)
 	{
 		ofs << "symbol" << endl;
 		ofs << "\tid " << kv.first << endl;
@@ -277,6 +228,89 @@ bool cNodeFile::Write(const StrPath &fileName)
 			ofs << "\tvalue " << str << endl;
 	}
 
+	return true;
+}
+
+
+// write node data
+bool cNodeFile::Write_Node(std::ostream &ofs, cNode &node)
+{
+	using namespace std;
+
+	ofs << "node" << endl;
+	ofs << "\t" << "type " << eNodeType::ToString(node.m_type) << endl;
+	ofs << "\t" << "id " << node.m_id.Get() << endl;
+	if (node.m_name.empty())
+		ofs << "\t" << "name \" \"" << endl; // blank name
+	else
+		ofs << "\t" << "name \"" << node.m_name.c_str() << "\"" << endl;
+	//if (eNodeType::Variable == node.m_type)
+	ofs << "\t" << "desc \"" << node.m_desc.c_str() << "\"" << endl;
+	ofs << "\t" << "rect " << node.m_pos.x << " "
+		<< node.m_pos.y << " "
+		<< node.m_pos.x + node.m_size.x << " "
+		<< node.m_pos.y + node.m_size.y << endl;
+
+	const Vector4 color = *(Vector4*)&node.m_color.Value;
+	ofs << "\t" << "color " << color.x << " "
+		<< color.y << " "
+		<< color.z << " "
+		<< color.w << endl;
+
+	for (auto &pin : node.m_inputs)
+	{
+		ofs << "\tinput" << endl;
+		//ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
+		ofs << "\t\t" << "type " << pin.typeStr.c_str() << endl;
+		ofs << "\t\t" << "id " << pin.id.Get() << endl;
+		if (pin.name.empty())
+			ofs << "\t\t" << "name \" \"" << endl; // blank name
+		else
+			ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
+
+		//ofs << "\t\t" << "value " << pin.value << endl;
+		ofs << "\t\t" << "links ";
+		for (auto &link : m_links)
+			if (link.toId == pin.id)
+				ofs << link.fromId.Get() << " ";
+		ofs << endl;
+	}
+
+	for (auto &pin : node.m_outputs)
+	{
+		ofs << "\toutput" << endl;
+		//ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
+		ofs << "\t\t" << "type " << pin.typeStr.c_str() << endl;
+		ofs << "\t\t" << "id " << pin.id.Get() << endl;
+		if (pin.name.empty())
+			ofs << "\t\t" << "name \" \"" << endl; // blank name
+		else
+			ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
+		ofs << "\t\t" << "links ";
+		for (auto &link : m_links)
+			if (link.fromId == pin.id)
+				ofs << link.toId.Get() << " ";
+		ofs << endl;
+	}
+
+	return true;
+}
+
+
+// write define type node data
+bool cNodeFile::Write_Define(std::ostream &ofs, cNode &node)
+{
+	using namespace std;
+
+	ofs << "define" << endl;
+	ofs << "\t" << "type " << node.m_desc.c_str() << endl;
+	ofs << "\t" << "name \"" << node.m_name.c_str() << "\"" << endl;
+	for (auto &pin : node.m_outputs)
+	{
+		ofs << "\tattr" << endl;
+		ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
+		ofs << "\t\t" << "value " << pin.value << endl;
+	}
 	return true;
 }
 
@@ -303,5 +337,4 @@ void cNodeFile::Clear()
 	m_nodes.clear();
 	m_links.clear();
 	m_symbTable.Clear();
-	m_typeTable.Clear();
 }

@@ -5,7 +5,7 @@
 using namespace vprog;
 
 
-// convert ePinType to Value Type
+// Convert ePinType to Value Type
 VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 {
 	VARTYPE vt = VT_EMPTY;
@@ -21,4 +21,21 @@ VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 		break;
 	}
 	return VT_EMPTY;
+}
+
+
+// Is Variable Type? int, float .. etc
+bool vprog::IsVarType(const ePinType::Enum type)
+{
+	switch (type)
+	{
+	case ePinType::Bool:
+	case ePinType::Enums:
+	case ePinType::Int:
+	case ePinType::Float:
+	case ePinType::String:
+		return true;
+	default:
+		return false;
+	}
 }

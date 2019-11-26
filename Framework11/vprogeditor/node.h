@@ -29,7 +29,7 @@ namespace vprog
 		ed::NodeId m_id;
 		eNodeType::Enum m_type;
 		StrId m_name;
-		StrId m_varName; // if variable type, variable name
+		StrId m_desc; // description
 		ImColor m_color;
 		ImVec2 m_pos; // use only initialize 
 		ImVec2 m_size;

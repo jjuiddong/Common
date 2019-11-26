@@ -33,7 +33,7 @@ namespace vprog
 		void Clear();
 
 		cNode* Generate_ReservedDefinition(const StrId &name
-			, const StrId &varName="");
+			, const StrId &desc = "");
 
 		// Link Function
 		bool AddLink(const ed::PinId from, const ed::PinId to);
@@ -41,6 +41,7 @@ namespace vprog
 
 	protected:
 		bool EditOperation();
+		bool Proc_NewLink();
 		bool RenderPopup(graphic::cRenderer &renderer);
 		int GetUniqueId();
 
@@ -51,7 +52,6 @@ namespace vprog
 		vector<sLink> m_links;
 		vector<cNode> m_definitions; // definition function, operator
 		cSymbolTable m_symbTable;
-		common::script::cTypeTable m_typeTable; // from definition file
 		StrPath m_fileName;
 		graphic::cTexture *m_headerBackground;
 

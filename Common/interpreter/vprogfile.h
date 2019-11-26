@@ -41,7 +41,9 @@ namespace vprog
 		struct sNode;
 		struct sPin {
 			int id;
-			StrId name;
+			string name;
+			string typeStr; // type name
+			int value; // used switch case
 			ePinType::Enum type;
 			ePinKind::Enum kind;
 			vector<int> links; // pin id array
@@ -50,8 +52,8 @@ namespace vprog
 		struct sNode {
 			int id;
 			eNodeType::Enum type;
-			StrId name;
-			StrId varName; // if variable type, variable name
+			string name;
+			string desc; // description
 			vector<sPin> inputs;
 			vector<sPin> outputs;
 		};
@@ -77,7 +79,11 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Function(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_Control(const sNode &prevNode, const sNode &node
+			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Branch(const sNode &prevNode, const sNode &node
+			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_Switch(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Operator(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
@@ -101,7 +107,6 @@ namespace vprog
 		StrPath m_fileName;
 		vector<sNode> m_nodes;
 		common::script::cSymbolTable m_variables;
-		common::script::cTypeTable m_typeTable;
 		set<int> m_visit; // visit node, use generate intermediate code
 	};
 

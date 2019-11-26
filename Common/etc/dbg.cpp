@@ -106,7 +106,7 @@ public:
 		}
 		break;
 
-		default: assert(0); break;
+		default: assert(!"LogTask Error"); break;
 		}
 		return eRunResult::END;
 	}
@@ -310,7 +310,7 @@ void dbg::Logc(const int level, const char* fmt, ...)
 		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
 		break;
 	default:
-		assert(0);
+		assert(!"dbg::Logc()");
 		break;
 	}
 
@@ -337,7 +337,7 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 	{
 	case 3:
 		//DebugBreak();
-		assert(!"dbg::Logc()");
+		assert(!"dbg::Logc2()");
 	case 2:
 		data.type = 2;
 	case 1:
@@ -347,7 +347,7 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 		std::cout << data.str.m_str;
 		break;
 	default:
-		assert(0);
+		assert(!"dbg::Logc2()");
 		break;
 	}
 
