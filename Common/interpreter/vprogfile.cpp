@@ -599,6 +599,8 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 	{
 		if (ePinType::Flow != pin.type)
 			continue;
+		if (pin.name == "Default")
+			continue; // not yet
 
 		int value = pin.value;
 		if (symbol)
@@ -611,6 +613,11 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 				continue; // error occurred!!
 			}
 			value = it->value;
+		}
+		else
+		{
+			// int selection type, name is value
+			value = atoi(pin.name.c_str());
 		}
 
 		string jumpLabel = "blank";
@@ -638,7 +645,29 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 		}
 	}//~for
 
-	// todo: switch case default jump code
+	// jump default case
+	auto it = std::find_if(node.outputs.begin(), node.outputs.end()
+		, [&](const auto &a) {return a.name == "Default"; });
+	if (node.outputs.end() != it)
+	{
+		auto &pin = *it;
+		if (!pin.links.empty())
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next)
+			{
+				string jumpLabel = MakeScopeName(*next);
+
+				script::sInstruction code;
+				code.cmd = script::eCommand::jmp;
+				code.str1 = jumpLabel;
+				out.m_codes.push_back(code);
+			}
+		}
+	}
 
 	// generate output flow node
 	for (auto &pin : node.outputs)

@@ -155,7 +155,7 @@ bool cNode::Render(cEditManager &editMgr
 
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
 		builder.Output(output.id);
-		if (eNodeType::Variable == m_type) 			
+		if (eNodeType::Variable == m_type)
 		{
 			switch (output.type)
 			{
@@ -236,6 +236,63 @@ bool cNode::Render(cEditManager &editMgr
 		ImGui::PopStyleVar();
 		builder.EndOutput();
 	} //~output
+
+	// switch case, default type
+	if ((eNodeType::Control == node.m_type)
+		&& (node.m_desc == "Switch"))
+	{
+		// check int selection type?
+		ePinType::Enum pinType = ePinType::COUNT;
+		for (uint i = 0; i < node.m_inputs.size(); ++i)
+		{
+			auto &pin = node.m_inputs[i];
+			if (pin.name == "Selection")
+			{
+				pinType = pin.type;
+				break;
+			}
+		}
+
+		// int type switch case
+		// render + Add pin Button
+		if (ePinType::Int == pinType)
+		{
+			static int val = 0;
+
+			ImGui::Spring(0);
+			ImGui::PushItemWidth(35);
+			ImGui::InputInt("##val", &val, 0);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+			if (ImGui::Button("Add Pin+"))
+			{
+				// check same value?
+				auto it = find_if(node.m_outputs.begin(), node.m_outputs.end()
+					, [&](const auto &a) { return a.value == val; });
+				if (it == node.m_outputs.end())
+				{
+					// insert case, before Default case
+					StrId text;
+					text.Format("%d", val);
+					vprog::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
+					pin.typeStr = "Flow";
+					pin.nodeId = node.m_id;
+					pin.kind = ePinKind::Output;
+					pin.value = val;
+					node.m_outputs.push_back(pin);
+
+					// find default iterator?
+					auto it2 = find_if(node.m_outputs.begin(), node.m_outputs.end()
+						, [](const auto &a) { return a.name == "Default"; });
+					if (node.m_outputs.end() != it)
+					{
+						std::swap(*it2, node.m_outputs.back());
+					}
+				}
+			}
+			//ImGui::Spring(0);
+		}
+	}
 
 	builder.End();
 

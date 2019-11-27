@@ -286,74 +286,103 @@ bool cEditManager::Proc_NewLink()
 		std::swap(fromPinId, toPinId);
 	}
 
-	if (startPin && endPin)
+	if (!startPin || !endPin)
+		return false; // error occurred!
+
+	// can convert, enum -> int, int -> enum
+	const bool isEnumMatch = ((endPin->type == ePinType::Enums) && (startPin->type == ePinType::Int))
+		|| ((endPin->type == ePinType::Int) && (startPin->type == ePinType::Enums));
+
+	const bool isNotDefType = ((endPin->type == ePinType::NotDef) && vprog::IsVarType(startPin->type))
+		|| ((startPin->type == ePinType::NotDef) && vprog::IsVarType(endPin->type));
+
+	if (endPin == startPin)
 	{
-		// can convert, enum -> int, int -> enum
-		const bool isEnumMatch = ((endPin->type == ePinType::Enums) && (startPin->type == ePinType::Int))
-			|| ((endPin->type == ePinType::Int) && (startPin->type == ePinType::Enums));
+		ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+	}
+	else if (endPin->kind == startPin->kind)
+	{
+		showLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
+		ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+	}
+	else if (endPin->nodeId == startPin->nodeId)
+	{
+		showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
+		ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
+	}
+	else if ((endPin->type != startPin->type) && !isEnumMatch && !isNotDefType)
+	{
+		showLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
+		ed::RejectNewItem(ImColor(255, 128, 128), 1.0f);
+	}
+	else
+	{
+		showLabel("+ Create Link", ImColor(32, 45, 32, 180));
+		if (ed::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
+		{
+			m_links.emplace_back(vprog::sLink(GetUniqueId(), fromPinId, toPinId));
+			m_links.back().color = GetIconColor(startPin->type);
 
-		const bool isNotDefType = ((endPin->type == ePinType::NotDef) && vprog::IsVarType(startPin->type))
-			|| ((startPin->type == ePinType::NotDef) && vprog::IsVarType(endPin->type));
+			// if NotDef type pin, Update Pin Type
+			if (ePinType::NotDef != endPin->type)
+				return true;
 
-		if (endPin == startPin)
-		{
-			ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-		}
-		else if (endPin->kind == startPin->kind)
-		{
-			showLabel("x Incompatible Pin Kind", ImColor(45, 32, 32, 180));
-			ed::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-		}
-		else if (endPin->nodeId == startPin->nodeId)
-		{
-		    showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
-		    ed::RejectNewItem(ImColor(255, 0, 0), 1.0f);
-		}
-		else if ((endPin->type != startPin->type) && !isEnumMatch && !isNotDefType)
-		{
-			showLabel("x Incompatible Pin Type", ImColor(45, 32, 32, 180));
-			ed::RejectNewItem(ImColor(255, 128, 128), 1.0f);
-		}
-		else
-		{
-			showLabel("+ Create Link", ImColor(32, 45, 32, 180));
-			if (ed::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
+			endPin->type = startPin->type;
+			cNode *snode = FindNode(startPin->nodeId);
+			cNode *enode = FindNode(endPin->nodeId);
+
+			// if switch case node & input enum value, create output enum pins
+			if ((ePinType::Enums == startPin->type)
+				&& (enode->m_name == "Switch"))
 			{
-				m_links.emplace_back(vprog::sLink(GetUniqueId(), fromPinId, toPinId));
-				m_links.back().color = GetIconColor(startPin->type);
+				enode->m_outputs.clear();
 
-				// if NotDef type pin, Update Pin Type
-				if (ePinType::NotDef == endPin->type)
+				if (cSymbolTable::sSymbol *t 
+					= m_symbTable.FindSymbol(snode->m_name.c_str()))
 				{
-					endPin->type = startPin->type;
-					cNode *snode = FindNode(startPin->nodeId);
-					cNode *enode = FindNode(endPin->nodeId);
-
-					// if switch case node & input enum value, create output enum pins
-					if ((ePinType::Enums == startPin->type)
-						&& (enode->m_name == "Switch"))
+					endPin->typeStr = t->name; // selection typename
+					for (auto &e : t->enums)
 					{
-						enode->m_outputs.clear();
-
-						if (cSymbolTable::sSymbol *t 
-							= m_symbTable.FindSymbol(snode->m_name.c_str()))
-						{
-							endPin->typeStr = t->name; // selection typename
-							for (auto &e : t->enums)
-							{
-								vprog::sPin pin(GetUniqueId(), e.name, ePinType::Flow);
-								pin.typeStr = "Flow";
-								pin.nodeId = enode->m_id;
-								pin.kind = ePinKind::Output;
-								enode->m_outputs.push_back(pin);
-							}
-
-							//vprog::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
-							//pin.nodeId = enode->m_id;
-							//pin.kind = ePinKind::Output;
-							//enode->m_outputs.push_back(pin);
-						}
+						vprog::sPin pin(GetUniqueId(), e.name, ePinType::Flow);
+						pin.typeStr = "Flow";
+						pin.nodeId = enode->m_id;
+						pin.kind = ePinKind::Output;
+						enode->m_outputs.push_back(pin);
 					}
+
+					// insert default pin
+					//vprog::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
+					//pin.nodeId = enode->m_id;
+					//pin.kind = ePinKind::Output;
+					//enode->m_outputs.push_back(pin);
+				}
+			}
+			else if ((ePinType::Int == startPin->type)
+				&& (enode->m_name == "Switch"))
+			{
+				enode->m_outputs.clear();
+
+				endPin->typeStr = ePinType::ToString(ePinType::Int);
+
+				for (int i=0; i < 3; ++i)
+				{
+					StrId text;
+					text.Format("%d", i);
+					vprog::sPin pin(GetUniqueId(), text.c_str(), ePinType::Flow);
+					pin.typeStr = "Flow";
+					pin.nodeId = GetUniqueId();
+					pin.kind = ePinKind::Output;
+					pin.value = i;
+					enode->m_outputs.push_back(pin);
+				}
+
+				{
+					// insert default pin
+					vprog::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
+					pin.typeStr = "Flow";
+					pin.nodeId = enode->m_id;
+					pin.kind = ePinKind::Output;
+					enode->m_outputs.push_back(pin);
 				}
 			}
 		}

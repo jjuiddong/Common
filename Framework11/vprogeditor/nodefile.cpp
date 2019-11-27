@@ -62,7 +62,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 			node.m_type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
 			node.m_id = sdata.Get<int>(p, "id", 0);
 			node.m_name = sdata.Get<string>(p, "name", "name");
-			node.m_desc = sdata.Get<string>(p, "desc", "desc");
+			node.m_desc = sdata.Get<string>(p, "desc", node.m_name.c_str());
 
 			const auto &rectAr = sdata.GetArray(p, "rect");
 			if (rectAr.size() >= 5)

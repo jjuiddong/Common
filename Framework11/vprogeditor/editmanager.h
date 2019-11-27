@@ -29,6 +29,7 @@ namespace vprog
 		bool IsPinLinked(const ed::PinId id);
 		void BuildNodes();
 		bool ShowFlow(const ed::LinkId id);
+		int GetUniqueId();
 		bool IsLoad();
 		void Clear();
 
@@ -43,7 +44,6 @@ namespace vprog
 		bool EditOperation();
 		bool Proc_NewLink();
 		bool RenderPopup(graphic::cRenderer &renderer);
-		int GetUniqueId();
 
 
 	public:
