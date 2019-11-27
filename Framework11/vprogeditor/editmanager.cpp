@@ -349,12 +349,6 @@ bool cEditManager::Proc_NewLink()
 						pin.kind = ePinKind::Output;
 						enode->m_outputs.push_back(pin);
 					}
-
-					// insert default pin
-					//vprog::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
-					//pin.nodeId = enode->m_id;
-					//pin.kind = ePinKind::Output;
-					//enode->m_outputs.push_back(pin);
 				}
 			}
 			else if ((ePinType::Int == startPin->type)

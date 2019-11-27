@@ -85,6 +85,8 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Switch(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_While(const sNode &prevNode, const sNode &node
+			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Operator(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Variable(const sNode &node
@@ -93,6 +95,7 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_TemporalPin(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
+
 		bool GenerateCode_DebugInfo(const sPin &from, const sPin &to
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_DebugInfo(const sNode &from, const sNode &to

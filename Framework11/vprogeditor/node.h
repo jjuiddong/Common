@@ -1,6 +1,6 @@
 //
 // 2019-10-26, jjuiddong
-// visual programming node ui moduel
+// visual programming node ui module
 //
 #pragma once
 
@@ -23,6 +23,27 @@ namespace vprog
 			, sPin* newLinkPin = nullptr);
 
 		void Clear();
+
+
+	protected:
+		bool RenderSetInputPin(cEditManager &editMgr
+			, util::BlueprintNodeBuilder &builder
+			, sPin &pin
+			, sPin* newLinkPin = nullptr);
+
+		bool RenderStringPin(cEditManager &editMgr
+			, util::BlueprintNodeBuilder &builder
+			, sPin &pin
+			, sPin* newLinkPin = nullptr);
+
+		bool RenderEnumPin(cEditManager &editMgr
+			, util::BlueprintNodeBuilder &builder
+			, sPin &pin
+			, sPin* newLinkPin = nullptr);
+
+		bool RenderSwitchCaseNode(cEditManager &editMgr
+			, util::BlueprintNodeBuilder &builder
+			, sPin* newLinkPin = nullptr);
 
 
 	public:

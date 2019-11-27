@@ -66,6 +66,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 			node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
 			node.id = sdata.Get<int>(p, "id", 0);
 			node.name = sdata.Get<string>(p, "name", "name");
+			node.desc = sdata.Get<string>(p, "desc", node.name);
 			for (auto &c : p->children)
 			{
 				if ((c->name == "output") || (c->name == "input"))
@@ -334,6 +335,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 
 	// get input variable
 	const uint reg = 0;
+	const sPin *inputPin = nullptr;
 	for (auto &pin : node.inputs)
 	{
 		switch (pin.type)
@@ -363,13 +365,47 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			GenerateCode_TemporalPin(node, pin, reg, out);
 			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
 		}
+
+		inputPin = &pin;
 	}
 
-	// call function
-	script::sInstruction code;
-	code.cmd = script::eCommand::call;
-	code.str1 = MakeScopeName(node);
-	out.m_codes.push_back(code);
+	// Known function?
+	if (node.name == "Set")
+	{
+		if (inputPin)
+		{
+			script::sInstruction code;
+			switch (inputPin->type)
+			{
+			case ePinType::Bool: code.cmd = script::eCommand::setb; break;
+			case ePinType::Enums:
+			case ePinType::Int: code.cmd = script::eCommand::seti; break;
+			case ePinType::Float: code.cmd = script::eCommand::setf; break;
+			case ePinType::String: code.cmd = script::eCommand::sets; break;
+			default:
+				return false;
+			}
+
+			code.str1 = node.desc; // scope name
+			code.str2 = inputPin->name.c_str();
+			code.reg1 = reg;
+			out.m_codes.push_back(code);
+		}
+		else
+		{
+			// error occurred!!
+			common::dbg::Logc(2
+				, "Error!! cVProgFile::GenerateCode_SetFunction(), not found input pin\n");
+		}
+	}
+	else
+	{
+		// Unknown Function? call function
+		script::sInstruction code;
+		code.cmd = script::eCommand::call;
+		code.str1 = MakeScopeName(node);
+		out.m_codes.push_back(code);
+	}
 
 	// next flow node
 	for (auto &pin : node.outputs)
@@ -399,6 +435,8 @@ bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
 		GenerateCode_Branch(prevNode, node, out);
 	else if (node.name == "Switch")
 		GenerateCode_Switch(prevNode, node, out);
+	else if (node.name == "While")
+		GenerateCode_While(prevNode, node, out);
 
 	return true;
 }
@@ -703,6 +741,167 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 }
 
 
+// generate while syntax code
+bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	RETV(eNodeType::Control != node.type, false);
+	RETV(m_visit.find(node.id) != m_visit.end(), false);
+	m_visit.insert(node.id);
+
+	GenerateCode_DebugInfo(prevNode, node, out);
+
+	// insert while condition jump label
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::label;
+		code.str1 = MakeScopeName(node);
+		out.m_codes.push_back(code);
+	}
+
+	// get input variable
+	uint reg = 0;
+	uint condReg = 0; // condition register
+	for (auto &pin : node.inputs)
+	{
+		switch (pin.type)
+		{
+		case ePinType::Flow:
+		case ePinType::Function:
+		case ePinType::Delegate:
+			continue;
+		}
+
+		sNode *prev = nullptr; // prev node
+		sPin *pp = nullptr; // prev pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(prev, pp) = FindContainPin(linkId);
+		if (prev)
+		{
+			if (m_visit.end() == m_visit.find(prev->id))
+				GenerateCode_Node(nullNode, *prev, out);
+
+			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+			++reg;
+		}
+		else
+		{
+			// load temporal variable
+			GenerateCode_TemporalPin(node, pin, reg, out);
+			++reg;
+		}
+
+		if (pin.name == "Condition")
+			condReg = reg - 1;
+	}
+
+	// insert while code
+
+	// compare condition is zero?  (false condition)
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::eqic;
+		code.reg1 = condReg;
+		code.var1 = variant_t((int)0);
+		out.m_codes.push_back(code);
+	}
+	{
+		// jump if true, jump Exit flow
+		// find Exit branch pin
+		string jumpLabel;
+		for (auto &pin : node.outputs)
+		{
+			if ((ePinType::Flow == pin.type)
+				&& (pin.name == "Exit"))
+			{
+				sNode *next = nullptr; // next node
+				sPin *np = nullptr; // next pin
+				const int linkId = pin.links.empty() ? -1 : pin.links.front();
+				std::tie(next, np) = FindContainPin(linkId);
+				if (next)
+					jumpLabel = MakeScopeName(*next);
+			}
+		}
+
+		if (jumpLabel.empty())
+		{
+			// no branch node, jump blank code
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = "blank";
+			out.m_codes.push_back(code);
+			common::dbg::Logc(1, "cVProgFile::GenerateCode_While, no branch label\n");
+		}
+		else
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = jumpLabel;
+			out.m_codes.push_back(code);
+		}
+	}
+
+	// next flow node (generate Loop branch node)
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && (pin.name == "Loop"))
+			{
+				GenerateCode_Node(node, *next, out);
+			}
+		}
+	}
+
+	// Insert Jump While Condition code
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::jmp;
+		code.str1 = MakeScopeName(node);
+		out.m_codes.push_back(code);
+	}
+
+	// generate Exit branch node
+	// seperate from this node
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && (pin.name == "Exit"))
+			{
+				// insert nop
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::nop;
+					out.m_codes.push_back(code);
+				}
+				// insert jump label
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::label;
+					code.str1 = MakeScopeName(*next);
+					out.m_codes.push_back(code);
+				}
+
+				GenerateCode_Node(node, *next, out);
+				break;
+			}
+		}
+	}
+
+	return true;
+}
+
+
 // generate intermediate code, operator node
 bool cVProgFile::GenerateCode_Operator(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
@@ -753,6 +952,8 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			break;
 	}
 
+	bool isMathOp = false; // +-*/
+
 	// insert compare code
 	if (node.name == "<")
 	{
@@ -761,7 +962,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		{
 		case VT_INT: code.cmd = script::eCommand::lesi; break;
 		case VT_R4: code.cmd = script::eCommand::lesf; break;
-		default: 
+		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
 			break;
@@ -836,23 +1037,115 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
 	}
-
-	// load compare flag
+	else if (node.name == "+")
 	{
 		script::sInstruction code;
-		code.cmd = script::eCommand::ldcmp;
-		code.reg1 = 9;
+		switch (vt)
+		{
+		case VT_BOOL:
+		case VT_INT: code.cmd = script::eCommand::addi; break;
+		case VT_R4: code.cmd = script::eCommand::addf; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		isMathOp = true;
 	}
-
-	// insert compare data to symboltable
+	else if (node.name == "-")
 	{
 		script::sInstruction code;
-		code.cmd = script::eCommand::setb;
-		code.str1 = MakeScopeName(node);
-		code.str2 = "O";
-		code.reg1 = 9;
+		switch (vt)
+		{
+		case VT_BOOL:
+		case VT_INT: code.cmd = script::eCommand::subi; break;
+		case VT_R4: code.cmd = script::eCommand::subf; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		isMathOp = true;
+	}
+	else if (node.name == "X")
+	{
+		script::sInstruction code;
+		switch (vt)
+		{
+		case VT_BOOL:
+		case VT_INT: code.cmd = script::eCommand::muli; break;
+		case VT_R4: code.cmd = script::eCommand::mulf; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
+		out.m_codes.push_back(code);
+		isMathOp = true;
+	}
+	else if (node.name == "/")
+	{
+		script::sInstruction code;
+		switch (vt)
+		{
+		case VT_BOOL:
+		case VT_INT: code.cmd = script::eCommand::divi; break;
+		case VT_R4: code.cmd = script::eCommand::divf; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
+		out.m_codes.push_back(code);
+		isMathOp = true;
+	}
+	
+	// compare operator? load compare flag
+	if (isMathOp)
+	{
+		// insert calcuate data to symboltable
+		{
+			script::sInstruction code;
+			switch (vt)
+			{
+			case VT_BOOL:
+			case VT_INT: code.cmd = script::eCommand::seti; break;
+			case VT_R4: code.cmd = script::eCommand::setf; break;
+			}
+			code.str1 = MakeScopeName(node);
+			code.str2 = "O";
+			code.reg1 = 9;
+			out.m_codes.push_back(code);
+		}
+	}
+	else
+	{
+		{		
+			script::sInstruction code;
+			code.cmd = script::eCommand::ldcmp;
+			code.reg1 = 9;
+			out.m_codes.push_back(code);
+		}
+
+		// insert compare data to symboltable
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::setb;
+			code.str1 = MakeScopeName(node);
+			code.str2 = "O";
+			code.reg1 = 9;
+			out.m_codes.push_back(code);
+		}
 	}
 
 	return true;

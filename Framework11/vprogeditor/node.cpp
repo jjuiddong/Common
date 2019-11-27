@@ -32,39 +32,37 @@ bool cNode::Render(cEditManager &editMgr
 	, sPin* newLinkPin //= nullptr
 )
 {
-	cNode &node = *this;
-
-	if (node.m_type != eNodeType::Function
-		&& node.m_type != eNodeType::Operator
-		&& node.m_type != eNodeType::Event
-		&& node.m_type != eNodeType::Control
-		&& node.m_type != eNodeType::Macro
-		&& node.m_type != eNodeType::Variable)
+	if (m_type != eNodeType::Function
+		&& m_type != eNodeType::Operator
+		&& m_type != eNodeType::Event
+		&& m_type != eNodeType::Control
+		&& m_type != eNodeType::Macro
+		&& m_type != eNodeType::Variable)
 		return true;
 
-	const auto isSimple = (node.m_type == eNodeType::Variable) 
-		|| (node.m_type == eNodeType::Operator);
+	const auto isSimple = (m_type == eNodeType::Variable) 
+		|| (m_type == eNodeType::Operator);
 
 	bool hasOutputDelegates = false;
-	for (auto& output : node.m_outputs)
+	for (auto& output : m_outputs)
 	{
 		if (output.type == ePinType::Delegate)
 			hasOutputDelegates = true;
 	}
 
-	builder.Begin(node.m_id);
+	builder.Begin(m_id);
 	if (!isSimple)
 	{
-		builder.Header(node.m_color);
+		builder.Header(m_color);
 		ImGui::Spring(0);
-		ImGui::TextUnformatted(node.m_name.c_str());
+		ImGui::TextUnformatted(m_name.c_str());
 		ImGui::Spring(1);
 		ImGui::Dummy(ImVec2(0, 28));
 		if (hasOutputDelegates)
 		{
 			ImGui::BeginVertical("delegates", ImVec2(0, 28));
 			ImGui::Spring(1, 0);
-			for (auto& output : node.m_outputs)
+			for (auto& output : m_outputs)
 			{
 				if (output.type != ePinType::Delegate)
 					continue;
@@ -100,7 +98,7 @@ bool cNode::Render(cEditManager &editMgr
 		builder.EndHeader();
 	}
 
-	for (auto& input : node.m_inputs)
+	for (auto& input : m_inputs)
 	{
 		auto alpha = ImGui::GetStyle().Alpha;
 		if (newLinkPin && !CanCreateLink(newLinkPin, &input) && &input != newLinkPin)
@@ -110,16 +108,36 @@ bool cNode::Render(cEditManager &editMgr
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
 		DrawPinIcon(input, editMgr.IsPinLinked(input.id), (int)(alpha * 255));
 		ImGui::Spring(0);
-		if (!input.name.empty())
-		{
-			ImGui::TextUnformatted(input.name.c_str());
-			ImGui::Spring(0);
-		}
 
-		if (input.type == ePinType::Bool)
+		switch (input.type)
 		{
-			//ImGui::Button("Hello");
-			ImGui::Spring(0);
+		case ePinType::NotDef:
+			// set variable node?
+			if (m_name == "Set")
+			{
+				RenderSetInputPin(editMgr, builder, input, newLinkPin);
+			}
+			else
+			{
+				if (!input.name.empty())
+				{
+					ImGui::TextUnformatted(input.name.c_str());
+					ImGui::Spring(0);
+				}
+			}
+			break;
+
+		//case ePinType::Bool:
+			// todo: check or combo
+			//ImGui::Spring(0);
+			//break;
+		default:
+			if (!input.name.empty())
+			{
+				ImGui::TextUnformatted(input.name.c_str());
+				ImGui::Spring(0);
+			}
+			break;
 		}
 
 		ImGui::PopStyleVar();
@@ -128,11 +146,11 @@ bool cNode::Render(cEditManager &editMgr
 
 	if (isSimple)
 	{
-		if (eNodeType::Operator == node.m_type)
+		if (eNodeType::Operator == m_type)
 		{
 			builder.Middle();
 			ImGui::Spring(1, 0);
-			ImGui::TextUnformatted(node.m_name.c_str());
+			ImGui::TextUnformatted(m_name.c_str());
 			ImGui::Spring(1, 0);
 		}
 		else
@@ -144,7 +162,7 @@ bool cNode::Render(cEditManager &editMgr
 		}
 	}
 
-	for (auto& output : node.m_outputs)
+	for (auto& output : m_outputs)
 	{
 		if (!isSimple && output.type == ePinType::Delegate)
 			continue;
@@ -159,71 +177,12 @@ bool cNode::Render(cEditManager &editMgr
 		{
 			switch (output.type)
 			{
-			case ePinType::String:
-			{
-				cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(output.id);
-				if (!value)
-					break;
-
-				Str128 buffer = value->str;
-				static bool wasActive = false;
-
-				ImGui::PushItemWidth(100.0f);
-				if (ImGui::InputText("##edit", buffer.m_str, buffer.SIZE))
-					value->str = buffer.c_str();
-				ImGui::PopItemWidth();
-				if (ImGui::IsItemActive() && !wasActive)
-				{
-					ed::EnableShortcuts(false);
-					wasActive = true;
-				}
-				else if (!ImGui::IsItemActive() && wasActive)
-				{
-					ed::EnableShortcuts(true);
-					wasActive = false;
-				}
-				ImGui::Spring(0);
-			}
-			break;
-			
-			case ePinType::Enums:
-			{
-				cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(output.id);
-				if (!value)
-					break;
-				auto *type = editMgr.m_symbTable.FindSymbol(node.m_name.c_str());
-				if (!type)
-					break;
-
-				auto &var = value->var;
-				const char *prevStr = nullptr;
-				if (type->enums.size() > (uint)var.intVal)
-					prevStr = type->enums[var.intVal].name.c_str();
-				else
-					prevStr = type->enums[0].name.c_str();
-
-				// enum selection combo
-				ImGui::PushItemWidth(200);
-				const ImVec2 offset = ed::GetCurrentViewTransformPosition();
-				const float scale = 1.f / ed::GetCurrentZoom();
-				if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
-				{
-					ed::Suspend();
-					for (uint i=0; i < type->enums.size(); ++i)
-					{
-						auto &e = type->enums[i];
-						if (ImGui::Selectable(e.name.c_str()))
-							var.intVal = (int)i;
-					}
-					ed::Resume();
-					ImGui::EndCombo();
-				}
-				ImGui::PopItemWidth();
-				//~combo
-
-				ImGui::Spring(0);
-			}
-			break;
+			case ePinType::String: 
+				RenderStringPin(editMgr, builder, output, newLinkPin); 
+				break;			
+			case ePinType::Enums: 
+				RenderEnumPin(editMgr, builder, output, newLinkPin); 
+				break;
 			}
 		}
 		if (!output.name.empty())
@@ -237,67 +196,213 @@ bool cNode::Render(cEditManager &editMgr
 		builder.EndOutput();
 	} //~output
 
-	// switch case, default type
-	if ((eNodeType::Control == node.m_type)
-		&& (node.m_desc == "Switch"))
+	if ((eNodeType::Control == m_type)
+		&& (m_desc == "Switch"))
 	{
-		// check int selection type?
-		ePinType::Enum pinType = ePinType::COUNT;
-		for (uint i = 0; i < node.m_inputs.size(); ++i)
-		{
-			auto &pin = node.m_inputs[i];
-			if (pin.name == "Selection")
-			{
-				pinType = pin.type;
-				break;
-			}
-		}
-
-		// int type switch case
-		// render + Add pin Button
-		if (ePinType::Int == pinType)
-		{
-			static int val = 0;
-
-			ImGui::Spring(0);
-			ImGui::PushItemWidth(35);
-			ImGui::InputInt("##val", &val, 0);
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-			if (ImGui::Button("Add Pin+"))
-			{
-				// check same value?
-				auto it = find_if(node.m_outputs.begin(), node.m_outputs.end()
-					, [&](const auto &a) { return a.value == val; });
-				if (it == node.m_outputs.end())
-				{
-					// insert case, before Default case
-					StrId text;
-					text.Format("%d", val);
-					vprog::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
-					pin.typeStr = "Flow";
-					pin.nodeId = node.m_id;
-					pin.kind = ePinKind::Output;
-					pin.value = val;
-					node.m_outputs.push_back(pin);
-
-					// find default iterator?
-					auto it2 = find_if(node.m_outputs.begin(), node.m_outputs.end()
-						, [](const auto &a) { return a.name == "Default"; });
-					if (node.m_outputs.end() != it)
-					{
-						std::swap(*it2, node.m_outputs.back());
-					}
-				}
-			}
-			//ImGui::Spring(0);
-		}
+		RenderSwitchCaseNode(editMgr, builder, newLinkPin);
 	}
 
 	builder.End();
 
 	return true;
 }
+
+
+// render set node input pin
+// render input variable combo box
+bool cNode::RenderSetInputPin(cEditManager &editMgr
+	, util::BlueprintNodeBuilder &builder
+	, sPin &pin
+	, sPin* newLinkPin //= nullptr
+)
+{
+	char *prevStr = "Empty";
+
+	// enum selection combo
+	ImGui::PushItemWidth(100);
+	const ImVec2 offset = ed::GetCurrentViewTransformPosition();
+	const float scale = 1.f / ed::GetCurrentZoom();
+	if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
+	{
+		ed::Suspend();
+		for (auto &kv : editMgr.m_symbTable.m_vars)
+		{
+			const ed::PinId id = kv.first;
+			sPin *varPin = editMgr.FindPin(id);
+			if (!varPin)
+				continue;
+
+			if (ImGui::Selectable(varPin->name.c_str()))
+			{
+				// update pin information
+				pin.name = varPin->name;
+				pin.type = varPin->type;
+				pin.typeStr = varPin->typeStr;
+
+				// update symbol information to node.desc
+				cNode *symbNode = editMgr.FindContainNode(varPin->id);
+				cNode *node = editMgr.FindContainNode(pin.id);
+				if (symbNode && node)
+				{
+					const string scopeName = common::script::cSymbolTable::MakeScopeName(
+						symbNode->m_name.c_str(), symbNode->m_id.Get());
+					node->m_desc = scopeName;
+				}
+			}
+		}
+
+		ed::Resume();
+		ImGui::EndCombo();
+	}
+	ImGui::PopItemWidth();
+	//~combo
+
+	ImGui::Spring(0);
+	return true;
+}
+
+
+// render string pin
+bool cNode::RenderStringPin(cEditManager &editMgr
+	, util::BlueprintNodeBuilder &builder
+	, sPin &pin
+	, sPin* newLinkPin //= nullptr
+)
+{
+	cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(pin.id);
+	if (!value)
+		return true;
+
+	Str128 buffer = value->str;
+	static bool wasActive = false;
+
+	ImGui::PushItemWidth(100.0f);
+	if (ImGui::InputText("##edit", buffer.m_str, buffer.SIZE))
+		value->str = buffer.c_str();
+	ImGui::PopItemWidth();
+	if (ImGui::IsItemActive() && !wasActive)
+	{
+		ed::EnableShortcuts(false);
+		wasActive = true;
+	}
+	else if (!ImGui::IsItemActive() && wasActive)
+	{
+		ed::EnableShortcuts(true);
+		wasActive = false;
+	}
+	ImGui::Spring(0);
+
+	return true;
+}
+
+
+// render enumeration pin
+bool cNode::RenderEnumPin(cEditManager &editMgr
+	, util::BlueprintNodeBuilder &builder
+	, sPin &pin
+	, sPin* newLinkPin //= nullptr
+)
+{
+	cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(pin.id);
+	if (!value)
+		return true;
+	auto *type = editMgr.m_symbTable.FindSymbol(m_name.c_str());
+	if (!type)
+		return true;
+
+	auto &var = value->var;
+	const char *prevStr = nullptr;
+	if (type->enums.size() > (uint)var.intVal)
+		prevStr = type->enums[var.intVal].name.c_str();
+	else
+		prevStr = type->enums[0].name.c_str();
+
+	// enum selection combo
+	ImGui::PushItemWidth(200);
+	const ImVec2 offset = ed::GetCurrentViewTransformPosition();
+	const float scale = 1.f / ed::GetCurrentZoom();
+	if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
+	{
+		ed::Suspend();
+		for (uint i = 0; i < type->enums.size(); ++i)
+		{
+			auto &e = type->enums[i];
+			if (ImGui::Selectable(e.name.c_str()))
+				var.intVal = (int)i;
+		}
+		ed::Resume();
+		ImGui::EndCombo();
+	}
+	ImGui::PopItemWidth();
+	//~combo
+
+	ImGui::Spring(0);
+
+	return true;
+}
+
+
+// render switch case, default type
+bool cNode::RenderSwitchCaseNode(cEditManager &editMgr
+	, util::BlueprintNodeBuilder &builder
+	, sPin* newLinkPin //= nullptr
+)
+{
+	// check int selection type?
+	ePinType::Enum pinType = ePinType::COUNT;
+	for (uint i = 0; i < m_inputs.size(); ++i)
+	{
+		auto &pin = m_inputs[i];
+		if (pin.name == "Selection")
+		{
+			pinType = pin.type;
+			break;
+		}
+	}
+
+	// int type switch case
+	// render + Add pin Button
+	if (ePinType::Int == pinType)
+	{
+		static int val = 0;
+
+		ImGui::Spring(0);
+		ImGui::PushItemWidth(35);
+		ImGui::InputInt("##val", &val, 0);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		if (ImGui::Button("Add Pin+"))
+		{
+			// check same value?
+			auto it = find_if(m_outputs.begin(), m_outputs.end()
+				, [&](const auto &a) { return a.value == val; });
+			if (it == m_outputs.end())
+			{
+				// insert case, before Default case
+				StrId text;
+				text.Format("%d", val);
+				vprog::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
+				pin.typeStr = "Flow";
+				pin.nodeId = m_id;
+				pin.kind = ePinKind::Output;
+				pin.value = val;
+				m_outputs.push_back(pin);
+
+				// find default iterator?
+				auto it2 = find_if(m_outputs.begin(), m_outputs.end()
+					, [](const auto &a) { return a.name == "Default"; });
+				if (m_outputs.end() != it)
+				{
+					std::swap(*it2, m_outputs.back());
+				}
+			}
+		}
+		//ImGui::Spring(0);
+	}
+
+	return true;
+}
+
 
 
 void cNode::Clear()

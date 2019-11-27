@@ -17,6 +17,10 @@ namespace common
 			ldcmp,
 			getb, geti, getf, gets,
 			setb, seti, setf, sets,
+			addi, addf,
+			subi, subf,
+			muli, mulf,
+			divi, divf,
 			eqi, eqf, eqs,
 			eqic, eqfc, eqsc,
 			lesi, lesf, leqi, leqf,
@@ -67,6 +71,14 @@ namespace common
 		// seti scope_name, varname, register_name ;store int type value to symboltable
 		// setf scope_name, varname, register_name ;store float type value to symboltable
 		// sets scope_name, varname, register_name ;store string type value to symboltable
+		// addi register_name1, register_name2 ;add 2 register int type, store register9
+		// addf register_name1, register_name2 ;add 2 register float type, store register9
+		// subi register_name1, register_name2 ;subtract 2 register int type, store register9
+		// subf register_name1, register_name2 ;subtract 2 register float type, store register9
+		// muli register_name1, register_name2 ;multiply 2 register int type, store register9
+		// mulf register_name1, register_name2 ;multiply 2 register float type, store register9
+		// divi register_name1, register_name2 ;multiply 2 register int type, store register9
+		// divf register_name1, register_name2 ;multiply 2 register float type, store register9
 		// eqi register_name1, register_name2 ;compare 2 register int type, if equal, cmp register true
 		// eqf register_name1, register_name2 ;compare 2 register float type, if equal, cmp register true
 		// eqs register_name1, register_name2 ;compare 2 register string type, if equal, cmp register true

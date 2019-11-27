@@ -117,6 +117,8 @@ cSymbolTable::sSymbol* cSymbolTable::FindSymbol(const string &typeName)
 
 
 // return scope name
+// name: node name
+// id: node id
 string cSymbolTable::MakeScopeName(const string &name, const int id)
 {
 	string scopeName = common::format("%s-%d", name.c_str(), id);

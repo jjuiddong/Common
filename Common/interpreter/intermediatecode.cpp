@@ -99,7 +99,16 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "gri")
 			|| (toks[0] == "grf")
 			|| (toks[0] == "greqi")
-			|| (toks[0] == "greqf"))
+			|| (toks[0] == "greqf")
+			|| (toks[0] == "addi")
+			|| (toks[0] == "subi")
+			|| (toks[0] == "muli")
+			|| (toks[0] == "divi")
+			|| (toks[0] == "addf")
+			|| (toks[0] == "subf")
+			|| (toks[0] == "mulf")
+			|| (toks[0] == "divf")
+			)
 			&& (toks.size() >= 3))
 		{
 			code.cmd = eCommand::FromString(toks[0]);
@@ -256,6 +265,22 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::eqi:
 		case eCommand::eqf:
 		case eCommand::eqs:
+		case eCommand::lesi:
+		case eCommand::lesf:
+		case eCommand::leqi:
+		case eCommand::leqf:
+		case eCommand::gri:
+		case eCommand::grf:
+		case eCommand::greqi:
+		case eCommand::greqf:
+		case eCommand::addi:
+		case eCommand::subi:
+		case eCommand::muli:
+		case eCommand::divi:
+		case eCommand::addf:
+		case eCommand::subf:
+		case eCommand::mulf:
+		case eCommand::divf:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << GetRegisterName(code.reg2);
@@ -277,19 +302,6 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", \"" << code.str1 << "\"";
-			break;
-
-		case eCommand::lesi:
-		case eCommand::lesf:
-		case eCommand::leqi:
-		case eCommand::leqf:
-		case eCommand::gri:
-		case eCommand::grf:
-		case eCommand::greqi:
-		case eCommand::greqf:
-			ofs << eCommand::ToString(code.cmd);
-			ofs << " " << GetRegisterName(code.reg1);
-			ofs << ", " << GetRegisterName(code.reg2);
 			break;
 
 		case eCommand::call:

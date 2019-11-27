@@ -184,6 +184,50 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 		}
 		break;
 
+	case eCommand::addi:
+	case eCommand::subi:
+	case eCommand::muli:
+	case eCommand::divi:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (ARRAYSIZE(reg.val) <= code.reg2)
+			goto $error_memory;
+		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+			goto $error_semantic;
+		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+			goto $error_semantic;
+		switch (code.cmd)
+		{
+		case eCommand::addi: reg.val[9] = reg.val[code.reg1].intVal + reg.val[code.reg2].intVal; break;
+		case eCommand::subi: reg.val[9] = reg.val[code.reg1].intVal - reg.val[code.reg2].intVal; break;
+		case eCommand::muli: reg.val[9] = reg.val[code.reg1].intVal * reg.val[code.reg2].intVal; break;
+		case eCommand::divi: reg.val[9] = reg.val[code.reg1].intVal / reg.val[code.reg2].intVal; break;
+		}		
+		++reg.idx;
+		break;
+
+	case eCommand::addf:
+	case eCommand::subf:
+	case eCommand::mulf:
+	case eCommand::divf:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (ARRAYSIZE(reg.val) <= code.reg2)
+			goto $error_memory;
+		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+			goto $error_semantic;
+		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+			goto $error_semantic;
+		switch (code.cmd)
+		{
+		case eCommand::addf: reg.val[9] = reg.val[code.reg1].fltVal + reg.val[code.reg2].fltVal; break;
+		case eCommand::subf: reg.val[9] = reg.val[code.reg1].fltVal - reg.val[code.reg2].fltVal; break;
+		case eCommand::mulf: reg.val[9] = reg.val[code.reg1].fltVal * reg.val[code.reg2].fltVal; break;
+		case eCommand::divf: reg.val[9] = reg.val[code.reg1].fltVal / reg.val[code.reg2].fltVal; break;
+		}
+		++reg.idx;
+		break;
+
 	case eCommand::eqi:
 	case eCommand::eqf:
 		if (ARRAYSIZE(reg.val) <= code.reg1)
