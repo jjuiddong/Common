@@ -23,7 +23,7 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 		, gameMain->m_windowRect.Width() 
 		, gameMain->m_windowRect.Height()
 		, NULL
-		, gameMain->m_isTitleBar);
+		, gameMain->m_isWindowTitleBar);
 
 	common::initrand();
 

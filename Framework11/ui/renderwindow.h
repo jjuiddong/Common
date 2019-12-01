@@ -19,7 +19,7 @@ namespace framework
 			enum Enum {
 				NORMAL,
 				NORMAL_DOWN, // docking, resize bugfix
-				NORMAL_DOWN_ETC, // mouse down, exceptra
+				NORMAL_DOWN_ETC, // mouse down, etcetera
 				WINDOW_RESIZE,
 				DOCK_SIZE, // docking window sizing
 				TAB_CLICK,
@@ -93,6 +93,7 @@ namespace framework
 		virtual void OnRender(const float deltaSeconds) {}
 		virtual void OnPreRender(const float deltaSeconds) {}
 		virtual void OnPostRender(const float deltaSeconds) {}
+		virtual void OnRenderTitleBar() {}
 		virtual void OnRenderMenuBar() {}
 		virtual void OnEventProc(const sf::Event &evt) {}
 		virtual void OnLostDevice() {}
@@ -122,10 +123,13 @@ namespace framework
 		eResizeCursor::Enum m_resizeCursor;
 
 		bool m_isVisible;
-		bool m_isTitleBar; //window default tilte bar, default: false
+		bool m_isWindowTitleBar; //window default tilte bar, default: false
+		bool m_isTitleBarOverriding; // title bar overriding, call OnRenderTitleBar
 		bool m_isMenuBar; //menu bar, default: false
 		bool m_isFullScreen;
 		bool m_isRequestResetDevice;
+		float m_titleBarHeight;
+		float m_titleBarHeight2;
 		sf::Vector2u m_resetSize;
 
 		ImFont *m_fontBig;

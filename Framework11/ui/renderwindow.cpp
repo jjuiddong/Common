@@ -19,13 +19,16 @@ cRenderWindow::cRenderWindow()
 	, m_isRequestResetDevice(false)
 	, m_dock(NULL)
 	, m_sizingWindow(NULL)
-	, m_isTitleBar(false)
+	, m_isWindowTitleBar(false)
+	, m_isTitleBarOverriding(false)
 	, m_isMenuBar(false)
 	, m_isFullScreen(false)
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
 	, m_captureDock(NULL)
 	, m_focusDock(NULL)
+	, m_titleBarHeight(TITLEBAR_HEIGHT)
+	, m_titleBarHeight2(TITLEBAR_HEIGHT2)
 {
 }
 
@@ -282,7 +285,8 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 	{
 		POINT mousePos;
 		GetCursorPos(&mousePos);
-		setPosition(sf::Vector2i((int)mousePos.x - 30, (int)mousePos.y - (int)TITLEBAR_HEIGHT - (int)(TAB_H/2.f)));
+		setPosition(sf::Vector2i((int)mousePos.x - 30, 
+			(int)mousePos.y - (int)m_titleBarHeight - (int)(TAB_H/2.f)));
 
 		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
 			ChangeState(eState::NORMAL);
@@ -539,11 +543,12 @@ void cRenderWindow::Render(const float deltaSeconds)
 	if (m_dock)
 	{
 		const sf::Vector2u size = getSize();
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(size.x), static_cast<float>(size.y)));
 
-		if (!m_isTitleBar)
+		// titlebar
+		if (!m_isWindowTitleBar && !m_isTitleBarOverriding)
 			RenderTitleBar();
+		else if (m_isTitleBarOverriding)
+			OnRenderTitleBar();
 
 		if (m_isMenuBar)
 			RenderMenuBar();
@@ -552,11 +557,14 @@ void cRenderWindow::Render(const float deltaSeconds)
 			ImGuiWindowFlags_NoTitleBar
 			| ImGuiWindowFlags_NoResize
 			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoScrollbar
 			| ImGuiWindowFlags_NoCollapse
 			| ImGuiWindowFlags_NoBringToFrontOnFocus
 			| ImGuiWindowFlags_NoFocusOnAppearing
 			;
-		ImGui::Begin("", NULL, flags);
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2((float)size.x, (float)size.y));
+		ImGui::Begin("##renderwindow_view", NULL, flags);
 		m_dock->RenderDock(deltaSeconds);
 		ImGui::End();
 	}
@@ -586,6 +594,7 @@ void cRenderWindow::Render(const float deltaSeconds)
 
 void cRenderWindow::RenderTitleBar()
 {
+	const sf::Vector2u size = getSize();
 	const ImGuiWindowFlags flags =
 		ImGuiWindowFlags_NoTitleBar
 		| ImGuiWindowFlags_NoResize
@@ -596,18 +605,25 @@ void cRenderWindow::RenderTitleBar()
 		| ImGuiWindowFlags_NoFocusOnAppearing
 		;
 
-	ImGui::Begin("", NULL, flags);
-	
+	ImGui::SetNextWindowPos(ImVec2(1, 1));
+	ImGui::SetNextWindowSize(ImVec2((float)size.x - 2, m_titleBarHeight));
+	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100.f, TITLEBAR_HEIGHT));
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(14.0f, 3.0f));
+
+	StrId wndId;
+	wndId.Format("##titlebar%x", this);
+	ImGui::Begin(wndId.c_str(), NULL, flags);
+	
 	const ImVec4 childBg = ImGui::GetStyle().Colors[ImGuiCol_ChildWindowBg];
 
 	ImGui::PushStyleColor(ImGuiCol_Button, childBg);
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, childBg);
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, childBg);
 
-	ImGui::SetCursorPos(ImVec2(0, 1));
-	const float systemBtnSize = (TITLEBAR_HEIGHT * 3) + 28;
-	ImGui::Button(m_title.c_str(), ImVec2((float)getSize().x- systemBtnSize, TITLEBAR_HEIGHT));
+	ImGui::SetCursorPos(ImVec2(0, 0));
+	const float systemBtnSize = (m_titleBarHeight * 3) + 28;
+	ImGui::Button(m_title.c_str(), ImVec2((float)getSize().x- systemBtnSize, m_titleBarHeight));
 
 	// TitleBar Click?
 	if (ImGui::IsMouseDown(0) 
@@ -665,7 +681,7 @@ void cRenderWindow::RenderTitleBar()
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(col_main.x, col_main.y, col_main.z, 1.00f));
 
 	ImGui::SameLine();
-	if (ImGui::ImageButton(m_titleBtn[0]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+	if (ImGui::ImageButton(m_titleBtn[0]->m_texSRV, ImVec2(m_titleBarHeight, m_titleBarHeight)
 		, ImVec2(0,0), ImVec2(1,1), 0)) // Minimize Button
 	{
 		ShowWindow(getSystemHandle(), SW_MINIMIZE);
@@ -676,7 +692,7 @@ void cRenderWindow::RenderTitleBar()
 	GetWindowPlacement(getSystemHandle(), &wndPl); // Toggle Maximize or Restore
 	if (wndPl.showCmd == SW_MAXIMIZE)
 	{
-		if (ImGui::ImageButton(m_titleBtn[3]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+		if (ImGui::ImageButton(m_titleBtn[3]->m_texSRV, ImVec2(m_titleBarHeight, m_titleBarHeight)
 			, ImVec2(0, 0), ImVec2(1, 1), 0)) // Restore Button
 		{
 			ShowWindow(getSystemHandle(), SW_RESTORE);
@@ -685,7 +701,7 @@ void cRenderWindow::RenderTitleBar()
 	}
 	else
 	{
-		if (ImGui::ImageButton(m_titleBtn[1]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+		if (ImGui::ImageButton(m_titleBtn[1]->m_texSRV, ImVec2(m_titleBarHeight, m_titleBarHeight)
 			, ImVec2(0, 0), ImVec2(1, 1), 0)) // Maximize Button
 		{
 			ShowWindow(getSystemHandle(), SW_MAXIMIZE);
@@ -694,22 +710,24 @@ void cRenderWindow::RenderTitleBar()
 	}
 
 	ImGui::SameLine(); 
-	if (ImGui::ImageButton(m_titleBtn[2]->m_texSRV, ImVec2(TITLEBAR_HEIGHT, TITLEBAR_HEIGHT)
+	if (ImGui::ImageButton(m_titleBtn[2]->m_texSRV, ImVec2(m_titleBarHeight, m_titleBarHeight)
 		, ImVec2(0, 0), ImVec2(1, 1), 0)) // Close Button
 	{
 		close();
 	}
 	ImGui::PopStyleColor(3);
-
-	ImGui::PopStyleVar(1);
+	ImGui::PopStyleVar(1);// frame padding
 	ImGui::End();
+
+	ImGui::PopStyleColor(1); // border color
+	ImGui::PopStyleVar(1);// window padding, frame padding, minsize
 }
 
 
 // render menu
 void cRenderWindow::RenderMenuBar()
 {
-	const float y = m_isTitleBar ? 0.f : TITLEBAR_HEIGHT + 1;
+	const float y = m_isWindowTitleBar ? 0.f : m_titleBarHeight + 1;
 	ImGui::SetNextWindowPos(ImVec2(3, y));
 	ImGui::SetNextWindowSize(ImVec2((float)getSize().x-5, MENUBAR_HEIGHT));
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, MENUBAR_HEIGHT));
@@ -1039,7 +1057,7 @@ void cRenderWindow::ChangeDevice(
 	m_renderer.ResetDevice(0, 0, forceReset, restResource);
 
 	sRectf rect;
-	if (m_isTitleBar)
+	if (m_isWindowTitleBar)
 	{
 		rect = sRectf(0, ((m_isMenuBar) ? MENUBAR_HEIGHT2 : 0.f)
 			, (float)((width == 0) ? getSize().x : width)
@@ -1047,7 +1065,8 @@ void cRenderWindow::ChangeDevice(
 	}
 	else
 	{
-		rect = sRectf(0, TITLEBAR_HEIGHT2 + ((m_isMenuBar)? MENUBAR_HEIGHT2 : 0.f)
+		rect = sRectf(0, m_titleBarHeight2 
+				+ ((m_isMenuBar)? MENUBAR_HEIGHT2 : 0.f)
 			, (float)((width == 0) ? getSize().x : width)
 			, (float)((height == 0) ? getSize().y : height));
 	}

@@ -141,7 +141,8 @@ float4 PS(PixelInputType input) : SV_TARGET
 {
 	float4 texColor = txDiffuse.Sample(samLinear, input.tex);
 	//return float4(1, 1, 1, 1); //input.color;
-	return texColor;
+	//return texColor;
+	return float4(0, 0, 0, 1);
 	//return input.posW.y / 500.f;
 
 	return float4(1, 1, 1, 0.5);

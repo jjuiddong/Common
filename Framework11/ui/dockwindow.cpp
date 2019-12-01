@@ -53,7 +53,8 @@ bool cDockWindow::Create(const eDockState::Enum state, const eDockSlot::Enum typ
 			owner->m_dock = this;
 
 			const sf::Vector2u size = m_owner->getSize();
-			m_rect = sRectf(0, m_owner->m_isTitleBar? 0 : TITLEBAR_HEIGHT2, (float)size.x, (float)size.y);
+			m_rect = sRectf(0, m_owner->m_isWindowTitleBar? 0 : m_owner->m_titleBarHeight2
+				, (float)size.x, (float)size.y);
 		}
 	}
 
