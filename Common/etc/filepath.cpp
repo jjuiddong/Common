@@ -201,7 +201,8 @@ __int64  common::FileSize(const string &fileName)
 //			- ex) .bmp, .jpg, .png
 // out: 일치하는 확장자를 가진 파일이름을 저장한다.
 //-----------------------------------------------------------------------------//
-bool common::CollectFiles( const list<string> &findExt, const string &searchPath, OUT list<string> &out)
+bool common::CollectFiles( const list<string> &findExt, const string &searchPath
+	, OUT list<string> &out)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -263,7 +264,8 @@ bool common::CollectFiles( const list<string> &findExt, const string &searchPath
 // same CollectFiles() function
 // findExt: .bmp, .jpg, .png
 // return  Relative Path
-bool common::CollectFiles2(const list<string> &findExt, const string &searchPath, const string &relativePath, OUT list<string> &out)
+bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
+	, const string &relativePath, OUT list<string> &out)
 {
 	string modifySearchPath;
 	if (!searchPath.empty() &&
@@ -273,7 +275,7 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 	}
 	else
 	{
-		modifySearchPath = searchPath.empty()? "" : searchPath + "\\";
+		modifySearchPath = searchPath.empty()? "" : searchPath + "/";
 	}
 
 	WIN32_FIND_DATAA fd;
@@ -286,7 +288,8 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				CollectFiles2(findExt, modifySearchPath + string(fd.cFileName) + "/", relativePath, out);
+				CollectFiles2(findExt, modifySearchPath + string(fd.cFileName) + "/"
+					, relativePath, out);
 			}
 		}
 		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
@@ -295,7 +298,8 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 
 			if (findExt.empty())
 			{
-				out.push_back(  DeleteCurrentPath(RelativePathTo(relativePath, modifySearchPath + fileName)) );
+				out.push_back(  DeleteCurrentPath(RelativePathTo(relativePath
+					, modifySearchPath + fileName)) );
 			}
 			else
 			{
@@ -304,7 +308,8 @@ bool common::CollectFiles2(const list<string> &findExt, const string &searchPath
 				{
 					if (CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
 					{
-						out.push_back(DeleteCurrentPath(RelativePathTo(relativePath, modifySearchPath + fileName)));
+						out.push_back(DeleteCurrentPath(RelativePathTo(relativePath
+							, modifySearchPath + fileName)));
 						break;
 					}
 					++it;
@@ -343,7 +348,7 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 	}
 	else
 	{
-		modifySearchPath = searchPath.empty() ? "" : searchPath + "\\";
+		modifySearchPath = searchPath.empty() ? "" : searchPath + "/";
 	}
 
 	WIN32_FIND_DATAA fd;
@@ -356,9 +361,12 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 		{
 			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
 			{
-				if (ignoreDirs.end() == std::find(ignoreDirs.begin(), ignoreDirs.end(), fd.cFileName))
+				if (ignoreDirs.end() == std::find(ignoreDirs.begin()
+					, ignoreDirs.end(), fd.cFileName))
 				{
-					CollectFiles3(findExt, modifySearchPath + string(fd.cFileName) + "\\", ignoreDirs, out);
+					CollectFiles3(findExt
+						, modifySearchPath + string(fd.cFileName) + "/"
+						, ignoreDirs, out);
 				}
 			}
 		}
@@ -378,6 +386,75 @@ bool common::CollectFiles3(const list<string> &findExt, const string &searchPath
 					if (CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
 					{
 						out.push_back(modifySearchPath + fileName);
+						break;
+					}
+					++it;
+				}
+			}
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return true;
+}
+
+
+bool common::CollectFiles4(const list<string> &findExt, const string &searchPath
+	, const string &relativePath, const list<string> &ignoreDirs
+	, OUT list<string> &out)
+{
+	string modifySearchPath;
+	if (!searchPath.empty() &&
+		(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath.empty() ? "" : searchPath + "/";
+	}
+
+	WIN32_FIND_DATAA fd;
+	const string searchDir = modifySearchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
+			{
+				if (ignoreDirs.end() == std::find(ignoreDirs.begin()
+					, ignoreDirs.end(), fd.cFileName))
+				{
+					CollectFiles4(findExt, modifySearchPath + string(fd.cFileName) + "/"
+						, relativePath, ignoreDirs, out);
+				}
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			const string fileName = fd.cFileName;
+
+			if (findExt.empty())
+			{
+				out.push_back(DeleteCurrentPath(RelativePathTo(relativePath
+					, modifySearchPath + fileName)));
+			}
+			else
+			{
+				auto it = findExt.begin();
+				while (findExt.end() != it)
+				{
+					if (CompareExtendName(fileName.c_str(), (int)fileName.length(), it->c_str()))
+					{
+						out.push_back(
+							DeleteCurrentPath(
+								RelativePathTo(relativePath, modifySearchPath + fileName)));
 						break;
 					}
 					++it;

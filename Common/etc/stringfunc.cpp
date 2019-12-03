@@ -296,9 +296,10 @@ wstring& common::upperCasew(wstring &str)
 }
 
 
-// 원본 문자열 str에서 구분자 delimeter 로 분해해서 out 에 저장해서 리턴한다.
+// 원본 문자열 str에서 구분자 delimeter로 분해해서 out 에 저장해서 리턴한다.
 // delimeter 는 저장되지 않는다.
-void common::tokenizer(const string &str, const string &delimeter, const string &ignoreStr, OUT vector<string> &out)
+void common::tokenizer(const string &str, const string &delimeter
+	, const string &ignoreStr, OUT vector<string> &out)
 {
 	string tmp = str;
 	int offset = 0;

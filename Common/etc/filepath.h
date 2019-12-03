@@ -26,6 +26,9 @@ namespace common
 		, const string &relativePath, OUT list<string> &out);
 	bool CollectFiles3(const list<string> &findExt, const string &searchPath, 
 		const list<string> &ignoreDirs, OUT list<string> &out);
+	bool CollectFiles4(const list<string> &findExt, const string &searchPath
+		, const string &relativePath, const list<string> &ignoreDirs
+		, OUT list<string> &out);
 
 	bool CollectFilesOrdered(const list<string> &findExt, const string &searchPath
 		, OUT list<string> &out, const int flags=0);
