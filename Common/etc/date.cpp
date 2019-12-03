@@ -155,7 +155,7 @@ string common::GetCurrentDateTime4()
 
 
 // 2017-01-08 11:05:30
-// year-month-day-hour-minutes-seconds-millseconds
+// year-month-day hour:minutes:seconds:millseconds
 // yyyy-mm-dd-hh-mm-ss
 string common::GetCurrentDateTime5()
 {
@@ -209,6 +209,43 @@ uint64 common::GetCurrentDateTime6(const string &dateTime)
 		+ (uint64)atoi(out[6].c_str()) % 1000;
 
 	return ret;
+}
+
+
+// return : duration day, yyyymmdd1 - yyyymmdd0
+// ex) 20200120 - 20191201
+int common::DateCompare(const int ymd1, const int ymd0)
+{
+	// nothing~
+	return 0;
+}
+
+
+// return : duration day, ymd1 - ymd0
+// ex) yyyy0 : 2019
+int common::DateCompare2(const int yyyy1, const int mm1, const int dd1
+	, const int yyyy0, const int mm0, const int dd0)
+{
+	using namespace std;
+	using namespace std::chrono;
+
+	std::tm d0;
+	ZeroMemory(&d0, sizeof(d0));
+	d0.tm_year = yyyy0 - 1900;
+	d0.tm_mon = mm0 - 1;
+	d0.tm_mday = dd0;
+
+	std::tm d1;
+	ZeroMemory(&d1, sizeof(d1));
+	d1.tm_year = yyyy1 - 1900;
+	d1.tm_mon = mm1 - 1;
+	d1.tm_mday = dd1;
+
+	typedef duration<int, ratio_multiply<hours::period, ratio<24>>::type> days;
+	auto t0 = std::chrono::system_clock::from_time_t(std::mktime(&d0));
+	auto t1 = std::chrono::system_clock::from_time_t(std::mktime(&d1));
+	auto diff_in_days = std::chrono::duration_cast<days>(t1 - t0);
+	return (int)diff_in_days.count();
 }
 
 

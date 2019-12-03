@@ -14,7 +14,11 @@ namespace common
 	string GetCurrentDateTime4();
 	string GetCurrentDateTime5();
 	uint64 GetCurrentDateTime6(const string &dateTime);
-
+	
+	int DateCompare(const int ymd0, const int ymd1);
+	int DateCompare2(const int yyyy1, const int mm1, const int dd1
+		, const int yyyy0, const int mm0, const int dd0);
+	
 
 	class cDateTime
 	{
