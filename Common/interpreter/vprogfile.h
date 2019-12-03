@@ -87,6 +87,8 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_While(const sNode &prevNode, const sNode &node
 			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
+			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Operator(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Variable(const sNode &node

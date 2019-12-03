@@ -437,6 +437,8 @@ bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
 		GenerateCode_Switch(prevNode, node, out);
 	else if (node.name == "While")
 		GenerateCode_While(prevNode, node, out);
+	else if (node.name == "For Loop")
+		GenerateCode_ForLoop(prevNode, node, out);
 
 	return true;
 }
@@ -859,6 +861,278 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 	}
 
 	// Insert Jump While Condition code
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::jmp;
+		code.str1 = MakeScopeName(node);
+		out.m_codes.push_back(code);
+	}
+
+	// generate Exit branch node
+	// seperate from this node
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && (pin.name == "Exit"))
+			{
+				// insert nop
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::nop;
+					out.m_codes.push_back(code);
+				}
+				// insert jump label
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::label;
+					code.str1 = MakeScopeName(*next);
+					out.m_codes.push_back(code);
+				}
+
+				GenerateCode_Node(node, *next, out);
+				break;
+			}
+		}
+	}
+
+	return true;
+}
+
+
+// generate for-loop syntax code
+bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	RETV(eNodeType::Control != node.type, false);
+	RETV(m_visit.find(node.id) != m_visit.end(), false);
+	m_visit.insert(node.id);
+
+	GenerateCode_DebugInfo(prevNode, node, out);
+
+	// get input variable
+	uint reg = 0;
+	uint inReg0 = 0; // first index register
+	uint inReg1 = 0; // first index register
+	const sNode *in0_prev = nullptr; // first index pin
+	const sPin *in0_prevp = nullptr;
+	const sPin *in0_nextp = nullptr;
+	const sNode *in1_prev = nullptr; // last index pin
+	const sPin *in1_prevp = nullptr;
+	const sPin *in1_nextp = nullptr;
+
+	for (auto &pin : node.inputs)
+	{
+		switch (pin.type)
+		{
+		case ePinType::Flow:
+		case ePinType::Function:
+		case ePinType::Delegate:
+			continue;
+		}
+
+		sNode *prev = nullptr; // prev node
+		sPin *pp = nullptr; // prev pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(prev, pp) = FindContainPin(linkId);
+		if (prev)
+		{
+			if (m_visit.end() == m_visit.find(prev->id))
+				GenerateCode_Node(nullNode, *prev, out);
+
+			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+			++reg;
+		}
+		else
+		{
+			// load temporal variable
+			GenerateCode_TemporalPin(node, pin, reg, out);
+			++reg;
+		}
+
+		if (pin.name == "First Index")
+		{
+			in0_prev = prev;
+			in0_prevp = pp;
+			inReg0 = reg - 1;
+		}
+		if (pin.name == "Last Index")
+		{
+			in1_prev = prev;
+			in1_prevp = pp;
+			in1_nextp = &pin;
+			inReg1 = reg - 1;
+		}
+	}
+
+	// initialize index variable
+	{
+		// update first index
+		script::sInstruction code;
+		code.cmd = script::eCommand::seti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Index";
+		code.reg1 = inReg0;
+		out.m_codes.push_back(code);
+	}
+
+	// initialize Last Index variable
+	{
+		// update first index
+		script::sInstruction code;
+		code.cmd = script::eCommand::seti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Last Index";
+		code.reg1 = inReg1;
+		out.m_codes.push_back(code);
+	}
+
+	// insert for-loop condition jump label
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::label;
+		code.str1 = MakeScopeName(node);
+		out.m_codes.push_back(code);
+	}
+
+	// insert condition code
+	if (!in0_prev || !in0_prevp || !in1_prev || !in1_prevp || !in1_nextp)
+	{
+		// error occurred!
+		// insert jump blank code
+		script::sInstruction code;
+		code.cmd = script::eCommand::jnz;
+		code.str1 = "blank";
+		out.m_codes.push_back(code);
+		common::dbg::Logc(1, "cVProgFile::GenerateCode_ForLoop, no branch label\n");
+	}
+
+	// load last index
+	{
+		// load index variable
+		script::sInstruction code;
+		code.cmd = script::eCommand::geti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Last Index";
+		code.reg1 = 0;
+		out.m_codes.push_back(code);
+	}
+
+	{
+		// load index variable
+		script::sInstruction code;
+		code.cmd = script::eCommand::geti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Index";
+		code.reg1 = 1;
+		out.m_codes.push_back(code);
+	}
+
+	// compare last >= index
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::lesi; // (last < index) -> jump exit label
+		code.reg1 = 0;
+		code.reg2 = 1;
+		out.m_codes.push_back(code);
+	}
+	//~insert condition code
+
+	// compare condition is zero?  (false condition)
+	{
+		// jump if true, jump Exit flow
+		// find Exit branch pin
+		string exitLabel;
+		for (auto &pin : node.outputs)
+		{
+			if ((ePinType::Flow == pin.type)
+				&& (pin.name == "Exit"))
+			{
+				sNode *next = nullptr; // next node
+				sPin *np = nullptr; // next pin
+				const int linkId = pin.links.empty() ? -1 : pin.links.front();
+				std::tie(next, np) = FindContainPin(linkId);
+				if (next)
+					exitLabel = MakeScopeName(*next);
+			}
+		}
+
+		if (exitLabel.empty())
+		{
+			// no branch node, jump blank code
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = "blank";
+			out.m_codes.push_back(code);
+			common::dbg::Logc(1, "cVProgFile::GenerateCode_ForLoop, no branch label\n");
+		}
+		else
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = exitLabel;
+			out.m_codes.push_back(code);
+		}
+	}
+
+	// next flow node (generate Loop branch node)
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && (pin.name == "Loop"))
+			{
+				GenerateCode_Node(node, *next, out);
+			}
+		}
+	}
+
+	// increment Index Variable
+	// load index variable
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::geti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Index";
+		code.reg1 = 0;
+		out.m_codes.push_back(code);
+	}
+	// load 1 to reg1
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::ldic;
+		code.reg1 = 1;
+		code.var1 = _variant_t((int)1);
+		out.m_codes.push_back(code);
+	}
+	// add reg9 = index + 1
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::addi;
+		code.reg1 = 0;
+		code.reg2 = 1;
+		out.m_codes.push_back(code);
+	}
+	// store index symboltable
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::seti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Index";
+		code.reg1 = 9;
+		out.m_codes.push_back(code);
+	}
+
+	// Insert Jump For-Loop Condition code
 	{
 		script::sInstruction code;
 		code.cmd = script::eCommand::jmp;
