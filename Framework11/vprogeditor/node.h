@@ -45,6 +45,10 @@ namespace vprog
 			, util::BlueprintNodeBuilder &builder
 			, sPin* newLinkPin = nullptr);
 
+		bool RenderSequenceNode(cEditManager &editMgr
+			, util::BlueprintNodeBuilder &builder
+			, sPin* newLinkPin = nullptr);
+
 
 	public:
 		ed::NodeId m_id;

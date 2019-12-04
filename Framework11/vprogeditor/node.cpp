@@ -196,11 +196,10 @@ bool cNode::Render(cEditManager &editMgr
 		builder.EndOutput();
 	} //~output
 
-	if ((eNodeType::Control == m_type)
-		&& (m_desc == "Switch"))
-	{
+	if ((eNodeType::Control == m_type) && (m_desc == "Switch"))
 		RenderSwitchCaseNode(editMgr, builder, newLinkPin);
-	}
+	else if ((eNodeType::Control == m_type) && (m_desc == "Sequence"))
+		RenderSequenceNode(editMgr, builder, newLinkPin);
 
 	builder.End();
 
@@ -403,6 +402,27 @@ bool cNode::RenderSwitchCaseNode(cEditManager &editMgr
 	return true;
 }
 
+
+// render button "Add pin+"
+bool cNode::RenderSequenceNode(cEditManager &editMgr
+	, util::BlueprintNodeBuilder &builder
+	, sPin* newLinkPin //= nullptr
+)
+{
+	ImGui::Spring(0);
+	if (ImGui::Button("Add Pin+"))
+	{
+		StrId text;
+		text.Format("Then %d", m_outputs.size());
+		vprog::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
+		pin.typeStr = "Flow";
+		pin.nodeId = m_id;
+		pin.kind = ePinKind::Output;
+		pin.value = 0;
+		m_outputs.push_back(pin);
+	}
+	return true;
+}
 
 
 void cNode::Clear()

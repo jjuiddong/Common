@@ -439,6 +439,8 @@ bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
 		GenerateCode_While(prevNode, node, out);
 	else if (node.name == "For Loop")
 		GenerateCode_ForLoop(prevNode, node, out);
+	else if (node.name == "Sequence")
+		GenerateCode_Sequence(prevNode, node, out);
 
 	return true;
 }
@@ -1172,6 +1174,27 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 		}
 	}
 
+	return true;
+}
+
+
+// generate sequence code
+bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	// generate output node
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && np)
+				GenerateCode_Node(node, *next, out);
+		}
+	}
 	return true;
 }
 
