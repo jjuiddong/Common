@@ -104,10 +104,14 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_DebugInfo(const sNode &from, const sNode &to
 			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
+			, OUT common::script::cIntermediateCode &out);
+
 
 		bool AddPin(const int parseState, sNode &node, const sPin &pin);
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
 		string MakeScopeName(const sNode &node);
+		uint GetInputFlowCount(const sNode &node);
 
 
 	public:

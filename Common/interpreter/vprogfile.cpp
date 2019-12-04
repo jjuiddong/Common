@@ -327,11 +327,8 @@ bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
 bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
-	// function, macro type
-	RETV(m_visit.find(node.id) != m_visit.end(), false);
-	m_visit.insert(node.id);
-
-	GenerateCode_DebugInfo(prevNode, node, out);
+	if (!GenerateCode_NodeEnter(prevNode, node, out))
+		return true;
 
 	// get input variable
 	const uint reg = 0;
@@ -451,10 +448,8 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	RETV(m_visit.find(node.id) != m_visit.end(), false);
-	m_visit.insert(node.id);
-
-	GenerateCode_DebugInfo(prevNode, node, out);
+	if (!GenerateCode_NodeEnter(prevNode, node, out))
+		return true;
 
 	// get input variable
 	uint reg = 0;
@@ -596,10 +591,8 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	RETV(m_visit.find(node.id) != m_visit.end(), false);
-	m_visit.insert(node.id);
-
-	GenerateCode_DebugInfo(prevNode, node, out);
+	if (!GenerateCode_NodeEnter(prevNode, node, out))
+		return true;
 
 	// get input variable
 	const sPin *selPin = nullptr;
@@ -750,10 +743,8 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	RETV(m_visit.find(node.id) != m_visit.end(), false);
-	m_visit.insert(node.id);
-
-	GenerateCode_DebugInfo(prevNode, node, out);
+	if (!GenerateCode_NodeEnter(prevNode, node, out))
+		return true;
 
 	// insert while condition jump label
 	{
@@ -911,10 +902,8 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	RETV(m_visit.find(node.id) != m_visit.end(), false);
-	m_visit.insert(node.id);
-
-	GenerateCode_DebugInfo(prevNode, node, out);
+	if (!GenerateCode_NodeEnter(prevNode, node, out))
+		return true;
 
 	// get input variable
 	uint reg = 0;
@@ -1182,6 +1171,10 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
+	RETV(eNodeType::Control != node.type, false);
+	if (!GenerateCode_NodeEnter(prevNode, node, out))
+		return true;
+
 	// generate output node
 	for (auto &pin : node.outputs)
 	{
@@ -1621,6 +1614,37 @@ bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
 }
 
 
+// if return false, multiple enter, no need generate this node code
+bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	GenerateCode_DebugInfo(prevNode, node, out);
+
+	if (m_visit.find(node.id) != m_visit.end())
+	{
+		// if already generate this code, jump this node
+		script::sInstruction code;
+		code.cmd = script::eCommand::jmp;
+		code.str1 = MakeScopeName(node) + "_Header";
+		out.m_codes.push_back(code);
+		return false;
+	}
+
+	m_visit.insert(node.id);
+
+	// if multiple flow link, insert node jump label
+	if (GetInputFlowCount(node) >= 2)
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::label;
+		code.str1 = MakeScopeName(node) + "_Header";
+		out.m_codes.push_back(code);
+	}
+
+	return true;
+}
+
+
 bool cVProgFile::AddPin(const int parseState, sNode &node, const sPin &pin)
 {
 	sPin p = pin;
@@ -1660,6 +1684,23 @@ string cVProgFile::MakeScopeName(const sNode &node)
 		return node.name.c_str();
 	else
 		return script::cSymbolTable::MakeScopeName(node.name.c_str(), node.id).c_str();
+}
+
+
+// return Input Flow links count
+uint cVProgFile::GetInputFlowCount(const sNode &node)
+{
+	uint cnt = 0;
+	for (auto &pin : node.inputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			cnt = pin.links.size();
+			break;
+		}
+	}
+			
+	return cnt;
 }
 
 
