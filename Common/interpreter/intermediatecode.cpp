@@ -402,4 +402,5 @@ void cIntermediateCode::Clear()
 	m_codes.clear();
 	m_jmpMap.clear();
 	m_variables.Clear();
+	m_fileName.clear();
 }

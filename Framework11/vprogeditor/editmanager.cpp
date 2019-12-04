@@ -139,7 +139,10 @@ bool cEditManager::Write(const StrPath &fileName)
 		node.m_pos = ed::GetNodePosition(node.m_id);
 		node.m_size = ed::GetNodeSize(node.m_id);
 	}
-	return nodeFile.Write(fileName);
+	const bool result = nodeFile.Write(fileName);
+	if (result)
+		m_fileName = fileName.GetFullFileName();
+	return result;
 }
 
 
@@ -338,7 +341,7 @@ bool cEditManager::Proc_NewLink()
 				enode->m_outputs.clear();
 
 				if (cSymbolTable::sSymbol *t 
-					= m_symbTable.FindSymbol(snode->m_name.c_str()))
+					= m_symbTable.FindSymbol(startPin->typeStr.c_str()))
 				{
 					endPin->typeStr = t->name; // selection typename
 					for (auto &e : t->enums)
@@ -660,7 +663,7 @@ bool cEditManager::ReadDefinitionFile(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_definitions = nodeFile.m_nodes;
-	m_symbTable = nodeFile.m_symbTable;
+	m_symbTable.CopySymbols(nodeFile.m_symbTable);
 	return true;
 }
 
@@ -710,7 +713,8 @@ void cEditManager::Clear()
 {
 	ed::SetCurrentEditor(m_editor);
 	ed::ClearEditor();
-	//m_nodes.clear();
+	m_nodes.clear();
 	m_links.clear();
 	m_symbTable.Clear();
+	m_fileName.clear();
 }

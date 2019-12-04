@@ -125,7 +125,7 @@ cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 	{
 		Clear();
 
-		// copy all symbols
+		// copy all symbols, variable
 		for (auto &kv1 : rhs.m_vars)
 			m_vars[kv1.first] = kv1.second;
 
@@ -137,6 +137,26 @@ cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 		}
 	}
 	return *this;
+}
+
+
+// copy only symbol data
+bool cSymbolTable::CopySymbols(const cSymbolTable &rhs)
+{
+	if (this == &rhs)
+		return false;
+
+	for (auto &kv : m_symbols)
+		delete kv.second;
+	m_symbols.clear();
+
+	for (auto &kv1 : rhs.m_symbols)
+	{
+		sSymbol *sym = new sSymbol;
+		*sym = *kv1.second;
+		m_symbols[kv1.first] = sym;
+	}
+	return true;
 }
 
 

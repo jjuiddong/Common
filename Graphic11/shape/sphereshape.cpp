@@ -61,8 +61,13 @@ bool cSphereShape::Create(cRenderer &renderer, const float radius
 
 		for (int p = 0; p < slices; p++) // slices are ORANGE SLICES so the count azimuth
 		{
-			const float phi1 = -((float)p / (float)slices) * 2 * MATH_PI; // azimuth goes around 0 .. 2*PI
-			const float phi2 = -((float)(p + 1) / (float)slices) * 2 * MATH_PI;
+			float phi1 = ((float)p / (float)slices) * 2 * MATH_PI; // azimuth goes around 0 .. 2*PI
+			float phi2 = ((float)(p + 1) / (float)slices) * 2 * MATH_PI;
+			if (!isClockWise)
+			{
+				phi1 = -phi1;
+				phi2 = -phi2;
+			}
 			const float u1 = (float)p / (float)slices;
 			const float u2 = (float)(p + 1) / (float)slices;
 

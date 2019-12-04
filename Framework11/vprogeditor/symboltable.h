@@ -47,6 +47,7 @@ namespace vprog
 		bool RemoveSymbol(const string &typeName);
 		sSymbol* FindSymbol(const string &typeName);
 
+		bool CopySymbols(const cSymbolTable &rhs);
 		void Clear();
 
 		cSymbolTable& operator=(const cSymbolTable &rhs);
