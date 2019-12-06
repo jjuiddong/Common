@@ -101,7 +101,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 					pin.type = ePinType::FromString(typeStr);
 					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
-						if (m_symbTable.FindSymbol(typeStr))
+						if (m_symbTable2.FindSymbol(typeStr))
 						{
 							pin.type = ePinType::Enums;
 						}
@@ -143,18 +143,22 @@ bool cNodeFile::Read(const StrPath &fileName)
 		}
 		else if (p->name == "symbol")
 		{
-			sPin pin(0, "", ePinType::Flow);
-			pin.name = "@symbol@";
-			pin.id = sdata.Get<int>(p, "id", 0);
-
-			if (sPin *pp = FindPin(pin.id))
+			sPin pin(sdata.Get<int>(p, "id", 0), "@symbol@");
+			cNode *n = nullptr;
+			sPin *pp = nullptr;
+			std::tie(n, pp) = FindContainPin(pin.id);
+			if (n && pp)
 			{
-				pin.type = pp->type;
-				pin.kind = pp->kind;
-
+				const string name = pp->name.c_str();
 				const string typeStr = pp->typeStr.c_str();
+				const string scopeName = common::script::cSymbolTable::MakeScopeName(
+					n->m_name.c_str(), n->m_id.Get());
 				const string value = sdata.Get<string>(p, "value", "0");
-				if (!m_symbTable.AddVarStr(pin, value, typeStr))
+
+				_variant_t var;
+				GetPinVar(*pp, value, var);
+
+				if (m_symbTable2.Set(scopeName, name, var, typeStr))
 				{
 					// error occurred
 					assert(!"cNodefile::Read() symbol parse error!!");
@@ -163,19 +167,20 @@ bool cNodeFile::Read(const StrPath &fileName)
 		}
 		else if (p->name == "define")
 		{
-			cSymbolTable::sSymbol type;
+			common::script::cSymbolTable::sSymbol type;
 			const string typeStr = sdata.Get<string>(p, "type", "Enum");
 			type.type = (typeStr == "Enum") ? 
-				cSymbolTable::eType::Enum : cSymbolTable::eType::None;
+				common::script::cSymbolTable::eType::Enum 
+				: common::script::cSymbolTable::eType::None;
 			type.name = sdata.Get<string>(p, "name", " ");
 
-			if (type.type == cSymbolTable::eType::Enum)
+			if (type.type == common::script::cSymbolTable::eType::Enum)
 			{
 				for (auto &c : p->children)
 				{
 					if (c->name == "attr")
 					{
-						cSymbolTable::sEnum e;
+						common::script::cSymbolTable::sEnum e;
 						e.name = sdata.Get<string>(c, "name", " ");
 						e.value = sdata.Get<int>(c, "value", 0);
 						type.enums.push_back(e);
@@ -187,7 +192,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 				assert(!"cNodeFile::Read() Error, not defined type parse");
 			}
 
-			m_symbTable.AddSymbol(type);
+			m_symbTable2.AddSymbol(type);
 		}
 		else
 		{
@@ -215,17 +220,18 @@ bool cNodeFile::Write(const StrPath &fileName)
 			Write_Node(ofs, node);
 	}
 
-	for (auto &kv : m_symbTable.m_vars)
+	for (auto &kv : m_symbTable2.m_vars)
 	{
-		ofs << "symbol" << endl;
-		ofs << "\tid " << kv.first << endl;
-
-		const variant_t var = kv.second.var;
-		string str = common::variant2str(var);
-		if (var.vt == VT_BSTR)
-			ofs << "\tvalue \"" << kv.second.str << "\"" << endl;
-		else
-			ofs << "\tvalue " << str << endl;
+		const string scopeName = kv.first;
+		for (auto &kv2 : kv.second)
+		{
+			const string name = kv2.first;
+			string valueStr = common::variant2str(kv2.second.var);
+			ofs << "initvar" << endl;
+			ofs << "\tscopename " << scopeName << endl;
+			ofs << "\tname " << name << endl;
+			ofs << "\tvalue " << valueStr << endl;
+		}
 	}
 
 	return true;
@@ -332,9 +338,36 @@ sPin* cNodeFile::FindPin(const ed::PinId id)
 }
 
 
+// return pin contain node
+std::pair<vprog::cNode*, vprog::sPin*>
+ cNodeFile::FindContainPin(const ed::PinId pinId)
+{
+	for (auto &node : m_nodes)
+	{
+		for (auto &pin : node.m_inputs)
+			if (pin.id == pinId)
+				return std::make_pair(&node, &pin);
+		for (auto &pin : node.m_outputs)
+			if (pin.id == pinId)
+				return std::make_pair(&node, &pin);
+	}
+	return std::make_pair(nullptr, nullptr);
+}
+
+
+// convert string value to _variant_t type
+bool cNodeFile::GetPinVar(const sPin &pin, const string &value
+	, OUT _variant_t &out)
+{
+	const VARTYPE vt = GetPin2VarType(pin.type);
+	out = common::str2variant(vt, value);
+	return true;
+}
+
+
 void cNodeFile::Clear()
 {
 	m_nodes.clear();
 	m_links.clear();
-	m_symbTable.Clear();
+	m_symbTable2.Clear();
 }

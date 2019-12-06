@@ -207,7 +207,7 @@ bool cNode::Render(cEditManager &editMgr
 }
 
 
-// render set node input pin
+// render Set node input pin
 // render input variable combo box
 bool cNode::RenderSetInputPin(cEditManager &editMgr
 	, util::BlueprintNodeBuilder &builder
@@ -224,27 +224,24 @@ bool cNode::RenderSetInputPin(cEditManager &editMgr
 	if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
 	{
 		ed::Suspend();
-		for (auto &kv : editMgr.m_symbTable.m_vars)
+		for (auto &kv : editMgr.m_symbTable2.m_vars)
 		{
-			const ed::PinId id = kv.first;
-			sPin *varPin = editMgr.FindPin(id);
-			if (!varPin)
-				continue;
-
-			if (ImGui::Selectable(varPin->name.c_str()))
+			const string &scopeName = kv.first;
+			for (auto &kv2 : kv.second)
 			{
-				// update pin information
-				pin.name = varPin->name;
-				pin.type = varPin->type;
-				pin.typeStr = varPin->typeStr;
+				const string &name = kv2.first;
+				sPin *varPin = editMgr.FindPin(scopeName, name);
+				if (!varPin)
+					continue;
 
-				// update symbol information to node.desc
-				cNode *symbNode = editMgr.FindContainNode(varPin->id);
-				cNode *node = editMgr.FindContainNode(pin.id);
-				if (symbNode && node)
+				if (ImGui::Selectable(varPin->name.c_str()))
 				{
-					const string scopeName = common::script::cSymbolTable::MakeScopeName(
-						symbNode->m_name.c_str(), symbNode->m_id.Get());
+					// update pin information
+					pin.name = varPin->name;
+					pin.type = varPin->type;
+					pin.typeStr = varPin->typeStr;
+					
+					cNode *node = editMgr.FindContainNode(pin.id);
 					node->m_desc = scopeName;
 				}
 			}
@@ -268,17 +265,26 @@ bool cNode::RenderStringPin(cEditManager &editMgr
 	, sPin* newLinkPin //= nullptr
 )
 {
-	cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(pin.id);
-	if (!value)
+	const string scopeName =
+		common::script::cSymbolTable::MakeScopeName(
+			m_name.c_str(), m_id.Get());
+
+	common::script::cSymbolTable::sVar *varInfo = 
+		editMgr.m_symbTable2.FindVarInfo(scopeName, pin.name.c_str());
+	if (!varInfo)
 		return true;
 
-	Str128 buffer = value->str;
+	Str128 buffer = common::variant2str(varInfo->var);
 	static bool wasActive = false;
 
 	ImGui::PushItemWidth(100.0f);
 	if (ImGui::InputText("##edit", buffer.m_str, buffer.SIZE))
-		value->str = buffer.c_str();
+	{
+		common::clearvariant(varInfo->var);
+		varInfo->var = common::str2variant(VT_BSTR, buffer.c_str());
+	}
 	ImGui::PopItemWidth();
+
 	if (ImGui::IsItemActive() && !wasActive)
 	{
 		ed::EnableShortcuts(false);
@@ -302,14 +308,19 @@ bool cNode::RenderEnumPin(cEditManager &editMgr
 	, sPin* newLinkPin //= nullptr
 )
 {
-	cSymbolTable::sValue *value = editMgr.m_symbTable.FindVar(pin.id);
-	if (!value)
+	const string scopeName =
+		common::script::cSymbolTable::MakeScopeName(
+			m_name.c_str(), m_id.Get());
+	common::script::cSymbolTable::sVar *varInfo =
+		editMgr.m_symbTable2.FindVarInfo(scopeName, pin.name.c_str());
+	if (!varInfo)
 		return true;
-	auto *type = editMgr.m_symbTable.FindSymbol(m_name.c_str());
+
+	auto *type = editMgr.m_symbTable2.FindSymbol(m_name.c_str());
 	if (!type)
 		return true;
 
-	auto &var = value->var;
+	auto &var = varInfo->var;
 	const char *prevStr = nullptr;
 	if (type->enums.size() > (uint)var.intVal)
 		prevStr = type->enums[var.intVal].name.c_str();

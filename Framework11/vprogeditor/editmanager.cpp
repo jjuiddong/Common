@@ -59,7 +59,7 @@ bool cEditManager::Read(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_nodes = nodeFile.m_nodes;
-	m_symbTable = nodeFile.m_symbTable;
+	m_symbTable2 = nodeFile.m_symbTable2;
 	BuildNodes();
 
 	// update node position and symboltable
@@ -69,14 +69,13 @@ bool cEditManager::Read(const StrPath &fileName)
 			node.m_desc = node.m_name;
 		ed::SetNodePosition(node.m_id, node.m_pos);
 
-		// add variable type to symboltable
 		if (eNodeType::Variable == node.m_type)
 		{
 			for (auto &pin : node.m_outputs)
 			{
-				cSymbolTable::sValue *value = m_symbTable.FindVar(pin.id);
-				if (!value)
-					m_symbTable.AddVarStr(pin, "");
+				auto *varInfo = FindVarInfo(pin.id);
+				if (!varInfo)
+					AddTemporalVar(pin.id);
 			}
 		}
 	}
@@ -111,7 +110,7 @@ bool cEditManager::Write(const StrPath &fileName)
 	}
 	for (auto &str : enumStrs)
 	{
-		auto *symbol = m_symbTable.FindSymbol(str);
+		auto *symbol = m_symbTable2.FindSymbol(str);
 		if (!symbol)
 			continue;
 
@@ -133,7 +132,7 @@ bool cEditManager::Write(const StrPath &fileName)
 	// copy node files
 	std::copy(m_nodes.begin(), m_nodes.end(), std::back_inserter(nodeFile.m_nodes));
 	nodeFile.m_links = m_links;
-	nodeFile.m_symbTable = m_symbTable;
+	nodeFile.m_symbTable2 = m_symbTable2;
 	for (auto &node : nodeFile.m_nodes)
 	{
 		node.m_pos = ed::GetNodePosition(node.m_id);
@@ -340,8 +339,7 @@ bool cEditManager::Proc_NewLink()
 			{
 				enode->m_outputs.clear();
 
-				if (cSymbolTable::sSymbol *t 
-					= m_symbTable.FindSymbol(startPin->typeStr.c_str()))
+				if (auto *t = m_symbTable2.FindSymbol(startPin->typeStr.c_str()))
 				{
 					endPin->typeStr = t->name; // selection typename
 					for (auto &e : t->enums)
@@ -528,6 +526,32 @@ sPin* cEditManager::FindPin(const ed::PinId id)
 	return nullptr;
 }
 
+
+sPin* cEditManager::FindPin(const string& scopeName, const string pinName)
+{
+	string nodeName;
+	int nodeId;
+	std::tie(nodeName, nodeId) = common::script::cSymbolTable::ParseScopeName(scopeName);
+
+	auto it = std::find_if(m_nodes.begin(), m_nodes.end()
+		, [&](const auto &a) {return a.m_id.Get() == nodeId; });
+	if (m_nodes.end() == it)
+		return nullptr;
+
+	for (auto &pin : it->m_inputs)
+	{
+		if (pin.name == pinName)
+			return &pin;
+	}
+	for (auto &pin : it->m_outputs)
+	{
+		if (pin.name == pinName)
+			return &pin;
+	}
+	return nullptr;
+}
+
+
 // find contain pin node
 cNode* cEditManager::FindContainNode(const ed::PinId id)
 {
@@ -626,17 +650,17 @@ cNode* cEditManager::Generate_ReservedDefinition(const StrId &name
 	for (auto &pin : newNode.m_outputs)
 		pin.id = GetUniqueId();
 
+	newNode.m_pos = ImVec2(0, 0);
+	m_nodes.push_back(newNode);
+	BuildNode(&m_nodes.back());
+
 	// add symbol table when variable type
 	if (eNodeType::Variable == newNode.m_type)
 	{
 		for (auto &pin : newNode.m_outputs)
-			m_symbTable.AddVar(pin, "");
+			AddTemporalVar(pin.id);
 	}
 
-	newNode.m_pos = ImVec2(0, 0);
-	m_nodes.push_back(newNode);
-
-	BuildNode(&m_nodes.back());
 	return &m_nodes.back();
 }
 
@@ -654,6 +678,67 @@ bool cEditManager::AddLink(const ed::PinId from, const ed::PinId to)
 }
 
 
+common::script::cSymbolTable::sVar* 
+ cEditManager::FindVarInfo(const ed::PinId id)
+{
+	cNode *node = FindContainNode(id);
+	if (!node)
+		return nullptr;
+	sPin *pin = FindPin(id);
+	if (!pin)
+		return nullptr;
+
+	const string scopeName =
+		common::script::cSymbolTable::MakeScopeName(
+			node->m_name.c_str(), node->m_id.Get());
+
+	common::script::cSymbolTable::sVar *var = 
+		m_symbTable2.FindVarInfo(scopeName, pin->name.c_str());
+
+	return var;
+}
+
+
+// add temporal variable to symboltable
+bool cEditManager::AddTemporalVar(const ed::PinId id)
+{
+	cNode *node = FindContainNode(id);
+	if (!node)
+		return false;
+	sPin *pin = FindPin(id);
+	if (!pin)
+		return false;
+
+	const string scopeName =
+		common::script::cSymbolTable::MakeScopeName(
+			node->m_name.c_str(), node->m_id.Get());
+
+	const VARTYPE vt = vprog::GetPin2VarType(pin->type);
+	_variant_t var = common::str2variant(vt, "");
+	m_symbTable2.Set(scopeName, pin->name.c_str(), var, pin->typeStr.c_str());
+	return true;
+}
+
+
+// return pin scopename
+// scopename = node name + node id
+// if not found, return empty string
+string cEditManager::GetScopeName(const ed::PinId id)
+{
+	cNode *node = FindContainNode(id);
+	if (!node)
+		return "";
+	sPin *pin = FindPin(id);
+	if (!pin)
+		return "";
+
+	const string scopeName =
+		common::script::cSymbolTable::MakeScopeName(
+			node->m_name.c_str(), node->m_id.Get());
+	return scopeName;
+}
+
+
 // read function definition file
 // format: vProg node file
 // add to reserved node data
@@ -663,7 +748,7 @@ bool cEditManager::ReadDefinitionFile(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_definitions = nodeFile.m_nodes;
-	m_symbTable.CopySymbols(nodeFile.m_symbTable);
+	m_symbTable2.CopySymbols(nodeFile.m_symbTable2);
 	return true;
 }
 
@@ -715,6 +800,6 @@ void cEditManager::Clear()
 	ed::ClearEditor();
 	m_nodes.clear();
 	m_links.clear();
-	m_symbTable.Clear();
+	m_symbTable2.Clear();
 	m_fileName.clear();
 }

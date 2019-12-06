@@ -44,24 +44,30 @@ namespace common
 
 			// variable
 			template <class T>
-			bool Set(const string &scopeName, const string &symbolName, const T &var);
-			bool Set(const string &scopeName, const string &symbolName, const variant_t &var);
+			bool Set(const string &scopeName, const string &symbolName, const T &var
+				, const string &typeStr="");
+			bool Set(const string &scopeName, const string &symbolName, const variant_t &var
+				, const string &typeStr = "");
+
 			template <class T>
 			T Get(const string &scopeName, const string &symbolName);
 			bool Get(const string &scopeName, const string &symbolName, OUT variant_t &out);
+			
+			sVar* FindVarInfo(const string &scopeName, const string &symbolName);
 			bool IsExist(const string &scopeName, const string &symbolName);
-
+			bool RemoveVar(const string &scopeName, const string &symbolName);
+			
 			// symbol
 			bool AddSymbol(const sSymbol &type);
 			bool RemoveSymbol(const string &typeName);
 			sSymbol* FindSymbol(const string &typeName);
 
+			bool CopySymbols(const cSymbolTable &rhs);
 			void Clear();
+			cSymbolTable& operator=(const cSymbolTable &rhs);
 
 			static string MakeScopeName(const string &name, const int id);
-			static std::pair<string,int> ParseScopeName(const string &scopeName);
-
-			cSymbolTable& operator=(const cSymbolTable &rhs);
+			static std::pair<string, int> ParseScopeName(const string &scopeName);
 
 
 		public:
@@ -74,10 +80,12 @@ namespace common
 		//---------------------------------------------------------------------------------------
 		// template function
 		template <class T>
-		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName, const T &var)
+		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName
+			, const T &var, const string &typeStr //= ""
+			)
 		{
 			variant_t v((T)var);
-			const bool r = Set(scopeName, symbolName, v);
+			const bool r = Set(scopeName, symbolName, v, typeStr);
 			common::clearvariant(v);
 			return r;
 		}
@@ -85,7 +93,8 @@ namespace common
 		// template specialization (string)
 		template <>
 		inline bool cSymbolTable::Set<string>(const string &scopeName, const string &symbolName
-			, const string &var)
+			, const string &var, const string &typeStr //= ""
+			)
 		{
 			variant_t v;
 			v.vt = VT_BSTR;
@@ -94,6 +103,7 @@ namespace common
 			// to avoid bstr memory move bug
 			common::clearvariant(m_vars[scopeName][symbolName].var);
 			m_vars[scopeName][symbolName].var = v;
+			m_vars[scopeName][symbolName].type = typeStr;
 			return true;
 		}
 

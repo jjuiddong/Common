@@ -25,6 +25,7 @@ namespace vprog
 		sLink* FindLink(const ed::LinkId id);
 		sLink* FindLink(const ed::PinId from, const ed::PinId to);
 		sPin* FindPin(const ed::PinId id);
+		sPin* FindPin(const string& scopeName, const string pinName);
 		cNode* FindContainNode(const ed::PinId id);
 		bool IsPinLinked(const ed::PinId id);
 		void BuildNodes();
@@ -39,6 +40,11 @@ namespace vprog
 		// Link Function
 		bool AddLink(const ed::PinId from, const ed::PinId to);
 
+		// symbol table
+		common::script::cSymbolTable::sVar* FindVarInfo(const ed::PinId id);
+		bool AddTemporalVar(const ed::PinId id);
+		string GetScopeName(const ed::PinId id);
+
 
 	protected:
 		bool EditOperation();
@@ -51,7 +57,7 @@ namespace vprog
 		vector<cNode> m_nodes;
 		vector<sLink> m_links;
 		vector<cNode> m_definitions; // definition function, operator
-		cSymbolTable m_symbTable;
+		common::script::cSymbolTable m_symbTable2;
 		StrPath m_fileName;
 		graphic::cTexture *m_headerBackground;
 

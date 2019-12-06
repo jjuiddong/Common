@@ -180,9 +180,9 @@ _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 	{
 #ifdef _UNICODE
 		//var.bstrVal = (_bstr_t)common::str2wstr(value).c_str();
-		var.bstrVal = ::SysAllocString(common::str2wstr(value).c_str());
+		var.bstrVal = ::SysAllocString(str2wstr(value).c_str());
 #else
-		var.bstrVal = ::SysAllocString(common::str2wstr(value).c_str());
+		var.bstrVal = ::SysAllocString(str2wstr(value).c_str());
 #endif
 	}
 	break;

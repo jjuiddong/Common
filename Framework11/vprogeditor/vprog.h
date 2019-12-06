@@ -8,7 +8,6 @@
 #include "pin.h"
 #include "node.h"
 #include "link.h"
-#include "symboltable.h"
 #include "nodefile.h"
 #include "editmanager.h"
 

@@ -232,9 +232,6 @@
     <ClInclude Include="vprogeditor\nodefile.h">
       <Filter>vprogeditor</Filter>
     </ClInclude>
-    <ClInclude Include="vprogeditor\symboltable.h">
-      <Filter>vprogeditor</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -389,9 +386,6 @@
       <Filter>vprogeditor</Filter>
     </ClCompile>
     <ClCompile Include="vprogeditor\nodefile.cpp">
-      <Filter>vprogeditor</Filter>
-    </ClCompile>
-    <ClCompile Include="vprogeditor\symboltable.cpp">
       <Filter>vprogeditor</Filter>
     </ClCompile>
   </ItemGroup>

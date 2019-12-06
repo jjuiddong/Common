@@ -46,11 +46,13 @@ cSymbolTable::~cSymbolTable()
 
 // add or update variable in symboltable
 bool cSymbolTable::Set(const string &scopeName, const string &symbolName
-	, const variant_t &var)
+	, const variant_t &var, const string &typeStr //= ""
+	)
 {
 	// to avoid bstr memory move bug
 	common::clearvariant(m_vars[scopeName][symbolName].var);
 	m_vars[scopeName][symbolName].var = common::copyvariant(var);
+	m_vars[scopeName][symbolName].type = typeStr;
 	return true;
 }
 
@@ -70,6 +72,19 @@ bool cSymbolTable::Get(const string &scopeName, const string &symbolName
 }
 
 
+cSymbolTable::sVar* cSymbolTable::FindVarInfo(const string &scopeName
+	, const string &symbolName)
+{
+	auto it = m_vars.find(scopeName);
+	RETV(m_vars.end() == it, nullptr);
+
+	auto it2 = it->second.find(symbolName);
+	RETV(it->second.end() == it2, nullptr);
+
+	return &it2->second;
+}
+
+
 bool cSymbolTable::IsExist(const string &scopeName, const string &symbolName)
 {
 	auto it = m_vars.find(scopeName);
@@ -78,6 +93,15 @@ bool cSymbolTable::IsExist(const string &scopeName, const string &symbolName)
 	auto it2 = it->second.find(symbolName);
 	RETV(it->second.end() == it2, false);
 
+	return true;
+}
+
+
+bool cSymbolTable::RemoveVar(const string &scopeName, const string &symbolName)
+{
+	auto it = m_vars.find(scopeName);
+	RETV(m_vars.end() == it, nullptr);
+	it->second.erase(symbolName);
 	return true;
 }
 
@@ -156,6 +180,26 @@ cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 		}
 	}
 	return *this;
+}
+
+
+// copy only symbol data
+bool cSymbolTable::CopySymbols(const cSymbolTable &rhs)
+{
+	if (this == &rhs)
+		return false;
+
+	for (auto &kv : m_symbols)
+		delete kv.second;
+	m_symbols.clear();
+
+	for (auto &kv1 : rhs.m_symbols)
+	{
+		sSymbol *sym = new sSymbol;
+		*sym = *kv1.second;
+		m_symbols[kv1.first] = sym;
+	}
+	return true;
 }
 
 

@@ -1,0 +1,19 @@
+﻿
+
+protocol s2c 200
+{
+	func1( );
+	func2( std::string str );
+	func3( float value );
+	func4( );
+	func5( string name, vector<int> ar);
+	func6( vector<int> ar);
+
+}
+
+protocol c2s 300
+{
+	func5( std::string str );
+	func6( float value );
+}
+

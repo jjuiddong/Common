@@ -43,11 +43,14 @@ namespace vprog {
 		bool Write_Node(std::ostream &ofs, cNode &node);
 		bool Write_Define(std::ostream &ofs, cNode &node);
 		sPin* FindPin(const ed::PinId id);
+		std::pair<cNode*, sPin*> FindContainPin(const ed::PinId id);
+		bool GetPinVar(const sPin &pin, const string &value
+			, OUT _variant_t &out);
 
 
 	public:
 		vector<cNode> m_nodes;
 		vector<sLink> m_links;
-		cSymbolTable m_symbTable;
+		common::script::cSymbolTable m_symbTable2;
 	};
 }
