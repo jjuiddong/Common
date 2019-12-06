@@ -51,6 +51,6 @@ namespace vprog {
 	public:
 		vector<cNode> m_nodes;
 		vector<sLink> m_links;
-		common::script::cSymbolTable m_symbTable2;
+		common::script::cSymbolTable m_symbTable;
 	};
 }

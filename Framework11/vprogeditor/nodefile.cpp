@@ -101,7 +101,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 					pin.type = ePinType::FromString(typeStr);
 					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
-						if (m_symbTable2.FindSymbol(typeStr))
+						if (m_symbTable.FindSymbol(typeStr))
 						{
 							pin.type = ePinType::Enums;
 						}
@@ -158,7 +158,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 				_variant_t var;
 				GetPinVar(*pp, value, var);
 
-				if (m_symbTable2.Set(scopeName, name, var, typeStr))
+				if (m_symbTable.Set(scopeName, name, var, typeStr))
 				{
 					// error occurred
 					assert(!"cNodefile::Read() symbol parse error!!");
@@ -192,7 +192,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 				assert(!"cNodeFile::Read() Error, not defined type parse");
 			}
 
-			m_symbTable2.AddSymbol(type);
+			m_symbTable.AddSymbol(type);
 		}
 		else
 		{
@@ -220,7 +220,7 @@ bool cNodeFile::Write(const StrPath &fileName)
 			Write_Node(ofs, node);
 	}
 
-	for (auto &kv : m_symbTable2.m_vars)
+	for (auto &kv : m_symbTable.m_vars)
 	{
 		const string scopeName = kv.first;
 		for (auto &kv2 : kv.second)
@@ -369,5 +369,5 @@ void cNodeFile::Clear()
 {
 	m_nodes.clear();
 	m_links.clear();
-	m_symbTable2.Clear();
+	m_symbTable.Clear();
 }

@@ -224,7 +224,7 @@ bool cNode::RenderSetInputPin(cEditManager &editMgr
 	if (ImGui::BeginCombo2("##enum combo", prevStr, scale, offset))
 	{
 		ed::Suspend();
-		for (auto &kv : editMgr.m_symbTable2.m_vars)
+		for (auto &kv : editMgr.m_symbTable.m_vars)
 		{
 			const string &scopeName = kv.first;
 			for (auto &kv2 : kv.second)
@@ -270,7 +270,7 @@ bool cNode::RenderStringPin(cEditManager &editMgr
 			m_name.c_str(), m_id.Get());
 
 	common::script::cSymbolTable::sVar *varInfo = 
-		editMgr.m_symbTable2.FindVarInfo(scopeName, pin.name.c_str());
+		editMgr.m_symbTable.FindVarInfo(scopeName, pin.name.c_str());
 	if (!varInfo)
 		return true;
 
@@ -312,11 +312,11 @@ bool cNode::RenderEnumPin(cEditManager &editMgr
 		common::script::cSymbolTable::MakeScopeName(
 			m_name.c_str(), m_id.Get());
 	common::script::cSymbolTable::sVar *varInfo =
-		editMgr.m_symbTable2.FindVarInfo(scopeName, pin.name.c_str());
+		editMgr.m_symbTable.FindVarInfo(scopeName, pin.name.c_str());
 	if (!varInfo)
 		return true;
 
-	auto *type = editMgr.m_symbTable2.FindSymbol(m_name.c_str());
+	auto *type = editMgr.m_symbTable.FindSymbol(m_name.c_str());
 	if (!type)
 		return true;
 

@@ -59,7 +59,7 @@ bool cEditManager::Read(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_nodes = nodeFile.m_nodes;
-	m_symbTable2 = nodeFile.m_symbTable2;
+	m_symbTable = nodeFile.m_symbTable;
 	BuildNodes();
 
 	// update node position and symboltable
@@ -110,7 +110,7 @@ bool cEditManager::Write(const StrPath &fileName)
 	}
 	for (auto &str : enumStrs)
 	{
-		auto *symbol = m_symbTable2.FindSymbol(str);
+		auto *symbol = m_symbTable.FindSymbol(str);
 		if (!symbol)
 			continue;
 
@@ -132,7 +132,7 @@ bool cEditManager::Write(const StrPath &fileName)
 	// copy node files
 	std::copy(m_nodes.begin(), m_nodes.end(), std::back_inserter(nodeFile.m_nodes));
 	nodeFile.m_links = m_links;
-	nodeFile.m_symbTable2 = m_symbTable2;
+	nodeFile.m_symbTable = m_symbTable;
 	for (auto &node : nodeFile.m_nodes)
 	{
 		node.m_pos = ed::GetNodePosition(node.m_id);
@@ -339,7 +339,7 @@ bool cEditManager::Proc_NewLink()
 			{
 				enode->m_outputs.clear();
 
-				if (auto *t = m_symbTable2.FindSymbol(startPin->typeStr.c_str()))
+				if (auto *t = m_symbTable.FindSymbol(startPin->typeStr.c_str()))
 				{
 					endPin->typeStr = t->name; // selection typename
 					for (auto &e : t->enums)
@@ -693,7 +693,7 @@ common::script::cSymbolTable::sVar*
 			node->m_name.c_str(), node->m_id.Get());
 
 	common::script::cSymbolTable::sVar *var = 
-		m_symbTable2.FindVarInfo(scopeName, pin->name.c_str());
+		m_symbTable.FindVarInfo(scopeName, pin->name.c_str());
 
 	return var;
 }
@@ -715,7 +715,7 @@ bool cEditManager::AddTemporalVar(const ed::PinId id)
 
 	const VARTYPE vt = vprog::GetPin2VarType(pin->type);
 	_variant_t var = common::str2variant(vt, "");
-	m_symbTable2.Set(scopeName, pin->name.c_str(), var, pin->typeStr.c_str());
+	m_symbTable.Set(scopeName, pin->name.c_str(), var, pin->typeStr.c_str());
 	return true;
 }
 
@@ -748,7 +748,7 @@ bool cEditManager::ReadDefinitionFile(const StrPath &fileName)
 	if (!nodeFile.Read(fileName))
 		return false;
 	m_definitions = nodeFile.m_nodes;
-	m_symbTable2.CopySymbols(nodeFile.m_symbTable2);
+	m_symbTable.CopySymbols(nodeFile.m_symbTable);
 	return true;
 }
 
@@ -800,6 +800,6 @@ void cEditManager::Clear()
 	ed::ClearEditor();
 	m_nodes.clear();
 	m_links.clear();
-	m_symbTable2.Clear();
+	m_symbTable.Clear();
 	m_fileName.clear();
 }
