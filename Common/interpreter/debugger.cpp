@@ -113,6 +113,28 @@ bool cDebugger::IsLoad()
 }
 
 
+// is run interpreter
+bool cDebugger::IsRun()
+{
+	if (!IsLoad())
+		return false;
+
+	switch (m_state)
+	{
+	case eState::Stop:
+		return false;
+
+	case eState::DebugWait:
+	case eState::DebugStep:
+	case eState::DebugRun:
+		return true;
+	default:
+		assert(!"cDebugger::IsRun() not vailid state");
+		return false;
+	}	
+}
+
+
 void cDebugger::Clear()
 {
 	m_interpreter = nullptr;

@@ -26,7 +26,9 @@
 #pragma once
 
 
-namespace vprog {
+namespace vprog 
+{
+	namespace script = common::script;
 
 	class cNodeFile
 	{

@@ -33,22 +33,33 @@ bool cNodeFile::Read(const StrPath &fileName)
 	rules.push_back({ 3, "node", 1, 0 });
 	rules.push_back({ 4, "node", 1, 0 });
 	rules.push_back({ 5, "node", 1, 0 });
+	rules.push_back({ 7, "node", 1, 0 });
 	rules.push_back({ 1, "symbol", 4, 0 });
 	rules.push_back({ 2, "symbol", 4, 0 });
 	rules.push_back({ 3, "symbol", 4, 0 });
 	rules.push_back({ 4, "symbol", 4, 0 });
 	rules.push_back({ 5, "symbol", 4, 0 });
+	rules.push_back({ 7, "symbol", 4, 0 });
 	rules.push_back({ 0, "define", 5, 0 });
 	rules.push_back({ 1, "define", 5, 0 });
 	rules.push_back({ 2, "define", 5, 0 });
 	rules.push_back({ 3, "define", 5, 0 });
 	rules.push_back({ 4, "define", 5, 0 });
 	rules.push_back({ 5, "define", 5, 0 });
+	rules.push_back({ 7, "define", 5, 0 });
 	rules.push_back({ 5, "attr", 6, -1 });
 	rules.push_back({ 6, "attr", 6, 5 });
 	rules.push_back({ 6, "node", 1, 0 });
 	rules.push_back({ 6, "symbol", 4, 0 });
 	rules.push_back({ 6, "define", 5, 0 });
+	rules.push_back({ 6, "initvar", 7, 0 });
+	rules.push_back({ 1, "initvar", 7, 0 });
+	rules.push_back({ 2, "initvar", 7, 0 });
+	rules.push_back({ 3, "initvar", 7, 0 });
+	rules.push_back({ 4, "initvar", 7, 0 });
+	rules.push_back({ 5, "initvar", 7, 0 });
+	rules.push_back({ 7, "initvar", 7, 0 });
+
 
 	common::cSimpleData2 sdata(rules);
 	sdata.Read(fileName);
@@ -158,7 +169,23 @@ bool cNodeFile::Read(const StrPath &fileName)
 				_variant_t var;
 				GetPinVar(*pp, value, var);
 
-				if (m_symbTable.Set(scopeName, name, var, typeStr))
+				if (!m_symbTable.Set(scopeName, name, var, typeStr))
+				{
+					// error occurred
+					assert(!"cNodefile::Read() symbol parse error!!");
+				}
+			}
+		}
+		else if (p->name == "initvar")
+		{
+			const string scopeName = sdata.Get<string>(p, "scopename", "");
+			const string name = sdata.Get<string>(p, "name", "");
+			const string valueStr = sdata.Get<string>(p, "value", "");
+			const string typeStr = sdata.Get<string>(p, "type", "");
+
+			if (!scopeName.empty() && !name.empty())
+			{
+				if (!m_symbTable.Set(scopeName, name, valueStr, typeStr))
 				{
 					// error occurred
 					assert(!"cNodefile::Read() symbol parse error!!");
@@ -230,7 +257,8 @@ bool cNodeFile::Write(const StrPath &fileName)
 			ofs << "initvar" << endl;
 			ofs << "\tscopename " << scopeName << endl;
 			ofs << "\tname " << name << endl;
-			ofs << "\tvalue " << valueStr << endl;
+			ofs << "\tvalue \"" << valueStr << "\"" << endl;
+			ofs << "\ttype " << kv2.second.type << endl;
 		}
 	}
 

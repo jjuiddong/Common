@@ -37,23 +37,33 @@ bool cVProgFile::Read(const StrPath &fileName)
 	rules.push_back({ 3, "node", 1, 0 });
 	rules.push_back({ 4, "node", 1, 0 });
 	rules.push_back({ 5, "node", 1, 0 });
+	rules.push_back({ 7, "node", 1, 0 });
 	rules.push_back({ 1, "symbol", 4, 0 });
 	rules.push_back({ 2, "symbol", 4, 0 });
 	rules.push_back({ 3, "symbol", 4, 0 });
 	rules.push_back({ 4, "symbol", 4, 0 });
 	rules.push_back({ 5, "symbol", 4, 0 });
+	rules.push_back({ 7, "symbol", 4, 0 });
 	rules.push_back({ 0, "define", 5, 0 });
 	rules.push_back({ 1, "define", 5, 0 });
 	rules.push_back({ 2, "define", 5, 0 });
 	rules.push_back({ 3, "define", 5, 0 });
 	rules.push_back({ 4, "define", 5, 0 });
 	rules.push_back({ 5, "define", 5, 0 });
+	rules.push_back({ 7, "define", 5, 0 });
 	rules.push_back({ 5, "attr", 6, -1 });
 	rules.push_back({ 6, "attr", 6, 5 });
 	rules.push_back({ 6, "node", 1, 0 });
 	rules.push_back({ 6, "symbol", 4, 0 });
 	rules.push_back({ 6, "define", 5, 0 });
-	
+	rules.push_back({ 6, "initvar", 7, 0 });
+	rules.push_back({ 1, "initvar", 7, 0 });
+	rules.push_back({ 2, "initvar", 7, 0 });
+	rules.push_back({ 3, "initvar", 7, 0 });
+	rules.push_back({ 4, "initvar", 7, 0 });
+	rules.push_back({ 5, "initvar", 7, 0 });
+	rules.push_back({ 7, "initvar", 7, 0 });
+
 	common::cSimpleData2 sdata(rules);
 	sdata.Read(fileName);
 	RETV(!sdata.m_root, false);
@@ -155,6 +165,40 @@ bool cVProgFile::Read(const StrPath &fileName)
 			{
 				common::dbg::Logc(1
 					, "Error!! cVProgFile::Read() symbol parse error!!\n");
+			}
+		}
+		else if (p->name == "initvar")
+		{
+			const string scopeName = sdata.Get<string>(p, "scopename", "");
+			const string name = sdata.Get<string>(p, "name", "");
+			const string typeStr = sdata.Get<string>(p, "type", "");
+
+			variant_t val;
+			ePinType::Enum type = ePinType::FromString(typeStr.c_str());
+			switch (type)
+			{
+			case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
+			case ePinType::Enums:
+			case ePinType::COUNT: // enum type
+			case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
+			case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
+			case ePinType::String:
+				val = common::str2variant(VT_BSTR
+					, sdata.Get<string>(p, "value", ""));
+				break;
+			default:
+				common::dbg::Logc(1
+					, "Error!! cVProgFile::Read() symbol parse error!!\n");
+				break;
+			}
+
+			if (!scopeName.empty() && !name.empty())
+			{
+				if (!m_variables.Set(scopeName, name, val, typeStr))
+				{
+					// error occurred
+					assert(!"cNodefile::Read() symbol parse error!!");
+				}
 			}
 		}
 		else if (p->name == "define")
