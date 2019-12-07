@@ -387,8 +387,6 @@ cTexture* cResourceManager::LoadTexture(cRenderer &renderer, const StrPath &dirP
 
 		key = newPath;
 		list<string> ignors;
-		ignors.push_back("VWorld");
-		ignors.push_back("WorldTerrain");
 		if (common::FindFile2(cvtFileName.GetFileName(), searchPath + "/", ignors, newPath))
 		{
 			if (isRecursive)
@@ -500,8 +498,6 @@ StrPath cResourceManager::FindFile( const StrPath &fileName )
 {
 	StrPath newPath;
 	list<string> ignors;
-	ignors.push_back("VWorld");
-	ignors.push_back("WorldTerrain");
 	if (common::FindFile2(fileName, m_mediaDirectory, ignors, newPath))
 	{
 		return newPath;
@@ -567,8 +563,6 @@ StrPath cResourceManager::GetResourceFilePath(const StrPath &dir, const StrPath 
 
 			StrPath onlyFileName = fileName.GetFileName();
 			list<string> ignors;
-			ignors.push_back("VWorld");
-			ignors.push_back("WorldTerrain");
 			if (common::FindFile2(onlyFileName, searchPath, ignors, newPath, 5))
 			{
 				return newPath;
