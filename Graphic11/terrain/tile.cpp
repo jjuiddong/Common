@@ -80,6 +80,14 @@ bool cTile::Create(cRenderer &renderer
 	CalcBoundingSphere();
 	//m_boundingBox.SetBoundingBox( Vector3(0,0,0), Vector3(cellSize, 20000, cellSize), Quaternion());
 
+	// tile grid line
+	m_gridLine.Create(renderer, (int)cellSizeW*2, (int)cellSizeH*2, 1.f, 1.f
+		, (eVertexType::POSITION | eVertexType::COLOR)
+		, cColor(0.6f, 0.6f, 0.6f, 0.5f)
+		, cColor(0.f, 0.f, 0.f, 0.5f)
+	);
+	m_gridLine.m_lineColor = cColor(1.f, 1.f, 1.f, 0.2f);
+	m_gridLine.m_offsetY = 0.001f;
 	return true;
 }
 
@@ -129,13 +137,15 @@ bool cTile::Render(cRenderer &renderer
 		renderer.m_dbgBox.Render(renderer, transform);
 	}
 
+	const bool result = __super::Render(renderer, tm, flags);
+
 	if (m_isRenderLine)
 	{
 		const XMMATRIX transform = m_transform.GetMatrixXM() * tm;
-		m_ground->RenderLine(renderer, transform);
+		m_gridLine.Render(renderer, transform);
 	}
 
-	return __super::Render(renderer, tm, flags);
+	return result;
 }
 
 

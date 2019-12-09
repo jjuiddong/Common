@@ -284,9 +284,11 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 	case eState::DRAG:
 	{
 		POINT mousePos;
-		GetCursorPos(&mousePos);
-		setPosition(sf::Vector2i((int)mousePos.x - 30, 
-			(int)mousePos.y - (int)m_titleBarHeight - (int)(TAB_H/2.f)));
+		if (::GetCursorPos(&mousePos))
+		{
+			setPosition(sf::Vector2i((int)mousePos.x - 30, 
+				(int)mousePos.y - (int)m_titleBarHeight - (int)(TAB_H/2.f)));
+		}
 
 		if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) // state change bug fix
 			ChangeState(eState::NORMAL);
@@ -647,12 +649,14 @@ void cRenderWindow::RenderTitleBar()
 
 			// TitleBar Click and Move
 			POINT mousePos;
-			GetCursorPos(&mousePos);
-			ScreenToClient(getSystemHandle(), &mousePos);
-			sf::Vector2i windowPos = getPosition();
-			const Vector2 delta = Vector2((float)mousePos.x, (float)mousePos.y) - m_clickPos;
-			windowPos += sf::Vector2i((int)delta.x, (int)delta.y);
-			setPosition(windowPos);
+			if (::GetCursorPos(&mousePos))
+			{
+				ScreenToClient(getSystemHandle(), &mousePos);
+				sf::Vector2i windowPos = getPosition();
+				const Vector2 delta = Vector2((float)mousePos.x, (float)mousePos.y) - m_clickPos;
+				windowPos += sf::Vector2i((int)delta.x, (int)delta.y);
+				setPosition(windowPos);
+			}
 		}
 	}
 	else
