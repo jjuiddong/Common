@@ -5,6 +5,10 @@
 // *.prt 파일을 분석해서
 // protocol_dispatcher, protocol_handler, protocol_data 소스파일을 생성한다.
 //
+// boost library build option
+//	- _HAS_ITERATOR_DEBUGGING = 0
+//	- _ITERATOR_DEBUG_LEVEL = 0
+//
 // argument
 //	-s = *.prt protocol filename
 //		ex) basic.prt

@@ -1,7 +1,11 @@
+// precompiled header
+
 #pragma once
 
-#include "../../NetCommon/netcommon.h"
-#include "../../Network2/network2.h"
-#include <comutil.h>
 
+#include "../Common/Common/common.h"
+#include "../Common/Network2/network2.h"
+
+
+#include <comutil.h>
 #include "GenerateCode.h"

@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\Package\</OutDir>
-    <IntDir>$(SolutionDir)../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+    <OutDir>$(ProjectDir)\$(Configuration)/</OutDir>
+    <IntDir>$(ProjectDir)/Obj/$(ProjectName)/$(Configuration)/</IntDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -81,8 +81,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\Package\</OutDir>
-    <IntDir>$(SolutionDir)../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+    <OutDir>$(ProjectDir)\$(Configuration)/</OutDir>
+    <IntDir>$(ProjectDir)Obj/$(ProjectName)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -170,10 +170,10 @@
     <ClCompile Include="ProtocolGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NetCommon\NetCommon-VS2017.vcxproj">
+    <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Network2\Network2-VS2017.vcxproj">
+    <ProjectReference Include="..\Network2\Network2-VS2017.vcxproj">
       <Project>{b98e9721-f7a3-4e2d-a7a1-7708cb2d0d6e}</Project>
     </ProjectReference>
   </ItemGroup>
