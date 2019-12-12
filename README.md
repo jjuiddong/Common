@@ -8,8 +8,6 @@
 	- Boost 1.63
 	- OpenCV 3.2
 	- TBB 
-
-
 - Property Manager Setting
 	- Microsoft.Cpp.Win32.user
 		- Include Directories
@@ -27,8 +25,11 @@
 			- assimp\build\code\Release
 			- tbb2017_20161128oss\lib\ia32\vc14_ui
 			- $(WindowsSdkDir_10)\Lib
-
-
 - DirectXTK add reference project
-
+- Tool
+  - Protocol Generator
+    - need boost library rebuild
+    - change STL debug level option for debug mode
+    - ex) c:\tools\bjam toolset=msvc link=static threading=multi define="_ITERATOR_DEBUG_LEVEL=0" define="_HAS_ITERATOR_DEBUGGING=0" debug stage
+   
 
