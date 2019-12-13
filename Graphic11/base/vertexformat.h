@@ -51,6 +51,13 @@ namespace graphic
 		Vector3 n;
 	};
 
+	struct sVertexNormDiffuse
+	{
+		Vector3 p;
+		Vector3 n;
+		Vector4 c;
+	};
+
 	struct sVertexNormTex
 	{
 		Vector3 p;
