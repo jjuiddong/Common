@@ -43,6 +43,17 @@ float4 PS(VSOUT_TEX In ) : SV_Target
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
+float4 PS_Unlit(VSOUT_TEX In) : SV_Target
+{
+	float4 texColor = txDiffuse.Sample(samLinear, In.Tex);
+	float4 Out = texColor;
+	return float4(Out.xyz, gMtrl_Diffuse.a * texColor.a);
+}
+
+
+//--------------------------------------------------------------------------------------
+// Pixel Shader
+//--------------------------------------------------------------------------------------
 float4 PS_Outline(VSOUT_TEX In) : SV_Target
 {
 	const float fOutline = GetOutline(In.PosH);
@@ -173,6 +184,19 @@ technique11 Unlit
 		SetGeometryShader(NULL);
 		SetHullShader(NULL);
 		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Unlit()));
+	}
+}
+
+
+technique11 Light
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }
@@ -215,6 +239,19 @@ technique11 Unlit_Instancing
 		SetGeometryShader(NULL);
         SetHullShader(NULL);
        	SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Unlit()));
+	}
+}
+
+
+technique11 Light_Instancing
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }

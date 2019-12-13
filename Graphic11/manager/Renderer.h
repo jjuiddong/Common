@@ -122,6 +122,7 @@ namespace graphic
 		ID3D11DepthStencilView *m_depthStencilView;
 		ID3D11RenderTargetView *m_refRTV; // reference
 		ID3D11DepthStencilView *m_refDSV; // reference
+		ID3D11Texture2D *m_backBuffer;
 		ID3D11CommandList *m_cmdList;
 
 		cViewport m_viewPort;

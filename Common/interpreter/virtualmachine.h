@@ -15,7 +15,7 @@ namespace common
 		public:
 			struct sRegister
 			{
-				uint idx; // excution command line index
+				uint idx; // instruction index
 				bool cmp; // compare output flag
 				variant_t val[10]; // register
 			};

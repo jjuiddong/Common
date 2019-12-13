@@ -27,6 +27,7 @@ cRenderer::cRenderer()
 	, m_swapChain(NULL)
 	, m_renderTargetView(NULL)
 	, m_depthStencilView(NULL)
+	, m_backBuffer(NULL)
 	, m_refRTV(NULL)
 	, m_refDSV(NULL)
 	, m_fps(0)
@@ -58,6 +59,7 @@ cRenderer::~cRenderer()
 
 	SAFE_RELEASE(m_renderTargetView);
 	SAFE_RELEASE(m_depthStencilView);
+	SAFE_RELEASE(m_backBuffer);
 	SAFE_RELEASE(m_swapChain);
 	m_refRTV = NULL;
 	m_refDSV = NULL;
@@ -478,6 +480,7 @@ bool cRenderer::ResetDevice(
 
 	SAFE_RELEASE(m_renderTargetView);
 	SAFE_RELEASE(m_depthStencilView);
+	SAFE_RELEASE(m_backBuffer);
 	m_refRTV = NULL;
 	m_refDSV = NULL;
 
@@ -492,13 +495,11 @@ bool cRenderer::ResetDevice(
 	);
 
 	// Create a render target view
-	ID3D11Texture2D* pBackBuffer = NULL;
-	hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&m_backBuffer);
 	if (FAILED(hr))
 		return false;
 
-	hr = m_d3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_renderTargetView);
-	pBackBuffer->Release();
+	hr = m_d3dDevice->CreateRenderTargetView(m_backBuffer, NULL, &m_renderTargetView);
 	if (FAILED(hr))
 		return false;
 

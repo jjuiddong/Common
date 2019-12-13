@@ -415,7 +415,7 @@ bool common::CollectFiles4(const list<string> &findExt, const string &searchPath
 	}
 	else
 	{
-		modifySearchPath = searchPath.empty() ? "" : searchPath + "/";
+		modifySearchPath = searchPath.empty() ? "" : searchPath + "\\";
 	}
 
 	WIN32_FIND_DATAA fd;
