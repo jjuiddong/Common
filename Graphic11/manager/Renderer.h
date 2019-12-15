@@ -30,13 +30,13 @@ namespace graphic
 		XMVECTOR diffuses[256];
 	};
 
-	struct cCbClipPlane
+	struct sCbClipPlane
 	{
 		float clipPlane[4];
 		float reflectAlpha[4];
 	};
 
-	struct cCbSkinning
+	struct sCbSkinning
 	{
 		XMMATRIX mPalette[64];
 	};
@@ -154,8 +154,8 @@ namespace graphic
 		cConstantBuffer<sCbLight> m_cbLight;
 		cConstantBuffer<sCbMaterial> m_cbMaterial;
 		cConstantBuffer<sCbInstancing> m_cbInstancing;
-		cConstantBuffer<cCbClipPlane> m_cbClipPlane;
-		cConstantBuffer<cCbSkinning> m_cbSkinning;
+		cConstantBuffer<sCbClipPlane> m_cbClipPlane;
+		cConstantBuffer<sCbSkinning> m_cbSkinning;
 		graphic::cConstantBuffer<sTessellationBuffer> m_cbTessellation;
 		
 		// Display FPS 

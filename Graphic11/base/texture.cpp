@@ -9,12 +9,14 @@ using namespace graphic;
 cTexture::cTexture() 
 	: m_texSRV(NULL)
 	, m_texture(NULL)
+	, m_texUAV(NULL)
 	,  m_isReferenceMode(false)
 {
 }
 
 cTexture::cTexture(ID3D11ShaderResourceView *srv)
 	: m_texSRV(srv)
+	, m_texUAV(NULL)
 	, m_isReferenceMode(true)
 {
 }
@@ -53,8 +55,9 @@ bool cTexture::Create(cRenderer &renderer, const StrPath &fileName)
 
 
 bool cTexture::Create(cRenderer &renderer, const int width, const int height
-	, const DXGI_FORMAT format //=DXGI_FORMAT_R8G8B8A8_UNORM
+	, const DXGI_FORMAT format //= DXGI_FORMAT_R8G8B8A8_UNORM
 	, const D3D11_USAGE usage //= D3D11_USAGE_DYNAMIC
+	, const bool isUnorderedAccess //= false
 )
 {
 	Clear();
@@ -68,8 +71,10 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	desc.Format = format;
 	desc.SampleDesc.Count = 1;
 	desc.Usage = usage;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = (D3D11_USAGE_DEFAULT == usage) ? 0 : D3D11_CPU_ACCESS_WRITE;
+	desc.BindFlags = (isUnorderedAccess ?
+		(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE)
+		: D3D11_BIND_SHADER_RESOURCE);
 
 	if (FAILED(renderer.GetDevice()->CreateTexture2D(&desc, NULL, &m_texture)))
 		return false;
@@ -80,8 +85,17 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	rdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	rdesc.Texture2D.MipLevels = 1;
 
-	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdesc, &m_texSRV)))
+	//if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdesc, &m_texSRV)))
+	//	return false;
+	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, nullptr, &m_texSRV)))
 		return false;
+
+	if (isUnorderedAccess)
+	{
+		CD3D11_UNORDERED_ACCESS_VIEW_DESC udesc(D3D11_UAV_DIMENSION_TEXTURE2D, rdesc.Format);
+		if (FAILED(renderer.GetDevice()->CreateUnorderedAccessView(m_texture, &udesc, &m_texUAV)))
+			return false;
+	}
 
 	m_imageInfo.Width = width;
 	m_imageInfo.Height = height;
@@ -95,6 +109,7 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	, const void *pMem
 	, const int pitchLength
 	, const D3D11_USAGE usage //= D3D11_USAGE_DEFAULT
+	, const bool isUnorderedAccess //= false
 )
 {
 	Clear();
@@ -109,7 +124,9 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	desc.SampleDesc.Count = 1;
 	desc.Usage = usage;
 	desc.CPUAccessFlags = (D3D11_USAGE_DEFAULT == usage)? 0 : D3D11_CPU_ACCESS_WRITE;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.BindFlags = (isUnorderedAccess ?
+		(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE)
+		: D3D11_BIND_SHADER_RESOURCE);
 
 	D3D11_SUBRESOURCE_DATA subresource_data;
 	ZeroMemory(&subresource_data, sizeof(subresource_data));
@@ -126,8 +143,16 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	rdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	rdesc.Texture2D.MipLevels = desc.MipLevels;
 
-	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdesc, &m_texSRV)))
+	//if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, &rdesc, &m_texSRV)))
+	if (FAILED(renderer.GetDevice()->CreateShaderResourceView(m_texture, nullptr, &m_texSRV)))
 		return false;
+
+	if (isUnorderedAccess)
+	{
+		CD3D11_UNORDERED_ACCESS_VIEW_DESC udesc(D3D11_UAV_DIMENSION_TEXTURE2D, rdesc.Format);
+		if (FAILED(renderer.GetDevice()->CreateUnorderedAccessView(m_texture, &udesc, &m_texUAV)))
+			return false;
+	}
 
 	m_imageInfo.Width = width;
 	m_imageInfo.Height = height;
@@ -143,6 +168,17 @@ void cTexture::Bind(cRenderer &renderer
 	renderer.GetDevContext()->HSSetShaderResources(stage, 1, &m_texSRV);
 	renderer.GetDevContext()->DSSetShaderResources(stage, 1, &m_texSRV);
 	renderer.GetDevContext()->PSSetShaderResources(stage, 1, &m_texSRV);
+	renderer.GetDevContext()->CSSetShaderResources(stage, 1, &m_texSRV);
+}
+
+
+void cTexture::BindUnorderedAccessView(cRenderer &renderer
+	, const int stage //= 0
+)
+{
+	assert(m_texUAV);
+	if (m_texUAV)
+		renderer.GetDevContext()->CSSetUnorderedAccessViews(stage, 1, &m_texUAV, nullptr);
 }
 
 
@@ -156,7 +192,14 @@ void cTexture::Bind(cShader &shader, const Str32 &key)
 void cTexture::Unbind(cRenderer &renderer, const int stage)
 {
 	ID3D11ShaderResourceView *ns[1] = { NULL };
+	renderer.GetDevContext()->HSSetShaderResources(stage, 1, ns);
+	renderer.GetDevContext()->DSSetShaderResources(stage, 1, ns);
 	renderer.GetDevContext()->PSSetShaderResources(stage, 1, ns);
+	if (m_texUAV)
+	{
+		ID3D11UnorderedAccessView *ua[1] = { NULL };
+		renderer.GetDevContext()->CSSetUnorderedAccessViews(stage, 1, ua, nullptr);
+	}
 }
 
 
@@ -183,11 +226,13 @@ void cTexture::Clear()
 	if (m_isReferenceMode)
 	{
 		m_texSRV = NULL;
+		m_texUAV = NULL;
 		m_texture = NULL;
 	}
 	else
 	{
 		SAFE_RELEASE(m_texSRV);
+		SAFE_RELEASE(m_texUAV);		
 		SAFE_RELEASE(m_texture);
 	}
 }

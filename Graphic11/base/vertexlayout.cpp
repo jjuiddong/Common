@@ -256,6 +256,12 @@ int cVertexLayout::GetOffset(const char *semanticName) const
 }
 
 
+bool cVertexLayout::IsLoad()
+{
+	return m_vertexLayout ? true : false;
+}
+
+
 void cVertexLayout::Clear()
 {
 	SAFE_RELEASE(m_vertexLayout);

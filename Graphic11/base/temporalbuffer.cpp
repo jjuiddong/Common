@@ -56,8 +56,9 @@ bool cTemporalBuffer::Create(cRenderer &renderer, const cIndexBuffer &idxBuff)
 
 bool cTemporalBuffer::Create(cRenderer &renderer, const cTexture &texture)
 {
-	assert(0);
-	return true;
+	const int stride = BitsPerPixel(texture.m_imageInfo.Format) / 8;
+	const int bytesSize = texture.m_imageInfo.Width * texture.m_imageInfo.Height * stride;
+	return Create(renderer, bytesSize, stride);
 }
 
 
@@ -103,7 +104,7 @@ bool cTemporalBuffer::CopyFrom(cRenderer &renderer, const cIndexBuffer &idxBuff)
 
 bool cTemporalBuffer::CopyFrom(cRenderer &renderer, const cTexture &texture)
 {
-	assert(0);
+	renderer.GetDevContext()->CopyResource(m_buff, texture.m_texture);
 	return true;
 }
 

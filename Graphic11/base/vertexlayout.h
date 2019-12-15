@@ -29,6 +29,7 @@ namespace graphic
 		const vector<D3D11_INPUT_ELEMENT_DESC>& GetLayout() const;
 		int GetVertexSize() const;
 		void Bind(cRenderer &renderer);
+		bool IsLoad();
 		void Clear();
 
 

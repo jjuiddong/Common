@@ -96,8 +96,9 @@ bool cShader11::Create(cRenderer &renderer, const StrPath &fileName
 	if (FAILED(hr))
 		return false;
 
-	if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, vtxType))
-		return false;
+	if (vtxType != 0) // especially compute shader
+		if (!m_vtxLayout.Create(renderer, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, vtxType))
+			return false;
 
 	m_name = fileName.GetFileName();
 	m_fxoFileName = fileName;
@@ -246,7 +247,8 @@ void cShader11::BeginPass(cRenderer &renderer, const int pass)
 {
 	assert(m_effect);
 	RET(!m_technique);
-	m_vtxLayout.Bind(renderer);
+	if (m_vtxLayout.IsLoad())
+		m_vtxLayout.Bind(renderer);
 	m_technique->GetPassByIndex(pass)->Apply(0, renderer.GetDevContext());
 
 	for (int i = 0; i < cRenderer::MAX_TEXTURE_STAGE; ++i)

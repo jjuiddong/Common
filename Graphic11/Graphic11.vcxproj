@@ -152,6 +152,7 @@
     <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\circle2d.h" />
     <ClInclude Include="base\color.h" />
+    <ClInclude Include="base\computeshader.h" />
     <ClInclude Include="base\constantbuffer.h" />
     <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\d3dx11effect.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="base\rendertarget3d.h" />
     <ClInclude Include="base\samplerstate.h" />
     <ClInclude Include="base\shader11.h" />
+    <ClInclude Include="base\sharebuffer.h" />
     <ClInclude Include="base\skybox.h" />
     <ClInclude Include="base\skyboxcube.h" />
     <ClInclude Include="base\slidebar.h" />
@@ -283,6 +285,7 @@
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\circle2d.cpp" />
     <ClCompile Include="base\color.cpp" />
+    <ClCompile Include="base\computeshader.cpp" />
     <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\depthbuffer.cpp" />
     <ClCompile Include="base\dxinit.cpp" />
@@ -307,6 +310,7 @@
     <ClCompile Include="base\rendertarget3d.cpp" />
     <ClCompile Include="base\samplerstate.cpp" />
     <ClCompile Include="base\shader11.cpp" />
+    <ClCompile Include="base\sharebuffer.cpp" />
     <ClCompile Include="base\skybox.cpp" />
     <ClCompile Include="base\skyboxcube.cpp" />
     <ClCompile Include="base\slidebar.cpp" />

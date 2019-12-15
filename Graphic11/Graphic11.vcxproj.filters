@@ -380,6 +380,12 @@
     <ClInclude Include="base\sphere2.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="base\computeshader.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\sharebuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -723,6 +729,12 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\sphere2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\computeshader.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\sharebuffer.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
