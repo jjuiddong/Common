@@ -21,12 +21,15 @@ cAssimpLoader::~cAssimpLoader()
 bool cAssimpLoader::Create(const StrPath &fileName)
 {
 	SAFE_DELETE(m_rawMeshes);
+
+	if (!fileName.IsFileExist() || fileName.IsDirectory())
+		return false;
+
 	m_rawMeshes = new sRawMeshGroup2;
 	m_rawMeshes->name = fileName.c_str();
 
 	// Create the importer
 	Assimp::Importer importer;
-
 	m_aiScene = importer.ReadFile(fileName.c_str(),
 		aiProcess_CalcTangentSpace |			// calculate tangents and bitangents if possible
 		aiProcess_JoinIdenticalVertices |		// join identical vertices/ optimize indexing
@@ -47,6 +50,7 @@ bool cAssimpLoader::Create(const StrPath &fileName)
 	// If the import failed, report it
 	if (!m_aiScene)
 	{
+		SAFE_DELETE(m_rawMeshes);
 		return false;
 	}
 

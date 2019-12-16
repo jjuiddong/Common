@@ -90,6 +90,10 @@ namespace common
 			return common::IsFileExist(m_str);
 		}
 
+		bool IsDirectory() const {
+			return common::IsDirectoryExist(m_str);
+		}
+
 		String convertToString(double num) const {
 			String str;
 			sprintf_s(str.m_str, "%.1f", num);
@@ -483,6 +487,10 @@ namespace common
 
 		bool IsFileExist() const {
 			return common::IsFileExist(m_str);
+		}
+
+		bool IsDirectory() const {
+			return common::IsDirectoryExist(m_str);
 		}
 
 		String convertToString(double num) const {

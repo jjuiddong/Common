@@ -231,11 +231,11 @@ namespace graphic
 
 #if defined(_VS2017)
 	#ifdef _DEBUG
-		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
+		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_vc141.lib")
 		#pragma comment(lib, "Effects11/effects11d_2017.lib")
 		#pragma comment(lib, "assimp-vc141-mtd.lib" ) 
 	#else
-		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_VS2017.lib")
+		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_vc141.lib")
 		#pragma comment(lib, "Effects11/effects11_2017.lib")
 		#pragma comment(lib, "assimp-vc141-mt.lib" ) 
 	#endif
