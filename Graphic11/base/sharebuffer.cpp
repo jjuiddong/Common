@@ -27,25 +27,49 @@ cShareBuffer::~cShareBuffer()
 //
 bool cShareBuffer::Create(cRenderer &renderer, const void *pInitMem
 	, const int stride, const int count
-	, const bool isShaderResource //= false
-	, const bool isUnorderedAccess //= false
+	, const bool isCPUWritable //= false
+	, const bool isGPUWritable //= false
 )
 {
 	SAFE_RELEASE(m_buff);
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
-	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.ByteWidth = stride * count;
-	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-	//desc.CPUAccessFlags = 0;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.StructureByteStride = stride;
+
+	if (!isCPUWritable && !isGPUWritable)
+	{
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.CPUAccessFlags = 0;
+	}
+	else if (isCPUWritable && !isGPUWritable)
+	{
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
+	else if (!isCPUWritable && isGPUWritable)
+	{
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE
+			| D3D11_BIND_UNORDERED_ACCESS;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+	}
+	else if (isCPUWritable && isGPUWritable)
+	{
+		// error occurred
+		// no operation
+		return false;
+	}
 
 	if (pInitMem)
 	{
 		D3D11_SUBRESOURCE_DATA InitData;
 		InitData.pSysMem = pInitMem;
+		//InitData.SysMemPitch = stride;
+		//InitData.SysMemSlicePitch = 0;
 		if (FAILED(renderer.GetDevice()->CreateBuffer(&desc, &InitData, &m_buff)))
 		{
 			assert(0);
@@ -64,11 +88,11 @@ bool cShareBuffer::Create(cRenderer &renderer, const void *pInitMem
 	m_stride = stride;
 	m_count = count;
 
-	if (isShaderResource)
+	if (!isGPUWritable) // shader resource?
 		if (!CreateShaderResourceView(renderer, desc))
 			return false;
 
-	if (isUnorderedAccess)
+	if (isGPUWritable)
 		if (!CreateUnorderedAccessView(renderer, desc))
 			return false;
 
@@ -99,7 +123,7 @@ bool cShareBuffer::CreateReadBuffer(cRenderer &renderer, const cShareBuffer &src
 }
 
 
-bool cShareBuffer::Copy(cRenderer &renderer, const cShareBuffer &src)
+bool cShareBuffer::CopyFrom(cRenderer &renderer, const cShareBuffer &src)
 {
 	RETV2(!src.m_buff, false);
 	RETV2(!m_buff, false);
