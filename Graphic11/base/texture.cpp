@@ -104,6 +104,7 @@ bool cTexture::Create(cRenderer &renderer, const int width, const int height
 }
 
 
+// pitchLength : image width byte size
 bool cTexture::Create(cRenderer &renderer, const int width, const int height
 	, const DXGI_FORMAT format
 	, const void *pMem

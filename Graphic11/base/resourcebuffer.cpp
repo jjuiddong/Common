@@ -1,31 +1,25 @@
 
 #include "stdafx.h"
-#include "sharebuffer.h"
+#include "resourcebuffer.h"
 
 
 using namespace graphic;
 
-cShareBuffer::cShareBuffer()
+cResourceBuffer::cResourceBuffer()
 	: m_buff(nullptr)
 	, m_srv(nullptr)
 	, m_uav(nullptr)
 {
 }
 
-cShareBuffer::~cShareBuffer()
+cResourceBuffer::~cResourceBuffer()
 {
 	Clear();
 }
 
 
-// temporal code
-// https://www.codeproject.com/Articles/42612/DirectX-Compute-Shaders
-//
 // Create share Buffer
-// readable, writable buffer
-// very slow buffer, only use temporal access GPU Buffer
-//
-bool cShareBuffer::Create(cRenderer &renderer, const void *pInitMem
+bool cResourceBuffer::Create(cRenderer &renderer, const void *pInitMem
 	, const int stride, const int count
 	, const bool isCPUWritable //= false
 	, const bool isGPUWritable //= false
@@ -68,8 +62,6 @@ bool cShareBuffer::Create(cRenderer &renderer, const void *pInitMem
 	{
 		D3D11_SUBRESOURCE_DATA InitData;
 		InitData.pSysMem = pInitMem;
-		//InitData.SysMemPitch = stride;
-		//InitData.SysMemSlicePitch = 0;
 		if (FAILED(renderer.GetDevice()->CreateBuffer(&desc, &InitData, &m_buff)))
 		{
 			assert(0);
@@ -100,8 +92,81 @@ bool cShareBuffer::Create(cRenderer &renderer, const void *pInitMem
 }
 
 
+// create byte address buffer
+// Practical Rendering & Computation with Direct3D11 page 83
+// size : byte size, always 32bit offset size
+bool cResourceBuffer::CreateRawBuffer(cRenderer &renderer, const void *pInitMem
+	, const int size
+	, const bool isCPUWritable //= false
+	, const bool isGPUWritable //= false
+)
+{
+	SAFE_RELEASE(m_buff);
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ByteWidth = size;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+
+	if (!isCPUWritable && !isGPUWritable)
+	{
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.CPUAccessFlags = 0;
+	}
+	else if (isCPUWritable && !isGPUWritable)
+	{
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
+	else if (!isCPUWritable && isGPUWritable)
+	{
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE
+			| D3D11_BIND_UNORDERED_ACCESS;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+	}
+	else if (isCPUWritable && isGPUWritable)
+	{
+		// error occurred
+		// no operation
+		return false;
+	}
+
+	if (pInitMem)
+	{
+		D3D11_SUBRESOURCE_DATA InitData;
+		InitData.pSysMem = pInitMem;
+		if (FAILED(renderer.GetDevice()->CreateBuffer(&desc, &InitData, &m_buff)))
+		{
+			assert(0);
+			return false;
+		}
+	}
+	else
+	{
+		if (FAILED(renderer.GetDevice()->CreateBuffer(&desc, NULL, &m_buff)))
+		{
+			assert(0);
+			return false;
+		}
+	}
+
+	if (!isGPUWritable) // shader resource?
+		if (!CreateShaderResourceView(renderer, desc))
+			return false;
+
+	if (isGPUWritable)
+		if (!CreateUnorderedAccessView(renderer, desc))
+			return false;
+
+	return true;
+}
+
+
 // create buffer from srcBuffer description
-bool cShareBuffer::CreateReadBuffer(cRenderer &renderer, const cShareBuffer &src)
+// to copy and cpu access buffer
+bool cResourceBuffer::CreateReadBuffer(cRenderer &renderer, const cResourceBuffer &src)
 {
 	RETV2(!src.m_buff, false);
 
@@ -109,7 +174,7 @@ bool cShareBuffer::CreateReadBuffer(cRenderer &renderer, const cShareBuffer &src
 	ZeroMemory(&desc, sizeof(desc));
 	src.m_buff->GetDesc(&desc);
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.Usage = D3D11_USAGE_STAGING;
+	desc.Usage = D3D11_USAGE_STAGING; // cpu read usage
 	desc.BindFlags = 0;
 	desc.MiscFlags = 0;
 
@@ -123,7 +188,7 @@ bool cShareBuffer::CreateReadBuffer(cRenderer &renderer, const cShareBuffer &src
 }
 
 
-bool cShareBuffer::CopyFrom(cRenderer &renderer, const cShareBuffer &src)
+bool cResourceBuffer::CopyFrom(cRenderer &renderer, const cResourceBuffer &src)
 {
 	RETV2(!src.m_buff, false);
 	RETV2(!m_buff, false);
@@ -133,7 +198,8 @@ bool cShareBuffer::CopyFrom(cRenderer &renderer, const cShareBuffer &src)
 
 
 // create shader resouceview
-bool cShareBuffer::CreateShaderResourceView(cRenderer &renderer, const D3D11_BUFFER_DESC &desc)
+// use shader ByteAddressBuffer type
+bool cResourceBuffer::CreateShaderResourceView(cRenderer &renderer, const D3D11_BUFFER_DESC &desc)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
 	ZeroMemory(&sdesc, sizeof(sdesc));
@@ -172,7 +238,8 @@ bool cShareBuffer::CreateShaderResourceView(cRenderer &renderer, const D3D11_BUF
 
 
 // create unordered access view
-bool cShareBuffer::CreateUnorderedAccessView(cRenderer &renderer, const D3D11_BUFFER_DESC &desc)
+// use shader RWByteAddressBuffer type
+bool cResourceBuffer::CreateUnorderedAccessView(cRenderer &renderer, const D3D11_BUFFER_DESC &desc)
 {
 	D3D11_UNORDERED_ACCESS_VIEW_DESC udesc;
 	ZeroMemory(&udesc, sizeof(udesc));
@@ -213,7 +280,7 @@ bool cShareBuffer::CreateUnorderedAccessView(cRenderer &renderer, const D3D11_BU
 }
 
 
-bool cShareBuffer::Bind(cRenderer &renderer
+bool cResourceBuffer::Bind(cRenderer &renderer
 	, const int stage //= 0
 )
 {
@@ -222,7 +289,7 @@ bool cShareBuffer::Bind(cRenderer &renderer
 }
 
 
-bool cShareBuffer::BindUnorderedAccessView(cRenderer &renderer
+bool cResourceBuffer::BindUnorderedAccessView(cRenderer &renderer
 	, const int stage //= 0
 )
 {
@@ -231,7 +298,10 @@ bool cShareBuffer::BindUnorderedAccessView(cRenderer &renderer
 }
 
 
-void* cShareBuffer::Lock(cRenderer &renderer
+// flag: - D3D11_MAP_READ
+//		 - D3D11_MAP_WRITE
+//		 - D3D11_MAP_WRITE_DISCARD
+void* cResourceBuffer::Lock(cRenderer &renderer
 	, const D3D11_MAP flag //= D3D11_MAP_READ
 )
 {
@@ -245,7 +315,7 @@ void* cShareBuffer::Lock(cRenderer &renderer
 }
 
 
-void* cShareBuffer::Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out)
+void* cResourceBuffer::Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out)
 {
 	assert(m_buff);
 	ZeroMemory(&out, sizeof(out));
@@ -256,14 +326,14 @@ void* cShareBuffer::Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out)
 }
 
 
-void cShareBuffer::Unlock(cRenderer &renderer)
+void cResourceBuffer::Unlock(cRenderer &renderer)
 {
 	assert(m_buff);
 	renderer.GetDevContext()->Unmap(m_buff, 0);
 }
 
 
-void cShareBuffer::Clear()
+void cResourceBuffer::Clear()
 {
 	SAFE_RELEASE(m_buff);
 	SAFE_RELEASE(m_srv);

@@ -49,8 +49,13 @@ int framework::FrameWorkWinMain2(HINSTANCE hInstance,
 
 		cDockManager::Get()->UpdateRender((float)dt);
 
-		if (gameMain->m_isLazyMode) // 30 frame
-			std::this_thread::sleep_for(10ms);
+		if (gameMain->m_isLazyMode) // 50 frame
+		{
+			static const double elapseT = 1.f / 50.f;
+			const double sleepT = max(double(0.001f), elapseT - dt); // seconds
+			const std::chrono::milliseconds mills((int)(sleepT * 1000.f)); // casting milliseconds
+			std::this_thread::sleep_for(mills);
+		}
 	}
 
 	gameMain->m_state = cGameMain2::SHUTDOWN;

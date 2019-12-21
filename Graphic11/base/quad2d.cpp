@@ -25,15 +25,12 @@ bool cQuad2D::Create(cRenderer &renderer, const float x, const float y
 	, const float width, const float height
 	, const int vtxType //= (eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0)
 	, const char *textureFileName // = " "
+	, const Vector2 *uvs //= NULL
 )
 {
-	//const int vtxType = eVertexType::POSITION_RHW | eVertexType::COLOR;// | eVertexType::TEXTURE0;
 	m_shape.Create(renderer, vtxType, cColor::WHITE);
-
 	SetPosition(x, y, width, height);
-
 	m_texture = cResourceManager::Get()->LoadTexture(renderer, textureFileName? textureFileName : g_defaultTexture);
-
 	m_vtxType = vtxType;
 
 	return true;

@@ -89,7 +89,7 @@ namespace graphic {
 #include "base/vertexbuffer.h"
 #include "base/indexbuffer.h"
 #include "base/temporalbuffer.h"
-#include "base/sharebuffer.h"
+#include "base/resourcebuffer.h"
 #include "base/meshbuffer.h"
 #include "base/samplerstate.h"
 #include "base/texture.h"

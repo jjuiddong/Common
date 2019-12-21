@@ -58,22 +58,17 @@ bool cQuad2D2::Render(cRenderer &renderer
 
 	const float halfWidth = m_transform.scale.x * 2 / vp.Width;
 	const float halfHeight = m_transform.scale.y * 2 / vp.Height;
-	Transform tfm = m_transform;
-	tfm.pos.x = -1 + halfWidth + ((m_transform.pos.x) * 2 / vp.Width);
-	tfm.pos.y = 1 - halfHeight - ((m_transform.pos.y) * 2 / vp.Height);
-	tfm.scale *= Vector3(2.f / vp.Width, 2.f / vp.Height, 1);
-	//renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * parentTm);
 
-	Matrix44 tm1 = tfm.GetMatrix();
-	//Vector3 camPos = GetMainCamera().GetEyePos();
-	//XMMATRIX viewProj = GetMainCamera().GetViewProjectionMatrix().GetMatrixXM();
+	//Transform tfm = m_transform;
+	//tfm.pos.x = -1 + halfWidth + (m_transform.pos.x * 2 / vp.Width);
+	//tfm.pos.y = 1 - halfHeight - (m_transform.pos.y * 2 / vp.Height);
+	//tfm.scale *= Vector3(2.f / vp.Width, 2.f / vp.Height, 1);
+	//Matrix44 tm1 = tfm.GetMatrix();
 
 	cCamera &cam = GetMainCamera();
 
 	Matrix44 tm = m_transform.GetMatrix() * cam.GetViewProjectionMatrix();
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tm.GetMatrixXM() * parentTm);
-	//renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(m_transform.GetMatrixXM() * viewProj * parentTm);
-
 	renderer.m_cbPerFrame.Update(renderer);
 
 	Vector4 diffuse = m_color.GetColor();

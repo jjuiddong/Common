@@ -164,6 +164,9 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	const float height = txHeight.SampleLevel(samPoint, tex, 0).x;
 	PosW.y = (height - 0.1f) * 2500.f;
 
+	if ((uv.x == 0.f) || (uv.x == 1.f) || (uv.y == 0.f) || (uv.y == 1.f))
+		PosW.y = 0.1f;
+
 	output.Pos = mul(PosW, gView);
 	output.Pos = mul(output.Pos, gProjection);
 

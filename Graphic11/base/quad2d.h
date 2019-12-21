@@ -27,7 +27,8 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const float x, const float y, const float width, const float height
 			, const int vtxType = (eVertexType::POSITION_RHW | eVertexType::COLOR | eVertexType::TEXTURE0)
-			, const char *textureFileName = NULL );
+			, const char *textureFileName = NULL
+			, const Vector2 *uvs = NULL);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 

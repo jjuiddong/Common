@@ -383,7 +383,7 @@
     <ClInclude Include="base\computeshader.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="base\sharebuffer.h">
+    <ClInclude Include="base\resourcebuffer.h">
       <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
@@ -734,7 +734,7 @@
     <ClCompile Include="base\computeshader.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="base\sharebuffer.cpp">
+    <ClCompile Include="base\resourcebuffer.cpp">
       <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>

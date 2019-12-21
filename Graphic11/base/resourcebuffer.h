@@ -1,6 +1,6 @@
 //
 // 2019-12-15, jjuiddong
-// share buffer, CPU-GPU
+// resource buffer, CPU-GPU
 //
 #pragma once
 
@@ -9,22 +9,25 @@ namespace graphic
 {
 	using namespace common;
 
-	class cShareBuffer
+	class cResourceBuffer
 	{
 	public:
-		cShareBuffer();
-		virtual ~cShareBuffer();
+		cResourceBuffer();
+		virtual ~cResourceBuffer();
 
 		bool Create(cRenderer &renderer, const void *pInitMem
 			, const int stride, const int count
 			, const bool isCPUWritable = false
 			, const bool isGPUWritable = false
 		);
-			//, const bool isShaderResource = false
-			//, const bool isUnorderedAccess = false);
-		bool CreateReadBuffer(cRenderer &renderer, const cShareBuffer &src);
+		bool CreateRawBuffer(cRenderer &renderer, const void *pInitMem
+			, const int size
+			, const bool isCPUWritable = false
+			, const bool isGPUWritable = false
+		);
+		bool CreateReadBuffer(cRenderer &renderer, const cResourceBuffer &src);
 
-		bool CopyFrom(cRenderer &renderer, const cShareBuffer &src);
+		bool CopyFrom(cRenderer &renderer, const cResourceBuffer &src);
 		bool Bind(cRenderer &renderer, const int stage=0);
 		bool BindUnorderedAccessView(cRenderer &renderer, const int stage = 0);
 		void* Lock(cRenderer &renderer, const D3D11_MAP flag = D3D11_MAP_READ);
