@@ -41,3 +41,10 @@ float Line::GetDistance(const Vector3 &position) const
 	const float dist = pointOnLine.Distance(position);
 	return dist;
 }
+
+
+Vector3 Line::Projection(const Vector3 &position) const
+{
+	const float l = dir.DotProduct(position - pos);
+	return dir * l + pos;
+}
