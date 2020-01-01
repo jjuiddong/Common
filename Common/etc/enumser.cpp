@@ -437,6 +437,15 @@ _Return_type_success_(return != false) bool CEnumerateSerial::QueryUsingSetupAPI
         if (QueryDeviceDescription(hDevInfoSet, devInfo, pair.second))
 #pragma warning(suppress: 26489)
           ports.push_back(pair);
+
+		String devID;
+#pragma warning(suppress: 26489)
+		if (QueryDeviceID(hDevInfoSet, devInfo, devID))
+#pragma warning(suppress: 26489)
+		{
+			// nothing~
+			int a = 0;
+		}
       }
     }
 
@@ -448,6 +457,81 @@ _Return_type_success_(return != false) bool CEnumerateSerial::QueryUsingSetupAPI
 
   //Return the success indicator
   return true;
+}
+
+_Return_type_success_(return != false) bool CEnumerateSerial::QueryUsingSetupAPI_Ids(
+	const GUID& guid, _In_ DWORD dwFlags, _Inout_ CPortAndNameIdsArray& ports)
+{
+	//Set our output parameters to sane defaults
+	ports.clear();
+
+	//Create a "device information set" for the specified GUID
+	HDEVINFO hDevInfoSet = SetupDiGetClassDevs(&guid, nullptr, nullptr, dwFlags);
+	if (hDevInfoSet == INVALID_HANDLE_VALUE)
+		return false;
+
+	//Finally do the enumeration
+	bool bMoreItems = true;
+	int nIndex = 0;
+	SP_DEVINFO_DATA devInfo = { 0 };
+	while (bMoreItems)
+	{
+		//Enumerate the current device
+		devInfo.cbSize = sizeof(SP_DEVINFO_DATA);
+		bMoreItems = SetupDiEnumDeviceInfo(hDevInfoSet, nIndex, &devInfo);
+		if (bMoreItems)
+		{
+			//Did we find a serial port for this device
+			int Added = 0;
+
+			int nPort = 0;
+			String name;
+			String devId;
+			std::tuple<UINT, String, String> result;
+
+			//Get the registry key which stores the ports settings
+			ATL::CRegKey deviceKey;
+			deviceKey.Attach(SetupDiOpenDevRegKey(hDevInfoSet, &devInfo, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE));
+			if (deviceKey != INVALID_HANDLE_VALUE)
+			{
+#pragma warning(suppress: 26486)
+				if (QueryRegistryPortName(deviceKey, nPort))
+				{
+					++Added;
+				}
+			}
+
+			//If the port was a serial port, then also try to get its friendly name
+			if (Added >= 1)
+			{
+#pragma warning(suppress: 26489)
+				if (QueryDeviceDescription(hDevInfoSet, devInfo, name))
+#pragma warning(suppress: 26489)
+				{
+					++Added;
+				}
+
+#pragma warning(suppress: 26489)
+				if (QueryDeviceID(hDevInfoSet, devInfo, devId))
+#pragma warning(suppress: 26489)
+				{
+					++Added;
+					if (Added == 3)
+					{
+						ports.push_back(std::make_tuple(nPort, name, devId));
+					}
+				}
+			}
+		}
+
+		++nIndex;
+	}
+
+	//Free up the "device information set" now that we are finished with it
+	SetupDiDestroyDeviceInfoList(hDevInfoSet);
+
+	//Return the success indicator
+	return true;
 }
 
 _Return_type_success_(return != false) bool CEnumerateSerial::QueryDeviceDescription(_In_ HDEVINFO hDevInfoSet, _In_ SP_DEVINFO_DATA& devInfo, _Inout_ String& sFriendlyName)
@@ -470,6 +554,28 @@ _Return_type_success_(return != false) bool CEnumerateSerial::QueryDeviceDescrip
     return false;
   }
   return true;
+}
+
+_Return_type_success_(return != false) bool CEnumerateSerial::QueryDeviceID(_In_ HDEVINFO hDevInfoSet, _In_ SP_DEVINFO_DATA& devInfo, _Inout_ String& sFriendlyName)
+{
+	DWORD dwType = 0;
+	DWORD dwSize = 0;
+	//Query initially to get the buffer size required
+	if (!SetupDiGetDeviceRegistryProperty(hDevInfoSet, &devInfo, SPDRP_HARDWAREID, &dwType, nullptr, 0, &dwSize))
+	{
+		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+			return false;
+	}
+	sFriendlyName.resize(dwSize / sizeof(TCHAR));
+#pragma warning(suppress: 26446 26490)
+	if (!SetupDiGetDeviceRegistryProperty(hDevInfoSet, &devInfo, SPDRP_HARDWAREID, &dwType, reinterpret_cast<PBYTE>(&(sFriendlyName[0])), dwSize, &dwSize))
+		return false;
+	if (dwType != REG_MULTI_SZ)
+	{
+		SetLastError(ERROR_INVALID_DATA);
+		return false;
+	}
+	return true;
 }
 #endif //#if !defined(NO_CENUMERATESERIAL_USING_SETUPAPI1) || !defined(NO_CENUMERATESERIAL_USING_SETUPAPI2)
 
@@ -625,6 +731,11 @@ _Return_type_success_(return != false) bool CEnumerateSerial::UsingSetupAPI2(_In
 {
   //Delegate the main work of this method to the helper method
   return QueryUsingSetupAPI(GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, DIGCF_PRESENT, ports);
+}
+_Return_type_success_(return != false) bool CEnumerateSerial::UsingSetupAPI2_Ids(_Inout_ CPortAndNameIdsArray& ports)
+{
+	//Delegate the main work of this method to the helper method
+	return QueryUsingSetupAPI_Ids(GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, DIGCF_PRESENT, ports);
 }
 #endif //#ifndef NO_CENUMERATESERIAL_USING_SETUPAPI2
 

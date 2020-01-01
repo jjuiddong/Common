@@ -81,7 +81,8 @@ public:
   typedef std::string String;
 #endif
   typedef std::vector<String> CNamesArray;
-  typedef std::vector<std::pair<UINT, String> > CPortAndNamesArray;
+  typedef std::vector<std::pair<UINT, String>> CPortAndNamesArray;
+  typedef std::vector<std::tuple<UINT, String, String>> CPortAndNameIdsArray;
 
 //Methods
 #ifndef NO_CENUMERATESERIAL_USING_CREATEFILE
@@ -102,6 +103,7 @@ public:
 
 #ifndef NO_CENUMERATESERIAL_USING_SETUPAPI2
   static _Return_type_success_(return != false) bool UsingSetupAPI2(_Inout_ CPortAndNamesArray& ports);
+  static _Return_type_success_(return != false) bool UsingSetupAPI2_Ids(_Inout_ CPortAndNameIdsArray& ports);
 #endif //#ifndef NO_CENUMERATESERIAL_USING_SETUPAPI2
 
 #ifndef NO_CENUMERATESERIAL_USING_ENUMPORTS
@@ -130,7 +132,9 @@ protected:
   static _Return_type_success_(return != false) bool RegQueryValueString(_In_ ATL::CRegKey& key, _In_ LPCTSTR lpValueName, _Inout_ String& sValue);
   static _Return_type_success_(return != false) bool QueryRegistryPortName(_In_ ATL::CRegKey& deviceKey, _Out_ int& nPort);
   static _Return_type_success_(return != false) bool QueryUsingSetupAPI(const GUID& guid, _In_ DWORD dwFlags, _Inout_ CPortAndNamesArray& ports);
+  static _Return_type_success_(return != false) bool QueryUsingSetupAPI_Ids(const GUID& guid, _In_ DWORD dwFlags, _Inout_ CPortAndNameIdsArray& ports);
   static _Return_type_success_(return != false) bool QueryDeviceDescription(_In_ HDEVINFO hDevInfoSet, _In_ SP_DEVINFO_DATA& devInfo, _Inout_ String& sFriendlyName);
+  static _Return_type_success_(return != false) bool QueryDeviceID(_In_ HDEVINFO hDevInfoSet, _In_ SP_DEVINFO_DATA& devInfo, _Inout_ String& sFriendlyName);
 #endif //#if !defined(NO_CENUMERATESERIAL_USING_SETUPAPI1) || !defined(NO_CENUMERATESERIAL_USING_SETUPAPI2)
   static _Return_type_success_(return != false) bool IsNumeric(_In_z_ LPCSTR pszString, _In_ bool bIgnoreColon) noexcept;
   static _Return_type_success_(return != false) bool IsNumeric(_In_z_ LPCWSTR pszString, _In_ bool bIgnoreColon) noexcept;

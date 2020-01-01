@@ -12,4 +12,6 @@ namespace common
 
 	bool EnumCOMPort(OUT vector<std::pair<UINT, string>> &out);
 
+	bool EnumCOMPortID(OUT vector<std::tuple<UINT, string, string>> &out);
+
 }

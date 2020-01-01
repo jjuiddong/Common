@@ -122,6 +122,11 @@ typedef unsigned int hashcode;
 
 using std::string;
 using std::wstring;
+#ifdef _UNICODE
+	typedef std::wstring tstring;
+#else
+	typedef std::string tstring;
+#endif
 using std::vector;
 using std::map;
 using std::list;
