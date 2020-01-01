@@ -152,6 +152,12 @@ float4 PS(PixelInputType input) : SV_TARGET
 	//	, gMtrl_Diffuse.w);
 }
 
+float4 PS_White(PixelInputType input) : SV_TARGET
+{
+	return float4(1, 1, 1, 0.5);
+}
+
+
 
 technique11 Unlit
 {
@@ -164,3 +170,14 @@ technique11 Unlit
 	}
 }
 
+
+technique11 Unlit_White
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS()));
+		SetHullShader(CompileShader(hs_5_0, HS()));
+		SetDomainShader(CompileShader(ds_5_0, DS()));
+		SetPixelShader(CompileShader(ps_5_0, PS_White()));
+	}
+}
