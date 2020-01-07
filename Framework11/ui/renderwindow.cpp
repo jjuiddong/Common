@@ -93,14 +93,10 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//const float fontSize = 26;
 		//const float bigFontSize = 36;
 
-		StrPath path1 = cResourceManager::Get()->GetMediaDirectory() + "extra_fonts/³ª´®°íµñBold.ttf";
-		//char* windir = nullptr;
-		//if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
-		//	return nullptr;
-		//StrPath path1 = std::string(windir) + "\\Fonts\\" + "segoeui.ttf";
-
-		io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
-		m_fontBig = io.Fonts->AddFontFromFileTTF(path1.utf8().c_str(), bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		// utf-8 encoding renderwindow.cpp 
+		StrPath path1 = cResourceManager::Get()->GetMediaDirectory() + "extra_fonts/ë‚˜ëˆ”ê³ ë”•Bold.ttf";
+		io.Fonts->AddFontFromFileTTF(path1.c_str(), fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
+		m_fontBig = io.Fonts->AddFontFromFileTTF(path1.c_str(), bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 
 		io.ImeWindowHandle = (HWND)this->getSystemHandle();
 
@@ -111,7 +107,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//builder.AddRanges(io.Fonts->GetGlyphRangesKorean()); // Add one of the default ranges
 		//builder.BuildRanges(&ranges);                          // Build the final result (ordered ranges with all the unique characters submitted)
 		////io.Fonts->AddFontFromFileTTF("myfontfile.ttf", size_in_pixels, NULL, ranges.Data);
-		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/³ª´®°íµñBold.ttf", 18, NULL, ranges.Data);
+		//io.Fonts->AddFontFromFileTTF("../Media/extra_fonts/ë‚˜ëˆ”ê³ ë”•Bold.ttf", 18, NULL, ranges.Data);	}
 	}
 
 	m_titleBtn[0] = cResourceManager::Get()->LoadTexture(m_renderer, "minbtn.png");
@@ -140,7 +136,7 @@ bool cRenderWindow::TranslateEvent()
 		}
 		else
 		{
-			// ¸¶¿ì½º ÀÌº¥Æ®´Â ÇÑÇÁ·¹ÀÓ¿¡ ÇÑ¹ø¾¿ Ã³¸®
+			// ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ëŠ” í•œí”„ë ˆì„ì— í•œë²ˆì”© ì²˜ë¦¬
 			if (DefaultEventProc(evt) > 0)
 				break;
 		}
@@ -206,7 +202,7 @@ void cRenderWindow::Update(const float deltaSeconds)
 
 void cRenderWindow::MouseProc(const float deltaSeconds)
 {
-	// Ã¢À» ¿Å±â°Å³ª, µµÅ· ÁßÀÏ ¶§´Â, ÇØ´ç Ã¢ÀÇ ¸¶¿ì½º ÀÌº¥Æ®¸¸ Ã³¸®ÇÑ´Ù.
+	// ì°½ì„ ì˜®ê¸°ê±°ë‚˜, ë„í‚¹ ì¤‘ì¼ ë•ŒëŠ”, í•´ë‹¹ ì°½ì˜ ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ë§Œ ì²˜ë¦¬í•œë‹¤.
 	if (cDockManager::Get()->IsDragState())
 	{
 		if ((m_state != eState::DRAG) && (m_state != eState::DRAG_BIND))
@@ -798,11 +794,11 @@ void cRenderWindow::ResetDevice()
 
 
 // 2019-06-06
-// ÅÍÄ¡ ÀÌº¥Æ®¸¦ ¹Ş±â À§ÇØ¼­, ¸®ÅÏ°ª Ãß°¡
-// ¼Óµµ°¡ ´À¸± ¶§, MouseButton Up/Down, Touch Down/UpÀÌ µ¿½Ã¿¡ 
-// Ã³¸®µÇ¾î¼­ ¹öÆ° ÀÔ·ÂÀ» ¸ø¹Ş´Â °æ¿ì°¡ ÀÖ´Ù. 
-// ±×·¡¼­ ¸¶¿ì½º, ÅÍÄ¡ÆĞµå ÀÔ·ÂÀ» ¹ŞÀ» °æ¿ì, ÇÑ ÀÌº¥Æ®¸¸ Ã³¸®ÇÏ°í,
-// ³ª¸ÓÁö ÀÌº¥Æ®´Â ´ÙÀ½ ÇÁ·¹ÀÓ ¶§ Ã³¸®ÇÏ°Ô ÇÑ´Ù.
+// í„°ì¹˜ ì´ë²¤íŠ¸ë¥¼ ë°›ê¸° ìœ„í•´ì„œ, ë¦¬í„´ê°’ ì¶”ê°€
+// ì†ë„ê°€ ëŠë¦´ ë•Œ, MouseButton Up/Down, Touch Down/Upì´ ë™ì‹œì— 
+// ì²˜ë¦¬ë˜ì–´ì„œ ë²„íŠ¼ ì…ë ¥ì„ ëª»ë°›ëŠ” ê²½ìš°ê°€ ìˆë‹¤. 
+// ê·¸ë˜ì„œ ë§ˆìš°ìŠ¤, í„°ì¹˜íŒ¨ë“œ ì…ë ¥ì„ ë°›ì„ ê²½ìš°, í•œ ì´ë²¤íŠ¸ë§Œ ì²˜ë¦¬í•˜ê³ ,
+// ë‚˜ë¨¸ì§€ ì´ë²¤íŠ¸ëŠ” ë‹¤ìŒ í”„ë ˆì„ ë•Œ ì²˜ë¦¬í•˜ê²Œ í•œë‹¤.
 int cRenderWindow::DefaultEventProc(const sf::Event &evt)
 {
 	int mouseEvent = 0;
@@ -922,7 +918,7 @@ unsigned char cRenderWindow::KeyboardToAscii(const sf::Keyboard::Key key)
 }
 
 
-// mousePt°¡ Docking Window Å©±âÁ¶Àı ¿µ¿ª¿¡ À§Ä¡ÇÒ ¶§, ÇØ´ç DockWindow¸¦ ¸®ÅÏÇÑ´Ù.
+// mousePtê°€ Docking Window í¬ê¸°ì¡°ì ˆ ì˜ì—­ì— ìœ„ì¹˜í•  ë•Œ, í•´ë‹¹ DockWindowë¥¼ ë¦¬í„´í•œë‹¤.
 cDockWindow* cRenderWindow::GetSizerTargetWindow(const Vector2 &mousePt)
 {
 	RETV(!m_dock, false);
@@ -951,7 +947,7 @@ cDockWindow* cRenderWindow::GetSizerTargetWindow(const Vector2 &mousePt)
 }
 
 
-// mousePt°¡ À§Ä¡ÇØÀÖ´Â Dock Window¸¦ ¸®ÅÏÇÑ´Ù.
+// mousePtê°€ ìœ„ì¹˜í•´ìˆëŠ” Dock Windowë¥¼ ë¦¬í„´í•œë‹¤.
 cDockWindow* cRenderWindow::GetTargetWindow(const Vector2 &mousePt)
 {
 	RETV(!m_dock, false);
