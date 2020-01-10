@@ -386,6 +386,9 @@
     <ClInclude Include="base\resourcebuffer.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="importer\fileloader2.h">
+      <Filter>importer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
