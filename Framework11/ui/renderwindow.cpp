@@ -94,7 +94,7 @@ bool cRenderWindow::Create(const HINSTANCE hInst, const bool isMainWindow, const
 		//const float bigFontSize = 36;
 
 		// utf-8 encoding renderwindow.cpp 
-		StrPath path1 = cResourceManager::Get()->GetMediaDirectory() + "extra_fonts/나눔고딕Bold.ttf";
+		StrPath path1 = cResourceManager::Get()->GetMediaDirectory() + "extra_fonts/NanumGothicBold.ttf";
 		io.Fonts->AddFontFromFileTTF(path1.c_str(), fontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 		m_fontBig = io.Fonts->AddFontFromFileTTF(path1.c_str(), bigFontSize, NULL, io.Fonts->GetGlyphRangesKorean());
 
