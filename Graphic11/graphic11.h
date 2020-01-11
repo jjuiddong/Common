@@ -219,6 +219,7 @@ namespace graphic
 
 #include "importer/parallelloader.h"
 #include "importer/fileloader.h"
+#include "importer/fileloader2.h"
 
 #include "../ai/ai.h"
 
