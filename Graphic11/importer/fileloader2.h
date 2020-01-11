@@ -1,8 +1,10 @@
 //
 // 2020-01-10, jjuiddong
-// fileloader, multithread
-//	- multiple object
+// fileloader2
+//	- upgrade fileloader
 //	- parallel load
+//  - multiple thread
+//	- multiple object
 //
 #pragma once
 
