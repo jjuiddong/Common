@@ -389,6 +389,12 @@
     <ClInclude Include="importer\fileloader2.h">
       <Filter>importer</Filter>
     </ClInclude>
+    <ClInclude Include="base\capsule.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\capsuleshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -739,6 +745,12 @@
     </ClCompile>
     <ClCompile Include="base\resourcebuffer.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\capsule.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\capsuleshape.cpp">
+      <Filter>shape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

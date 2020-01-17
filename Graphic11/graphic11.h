@@ -104,6 +104,7 @@ namespace graphic {
 #include "shape\circleshape.h"
 #include "shape\quadshape.h"
 #include "shape\torusshape.h"
+#include "shape\capsuleshape.h"
 
 
 #include "base/grid.h"
@@ -141,6 +142,7 @@ namespace graphic {
 #include "base/slidebar.h"
 #include "base/slidelist.h"
 #include "base/bezierline.h"
+#include "base/capsule.h"
 
 
 //

@@ -90,7 +90,7 @@ namespace ai
 		if (m_rootAction)
 			m_rootAction->Traverse(deltaSeconds);
 		
-		for (auto &brain : m_children.m_Seq)
+		for (auto &brain : m_children.m_seq)
 			brain->Update(deltaSeconds);
 
 		return true;
@@ -244,7 +244,7 @@ namespace ai
 			m_rootAction->MessageProccess(msg);
 
 		// children message loop
-		for (auto &brain : m_children.m_Seq)
+		for (auto &brain : m_children.m_seq)
 			brain->DispatchMsg(msg);
 	}
 

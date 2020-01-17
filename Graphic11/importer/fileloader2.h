@@ -284,9 +284,10 @@ namespace graphic
 			auto it = m_files.find(path.GetHashCode());
 			const bool isFind = (m_files.end() != it);
 			const STATE state = (m_files.end() != it) ? it->second.state : NONE;
-			T *ptr = (T*)it->second.data;
 			if (isFind)
 			{
+				T *ptr = (T*)it->second.data;
+
 				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
 				if (LOADING == state)
 				{
@@ -357,9 +358,10 @@ namespace graphic
 			auto it = m_files.find(path.GetHashCode());
 			const bool isFind = (m_files.end() != it);
 			const STATE state = (m_files.end() != it) ? it->second.state : NONE;
-			T *ptr = (T*)it->second.data;
 			if (isFind)
 			{
+				T *ptr = (T*)it->second.data;
+
 				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
 				if (LOADING == state)
 				{

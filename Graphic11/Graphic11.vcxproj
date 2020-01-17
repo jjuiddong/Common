@@ -83,12 +83,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;USE_D3D11_MATH;_DEBUG;_LIB;_ITERATOR_DEBUG_LEVEL=0;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;USE_D3D11_MATH;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <AdditionalOptions>/MP</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -149,6 +150,7 @@
     <ClInclude Include="base\camera.h" />
     <ClInclude Include="base\camera2d.h" />
     <ClInclude Include="base\camera3d.h" />
+    <ClInclude Include="base\capsule.h" />
     <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\circle2d.h" />
     <ClInclude Include="base\color.h" />
@@ -239,6 +241,7 @@
     <ClInclude Include="model_assimp\rawani.h" />
     <ClInclude Include="model_assimp\rawmesh.h" />
     <ClInclude Include="model_assimp\skeleton.h" />
+    <ClInclude Include="shape\capsuleshape.h" />
     <ClInclude Include="shape\circleshape.h" />
     <ClInclude Include="shape\cubeshape.h" />
     <ClInclude Include="shape\pyramidshape.h" />
@@ -283,6 +286,7 @@
     <ClCompile Include="base\camera.cpp" />
     <ClCompile Include="base\camera2d.cpp" />
     <ClCompile Include="base\camera3d.cpp" />
+    <ClCompile Include="base\capsule.cpp" />
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\circle2d.cpp" />
     <ClCompile Include="base\color.cpp" />
@@ -360,6 +364,7 @@
     <ClCompile Include="model_assimp\model_assimp.cpp" />
     <ClCompile Include="model_assimp\rawmesh.cpp" />
     <ClCompile Include="model_assimp\skeleton.cpp" />
+    <ClCompile Include="shape\capsuleshape.cpp" />
     <ClCompile Include="shape\circleshape.cpp" />
     <ClCompile Include="shape\cubeshape.cpp" />
     <ClCompile Include="shape\pyramidshape.cpp" />
