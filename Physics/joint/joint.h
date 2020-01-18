@@ -17,13 +17,22 @@ namespace phys
 		cJoint();
 		virtual ~cJoint();
 
-		//bool Create
+		bool CreateFixedJoint(cPhysicsEngine &physics
+			, cRigidActor *actor0, const Transform &worldTfm0
+			, cRigidActor *actor1, const Transform &worldTfm1);
+
+		bool CreateSphericalJoint(cPhysicsEngine &physics
+			, cRigidActor *actor0, const Transform &worldTfm0
+			, cRigidActor *actor1, const Transform &worldTfm1);
+
 		void Clear();
 
 
 	public:
 		eType m_type;
 		physx::PxJoint *m_joint;
+		physx::PxFixedJoint *m_fixedJoint; // reference
+		physx::PxSphericalJoint *m_sphericalJoint; // reference
 	};
 
 }

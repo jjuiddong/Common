@@ -9,6 +9,8 @@ using namespace physx;
 
 cRigidActor::cRigidActor()
 	: m_actor(nullptr)
+	, m_dynamic(nullptr)
+	, m_static(nullptr)
 	, m_type(eType::None)
 	, m_shape(eShape::None)
 {
@@ -33,21 +35,21 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 	m_type = eType::Static;
 	m_shape = eShape::Plane;
 	m_actor = plane;
+	m_static = plane;
 	return true;
 }
 
 
 bool cRigidActor::CreateBox(cPhysicsEngine &physics
-	, const Vector3& pos
-	, const Vector3& dims
+	, const Transform &tfm
 	, const Vector3* linVel //= nullptr
-	, float density //= 1.f
+	, const float density //= 1.f
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	PxRigidDynamic* box = PxCreateDynamic(*physics.m_physics
-		, PxTransform(*(PxVec3*)&pos)
-		, PxBoxGeometry(*(PxVec3*)&dims), *physics.m_material, density);
+		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot)
+		, PxBoxGeometry(*(PxVec3*)&tfm.scale), *physics.m_material, density);
 	PX_ASSERT(box);
 
 	box->setActorFlag(PxActorFlag::eVISUALIZATION, true);
@@ -60,6 +62,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	m_type = eType::Dynamic;
 	m_shape = eShape::Box;
 	m_actor = box;
+	m_dynamic = box;
 	return true;
 }
 
@@ -68,7 +71,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	, const Vector3& pos
 	, const float radius
 	, const Vector3* linVel //= nullptr
-	, float density //= 1.f
+	, const float density //= 1.f
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
@@ -88,16 +91,17 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	m_type = eType::Dynamic;
 	m_shape = eShape::Sphere;
 	m_actor = sphere;
+	m_dynamic = sphere;
 	return true;
 }
 
 
 bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
-	, const Vector3& pos
+	, const Transform &tfm
 	, const float radius
 	, const float halfHeight
 	, const Vector3* linVel //= nullptr
-	, float density //= 1.f
+	, const float density //= 1.f
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
@@ -105,7 +109,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	PX_UNUSED(rot);
 
 	PxRigidDynamic* capsule = PxCreateDynamic(*physics.m_physics
-		, PxTransform(*(PxVec3*)&pos)
+		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot)
 		, PxCapsuleGeometry(radius, halfHeight), *physics.m_material, density);
 	PX_ASSERT(capsule);
 
@@ -120,6 +124,17 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	m_type = eType::Dynamic;
 	m_shape = eShape::Capsule;
 	m_actor = capsule;
+	m_dynamic = capsule;
+	return true;
+}
+
+
+bool cRigidActor::SetKinematic(const bool isKinematic)
+{
+	RETV(!m_actor, false);
+	RETV(m_type != eType::Dynamic, false);
+
+	m_dynamic->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	return true;
 }
 
@@ -127,4 +142,6 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 void cRigidActor::Clear()
 {
 	PHY_SAFE_RELEASE(m_actor);
+	m_dynamic = nullptr;
+	m_static = nullptr;
 }

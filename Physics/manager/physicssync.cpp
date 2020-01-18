@@ -25,7 +25,7 @@ bool cPhysicsSync::Create(cPhysicsEngine *physics)
 }
 
 
-graphic::cGridLine* cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	, const Vector3& norm)
 {
 	RETV(!m_physics, false);
@@ -39,36 +39,36 @@ graphic::cGridLine* cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	m_actors.push_back({ common::GenerateId(), "plane", actor, grid });
-	return grid;
+	return m_actors.back().id;
 }
 
 
-graphic::cCube* cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
-	, const Vector3& pos
-	, const Vector3 &scale)
+int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
+	, const Transform& tfm
+	, const float density //= 1.f
+)
 {
 	RETV(!m_physics, false);
 	RETV(!m_physics->m_scene, false);
 
 	graphic::cCube *cube = new graphic::cCube();
 	cube->Create(renderer);
-	Transform tfm;
-	tfm.pos = pos;
-	tfm.scale = scale;
 	cube->SetCube(tfm);
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateBox(*m_physics, pos, scale);
+	actor->CreateBox(*m_physics, tfm, nullptr, density);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	m_actors.push_back({ common::GenerateId(), "box", actor, cube });
-	return cube;
+	return m_actors.back().id;
 }
 
 
-graphic::cSphere* cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	, const Vector3& pos
-	, const float radius)
+	, const float radius
+	, const float density //= 1.f
+)
 {
 	RETV(!m_physics, false);
 	RETV(!m_physics->m_scene, false);
@@ -78,32 +78,34 @@ graphic::cSphere* cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	sphere->m_transform.pos = pos;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateSphere(*m_physics, pos, radius);
+	actor->CreateSphere(*m_physics, pos, radius, nullptr, density);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	m_actors.push_back({ common::GenerateId(), "sphere", actor, sphere });
-	return sphere;
+	return m_actors.back().id;
 }
 
 
-graphic::cCapsule* cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
-	, const Vector3& pos
+int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
+	, const Transform& tfm
 	, const float radius
-	, const float halfHeight)
+	, const float halfHeight
+	, const float density //= 1.f
+)
 {
 	RETV(!m_physics, false);
 	RETV(!m_physics->m_scene, false);
 
 	graphic::cCapsule *capsule = new graphic::cCapsule();
 	capsule->Create(renderer, radius, halfHeight, 16, 8);
-	capsule->SetPos(pos);
+	capsule->m_transform = tfm;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateCapsule(*m_physics, pos, radius, halfHeight);
+	actor->CreateCapsule(*m_physics, tfm, radius, halfHeight, nullptr, density);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	m_actors.push_back({ common::GenerateId(), "capsule", actor, capsule });
-	return capsule;
+	return m_actors.back().id;
 }
 
 
@@ -148,7 +150,7 @@ bool cPhysicsSync::Sync()
 		if (m_actors.end() == it)
 			continue;
 
-		sActor &actor = *it;
+		sActorInfo &actor = *it;
 		{
 			Transform tfm = actor.node->m_transform;
 			tfm.pos = *(Vector3*)&activeTfm->actor2World.p;
@@ -172,6 +174,18 @@ bool cPhysicsSync::AddJoint(cJoint *joint)
 {
 	m_joints.push_back(joint);
 	return true;
+}
+
+
+// find actor info from id
+// waring: if m_actors modify, return actorinfo pointer maybe crash
+cPhysicsSync::sActorInfo* cPhysicsSync::FindActorInfo(const int id)
+{
+	auto it = find_if(m_actors.begin(), m_actors.end(), [&](const auto &a) {
+		return a.id == id; });
+	if (m_actors.end() == it)
+		return nullptr;
+	return &*it;
 }
 
 

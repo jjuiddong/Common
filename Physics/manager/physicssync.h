@@ -11,28 +11,38 @@ namespace phys
 	class cPhysicsSync : public iPhysicsSync
 	{
 	public:
+		struct sActorInfo {
+			int id;
+			string name;
+			cRigidActor *actor;
+			graphic::cNode *node;
+		};
+
 		cPhysicsSync();
 		virtual ~cPhysicsSync();
 
 		bool Create(cPhysicsEngine *physics);
 
-		graphic::cGridLine* SpawnPlane(graphic::cRenderer &renderer
+		int SpawnPlane(graphic::cRenderer &renderer
 			, const Vector3& norm);
 
-		graphic::cCube* SpawnBox(graphic::cRenderer &renderer
-			, const Vector3& pos
-			, const Vector3 &scale);
+		int SpawnBox(graphic::cRenderer &renderer
+			, const Transform& tfm
+			, const float density = 1.f);
 
-		graphic::cSphere* SpawnSphere(graphic::cRenderer &renderer
-			, const Vector3& pos
-			, const float radius);
-
-		graphic::cCapsule* SpawnCapsule(graphic::cRenderer &renderer
+		int SpawnSphere(graphic::cRenderer &renderer
 			, const Vector3& pos
 			, const float radius
-			, const float halfHeight);
+			, const float density = 1.f);
+
+		int SpawnCapsule(graphic::cRenderer &renderer
+			, const Transform& tfm
+			, const float radius
+			, const float halfHeight
+			, const float density = 1.f);
 
 		bool AddJoint(cJoint *joint);
+		sActorInfo* FindActorInfo(const int id);
 		void Clear();
 
 
@@ -46,17 +56,10 @@ namespace phys
 
 
 	public:
-		struct sActor {
-			int id;
-			string name;
-			cRigidActor *actor;
-			graphic::cNode *node;
-		};
-
 		cPhysicsEngine *m_physics; // reference
 		uint m_activeBufferCapacity;
 		physx::PxActiveTransform *m_bufferedActiveTransforms;
-		vector<sActor> m_actors;
+		vector<sActorInfo> m_actors;
 		vector<cJoint*> m_joints;
 	};
 

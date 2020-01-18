@@ -25,24 +25,24 @@ namespace phys
 			, const Vector3 &norm);
 
 		bool CreateBox(cPhysicsEngine &physics
-			, const Vector3& pos
-			, const Vector3& dims
+			, const Transform &tfm
 			, const Vector3* linVel = nullptr
-			, float density = 1.f);
+			, const float density = 1.f);
 
 		bool CreateSphere(cPhysicsEngine &physics
 			, const Vector3& pos
 			, const float radius
 			, const Vector3* linVel = nullptr
-			, float density = 1.f);
+			, const float density = 1.f);
 
 		bool  CreateCapsule(cPhysicsEngine &physics
-			, const Vector3& pos
+			, const Transform &tfm
 			, const float radius
 			, const float halfHeight
 			, const Vector3* linVel = nullptr
-			, float density = 1.f);
+			, const float density = 1.f);
 
+		bool SetKinematic(const bool isKinematic);
 		void Clear();
 
 
@@ -50,6 +50,8 @@ namespace phys
 		eType m_type;
 		eShape m_shape;
 		physx::PxRigidActor *m_actor;
+		physx::PxRigidDynamic *m_dynamic; // reference from m_actor
+		physx::PxRigidStatic *m_static; // reference from m_actor
 	};
 
 }
