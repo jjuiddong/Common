@@ -5,6 +5,8 @@
 #pragma once
 
 
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+
 // Pre Processor Environment Setting
 //#ifndef _VS2015
 //	#define _VS2015
@@ -13,7 +15,6 @@
 #ifndef _VS2017
 	#define _VS2017
 #endif
-
 
 #ifndef _CRT_SECURE_NO_WARNINGS
 	#define _CRT_SECURE_NO_WARNINGS
