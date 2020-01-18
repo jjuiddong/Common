@@ -118,6 +118,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalOptions>/MP</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
