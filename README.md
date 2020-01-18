@@ -5,6 +5,7 @@
 - Need Library
 	- DirectXTK
 	- Assimp
+	- PhysX 3.4
 	- Boost 1.63
 	- OpenCV 3.2
 	- TBB 
@@ -28,8 +29,5 @@
 - DirectXTK add reference project
 - Tool
   - Protocol Generator
-    - need boost library rebuild
-    - change STL debug level option for debug mode
-    - ex) c:\tools\bjam toolset=msvc link=static threading=multi define="_ITERATOR_DEBUG_LEVEL=0" define="_HAS_ITERATOR_DEBUGGING=0" debug stage
    
 
