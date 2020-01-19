@@ -43,6 +43,7 @@ namespace graphic
 		void InitGray();
 		void InitGray2();
 		void InitGray3();
+		void InitGray4();
 		void InitXFile();
 		void InitRed();
 		void InitBlue();

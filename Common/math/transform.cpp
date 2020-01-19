@@ -10,7 +10,32 @@ const Transform Transform::Identity;
 Transform::Transform()
 : pos(0,0,0)
 , scale(1,1,1)
-, rot(0,0,0,1)
+{
+}
+
+Transform::Transform(const Vector3 &pos_)
+	: pos(pos_)
+	, scale(1, 1, 1)
+{
+}
+
+Transform::Transform(const Vector3 &pos_, const Vector3 &scale_)
+	: pos(pos_)
+	, scale(scale_)
+{
+}
+
+Transform::Transform(const Vector3 &pos_, const Quaternion &rot_)
+	: pos(pos_)
+	, scale(Vector3(1,1,1))
+	, rot(rot_)
+{
+}
+
+Transform::Transform(const Vector3 &pos_, const Vector3 &scale_, const Quaternion &rot_)
+	: pos(pos_)
+	, scale(scale_)
+	, rot(rot_)
 {
 }
 

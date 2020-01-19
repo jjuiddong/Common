@@ -159,7 +159,6 @@ void cGizmo::Cancel()
 
 
 // return true if Gizmo Edit mode
-// out : Gizmo Edit type
 bool cGizmo::Render(cRenderer &renderer
 	, const float deltaSeconds
 	, const POINT &mousePos

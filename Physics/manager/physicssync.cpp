@@ -31,15 +31,23 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	RETV(!m_physics, false);
 	RETV(!m_physics->m_scene, false);
 
-	graphic::cGridLine *grid = new graphic::cGridLine();
-	grid->Create(renderer, 100, 100, 1.f, 1.f);
+	using namespace graphic;
+	graphic::cGrid *grid = new graphic::cGrid();
+	grid->Create(renderer, 200, 200, 1.f, 1.f
+		, (eVertexType::POSITION | eVertexType::NORMAL));
+	grid->m_mtrl.InitGray4();
 
 	cRigidActor *actor = new cRigidActor();
 	actor->CreatePlane(*m_physics, norm);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
-	m_actors.push_back({ common::GenerateId(), "plane", actor, grid });
-	return m_actors.back().id;
+	sActorInfo *info = new sActorInfo;
+	info->id = common::GenerateId();
+	info->name = "plane";
+	info->actor = actor;
+	info->node = grid;
+	m_actors.push_back(info);
+	return info->id;
 }
 
 
@@ -59,8 +67,13 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	actor->CreateBox(*m_physics, tfm, nullptr, density);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
-	m_actors.push_back({ common::GenerateId(), "box", actor, cube });
-	return m_actors.back().id;
+	sActorInfo *info = new sActorInfo;
+	info->id = common::GenerateId();
+	info->name = "box";
+	info->actor = actor;
+	info->node = cube;
+	m_actors.push_back(info);
+	return info->id;
 }
 
 
@@ -81,8 +94,13 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	actor->CreateSphere(*m_physics, pos, radius, nullptr, density);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
-	m_actors.push_back({ common::GenerateId(), "sphere", actor, sphere });
-	return m_actors.back().id;
+	sActorInfo *info = new sActorInfo;
+	info->id = common::GenerateId();
+	info->name = "sphere";
+	info->actor = actor;
+	info->node = sphere;
+	m_actors.push_back(info);
+	return info->id;
 }
 
 
@@ -98,14 +116,19 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 
 	graphic::cCapsule *capsule = new graphic::cCapsule();
 	capsule->Create(renderer, radius, halfHeight, 16, 8);
-	capsule->m_transform = tfm;
+	capsule->m_transform.pos = tfm.pos;
 
 	cRigidActor *actor = new cRigidActor();
 	actor->CreateCapsule(*m_physics, tfm, radius, halfHeight, nullptr, density);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
-	m_actors.push_back({ common::GenerateId(), "capsule", actor, capsule });
-	return m_actors.back().id;
+	sActorInfo *info = new sActorInfo;
+	info->id = common::GenerateId();
+	info->name = "capsule";
+	info->actor = actor;
+	info->node = capsule;
+	m_actors.push_back(info);
+	return info->id;
 }
 
 
@@ -146,16 +169,16 @@ bool cPhysicsSync::Sync()
 		PxActiveTransform *activeTfm = &m_bufferedActiveTransforms[i];
 
 		auto it = find_if(m_actors.begin(), m_actors.end(), [&](const auto &a) {
-			return (a.actor->m_actor == activeTfm->actor); });
+			return (a->actor->m_actor == activeTfm->actor); });
 		if (m_actors.end() == it)
 			continue;
 
-		sActorInfo &actor = *it;
+		sActorInfo *actor = *it;
 		{
-			Transform tfm = actor.node->m_transform;
+			Transform tfm = actor->node->m_transform;
 			tfm.pos = *(Vector3*)&activeTfm->actor2World.p;
 			tfm.rot = *(Quaternion*)&activeTfm->actor2World.q;
-			actor.node->m_transform = tfm;
+			actor->node->m_transform = tfm;
 		}
 	}
 
@@ -178,14 +201,13 @@ bool cPhysicsSync::AddJoint(cJoint *joint)
 
 
 // find actor info from id
-// waring: if m_actors modify, return actorinfo pointer maybe crash
 cPhysicsSync::sActorInfo* cPhysicsSync::FindActorInfo(const int id)
 {
 	auto it = find_if(m_actors.begin(), m_actors.end(), [&](const auto &a) {
-		return a.id == id; });
+		return a->id == id; });
 	if (m_actors.end() == it)
 		return nullptr;
-	return &*it;
+	return *it;
 }
 
 
@@ -198,9 +220,10 @@ void cPhysicsSync::Clear()
 	for (auto &p : m_actors)
 	{
 		if (m_physics && m_physics->m_scene)
-			m_physics->m_scene->removeActor(*p.actor->m_actor);
-		SAFE_DELETE(p.actor);
-		SAFE_DELETE(p.node);
+			m_physics->m_scene->removeActor(*p->actor->m_actor);
+		SAFE_DELETE(p->actor);
+		SAFE_DELETE(p->node);
+		delete p;
 	}
 	m_actors.clear();
 

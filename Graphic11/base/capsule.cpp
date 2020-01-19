@@ -40,6 +40,11 @@ bool cCapsule::Create(cRenderer &renderer, const float radius, const float halfH
 	m_radius = radius;
 	m_halfHeight = halfHeight;
 	m_vtxType = vtxType;
+
+	Transform tfm;
+	tfm.scale = Vector3(halfHeight + radius, radius, radius);
+	m_boundingBox.SetBoundingBox(tfm);
+
 	return m_shape.Create(renderer, radius, halfHeight, stacks, slices, vtxType, color);
 }
 
@@ -82,6 +87,12 @@ bool cCapsule::Render(cRenderer &renderer
 
 	__super::Render(renderer, parentTm, flags);
 	return true;
+}
+
+
+void cCapsule::SetColor(const cColor &color)
+{
+	m_mtrl.m_diffuse = color.GetColor();
 }
 
 

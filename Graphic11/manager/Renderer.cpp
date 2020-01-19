@@ -32,7 +32,7 @@ cRenderer::cRenderer()
 	, m_refDSV(NULL)
 	, m_fps(0)
 	, m_isDbgRender(false)
-	, m_dbgRenderStyle(0)
+	, m_dbgRenderStyle(1)
 	, m_textGenerateCount(0)
 	, m_textCacheCount(0)
 	, m_drawCallCount(0)
@@ -200,6 +200,10 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_dbgAxis.Create(*this);
 	m_dbgAxis.SetAxis(bbox2, false);
 
+	m_dbgAxis2.Create(*this);
+	cBoundingBox bbox3(Vector3(0, 0, 0), Vector3(10, 0, 10), Quaternion());
+	m_dbgAxis2.SetAxis(bbox3, false);
+
 	m_defaultMtrl.InitWhite();
 	m_cbMaterial = m_defaultMtrl.GetMaterial();
 	m_cbMaterial.Update(*this, 2);
@@ -209,7 +213,16 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 // x, y, z 축을 출력한다.
 void cRenderer::RenderAxis()
 {
+	cBoundingBox bbox2(Vector3(0, 0, 0), Vector3(10, 10, 10), Quaternion());
+	m_dbgAxis.SetAxis(bbox2, false);
 	m_dbgAxis.Render(*this);
+}
+
+
+// x, y, z 축을 출력한다.
+void cRenderer::RenderAxis2()
+{
+	m_dbgAxis2.Render(*this);
 }
 
 

@@ -408,7 +408,7 @@ float4 GetLightingColor(const float3 normal, const float3 toEye, const float sha
 		+ gLight_Diffuse * gMtrl_Diffuse * 0.1f
 		+ gLight_Diffuse * gMtrl_Diffuse * lightV * 0.1f
 		+ gLight_Diffuse * gMtrl_Diffuse * lightV * shadowTerm * 0.9f
-		+ gLight_Specular * gMtrl_Specular * pow(max(0, dot(N, H)), gMtrl_Pow);
+		+ gLight_Specular * gMtrl_Specular * pow(max(0, dot(N, H)), gMtrl_Pow) * shadowTerm * 0.9f;
 
 	return color;
 }

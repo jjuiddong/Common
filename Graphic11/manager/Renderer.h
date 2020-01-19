@@ -102,6 +102,7 @@ namespace graphic
 		void UnbindShaderAll();
 
 		void RenderAxis();
+		void RenderAxis2();
 		void RenderFPS();
 		void RenderGrid();
 
@@ -179,6 +180,7 @@ namespace graphic
 		cDbgArrow m_dbgArrow;
 		cDbgSphere m_dbgSphere;
 		cDbgAxis m_dbgAxis;
+		cDbgAxis m_dbgAxis2; // short y axis
 		cLine m_line;
 		cLine2D m_line2D;
 		cRect2D m_rect2D;

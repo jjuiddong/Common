@@ -59,7 +59,7 @@ namespace phys
 		cPhysicsEngine *m_physics; // reference
 		uint m_activeBufferCapacity;
 		physx::PxActiveTransform *m_bufferedActiveTransforms;
-		vector<sActorInfo> m_actors;
+		vector<sActorInfo*> m_actors;
 		vector<cJoint*> m_joints;
 	};
 

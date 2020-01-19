@@ -1,6 +1,8 @@
 //
 // 2017-06-26, jjuiddong
 //
+// 2020-01-19
+//	- add constructor
 //
 #pragma once
 
@@ -11,6 +13,10 @@ namespace common
 	struct Transform
 	{
 		Transform();
+		explicit Transform(const Vector3 &pos_);
+		Transform(const Vector3 &pos_, const Vector3 &scale_);
+		Transform(const Vector3 &pos_, const Quaternion &rot_);
+		Transform(const Vector3 &pos_, const Vector3 &scale_, const Quaternion &rot_);
 
 		Matrix44 GetMatrix() const;
 #ifdef USE_D3D11_MATH

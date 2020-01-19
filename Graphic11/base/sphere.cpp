@@ -37,6 +37,11 @@ void cSphere::Create(cRenderer &renderer, const float radius, const int stacks, 
 	m_mtrl.m_diffuse = color.GetColor();
 	m_radius = radius;
 	m_vtxType = vtxType;
+	
+	Transform tfm;
+	tfm.scale = Vector3::Ones * radius;
+	m_boundingBox.SetBoundingBox(tfm);
+
 	m_shape.Create(renderer, radius, stacks, slices, vtxType);
 }
 
@@ -79,4 +84,10 @@ bool cSphere::Render(cRenderer &renderer
 
 	__super::Render(renderer, parentTm, flags);
 	return true;
+}
+
+
+void cSphere::SetColor(const cColor &color)
+{
+	m_mtrl.m_diffuse = color.GetColor();
 }
