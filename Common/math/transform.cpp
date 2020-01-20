@@ -19,6 +19,12 @@ Transform::Transform(const Vector3 &pos_)
 {
 }
 
+Transform::Transform(const Quaternion &rot_)
+	: rot(rot_)
+	, scale(1, 1, 1)
+{
+}
+
 Transform::Transform(const Vector3 &pos_, const Vector3 &scale_)
 	: pos(pos_)
 	, scale(scale_)

@@ -1,6 +1,7 @@
 //
 // 2020-01-18, jjuiddong
 // physics sync class
+//		- physics actor, render actor synchronize
 //
 #pragma once
 
@@ -8,16 +9,18 @@
 namespace phys
 {
 
+	struct sActorInfo 
+	{
+		int id; // unique id
+		string name;
+		cRigidActor *actor;
+		graphic::cNode *node;
+	};
+
+
 	class cPhysicsSync : public iPhysicsSync
 	{
 	public:
-		struct sActorInfo {
-			int id;
-			string name;
-			cRigidActor *actor;
-			graphic::cNode *node;
-		};
-
 		cPhysicsSync();
 		virtual ~cPhysicsSync();
 
@@ -42,7 +45,9 @@ namespace phys
 			, const float density = 1.f);
 
 		bool AddJoint(cJoint *joint);
+		bool RemoveJoint(cJoint *joint);
 		sActorInfo* FindActorInfo(const int id);
+		sActorInfo* FindActorInfo(const cRigidActor *actor);
 		void Clear();
 
 

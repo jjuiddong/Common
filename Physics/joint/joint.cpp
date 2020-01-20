@@ -41,9 +41,12 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 		, actor1->m_actor, localFrame1);
 
 	m_type = eType::Fixed;
+	m_joint = joint;
 	m_fixedJoint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
+	actor0->AddJoint(this);
+	actor1->AddJoint(this);
 	return true;
 }
 
@@ -65,10 +68,13 @@ bool cJoint::CreateSpherical(cPhysicsEngine &physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	m_type = eType::Fixed;
+	m_type = eType::Spherical;
+	m_joint = joint;
 	m_sphericalJoint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
+	actor0->AddJoint(this);
+	actor1->AddJoint(this);
 	return true;
 }
 
@@ -91,10 +97,13 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	m_type = eType::Fixed;
+	m_type = eType::Revolute;
+	m_joint = joint;
 	m_revoluteJoint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
+	actor0->AddJoint(this);
+	actor1->AddJoint(this);
 	return true;
 }
 
@@ -146,6 +155,7 @@ void cJoint::Clear()
 	PHY_SAFE_RELEASE(m_joint);
 	m_fixedJoint = nullptr;
 	m_sphericalJoint = nullptr;
+	m_revoluteJoint = nullptr;
 	m_actor0 = nullptr;
 	m_actor1 = nullptr;
 }

@@ -190,6 +190,31 @@ bool cRigidActor::IsKinematic() const
 }
 
 
+// add joint reference
+// joint is this rigid actor connection joint
+bool cRigidActor::AddJoint(cJoint *joint)
+{
+	if (m_joints.end() == std::find(m_joints.begin(), m_joints.end(), joint))
+	{
+		m_joints.push_back(joint);
+		return true;
+	}
+	return false;
+}
+
+
+// remove joint reference
+bool cRigidActor::RemoveJoint(cJoint *joint)
+{
+	if (m_joints.end() != std::find(m_joints.begin(), m_joints.end(), joint))
+	{
+		common::removevector(m_joints, joint);
+		return true;
+	}
+	return false;
+}
+
+
 void cRigidActor::Clear()
 {
 	PHY_SAFE_RELEASE(m_actor);

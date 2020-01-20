@@ -175,6 +175,7 @@ bool cGizmo::Render(cRenderer &renderer
 	case eGizmoEditType::TRANSLATE: RenderTranslate(renderer, parentTm);break;
 	case eGizmoEditType::SCALE: RenderScale(renderer, parentTm); break;
 	case eGizmoEditType::ROTATE: RenderRotate(renderer, parentTm); break;
+	case eGizmoEditType::None: break; // nothing~
 	default: assert(0); break;
 	}
 

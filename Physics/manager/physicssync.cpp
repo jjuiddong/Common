@@ -200,11 +200,35 @@ bool cPhysicsSync::AddJoint(cJoint *joint)
 }
 
 
+// remove joint and connections
+bool cPhysicsSync::RemoveJoint(cJoint *joint)
+{
+	if (joint->m_actor0)
+		joint->m_actor0->RemoveJoint(joint);
+	if (joint->m_actor1)
+		joint->m_actor1->RemoveJoint(joint);
+	common::removevector(m_joints, joint);
+	delete joint;
+	return true;
+}
+
+
 // find actor info from id
-cPhysicsSync::sActorInfo* cPhysicsSync::FindActorInfo(const int id)
+sActorInfo* cPhysicsSync::FindActorInfo(const int id)
 {
 	auto it = find_if(m_actors.begin(), m_actors.end(), [&](const auto &a) {
 		return a->id == id; });
+	if (m_actors.end() == it)
+		return nullptr;
+	return *it;
+}
+
+
+// find actor info from actor ptr
+sActorInfo* cPhysicsSync::FindActorInfo(const cRigidActor *actor)
+{
+	auto it = find_if(m_actors.begin(), m_actors.end(), [&](const auto &a) {
+		return a->actor == actor; });
 	if (m_actors.end() == it)
 		return nullptr;
 	return *it;
@@ -217,6 +241,10 @@ void cPhysicsSync::Clear()
 	if (m_physics)
 		m_physics->m_physics->unregisterDeletionListener(*this);
 
+	for (auto &j : m_joints)
+		SAFE_DELETE(j);
+	m_joints.clear();
+
 	for (auto &p : m_actors)
 	{
 		if (m_physics && m_physics->m_scene)
@@ -226,10 +254,6 @@ void cPhysicsSync::Clear()
 		delete p;
 	}
 	m_actors.clear();
-
-	for (auto &j : m_joints)
-		SAFE_DELETE(j);
-	m_joints.clear();
 
 	_aligned_free(m_bufferedActiveTransforms);
 }

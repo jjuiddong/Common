@@ -11,6 +11,7 @@
 namespace phys
 {
 	class cPhysicsEngine;
+	class cJoint;
 
 	class cRigidActor
 	{
@@ -46,6 +47,8 @@ namespace phys
 
 		bool SetKinematic(const bool isKinematic);
 		bool IsKinematic() const;
+		bool AddJoint(cJoint *joint);
+		bool RemoveJoint(cJoint *joint);
 		void Clear();
 
 
@@ -55,6 +58,7 @@ namespace phys
 		physx::PxRigidActor *m_actor;
 		physx::PxRigidDynamic *m_dynamic; // reference from m_actor
 		physx::PxRigidStatic *m_static; // reference from m_actor
+		vector<cJoint*> m_joints; // reference
 	};
 
 }

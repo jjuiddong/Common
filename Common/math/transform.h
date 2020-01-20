@@ -14,6 +14,7 @@ namespace common
 	{
 		Transform();
 		explicit Transform(const Vector3 &pos_);
+		explicit Transform(const Quaternion &rot_);
 		Transform(const Vector3 &pos_, const Vector3 &scale_);
 		Transform(const Vector3 &pos_, const Quaternion &rot_);
 		Transform(const Vector3 &pos_, const Vector3 &scale_, const Quaternion &rot_);
