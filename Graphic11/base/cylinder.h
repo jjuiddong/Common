@@ -1,6 +1,6 @@
 //
-// 2020-01-16, jjuiddong
-// capsule renderer
+// 2020-01-20, jjuiddong
+// cylinder renderer
 //
 #pragma once
 
@@ -9,15 +9,15 @@ namespace graphic
 {
 	using namespace common;
 
-	class cCapsule : public cNode
+	class cCylinder : public cNode
 	{
 	public:
-		cCapsule();
-		cCapsule(cRenderer &renderer, const float radius, const float halfHeight
+		cCylinder();
+		cCylinder(cRenderer &renderer, const float radius, const float halfHeight
 			, const int stacks, const int slices
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE);
-		virtual ~cCapsule();
+		virtual ~cCylinder();
 
 		bool Create(cRenderer &renderer, const float radius, const float halfHeight
 			, const int stacks, const int slices
@@ -32,9 +32,7 @@ namespace graphic
 
 
 	public:
-		cSphereShape m_sphereShape;
-		cCylinderShape m_cylinderShape;
-		//cCapsuleShape m_shape;
+		cCylinderShape m_shape;
 		cMaterial m_mtrl;
 		float m_radius;
 		float m_halfHeight;

@@ -1,6 +1,6 @@
 //
-// 2020-01-16, jjuiddong
-// Capsule Shape
+// 2020-01-20, jjuiddong
+// Cylinder Shape
 //
 #pragma once
 
@@ -9,11 +9,11 @@ namespace graphic
 {
 	using namespace common;
 
-	class cCapsuleShape : public cShape
+	class cCylinderShape : public cShape
 	{
 	public:
-		cCapsuleShape();
-		virtual ~cCapsuleShape();
+		cCylinderShape();
+		virtual ~cCylinderShape();
 
 		bool Create(cRenderer &renderer, const float radius
 			, const float halfHeight
@@ -23,13 +23,12 @@ namespace graphic
 				| eVertexType::NORMAL
 				| eVertexType::COLOR)
 			, const cColor &color = cColor::BLACK
-			);
+		);
 
 		void Render(cRenderer &renderer) override;
 
 
 	protected:
-		void GenerateSphereMesh(int slices, int stacks, Vector3* positions, WORD* indices);
 		void GenerateConeMesh(int slices, Vector3* positions, WORD* indices, int offset);
 
 

@@ -395,6 +395,12 @@
     <ClInclude Include="shape\capsuleshape.h">
       <Filter>shape</Filter>
     </ClInclude>
+    <ClInclude Include="base\cylinder.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\cylindershape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -750,6 +756,12 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="shape\capsuleshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cylinder.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\cylindershape.cpp">
       <Filter>shape</Filter>
     </ClCompile>
   </ItemGroup>

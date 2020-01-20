@@ -35,14 +35,17 @@ namespace phys
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f);
 
-		bool  CreateCapsule(cPhysicsEngine &physics
+		bool CreateCapsule(cPhysicsEngine &physics
 			, const Transform &tfm
 			, const float radius
 			, const float halfHeight
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f);
 
+		bool ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim);
+
 		bool SetKinematic(const bool isKinematic);
+		bool IsKinematic() const;
 		void Clear();
 
 

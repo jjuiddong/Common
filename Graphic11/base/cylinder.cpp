@@ -1,52 +1,54 @@
-﻿#include "stdafx.h"
-#include "sphere.h"
-
+#include "stdafx.h"
+#include "cylinder.h"
 
 using namespace graphic;
 
 
-cSphere::cSphere() 
-	: cNode(common::GenerateId(), "sphere", eNodeType::MODEL)
+cCylinder::cCylinder()
+	: cNode(common::GenerateId(), "capsule", eNodeType::MODEL)
 	, m_radius(0)
-	, m_texture(NULL)
+	, m_halfHeight(0)
 {
 	m_mtrl.InitWhite();
 }
 
-cSphere::cSphere(cRenderer &renderer, const float radius, const int stacks, const int slices
-	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
+cCylinder::cCylinder(cRenderer &renderer, const float radius, const float halfHeight
+	, const int stacks, const int slices
+	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::WHITE
 )
-	: cNode(common::GenerateId(), "sphere", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "cylinder", eNodeType::MODEL)
 	, m_radius(0)
-	, m_texture(NULL)
+	, m_halfHeight(0)
 {
-	Create(renderer, radius, stacks, slices, vtxType, color);	
+	Create(renderer, radius, halfHeight, stacks, slices, vtxType, color);
 }
 
-cSphere::~cSphere()
+cCylinder::~cCylinder()
 {
 }
 
 
-void cSphere::Create(cRenderer &renderer, const float radius, const int stacks, const int slices
+bool cCylinder::Create(cRenderer &renderer, const float radius, const float halfHeight
+	, const int stacks, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
 	, const cColor &color //= cColor::WHITE
 )
 {
 	m_mtrl.m_diffuse = color.GetColor();
 	m_radius = radius;
+	m_halfHeight = halfHeight;
 	m_vtxType = vtxType;
-	m_transform.scale = Vector3::Ones * radius;
 
-	const Transform tfm(Vector3(0, 0, 0), Vector3::Ones);
+	Transform tfm;
+	tfm.scale = Vector3(halfHeight + radius, radius, radius);
 	m_boundingBox.SetBoundingBox(tfm);
 
-	m_shape.Create(renderer, 1.f, stacks, slices, vtxType, color);
+	return m_shape.Create(renderer, radius, halfHeight, stacks, slices, vtxType, color);
 }
 
 
-bool cSphere::Render(cRenderer &renderer
+bool cCylinder::Render(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
 )
@@ -64,8 +66,8 @@ bool cSphere::Render(cRenderer &renderer
 	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
-	if ((m_shape.m_vtxType & eVertexType::TEXTURE0) && m_texture)
-		m_texture->Bind(renderer, 0);
+	//if ((m_shape.m_vtxType & eVertexType::TEXTURE0) && m_texture)
+	//	m_texture->Bind(renderer, 0);
 
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
 	{
@@ -87,14 +89,19 @@ bool cSphere::Render(cRenderer &renderer
 }
 
 
-void cSphere::SetColor(const cColor &color)
+void cCylinder::SetColor(const cColor &color)
 {
 	m_mtrl.m_diffuse = color.GetColor();
 }
 
 
-void cSphere::SetRadius(const float radius)
+void cCylinder::SetPos(const Vector3 &pos)
 {
-	m_radius = radius;
-	m_transform.scale = Vector3::Ones * radius;
+	m_transform.pos = pos;
+}
+
+
+void cCylinder::SetDimension(const float radius, const float halfHeight)
+{
+
 }

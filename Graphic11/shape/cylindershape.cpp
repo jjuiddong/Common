@@ -1,15 +1,15 @@
 
 #include "stdafx.h"
-#include "capsuleshape.h"
+#include "cylindershape.h"
 
 using namespace graphic;
 
 
-cCapsuleShape::cCapsuleShape()
+cCylinderShape::cCylinderShape()
 {
 }
 
-cCapsuleShape::~cCapsuleShape()
+cCylinderShape::~cCylinderShape()
 {
 }
 
@@ -19,7 +19,7 @@ cCapsuleShape::~cCapsuleShape()
 // 90µµ -> xyz = (0,0,1)
 // 180µµ -> xyz = (-1,0,0)
 //
-bool cCapsuleShape::Create(cRenderer &renderer, const float radius
+bool cCylinderShape::Create(cRenderer &renderer, const float radius
 	, const float halfHeight
 	, const int stacks
 	, const int slices
@@ -33,20 +33,14 @@ bool cCapsuleShape::Create(cRenderer &renderer, const float radius
 	m_radius = radius;
 	m_halfHeight = halfHeight;
 
-	const int numSphereVertices = (slices * 2 + 1)*(stacks + 1);
-	const int numSphereIndices = slices * 2 * stacks * 6;
 	const int numConeVertices = (slices * 2 + 1) * 2;
 	const int numConeIndices = slices * 2 * 6;
-	const int numCapsuleVertices = 2 * numSphereVertices + numConeVertices;
-	const int numCapsuleIndices = 2 * numSphereIndices + numConeIndices;
-
-	vector<Vector3> spherePositions(numSphereVertices);
-	vector<WORD> sphereIndices(numSphereIndices);
-	GenerateSphereMesh(slices, stacks, &spherePositions[0], &sphereIndices[0]);
+	const int numCapsuleVertices = numConeVertices;
+	const int numCapsuleIndices = numConeIndices;
 
 	vector<Vector3> conePositions(numConeVertices);
 	vector<unsigned short> coneIndices(numConeIndices);
-	GenerateConeMesh(slices, &conePositions[0], &coneIndices[0], numSphereVertices * 2);
+	GenerateConeMesh(slices, &conePositions[0], &coneIndices[0], 0);
 
 	const int vtxCount = numCapsuleVertices;
 	const int faceCount = numCapsuleIndices / 3;
@@ -70,30 +64,6 @@ bool cCapsuleShape::Create(cRenderer &renderer, const float radius
 
 	const float radii[2] = { radius1, radius0 };
 	const float offsets[2] = { halfHeight, -halfHeight };
-
-	// write two copies of the sphere mesh scaled and offset appropriately
-	for (int s = 0; s < 2; ++s)
-	{
-		const float r = radii[s];
-		const float offset = offsets[s];
-
-		for (int i = 0; i < numSphereVertices; ++i)
-		{
-			Vector3 p = spherePositions[i] * r;
-			p.x += offset;
-
-			if (vtxType & eVertexType::POSITION)
-				*(Vector3*)(pVertex + posOffset) = p;
-			if (vtxType & eVertexType::COLOR)
-				*(Vector4*)(pVertex + colorOffset) = vColor;
-			if (vtxType & eVertexType::NORMAL)
-				*(Vector3*)(pVertex + normOffset) = spherePositions[i].Normal();
-			//if (vtxType & eVertexType::TEXTURE0)
-			//	*(Vector2*)(pVertex + texOffset) = Vector2(u1, v1);
-
-			pVertex += vertexStride;
-		}
-	}
 
 	// calculate cone angle
 	float cosTheta = 0.0f;
@@ -140,18 +110,6 @@ bool cCapsuleShape::Create(cRenderer &renderer, const float radius
 
 	if (pIndices)
 	{
-		// first sphere
-		for (int i = 0; i < numSphereIndices; ++i)
-			pIndices[i] = sphereIndices[i];
-
-		pIndices += numSphereIndices;
-
-		// second sphere
-		for (int i = 0; i < numSphereIndices; ++i)
-			pIndices[i] = sphereIndices[i] + numSphereVertices;
-
-		pIndices += numSphereIndices;
-
 		// cone indices
 		for (int i = 0; i < numConeIndices; ++i)
 			pIndices[i] = coneIndices[i];
@@ -164,7 +122,7 @@ bool cCapsuleShape::Create(cRenderer &renderer, const float radius
 }
 
 
-void cCapsuleShape::Render(cRenderer &renderer)
+void cCylinderShape::Render(cRenderer &renderer)
 {
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
@@ -174,53 +132,7 @@ void cCapsuleShape::Render(cRenderer &renderer)
 }
 
 
-void cCapsuleShape::GenerateSphereMesh(int slices, int stacks, Vector3* positions, WORD* indices)
-{
-	const float thetaStep = MATH_PI / stacks;
-	const float phiStep = (MATH_PI * 2.f) / (slices * 2);
-	float theta = 0.0f;
-
-	// generate vertices
-	for (int y = 0; y <= stacks; ++y)
-	{
-		float phi = 0.0f;
-
-		const float cosTheta = (float)cos(theta);
-		const float sinTheta = (float)sin(theta);
-
-		for (int x = 0; x <= slices * 2; ++x)
-		{
-			const float cosPhi = (float)cos(phi);
-			const float sinPhi = (float)sin(phi);
-
-			const Vector3 p(cosPhi*sinTheta, cosTheta, sinPhi*sinTheta);
-			*(positions++) = p;
-			phi += phiStep;
-		}
-
-		theta += thetaStep;
-	}
-
-	const int numRingQuads = 2 * slices;
-	const int numRingVerts = 2 * slices + 1;
-	// add faces
-	for (int y = 0; y < stacks; ++y)
-	{
-		for (int i = 0; i < numRingQuads; ++i)
-		{
-			// add a quad
-			*(indices++) = (y + 0)*numRingVerts + i;
-			*(indices++) = (y + 1)*numRingVerts + i + 1;
-			*(indices++) = (y + 1)*numRingVerts + i;
-
-			*(indices++) = (y + 1)*numRingVerts + i + 1;
-			*(indices++) = (y + 0)*numRingVerts + i;
-			*(indices++) = (y + 0)*numRingVerts + i + 1;
-		}
-	}
-}
-
-void cCapsuleShape::GenerateConeMesh(int slices, Vector3* positions, WORD* indices, int offset)
+void cCylinderShape::GenerateConeMesh(int slices, Vector3* positions, WORD* indices, int offset)
 {
 	// generate vertices
 	const float phiStep = (MATH_PI * 2.f) / (slices * 2);

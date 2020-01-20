@@ -129,6 +129,46 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 }
 
 
+// change geometry shape
+bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
+{
+	RETV(!m_actor, false);
+
+	// 1. remove old shape
+	const uint count = m_actor->getNbShapes();
+	if (count == 0)
+		return false;
+
+	PxShape **shapes = new PxShape*[count];
+	const uint result = m_actor->getShapes(shapes, count);
+	for (uint i = 0; i < result; ++i)
+		m_actor->detachShape(*shapes[i]);
+	delete[] shapes;
+
+	// 2. generate new shape
+	switch (m_shape)
+	{
+	case eShape::Box:
+		m_actor->createShape(PxBoxGeometry(*(PxVec3*)&dim), *physics.m_material); 
+		break;
+	case eShape::Sphere:
+		m_actor->createShape(PxSphereGeometry(dim.x), *physics.m_material);
+		break;
+	case eShape::Capsule:
+		m_actor->createShape(PxCapsuleGeometry(dim.y, dim.x), *physics.m_material);
+		break;
+
+	case eShape::Plane: // not support
+	case eShape::Convex: // not support
+		assert(0);
+		break;
+	default: assert(0); break;
+	}
+
+	return true;
+}
+
+
 bool cRigidActor::SetKinematic(const bool isKinematic)
 {
 	RETV(!m_actor, false);
@@ -136,6 +176,17 @@ bool cRigidActor::SetKinematic(const bool isKinematic)
 
 	m_dynamic->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	return true;
+}
+
+
+bool cRigidActor::IsKinematic() const
+{
+	RETV(!m_actor, false);
+	RETV(m_type != eType::Dynamic, false);
+
+	const PxRigidBodyFlags flags = m_dynamic->getRigidBodyFlags();
+	const bool isKinematic = flags.isSet(PxRigidBodyFlag::eKINEMATIC);
+	return isKinematic;
 }
 
 
