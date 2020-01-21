@@ -203,10 +203,6 @@ bool cPhysicsSync::AddJoint(cJoint *joint)
 // remove joint and connections
 bool cPhysicsSync::RemoveJoint(cJoint *joint)
 {
-	if (joint->m_actor0)
-		joint->m_actor0->RemoveJoint(joint);
-	if (joint->m_actor1)
-		joint->m_actor1->RemoveJoint(joint);
 	common::removevector(m_joints, joint);
 	delete joint;
 	return true;
