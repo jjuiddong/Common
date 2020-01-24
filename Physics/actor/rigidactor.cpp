@@ -41,6 +41,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	, const Transform &tfm
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
+	, const bool isKinematic //=false
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
@@ -51,10 +52,8 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 
 	box->setLinearDamping(1.f);
 	box->setAngularDamping(1.f);
-	//box->setAngularDamping(3.f);
-	//box->setAngularDamping(0.5f);
 	box->setActorFlag(PxActorFlag::eVISUALIZATION, true);
-	box->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
+	box->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	if (linVel)
 		box->setLinearVelocity(*(PxVec3*)linVel);
 
@@ -70,6 +69,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	, const float radius
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
+	, const bool isKinematic //=false
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
@@ -80,7 +80,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 
 	sphere->setLinearDamping(1.f);
 	sphere->setAngularDamping(1.f);
-	sphere->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
+	sphere->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	sphere->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
 	if (linVel)
@@ -99,6 +99,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	, const float halfHeight
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
+	, const bool isKinematic //=false
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
@@ -112,7 +113,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 
 	capsule->setLinearDamping(1.f);
 	capsule->setAngularDamping(1.f);
-	capsule->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
+	capsule->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	capsule->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
 	if (linVel)

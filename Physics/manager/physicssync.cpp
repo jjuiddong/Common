@@ -56,6 +56,7 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	, const Transform& tfm
 	, const float density //= 1.f
+	, const bool isKinematic //= false
 )
 {
 	RETV(!m_physics, false);
@@ -66,7 +67,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	cube->SetCube(tfm);
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateBox(*m_physics, tfm, nullptr, density);
+	actor->CreateBox(*m_physics, tfm, nullptr, density, isKinematic);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -85,6 +86,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	, const Vector3& pos
 	, const float radius
 	, const float density //= 1.f
+	, const bool isKinematic //= false
 )
 {
 	RETV(!m_physics, false);
@@ -95,7 +97,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	sphere->m_transform.pos = pos;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateSphere(*m_physics, pos, radius, nullptr, density);
+	actor->CreateSphere(*m_physics, pos, radius, nullptr, density, isKinematic);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -115,6 +117,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	, const float radius
 	, const float halfHeight
 	, const float density //= 1.f
+	, const bool isKinematic //= false
 )
 {
 	RETV(!m_physics, false);
@@ -126,7 +129,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	capsule->m_transform.rot = tfm.rot;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateCapsule(*m_physics, tfm, radius, halfHeight, nullptr, density);
+	actor->CreateCapsule(*m_physics, tfm, radius, halfHeight, nullptr, density, isKinematic);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;

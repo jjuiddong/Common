@@ -143,7 +143,7 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 	//	return false;
 	//m_accTime -= m_stepSize;
 
-	m_stepSize = deltaSeconds;
+	m_stepSize = min(0.01f, deltaSeconds);
 	m_isFetch = true;
 
 	physx::PxSceneWriteLock writeLock(*m_scene);

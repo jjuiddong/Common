@@ -28,20 +28,23 @@ namespace phys
 		bool CreateBox(cPhysicsEngine &physics
 			, const Transform &tfm
 			, const Vector3* linVel = nullptr
-			, const float density = 1.f);
+			, const float density = 1.f
+			, const bool isKinematic = false);
 
 		bool CreateSphere(cPhysicsEngine &physics
 			, const Vector3& pos
 			, const float radius
 			, const Vector3* linVel = nullptr
-			, const float density = 1.f);
+			, const float density = 1.f
+			, const bool isKinematic = false);
 
 		bool CreateCapsule(cPhysicsEngine &physics
 			, const Transform &tfm
 			, const float radius
 			, const float halfHeight
 			, const Vector3* linVel = nullptr
-			, const float density = 1.f);
+			, const float density = 1.f
+			, const bool isKinematic = false);
 
 		bool ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim);
 

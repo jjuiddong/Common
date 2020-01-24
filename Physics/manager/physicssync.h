@@ -33,18 +33,21 @@ namespace phys
 
 		int SpawnBox(graphic::cRenderer &renderer
 			, const Transform& tfm
-			, const float density = 1.f);
+			, const float density = 1.f
+			, const bool isKinematic = false);
 
 		int SpawnSphere(graphic::cRenderer &renderer
 			, const Vector3& pos
 			, const float radius
-			, const float density = 1.f);
+			, const float density = 1.f
+			, const bool isKinematic = false);
 
 		int SpawnCapsule(graphic::cRenderer &renderer
 			, const Transform& tfm
 			, const float radius
 			, const float halfHeight
-			, const float density = 1.f);
+			, const float density = 1.f
+			, const bool isKinematic = false);
 
 		bool AddJoint(cJoint *joint, graphic::cNode *node = nullptr
 			, const bool isAutoRemove=true);
