@@ -9,11 +9,13 @@
 namespace phys
 {
 
-	struct sActorInfo 
+	struct sSyncInfo 
 	{
 		int id; // unique id
-		string name;
+		bool isRemove; // is auto remove
+		Str32 name;
 		cRigidActor *actor;
+		cJoint *joint;
 		graphic::cNode *node;
 	};
 
@@ -44,10 +46,16 @@ namespace phys
 			, const float halfHeight
 			, const float density = 1.f);
 
-		bool AddJoint(cJoint *joint);
-		bool RemoveJoint(cJoint *joint);
-		sActorInfo* FindActorInfo(const int id);
-		sActorInfo* FindActorInfo(const cRigidActor *actor);
+		bool AddJoint(cJoint *joint, graphic::cNode *node = nullptr
+			, const bool isAutoRemove=true);
+
+		sSyncInfo* FindSyncInfo(const int syncId);
+		sSyncInfo* FindSyncInfo(const cRigidActor *actor);
+		sSyncInfo* FindSyncInfo(const cJoint *joint);
+		bool RemoveSyncInfo(const int syncId);
+		bool RemoveSyncInfo(const cRigidActor *actor);
+		bool RemoveSyncInfo(const cJoint *joint);
+		bool RemoveSyncInfo(sSyncInfo *sync);
 		void Clear();
 
 
@@ -64,8 +72,7 @@ namespace phys
 		cPhysicsEngine *m_physics; // reference
 		uint m_activeBufferCapacity;
 		physx::PxActiveTransform *m_bufferedActiveTransforms;
-		vector<sActorInfo*> m_actors;
-		vector<cJoint*> m_joints;
+		vector<sSyncInfo*> m_syncs;
 	};
 
 }

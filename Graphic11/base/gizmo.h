@@ -28,7 +28,7 @@ namespace graphic
 		cGizmo();
 		virtual ~cGizmo();
 
-		bool Create(cRenderer &renderer);
+		bool Create(cRenderer &renderer, const bool isImmediate = true);
 		void SetControlNode(cNode *node);
 		void SetTransformType(const eGizmoTransform::Enum type);
 
@@ -39,6 +39,7 @@ namespace graphic
 			, const XMMATRIX &parentTm = XMIdentity
 		);
 
+		void LockEditType(const eGizmoEditType::Enum type, const bool lock);
 		bool IsKeepEditMode() const;
 		void Cancel();
 
@@ -52,17 +53,21 @@ namespace graphic
 
 	public:
 		bool m_isKeepEdit; // if picking node? true
+		bool m_isImmediate; // immediate update node transform?
 		eGizmoEditType::Enum m_type;
 		eGizmoEditAxis::Enum m_axisType;
 		eGizmoTransform::Enum m_transformType;
-		cNode *m_controlNode;
+		cNode *m_controlNode; // reference
 		cQuad m_quad;
 		cTorus m_torus;
 		cDbgArrow m_arrow[3];
 		bool m_pick[6]; // x,y,z-axis, x-z, y-z, x-y plane (eGizmoEditAxis order)
+		bool m_lock[4]; // lock edit type
 		POINT m_prevMousePos;
 		POINT m_mousePos; // window 2d mouse pos
+		bool m_prevMouseClick; //check clicked mouse left button
 		vector<cBoundingBox> m_ringBbox; // rotation ring picking
+		Transform m_targetTransform; // temporal store node transform (to multithread access)
 	};
 
 

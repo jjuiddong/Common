@@ -8,9 +8,8 @@ using namespace physx;
 
 
 cRigidActor::cRigidActor()
-	: m_actor(nullptr)
-	, m_dynamic(nullptr)
-	, m_static(nullptr)
+	: m_id(common::GenerateId())
+	, m_actor(nullptr)
 	, m_type(eType::None)
 	, m_shape(eShape::None)
 {
@@ -30,12 +29,10 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 		, PxPlane(*(PxVec3*)&norm, 0), *physics.m_material);
 	if (!plane)
 		return nullptr;
-	physics.m_scene->addActor(*plane);
 
 	m_type = eType::Static;
 	m_shape = eShape::Plane;
 	m_actor = plane;
-	m_static = plane;
 	return true;
 }
 
@@ -52,17 +49,18 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 		, PxBoxGeometry(*(PxVec3*)&tfm.scale), *physics.m_material, density);
 	PX_ASSERT(box);
 
+	box->setLinearDamping(1.f);
+	box->setAngularDamping(1.f);
+	//box->setAngularDamping(3.f);
+	//box->setAngularDamping(0.5f);
 	box->setActorFlag(PxActorFlag::eVISUALIZATION, true);
-	box->setAngularDamping(0.5f);
 	box->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
-	physics.m_scene->addActor(*box);
 	if (linVel)
 		box->setLinearVelocity(*(PxVec3*)linVel);
 
 	m_type = eType::Dynamic;
 	m_shape = eShape::Box;
 	m_actor = box;
-	m_dynamic = box;
 	return true;
 }
 
@@ -80,10 +78,10 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 		, PxSphereGeometry(radius), *physics.m_material, density);
 	PX_ASSERT(sphere);
 
-	sphere->setActorFlag(PxActorFlag::eVISUALIZATION, true);
-	sphere->setAngularDamping(0.5f);
+	sphere->setLinearDamping(1.f);
+	sphere->setAngularDamping(1.f);
 	sphere->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
-	physics.m_scene->addActor(*sphere);
+	sphere->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
 	if (linVel)
 		sphere->setLinearVelocity(*(PxVec3*)linVel);
@@ -91,7 +89,6 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	m_type = eType::Dynamic;
 	m_shape = eShape::Sphere;
 	m_actor = sphere;
-	m_dynamic = sphere;
 	return true;
 }
 
@@ -113,10 +110,10 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 		, PxCapsuleGeometry(radius, halfHeight), *physics.m_material, density);
 	PX_ASSERT(capsule);
 
-	capsule->setActorFlag(PxActorFlag::eVISUALIZATION, true);
-	capsule->setAngularDamping(0.5f);
+	capsule->setLinearDamping(1.f);
+	capsule->setAngularDamping(1.f);
 	capsule->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
-	physics.m_scene->addActor(*capsule);
+	capsule->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
 	if (linVel)
 		capsule->setLinearVelocity(*(PxVec3*)linVel);
@@ -124,7 +121,6 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	m_type = eType::Dynamic;
 	m_shape = eShape::Capsule;
 	m_actor = capsule;
-	m_dynamic = capsule;
 	return true;
 }
 
@@ -169,12 +165,36 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 }
 
 
+bool cRigidActor::SetGlobalPose(const physx::PxTransform &tfm)
+{
+	PxRigidDynamic *p = m_actor->is<PxRigidDynamic>();
+	RETV(!p, false);
+
+	const PxRigidBodyFlags flags = p->getRigidBodyFlags();
+	const bool isKinematic = flags.isSet(PxRigidBodyFlag::eKINEMATIC);
+	if (isKinematic)
+		p->setKinematicTarget(tfm);
+	else
+		p->setGlobalPose(tfm);
+	return true;
+}
+
+
+bool cRigidActor::SetGlobalPose(const Transform &tfm)
+{
+	const PxTransform target = PxTransform(*(PxQuat*)&tfm.rot) * PxTransform(*(PxVec3*)&tfm.pos);
+	return SetGlobalPose(target);
+}
+
+
 bool cRigidActor::SetKinematic(const bool isKinematic)
 {
 	RETV(!m_actor, false);
 	RETV(m_type != eType::Dynamic, false);
 
-	m_dynamic->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
+
 	return true;
 }
 
@@ -184,9 +204,85 @@ bool cRigidActor::IsKinematic() const
 	RETV(!m_actor, false);
 	RETV(m_type != eType::Dynamic, false);
 
-	const PxRigidBodyFlags flags = m_dynamic->getRigidBodyFlags();
-	const bool isKinematic = flags.isSet(PxRigidBodyFlag::eKINEMATIC);
-	return isKinematic;
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+	{
+		const PxRigidBodyFlags flags = p->getRigidBodyFlags();
+		const bool isKinematic = flags.isSet(PxRigidBodyFlag::eKINEMATIC);
+		return isKinematic;
+	}
+	return true;
+}
+
+
+float cRigidActor::GetMass() const
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		return p->getMass();
+	return 0.f;
+}
+
+
+bool cRigidActor::SetMass(const float mass)
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setMass(mass);
+	return true;
+}
+
+
+float cRigidActor::GetLinearDamping() const
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		return p->getLinearDamping();
+	return 0.f;
+}
+
+
+bool cRigidActor::SetLinearDamping(const float damping)
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setLinearDamping(damping);
+	return true;
+}
+
+
+float cRigidActor::GetAngularDamping() const
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		return p->getAngularDamping();
+	return 0.f;
+}
+
+
+bool cRigidActor::SetAngularDamping(const float damping)
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setAngularDamping(damping);
+	return true;
+}
+
+
+bool cRigidActor::SetMaxAngularVelocity(const float maxVel)
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setMaxAngularVelocity(maxVel);
+	return true;
+}
+
+
+float cRigidActor::GetMaxAngularVelocity()
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		return p->getMaxAngularVelocity();
+	return 0.f;
+}
+
+
+bool cRigidActor::WakeUp()
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->wakeUp();
+	return true;
 }
 
 
@@ -217,7 +313,6 @@ bool cRigidActor::RemoveJoint(cJoint *joint)
 
 void cRigidActor::Clear()
 {
+	m_joints.clear();
 	PHY_SAFE_RELEASE(m_actor);
-	m_dynamic = nullptr;
-	m_static = nullptr;
 }

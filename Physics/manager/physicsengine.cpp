@@ -9,6 +9,12 @@ using namespace physx;
 
 cPhysicsEngine::cPhysicsEngine()
 	: m_objSync(nullptr)
+	, m_scratchBlock(nullptr)
+	, m_scratchBlockSize(1024 * 128)
+	, m_isPVD(true)
+	, m_stepSize(1.f/50.f)
+	, m_accTime(0.f)
+	, m_isFetch(false)
 {
 }
 
@@ -24,20 +30,24 @@ bool cPhysicsEngine::InitializePhysx()
 		, m_defaultAllocatorCallback, m_defaultErrorCallback);
 
 	// pvd connection
-	sPvdParameters pvdParams;
-	m_transport = physx::PxDefaultPvdSocketTransportCreate(pvdParams.ip.c_str(), pvdParams.port
-		, pvdParams.timeout);
-	if (m_transport == NULL)
-		return false;
-	m_pvdFlags = physx::PxPvdInstrumentationFlag::eALL;
-	if (!pvdParams.useFullPvdConnection)
-		m_pvdFlags = physx::PxPvdInstrumentationFlag::ePROFILE;
-	m_pvd = physx::PxCreatePvd(*m_foundation);
-	m_pvd->connect(*m_transport, m_pvdFlags);
-	//~pvd
+	if (m_isPVD)
+	{
+		sPvdParameters pvdParams;
+		m_transport = physx::PxDefaultPvdSocketTransportCreate(pvdParams.ip.c_str(), pvdParams.port
+			, pvdParams.timeout);
+		if (m_transport == NULL)
+			return false;
+		m_pvdFlags = physx::PxPvdInstrumentationFlag::eALL;
+		if (!pvdParams.useFullPvdConnection)
+			m_pvdFlags = physx::PxPvdInstrumentationFlag::ePROFILE;
+		m_pvd = physx::PxCreatePvd(*m_foundation);
+		m_pvd->connect(*m_transport, m_pvdFlags);
+	}//~pvd
 
 	bool recordMemoryAllocations = true;
 	physx::PxTolerancesScale scale;
+	//scale.length = 10;
+	//scale.speed = 10;
 	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, scale
 		, recordMemoryAllocations, m_pvd);
 
@@ -107,6 +117,8 @@ bool cPhysicsEngine::InitializePhysx()
 	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE
 		, IsinitialDebugRender ? debugRenderScale : 0.0f);
 	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+	m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
+	//m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
 
 	physx::PxPvdSceneClient* pvdClient = m_scene->getScenePvdClient();
 	if (pvdClient)
@@ -116,14 +128,26 @@ bool cPhysicsEngine::InitializePhysx()
 		pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 
+	if (m_scratchBlockSize > 0)
+		m_scratchBlock = _aligned_malloc(m_scratchBlockSize, 16);
+
 	return true;
 }
 
 
 bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 {
+	// not use stepper
+	//m_accTime += min(deltaSeconds, m_stepSize);
+	//if (m_accTime < m_stepSize)
+	//	return false;
+	//m_accTime -= m_stepSize;
+
+	m_stepSize = deltaSeconds;
+	m_isFetch = true;
+
 	physx::PxSceneWriteLock writeLock(*m_scene);
-	m_scene->simulate(0.01f, nullptr);
+	m_scene->simulate(m_stepSize, nullptr, m_scratchBlock, m_scratchBlockSize);
 	return true;
 }
 
@@ -131,10 +155,15 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 // update physx result info
 bool cPhysicsEngine::PostUpdate(const float deltaSeconds)
 {
-	PxSceneWriteLock writeLock(*m_scene);
-	m_scene->fetchResults(true);
-	if (m_objSync)
-		m_objSync->Sync();
+	if (m_isFetch)
+	{
+		m_isFetch = false;
+
+		PxSceneWriteLock writeLock(*m_scene);
+		m_scene->fetchResults(true);
+		if (m_objSync)
+			m_objSync->Sync();
+	}
 	return true;
 }
 
@@ -158,6 +187,11 @@ bool cPhysicsEngine::SetPhysicsSync(iPhysicsSync *sync)
 void cPhysicsEngine::Clear()
 {
 	SAFE_DELETE(m_objSync);
+	if (m_scratchBlock)
+	{
+		_aligned_free(m_scratchBlock);
+		m_scratchBlock = nullptr;
+	}
 	if (m_physics)
 		m_physics->unregisterDeletionListener(*this);
 	PHY_SAFE_RELEASE(m_scene);

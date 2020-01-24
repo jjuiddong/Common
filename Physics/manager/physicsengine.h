@@ -45,8 +45,16 @@ namespace phys
 		physx::PxDefaultCpuDispatcher *m_cpuDispatcher;
 		physx::PxCudaContextManager *m_cudaContextManager;
 		physx::PxScene *m_scene;
+		void *m_scratchBlock;
+		uint m_scratchBlockSize;
 
 		iPhysicsSync *m_objSync;
+		bool m_isPVD; // pvd connection?
+
+		// stepper
+		float m_stepSize;
+		float m_accTime;
+		bool m_isFetch;
 	};
 
 }

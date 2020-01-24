@@ -11,9 +11,12 @@ cGizmo::cGizmo()
 	, m_axisType(eGizmoEditAxis::X)
  	, m_transformType(eGizmoTransform::LOCAL)
 	, m_isKeepEdit(false)
+	, m_isImmediate(true)
+	, m_prevMouseClick(false)
 	, m_controlNode(NULL)
 {
 	ZeroMemory(m_pick, sizeof(m_pick));
+	ZeroMemory(m_lock, sizeof(m_lock));
 }
 
 cGizmo::~cGizmo()
@@ -21,7 +24,9 @@ cGizmo::~cGizmo()
 }
 
 
-bool cGizmo::Create(cRenderer &renderer)
+bool cGizmo::Create(cRenderer &renderer
+	, const bool isImmediate //= true
+)
 {
 	m_quad.Create(renderer, 1.f, 1.f, Vector3(0,0,0)
 		, eVertexType::POSITION | eVertexType::COLOR);
@@ -48,6 +53,7 @@ bool cGizmo::Create(cRenderer &renderer)
 		angle += incAngle;
 	}
 
+	m_isImmediate = isImmediate;
 	return true;
 }
 
@@ -74,6 +80,8 @@ void cGizmo::SetControlNode(cNode *node)
 	// location between node and eye pos
 	Vector3 v = worldTm.GetPosition() - GetMainCamera().GetEyePos();
 	m_transform.pos = v.Normal() * 3 + GetMainCamera().GetEyePos();
+
+	m_targetTransform = node->m_transform;
 }
 
 
@@ -84,14 +92,22 @@ void cGizmo::UpdateNodeTransform(const Transform &transform)
 
 	if (eGizmoTransform::LOCAL == m_transformType)
 	{
+		//m_nodeTransform = m_controlNode->m_transform;
 		switch (m_type)
 		{
-		case eGizmoEditType::TRANSLATE: m_controlNode->m_transform.pos += transform.pos; break;
-		case eGizmoEditType::SCALE: m_controlNode->m_transform.scale *= transform.scale; break;
-		case eGizmoEditType::ROTATE: m_controlNode->m_transform.rot *= transform.rot; break;
+		case eGizmoEditType::TRANSLATE: 
+			m_targetTransform.pos += transform.pos; 
+			break;
+		case eGizmoEditType::SCALE: 
+			m_targetTransform.scale *= transform.scale;
+			break;
+		case eGizmoEditType::ROTATE: 
+			m_targetTransform.rot *= transform.rot; break;
 		}
 
 		m_transform.pos += transform.pos;
+		if (m_isImmediate)
+			m_controlNode->m_transform = m_targetTransform;
 	}
 	else // WORLD
 	{
@@ -102,13 +118,21 @@ void cGizmo::UpdateNodeTransform(const Transform &transform)
 
 		switch (m_type)
 		{
-		case eGizmoEditType::TRANSLATE: m_controlNode->m_transform.pos = localTm.GetPosition(); break;
-		//case eGizmoEditType::SCALE: m_controlNode->m_transform.scale = localTm.GetScale(); break; bug occur (no rogical bug)
-		case eGizmoEditType::ROTATE: m_controlNode->m_transform.rot = localTm.GetQuaternion(); break;
+		case eGizmoEditType::TRANSLATE: 
+			m_targetTransform.pos = localTm.GetPosition();
+			break;
+		//case eGizmoEditType::SCALE: 
+		//	m_nodeTransform.scale = localTm.GetScale(); 
+		//	break; bug occurred (no logical bug)
+		case eGizmoEditType::ROTATE: 
+			m_targetTransform.rot = localTm.GetQuaternion();
+			break;
 		}
 
 		const Matrix44 worldTm = m_controlNode->GetWorldMatrix();
 		m_transform.pos = worldTm.GetPosition();
+		if (m_isImmediate)
+			m_controlNode->m_transform = m_targetTransform;
 	}
 
 	// Update Tile Allocation
@@ -154,6 +178,7 @@ void cGizmo::UpdateNodeTransform(const Transform &transform)
 
 void cGizmo::Cancel()
 {
+	m_isKeepEdit = false;
 	m_controlNode = NULL;
 }
 
@@ -170,16 +195,30 @@ bool cGizmo::Render(cRenderer &renderer
 
 	m_mousePos = mousePos;
 
-	switch (m_type)
+	if (isMouseClick != m_prevMouseClick)
 	{
-	case eGizmoEditType::TRANSLATE: RenderTranslate(renderer, parentTm);break;
-	case eGizmoEditType::SCALE: RenderScale(renderer, parentTm); break;
-	case eGizmoEditType::ROTATE: RenderRotate(renderer, parentTm); break;
-	case eGizmoEditType::None: break; // nothing~
-	default: assert(0); break;
+		m_prevMouseClick = isMouseClick;
+		if (isMouseClick) // mouse clicked?
+		{
+			// update target node transform
+			if (m_controlNode)
+				m_targetTransform = m_controlNode->m_transform;
+		}
 	}
 
-	if (isMouseClick)
+	if (!m_lock[m_type])
+	{
+		switch (m_type)
+		{
+		case eGizmoEditType::TRANSLATE: RenderTranslate(renderer, parentTm);break;
+		case eGizmoEditType::SCALE: RenderScale(renderer, parentTm); break;
+		case eGizmoEditType::ROTATE: RenderRotate(renderer, parentTm); break;
+		case eGizmoEditType::None: break; // nothing~
+		default: assert(0); break;
+		}
+	}
+
+	if (isMouseClick && (eGizmoEditType::None != m_type))
 	{
 		for (int i=0; i < 6; ++i)
 		{
@@ -198,6 +237,13 @@ bool cGizmo::Render(cRenderer &renderer
 	}
 
 	return m_isKeepEdit;
+}
+
+
+// lock edit type
+void cGizmo::LockEditType(const eGizmoEditType::Enum type, const bool lock)
+{
+	m_lock[type] = lock;
 }
 
 
@@ -294,7 +340,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	// Find Best Pick
 	if (pickCount > 1)
 	{
-		Vector3 axisPos[6]; // 기즈모의 각 축의 위치
+		Vector3 axisPos[6]; // gizmo x-y-z axis pos
 
 		Transform tmp = m_arrow[0].m_transform.GetMatrixXM() * ptm;
 		axisPos[0] = tmp.pos;

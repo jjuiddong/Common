@@ -1,6 +1,7 @@
 //
 // 2017-05-06, jjuiddong
 // Grid Class
+//		- render ground plane
 //
 #pragma once
 
@@ -9,6 +10,8 @@ namespace graphic
 	using namespace common;
 
 	class cRenderer;
+	class cRenderTarget;
+
 	class cGrid : public cNode
 	{
 	public:
@@ -34,6 +37,7 @@ namespace graphic
 		cVertexBuffer m_vtxBuff;
 		cIndexBuffer m_idxBuff;
 		cTexture *m_texture; // reference
+		cRenderTarget *m_reflectionMap; // reference
 		cMaterial m_mtrl;
 		int m_rowCellCount;
 		int m_colCellCount;

@@ -45,19 +45,30 @@ namespace phys
 
 		bool ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim);
 
+		// wrapping function
+		bool SetGlobalPose(const physx::PxTransform &tfm);
+		bool SetGlobalPose(const Transform &tfm);
 		bool SetKinematic(const bool isKinematic);
-		bool IsKinematic() const;
+		bool IsKinematic() const;	
+		float GetMass() const;
+		bool SetMass(const float mass);
+		float GetLinearDamping() const;
+		bool SetLinearDamping(const float damping);
+		float GetAngularDamping() const;
+		bool SetAngularDamping(const float damping);
+		bool SetMaxAngularVelocity(const float maxVel);
+		float GetMaxAngularVelocity();
+		bool WakeUp();
 		bool AddJoint(cJoint *joint);
 		bool RemoveJoint(cJoint *joint);
 		void Clear();
 
 
 	public:
+		int m_id;
 		eType m_type;
 		eShape m_shape;
 		physx::PxRigidActor *m_actor;
-		physx::PxRigidDynamic *m_dynamic; // reference from m_actor
-		physx::PxRigidStatic *m_static; // reference from m_actor
 		vector<cJoint*> m_joints; // reference
 	};
 

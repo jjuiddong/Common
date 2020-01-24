@@ -7,7 +7,8 @@ using namespace graphic;
 
 cGrid::cGrid()
 	: cNode(common::GenerateId(), "grid", eNodeType::MODEL)
-	, m_texture(NULL)
+	, m_texture(nullptr)
+	, m_reflectionMap(nullptr)
 	, m_faceCount(0)
 {
 	m_mtrl.InitWhite();
@@ -206,6 +207,8 @@ bool cGrid::Render(cRenderer &renderer
 
 	if ((m_vtxType & eVertexType::TEXTURE0) && m_texture)
 		m_texture->Bind(renderer, 0);
+	if (m_reflectionMap)
+		m_reflectionMap->Bind(renderer, 8);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);

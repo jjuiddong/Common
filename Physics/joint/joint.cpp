@@ -7,10 +7,8 @@ using namespace physx;
 
 
 cJoint::cJoint()
-	: m_joint(nullptr)
-	, m_fixedJoint(nullptr)
-	, m_sphericalJoint(nullptr)
-	, m_revoluteJoint(nullptr)
+	: m_id(common::GenerateId())
+	, m_joint(nullptr)
 	, m_type(eType::None)
 	, m_actor0(nullptr)
 	, m_actor1(nullptr)
@@ -36,7 +34,7 @@ bool cJoint::CreateReferenceMode()
 
 // worldTfm0, worldTfm1 is not same PxFixedJointCreate() argument localFrame
 // worldTfm0 : actor0 current world transform
-// worldTfm1 : actor0 current world transform
+// worldTfm1 : actor1 current world transform
 bool cJoint::CreateFixed(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0
 	, cRigidActor *actor1, const Transform &worldTfm1)
@@ -52,21 +50,29 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
+	//joint->setProjectionLinearTolerance(0.1f);
+	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+	if (m_breakForce > 0.f)
+		joint->setBreakForce(m_breakForce, m_breakForce);
+
 	m_type = eType::Fixed;
 	m_joint = joint;
-	m_fixedJoint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
 	actor1->AddJoint(this);
-	GetRelativeActorPos(worldTfm0, worldTfm1, m_toActor0, m_toActor1);
+	m_origPos = jointPos;
+	//m_toActor0 = worldTfm0.pos - jointPos;
+	//m_toActor1 = worldTfm1.pos - jointPos;
+	m_actorLocal0 = worldTfm0;
+	m_actorLocal1 = worldTfm1;
 	return true;
 }
 
 
 // worldTfm0, worldTfm1 is not same PxSphericalJointCreate() argument localFrame
 // worldTfm0 : actor0 current world transform
-// worldTfm1 : actor0 current world transform
+// worldTfm1 : actor1 current world transform
 bool cJoint::CreateSpherical(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0
 	, cRigidActor *actor1, const Transform &worldTfm1)
@@ -82,21 +88,29 @@ bool cJoint::CreateSpherical(cPhysicsEngine &physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
+	//joint->setProjectionLinearTolerance(0.1f);
+	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+	if (m_breakForce > 0.f)
+		joint->setBreakForce(m_breakForce, m_breakForce);
+
 	m_type = eType::Spherical;
 	m_joint = joint;
-	m_sphericalJoint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
 	actor1->AddJoint(this);
-	GetRelativeActorPos(worldTfm0, worldTfm1, m_toActor0, m_toActor1);
+	m_origPos = jointPos;
+	//m_toActor0 = worldTfm0.pos - jointPos;
+	//m_toActor1 = worldTfm1.pos - jointPos;
+	m_actorLocal0 = worldTfm0;
+	m_actorLocal1 = worldTfm1;
 	return true;
 }
 
 
 // worldTfm0, worldTfm1 is not same PxRevoluteJointCreate() argument localFrame
 // worldTfm0 : actor0 current world transform
-// worldTfm1 : actor0 current world transform
+// worldTfm1 : actor1 current world transform
 bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1
@@ -113,17 +127,74 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
+	//joint->setProjectionLinearTolerance(0.5f);
+	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+	if (m_breakForce > 0.f)
+		joint->setBreakForce(m_breakForce, m_breakForce);
+
 	m_type = eType::Revolute;
 	m_joint = joint;
-	m_revoluteJoint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
 	actor1->AddJoint(this);
 	m_revoluteAxis = revoluteAxis;
-	GetRelativeActorPos(worldTfm0, worldTfm1, m_toActor0, m_toActor1);
+	m_origPos = jointPos;
+	const Vector3 v1 = (worldTfm1.pos - worldTfm0.pos).Normal();
+	m_rotRevolute.SetRotationArc(v1, revoluteAxis);
+	m_revoluteAxisLen = worldTfm1.pos.Distance(worldTfm0.pos);
+	//m_toActor0 = worldTfm0.pos - jointPos;
+	//m_toActor1 = worldTfm1.pos - jointPos;
+	m_actorLocal0 = worldTfm0;
+	m_actorLocal1 = worldTfm1;
 	return true;
 }
+
+
+// set spherical joint limit configuration
+bool cJoint::SetLimitCone(const physx::PxJointLimitCone &config)
+{
+	if (PxSphericalJoint *p = m_joint->is<PxSphericalJoint>())
+		p->setLimitCone(config);
+	return true;
+}
+
+
+// Set SphericalJoint Flag
+bool cJoint::SetSphericalJointFlag(physx::PxSphericalJointFlag::Enum flag, bool value)
+{
+	if (PxSphericalJoint *p = m_joint->is<PxSphericalJoint>())
+		p->setSphericalJointFlag(flag, value);
+	return true;
+}
+
+
+// set revolute joint limit configuration
+bool cJoint::SetLimit(const physx::PxJointAngularLimitPair &config)
+{
+	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+		p->setLimit(config);
+	return true;
+}
+
+
+// set revolute joint flag
+bool cJoint::SetRevoluteJointFlag(physx::PxRevoluteJointFlag::Enum flag, bool value)
+{
+	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+		p->setRevoluteJointFlag(flag, value);
+	return true;
+}
+
+
+// set revolute joint drive velocity
+bool cJoint::SetDriveVelocity(const float velocity)
+{
+	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+		p->setDriveVelocity(velocity);
+	return true;
+}
+
 
 
 // modify pivot position
@@ -204,32 +275,11 @@ void cJoint::GetLocalFrame(const Transform &worldTm0, const Transform &worldTm1
 }
 
 
-// calc relative pos from joint to actor0,1
-void cJoint::GetRelativeActorPos(const Transform &worldTm0, const Transform &worldTm1
-	, OUT Vector3 &relPos0, OUT Vector3 &relPos1)
-{
-	Transform tfm0 = worldTm0;
-	Transform tfm1 = worldTm1;
-
-	const Vector3 center = (tfm0.pos + tfm1.pos) * 0.5f;
-	relPos0 = tfm0.pos - center;
-	relPos1 = tfm1.pos - center;
-}
-
-
 void cJoint::Clear()
 {
 	if (!m_referenceMode)
 	{
-		if (m_actor0)
-			m_actor0->RemoveJoint(this);
-		if (m_actor1)
-			m_actor1->RemoveJoint(this);
-
 		PHY_SAFE_RELEASE(m_joint);
-		m_fixedJoint = nullptr;
-		m_sphericalJoint = nullptr;
-		m_revoluteJoint = nullptr;
 		m_actor0 = nullptr;
 		m_actor1 = nullptr;
 	}
