@@ -23,6 +23,8 @@ namespace phys
 		bool PostUpdate(const float deltaSeconds);
 
 		bool SetPhysicsSync(iPhysicsSync *sync);
+		bool SceneLockWrite();
+		bool SceneUnlockWrite();
 		void Clear();
 
 

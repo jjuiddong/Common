@@ -11,7 +11,7 @@ cPhysicsEngine::cPhysicsEngine()
 	: m_objSync(nullptr)
 	, m_scratchBlock(nullptr)
 	, m_scratchBlockSize(1024 * 128)
-	, m_isPVD(true)
+	, m_isPVD(false)
 	, m_stepSize(1.f/50.f)
 	, m_accTime(0.f)
 	, m_isFetch(false)
@@ -97,7 +97,7 @@ bool cPhysicsEngine::InitializePhysx()
 	//sceneDesc.flags |= physx::PxSceneFlag::eENABLE_AVERAGE_POINT;
 	//sceneDesc.flags |= physx::PxSceneFlag::eADAPTIVE_FORCE;
 	//sceneDesc.flags |= physx::PxSceneFlag::eDISABLE_CONTACT_CACHE;
-	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;
+	//sceneDesc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_STABILIZATION;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
@@ -142,8 +142,10 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 	//if (m_accTime < m_stepSize)
 	//	return false;
 	//m_accTime -= m_stepSize;
+	if (deltaSeconds == 0)
+		return true;
 
-	m_stepSize = min(0.01f, deltaSeconds);
+	m_stepSize = max(0.01f, deltaSeconds);
 	m_isFetch = true;
 
 	physx::PxSceneWriteLock writeLock(*m_scene);
@@ -180,6 +182,22 @@ bool cPhysicsEngine::SetPhysicsSync(iPhysicsSync *sync)
 {
 	SAFE_DELETE(m_objSync);
 	m_objSync = sync;
+	return true;
+}
+
+
+bool cPhysicsEngine::SceneLockWrite()
+{
+	RETV(!m_scene, false);
+	m_scene->lockWrite();
+	return true;
+}
+
+
+bool cPhysicsEngine::SceneUnlockWrite()
+{
+	RETV(!m_scene, false);
+	m_scene->unlockWrite();
 	return true;
 }
 

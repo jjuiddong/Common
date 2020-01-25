@@ -13,12 +13,12 @@ namespace phys
 	class cPhysicsEngine;
 	class cJoint;
 
+	DECLARE_ENUM(eRigidType, Static, Dynamic, None);
+	DECLARE_ENUM(eShapeType, Plane, Box, Sphere, Capsule, Convex, None);
+
 	class cRigidActor
 	{
 	public:
-		enum class eType { Static, Dynamic, None };
-		enum class eShape { Plane, Box, Sphere, Capsule, Convex, None };
-
 		cRigidActor();
 		virtual ~cRigidActor();
 		
@@ -51,6 +51,7 @@ namespace phys
 		// wrapping function
 		bool SetGlobalPose(const physx::PxTransform &tfm);
 		bool SetGlobalPose(const Transform &tfm);
+		Transform GetGlobalPose();
 		bool SetKinematic(const bool isKinematic);
 		bool IsKinematic() const;	
 		float GetMass() const;
@@ -64,13 +65,13 @@ namespace phys
 		bool WakeUp();
 		bool AddJoint(cJoint *joint);
 		bool RemoveJoint(cJoint *joint);
-		void Clear();
+		void Clear();		
 
 
 	public:
 		int m_id;
-		eType m_type;
-		eShape m_shape;
+		eRigidType::Enum m_type;
+		eShapeType::Enum m_shape;
 		physx::PxRigidActor *m_actor;
 		vector<cJoint*> m_joints; // reference
 	};

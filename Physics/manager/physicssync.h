@@ -12,11 +12,11 @@ namespace phys
 	struct sSyncInfo 
 	{
 		int id; // unique id
-		bool isRemove; // is auto remove
+		bool isRemove; // auto remove?
 		Str32 name;
-		cRigidActor *actor;
-		cJoint *joint;
-		graphic::cNode *node;
+		cRigidActor *actor; // physics object
+		cJoint *joint; // physics object
+		graphic::cNode *node; // render object
 	};
 
 

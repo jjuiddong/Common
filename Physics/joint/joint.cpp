@@ -9,7 +9,7 @@ using namespace physx;
 cJoint::cJoint()
 	: m_id(common::GenerateId())
 	, m_joint(nullptr)
-	, m_type(eType::None)
+	, m_type(eJointType::None)
 	, m_actor0(nullptr)
 	, m_actor1(nullptr)
 	, m_referenceMode(false)
@@ -55,15 +55,13 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 	if (m_breakForce > 0.f)
 		joint->setBreakForce(m_breakForce, m_breakForce);
 
-	m_type = eType::Fixed;
+	m_type = eJointType::Fixed;
 	m_joint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
 	actor1->AddJoint(this);
 	m_origPos = jointPos;
-	//m_toActor0 = worldTfm0.pos - jointPos;
-	//m_toActor1 = worldTfm1.pos - jointPos;
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
 	return true;
@@ -93,15 +91,13 @@ bool cJoint::CreateSpherical(cPhysicsEngine &physics
 	if (m_breakForce > 0.f)
 		joint->setBreakForce(m_breakForce, m_breakForce);
 
-	m_type = eType::Spherical;
+	m_type = eJointType::Spherical;
 	m_joint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
 	actor1->AddJoint(this);
 	m_origPos = jointPos;
-	//m_toActor0 = worldTfm0.pos - jointPos;
-	//m_toActor1 = worldTfm1.pos - jointPos;
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
 	return true;
@@ -132,7 +128,7 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	if (m_breakForce > 0.f)
 		joint->setBreakForce(m_breakForce, m_breakForce);
 
-	m_type = eType::Revolute;
+	m_type = eJointType::Revolute;
 	m_joint = joint;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
@@ -140,15 +136,80 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	actor1->AddJoint(this);
 	m_revoluteAxis = revoluteAxis;
 	m_origPos = jointPos;
-	const Vector3 v1 = (worldTfm1.pos - worldTfm0.pos).Normal();
-	m_rotRevolute.SetRotationArc(v1, revoluteAxis);
-	m_revoluteAxisLen = worldTfm1.pos.Distance(worldTfm0.pos);
-	//m_toActor0 = worldTfm0.pos - jointPos;
-	//m_toActor1 = worldTfm1.pos - jointPos;
+	m_rotRevolute.SetRotationArc(Vector3(1,0,0), revoluteAxis);
+	m_revoluteAxisLen = pivot1.Distance(pivot0);
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal();
+	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal();
+	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
 	return true;
 }
+
+
+// return pivot world transform
+// actorIndex: 0=actor0, 1=actor1
+Transform cJoint::GetPivotWorldTransform(const int actorIndex)
+{
+	if ((actorIndex != 0) && (actorIndex != 1))
+	{
+		assert(0);
+		return Transform();
+	}
+
+	const Transform tfm = (actorIndex == 0) ? m_actorLocal0 : m_actorLocal1;
+
+	Transform ret;
+	ret.pos = GetPivotPos(actorIndex);
+	ret.scale = tfm.scale;
+	ret.rot = tfm.rot;
+	return ret;
+}
+
+
+// return pivot pos
+Vector3 cJoint::GetPivotPos(const int actorIndex)
+{
+	if ((actorIndex != 0) && (actorIndex != 1))
+		return Vector3::Zeroes;
+
+	Vector3 pivotPos;
+	const Transform tfm = (actorIndex == 0) ? m_actorLocal0 : m_actorLocal1;
+
+	if (m_pivots[actorIndex].len != 0.f)
+	{
+		const Vector3 localPos = m_pivots[actorIndex].dir * tfm.rot
+			* m_pivots[actorIndex].len;
+		pivotPos = tfm.pos + localPos;
+	}
+	else
+	{
+		pivotPos = tfm.pos;
+	}
+	return pivotPos;
+}
+
+
+// actorIndex: 0=actor0, 1=actor1
+// pos : pivot global pos
+void cJoint::SetPivotPos(const int actorIndex, const Vector3 &pos)
+{
+	if ((actorIndex != 0) && (actorIndex != 1))
+	{
+		assert(0);
+		return;
+	}
+
+	// change local coordinate system
+	const Transform tfm = (actorIndex == 0) ? m_actorLocal0 : m_actorLocal1;
+	const Vector3 dir = (pos - tfm.pos);
+	m_pivots[actorIndex].dir = dir.Normal() * tfm.rot.Inverse();
+	m_pivots[actorIndex].len = dir.Length();
+}
+
+
+
 
 
 // set spherical joint limit configuration
@@ -170,7 +231,7 @@ bool cJoint::SetSphericalJointFlag(physx::PxSphericalJointFlag::Enum flag, bool 
 
 
 // set revolute joint limit configuration
-bool cJoint::SetLimit(const physx::PxJointAngularLimitPair &config)
+bool cJoint::SetLimitAngular(const physx::PxJointAngularLimitPair &config)
 {
 	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
 		p->setLimit(config);
@@ -196,6 +257,60 @@ bool cJoint::SetDriveVelocity(const float velocity)
 }
 
 
+// return drive velocity
+float cJoint::GetDriveVelocity()
+{
+	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+		return p->getDriveVelocity();
+	return 0.f;
+}
+
+
+// set drive configuration
+bool cJoint::SetDrive(const bool enable)
+{
+	SetRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_ENABLED, enable);
+	return true;
+}
+
+
+// is drive?
+bool cJoint::IsDrive()
+{
+	RETV(!m_joint, false);
+
+	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+	{
+		const PxRevoluteJointFlags flags = p->getRevoluteJointFlags();
+		const bool isDrive = flags.isSet(PxRevoluteJointFlag::eDRIVE_ENABLED);
+		return isDrive;
+	}
+	return false;
+}
+
+
+// set limit configuration
+bool cJoint::SetLimit(const bool enable)
+{
+	SetRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, enable);
+	return true;
+}
+
+
+// is limit?
+bool cJoint::IsLimit()
+{
+	RETV(!m_joint, false);
+
+	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+	{
+		const PxRevoluteJointFlags flags = p->getRevoluteJointFlags();
+		const bool isLimit = flags.isSet(PxRevoluteJointFlag::eLIMIT_ENABLED);
+		return isLimit;
+	}
+	return false;
+}
+
 
 // modify pivot position
 bool cJoint::ModifyPivot(cPhysicsEngine &physics
@@ -214,10 +329,8 @@ bool cJoint::ModifyPivot(cPhysicsEngine &physics
 		, revoluteAxis);
 
 	//RETV(!m_actor0 || !m_actor1 || !m_joint, false);
-
 	//PxTransform localFrame0, localFrame1;
 	//GetLocalFrame(worldTfm0, worldTfm1, revoluteAxis, localFrame0, localFrame1);
-
 	//m_revoluteAxis = revoluteAxis;
 	//m_joint->setLocalPose(PxJointActorIndex::eACTOR0, localFrame0);
 	//m_joint->setLocalPose(PxJointActorIndex::eACTOR1, localFrame1);
@@ -247,7 +360,6 @@ void cJoint::GetLocalFrame(const Transform &worldTm0, const Transform &worldTm1
 	Transform tfm0 = worldTm0;
 	Transform tfm1 = worldTm1;
 
-	//const Vector3 center = (tfm0.pos + tfm1.pos) * 0.5f;
 	Vector3 p0 = jointPos - tfm0.pos;
 	Vector3 p1 = jointPos - tfm1.pos;
 	Quaternion q0 = tfm0.rot.Inverse();

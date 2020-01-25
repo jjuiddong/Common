@@ -10,8 +10,8 @@ using namespace physx;
 cRigidActor::cRigidActor()
 	: m_id(common::GenerateId())
 	, m_actor(nullptr)
-	, m_type(eType::None)
-	, m_shape(eShape::None)
+	, m_type(eRigidType::None)
+	, m_shape(eShapeType::None)
 {
 }
 
@@ -30,8 +30,8 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 	if (!plane)
 		return nullptr;
 
-	m_type = eType::Static;
-	m_shape = eShape::Plane;
+	m_type = eRigidType::Static;
+	m_shape = eShapeType::Plane;
 	m_actor = plane;
 	return true;
 }
@@ -57,8 +57,8 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	if (linVel)
 		box->setLinearVelocity(*(PxVec3*)linVel);
 
-	m_type = eType::Dynamic;
-	m_shape = eShape::Box;
+	m_type = eRigidType::Dynamic;
+	m_shape = eShapeType::Box;
 	m_actor = box;
 	return true;
 }
@@ -86,8 +86,8 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	if (linVel)
 		sphere->setLinearVelocity(*(PxVec3*)linVel);
 
-	m_type = eType::Dynamic;
-	m_shape = eShape::Sphere;
+	m_type = eRigidType::Dynamic;
+	m_shape = eShapeType::Sphere;
 	m_actor = sphere;
 	return true;
 }
@@ -119,8 +119,8 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	if (linVel)
 		capsule->setLinearVelocity(*(PxVec3*)linVel);
 
-	m_type = eType::Dynamic;
-	m_shape = eShape::Capsule;
+	m_type = eRigidType::Dynamic;
+	m_shape = eShapeType::Capsule;
 	m_actor = capsule;
 	return true;
 }
@@ -145,18 +145,18 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 	// 2. generate new shape
 	switch (m_shape)
 	{
-	case eShape::Box:
+	case eShapeType::Box:
 		m_actor->createShape(PxBoxGeometry(*(PxVec3*)&dim), *physics.m_material); 
 		break;
-	case eShape::Sphere:
+	case eShapeType::Sphere:
 		m_actor->createShape(PxSphereGeometry(dim.x), *physics.m_material);
 		break;
-	case eShape::Capsule:
+	case eShapeType::Capsule:
 		m_actor->createShape(PxCapsuleGeometry(dim.y, dim.x), *physics.m_material);
 		break;
 
-	case eShape::Plane: // not support
-	case eShape::Convex: // not support
+	case eShapeType::Plane: // not support
+	case eShapeType::Convex: // not support
 		assert(0);
 		break;
 	default: assert(0); break;
@@ -188,10 +188,18 @@ bool cRigidActor::SetGlobalPose(const Transform &tfm)
 }
 
 
+Transform cRigidActor::GetGlobalPose()
+{
+	const PxTransform tm = m_actor->getGlobalPose();
+	const Transform tfm = Transform(*(Vector3*)&tm.p) * Transform(*(Quaternion*)&tm.q);
+	return tfm;
+}
+
+
 bool cRigidActor::SetKinematic(const bool isKinematic)
 {
 	RETV(!m_actor, false);
-	RETV(m_type != eType::Dynamic, false);
+	RETV(m_type != eRigidType::Dynamic, false);
 
 	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
 		p->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
@@ -203,7 +211,7 @@ bool cRigidActor::SetKinematic(const bool isKinematic)
 bool cRigidActor::IsKinematic() const
 {
 	RETV(!m_actor, false);
-	RETV(m_type != eType::Dynamic, false);
+	RETV(m_type != eRigidType::Dynamic, false);
 
 	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
 	{
