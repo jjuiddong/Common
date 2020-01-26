@@ -33,6 +33,7 @@ namespace graphic
 
 		void SetLine(const Vector3 &p0, const Vector3 &p1, const float width);
 		void SetColor(const cColor &color);
+		void SetTechnique(const char *techniqName);
 
 
 	public:
@@ -40,6 +41,7 @@ namespace graphic
 		Transform m_transform;
 		cCubeShape m_shape;
 		cColor m_color;
+		Str32 m_techniqueName;
 	};
 
 }

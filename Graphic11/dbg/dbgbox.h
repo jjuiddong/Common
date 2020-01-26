@@ -37,12 +37,14 @@ namespace graphic
 			, const int flags = 1
 		);
 		XMMATRIX GetTransform() const;
+		void SetTechnique(const char *techniqName);
 
 
 	public:
 		cCubeShape m_shape;
 		cBoundingBox m_boundingBox;
 		cColor m_color;
+		Str32 m_techniqueName;
 	};
 
 }

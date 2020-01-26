@@ -83,7 +83,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 
 
 int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
-	, const Vector3& pos
+	, const Transform &tfm
 	, const float radius
 	, const float density //= 1.f
 	, const bool isKinematic //= false
@@ -94,10 +94,11 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 
 	graphic::cSphere *sphere = new graphic::cSphere();
 	sphere->Create(renderer, radius, 10, 10);
-	sphere->m_transform.pos = pos;
+	sphere->m_transform.pos = tfm.pos;
+	sphere->m_transform.rot = tfm.rot;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateSphere(*m_physics, pos, radius, nullptr, density, isKinematic);
+	actor->CreateSphere(*m_physics, tfm, radius, nullptr, density, isKinematic);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;

@@ -6,12 +6,14 @@ using namespace graphic;
 
 
 cDbgBox::cDbgBox()
+	: m_techniqueName("Unlit")
 {
 }
 
 cDbgBox::cDbgBox(cRenderer &renderer, const cBoundingBox &bbox
 	, const cColor &color //= cColor::BLACK
 )
+	: m_techniqueName("Unlit")
 {
 	Create(renderer, bbox, color);
 }
@@ -80,7 +82,7 @@ void cDbgBox::Render(cRenderer &renderer
 {
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
 	assert(shader);
-	shader->SetTechnique("Unlit");
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
@@ -148,4 +150,10 @@ void cDbgBox::RenderInstancing(cRenderer &renderer
 XMMATRIX cDbgBox::GetTransform() const
 {
 	return m_boundingBox.GetMatrixXM();
+}
+
+
+void cDbgBox::SetTechnique(const char *techniqName)
+{
+	m_techniqueName = techniqName;
 }

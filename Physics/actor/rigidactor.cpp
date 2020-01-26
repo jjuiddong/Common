@@ -65,7 +65,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 
 
 bool cRigidActor::CreateSphere(cPhysicsEngine &physics
-	, const Vector3& pos
+	, const Transform &tfm
 	, const float radius
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
@@ -74,7 +74,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	PxRigidDynamic* sphere = PxCreateDynamic(*physics.m_physics
-		, PxTransform(*(PxVec3*)&pos)
+		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot)
 		, PxSphereGeometry(radius), *physics.m_material, density);
 	PX_ASSERT(sphere);
 
@@ -162,21 +162,45 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 	default: assert(0); break;
 	}
 
+	// update joint localTransform
+	for (auto &j : m_joints)
+	{
+		Transform &tfm = (j->m_actor0 == this) ?
+			j->m_actorLocal0 : j->m_actorLocal1;
+		switch (m_shape)
+		{
+		case eShapeType::Box:
+			tfm.scale = dim;
+			break;
+		case eShapeType::Sphere:
+			tfm.scale = Vector3::Ones * dim.x;
+			break;
+		case eShapeType::Capsule:
+			tfm.scale = Vector3(dim.x + dim.y, dim.y, dim.y);
+			break;
+
+		case eShapeType::Plane: // not support
+		case eShapeType::Convex: // not support
+			assert(0);
+			break;
+		default: assert(0); break;
+		}
+	}
+
 	return true;
 }
 
 
 bool cRigidActor::SetGlobalPose(const physx::PxTransform &tfm)
 {
-	PxRigidDynamic *p = m_actor->is<PxRigidDynamic>();
-	RETV(!p, false);
-
-	const PxRigidBodyFlags flags = p->getRigidBodyFlags();
-	const bool isKinematic = flags.isSet(PxRigidBodyFlag::eKINEMATIC);
-	if (isKinematic)
-		p->setKinematicTarget(tfm);
-	else
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
 		p->setGlobalPose(tfm);
+
+	// not working setKinematicTarget() function
+	//const PxRigidBodyFlags flags = p->getRigidBodyFlags();
+	//const bool isKinematic = flags.isSet(PxRigidBodyFlag::eKINEMATIC);
+	//if (isKinematic)
+	//	p->setKinematicTarget(tfm);
 	return true;
 }
 

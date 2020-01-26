@@ -25,6 +25,8 @@ namespace phys
 		bool SetPhysicsSync(iPhysicsSync *sync);
 		bool SceneLockWrite();
 		bool SceneUnlockWrite();
+		bool Play();
+		bool Pause();
 		void Clear();
 
 
@@ -57,6 +59,7 @@ namespace phys
 		float m_stepSize;
 		float m_accTime;
 		bool m_isFetch;
+		float m_timerScale; // default: 1.0
 	};
 
 }

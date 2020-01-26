@@ -15,6 +15,7 @@ cPhysicsEngine::cPhysicsEngine()
 	, m_stepSize(1.f/50.f)
 	, m_accTime(0.f)
 	, m_isFetch(false)
+	, m_timerScale(1.f)
 {
 }
 
@@ -142,10 +143,12 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 	//if (m_accTime < m_stepSize)
 	//	return false;
 	//m_accTime -= m_stepSize;
-	if (deltaSeconds == 0)
+	const float dt = deltaSeconds * m_timerScale;
+	if (dt == 0)
 		return true;
 
-	m_stepSize = max(0.01f, deltaSeconds);
+	//m_stepSize = max(0.01f, dt);
+	m_stepSize = dt;
 	m_isFetch = true;
 
 	physx::PxSceneWriteLock writeLock(*m_scene);
@@ -198,6 +201,22 @@ bool cPhysicsEngine::SceneUnlockWrite()
 {
 	RETV(!m_scene, false);
 	m_scene->unlockWrite();
+	return true;
+}
+
+
+// simuation start
+bool cPhysicsEngine::Play()
+{
+	m_timerScale = 1.f;
+	return true;
+}
+
+
+// simulation pause
+bool cPhysicsEngine::Pause()
+{
+	m_timerScale = 0.f;
 	return true;
 }
 

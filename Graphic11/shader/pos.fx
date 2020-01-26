@@ -45,7 +45,7 @@ float4 PS_Outline(VSOUT_POS In) : SV_Target
 	float4 Out = gMtrl_Diffuse;
 	const float fOutline = GetOutline(In.PosH);
 	clip(fOutline - 0.000001f);
-	return float4(1.f, 1.f, 1.f, fOutline*2.5f);
+	return GetOutlineColor(fOutline);
 }
 
 
@@ -116,3 +116,29 @@ technique11 Unlit_Instancing
 	}
 }
 
+
+
+technique11 ShadowMap
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+
+technique11 BuildShadowMap
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}

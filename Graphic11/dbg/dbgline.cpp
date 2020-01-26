@@ -7,6 +7,7 @@ using namespace graphic;
 
 cDbgLine::cDbgLine()
 	: m_isSolid(false)
+	, m_techniqueName("Unlit")
 {
 }
 
@@ -16,6 +17,8 @@ cDbgLine::cDbgLine(cRenderer &renderer
 	, const float width //= 1.f
 	, const cColor color //= cColor::BLACK
 )
+	: m_isSolid(false)
+	, m_techniqueName("Unlit")
 {
 	m_shape.Create2(renderer, eVertexType::POSITION);
 	SetLine(p0, p1, width);
@@ -44,7 +47,7 @@ bool cDbgLine::Render(cRenderer &renderer
 {
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
-	shader->SetTechnique("Unlit");
+	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
@@ -100,3 +103,8 @@ void cDbgLine::SetColor(const cColor &color)
 	m_color = color;
 }
 
+
+void cDbgLine::SetTechnique(const char *techniqName)
+{
+	m_techniqueName = techniqName;
+}

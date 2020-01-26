@@ -37,7 +37,7 @@ namespace phys
 			, const bool isKinematic = false);
 
 		int SpawnSphere(graphic::cRenderer &renderer
-			, const Vector3& pos
+			, const Transform &tfm
 			, const float radius
 			, const float density = 1.f
 			, const bool isKinematic = false);

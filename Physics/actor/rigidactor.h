@@ -32,7 +32,7 @@ namespace phys
 			, const bool isKinematic = false);
 
 		bool CreateSphere(cPhysicsEngine &physics
-			, const Vector3& pos
+			, const Transform &tfm
 			, const float radius
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f
