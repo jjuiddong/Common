@@ -34,7 +34,6 @@ namespace graphic
 	public:
 		cSphereShape m_sphereShape;
 		cCylinderShape m_cylinderShape;
-		//cCapsuleShape m_shape;
 		cMaterial m_mtrl;
 		float m_radius;
 		float m_halfHeight;

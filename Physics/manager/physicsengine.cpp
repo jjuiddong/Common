@@ -147,8 +147,7 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 	if (dt == 0)
 		return true;
 
-	//m_stepSize = max(0.01f, dt);
-	m_stepSize = dt;
+	m_stepSize = max(0.01f, dt); // if too small dt, insane phsics simulation
 	m_isFetch = true;
 
 	physx::PxSceneWriteLock writeLock(*m_scene);

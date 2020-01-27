@@ -210,8 +210,7 @@ bool cGrid::Render(cRenderer &renderer
 	if (m_reflectionMap)
 		m_reflectionMap->Bind(renderer, 8);
 
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+	renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	renderer.GetDevContext()->DrawIndexed(m_faceCount * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
@@ -251,11 +250,10 @@ bool cGrid::RenderLine(cRenderer &renderer
 	if ((m_vtxType & eVertexType::TEXTURE0) && m_texture)
 		m_texture->Bind(renderer, 0);
 
-	CommonStates states(renderer.GetDevice());
 	ID3D11RasterizerState *oldState = NULL;
 	renderer.GetDevContext()->RSGetState(&oldState);
-	renderer.GetDevContext()->RSSetState(states.Wireframe());
-	renderer.GetDevContext()->OMSetBlendState(states.AlphaBlend(), 0, 0xffffffff);
+	renderer.GetDevContext()->RSSetState(renderer.m_renderState.Wireframe());
+	renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.AlphaBlend(), 0, 0xffffffff);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	renderer.GetDevContext()->DrawIndexed(m_faceCount * 3, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);

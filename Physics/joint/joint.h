@@ -39,30 +39,42 @@ namespace phys
 
 		bool CreateReferenceMode();
 
+		bool Update(const float deltaSeconds);
+
 		// joint pivot
 		void SetPivotPos(const int actorIndex, const Vector3 &pos);
 		Transform GetPivotWorldTransform(const int actorIndex);
 		Vector3 GetPivotPos(const int actorIndex);
 
 		// spherical joint wrapping function
-		bool SetLimitCone(const physx::PxJointLimitCone &config);
 		bool SetSphericalJointFlag(physx::PxSphericalJointFlag::Enum flag, bool value);
+		bool EnableConeLimit(const bool enable);
+		bool IsConeLimit();
+		bool SetConeLimit(const physx::PxJointLimitCone &config);
+		physx::PxJointLimitCone GetConeLimit();
 
 		// revolute joint wrapping function
 		bool SetRevoluteJointFlag(physx::PxRevoluteJointFlag::Enum flag, bool value);
-		bool SetDrive(const bool enable);
+		bool EnableDrive(const bool enable);
 		bool IsDrive();
 		bool SetDriveVelocity(const float velocity);
 		float GetDriveVelocity();
-		bool SetLimit(const bool enable);
-		bool IsLimit();
-		bool SetLimitAngular(const physx::PxJointAngularLimitPair &config);
+
+		bool EnableAngularLimit(const bool enable);
+		bool IsAngularLimit();
+		bool SetAngularLimit(const physx::PxJointAngularLimitPair &config);
+		physx::PxJointAngularLimitPair GetAngularLimit();
+
+		bool IsCycleDrive();
+		bool EnableCycleDrive(const bool enable);
+		bool SetCycleDrivePeriod(const float period, const float accel);
+		Vector2 GetCycleDrivePeriod();
 
 		void Clear();
 
 
 	protected:
-		Vector3 CalcJointPos(const Transform &worldTm0, const Transform &worldTm1);
+		void DefaultJointConfiguration(physx::PxJoint *joint);
 
 		void GetLocalFrame(const Transform &worldTm0, const Transform &worldTm1
 			, const Vector3 &jointPos, const Vector3 &revoluteAxis
@@ -77,8 +89,18 @@ namespace phys
 		cRigidActor *m_actor1; // joint pair actor1, reference
 		physx::PxJoint *m_joint;
 
+		// drive cycle period (revolute joint)
+		bool m_isCycleDrive;
+		float m_incT; // increment time
+		float m_incAccelT; // increment acceleration time
+		float m_cyclePeriod; // period, seconds unit
+		float m_curVelocity; // current drive velocity
+		float m_cycleDriveAccel; // drive velocity acceleration
+		float m_maxDriveVelocity; // maximum drive velocity
+		bool m_toggleDir;
+
 		// joint property
-		const float m_breakForce = 0.f;
+		const float m_breakForce;
 		float m_revoluteAxisLen;
 		Vector3 m_revoluteAxis; // local space
 		Vector3 m_origPos; // joint origin pos (local space)

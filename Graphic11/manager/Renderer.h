@@ -134,6 +134,7 @@ namespace graphic
 		uint m_alphaSpaceBufferCount;
 		cMaterial m_defaultMtrl;
 
+		CommonStates m_renderState;
 		cShaderManager m_shaderMgr;
 		cFontManager m_fontMgr;
 		cTextManager m_textMgr;

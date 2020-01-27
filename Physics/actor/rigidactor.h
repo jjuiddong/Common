@@ -65,7 +65,7 @@ namespace phys
 		bool WakeUp();
 		bool AddJoint(cJoint *joint);
 		bool RemoveJoint(cJoint *joint);
-		void Clear();		
+		void Clear();
 
 
 	public:

@@ -69,17 +69,15 @@ bool cSphere::Render(cRenderer &renderer
 
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
 	{
-		CommonStates states(renderer.GetDevice());
-		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
 		m_shape.Render(renderer);
 		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 	}
 	else
 	{
-		CommonStates state(renderer.GetDevice());
-		renderer.GetDevContext()->OMSetBlendState(state.NonPremultiplied(), NULL, 0xffffffff);
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), NULL, 0xffffffff);
 		m_shape.Render(renderer);
-		renderer.GetDevContext()->OMSetBlendState(state.Opaque(), NULL, 0xffffffff);
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.Opaque(), NULL, 0xffffffff);
 	}
 
 	__super::Render(renderer, parentTm, flags);

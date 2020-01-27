@@ -39,6 +39,7 @@ cRenderer::cRenderer()
 	, m_preDrawCallCount(0)
 	, m_renderList(NULL)
 	, m_alphaSpaceBufferCount(0)
+	, m_renderState(nullptr)
 {
 	ZeroMemory(m_textureMap, sizeof(m_textureMap));
 }
@@ -70,7 +71,7 @@ cRenderer::~cRenderer()
 	if (m_isMainRenderer || m_isThreadRender) // main renderer or deferred context
 		SAFE_RELEASE(m_devContext);
 
-	m_d3dDevice = NULL;
+	m_d3dDevice = nullptr;
 }
 
 
@@ -127,6 +128,8 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 
 	m_viewPort.Create(0, 0, width, height, 0, 1.f);
 	m_viewPort.Bind(*this);
+
+	m_renderState = CommonStates(m_d3dDevice);
 
 	m_cbPerFrame.Create(*this);
 	m_cbLight.Create(*this);

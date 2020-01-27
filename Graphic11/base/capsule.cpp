@@ -68,11 +68,10 @@ bool cCapsule::Render(cRenderer &renderer
 	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
-	CommonStates states(renderer.GetDevice());
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
-		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
 	else
-		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), NULL, 0xffffffff);
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), NULL, 0xffffffff);
 
 	// render sphere first
 	Transform tfm0;
@@ -105,7 +104,7 @@ bool cCapsule::Render(cRenderer &renderer
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
 		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 	else
-		renderer.GetDevContext()->OMSetBlendState(states.Opaque(), NULL, 0xffffffff);
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.Opaque(), NULL, 0xffffffff);
 
 	__super::Render(renderer, parentTm, flags);
 	return true;
