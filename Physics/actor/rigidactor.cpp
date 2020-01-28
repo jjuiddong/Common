@@ -44,9 +44,13 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	, const bool isKinematic //=false
 )
 {
+	PxQuat rot = *(PxQuat*)&tfm.rot;
+	if (rot.isSane())
+		rot = PxQuat(1.f); // default;
+
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	PxRigidDynamic* box = PxCreateDynamic(*physics.m_physics
-		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot)
+		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxBoxGeometry(*(PxVec3*)&tfm.scale), *physics.m_material, density);
 	PX_ASSERT(box);
 
@@ -73,8 +77,13 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
+
+	PxQuat rot = *(PxQuat*)&tfm.rot;
+	if (rot.isSane())
+		rot = PxQuat(1.f); // default;
+
 	PxRigidDynamic* sphere = PxCreateDynamic(*physics.m_physics
-		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot)
+		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxSphereGeometry(radius), *physics.m_material, density);
 	PX_ASSERT(sphere);
 
@@ -102,12 +111,14 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	, const bool isKinematic //=false
 )
 {
+	PxQuat rot = *(PxQuat*)&tfm.rot;
+	if (rot.isSane())
+		rot = PxQuat(1.f); // default;
+
 	PxSceneWriteLock scopedLock(*physics.m_scene);
-	const PxQuat rot = PxQuat(PxIdentity);
-	PX_UNUSED(rot);
 
 	PxRigidDynamic* capsule = PxCreateDynamic(*physics.m_physics
-		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot)
+		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxCapsuleGeometry(radius, halfHeight), *physics.m_material, density);
 	PX_ASSERT(capsule);
 
@@ -161,6 +172,12 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 		break;
 	default: assert(0); break;
 	}
+
+	// 3. update mass
+	// todo: density modified
+	const float  density = 1.f;
+	if (PxRigidBody *p = m_actor->is<PxRigidBody>())
+		PxRigidBodyExt::updateMassAndInertia(*p, density);
 
 	// update joint localTransform
 	for (auto &j : m_joints)
@@ -228,6 +245,8 @@ bool cRigidActor::SetKinematic(const bool isKinematic)
 	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
 		p->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 
+	if (!isKinematic)
+		WakeUp();
 	return true;
 }
 

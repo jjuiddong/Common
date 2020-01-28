@@ -314,6 +314,13 @@ void cBoundingBox::Scale(const Vector3 &scale)
 }
 
 
+float cBoundingBox::GetScale() const
+{
+	const Vector3 scale = *(Vector3*)&m_bbox.Extents;
+	return scale.Length();
+}
+
+
 // return x,y,z dimension
 Vector3 cBoundingBox::GetDimension() const 
 {

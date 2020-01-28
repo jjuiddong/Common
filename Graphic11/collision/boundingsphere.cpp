@@ -128,80 +128,24 @@ bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, f
 }
 
 
+// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 bool cBoundingSphere::Intersects(const Ray &ray
 	, OUT float *distance //= NULL
 ) const 
 {
-	//const XMVECTOR dir = XMLoadFloat3((XMFLOAT3*)&ray.dir);
-	//const XMVECTOR orig = XMLoadFloat3((XMFLOAT3*)&ray.orig);
-	//float dist;
-	//const bool result = m_bsphere.Intersects(orig, dir, dist);
-	//if (distance)
-	//	*distance = dist;
-	//return result;
-
-
-	//https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
-	//// Solve quadratic equation
-	//const Vector3 _point = ray.orig;
-	//const Vector3 _direction = ray.dir;
-	//const Vector3 center = GetPos();
-	//const float radius = GetRadius();
-
-	//float a = _direction.Length();
-	//if (a == 0.0)  return false;
-	//float b = 2.0f * (_point.DotProduct(_direction) - _direction.DotProduct(center));
-	//Vector3 tempDiff = center - _point;
-	//float c = tempDiff.Length() - (radius*radius);
-	//float disc = b * b - 4 * a * c;
-	//if (disc < 0.0f)
-	//	return false;
-
-	//int numIntersections;
-	//if (disc == 0.0f)
-	//	numIntersections = 1;
-	//else
-	//	numIntersections = 2;
-	//return numIntersections;
-
-
-
-	// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 	const Vector3 center = GetPos();
-	const float radius2 = GetRadius() * GetRadius();
-
-	float t0, t1; // solutions for t if the ray intersects 
-#if 0
-	// geometric solution
-	Vector3 L = center - ray.orig;
-	float tca = L.DotProduct(ray.dir);
-	// if (tca < 0) return false;
-	float d2 = L.DotProduct(L) - tca * tca;
-	if (d2 > radius2) return false;
-	float thc = sqrt(radius2 - d2);
-	t0 = tca - thc;
-	t1 = tca + thc;
-#else 
-	// analytic solution
-	Vector3 L = ray.orig - center;
-	float a = ray.dir.DotProduct(ray.dir);
-	float b = 2 * ray.dir.DotProduct(L);
-	float c = L.DotProduct(L) - radius2;
-	if (!solveQuadratic(a, b, c, t0, t1)) return false;
-#endif 
-	if (t0 > t1) 
-		std::swap(t0, t1);
-
-	if (t0 < 0) 
-	{
-		t0 = t1; // if t0 is negative, let's use t1 instead 
-		if (t0 < 0) return false; // both t0 and t1 are negative 
-	}
+	const float radius = GetRadius();
+	const Line line(ray.orig, ray.dir * 10000.f);
+	const float d = line.GetDistance(center);
+	if (radius < d)
+		return false;
 
 	if (distance)
-		*distance = t0;
-
-	return true;
+	{
+		const Vector3 pos = line.Projection(center);
+		*distance = pos.Distance(ray.orig);
+	}
+	return true;	
 }
 
 

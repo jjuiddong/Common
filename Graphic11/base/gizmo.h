@@ -40,6 +40,7 @@ namespace graphic
 		);
 
 		void LockEditType(const eGizmoEditType::Enum type, const bool lock);
+		void UpdateTargetTransform(const Transform &transform);
 		bool IsKeepEditMode() const;
 		void Cancel();
 

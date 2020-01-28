@@ -32,6 +32,15 @@ namespace phys
 			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1
 			, const Vector3 &revoluteAxis);
 
+		bool CreatePrismatic(cPhysicsEngine &physics
+			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1
+			, const Vector3 &revoluteAxis);
+
+		bool CreateDistance(cPhysicsEngine &physics
+			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1);
+
 		bool ModifyPivot(cPhysicsEngine &physics
 			, const Transform &worldTfm0, const Vector3 &pivot0
 			, const Transform &worldTfm1, const Vector3 &pivot1
@@ -70,6 +79,18 @@ namespace phys
 		bool SetCycleDrivePeriod(const float period, const float accel);
 		Vector2 GetCycleDrivePeriod();
 
+		// prismatic joint wrapping function
+		bool EnableLinearLimit(const bool enable);
+		bool IsLinearLimit();
+		bool SetLinearLimit(const physx::PxJointLinearLimitPair &config);
+		physx::PxJointLinearLimitPair GetLinearLimit();
+
+		// distance joint wrapping function
+		bool EnableDistanceLimit(const bool enable);
+		bool IsDistanceLimit();
+		bool SetDistanceLimit(const float minDist, const float maxDist);
+		Vector2 GetDistanceLimit();
+
 		void Clear();
 
 
@@ -101,7 +122,8 @@ namespace phys
 
 		// joint property
 		const float m_breakForce;
-		float m_revoluteAxisLen;
+		bool m_isBroken;
+		float m_revoluteAxisLen; // revolute, prismatic joint axis
 		Vector3 m_revoluteAxis; // local space
 		Vector3 m_origPos; // joint origin pos (local space)
 		Quaternion m_rotRevolute; // Xaxis -> revoluteAxis rotation (local space)

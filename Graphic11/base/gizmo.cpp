@@ -247,6 +247,13 @@ void cGizmo::LockEditType(const eGizmoEditType::Enum type, const bool lock)
 }
 
 
+// update target transform
+void cGizmo::UpdateTargetTransform(const Transform &transform)
+{
+	m_targetTransform = transform;
+}
+
+
 void cGizmo::RenderTranslate(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 )

@@ -324,8 +324,14 @@ void cNode::Picking(const Ray &ray, const eNodeType::Enum type
 		bbox *= tm;
 		if (isSpherePicking)
 		{
-			cBoundingSphere bsphere;
-			bsphere.SetBoundingSphere(bbox);
+			float radius;
+			if ((abs(bbox.m_bbox.Extents.x - bbox.m_bbox.Extents.y) < 0.1f)
+				&& (abs(bbox.m_bbox.Extents.x - bbox.m_bbox.Extents.z) < 0.1f))
+				radius = bbox.m_bbox.Extents.x;
+			else
+				radius = bbox.GetScale();
+
+			const cBoundingSphere bsphere(bbox.Center(), radius);
 			if (bsphere.Intersects(ray, &chDist))
 				out.push_back({ this, chDist });
 		}

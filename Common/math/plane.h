@@ -1,4 +1,4 @@
-// 평면 클래스.
+// geometry plane
 #pragma once
 
 

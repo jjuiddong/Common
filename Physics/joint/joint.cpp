@@ -16,6 +16,7 @@ cJoint::cJoint()
 	, m_revoluteAxis(Vector3(1,0,0))
 	, m_breakForce(2000.f)
 	//, m_breakForce(0.f)
+	, m_isBroken(false)
 	, m_isCycleDrive(false)
 	, m_incT(0.f)
 	, m_incAccelT(0.f)
@@ -141,9 +142,95 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	m_revoluteAxisLen = pivot1.Distance(pivot0);
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
-	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal();
+	// world -> local space
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
 	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
-	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal() * worldTfm1.rot.Inverse();
+	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
+	return true;
+}
+
+
+// worldTfm0, worldTfm1 is not same PxRevoluteJointCreate() argument localFrame
+// worldTfm0 : actor0 current world transform
+// worldTfm1 : actor1 current world transform
+bool cJoint::CreatePrismatic(cPhysicsEngine &physics
+	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1
+	, const Vector3 &revoluteAxis)
+{
+	RETV(!physics.m_physics, false);
+
+	PxTransform localFrame0, localFrame1;
+	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
+	GetLocalFrame(worldTfm0, worldTfm1, jointPos
+		, revoluteAxis, localFrame0, localFrame1);
+
+	PxPrismaticJoint *joint = PxPrismaticJointCreate(*physics.m_physics
+		, actor0->m_actor, localFrame0
+		, actor1->m_actor, localFrame1);
+
+	DefaultJointConfiguration(joint);
+
+	m_type = eJointType::Prismatic;
+	m_joint = joint;
+	m_actor0 = actor0;
+	m_actor1 = actor1;
+	actor0->AddJoint(this);
+	actor1->AddJoint(this);
+	m_revoluteAxis = revoluteAxis;
+	m_origPos = jointPos;
+	m_rotRevolute.SetRotationArc(Vector3(1, 0, 0), revoluteAxis);
+	m_revoluteAxisLen = pivot1.Distance(pivot0);
+	m_actorLocal0 = worldTfm0;
+	m_actorLocal1 = worldTfm1;
+	// world -> local space
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
+	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal() * worldTfm1.rot.Inverse();
+	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
+	return true;
+}
+
+
+// worldTfm0, worldTfm1 is not same PxRevoluteJointCreate() argument localFrame
+// worldTfm0 : actor0 current world transform
+// worldTfm1 : actor1 current world transform
+bool cJoint::CreateDistance(cPhysicsEngine &physics
+	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
+{
+	RETV(!physics.m_physics, false);
+
+	const Vector3 revoluteAxis(1, 0, 0);
+
+	PxTransform localFrame0, localFrame1;
+	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
+	GetLocalFrame(worldTfm0, worldTfm1, jointPos
+		, revoluteAxis, localFrame0, localFrame1);
+
+	PxDistanceJoint *joint = PxDistanceJointCreate(*physics.m_physics
+		, actor0->m_actor, localFrame0
+		, actor1->m_actor, localFrame1);
+
+	DefaultJointConfiguration(joint);
+
+	m_type = eJointType::Distance;
+	m_joint = joint;
+	m_actor0 = actor0;
+	m_actor1 = actor1;
+	actor0->AddJoint(this);
+	actor1->AddJoint(this);
+	m_revoluteAxis = revoluteAxis;
+	m_origPos = jointPos;
+	m_rotRevolute.SetRotationArc(Vector3(1, 0, 0), revoluteAxis);
+	m_revoluteAxisLen = pivot1.Distance(pivot0);
+	m_actorLocal0 = worldTfm0;
+	m_actorLocal1 = worldTfm1;
+	// world -> local space
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
+	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal() * worldTfm1.rot.Inverse();
 	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
 	return true;
 }
@@ -154,7 +241,16 @@ bool cJoint::Update(const float deltaSeconds)
 {
 	RETV(!m_joint, false);
 	RETV(!m_isCycleDrive, false);
+	RETV(m_isBroken, false);
 	RETV(m_type != eJointType::Revolute, false);
+
+	// broken joint?
+	const bool broken = (m_joint->getConstraintFlags() & physx::PxConstraintFlag::eBROKEN);
+	if (broken)
+	{
+		m_isBroken = true;
+		return true;
+	}
 
 	m_incT += deltaSeconds;
 	if (m_cyclePeriod < m_incT)
@@ -162,30 +258,33 @@ bool cJoint::Update(const float deltaSeconds)
 		// change velocity direction
 		m_incT = 0.f;
 
-		//const float velocity = GetDriveVelocity();
-		m_curVelocity = 0.f;
-		m_incAccelT = 0.f;
+		const float velocity = GetDriveVelocity();
 		if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-			p->setDriveVelocity(0.f);
+			p->setDriveVelocity(-velocity);
+
+		//m_curVelocity = 0.f;
+		//m_incAccelT = 0.f;
+		//if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+		//	p->setDriveVelocity(0.f);
 		m_actor0->WakeUp();
 		m_actor1->WakeUp();
 
 		m_toggleDir = !m_toggleDir; // toggle rotation direction +/-
 	}
-	else
-	{
-		m_incAccelT += deltaSeconds;
+	//else
+	//{
+	//	m_incAccelT += deltaSeconds;
 
-		if ((m_incAccelT > 0.1f) && (abs(m_maxDriveVelocity - m_curVelocity) > 0.1f))
-		{
-			m_curVelocity += (m_cycleDriveAccel * m_incAccelT);
-			m_curVelocity = min(m_maxDriveVelocity, m_curVelocity);
-			if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-				p->setDriveVelocity(m_toggleDir ? m_curVelocity : -m_curVelocity);
+	//	if ((m_incAccelT > 0.1f) && (abs(m_maxDriveVelocity - m_curVelocity) > 0.1f))
+	//	{
+	//		m_curVelocity += (m_cycleDriveAccel * m_incAccelT);
+	//		m_curVelocity = min(m_maxDriveVelocity, m_curVelocity);
+	//		if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+	//			p->setDriveVelocity(m_toggleDir ? m_curVelocity : -m_curVelocity);
 
-			m_incAccelT = 0.f;
-		}
-	}
+	//		m_incAccelT = 0.f;
+	//	}
+	//}
 
 	return true;
 }
@@ -331,7 +430,7 @@ bool cJoint::EnableCycleDrive(const bool enable)
 	m_isCycleDrive = enable;
 	if (enable)
 		if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-			p->setDriveVelocity(0.f);
+			p->setDriveVelocity(m_maxDriveVelocity);
 	return true;
 }
 
@@ -363,7 +462,10 @@ bool cJoint::SetRevoluteJointFlag(physx::PxRevoluteJointFlag::Enum flag, bool va
 bool cJoint::SetDriveVelocity(const float velocity)
 {
 	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+	{
 		p->setDriveVelocity(velocity);
+		p->setDriveForceLimit(1000.f);
+	}
 
 	m_maxDriveVelocity = velocity;
 	return true;
@@ -425,6 +527,120 @@ bool cJoint::IsAngularLimit()
 }
 
 
+// Prismatic Joint
+// enable linear limit
+bool cJoint::EnableLinearLimit(const bool enable)
+{
+	RETV(!m_joint, false);
+
+	if (PxPrismaticJoint *p = m_joint->is<PxPrismaticJoint>())
+		p->setPrismaticJointFlag(PxPrismaticJointFlag::eLIMIT_ENABLED, enable);
+	return true;
+}
+
+
+// Prismatic Joint
+// is enable linear limit?
+bool cJoint::IsLinearLimit()
+{
+	RETV(!m_joint, false);
+
+	if (PxPrismaticJoint *p = m_joint->is<PxPrismaticJoint>())
+	{
+		const PxPrismaticJointFlags flags = p->getPrismaticJointFlags();
+		const bool isLimit = flags.isSet(PxPrismaticJointFlag::eLIMIT_ENABLED);
+		return isLimit;
+	}
+	return false;
+}
+
+
+// Prismatic Joint
+// set linear limit configuration
+bool cJoint::SetLinearLimit(const physx::PxJointLinearLimitPair &config)
+{
+	RETV(!m_joint, false);
+
+	if (PxPrismaticJoint *p = m_joint->is<PxPrismaticJoint>())
+		p->setLimit(config);
+	return true;
+}
+
+
+// Prismatic Joint
+// retur linear limit configuration
+physx::PxJointLinearLimitPair cJoint::GetLinearLimit()
+{
+	RETV(!m_joint, physx::PxJointLinearLimitPair(PxTolerancesScale(), 0, 0, 0.01f));
+
+	if (PxPrismaticJoint *p = m_joint->is<PxPrismaticJoint>())
+		return p->getLimit();
+	return physx::PxJointLinearLimitPair(PxTolerancesScale(), 0, 0, 0.01f);
+}
+
+
+// Distance Joint
+// enable distance joint limit
+bool cJoint::EnableDistanceLimit(const bool enable)
+{
+	RETV(!m_joint, false);
+
+	if (PxDistanceJoint *p = m_joint->is<PxDistanceJoint>())
+	{
+		p->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, enable);
+		p->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, enable);
+	}
+	return true;
+}
+
+
+// Distance Joint
+// is distance limitation?
+bool cJoint::IsDistanceLimit()
+{
+	RETV(!m_joint, false);
+
+	if (PxDistanceJoint *p = m_joint->is<PxDistanceJoint>())
+	{
+		const PxDistanceJointFlags flags = p->getDistanceJointFlags();
+		const bool isLimit = flags.isSet(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED);
+		return isLimit;
+	}
+	return true;
+}
+
+
+// Distance Joint
+// set distance limit configuration
+bool cJoint::SetDistanceLimit(const float minDist, const float maxDist)
+{
+	RETV(!m_joint, false);
+
+	if (PxDistanceJoint *p = m_joint->is<PxDistanceJoint>())
+	{
+		p->setMinDistance(minDist);
+		p->setMaxDistance(maxDist);
+	}
+	return true;
+}
+
+
+// Distance Joint
+// return distance limit
+// return {min distance, max distance}
+Vector2 cJoint::GetDistanceLimit()
+{
+	RETV(!m_joint, Vector2(0,0));
+
+	if (PxDistanceJoint *p = m_joint->is<PxDistanceJoint>())
+	{
+		const Vector2 dist(p->getMinDistance(), p->getMaxDistance());
+		return dist;
+	}
+	return Vector2(0,0);
+}
+
+
 // modify pivot position
 bool cJoint::ModifyPivot(cPhysicsEngine &physics
 	, const Transform &worldTfm0, const Vector3 &pivot0
@@ -440,13 +656,6 @@ bool cJoint::ModifyPivot(cPhysicsEngine &physics
 	CreateRevolute(physics, m_actor0, worldTfm0, pivot0
 		, m_actor1, worldTfm1, pivot1
 		, revoluteAxis);
-
-	//RETV(!m_actor0 || !m_actor1 || !m_joint, false);
-	//PxTransform localFrame0, localFrame1;
-	//GetLocalFrame(worldTfm0, worldTfm1, revoluteAxis, localFrame0, localFrame1);
-	//m_revoluteAxis = revoluteAxis;
-	//m_joint->setLocalPose(PxJointActorIndex::eACTOR0, localFrame0);
-	//m_joint->setLocalPose(PxJointActorIndex::eACTOR1, localFrame1);
 
 	return true;
 }

@@ -26,7 +26,9 @@ bool cPhysicsSync::Create(cPhysicsEngine *physics)
 
 
 int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
-	, const Vector3& norm)
+	, const Vector3& norm
+	, const Str32 &name //= "box"
+)
 {
 	RETV(!m_physics, false);
 	RETV(!m_physics->m_scene, false);
@@ -45,7 +47,7 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	ZeroMemory(sync, sizeof(sSyncInfo));
 	sync->id = common::GenerateId();
 	sync->isRemove = true;
-	sync->name = "plane";
+	sync->name = name;
 	sync->actor = actor;
 	sync->node = grid;
 	m_syncs.push_back(sync);
@@ -57,6 +59,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	, const Transform& tfm
 	, const float density //= 1.f
 	, const bool isKinematic //= false
+	, const Str32 &name //= "box"
 )
 {
 	RETV(!m_physics, false);
@@ -74,7 +77,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	ZeroMemory(sync, sizeof(sSyncInfo));
 	sync->id = common::GenerateId();
 	sync->isRemove = true;
-	sync->name = "box";
+	sync->name = name;
 	sync->actor = actor;
 	sync->node = cube;
 	m_syncs.push_back(sync);
@@ -87,6 +90,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	, const float radius
 	, const float density //= 1.f
 	, const bool isKinematic //= false
+	, const Str32 &name //= "sphere"
 )
 {
 	RETV(!m_physics, false);
@@ -105,7 +109,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	ZeroMemory(sync, sizeof(sSyncInfo));
 	sync->id = common::GenerateId();
 	sync->isRemove = true;
-	sync->name = "sphere";
+	sync->name = name;
 	sync->actor = actor;
 	sync->node = sphere;
 	m_syncs.push_back(sync);
@@ -119,6 +123,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	, const float halfHeight
 	, const float density //= 1.f
 	, const bool isKinematic //= false
+	, const Str32 &name //= "capsule"
 )
 {
 	RETV(!m_physics, false);
@@ -137,7 +142,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	ZeroMemory(sync, sizeof(sSyncInfo));
 	sync->id = common::GenerateId();
 	sync->isRemove = true;
-	sync->name = "capsule";
+	sync->name = name;
 	sync->actor = actor;
 	sync->node = capsule;
 	m_syncs.push_back(sync);
