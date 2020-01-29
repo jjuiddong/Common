@@ -12,7 +12,7 @@ cGizmo::cGizmo()
  	, m_transformType(eGizmoTransform::LOCAL)
 	, m_isKeepEdit(false)
 	, m_isImmediate(true)
-	, m_prevMouseClick(false)
+	, m_prevMouseDown(false)
 	, m_controlNode(NULL)
 {
 	ZeroMemory(m_pick, sizeof(m_pick));
@@ -92,14 +92,14 @@ void cGizmo::UpdateNodeTransform(const Transform &transform)
 
 	if (eGizmoTransform::LOCAL == m_transformType)
 	{
-		//m_nodeTransform = m_controlNode->m_transform;
 		switch (m_type)
 		{
 		case eGizmoEditType::TRANSLATE: 
 			m_targetTransform.pos += transform.pos; 
 			break;
 		case eGizmoEditType::SCALE: 
-			m_targetTransform.scale *= transform.scale;
+			m_targetTransform.scale += transform.scale;
+			m_targetTransform.scale = m_targetTransform.scale.Maximum(Vector3(0, 0, 0));
 			break;
 		case eGizmoEditType::ROTATE: 
 			m_targetTransform.rot *= transform.rot; break;
@@ -187,7 +187,7 @@ void cGizmo::Cancel()
 bool cGizmo::Render(cRenderer &renderer
 	, const float deltaSeconds
 	, const POINT &mousePos
-	, const bool isMouseClick
+	, const bool isMouseDown
 	, const XMMATRIX &parentTm //= XMIdentity
 )
 {
@@ -195,10 +195,10 @@ bool cGizmo::Render(cRenderer &renderer
 
 	m_mousePos = mousePos;
 
-	if (isMouseClick != m_prevMouseClick)
+	if (isMouseDown != m_prevMouseDown)
 	{
-		m_prevMouseClick = isMouseClick;
-		if (isMouseClick) // mouse clicked?
+		m_prevMouseDown = isMouseDown;
+		if (isMouseDown) // mouse clicked?
 		{
 			// update target node transform
 			if (m_controlNode)
@@ -218,7 +218,9 @@ bool cGizmo::Render(cRenderer &renderer
 		}
 	}
 
-	if (isMouseClick && (eGizmoEditType::None != m_type))
+	m_prevMousePos = mousePos;
+
+	if (isMouseDown && (eGizmoEditType::None != m_type))
 	{
 		for (int i=0; i < 6; ++i)
 		{
@@ -226,7 +228,6 @@ bool cGizmo::Render(cRenderer &renderer
 			{
 				m_isKeepEdit = true;
 				m_axisType = (eGizmoEditAxis::Enum)i;
-				m_prevMousePos = mousePos;
 				break;
 			}
 		}
@@ -265,6 +266,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
 	const float arrowSize = 0.17f;
+	const float arrowRatio = 0.4f;
 
 	{
 		// fixed gizmo position form Camera Eye Pos
@@ -289,33 +291,38 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 
 	// X-Axis
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
-	const Vector3 px1 = Vector3(2, 0, 0) * m;
-	m_arrow[0].SetDirection(px0, px1, arrowSize);
+	const Vector3 px1 = Vector3(3, 0, 0) * m;
+	m_arrow[0].SetDirection(px0, px1, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[0] = m_arrow[0].Picking(ray, ptm, false, &dist[0]);
 
 	// Y-Axis
 	const Vector3 py0 = Vector3(0, 0.3f, 0) * m;
-	const Vector3 py1 = Vector3(0, 2, 0) * m;
-	m_arrow[1].SetDirection(py0, py1, arrowSize);
+	const Vector3 py1 = Vector3(0, 3, 0) * m;
+	m_arrow[1].SetDirection(py0, py1, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[1] = m_arrow[1].Picking(ray, ptm, false, &dist[1]);
 
 	// Z-Axis
 	const Vector3 pz0 = Vector3(0, 0, 0.3f) * m;
-	const Vector3 pz1 = Vector3(0, 0, 2) * m;
-	m_arrow[2].SetDirection(pz0, pz1, arrowSize);
+	const Vector3 pz1 = Vector3(0, 0, 3) * m;
+	m_arrow[2].SetDirection(pz0, pz1, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[2] = m_arrow[2].Picking(ray, ptm, false, &dist[2]);
 
 	XMMATRIX planeTm[3];// X-Z, Y-Z, X-Y Plane
 	{
 		const XMMATRIX tm = tfm.GetMatrixXM() * ptm;
+		const Vector3 planeScale(0.8f, 0.8f, 0.8f);
+		const bool xDir = ray.orig.x > m_transform.pos.x;
+		const bool yDir = ray.orig.y > m_transform.pos.y;
+		const bool zDir = ray.orig.z > m_transform.pos.z;
 
 		// X-Z Plane
 		Transform tfmXZ;
 		tfmXZ.rot.SetRotationArc(Vector3(0, 1, 0), Vector3(0, 0, 1));
-		tfmXZ.pos = Vector3(2.f, 0, 2.f);
+		tfmXZ.scale = planeScale;
+		tfmXZ.pos = Vector3(xDir? 1.f : -1.f, 0, zDir? 1.f : -1.f);
 		const XMMATRIX ptmXZ = tfmXZ.GetMatrixXM() * tm;
 		if (!m_isKeepEdit)
 			m_pick[3] = m_quad.Picking(ray, eNodeType::MODEL, ptmXZ, false, &dist[3]) ? true : false;
@@ -324,7 +331,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		// Y-Z Plane
 		Transform tfmYZ;
 		tfmYZ.rot.SetRotationArc(Vector3(1, 0, 0), Vector3(0, 0, 1));
-		tfmYZ.pos = Vector3(0, 2.f, 2.f);
+		tfmYZ.scale = planeScale;
+		tfmYZ.pos = Vector3(0, yDir? 1.f : -1.f, zDir? 1.f : -1.f);
 		const XMMATRIX ptmYZ = tfmYZ.GetMatrixXM() * tm;
 		if (!m_isKeepEdit)
 			m_pick[4] = m_quad.Picking(ray, eNodeType::MODEL, ptmYZ, false, &dist[4]) ? true : false;
@@ -332,7 +340,8 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 
 		// X-Y Plane
 		Transform tfmXY;
-		tfmXY.pos = Vector3(2.f, 2.f, 0);
+		tfmXY.scale = planeScale;
+		tfmXY.pos = Vector3(xDir? 1.f : -1.f, yDir? 1.f : -1.f, 0);
 		const XMMATRIX ptmXY = tfmXY.GetMatrixXM() * tm;
 		if (!m_isKeepEdit)
 			m_pick[5] = m_quad.Picking(ray, eNodeType::MODEL, ptmXY, false, &dist[5]) ? true : false;
@@ -383,31 +392,35 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		}
 	}
 
-	m_arrow[0].m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
+	const float alpha1 = (m_pick[0] || m_pick[1] || m_pick[2]
+		|| m_pick[3] || m_pick[4] || m_pick[5])? 0.2f : 1.f;
+	m_arrow[0].m_color = m_pick[0] ? cColor::RED : cColor(1.f, 0.f, 0.f, alpha1);
 	m_arrow[0].Render(renderer, ptm);
-	m_arrow[1].m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
+	m_arrow[1].m_color = m_pick[1] ? cColor::GREEN : cColor(0.f, 1.f, 0.f, alpha1);
 	m_arrow[1].Render(renderer, ptm);
-	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
+	m_arrow[2].m_color = m_pick[2] ? cColor::BLUE : cColor(0.f, 0.f, 1.f, alpha1);
 	m_arrow[2].Render(renderer, ptm);
 
 	CommonStates states(renderer.GetDevice());
 	renderer.GetDevContext()->RSSetState(states.CullNone());
 	{
+		const float alpha2 = (m_pick[0] || m_pick[1] || m_pick[2]
+			|| m_pick[3] || m_pick[4] || m_pick[5]) ? 0.2f : 0.6f;
+
 		// X-Z Plane
-		m_quad.m_color = m_pick[3] ? cColor(0.8f, 0.8f, 0, 0.8f) : cColor(0.6f, 0.6f, 0, 0.6f);
+		m_quad.m_color = m_pick[3] ? cColor(0.3f, 1.f, 0.3f, 0.8f) : cColor(0.3f, 0.8f, 0.3f, alpha2);
 		m_quad.Render(renderer, planeTm[0]);
 		// Y-Z Plane
-		m_quad.m_color = m_pick[4] ? cColor(0.8f, 0.8f, 0, 0.8f) : cColor(0.6f, 0.6f, 0, 0.6f);
+		m_quad.m_color = m_pick[4] ? cColor(0.3f, 0.3f, 1.f, 0.8f) : cColor(0.3f, 0.3f, 0.8f, alpha2);
 		m_quad.Render(renderer, planeTm[1]);
 		// X-Y Plane
-		m_quad.m_color = m_pick[5] ? cColor(0.8f, 0.8f, 0, 0.8f) : cColor(0.6f, 0.6f, 0, 0.6f);
+		m_quad.m_color = m_pick[5] ? cColor(1.f, 0.3f, 0.3f, 0.8f) : cColor(0.8f, 0.3f, 0.3f, alpha2);
 		m_quad.Render(renderer, planeTm[2]);
 	}
 	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
 
 	// recovery material
 	m_quad.m_color = cColor::WHITE;
-
 
 	if (m_isKeepEdit)
 	{
@@ -422,7 +435,6 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 		const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
 		const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
-		m_prevMousePos = m_mousePos;
 
 		// Translate Edit
 		Transform change;
@@ -473,6 +485,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
 	const float arrowSize = 0.17f;
+	const float arrowRatio = 0.4f;
 
 	{
 		// fixed gizmo position form Camera Eye Pos
@@ -490,28 +503,28 @@ void cGizmo::RenderScale(cRenderer &renderer
 	tfm.pos *= 1 / scale;
 	const Matrix44 m = tfm.GetMatrix();
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
-	const Vector3 px1 = Vector3(2, 0, 0) * m;
-	m_arrow[0].SetDirection(px0, px1, arrowSize);
+	const Vector3 px1 = Vector3(3, 0, 0) * m;
+	m_arrow[0].SetDirection(px0, px1, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[0] = m_arrow[0].Picking(ray, ptm, false);
 	m_arrow[0].m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
-	m_arrow[0].Render(renderer, ptm);
+	m_arrow[0].Render(renderer, ptm, true);
 
 	const Vector3 py0 = Vector3(0, 0.3f, 0) * m;
-	const Vector3 py1 = Vector3(0, 2, 0) * m;
-	m_arrow[1].SetDirection(py0, py1, arrowSize);
+	const Vector3 py1 = Vector3(0, 3, 0) * m;
+	m_arrow[1].SetDirection(py0, py1, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[1] = m_arrow[1].Picking(ray, ptm, false);
 	m_arrow[1].m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
-	m_arrow[1].Render(renderer, ptm);
+	m_arrow[1].Render(renderer, ptm, true);
 
 	const Vector3 pz0 = Vector3(0, 0, 0.3f) * m;
-	const Vector3 pz1 = Vector3(0, 0, 2) * m;
-	m_arrow[2].SetDirection(pz0, pz1, arrowSize);
+	const Vector3 pz1 = Vector3(0, 0, 3) * m;
+	m_arrow[2].SetDirection(pz0, pz1, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[2] = m_arrow[2].Picking(ray, ptm, false);
 	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
-	m_arrow[2].Render(renderer, ptm);
+	m_arrow[2].Render(renderer, ptm, true);
 
 	// recovery material
 	m_quad.m_color = cColor::WHITE;
@@ -521,18 +534,14 @@ void cGizmo::RenderScale(cRenderer &renderer
 		const Vector3 nodePosW = m_controlNode->GetWorldMatrix().GetPosition();
 		Plane groundXZ(Vector3(0, 1, 0), nodePosW);
 		Plane groundYZ(Vector3(1, 0, 0), nodePosW);
-		//Plane groundXY(Vector3(0, 0, 1), m_transform.pos);
 		const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 		const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
-		//const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
 		const Ray prevRay = GetMainCamera().GetRay(m_prevMousePos.x, m_prevMousePos.y);
 		const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 		const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
-		//const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
-		m_prevMousePos = m_mousePos;
 
 		// Scale Edit
-		Transform change;
+		Transform change(Vector3::Zeroes, Vector3::Zeroes);
 		switch (m_axisType)
 		{
 		case eGizmoEditAxis::X:
@@ -674,7 +683,6 @@ void cGizmo::RenderRotate(cRenderer &renderer
 		const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 		const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
 		const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
-		m_prevMousePos = m_mousePos;
 
 		Transform change;
 		switch (m_axisType)

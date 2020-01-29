@@ -34,8 +34,14 @@ namespace graphic
 		static const cColor GRAY0;
 		static const cColor GRAY2;
 		static const cColor BLUE;
+		static const cColor BLUE1;
+		static const cColor BLUE2;
 		static const cColor GREEN;
+		static const cColor GREEN1;
+		static const cColor GREEN2;
 		static const cColor RED;
+		static const cColor RED1;
+		static const cColor RED2;
 		static const cColor YELLOW;
 		static const cColor YELLOW0;
 		static const cColor ORANGE;

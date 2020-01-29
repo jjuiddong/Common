@@ -41,6 +41,10 @@ namespace phys
 			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
 			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1);
 
+		bool CreateD6(cPhysicsEngine &physics
+			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1);
+
 		bool ModifyPivot(cPhysicsEngine &physics
 			, const Transform &worldTfm0, const Vector3 &pivot0
 			, const Transform &worldTfm1, const Vector3 &pivot1
@@ -90,6 +94,20 @@ namespace phys
 		bool IsDistanceLimit();
 		bool SetDistanceLimit(const float minDist, const float maxDist);
 		Vector2 GetDistanceLimit();
+
+		// D6 joint wrapping function
+		bool SetMotion(const physx::PxD6Axis::Enum axis, const physx::PxD6Motion::Enum motion);
+		physx::PxD6Motion::Enum GetMotion(const physx::PxD6Axis::Enum axis);
+		bool SetD6Drive(const physx::PxD6Drive::Enum axis, const physx::PxD6JointDrive &drive);
+		physx::PxD6JointDrive GetD6Drive(const physx::PxD6Drive::Enum axis);
+		bool SetD6DriveVelocity(const Vector3 &linear, const Vector3 &angular);
+		std::pair<Vector3,Vector3> GetD6DriveVelocity();
+		bool SetD6LinearLimit(const physx::PxJointLinearLimit &config);
+		bool SetD6TwistLimit(const physx::PxJointAngularLimitPair &config);
+		bool SetD6SwingLimit(const physx::PxJointLimitCone &config);
+		physx::PxJointLinearLimit GetD6LinearLimit();
+		physx::PxJointAngularLimitPair GetD6TwistLimit();
+		physx::PxJointLimitCone GetD6SwingLimit();
 
 		void Clear();
 

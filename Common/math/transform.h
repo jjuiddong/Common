@@ -1,5 +1,7 @@
 //
 // 2017-06-26, jjuiddong
+//	- Transform
+//		- Calc Order = Scale * Rotation * Position
 //
 // 2020-01-19
 //	- add constructor

@@ -375,18 +375,60 @@ Quaternion Quaternion::Inverse() const
 }
 
 
+/** @brief Returns an equivalent euler angle representation of
+	* this quaternion.
+	* @return Euler angles in roll-pitch-yaw order. (radian)
+	* http://ai.stanford.edu/~acoates/quaternion.h
+	*/
+Vector3 Quaternion::Euler(void) const
+{
+	double euler[3];
+	const static double PI_OVER_2 = MATH_PI * 0.5f;
+	const static double EPSILON = MATH_EPSILON2;
+	double sqw, sqx, sqy, sqz;
+
+	// quick conversion to Euler angles to give tilt to user
+	sqw = w * w;
+	sqx = x * x;
+	sqy = y * y;
+	sqz = z * z;
+
+	euler[1] = asin(clamp(-1, 1, 2.0f * (w*y - x * z)));
+	if (PI_OVER_2 - fabs(euler[1]) > EPSILON)
+	{
+		euler[2] = atan2(2.0f * (x*y + w * z),
+			sqx - sqy - sqz + sqw);
+		euler[0] = atan2(2.0f * (w*x + y * z),
+			sqw - sqx - sqy + sqz);
+	}
+	else
+	{
+		// compute heading from local 'down' vector
+		euler[2] = atan2(2 * y*z - 2 * x*w,
+			2 * x*z + 2 * y*w);
+		euler[0] = 0.0f;
+
+		// If facing down, reverse yaw
+		if (euler[1] < 0)
+			euler[2] = MATH_PI - euler[2];
+	}
+
+	return Vector3((float)euler[0], (float)euler[1], (float)euler[2]);
+}
+
+
 /**
     * @brief Computes the quaternion that is equivalent to a given
     * euler angle rotation.
-    * @param euler A 3-vector in order:  roll-pitch-yaw.
+    * @param euler A 3-vector in order:  roll-pitch-yaw. (radian)
 	* http://ai.stanford.edu/~acoates/quaternion.h
     */
 void Quaternion::Euler(const Vector3& v) 
 {
 	float euler[ 3];
-	euler[ 0] = ANGLE2RAD(v.x);
-	euler[ 1] = ANGLE2RAD(v.y);
-	euler[ 2] = ANGLE2RAD(v.z);
+	euler[ 0] = v.x;
+	euler[ 1] = v.y;
+	euler[ 2] = v.z;
 
     float c1 = cos(euler[2] * 0.5f);
     float c2 = cos(euler[1] * 0.5f);
@@ -428,68 +470,6 @@ void Quaternion::Euler2(const Vector3& v)
 	y = c1*s2*c3 + s1*c2*s3;
 	z = s1*c2*c3 - c1*s2*s3;
 	w = c1*c2*c3 + s1*s2*s3;
-}
-
-
-/** @brief Returns an equivalent euler angle representation of
-	* this quaternion.
-	* @return Euler angles in roll-pitch-yaw order.
-	* http://ai.stanford.edu/~acoates/quaternion.h
-	*/
-Vector3 Quaternion::Euler(void) const 
-{
-	double euler[ 3];
-	const static double PI_OVER_2 = MATH_PI * 0.5f;
-	const static double EPSILON = MATH_EPSILON2;
-	double sqw, sqx, sqy, sqz;
-
-	// quick conversion to Euler angles to give tilt to user
-	sqw = w*w;
-	sqx = x*x;
-	sqy = y*y;
-	sqz = z*z;
-
-	euler[1] = asin( clamp(-1, 1, 2.0f * (w*y - x*z)) );
-	if (PI_OVER_2 - fabs(euler[1]) > EPSILON) 
-	{
-		euler[2] = atan2( 2.0f * (x*y + w*z),
-			sqx - sqy - sqz + sqw);
-		euler[0] = atan2(2.0f * (w*x + y*z),
-			sqw - sqx - sqy + sqz);
-	} 
-	else 
-	{
-		// compute heading from local 'down' vector
-		euler[2] = atan2(2*y*z - 2*x*w,
-			2*x*z + 2*y*w);
-		euler[0] = 0.0f;
-
-		// If facing down, reverse yaw
-		if (euler[1] < 0)
-			euler[2] = MATH_PI - euler[2];
-	}
-
-	return Vector3((float)euler[0], (float)euler[1], (float)euler[2]);
-
-
-
-// 	double roll, pitch, yaw;
-// 
-// 	double ysqr = y * y;
-// 	double t0 = -2.0f * (ysqr + z * z) + 1.0f;
-// 	double t1 = +2.0f * (x * y - w * z);
-// 	double t2 = -2.0f * (x * z + w * y);
-// 	double t3 = +2.0f * (y * z - w * x);
-// 	double t4 = -2.0f * (x * x + ysqr) + 1.0f;
-// 
-// 	t2 = t2 > 1.0f ? 1.0f : t2;
-// 	t2 = t2 < -1.0f ? -1.0f : t2;
-// 
-// 	pitch = std::asin(t2);
-// 	roll = std::atan2(t3, t4);
-// 	yaw = std::atan2(t1, t0);
-// 
-// 	return Vector3((float)roll, (float)pitch, (float)yaw);
 }
 
 

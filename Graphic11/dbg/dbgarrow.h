@@ -2,6 +2,10 @@
 // 2017-05-13, jjuiddong
 // Debug Arrow Mesh
 //
+// 2020-01-29
+//	- add arrow type
+//		- head: pyramid, cube
+//
 #pragma once
 
 
@@ -16,9 +20,12 @@ namespace graphic
 		virtual ~cDbgArrow();
 
 		bool Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
-			, const float size = 1.f, const bool isSolid=false);
-		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity);
-		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float size = 1.f);
+			, const float width = 1.f, const bool isSolid=false
+			, const float arrowRatio = 0.75f);
+		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity
+			, const bool showCubeHead = false);
+		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float width = 1.f
+			, const float arrowRatio = 0.75f);
 		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity
 			, const bool isSpherePicking = true
 			, OUT float *dist = NULL);
@@ -29,6 +36,7 @@ namespace graphic
 	public:
 		bool m_isSolid; // default: false
 		cPyramid m_head;
+		cCube m_headCube; // cube head
 		cLine m_body;
 		cColor m_color;
 		Transform m_transform;

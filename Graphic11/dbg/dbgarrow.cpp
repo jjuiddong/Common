@@ -17,14 +17,19 @@ cDbgArrow::~cDbgArrow()
 
 
 bool cDbgArrow::Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
-	, const float size //= 1.f
+	, const float width //= 1.f
 	, const bool isSolid //= false
+	, const float arrowRatio //= 0.75f
 )
 {
-	m_head.Create(renderer, size, size, p0, eVertexType::POSITION);
-	m_head.SetDirection(p0, p1, p1, size*1.75f, 0.75f);
+	m_head.Create(renderer, width, width, p0, eVertexType::POSITION);
+	m_head.SetDirection(p0, p1, p1, width*1.75f, arrowRatio);
 
-	m_body.Create(renderer, p0, p1, size * 0.4f, eVertexType::POSITION);
+	cBoundingBox bbox;
+	bbox.SetBoundingBox(Transform(p1, Vector3::Ones*width*1.75f));
+	m_headCube.Create(renderer, bbox, eVertexType::POSITION);
+
+	m_body.Create(renderer, p0, p1, width * 0.4f, eVertexType::POSITION);
 
 	m_isSolid = isSolid;
 	return true;
@@ -33,15 +38,25 @@ bool cDbgArrow::Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
 
 void cDbgArrow::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
+	, const bool showCubeHead //= false
 )
 {
 	m_head.m_color = m_color;
+	m_headCube.m_color = m_color;
 	m_body.m_color = m_color;
 
 	if (m_isSolid)
 	{
-		m_head.Render(renderer, tm);
+		CommonStates states(renderer.GetDevice());
+		renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+
+		if (showCubeHead)
+			m_headCube.Render(renderer, tm);
+		else
+			m_head.Render(renderer, tm);
 		m_body.Render(renderer, tm);
+
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
 	}
 	else
 	{
@@ -49,7 +64,10 @@ void cDbgArrow::Render(cRenderer &renderer
 		ID3D11RasterizerState *oldState = NULL;
 		renderer.GetDevContext()->RSGetState(&oldState);
 		renderer.GetDevContext()->RSSetState(states.Wireframe());
-		m_head.Render(renderer, tm);
+		if (showCubeHead)
+			m_headCube.Render(renderer, tm);
+		else
+			m_head.Render(renderer, tm);
 		m_body.Render(renderer, tm);
 		renderer.GetDevContext()->RSSetState(oldState);
 	}
@@ -57,11 +75,17 @@ void cDbgArrow::Render(cRenderer &renderer
 
 
 void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
-	, const float size //= 1.f
+	, const float width //= 1.f
+	, const float arrowRatio //= 0.75f
 )
 {
-	m_head.SetDirection(p0, p1, p1, size*1.75f, 0.75f);
-	m_body.SetLine(p0, p1, size * 0.4f);
+	m_head.SetDirection(p0, p1, p1, width*1.75f, arrowRatio);
+	m_body.SetLine(p0, p1, width * 0.4f);
+
+	cBoundingBox bbox;
+	bbox.SetBoundingBox(Transform(p1, Vector3::Ones*width*1.5f));
+	m_headCube.SetCube(bbox);
+
 	m_transform.pos = (p0 + p1) * 0.5f;
 }
 

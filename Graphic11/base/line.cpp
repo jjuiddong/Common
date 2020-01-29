@@ -124,6 +124,7 @@ void cLine::SetLine(const Vector3 &p0, const Vector3 &p1, const float width)
 	m_transform.rot = q;
 
 	Transform tfm = m_transform;
+	tfm.scale = Vector3(1.f, 1.f, len / 2.f);
 	tfm.pos = Vector3(0, 0, 0);
 	m_boundingBox.SetBoundingBox(tfm);
 	CalcBoundingSphere();

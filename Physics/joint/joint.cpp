@@ -236,6 +236,47 @@ bool cJoint::CreateDistance(cPhysicsEngine &physics
 }
 
 
+// create D6 articulate joint
+bool cJoint::CreateD6(cPhysicsEngine &physics
+	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
+{
+	RETV(!physics.m_physics, false);
+
+	const Vector3 revoluteAxis(1, 0, 0);
+
+	PxTransform localFrame0, localFrame1;
+	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
+	GetLocalFrame(worldTfm0, worldTfm1, jointPos
+		, revoluteAxis, localFrame0, localFrame1);
+
+	PxD6Joint *joint = PxD6JointCreate(*physics.m_physics
+		, actor0->m_actor, localFrame0
+		, actor1->m_actor, localFrame1);
+
+	DefaultJointConfiguration(joint);
+
+	m_type = eJointType::D6;
+	m_joint = joint;
+	m_actor0 = actor0;
+	m_actor1 = actor1;
+	actor0->AddJoint(this);
+	actor1->AddJoint(this);
+	m_revoluteAxis = revoluteAxis;
+	m_origPos = jointPos;
+	m_rotRevolute.SetRotationArc(Vector3(1, 0, 0), revoluteAxis);
+	m_revoluteAxisLen = pivot1.Distance(pivot0);
+	m_actorLocal0 = worldTfm0;
+	m_actorLocal1 = worldTfm1;
+	// world -> local space
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
+	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal() * worldTfm1.rot.Inverse();
+	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
+	return true;
+}
+
+
 // update joint drive velocity
 bool cJoint::Update(const float deltaSeconds)
 {
@@ -638,6 +679,154 @@ Vector2 cJoint::GetDistanceLimit()
 		return dist;
 	}
 	return Vector2(0,0);
+}
+
+
+// D6 joint
+// set motion
+bool cJoint::SetMotion(const physx::PxD6Axis::Enum axis, const physx::PxD6Motion::Enum motion)
+{
+	RETV(!m_joint, false);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		p->setMotion(axis, motion);
+	return true;
+}
+
+
+// D6 joint
+// get motion
+physx::PxD6Motion::Enum cJoint::GetMotion(const physx::PxD6Axis::Enum axis)
+{
+	RETV(!m_joint, PxD6Motion::eLOCKED);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		return p->getMotion(axis);
+	return PxD6Motion::eLOCKED;
+}
+
+
+// D6 joint
+// set drive configuration
+bool cJoint::SetD6Drive(const physx::PxD6Drive::Enum axis, const physx::PxD6JointDrive &drive)
+{
+	RETV(!m_joint, false);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		p->setDrive(axis, drive);
+	return true;
+}
+
+
+// D6 joint
+// return drive configuration
+physx::PxD6JointDrive cJoint::GetD6Drive(const physx::PxD6Drive::Enum axis)
+{
+	RETV(!m_joint, physx::PxD6JointDrive());
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		return p->getDrive(axis);
+	return physx::PxD6JointDrive();
+}
+
+
+// D6 joint
+// set drive velocity
+bool cJoint::SetD6DriveVelocity(const Vector3 &linear, const Vector3 &angular)
+{
+	RETV(!m_joint, false);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		p->setDriveVelocity(*(PxVec3*)&linear, *(PxVec3*)&angular);
+	return true;
+}
+
+
+// D6 joint
+// get drive velocity
+std::pair<Vector3, Vector3> cJoint::GetD6DriveVelocity()
+{
+	RETV(!m_joint, std::make_pair(Vector3(), Vector3()) );
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+	{
+		PxVec3 linear, angular;
+		p->getDriveVelocity(linear, angular);
+		return std::make_pair(*(Vector3*)&linear, *(Vector3*)&angular);
+	}
+	return { Vector3(), Vector3() };
+}
+
+
+// D6 joint
+// set linear limit
+bool cJoint::SetD6LinearLimit(const physx::PxJointLinearLimit &config)
+{
+	RETV(!m_joint, false);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		p->setLinearLimit(config);
+	return true;
+}
+
+
+// D6 joint
+// set twist limit
+bool cJoint::SetD6TwistLimit(const physx::PxJointAngularLimitPair &config)
+{
+	RETV(!m_joint, false);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		p->setTwistLimit(config);
+	return true;
+}
+
+
+// D6 joint
+// set swing limit
+bool cJoint::SetD6SwingLimit(const physx::PxJointLimitCone &config)
+{
+	RETV(!m_joint, false);
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		p->setSwingLimit(config);
+	return true;
+}
+
+
+// D6 joint
+// get linear limit
+physx::PxJointLinearLimit cJoint::GetD6LinearLimit()
+{
+	RETV(!m_joint, PxJointLinearLimit(0.f, PxSpring(0.f,0.f)));
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		return p->getLinearLimit();
+	return PxJointLinearLimit(0.f, PxSpring(0.f, 0.f));
+}
+
+
+// D6 joint
+// get twist limit
+physx::PxJointAngularLimitPair cJoint::GetD6TwistLimit()
+{
+	RETV(!m_joint, PxJointAngularLimitPair(0, 0));
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		return p->getTwistLimit();
+	return PxJointAngularLimitPair(0, 0);
+}
+
+
+// D6 joint
+// get swing limit
+physx::PxJointLimitCone cJoint::GetD6SwingLimit()
+{
+	RETV(!m_joint, PxJointLimitCone(0, 0));
+
+	if (PxD6Joint *p = m_joint->is<PxD6Joint>())
+		return p->getSwingLimit();
+	return PxJointLimitCone(0, 0);
 }
 
 
