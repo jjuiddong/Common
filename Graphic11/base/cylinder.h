@@ -13,14 +13,14 @@ namespace graphic
 	{
 	public:
 		cCylinder();
-		cCylinder(cRenderer &renderer, const float radius, const float halfHeight
-			, const int stacks, const int slices
+		cCylinder(cRenderer &renderer, const float radius, const float height
+			, const int slices
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE);
 		virtual ~cCylinder();
 
-		bool Create(cRenderer &renderer, const float radius, const float halfHeight
-			, const int stacks, const int slices
+		bool Create(cRenderer &renderer, const float radius, const float height
+			, const int slices
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 			, const cColor &color = cColor::WHITE);
 
@@ -28,14 +28,14 @@ namespace graphic
 
 		void SetColor(const cColor &color);
 		void SetPos(const Vector3 &pos);
-		void SetDimension(const float radius, const float halfHeight);
+		void SetDimension(const float radius, const float height);
 
 
 	public:
 		cCylinderShape m_shape;
 		cMaterial m_mtrl;
 		float m_radius;
-		float m_halfHeight;
+		float m_height;
 	};
 
 }

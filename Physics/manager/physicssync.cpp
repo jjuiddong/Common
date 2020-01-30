@@ -150,6 +150,39 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 }
 
 
+int cPhysicsSync::SpawnCylinder(graphic::cRenderer &renderer
+	, const Transform& tfm
+	, const float radius
+	, const float height
+	, const float density //= 1.f
+	, const bool isKinematic //= false
+	, const Str32 &name //= "cylinder"
+)
+{
+	RETV(!m_physics, false);
+	RETV(!m_physics->m_scene, false);
+
+	graphic::cCylinder *cylinder = new graphic::cCylinder();
+	cylinder->Create(renderer, radius, height, 8);
+	cylinder->m_transform.pos = tfm.pos;
+	cylinder->m_transform.rot = tfm.rot;
+
+	cRigidActor *actor = new cRigidActor();
+	actor->CreateCylinder(*m_physics, tfm, radius, height, nullptr, density, isKinematic);
+	m_physics->m_scene->addActor(*actor->m_actor);
+
+	sSyncInfo *sync = new sSyncInfo;
+	ZeroMemory(sync, sizeof(sSyncInfo));
+	sync->id = common::GenerateId();
+	sync->isRemove = true;
+	sync->name = name;
+	sync->actor = actor;
+	sync->node = cylinder;
+	m_syncs.push_back(sync);
+	return sync->id;
+}
+
+
 // physics object sync
 bool cPhysicsSync::Sync()
 {

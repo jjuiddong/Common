@@ -37,6 +37,7 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 }
 
 
+// create box
 bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	, const Transform &tfm
 	, const Vector3* linVel //= nullptr
@@ -68,6 +69,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 }
 
 
+// create sphere rigidbody
 bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	, const Transform &tfm
 	, const float radius
@@ -102,6 +104,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 }
 
 
+// create capsuel rigidbody
 bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	, const Transform &tfm
 	, const float radius
@@ -137,6 +140,73 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 }
 
 
+// create cylinder rigidbody
+bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
+	, const Transform &tfm
+	, const float radius
+	, const float height
+	, const Vector3* linVel //= nullptr
+	, const float density //= 1.f
+	, const bool isKinematic //= false
+)
+{
+	using namespace physx;
+
+	PxQuat rot = *(PxQuat*)&tfm.rot;
+	if (rot.isSane())
+		rot = PxQuat(1.f); // default;
+
+	PxSceneWriteLock scopedLock(*physics.m_scene);
+	
+	PxConvexMesh* convexMesh = GenerateCylinderMesh(physics, radius, height);
+
+	PxRigidDynamic* convex = PxCreateDynamic(*physics.m_physics
+		, PxTransform(*(PxVec3*)&tfm.pos, rot)
+		, PxConvexMeshGeometry(convexMesh), *physics.m_material, density);
+	PX_ASSERT(convex);
+
+	convex->setLinearDamping(1.f);
+	convex->setAngularDamping(1.f);
+	convex->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
+	convex->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+
+	if (linVel)
+		convex->setLinearVelocity(*(PxVec3*)linVel);
+
+	m_type = eRigidType::Dynamic;
+	m_shape = eShapeType::Cylinder;
+	m_actor = convex;
+	return true;
+}
+
+
+// create cylinder convex mesh
+physx::PxConvexMesh* cRigidActor::GenerateCylinderMesh(cPhysicsEngine &physics
+	, const float radius, const float height)
+{
+	const int slices = 10;
+	graphic::cCylinderShape shape;
+	const int numConeVertices = (slices * 2 + 1) * 2;
+	const int numConeIndices = slices * 2 * 6;
+	const int numCapsuleVertices = numConeVertices;
+	const int numCapsuleIndices = numConeIndices;
+
+	vector<Vector3> conePositions(numConeVertices);
+	vector<unsigned short> coneIndices(numConeIndices);
+	shape.GenerateConeMesh2(slices, radius, height, &conePositions[0], &coneIndices[0], 0, false);
+
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = numConeVertices;
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = &conePositions[0];
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+	PxConvexMesh* convexMesh = physics.m_cooking->createConvexMesh(convexDesc
+		, physics.m_physics->getPhysicsInsertionCallback());
+
+	return convexMesh;
+}
+
+
 // change geometry shape
 bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 {
@@ -165,6 +235,14 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 	case eShapeType::Capsule:
 		m_actor->createShape(PxCapsuleGeometry(dim.y, dim.x), *physics.m_material);
 		break;
+	case eShapeType::Cylinder:
+	{
+		const float radius = dim.y;
+		const float height = dim.x;
+		PxConvexMesh* convexMesh = GenerateCylinderMesh(physics, radius, height);
+		m_actor->createShape(PxConvexMeshGeometry(convexMesh), *physics.m_material);
+	}
+	break;
 
 	case eShapeType::Plane: // not support
 	case eShapeType::Convex: // not support

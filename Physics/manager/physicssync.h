@@ -53,6 +53,14 @@ namespace phys
 			, const bool isKinematic = false
 			, const Str32 &name = "capsule");
 
+		int SpawnCylinder(graphic::cRenderer &renderer
+			, const Transform& tfm
+			, const float radius
+			, const float height
+			, const float density = 1.f
+			, const bool isKinematic = false
+			, const Str32 &name = "cylinder");
+
 		bool AddJoint(cJoint *joint, graphic::cNode *node = nullptr
 			, const bool isAutoRemove=true);
 

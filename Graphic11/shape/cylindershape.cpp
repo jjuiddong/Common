@@ -20,30 +20,30 @@ cCylinderShape::~cCylinderShape()
 // 180µµ -> xyz = (-1,0,0)
 //
 bool cCylinderShape::Create(cRenderer &renderer, const float radius
-	, const float halfHeight
-	, const int stacks
+	, const float height
 	, const int slices
 	, const int vtxType // = (eVertexType::POSITION | eVertexType::NORMAL| eVertexType::COLOR)
 	, const cColor &color // = cColor::BLACK
+	, const bool isHead //= true
 )
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
 		return false; // already exist
 
 	m_radius = radius;
-	m_halfHeight = halfHeight;
+	m_height = height;
 
 	const int numConeVertices = (slices * 2 + 1) * 2;
+	const int numCircleVertices = isHead ? (slices * 2 + 1) * 2 : 0;
 	const int numConeIndices = slices * 2 * 6;
-	const int numCapsuleVertices = numConeVertices;
-	const int numCapsuleIndices = numConeIndices;
+	const int numCircleIndices = isHead ? (slices * 2 + 1 - 2) * 2 * 3 : 0;
 
-	vector<Vector3> conePositions(numConeVertices);
-	vector<unsigned short> coneIndices(numConeIndices);
-	GenerateConeMesh(slices, &conePositions[0], &coneIndices[0], 0);
+	vector<Vector3> conePositions(numConeVertices + numCircleVertices);
+	vector<unsigned short> coneIndices(numConeIndices + numCircleIndices);
+	GenerateConeMesh(slices, &conePositions[0], &coneIndices[0], 0, isHead);
 
-	const int vtxCount = numCapsuleVertices;
-	const int faceCount = numCapsuleIndices / 3;
+	const int vtxCount = numConeVertices + numCircleVertices;
+	const int faceCount = numConeIndices / 3 + numCircleIndices / 3;
 	const Vector4 vColor = color.GetColor();
 
 	cVertexLayout vtxLayout;
@@ -63,13 +63,13 @@ bool cCylinderShape::Create(cRenderer &renderer, const float radius
 	const float radius1 = radius;
 
 	const float radii[2] = { radius1, radius0 };
-	const float offsets[2] = { halfHeight, -halfHeight };
+	const float offsets[2] = { height/2.f, -height/2.f };
 
 	// calculate cone angle
 	float cosTheta = 0.0f;
 
-	if (halfHeight > 0.0f)
-		cosTheta = (radius0 - radius1) / (halfHeight*2.0f);
+	if (height > 0.0f)
+		cosTheta = (radius0 - radius1) / height;
 
 	// scale factor for normals to avoid re-normalizing each time
 	float nscale = (float)sqrt(1.0f - cosTheta * cosTheta);
@@ -108,10 +108,42 @@ bool cCylinderShape::Create(cRenderer &renderer, const float radius
 		}
 	}
 
+	// head circle vertex?
+	if (isHead)
+	{
+		for (int s = 0; s < 2; ++s)
+		{
+			const float y = radii[s] * cosTheta;
+			const float r = (float)sqrt(radii[s] * radii[s] - y * y);
+			const float offset = offsets[s] + y;
+
+			for (int i = 0; i < numCircleVertices / 2; ++i)
+			{
+				Vector3 p = conePositions[i] * r;
+				p.y += offset;
+				p = p * rTm;
+
+				// x, -x axis normal
+				Vector3 n = (s == 0) ? Vector3(-1, 0, 0) : Vector3(1, 0, 0);
+
+				if (vtxType & eVertexType::POSITION)
+					*(Vector3*)(pVertex + posOffset) = p;
+				if (vtxType & eVertexType::COLOR)
+					*(Vector4*)(pVertex + colorOffset) = vColor;
+				if (vtxType & eVertexType::NORMAL)
+					*(Vector3*)(pVertex + normOffset) = n;
+				//if (vtxType & eVertexType::TEXTURE0)
+				//	*(Vector2*)(pVertex + texOffset) = Vector2(u1, v1);
+
+				pVertex += vertexStride;
+			}
+		}
+	}
+
 	if (pIndices)
 	{
 		// cone indices
-		for (int i = 0; i < numConeIndices; ++i)
+		for (int i = 0; i < numConeIndices + numCircleIndices; ++i)
 			pIndices[i] = coneIndices[i];
 	}
 
@@ -132,7 +164,9 @@ void cCylinderShape::Render(cRenderer &renderer)
 }
 
 
-void cCylinderShape::GenerateConeMesh(int slices, Vector3* positions, WORD* indices, int offset)
+void cCylinderShape::GenerateConeMesh(int slices, Vector3* positions, WORD* indices, int offset
+	, const bool isHead //= true
+)
 {
 	// generate vertices
 	const float phiStep = (MATH_PI * 2.f) / (slices * 2);
@@ -143,11 +177,82 @@ void cCylinderShape::GenerateConeMesh(int slices, Vector3* positions, WORD* indi
 	{
 		for (int x = 0; x <= slices * 2; ++x)
 		{
-			const float cosPhi = (float)cos(phi);
-			const float sinPhi = (float)sin(phi);
-
-			const Vector3 p(cosPhi, 0.0f, sinPhi);
+			const Vector3 p((float)cos(phi), 0.0f, (float)sin(phi));
 			*(positions++) = p;
+			phi += phiStep;
+		}
+	}
+
+	if (isHead)
+	{
+		// generate two rings of vertices for the circle head
+		for (int i = 0; i < 2; ++i)
+		{
+			for (int x = 0; x <= slices * 2; ++x)
+			{
+				const Vector3 p((float)cos(phi), 0.0f, (float)sin(phi));
+				*(positions++) = p;
+				phi += phiStep;
+			}
+		}
+	}
+
+	const int numRingQuads = 2 * slices;
+	const int numRingVerts = 2 * slices + 1;
+
+	// add faces
+	for (int i = 0; i < numRingQuads; ++i)
+	{
+		// add a quad
+		*(indices++) = offset + i;
+		*(indices++) = offset + numRingVerts + i + 1;
+		*(indices++) = offset + numRingVerts + i;
+
+		*(indices++) = offset + numRingVerts + i + 1;
+		*(indices++) = offset + i;
+		*(indices++) = offset + i + 1;
+	}
+
+	// add head circle face
+	if (isHead)
+	{
+		for (int i = 0; i < slices*2 - 2; ++i)
+		{
+			*(indices++) = numRingVerts * 2 + i + 1;
+			*(indices++) = numRingVerts * 2 + 0;
+			*(indices++) = numRingVerts * 2 + i + 2;
+		}
+
+		for (int i = 0; i < slices*2 - 2; ++i)
+		{
+			*(indices++) = numRingVerts * 3;
+			*(indices++) = numRingVerts * 3 + i + 1;
+			*(indices++) = numRingVerts * 3 + i + 2;
+		}
+	}
+}
+
+
+// generate cylinder vertex
+// two circle : Y-Z plane
+// radius: Y-Z axis
+// height: x axis
+void cCylinderShape::GenerateConeMesh2(const int slices, const float radius, const float height
+	, Vector3* positions, WORD* indices, int offset
+	, const bool isHead //= true
+)
+{
+	// generate vertices
+	const float phiStep = (MATH_PI * 2.f) / (slices * 2);
+	float phi = 0.0f;
+
+	// generate two rings of vertices for the cone ends
+	for (int i = 0; i < 2; ++i)
+	{
+		for (int x = 0; x <= slices * 2; ++x)
+		{
+			*positions++ = Vector3( (i==0)? height/2.f : -height/2.f
+				, (float)cos(phi) * radius, (float)sin(phi) * radius);
 
 			phi += phiStep;
 		}
@@ -167,5 +272,23 @@ void cCylinderShape::GenerateConeMesh(int slices, Vector3* positions, WORD* indi
 		*(indices++) = offset + numRingVerts + i + 1;
 		*(indices++) = offset + i;
 		*(indices++) = offset + i + 1;
+	}
+
+	// add head face
+	if (isHead)
+	{
+		for (int i = 0; i < slices * 2 - 2; ++i)
+		{
+			*(indices++) = i + 1;
+			*(indices++) = 0;
+			*(indices++) = i + 2;
+		}
+
+		for (int i = 0; i < slices * 2 - 2; ++i)
+		{
+			*(indices++) = numRingVerts;
+			*(indices++) = numRingVerts + i + 1;
+			*(indices++) = numRingVerts + i + 2;
+		}
 	}
 }

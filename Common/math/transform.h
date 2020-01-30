@@ -62,6 +62,7 @@ namespace common
 		XMStoreFloat3((XMFLOAT3*)&scale, _scale);
 		XMStoreFloat3((XMFLOAT3*)&pos, _tran);
 		XMStoreFloat4((XMFLOAT4*)&rot, _xq);
+		rot.Normalize();
 		return *this;
 	}
 #endif

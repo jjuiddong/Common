@@ -14,7 +14,7 @@ namespace phys
 	class cJoint;
 
 	DECLARE_ENUM(eRigidType, Static, Dynamic, None);
-	DECLARE_ENUM(eShapeType, Plane, Box, Sphere, Capsule, Convex, None);
+	DECLARE_ENUM(eShapeType, Plane, Box, Sphere, Capsule, Cylinder, Convex, None);
 
 	class cRigidActor
 	{
@@ -46,6 +46,14 @@ namespace phys
 			, const float density = 1.f
 			, const bool isKinematic = false);
 
+		bool CreateCylinder(cPhysicsEngine &physics
+			, const Transform &tfm
+			, const float radius
+			, const float height
+			, const Vector3* linVel = nullptr
+			, const float density = 1.f
+			, const bool isKinematic = false);
+
 		bool ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim);
 
 		// wrapping function
@@ -66,6 +74,11 @@ namespace phys
 		bool AddJoint(cJoint *joint);
 		bool RemoveJoint(cJoint *joint);
 		void Clear();
+
+
+	protected:
+		physx::PxConvexMesh* GenerateCylinderMesh(cPhysicsEngine &physics
+			, const float radius, const float height);
 
 
 	public:

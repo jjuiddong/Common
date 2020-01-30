@@ -48,7 +48,7 @@ bool cCapsule::Create(cRenderer &renderer, const float radius, const float halfH
 	m_transform.scale = Vector3(halfHeight + radius, radius, radius);
 
 	m_sphereShape.Create(renderer, 1.f, stacks, slices, vtxType, color);
-	m_cylinderShape.Create(renderer, 1.f, 1.f, stacks, slices, vtxType, color);
+	m_cylinderShape.Create(renderer, 1.f, 2.f, slices, vtxType, color, false);
 	return true;
 }
 

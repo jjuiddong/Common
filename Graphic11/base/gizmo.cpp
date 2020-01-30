@@ -501,6 +501,8 @@ void cGizmo::RenderScale(cRenderer &renderer
 
 	Transform tfm = m_transform;
 	tfm.pos *= 1 / scale;
+	tfm.rot = m_controlNode->m_transform.rot;
+
 	const Matrix44 m = tfm.GetMatrix();
 	const Vector3 px0 = Vector3(0.3f, 0, 0) * m;
 	const Vector3 px1 = Vector3(3, 0, 0) * m;
@@ -526,19 +528,65 @@ void cGizmo::RenderScale(cRenderer &renderer
 	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
 	m_arrow[2].Render(renderer, ptm, true);
 
+
+	XMMATRIX planeTm[3];// X-Z, Y-Z, X-Y Plane
+	{
+		const XMMATRIX tm = tfm.GetMatrixXM() * ptm;
+		const float w = 0.6f; // plane width
+		const Vector3 planeScale(w, w, w);
+
+		// X-Z Plane
+		Transform tfmXZ;
+		tfmXZ.rot.SetRotationArc(Vector3(0, 1, 0), Vector3(0, 0, 1));
+		tfmXZ.scale = planeScale;
+		tfmXZ.pos = Vector3(w, 0, w);
+		planeTm[0] = tfmXZ.GetMatrixXM() * tm;
+
+		// Y-Z Plane
+		Transform tfmYZ;
+		tfmYZ.rot.SetRotationArc(Vector3(1, 0, 0), Vector3(0, 0, 1));
+		tfmYZ.scale = planeScale;
+		tfmYZ.pos = Vector3(0, w, w);
+		planeTm[1] = tfmYZ.GetMatrixXM() * tm;
+
+		// X-Y Plane
+		Transform tfmXY;
+		tfmXY.scale = planeScale;
+		tfmXY.pos = Vector3(w, w, 0);
+		planeTm[2] = tfmXY.GetMatrixXM() * tm;
+	}
+
+	CommonStates states(renderer.GetDevice());
+	renderer.GetDevContext()->RSSetState(states.CullNone());
+	{
+		const float alpha2 = 0.6f;
+
+		// X-Z Plane
+		m_quad.m_color = cColor(0.3f, 0.8f, 0.3f, alpha2);
+		m_quad.Render(renderer, planeTm[0]);
+		// Y-Z Plane
+		m_quad.m_color = cColor(0.3f, 0.3f, 0.8f, alpha2);
+		m_quad.Render(renderer, planeTm[1]);
+		// X-Y Plane
+		m_quad.m_color = cColor(0.8f, 0.3f, 0.3f, alpha2);
+		m_quad.Render(renderer, planeTm[2]);
+	}
+	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
+
 	// recovery material
 	m_quad.m_color = cColor::WHITE;
 
 	if (m_isKeepEdit)
 	{
 		const Vector3 nodePosW = m_controlNode->GetWorldMatrix().GetPosition();
-		Plane groundXZ(Vector3(0, 1, 0), nodePosW);
-		Plane groundYZ(Vector3(1, 0, 0), nodePosW);
-		const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
-		const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
+		Plane groundXZ(Vector3(0, 1, 0) * tfm.rot, nodePosW);
+		Plane groundYZ(Vector3(1, 0, 0) * tfm.rot, nodePosW);
+		const Quaternion irot = tfm.rot.Inverse(); // world -> local space
+		const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir) * irot;
+		const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir)* irot;
 		const Ray prevRay = GetMainCamera().GetRay(m_prevMousePos.x, m_prevMousePos.y);
-		const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
-		const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
+		const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir) * irot;
+		const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir) * irot;
 
 		// Scale Edit
 		Transform change(Vector3::Zeroes, Vector3::Zeroes);
