@@ -30,6 +30,8 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 	if (!plane)
 		return nullptr;
 
+	plane->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+
 	m_type = eRigidType::Static;
 	m_shape = eShapeType::Plane;
 	m_actor = plane;
@@ -55,9 +57,8 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 		, PxBoxGeometry(*(PxVec3*)&tfm.scale), *physics.m_material, density);
 	PX_ASSERT(box);
 
-	box->setLinearDamping(1.f);
-	box->setAngularDamping(1.f);
-	box->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+	DefaultRigidActorConfiguration(box);
+
 	box->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	if (linVel)
 		box->setLinearVelocity(*(PxVec3*)linVel);
@@ -89,11 +90,9 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 		, PxSphereGeometry(radius), *physics.m_material, density);
 	PX_ASSERT(sphere);
 
-	sphere->setLinearDamping(1.f);
-	sphere->setAngularDamping(1.f);
-	sphere->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
-	sphere->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+	DefaultRigidActorConfiguration(sphere);
 
+	sphere->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	if (linVel)
 		sphere->setLinearVelocity(*(PxVec3*)linVel);
 
@@ -125,10 +124,8 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 		, PxCapsuleGeometry(radius, halfHeight), *physics.m_material, density);
 	PX_ASSERT(capsule);
 
-	capsule->setLinearDamping(1.f);
-	capsule->setAngularDamping(1.f);
+	DefaultRigidActorConfiguration(capsule);
 	capsule->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
-	capsule->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
 	if (linVel)
 		capsule->setLinearVelocity(*(PxVec3*)linVel);
@@ -165,11 +162,9 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 		, PxConvexMeshGeometry(convexMesh), *physics.m_material, density);
 	PX_ASSERT(convex);
 
-	convex->setLinearDamping(1.f);
-	convex->setAngularDamping(1.f);
-	convex->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
-	convex->setActorFlag(PxActorFlag::eVISUALIZATION, true);
+	DefaultRigidActorConfiguration(convex);
 
+	convex->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
 	if (linVel)
 		convex->setLinearVelocity(*(PxVec3*)linVel);
 
@@ -204,6 +199,14 @@ physx::PxConvexMesh* cRigidActor::GenerateCylinderMesh(cPhysicsEngine &physics
 		, physics.m_physics->getPhysicsInsertionCallback());
 
 	return convexMesh;
+}
+
+
+void cRigidActor::DefaultRigidActorConfiguration(physx::PxRigidDynamic *actor)
+{
+	actor->setLinearDamping(0.5f);
+	actor->setAngularDamping(0.5f);
+	actor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 }
 
 

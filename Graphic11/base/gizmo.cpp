@@ -593,13 +593,13 @@ void cGizmo::RenderScale(cRenderer &renderer
 		switch (m_axisType)
 		{
 		case eGizmoEditAxis::X:
-			change.scale.x += (curPosXZ.x - prevPosXZ.x) * 0.1f;
+			change.scale.x += (curPosXZ.x - prevPosXZ.x) * 0.3f;
 			break;
 		case eGizmoEditAxis::Y:
-			change.scale.y += (curPosYZ.y - prevPosYZ.y) * 0.1f;
+			change.scale.y += (curPosYZ.y - prevPosYZ.y) * 0.3f;
 			break;
 		case eGizmoEditAxis::Z:
-			change.scale.z += (curPosXZ.z - prevPosXZ.z) * 0.1f;
+			change.scale.z += (curPosXZ.z - prevPosXZ.z) * 0.3f;
 			break;
 		default: assert(0); break;
 		}

@@ -41,7 +41,7 @@ bool cCylinder::Create(cRenderer &renderer, const float radius, const float heig
 	m_vtxType = vtxType;
 
 	Transform tfm;
-	tfm.scale = Vector3(1, 1, 1);
+	tfm.scale = Vector3(0.5f, 1, 1);
 	m_boundingBox.SetBoundingBox(tfm);
 
 	m_transform.scale = Vector3(height, radius, radius);

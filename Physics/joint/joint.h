@@ -20,12 +20,12 @@ namespace phys
 		virtual ~cJoint();
 
 		bool CreateFixed(cPhysicsEngine &physics
-			, cRigidActor *actor0, const Transform &worldTfm0
-			, cRigidActor *actor1, const Transform &worldTfm1);
+			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1);
 
 		bool CreateSpherical(cPhysicsEngine &physics
-			, cRigidActor *actor0, const Transform &worldTfm0
-			, cRigidActor *actor1, const Transform &worldTfm1);
+			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+			, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1);
 
 		bool CreateRevolute(cPhysicsEngine &physics
 			, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0

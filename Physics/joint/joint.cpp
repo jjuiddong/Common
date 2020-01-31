@@ -47,13 +47,13 @@ bool cJoint::CreateReferenceMode()
 // worldTfm0 : actor0 current world transform
 // worldTfm1 : actor1 current world transform
 bool cJoint::CreateFixed(cPhysicsEngine &physics
-	, cRigidActor *actor0, const Transform &worldTfm0
-	, cRigidActor *actor1, const Transform &worldTfm1)
+	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
 {
 	RETV(!physics.m_physics, false);
 
 	PxTransform localFrame0, localFrame1;
-	const Vector3 jointPos = (worldTfm0.pos + worldTfm1.pos) / 2.f;
+	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
@@ -72,6 +72,11 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 	m_origPos = jointPos;
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
+	// world -> local space
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
+	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal() * worldTfm1.rot.Inverse();
+	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
 	return true;
 }
 
@@ -80,13 +85,13 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 // worldTfm0 : actor0 current world transform
 // worldTfm1 : actor1 current world transform
 bool cJoint::CreateSpherical(cPhysicsEngine &physics
-	, cRigidActor *actor0, const Transform &worldTfm0
-	, cRigidActor *actor1, const Transform &worldTfm1)
+	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
+	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
 {
 	RETV(!physics.m_physics, false);
 
 	PxTransform localFrame0, localFrame1;
-	const Vector3 jointPos = (worldTfm0.pos + worldTfm1.pos) / 2.f;
+	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
@@ -105,6 +110,11 @@ bool cJoint::CreateSpherical(cPhysicsEngine &physics
 	m_origPos = jointPos;
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
+	// world -> local space
+	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
+	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
+	m_pivots[1].dir = (pivot1 - worldTfm1.pos).Normal() * worldTfm1.rot.Inverse();
+	m_pivots[1].len = (pivot1 - worldTfm1.pos).Length();
 	return true;
 }
 
@@ -129,6 +139,9 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 		, actor1->m_actor, localFrame1);
 
 	DefaultJointConfiguration(joint);
+
+	//joint->setProjectionLinearTolerance(0.5f);
+	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
 	m_type = eJointType::Revolute;
 	m_joint = joint;
@@ -855,7 +868,7 @@ bool cJoint::ModifyPivot(cPhysicsEngine &physics
 void cJoint::DefaultJointConfiguration(physx::PxJoint *joint)
 {
 
-	//joint->setProjectionLinearTolerance(0.1f);
+	//joint->setProjectionLinearTolerance(0.5f);
 	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
 	if (m_breakForce > 0.f)

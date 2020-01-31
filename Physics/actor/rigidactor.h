@@ -80,6 +80,8 @@ namespace phys
 		physx::PxConvexMesh* GenerateCylinderMesh(cPhysicsEngine &physics
 			, const float radius, const float height);
 
+		void DefaultRigidActorConfiguration(physx::PxRigidDynamic *actor);
+
 
 	public:
 		int m_id;
