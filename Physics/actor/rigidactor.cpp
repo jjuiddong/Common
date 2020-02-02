@@ -47,9 +47,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	, const bool isKinematic //=false
 )
 {
-	PxQuat rot = *(PxQuat*)&tfm.rot;
-	if (rot.isSane())
-		rot = PxQuat(1.f); // default;
+	const PxQuat rot = *(PxQuat*)&tfm.rot;
 
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	PxRigidDynamic* box = PxCreateDynamic(*physics.m_physics
@@ -81,9 +79,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 
-	PxQuat rot = *(PxQuat*)&tfm.rot;
-	if (rot.isSane())
-		rot = PxQuat(1.f); // default;
+	const PxQuat rot = *(PxQuat*)&tfm.rot;
 
 	PxRigidDynamic* sphere = PxCreateDynamic(*physics.m_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
@@ -113,10 +109,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	, const bool isKinematic //=false
 )
 {
-	PxQuat rot = *(PxQuat*)&tfm.rot;
-	if (rot.isSane())
-		rot = PxQuat(1.f); // default;
-
+	const PxQuat rot = *(PxQuat*)&tfm.rot;
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 
 	PxRigidDynamic* capsule = PxCreateDynamic(*physics.m_physics
@@ -149,9 +142,7 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 {
 	using namespace physx;
 
-	PxQuat rot = *(PxQuat*)&tfm.rot;
-	if (rot.isSane())
-		rot = PxQuat(1.f); // default;
+	const PxQuat rot = *(PxQuat*)&tfm.rot;
 
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	
@@ -305,7 +296,7 @@ bool cRigidActor::SetGlobalPose(const physx::PxTransform &tfm)
 
 bool cRigidActor::SetGlobalPose(const Transform &tfm)
 {
-	const PxTransform target = PxTransform(*(PxQuat*)&tfm.rot) * PxTransform(*(PxVec3*)&tfm.pos);
+	const PxTransform target = PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot);
 	return SetGlobalPose(target);
 }
 
@@ -408,6 +399,34 @@ float cRigidActor::GetMaxAngularVelocity()
 	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
 		return p->getMaxAngularVelocity();
 	return 0.f;
+}
+
+
+bool cRigidActor::SetLinearVelocity(const Vector3 velocity)
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setLinearVelocity(*(PxVec3*)&velocity);
+	return true;
+}
+
+
+bool cRigidActor::SetAngularVelocity(const Vector3 velocity)
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+		p->setAngularVelocity(*(PxVec3*)&velocity);
+	return true;
+}
+
+
+// clear linear, torque force
+bool cRigidActor::ClearForce()
+{
+	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
+	{
+		p->clearForce();
+		p->clearTorque();
+	}
+	return true;
 }
 
 

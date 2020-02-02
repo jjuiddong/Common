@@ -70,6 +70,9 @@ namespace phys
 		bool SetAngularDamping(const float damping);
 		bool SetMaxAngularVelocity(const float maxVel);
 		float GetMaxAngularVelocity();
+		bool SetLinearVelocity(const Vector3 velocity);
+		bool SetAngularVelocity(const Vector3 velocity);
+		bool ClearForce();
 		bool WakeUp();
 		bool AddJoint(cJoint *joint);
 		bool RemoveJoint(cJoint *joint);

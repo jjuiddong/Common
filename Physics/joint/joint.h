@@ -54,6 +54,8 @@ namespace phys
 
 		bool Update(const float deltaSeconds);
 
+		bool ReconnectBreakJoint(cPhysicsEngine &physics);
+
 		// joint pivot
 		void SetPivotPos(const int actorIndex, const Vector3 &pos);
 		Transform GetPivotWorldTransform(const int actorIndex);

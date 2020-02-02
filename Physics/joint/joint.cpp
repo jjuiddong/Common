@@ -316,31 +316,64 @@ bool cJoint::Update(const float deltaSeconds)
 		if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
 			p->setDriveVelocity(-velocity);
 
-		//m_curVelocity = 0.f;
-		//m_incAccelT = 0.f;
-		//if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-		//	p->setDriveVelocity(0.f);
 		m_actor0->WakeUp();
 		m_actor1->WakeUp();
 
 		m_toggleDir = !m_toggleDir; // toggle rotation direction +/-
 	}
-	//else
-	//{
-	//	m_incAccelT += deltaSeconds;
-
-	//	if ((m_incAccelT > 0.1f) && (abs(m_maxDriveVelocity - m_curVelocity) > 0.1f))
-	//	{
-	//		m_curVelocity += (m_cycleDriveAccel * m_incAccelT);
-	//		m_curVelocity = min(m_maxDriveVelocity, m_curVelocity);
-	//		if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-	//			p->setDriveVelocity(m_toggleDir ? m_curVelocity : -m_curVelocity);
-
-	//		m_incAccelT = 0.f;
-	//	}
-	//}
 
 	return true;
+}
+
+
+// reconnect break joint
+bool cJoint::ReconnectBreakJoint(cPhysicsEngine &physics)
+{
+	const bool broken = (m_joint->getConstraintFlags() & physx::PxConstraintFlag::eBROKEN);
+	if (!broken)
+		return true; // not broken
+
+	m_isBroken = false;
+	PHY_SAFE_RELEASE(m_joint);
+
+	// world space pivot position
+	const Vector3 pivot0 = m_pivots[0].dir * m_actorLocal0.rot * m_pivots[0].len + m_actorLocal0.pos;
+	const Vector3 pivot1 = m_pivots[1].dir * m_actorLocal1.rot * m_pivots[1].len + m_actorLocal1.pos;
+
+	// re create joint
+	switch (m_type)
+	{
+	case eJointType::Fixed:
+		return CreateFixed(physics, m_actor0, m_actorLocal0, pivot0
+			, m_actor1, m_actorLocal1, pivot1);
+
+	case eJointType::Spherical:
+		return CreateSpherical(physics, m_actor0, m_actorLocal0, pivot0
+			, m_actor1, m_actorLocal1, pivot1);
+
+	case eJointType::Revolute:
+		return CreateRevolute(physics, m_actor0, m_actorLocal0, pivot0
+			, m_actor1, m_actorLocal1, pivot1, m_revoluteAxis);
+
+	case eJointType::Prismatic:
+		return CreatePrismatic(physics, m_actor0, m_actorLocal0, pivot0
+			, m_actor1, m_actorLocal1, pivot1, m_revoluteAxis);
+
+	case eJointType::Distance:
+		return CreateDistance(physics, m_actor0, m_actorLocal0, pivot0
+			, m_actor1, m_actorLocal1, pivot1);
+
+	case eJointType::D6:
+		return CreateD6(physics, m_actor0, m_actorLocal0, pivot0
+			, m_actor1, m_actorLocal1, pivot1);
+		break;
+
+	default:
+		assert(0);
+		break;
+	}
+
+	return false;
 }
 
 
