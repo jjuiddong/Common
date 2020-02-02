@@ -163,7 +163,7 @@ void cCamera::UpdateTrace(const float deltaSeconds)
 Ray cCamera::GetRay(
 	const int sx //=-1
 	, const int sy //=-1
-)
+) const
 {
 	assert(m_width != 0);
 	assert(m_height != 0);
@@ -178,7 +178,7 @@ Ray cCamera::GetRay(
 
 
 void cCamera::GetRay(const int windowWidth, const int windowHeight, 
-	const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir)
+	const int sx, const int sy, OUT Vector3 &orig, OUT Vector3 &dir) const
 {
 	const float x = ((sx * 2.0f / windowWidth) - 1.0f);
 	const float y = -((sy * 2.0f / windowHeight) - 1.0f);

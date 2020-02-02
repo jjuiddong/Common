@@ -24,9 +24,9 @@ namespace graphic
 		virtual void Update(const float deltaSeconds);
 		virtual void Bind(cRenderer &renderer) {}
 
-		virtual Ray GetRay(const int sx=-1, const int sy=-1);
+		virtual Ray GetRay(const int sx = -1, const int sy = -1) const;
 		virtual void GetRay(const int windowWidth, const int windowHeight, const int sx, const int sy
-			, OUT Vector3 &orig, OUT Vector3 &dir);
+			, OUT Vector3 &orig, OUT Vector3 &dir) const;
 
 		const Vector3& GetLookAt() const;
 		const Vector3& GetEyePos() const;

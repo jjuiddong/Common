@@ -79,6 +79,7 @@ bool cTPSemaphore::RemoveTask(const StrId &taskName)
 	{
 		delete *it;
 		m_tasks.erase(it);
+		m_sema.Wait();
 	}
 	m_cs.Unlock();
 	return true;
