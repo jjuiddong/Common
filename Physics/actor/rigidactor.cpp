@@ -47,7 +47,9 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	, const bool isKinematic //=false
 )
 {
-	const PxQuat rot = *(PxQuat*)&tfm.rot;
+	Quaternion q = tfm.rot;
+	q.Normalize();
+	const PxQuat rot = *(PxQuat*)&q;
 
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	PxRigidDynamic* box = PxCreateDynamic(*physics.m_physics
@@ -79,7 +81,9 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 
-	const PxQuat rot = *(PxQuat*)&tfm.rot;
+	Quaternion q = tfm.rot;
+	q.Normalize();
+	const PxQuat rot = *(PxQuat*)&q;
 
 	PxRigidDynamic* sphere = PxCreateDynamic(*physics.m_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
@@ -109,7 +113,10 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	, const bool isKinematic //=false
 )
 {
-	const PxQuat rot = *(PxQuat*)&tfm.rot;
+	Quaternion q = tfm.rot;
+	q.Normalize();
+	const PxQuat rot = *(PxQuat*)&q;
+
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 
 	PxRigidDynamic* capsule = PxCreateDynamic(*physics.m_physics
@@ -142,7 +149,9 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 {
 	using namespace physx;
 
-	const PxQuat rot = *(PxQuat*)&tfm.rot;
+	Quaternion q = tfm.rot;
+	q.Normalize();
+	const PxQuat rot = *(PxQuat*)&q;
 
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	
