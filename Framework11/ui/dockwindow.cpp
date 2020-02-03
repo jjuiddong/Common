@@ -1019,6 +1019,21 @@ void cDockWindow::ReleaseCapture()
 }
 
 
+void cDockWindow::SetFocus(cDockWindow *dock)
+{
+	if (m_owner)
+		m_owner->SetFocus(dock);
+}
+
+
+cDockWindow* cDockWindow::GetFocus()
+{
+	if (m_owner)
+		return m_owner->GetFocus();
+	return nullptr;
+}
+
+
 cRenderer& cDockWindow::GetRenderer()
 {
 	return m_owner->m_renderer;

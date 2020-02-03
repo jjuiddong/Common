@@ -57,6 +57,8 @@ namespace framework
 		void SetCapture();
 		cDockWindow* GetCapture();
 		void ReleaseCapture();
+		void SetFocus(cDockWindow *dock);
+		cDockWindow* GetFocus();
 		graphic::cRenderer& GetRenderer();
 		framework::cInputManager& GetInput();
 		void ClearConnection();

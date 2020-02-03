@@ -233,8 +233,7 @@ bool cGridLine::Render(cRenderer &renderer
 	m_vtxBuff.Bind(renderer);
 	m_idxBuff.Bind(renderer);
 
-	CommonStates states(renderer.GetDevice());
-	renderer.GetDevContext()->OMSetBlendState(states.NonPremultiplied(), 0, 0xffffffff);
+	renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 2, 0, 0);
 	renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);

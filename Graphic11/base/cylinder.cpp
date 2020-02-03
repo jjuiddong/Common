@@ -5,7 +5,7 @@ using namespace graphic;
 
 
 cCylinder::cCylinder()
-	: cNode(common::GenerateId(), "capsule", eNodeType::MODEL)
+	: cNode(common::GenerateId(), "cylinder", eNodeType::MODEL)
 	, m_radius(0)
 	, m_height(0)
 {
@@ -41,12 +41,12 @@ bool cCylinder::Create(cRenderer &renderer, const float radius, const float heig
 	m_vtxType = vtxType;
 
 	Transform tfm;
-	tfm.scale = Vector3(0.5f, 1, 1);
+	tfm.scale = Vector3(1, 1, 1);
 	m_boundingBox.SetBoundingBox(tfm);
 
-	m_transform.scale = Vector3(height, radius, radius);
+	m_transform.scale = Vector3(height/2.f, radius, radius);
 
-	return m_shape.Create(renderer, 1.f, 1.f, slices, vtxType, color);
+	return m_shape.Create(renderer, 1.f, 2.f, slices, vtxType, color);
 }
 
 
@@ -107,5 +107,5 @@ void cCylinder::SetDimension(const float radius, const float height)
 {
 	m_radius = radius;
 	m_height = height;
-	m_transform.scale = Vector3(height, radius, radius);
+	m_transform.scale = Vector3(height/2.f, radius, radius);
 }
