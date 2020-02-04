@@ -149,7 +149,7 @@ namespace phys
 		Quaternion m_rotRevolute; // Xaxis -> revoluteAxis rotation (local space)
 								  // revoluteAxis = normal(pivot1 - pivot0)
 		Transform m_actorLocal0; // actor0 local transform (local space)
-		Transform m_actorLocal1; // actor0 local transform (local space)
+		Transform m_actorLocal1; // actor1 local transform (local space)
 
 		struct sPivot 
 		{

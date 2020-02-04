@@ -1083,6 +1083,39 @@ void cRenderWindow::RequestResetDeviceNextFrame()
 }
 
 
+// show dock window
+void cRenderWindow::SetActiveWindow(cDockWindow *dock)
+{
+	RET(!dock);
+	RET(!dock->m_parent); // leaf node?
+
+	// todo: recursive check
+	// if tab state, set current tab index
+	cDockWindow *tabWnd = dock->m_tabs.empty() ? dock->m_parent : dock;
+	RET(tabWnd->m_tabs.empty());
+
+	if (tabWnd == dock)
+	{
+		tabWnd->m_selectTab = 0;
+		return; // success
+	}
+	
+	int tabIdx = -1;
+	for (uint i = 0; i < tabWnd->m_tabs.size(); ++i)
+	{
+		if (dock == tabWnd->m_tabs[i])
+		{
+			tabIdx = (int)i;
+			break;
+		}
+	}
+	if (tabIdx < 0)
+		return; // error occurred!
+
+	tabWnd->m_selectTab = tabIdx + 1;
+}
+
+
 void cRenderWindow::SetCapture(cDockWindow *dock)
 {
 	m_captureDock = dock;

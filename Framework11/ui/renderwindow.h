@@ -68,6 +68,7 @@ namespace framework
 		void SetFinishDragBindState();
 		bool IsDragState();
 		bool IsMoveState();
+		void SetActiveWindow(cDockWindow *dock);
 		void SetCapture(cDockWindow *dock);
 		void SetFocus(cDockWindow *dock);
 		cDockWindow* GetCapture();
