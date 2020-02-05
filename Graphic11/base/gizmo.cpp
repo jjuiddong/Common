@@ -82,6 +82,7 @@ void cGizmo::SetControlNode(cNode *node)
 	m_transform.pos = v.Normal() * 3 + GetMainCamera().GetEyePos();
 
 	m_targetTransform = node->m_transform;
+	m_deltaTransform = Transform(Vector3::Zeroes, Vector3::Zeroes);
 }
 
 
@@ -90,8 +91,11 @@ void cGizmo::UpdateNodeTransform(const Transform &transform)
 {
 	RET2(!m_controlNode);
 
+	m_deltaTransform = transform;
+
 	if (eGizmoTransform::LOCAL == m_transformType)
 	{
+
 		switch (m_type)
 		{
 		case eGizmoEditType::TRANSLATE: 

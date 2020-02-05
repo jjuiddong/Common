@@ -7,7 +7,7 @@ namespace common
 	{
 		float x, y;
 
-		Vector2() {}
+		Vector2():x(0.f), y(0.f) {}
 		Vector2(float x0, float y0) : x(x0), y(y0) {}
 
 		inline bool IsEmpty() const;

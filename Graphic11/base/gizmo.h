@@ -69,6 +69,7 @@ namespace graphic
 		bool m_prevMouseDown; //check clicked mouse left button
 		vector<cBoundingBox> m_ringBbox; // rotation ring picking
 		Transform m_targetTransform; // temporal store node transform (to multithread access)
+		Transform m_deltaTransform; // gizmo delta transform
 	};
 
 
