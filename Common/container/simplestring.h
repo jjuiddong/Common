@@ -23,7 +23,7 @@ namespace common
 	};
 
 	template<size_t MAX>
-	class String<char, MAX>
+	class String<char, MAX> final
 	{
 	public:
 		String() {
@@ -40,7 +40,7 @@ namespace common
 			m_str[len] = NULL;
 		}
 
-		virtual ~String() {
+		~String() {
 		}
 
 		char* Format(const char* fmt, ...) {
@@ -451,7 +451,7 @@ namespace common
 
 
 	template<size_t MAX>
-	class String<wchar_t, MAX>
+	class String<wchar_t, MAX> final
 	{
 	public:
 		String() {
@@ -468,7 +468,7 @@ namespace common
 			m_str[len] = NULL;
 		}
 
-		virtual ~String() {
+		~String() {
 		}
 
 		wchar_t* Format(const wchar_t* fmt, ...) {

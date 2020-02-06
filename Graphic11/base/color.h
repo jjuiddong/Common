@@ -18,7 +18,7 @@ namespace graphic
 {
 	using namespace common;
 
-	class cColor
+	class cColor final
 	{
 	public:
 		cColor();
@@ -53,7 +53,7 @@ namespace graphic
 		static const cColor AQUA;
 		static const cColor DARKBLUE;
 
-		virtual ~cColor();
+		~cColor();
 
 		void SetColor(const float r, const float g, const float b, const float a=1.f);
 		void SetColor(const BYTE r, const BYTE g, const BYTE b, const BYTE a=255);
