@@ -270,7 +270,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
 	const Vector3 eyePos = GetMainCamera().GetEyePos();
-	const float arrowSize = 0.17f * 0.4f;
+	const float arrowSize = 0.2f * 0.4f;
 	const float arrowRatio = 0.4f;
 	const float arrowLength = 2.7f * 0.4f;
 	const float arrowOffset = 0.3f * 0.4f;
