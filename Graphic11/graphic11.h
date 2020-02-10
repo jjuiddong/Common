@@ -106,6 +106,7 @@ namespace graphic {
 #include "shape\torusshape.h"
 #include "shape\capsuleshape.h"
 #include "shape\cylindershape.h"
+#include "shape\coneshape.h"
 
 
 #include "base/grid.h"
@@ -145,6 +146,7 @@ namespace graphic {
 #include "base/bezierline.h"
 #include "base/cylinder.h"
 #include "base/capsule.h"
+#include "base/cone.h"
 
 
 //

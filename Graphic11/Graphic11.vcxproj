@@ -157,6 +157,7 @@
     <ClInclude Include="base\circle2d.h" />
     <ClInclude Include="base\color.h" />
     <ClInclude Include="base\computeshader.h" />
+    <ClInclude Include="base\cone.h" />
     <ClInclude Include="base\constantbuffer.h" />
     <ClInclude Include="base\cube.h" />
     <ClInclude Include="base\cylinder.h" />
@@ -246,6 +247,7 @@
     <ClInclude Include="model_assimp\skeleton.h" />
     <ClInclude Include="shape\capsuleshape.h" />
     <ClInclude Include="shape\circleshape.h" />
+    <ClInclude Include="shape\coneshape.h" />
     <ClInclude Include="shape\cubeshape.h" />
     <ClInclude Include="shape\cylindershape.h" />
     <ClInclude Include="shape\pyramidshape.h" />
@@ -295,6 +297,7 @@
     <ClCompile Include="base\circle2d.cpp" />
     <ClCompile Include="base\color.cpp" />
     <ClCompile Include="base\computeshader.cpp" />
+    <ClCompile Include="base\cone.cpp" />
     <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\cylinder.cpp" />
     <ClCompile Include="base\depthbuffer.cpp" />
@@ -371,6 +374,7 @@
     <ClCompile Include="model_assimp\skeleton.cpp" />
     <ClCompile Include="shape\capsuleshape.cpp" />
     <ClCompile Include="shape\circleshape.cpp" />
+    <ClCompile Include="shape\coneshape.cpp" />
     <ClCompile Include="shape\cubeshape.cpp" />
     <ClCompile Include="shape\cylindershape.cpp" />
     <ClCompile Include="shape\pyramidshape.cpp" />

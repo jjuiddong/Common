@@ -32,6 +32,7 @@ namespace graphic
 			, OUTLINE = 1 << 6
 			, TEXT = 1 << 7
 			, NODEPTH = 1 << 8
+			, WIREFRAME = 1 << 9
 		};
 	};
 

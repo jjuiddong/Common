@@ -190,6 +190,7 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_line.Create(*this);
 	m_rect3D.Create(*this, 32);
 	m_sphere.Create(*this, 1, 10, 10);
+	m_cone.Create(*this, 1, 1, 20, eVertexType::POSITION);
 
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgCube.Create(*this, bbox);

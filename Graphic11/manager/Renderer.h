@@ -187,6 +187,7 @@ namespace graphic
 		cRect2D m_rect2D;
 		cRect3D m_rect3D;
 		cSphere m_sphere;
+		cCone m_cone;
 	};
 
 
