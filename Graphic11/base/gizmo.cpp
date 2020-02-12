@@ -95,7 +95,6 @@ void cGizmo::UpdateNodeTransform(const Transform &transform)
 
 	if (eGizmoTransform::LOCAL == m_transformType)
 	{
-
 		switch (m_type)
 		{
 		case eGizmoEditType::TRANSLATE: 
@@ -259,6 +258,7 @@ void cGizmo::UpdateTargetTransform(const Transform &transform)
 }
 
 
+// global translate mode
 void cGizmo::RenderTranslate(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 )
@@ -531,6 +531,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 }
 
 
+// local scaling mode
 void cGizmo::RenderScale(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 )
@@ -652,7 +653,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 			if (d0 > d1)
 			{
 				// XZ Plane
-				Plane2 groundXZ(Vector3(0, 1, 0) * rot, Vector3(0, 0, 0), Vector3(1,0,0)*rot);
+				Plane2 groundXZ(Vector3(0, 1, 0) * rot, nodePosW, Vector3(1,0,0)*rot);
 				const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 				change.scale.x += (curPosXZ.x - prevPosXZ.x);
@@ -660,7 +661,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 			else
 			{
 				// XY Plane
-				Plane2 groundXY(Vector3(0, 0, 1) * rot, Vector3(0, 0, 0), Vector3(1,0,0)*rot);
+				Plane2 groundXY(Vector3(0, 0, 1) * rot, nodePosW, Vector3(1,0,0)*rot);
 				const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
 				change.scale.x += (curPosXY.x - prevPosXY.x);
@@ -675,7 +676,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 			if (d0 > d1)
 			{
 				// YZ Plane
-				Plane2 groundYZ(Vector3(1, 0, 0) * rot, Vector3(0, 0, 0), Vector3(1, 0, 0)*rot);
+				Plane2 groundYZ(Vector3(1, 0, 0) * rot, nodePosW, Vector3(1, 0, 0)*rot);
 				const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
 				change.scale.y += (curPosYZ.y - prevPosYZ.y);
@@ -683,7 +684,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 			else
 			{
 				// XY Plane
-				Plane2 groundXY(Vector3(0, 0, 1) * rot, Vector3(0, 0, 0), Vector3(1, 0, 0)*rot);
+				Plane2 groundXY(Vector3(0, 0, 1) * rot, nodePosW, Vector3(1, 0, 0)*rot);
 				const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
 				change.scale.y += (curPosXY.y - prevPosXY.y);
@@ -698,7 +699,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 			if (d0 > d1)
 			{
 				// XZ Plane
-				Plane2 groundXZ(Vector3(0, 1, 0) * rot, Vector3(0, 0, 0), Vector3(1,0,0)*rot);
+				Plane2 groundXZ(Vector3(0, 1, 0) * rot, nodePosW, Vector3(1,0,0)*rot);
 				const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 				change.scale.z += (curPosXZ.z - prevPosXZ.z);
@@ -706,7 +707,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 			else
 			{
 				// YZ Plane
-				Plane2 groundYZ(Vector3(1, 0, 0) * rot, Vector3(0, 0, 0), Vector3(1,0,0)*rot);
+				Plane2 groundYZ(Vector3(1, 0, 0) * rot, nodePosW, Vector3(1,0,0)*rot);
 				const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
 				change.scale.z += (curPosYZ.z - prevPosYZ.z);
@@ -721,6 +722,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 }
 
 
+// local rotation edit mode
 void cGizmo::RenderRotate(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 )
@@ -752,10 +754,10 @@ void cGizmo::RenderRotate(cRenderer &renderer
 	sData pickes[8]; // for sorting
 	int pickesCnt = 0;
 
-
 	// X-Axis
 	Transform tfmX = m_transform;
 	tfmX.rot.SetRotationArc(Vector3(1, 0, 0), Vector3(0, 1, 0));
+	tfmX.rot *= m_controlNode->m_transform.rot;
 	tfmX.pos *= 1 / scale;
 	const XMMATRIX tmX = tfmX.GetMatrixXM() * scaleTm.GetMatrixXM() * parentTm;
 	if (!m_isKeepEdit)
@@ -776,6 +778,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 
 	// Y-Axis
 	Transform tfmY = m_transform;
+	tfmY.rot *= m_controlNode->m_transform.rot;
 	tfmY.pos *= 1 / scale;
 	const XMMATRIX tmY = tfmY.GetMatrixXM() * scaleTm.GetMatrixXM() * parentTm;
 	if (!m_isKeepEdit)
@@ -797,6 +800,7 @@ void cGizmo::RenderRotate(cRenderer &renderer
 	// Z-Axis
 	Transform tfmZ = m_transform;
 	tfmZ.rot.SetRotationArc(Vector3(0, 0, 1), Vector3(0, 1, 0));
+	tfmZ.rot *= m_controlNode->m_transform.rot;
 	tfmZ.pos *= 1 / scale;
 	const XMMATRIX tmZ = tfmZ.GetMatrixXM() * scaleTm.GetMatrixXM() * parentTm;
 	if (!m_isKeepEdit)
@@ -832,9 +836,10 @@ void cGizmo::RenderRotate(cRenderer &renderer
 
 	if (m_isKeepEdit)
 	{
-		Plane groundXZ(Vector3(0, 1, 0), m_transform.pos);
-		Plane groundYZ(Vector3(1, 0, 0), m_transform.pos);
-		Plane groundXY(Vector3(0, 0, 1), m_transform.pos);
+		const Quaternion rot = m_controlNode->m_transform.rot;
+		Plane groundXZ(Vector3(0, 1, 0) * rot, m_transform.pos);
+		Plane groundYZ(Vector3(1, 0, 0) * rot, m_transform.pos);
+		Plane groundXY(Vector3(0, 0, 1) * rot, m_transform.pos);
 		const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 		const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
 		const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
