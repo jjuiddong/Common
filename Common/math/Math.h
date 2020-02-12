@@ -49,6 +49,7 @@ using std::vector;
 #include "vector3_comm.h"
 #include "triangle.h"
 #include "plane.h"
+#include "plane2.h"
 #include "ray.h"
 #include "line.h"
 #include "mathutility.h"

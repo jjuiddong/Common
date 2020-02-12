@@ -27,7 +27,7 @@ namespace common
 		const Plane operator * (const Matrix44 &rhs);
 
 		Vector3 N; // Normal
-		float	D; // D
+		float D; // D
 	};
 
 }
