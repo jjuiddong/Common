@@ -111,11 +111,9 @@ bool cCube::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
 
-	Vector4 ambient = m_color.GetColor();// *0.3f;
-	ambient.w = m_color.GetColor().w;
-	Vector4 diffuse = m_color.GetColor();// *0.7f;
-	diffuse.w = m_color.GetColor().w;
-	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, ambient.w);
+	Vector4 ambient = m_color.GetColor() * 0.3f;
+	Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, diffuse.w);
 	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, diffuse.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 

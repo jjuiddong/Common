@@ -20,6 +20,10 @@
 // 2017-08-04
 //	- Upgrade DX9 - DX11
 //
+// 2020-02-13
+//	- remove index buffer
+//	- add normal
+//
 #pragma once
 
 
@@ -45,7 +49,6 @@ namespace graphic
 
 	public:
 		cVertexBuffer m_vtxBuff;
-		cIndexBuffer m_idxBuff;
 	};
 
 }

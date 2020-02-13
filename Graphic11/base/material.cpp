@@ -41,7 +41,7 @@ void cMaterial::Init(const sMaterial &mtrl)
 
 void cMaterial::InitWhite()
 {
-	Init(Vector4(1,1,1,1), Vector4(1,1,1,1), Vector4(1,1,1,1));
+	Init(Vector4(1,1,1,1)*0.3f, Vector4(1,1,1,1), Vector4(1,1,1,1));
 }
 
 
@@ -53,7 +53,7 @@ void cMaterial::InitBlack()
 
 void cMaterial::InitGray()
 {
-	Init(Vector4(1.f, 1.f, 1.f, 1), Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(1, 1, 1, 1));
+	Init(Vector4(1.f, 1.f, 1.f, 1)*0.3f, Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(1, 1, 1, 1));
 	//Init(Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(0, 0, 0, 1));
 	//Init(Vector4(0.2f, 0.2f, 0.2f, 1), Vector4(0.5f, 0.5f, 0.5f, 1), Vector4(1, 1, 1, 1));
 }
@@ -61,20 +61,20 @@ void cMaterial::InitGray()
 
 void cMaterial::InitGray2()
 {
-	Init(Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0, 0, 0, 1));
+	Init(Vector4(0.9f, 0.9f, 0.9f, 1)*0.3f, Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(0, 0, 0, 1));
 	//Init(Vector4(0.2f, 0.2f, 0.2f, 1), Vector4(0.9f, 0.9f, 0.9f, 1), Vector4(1, 1, 1, 1));
 }
 
 void cMaterial::InitGray3()
 {
-	Init(Vector4(1.f, 1.f, 1.f, 1), Vector4(0.7f, 0.7f, 0.7f, 1), Vector4(1, 1, 1, 1));
+	Init(Vector4(1.f, 1.f, 1.f, 1)*0.3f, Vector4(0.7f, 0.7f, 0.7f, 1), Vector4(1, 1, 1, 1));
 	//Init(Vector4(0.3f, 0.3f, 0.3f, 1), Vector4(0.7f, 0.7f, 0.7f, 1), Vector4(1, 1, 1, 1));
 	//Init(Vector4(0.2f, 0.2f, 0.2f, 1), Vector4(0.7f, 0.7f, 0.7f, 1), Vector4(1, 1, 1, 1));
 }
 
 void cMaterial::InitGray4()
 {
-	Init(Vector4(0.2f, 0.2f, 0.2f, 1), Vector4(0.75f, 0.75f, 0.75f, 1), Vector4(1, 1, 1, 1));
+	Init(Vector4(0.2f, 0.2f, 0.2f, 1)*0.3f, Vector4(0.75f, 0.75f, 0.75f, 1)*0.9f, Vector4(1, 1, 1, 1));
 }
 
 void cMaterial::InitXFile()
@@ -84,28 +84,28 @@ void cMaterial::InitXFile()
 
 void cMaterial::InitRed()
 {
-	Init(Vector4(1,0,0,1), Vector4(1,0,0,1), Vector4(1,0,0,1));
+	Init(Vector4(1,0,0,1)*0.3f, Vector4(1,0,0,1), Vector4(1,0,0,1));
 	//Init(Vector4(0.2f, 0, 0, 1), Vector4(1, 0, 0, 1), Vector4(1, 1, 1, 1));
 }
 
 
 void cMaterial::InitBlue()
 {
-	Init(Vector4(0,0,1,1), Vector4(0,0,1,1), Vector4(0,0,1,1));
+	Init(Vector4(0,0,1,1)*0.3f, Vector4(0,0,1,1), Vector4(0,0,1,1));
 	//Init(Vector4(0, 0, 0.2f, 1), Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1));
 }
 
 
 void cMaterial::InitGreen()
 {
-	Init(Vector4(0, 1, 0, 1), Vector4(0, 1, 0, 1), Vector4(0, 1, 0, 1));
+	Init(Vector4(0, 1, 0, 1)*0.3f, Vector4(0, 1, 0, 1), Vector4(0, 1, 0, 1));
 	//Init(Vector4(0, 0.2f, 0, 1), Vector4(0, 1, 0, 1), Vector4(1, 1, 1, 1));
 }
 
 
 void cMaterial::InitYellow()
 {
-	Init(Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1));
+	Init(Vector4(1, 1, 0, 1)*0.3f, Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1));
 	//Init(Vector4(0.2f, 0.2f, 0, 1), Vector4(1, 1, 0, 1), Vector4(1, 1, 1, 1));
 }
 

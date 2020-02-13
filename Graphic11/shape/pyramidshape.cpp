@@ -24,7 +24,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 )
 {
 	if (m_vtxBuff.GetVertexCount() > 0)
-		return true; // alread created
+		return true; // already created
 
 //
 //            0
@@ -55,6 +55,21 @@ bool cPyramidShape::Create(cRenderer &renderer
 		, Vector3(0.5f,0,-0.5f)
 	};
 
+	const Vector3 xNorm = (Vector3(0, 1, 0) + Vector3(0.5f, 0, 0)).Normal();
+	const Vector3 xNorm2 = (Vector3(0, 1, 0) + Vector3(-0.5f, 0, 0)).Normal();
+	const Vector3 zNorm = (Vector3(0, 1, 0) + Vector3(0, 0, 0.5f)).Normal();
+	const Vector3 zNorm2 = (Vector3(0, 1, 0) + Vector3(0, 0, -0.5f)).Normal();
+
+	Vector3 normals[] = {
+		// bottom
+		Vector3(0,-1,0), Vector3(0,-1,0), Vector3(0,-1,0)
+		, Vector3(0,-1,0), Vector3(0,-1,0), Vector3(0,-1,0)
+		, zNorm, zNorm, zNorm
+		, xNorm, xNorm, xNorm
+		, zNorm2, zNorm2, zNorm2
+		, xNorm2, xNorm2, xNorm2
+	};
+
 	int indices[] = {
 		// bottom
 		1,2,4
@@ -73,16 +88,19 @@ bool cPyramidShape::Create(cRenderer &renderer
 	const int texOffset = vtxLayout.GetOffset("TEXCOORD");
 	const int vertexStride = vtxLayout.GetVertexSize();
 
-	vector<BYTE> buffer(vertexStride * ARRAYSIZE(vertices));
+	vector<BYTE> buffer(vertexStride * ARRAYSIZE(indices));
 	BYTE *initVertices = &buffer[0];
 	const Vector4 vColor = color.GetColor();
 	BYTE *pvtx = initVertices;
-	for (auto &v : vertices)
+	for (uint i=0; i < ARRAYSIZE(indices); ++i)
 	{
+		const Vector3 &v = vertices[indices[i]];
+		const Vector3 &n = normals[i];
+
 		if (vtxType & eVertexType::POSITION)
 			*(Vector3*)(pvtx + posOffset) = v;
-		//if (vtxType & eVertexType::NORMAL)
-		//	*(Vector3*)(pvtx + normOffset) = normal;
+		if (vtxType & eVertexType::NORMAL)
+			*(Vector3*)(pvtx + normOffset) = n;
 		if (vtxType & eVertexType::COLOR)
 			*(Vector4*)(pvtx + colorOffset) = vColor;
 		//if (vtxType & eVertexType::TEXTURE0)
@@ -95,8 +113,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 	for (int i = 0; i < ARRAYSIZE(indices); ++i)
 		*initIndices++ = indices[i];
 
-	m_vtxBuff.Create(renderer, ARRAYSIZE(vertices), vertexStride, initVertices);
-	m_idxBuff.Create(renderer, ARRAYSIZE(indices) / 3, (BYTE*)&buffer2[0]);
+	m_vtxBuff.Create(renderer, ARRAYSIZE(indices), vertexStride, initVertices);
 
 	m_vtxType = vtxType;
 
@@ -107,8 +124,7 @@ bool cPyramidShape::Create(cRenderer &renderer
 void cPyramidShape::Render(cRenderer &renderer)
 {
 	m_vtxBuff.Bind(renderer);
-	m_idxBuff.Bind(renderer);
 
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	renderer.GetDevContext()->DrawIndexed(m_idxBuff.GetFaceCount() * 3, 0, 0);
+	renderer.GetDevContext()->Draw(m_vtxBuff.GetVertexCount(), 0);
 }

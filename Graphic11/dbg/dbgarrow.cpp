@@ -20,17 +20,20 @@ bool cDbgArrow::Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
 	, const float width //= 1.f
 	, const bool isSolid //= false
 	, const float arrowRatio //= 0.75f
+	, const int vtxType //= eVertexType::POSITION
+	, const cColor &color //= cColor::WHITE
 )
 {
-	m_head.Create(renderer, width, width, p0, eVertexType::POSITION);
+	m_head.Create(renderer, width, width, p0, vtxType);
 	m_head.SetDirection(p0, p1, p1, width*1.75f, arrowRatio);
 
 	cBoundingBox bbox;
 	bbox.SetBoundingBox(Transform(p1, Vector3::Ones*width*1.75f));
-	m_headCube.Create(renderer, bbox, eVertexType::POSITION);
+	m_headCube.Create(renderer, bbox, vtxType);
 
-	m_body.Create(renderer, p0, p1, width * 0.4f, eVertexType::POSITION);
+	m_body.Create(renderer, p0, p1, width * 0.4f, vtxType);
 
+	m_color = color;
 	m_isSolid = isSolid;
 	return true;
 }

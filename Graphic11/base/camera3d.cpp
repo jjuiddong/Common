@@ -184,6 +184,7 @@ void cCamera3D::Roll2(const float radian)
 }
 
 
+// orbit moving
 void cCamera3D::Pitch3(const float radian, const Vector3 &target)
 {
 	RET(radian == 0);
@@ -193,21 +194,26 @@ void cCamera3D::Pitch3(const float radian, const Vector3 &target)
 	const Matrix44 mat = q.GetMatrix();
 
 	{
-		Vector3 v = m_eyePos - target;
-		v *= mat;
-		m_eyePos = target + v;
+		Vector3 toEye = m_eyePos - target;
+		toEye *= mat;
+		// Vertical Direction BugFix
+		if (abs(Vector3(0, 1, 0).DotProduct(toEye.Normal())) > 0.98f)
+			return;
+		m_eyePos = target + toEye;
 	}
 
 	{
-		Vector3 v = m_lookAt - target;
-		v *= mat;
-		m_lookAt = target + v;
+		//Vector3 toLookat = m_lookAt - target;
+		//toLookat *= mat;
+		//m_lookAt = target + toLookat;
+		m_lookAt = target;
 	}
 
 	UpdateViewMatrix();
 }
 
 
+// orbit moving
 void cCamera3D::Yaw3(const float radian, const Vector3 &target)
 {
 	RET(radian == 0);
@@ -217,15 +223,16 @@ void cCamera3D::Yaw3(const float radian, const Vector3 &target)
 	const Matrix44 mat = q.GetMatrix();
 
 	{
-		Vector3 v = m_eyePos - target;
-		v *= mat;
-		m_eyePos = target + v;
+		Vector3 toEye = m_eyePos - target;
+		toEye *= mat;
+		m_eyePos = target + toEye;
 	}
 
 	{
-		Vector3 v = m_lookAt - target;
-		v *= mat;
-		m_lookAt = target + v;
+		//Vector3 toLookat = m_lookAt - target;
+		//toLookat *= mat;
+		//m_lookAt = target + toLookat;
+		m_lookAt = target;
 	}
 
 	UpdateViewMatrix();

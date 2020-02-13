@@ -50,7 +50,10 @@ bool cPyramid::Render(cRenderer &renderer
 	renderer.m_cbLight.Update(renderer, 1);
 
 	const Vector4 color = m_color.GetColor();
-	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(color.x, color.y, color.z, color.w);
+	const Vector4 ambient = color * 0.3f;
+	const Vector4 diffuse = color;
+	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, color.w);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, color.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	m_shape.Render(renderer);

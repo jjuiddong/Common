@@ -21,14 +21,20 @@ namespace graphic
 
 		bool Create(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
 			, const float width = 1.f, const bool isSolid=false
-			, const float arrowRatio = 0.75f);
+			, const float arrowRatio = 0.75f
+			, const int vtxType = eVertexType::POSITION
+			, const cColor &color = cColor::WHITE);
+
 		void Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity
 			, const bool showCubeHead = false);
+
 		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float width = 1.f
 			, const float arrowRatio = 0.75f);
+
 		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity
 			, const bool isSpherePicking = true
 			, OUT float *dist = NULL);
+
 		void SetColor(const cColor &color);
 		void SetTechnique(const char *techniqName);
 

@@ -101,6 +101,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 	m_cellSizeW = cellSizeW;
 	m_cellSizeH = cellSizeH;
 	m_vtxType = vertexType;
+	m_mtrl.m_ambient = color.GetColor() * 0.3f;
 	m_mtrl.m_diffuse = color.GetColor();
 
 	cVertexLayout vtxLayout;
