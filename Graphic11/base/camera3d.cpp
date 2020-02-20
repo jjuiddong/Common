@@ -206,7 +206,7 @@ void cCamera3D::Pitch3(const float radian, const Vector3 &target)
 		//Vector3 toLookat = m_lookAt - target;
 		//toLookat *= mat;
 		//m_lookAt = target + toLookat;
-		m_lookAt = target;
+		//m_lookAt = target;
 	}
 
 	UpdateViewMatrix();
@@ -232,7 +232,7 @@ void cCamera3D::Yaw3(const float radian, const Vector3 &target)
 		//Vector3 toLookat = m_lookAt - target;
 		//toLookat *= mat;
 		//m_lookAt = target + toLookat;
-		m_lookAt = target;
+		//m_lookAt = target;
 	}
 
 	UpdateViewMatrix();

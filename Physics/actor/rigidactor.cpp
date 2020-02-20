@@ -10,6 +10,7 @@ using namespace physx;
 cRigidActor::cRigidActor()
 	: m_id(common::GenerateId())
 	, m_actor(nullptr)
+	, m_node(nullptr)
 	, m_type(eRigidType::None)
 	, m_shape(eShapeType::None)
 {
@@ -22,7 +23,9 @@ cRigidActor::~cRigidActor()
 
 
 bool cRigidActor::CreatePlane(cPhysicsEngine &physics
-	, const Vector3 &norm)
+	, const Vector3 &norm
+	, graphic::cNode *node //= nullptr
+)
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 	PxRigidStatic* plane = PxCreatePlane(*physics.m_physics
@@ -35,6 +38,7 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 	m_type = eRigidType::Static;
 	m_shape = eShapeType::Plane;
 	m_actor = plane;
+	m_node = node;
 	return true;
 }
 
@@ -45,6 +49,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
 	, const bool isKinematic //=false
+	, graphic::cNode *node //= nullptr
 )
 {
 	Quaternion q = tfm.rot;
@@ -66,6 +71,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Box;
 	m_actor = box;
+	m_node = node;
 	return true;
 }
 
@@ -77,6 +83,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
 	, const bool isKinematic //=false
+	, graphic::cNode *node //= nullptr
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
@@ -99,6 +106,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Sphere;
 	m_actor = sphere;
+	m_node = node;
 	return true;
 }
 
@@ -111,6 +119,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
 	, const bool isKinematic //=false
+	, graphic::cNode *node //= nullptr
 )
 {
 	Quaternion q = tfm.rot;
@@ -133,6 +142,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Capsule;
 	m_actor = capsule;
+	m_node = node;
 	return true;
 }
 
@@ -145,6 +155,7 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 	, const Vector3* linVel //= nullptr
 	, const float density //= 1.f
 	, const bool isKinematic //= false
+	, graphic::cNode *node //= nullptr
 )
 {
 	using namespace physx;
@@ -171,6 +182,7 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Cylinder;
 	m_actor = convex;
+	m_node = node;
 	return true;
 }
 
@@ -476,4 +488,5 @@ void cRigidActor::Clear()
 {
 	m_joints.clear();
 	PHY_SAFE_RELEASE(m_actor);
+	m_node = nullptr;
 }

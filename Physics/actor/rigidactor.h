@@ -23,20 +23,23 @@ namespace phys
 		virtual ~cRigidActor();
 		
 		bool CreatePlane(cPhysicsEngine &physics
-			, const Vector3 &norm);
+			, const Vector3 &norm
+			, graphic::cNode *node = nullptr);
 
 		bool CreateBox(cPhysicsEngine &physics
 			, const Transform &tfm
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f
-			, const bool isKinematic = false);
+			, const bool isKinematic = false
+			, graphic::cNode *node = nullptr);
 
 		bool CreateSphere(cPhysicsEngine &physics
 			, const Transform &tfm
 			, const float radius
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f
-			, const bool isKinematic = false);
+			, const bool isKinematic = false
+			, graphic::cNode *node = nullptr);
 
 		bool CreateCapsule(cPhysicsEngine &physics
 			, const Transform &tfm
@@ -44,7 +47,8 @@ namespace phys
 			, const float halfHeight
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f
-			, const bool isKinematic = false);
+			, const bool isKinematic = false
+			, graphic::cNode *node = nullptr);
 
 		bool CreateCylinder(cPhysicsEngine &physics
 			, const Transform &tfm
@@ -52,7 +56,8 @@ namespace phys
 			, const float height
 			, const Vector3* linVel = nullptr
 			, const float density = 1.f
-			, const bool isKinematic = false);
+			, const bool isKinematic = false
+			, graphic::cNode *node = nullptr);
 
 		bool ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim);
 
@@ -92,6 +97,7 @@ namespace phys
 		eShapeType::Enum m_shape;
 		physx::PxRigidActor *m_actor;
 		vector<cJoint*> m_joints; // reference
+		graphic::cNode *m_node; // graphic node, reference
 	};
 
 }

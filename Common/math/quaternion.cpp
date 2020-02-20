@@ -370,8 +370,7 @@ const Quaternion& Quaternion::Normalize()
 // https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
 Quaternion Quaternion::Inverse() const
 {
-	Quaternion q(-x, -y, -z, w);
-	return q;
+	return Quaternion(-x, -y, -z, w);
 }
 
 

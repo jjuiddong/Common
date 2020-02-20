@@ -88,6 +88,7 @@ namespace framework
 		bool m_isDockBinding;
 		eDockState::Enum m_state;
 		eDockSlot::Enum m_dockSlot;
+		eDockSlot::Enum m_initDockSlot; // initial dock slot type (to calc resizing window)
 		eDockSizingOption::Enum m_sizingOpt;
 		cRenderWindow *m_owner;
 		cDockWindow *m_lower; // only availible for VIRTUAL state

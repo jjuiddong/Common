@@ -40,7 +40,7 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	grid->m_mtrl.InitGray4();
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreatePlane(*m_physics, norm);
+	actor->CreatePlane(*m_physics, norm, grid);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -70,7 +70,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	cube->SetCube(tfm);
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateBox(*m_physics, tfm, nullptr, density, isKinematic);
+	actor->CreateBox(*m_physics, tfm, nullptr, density, isKinematic, cube);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -102,7 +102,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	sphere->m_transform.rot = tfm.rot;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateSphere(*m_physics, tfm, radius, nullptr, density, isKinematic);
+	actor->CreateSphere(*m_physics, tfm, radius, nullptr, density, isKinematic, sphere);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -135,7 +135,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	capsule->m_transform.rot = tfm.rot;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateCapsule(*m_physics, tfm, radius, halfHeight, nullptr, density, isKinematic);
+	actor->CreateCapsule(*m_physics, tfm, radius, halfHeight, nullptr, density, isKinematic, capsule);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -168,7 +168,7 @@ int cPhysicsSync::SpawnCylinder(graphic::cRenderer &renderer
 	cylinder->m_transform.rot = tfm.rot;
 
 	cRigidActor *actor = new cRigidActor();
-	actor->CreateCylinder(*m_physics, tfm, radius, height, nullptr, density, isKinematic);
+	actor->CreateCylinder(*m_physics, tfm, radius, height, nullptr, density, isKinematic, cylinder);
 	m_physics->m_scene->addActor(*actor->m_actor);
 
 	sSyncInfo *sync = new sSyncInfo;

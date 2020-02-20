@@ -155,6 +155,7 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	m_revoluteAxisLen = pivot1.Distance(pivot0);
 	m_actorLocal0 = worldTfm0;
 	m_actorLocal1 = worldTfm1;
+
 	// world -> local space
 	m_pivots[0].dir = (pivot0 - worldTfm0.pos).Normal() * worldTfm0.rot.Inverse();
 	m_pivots[0].len = (pivot0 - worldTfm0.pos).Length();
@@ -306,21 +307,52 @@ bool cJoint::Update(const float deltaSeconds)
 		return true;
 	}
 
+	// calc angular
 	m_incT += deltaSeconds;
-	if (m_cyclePeriod < m_incT)
+	if (m_incT > 0.1f)
 	{
-		// change velocity direction
 		m_incT = 0.f;
 
-		const float velocity = GetDriveVelocity();
-		if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-			p->setDriveVelocity(-velocity);
+		const Quaternion q0 = m_actorLocal0.rot.Inverse() * m_actor0->m_node->m_transform.rot;
+		const Quaternion q1 = m_actorLocal1.rot.Inverse() * m_actor1->m_node->m_transform.rot;
+		const Vector3 dir = Vector3(0, 1, 0) * m_rotRevolute;
+		const Vector3 dir0 = dir * q0;
+		const Vector3 dir1 = dir * q1;
+		const Vector3 axis = m_revoluteAxis.CrossProduct(dir0);
+		const float angle = acos(dir0.DotProduct(dir1))
+			* ((axis.DotProduct(dir1) >= 0.f) ? 1.f : -1.f);
 
-		m_actor0->WakeUp();
-		m_actor1->WakeUp();
+		if ((m_toggleDir && (angle > (MATH_PI * 0.25f)))
+			|| (!m_toggleDir && (angle < (-MATH_PI * 0.25f))))
+		{
+			const float velocity = GetDriveVelocity();
+			if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+				p->setDriveVelocity(-velocity);
 
-		m_toggleDir = !m_toggleDir; // toggle rotation direction +/-
+			m_actor0->WakeUp();
+			m_actor1->WakeUp();
+
+			m_toggleDir = !m_toggleDir; // toggle rotation direction +/-			
+		}
 	}
+
+
+
+	//m_incT += deltaSeconds;
+	//if (m_cyclePeriod < m_incT)
+	//{
+	//	// change velocity direction
+	//	m_incT = 0.f;
+
+	//	const float velocity = GetDriveVelocity();
+	//	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+	//		p->setDriveVelocity(-velocity);
+
+	//	m_actor0->WakeUp();
+	//	m_actor1->WakeUp();
+
+	//	m_toggleDir = !m_toggleDir; // toggle rotation direction +/-
+	//}
 
 	return true;
 }

@@ -49,6 +49,46 @@ namespace framework
 		{
 			return (GetOpposite(type1) == type2);
 		}
+
+		static bool IsSameType(const Enum &type0, const Enum &type1) {
+			switch (type0)
+			{
+			case TAB: return TAB == type1;
+			case LEFT:
+			case RIGHT:
+			case LEFT_MOST:
+			case RIGHT_MOST:
+				switch (type1)
+				{
+				case LEFT:
+				case RIGHT:
+				case LEFT_MOST:
+				case RIGHT_MOST:
+					return true;
+				default:
+					return false;
+				}
+
+			case TOP:
+			case BOTTOM:
+			case TOP_MOST:
+			case BOTTOM_MOST:
+				switch (type1)
+				{
+				case TOP:
+				case BOTTOM:
+				case TOP_MOST:
+				case BOTTOM_MOST:
+					return true;
+				default:
+					return false;
+				}
+			default:
+				assert(0);
+				return false;
+			}
+		}
+
 	};
 
 

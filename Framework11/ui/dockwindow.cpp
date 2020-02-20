@@ -42,6 +42,7 @@ bool cDockWindow::Create(const eDockState::Enum state, const eDockSlot::Enum typ
 {
 	m_state = state;
 	m_dockSlot = type;
+	m_initDockSlot = type;
 	m_owner = owner;
 	m_parent = parent;
 	m_sizingOpt = option;
@@ -91,6 +92,7 @@ bool cDockWindow::Dock(const eDockSlot::Enum type
 	cDockWindow *newVirtualDock = cDockManager::Get()->NewDockWindow();
 	newVirtualDock->m_state = eDockState::VIRTUAL;
 	newVirtualDock->m_dockSlot = m_dockSlot;
+	newVirtualDock->m_initDockSlot = m_dockSlot;
 	newVirtualDock->m_rect = m_rect;
 	newVirtualDock->m_owner = m_owner;
 
@@ -633,8 +635,9 @@ void cDockWindow::CalcResizeWindow(const eDockResize::Enum type, const sRectf &r
 		const eDockSizingOption::Enum lowerOpt = m_lower->GetSizingOption();
 		const eDockSizingOption::Enum upperOpt = m_upper->GetSizingOption();
 
-		if ((lowerOpt == eDockSizingOption::PIXEL) 
-			|| (upperOpt == eDockSizingOption::PIXEL))
+		const bool isPixelCalc = ((lowerOpt == eDockSizingOption::PIXEL) && (eDockSlot::IsSameType(m_lower->m_initDockSlot, m_lower->m_dockSlot)))
+			|| ((upperOpt == eDockSizingOption::PIXEL) && (eDockSlot::IsSameType(m_upper->m_initDockSlot, m_upper->m_dockSlot)));
+		if (isPixelCalc)
 		{
 			float pixel = 0;
 			switch (m_lower->m_dockSlot)
