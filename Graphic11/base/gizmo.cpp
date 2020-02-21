@@ -567,7 +567,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 	const Matrix44 m = tfm.GetMatrix();
 	const Vector3 px0 = Vector3(arrowOffset, 0, 0) * m;
 	const Vector3 px1 = Vector3(arrowLength, 0, 0) * m;
-	m_arrow[0].SetDirection(px0, px1, arrowSize, arrowRatio);
+	m_arrow[0].SetDirection(px0, px1, tfm.rot, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[0] = m_arrow[0].Picking(ray, ptm, false);
 	m_arrow[0].m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
@@ -575,7 +575,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 
 	const Vector3 py0 = Vector3(0, arrowOffset, 0) * m;
 	const Vector3 py1 = Vector3(0, arrowLength, 0) * m;
-	m_arrow[1].SetDirection(py0, py1, arrowSize, arrowRatio);
+	m_arrow[1].SetDirection(py0, py1, tfm.rot, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[1] = m_arrow[1].Picking(ray, ptm, false);
 	m_arrow[1].m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
@@ -583,7 +583,7 @@ void cGizmo::RenderScale(cRenderer &renderer
 
 	const Vector3 pz0 = Vector3(0, 0, arrowOffset) * m;
 	const Vector3 pz1 = Vector3(0, 0, arrowLength) * m;
-	m_arrow[2].SetDirection(pz0, pz1, arrowSize, arrowRatio);
+	m_arrow[2].SetDirection(pz0, pz1, tfm.rot, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
 		m_pick[2] = m_arrow[2].Picking(ray, ptm, false);
 	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;

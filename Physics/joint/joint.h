@@ -135,9 +135,9 @@ namespace phys
 		float m_incT; // increment time
 		float m_incAccelT; // increment acceleration time
 		float m_cyclePeriod; // period, seconds unit
-		float m_curVelocity; // current drive velocity
 		float m_cycleDriveAccel; // drive velocity acceleration
 		float m_maxDriveVelocity; // maximum drive velocity
+		physx::PxJointAngularLimitPair m_limit; // revolution limit (to cycle move)
 		bool m_toggleDir;
 
 		// joint property

@@ -84,12 +84,28 @@ void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
 {
 	m_head.SetDirection(p0, p1, p1, width*1.75f, arrowRatio);
 	m_body.SetLine(p0, p1, width * 0.4f);
+	m_transform.pos = (p0 + p1) * 0.5f;
 
 	cBoundingBox bbox;
 	bbox.SetBoundingBox(Transform(p1, Vector3::Ones*width*1.5f));
 	m_headCube.SetCube(bbox);
+}
 
+
+void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
+	, const Quaternion &rot
+	, const float width //= 1.f
+	, const float arrowRatio //= 0.75f
+)
+{
+	m_head.SetDirection(p0, p1, p1, width*1.75f, arrowRatio);
+	m_body.SetLine(p0, p1, width * 0.4f);
 	m_transform.pos = (p0 + p1) * 0.5f;
+
+	cBoundingBox bbox;
+	bbox.SetBoundingBox(Transform(p1, Vector3::Ones*width*1.5f));
+	m_headCube.SetCube(bbox);
+	m_headCube.m_transform.rot = rot;
 }
 
 

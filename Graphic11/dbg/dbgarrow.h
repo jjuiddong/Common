@@ -31,6 +31,9 @@ namespace graphic
 		void SetDirection(const Vector3 &p0, const Vector3 &p1, const float width = 1.f
 			, const float arrowRatio = 0.75f);
 
+		void SetDirection(const Vector3 &p0, const Vector3 &p1, const Quaternion &rot
+			, const float width = 1.f, const float arrowRatio = 0.75f);
+
 		bool Picking(const Ray &ray, const XMMATRIX &parentTm = XMIdentity
 			, const bool isSpherePicking = true
 			, OUT float *dist = NULL);

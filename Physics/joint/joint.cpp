@@ -22,9 +22,9 @@ cJoint::cJoint()
 	, m_incAccelT(0.f)
 	, m_cyclePeriod(3.f)
 	, m_maxDriveVelocity(0.f)
-	, m_curVelocity(0.f)
 	, m_cycleDriveAccel(0.f)
 	, m_toggleDir(true)
+	, m_limit(-MATH_PI/2.f, MATH_PI/2.f, 0.01f)
 {
 }
 
@@ -309,25 +309,27 @@ bool cJoint::Update(const float deltaSeconds)
 
 	// calc angular
 	m_incT += deltaSeconds;
-	if (m_incT > 0.1f)
+	if (m_incT > 0.3f)
 	{
 		m_incT = 0.f;
 
+		// calc angle
 		const Quaternion q0 = m_actorLocal0.rot.Inverse() * m_actor0->m_node->m_transform.rot;
 		const Quaternion q1 = m_actorLocal1.rot.Inverse() * m_actor1->m_node->m_transform.rot;
 		const Vector3 dir = Vector3(0, 1, 0) * m_rotRevolute;
 		const Vector3 dir0 = dir * q0;
 		const Vector3 dir1 = dir * q1;
-		const Vector3 axis = m_revoluteAxis.CrossProduct(dir0);
+		const Vector3 revAxis = m_revoluteAxis * q0;
+		const Vector3 axis = revAxis.CrossProduct(dir0);
 		const float angle = acos(dir0.DotProduct(dir1))
 			* ((axis.DotProduct(dir1) >= 0.f) ? 1.f : -1.f);
 
-		if ((m_toggleDir && (angle > (MATH_PI * 0.25f)))
-			|| (!m_toggleDir && (angle < (-MATH_PI * 0.25f))))
+		if ((m_toggleDir && (angle > (m_limit.upper * 0.9f)))
+			|| (!m_toggleDir && (angle < (m_limit.lower * 0.9f))))
 		{
-			const float velocity = GetDriveVelocity();
 			if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-				p->setDriveVelocity(-velocity);
+				p->setDriveVelocity(m_toggleDir? abs(m_maxDriveVelocity)*-1.f 
+					: abs(m_maxDriveVelocity));
 
 			m_actor0->WakeUp();
 			m_actor1->WakeUp();
@@ -335,24 +337,6 @@ bool cJoint::Update(const float deltaSeconds)
 			m_toggleDir = !m_toggleDir; // toggle rotation direction +/-			
 		}
 	}
-
-
-
-	//m_incT += deltaSeconds;
-	//if (m_cyclePeriod < m_incT)
-	//{
-	//	// change velocity direction
-	//	m_incT = 0.f;
-
-	//	const float velocity = GetDriveVelocity();
-	//	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-	//		p->setDriveVelocity(-velocity);
-
-	//	m_actor0->WakeUp();
-	//	m_actor1->WakeUp();
-
-	//	m_toggleDir = !m_toggleDir; // toggle rotation direction +/-
-	//}
 
 	return true;
 }
@@ -527,6 +511,7 @@ bool cJoint::SetAngularLimit(const physx::PxJointAngularLimitPair &config)
 {
 	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
 		p->setLimit(config);
+	m_limit = config;
 	return true;
 }
 
