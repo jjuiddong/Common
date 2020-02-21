@@ -309,31 +309,19 @@ bool cJoint::Update(const float deltaSeconds)
 
 	// calc angular
 	m_incT += deltaSeconds;
-	if (m_incT > 0.3f)
+	if (0 && (m_incT > 0.3f))
 	{
 		m_incT = 0.f;
 
-		// calc angle
-		const Quaternion q0 = m_actorLocal0.rot.Inverse() * m_actor0->m_node->m_transform.rot;
-		const Quaternion q1 = m_actorLocal1.rot.Inverse() * m_actor1->m_node->m_transform.rot;
-		const Vector3 dir = Vector3(0, 1, 0) * m_rotRevolute;
-		const Vector3 dir0 = dir * q0;
-		const Vector3 dir1 = dir * q1;
-		const Vector3 revAxis = m_revoluteAxis * q0;
-		const Vector3 axis = revAxis.CrossProduct(dir0);
-		const float angle = acos(dir0.DotProduct(dir1))
-			* ((axis.DotProduct(dir1) >= 0.f) ? 1.f : -1.f);
-
+		const float angle = (float)GetRelativeAngle();
 		if ((m_toggleDir && (angle > (m_limit.upper * 0.9f)))
 			|| (!m_toggleDir && (angle < (m_limit.lower * 0.9f))))
 		{
 			if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
-				p->setDriveVelocity(m_toggleDir? abs(m_maxDriveVelocity)*-1.f 
-					: abs(m_maxDriveVelocity));
-
+				p->setDriveVelocity(m_toggleDir ? abs(m_maxDriveVelocity)*-1.f
+					: abs(m_maxDriveVelocity)*1.f);
 			m_actor0->WakeUp();
 			m_actor1->WakeUp();
-
 			m_toggleDir = !m_toggleDir; // toggle rotation direction +/-			
 		}
 	}
@@ -390,6 +378,26 @@ bool cJoint::ReconnectBreakJoint(cPhysicsEngine &physics)
 	}
 
 	return false;
+}
+
+
+// return angle between actor0, actor1
+// spherical, revolute, prismatic joint 
+double cJoint::GetRelativeAngle()
+{
+	if (m_isBroken)
+		return 0.f;
+
+	const Quaternion q0 = m_actorLocal0.rot.Inverse() * m_actor0->m_node->m_transform.rot;
+	const Quaternion q1 = m_actorLocal1.rot.Inverse() * m_actor1->m_node->m_transform.rot;
+	const Vector3 dir = Vector3(0, 1, 0) * m_rotRevolute;
+	const Vector3 dir0 = (dir * q0).Normal();
+	const Vector3 dir1 = (dir * q1).Normal();
+	const Vector3 revAxis = m_revoluteAxis * q0;
+	const Vector3 axis = revAxis.CrossProduct(dir0);
+	const double angle = acos(dir0.DotProduct(dir1))
+		* ((axis.DotProduct(dir1) >= 0.f) ? 1.f : -1.f);
+	return angle;
 }
 
 
@@ -568,7 +576,7 @@ bool cJoint::SetDriveVelocity(const float velocity)
 	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
 	{
 		p->setDriveVelocity(velocity);
-		p->setDriveForceLimit(1000.f);
+		//p->setDriveForceLimit(1000.f);
 	}
 
 	m_maxDriveVelocity = velocity;

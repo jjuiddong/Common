@@ -55,6 +55,7 @@ namespace phys
 		bool Update(const float deltaSeconds);
 
 		bool ReconnectBreakJoint(cPhysicsEngine &physics);
+		double GetRelativeAngle();
 
 		// joint pivot
 		void SetPivotPos(const int actorIndex, const Vector3 &pos);
