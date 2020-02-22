@@ -56,6 +56,7 @@ namespace phys
 
 		bool ReconnectBreakJoint(cPhysicsEngine &physics);
 		double GetRelativeAngle();
+		int GetLimitContact();
 
 		// joint pivot
 		void SetPivotPos(const int actorIndex, const Vector3 &pos);
@@ -139,6 +140,8 @@ namespace phys
 		float m_cycleDriveAccel; // drive velocity acceleration
 		float m_maxDriveVelocity; // maximum drive velocity
 		physx::PxJointAngularLimitPair m_limit; // revolution limit (to cycle move)
+		float m_updateAngleT;
+		float m_curAngle; // current joint angle
 		bool m_toggleDir;
 
 		// joint property

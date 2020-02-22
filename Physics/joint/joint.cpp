@@ -25,6 +25,8 @@ cJoint::cJoint()
 	, m_cycleDriveAccel(0.f)
 	, m_toggleDir(true)
 	, m_limit(-MATH_PI/2.f, MATH_PI/2.f, 0.01f)
+	, m_curAngle(0)
+	, m_updateAngleT(0)
 {
 }
 
@@ -307,15 +309,22 @@ bool cJoint::Update(const float deltaSeconds)
 		return true;
 	}
 
+	m_updateAngleT += deltaSeconds;
+	if (m_updateAngleT > 0.1f) 
+	{
+		m_updateAngleT = 0.f;
+		m_curAngle = (float)GetRelativeAngle();
+	}
+
 	// calc angular
 	m_incT += deltaSeconds;
 	if (0 && (m_incT > 0.3f))
 	{
 		m_incT = 0.f;
 
-		const float angle = (float)GetRelativeAngle();
-		if ((m_toggleDir && (angle > (m_limit.upper * 0.9f)))
-			|| (!m_toggleDir && (angle < (m_limit.lower * 0.9f))))
+		const float angle = m_curAngle;// (float)GetRelativeAngle();
+		if ((angle > (m_limit.upper * 0.9f))
+			|| (angle < (m_limit.lower * 0.9f)))
 		{
 			if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
 				p->setDriveVelocity(m_toggleDir ? abs(m_maxDriveVelocity)*-1.f
@@ -324,6 +333,17 @@ bool cJoint::Update(const float deltaSeconds)
 			m_actor1->WakeUp();
 			m_toggleDir = !m_toggleDir; // toggle rotation direction +/-			
 		}
+
+		//if ((m_toggleDir && (angle > (m_limit.upper * 0.9f)))
+		//	|| (!m_toggleDir && (angle < (m_limit.lower * 0.9f))))
+		//{
+		//	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
+		//		p->setDriveVelocity(m_toggleDir ? abs(m_maxDriveVelocity)*-1.f
+		//			: abs(m_maxDriveVelocity)*1.f);
+		//	m_actor0->WakeUp();
+		//	m_actor1->WakeUp();
+		//	m_toggleDir = !m_toggleDir; // toggle rotation direction +/-			
+		//}
 	}
 
 	return true;
@@ -398,6 +418,20 @@ double cJoint::GetRelativeAngle()
 	const double angle = acos(dir0.DotProduct(dir1))
 		* ((axis.DotProduct(dir1) >= 0.f) ? 1.f : -1.f);
 	return angle;
+}
+
+
+// return contact limit
+//  lower contact: 1
+//  upper contact: 2
+//  no contact   : 0
+int cJoint::GetLimitContact()
+{
+	if (m_curAngle < (m_limit.lower * 0.9f))
+		return 1;
+	if (m_curAngle > (m_limit.upper * 0.9f))
+		return 2;
+	return 0;
 }
 
 
