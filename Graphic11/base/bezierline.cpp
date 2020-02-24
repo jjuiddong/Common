@@ -21,8 +21,7 @@ bool cBezierLine::Create(cRenderer &renderer, const uint slice, const cColor &co
 	m_slice = slice;
 	m_color = color;
 
-	m_line.Create(renderer, Vector3(0,0,0), Vector3(1,1,1), 1.f
-		, eVertexType::POSITION | eVertexType::COLOR, color);
+	m_line.Create(renderer, Vector3(0,0,0), Vector3(1,1,1), 1.f, eVertexType::POSITION, color);
 	m_line.m_transform = Transform(); // initizlie transform
 	m_line.m_transform.pos.y = 0.f;
 
@@ -120,4 +119,11 @@ void cBezierLine::SetLine(const Vector3 &p0, const Vector3 &p1
 	p3.z -= (len * 0.2f);
 
 	SetLine(p0, p2, p3, p1, width);
+}
+
+
+void cBezierLine::SetColor(const cColor &color)
+{
+	m_color = color;
+	m_line.SetColor(color);
 }

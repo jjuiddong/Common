@@ -12,6 +12,7 @@ cBillboard::cBillboard()
 	, m_dynScaleMax(200.5f)
 	, m_dynScaleAlpha(1.f)
 	, m_isSwitchingMode(false)
+	, m_color(cColor::WHITE)
 {
 }
 
@@ -161,6 +162,11 @@ bool cBillboard::Render(cRenderer &renderer
 	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(tfm.GetMatrixXM() * parentTm);
 	renderer.m_cbPerFrame.Update(renderer);
 	renderer.m_cbLight.Update(renderer, 1);
+
+	Vector4 ambient = m_color.GetColor() * 0.3f;
+	Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, diffuse.w);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, diffuse.w);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
 	if (m_texture)
@@ -172,4 +178,10 @@ bool cBillboard::Render(cRenderer &renderer
 
 	renderer.GetDevContext()->RSSetState(states.CullCounterClockwise());
 	return true;
+}
+
+
+void cBillboard::SetColor(const cColor &color)
+{
+	m_color = color;
 }

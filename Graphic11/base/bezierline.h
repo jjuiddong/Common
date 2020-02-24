@@ -22,6 +22,7 @@ namespace graphic
 			const Vector3 &p2, const Vector3 &p3, const float width);
 		void SetLine(const Vector3 p[4], const float width);
 		void SetLine(const Vector3 &p0, const Vector3 &p1, const float height, const float width);
+		void SetColor(const cColor &color);
 
 
 	public:

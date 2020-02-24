@@ -43,7 +43,12 @@ VSOUT_POSTEX VS_Skybox( float4 Pos : POSITION
 //--------------------------------------------------------------------------------------
 float4 PS(VSOUT_POSTEX input ) : SV_Target
 {
-	return txDiffuse.Sample(samAnis, input.Tex);
+	//return txDiffuse.Sample(samAnis, input.Tex);
+	
+	float4 texColor = txDiffuse.Sample(samAnis, input.Tex);
+	float4 Out = gMtrl_Ambient * texColor 
+		+ gMtrl_Diffuse * texColor;
+	return float4(Out.xyz, gMtrl_Diffuse.a * texColor.a);
 }
 
 float4 PS_Point(VSOUT_POSTEX input) : SV_Target

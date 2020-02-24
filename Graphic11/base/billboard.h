@@ -40,6 +40,7 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 		void Rotate();
+		void SetColor(const cColor &color);
 
 
 	public:
@@ -50,6 +51,7 @@ namespace graphic
 		float m_dynScaleMax; // default: 200.5f
 		float m_dynScaleAlpha; // default: 1.f;
 		bool m_isSwitchingMode;
+		cColor m_color;
 	};
 
 }

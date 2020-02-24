@@ -41,6 +41,9 @@
     <ClInclude Include="path\pathestimater.h">
       <Filter>path</Filter>
     </ClInclude>
+    <ClInclude Include="nn\neuralnet.h">
+      <Filter>nn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -62,6 +65,9 @@
     <ClCompile Include="path\pathestimater.cpp">
       <Filter>path</Filter>
     </ClCompile>
+    <ClCompile Include="nn\neuralnet.cpp">
+      <Filter>nn</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">
@@ -75,6 +81,9 @@
     </Filter>
     <Filter Include="path">
       <UniqueIdentifier>{71014204-69ef-4664-b2af-bfa365804b83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nn">
+      <UniqueIdentifier>{15f3b339-baaf-46f1-a1a2-7d3df63a84bc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
