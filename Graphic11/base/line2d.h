@@ -30,7 +30,8 @@ namespace graphic
 		void SetLine(const Vector2 &p0, const Vector2 &p1, const float width);
 		void SetColor(const cColor &color);
 
-		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
+		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity
+			, const int flags = 1) override;
 
 
 	public:

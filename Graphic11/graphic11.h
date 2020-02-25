@@ -147,6 +147,7 @@ namespace graphic {
 #include "base/cylinder.h"
 #include "base/capsule.h"
 #include "base/cone.h"
+#include "base/line2dlist.h"
 
 
 //

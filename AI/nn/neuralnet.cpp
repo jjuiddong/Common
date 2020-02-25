@@ -12,8 +12,10 @@ sNeuron::sNeuron(uint numInputs0)
 	: numInputs(numInputs0 + 1)
 {
 	//we need an additional weight for the bias hence the +1
+	weight.reserve(numInputs0 + 1);
 	for (uint i = 0; i < numInputs0 + 1; ++i)
 		weight.push_back(RandomClamped());
+	result.resize(weight.size());
 }
 
 sNeuronLayer::sNeuronLayer(uint numNeurons0, uint numInputsPerNeuron0) 
@@ -125,7 +127,13 @@ vector<double> cNeuralNet::Update(INOUT vector<double> &inputs)
 
 			const uint numInputs = m_layers[i].neurons[j].numInputs;
 			for (uint k = 0; k < numInputs - 1; ++k)
-				netinput += m_layers[i].neurons[j].weight[k] * inputs[cWeight++];
+			{
+				//netinput += m_layers[i].neurons[j].weight[k] * inputs[cWeight++];
+				const double v = m_layers[i].neurons[j].weight[k] * inputs[cWeight];
+				m_layers[i].neurons[j].result[k] = v;
+				netinput += v;
+				cWeight++;
+			}
 
 			netinput += m_layers[i].neurons[j].weight[numInputs - 1] * dBias;
 

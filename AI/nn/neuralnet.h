@@ -14,6 +14,7 @@ namespace ai
 		uint numInputs;
 		double output;
 		vector<double> weight;
+		vector<double> result; // input * weight
 		sNeuron(uint NumInputs0);
 	};
 

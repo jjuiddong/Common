@@ -407,6 +407,9 @@
     <ClInclude Include="shape\coneshape.h">
       <Filter>shape</Filter>
     </ClInclude>
+    <ClInclude Include="base\line2dlist.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -776,6 +779,9 @@
     <ClCompile Include="shape\coneshape.cpp">
       <Filter>shape</Filter>
     </ClCompile>
+    <ClCompile Include="base\line2dlist.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="action">
@@ -907,6 +913,9 @@
       <Filter>shader</Filter>
     </CustomBuild>
     <CustomBuild Include="shader\tess-box.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw.fx">
       <Filter>shader</Filter>
     </CustomBuild>
   </ItemGroup>

@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "circle2d.h"
 
+
 using namespace graphic;
 
 cCircle2D::cCircle2D()
@@ -47,10 +48,8 @@ bool cCircle2D::Render(cRenderer &renderer
 	D3D11_VIEWPORT vp;
 	renderer.GetDevContext()->RSGetViewports(&numVp, &vp);
 
-	// View * Projection 행렬을 mWorld에 저장한다.
-	// 2D 모드에서는 View 행렬이 적용되지 않기 때문에, 
-	// 바로 Projection 좌표계로 변환한다.
-	// Shader에서는 View * Projection을 적용하지 않는다.
+	// precompute view, projection matrix
+	// because rhw shader no calc view, projection matrix
 	Matrix44 proj;
 	proj.SetProjectionScreen(vp.Width, vp.Height, 0, 1);
 
@@ -79,6 +78,29 @@ bool cCircle2D::Render(cRenderer &renderer
 	}
 
 	__super::Render(renderer, parentTm, flags);
+	return true;
+}
+
+
+// optimize render
+// skip shader update, material update
+bool cCircle2D::Render2(cRenderer &renderer
+	, const XMMATRIX &parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	UINT numVp = 1;
+	D3D11_VIEWPORT vp;
+	renderer.GetDevContext()->RSGetViewports(&numVp, &vp);
+
+	Matrix44 proj;
+	proj.SetProjectionScreen(vp.Width, vp.Height, 0, 1);
+
+	renderer.m_cbPerFrame.m_v->mWorld = XMMatrixTranspose(
+		m_transform.GetMatrixXM() * parentTm * proj.GetMatrixXM());
+	renderer.m_cbPerFrame.Update(renderer);
+
+	m_shape.Render(renderer);
 	return true;
 }
 
