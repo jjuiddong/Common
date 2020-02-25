@@ -44,6 +44,9 @@
     <ClInclude Include="nn\neuralnet.h">
       <Filter>nn</Filter>
     </ClInclude>
+    <ClInclude Include="nn\genetic.h">
+      <Filter>nn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -66,6 +69,9 @@
       <Filter>path</Filter>
     </ClCompile>
     <ClCompile Include="nn\neuralnet.cpp">
+      <Filter>nn</Filter>
+    </ClCompile>
+    <ClCompile Include="nn\genetic.cpp">
       <Filter>nn</Filter>
     </ClCompile>
   </ItemGroup>

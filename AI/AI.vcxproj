@@ -129,6 +129,7 @@
     <ClInclude Include="control\aimain.h" />
     <ClInclude Include="control\object.h" />
     <ClInclude Include="control\messagemanager.h" />
+    <ClInclude Include="nn\genetic.h" />
     <ClInclude Include="nn\neuralnet.h" />
     <ClInclude Include="object\agent.h" />
     <ClInclude Include="object\brain.h" />
@@ -142,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="control\aimain.cpp" />
     <ClCompile Include="control\messagemanager.cpp" />
+    <ClCompile Include="nn\genetic.cpp" />
     <ClCompile Include="nn\neuralnet.cpp" />
     <ClCompile Include="path\navigationmesh.cpp" />
     <ClCompile Include="path\pathestimater.cpp" />

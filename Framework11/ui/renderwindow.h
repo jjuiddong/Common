@@ -69,6 +69,7 @@ namespace framework
 		bool IsDragState();
 		bool IsMoveState();
 		void SetActiveWindow(cDockWindow *dock);
+		cDockWindow* SetActiveNextTabWindow(cDockWindow *dock);
 		void SetCapture(cDockWindow *dock);
 		void SetFocus(cDockWindow *dock);
 		cDockWindow* GetCapture();

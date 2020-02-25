@@ -26,3 +26,4 @@
 #include "path/navigationmesh.h"
 
 #include "nn/neuralnet.h"
+#include "nn/genetic.h"

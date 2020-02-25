@@ -1116,6 +1116,26 @@ void cRenderWindow::SetActiveWindow(cDockWindow *dock)
 }
 
 
+// show next tab window
+cDockWindow* cRenderWindow::SetActiveNextTabWindow(cDockWindow *dock)
+{
+	RETV(!dock, nullptr);
+	RETV(!dock->m_parent, nullptr); // leaf node?
+
+	// todo: recursive check
+	// if tab state, set current tab index
+	cDockWindow *tabWnd = dock->m_tabs.empty() ? dock->m_parent : dock;
+	RETV(tabWnd->m_tabs.empty(), nullptr);
+
+	++tabWnd->m_selectTab;
+	tabWnd->m_selectTab %= (int)(tabWnd->m_tabs.size()+1);
+
+	if (tabWnd->m_selectTab == 0)
+		return tabWnd;
+	return tabWnd->m_tabs[tabWnd->m_selectTab - 1];
+}
+
+
 void cRenderWindow::SetCapture(cDockWindow *dock)
 {
 	m_captureDock = dock;
