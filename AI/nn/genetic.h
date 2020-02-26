@@ -39,7 +39,7 @@ namespace ai
 		bool InitGenome();
 		bool AddGenome(const sGenome &genome);
 		const vector<sGenome>& GetGenomes() const;
-		void Epoch();
+		void Epoch(const uint grabBestFitCnt=4);
 
 
 	protected:

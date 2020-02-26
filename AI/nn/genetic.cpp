@@ -86,7 +86,9 @@ const vector<sGenome>& cGeneticAlgorithm::GetGenomes() const
 }
 
 
-void cGeneticAlgorithm::Epoch()
+void cGeneticAlgorithm::Epoch(
+	const uint grabBestFitCnt //= 4
+)
 {
 	const size_t population = m_genomes.size();
 
@@ -98,7 +100,7 @@ void cGeneticAlgorithm::Epoch()
 	vecNewPop.reserve(population);
 
 	//Now to add a little elitism we shall add in some copies of the fittest genomes.
-	GrabNBest(4, 1, vecNewPop);
+	GrabNBest(grabBestFitCnt, 1, vecNewPop);
 
 	//now we enter the GA loop
 
