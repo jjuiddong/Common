@@ -30,11 +30,11 @@ namespace ai
 	};
 
 
-	class cGenticAlgorithm
+	class cGeneticAlgorithm
 	{
 	public:
-		cGenticAlgorithm();
-		virtual ~cGenticAlgorithm();
+		cGeneticAlgorithm();
+		virtual ~cGeneticAlgorithm();
 
 		bool InitGenome();
 		bool AddGenome(const sGenome &genome);

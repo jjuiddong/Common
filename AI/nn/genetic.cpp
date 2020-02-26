@@ -54,39 +54,39 @@ void ai::Mutate(INOUT vector<double> &chromo)
 
 
 //-------------------------------------------------------------------------------
-// cGenticAlgorithm
+// cGeneticAlgorithm
 //-------------------------------------------------------------------------------
-cGenticAlgorithm::cGenticAlgorithm()
+cGeneticAlgorithm::cGeneticAlgorithm()
 {
 	m_genomes.reserve(100);
 }
 
-cGenticAlgorithm::~cGenticAlgorithm()
+cGeneticAlgorithm::~cGeneticAlgorithm()
 {
 }
 
 
-bool cGenticAlgorithm::InitGenome()
+bool cGeneticAlgorithm::InitGenome()
 {
 	m_genomes.clear();
 	return true;
 }
 
 
-bool cGenticAlgorithm::AddGenome(const sGenome &genome)
+bool cGeneticAlgorithm::AddGenome(const sGenome &genome)
 {
 	m_genomes.push_back(genome);
 	return true;
 }
 
 
-const vector<sGenome>& cGenticAlgorithm::GetGenomes() const
+const vector<sGenome>& cGeneticAlgorithm::GetGenomes() const
 {
 	return m_genomes;
 }
 
 
-void cGenticAlgorithm::Epoch()
+void cGeneticAlgorithm::Epoch()
 {
 	const size_t population = m_genomes.size();
 
@@ -127,7 +127,7 @@ void cGenticAlgorithm::Epoch()
 }
 
 
-sGenome cGenticAlgorithm::GetChromoRoulette()
+sGenome cGeneticAlgorithm::GetChromoRoulette()
 {
 	const int idx = (int)(m_genomes.size() * common::randfloat2());
 	return m_genomes[idx];
@@ -136,7 +136,7 @@ sGenome cGenticAlgorithm::GetChromoRoulette()
 
 //	This works like an advanced form of elitism by inserting NumCopies
 //  copies of the NBest most fittest genomes into a population vector
-void cGenticAlgorithm::GrabNBest(int NBest, const int NumCopies, OUT vector<sGenome> &out)
+void cGeneticAlgorithm::GrabNBest(int NBest, const int NumCopies, OUT vector<sGenome> &out)
 {
 	const int size = m_genomes.size();
 	if (NBest > size)

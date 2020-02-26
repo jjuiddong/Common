@@ -35,7 +35,7 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 
 	using namespace graphic;
 	graphic::cGrid *grid = new graphic::cGrid();
-	grid->Create(renderer, 200, 200, 1.f, 1.f
+	grid->Create(renderer, 1000, 1000, 1.f, 1.f
 		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0));
 	grid->m_mtrl.InitGray4();
 
