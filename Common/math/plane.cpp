@@ -167,6 +167,7 @@ const Plane Plane::operator * (const Matrix44 &rhs)
 	XMVECTOR r = XMPlaneTransform(p, m);
 	XMStoreFloat4((XMFLOAT4*)&out, r);
 #endif
+	out.N.Normalize();
 	return out;
 }
 

@@ -437,6 +437,7 @@
     <ClInclude Include="math\matrix44.h" />
     <ClInclude Include="math\plane.h" />
     <ClInclude Include="math\plane2.h" />
+    <ClInclude Include="math\plane3.h" />
     <ClInclude Include="math\quaternion.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\transform.h" />
@@ -498,6 +499,7 @@
     <ClCompile Include="math\matrix44.cpp" />
     <ClCompile Include="math\plane.cpp" />
     <ClCompile Include="math\plane2.cpp" />
+    <ClCompile Include="math\plane3.cpp" />
     <ClCompile Include="math\quaternion.cpp" />
     <ClCompile Include="math\ray.cpp" />
     <ClCompile Include="math\transform.cpp" />

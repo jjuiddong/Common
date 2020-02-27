@@ -271,29 +271,25 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
 	const Vector3 eyePos = GetMainCamera().GetEyePos();
-	const float arrowSize = 0.2f * 0.4f;
+	const float arrowSize = 0.2f * 0.4f * 0.1f;
 	const float arrowRatio = 0.4f;
-	const float arrowLength = 2.7f * 0.4f;
-	const float arrowOffset = 0.3f * 0.4f;
-	const float planeSize = 0.8f * 0.4f;
-	const float planeOffset = 1.f * 0.4f;
+	const float arrowLength = 2.7f * 0.4f * 0.1f;
+	const float arrowOffset = 0.3f * 0.4f * 0.1f;
+	const float planeSize = 0.8f * 0.4f * 0.1f;
+	const float planeOffset = 1.f * 0.4f * 0.1f;
 
+	const Matrix44 worldTm = m_controlNode->GetWorldMatrix();
+	const Vector3 nodePosW = worldTm.GetPosition();
 	{
-		// fixed gizmo position form Camera Eye Pos
-		const Matrix44 worldTm = m_controlNode->GetWorldMatrix();
+		// fixed gizmo position from Camera Eye Pos
 		Vector3 v = worldTm.GetPosition() - GetMainCamera().GetEyePos();
 		m_transform.pos = v.Normal() * 1.3f + GetMainCamera().GetEyePos();
 	}
 
-	const float scale = 0.1f;
-	Matrix44 scaleTm;
-	scaleTm.SetScale(scale);
-	const XMMATRIX ptm = scaleTm.GetMatrixXM() * parentTm;
+	const XMMATRIX ptm = parentTm;
 
 	float dist[6];
-	Transform tfm = m_transform;
-	tfm.pos *= 1 / scale;
-	const Matrix44 m = tfm.GetMatrix();
+	const Matrix44 m = m_transform.GetMatrix();
 
 	// X-Axis
 	const Vector3 px0 = Vector3(arrowOffset, 0, 0) * m;
@@ -318,7 +314,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 
 	XMMATRIX planeTm[3];// X-Z, Y-Z, X-Y Plane
 	{
-		const XMMATRIX tm = tfm.GetMatrixXM() * ptm;
+		const XMMATRIX tm = m_transform.GetMatrixXM() * ptm;
 		const Vector3 planeScale(planeSize, planeSize, planeSize);
 		const bool xDir = eyePos.x > m_transform.pos.x;
 		const bool yDir = eyePos.y > m_transform.pos.y;
@@ -431,7 +427,6 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 	if (m_isKeepEdit)
 	{
 		const Ray prevRay = GetMainCamera().GetRay(m_prevMousePos.x, m_prevMousePos.y);
-		const Vector3 nodePosW = m_controlNode->GetWorldMatrix().GetPosition();
 
 		// Translate Edit
 		Transform change(Vector3::Zeroes, Vector3::Zeroes);
@@ -444,7 +439,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 			if (d0 > d1)
 			{
 				// XZ Plane
-				Plane groundXZ(Vector3(0, 1, 0), Vector3(0,0,0));
+				Plane groundXZ(Vector3(0, 1, 0), nodePosW);
 				const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 				change.pos.x = (curPosXZ.x - prevPosXZ.x);
@@ -452,7 +447,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 			else
 			{
 				// XY Plane
-				Plane groundXY(Vector3(0, 0, 1), Vector3(0, 0, 0));
+				Plane groundXY(Vector3(0, 0, 1), nodePosW);
 				const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
 				change.pos.x = (curPosXY.x - prevPosXY.x);
@@ -478,7 +473,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 			if (d0 > d1)
 			{
 				// XZ Plane
-				Plane groundXZ(Vector3(0, 1, 0), Vector3(0, 0, 0));
+				Plane groundXZ(Vector3(0, 1, 0), nodePosW);
 				const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
 				change.pos.z = (curPosXZ.z - prevPosXZ.z);
@@ -486,7 +481,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 			else
 			{
 				// YZ Plane
-				Plane groundYZ(Vector3(1, 0, 0), Vector3(0, 0, 0));
+				Plane groundYZ(Vector3(1, 0, 0), nodePosW);
 				const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
 				change.pos.z = (curPosYZ.z - prevPosYZ.z);
@@ -542,57 +537,51 @@ void cGizmo::RenderScale(cRenderer &renderer
 		m_pick[m_axisType] = true;
 
 	const Ray ray = GetMainCamera().GetRay(m_mousePos.x, m_mousePos.y);
-	const float arrowSize = 0.17f * 0.4f;
+	const float arrowSize = 0.17f * 0.4f * 0.1f;
 	const float arrowRatio = 0.4f;
-	const float arrowLength = 2.5f * 0.4f;
-	const float arrowOffset = 0.3f * 0.4f;
-	const float planeSize = 0.6f * 0.4f;
+	const float arrowLength = 2.5f * 0.4f * 0.1f;
+	const float arrowOffset = 0.3f * 0.4f * 0.1f;
+	const float planeSize = 0.6f * 0.4f * 0.1f;
 
+	const Matrix44 worldTm = m_controlNode->GetWorldMatrix();
+	const Vector3 nodePosW = worldTm.GetPosition();
 	{
 		// fixed gizmo position form Camera Eye Pos
-		const Matrix44 worldTm = m_controlNode->GetWorldMatrix();
 		Vector3 v = worldTm.GetPosition() - GetMainCamera().GetEyePos();
 		m_transform.pos = v.Normal() * 1.3f + GetMainCamera().GetEyePos();
 	}
 
-	const float scale = 0.1f;
-	Matrix44 scaleTm;
-	scaleTm.SetScale(scale);
-	const XMMATRIX ptm = scaleTm.GetMatrixXM() * parentTm;
+	const Quaternion rot = m_controlNode->m_transform.rot;
+	const Matrix44 m = rot.GetMatrix() * m_transform.GetMatrix();
 
-	Transform tfm = m_transform;
-	tfm.pos *= 1 / scale;
-	tfm.rot = m_controlNode->m_transform.rot;
-
-	const Matrix44 m = tfm.GetMatrix();
 	const Vector3 px0 = Vector3(arrowOffset, 0, 0) * m;
 	const Vector3 px1 = Vector3(arrowLength, 0, 0) * m;
-	m_arrow[0].SetDirection(px0, px1, tfm.rot, arrowSize, arrowRatio);
+	m_arrow[0].SetDirection(px0, px1, rot, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
-		m_pick[0] = m_arrow[0].Picking(ray, ptm, false);
+		m_pick[0] = m_arrow[0].Picking(ray, parentTm, false);
 	m_arrow[0].m_color = m_pick[0] ? cColor::YELLOW : cColor::RED;
-	m_arrow[0].Render(renderer, ptm, true);
+	m_arrow[0].Render(renderer, parentTm, true);
 
 	const Vector3 py0 = Vector3(0, arrowOffset, 0) * m;
 	const Vector3 py1 = Vector3(0, arrowLength, 0) * m;
-	m_arrow[1].SetDirection(py0, py1, tfm.rot, arrowSize, arrowRatio);
+	m_arrow[1].SetDirection(py0, py1, rot, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
-		m_pick[1] = m_arrow[1].Picking(ray, ptm, false);
+		m_pick[1] = m_arrow[1].Picking(ray, parentTm, false);
 	m_arrow[1].m_color = m_pick[1] ? cColor::YELLOW : cColor::GREEN;
-	m_arrow[1].Render(renderer, ptm, true);
+	m_arrow[1].Render(renderer, parentTm, true);
 
 	const Vector3 pz0 = Vector3(0, 0, arrowOffset) * m;
 	const Vector3 pz1 = Vector3(0, 0, arrowLength) * m;
-	m_arrow[2].SetDirection(pz0, pz1, tfm.rot, arrowSize, arrowRatio);
+	m_arrow[2].SetDirection(pz0, pz1, rot, arrowSize, arrowRatio);
 	if (!m_isKeepEdit)
-		m_pick[2] = m_arrow[2].Picking(ray, ptm, false);
+		m_pick[2] = m_arrow[2].Picking(ray, parentTm, false);
 	m_arrow[2].m_color = m_pick[2] ? cColor::YELLOW : cColor::BLUE;
-	m_arrow[2].Render(renderer, ptm, true);
+	m_arrow[2].Render(renderer, parentTm, true);
 
 
 	XMMATRIX planeTm[3];// X-Z, Y-Z, X-Y Plane
 	{
-		const XMMATRIX tm = tfm.GetMatrixXM() * ptm;
+		const XMMATRIX tm = m.GetMatrixXM() * parentTm;
 		const float w = planeSize; // plane width
 		const Vector3 planeScale(w, w, w);
 
@@ -639,9 +628,10 @@ void cGizmo::RenderScale(cRenderer &renderer
 
 	if (m_isKeepEdit)
 	{
-		const Vector3 nodePosW = m_controlNode->GetWorldMatrix().GetPosition();
 		const Ray prevRay = GetMainCamera().GetRay(m_prevMousePos.x, m_prevMousePos.y);
-		const Quaternion rot = tfm.rot;
+		const Vector3 rx = Vector3(1, 0, 0) * rot;
+		const Vector3 ry = Vector3(0, 1, 0) * rot;
+		const Vector3 rz = Vector3(0, 0, 1) * rot;
 
 		// Scale Edit
 		Transform change(Vector3::Zeroes, Vector3::Zeroes);
@@ -649,69 +639,70 @@ void cGizmo::RenderScale(cRenderer &renderer
 		{
 		case eGizmoEditAxis::X:
 		{
-			const float d0 = abs((Vector3(0, 1, 0) * rot).DotProduct(ray.dir));
-			const float d1 = abs((Vector3(0, 0, 1) * rot).DotProduct(ray.dir));
+			const float d0 = abs(ry.DotProduct(ray.dir));
+			const float d1 = abs(rz.DotProduct(ray.dir));
 			if (d0 > d1)
 			{
 				// XZ Plane
-				Plane2 groundXZ(Vector3(0, 1, 0) * rot, nodePosW, Vector3(1,0,0)*rot);
+				Plane groundXZ(ry, nodePosW);
 				const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
-				change.scale.x += (curPosXZ.x - prevPosXZ.x);
+				change.scale.x += (rx.DotProduct(curPosXZ) - rx.DotProduct(prevPosXZ));
+
 			}
 			else
 			{
 				// XY Plane
-				Plane2 groundXY(Vector3(0, 0, 1) * rot, nodePosW, Vector3(1,0,0)*rot);
+				Plane groundXY(rz, nodePosW);
 				const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
-				change.scale.x += (curPosXY.x - prevPosXY.x);
+				change.scale.x += (rx.DotProduct(curPosXY) - rx.DotProduct(prevPosXY));
 			}
 		}
 		break;
 
 		case eGizmoEditAxis::Y:
 		{
-			const float d0 = abs((Vector3(1, 0, 0) * rot).DotProduct(ray.dir));
-			const float d1 = abs((Vector3(0, 0, 1) * rot).DotProduct(ray.dir));
+			const float d0 = abs(rx.DotProduct(ray.dir));
+			const float d1 = abs(rz.DotProduct(ray.dir));
 			if (d0 > d1)
 			{
 				// YZ Plane
-				Plane2 groundYZ(Vector3(1, 0, 0) * rot, nodePosW, Vector3(1, 0, 0)*rot);
+				Plane groundYZ(rx, nodePosW);
 				const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
-				change.scale.y += (curPosYZ.y - prevPosYZ.y);
+				change.scale.y += (ry.DotProduct(curPosYZ)- ry.DotProduct(prevPosYZ));
 			}
 			else
 			{
 				// XY Plane
-				Plane2 groundXY(Vector3(0, 0, 1) * rot, nodePosW, Vector3(1, 0, 0)*rot);
+				Plane groundXY(rz * rot, nodePosW);
 				const Vector3 curPosXY = groundXY.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXY = groundXY.Pick(prevRay.orig, prevRay.dir);
-				change.scale.y += (curPosXY.y - prevPosXY.y);
+				change.scale.y += (ry.DotProduct(curPosXY) - ry.DotProduct(prevPosXY));
 			}
 		}
 		break;
 
 		case eGizmoEditAxis::Z:
 		{
-			const float d0 = abs((Vector3(0, 1, 0) * rot).DotProduct(ray.dir));
-			const float d1 = abs((Vector3(1, 0, 0) * rot).DotProduct(ray.dir));
+			const float d0 = abs(ry.DotProduct(ray.dir));
+			const float d1 = abs(rx.DotProduct(ray.dir));
 			if (d0 > d1)
 			{
 				// XZ Plane
-				Plane2 groundXZ(Vector3(0, 1, 0) * rot, nodePosW, Vector3(1,0,0)*rot);
+				Plane groundXZ(ry, nodePosW);
 				const Vector3 curPosXZ = groundXZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosXZ = groundXZ.Pick(prevRay.orig, prevRay.dir);
-				change.scale.z += (curPosXZ.z - prevPosXZ.z);
+				change.scale.z += rz.DotProduct(curPosXZ) - rz.DotProduct(prevPosXZ);
 			}
 			else
 			{
 				// YZ Plane
-				Plane2 groundYZ(Vector3(1, 0, 0) * rot, nodePosW, Vector3(1,0,0)*rot);
+				Plane groundYZ(rx, nodePosW);
 				const Vector3 curPosYZ = groundYZ.Pick(ray.orig, ray.dir);
 				const Vector3 prevPosYZ = groundYZ.Pick(prevRay.orig, prevRay.dir);
-				change.scale.z += (curPosYZ.z - prevPosYZ.z);
+				change.scale.z += rz.DotProduct(curPosYZ) - rz.DotProduct(prevPosYZ);
 			}
 		}
 		break;

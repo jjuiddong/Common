@@ -232,6 +232,9 @@
     <ClInclude Include="math\plane2.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="math\plane3.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -383,6 +386,9 @@
       <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="math\plane2.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="math\plane3.cpp">
       <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>

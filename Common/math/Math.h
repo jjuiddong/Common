@@ -50,6 +50,7 @@ using std::vector;
 #include "triangle.h"
 #include "plane.h"
 #include "plane2.h"
+#include "plane3.h"
 #include "ray.h"
 #include "line.h"
 #include "mathutility.h"
