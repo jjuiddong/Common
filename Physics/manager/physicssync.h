@@ -71,6 +71,7 @@ namespace phys
 		bool RemoveSyncInfo(const cRigidActor *actor);
 		bool RemoveSyncInfo(const cJoint *joint);
 		bool RemoveSyncInfo(sSyncInfo *sync);
+		void ClearSyncInfo(const bool isClearGroundPlane=true);
 		void Clear();
 
 

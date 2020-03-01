@@ -25,9 +25,10 @@ bool cPhysicsSync::Create(cPhysicsEngine *physics)
 }
 
 
+// if ground plane, name is "ground"
 int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	, const Vector3& norm
-	, const Str32 &name //= "box"
+	, const Str32 &name //= "plane"
 )
 {
 	RETV(!m_physics, false);
@@ -353,15 +354,20 @@ bool cPhysicsSync::RemoveSyncInfo(const cJoint *joint)
 }
 
 
-// clear physics actor, joint object
-void cPhysicsSync::Clear()
+// clear sync object
+// isClearGroundPlane: true = all sync info removed
+//		               false = all sync info removed except ground plane
+void cPhysicsSync::ClearSyncInfo(
+	const bool isClearGroundPlane //= true
+)
 {
-	if (m_physics)
-		m_physics->m_physics->unregisterDeletionListener(*this);
-
-	// remove actor
-	for (auto &p : m_syncs)
+	for (int i = (int)m_syncs.size()-1; i >= 0; --i)
 	{
+		sSyncInfo *p = m_syncs[i];
+
+		if (!isClearGroundPlane && (p->name == "ground"))
+			continue; // no remove ground plane
+
 		if (m_physics && m_physics->m_scene && p->actor)
 			m_physics->m_scene->removeActor(*p->actor->m_actor);
 		if (p->isRemove)
@@ -371,8 +377,19 @@ void cPhysicsSync::Clear()
 			SAFE_DELETE(p->node);
 		}
 		delete p;
+
+		common::removevector(m_syncs, p);
 	}
-	m_syncs.clear();
+}
+
+
+// clear physics actor, joint object
+void cPhysicsSync::Clear()
+{
+	if (m_physics)
+		m_physics->m_physics->unregisterDeletionListener(*this);
+
+	ClearSyncInfo();
 
 	_aligned_free(m_bufferedActiveTransforms);
 }
