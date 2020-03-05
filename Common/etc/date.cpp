@@ -1,6 +1,4 @@
-//
-// Boost의 date 객체를 이용하면 날짜 계산을 쉽게 할 수 있다.
-//
+
 #include "stdafx.h"
 #include "date.h"
 #include "boost/date_time/gregorian/gregorian.hpp"

@@ -1,13 +1,14 @@
 //
 // 2019-03-28, jjuiddong
-// date time
+// date time functions
+//	- use boost library
 //
 #pragma once
 
 
 namespace common
 {
-	// year-month-day-hour-minutes-seconds-millseconds
+
 	string GetCurrentDateTime();
 	string GetCurrentDateTime2();
 	unsigned __int64 GetCurrentDateTime3();
