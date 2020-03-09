@@ -9,14 +9,14 @@
 namespace phys
 {
 
-	struct sSyncInfo 
+	struct sSyncInfo
 	{
 		int id; // unique id
 		bool isRemove; // auto remove?
 		Str32 name;
 		cRigidActor *actor; // physics object
 		cJoint *joint; // physics object
-		graphic::cNode *node; // render object
+		graphic::cNode *node; // render object, reference
 	};
 
 
@@ -29,11 +29,11 @@ namespace phys
 		bool Create(cPhysicsEngine *physics);
 
 		int SpawnPlane(graphic::cRenderer &renderer
-			, const Vector3& norm
+			, const Vector3 &norm
 			, const Str32 &name = "plane");
 
 		int SpawnBox(graphic::cRenderer &renderer
-			, const Transform& tfm
+			, const Transform &tfm
 			, const float density = 1.f
 			, const bool isKinematic = false
 			, const Str32 &name = "box");
@@ -46,7 +46,7 @@ namespace phys
 			, const Str32 &name = "sphere");
 
 		int SpawnCapsule(graphic::cRenderer &renderer
-			, const Transform& tfm
+			, const Transform &tfm
 			, const float radius
 			, const float halfHeight
 			, const float density = 1.f
@@ -54,7 +54,7 @@ namespace phys
 			, const Str32 &name = "capsule");
 
 		int SpawnCylinder(graphic::cRenderer &renderer
-			, const Transform& tfm
+			, const Transform &tfm
 			, const float radius
 			, const float height
 			, const float density = 1.f
@@ -63,6 +63,8 @@ namespace phys
 
 		bool AddJoint(cJoint *joint, graphic::cNode *node = nullptr
 			, const bool isAutoRemove=true);
+
+		bool AddCompound(sSyncInfo *sync0, sSyncInfo *sync1);
 
 		sSyncInfo* FindSyncInfo(const int syncId);
 		sSyncInfo* FindSyncInfo(const cRigidActor *actor);

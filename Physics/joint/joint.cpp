@@ -8,8 +8,9 @@ using namespace physx;
 
 cJoint::cJoint()
 	: m_id(common::GenerateId())
-	, m_joint(nullptr)
 	, m_type(eJointType::None)
+	, m_joint(nullptr)
+	, m_node(nullptr)
 	, m_actor0(nullptr)
 	, m_actor1(nullptr)
 	, m_referenceMode(false)
@@ -141,9 +142,6 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 		, actor1->m_actor, localFrame1);
 
 	DefaultJointConfiguration(joint);
-
-	//joint->setProjectionLinearTolerance(0.5f);
-	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
 	m_type = eJointType::Revolute;
 	m_joint = joint;
@@ -408,8 +406,8 @@ double cJoint::GetRelativeAngle()
 	if (m_isBroken)
 		return 0.f;
 
-	const Quaternion q0 = m_actorLocal0.rot.Inverse() * m_actor0->m_node->m_transform.rot;
-	const Quaternion q1 = m_actorLocal1.rot.Inverse() * m_actor1->m_node->m_transform.rot;
+	const Quaternion q0 = m_actorLocal0.rot.Inverse() * m_actor0->m_meshes[0].node->m_transform.rot;
+	const Quaternion q1 = m_actorLocal1.rot.Inverse() * m_actor1->m_meshes[0].node->m_transform.rot;
 	const Vector3 dir = Vector3(0, 1, 0) * m_rotRevolute;
 	const Vector3 dir0 = (dir * q0).Normal();
 	const Vector3 dir1 = (dir * q1).Normal();
@@ -1015,6 +1013,7 @@ void cJoint::Clear()
 	if (!m_referenceMode)
 	{
 		PHY_SAFE_RELEASE(m_joint);
+		SAFE_DELETE(m_node);
 		m_actor0 = nullptr;
 		m_actor1 = nullptr;
 	}

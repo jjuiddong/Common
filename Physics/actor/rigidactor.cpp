@@ -10,7 +10,6 @@ using namespace physx;
 cRigidActor::cRigidActor()
 	: m_id(common::GenerateId())
 	, m_actor(nullptr)
-	, m_node(nullptr)
 	, m_type(eRigidType::None)
 	, m_shape(eShapeType::None)
 {
@@ -38,7 +37,14 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 	m_type = eRigidType::Static;
 	m_shape = eShapeType::Plane;
 	m_actor = plane;
-	m_node = node;
+	if (node)
+	{
+		sMesh mesh;
+		mesh.node = node;
+		mesh.shape = eShapeType::Plane;
+		mesh.local = Matrix44::Identity;
+		m_meshes.push_back(mesh);
+	}
 	return true;
 }
 
@@ -71,8 +77,14 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Box;
 	m_actor = box;
-	m_node = node;
-	return true;
+	if (node)
+	{
+		sMesh mesh;
+		mesh.node = node;
+		mesh.shape = eShapeType::Box;
+		mesh.local = Matrix44::Identity;
+		m_meshes.push_back(mesh);
+	}	return true;
 }
 
 
@@ -106,7 +118,14 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Sphere;
 	m_actor = sphere;
-	m_node = node;
+	if (node)
+	{
+		sMesh mesh;
+		mesh.node = node;
+		mesh.shape = eShapeType::Sphere;
+		mesh.local = Matrix44::Identity;
+		m_meshes.push_back(mesh);
+	}
 	return true;
 }
 
@@ -142,7 +161,14 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Capsule;
 	m_actor = capsule;
-	m_node = node;
+	if (node)
+	{
+		sMesh mesh;
+		mesh.node = node;
+		mesh.shape = eShapeType::Capsule;
+		mesh.local = Matrix44::Identity;
+		m_meshes.push_back(mesh);
+	}
 	return true;
 }
 
@@ -182,7 +208,14 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 	m_type = eRigidType::Dynamic;
 	m_shape = eShapeType::Cylinder;
 	m_actor = convex;
-	m_node = node;
+	if (node)
+	{
+		sMesh mesh;
+		mesh.node = node;
+		mesh.shape = eShapeType::Cylinder;
+		mesh.local = Matrix44::Identity;
+		m_meshes.push_back(mesh);
+	}
 	return true;
 }
 
@@ -297,6 +330,88 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 		}
 	}
 
+	return true;
+}
+
+
+// Compound this and src
+// move src mesh to this actor
+bool cRigidActor::Compound(cPhysicsEngine &physics, cRigidActor *src)
+{
+	const uint count = src->m_actor->getNbShapes();
+	if (count == 0)
+		return false;
+	if (count != src->m_meshes.size())
+		return false; // error occurred!
+
+	PxShape **shapes = new PxShape*[count];
+	if (src->m_actor->getShapes(shapes, count) == 0)
+	{
+		delete[] shapes;
+		return true;
+	}
+	
+	const Matrix44 rtm0 = Transform(m_meshes[0].node->m_transform.pos
+		, m_meshes[0].node->m_transform.rot).GetMatrix().Inverse();
+	
+	for (uint i=0; i < src->m_meshes.size(); ++i)
+	{
+		const sMesh &mesh = src->m_meshes[i];
+		physx::PxShape *shape = shapes[i];
+
+		// calc local tm
+		sMesh newMesh = mesh;
+		const Matrix44 tm = Transform(mesh.node->m_transform.pos
+			, mesh.node->m_transform.rot).GetMatrix() * rtm0;
+		newMesh.local = tm;
+
+		const Transform tfm(tm.GetPosition(), tm.GetQuaternion());
+		const PxTransform target = PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot);
+
+		physx::PxShape* newShape = nullptr;
+		switch (mesh.shape)
+		{
+		case eShapeType::Box:
+			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+				, shape->getGeometry().box()
+				, *physics.m_material);
+			break;
+		case eShapeType::Sphere:
+			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+				, shape->getGeometry().sphere()
+				, *physics.m_material);
+			break;
+		case eShapeType::Capsule:
+			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+				, shape->getGeometry().capsule()
+				, *physics.m_material);
+			break;
+		case eShapeType::Cylinder:
+		{
+			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+				, shape->getGeometry().convexMesh()
+				, *physics.m_material);
+		}
+		break;
+
+		case eShapeType::Plane: // not support
+		case eShapeType::Convex: // not support
+			assert(0);
+			break;
+		default: assert(0); break;
+		}
+
+		newShape->setLocalPose(target);
+		m_meshes.push_back(newMesh);
+	}
+
+	// todo: density modified
+	const float density = 1.f;
+	if (PxRigidBody *p = m_actor->is<PxRigidBody>())
+		PxRigidBodyExt::updateMassAndInertia(*p, density);
+
+	src->m_meshes.clear();
+	delete[] shapes;
 	return true;
 }
 
@@ -488,5 +603,7 @@ void cRigidActor::Clear()
 {
 	m_joints.clear();
 	PHY_SAFE_RELEASE(m_actor);
-	m_node = nullptr;
+	for (auto &mesh : m_meshes)
+		SAFE_DELETE(mesh.node);
+	m_meshes.clear();
 }

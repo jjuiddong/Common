@@ -61,6 +61,8 @@ namespace phys
 
 		bool ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim);
 
+		bool Compound(cPhysicsEngine &physics, cRigidActor *src);
+
 		// wrapping function
 		bool SetGlobalPose(const physx::PxTransform &tfm);
 		bool SetGlobalPose(const Transform &tfm);
@@ -97,7 +99,14 @@ namespace phys
 		eShapeType::Enum m_shape;
 		physx::PxRigidActor *m_actor;
 		vector<cJoint*> m_joints; // reference
-		graphic::cNode *m_node; // graphic node, reference
+
+		struct sMesh
+		{
+			eShapeType::Enum shape;
+			graphic::cNode *node; // graphic node
+			Matrix44 local; // relative transform nodes[0] to current
+		};
+		vector<sMesh> m_meshes;
 	};
 
 }

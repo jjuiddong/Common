@@ -9,13 +9,12 @@
 namespace phys
 {
 
-	DECLARE_ENUM(eJointType, Fixed, Spherical, Revolute, Prismatic, Distance, D6, None);
+	DECLARE_ENUM(eJointType, Fixed, Spherical, Revolute, Prismatic, Distance, D6, Compound, None);
 
 
 	class cJoint
 	{
 	public:
-
 		cJoint();
 		virtual ~cJoint();
 
@@ -131,6 +130,7 @@ namespace phys
 		cRigidActor *m_actor0; // joint pair actor0, reference
 		cRigidActor *m_actor1; // joint pair actor1, reference
 		physx::PxJoint *m_joint;
+		graphic::cNode *m_node; // joint renderer
 
 		// drive cycle period (revolute joint)
 		bool m_isCycleDrive;

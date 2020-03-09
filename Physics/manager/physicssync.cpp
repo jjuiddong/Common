@@ -227,10 +227,26 @@ bool cPhysicsSync::Sync()
 
 		sSyncInfo *sync = *it;
 		{
-			Transform tfm = sync->node->m_transform;
+			Transform tfm;
 			tfm.pos = *(Vector3*)&activeTfm->actor2World.p;
 			tfm.rot = *(Quaternion*)&activeTfm->actor2World.q;
-			sync->node->m_transform = tfm;
+			const Matrix44 tm0 = tfm.GetMatrix();			
+
+			if (sync->actor)
+			{
+				cRigidActor *actor = sync->actor;
+				for (uint i=0; i < actor->m_meshes.size(); ++i)
+				{
+					graphic::cNode *node = actor->m_meshes[i].node;
+					const Matrix44 tm = actor->m_meshes[i].local * tm0;
+
+					Transform m;
+					m.pos = tm.GetPosition();
+					m.rot = tm.GetQuaternion();
+					m.scale = node->m_transform.scale;
+					node->m_transform = m;
+				}
+			}
 		}
 	}
 
@@ -260,7 +276,23 @@ bool cPhysicsSync::AddJoint(cJoint *joint
 	sync->name = "joint";
 	sync->joint = joint;
 	sync->node = node;
+	joint->m_node = node;
 	m_syncs.push_back(sync);
+	return true;
+}
+
+
+// compoound two sync info, add sync1 to sync0
+// and then remove sync1
+bool cPhysicsSync::AddCompound(sSyncInfo *sync0, sSyncInfo *sync1)
+{
+	if (!sync0->actor || !sync1->actor)
+		return false;
+
+	sync0->actor->Compound(*m_physics, sync1->actor);
+	sync1->node = nullptr;
+	RemoveSyncInfo(sync1);
+
 	return true;
 }
 
@@ -327,7 +359,7 @@ bool cPhysicsSync::RemoveSyncInfo(sSyncInfo *sync)
 	{
 		SAFE_DELETE(sync->actor);
 		SAFE_DELETE(sync->joint);
-		SAFE_DELETE(sync->node);
+		//SAFE_DELETE(sync->node);
 	}
 	SAFE_DELETE(sync);
 	return true;
@@ -374,7 +406,6 @@ void cPhysicsSync::ClearSyncInfo(
 		{
 			SAFE_DELETE(p->actor);
 			SAFE_DELETE(p->joint);
-			SAFE_DELETE(p->node);
 		}
 		delete p;
 
