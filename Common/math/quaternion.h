@@ -54,6 +54,7 @@ namespace common
 		void Euler2(const Vector3& euler);
 		Vector3 Euler() const;
 		const Quaternion& Normalize();
+		Quaternion Normal() const;
 		Quaternion Inverse() const;
 
 		float GetRotationAngleXZ() const;

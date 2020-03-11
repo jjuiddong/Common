@@ -367,6 +367,36 @@ const Quaternion& Quaternion::Normalize()
 } //Quaternion::Normalize
 
 
+Quaternion Quaternion::Normal() const
+{
+	Quaternion q;
+
+	float norm = sqrtf(SQR(x) + SQR(y) + SQR(z) + SQR(w));
+
+	if (FLOAT_EQ(0.0F, norm))
+		return q;
+
+	norm = 1.0F / norm;
+
+	q.x = x * norm;
+	q.y = y * norm;
+	q.z = z * norm;
+	q.w = w * norm;
+
+	norm = sqrtf(SQR(q.x) + SQR(q.y) + SQR(q.z) + SQR(q.w));
+
+	if (!FLOAT_EQ(1.0F, norm))
+		return Quaternion();
+
+	LIMIT_RANGE(-1.0f, q.w, 1.0f);
+
+	LIMIT_RANGE(-1.0f, q.x, 1.0f);
+	LIMIT_RANGE(-1.0f, q.y, 1.0f);
+	LIMIT_RANGE(-1.0f, q.z, 1.0f);
+	return q;
+}
+
+
 // https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
 Quaternion Quaternion::Inverse() const
 {
