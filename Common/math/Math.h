@@ -7,13 +7,15 @@
 
 
 const float MATH_PI = 3.141592654f;
+const double MATH_PI2 = 3.1415926535897932384626433832795f;
 const float MATH_EPSILON = 0.0005f;//1.0e-5;
 const double MATH_EPSILON2 = 0.0000000001f;//1.0e-10;
 #define SQR(x)		( (x) * (x) )
 #define LIMIT_RANGE(low, value, high)	{	if (value < low)	value = low;	else if(value > high)	value = high;	}
 #define FLOAT_EQ(x,v)	(fabs((x)-(v)) < (MATH_EPSILON))
 #define ABS( x )	( (x) >= 0 ? (x) : -(x) )
-#define ANGLE2RAD(angle) ((MATH_PI*(angle)) * (0.00555555f))
+#define ANGLE2RAD(angle) ((MATH_PI*(angle)) * (1.0f/180.f))
+#define ANGLE2RAD2(angle) ((MATH_PI2*(angle)) * (1.0f/180.f))
 #define RAD2ANGLE(radian) ((radian) * (180.0f/MATH_PI))
 
 

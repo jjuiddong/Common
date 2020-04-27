@@ -199,6 +199,47 @@ Str32 cDateTime2::GetTimeStr2(const uint64 dateTime)
 }
 
 
+// return time string (ignore milliseconds)
+// 20170108110530010 -> 2017-01-08 11:05:30
+Str32 cDateTime2::GetTimeStr3(const uint64 dateTime)
+{
+	const uint64 year = dateTime / 10000000000000;
+	const uint64 month = (dateTime / 100000000000) % 100;
+	const uint64 day = (dateTime / 1000000000) % 100;
+	const uint64 hour = (dateTime / 10000000) % 100;
+	const uint64 minute = (dateTime / 100000) % 100;
+	const uint64 second = (dateTime / 1000) % 100;
+	//const uint64 millis = (dateTime) % 1000;
+
+	Str32 ret;
+	ret.Format("%d-%02d-%02d %02d:%02d:%02d"
+		, (uint)year, (uint)month, (uint)day
+		, (uint)hour, (uint)minute, (uint)second);
+	return ret;
+}
+
+
+// return time string (only year month date)
+// 20170108110530010 -> 2017-01-08
+Str32 cDateTime2::GetTimeStr4(const uint64 dateTime)
+{
+	const uint64 year = dateTime / 10000000000000;
+	const uint64 month = (dateTime / 100000000000) % 100;
+	const uint64 day = (dateTime / 1000000000) % 100;
+	//const uint64 hour = (dateTime / 10000000) % 100;
+	//const uint64 minute = (dateTime / 100000) % 100;
+	//const uint64 second = (dateTime / 1000) % 100;
+	//const uint64 millis = (dateTime) % 1000;
+
+	Str32 ret;
+	ret.Format("%d-%02d-%02d"
+		, (uint)year, (uint)month, (uint)day
+		//, (uint)hour, (uint)minute, (uint)second
+	);
+	return ret;
+}
+
+
 void cDateTime2::GetTimeValue(const uint64 dateTime, sDateTime &out)
 {
 	out.year = (int)(dateTime / 10000000000000);
