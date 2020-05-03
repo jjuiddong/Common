@@ -21,6 +21,8 @@ cCamera::cCamera(const char *name)
 	, m_boundingType(eBoundingType::NONE)
 	, m_traceNode(NULL)
 	, m_isKeepHorizontal(true)
+	, m_kp(4.f) // 8.f
+	, m_kd(0.f) // 5.f
 {
 	m_boundingHSphere.SetBoundingHalfSphere(Vector3(0, 0, 0), 500);
 }
@@ -85,9 +87,6 @@ void cCamera::UpdateMove(const float deltaSeconds)
 
 	const float dt = min(deltaSeconds, 0.05f);
 
-	// PID
-	const float Ki = 8.f;
-	const float Kd = 5.f;
 	const sCamMoving &mover = m_mover.front();
 
 	// eyepos move
@@ -104,11 +103,11 @@ void cCamera::UpdateMove(const float deltaSeconds)
 			if (!m_oldPosDir.IsEmpty())
 				dv = posDir - m_oldPosDir;
 			m_oldPosDir = posDir;
-			m_eyePos += posDir * dt * Ki + (dv * dt * Kd);
+			m_eyePos += posDir * dt * m_kp + (dv * dt * m_kd);
 		}
 		else
 		{
-			m_eyePos += posDir.Normal() * mover.velocityPos * dt;
+			m_eyePos += posDir.Normal() * min(len, mover.velocityPos * dt);
 		}
 	}
 	else
@@ -128,11 +127,11 @@ void cCamera::UpdateMove(const float deltaSeconds)
 			if (!m_oldLookAtDir.IsEmpty())
 				dv = lookDir - m_oldLookAtDir;
 			m_oldLookAtDir = lookDir;
-			m_lookAt += lookDir * dt * Ki + (dv * dt * Kd);
+			m_lookAt += lookDir * dt * m_kp + (dv * dt * m_kd);
 		}
 		else
 		{
-			m_lookAt += lookDir.Normal() * mover.velocityLookAt * dt;
+			m_lookAt += lookDir.Normal() * min(len2, mover.velocityLookAt * dt);
 		}
 	}
 	else

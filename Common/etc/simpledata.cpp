@@ -22,25 +22,7 @@ bool cSimpleData::Read(const StrPath &fileName
 	, const string &delimiter //= ","
 )
 {
-	using namespace std;
-	ifstream ifs(fileName.c_str());
-	if (!ifs.is_open())
-		return false;
-
-	Clear();
-
-	string line;
-	while (getline(ifs, line))
-	{
-		vector<string> out;
-		common::tokenizer2(line, delimiter, out);
-		if (out.empty())
-			continue;
-
-		m_table.push_back(out);
-	}
-
-	return true;
+	return ReadLine(fileName, delimiter, 0);
 }
 
 
@@ -65,6 +47,39 @@ bool cSimpleData::Write(const StrPath &fileName
 		ofs << endl;
 	}
 	return true;
+}
+
+
+// one line read
+// lineCount = 0 : read all
+bool cSimpleData::ReadLine(const StrPath &fileName
+	, const string &delimiter //= ","
+	, const uint lineCount //=0
+)
+{
+	using namespace std;
+	ifstream ifs(fileName.c_str());
+	if (!ifs.is_open())
+		return false;
+
+	Clear();
+
+	uint cnt = 1;
+	string line;
+	while (getline(ifs, line))
+	{
+		vector<string> out;
+		common::tokenizer2(line, delimiter, out);
+		if (out.empty())
+			continue;
+
+		m_table.push_back(out);
+
+		if ((lineCount != 0) && (lineCount < ++cnt))
+			break;
+	}
+
+	return !m_table.empty();
 }
 
 

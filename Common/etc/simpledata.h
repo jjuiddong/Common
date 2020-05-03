@@ -29,6 +29,8 @@ namespace common
 
 		bool Read(const StrPath &fileName, const string &delimiter = ",");
 		bool Write(const StrPath &fileName, const string &delimiter = ",");
+		bool ReadLine(const StrPath &fileName, const string &delimiter = ","
+			, const uint lineCount = 0);
 		bool IsLoad();
 		void Clear();
 

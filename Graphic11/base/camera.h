@@ -143,6 +143,10 @@ namespace graphic
 		vector<sCamMoving> m_mover;
 		Vector3 m_oldPosDir;
 		Vector3 m_oldLookAtDir;
+
+		// Camera Movement PID
+		float m_kp;
+		float m_kd;
 	};
 
 

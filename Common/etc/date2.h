@@ -42,6 +42,7 @@ namespace common
 		static Str32 GetTimeStr2(const uint64 dateTime);
 		static Str32 GetTimeStr3(const uint64 dateTime);
 		static Str32 GetTimeStr4(const uint64 dateTime);
+		static Str32 GetTimeStr5(const uint64 dateTime);
 		static void GetTimeValue(const uint64 dateTime, sDateTime &out);
 
 		cDateTime2& operator+=(const uint64 &microSeconds);
