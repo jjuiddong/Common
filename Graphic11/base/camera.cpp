@@ -94,7 +94,7 @@ void cCamera::UpdateMove(const float deltaSeconds)
 	m_oldPosDir;
 	Vector3 posDir = mover.eyePos - m_eyePos;
 	const float len = posDir.Length();
-	if (len > 1.f)
+	if (len > 0.1f)// 1.f)
 	{
 		if (mover.velocityPos == 0.f)
 		{
@@ -118,7 +118,7 @@ void cCamera::UpdateMove(const float deltaSeconds)
 	// lookat move
 	Vector3 lookDir = mover.lookAt - m_lookAt;
 	const float len2 = lookDir.Length();
-	if (len2 > 1.f)
+	if (len2 > 0.1f)//1.f)
 	{
 		if (mover.velocityLookAt == 0.f)
 		{
@@ -308,6 +308,13 @@ void cCamera::Move(const cBoundingBox &bbox)
 	const float m = max(dim.x, max(dim.y, dim.z)) * 1.5f;
 	Vector3 pos(-m, m, -m);
 	SetCamera(pos, bbox.Center(), Vector3(0, 1, 0));
+}
+
+
+// is move animation?
+bool cCamera::IsMoveAnimation()
+{
+	return !m_mover.empty();
 }
 
 

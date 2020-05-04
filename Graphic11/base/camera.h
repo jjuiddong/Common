@@ -56,6 +56,7 @@ namespace graphic
 			, const float velocity = 0.f);
 		virtual void MoveCancel();
 		virtual void Move(const cBoundingBox &bbox);
+		virtual bool IsMoveAnimation();
 
 		virtual void MoveFront(const float len);
 		virtual void MoveFrontHorizontal(const float len);
@@ -137,8 +138,8 @@ namespace graphic
 		{
 			Vector3 eyePos;
 			Vector3 lookAt;
-			float velocityPos;
-			float velocityLookAt;
+			float velocityPos;  // m/sec
+			float velocityLookAt; // m/sec
 		};
 		vector<sCamMoving> m_mover;
 		Vector3 m_oldPosDir;

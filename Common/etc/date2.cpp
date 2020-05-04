@@ -68,13 +68,7 @@ void cDateTime2::SetTime(const cDateTime2 &dateTime)
 
 void cDateTime2::UpdateCurrentTime()
 {
-	using namespace boost::gregorian;
-	using namespace boost::posix_time;
-
-	const ptime now = microsec_clock::local_time();	
-	const ptime time_t_epoch(date(1970, 1, 1));
-	const time_duration diff = now - time_t_epoch;
-	m_t = diff.total_milliseconds();
+	*this = cDateTime2::Now();
 }
 
 
@@ -257,6 +251,22 @@ void cDateTime2::GetTimeValue(const uint64 dateTime, sDateTime &out)
 	out.min = (int)((dateTime / 100000) % 100);
 	out.sec = (int)((dateTime / 1000) % 100);
 	out.millis = (int)((dateTime) % 1000);
+}
+
+
+// return current time object
+cDateTime2 cDateTime2::Now()
+{
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	const ptime now = microsec_clock::local_time();
+	const ptime time_t_epoch(date(1970, 1, 1));
+	const time_duration diff = now - time_t_epoch;
+
+	cDateTime2 tmp;
+	tmp.m_t = diff.total_milliseconds();
+	return tmp;
 }
 
 
