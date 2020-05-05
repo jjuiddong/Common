@@ -154,6 +154,14 @@ Str32 cDateTime2::GetTimeStr() const
 
 
 // return time string
+// 2017-01-08
+Str32 cDateTime2::GetTimeStr2() const
+{
+	return GetTimeStr3(GetTimeInt64());
+}
+
+
+// return time string
 // 20170108110530010 -> 2017-01-08 11:05:30:010
 Str32 cDateTime2::GetTimeStr(const uint64 dateTime)
 {

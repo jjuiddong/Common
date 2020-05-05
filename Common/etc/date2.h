@@ -38,6 +38,7 @@ namespace common
 		void UpdateCurrentTime();
 		uint64 GetTimeInt64() const;
 		Str32 GetTimeStr() const;
+		Str32 GetTimeStr2() const;
 
 		static cDateTime2 Now();
 		static Str32 GetTimeStr(const uint64 dateTime);
