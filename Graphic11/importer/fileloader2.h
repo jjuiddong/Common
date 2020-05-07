@@ -6,6 +6,10 @@
 //  - multiple thread
 //	- multiple object
 //
+// 2020-05-07
+//	- iParallelLoadObject interface
+//	- parallel load object must inherit this interface
+//
 #pragma once
 
 
@@ -16,6 +20,10 @@ namespace graphic
 	//-----------------------------------------------------------------------
 	// Declare cFileLoad 
 	//-----------------------------------------------------------------------
+	interface iParallelLoadObject {
+		virtual const char* Type() = 0;
+	};
+
 	struct sFileLoaderArg2 {
 		int dummy;
 	};
@@ -38,7 +46,7 @@ namespace graphic
 		{
 			double accessTime;
 			STATE state; // 0 = loading, 1 = load complete
-			void *data;
+			iParallelLoadObject *data;
 		};
 
 
@@ -563,10 +571,24 @@ namespace graphic
 
 		{
 			AutoCSLock cs(m_cs);
+			set<hashcode> rms;
 			for (auto &kv : m_files)
-				delete kv.second.data;
-			m_files.clear();
-			m_updatePtrs.clear();
+			{
+				if (!kv.second.data)
+					continue;
+
+				if (T *p = dynamic_cast<T*>(kv.second.data))
+				{
+					((T*)kv.second.data)->~T(); // call destructor
+					rms.insert(kv.first);
+				}
+			}
+
+			for (auto &k : rms)
+			{
+				m_files.erase(k);
+				m_updatePtrs.erase(k);
+			}
 		}
 	}
 
@@ -578,6 +600,7 @@ namespace graphic
 		m_tpLoader.Clear();
 
 		{
+			//todo: memory leak, must call destuctor
 			AutoCSLock cs(m_cs);
 			for (auto &kv : m_files)
 				delete kv.second.data;
