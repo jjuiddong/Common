@@ -9,6 +9,8 @@
 // 2020-05-07
 //	- iParallelLoadObject interface
 //	- parallel load object must inherit this interface
+//		- to check object type
+//
 //
 #pragma once
 
@@ -17,9 +19,6 @@ namespace graphic
 {
 	using namespace common;
 
-	//-----------------------------------------------------------------------
-	// Declare cFileLoad 
-	//-----------------------------------------------------------------------
 	interface iParallelLoadObject {
 		virtual const char* Type() = 0;
 	};
@@ -33,6 +32,9 @@ namespace graphic
 	};
 
 
+	//-----------------------------------------------------------------------
+	// Declare cFileLoader2
+	//-----------------------------------------------------------------------
 	template<size_t MAX // maximum store size
 		, size_t TP_MAX = 1 // thread pool size
 		, class Args = sFileLoaderArg2
@@ -124,6 +126,23 @@ namespace graphic
 			, m_fileName(fileName)
 			, m_fileLoader(fileLoader)
 			, m_loadType(0)
+			, m_compare(compData) {
+			m_name = fileName;
+		}
+		cTaskFileLoader2(cFileLoader2<MAX, TP_MAX, Args, CompareData> *fileLoader
+			, cRenderer *renderer
+			, const T *src
+			, const char *fileName
+			, const Args &args
+			, const bool isTopPriority = false
+			, const CompareData &compData = {})
+			: cTask(common::GenerateId(), "cTaskFileLoader2", isTopPriority)
+			, m_renderer(renderer)
+			, m_fileName(fileName)
+			, m_fileLoader(fileLoader)
+			, m_src(src)
+			, m_args(args)
+			, m_loadType(1)
 			, m_compare(compData) {
 			m_name = fileName;
 		}

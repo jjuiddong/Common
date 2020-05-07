@@ -77,6 +77,19 @@ technique11 Outline
 }
 
 
+technique11 Light
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+
 technique11 Unlit
 {
 	pass P0
