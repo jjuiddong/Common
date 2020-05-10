@@ -6,9 +6,9 @@
 
 using namespace common;
 
-// 2017-01-08-11-05-30-010
-// year-month-day-hour-minutes-seconds-millseconds
-// yyyy-mm-dd-hh-mm-ss-mmm
+
+// return time string, yyyy-mm-dd-hh-mm-ss-mmm
+// ex) 2017-01-08-11-05-30-010
 string common::GetCurrentDateTime()
 {
 	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
@@ -43,9 +43,8 @@ string common::GetCurrentDateTime()
 }
 
 
-// 20170108110530010
-// year-month-day-hour-minutes-seconds-millseconds
-// yyyymmddhhmmssmmm
+// return time string, yyyymmddhhmmssmmm
+// ex) 20170108110530010
 string common::GetCurrentDateTime2()
 {
 	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
@@ -80,9 +79,9 @@ string common::GetCurrentDateTime2()
 }
 
 
-// 20170108110530010
-// year-month-day-hour-minutes-seconds-millseconds
+// return uint64 time value
 // yyyymmddhhmmssmmm
+// ex) 20170108110530010
 unsigned __int64 common::GetCurrentDateTime3()
 {
 	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
@@ -118,9 +117,8 @@ unsigned __int64 common::GetCurrentDateTime3()
 
 
 
-// 20170108
-// year-month-day
-// yyyymmdd
+// return time string, yyyymmdd
+// ex) 20170108
 string common::GetCurrentDateTime4()
 {
 	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
@@ -152,9 +150,8 @@ string common::GetCurrentDateTime4()
 }
 
 
-// 2017-01-08 11:05:30
-// year-month-day hour:minutes:seconds:millseconds
-// yyyy-mm-dd-hh-mm-ss
+// return time string, yyyy-mm-dd hh:mm:ss
+// ex) 2017-01-08 11:05:30
 string common::GetCurrentDateTime5()
 {
 	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
@@ -189,8 +186,9 @@ string common::GetCurrentDateTime5()
 }
 
 
-// 2017-01-08-11-05-30-010 -> 20170108110530010
-// year-month-day-hour-minutes-seconds-millseconds
+// convert time string to uint64
+// yyyymmddhhmmssmmm
+// ex) 2017-01-08-11-05-30-010 -> 20170108110530010
 uint64 common::GetCurrentDateTime6(const string &dateTime)
 {
 	vector<string> out;
@@ -254,7 +252,6 @@ cDateTime::cDateTime()
 
 cDateTime::cDateTime(const string &strDate)
 {
-
 }
 
 cDateTime::~cDateTime()

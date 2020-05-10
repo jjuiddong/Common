@@ -3,17 +3,21 @@
 // date time functions
 //	- use boost library
 //
+// 2020-05-09
+//	- refactoring, update comment
+//
+//
 #pragma once
 
 
 namespace common
 {
 
-	string GetCurrentDateTime();
-	string GetCurrentDateTime2();
+	string GetCurrentDateTime(); // yyyy-mm-dd-hh-mm-ss-mmm
+	string GetCurrentDateTime2(); // yyyymmddhhmmssmmm
 	unsigned __int64 GetCurrentDateTime3();
-	string GetCurrentDateTime4();
-	string GetCurrentDateTime5();
+	string GetCurrentDateTime4(); // yyyymmdd
+	string GetCurrentDateTime5(); // yyyy-mm-dd hh:mm:ss
 	uint64 GetCurrentDateTime6(const string &dateTime);
 	
 	int DateCompare(const int ymd0, const int ymd1);

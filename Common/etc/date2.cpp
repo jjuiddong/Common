@@ -26,10 +26,10 @@ cDateTime2::~cDateTime2()
 }
 
 
-// datetime:
-//	20170108110530010
-//	year-month-day-hour-minutes-seconds-millseconds
-//	yyyymmddhhmmssmmm
+// set date:
+//	datetime: format yyyymmddhhmmssmmm
+//			ex) 20170108110530010
+//
 void cDateTime2::SetTime(const uint64 dateTime)
 {
 	using namespace boost::gregorian;
@@ -72,6 +72,64 @@ void cDateTime2::UpdateCurrentTime()
 }
 
 
+// return time value uint64
+//	yyyymmddhhmmssmmm
+//	ex) 20170108110530010
+uint64 cDateTime2::GetTimeInt64() const
+{
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	const ptime time_t_epoch(date(1970, 1, 1));
+	const ptime t = time_t_epoch + milliseconds(m_t);
+
+	date::ymd_type ymd = t.date().year_month_day();
+	time_duration td = t.time_of_day();
+
+	unsigned __int64 ret = 0;
+	try {
+		ret = (unsigned __int64)ymd.year * 10000000000000
+			+ (unsigned __int64)ymd.month.as_number() * 100000000000
+			+ (unsigned __int64)ymd.day * 1000000000
+			+ (unsigned __int64)td.hours() * 10000000
+			+ (unsigned __int64)td.minutes() * 100000
+			+ (unsigned __int64)td.seconds() * 1000
+			+ (unsigned __int64)td.total_milliseconds() % 1000;
+	}
+	catch (...)
+	{
+		// nothing~
+	}
+	return ret;
+}
+
+
+// return time string, yyyy-mm-dd hh:mm:ss:mmm
+Str32 cDateTime2::GetTimeStr() const {
+	return GetTimeStr(GetTimeInt64());
+}
+
+// return time string, yyyy-mm-dd-hh-mm-ss-mmm
+Str32 cDateTime2::GetTimeStr2() const {
+	return GetTimeStr2(GetTimeInt64());
+}
+
+// return time string, yyyy-mm-dd hh:mm:ss (ignore milliseconds)
+Str32 cDateTime2::GetTimeStr3() const {
+	return GetTimeStr3(GetTimeInt64());
+}
+
+// return time string, yyyy-mm-dd
+Str32 cDateTime2::GetTimeStr4() const {
+	return GetTimeStr4(GetTimeInt64());
+}
+
+// return time string, yyyymmdd
+Str32 cDateTime2::GetTimeStr5() const {
+	return GetTimeStr5(GetTimeInt64());
+}
+
+
 // add micro seconds
 cDateTime2& cDateTime2::operator+=(const uint64 &milliseconds)
 {
@@ -111,54 +169,6 @@ cDateTime2 cDateTime2::operator+(const cDateTime2 &rhs) const
 	return tmp;
 }
 
-
-// return:
-//	20170108110530010
-//	year-month-day-hour-minutes-seconds-millseconds
-//	yyyymmddhhmmssmmm
-uint64 cDateTime2::GetTimeInt64() const
-{
-	using namespace boost::gregorian;
-	using namespace boost::posix_time;
-
-	const ptime time_t_epoch(date(1970, 1, 1));
-	const ptime t = time_t_epoch + milliseconds(m_t);
-
-	date::ymd_type ymd = t.date().year_month_day();
-	time_duration td = t.time_of_day();
-
-	unsigned __int64 ret = 0;
-	try {
-		ret = (unsigned __int64)ymd.year * 10000000000000
-			+ (unsigned __int64)ymd.month.as_number() * 100000000000
-			+ (unsigned __int64)ymd.day * 1000000000
-			+ (unsigned __int64)td.hours() * 10000000
-			+ (unsigned __int64)td.minutes() * 100000
-			+ (unsigned __int64)td.seconds() * 1000
-			+ (unsigned __int64)td.total_milliseconds() % 1000;
-	}
-	catch (...)
-	{
-		// nothing~
-	}
-	return ret;
-}
-
-
-// return time string
-// 2017-01-08 11:05:30:010
-Str32 cDateTime2::GetTimeStr() const
-{
-	return GetTimeStr(GetTimeInt64());
-}
-
-
-// return time string
-// 2017-01-08
-Str32 cDateTime2::GetTimeStr2() const
-{
-	return GetTimeStr3(GetTimeInt64());
-}
 
 
 // return time string
@@ -250,7 +260,7 @@ Str32 cDateTime2::GetTimeStr5(const uint64 dateTime)
 }
 
 
-void cDateTime2::GetTimeValue(const uint64 dateTime, sDateTime &out)
+void cDateTime2::GetTimeValue(const uint64 dateTime, OUT sDateTime &out)
 {
 	out.year = (int)(dateTime / 10000000000000);
 	out.month = (int)((dateTime / 100000000000) % 100);

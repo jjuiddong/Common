@@ -37,16 +37,19 @@ namespace common
 		void SetTime(const cDateTime2 &dateTime);
 		void UpdateCurrentTime();
 		uint64 GetTimeInt64() const;
-		Str32 GetTimeStr() const;
-		Str32 GetTimeStr2() const;
+		Str32 GetTimeStr() const; // yyyy-mm-dd hh:mm:ss:mmm
+		Str32 GetTimeStr2() const; // yyyy-mm-dd-hh-mm-ss-mmm
+		Str32 GetTimeStr3() const; // yyyy-mm-dd hh:mm:ss
+		Str32 GetTimeStr4() const; // yyyy-mm-dd
+		Str32 GetTimeStr5() const; // yyyymmdd
 
 		static cDateTime2 Now();
-		static Str32 GetTimeStr(const uint64 dateTime);
-		static Str32 GetTimeStr2(const uint64 dateTime);
-		static Str32 GetTimeStr3(const uint64 dateTime);
-		static Str32 GetTimeStr4(const uint64 dateTime);
-		static Str32 GetTimeStr5(const uint64 dateTime);
-		static void GetTimeValue(const uint64 dateTime, sDateTime &out);
+		static Str32 GetTimeStr(const uint64 dateTime); // yyyy-mm-dd hh:mm:ss:mmm
+		static Str32 GetTimeStr2(const uint64 dateTime); // yyyy-mm-dd-hh-mm-ss-mmm
+		static Str32 GetTimeStr3(const uint64 dateTime); // yyyy-mm-dd hh:mm:ss
+		static Str32 GetTimeStr4(const uint64 dateTime); // yyyy-mm-dd
+		static Str32 GetTimeStr5(const uint64 dateTime); // yyyymmdd
+		static void GetTimeValue(const uint64 dateTime, OUT sDateTime &out);
 
 		cDateTime2& operator+=(const uint64 &microSeconds);
 		bool operator<(const cDateTime2 &rhs) const;
