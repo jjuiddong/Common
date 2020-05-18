@@ -61,7 +61,8 @@ bool cTerrainLoader::Write(const StrPath &fileName)
 			const float height = dim.z;
 			tree.put("width", width);
 			tree.put("height", height);
-			tree.put("filename", tile->m_ground->m_texture->m_fileName.utf8().c_str()); // Save UTF-8
+			const StrPath fileName(tile->m_ground->m_texture->m_fileName);
+			tree.put("filename", fileName.utf8().c_str()); // Save UTF-8
 
 			tiles.push_back(std::make_pair("", tree));
 		}

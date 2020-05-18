@@ -60,7 +60,7 @@ cTask* cTPSemaphore::PopTask()
 		return PopTask();
 	}
 	else
-	{ 
+	{
 		task = m_tasks.back();
 		m_tasks.pop_back();
 	}

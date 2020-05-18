@@ -43,7 +43,7 @@ namespace graphic
 	class cFileLoader2
 	{
 	public:
-		enum STATE { NONE, LOADING, COMPLETE };
+		enum STATE { NONE, LOADING, COMPLETE, REMOVE_L, REMOVE_C };
 		struct sChunk
 		{
 			double accessTime;
@@ -60,38 +60,30 @@ namespace graphic
 		T* Load(cRenderer &renderer, const char *fileName);
 
 		template<class T> 
-		T* Load(cRenderer &renderer, const T *src, const char *fileName, const Args &args);
+		T* Load(cRenderer &renderer, const T *src
+			, const char *fileName, const Args &args);
 
-		template<class T>
-		std::pair<bool, T*> LoadParallel(cRenderer &renderer, const char *fileName
-			, int *outFlag, void **outPtr
+		template<class T> 
+		std::pair<bool, T*> LoadParallel(cRenderer &renderer
+			, const char *fileName, int *outFlag, void **outPtr
 			, const bool isTopPriority = false
 			, const CompareData &compData = {}
 		);
 
 		template<class T>
-		std::pair<bool, T*> LoadParallel(cRenderer &renderer, const T *src, const char *fileName
-			, const Args &args, int *outFlag, void **outPtr
-			, const bool isTopPriority = false
-			, const CompareData &compData = {});
+		std::pair<bool, T*> LoadParallel(cRenderer &renderer, const T *src
+			, const char *fileName, const Args &args, int *outFlag, void **outPtr
+			, const bool isTopPriority = false, const CompareData &compData = {});
 
-		template<class T>
-		std::tuple<bool, int, T*> Find(const char *fileName);
-
-		template<class T>
-		bool Insert(const char *fileName, T *data);
+		template<class T> std::tuple<bool, int, T*> Find(const char *fileName);
+		template<class T> bool Insert(const char *fileName, T *data);
+		template<class T> bool Remove(const char *fileName);
+		template<class T> bool RemoveParallel(const char *fileName);
+		template<class T> bool Remove(T *data);
+		template<class T> bool RemoveParallel(T *data);
+		template<class T> void ClearFile();
 
 		bool FailLoad(const char *fileName);
-
-		template<class T>
-		bool Remove(const char *fileName);
-
-		template<class T> 
-		bool Remove(T *data);
-
-		template<class T>
-		void ClearFile();
-
 		void Clear();
 
 
@@ -99,7 +91,8 @@ namespace graphic
 		map<hashcode, sChunk> m_files; //key = fileName hashcode
 		map<hashcode, std::set< std::pair<void**, int*>>> m_updatePtrs; // update pointers
 		CriticalSection m_cs;
-		cTPSemaphore m_tpLoader;
+		cTPSemaphore m_tpLoader; // load thread pool
+		cTPSemaphore m_tpRemover; // remove thread pool
 	};
 
 
@@ -152,7 +145,22 @@ namespace graphic
 
 		virtual eRunResult::Enum Run(const double deltaSeconds)
 		{
-			T *data = NULL;
+			T *data = nullptr;
+			const StrPath &path = m_fileName;
+			{
+				AutoCSLock cs(m_fileLoader->m_cs);
+				auto it = m_fileLoader->m_files.find(path.GetHashCode());
+				if (m_fileLoader->m_files.end() != it)
+				{
+					typedef cFileLoader2<MAX, TP_MAX, Args, CompareData> fl;
+					if ((fl::REMOVE_L == it->second.state)
+						|| (fl::REMOVE_C == it->second.state))
+					{
+						goto $cancel;
+					}
+				}
+			}
+
 			try
 			{
 				if (0 == m_loadType)
@@ -160,8 +168,9 @@ namespace graphic
 					data = new T(*m_renderer, m_fileName.c_str());
 					if (!m_fileLoader->Insert<T>(m_fileName.c_str(), data))
 					{
-						dbg::Logp("Error Parallel Load1 Insert %s\n", m_fileName.c_str());
-						goto error;
+						dbg::Logp("Error Parallel Load1 Insert %s\n"
+							, m_fileName.c_str());
+						goto $error;
 					}
 				}
 				else if (1 == m_loadType)
@@ -169,33 +178,98 @@ namespace graphic
 					data = new T(*m_renderer, m_src, m_fileName.c_str(), m_args);
 					if (!m_fileLoader->Insert<T>(m_fileName.c_str(), data))
 					{
-						dbg::Logp("Error Parallel Load2 Insert %s\n", m_fileName.c_str());
-						goto error;
+						dbg::Logp("Error Parallel Load2 Insert %s\n"
+							, m_fileName.c_str());
+						goto $error;
 					}
 				}
 			}
 			catch (...)
 			{
-				goto error;
+				goto $error;
 			}
 
 			return eRunResult::END;
 
-		error:
-			dbg::ErrLogp("Error cTaskFileLoader2 %d, %s\n", m_loadType, m_fileName.c_str());
+		$error:
+			dbg::ErrLogp("Error cTaskFileLoader2 %d, %s\n"
+				, m_loadType, m_fileName.c_str());
 			m_fileLoader->FailLoad(m_fileName.c_str());
 			SAFE_DELETE(data);
+			return eRunResult::END;
+
+		$cancel:
 			return eRunResult::END;
 		}
 
 		int m_loadType; // 0 or 1
-		StrPath m_fileName;
+		string m_fileName;
 		cRenderer *m_renderer; // reference
 		cFileLoader2<MAX, TP_MAX, Args, CompareData> *m_fileLoader; // reference
 		const T *m_src; // reference
 		Args m_args;
 		CompareData m_compare;
 	};
+
+
+
+	//-----------------------------------------------------------------------
+	// Declare cTaskFileRemover2
+	//-----------------------------------------------------------------------
+	template<class T
+		, size_t MAX
+		, size_t TP_MAX = 1
+		, class Args = sFileLoaderArg2 // not used
+		, class CompareData = sFileCompareData2 // not used
+	>
+	class cTaskFileRemover2 : public common::cTask
+		, public common::cMemoryPool4<cTaskFileRemover2<T, MAX, TP_MAX, Args, CompareData>>
+	{
+	public:
+		cTaskFileRemover2(cFileLoader2<MAX, TP_MAX, Args, CompareData> *fileLoader
+			, const char *fileName
+			, const bool isTopPriority = false)
+			: cTask(common::GenerateId(), "cTaskFileRemover2", isTopPriority)
+			, m_fileName(fileName)
+			, m_fileLoader(fileLoader) {
+			m_name = StrId(fileName) + StrId("_remove"); // to prevent remove taskfileloader 
+		}
+
+		virtual ~cTaskFileRemover2() {
+		}
+
+		virtual eRunResult::Enum Run(const double deltaSeconds)
+		{
+			T *p = nullptr;
+			const StrPath &path = m_fileName;
+			{
+				AutoCSLock cs(m_fileLoader->m_cs);
+				auto it = m_fileLoader->m_files.find(path.GetHashCode());
+				m_fileLoader->m_updatePtrs[path.GetHashCode()].clear();
+				if (m_fileLoader->m_files.end() != it)
+				{
+					typedef cFileLoader2<MAX, TP_MAX, Args, CompareData> fl;
+					if ((fl::REMOVE_L == it->second.state)
+						|| (fl::REMOVE_C == it->second.state))
+					{
+						p = (T*)it->second.data;
+						m_fileLoader->m_files.erase(it);
+					}
+				}
+			}
+
+			if (p)
+			{
+				p->~T(); // call destructor
+				delete p;
+			}
+			return eRunResult::END;
+		}
+
+		string m_fileName;
+		cFileLoader2<MAX, TP_MAX, Args, CompareData> *m_fileLoader; // reference
+	};
+
 
 
 	//-----------------------------------------------------------------------
@@ -303,11 +377,11 @@ namespace graphic
 		, const CompareData &compData //={}
 	)
 	{
+		const StrPath path(fileName);
 		{
 			AutoCSLock cs(m_cs);
 
 			// is exist?
-			StrPath path(fileName);
 			auto it = m_files.find(path.GetHashCode());
 			const bool isFind = (m_files.end() != it);
 			const STATE state = (m_files.end() != it) ? it->second.state : NONE;
@@ -315,45 +389,51 @@ namespace graphic
 			{
 				T *ptr = (T*)it->second.data;
 
-				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
-				if (LOADING == state)
+				const STATE oldState = state;
+				switch (state)
 				{
+				case LOADING:
+					// if now loading, refresh update ptrs (outPtr, outFlag)
 					if (outFlag)
-						*outFlag = 1;
-					const StrPath path(fileName);
+						*outFlag = LOADING; // loading state
 					m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
-				}
-				else if (COMPLETE == state)
-				{
+					break;
+				case COMPLETE:
+					// if complete, load update ptrs
 					if (outPtr)
-						*outPtr = ptr;
+						*outPtr = ptr; // load data pointer
 					if (outFlag)
-						*outFlag = 0;
+						*outFlag = NONE; // complete state
+					break;
+				case REMOVE_L:
+					it->second.state = LOADING; // recovery loading
+					break;
+				case REMOVE_C:
+					it->second.state = COMPLETE; // recovery store
+					break;
+				default: assert(0); break;
 				}
-				else
-					assert(0);
 
-				return std::make_pair(isFind, ptr);
+				if (oldState != REMOVE_L)
+					return std::make_pair(isFind, ptr);
 			}
-			else // Not Found, loading
+
+			// Not Found or REMOVE_L(LOADING) state, loading
+			if ((m_files.size() >= MAX) && (state != LOADING))
 			{
-				if (m_files.size() >= MAX)
-				{
-					dbg::Logp("Error cFileLoader2::LoadParallel(), Over Maximum(%d) Load Count\n"
-						, MAX);
+				dbg::Logp("Error cFileLoader2::LoadParallel(), Over Maximum(%d) Load Count\n"
+					, MAX);
 
-					if (outFlag)
-						*outFlag = 0;
-					return{ false, NULL };
-				}
-
-				// 중복로딩을 막기위해, 미리 NULL로 저장한다.
 				if (outFlag)
-					*outFlag = 1;
-				StrPath path(fileName);
-				m_files[path.GetHashCode()] = { 0, LOADING, NULL };
-				m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
+					*outFlag = NONE;
+				return{ false, NULL };
 			}
+
+			// update outFlag=1 to prevent duplicate loading
+			if (outFlag)
+				*outFlag = 1; // loading state
+			m_files[path.GetHashCode()] = { 0, LOADING, NULL };
+			m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
 		}
 
 		if (!m_tpLoader.IsInit())
@@ -372,16 +452,17 @@ namespace graphic
 	template<class T>
 	std::pair<bool, T*> cFileLoader2<MAX, TP_MAX, Args, CompareData>::LoadParallel(
 		graphic::cRenderer &renderer
-		, const T *src, const char *fileName, const Args &args, int *outFlag, void **outPtr
+		, const T *src, const char *fileName, const Args &args
+		, int *outFlag, void **outPtr
 		, const bool isTopPriority //= false
 		, const CompareData &compData //={}
 	)
 	{
+		StrPath path(fileName);
 		{
 			AutoCSLock cs(m_cs);
 
 			// is exist?
-			StrPath path(fileName);
 			auto it = m_files.find(path.GetHashCode());
 			const bool isFind = (m_files.end() != it);
 			const STATE state = (m_files.end() != it) ? it->second.state : NONE;
@@ -389,45 +470,54 @@ namespace graphic
 			{
 				T *ptr = (T*)it->second.data;
 
-				// 로딩 중이라면, 업데이트될 포인터를 등록한다.
-				if (LOADING == state)
+				const STATE oldState = state;
+				switch (state)
 				{
+				case LOADING:
+				{
+					// if now loading, refresh update ptrs (outPtr, outFlag)
 					if (outFlag)
-						*outFlag = 1;
+						*outFlag = 1; // loading state
 					const StrPath path(fileName);
 					m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
 				}
-				else if (COMPLETE == state)
-				{
+				break;
+				case COMPLETE:
+					// if complete, load update ptrs
 					if (outPtr)
-						*outPtr = ptr;
+						*outPtr = ptr; // load data pointer
 					if (outFlag)
-						*outFlag = 0;
+						*outFlag = 0; // complete state
+					break;
+				case REMOVE_L:
+					it->second.state = LOADING; // recovery loading
+					break;
+				case REMOVE_C:
+					it->second.state = COMPLETE; // recovery story
+					break;
+				default: assert(0); break;
 				}
-				else
-					assert(0);
 
-				return std::make_pair(true, ptr);
+				if (oldState != REMOVE_L)
+					return std::make_pair(true, ptr);
 			}
-			else // Not Found, Loading
+			
+			// Not Found or REMOVE_L(LOADING)state, Loading
+			if (m_files.size() >= MAX)
 			{
-				if (m_files.size() >= MAX)
-				{
-					dbg::Logp("Error cFileLoader2::LoadParallel(), Over Maximum(%d) Load Count\n"
-						, MAX);
+				dbg::Logp("Error cFileLoader2::LoadParallel(), Over Maximum(%d) Load Count\n"
+					, MAX);
 
-					if (outFlag)
-						*outFlag = 0;
-					return{ false, NULL };
-				}
-
-				// 중복로딩을 막기위해, 미리 NULL로 저장한다.
 				if (outFlag)
-					*outFlag = 1;
-				StrPath path(fileName);
-				m_files[path.GetHashCode()] = { 0, LOADING, NULL };
-				m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
+					*outFlag = 0; // error complete state
+				return{ false, NULL };
 			}
+
+			// update outFlag=1 to prevent duplicate loading
+			if (outFlag)
+				*outFlag = 1; // loading state
+			m_files[path.GetHashCode()] = { 0, LOADING, NULL };
+			m_updatePtrs[path.GetHashCode()].insert({ outPtr, outFlag });
 		}
 
 		if (!m_tpLoader.IsInit())
@@ -459,7 +549,8 @@ namespace graphic
 	// Insert
 	template<size_t MAX, size_t TP_MAX, class Args, class CompareData>
 	template<class T>
-	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::Insert(const char *fileName, T *data)
+	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::Insert(
+		const char *fileName, T *data)
 	{
 		AutoCSLock cs(m_cs);
 
@@ -495,7 +586,8 @@ namespace graphic
 
 	// FailLoad
 	template<size_t MAX, size_t TP_MAX, class Args, class CompareData>
-	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::FailLoad(const char *fileName)
+	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::FailLoad(
+		const char *fileName)
 	{
 		AutoCSLock cs(m_cs);
 
@@ -517,7 +609,7 @@ namespace graphic
 				if (outPtr)
 					*outPtr = NULL;
 				if (outFlag)
-					*outFlag = 0; // complete flag
+					*outFlag = 0; // fail complete flag
 			}
 			updatePtrs.clear();
 
@@ -531,7 +623,8 @@ namespace graphic
 	// Remove
 	template<size_t MAX, size_t TP_MAX, class Args, class CompareData>
 	template<class T>
-	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::Remove(const char *fileName)
+	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::Remove(
+		const char *fileName)
 	{
 		StrPath path(fileName);
 
@@ -551,6 +644,41 @@ namespace graphic
 		}
 		m_files.erase(it);
 		m_tpLoader.RemoveTask(fileName);
+		return true;
+	}
+
+
+	// remove parallel
+	template<size_t MAX, size_t TP_MAX, class Args, class CompareData>
+	template<class T>
+	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::RemoveParallel(
+		const char *fileName)
+	{
+		const StrPath path(fileName);
+		{
+			AutoCSLock cs(m_cs);
+			auto it = m_files.find(path.GetHashCode());
+			m_updatePtrs[path.GetHashCode()].clear();
+
+			if (m_files.end() == it)
+				return false; // not exist
+
+			switch (it->second.state)
+			{
+			case LOADING: it->second.state = REMOVE_L; break;
+			case COMPLETE: it->second.state = REMOVE_C; break;
+			default: break;
+			}
+		}
+		
+		m_tpLoader.RemoveTask(fileName); // loading stop
+
+		if (!m_tpLoader.IsInit())
+			m_tpLoader.Init(1);
+		m_tpLoader.PushTask(
+			new cTaskFileRemover2<T, MAX, TP_MAX, Args, CompareData>(
+				this, fileName)
+		);
 		return true;
 	}
 
@@ -576,6 +704,17 @@ namespace graphic
 				break;
 			}
 		}
+		return true;
+	}
+
+
+	// remove parallel
+	template<size_t MAX, size_t TP_MAX, class Args, class CompareData>
+	template<class T>
+	inline bool cFileLoader2<MAX, TP_MAX, Args, CompareData>::RemoveParallel(
+		T *data)
+	{
+
 		return true;
 	}
 
@@ -617,6 +756,7 @@ namespace graphic
 	inline void cFileLoader2<MAX, TP_MAX, Args, CompareData>::Clear()
 	{
 		m_tpLoader.Clear();
+		m_tpRemover.Clear();
 
 		{
 			//todo: memory leak, must call destuctor

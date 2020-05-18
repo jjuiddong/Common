@@ -48,7 +48,7 @@ namespace graphic
 		void Unbind(cRenderer &renderer, const int stage);
 		void* Lock(cRenderer &renderer, OUT D3D11_MAPPED_SUBRESOURCE &out);
 		void Unlock(cRenderer &renderer);
-		const StrPath& GetTextureName() const;
+		const string& GetTextureName() const;
 		bool DrawText(cRenderer &renderer, const wchar_t *text
 			, const cColor &color, const cColor &outlineColor, Vector2 &textSize);
 		bool IsLoaded();
@@ -56,11 +56,11 @@ namespace graphic
 		int Height();
 		void Clear();
 		
-		static StrPath ConvertTextureFileName(const char *fileName);
+		static string ConvertTextureFileName(const char *fileName);
 
 
 	public:
-		StrPath m_fileName;
+		string m_fileName;
 		D3D11_TEXTURE2D_DESC m_imageInfo;
 		bool m_isReferenceMode;
 		ID3D11Texture2D *m_texture;
@@ -69,5 +69,5 @@ namespace graphic
 	};
 
 
-	inline const StrPath& cTexture::GetTextureName() const { return m_fileName; }
+	inline const string& cTexture::GetTextureName() const { return m_fileName; }
 }
