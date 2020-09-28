@@ -478,11 +478,11 @@ void cCamera::FitFrustum(const cCamera &camera
 // this class is Light Camera Method
 void cCamera::FitFrustum(const Matrix44 &matViewProj)
 {
-	//        4 --- 5
-	//      / |  |  /|
-	//   0 --- 1   |
-	//   |   6-|- -7
-	//   | /     | /
+	//      4 --- 5
+	//     /|    /|
+	//   0 --- 1  |
+	//   |  6--|--7
+	//   | /   | /
 	//   2 --- 3
 	//
 	Vector3 vertices[8] = {

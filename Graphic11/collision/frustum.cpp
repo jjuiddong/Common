@@ -323,8 +323,8 @@ void cFrustum::Split3(const cCamera &cam, const float f1, const float f2, const 
 void cFrustum::Split3_2(const cCamera &cam, const float f1, const float f2, const float f3
 	, cFrustum &out1, cFrustum &out2, cFrustum &out3)
 {
-	const float oldNearPlane = cam.m_near;
-	const float oldFarPlane = cam.m_far;
+	//const float oldNearPlane = cam.m_near;
+	//const float oldFarPlane = cam.m_far;
 
 	cCamera tmpCam = cam;
 

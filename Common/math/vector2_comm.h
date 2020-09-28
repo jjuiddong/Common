@@ -98,7 +98,7 @@ namespace common
 	Vector2Comm<T> Vector2Comm<T>::Normal() const {
 		const float len = Length();
 		if (len < 0.001f)
-			return Vector2Comm<T>(0, 0, 0);
+			return Vector2Comm<T>(0, 0);
 		return *this / len;
 	}
 

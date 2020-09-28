@@ -38,7 +38,6 @@ namespace vprog
 	class cVProgFile
 	{
 	public:
-		struct sNode;
 		struct sPin {
 			int id;
 			string name;
@@ -112,11 +111,14 @@ namespace vprog
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
 		string MakeScopeName(const sNode &node);
 		uint GetInputFlowCount(const sNode &node);
+		bool Write_Node(std::ostream &ofs, sNode &node);
+		bool Write_Define(std::ostream &ofs, sNode &node);
 
 
 	public:
 		StrPath m_fileName;
 		vector<sNode> m_nodes;
+		vector<sLink> m_links;
 		common::script::cSymbolTable m_variables;
 		set<int> m_visit; // visit node, use generate intermediate code
 	};

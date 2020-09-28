@@ -165,6 +165,7 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <TargetName>$(ProjectName)d</TargetName>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_MT|Win32'">
     <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
@@ -431,6 +432,7 @@
     <ClInclude Include="interpreter\virtualmachine.h" />
     <ClInclude Include="interpreter\vprog.h" />
     <ClInclude Include="interpreter\vprogfile.h" />
+    <ClInclude Include="interpreter\vprogjsonfile.h" />
     <ClInclude Include="math\line.h" />
     <ClInclude Include="math\Math.h" />
     <ClInclude Include="math\mathutility.h" />
@@ -495,6 +497,7 @@
     <ClCompile Include="interpreter\virtualmachine.cpp" />
     <ClCompile Include="interpreter\vprog.cpp" />
     <ClCompile Include="interpreter\vprogfile.cpp" />
+    <ClCompile Include="interpreter\vprogjsonfile.cpp" />
     <ClCompile Include="math\line.cpp" />
     <ClCompile Include="math\matrix44.cpp" />
     <ClCompile Include="math\plane.cpp" />

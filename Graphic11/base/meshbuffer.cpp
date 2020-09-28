@@ -92,7 +92,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 		pt->y = tex[i].y;
 	}
 
-	// tagent
+	// tangent
 	const int tangent_offset = layout.GetOffset("TANGENT");
 	for (u_int i = 0; i < tangent.size(); i++)
 	{

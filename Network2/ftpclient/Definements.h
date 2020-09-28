@@ -179,7 +179,12 @@ public:
    static std::string& ConvertToString(const tstring& strIn, std::string& strOut)
    {
 	   // jjuiddong
+#ifdef _UNICODE
 	   strOut = common::wstr2str(strIn);
+#else
+	   strOut = strIn;
+#endif
+
 	   return strOut;
 
    //#ifdef _UNICODE
@@ -209,7 +214,11 @@ public:
    static tstring& ConvertToTString(const char* szIn, tstring& strOut)
    {
 	   // jjuiddong
+#ifdef _UNICODE
 	   strOut = common::str2wstr(szIn);
+#else
+	   strOut = szIn;
+#endif
 	   return strOut;
 
    //#ifdef _UNICODE
