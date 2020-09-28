@@ -14,6 +14,7 @@ namespace common
 	{
 		union
 		{
+			// row/col, _23:row2,col3
 			struct
 			{
 				float	_11, _12, _13, _14;

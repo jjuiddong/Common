@@ -286,7 +286,7 @@ bool cModel::Update(cRenderer &renderer, const float deltaSeconds)
 		reval = m_animation.Update(m_aniIncT);
 
 		if (reval)
-			m_aniIncT = 0;		
+			m_aniIncT = 0;
 	}
 
 	__super::Update(renderer, deltaSeconds);

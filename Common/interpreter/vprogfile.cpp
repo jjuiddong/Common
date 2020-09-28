@@ -243,7 +243,88 @@ bool cVProgFile::Read(const StrPath &fileName)
 
 bool cVProgFile::Write(const StrPath &fileName)
 {
-	// nothing~
+	using namespace std;
+	ofstream ofs(fileName.c_str());
+	if (!ofs.is_open())
+		return false;
+
+	for (sNode &node : m_nodes)
+	{
+		if (eNodeType::Define == node.type)
+			Write_Define(ofs, node);
+		else
+			Write_Node(ofs, node);
+	}
+
+	return true;
+}
+
+
+// write node data
+bool cVProgFile::Write_Node(std::ostream &ofs, sNode &node)
+{
+	using namespace std;
+
+	ofs << "node" << endl;
+	ofs << "\t" << "type " << eNodeType::ToString(node.type) << endl;
+	ofs << "\t" << "id " << node.id << endl;
+	if (node.name.empty())
+		ofs << "\t" << "name \" \"" << endl; // blank name
+	else
+		ofs << "\t" << "name \"" << node.name.c_str() << "\"" << endl;
+	ofs << "\t" << "desc \"" << node.desc.c_str() << "\"" << endl;
+
+	for (auto &pin : node.inputs)
+	{
+		ofs << "\tinput" << endl;
+		ofs << "\t\t" << "type " << pin.typeStr.c_str() << endl;
+		ofs << "\t\t" << "id " << pin.id << endl;
+		if (pin.name.empty())
+			ofs << "\t\t" << "name \" \"" << endl; // blank name
+		else
+			ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
+
+		ofs << "\t\t" << "links ";
+		for (auto &link : m_links)
+			if (link.to == pin.id)
+				ofs << link.from << " ";
+		ofs << endl;
+	}
+
+	for (auto &pin : node.outputs)
+	{
+		ofs << "\toutput" << endl;
+		ofs << "\t\t" << "type " << pin.typeStr.c_str() << endl;
+		ofs << "\t\t" << "id " << pin.id << endl;
+		if (pin.name.empty())
+			ofs << "\t\t" << "name \" \"" << endl; // blank name
+		else
+			ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
+		ofs << "\t\t" << "links ";
+		for (auto &link : m_links)
+			if (link.from == pin.id)
+				ofs << link.to << " ";
+		ofs << endl;
+	}
+
+	return true;
+}
+
+
+// write define type node data
+bool cVProgFile::Write_Define(std::ostream &ofs, sNode &node)
+{
+	using namespace std;
+
+	ofs << "define" << endl;
+	ofs << "\t" << "type " << node.desc.c_str() << endl;
+	ofs << "\t" << "name \"" << node.name.c_str() << "\"" << endl;
+	for (auto &pin : node.outputs)
+	{
+		ofs << "\tattr" << endl;
+		ofs << "\t\t" << "name \"" << pin.name.c_str() << "\"" << endl;
+		ofs << "\t\t" << "value " << pin.value << endl;
+	}
 	return true;
 }
 

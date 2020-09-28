@@ -306,7 +306,7 @@ float GetShadowPCF(float4 depthData0
 	float depth1 = min(depthData0.z / depthData0.w, 1.0);
 	float depth2 = min(depthData1.x / depthData1.y, 1.0);
 
-	// Generate the tecture co-ordinates for the specified depth-map size
+	// Generate the texture co-ordinates for the specified depth-map size
 	// 4 3 5
 	// 1 0 2
 	// 7 6 8

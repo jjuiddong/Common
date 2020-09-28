@@ -235,6 +235,9 @@
     <ClInclude Include="math\plane3.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\vprogjsonfile.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -390,6 +393,9 @@
     </ClCompile>
     <ClCompile Include="math\plane3.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\vprogjsonfile.cpp">
+      <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

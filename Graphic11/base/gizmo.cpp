@@ -36,8 +36,8 @@ bool cGizmo::Create(cRenderer &renderer
 	const float circleR = 0.1f;
 	m_torus.Create(renderer, radius, radius - circleR*2, stack, 20);
 	for (int i=0; i < 3; ++i)
-		m_arrow[i].Create(renderer, Vector3(0, 0, 0), Vector3(1, 0, 0), 1.f, true, 0.75f
-			, eVertexType::POSITION | eVertexType::NORMAL);
+		m_arrow[i].Create(renderer, Vector3(0, 0, 0), Vector3(1, 0, 0)
+			, 1.f, true, 0.75f, eVertexType::POSITION | eVertexType::NORMAL);
 
 	// Create Torus Picking BoundingBox	
 	m_ringBbox.reserve(stack);
@@ -390,7 +390,7 @@ void cGizmo::RenderTranslate(cRenderer &renderer
 		if (idx >= 0)
 		{
 			ZeroMemory(m_pick, sizeof(m_pick));
-			m_pick[idx] = true;			
+			m_pick[idx] = true;
 		}
 	}
 

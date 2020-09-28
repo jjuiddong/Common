@@ -196,3 +196,4 @@ using std::max;
 #include "interpreter/interpreter.h"
 #include "interpreter/debugger.h"
 #include "interpreter/vprogfile.h"
+#include "interpreter/vprogjsonfile.h"

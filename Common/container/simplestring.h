@@ -43,12 +43,12 @@ namespace common
 		~String() {
 		}
 
-		char* Format(const char* fmt, ...) {
+		String& Format(const char* fmt, ...) {
 			va_list args;
 			va_start(args, fmt);
 			vsnprintf_s(m_str, sizeof(m_str) - 1, _TRUNCATE, fmt, args);
 			va_end(args);
-			return m_str;
+			return *this;
 		}
 
 		void trim() {
@@ -471,12 +471,12 @@ namespace common
 		~String() {
 		}
 
-		wchar_t* Format(const wchar_t* fmt, ...) {
+		String& Format(const wchar_t* fmt, ...) {
 			va_list args;
 			va_start(args, fmt);
 			vswprintf_s(m_str, fmt, args);
 			va_end(args);
-			return m_str;
+			return *this;
 		}
 
 		//------------------------------------------------------------------------------------

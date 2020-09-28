@@ -80,7 +80,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 		else
 		{
 			const uint totalLen = packetHeader->GetPacketLength(ptr);
-			if (totalLen > DEFAULT_PACKETSIZE)
+			if (totalLen > (uint)m_q.SIZE)
 			{
 				dbg::Logc(2, "error!! sockbuffer packet size too big, size = %d, totalLen = %d\n"
 					, size, totalLen);
