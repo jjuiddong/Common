@@ -60,7 +60,7 @@ bool cSlideList::Update(cRenderer &renderer, const float deltaSeconds)
 		slide.apos += deltaSeconds * m_aniVelocity;
 		if (slide.apos >= slide.len)
 			slide.apos = 0.f;
-		SetSlideShpae(slide, slide.pos[0], slide.pos[1], m_barSize, m_width, slide.apos/slide.len);
+		SetSlideShape(slide, slide.pos[0], slide.pos[1], m_barSize, m_width, slide.apos/slide.len);
 	}
 		
 	return true;
@@ -158,7 +158,7 @@ int cSlideList::Add(const int id, const Vector3 &p0, const Vector3 &p1, const fl
 	slide.spos = slidePos;
 	slide.apos = 0.f;
 	slide.len = p0.Distance(p1);
-	SetSlideShpae(slide, p0, p1, m_barSize, m_width, slidePos);
+	SetSlideShape(slide, p0, p1, m_barSize, m_width, slidePos);
 	m_slides.push_back(slide);
 	return (int)m_slides.size();
 }
@@ -179,7 +179,7 @@ bool cSlideList::SetSlide(const int id, const Vector3 &p0, const Vector3 &p1, co
 		return false;
 
 	it->spos = min(1.f, max(0.f, slidePos));
-	SetSlideShpae(*it, p0, p1, m_barSize, m_width, slidePos);
+	SetSlideShape(*it, p0, p1, m_barSize, m_width, slidePos);
 	return true;
 }
 
@@ -200,7 +200,7 @@ void cSlideList::SetAnimation(const bool isAni, const bool aniVelocity)
 
 
 // slidePos : 0 ~ 1 range, p0 -> p1
-void cSlideList::SetSlideShpae(sSlideInfo &slide,
+void cSlideList::SetSlideShape(sSlideInfo &slide,
 	const Vector3 &p0, const Vector3 &p1, const float barSize, const float width, const float slidePos)
 {
 	Vector3 v = p1 - p0;

@@ -15,6 +15,7 @@ cDockWindow::cDockWindow(const StrId &name //=""
 	: m_state(eDockState::DOCKWINDOW)
 	, m_name(name)
 	, m_isDockBinding(false)
+	, m_showTabButton(true)
 	, m_dockSlot(eDockSlot::TOP)
 	, m_owner(NULL)
 	, m_lower(NULL)
@@ -398,13 +399,19 @@ void cDockWindow::RenderDock( const float deltaSeconds
 	else
 	{
 		Vector2 npos = pos + Vector2(m_rect.left, m_rect.top);
-		ImGui::SetCursorPos(ImVec2(npos.x, npos.y));
-		RenderTab();
-		npos.y += TAB_H;
+		if (m_showTabButton)
+		{
+			ImGui::SetCursorPos(ImVec2(npos.x, npos.y));
+			RenderTab();
+			npos.y += TAB_H;
+		}
 		ImGui::SetCursorPos(ImVec2(npos.x, npos.y));
 
+		const float height = m_showTabButton? 
+			((float)m_rect.Height() - (TAB_H + 3.f)) : (float)m_rect.Height();
+
 		ImGui::BeginChild(m_name.c_str(),
-			ImVec2((float)m_rect.Width()-3, (float)m_rect.Height() - (TAB_H+3)), false,
+			ImVec2((float)m_rect.Width()-3, height), false,
 			ImGuiWindowFlags_AlwaysUseWindowPadding);
 
 		if (m_selectTab == 0)
@@ -768,7 +775,7 @@ sRectf cDockWindow::GetWindowSizeAvailible(
 {
 	sRectf r;
 	r.left = 9.f; // side border
-	r.top = (TAB_H + 3.f); // tab button
+	r.top = m_showTabButton? (TAB_H + 3.f) : 3.f; // tab button
 	r.right = m_rect.Width() - 9.f; // side border
 	r.bottom = m_rect.Height() - 20.f; // scrollbar bug fix
 

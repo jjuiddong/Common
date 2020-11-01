@@ -16,7 +16,8 @@ namespace graphic
 		cDbgLineStrip();
 		virtual ~cDbgLineStrip();
 
-		bool Create(cRenderer &renderer, const int maxPoint, const cColor &color = cColor::BLACK);
+		bool Create(cRenderer &renderer, const int maxPoint, 
+			const cColor &color = cColor::BLACK);
 		bool AddPoint(cRenderer &renderer, const Vector3 &pos
 			, const bool isUpdateBuffer = true);
 		void UpdateBuffer(cRenderer &renderer);

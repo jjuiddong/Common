@@ -50,7 +50,7 @@ namespace graphic
 
 
 	protected:
-		void SetSlideShpae(sSlideInfo &slide, const Vector3 &p0, const Vector3 &p1
+		void SetSlideShape(sSlideInfo &slide, const Vector3 &p0, const Vector3 &p1
 			, const float barSize, const float width, const float slidePos);
 
 

@@ -85,6 +85,7 @@ namespace framework
 
 
 	public:
+		bool m_showTabButton; // default: true
 		bool m_isDockBinding;
 		eDockState::Enum m_state;
 		eDockSlot::Enum m_dockSlot;
