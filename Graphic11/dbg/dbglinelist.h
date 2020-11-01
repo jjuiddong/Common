@@ -19,7 +19,7 @@ namespace graphic
 		cDbgLineList();
 		virtual ~cDbgLineList();
 
-		bool Create(cRenderer &renderer, const int maxLines, const cColor &color=cColor::BLACK);
+		bool Create(cRenderer &renderer, const uint maxLines, const cColor &color=cColor::BLACK);
 		bool AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3 &p1
 			, const bool isUpdateBuffer = true);
 		bool AddNextPoint(cRenderer &renderer, const Vector3 &p0
@@ -27,12 +27,14 @@ namespace graphic
 		void UpdateBuffer(cRenderer &renderer);
 		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);
 		void ClearLines();
+		void Clear();
 
 
 	public:
 		cVertexBuffer m_vtxBuff;
 		vector<std::pair<Vector3,Vector3>> m_lines;
-		int m_maxLineCount;
+		uint m_lineCount;
+		uint m_maxLineCount;
 		cColor m_color;
 	};
 

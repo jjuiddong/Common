@@ -8,6 +8,8 @@ using namespace graphic;
 
 cDbgLineList::cDbgLineList()
 	: m_color(0)
+	, m_lineCount(0)
+	, m_maxLineCount(0)
 {
 }
 
@@ -16,14 +18,15 @@ cDbgLineList::~cDbgLineList()
 }
 
 
-bool cDbgLineList::Create(cRenderer &renderer, const int maxLines
+bool cDbgLineList::Create(cRenderer &renderer, const uint maxLines
 	, const cColor &color //= cColor::BLACK
 )
 {
 	m_color = color;
+	m_lineCount = 0;
+	m_maxLineCount = maxLines;
 	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertex), D3D11_USAGE_DYNAMIC);
 	m_lines.reserve(maxLines);
-
 	return true;
 }
 
@@ -36,6 +39,7 @@ bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3
 		return false; // full buffer
 
 	m_lines.push_back({ p0, p1 });
+	m_lineCount = m_lines.size();
 
 	if (isUpdateBuffer)
 		UpdateBuffer(renderer);
@@ -53,6 +57,7 @@ bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0
 
 	const Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;
 	m_lines.push_back({ p, p0 });
+	m_lineCount = m_lines.size();
 
 	if (isUpdateBuffer)
 		UpdateBuffer(renderer);
@@ -82,7 +87,7 @@ void cDbgLineList::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 )
 {
-	if (m_lines.empty())
+	if (m_lineCount == 0)
 		return;
 
 	cShader11 *shader = renderer.m_shaderMgr.FindShader(eVertexType::POSITION);
@@ -100,7 +105,7 @@ void cDbgLineList::Render(cRenderer &renderer
 
 	m_vtxBuff.Bind(renderer);
 	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	renderer.GetDevContext()->DrawInstanced(m_lines.size()*2, 1, 0, 0);
+	renderer.GetDevContext()->DrawInstanced(m_lineCount * 2, 1, 0, 0);
 
 	// debugging
 	++renderer.m_drawCallCount;
@@ -112,5 +117,14 @@ void cDbgLineList::Render(cRenderer &renderer
 
 void cDbgLineList::ClearLines()
 {
+	m_lines.clear();
+	m_lines.shrink_to_fit(); // clear memory
+}
+
+
+void cDbgLineList::Clear()
+{
+	m_lineCount = 0;
+	m_vtxBuff.Clear();
 	m_lines.clear();
 }
