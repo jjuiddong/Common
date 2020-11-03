@@ -9,12 +9,12 @@ using namespace graphic;
 cDbgLineList::cDbgLineList()
 	: m_color(0)
 	, m_lineCount(0)
-	, m_maxLineCount(0)
 {
 }
 
 cDbgLineList::~cDbgLineList()
 {
+	Clear();
 }
 
 
@@ -24,8 +24,6 @@ bool cDbgLineList::Create(cRenderer &renderer, const uint maxLines
 {
 	m_color = color;
 	m_lineCount = 0;
-	m_maxLineCount = maxLines;
-	m_vtxBuff.Create(renderer, maxLines*2, sizeof(sVertex), D3D11_USAGE_DYNAMIC);
 	m_lines.reserve(maxLines);
 	return true;
 }
@@ -35,9 +33,6 @@ bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3
 	, const bool isUpdateBuffer //= true
 )
 {
-	if ((u_int)m_vtxBuff.GetVertexCount() <= ((m_lines.size() * 2) + 1))
-		return false; // full buffer
-
 	m_lines.push_back({ p0, p1 });
 	m_lineCount = m_lines.size();
 
@@ -68,6 +63,15 @@ bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0
 
 void cDbgLineList::UpdateBuffer(cRenderer &renderer)
 {
+	if (m_lines.empty())
+		return;
+
+	if (!m_vtxBuff.m_vtxBuff)
+	{
+		m_vtxBuff.Create(renderer, m_lines.size() * 2
+			, sizeof(sVertex), D3D11_USAGE_DYNAMIC);
+	}
+
 	if (sVertex *p = (sVertex*)m_vtxBuff.Lock(renderer))
 	{
 		for (auto &pt : m_lines)

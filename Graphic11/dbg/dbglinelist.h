@@ -34,7 +34,6 @@ namespace graphic
 		cVertexBuffer m_vtxBuff;
 		vector<std::pair<Vector3,Vector3>> m_lines;
 		uint m_lineCount;
-		uint m_maxLineCount;
 		cColor m_color;
 	};
 
