@@ -8,6 +8,7 @@ Texture2D txHeight : register(t8);
 SamplerState SamplerLinearWrap : register(s4)
 {
 	Filter = MIN_MAG_MIP_LINEAR;
+	//Filter = ANISOTROPIC;
 	AddressU = Wrap;
 	AddressV = Wrap;
 };
@@ -148,8 +149,6 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	// Box모양 버텍스를 만들기위한 작업
 
 	const float ac1 = 1.0f / 64.0f;
-	//const float2 ac2 = gSize * (2.0f / 64.0f);
-
 	const float u = saturate((uv.x - ac1) * (64.f / 62.f));
 	const float v = saturate((uv.y - ac1) * (64.f / 62.f));
 
@@ -165,7 +164,7 @@ PixelInputType ColorDomainShader(ConstantOutputType input
 	PosW.y = (height - 0.1f) * 2500.f;
 
 	if ((uv.x == 0.f) || (uv.x == 1.f) || (uv.y == 0.f) || (uv.y == 1.f))
-		PosW.y = 0.1f;
+		PosW.y = 0.0f;
 
 	output.Pos = mul(PosW, gView);
 	output.Pos = mul(output.Pos, gProjection);
@@ -233,6 +232,45 @@ PixelInputType ColorDomainShader_Sphere(ConstantOutputType input
 	output.toEye = normalize(gEyePosW - PosW).xyz;
 	output.PosW = PosW.xyz;
 
+	return output;
+}
+
+
+[domain("quad")]
+
+PixelInputType ColorDomainShader_Wireframe(ConstantOutputType input
+	, float2 uv : SV_DomainLocation
+	, const OutputPatch<HullOutputType, 4> patch)
+{
+	float3 vertexPosition;
+	PixelInputType output = (PixelInputType)0;
+
+	// 64x64 버텍스에서, 최외곽 버텍스는 다른 타일을 가려주는 역할을 한다.
+	// Box모양 버텍스를 만들기위한 작업
+
+	const float ac1 = 1.0f / 64.0f;
+	const float u = saturate((uv.x - ac1) * (64.f / 62.f));
+	const float v = saturate((uv.y - ac1) * (64.f / 62.f));
+
+	const float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
+	const float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
+	const float2 pos2 = lerp(p12, p22, v);
+	vertexPosition.xz = pos2.xy;
+	vertexPosition.y = 0.1f;
+
+	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+	const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y));
+	const float height = txHeight.SampleLevel(samPoint, tex, 0).x;
+	PosW.y = (height - 0.1f) * 2500.f + 0.01f; // add optional height 0.01
+
+	output.Pos = mul(PosW, gView);
+	output.Pos = mul(output.Pos, gProjection);
+
+	const float2 tuv = float2((uv.x - ac1) * (64.f / 62.f), (uv.y - ac1) * (64.f / 62.f));
+	const float tu = lerp(gTUVs.x, gTUVs.z, tuv.x);
+	const float tv = lerp(gTUVs.y, gTUVs.w, tuv.y);
+
+	output.Normal = float3(0, 1, 0);
 	return output;
 }
 
@@ -337,6 +375,11 @@ float4 PS(PixelInputType input) : SV_TARGET
 {
 	float4 texColor = txDiffuse.Sample(samLinear, float2(input.Tex.x, input.Tex.y));
 	return float4(texColor.xyz, 1);
+}
+
+float4 PS_Wireframe(PixelInputType input) : SV_TARGET
+{
+	return float4(gMtrl_Diffuse.rgb, 0.2f);
 }
 
 
@@ -446,3 +489,13 @@ technique11 Light_Heightmap
 	}
 }
 
+technique11 Wireframe
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, main()));
+		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
+		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_Wireframe()));
+		SetPixelShader(CompileShader(ps_5_0, PS_Wireframe()));
+	}
+}
