@@ -9,6 +9,7 @@
 	- Boost 1.63
 	- OpenCV 3.2
 	- TBB 
+	- Poco Library
 - Property Manager Setting
 	- Microsoft.Cpp.Win32.user
 		- Include Directories
