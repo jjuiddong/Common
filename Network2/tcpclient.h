@@ -11,8 +11,7 @@ namespace network2
 	class cTcpClient : public cNetworkNode
 	{
 	public:
-		cTcpClient(iPacketHeader *packetHeader = new cPacketHeader()
-			, const bool isPacketLog = false
+		cTcpClient(const bool isPacketLog = false
 			, const StrId &name = "TcpClient"
 		);
 		virtual ~cTcpClient();

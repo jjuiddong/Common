@@ -12,7 +12,7 @@ namespace common
 	struct cCircularQueue2
 	{
 	public:
-		cCircularQueue2(const int maxSize);
+		cCircularQueue2(const uint maxSize);
 		virtual ~cCircularQueue2();
 
 		void push(const T &t);
@@ -40,7 +40,7 @@ namespace common
 
 
 	template<class T>
-	cCircularQueue2<T>::cCircularQueue2(const int maxSize)
+	cCircularQueue2<T>::cCircularQueue2(const uint maxSize)
 		: m_front(0)
 		, m_rear(0)
 		, m_datas(new T[maxSize])
@@ -68,7 +68,7 @@ namespace common
 	}
 
 
-	// return total copy size
+	// return total push size
 	template<class T>
 	uint cCircularQueue2<T>::push(const T *t, const uint size0)
 	{

@@ -1,0 +1,11 @@
+//
+// GPS Protocol 
+//
+
+protocol c2s 1000 json
+{
+	
+	{ packetid : 2000 }
+	GPSInfo( double lon, double lat, float altitude, float speed, string descript );
+
+}

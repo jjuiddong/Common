@@ -28,6 +28,5 @@
 			- $(WindowsSdkDir_10)\Lib
 - DirectXTK add reference project
 - Tool
-  - Protocol Generator
-   
+	- Protocol Generator  
 

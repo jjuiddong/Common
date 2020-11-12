@@ -1,0 +1,81 @@
+//
+// 2020-11-11, jjuiddong
+// WebSocket Client class with Poco Library
+//	- poco library websocket client
+//		- https://pocoproject.org/
+//	- websocket protocol constant
+//		- default protocol id: 1000
+//		- default packet id: 2000
+//			- protocol script => {packetid : 2000}
+//
+#pragma once
+
+// Poco library class forward declation
+namespace Poco {
+	namespace Net {
+		class HTTPClientSession;
+		class HTTPRequest;
+		class HTTPResponse;
+		class WebSocket;
+	}
+}
+
+namespace network2
+{
+
+	class cWebClient : public cNetworkNode
+	{
+	public:
+		cWebClient( const int protocolId = 1000
+			, const int packetId = 2000
+			, const bool isPacketLog = false
+			, const StrId &name = "WebClient"
+		);
+		virtual ~cWebClient();
+
+		bool Init(const string &url
+			, const int port
+			, const int packetSize = DEFAULT_PACKETSIZE
+			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int sleepMillis = DEFAULT_SLEEPMILLIS
+			, const bool isThreadMode = true
+		);
+		bool ReConnect();
+		bool Process();
+		virtual void Close() override;
+
+		// Override
+		virtual SOCKET GetSocket(const netid netId) override;
+		virtual netid GetNetIdFromSocket(const SOCKET sock) override;
+		virtual void GetAllSocket(OUT map<netid, SOCKET> &out) override;
+		virtual int Send(const netid rcvId, const cPacket &packet) override;
+		virtual int SendAll(const cPacket &packet) override { return 0; }
+		virtual int SendPacket(const SOCKET sock, const cPacket &packet);
+
+	protected:
+		bool ConnectServer();
+		static int ThreadFunction(cWebClient *client);
+
+
+	public:
+		// poco library object
+		Poco::Net::HTTPClientSession *m_session;
+		Poco::Net::HTTPRequest *m_request;
+		Poco::Net::HTTPResponse *m_response;
+		Poco::Net::WebSocket *m_websocket;
+
+		const int m_protocolId;
+		const int m_packetId;
+		string m_url;
+		bool m_isThreadMode;
+		int m_maxBuffLen;
+		cPacketQueue m_sendQueue;
+		cPacketQueue m_recvQueue;
+
+		std::thread m_thread;
+		common::CriticalSection m_cs;
+		int m_sleepMillis;
+		char *m_recvBuffer;
+	};
+
+}

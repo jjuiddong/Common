@@ -90,6 +90,25 @@ bool cNetController::StartUdpClient(cUdpClient *client
 }
 
 
+bool cNetController::StartWebClient(cWebClient *client
+	, const string &url
+	, const int port
+	, const int packetSize //= DEFAULT_PACKETSIZE
+	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
+	, const bool isThread //= true
+)
+{
+	const bool result = client->Init(url, port, packetSize
+		, maxPacketCount, sleepMillis, isThread);
+
+	if (!IsExistClient(client))
+		m_webClients.push_back(client);
+
+	return true;
+}
+
+
 template<class NetNode, class Dispatcher>
 int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 {
@@ -165,6 +184,10 @@ int cNetController::Process(const float deltaSeconds)
 	for (auto &p : m_tcpClients)
 		procPacketCnt += ProcessNetworkNode(p, &clientDispatcher);
 
+	basic_protocol::WebClientDispatcher webClientDispatcher;
+	for (auto &p : m_webClients)
+		procPacketCnt += ProcessNetworkNode(p, &webClientDispatcher);
+
 	return procPacketCnt;
 }
 
@@ -192,6 +215,8 @@ bool cNetController::RemoveClient(cNetworkNode *svr)
 		common::removevector(m_tcpClients, p);
 	if (cUdpClient *p = (cUdpClient*)dynamic_cast<cUdpClient*>(svr))
 		common::removevector(m_udpClients, p);
+	if (cWebClient *p = (cWebClient*)dynamic_cast<cWebClient*>(svr))
+		common::removevector(m_webClients, p);
 
 	return true;
 }
@@ -221,6 +246,10 @@ bool cNetController::IsExistClient(const cNetworkNode *cli)
 		if (p == cli)
 			return true;
 
+	for (auto &p : m_webClients)
+		if (p == cli)
+			return true;
+
 	return false;
 }
 
@@ -231,4 +260,5 @@ void cNetController::Clear()
 	m_tcpClients.clear();
 	m_udpServers.clear();
 	m_udpClients.clear();
+	m_webClients.clear();
 }

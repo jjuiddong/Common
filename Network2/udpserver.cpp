@@ -5,12 +5,10 @@ using namespace network2;
 using namespace std;
 
 
-cUdpServer::cUdpServer(
-	iPacketHeader *packetHeader //= new cPacketHeader()
-	, const bool isPacketLog //= false
+cUdpServer::cUdpServer(const bool isPacketLog //= false
 	, const StrId &name //= "UdpServer"
 )
-	: cNetworkNode(packetHeader, name, isPacketLog)
+	: cNetworkNode(name, isPacketLog)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_recvQueue(this, isPacketLog)
@@ -92,7 +90,7 @@ bool cUdpServer::Process()
 	{
 		const netid netId = GetNetIdFromSocket(readSockets.fd_array[0]);
 		if (netId != INVALID_NETID)
-			m_recvQueue.PushFromNetwork(netId, (BYTE*)m_tempRecvBuffer, result);
+			m_recvQueue.Push(netId, (BYTE*)m_tempRecvBuffer, result);
 	}
 
 	return true;

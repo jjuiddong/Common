@@ -5,7 +5,7 @@ using namespace remotedbg;
 
 
 remotedbg::s2c_Dispatcher::s2c_Dispatcher()
-	: cProtocolDispatcher(remotedbg::s2c_Dispatcher_ID)
+	: cProtocolDispatcher(remotedbg::s2c_Dispatcher_ID, ePacketFormat::BINARY)
 {
 	cProtocolDispatcher::GetDispatcherMap()->insert({s2c_Dispatcher_ID, this });
 }
@@ -145,7 +145,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 
 
 remotedbg::c2s_Dispatcher::c2s_Dispatcher()
-	: cProtocolDispatcher(remotedbg::c2s_Dispatcher_ID)
+	: cProtocolDispatcher(remotedbg::c2s_Dispatcher_ID, ePacketFormat::BINARY)
 {
 	cProtocolDispatcher::GetDispatcherMap()->insert({c2s_Dispatcher_ID, this });
 }

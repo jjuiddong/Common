@@ -176,7 +176,7 @@ int cUdpClientMap::ThreadFunction(cUdpClientMap *udpSvrMap)
 			case sThreadMsg::START_CLIENT:
 			{
 				network2::cUdpClient *client = new network2::cUdpClient(
-					new network2::cPacketHeader(), udpSvrMap->m_isPacketLog
+					udpSvrMap->m_isPacketLog
 					, StrId("UdpClient") + "-" + msg.name);
 
 				netController.StartUdpClient(client, msg.ip, msg.port

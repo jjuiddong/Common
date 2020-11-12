@@ -29,5 +29,10 @@ namespace network2
 		};
 	};
 
+	// packet data format
+	enum class ePacketFormat {
+		BINARY, ASCII, JSON,
+	};
+
 }
 

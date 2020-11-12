@@ -11,8 +11,7 @@ namespace network2
 	class cTcpServer : public cNetworkNode
 	{
 	public:
-		cTcpServer(iPacketHeader *packetHeader = new cPacketHeader()
-			, iSessionFactory *sessionFactory = new cSessionFactory()
+		cTcpServer(iSessionFactory *sessionFactory = new cSessionFactory()
 			, const bool isPacketLog = false
 			, const StrId &name = "TcpServer"
 		);

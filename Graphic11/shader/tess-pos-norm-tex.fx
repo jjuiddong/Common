@@ -249,13 +249,15 @@ PixelInputType ColorDomainShader_Wireframe(ConstantOutputType input
 	// Box모양 버텍스를 만들기위한 작업
 
 	const float ac1 = 1.0f / 64.0f;
-	const float u = saturate((uv.x - ac1) * (64.f / 62.f));
-	const float v = saturate((uv.y - ac1) * (64.f / 62.f));
+	const float dx = 64.f / 62.f;
 
-	const float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
-	const float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
-	const float2 pos2 = lerp(p12, p22, v);
-	vertexPosition.xz = pos2.xy;
+	const float u = saturate((uv.x - ac1) * dx);
+	const float v = saturate((uv.y - ac1) * dx);
+
+	const float2 p11 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
+	const float2 p12 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
+	const float2 pos1 = lerp(p11, p12, v);
+	vertexPosition.xz = pos1.xy;
 	vertexPosition.y = 0.1f;
 
 	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
@@ -266,11 +268,40 @@ PixelInputType ColorDomainShader_Wireframe(ConstantOutputType input
 	output.Pos = mul(PosW, gView);
 	output.Pos = mul(output.Pos, gProjection);
 
-	const float2 tuv = float2((uv.x - ac1) * (64.f / 62.f), (uv.y - ac1) * (64.f / 62.f));
+	const float2 tuv = float2((uv.x - ac1) * dx, (uv.y - ac1) * dx);
 	const float tu = lerp(gTUVs.x, gTUVs.z, tuv.x);
 	const float tv = lerp(gTUVs.y, gTUVs.w, tuv.y);
 
-	output.Normal = float3(0, 1, 0);
+	//float dx = 0.01f;
+	//float y0 = (sin(PosW.x*0.02f) + sin(PosW.x*0.03f)) * 10.f;// 0.1f;
+	//float y1 = (sin((PosW.x*0.02f) + dx) + sin((PosW.x*0.03f) + dx)) * 10.f;// 0.1f;
+	//float3 normal = normalize(float3(dx, y1 - y0, 0));
+
+	const float2 tex2 = float2(lerp(gHUVs.x, gHUVs.z, uv.x + dx), lerp(gHUVs.y, gHUVs.w, uv.y));
+	const float2 tex3 = float2(lerp(gHUVs.x, gHUVs.z, uv.x), lerp(gHUVs.y, gHUVs.w, uv.y + dx));
+	const float height2 = txHeight.SampleLevel(samPoint, tex2, 0).x;
+	const float height3 = txHeight.SampleLevel(samPoint, tex3, 0).x;
+
+	const float2 p21 = lerp(patch[0].Pos, patch[1].Pos, u + dx) * gSize;
+	const float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u + dx) * gSize;
+	const float2 pos2 = lerp(p21, p22, v);
+
+	const float2 p31 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
+	const float2 p32 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
+	const float2 pos3 = lerp(p31, p32, v + dx);
+
+	const float3 p1 = float3(vertexPosition.x, (height - 0.1f) * 2500.f, vertexPosition.y);
+	const float3 p2 = float3(pos2.x, (height2 - 0.1f) * 2500.f, pos2.y);
+	const float3 p3 = float3(pos3.x, (height3 - 0.1f) * 2500.f, pos3.y);
+
+	float3 v0 = normalize(p2 - p1);
+	float3 v1 = normalize(p3 - p1);
+	float3 normal = normalize(cross(v0, v1));
+
+	output.Normal = float3(0,-1,0);
+	output.Tex = float2(tu, tv);
+	output.toEye = normalize(gEyePosW - PosW).xyz;
+	output.PosW = PosW.xyz;
 	return output;
 }
 
@@ -379,7 +410,12 @@ float4 PS(PixelInputType input) : SV_TARGET
 
 float4 PS_Wireframe(PixelInputType input) : SV_TARGET
 {
-	return float4(gMtrl_Diffuse.rgb, 0.2f);
+	//return float4(gMtrl_Diffuse.rgb, 0.2f);
+
+	float4 color = GetLightingColor(input.Normal, input.toEye, 1.f);
+	//float4 texColor = txDiffuse.Sample(samAnis, float2(input.Tex.x, input.Tex.y));
+	float4 Out = color;
+	return float4(Out.xyz, 1);
 }
 
 

@@ -27,7 +27,9 @@ static s2c_Dispatcher g_remotedbg_s2c_Dispatcher;
 // ProtocolHandler
 class s2c_ProtocolHandler : virtual public network2::iProtocolHandler
 {
+public:
 	friend class s2c_Dispatcher;
+	s2c_ProtocolHandler() { m_format = ePacketFormat::BINARY; }
 	virtual bool AckOneStep(remotedbg::AckOneStep_Packet &packet) { return true; }
 	virtual bool AckDebugRun(remotedbg::AckDebugRun_Packet &packet) { return true; }
 	virtual bool AckBreak(remotedbg::AckBreak_Packet &packet) { return true; }
@@ -54,7 +56,9 @@ static c2s_Dispatcher g_remotedbg_c2s_Dispatcher;
 // ProtocolHandler
 class c2s_ProtocolHandler : virtual public network2::iProtocolHandler
 {
+public:
 	friend class c2s_Dispatcher;
+	c2s_ProtocolHandler() { m_format = ePacketFormat::BINARY; }
 	virtual bool ReqOneStep(remotedbg::ReqOneStep_Packet &packet) { return true; }
 	virtual bool ReqDebugRun(remotedbg::ReqDebugRun_Packet &packet) { return true; }
 	virtual bool ReqBreak(remotedbg::ReqBreak_Packet &packet) { return true; }

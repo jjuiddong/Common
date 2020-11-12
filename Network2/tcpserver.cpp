@@ -7,12 +7,11 @@ using namespace std;
 
 
 cTcpServer::cTcpServer(
-	iPacketHeader *packetHeader //= new cPacketHeader()
-	, iSessionFactory *sessionFactory //= new cSessionFactory()
+	iSessionFactory *sessionFactory //= new cSessionFactory()
 	, const bool isPacketLog //= false
 	, const StrId &name //= "TcpServer"
 )
-	: cNetworkNode(packetHeader, name, isPacketLog)
+	: cNetworkNode(name, isPacketLog)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_sessionFactory(sessionFactory)
@@ -193,7 +192,7 @@ bool cTcpServer::ReceiveProcces()
 		}
 		else
 		{
-			m_recvQueue.PushFromNetwork(netId, (BYTE*)m_tempRecvBuffer, result);
+			m_recvQueue.Push(netId, (BYTE*)m_tempRecvBuffer, result);
 		}
 	}
 

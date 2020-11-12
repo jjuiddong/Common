@@ -11,8 +11,7 @@ namespace network2
 	class cUdpClient : public cNetworkNode
 	{
 	public:
-		cUdpClient(iPacketHeader *packetHeader = new cPacketHeader()
-			, const bool isPacketLog = false
+		cUdpClient(const bool isPacketLog = false
 			, const StrId &name = "UdpClient"
 		);
 		virtual ~cUdpClient();

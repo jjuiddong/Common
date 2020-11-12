@@ -162,7 +162,7 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 			case sThreadMsg::START_SERVER:
 			{
 				network2::cUdpServer *svr = new network2::cUdpServer(
-					new network2::cPacketHeader(), udpSvrMap->m_isPacketLog
+					udpSvrMap->m_isPacketLog
 					, StrId("UdpServer") + "-" + msg.name);
 				svr->AddProtocolHandler(msg.handler);
 

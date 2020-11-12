@@ -68,3 +68,20 @@ void basic_protocol::ClientDispatcher::Dispatch(cPacket &packet, cTcpClient *cli
 	}
 }
 
+
+// 웹클라이언트와 관련된 기본적인 작업을 처리한다.
+// Disconnect 를 패킷화 해서 처리한다.
+void basic_protocol::WebClientDispatcher::Dispatch(cPacket &packet, cWebClient *client)
+{
+	RET(!client);
+
+	switch (packet.GetPacketId())
+	{
+	case PACKETID_DISCONNECT:
+	{
+		client->Close();
+	}
+	break;
+	}
+}
+

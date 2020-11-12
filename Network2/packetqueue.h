@@ -17,6 +17,9 @@
 //			- sender id, receiver id
 //			- packet data
 //
+// 2020-11-12
+//	- send, sendto interface with cNetNode
+//
 #pragma once
 
 
@@ -32,7 +35,9 @@ namespace network2
 
 		bool Init(const int packetSize, const int maxPacketCount);
 		bool Push(const netid rcvId, const cPacket &packet);
-		bool PushFromNetwork(const netid senderId, const BYTE *data, const int len);
+		bool Push(const netid senderId, const BYTE *data, const int len);
+		bool Push(const netid senderId, iPacketHeader *packetHeader
+			, const BYTE *data, const int len);
 		bool Front(OUT cPacket &out);
 		void SendAll(const map<netid, SOCKET> &socks, OUT set<netid> *outErrSocks = NULL);
 		void SendAll(const sockaddr_in &sockAddr);

@@ -8,6 +8,9 @@
 //
 // Network Protocol Generation Compiler generates Dispatch () as a source file.
 //
+// 2020-11-11
+//	- add packet format type (ePacketFormat)
+//
 #pragma once
 
 
@@ -17,7 +20,7 @@ namespace network2
 	class cProtocolDispatcher
 	{
 	public:
-		cProtocolDispatcher(const int id);
+		cProtocolDispatcher(const int id, const ePacketFormat format = ePacketFormat::BINARY);
 		virtual ~cProtocolDispatcher();
 
 		int GetId() const { return m_id; }
@@ -26,7 +29,8 @@ namespace network2
 
 
 	public:
-		int m_id;
+		int m_id; // dispatcher id, same as protocol id
+		ePacketFormat m_format;
 		cPacket *m_packet; // reference
 
 		//-----------------------------------------------------------------

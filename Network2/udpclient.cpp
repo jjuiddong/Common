@@ -6,11 +6,10 @@ using namespace std;
 using namespace network2;
 
 
-cUdpClient::cUdpClient(iPacketHeader *packetHeader //= new cPacketHeader()
-	, const bool isPacketLog //= false
+cUdpClient::cUdpClient( const bool isPacketLog //= false
 	, const StrId &name //= "UdpClient"
 )
-	: cNetworkNode(packetHeader, name, isPacketLog)
+	: cNetworkNode(name, isPacketLog)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_sendQueue(this, isPacketLog)

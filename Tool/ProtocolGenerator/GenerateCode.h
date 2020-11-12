@@ -4,6 +4,11 @@
 // Date:    12/26/2012
 // 
 // 프로토콜 구문트리로 Protocol 소스 파일을 생성한다.
+//
+// 2020-11-10
+//	- add json format string send/recv
+//	- remove marshallingName
+//
 //------------------------------------------------------------------------
 #pragma once
 
@@ -12,6 +17,7 @@ namespace compiler
 
 	bool WriteProtocolCode(const string &protocolFileName
 		, network2::sRmi *rmi
-		, const string &pchFileName, const string &marshallingName);
+		, const string &pchFileName
+	);
 
 }

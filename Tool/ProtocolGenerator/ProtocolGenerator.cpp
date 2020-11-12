@@ -1,13 +1,9 @@
 //
 // 2019-01-08, jjuiddong
 //
-// 프로토콜 생성기
-// *.prt 파일을 분석해서
-// protocol_dispatcher, protocol_handler, protocol_data 소스파일을 생성한다.
-//
-// boost library build option
-//	- _HAS_ITERATOR_DEBUGGING = 0
-//	- _ITERATOR_DEBUG_LEVEL = 0
+// Protocol Generator
+// parse <*.prt> protocol script file
+// generate protocol_dispatcher, protocol_handler, protocol_data source file
 //
 // argument
 //	-s = *.prt protocol filename
@@ -16,11 +12,21 @@
 //	-p = precompiled header filename
 //		ex) stdafx.h or pch.h
 //
-//	-m = marshalling namespace name
-//		ex) marshalling_bin or marshalling_ascii
+//	ignore marsalling argument
+//		-m = marshalling namespace name
+//			ex) marshalling_bin or marshalling_ascii or marshalling_json
 //
 // argument sample
 //	-s filename -p stdafx.h -m marshalling
+//
+// 2020-11-10
+//	- add json marsalling format
+//	- remove marshalling argument
+//	- add protocol format command
+//		ex) protocol c2s 1000  <-- binary format default
+//		ex) protocol c2s 1000 binary
+//		ex) protocol c2s 1000 ascii
+//		ex) protocol c2s 1000 json
 //
 
 #include "pch.h"
@@ -41,7 +47,12 @@ int main(int argc, char* argv[])
 		;
 
 	variables_map vm;
-	store(parse_command_line(argc, argv, desc), vm);
+	try {
+		store(parse_command_line(argc, argv, desc), vm);
+	}
+	catch (std::exception &e) {
+		std::cout << e.what() << std::endl;
+	}
 
 	string fileName;
 	if (vm.count("src"))
@@ -58,7 +69,8 @@ int main(int argc, char* argv[])
 	string marshalling = "marshalling";
 	if (vm.count("mar"))
 	{
-		marshalling = vm["mar"].as<std::string>();
+		//marshalling = vm["mar"].as<std::string>();
+		std::cout << "-m, -mar argument ignored!" << std::endl;
 	}
 
 	if (!fileName.empty())
@@ -67,7 +79,7 @@ int main(int argc, char* argv[])
 		sRmi *rmiList = parser.Parse(fileName.c_str());
 		if (rmiList)
 		{
-			compiler::WriteProtocolCode(fileName, rmiList, pchFileName, marshalling);
+			compiler::WriteProtocolCode(fileName, rmiList, pchFileName);
 		}
 	}
 

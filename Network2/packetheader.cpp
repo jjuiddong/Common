@@ -25,7 +25,7 @@ uint cPacketHeader::GetPacketId(const BYTE *src)
 
 uint cPacketHeader::GetPacketLength(const BYTE *src)
 {
-	return *(int*)(src + sizeof(int) + sizeof(int));
+	return *(uint*)(src + sizeof(int) + sizeof(int));
 }
 
 

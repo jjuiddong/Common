@@ -73,7 +73,7 @@ sRmi* cProtocolParser::rmi_list()
 	return first;
 }
 
-// rmi -> global id number '{' stmt_list '}'
+// rmi -> global id number [id] '{' stmt_list '}'
 sRmi* cProtocolParser::rmi()
 {
 	sRmi *p = NULL;
@@ -84,6 +84,11 @@ sRmi* cProtocolParser::rmi()
 		p = new sRmi;
 		p->name = id();
 		p->number = num();
+
+		// protocol format (binary, ascii, json)
+		if (ID == m_pScan->GetTokenQ(0))
+			p->format = id();
+
 		Match(LBRACE);
 		p->protocol = stmt_list();
 		Match(RBRACE);

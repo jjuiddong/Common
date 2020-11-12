@@ -13,9 +13,9 @@ namespace network2
 
 	class cNetworkNode : public cSession
 	{
+		friend class cPacketQueue;
 	public:
-		cNetworkNode(iPacketHeader *packetHeader
-			, const StrId &name = "NetNode"
+		cNetworkNode(const StrId &name = "NetNode"
 			, const bool isPacketLog = false
 		);
 		virtual ~cNetworkNode();
@@ -27,12 +27,21 @@ namespace network2
 		iPacketHeader* GetPacketHeader();
 		virtual void Close() override;
 
-		// child implements
+		// pure virtual functions..
 		virtual SOCKET GetSocket(const netid netId) = 0;
 		virtual netid GetNetIdFromSocket(const SOCKET sock) = 0;
 		virtual void GetAllSocket(OUT map<netid, SOCKET> &out) = 0;
 		virtual int Send(const netid rcvId, const cPacket &packet) = 0;
 		virtual int SendAll(const cPacket &packet) = 0;
+
+
+	protected:
+		bool CreatePacketHeader(const ePacketFormat format);
+
+		// default send, sendto implements
+		virtual int SendPacket(const SOCKET sock, const cPacket &packet);
+		virtual int SendToPacket(const SOCKET sock, const sockaddr_in &sockAddr
+			, const cPacket &packet);
 
 
 	public:

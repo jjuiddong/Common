@@ -13,7 +13,7 @@ namespace network2
 	class cSocketBuffer
 	{
 	public:
-		cSocketBuffer(const netid netId, const int maxBufferSize);
+		cSocketBuffer(const netid netId, const uint maxBufferSize);
 		virtual ~cSocketBuffer();
 
 		uint Push(iPacketHeader *packetHeader, const BYTE *data, const uint size);

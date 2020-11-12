@@ -63,6 +63,7 @@ namespace network2
 	{
 		std::string name;
 		int number;
+		std::string format; // binary, ascii, json
 		sProtocol *protocol;
 		_sRmi *next;
 	} sRmi;

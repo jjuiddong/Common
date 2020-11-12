@@ -51,6 +51,15 @@ namespace network2
 			, const bool isThread = true
 		);
 
+		bool StartWebClient(cWebClient *client
+			, const string &url
+			, const int port
+			, const int packetSize = DEFAULT_PACKETSIZE
+			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int sleepMillis = DEFAULT_SLEEPMILLIS
+			, const bool isThread = true
+		);
+
 		int Process(const float deltaSeconds);
 		
 		bool RemoveServer(cNetworkNode *svr);
@@ -65,6 +74,7 @@ namespace network2
 		vector<cTcpClient*> m_tcpClients; // reference
 		vector<cUdpServer*> m_udpServers; // reference
 		vector<cUdpClient*> m_udpClients; // reference
+		vector<cWebClient*> m_webClients; // reference
 	};
 
 }

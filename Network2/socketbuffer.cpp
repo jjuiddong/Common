@@ -5,7 +5,7 @@
 
 using namespace network2;
 
-cSocketBuffer::cSocketBuffer(const netid netId, const int maxBufferSize)
+cSocketBuffer::cSocketBuffer(const netid netId, const uint maxBufferSize)
 	: m_netId(netId)
 	, m_readLen(0)
 	, m_totalLen(0)
@@ -20,6 +20,8 @@ cSocketBuffer::~cSocketBuffer()
 }
 
 
+// 여러개로 나눠진 패킷을 처리할 때 사용.
+// data가 두개 이상의 패킷을 포함할 때 사용.
 uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const uint size)
 {
 	uint dataSize = size;
@@ -51,7 +53,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 
 			if (pushSize != cpSize)
 			{
-				// error occur
+				// error occurred!!
 				// queue memory full
 				dbg::Logc(2, "error!! sockbuffer queue memory full1, size = %d, cpSize = %d, pushSize = %d\n"
 					, size, cpSize, pushSize);
@@ -79,7 +81,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 		}
 		else
 		{
-			const uint totalLen = packetHeader->GetPacketLength(ptr);
+			const uint totalLen = (headerSize == 0)? size : packetHeader->GetPacketLength(ptr);
 			if (totalLen > (uint)m_q.SIZE)
 			{
 				dbg::Logc(2, "error!! sockbuffer packet size too big, size = %d, totalLen = %d\n"

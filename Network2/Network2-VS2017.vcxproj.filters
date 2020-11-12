@@ -123,6 +123,12 @@
     <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h">
       <Filter>Interpreter\protocol</Filter>
     </ClInclude>
+    <ClInclude Include="marshalling_json.h">
+      <Filter>Marshalling</Filter>
+    </ClInclude>
+    <ClInclude Include="webclient.h">
+      <Filter>Service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -215,6 +221,9 @@
     </ClCompile>
     <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp">
       <Filter>Interpreter\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="webclient.cpp">
+      <Filter>Service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

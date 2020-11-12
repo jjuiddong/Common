@@ -14,7 +14,7 @@ static const int s2c_Protocol_ID = 5200;
 class s2c_Protocol : public network2::iProtocol
 {
 public:
-	s2c_Protocol() : iProtocol(s2c_Protocol_ID) {}
+	s2c_Protocol() : iProtocol(s2c_Protocol_ID, ePacketFormat::BINARY) {}
 	void AckOneStep(netid targetId);
 	void AckDebugRun(netid targetId);
 	void AckBreak(netid targetId);
@@ -28,7 +28,7 @@ static const int c2s_Protocol_ID = 5201;
 class c2s_Protocol : public network2::iProtocol
 {
 public:
-	c2s_Protocol() : iProtocol(c2s_Protocol_ID) {}
+	c2s_Protocol() : iProtocol(c2s_Protocol_ID, ePacketFormat::BINARY) {}
 	void ReqOneStep(netid targetId);
 	void ReqDebugRun(netid targetId);
 	void ReqBreak(netid targetId);

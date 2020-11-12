@@ -6,11 +6,10 @@ using namespace std;
 using namespace network2;
 
 
-cTcpClient::cTcpClient(iPacketHeader *packetHeader //= new cPacketHeader()
-	, const bool isPacketLog //= false
+cTcpClient::cTcpClient(const bool isPacketLog //= false
 	, const StrId &name //= "TcpClient"
 )
-	: cNetworkNode(packetHeader, name, isPacketLog)
+	: cNetworkNode(name, isPacketLog)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_sendQueue(this, isPacketLog)
@@ -149,7 +148,7 @@ bool cTcpClient::Process()
 			}
 			else
 			{
-				m_recvQueue.PushFromNetwork(netId, (BYTE*)m_recvBuffer, result);
+				m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 			}
 		}
 	}

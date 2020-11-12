@@ -49,7 +49,6 @@ namespace compiler
 	void WriteImpleArg(ofstream &fs, sArg*p);
 	void WriteLastImpleProtocol(ofstream &fs);
 
-	string GetFileNameExceptExt(const string &fileName);
 	string GetProtocolName(const string &fileName);
 	string GetProtocolClassName(const string &protocolName, const string &rmiName );
 	string GetProtocolHandlerClassName(const string &protocolName, const string &rmiName );
@@ -63,6 +62,7 @@ namespace compiler
 	string n_OrigianlFileName;
 	string g_handlerClassName;
 	string n_SrcFolderName = "Src";
+	string g_format; // json format?
 }
 
 using namespace compiler;
@@ -72,7 +72,7 @@ using namespace compiler;
 // ProtocolHandler 클래스 헤더파일을 생성한다.
 //------------------------------------------------------------------------
 bool compiler::WriteProtocolCode(const string &protocolFileName, sRmi *rmi
-	, const string &pchFileName, const string &marshallingName
+	, const string &pchFileName
 )
 {
 	if (!rmi)
@@ -83,6 +83,14 @@ bool compiler::WriteProtocolCode(const string &protocolFileName, sRmi *rmi
 	const std::string folder = (path.empty())? n_SrcFolderName : path + "\\" + n_SrcFolderName;
 	_mkdir(folder.c_str());
 	n_OrigianlFileName = folder + "\\" + fileName;
+
+	string marshallingName = "marshalling"; // default binary marshalling
+	if (rmi->format == "ascii")
+		marshallingName = "marshalling_ascii";
+	else if (rmi->format == "json")
+		marshallingName = "marshalling_json";
+
+	g_format = (marshallingName == "marshalling_json")? "json" : "";
 
 	g_protocolName = GetProtocolName(protocolFileName);
 
@@ -176,12 +184,19 @@ bool compiler::WriteProtocolClassHeader(ofstream &fs, sRmi *rmi)
 	g_className = GetProtocolClassName(g_protocolName, rmi->name );
 	g_protocolId = g_className + "_ID";
 
+	string format = "ePacketFormat::BINARY";
+	if (rmi->format == "ascii")
+		format = "ePacketFormat::ASCII";
+	else if (rmi->format == "json")
+		format = "ePacketFormat::JSON";
+
 	fs << "static const int " << g_protocolId << " = " << rmi->number << ";\n";
 	fs << endl;
 	fs << "class " << g_className <<  " : public network2::iProtocol\n";
 	fs << "{" << endl;
 	fs << "public:" << endl;
-	fs << "\t" << g_className << "() : iProtocol(" << g_protocolId << ") {}\n";
+	fs << "\t" << g_className << "() : iProtocol(" << g_protocolId 
+		<< ", " << format << ") {}\n";
 	// print protocol list
 	WriteDeclProtocolList( fs, rmi->protocol, false, false, true);
 	fs << "};\n";
@@ -316,6 +331,12 @@ bool compiler::WriteHandlerHeader(ofstream &fs, sRmi *rmi)
 	g_className = GetProtocolDispatcherClassName(g_protocolName, rmi->name);
 	g_protocolId = g_className + "_ID";
 
+	string format = "ePacketFormat::BINARY";
+	if (rmi->format == "ascii")
+		format = "ePacketFormat::ASCII";
+	else if (rmi->format == "json")
+		format = "ePacketFormat::JSON";
+
 	fs << "static const int " << g_protocolId << " = " << rmi->number << ";\n";
 	fs << endl;
 
@@ -339,7 +360,9 @@ bool compiler::WriteHandlerHeader(ofstream &fs, sRmi *rmi)
 	fs << "// ProtocolHandler\n";
 	fs << "class " << g_className << " : virtual public network2::iProtocolHandler\n";
 	fs << "{\n";
+	fs << "public:\n";
 	fs << "\tfriend class " << dispatcherClassName << ";\n";
+	fs << "\t" << g_className << "() { m_format = " << format << "; }\n";
 	WriteDeclProtocolList( fs, rmi->protocol, true, true, false);
 	fs << "};\n";
 	fs << endl;
@@ -387,10 +410,16 @@ bool compiler::WriteHandlerCpp(ofstream &fs, sRmi *rmi)
 	g_protocolId = g_className + "_ID";
 
 	// Dispatcher 생성자 코드 생성
-	//fs << "static " << g_protocolName << "::" << g_className << " g_" << g_protocolName << "_" << g_className << ";\n";// 전역변수 선언
+	string format = "ePacketFormat::BINARY";
+	if (rmi->format == "ascii")
+		format = "ePacketFormat::ASCII";
+	else if (rmi->format == "json")
+		format = "ePacketFormat::JSON";
+
 	fs << "\n";
 	fs << g_protocolName << "::" << g_className << "::" << g_className << "()\n";
-	fs << "\t: cProtocolDispatcher(" << g_protocolName << "::" << g_protocolId << ")\n";
+	fs << "\t: cProtocolDispatcher(" << g_protocolName << "::" << g_protocolId 
+		<< ", " << format << ")\n";
 	fs << "{\n";
 	fs << "\tcProtocolDispatcher::GetDispatcherMap()->insert({" << g_protocolId << ", this });\n";
 	fs << "}\n";
@@ -520,11 +549,35 @@ void compiler::WriteArgVar(ofstream &fs, sArg *arg, bool comma)
 void compiler::WriteFirstImpleProtocol(ofstream &fs, sProtocol *pProtocol
 	, sArg*p)
 {
-	fs << "\tcPacket packet(m_node->GetPacketHeader());\n";
-	fs << "\tpacket.SetProtocolId( GetId() );\n";
-	fs << "\tpacket.SetPacketId( " << pProtocol->packetId << " );\n";
+	string tab = "\t";
+	fs << tab << "cPacket packet(m_node->GetPacketHeader());\n";
+
+	// json format?
+	if (g_format == "json") 
+	{
+		fs << "\tusing boost::property_tree::ptree;\n";
+		fs << "\tptree props;\n";
+		fs << "\ttry {\n";
+		tab += "\t";
+	}
+
+	fs << tab << "packet.SetProtocolId( GetId() );\n";
+	fs << tab << "packet.SetPacketId( " << pProtocol->packetId << " );\n";
 	WriteImpleArg(fs, p);
-	fs << "\tpacket.EndPack();\n";
+
+	if (g_format == "json")
+	{
+		fs << tab << "stringstream ss;\n";
+		fs << tab << "boost::property_tree::write_json(ss, props);\n";
+		fs << tab << "packet << ss.str();\n";
+		fs << tab << "packet.EndPack();\n";
+		fs << "\t} catch(...) {\n";
+		fs << "\t}\n";
+	}
+	else {
+		fs << tab << "packet.EndPack();\n";
+	}
+
 	WriteLastImpleProtocol(fs);
 }
 
@@ -535,8 +588,18 @@ void compiler::WriteFirstImpleProtocol(ofstream &fs, sProtocol *pProtocol
 void compiler::WriteImpleArg(ofstream &fs, sArg*p)
 {
 	if (!p) return;
-	fs << "\tpacket << " << p->var->var << ";\n";
-	fs << "\tAddDelimeter(packet);\n";
+
+	// json format?
+	if (g_format == "json")
+	{
+		fs << "\t\tput(props, \"" << p->var->var << "\", " << p->var->var << ");\n";
+	}
+	else
+	{
+		fs << "\tpacket << " << p->var->var << ";\n";
+		fs << "\tAddDelimeter(packet);\n";
+	}
+
 	WriteImpleArg(fs, p->next);
 }
 
@@ -564,8 +627,7 @@ bool compiler::WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName)
 	if (!pchFileName.empty())
 		fs << "#include \"" << pchFileName << "\"\n";
 	fs << "#include \"" << headerFileName << "\"\n";
-	//fs << "using namespace network2;\n";
-	//fs << "using namespace marshalling;\n";
+
 	fs << "using namespace " << g_protocolName << ";\n";
 	fs << endl;
 
@@ -643,11 +705,35 @@ void compiler::WriteDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol)
 	fs << "\t\t\tSetCurrentDispatchPacket( &packet );\n";
 	fs << endl;
 
-	fs << "\t\t\t" << pProtocol->name << "_Packet data;\n";
-	fs << "\t\t\tdata.pdispatcher = this;\n";
-	fs << "\t\t\tdata.senderId = packet.GetSenderId();\n";
+	// json packet parsing object
+	string tab = "\t\t\t";
+	if (g_format == "json")
+	{
+		fs << "\t\t\t// json format packet parsing using property_tree\n";
+		fs << "\t\t\tusing boost::property_tree::ptree;\n";
+		fs << "\t\t\tptree root;\n\n";
+		fs << "\t\t\ttry {\n";
+		fs << "\t\t\t\tstring str;\n";
+		fs << "\t\t\t\tpacket >> str;\n";
+		fs << "\t\t\t\tstringstream ss(str);\n";
+		fs << "\t\t\t\t\n";
+		fs << "\t\t\t\tboost::property_tree::read_json(ss, root);\n";
+		fs << "\t\t\t\tptree &props = root.get_child(\"\");\n\n";
+		tab += "\t";
+	}
+
+	fs << tab << pProtocol->name << "_Packet data;\n";
+	fs << tab << "data.pdispatcher = this;\n";
+	fs << tab << "data.senderId = packet.GetSenderId();\n";
 	WriteDispatchImpleArg2(fs, pProtocol->argList);
 	WriteLastDispatchSwitchCase2(fs, pProtocol);
+
+	if (g_format == "json")
+	{
+		fs << "\t\t\t} catch (...) {\n";
+		fs << "\t\t\t\tdbg::Logp(\"json packet parsing error\\n\");\n";
+		fs << "\t\t\t}\n";
+	}
 
 	fs << "\t\t}\n";
 	fs << "\t\tbreak;\n";
@@ -673,10 +759,16 @@ void compiler::WriteDispatchImpleArg(ofstream &fs, sArg*p)
 void compiler::WriteDispatchImpleArg2(ofstream &fs, sArg*p)
 {
 	if (!p) return;
-	// 변수 선언
-	//fs << "\t\t\t" << p->var->type << " " << p->var->var << ";\n";
 	// 패킷에서 데이타 얻음
-	fs << "\t\t\tpacket >> " << "data." << p->var->var << ";\n";
+	if (g_format == "json")
+	{
+		fs << "\t\t\t\tget(props, \"" << p->var->var <<
+			"\", data." << p->var->var << ");\n";
+	}
+	else 
+	{
+		fs << "\t\t\tpacket >> " << "data." << p->var->var << ";\n";
+	}	
 	WriteDispatchImpleArg2(fs, p->next);
 }
 
@@ -692,8 +784,7 @@ void compiler::WriteLastDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol)
 }
 void compiler::WriteLastDispatchSwitchCase2(ofstream &fs, sProtocol *pProtocol)
 {
+	if (g_format == "json")
+		fs << "\t";
 	fs << "\t\t\tSEND_HANDLER(" << g_handlerClassName << ", prtHandler, " << pProtocol->name << "(data));\n";
-	//SEND_HANDLER(s2s_ProtocolHandler, prtHandler, ReqMovePlayer(data) );
-	//WriteArgVar(fs, pProtocol->argList, true );
-	//fs << ") );\n";
 }

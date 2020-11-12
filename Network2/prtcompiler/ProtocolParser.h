@@ -9,6 +9,15 @@
 //	- {packetid : number} 명령어 추가
 //	- packetid = packet name hashcode
 //
+// 2020-11-11
+//	- protocol format
+//	- binary, ascii, json
+//	- add protocol format command
+//		ex) protocol c2s 1000  <-- binary format default
+//		ex) protocol c2s 1000 binary
+//		ex) protocol c2s 1000 ascii
+//		ex) protocol c2s 1000 json
+//
 //------------------------------------------------------------------------
 #pragma once
 
@@ -45,7 +54,7 @@ namespace network2
 
 		// expr -> rmi_list
 		// rmi_list -> (rmi)*
-		// rmi -> protocol id number '{' stmt_list '}'
+		// rmi -> protocol id number [id] '{' stmt_list '}'
 		// stmt_list -> (stmt)*
 		// stmt -> protocol semicolon
 		// protocol -> [ packetid_stmt ] id '(' arg_list ')'

@@ -19,6 +19,8 @@ namespace network2
 
 		// call after process packet
 		virtual void AfterPacketProcess(const cPacket &packet) {}
+
+		ePacketFormat m_format;
 	};
 
 }

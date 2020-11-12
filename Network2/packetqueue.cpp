@@ -34,44 +34,23 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 }
 
 
-// 패킷을 큐에 저장한다.
-// data는 정확히 패킷 크기만큼의 정보를 가져야한다.
-// 네트워크로부터 받아서 저장하는게 아니라, 사용자가 직접 패킷을 큐에 넣을 때, 사용하는 함수.
-// return true : 성공
-//		  false : 실패
+// push packet
 bool cPacketQueue::Push(const netid rcvId, const cPacket &packet)
 {
-	cAutoCS cs(m_cs);
-
-	cSocketBuffer *sockBuff = NULL;
-	auto it = m_sockBuffers.find(rcvId);
-	if (m_sockBuffers.end() == it)
-	{
-		sockBuff = new cSocketBuffer(rcvId, m_sockBufferSize);
-		m_sockBuffers.insert({ rcvId, sockBuff });
-	}
-	else
-	{
-		sockBuff = it->second;
-	}
-
-	const uint addLen = sockBuff->Push(packet.m_packetHeader, packet.m_data, packet.GetPacketSize());
-	if (0 == addLen)
-	{
-		if (m_isLogIgnorePacket)
-			common::dbg::ErrLog("packetqueue Push alloc error!! \n");
-	}
-	return 0 != addLen;
+	return Push(rcvId, packet.m_packetHeader, packet.m_data, packet.GetPacketSize());
 }
 
 
-// 네트워크로부터 온 패킷일 경우 사용.
-// 여러개로 나눠진 패킷을 처리할 때 사용.
-// *data가 두개 이상의 패킷을 포함할 때도 사용 가능.
-// senderId : 패킷을 송신한 유저의 network id
-// return true : 성공
-//		  false : 실패
-bool cPacketQueue::PushFromNetwork(const netid senderId, const BYTE *data, const int len)
+// push packet data
+bool cPacketQueue::Push(const netid senderId, const BYTE *data, const int len)
+{
+	return Push(senderId, m_netNode->GetPacketHeader(), data, len);
+}
+
+
+// push packet
+bool cPacketQueue::Push(const netid senderId, iPacketHeader *packetHeader
+	, const BYTE *data, const int len)
 {
 	cAutoCS cs(m_cs);
 
@@ -87,11 +66,11 @@ bool cPacketQueue::PushFromNetwork(const netid senderId, const BYTE *data, const
 		sockBuff = it->second;
 	}
 
-	const uint addLen = sockBuff->Push(m_netNode->GetPacketHeader(), data, len);
+	const uint addLen = sockBuff->Push(packetHeader, data, len);
 	if (0 == addLen)
 	{
 		if (m_isLogIgnorePacket)
-			common::dbg::ErrLog("packetqueue PushFromNetwork alloc error!! \n");
+			common::dbg::ErrLog("packetqueue Push alloc error!! \n");
 	}
 
 	return true;
@@ -173,7 +152,8 @@ void cPacketQueue::SendAll(
 				int result = 0;
 				if (INVALID_SOCKET != sock)
 				{
-					result = send(sock, (const char*)packet.m_data, packet.GetPacketSize(), 0);
+					//result = send(sock, (const char*)packet.m_data, packet.GetPacketSize(), 0);
+					const int result = m_netNode->SendPacket(sock, packet);
 					if (result != packet.GetPacketSize())
 					{
 						// error!!, no remove buffer, resend
@@ -229,8 +209,7 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 			}
 			else
 			{
-				sendto(sock, (const char*)packet.m_data, packet.GetPacketSize()
-					, 0, (struct sockaddr*) &sockAddr, sizeof(sockAddr));
+				m_netNode->SendToPacket(sock, sockAddr, packet);
 			}
 		}
 	}
@@ -239,7 +218,10 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 
 // exceptOwner 가 true 일때, 패킷을 보낸 클라이언트를 제외한 나머지 클라이언트들에게 모두
 // 패킷을 보낸다.
-bool cPacketQueue::SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner)
+bool cPacketQueue::SendBroadcast(
+	const vector<cSession*> &sessions
+	, const bool exceptOwner // =true
+)
 {
 	cAutoCS cs(m_cs);
 
@@ -258,7 +240,7 @@ bool cPacketQueue::SendBroadcast(const vector<cSession*> &sessions, const bool e
 				const bool isSend = !exceptOwner 
 					|| (exceptOwner && (sockBuffer->m_netId != sessions[k]->m_id));
 				if (isSend)
-					send(sessions[k]->m_socket, (const char*)packet.m_data, packet.GetPacketSize(), 0);
+					m_netNode->SendPacket(sessions[k]->m_socket, packet);
 			}
 		}
 	}
@@ -277,15 +259,16 @@ bool cPacketQueue::SendBroadcast(const map<netid, SOCKET> &socks
 	for (auto &kv : socks)
 	{
 		if (kv.first == SERVER_NETID)
-			continue;
+			continue; // broadcast server -> client
 
 		const SOCKET sock = kv.second;
-		const int result = send(sock, (const char*)packet.m_data, packet.GetPacketSize(), 0);
+		const int result = m_netNode->SendPacket(sock, packet);
 
-		if (outErrSocks && (result == SOCKET_ERROR))
+		if (result == SOCKET_ERROR)
 		{
 			isSendError = true;
-			outErrSocks->insert(kv.first);
+			if (outErrSocks)
+				outErrSocks->insert(kv.first);
 		}
 	}
 	return !isSendError;
