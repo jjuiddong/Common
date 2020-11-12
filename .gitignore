@@ -21,7 +21,7 @@
 x64/
 x86/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 
 # Visual Studio 2015 cache/options directory
@@ -292,3 +292,8 @@ Lib/AI/Debug_MD/AI.lib
 
 
 Lib/Network/Debug_DLL/Network.lib
+
+Bin/JsonParseTest*
+Bin/ProtocolGenerator.iobj
+Bin/ProtocolGeneratord.exe
+Bin/ProtocolTest*
