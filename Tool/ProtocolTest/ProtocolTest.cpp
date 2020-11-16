@@ -65,7 +65,7 @@ int main()
 		if (msgT > 5.0f)
 		{
 			msgT = 0;
-			test.m_protocol.GPSInfo(network2::SERVER_NETID
+			test.m_protocol.GPSInfo(network2::SERVER_NETID, false
 				, oldT, 2.0f, 3.0f, 4.0f, "test");
 		}
 

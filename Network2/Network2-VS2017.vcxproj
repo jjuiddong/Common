@@ -170,6 +170,7 @@
     <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h" />
     <ClInclude Include="marshalling.h" />
     <ClInclude Include="marshalling_json.h" />
+    <ClInclude Include="packetheaderjson.h" />
     <ClInclude Include="protocol_all_handler.h" />
     <ClInclude Include="factory.h" />
     <ClInclude Include="launcher.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="interpreter\remotedebugger.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp" />
+    <ClCompile Include="packetheaderjson.cpp" />
     <ClCompile Include="protocol_all_handler.cpp" />
     <ClCompile Include="launcher.cpp" />
     <ClCompile Include="netcontroller.cpp" />

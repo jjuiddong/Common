@@ -16,8 +16,8 @@ namespace network2
 		, ALL_NETID = ~1 // 연결된 Connection 모두를 뜻함 (서버/클라이언트)
 
 		// constant definition
-		, RECV_BUFFER_LENGTH = 1024
-		, DEFAULT_PACKETSIZE = 512
+		, RECV_BUFFER_LENGTH = 1024 * 10
+		, DEFAULT_PACKETSIZE = 512 * 10 //512
 		, DEFAULT_MAX_PACKETCOUNT = 10
 		, DEFAULT_SLEEPMILLIS = 30
 		, DEFAULT_SOCKETBUFFER_SIZE = 1024 * 10

@@ -27,29 +27,46 @@ bool gps::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &hand
 
 			SetCurrentDispatchPacket( &packet );
 
-			// json format packet parsing using property_tree
-			using boost::property_tree::ptree;
-			ptree root;
-
-			try {
-				string str;
-				packet >> str;
-				stringstream ss(str);
-				
-				boost::property_tree::read_json(ss, root);
-				ptree &props = root.get_child("");
-
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
 				GPSInfo_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
-				get(props, "lon", data.lon);
-				get(props, "lat", data.lat);
-				get(props, "altitude", data.altitude);
-				get(props, "speed", data.speed);
-				get(props, "descript", data.descript);
+				marshalling::operator>>(packet, data.lon);
+				marshalling::operator>>(packet, data.lat);
+				marshalling::operator>>(packet, data.altitude);
+				marshalling::operator>>(packet, data.speed);
+				marshalling::operator>>(packet, data.descript);
 				SEND_HANDLER(c2s_ProtocolHandler, prtHandler, GPSInfo(data));
-			} catch (...) {
-				dbg::Logp("json packet parsing error\n");
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					GPSInfo_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "lon", data.lon);
+					get(props, "lat", data.lat);
+					get(props, "altitude", data.altitude);
+					get(props, "speed", data.speed);
+					get(props, "descript", data.descript);
+					SEND_HANDLER(c2s_ProtocolHandler, prtHandler, GPSInfo(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error\n");
+				}
 			}
 		}
 		break;

@@ -15,8 +15,9 @@ namespace compiler
 	bool WriteHandlerCpp(ofstream &fs, sRmi *rmi);
 
 
-	void WriteDeclProtocolList(ofstream &fs, sProtocol *pProtocol, bool isVirtual, bool isImpl, bool isTarget);
-	void WriteFirstArg(ofstream &fs, sArg*p, bool isTarget);
+	void WriteDeclProtocolList(ofstream &fs, sProtocol *pProtocol
+		, bool isVirtual, bool isImpl, bool isTarget, bool isBinary);
+	void WriteFirstArg(ofstream &fs, sArg*p, bool isTarget, bool isBinary);
 	void WriteArg(ofstream &fs, sArg *arg, bool comma);
 	void WriteArgVar(ofstream &fs, sArg *arg, bool comma);
 
@@ -32,22 +33,22 @@ namespace compiler
 	// Write Dispatcher
 	void WriteProtocolDispatchFunc(ofstream &fs, sRmi *rmi);
 	void WriteDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol);
-	void WriteDispatchImpleArg(ofstream &fs, sArg*p);
-	void WriteLastDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol);
-	void WriteDispatchImpleArg2(ofstream &fs, sArg*p);
-	void WriteLastDispatchSwitchCase2(ofstream &fs, sProtocol *pProtocol);
+	//void WriteDispatchImpleArg(ofstream &fs, sArg*p);
+	//void WriteLastDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol);
+	void WriteDispatchImpleArg2(ofstream &fs, sArg*p, const string &tab, bool isJson, bool isBinary);
+	void WriteLastDispatchSwitchCase2(ofstream &fs, sProtocol *pProtocol, const string &tab);
 
 
 	// Write Protocol Code
 	bool WriteFirstProtocolClassHeader(sRmi *rmi, const string &marshallingName);
 	bool WriteProtocolClassHeader(ofstream &fs, sRmi *rmi);
-	bool WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName);
-	bool WriteProtocolCpp(ofstream &fs, sRmi *rmi);
+	bool WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName, bool isBinary);
+	bool WriteProtocolCpp(ofstream &fs, sRmi *rmi, bool isBinary);
 
-	void WriteImplProtocolList(ofstream &fs, sProtocol *pProtocol);
+	void WriteImplProtocolList(ofstream &fs, sProtocol *pProtocol, bool isBinary);
 	void WriteFirstImpleProtocol(ofstream &fs, sProtocol *pProtocol, sArg*p);
-	void WriteImpleArg(ofstream &fs, sArg*p);
-	void WriteLastImpleProtocol(ofstream &fs);
+	void WriteImpleArg(ofstream &fs, sArg*p, const string &tab, bool isJson, bool isBinary);
+	void WriteLastImpleProtocol(ofstream &fs, const string &tab);
 
 	string GetProtocolName(const string &fileName);
 	string GetProtocolClassName(const string &protocolName, const string &rmiName );
@@ -95,7 +96,7 @@ bool compiler::WriteProtocolCode(const string &protocolFileName, sRmi *rmi
 	g_protocolName = GetProtocolName(protocolFileName);
 
 	WriteFirstProtocolClassHeader(rmi, marshallingName);
-	WriteFirstProtocolCpp(rmi, pchFileName);
+	WriteFirstProtocolCpp(rmi, pchFileName, (rmi->format == "json"));
 
 	WriteFirstHandlerHeader(rmi, marshallingName);
 	WriteFirstHandlerCpp(rmi, pchFileName);
@@ -198,7 +199,7 @@ bool compiler::WriteProtocolClassHeader(ofstream &fs, sRmi *rmi)
 	fs << "\t" << g_className << "() : iProtocol(" << g_protocolId 
 		<< ", " << format << ") {}\n";
 	// print protocol list
-	WriteDeclProtocolList( fs, rmi->protocol, false, false, true);
+	WriteDeclProtocolList( fs, rmi->protocol, false, false, true, (rmi->format == "json"));
 	fs << "};\n";
 
 	return WriteProtocolClassHeader(fs, rmi->next);
@@ -363,7 +364,7 @@ bool compiler::WriteHandlerHeader(ofstream &fs, sRmi *rmi)
 	fs << "public:\n";
 	fs << "\tfriend class " << dispatcherClassName << ";\n";
 	fs << "\t" << g_className << "() { m_format = " << format << "; }\n";
-	WriteDeclProtocolList( fs, rmi->protocol, true, true, false);
+	WriteDeclProtocolList( fs, rmi->protocol, true, true, false, false);
 	fs << "};\n";
 	fs << endl;
 	fs << endl;
@@ -439,25 +440,21 @@ bool compiler::WriteHandlerCpp(ofstream &fs, sRmi *rmi)
 //------------------------------------------------------------------------
 // 헤더 클래스파일에 있을 프로토콜 리스트를 출력한다.
 //------------------------------------------------------------------------
-void compiler::WriteDeclProtocolList(ofstream &fs, sProtocol *pProtocol, bool isVirtual, bool isImpl, bool isTarget)
+void compiler::WriteDeclProtocolList(ofstream &fs, sProtocol *pProtocol
+	, bool isVirtual, bool isImpl, bool isTarget, bool isBinary)
 {
 	if (!pProtocol) return;
 	
-	// First Interface
-	if (!isImpl)
+	if (!isImpl) // protocol header file?
 	{
 		fs << "\t";
 		if (isVirtual)
 			fs << "virtual ";
 
-		if (isImpl)
-			fs << "bool "; // Handler header file
-		else
-			fs << "void "; // protocol header file
+		fs << "void ";
 
-		//fs << "bool " << pProtocol->name << "(";
 		fs << pProtocol->name << "(";
-		WriteFirstArg(fs, pProtocol->argList, isTarget);
+		WriteFirstArg(fs, pProtocol->argList, isTarget, isBinary);
 		fs << ")";
 		if (isImpl)
 			fs << "{ return true; }"; // Handler header file
@@ -467,7 +464,7 @@ void compiler::WriteDeclProtocolList(ofstream &fs, sProtocol *pProtocol, bool is
 	}
 
 	// Second Interface
-	if (isVirtual && isImpl)
+	if (isVirtual && isImpl) // handler header file?
 	{
 		fs << "\t";
 		fs << "virtual ";
@@ -479,39 +476,42 @@ void compiler::WriteDeclProtocolList(ofstream &fs, sProtocol *pProtocol, bool is
 		fs << endl;
 	}
 
-	WriteDeclProtocolList(fs, pProtocol->next, isVirtual, isImpl, isTarget);
+	WriteDeclProtocolList(fs, pProtocol->next, isVirtual, isImpl, isTarget, isBinary);
 }
 
 
 //------------------------------------------------------------------------
 // Cpp 파일에 있을 프로토콜 리스트를 출력한다.
 //------------------------------------------------------------------------
-void compiler::WriteImplProtocolList(ofstream &fs, sProtocol *pProtocol)
+void compiler::WriteImplProtocolList(ofstream &fs, sProtocol *pProtocol, bool isBinary)
 {
 	if (!pProtocol) return;
 	fs << "//------------------------------------------------------------------------\n";
 	fs << "// Protocol: " << pProtocol->name << endl;
 	fs << "//------------------------------------------------------------------------\n";
 	fs << "void " << g_protocolName << "::" << g_className << "::" << pProtocol->name << "(";
-	WriteFirstArg(fs, pProtocol->argList, true);
+	WriteFirstArg(fs, pProtocol->argList, true, isBinary);
 	fs << ")\n";
 	fs << "{\n";
 	WriteFirstImpleProtocol(fs, pProtocol, pProtocol->argList);
 	fs << "}\n";
 	fs << "\n";
-	WriteImplProtocolList(fs, pProtocol->next);
+	WriteImplProtocolList(fs, pProtocol->next, isBinary);
 }
 
 
 //------------------------------------------------------------------------
 // 프로토콜 인자리스트 출력
 //------------------------------------------------------------------------
-void compiler::WriteFirstArg(ofstream &fs, sArg*p, bool isTarget)
+void compiler::WriteFirstArg(ofstream &fs, sArg*p, bool isTarget, bool isBinary)
 {
 	if (isTarget)
 	{
 		fs <<"netid targetId";
-		//fs << ", const SEND_FLAG flag";
+
+		if (isBinary) {
+			fs << ", bool isBinary";
+		}
 	}
 	else
 	{
@@ -549,50 +549,71 @@ void compiler::WriteArgVar(ofstream &fs, sArg *arg, bool comma)
 void compiler::WriteFirstImpleProtocol(ofstream &fs, sProtocol *pProtocol
 	, sArg*p)
 {
-	string tab = "\t";
-	fs << tab << "cPacket packet(m_node->GetPacketHeader());\n";
+	fs << "\tcPacket packet(m_node->GetPacketHeader());\n";
+	fs << "\tpacket.SetProtocolId( GetId() );\n";
+	fs << "\tpacket.SetPacketId( " << pProtocol->packetId << " );\n";
 
-	// json format?
-	if (g_format == "json") 
+	const bool isJson = g_format == "json";
+	if (isJson) // json format?
 	{
-		fs << "\tusing boost::property_tree::ptree;\n";
-		fs << "\tptree props;\n";
-		fs << "\ttry {\n";
-		tab += "\t";
-	}
+		fs << "\tpacket.SetPacketOption(0x01, (uint)isBinary);\n";
+		fs << "\tif (isBinary)\n"; // begin if (isBinary)
+		fs << "\t{\n";
 
-	fs << tab << "packet.SetProtocolId( GetId() );\n";
-	fs << tab << "packet.SetPacketId( " << pProtocol->packetId << " );\n";
-	WriteImpleArg(fs, p);
+		// marshalling binary
+		fs << "\t\t// marshaling binary\n";
+		WriteImpleArg(fs, p, "\t\t", true, true);
+		fs << "\t\tpacket.EndPack();\n";
+		WriteLastImpleProtocol(fs, "\t\t");
 
-	if (g_format == "json")
-	{
-		fs << tab << "stringstream ss;\n";
-		fs << tab << "boost::property_tree::write_json(ss, props);\n";
-		fs << tab << "packet << ss.str();\n";
-		fs << tab << "packet.EndPack();\n";
-		fs << "\t} catch(...) {\n";
 		fs << "\t}\n";
-	}
-	else {
-		fs << tab << "packet.EndPack();\n";
-	}
+		fs << "\telse\n"; // else
+		fs << "\t{\n";
 
-	WriteLastImpleProtocol(fs);
+		// marshalling json
+		fs << "\t\t// marshaling json\n";
+		fs << "\t\tusing boost::property_tree::ptree;\n";
+		fs << "\t\tptree props;\n";
+		fs << "\t\ttry {\n";
+		WriteImpleArg(fs, p, "\t\t\t", true, false);
+		fs << "\t\t\tstringstream ss;\n";
+		fs << "\t\t\tboost::property_tree::write_json(ss, props);\n";
+		fs << "\t\t\tpacket << ss.str();\n";
+		fs << "\t\t\tpacket.EndPack();\n";
+		WriteLastImpleProtocol(fs, "\t\t\t");
+		fs << "\t\t} catch (...) {\n";
+		fs << "\t\t\tdbg::Logp(\"json packet maker error\\n\");\n";
+		fs << "\t\t}\n";
+		fs << "\t}\n"; // end else if (isBinary)
+	}
+	else
+	{
+		// binary or ascii format packet
+		WriteImpleArg(fs, p, "\t\t", false, false);
+		fs << "\tpacket.EndPack();\n";
+		WriteLastImpleProtocol(fs, "\t");
+	}
 }
 
 
 //------------------------------------------------------------------------
 // Cpp 파일에 들어갈 프로토콜 코드에서 패킷에 인자값을 넣는 코드
 //------------------------------------------------------------------------
-void compiler::WriteImpleArg(ofstream &fs, sArg*p)
+void compiler::WriteImpleArg(ofstream &fs, sArg*p, const string &tab, bool isJson, bool isBinary)
 {
 	if (!p) return;
 
 	// json format?
-	if (g_format == "json")
+	if (isJson)
 	{
-		fs << "\t\tput(props, \"" << p->var->var << "\", " << p->var->var << ");\n";
+		if (isBinary)
+		{
+			fs << tab << "marshalling::operator<<(packet, " << p->var->var << ");\n";
+		}
+		else
+		{
+			fs << tab << "put(props, \"" << p->var->var << "\", " << p->var->var << ");\n";
+		}
 	}
 	else
 	{
@@ -600,23 +621,23 @@ void compiler::WriteImpleArg(ofstream &fs, sArg*p)
 		fs << "\tAddDelimeter(packet);\n";
 	}
 
-	WriteImpleArg(fs, p->next);
+	WriteImpleArg(fs, p->next, tab, isJson, isBinary);
 }
 
 
 //------------------------------------------------------------------------
 // Cpp 파일에 들어갈 프로토콜 함수의 마지막에 나올 코드
 //------------------------------------------------------------------------
-void compiler::WriteLastImpleProtocol(ofstream &fs)
+void compiler::WriteLastImpleProtocol(ofstream &fs, const string &tab)
 {
-	fs << "\tGetNode()->Send(targetId, packet);\n";
+	fs << tab << "GetNode()->Send(targetId, packet);\n";
 }
 
 
 //------------------------------------------------------------------------
 // Protocol Cpp 코드를 생성한다.
 //------------------------------------------------------------------------
-bool compiler::WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName)
+bool compiler::WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName, bool isBinary)
 {
 	n_fileName = n_OrigianlFileName + "_Protocol.cpp";
 	string headerFileName = g_protocolName + "_Protocol.h";
@@ -631,7 +652,7 @@ bool compiler::WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName)
 	fs << "using namespace " << g_protocolName << ";\n";
 	fs << endl;
 
-	WriteProtocolCpp(fs, rmi);
+	WriteProtocolCpp(fs, rmi, isBinary);
 
 	return true;
 }
@@ -640,16 +661,16 @@ bool compiler::WriteFirstProtocolCpp(sRmi *rmi, const string &pchFileName)
 //------------------------------------------------------------------------
 // ProtocolHandler Cpp 파일 생성
 //------------------------------------------------------------------------
-bool compiler::WriteProtocolCpp(ofstream &fs, sRmi *rmi)
+bool compiler::WriteProtocolCpp(ofstream &fs, sRmi *rmi, bool isBinary)
 {
 	if (!rmi) return true;
 	
 	g_className = GetProtocolClassName(g_protocolName, rmi->name);
-	WriteImplProtocolList( fs, rmi->protocol );
+	WriteImplProtocolList( fs, rmi->protocol, isBinary );
 	fs << endl;
 	fs << endl;
 
-	return WriteProtocolCpp(fs, rmi->next);
+	return WriteProtocolCpp(fs, rmi->next, isBinary);
 }
 
 
@@ -670,15 +691,15 @@ void compiler::WriteProtocolDispatchFunc(ofstream &fs, sRmi *rmi)
 
 	if (rmi->protocol)
 	{
-			fs << "\tswitch (packetId)\n";
-			fs << "\t{\n";
+		fs << "\tswitch (packetId)\n";
+		fs << "\t{\n";
 
-			WriteDispatchSwitchCase(fs, rmi->protocol);
+		WriteDispatchSwitchCase(fs, rmi->protocol);
 
-			fs << "\tdefault:\n";
-				fs << "\t\tassert(0);\n";
-				fs << "\t\tbreak;\n";
-			fs << "\t}\n";
+		fs << "\tdefault:\n";
+			fs << "\t\tassert(0);\n";
+			fs << "\t\tbreak;\n";
+		fs << "\t}\n";
 	}
 	fs << "\treturn true;\n";
 	fs << "}\n";	
@@ -709,30 +730,61 @@ void compiler::WriteDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol)
 	string tab = "\t\t\t";
 	if (g_format == "json")
 	{
-		fs << "\t\t\t// json format packet parsing using property_tree\n";
-		fs << "\t\t\tusing boost::property_tree::ptree;\n";
-		fs << "\t\t\tptree root;\n\n";
-		fs << "\t\t\ttry {\n";
-		fs << "\t\t\t\tstring str;\n";
-		fs << "\t\t\t\tpacket >> str;\n";
-		fs << "\t\t\t\tstringstream ss(str);\n";
-		fs << "\t\t\t\t\n";
-		fs << "\t\t\t\tboost::property_tree::read_json(ss, root);\n";
-		fs << "\t\t\t\tptree &props = root.get_child(\"\");\n\n";
+		// check option bit, whether it is binary or json string
+		fs << tab << "const bool isBinary = packet.GetPacketOption(0x01) > 0;\n";
+
+		fs << tab << "if (isBinary)\n";
+		fs << tab << "{\n";
 		tab += "\t";
-	}
 
-	fs << tab << pProtocol->name << "_Packet data;\n";
-	fs << tab << "data.pdispatcher = this;\n";
-	fs << tab << "data.senderId = packet.GetSenderId();\n";
-	WriteDispatchImpleArg2(fs, pProtocol->argList);
-	WriteLastDispatchSwitchCase2(fs, pProtocol);
+		// binary packet parsing
+		fs << tab << "// binary parsing\n";
 
-	if (g_format == "json")
-	{
-		fs << "\t\t\t} catch (...) {\n";
-		fs << "\t\t\t\tdbg::Logp(\"json packet parsing error\\n\");\n";
+		fs << tab << pProtocol->name << "_Packet data;\n";
+		fs << tab << "data.pdispatcher = this;\n";
+		fs << tab << "data.senderId = packet.GetSenderId();\n";
+		WriteDispatchImpleArg2(fs, pProtocol->argList, tab, true, true);
+		WriteLastDispatchSwitchCase2(fs, pProtocol, tab);
+
+		tab = "\t\t\t";
+		fs << tab << "}\n";
+		fs << tab << "else\n"; // else
+		fs << tab << "{\n";
+		tab += "\t";
+
+		// json packet parsing
+		fs << tab << "// json format packet parsing using property_tree\n";
+		fs << tab << "using boost::property_tree::ptree;\n";
+		fs << tab << "ptree root;\n\n";
+		fs << tab << "try {\n";
+		fs << tab << "\tstring str;\n";
+		fs << tab << "\tpacket >> str;\n";
+		fs << tab << "\tstringstream ss(str);\n";
+		fs << tab << "\t\n";
+		fs << tab << "\tboost::property_tree::read_json(ss, root);\n";
+		fs << tab << "\tptree &props = root.get_child(\"\");\n\n";
+		tab += "\t";
+
+		fs << tab << pProtocol->name << "_Packet data;\n";
+		fs << tab << "data.pdispatcher = this;\n";
+		fs << tab << "data.senderId = packet.GetSenderId();\n";
+		WriteDispatchImpleArg2(fs, pProtocol->argList, tab, true, false);
+		WriteLastDispatchSwitchCase2(fs, pProtocol, tab);
+
+		tab = "\t\t\t\t";
+		fs << tab << "} catch (...) {\n";
+		fs << tab << "\tdbg::Logp(\"json packet parsing error\\n\");\n";
+		fs << tab << "}\n";
+
 		fs << "\t\t\t}\n";
+	}
+	else
+	{
+		fs << tab << pProtocol->name << "_Packet data;\n";
+		fs << tab << "data.pdispatcher = this;\n";
+		fs << tab << "data.senderId = packet.GetSenderId();\n";
+		WriteDispatchImpleArg2(fs, pProtocol->argList, tab, false, true);
+		WriteLastDispatchSwitchCase2(fs, pProtocol, tab);
 	}
 
 	fs << "\t\t}\n";
@@ -747,44 +799,51 @@ void compiler::WriteDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol)
 // Dispatch 함수의 switch case 문에 들어가는 각 패킷 인자를 얻어오는 코드를
 // 생성한다.
 //------------------------------------------------------------------------
-void compiler::WriteDispatchImpleArg(ofstream &fs, sArg*p)
+//void compiler::WriteDispatchImpleArg(ofstream &fs, sArg*p)
+//{
+//	if (!p) return;
+//	// 변수 선언
+//	fs << "\t\t\t" << p->var->type << " " << p->var->var << ";\n";
+//	// 패킷에서 데이타 얻음
+//	fs << "\t\t\tpacket >> " << p->var->var << ";\n";
+//	WriteDispatchImpleArg(fs, p->next);
+//}
+void compiler::WriteDispatchImpleArg2(ofstream &fs, sArg*p, const string &tab
+	, bool isJson, bool isBinary)
 {
 	if (!p) return;
-	// 변수 선언
-	fs << "\t\t\t" << p->var->type << " " << p->var->var << ";\n";
 	// 패킷에서 데이타 얻음
-	fs << "\t\t\tpacket >> " << p->var->var << ";\n";
-	WriteDispatchImpleArg(fs, p->next);
-}
-void compiler::WriteDispatchImpleArg2(ofstream &fs, sArg*p)
-{
-	if (!p) return;
-	// 패킷에서 데이타 얻음
-	if (g_format == "json")
+	if (isJson)
 	{
-		fs << "\t\t\t\tget(props, \"" << p->var->var <<
-			"\", data." << p->var->var << ");\n";
+		if (isBinary)
+		{
+			fs << tab << "marshalling::operator>>(packet, "
+				<< "data." << p->var->var << ");\n";
+		}
+		else
+		{
+			fs << tab << "get(props, \"" << p->var->var <<
+				"\", data." << p->var->var << ");\n";
+		}
 	}
 	else 
 	{
-		fs << "\t\t\tpacket >> " << "data." << p->var->var << ";\n";
+		fs << tab << "packet >> " << "data." << p->var->var << ";\n";
 	}	
-	WriteDispatchImpleArg2(fs, p->next);
+	WriteDispatchImpleArg2(fs, p->next, tab, isJson, isBinary);
 }
 
 //------------------------------------------------------------------------
 // Dispatch 함수의 switch case 문의 마지막에 들어가는 코드로, 프로토콜에 해당하는
 // 핸들러를 호출하는 코드를 생성한다.
 //------------------------------------------------------------------------
-void compiler::WriteLastDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol)
+//void compiler::WriteLastDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol)
+//{
+//	fs << "\t\t\tSEND_HANDLER(" << g_handlerClassName << ", prtHandler, " << pProtocol->name << "(*this, packet.GetSenderId()";
+//	WriteArgVar(fs, pProtocol->argList, true );
+//	fs << ") );\n";
+//}
+void compiler::WriteLastDispatchSwitchCase2(ofstream &fs, sProtocol *pProtocol, const string &tab)
 {
-	fs << "\t\t\tSEND_HANDLER(" << g_handlerClassName << ", prtHandler, " << pProtocol->name << "(*this, packet.GetSenderId()";
-	WriteArgVar(fs, pProtocol->argList, true );
-	fs << ") );\n";
-}
-void compiler::WriteLastDispatchSwitchCase2(ofstream &fs, sProtocol *pProtocol)
-{
-	if (g_format == "json")
-		fs << "\t";
-	fs << "\t\t\tSEND_HANDLER(" << g_handlerClassName << ", prtHandler, " << pProtocol->name << "(data));\n";
+	fs << tab << "SEND_HANDLER(" << g_handlerClassName << ", prtHandler, " << pProtocol->name << "(data));\n";
 }

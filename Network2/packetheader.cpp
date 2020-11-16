@@ -43,14 +43,15 @@ void cPacketHeader::SetPacketId(BYTE *dst, const uint packetId)
 
 void cPacketHeader::SetPacketLength(BYTE *dst, const uint packetLength)
 {
-	*(short*)(dst + sizeof(int) + sizeof(int)) = (short)packetLength;
+	*(uint*)(dst + sizeof(int) + sizeof(int)) = packetLength;
 }
 
 
 bool cPacketHeader::IsValidPacket(const BYTE *src)
 {
 	return (GetProtocolId(src) >= 0)
-		&& (GetPacketId(src) >= 0)
-		&& (GetPacketLength(src) > 0);
+		//&& (GetPacketId(src) >= 0)
+		//&& (GetPacketLength(src) > 0)
+		;
 	return true;
 }

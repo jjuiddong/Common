@@ -179,14 +179,16 @@ bool cWebClient::Process()
 			if (!m_packetHeader)
 				return false; // internal error occurred!!
 
-			// WebSocket is not has PacketHeader Information
+			// 1. WebSocket is not has PacketHeader Information
 			// so we make packet header information
 			// push packet header and then push packet data
 			BYTE header[12] = { 0, };
-			m_packetHeader->SetProtocolId(header, m_protocolId);
-			m_packetHeader->SetPacketId(header, m_packetId);
-			m_packetHeader->SetPacketLength(header, result + sizeof(header));
-			m_recvQueue.Push(netId, header, sizeof(header));
+			//m_packetHeader->SetProtocolId(header, m_protocolId);
+			//m_packetHeader->SetPacketId(header, m_packetId);
+			//m_packetHeader->SetPacketLength(header, result + sizeof(header));
+			//m_recvQueue.Push(netId, header, sizeof(header));
+
+			// 2. packet obtain header?
 			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 		}
 	}

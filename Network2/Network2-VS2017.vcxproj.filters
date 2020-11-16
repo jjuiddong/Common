@@ -129,6 +129,9 @@
     <ClInclude Include="webclient.h">
       <Filter>Service</Filter>
     </ClInclude>
+    <ClInclude Include="packetheaderjson.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -224,6 +227,9 @@
     </ClCompile>
     <ClCompile Include="webclient.cpp">
       <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="packetheaderjson.cpp">
+      <Filter>Packet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

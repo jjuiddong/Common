@@ -85,7 +85,8 @@ int cPacketHeaderAscii::SetDelimeter(BYTE *dst)
 bool cPacketHeaderAscii::IsValidPacket(const BYTE *src)
 {
 	return (GetProtocolId(src) >= 0)
-		&& (GetPacketId(src) >= 0)
-		&& (GetPacketLength(src) > 0);
+		//&& (GetPacketId(src) >= 0)
+		//&& (GetPacketLength(src) > 0)
+		;
 	return true;
 }

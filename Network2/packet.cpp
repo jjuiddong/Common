@@ -16,8 +16,8 @@ cPacket::cPacket()
 
 cPacket::cPacket(iPacketHeader *packetHeader)
 	: m_packetHeader(packetHeader)
-	, m_writeIdx(packetHeader->GetHeaderSize())
-	, m_readIdx(packetHeader->GetHeaderSize())
+	, m_writeIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
+	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
 {
@@ -25,7 +25,7 @@ cPacket::cPacket(iPacketHeader *packetHeader)
 
 cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSize)
 	: m_packetHeader(packetHeader)
-	, m_readIdx(packetHeader->GetHeaderSize())
+	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
 {
@@ -46,12 +46,14 @@ cPacket::~cPacket()
 // call before read
 void cPacket::InitRead()
 {
+	RET(!m_packetHeader);
 	m_readIdx = m_packetHeader->GetHeaderSize();
 }
 
 // call before send packet
 void cPacket::EndPack()
 {
+	RET(!m_packetHeader);
 	if (m_writeIdx < DEFAULT_PACKETSIZE)
 		m_writeIdx += m_packetHeader->SetPacketTerminator(&m_data[m_writeIdx], DEFAULT_PACKETSIZE - m_writeIdx);
 
@@ -77,13 +79,20 @@ cPacket& cPacket::operator=(const cPacket &rhs)
 
 
 void cPacket::SetProtocolId(const int protocolId) {
+	RET(!m_packetHeader);
 	m_packetHeader->SetProtocolId(m_data, protocolId);
 }
 void cPacket::SetPacketId(const int packetId) {
+	RET(!m_packetHeader);
 	m_packetHeader->SetPacketId(m_data, packetId);
 }
 void cPacket::SetPacketSize(const short packetSize) {
+	RET(!m_packetHeader);
 	m_packetHeader->SetPacketLength(m_data, packetSize);
+}
+void cPacket::SetPacketOption(const uint mask, const uint option) {
+	RET(!m_packetHeader);
+	m_packetHeader->SetOptionBits(m_data, mask, option);
 }
 void cPacket::SetSenderId(const netid netId) {
 	m_sndId = netId;
@@ -92,10 +101,16 @@ int cPacket::GetProtocolId() const {
 	return m_packetHeader->GetProtocolId(m_data);
 }
 uint cPacket::GetPacketId() const {
+	RETV(!m_packetHeader, 0);
 	return m_packetHeader->GetPacketId(m_data);
 }
 uint cPacket::GetPacketSize() const {
+	RETV(!m_packetHeader, 0);
 	return (uint)min((uint)DEFAULT_PACKETSIZE, m_packetHeader->GetPacketLength(m_data));
+}
+uint cPacket::GetPacketOption(const uint mask) {
+	RETV(!m_packetHeader, 0);
+	return m_packetHeader->GetOptionBits(m_data, mask);
 }
 int cPacket::GetWriteSize() const {
 	return m_writeIdx;
@@ -105,12 +120,14 @@ int cPacket::GetSenderId() const {
 }
 
 int cPacket::GetHeaderSize() const {
+	RETV(!m_packetHeader, 0);
 	return m_packetHeader->GetHeaderSize();
 }
 
 
 bool cPacket::IsValid()
 {
+	RETV(!m_packetHeader, false);
 	return m_packetHeader->IsValidPacket(m_data);
 }
 

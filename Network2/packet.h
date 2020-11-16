@@ -37,10 +37,12 @@ namespace network2
 		void SetProtocolId(const int protocolId);
 		void SetPacketId(const int packetId);
 		void SetPacketSize(const short packetSize);
+		void SetPacketOption(const uint mask, const uint option);
 		void SetSenderId(const netid netId);
 		int GetProtocolId() const;
 		uint GetPacketId() const;
 		uint GetPacketSize() const;
+		uint GetPacketOption(const uint mask);
 		int GetWriteSize() const;
 		int GetSenderId() const;
 		int GetHeaderSize() const;

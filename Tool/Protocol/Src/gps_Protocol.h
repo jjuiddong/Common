@@ -15,6 +15,6 @@ class c2s_Protocol : public network2::iProtocol
 {
 public:
 	c2s_Protocol() : iProtocol(c2s_Protocol_ID, ePacketFormat::JSON) {}
-	void GPSInfo(netid targetId, const double &lon, const double &lat, const float &altitude, const float &speed, const string &descript);
+	void GPSInfo(netid targetId, bool isBinary, const double &lon, const double &lat, const float &altitude, const float &speed, const string &descript);
 };
 }
