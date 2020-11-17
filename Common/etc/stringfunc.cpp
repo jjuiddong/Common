@@ -108,7 +108,12 @@ std::string common::variant2str(const _variant_t &var
 	std::stringstream ss;
 	switch (var.vt)
 	{
-	case VT_BOOL: ss << var.boolVal; break;
+	// modify: 2020-11-17
+	// VT_BOOL type variant was diffrent we think
+	// variant_t value has true: -1, false: 0
+	// so direct access variant_t::boolVal was maybe error occurred!
+	//case VT_BOOL: ss << var.boolVal; break;
+	case VT_BOOL: ss << ((bool)var)? "1" : "0"; break;
 	case VT_I2: ss << var.iVal; break;
 	case VT_I4: ss << var.lVal; break;
 	case VT_R4: ss << var.fltVal; break;
@@ -170,7 +175,12 @@ _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 	var.vt = vt;
 	switch (vt)
 	{
-	case VT_BOOL: var.boolVal = (bool)atoi(value.c_str()); break;
+	// modify: 2020-11-17
+	// VT_BOOL type variant was diffrent we think
+	// variant_t value has true: -1, false: 0
+	// so direct access variant_t::boolVal was maybe error occurred!
+	//case VT_BOOL: var.boolVal = (bool)atoi(value.c_str()); break;
+	case VT_BOOL: var = (bool)atoi(value.c_str()); break;
 	case VT_I2: var.iVal = (short)atoi(value.c_str()); break;
 	case VT_I4: var.lVal = (long)atoi(value.c_str()); break;
 	case VT_R4: var.fltVal = (float)atof(value.c_str()); break;

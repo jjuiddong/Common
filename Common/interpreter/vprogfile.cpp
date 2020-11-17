@@ -101,6 +101,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 
 					pin.id = sdata.Get<int>(c, "id", 0);
 					pin.name = sdata.Get<string>(c, "name", "name");
+					pin.varName = sdata.Get<string>(c, "varname", "");
 					auto &ar = sdata.GetArray(c, "links");
 					for (uint i = 1; i < ar.size(); ++i)
 					{
@@ -1619,7 +1620,7 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 			return false;
 		}
 
-		code.str1 = MakeScopeName(node);
+		code.str1 = pin.varName.empty() ? MakeScopeName(node) : pin.varName;
 		code.str2 = pin.name.c_str();
 		code.reg1 = reg;
 		out.m_codes.push_back(code);

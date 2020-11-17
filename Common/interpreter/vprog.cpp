@@ -39,3 +39,22 @@ bool vprog::IsVarType(const ePinType::Enum type)
 		return false;
 	}
 }
+
+
+// is variable type?
+bool vprog::IsVariable(const eSymbolType::Enum type)
+{
+	switch (type)
+	{
+	case eSymbolType::Bool:
+	case eSymbolType::Int:
+	case eSymbolType::Float:
+	case eSymbolType::String:
+		return true;
+	case eSymbolType::None:
+	case eSymbolType::Enums:
+	default:
+		return false;
+	}
+}
+

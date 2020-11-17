@@ -1,7 +1,7 @@
 //
 // 2019-10-30, jjuiddong
 // Visual Programming File Read/Write
-//	- converting to intermediate code
+//	- convert to intermediate code
 //	- common::script::cIntermediateCode
 //
 // read/write node, pin, link information
@@ -26,6 +26,10 @@
 //	- id num
 //	- value string
 //
+// 2020-11-17
+//	- variable pin
+//		- sPin::varName
+//
 //
 #pragma once
 
@@ -42,6 +46,7 @@ namespace vprog
 			int id;
 			string name;
 			string typeStr; // type name
+			string varName; // variable pin? variable symbol name
 			int value; // used switch case
 			ePinType::Enum type;
 			ePinKind::Enum kind;
