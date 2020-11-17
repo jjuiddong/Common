@@ -86,7 +86,6 @@ namespace network2
 			packet << (int)seq.size();\
 			for (const auto &v : seq)\
 				packet << v;\
-			return packet;\
 		}
 
 #define MARSHALLING_ASCII_APPEND_SEQ(packet, delimeter, seq)\
@@ -98,7 +97,6 @@ namespace network2
 				if (i++ < ((int)seq.size() - 1))\
 					packet.AppendDelimeter(delimeter);\
 			}\
-			return packet;\
 		}
 
 
@@ -118,8 +116,8 @@ namespace network2
 				packet >> t;\
 				seq.push_back(t);\
 			}\
-			return packet;\
 		}
+
 
 	// no reserve() function
 #define MARSHALLING_BIN_GET_SEQ2(packet, SequenceType, seq)\
@@ -137,7 +135,6 @@ namespace network2
 				packet >> t;\
 				seq.insert(t);\
 			}\
-			return packet;\
 		}
 
 
@@ -157,7 +154,6 @@ namespace network2
 			}\
 			if (MAX_LOOP <= cnt)\
 				assert(0);\
-			return packet;\
 		}
 
 }

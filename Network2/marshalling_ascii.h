@@ -320,12 +320,14 @@ namespace network2
 	inline cPacket& marshalling_ascii::AppendSequence(cPacket &packet, const char delimeter, const Seq &seq)
 	{
 		MARSHALLING_ASCII_APPEND_SEQ(packet, delimeter, seq);
+		return packet;
 	}
 
 	template<class Seq>
 	inline cPacket& marshalling_ascii::GetSequence(cPacket &packet, const char delimeter, OUT Seq& seq)
 	{
 		MARSHALLING_ASCII_GET_SEQ(packet, delimeter, Seq, seq);
+		return packet;
 	}
 
 }

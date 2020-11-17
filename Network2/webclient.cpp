@@ -118,13 +118,15 @@ int cWebClient::Send(const netid rcvId, const cPacket &packet)
 	return 1;
 }
 
+
 // default send
 int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 {
 	int result = 0;
 	if (m_websocket && m_packetHeader)
 	{
-		// ignore packet header
+		// send only json string, no contain packet header
+		// because webserver packet parsing easly
 		const uint headerSize = m_packetHeader->GetHeaderSize();
 		result = m_websocket->sendFrame( packet.m_data + headerSize
 			, packet.GetPacketSize() - headerSize, Poco::Net::WebSocket::FRAME_TEXT);
@@ -182,7 +184,7 @@ bool cWebClient::Process()
 			// 1. WebSocket is not has PacketHeader Information
 			// so we make packet header information
 			// push packet header and then push packet data
-			BYTE header[12] = { 0, };
+			//BYTE header[12] = { 0, };
 			//m_packetHeader->SetProtocolId(header, m_protocolId);
 			//m_packetHeader->SetPacketId(header, m_packetId);
 			//m_packetHeader->SetPacketLength(header, result + sizeof(header));

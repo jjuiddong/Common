@@ -29,8 +29,10 @@ namespace network2
 		virtual void SetProtocolId(BYTE *dst, const int protocolId) override;
 		virtual void SetPacketId(BYTE *dst, const uint packetId) override;
 		virtual void SetPacketLength(BYTE *dst, const uint packetLength) override;
-		virtual bool IsValidPacket(const BYTE *src) override;
+		virtual int SetPacketTerminator(BYTE *dst, const int remainSize) override { return 0; } // nothing
+		virtual int SetDelimeter(BYTE *dst) override { return 0; } // nothing
 		virtual void SetOptionBits(BYTE *dst, const uint mask, const uint options) override;
+		virtual bool IsValidPacket(const BYTE *src) override;
 	};
 
 }

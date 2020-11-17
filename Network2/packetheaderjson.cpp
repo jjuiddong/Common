@@ -51,8 +51,9 @@ void cPacketHeaderJson::SetPacketLength(BYTE *dst, const uint packetLength)
 bool cPacketHeaderJson::IsValidPacket(const BYTE *src)
 {
 	return (GetProtocolId(src) >= 0)
-		&& (GetPacketId(src) >= 0)
-		&& (GetPacketLength(src) > 0);
+		//&& (GetPacketId(src) >= 0)
+		//&& (GetPacketLength(src) > 0)
+		;
 	return true;
 }
 

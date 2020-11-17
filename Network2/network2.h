@@ -31,6 +31,7 @@ typedef int netid;
 #include "session.h"
 #include "packetheader.h"
 #include "packetheaderascii.h"
+#include "packetheaderjson.h"
 #include "packet.h"
 #include "factory.h"
 #include "protocol.h"

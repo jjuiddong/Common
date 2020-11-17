@@ -124,11 +124,16 @@ int cPacket::GetHeaderSize() const {
 	return m_packetHeader->GetHeaderSize();
 }
 
-
 bool cPacket::IsValid()
 {
 	RETV(!m_packetHeader, false);
 	return m_packetHeader->IsValidPacket(m_data);
+}
+
+// m_readIdx 4 byte alignment, to parsing JavaScript ArrayBuffer
+void cPacket::Read4ByteAlign()
+{
+	m_readIdx = (m_readIdx + 0x03) & (~0x03);
 }
 
 

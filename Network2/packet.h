@@ -47,6 +47,7 @@ namespace network2
 		int GetSenderId() const;
 		int GetHeaderSize() const;
 		bool IsValid();
+		void Read4ByteAlign();
 
 		cPacket& operator=(const cPacket &rhs);
 

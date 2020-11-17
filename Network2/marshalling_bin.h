@@ -338,6 +338,7 @@ namespace network2
 	inline cPacket& marshalling::AppendSequence(cPacket &packet, const Seq &seq)
 	{
 		MARSHALLING_BIN_APPEND_SEQ(packet, seq);
+		return packet;
 	}
 
 
@@ -345,12 +346,14 @@ namespace network2
 	inline cPacket& marshalling::GetSequence(cPacket& packet, OUT Seq& seq)
 	{
 		MARSHALLING_BIN_GET_SEQ(packet, Seq, seq);
+		return packet;
 	}
 
 	template<class Seq>
 	inline cPacket& marshalling::GetUnOrderedSequence(cPacket& packet, OUT Seq& seq)
 	{
 		MARSHALLING_BIN_GET_SEQ2(packet, Seq, seq);
+		return packet;
 	}
 
 }
