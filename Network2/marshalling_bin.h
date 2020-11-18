@@ -25,6 +25,7 @@ namespace network2
 		cPacket& operator<<(cPacket& packet, const float& rhs);
 		cPacket& operator<<(cPacket& packet, const double& rhs);
 		cPacket& operator<<(cPacket &packet, const string &rhs);
+		cPacket& operator<<(cPacket& packet, const _variant_t &rhs);
 		template<class T, size_t N> cPacket& operator<<(cPacket &packet, const T(&rhs)[N]);
 		template<class T> cPacket& operator<<(cPacket& packet, const vector<T> &v);
 		template<class T> cPacket& operator<<(cPacket& packet, const list<T> &v);
@@ -146,6 +147,43 @@ namespace network2
 	inline cPacket& marshalling::operator<<(cPacket& packet, const string &rhs)
 	{
 		packet.AppendPtr(rhs.c_str(), rhs.size() + 1);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator<<(cPacket& packet, const _variant_t &rhs)
+	{
+		packet << rhs.vt; // value type
+
+		switch (rhs.vt)
+		{
+		case VT_I2: packet << (short)rhs; break;
+		case VT_I4: packet << (int)rhs; break;
+		case VT_R4: packet << (float)rhs; break;
+		case VT_R8: packet << (double)rhs; break;
+
+		case VT_BOOL: packet << (bool)rhs; break;
+		case VT_DECIMAL: break;
+		case VT_I1: packet << (char)rhs; break;
+		case VT_UI1: packet << (uchar)rhs; break;
+		case VT_UI2: packet << (ushort)rhs; break;
+		case VT_UI4: packet << (uint)rhs; break;
+		case VT_I8: packet << (int64)rhs; break;
+		case VT_UI8: packet << (uint64)rhs; break;
+
+		case VT_INT: packet << (int)rhs; break;
+		case VT_UINT: packet << (uint)rhs; break;
+
+		case VT_BSTR:
+#ifdef _UNICODE
+			packet << common::wstr2str(rhs.bstrVal);
+#else
+			packet << rhs.bstrVal;
+#endif
+		break;
+
+		default:
+			break;
+		}
 		return packet;
 	}
 

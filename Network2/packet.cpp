@@ -136,6 +136,12 @@ void cPacket::Read4ByteAlign()
 	m_readIdx = (m_readIdx + 0x03) & (~0x03);
 }
 
+// m_writeIdx 4 byte alignment, to send webserver
+void cPacket::Write4ByteAlign()
+{
+	m_writeIdx = (m_writeIdx + 0x03) & (~0x03);
+}
+
 
 //--------------------------------------------------------------------------------
 // Basic Packet

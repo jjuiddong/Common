@@ -127,12 +127,18 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 	{
 		// send only json string, no contain packet header
 		// because webserver packet parsing easly
-		const uint headerSize = m_packetHeader->GetHeaderSize();
-		result = m_websocket->sendFrame( packet.m_data + headerSize
-			, packet.GetPacketSize() - headerSize, Poco::Net::WebSocket::FRAME_TEXT);
-		if (result == SOCKET_ERROR)
-			return result;
-		result += headerSize;
+		//const uint headerSize = m_packetHeader->GetHeaderSize();
+		//result = m_websocket->sendFrame( packet.m_data + headerSize
+		//	, packet.GetPacketSize() - headerSize, Poco::Net::WebSocket::FRAME_TEXT);
+		//if (result == SOCKET_ERROR)
+		//	return result;
+		//result += headerSize;
+
+		//result = m_websocket->sendFrame(packet.m_data
+			//, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_TEXT);
+		result = m_websocket->sendFrame(packet.m_data
+			, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
+
 	}
 	return result;
 }

@@ -56,15 +56,15 @@
 #endif
 
 #ifndef IN
-#define IN
+	#define IN
 #endif
 
 #ifndef OUT
-#define OUT
+	#define OUT
 #endif
 
 #ifndef INOUT
-#define INOUT
+	#define INOUT
 #endif
 
 #define RET(exp)	{if((exp)) return; } // exp가 true이면 리턴
@@ -76,9 +76,15 @@
 #define BRK(exp)	{if((exp)) break; } // exp가 break
 
 
-typedef unsigned int u_int;
-typedef unsigned char u_char;
 typedef unsigned int hashcode;
+
+#ifndef uchar
+	typedef unsigned char uchar;
+#endif
+
+#ifndef ushort
+	typedef unsigned short ushort;
+#endif
 
 #ifndef wchar
 	typedef wchar_t wchar;

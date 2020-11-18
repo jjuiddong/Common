@@ -5,9 +5,7 @@
 #include <io.h>
 #include <Shellapi.h>
 #pragma comment(lib, "shlwapi")
-//#include <sys/types.h>  
 #include <sys/stat.h>
-//#include <shobjidl_core.h>
 #include <shlobj.h>
 
 
@@ -1116,7 +1114,7 @@ common::sFolderNode* CreateFolderNode_(const Seq &fileList
 		common::tokenizer(str, "/", ".", strs);
 
 		sFolderNode *node = rootNode;
-		for (u_int i = 0; i < strs.size(); ++i)
+		for (uint i = 0; i < strs.size(); ++i)
 		{
 			if (i == (strs.size() - 1))
 			{
