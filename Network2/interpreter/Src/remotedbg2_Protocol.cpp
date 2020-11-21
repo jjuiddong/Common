@@ -231,7 +231,7 @@ void remotedbg2::r2h_Protocol::ReqStop(netid targetId, bool isBinary)
 //------------------------------------------------------------------------
 // Protocol: ReqInput
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int &vmIdx, const string &event)
+void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int &vmIdx, const string &eventName)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -241,7 +241,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 	{
 		// marshaling binary
 		marshalling::operator<<(packet, vmIdx);
-		marshalling::operator<<(packet, event);
+		marshalling::operator<<(packet, eventName);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -252,7 +252,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "vmIdx", vmIdx);
-			put(props, "event", event);
+			put(props, "eventName", eventName);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -339,7 +339,7 @@ void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary
 //------------------------------------------------------------------------
 // Protocol: AckRun
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -348,6 +348,7 @@ void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -357,6 +358,7 @@ void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -371,7 +373,7 @@ void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary)
 //------------------------------------------------------------------------
 // Protocol: AckOneStep
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -380,6 +382,7 @@ void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -389,6 +392,7 @@ void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -403,7 +407,7 @@ void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary)
 //------------------------------------------------------------------------
 // Protocol: AckDebugRun
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckDebugRun(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckDebugRun(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -412,6 +416,7 @@ void remotedbg2::h2r_Protocol::AckDebugRun(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -421,6 +426,7 @@ void remotedbg2::h2r_Protocol::AckDebugRun(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -435,7 +441,7 @@ void remotedbg2::h2r_Protocol::AckDebugRun(netid targetId, bool isBinary)
 //------------------------------------------------------------------------
 // Protocol: AckBreak
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -444,6 +450,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -453,6 +460,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -467,7 +475,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary)
 //------------------------------------------------------------------------
 // Protocol: AckStop
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -476,6 +484,7 @@ void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -485,6 +494,7 @@ void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -499,7 +509,7 @@ void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary)
 //------------------------------------------------------------------------
 // Protocol: AckInput
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -508,6 +518,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -517,6 +528,45 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: SyncVMInstruction
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &vmIdx, const uint &index, const bool &cmp)
+{
+	cPacket packet(m_node->GetPacketHeader());
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 4206107288 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, index);
+		marshalling::operator<<(packet, cmp);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "vmIdx", vmIdx);
+			put(props, "index", index);
+			put(props, "cmp", cmp);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();

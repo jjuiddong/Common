@@ -18,8 +18,8 @@ namespace common
 			cInterpreter();
 			virtual ~cInterpreter();
 
-			bool Init(const StrPath &icodeFileName, iFunctionCallback *callback
-				, void *arg = nullptr);
+			bool Init(iFunctionCallback *callback, void *arg = nullptr);
+			bool ReadIntermediateCode(const StrPath &icodeFileName);
 			bool Process(const float deltaSeconds);
 			bool ProcessOneStep(const float deltaSeconds);
 			bool Run();
@@ -36,7 +36,11 @@ namespace common
 
 
 		public:
-			enum class eState {Stop, Run, Debug};
+			enum class eState {
+				Stop, // wait state
+				Debug, // one step debugging state
+				Run, // run until break
+			};
 
 			eState m_state;
 			StrPath m_fileName; // intermediate code filename

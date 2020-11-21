@@ -26,8 +26,13 @@ namespace network2
 		cRemoteDebugger2();
 		virtual ~cRemoteDebugger2();
 
-		bool InitHost(const string &url, const int port);
+		bool InitHost(const string &url
+			, const int port
+			, script::iFunctionCallback *callback = nullptr
+			, void *arg = nullptr
+		);
 		bool InitRemote(const Str16 &ip, const int port);
+		bool LoadIntermediateCode(const StrPath &fileName);
 		bool Process();
 		bool Run();
 		bool Stop();
@@ -39,6 +44,8 @@ namespace network2
 
 
 	protected:
+		bool SendSyncVMRegister();
+
 		// remotedbg2::r2h_ProtocolHandler protocol handler
 		virtual bool UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) override;
 		virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) override;
@@ -49,7 +56,7 @@ namespace network2
 		virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) override;
 
 
-	protected:
+	public:
 		enum class eState { Stop, Run };
 		eState m_state;
 		eDebugMode m_mode;
@@ -57,6 +64,8 @@ namespace network2
 		script::cInterpreter m_interpreter;
 		script::cDebugger m_debugger;
 		script::cIntermediateCode m_icode;
+		uint m_insts[10]; // vm instruction index check, max check 10
+		bool m_cmps[10];
 
 		string m_url; // webserver url
 		int m_port; // webserver port

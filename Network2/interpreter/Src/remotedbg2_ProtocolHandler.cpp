@@ -331,7 +331,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
 				marshalling::operator>>(packet, data.vmIdx);
-				marshalling::operator>>(packet, data.event);
+				marshalling::operator>>(packet, data.eventName);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqInput(data));
 			}
 			else
@@ -352,7 +352,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "vmIdx", data.vmIdx);
-					get(props, "event", data.event);
+					get(props, "eventName", data.eventName);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqInput(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
@@ -491,6 +491,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckRun(data));
 			}
 			else
@@ -510,6 +511,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckRun_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckRun(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
@@ -533,6 +535,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckOneStep_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckOneStep(data));
 			}
 			else
@@ -552,6 +555,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckOneStep_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckOneStep(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
@@ -575,6 +579,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckDebugRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckDebugRun(data));
 			}
 			else
@@ -594,6 +599,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckDebugRun_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckDebugRun(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
@@ -617,6 +623,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckBreak_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreak(data));
 			}
 			else
@@ -636,6 +643,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckBreak_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreak(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
@@ -659,6 +667,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckStop_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckStop(data));
 			}
 			else
@@ -678,6 +687,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckStop_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckStop(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
@@ -701,6 +711,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckInput_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
 			}
 			else
@@ -720,7 +731,56 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckInput_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error\n");
+				}
+			}
+		}
+		break;
+
+	case 4206107288:
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				SyncVMInstruction_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.index);
+				marshalling::operator>>(packet, data.cmp);
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					SyncVMInstruction_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "vmIdx", data.vmIdx);
+					get(props, "index", data.index);
+					get(props, "cmp", data.cmp);
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
 				}

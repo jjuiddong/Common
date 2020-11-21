@@ -68,6 +68,7 @@ public:
 	virtual bool AckBreak(remotedbg2::AckBreak_Packet &packet) { return true; }
 	virtual bool AckStop(remotedbg2::AckStop_Packet &packet) { return true; }
 	virtual bool AckInput(remotedbg2::AckInput_Packet &packet) { return true; }
+	virtual bool SyncVMInstruction(remotedbg2::SyncVMInstruction_Packet &packet) { return true; }
 	virtual bool SyncVMRegister(remotedbg2::SyncVMRegister_Packet &packet) { return true; }
 	virtual bool SyncVMSymbolTable(remotedbg2::SyncVMSymbolTable_Packet &packet) { return true; }
 	virtual bool SyncOutput(remotedbg2::SyncOutput_Packet &packet) { return true; }

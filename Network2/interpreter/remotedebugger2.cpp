@@ -8,7 +8,10 @@ using namespace network2;
 cRemoteDebugger2::cRemoteDebugger2()
 	: m_syncTime(0.f)
 	, m_state(eState::Stop)
+	, m_debugger(&m_interpreter)
 {
+	ZeroMemory(m_insts, sizeof(m_insts));
+	ZeroMemory(m_cmps, sizeof(m_cmps));	
 }
 
 cRemoteDebugger2::~cRemoteDebugger2()
@@ -21,13 +24,19 @@ cRemoteDebugger2::~cRemoteDebugger2()
 // remotedebugger running webclient, interpreter
 // connect webserver to communicate remote debugger
 // receive script data from remote debugger and then run interpreter
-bool cRemoteDebugger2::InitHost(const string &url, const int port)
+bool cRemoteDebugger2::InitHost(const string &url
+	, const int port
+	, script::iFunctionCallback *callback //= nullptr
+	, void *arg //= nullptr
+)
 {
 	Clear();
 
 	m_mode = eDebugMode::Host;
 	m_url = url;
 	m_port = port;
+
+	m_interpreter.Init(callback, arg);
 
 	m_timer.Create();
 	m_client.AddProtocolHandler(this);
@@ -38,8 +47,6 @@ bool cRemoteDebugger2::InitHost(const string &url, const int port)
 		dbg::Logc(2, "Error WebClient Connection url:%s, port:%d\n", url.c_str(), port);
 		return false;
 	}
-
-	m_state = eState::Run;
 	return true;
 }
 
@@ -51,24 +58,56 @@ bool cRemoteDebugger2::InitRemote(const Str16 &ip, const int port)
 	return true;
 }
 
+// load intermediate code
+bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
+{
+	RETV(m_state != eState::Stop, false);
+	const bool result = m_debugger.LoadIntermediateCode(fileName);
+	if (result)
+		m_state = eState::Run;
+
+	return result;
+}
 
 // process webclient, interpreter
 bool cRemoteDebugger2::Process()
 {
 	const float dt = (float)m_timer.GetDeltaSeconds();
 	m_netController.Process(dt);
-	m_interpreter.Process(dt);
+	m_debugger.Process(dt);
 
-	m_syncTime += dt;
-	if (m_syncTime > 5.0f)
+	if (eState::Run == m_state)
 	{
-		m_syncTime = 0.f;
+		m_syncTime += dt;
 
-		// sync register
-		for (auto &vm : m_interpreter.m_vms)
+		// check change instruction
+		set<uint> vms;
+		for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
 		{
-			m_protocol.SyncVMRegister(network2::SERVER_NETID, true, 0, 0, vm->m_reg);
-			break; // now only one interpreter sync
+			script::cVirtualMachine *vm = m_interpreter.m_vms[i];
+			if (m_insts[i] != vm->m_reg.idx)
+			{
+				m_insts[i] = vm->m_reg.idx;
+				m_cmps[i] = vm->m_reg.cmp;
+				vms.insert(i); // change instruction vm
+			}
+		}
+
+		// sync register?
+		if (m_syncTime > 5.0f)
+		{
+			m_syncTime = 0.f;
+			SendSyncVMRegister();
+		}
+
+		// sync instruction?
+		if (!vms.empty())
+		{
+			for (auto idx : vms)
+			{
+				m_protocol.SyncVMInstruction(network2::SERVER_NETID
+					, true, 0, m_insts[idx], m_cmps[idx]);
+			}
 		}
 	}
 
@@ -128,6 +167,18 @@ bool cRemoteDebugger2::IsRun()
 }
 
 
+// sync vm register info
+bool cRemoteDebugger2::SendSyncVMRegister()
+{
+	for (auto &vm : m_interpreter.m_vms)
+	{
+		m_protocol.SyncVMRegister(network2::SERVER_NETID, true, 0, 0, vm->m_reg);
+		break; // now only one virtual machine sync
+	}
+	return true;
+}
+
+
 // upload visualprogram data protocol handler
 bool cRemoteDebugger2::UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) 
 { 
@@ -149,6 +200,8 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
 {
 	Run();
+	m_protocol.AckRun(network2::SERVER_NETID, false, 1);
+	SendSyncVMRegister();
 	return true;
 }
 
@@ -157,6 +210,7 @@ bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
 bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 {
 	OneStep();
+	m_protocol.AckOneStep(network2::SERVER_NETID, false, 1);
 	return true;
 }
 
@@ -165,6 +219,7 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 bool cRemoteDebugger2::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 {
 	Break();
+	m_protocol.AckBreak(network2::SERVER_NETID, false, 1);
 	return true;
 }
 
@@ -172,7 +227,8 @@ bool cRemoteDebugger2::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 // request interpreter stop protocol handler
 bool cRemoteDebugger2::ReqStop(remotedbg2::ReqStop_Packet &packet)
 {
-	Terminate();
+	Stop();
+	m_protocol.AckStop(network2::SERVER_NETID, false, 1);
 	return true;
 }
 
@@ -180,6 +236,9 @@ bool cRemoteDebugger2::ReqStop(remotedbg2::ReqStop_Packet &packet)
 // request interpreter input event protocol handler
 bool cRemoteDebugger2::ReqInput(remotedbg2::ReqInput_Packet &packet)
 {
+	script::cEvent evt(packet.eventName);
+	m_interpreter.PushEvent(evt);
+	m_protocol.AckInput(network2::SERVER_NETID, false, 1);
 	return true;
 }
 

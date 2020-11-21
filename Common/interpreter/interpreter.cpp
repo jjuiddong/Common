@@ -19,18 +19,23 @@ cInterpreter::~cInterpreter()
 }
 
 
-// read intermediate code
-// fileName : intermediatecode file name
-bool cInterpreter::Init(const StrPath &icodeFileName, iFunctionCallback *callback
+// initialize interpreter
+bool cInterpreter::Init(iFunctionCallback *callback
 	, void *arg //= nullptr
 )
+{
+	m_callback = callback;
+	m_callbackArgPtr = arg;
+	return true;
+}
+
+
+// read intermediate code
+bool cInterpreter::ReadIntermediateCode(const StrPath &icodeFileName)
 {
 	m_fileName = icodeFileName;
 	if (!m_code.Read(icodeFileName))
 		return false;
-
-	m_callback = callback;
-	m_callbackArgPtr = arg;
 	return true;
 }
 

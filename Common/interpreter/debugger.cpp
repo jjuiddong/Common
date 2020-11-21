@@ -7,10 +7,13 @@ using namespace common;
 using namespace common::script;
 
 
-cDebugger::cDebugger()
+cDebugger::cDebugger(cInterpreter *interpreter //= nullptr
+)
 	: m_interpreter(nullptr)
 	, m_state(eState::Stop)
 {
+	if (interpreter)
+		Init(interpreter);
 }
 
 cDebugger::~cDebugger()
@@ -19,31 +22,49 @@ cDebugger::~cDebugger()
 }
 
 
+// initialize debugger
 bool cDebugger::Init(cInterpreter *interpreter)
 {
 	Clear();
 
 	m_interpreter = interpreter;
+	return true;
+}
+
+
+// load intermediate code, and then DebugRun state
+bool cDebugger::LoadIntermediateCode(const StrPath &fileName)
+{
+	RETV(!m_interpreter, false);
+
+	if (!m_interpreter->IsStop())
+		return false; // error, already running~
+
+	if (!m_interpreter->ReadIntermediateCode(fileName))
+		return false;
+
 	m_interpreter->DebugRun();
 	m_state = eState::DebugWait;
 	return true;
 }
 
 
+// process debugger
 bool cDebugger::Process(const float deltaSeconds)
 {
-	//m_interpreter->ProcessOneStep(0.1f);
+	RETV(!m_interpreter, false);
+
 	switch (m_state)
 	{
 	case eState::Stop:
 	case eState::DebugWait:
 		break;
 	case eState::DebugStep:
-		m_interpreter->ProcessOneStep(0.1f);
+		m_interpreter->ProcessOneStep(deltaSeconds);
 		m_state = eState::DebugWait;
 		break;
 	case eState::DebugRun:
-		m_interpreter->ProcessOneStep(0.1f);
+		m_interpreter->Process(deltaSeconds);
 		break;
 	default:
 		assert(!"cDebugger::Process() not vailid state");
@@ -53,6 +74,7 @@ bool cDebugger::Process(const float deltaSeconds)
 }
 
 
+// one step debugging
 bool cDebugger::OneStep()
 {
 	RETV(!m_interpreter, false);
@@ -100,7 +122,7 @@ bool cDebugger::Terminate()
 {
 	RETV(!m_interpreter, false);
 
-	m_interpreter->DebugCancel(); // stop state
+	m_interpreter->Stop(); // stop state
 	m_state = eState::Stop;
 	return true;
 }
@@ -135,8 +157,12 @@ bool cDebugger::IsRun()
 }
 
 
+// clear debugger information
 void cDebugger::Clear()
 {
+	if (m_interpreter)
+		m_interpreter->Clear();
+
 	m_interpreter = nullptr;
 	m_state = eState::Stop;
 }

@@ -15,10 +15,11 @@ namespace common
 		class cDebugger
 		{
 		public:
-			cDebugger();
+			cDebugger(cInterpreter *interpreter = nullptr);
 			virtual ~cDebugger();
 
 			bool Init(cInterpreter *interpreter);
+			bool LoadIntermediateCode(const StrPath &fileName);
 			bool Process(const float deltaSeconds);
 			bool OneStep();
 			bool Run();

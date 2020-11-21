@@ -51,7 +51,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int vmIdx;
-		string event;
+		string eventName;
 	};
 
 
@@ -74,31 +74,45 @@ using namespace marshalling_json;
 	struct AckRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
 	};
 
 	struct AckOneStep_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
 	};
 
 	struct AckDebugRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
 	};
 
 	struct AckBreak_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
 	};
 
 	struct AckStop_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
 	};
 
 	struct AckInput_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
+	};
+
+	struct SyncVMInstruction_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int vmIdx;
+		uint index;
+		bool cmp;
 	};
 
 	struct SyncVMRegister_Packet {

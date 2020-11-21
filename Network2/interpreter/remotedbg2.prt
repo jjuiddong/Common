@@ -18,7 +18,7 @@ protocol r2h 5301 json
 	ReqDebugRun();
 	ReqBreak();
 	ReqStop();
-	ReqInput( int vmIdx, string event );
+	ReqInput( int vmIdx, string eventName );
 }
 
 
@@ -26,12 +26,13 @@ protocol h2r 5300 json
 {
 	AckUploadVProgFile( int result );
 	AckIntermediateCode( int result, script::cIntermediateCode code );
-	AckRun();
-	AckOneStep();
-	AckDebugRun();
-	AckBreak();
-	AckStop();
-	AckInput();
+	AckRun( int result );
+	AckOneStep( int result );
+	AckDebugRun( int result );
+	AckBreak( int result );
+	AckStop( int result );
+	AckInput( int result );
+	SyncVMInstruction( int vmIdx, uint index, bool cmp );
 	SyncVMRegister( int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int vmIdx, int start, int count, string symbol );
 	SyncOutput( int vmIdx, string output );
