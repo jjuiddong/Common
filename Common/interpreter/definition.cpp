@@ -75,6 +75,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 // sInstruction
 //----------------------------------------------------
 sInstruction::sInstruction(const sInstruction &rhs)
+	: reg1(0), reg2(0)
 {
 	operator=(rhs);
 }

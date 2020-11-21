@@ -13,15 +13,15 @@ typedef struct _SReservedWord
 
 SReservedWord reservedWords[] =
 {
-	{"event", EVENT },
+	//{"event", EVENT },
 	{"if", IF },
 	{"else", ELSE },
 	{"while", WHILE },
-	{"fn", FUNCTION },
-	{"Event", EVENT},
-	{"UIEvent", UIEVENT},
-	{"CustomEvent", CUSTOMEVENT},
-	{"in",	ARG_IN},
+	//{"fn", FUNCTION },
+	//{"Event", EVENT},
+	//{"UIEvent", UIEVENT},
+	//{"CustomEvent", CUSTOMEVENT},
+	//{"in",	ARG_IN},
 	{"protocol", PROTOCOL},
 };
 const int g_rlusize = sizeof(reservedWords) / sizeof(SReservedWord);

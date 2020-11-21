@@ -18,7 +18,7 @@ namespace common
 			cInterpreter();
 			virtual ~cInterpreter();
 
-			bool Init(const StrPath &fileName, iFunctionCallback *callback
+			bool Init(const StrPath &icodeFileName, iFunctionCallback *callback
 				, void *arg = nullptr);
 			bool Process(const float deltaSeconds);
 			bool ProcessOneStep(const float deltaSeconds);

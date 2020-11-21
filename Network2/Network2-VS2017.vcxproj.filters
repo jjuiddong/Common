@@ -114,15 +114,6 @@
     <ClInclude Include="interpreter\remotedebugger.h">
       <Filter>Interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\Src\remotedbg_Protocol.h">
-      <Filter>Interpreter\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="interpreter\Src\remotedbg_ProtocolData.h">
-      <Filter>Interpreter\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h">
-      <Filter>Interpreter\protocol</Filter>
-    </ClInclude>
     <ClInclude Include="marshalling_json.h">
       <Filter>Marshalling</Filter>
     </ClInclude>
@@ -131,6 +122,30 @@
     </ClInclude>
     <ClInclude Include="packetheaderjson.h">
       <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\remotedebugger2.h">
+      <Filter>Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg_Protocol.h">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg_ProtocolData.h">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg2_Protocol.h">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg2_ProtocolData.h">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\Src\remotedbg2_ProtocolHandler.h">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClInclude>
+    <ClInclude Include="marshalling_script.h">
+      <Filter>Marshalling</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -219,17 +234,26 @@
     <ClCompile Include="interpreter\remotedebugger.cpp">
       <Filter>Interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp">
-      <Filter>Interpreter\protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp">
-      <Filter>Interpreter\protocol</Filter>
-    </ClCompile>
     <ClCompile Include="webclient.cpp">
       <Filter>Service</Filter>
     </ClCompile>
     <ClCompile Include="packetheaderjson.cpp">
       <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\remotedebugger2.cpp">
+      <Filter>Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\Src\remotedbg2_Protocol.cpp">
+      <Filter>Interpreter\protocol_src</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\Src\remotedbg2_ProtocolHandler.cpp">
+      <Filter>Interpreter\protocol_src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,9 +296,15 @@
     <Filter Include="Interpreter\protocol">
       <UniqueIdentifier>{716a1fe0-0bb7-4557-bbb7-a9ee984a3c1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interpreter\protocol_src">
+      <UniqueIdentifier>{b4227394-d9b2-4e23-85fa-b6415b2e875b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="interpreter\remotedbg.prt">
+      <Filter>Interpreter\protocol</Filter>
+    </CustomBuild>
+    <CustomBuild Include="interpreter\remotedbg2.prt">
       <Filter>Interpreter\protocol</Filter>
     </CustomBuild>
   </ItemGroup>

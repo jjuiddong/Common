@@ -1,0 +1,39 @@
+//
+// Script Remote Debugging Protocol 2
+//	- WebSocket Communication
+//		- binary/json format communication
+//	- Host : Interpreter Server/Client (Run Script, c++)
+//	- Remote : WebServer or WebBrowser (javascript)
+//	- h2r : Host Server/Client -> Remote Server Protocol
+//	- r2h : Remote Server -> Host Server/Client Protocol
+//
+
+
+protocol r2h 5301 json
+{
+	UploadVProgFile( string code );
+	ReqIntermediateCode();
+	ReqRun();
+	ReqOneStep();
+	ReqDebugRun();
+	ReqBreak();
+	ReqStop();
+	ReqInput( int vmIdx, string event );
+}
+
+
+protocol h2r 5300 json
+{
+	AckUploadVProgFile( int result );
+	AckIntermediateCode( int result, script::cIntermediateCode code );
+	AckRun();
+	AckOneStep();
+	AckDebugRun();
+	AckBreak();
+	AckStop();
+	AckInput();
+	SyncVMRegister( int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
+	SyncVMSymbolTable( int vmIdx, int start, int count, string symbol );
+	SyncOutput( int vmIdx, string output );
+}
+

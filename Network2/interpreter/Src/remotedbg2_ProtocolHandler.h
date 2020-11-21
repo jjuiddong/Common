@@ -1,0 +1,77 @@
+//------------------------------------------------------------------------
+// Name:    remotedbg2_ProtocolHandler.h
+// Author:  ProtocolGenerator (by jjuiddong)
+// Date:    
+//------------------------------------------------------------------------
+#pragma once
+
+#include "remotedbg2_ProtocolData.h"
+
+namespace remotedbg2 {
+
+using namespace network2;
+using namespace marshalling_json;
+static const int r2h_Dispatcher_ID = 5301;
+
+// Protocol Dispatcher
+class r2h_Dispatcher: public network2::cProtocolDispatcher
+{
+public:
+	r2h_Dispatcher();
+protected:
+	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
+};
+static r2h_Dispatcher g_remotedbg2_r2h_Dispatcher;
+
+
+// ProtocolHandler
+class r2h_ProtocolHandler : virtual public network2::iProtocolHandler
+{
+public:
+	friend class r2h_Dispatcher;
+	r2h_ProtocolHandler() { m_format = ePacketFormat::JSON; }
+	virtual bool UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) { return true; }
+	virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) { return true; }
+	virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) { return true; }
+	virtual bool ReqOneStep(remotedbg2::ReqOneStep_Packet &packet) { return true; }
+	virtual bool ReqDebugRun(remotedbg2::ReqDebugRun_Packet &packet) { return true; }
+	virtual bool ReqBreak(remotedbg2::ReqBreak_Packet &packet) { return true; }
+	virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) { return true; }
+	virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) { return true; }
+};
+
+
+static const int h2r_Dispatcher_ID = 5300;
+
+// Protocol Dispatcher
+class h2r_Dispatcher: public network2::cProtocolDispatcher
+{
+public:
+	h2r_Dispatcher();
+protected:
+	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
+};
+static h2r_Dispatcher g_remotedbg2_h2r_Dispatcher;
+
+
+// ProtocolHandler
+class h2r_ProtocolHandler : virtual public network2::iProtocolHandler
+{
+public:
+	friend class h2r_Dispatcher;
+	h2r_ProtocolHandler() { m_format = ePacketFormat::JSON; }
+	virtual bool AckUploadVProgFile(remotedbg2::AckUploadVProgFile_Packet &packet) { return true; }
+	virtual bool AckIntermediateCode(remotedbg2::AckIntermediateCode_Packet &packet) { return true; }
+	virtual bool AckRun(remotedbg2::AckRun_Packet &packet) { return true; }
+	virtual bool AckOneStep(remotedbg2::AckOneStep_Packet &packet) { return true; }
+	virtual bool AckDebugRun(remotedbg2::AckDebugRun_Packet &packet) { return true; }
+	virtual bool AckBreak(remotedbg2::AckBreak_Packet &packet) { return true; }
+	virtual bool AckStop(remotedbg2::AckStop_Packet &packet) { return true; }
+	virtual bool AckInput(remotedbg2::AckInput_Packet &packet) { return true; }
+	virtual bool SyncVMRegister(remotedbg2::SyncVMRegister_Packet &packet) { return true; }
+	virtual bool SyncVMSymbolTable(remotedbg2::SyncVMSymbolTable_Packet &packet) { return true; }
+	virtual bool SyncOutput(remotedbg2::SyncOutput_Packet &packet) { return true; }
+};
+
+
+}

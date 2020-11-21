@@ -38,18 +38,18 @@ namespace common
 			eCommand::Enum cmd;
 			string str1; // function name, variable name, etc..
 			string str2; // function name, variable name, etc..
-			uchar reg1; // register index (val0, val1, ...)
-			uchar reg2; // register index (val0, val1, ...)
+			uint reg1; // register index (val0, val1, ...), or variable id
+			uint reg2; // register index (val0, val1, ...), or variable id
 			variant_t var1; // variable value
 
-			sInstruction() {}
+			sInstruction() : reg1(0), reg2(0) {}
 			sInstruction(const sInstruction &rhs);
-			sInstruction(const eCommand::Enum cmd0) : cmd(cmd0) {}
+			sInstruction(const eCommand::Enum cmd0) : cmd(cmd0), reg1(0), reg2(0) {}
 			sInstruction(const eCommand::Enum cmd0, const string &_str1) 
-				: cmd(cmd0), str1(_str1) {}
+				: cmd(cmd0), str1(_str1), reg1(0), reg2(0) {}
 			sInstruction(const eCommand::Enum cmd0, const string &_str1
 				, const string &_str2)
-				: cmd(cmd0), str1(_str1), str2(_str2) {}
+				: cmd(cmd0), str1(_str1), str2(_str2), reg1(0), reg2(0) {}
 			~sInstruction();
 
 			sInstruction& operator=(const sInstruction &rhs);

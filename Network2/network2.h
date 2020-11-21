@@ -54,6 +54,7 @@ typedef int netid;
 #include "marshalling_bin.h"
 #include "marshalling_ascii.h"
 #include "marshalling_json.h"
+#include "marshalling_script.h"
 #include "protocol_basic_dispatcher.h"
 #include "protocol_all_handler.h"
 #include "definition_marshalling.h"
@@ -64,6 +65,7 @@ typedef int netid;
 #include "prtcompiler/protocolutil.h"
 
 #include "interpreter/remotedebugger.h"
+#include "interpreter/remotedebugger2.h"
 
 #include "utility/all_protocol_displayer.h"
 #include "utility/log.h"

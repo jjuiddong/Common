@@ -165,11 +165,16 @@
     <ClInclude Include="definition.h" />
     <ClInclude Include="definition_marshalling.h" />
     <ClInclude Include="interpreter\remotedebugger.h" />
+    <ClInclude Include="interpreter\remotedebugger2.h" />
+    <ClInclude Include="interpreter\Src\remotedbg2_Protocol.h" />
+    <ClInclude Include="interpreter\Src\remotedbg2_ProtocolData.h" />
+    <ClInclude Include="interpreter\Src\remotedbg2_ProtocolHandler.h" />
     <ClInclude Include="interpreter\Src\remotedbg_Protocol.h" />
     <ClInclude Include="interpreter\Src\remotedbg_ProtocolData.h" />
     <ClInclude Include="interpreter\Src\remotedbg_ProtocolHandler.h" />
     <ClInclude Include="marshalling.h" />
     <ClInclude Include="marshalling_json.h" />
+    <ClInclude Include="marshalling_script.h" />
     <ClInclude Include="packetheaderjson.h" />
     <ClInclude Include="protocol_all_handler.h" />
     <ClInclude Include="factory.h" />
@@ -210,6 +215,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="interpreter\remotedebugger.cpp" />
+    <ClCompile Include="interpreter\remotedebugger2.cpp" />
+    <ClCompile Include="interpreter\Src\remotedbg2_Protocol.cpp" />
+    <ClCompile Include="interpreter\Src\remotedbg2_ProtocolHandler.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg_ProtocolHandler.cpp" />
     <ClCompile Include="packetheaderjson.cpp" />
@@ -263,6 +271,17 @@
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="interpreter\remotedbg2.prt">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename) protocol Generation...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

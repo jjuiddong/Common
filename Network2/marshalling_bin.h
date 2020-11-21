@@ -152,7 +152,22 @@ namespace network2
 
 	inline cPacket& marshalling::operator<<(cPacket& packet, const _variant_t &rhs)
 	{
-		packet << rhs.vt; // value type
+		packet << rhs.vt; // value type (2 bytes)
+
+		// 4bytes alignments
+		switch (rhs.vt)
+		{
+		case VT_I4:
+		case VT_R4:
+		case VT_R8:
+		case VT_UI4:
+		case VT_I8:
+		case VT_UI8:
+		case VT_INT:
+		case VT_UINT:
+			packet.Write4ByteAlign();
+			break;
+		}
 
 		switch (rhs.vt)
 		{
@@ -305,6 +320,23 @@ namespace network2
 
 	inline cPacket& marshalling::operator>>(cPacket& packet, _variant_t &out)
 	{
+		packet >> out.vt; // value type (2 bytes)
+
+		// 4bytes alignments
+		switch (out.vt)
+		{
+		case VT_I4:
+		case VT_R4:
+		case VT_R8:
+		case VT_UI4:
+		case VT_I8:
+		case VT_UI8:
+		case VT_INT:
+		case VT_UINT:
+			packet.Read4ByteAlign();
+			break;
+		}
+
 		switch (out.vt)
 		{
 		case VT_I2: packet >> out.iVal; break;
