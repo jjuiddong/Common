@@ -19,6 +19,7 @@ protocol r2h 5301 json
 	ReqBreak();
 	ReqStop();
 	ReqInput( int vmIdx, string eventName );
+	AckHeartBeat();
 }
 
 
@@ -32,9 +33,10 @@ protocol h2r 5300 json
 	AckBreak( int result );
 	AckStop( int result );
 	AckInput( int result );
-	SyncVMInstruction( int vmIdx, uint index, bool cmp );
+	SyncVMInstruction( int vmIdx, vector<uint> indices, vector<bool> cmps );
 	SyncVMRegister( int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
-	SyncVMSymbolTable( int vmIdx, int start, int count, string symbol );
-	SyncOutput( int vmIdx, string output );
+	SyncVMSymbolTable( int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
+	SyncVMOutput( int vmIdx, string output );
+	ReqHeartBeat();
 }
 

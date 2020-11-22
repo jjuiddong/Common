@@ -28,7 +28,7 @@ namespace common
 
 			// variable information
 			struct sVar {
-				string type;
+				string type; // special type string
 				variant_t var;
 
 				sVar();

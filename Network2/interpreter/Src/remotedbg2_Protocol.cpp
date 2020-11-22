@@ -264,6 +264,38 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 	}
 }
 
+//------------------------------------------------------------------------
+// Protocol: AckHeartBeat
+//------------------------------------------------------------------------
+void remotedbg2::r2h_Protocol::AckHeartBeat(netid targetId, bool isBinary)
+{
+	cPacket packet(m_node->GetPacketHeader());
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 1133387750 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
 
 
 //------------------------------------------------------------------------
@@ -543,7 +575,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: SyncVMInstruction
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &vmIdx, const uint &index, const bool &cmp)
+void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &vmIdx, const vector<uint> &indices, const vector<bool> &cmps)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -553,8 +585,8 @@ void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, 
 	{
 		// marshaling binary
 		marshalling::operator<<(packet, vmIdx);
-		marshalling::operator<<(packet, index);
-		marshalling::operator<<(packet, cmp);
+		marshalling::operator<<(packet, indices);
+		marshalling::operator<<(packet, cmps);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -565,8 +597,8 @@ void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "vmIdx", vmIdx);
-			put(props, "index", index);
-			put(props, "cmp", cmp);
+			put(props, "indices", indices);
+			put(props, "cmps", cmps);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -619,7 +651,7 @@ void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, con
 //------------------------------------------------------------------------
 // Protocol: SyncVMSymbolTable
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, const int &vmIdx, const int &start, const int &count, const string &symbol)
+void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, const int &vmIdx, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -657,13 +689,13 @@ void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, 
 }
 
 //------------------------------------------------------------------------
-// Protocol: SyncOutput
+// Protocol: SyncVMOutput
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncOutput(netid targetId, bool isBinary, const int &vmIdx, const string &output)
+void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const int &vmIdx, const string &output)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 1990418972 );
+	packet.SetPacketId( 1348120458 );
 	packet.SetPacketOption(0x01, (uint)isBinary);
 	if (isBinary)
 	{
@@ -681,6 +713,38 @@ void remotedbg2::h2r_Protocol::SyncOutput(netid targetId, bool isBinary, const i
 		try {
 			put(props, "vmIdx", vmIdx);
 			put(props, "output", output);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: ReqHeartBeat
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
+{
+	cPacket packet(m_node->GetPacketHeader());
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 2532286881 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();

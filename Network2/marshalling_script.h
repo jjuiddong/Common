@@ -16,6 +16,10 @@ namespace network2 {
 		inline ptree& get(ptree &props, const char *typeName, OUT script::cIntermediateCode &rhs) { return props; } // nothing
 		inline ptree& put(ptree &props, const char *typeName, const script::cVirtualMachine::sRegister &rhs) { return props; } // nothing
 		inline ptree& get(ptree &props, const char *typeName, OUT script::cVirtualMachine::sRegister &rhs) { return props; } // nothing
+		inline ptree& put(ptree &props, const char *typeName, const script::sSyncSymbol &rhs) { return props; } // nothing
+		inline ptree& get(ptree &props, const char *typeName, OUT script::sSyncSymbol &rhs) { return props; } // nothing
+		inline ptree& put(ptree &props, const char *typeName, const vector<script::sSyncSymbol> &rhs) { return props; } // nothing
+		inline ptree& get(ptree &props, const char *typeName, OUT vector<script::sSyncSymbol> &rhs) { return props; } // nothing
 	}
 }
 
@@ -55,11 +59,26 @@ namespace network2 {
 			return packet;
 		}
 
+		inline cPacket& operator<<(cPacket& packet, const script::sSyncSymbol &rhs)
+		{
+			packet << *rhs.scope;
+			packet << *rhs.name;
+			packet << *rhs.var;
+			return packet;
+		}
+
+		inline cPacket& operator<<(cPacket& packet, const vector<script::sSyncSymbol> &rhs)
+		{
+			MARSHALLING_BIN_APPEND_SEQ(packet, rhs);
+			return packet;
+		}
 
 		//---------------------------------------------------------------------------------
 		// >>
 		inline cPacket& operator>>(cPacket& packet, OUT script::cIntermediateCode& rhs) { return packet; } // nothing~
 		inline cPacket& operator>>(cPacket& packet, OUT script::cVirtualMachine::sRegister& rhs) { return packet; } // nothing
+		inline cPacket& operator>>(cPacket& packet, OUT script::sSyncSymbol& rhs) { return packet; } // nothing
+		inline cPacket& operator>>(cPacket& packet, OUT vector<script::sSyncSymbol>& rhs) { return packet; } // nothing
 	}
 }
 

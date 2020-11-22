@@ -115,6 +115,19 @@ namespace common
 				, void *arg) = 0;
 		};
 
+
+		// syncronize symbol variable (to marshalling)
+		struct sSyncSymbol
+		{
+			const string *scope;
+			const string *name;
+			const variant_t *var;
+
+			sSyncSymbol(const string *scope_ = nullptr, const string *name_ = nullptr
+				, const variant_t *var_ = nullptr) 
+			: scope(scope_), name(name_), var(var_) { }
+		};
+
 	}
 }
 

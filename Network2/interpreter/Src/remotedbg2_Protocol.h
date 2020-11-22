@@ -23,6 +23,7 @@ public:
 	void ReqBreak(netid targetId, bool isBinary);
 	void ReqStop(netid targetId, bool isBinary);
 	void ReqInput(netid targetId, bool isBinary, const int &vmIdx, const string &eventName);
+	void AckHeartBeat(netid targetId, bool isBinary);
 };
 static const int h2r_Protocol_ID = 5300;
 
@@ -38,9 +39,10 @@ public:
 	void AckBreak(netid targetId, bool isBinary, const int &result);
 	void AckStop(netid targetId, bool isBinary, const int &result);
 	void AckInput(netid targetId, bool isBinary, const int &result);
-	void SyncVMInstruction(netid targetId, bool isBinary, const int &vmIdx, const uint &index, const bool &cmp);
+	void SyncVMInstruction(netid targetId, bool isBinary, const int &vmIdx, const vector<uint> &indices, const vector<bool> &cmps);
 	void SyncVMRegister(netid targetId, bool isBinary, const int &vmIdx, const int &infoType, const script::cVirtualMachine::sRegister &reg);
-	void SyncVMSymbolTable(netid targetId, bool isBinary, const int &vmIdx, const int &start, const int &count, const string &symbol);
-	void SyncOutput(netid targetId, bool isBinary, const int &vmIdx, const string &output);
+	void SyncVMSymbolTable(netid targetId, bool isBinary, const int &vmIdx, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol);
+	void SyncVMOutput(netid targetId, bool isBinary, const int &vmIdx, const string &output);
+	void ReqHeartBeat(netid targetId, bool isBinary);
 };
 }

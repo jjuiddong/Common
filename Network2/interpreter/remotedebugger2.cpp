@@ -6,12 +6,13 @@ using namespace network2;
 
 
 cRemoteDebugger2::cRemoteDebugger2()
-	: m_syncTime(0.f)
+	: m_regSyncTime(0.f)
+	, m_instSyncTime(0.f)
+	, m_symbSyncTime(0.f)
 	, m_state(eState::Stop)
 	, m_debugger(&m_interpreter)
+	, m_isChangeInstruction(false)
 {
-	ZeroMemory(m_insts, sizeof(m_insts));
-	ZeroMemory(m_cmps, sizeof(m_cmps));	
 }
 
 cRemoteDebugger2::~cRemoteDebugger2()
@@ -65,7 +66,6 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 	const bool result = m_debugger.LoadIntermediateCode(fileName);
 	if (result)
 		m_state = eState::Run;
-
 	return result;
 }
 
@@ -78,35 +78,77 @@ bool cRemoteDebugger2::Process()
 
 	if (eState::Run == m_state)
 	{
-		m_syncTime += dt;
+		m_regSyncTime += dt;
+		m_instSyncTime += dt;
+		m_symbSyncTime += dt;
 
 		// check change instruction
-		set<uint> vms;
 		for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
 		{
 			script::cVirtualMachine *vm = m_interpreter.m_vms[i];
-			if (m_insts[i] != vm->m_reg.idx)
+			if (m_insts[i].empty() 
+				|| ((m_insts[i].size() < 100)
+					&& (m_insts[i].back() != vm->m_reg.idx)))
 			{
-				m_insts[i] = vm->m_reg.idx;
-				m_cmps[i] = vm->m_reg.cmp;
-				vms.insert(i); // change instruction vm
+				m_insts[i].push_back(vm->m_reg.idx);
+				m_cmps[i].push_back(vm->m_reg.cmp);
+				m_isChangeInstruction = true;
 			}
 		}
 
 		// sync register?
-		if (m_syncTime > 5.0f)
+		if (m_regSyncTime > 5.0f)
 		{
-			m_syncTime = 0.f;
+			m_regSyncTime = 0.f;
 			SendSyncVMRegister();
 		}
 
 		// sync instruction?
-		if (!vms.empty())
+		if (m_isChangeInstruction && (m_instSyncTime > 0.5f))
 		{
-			for (auto idx : vms)
+			m_instSyncTime = 0.f;
+			m_isChangeInstruction = false;
+			for (uint i = 0; i < 10; ++i)
 			{
+				if (m_insts[i].empty())
+					continue;
+				
 				m_protocol.SyncVMInstruction(network2::SERVER_NETID
-					, true, 0, m_insts[idx], m_cmps[idx]);
+					, true, 0, m_insts[i], m_cmps[i]);
+
+				// clear and setup last data
+				const uint index = m_insts[i].back();
+				const bool cmp = m_cmps[i].back();
+				m_insts[i].clear();
+				m_cmps[i].clear();
+				m_insts[i].push_back(index); // last data
+				m_cmps[i].push_back(cmp); // last data
+			}
+		}
+
+		// sync symboltable
+		if (m_symbSyncTime > 5.f) {
+			m_symbSyncTime = 0.f;
+
+			for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
+			{
+				vector<script::sSyncSymbol> symbols;
+				script::cVirtualMachine *vm = m_interpreter.m_vms[i];
+				for (auto &kv1 : vm->m_symbTable.m_vars)
+				{
+					const string &scope = kv1.first;
+					for (auto &kv2 : kv1.second)
+					{
+						const string &name = kv2.first;
+						const script::cSymbolTable::sVar &var = kv2.second;
+						symbols.push_back(script::sSyncSymbol(&scope, &name, &var.var));
+					}
+				}
+
+				if (!symbols.empty())
+				{
+					m_protocol.SyncVMSymbolTable(network2::SERVER_NETID, true, i, 0, symbols.size(), symbols);
+				}
 			}
 		}
 	}

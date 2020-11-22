@@ -64,8 +64,9 @@ namespace network2
 		script::cInterpreter m_interpreter;
 		script::cDebugger m_debugger;
 		script::cIntermediateCode m_icode;
-		uint m_insts[10]; // vm instruction index check, max check 10
-		bool m_cmps[10];
+		vector<uint> m_insts[10]; // vm instruction index check, max check 10
+		vector<bool> m_cmps[10];
+		bool m_isChangeInstruction;
 
 		string m_url; // webserver url
 		int m_port; // webserver port
@@ -73,7 +74,9 @@ namespace network2
 		network2::cWebClient m_client;
 		remotedbg2::h2r_Protocol m_protocol;
 		cTimer m_timer;
-		float m_syncTime;
+		float m_regSyncTime; // register sync time
+		float m_instSyncTime; // instruction sync time
+		float m_symbSyncTime; // symboltable sync time
 	};
 
 }

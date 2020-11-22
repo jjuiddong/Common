@@ -54,6 +54,11 @@ using namespace marshalling_json;
 		string eventName;
 	};
 
+	struct AckHeartBeat_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+	};
+
 
 
 
@@ -111,8 +116,8 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int vmIdx;
-		uint index;
-		bool cmp;
+		vector<uint> indices;
+		vector<bool> cmps;
 	};
 
 	struct SyncVMRegister_Packet {
@@ -127,16 +132,21 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int vmIdx;
-		int start;
-		int count;
-		string symbol;
+		uint start;
+		uint count;
+		vector<script::sSyncSymbol> symbol;
 	};
 
-	struct SyncOutput_Packet {
+	struct SyncVMOutput_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int vmIdx;
 		string output;
+	};
+
+	struct ReqHeartBeat_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
 	};
 
 
