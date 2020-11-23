@@ -41,7 +41,7 @@ void cSkeleton::UpdateHierarchyTransform()
 
 void cSkeleton::SetInitializePose()
 {
-	for (u_int i = 0; i < m_bones.size(); ++i)
+	for (uint i = 0; i < m_bones.size(); ++i)
 	{
 		m_tmAni[i] = m_bones[i].localTm;
 		m_tmOffset[i] = m_bones[i].offsetTm;

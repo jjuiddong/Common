@@ -140,7 +140,7 @@ void cTerrainCursor::GeometryEdit(cRenderer &renderer
 	}
 
 	// Update Heightmap
-	for (u_int i=0; i < terrain.m_heightMap.size(); ++i)
+	for (uint i=0; i < terrain.m_heightMap.size(); ++i)
 	{
 		auto &vtx = terrain.m_heightMap[i];
 		const Vector2 p0(vtx.p.x, vtx.p.z);

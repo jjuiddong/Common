@@ -128,7 +128,7 @@ bool cTorusShape::Create(cRenderer &renderer, const float outerRadius, const flo
 	BYTE *initVertices = &buffer[0];
 	const Vector4 vColor = cColor::WHITE.GetColor();// color.GetColor();
 	BYTE *pvtx = initVertices;
-	for (u_int i = 0; i < vertices.size(); ++i)
+	for (uint i = 0; i < vertices.size(); ++i)
 	{
 		if (vtxType & eVertexType::POSITION)
 			*(Vector3*)(pvtx + posOffset) = vertices[i];

@@ -47,7 +47,7 @@ bool cPathFinder2D::Read(const char *fileName)
 			break;
 
 		int x = 0;
-		for (u_int i = 0; i < line.size(); ++i)
+		for (uint i = 0; i < line.size(); ++i)
 		{
 			int n = line[i] - '0';
 			if (abs(n) > 9)
@@ -277,7 +277,7 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 			// sorting candidate
 			// value = minimum( startLen + endLen )
 			bool isInsert = false;
-			for (u_int k = 0; k < candidate.size(); ++k)
+			for (uint k = 0; k < candidate.size(); ++k)
 			{
 				++loopCount1;
 
@@ -494,7 +494,7 @@ bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 	outPos.reserve(allEpath.size());
 	outVertexPos.reserve(allEpath.size());
 	outEdges.reserve(allEpath.size());
-	for (u_int i = 0; i < allEpath.size(); ++i)
+	for (uint i = 0; i < allEpath.size(); ++i)
 	{
 		if (allEpath[i].empty())
 			continue;
@@ -506,7 +506,7 @@ bool cPathFinder2D::FindEnumeration(const Vector2i &startPos
 
 		outVertexPos.push_back({});
 		outVertexPos[i].reserve(allEpath[i].size());
-		for (u_int k = 0; k < allEpath[i].size(); ++k)
+		for (uint k = 0; k < allEpath[i].size(); ++k)
 		{
 			const int from = allEpath[i][k].from;
 			outVertexPos[i].push_back(
@@ -606,7 +606,7 @@ bool cPathFinder2D::GetEdgePath2PosPath(const epath &edgePath, OUT ppath &out)
 			out.pop_back(); // 마지막 노드는 중복이기 때문에 제거
 	}
 
-	for (u_int i = 1; i < edgePath.size() - 1; ++i)
+	for (uint i = 1; i < edgePath.size() - 1; ++i)
 	{
 		const cPathFinder::sEdge &edge = edgePath[i];
 		CollectEdgeVertices(edge.from, edge.to, MakeUniqueEdgeKey(edge.to, edge.from), out);

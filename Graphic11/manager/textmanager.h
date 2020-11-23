@@ -23,7 +23,7 @@ namespace graphic
 		cTextManager();
 		virtual ~cTextManager();
 
-		void Create(const u_int maxTextCount = 128
+		void Create(const uint maxTextCount = 128
 			, const int textureSizeX= TEXTURE_SIZEX, const int textureSizeY = TEXTURE_SIZEY);
 		void NewFrame();
 		
@@ -99,7 +99,7 @@ namespace graphic
 
 
 	public:
-		u_int m_maxTextCount;
+		uint m_maxTextCount;
 		vector<sText*> m_renders; // reference m_buffer
 		vector<sText*> m_buffer; // m_renders, m_buffer chainning system, has original memory
 		vector<sCommand> m_codes;

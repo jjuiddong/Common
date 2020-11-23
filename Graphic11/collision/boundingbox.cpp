@@ -64,7 +64,7 @@ void cBoundingBox::SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, cons
 void SATtest( const Vector3& axis, const Vector3 ptSet[8], float& minAlong, float& maxAlong )
 {
 	minAlong = (float)HUGE, maxAlong = (float)-HUGE;
-	for( u_int i = 0 ; i < 8; i++ )
+	for(uint i = 0 ; i < 8; i++ )
 	{
 		// just dot it to get the min/max along this axis.
 		float dotVal = ptSet[ i].DotProduct( axis ) ;

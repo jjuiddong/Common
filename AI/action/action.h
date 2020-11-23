@@ -227,7 +227,7 @@ namespace ai
 	template<class T>
 	void cAction<T>::RemoveAction(cAction *action)
 	{
-		for (u_int i = m_children.size() - 1; i >= 0; --i)
+		for (uint i = m_children.size() - 1; i >= 0; --i)
 		{
 			if (*action == *m_children[i])
 			{
@@ -244,7 +244,7 @@ namespace ai
 	template<class T>
 	void cAction<T>::RemoveAction(const StrId &actionName)
 	{
-		for (u_int i = m_children.size() - 1; i >= 0; --i)
+		for (uint i = m_children.size() - 1; i >= 0; --i)
 		{
 			if (actionName == m_children[i]->m_name)
 			{
@@ -275,7 +275,7 @@ namespace ai
 	cAction<T>* cAction<T>::FindAction(const StrId &actionName, bool isFindChild //= true
 	)
 	{
-		for (u_int i = 0; i < m_children.size(); ++i)
+		for (uint i = 0; i < m_children.size(); ++i)
 		{
 			if (actionName == m_children[i]->m_name)
 				return m_children[i];
@@ -283,7 +283,7 @@ namespace ai
 
 		if (isFindChild)
 		{
-			for (u_int i = 0; i < m_children.size(); ++i)
+			for (uint i = 0; i < m_children.size(); ++i)
 			{
 				if (cAction *action = m_children[i]->FindAction(actionName, isFindChild))
 					return action;
@@ -298,7 +298,7 @@ namespace ai
 	cAction<T>* cAction<T>::FindAction(const eActionType::Enum type, bool isFindChild //= true
 	)
 	{
-		for (u_int i = 0; i < m_children.size(); ++i)
+		for (uint i = 0; i < m_children.size(); ++i)
 		{
 			if (m_children[i]->IsCurrentAction(type))
 				return m_children[i];
@@ -306,7 +306,7 @@ namespace ai
 
 		if (isFindChild)
 		{
-			for (u_int i = 0; i < m_children.size(); ++i)
+			for (uint i = 0; i < m_children.size(); ++i)
 			{
 				if (cAction *action = m_children[i]->FindAction(type, isFindChild))
 					return action;

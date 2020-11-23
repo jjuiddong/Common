@@ -30,7 +30,7 @@ bool cNavigationMesh::ReadFromPathFile(const char *fileName)
 	for (auto &vtx : pathFinder.m_vertices)
 		m_vertices.push_back(vtx.pos);
 
-	for (u_int i = 0; i < pathFinder.m_vertices.size(); ++i)
+	for (uint i = 0; i < pathFinder.m_vertices.size(); ++i)
 	{
 		auto &vtx = pathFinder.m_vertices[i];
 		if (vtx.edge[0].to < 0)
@@ -46,14 +46,14 @@ bool cNavigationMesh::ReadFromPathFile(const char *fileName)
 
 	// build wall
 	{
-		for (u_int idx =0; idx < m_naviNodes.size(); ++idx)
+		for (uint idx =0; idx < m_naviNodes.size(); ++idx)
 		{
 			set<int> nodeIndices;
 			nodeIndices.insert(idx);
 			vector<Plane> bplanes;
 			GetWallPlane(nodeIndices, bplanes);
 
-			vector<u_int> indices;
+			vector<uint> indices;
 			for (auto &bplane : bplanes)
 			{
 				m_walls.push_back({ idx, false, bplane });
@@ -172,7 +172,7 @@ int cNavigationMesh::BuildPolygonFromPathFinder(const ai::cPathFinder &pathFinde
 int cNavigationMesh::GetExistTriangle(const vector<WORD> &indices
 	, const int vtxIdx1, const int vtxIdx2, const int vtxIdx3)
 {
-	for (u_int i = 2; i < indices.size(); i += 3)
+	for (uint i = 2; i < indices.size(); i += 3)
 	{
 		const WORD idx1 = indices[i - 2];
 		const WORD idx2 = indices[i - 1];
@@ -265,7 +265,7 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 			// sorting candidate
 			// value = minimum( startLen + endLen )
 			bool isInsert = false;
-			for (u_int k = 0; k < candidate.size(); ++k)
+			for (uint k = 0; k < candidate.size(); ++k)
 			{
 				sNaviNode &compNode = m_naviNodes[candidate[k]];
 				if ((compNode.endLen + compNode.startLen) > (nextNode.endLen + nextNode.startLen))
@@ -367,7 +367,7 @@ int cNavigationMesh::GetNearestNode(const Vector3 &pos)
 	float nearDist = FLT_MAX;
 	int nearIdx = -1;
 
-	for (u_int i=0; i < m_naviNodes.size(); ++i)
+	for (uint i=0; i < m_naviNodes.size(); ++i)
 	{
 		auto &node = m_naviNodes[i];
 
@@ -666,7 +666,7 @@ int cNavigationMesh::GetAdjacentCollisionVertexIdx(const int adjVtxIdx1, const i
 std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
 	, const int vtxIdx)
 {
-	for (u_int i = 0; i < nodeIndices.size(); ++i)
+	for (uint i = 0; i < nodeIndices.size(); ++i)
 	{
 		const sNaviNode &node = m_naviNodes[nodeIndices[i]];
 		if ((node.idx1 == vtxIdx)
@@ -688,7 +688,7 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<int> &nodeIndices
 	, const int vtxIdx1, const int vtxIdx2)
 {
-	for (u_int i = 0; i < nodeIndices.size(); ++i)
+	for (uint i = 0; i < nodeIndices.size(); ++i)
 	{
 		const sNaviNode &node = m_naviNodes[nodeIndices[i]];
 		if (
@@ -706,7 +706,7 @@ std::pair<int, int> cNavigationMesh::GetNearestNodeFromVertexIdx(const vector<in
 // 네비게이션 매쉬의 버텍스를 포함하는 노드들을 리턴한다.
 void cNavigationMesh::GetNodesFromVertexIdx(const int vtxIdx, OUT set<int> &out)
 {
-	for (u_int i = 0; i < m_naviNodes.size(); ++i)
+	for (uint i = 0; i < m_naviNodes.size(); ++i)
 	{
 		const sNaviNode &node = m_naviNodes[i];
 		if ((node.idx1 == vtxIdx) || (node.idx2 == vtxIdx) || (node.idx3 == vtxIdx))

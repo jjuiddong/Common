@@ -47,7 +47,7 @@ bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0
 	, const bool isUpdateBuffer //= true
 )
 {
-	if ((u_int)m_vtxBuff.GetVertexCount() <= ((m_lines.size()*2) + 1))
+	if ((uint)m_vtxBuff.GetVertexCount() <= ((m_lines.size()*2) + 1))
 		return false; // full buffer
 
 	const Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;

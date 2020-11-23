@@ -64,7 +64,7 @@ namespace ai
 
 		struct sWall
 		{
-			u_int nodeIdx;
+			uint nodeIdx;
 			bool collision;			
 			Plane bplane;
 		};
@@ -72,7 +72,7 @@ namespace ai
 		vector<Vector3> m_vertices;
 		vector<sNaviNode> m_naviNodes;
 		vector<sWall> m_walls;
-		map<u_int, vector<u_int>> m_wallMap; // key: node index, value: m_walls indices (fast search)
+		map<uint, vector<uint>> m_wallMap; // key: node index, value: m_walls indices (fast search)
 	};
 
 }

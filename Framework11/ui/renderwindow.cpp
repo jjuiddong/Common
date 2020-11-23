@@ -1038,7 +1038,7 @@ void cRenderWindow::WakeUp(const common::Str128 &title, const float width, const
 
 	m_title = common::Str128(" - ") + title + common::Str128(" - ");
 	setTitle(title.c_str());
-	setSize(sf::Vector2u((u_int)width, (u_int)height));
+	setSize(sf::Vector2u((uint)width, (uint)height));
 	m_isFullScreen = false;
 	setVisible(true);
 }

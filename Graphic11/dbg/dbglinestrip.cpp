@@ -35,7 +35,7 @@ bool cDbgLineStrip::AddPoint(cRenderer &renderer, const Vector3 &pos
 	, const bool isUpdateBuffer //= true
 )
 {
-	if ((u_int)m_vtxBuff.GetVertexCount() <= (m_points.size() + 1))
+	if ((uint)m_vtxBuff.GetVertexCount() <= (m_points.size() + 1))
 		return false; // full buffer
 
 	m_points.push_back(pos);

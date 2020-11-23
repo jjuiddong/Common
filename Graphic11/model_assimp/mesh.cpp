@@ -209,7 +209,7 @@ void cMesh::UpdateConstantBuffer(cRenderer &renderer
 
 	// Set Skinning Information
 	// 
-	for (u_int i = 0; i < m_bones.size(); ++i)
+	for (uint i = 0; i < m_bones.size(); ++i)
 	{
 		Matrix44 tm = (skeleton) ? (m_bones[i].offsetTm * skeleton->m_tmPose[m_bones[i].id]) : Matrix44::Identity;
 		XMMATRIX tfm = XMLoadFloat4x4((XMFLOAT4X4*)&tm) * XMMatrixInverse(NULL, nodeGlobalTm);
@@ -238,7 +238,7 @@ void cMesh::CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh)
 	//int index = 0;
 
 	// Go through all the faces and calculate the the tangent, binormal, and normal vectors.
-	for (u_int i = 0; i<mesh.indices.size(); i+=3)
+	for (uint i = 0; i<mesh.indices.size(); i+=3)
 	{
 		// Get the three vertices for this face from the model.
 		sVertexNormTex vertex1, vertex2, vertex3;

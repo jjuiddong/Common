@@ -28,7 +28,7 @@ cTextManager::~cTextManager()
 }
 
 
-void cTextManager::Create(const u_int maxTextCount //= 100
+void cTextManager::Create(const uint maxTextCount //= 100
 	, const int textureSizeX //= TEXTURE_SIZEX
 	, const int textureSizeY //= TEXTURE_SIZEY
 )
@@ -135,7 +135,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 // Process Command
 void cTextManager::ProcessTextCmd(cRenderer &renderer)
 {
-	u_int bufferStartIdx = 0;
+	uint bufferStartIdx = 0;
 	for (auto &cmd : m_codes)
 	{
 		bool isFindEmptyText = false;
@@ -150,7 +150,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 		}
 		else
 		{
-			for (u_int i = bufferStartIdx; i < m_buffer.size(); ++i)
+			for (uint i = bufferStartIdx; i < m_buffer.size(); ++i)
 			{
 				sText *text = m_buffer[i];
 				if ((text->id >= 0) && (text->used))

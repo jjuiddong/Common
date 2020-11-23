@@ -461,7 +461,7 @@ void cAssimpLoader::CreateMaterial(const aiMesh *sourceMesh, OUT sMaterial &mtrl
 
 int cAssimpLoader::GetBoneId(const Str64 &boneName)
 {
-	for (u_int i = 0; i < m_reducedSkeleton.size(); ++i)
+	for (uint i = 0; i < m_reducedSkeleton.size(); ++i)
 	{
 		if (m_reducedSkeleton[i].name == boneName)
 			return i;
@@ -803,21 +803,21 @@ void cAssimpLoader::CreateNode(aiNode* node
 		parentNode.children.push_back(nodeIdx);
 	}
 
-	for (u_int m = 0; m < node->mNumMeshes; ++m)
+	for (uint m = 0; m < node->mNumMeshes; ++m)
 	{
 		sRawMesh2 &mesh = m_rawMeshes->meshes[node->mMeshes[m]];
 
 		newNode->meshes.push_back(node->mMeshes[m]);
 	}
 
-	for (u_int c = 0; c < node->mNumChildren; c++)
+	for (uint c = 0; c < node->mNumChildren; c++)
 		CreateNode(node->mChildren[c], nodeIdx);
 }
 
 
 void cAssimpLoader::CreateMeshBone(aiNode* node)
 {
-	for (u_int m = 0; m < node->mNumMeshes; ++m)
+	for (uint m = 0; m < node->mNumMeshes; ++m)
 	{
 		aiMesh *mesh = m_aiScene->mMeshes[node->mMeshes[m]];
 		sRawMesh2 &rawMesh = m_rawMeshes->meshes[node->mMeshes[m]];
@@ -843,7 +843,7 @@ void cAssimpLoader::CreateMeshBone(aiNode* node)
 		}
 	}
 
-	for (u_int c = 0; c < node->mNumChildren; c++)
+	for (uint c = 0; c < node->mNumChildren; c++)
 		CreateMeshBone(node->mChildren[c]);
 }
 

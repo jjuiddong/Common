@@ -454,7 +454,7 @@ void cDockWindow::RenderTab()
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(14.0f, 3.0f));
 	ImVec4 childBg = ImGui::GetStyle().Colors[ImGuiCol_ChildWindowBg];
 
-	for (u_int i = 0; i < m_tabs.size()+1; ++i)
+	for (uint i = 0; i < m_tabs.size()+1; ++i)
 	{
 		if (i == m_selectTab)
 		{

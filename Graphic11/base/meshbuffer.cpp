@@ -64,7 +64,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 
 	sMinMax minMax;
 	const int pos_offset = layout.GetOffset("POSITION");
-	for (u_int i = 0; i < vertices.size(); i++)
+	for (uint i = 0; i < vertices.size(); i++)
 	{
 		BYTE *p = pv + (vertexStride * i);
 		Vector3 *position = (Vector3*)(p + pos_offset);
@@ -75,7 +75,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 
 	// normal
 	const int norm_offset = layout.GetOffset("NORMAL");
-	for (u_int i = 0; i < normals.size(); i++)
+	for (uint i = 0; i < normals.size(); i++)
 	{
 		BYTE *p = pv + (vertexStride * i);
 		Vector3 *pn = (Vector3*)(p + norm_offset);
@@ -84,7 +84,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 
 	// texture
 	const int tex_offset = layout.GetOffset("TEXCOORD");
-	for (u_int i = 0; i < tex.size(); i++)
+	for (uint i = 0; i < tex.size(); i++)
 	{
 		BYTE *p = pv + (vertexStride * i);
 		Vector2 *pt = (Vector2*)(p + tex_offset);
@@ -94,7 +94,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 
 	// tangent
 	const int tangent_offset = layout.GetOffset("TANGENT");
-	for (u_int i = 0; i < tangent.size(); i++)
+	for (uint i = 0; i < tangent.size(); i++)
 	{
 		BYTE *p = pv + (vertexStride * i);
 		Vector3 *pt = (Vector3*)(p + tangent_offset);
@@ -103,7 +103,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 
 	// binormal
 	const int binormal_offset = layout.GetOffset("BINORMAL");
-	for (u_int i = 0; i < binormal.size(); i++)
+	for (uint i = 0; i < binormal.size(); i++)
 	{
 		BYTE *p = pv + (vertexStride * i);
 		Vector3 *pb = (Vector3*)(p + binormal_offset);
@@ -114,18 +114,18 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 	m_isSkinned = !weights.empty();
 	const int blendWeight_offset = layout.GetOffset("BLENDWEIGHT");
 	const int blendIndices_offset = layout.GetOffset("BLENDINDICES");
-	for (u_int i = 0; i < weights.size(); i++)
+	for (uint i = 0; i < weights.size(); i++)
 	{
 		BYTE *p = pv + (vertexStride * i);
-		u_int *vtxWeight = (u_int*)(p + blendWeight_offset); // byte4
-		u_int *vtxIndices = (u_int*)(p + blendIndices_offset); // byte4
+		uint *vtxWeight = (uint*)(p + blendWeight_offset); // byte4
+		uint *vtxIndices = (uint*)(p + blendIndices_offset); // byte4
 
 		const sVertexWeight &weight = weights[i];
 		//const int vtxIdx = weight.vtxIdx;
-		//ZeroMemory(vtxWeight, sizeof(u_int));
-		//ZeroMemory(vtxIndices, sizeof(u_int));
+		//ZeroMemory(vtxWeight, sizeof(uint));
+		//ZeroMemory(vtxIndices, sizeof(uint));
 
-		u_int _idx[4] = { 0,0,0,0 };
+		uint _idx[4] = { 0,0,0,0 };
 		float _w[4] = { 0,0,0,0 };
 		for (int k = 0; (k < weight.size) && (k < 4); ++k)
 		{
@@ -174,7 +174,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 	const int indexStride = (vertices.size() >= 65536)? sizeof(DWORD) : sizeof(WORD);
 	BYTE *tempIdxBuff = new BYTE[indexStride*indices.size()];
 	BYTE *pi = tempIdxBuff;
-	for (u_int i = 0; i < indices.size(); ++i)
+	for (uint i = 0; i < indices.size(); ++i)
 	{
 		if (indexStride == sizeof(DWORD))
 			*(DWORD*)pi = indices[i];

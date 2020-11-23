@@ -89,7 +89,7 @@ bool cAnimation::Update(const float increasedTime)
 	if (m_curAniIdx >= 0)
 	{
 		auto &ani = m_anies[m_curAniIdx];
-		for (u_int i = 0; i < ani.size(); ++i)
+		for (uint i = 0; i < ani.size(); ++i)
 		{
 			Matrix44 result;
 			if (ani[i].GetAnimationResult(t, result))
@@ -109,7 +109,7 @@ bool cAnimation::SetAnimation(const StrId &animationName
 {
 	RETV(!m_aniGroup, false);
 
-	for (u_int i = 0; i < m_aniGroup->anies.size(); ++i)
+	for (uint i = 0; i < m_aniGroup->anies.size(); ++i)
 	{
 		if (m_aniGroup->anies[i].name == animationName)
 		{

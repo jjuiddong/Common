@@ -48,7 +48,7 @@ namespace ai
 		};
 
 		typedef vector<Vector2i> ppath;	// position path
-		typedef vector<u_int> vpath;	// vertex index path
+		typedef vector<uint> vpath;	// vertex index path
 		typedef vector<cPathFinder::sEdge> epath; // edge path
 
 		cPathFinder2D();
