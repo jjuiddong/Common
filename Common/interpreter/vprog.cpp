@@ -13,9 +13,11 @@ VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 	{
 	case ePinType::Bool: return VT_BOOL;
 	case ePinType::Enums:
+	case ePinType::NotDef:
 	case ePinType::Int: return VT_INT;
 	case ePinType::Float: return VT_R4;
 	case ePinType::String: return VT_BSTR;
+	case ePinType::Flow: return VT_EMPTY;
 	default:
 		assert(!"vprog::GetPin2VarType() Error symbol parse error!!");
 		break;

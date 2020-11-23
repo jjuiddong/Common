@@ -509,10 +509,23 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 				return false;
 			}
 
-			code.str1 = node.desc; // scope name
-			code.str2 = inputPin->name.c_str();
-			code.reg1 = reg;
-			out.m_codes.push_back(code);
+			// 2020-11-23, variable name data from desc
+			const std::size_t found = node.desc.find("varname:");
+			if (found != string::npos)
+			{
+				string scope = node.desc.substr(found+8);
+				code.str1 = scope; // variable name (scope name)
+				code.str2 = "out";
+				code.reg1 = reg;
+				out.m_codes.push_back(code);
+			} 
+			else
+			{
+				code.str1 = node.desc; // scope name
+				code.str2 = inputPin->name.c_str();
+				code.reg1 = reg;
+				out.m_codes.push_back(code);
+			}
 		}
 		else
 		{
@@ -520,6 +533,12 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			common::dbg::Logc(2
 				, "Error!! cVProgFile::GenerateCode_SetFunction(), not found input pin\n");
 		}
+
+		// Set node has out pint?
+		for (auto &pin : node.outputs)
+			if (ePinType::Flow != pin.type)
+				GenerateCode_Pin2(ePinKind::Input, node, pin, reg, out);
+
 	}
 	else
 	{
@@ -1369,6 +1388,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	}
 
 	bool isMathOp = false; // +-*/
+	bool isNegate = false; // !=
 
 	// insert compare code
 	if (node.name == "<")
@@ -1453,6 +1473,26 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
 	}
+	else if (node.name == "!=")
+	{
+		isNegate = true;
+
+		script::sInstruction code;
+		switch (vt)
+		{
+		case VT_BOOL:
+		case VT_INT: code.cmd = script::eCommand::eqi; break;
+		case VT_R4: code.cmd = script::eCommand::eqf; break;
+		case VT_BSTR: code.cmd = script::eCommand::eqs; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
+		out.m_codes.push_back(code);
+	}
 	else if (node.name == "+")
 	{
 		script::sInstruction code;
@@ -1489,7 +1529,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		out.m_codes.push_back(code);
 		isMathOp = true;
 	}
-	else if (node.name == "X")
+	else if ((node.name == "X") || (node.name == "x") || (node.name == "*"))
 	{
 		script::sInstruction code;
 		switch (vt)
@@ -1529,7 +1569,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	// compare operator? load compare flag
 	if (isMathOp)
 	{
-		// insert calcuate data to symboltable
+		// insert calculate data to symboltable
 		{
 			script::sInstruction code;
 			switch (vt)
@@ -1544,11 +1584,11 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			out.m_codes.push_back(code);
 		}
 	}
-	else
+	else // compare operator?
 	{
-		{		
+		{
 			script::sInstruction code;
-			code.cmd = script::eCommand::ldcmp;
+			code.cmd = isNegate? script::eCommand::ldncmp : script::eCommand::ldcmp;
 			code.reg1 = 9;
 			out.m_codes.push_back(code);
 		}
@@ -1586,8 +1626,16 @@ bool cVProgFile::GenerateCode_Variable(const sNode &node
 bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
 {
+	return GenerateCode_Pin2(pin.kind, node, pin, reg, out);
+}
 
-	if (ePinKind::Input == pin.kind)
+
+// generate intermediate code, pin
+bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
+	, const sNode &node, const sPin &pin, const uint reg
+	, OUT common::script::cIntermediateCode &out)
+{
+	if (ePinKind::Input == kind)
 	{
 		script::sInstruction code;
 		switch (pin.type)
@@ -1625,7 +1673,6 @@ bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint
 		code.reg1 = reg;
 		out.m_codes.push_back(code);
 	}
-
 	return true;
 }
 

@@ -14,7 +14,7 @@ namespace common
 		DECLARE_ENUM( eCommand,
 			none,
 			ldbc, ldic, ldfc, ldsc,
-			ldcmp,
+			ldcmp, ldncmp,
 			getb, geti, getf, gets,
 			setb, seti, setf, sets,
 			addi, addf,
@@ -63,6 +63,7 @@ namespace common
 		// ldfc register_name, value ;load constant float type value
 		// ldsc register_name, value ;load constant string type value
 		// ldcmp register_name ;load compare flag, bool type value
+		// ldncmp register_name ;load negate compare flag, bool type value
 		// getb scope_name, varname, register_name ;load register bool type value from symboltable
 		// geti scope_name, varname, register_name ;load register int type value from symboltable
 		// getf scope_name, varname, register_name ;load register float type value from symboltable
@@ -116,7 +117,7 @@ namespace common
 		};
 
 
-		// syncronize symbol variable (to marshalling)
+		// synchronize symbol variable (to marshalling)
 		struct sSyncSymbol
 		{
 			const string *scope;

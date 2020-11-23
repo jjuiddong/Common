@@ -344,7 +344,13 @@ namespace network2
 		case VT_R4: packet >> out.fltVal; break;
 		case VT_R8: packet >> out.dblVal; break;
 
-		case VT_BOOL: packet >> out.bVal; break;
+		case VT_BOOL: 
+		{
+			bool val;
+			packet >> val; 
+			out = val;
+		}
+		break;
 		case VT_DECIMAL: break;
 		case VT_I1: packet >> out.cVal; break;
 		case VT_UI1: packet >> out.bVal; break;

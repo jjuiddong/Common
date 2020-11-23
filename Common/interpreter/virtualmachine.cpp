@@ -142,11 +142,15 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 		break;
 
 	case eCommand::ldcmp:
+	case eCommand::ldncmp:
+	{
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
-		reg.val[code.reg1] = (reg.cmp) ? variant_t((bool)true) : variant_t((bool)false);
+		const bool cmp = (code.cmd == eCommand::ldncmp)? !reg.cmp : reg.cmp;
+		reg.val[code.reg1] = cmp ? variant_t((bool)true) : variant_t((bool)false);
 		++reg.idx;
-		break;
+	}
+	break;
 
 	case eCommand::getb:
 	case eCommand::geti:

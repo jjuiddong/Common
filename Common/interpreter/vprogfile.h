@@ -101,6 +101,10 @@ namespace vprog
 			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_Pin(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_Pin2(const ePinKind::Enum kind
+			, const sNode &node, const sPin &pin, const uint reg
+			, OUT common::script::cIntermediateCode &out);
+
 		bool GenerateCode_TemporalPin(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 

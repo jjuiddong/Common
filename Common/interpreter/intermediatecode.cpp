@@ -84,7 +84,9 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			if (vt == VT_EMPTY)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
-		else if ((toks[0] == "ldcmp") && (toks.size() >= 2))
+		else if (((toks[0] == "ldcmp") 
+			|| (toks[0] == "ldncmp"))
+			&& (toks.size() >= 2))
 		{
 			code.cmd = eCommand::FromString(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
@@ -244,6 +246,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			break;
 
 		case eCommand::ldcmp:
+		case eCommand::ldncmp:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			break;
