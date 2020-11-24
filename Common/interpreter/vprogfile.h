@@ -47,7 +47,7 @@ namespace vprog
 			string name;
 			string typeStr; // type name
 			string varName; // variable pin? variable symbol name
-			int value; // used switch case
+			int value; // enum value
 			ePinType::Enum type;
 			ePinKind::Enum kind;
 			vector<int> links; // pin id array

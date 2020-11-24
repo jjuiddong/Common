@@ -10,7 +10,7 @@
 //
 #pragma once
 
-// Poco library class forward declation
+// Poco library class forward declaration
 namespace Poco {
 	namespace Net {
 		class HTTPClientSession;
@@ -26,9 +26,7 @@ namespace network2
 	class cWebClient : public cNetworkNode
 	{
 	public:
-		cWebClient( const int protocolId = 1000
-			, const int packetId = 2000
-			, const bool isPacketLog = false
+		cWebClient( const bool isPacketLog = false
 			, const StrId &name = "WebClient"
 		);
 		virtual ~cWebClient();
@@ -64,8 +62,6 @@ namespace network2
 		Poco::Net::HTTPResponse *m_response;
 		Poco::Net::WebSocket *m_websocket;
 
-		const int m_protocolId;
-		const int m_packetId;
 		string m_url;
 		bool m_isThreadMode;
 		int m_maxBuffLen;

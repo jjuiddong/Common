@@ -292,19 +292,19 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::eqic:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
-			ofs << ", " << code.var1.intVal;
+			ofs << ", " << (int)code.var1;
 			break;
 
 		case eCommand::eqfc:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
-			ofs << ", " << code.var1.fltVal;
+			ofs << ", " << (float)code.var1;
 			break;
 
 		case eCommand::eqsc:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
-			ofs << ", \"" << code.str1 << "\"";
+			ofs << ", \"" << (bstr_t)code.var1 << "\"";
 			break;
 
 		case eCommand::call:

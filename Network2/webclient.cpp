@@ -11,15 +11,10 @@ using namespace std;
 using namespace network2;
 
 
-cWebClient::cWebClient(
-	const int protocolId //= 1000
-	, const int packetId //= 2000
-	, const bool isPacketLog //= false
+cWebClient::cWebClient( const bool isPacketLog //= false
 	, const StrId &name //= "WebClient"
 )
 	: cNetworkNode(name, isPacketLog)
-	, m_protocolId(protocolId)
-	, m_packetId(packetId)
 	, m_session(nullptr)
 	, m_request(nullptr)
 	, m_response(nullptr)

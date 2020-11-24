@@ -285,8 +285,8 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 			goto $error_memory;
 		if (reg.val[code.reg1].vt == VT_BOOL)
 		{
-			reg.val[code.reg1].vt = VT_INT; // force converting
-			reg.val[code.reg1].intVal = (int)reg.val[code.reg1].boolVal;
+			// force converting integer
+			reg.val[code.reg1] = ((bool)reg.val[code.reg1]) ? 1 : 0;
 		}
 		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -306,13 +306,7 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 		if (GetVarType(code.cmd) != code.var1.vt)
 			goto $error_semantic;
 
-#if defined(_UNICODE)
-		reg.cmp = wstring((LPCTSTR)reg.val[code.reg1].bstrVal)
-			== wstring((LPCTSTR)code.var1.bstrVal);
-#else
-		reg.cmp = string((LPCTSTR)reg.val[code.reg1].bstrVal)
-			== string((LPCTSTR)code.var1.bstrVal);
-#endif
+		reg.cmp = reg.val[code.reg1] == code.var1;
 		++reg.idx;
 	}
 	break;

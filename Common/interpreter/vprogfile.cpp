@@ -743,7 +743,7 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 	const sPin *selPin = nullptr;
 	for (auto &pin : node.inputs)
 	{
-		if (pin.name != "Selection")
+		if ((pin.name != "Selection") && (pin.name != "in"))
 			continue;
 
 		sNode *prev = nullptr; // prev node
@@ -779,10 +779,11 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 	{
 		if (ePinType::Flow != pin.type)
 			continue;
-		if (pin.name == "Default")
+		if ((pin.name == "Default") || (pin.name == "default"))
 			continue; // not yet
 
-		int value = pin.value;
+		script::eCommand::Enum cmd;
+		variant_t value;
 		if (symbol)
 		{
 			auto it = std::find_if(symbol->enums.begin(), symbol->enums.end()
@@ -792,29 +793,52 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 				assert(!"cVProgFile::GenerateCode_Switch() error");
 				continue; // error occurred!!
 			}
-			value = it->value;
+			value = (int)it->value;
+			cmd = script::eCommand::eqic;
 		}
 		else
 		{
 			// int selection type, name is value
-			value = atoi(pin.name.c_str());
+			switch (selPin->type) {
+			case vprog::ePinType::Bool:
+				value = ((pin.name == "true") || (pin.name == "True")) ? 1 : 0;
+				cmd = script::eCommand::eqic;
+				break;
+			case vprog::ePinType::Int:
+				value = atoi(pin.name.c_str());
+				cmd = script::eCommand::eqic;
+				break;
+			case vprog::ePinType::Float:
+				value = atof(pin.name.c_str());
+				cmd = script::eCommand::eqfc;
+				break;
+			case vprog::ePinType::String:
+				value = pin.name.c_str();
+				cmd = script::eCommand::eqsc;
+				break;
+			default:
+				common::dbg::Logc(3, "cVProgFile::GenerateCode_Switch() error");
+				continue; // error occurred!!, ignore this code
+			}
 		}
 
-		string jumpLabel = "blank";
+		string jumpLabel = "blank"; // wait address
 		sNode *next = nullptr; // next node
 		sPin *np = nullptr; // next pin
 		const int linkId = pin.links.empty() ? -1 : pin.links.front();
 		std::tie(next, np) = FindContainPin(linkId);
-		if (next)
-			jumpLabel = MakeScopeName(*next);
+		if (!next)
+			continue; // no link
+
+		jumpLabel = MakeScopeName(*next);
 
 		// compare reg0, enum value (int type)
 		// if result is true, jump correspond flow code
 		{
 			script::sInstruction code;
-			code.cmd = script::eCommand::eqic;
+			code.cmd = cmd;
 			code.reg1 = 0;
-			code.var1 = value;
+			code.var1 = common::copyvariant(value);
 			out.m_codes.push_back(code);
 		}
 		{
@@ -823,11 +847,12 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 			code.str1 = jumpLabel;
 			out.m_codes.push_back(code);
 		}
+
 	}//~for
 
 	// jump default case
 	auto it = std::find_if(node.outputs.begin(), node.outputs.end()
-		, [&](const auto &a) {return a.name == "Default"; });
+		, [&](const auto &a) {return (a.name == "Default") || (a.name == "default"); });
 	if (node.outputs.end() != it)
 	{
 		auto &pin = *it;
@@ -1681,7 +1706,7 @@ bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
 bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 	, const uint reg, OUT common::script::cIntermediateCode &out)
 {
-	const _bstr_t emptyStr(""); // avoid crash local variable
+	const _bstr_t emptyStr(" "); // avoid crash local variable (1 space string)
 	if (ePinKind::Input == pin.kind)
 	{
 		script::sInstruction code;

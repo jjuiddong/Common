@@ -132,7 +132,8 @@ std::string common::variant2str(const _variant_t &var
 			ss << common::wstr2str(str);
 		}
 #else
-		string str = (LPCTSTR)(_bstr_t)var.bstrVal;
+		//string str = (LPCTSTR)(_bstr_t)var.bstrVal;
+		const bstr_t str = var;
 		if (isStringDoubleQuoto)
 		{
 			ss << "\"" << str << "\"";
@@ -168,6 +169,10 @@ std::string common::variant2str(const _variant_t &var
 // ::SysFreeString() 으로 해제해야 한다.
 // https://manylee.tistory.com/entry/VariantCopy-VariantInit-VariantClear
 // https://panpro.tistory.com/75
+//
+// variant_t 에서 자동으로 메모리를 제거한다.
+// https://stackoverflow.com/questions/39155447/how-to-clean-up-variant-t
+//
 //------------------------------------------------------------------------
 _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 {
@@ -214,20 +219,21 @@ _variant_t common::str2variant(const VARTYPE &vt, const std::string &value)
 
 
 // Deep Copy variant
-// VT_BSTR 타입일 경우 복사해서 리턴한다.
+// VT_BSTR 스트링 메모리 복사
 _variant_t common::copyvariant(const _variant_t &var)
 {
+	//_variant_t v;
+	//if (VT_BSTR == var.vt)
+	//{
+	//	v.vt = var.vt;
+	//	v.bstrVal = ::SysAllocString(var.bstrVal);
+	//}
+	//else
+	//{
+	//	v = var;
+	//}
 	_variant_t v;
-	if (VT_BSTR == var.vt)
-	{
-		v.vt = var.vt;
-		v.bstrVal = ::SysAllocString(var.bstrVal);
-	}
-	else
-	{
-		v = var;
-	}
-		
+	::VariantCopy(&v, &var);
 	return v;
 }
 
@@ -235,17 +241,23 @@ _variant_t common::copyvariant(const _variant_t &var)
 // VT_BSTR 타입일 경우 ::SysFreeString() 으로 해제해야 한다.
 // https://manylee.tistory.com/entry/VariantCopy-VariantInit-VariantClear
 // https://panpro.tistory.com/75
+//
+// modify
+//	variant_t 소멸자에서 자동으로 메모리를 제거한다.
+// https://stackoverflow.com/questions/39155447/how-to-clean-up-variant-t
+// 굳이 이 함수를 호출할 필요 없다.
 void common::clearvariant(INOUT _variant_t &var)
 {
-	if (VT_BSTR == var.vt)
-	{
-		::SysFreeString(var.bstrVal);
-		var.vt = VT_EMPTY;
-	}
-	else
-	{
-		::VariantInit(&var);
-	}
+	::VariantClear(&var);
+	//if (VT_BSTR == var.vt)
+	//{
+	//	::SysFreeString(var.bstrVal);
+	//	var.vt = VT_EMPTY;
+	//}
+	//else
+	//{
+	//	::VariantInit(&var);
+	//}
 }
 
 
