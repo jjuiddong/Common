@@ -265,13 +265,13 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 }
 
 //------------------------------------------------------------------------
-// Protocol: AckHeartBeat
+// Protocol: ReqHeartBeat
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::AckHeartBeat(netid targetId, bool isBinary)
+void remotedbg2::r2h_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 1133387750 );
+	packet.SetPacketId( 2532286881 );
 	packet.SetPacketOption(0x01, (uint)isBinary);
 	if (isBinary)
 	{
@@ -725,13 +725,13 @@ void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const
 }
 
 //------------------------------------------------------------------------
-// Protocol: ReqHeartBeat
+// Protocol: AckHeartBeat
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
+void remotedbg2::h2r_Protocol::AckHeartBeat(netid targetId, bool isBinary)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 2532286881 );
+	packet.SetPacketId( 1133387750 );
 	packet.SetPacketOption(0x01, (uint)isBinary);
 	if (isBinary)
 	{

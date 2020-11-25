@@ -38,7 +38,7 @@ public:
 	virtual bool ReqBreak(remotedbg2::ReqBreak_Packet &packet) { return true; }
 	virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) { return true; }
 	virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) { return true; }
-	virtual bool AckHeartBeat(remotedbg2::AckHeartBeat_Packet &packet) { return true; }
+	virtual bool ReqHeartBeat(remotedbg2::ReqHeartBeat_Packet &packet) { return true; }
 };
 
 
@@ -73,7 +73,7 @@ public:
 	virtual bool SyncVMRegister(remotedbg2::SyncVMRegister_Packet &packet) { return true; }
 	virtual bool SyncVMSymbolTable(remotedbg2::SyncVMSymbolTable_Packet &packet) { return true; }
 	virtual bool SyncVMOutput(remotedbg2::SyncVMOutput_Packet &packet) { return true; }
-	virtual bool ReqHeartBeat(remotedbg2::ReqHeartBeat_Packet &packet) { return true; }
+	virtual bool AckHeartBeat(remotedbg2::AckHeartBeat_Packet &packet) { return true; }
 };
 
 

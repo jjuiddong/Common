@@ -46,7 +46,7 @@ namespace network2
 	protected:
 		bool SendSyncVMRegister();
 
-		// remotedbg2::r2h_ProtocolHandler protocol handler
+		// remotedbg2::r2h_ProtocolHandler
 		virtual bool UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) override;
 		virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) override;
 		virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) override;

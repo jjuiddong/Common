@@ -1,5 +1,5 @@
 //
-// Script Remote Debugging Protocol 2
+// Script Remote Debugger Protocol 2
 //	- WebSocket Communication
 //		- binary/json format communication
 //	- Host : Interpreter Server/Client (Run Script, c++)
@@ -19,7 +19,7 @@ protocol r2h 5301 json
 	ReqBreak();
 	ReqStop();
 	ReqInput( int vmIdx, string eventName );
-	AckHeartBeat();
+	ReqHeartBeat();
 }
 
 
@@ -37,6 +37,6 @@ protocol h2r 5300 json
 	SyncVMRegister( int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
 	SyncVMOutput( int vmIdx, string output );
-	ReqHeartBeat();
+	AckHeartBeat();
 }
 

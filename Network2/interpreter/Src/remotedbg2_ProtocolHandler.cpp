@@ -361,7 +361,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1133387750:
+	case 2532286881:
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -373,10 +373,10 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 			if (isBinary)
 			{
 				// binary parsing
-				AckHeartBeat_Packet data;
+				ReqHeartBeat_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
-				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, AckHeartBeat(data));
+				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqHeartBeat(data));
 			}
 			else
 			{
@@ -392,10 +392,10 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					boost::property_tree::read_json(ss, root);
 					ptree &props = root.get_child("");
 
-					AckHeartBeat_Packet data;
+					ReqHeartBeat_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
-					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, AckHeartBeat(data));
+					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqHeartBeat(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
 				}
@@ -974,7 +974,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2532286881:
+	case 1133387750:
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -986,10 +986,10 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 			if (isBinary)
 			{
 				// binary parsing
-				ReqHeartBeat_Packet data;
+				AckHeartBeat_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
-				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, ReqHeartBeat(data));
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckHeartBeat(data));
 			}
 			else
 			{
@@ -1005,10 +1005,10 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					boost::property_tree::read_json(ss, root);
 					ptree &props = root.get_child("");
 
-					ReqHeartBeat_Packet data;
+					AckHeartBeat_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
-					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, ReqHeartBeat(data));
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckHeartBeat(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
 				}

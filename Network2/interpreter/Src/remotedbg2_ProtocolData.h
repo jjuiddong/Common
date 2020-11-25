@@ -54,7 +54,7 @@ using namespace marshalling_json;
 		string eventName;
 	};
 
-	struct AckHeartBeat_Packet {
+	struct ReqHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 	};
@@ -144,7 +144,7 @@ using namespace marshalling_json;
 		string output;
 	};
 
-	struct ReqHeartBeat_Packet {
+	struct AckHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 	};

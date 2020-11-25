@@ -120,17 +120,6 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 	int result = 0;
 	if (m_websocket && m_packetHeader)
 	{
-		// send only json string, no contain packet header
-		// because webserver packet parsing easly
-		//const uint headerSize = m_packetHeader->GetHeaderSize();
-		//result = m_websocket->sendFrame( packet.m_data + headerSize
-		//	, packet.GetPacketSize() - headerSize, Poco::Net::WebSocket::FRAME_TEXT);
-		//if (result == SOCKET_ERROR)
-		//	return result;
-		//result += headerSize;
-
-		//result = m_websocket->sendFrame(packet.m_data
-			//, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_TEXT);
 		result = m_websocket->sendFrame(packet.m_data
 			, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
 
@@ -182,16 +171,6 @@ bool cWebClient::Process()
 			if (!m_packetHeader)
 				return false; // internal error occurred!!
 
-			// 1. WebSocket is not has PacketHeader Information
-			// so we make packet header information
-			// push packet header and then push packet data
-			//BYTE header[12] = { 0, };
-			//m_packetHeader->SetProtocolId(header, m_protocolId);
-			//m_packetHeader->SetPacketId(header, m_packetId);
-			//m_packetHeader->SetPacketLength(header, result + sizeof(header));
-			//m_recvQueue.Push(netId, header, sizeof(header));
-
-			// 2. packet obtain header?
 			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 		}
 	}
