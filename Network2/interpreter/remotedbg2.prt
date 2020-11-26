@@ -15,7 +15,7 @@ protocol r2h 5301 json
 	ReqIntermediateCode();
 	ReqRun();
 	ReqOneStep();
-	ReqDebugRun();
+	ReqResumeRun();
 	ReqBreak();
 	ReqStop();
 	ReqInput( int vmIdx, string eventName );
@@ -29,7 +29,7 @@ protocol h2r 5300 json
 	AckIntermediateCode( int result, script::cIntermediateCode code );
 	AckRun( int result );
 	AckOneStep( int result );
-	AckDebugRun( int result );
+	AckResumeRun( int result );
 	AckBreak( int result );
 	AckStop( int result );
 	AckInput( int result );

@@ -34,7 +34,7 @@ public:
 	virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) { return true; }
 	virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) { return true; }
 	virtual bool ReqOneStep(remotedbg2::ReqOneStep_Packet &packet) { return true; }
-	virtual bool ReqDebugRun(remotedbg2::ReqDebugRun_Packet &packet) { return true; }
+	virtual bool ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet) { return true; }
 	virtual bool ReqBreak(remotedbg2::ReqBreak_Packet &packet) { return true; }
 	virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) { return true; }
 	virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) { return true; }
@@ -65,7 +65,7 @@ public:
 	virtual bool AckIntermediateCode(remotedbg2::AckIntermediateCode_Packet &packet) { return true; }
 	virtual bool AckRun(remotedbg2::AckRun_Packet &packet) { return true; }
 	virtual bool AckOneStep(remotedbg2::AckOneStep_Packet &packet) { return true; }
-	virtual bool AckDebugRun(remotedbg2::AckDebugRun_Packet &packet) { return true; }
+	virtual bool AckResumeRun(remotedbg2::AckResumeRun_Packet &packet) { return true; }
 	virtual bool AckBreak(remotedbg2::AckBreak_Packet &packet) { return true; }
 	virtual bool AckStop(remotedbg2::AckStop_Packet &packet) { return true; }
 	virtual bool AckInput(remotedbg2::AckInput_Packet &packet) { return true; }

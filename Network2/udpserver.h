@@ -11,7 +11,7 @@ namespace network2
 	class cUdpServer : public cNetworkNode
 	{
 	public:
-		cUdpServer(const bool isPacketLog = false
+		explicit cUdpServer(const bool isPacketLog = false
 			, const StrId &name = "UdpServer"
 		);
 		virtual ~cUdpServer();

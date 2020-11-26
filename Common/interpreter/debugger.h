@@ -21,17 +21,23 @@ namespace common
 			bool Init(cInterpreter *interpreter);
 			bool LoadIntermediateCode(const StrPath &fileName);
 			bool Process(const float deltaSeconds);
-			bool OneStep();
 			bool Run();
+			bool Stop();
+			bool Resume();
+			bool OneStep();
 			bool Break();
-			bool Terminate();
 			bool IsLoad();
 			bool IsRun();
 			void Clear();
 
 
 		public:
-			enum class eState {Stop, DebugWait, DebugStep, DebugRun };
+			enum class eState {
+				Stop  // no load code
+				, Wait // load code, wait operation
+				, Step // one step execute instruction, and move DebugWait state
+				, Run // run until break
+			};
 
 			eState m_state;
 			cInterpreter *m_interpreter; // reference

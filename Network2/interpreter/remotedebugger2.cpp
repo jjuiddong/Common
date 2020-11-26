@@ -161,8 +161,7 @@ bool cRemoteDebugger2::Process()
 bool cRemoteDebugger2::Run()
 {
 	RETV(m_state != eState::Run, true);
-	m_debugger.Run();
-	return true;
+	return m_debugger.Run();
 }
 
 
@@ -170,35 +169,31 @@ bool cRemoteDebugger2::Run()
 bool cRemoteDebugger2::Stop()
 {
 	m_state = eState::Stop;
-	m_debugger.Terminate();
-	return true;
+	return m_debugger.Stop();
+}
+
+
+// resume run interpreter
+bool cRemoteDebugger2::Resume()
+{
+	RETV(m_state != eState::Run, false);
+	return m_debugger.Resume();
 }
 
 
 // onestep interpreter if debug mode
 bool cRemoteDebugger2::OneStep()
 {
-	RETV(m_state != eState::Run, true);
-	m_debugger.OneStep();
-	return true;
+	RETV(m_state != eState::Run, false);
+	return m_debugger.OneStep();
 }
 
 
 // break(pause) interpreter
 bool cRemoteDebugger2::Break()
 {
-	RETV(m_state != eState::Run, true);
-	m_debugger.Break();
-	return true;
-}
-
-
-// clear interpreter
-bool cRemoteDebugger2::Terminate()
-{
-	m_state = eState::Stop;
-	m_debugger.Terminate();
-	return true;
+	RETV(m_state != eState::Run, false);
+	return m_debugger.Break();
 }
 
 
@@ -256,6 +251,13 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 	return true;
 }
 
+// request resume debugging run protocol handler
+bool cRemoteDebugger2::ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet)
+{
+	Resume();
+	m_protocol.AckResumeRun(network2::SERVER_NETID, false, 1);
+	return true; 
+}
 
 // request interprter break to debugging protocol handler
 bool cRemoteDebugger2::ReqBreak(remotedbg2::ReqBreak_Packet &packet)

@@ -31,7 +31,10 @@ namespace network2
 
 	// packet data format
 	enum class ePacketFormat {
-		BINARY, ASCII, JSON,
+		BINARY, // binary packet
+		ASCII, // ascii packet
+		JSON, // json string or binary packet
+		FREE, // no format, no packet header
 	};
 
 }

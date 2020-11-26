@@ -32,7 +32,7 @@ using namespace marshalling_json;
 		netid senderId;
 	};
 
-	struct ReqDebugRun_Packet {
+	struct ReqResumeRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 	};
@@ -88,7 +88,7 @@ using namespace marshalling_json;
 		int result;
 	};
 
-	struct AckDebugRun_Packet {
+	struct AckResumeRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int result;

@@ -21,26 +21,16 @@ namespace common
 			bool Init(iFunctionCallback *callback, void *arg = nullptr);
 			bool ReadIntermediateCode(const StrPath &icodeFileName);
 			bool Process(const float deltaSeconds);
-			bool ProcessOneStep(const float deltaSeconds);
 			bool Run();
 			bool Stop();
-			bool DebugRun();
-			bool DebugBreak();
-			bool DebugCancel();
-			bool DebugToRun();
 			bool PushEvent(const cEvent &evt);
 			bool IsRun() const;
 			bool IsStop() const;
-			bool IsDebug() const;
 			void Clear();
 
 
 		public:
-			enum class eState {
-				Stop, // wait state
-				Debug, // one step debugging state
-				Run, // run until break
-			};
+			enum class eState {Stop, Run,};
 
 			eState m_state;
 			StrPath m_fileName; // intermediate code filename

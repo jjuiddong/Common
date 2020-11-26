@@ -19,7 +19,7 @@ public:
 	void ReqIntermediateCode(netid targetId, bool isBinary);
 	void ReqRun(netid targetId, bool isBinary);
 	void ReqOneStep(netid targetId, bool isBinary);
-	void ReqDebugRun(netid targetId, bool isBinary);
+	void ReqResumeRun(netid targetId, bool isBinary);
 	void ReqBreak(netid targetId, bool isBinary);
 	void ReqStop(netid targetId, bool isBinary);
 	void ReqInput(netid targetId, bool isBinary, const int &vmIdx, const string &eventName);
@@ -35,7 +35,7 @@ public:
 	void AckIntermediateCode(netid targetId, bool isBinary, const int &result, const script::cIntermediateCode &code);
 	void AckRun(netid targetId, bool isBinary, const int &result);
 	void AckOneStep(netid targetId, bool isBinary, const int &result);
-	void AckDebugRun(netid targetId, bool isBinary, const int &result);
+	void AckResumeRun(netid targetId, bool isBinary, const int &result);
 	void AckBreak(netid targetId, bool isBinary, const int &result);
 	void AckStop(netid targetId, bool isBinary, const int &result);
 	void AckInput(netid targetId, bool isBinary, const int &result);

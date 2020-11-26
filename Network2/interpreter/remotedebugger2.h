@@ -36,9 +36,9 @@ namespace network2
 		bool Process();
 		bool Run();
 		bool Stop();
+		bool Resume();
 		bool OneStep();
 		bool Break();
-		bool Terminate();
 		bool IsRun();
 		void Clear();
 
@@ -51,6 +51,7 @@ namespace network2
 		virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) override;
 		virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) override;
 		virtual bool ReqOneStep(remotedbg2::ReqOneStep_Packet &packet) override;
+		virtual bool ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet) override;
 		virtual bool ReqBreak(remotedbg2::ReqBreak_Packet &packet) override;
 		virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) override;
 		virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) override;

@@ -189,7 +189,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2143400932:
+	case 742173167:
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -201,10 +201,10 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 			if (isBinary)
 			{
 				// binary parsing
-				ReqDebugRun_Packet data;
+				ReqResumeRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
-				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqDebugRun(data));
+				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqResumeRun(data));
 			}
 			else
 			{
@@ -220,10 +220,10 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					boost::property_tree::read_json(ss, root);
 					ptree &props = root.get_child("");
 
-					ReqDebugRun_Packet data;
+					ReqResumeRun_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
-					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqDebugRun(data));
+					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqResumeRun(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
 				}
@@ -606,7 +606,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3424042780:
+	case 1012496086:
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -618,11 +618,11 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 			if (isBinary)
 			{
 				// binary parsing
-				AckDebugRun_Packet data;
+				AckResumeRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
 				marshalling::operator>>(packet, data.result);
-				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckDebugRun(data));
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckResumeRun(data));
 			}
 			else
 			{
@@ -638,11 +638,11 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					boost::property_tree::read_json(ss, root);
 					ptree &props = root.get_child("");
 
-					AckDebugRun_Packet data;
+					AckResumeRun_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "result", data.result);
-					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckDebugRun(data));
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckResumeRun(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
 				}

@@ -87,6 +87,7 @@ bool cNetworkNode::CreatePacketHeader(const ePacketFormat format)
 	case ePacketFormat::BINARY: m_packetHeader = new cPacketHeader(); break;
 	case ePacketFormat::ASCII: m_packetHeader = new cPacketHeaderAscii(); break;
 	case ePacketFormat::JSON: m_packetHeader = new cPacketHeaderJson(); break;
+	case ePacketFormat::FREE: m_packetHeader = new cPacketHeaderNoFormat(); break;
 	default: return false; // error type
 	}
 	return true;

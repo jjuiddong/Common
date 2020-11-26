@@ -91,7 +91,7 @@ bool cRemoteDebugger::Stop()
 	default: assert(0); return false;
 	}
 	if (m_debugger)
-		m_debugger->Terminate();
+		m_debugger->Stop();
 	m_netController.Clear();
 	m_state = eState::Stop;
 	return true;
@@ -287,7 +287,7 @@ bool cRemoteDebugger::ReqTerminate(remotedbg::ReqTerminate_Packet &packet)
 	RETV(eDebugMode::Host != m_mode, true);
 	RETV(!m_debugger, true);
 
-	m_debugger->Terminate();
+	m_debugger->Stop();
 	return true; 
 }
 

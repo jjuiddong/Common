@@ -133,13 +133,13 @@ void remotedbg2::r2h_Protocol::ReqOneStep(netid targetId, bool isBinary)
 }
 
 //------------------------------------------------------------------------
-// Protocol: ReqDebugRun
+// Protocol: ReqResumeRun
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqDebugRun(netid targetId, bool isBinary)
+void remotedbg2::r2h_Protocol::ReqResumeRun(netid targetId, bool isBinary)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 2143400932 );
+	packet.SetPacketId( 742173167 );
 	packet.SetPacketOption(0x01, (uint)isBinary);
 	if (isBinary)
 	{
@@ -437,13 +437,13 @@ void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary, const i
 }
 
 //------------------------------------------------------------------------
-// Protocol: AckDebugRun
+// Protocol: AckResumeRun
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckDebugRun(netid targetId, bool isBinary, const int &result)
+void remotedbg2::h2r_Protocol::AckResumeRun(netid targetId, bool isBinary, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 3424042780 );
+	packet.SetPacketId( 1012496086 );
 	packet.SetPacketOption(0x01, (uint)isBinary);
 	if (isBinary)
 	{

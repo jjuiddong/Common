@@ -43,8 +43,7 @@ bool cDebugger::LoadIntermediateCode(const StrPath &fileName)
 	if (!m_interpreter->ReadIntermediateCode(fileName))
 		return false;
 
-	m_interpreter->DebugRun();
-	m_state = eState::DebugWait;
+	m_state = eState::Wait;
 	return true;
 }
 
@@ -57,13 +56,13 @@ bool cDebugger::Process(const float deltaSeconds)
 	switch (m_state)
 	{
 	case eState::Stop:
-	case eState::DebugWait:
+	case eState::Wait:
 		break;
-	case eState::DebugStep:
-		m_interpreter->ProcessOneStep(deltaSeconds);
-		m_state = eState::DebugWait;
+	case eState::Step:
+		m_interpreter->Process(deltaSeconds);
+		m_state = eState::Wait;
 		break;
-	case eState::DebugRun:
+	case eState::Run:
 		m_interpreter->Process(deltaSeconds);
 		break;
 	default:
@@ -74,31 +73,52 @@ bool cDebugger::Process(const float deltaSeconds)
 }
 
 
-// one step debugging
-bool cDebugger::OneStep()
-{
-	RETV(!m_interpreter, false);
-
-	if (m_interpreter->IsStop())
-		m_interpreter->DebugRun(); // start debugging
-	else
-		m_interpreter->DebugBreak(); // debug mode
-
-	m_state = eState::DebugStep;
-	return true;
-}
-
-
 // cancel debugging, run interpreter
 bool cDebugger::Run()
 {
 	RETV(!m_interpreter, false);
-	
-	if (m_interpreter->IsDebug())
-	{
-		m_interpreter->DebugToRun(); // run state
-		m_state = eState::DebugRun;
-	}
+
+	if (m_state != eState::Wait)
+		return false;
+
+	if (!m_interpreter->Run())
+		return false;
+
+	m_state = eState::Run;
+	return true;
+}
+
+
+// stop debugging state
+bool cDebugger::Stop()
+{
+	RETV(!m_interpreter, false);
+
+	m_interpreter->Stop(); // stop state
+	m_state = eState::Stop;
+	return true;
+}
+
+
+// resume debug run
+bool cDebugger::Resume()
+{
+	RETV(!m_interpreter, false);
+
+	if ((m_state != eState::Wait)
+		&& (m_state != eState::Step))
+		return false; // state error
+
+	m_state = eState::Run;
+	return true;
+}
+
+
+// one step debugging
+bool cDebugger::OneStep()
+{
+	RETV(!m_interpreter, false);
+	m_state = eState::Step;
 	return true;
 }
 
@@ -107,23 +127,7 @@ bool cDebugger::Run()
 bool cDebugger::Break()
 {
 	RETV(!m_interpreter, false);
-
-	if (m_interpreter->IsRun())
-	{
-		m_interpreter->DebugBreak(); // debug state
-		m_state = eState::DebugWait;
-	}
-	return true;
-}
-
-
-// terminate debugging state
-bool cDebugger::Terminate()
-{
-	RETV(!m_interpreter, false);
-
-	m_interpreter->Stop(); // stop state
-	m_state = eState::Stop;
+	m_state = eState::Wait;
 	return true;
 }
 
@@ -146,9 +150,9 @@ bool cDebugger::IsRun()
 	case eState::Stop:
 		return false;
 
-	case eState::DebugWait:
-	case eState::DebugStep:
-	case eState::DebugRun:
+	case eState::Wait:
+	case eState::Step:
+	case eState::Run:
 		return true;
 	default:
 		assert(!"cDebugger::IsRun() not vailid state");
