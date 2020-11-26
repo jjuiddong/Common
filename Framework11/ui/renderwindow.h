@@ -129,6 +129,7 @@ namespace framework
 		bool m_isTitleBarOverriding; // title bar overriding, call OnRenderTitleBar
 		bool m_isMenuBar; //menu bar, default: false
 		bool m_isFullScreen;
+		bool m_isResizable; // window resize able?
 		bool m_isRequestResetDevice;
 		float m_titleBarHeight;
 		float m_titleBarHeight2;

@@ -23,6 +23,7 @@ cRenderWindow::cRenderWindow()
 	, m_isTitleBarOverriding(false)
 	, m_isMenuBar(false)
 	, m_isFullScreen(false)
+	, m_isResizable(true)
 	, m_cursorType(eDockSizingType::NONE)
 	, m_resizeCursor(eResizeCursor::NONE)
 	, m_captureDock(NULL)
@@ -220,8 +221,11 @@ void cRenderWindow::MouseProc(const float deltaSeconds)
 		{
 			if (result.first)
 			{ // Resize Render Window
-				ChangeState(eState::WINDOW_RESIZE);
-				GetCursorPos(&m_resizeClickPos);
+				if (m_isResizable)
+				{
+					ChangeState(eState::WINDOW_RESIZE);
+					GetCursorPos(&m_resizeClickPos);
+				}
 			}
 			else
 			{ // Reize Docking Window 
