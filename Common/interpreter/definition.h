@@ -14,7 +14,7 @@ namespace common
 		DECLARE_ENUM( eCommand,
 			none,
 			ldbc, ldic, ldfc, ldsc,
-			ldcmp, ldncmp,
+			ldcmp, ldncmp, ldtim,
 			getb, geti, getf, gets,
 			setb, seti, setf, sets,
 			addi, addf,
@@ -27,7 +27,8 @@ namespace common
 			gri, grf, greqi, greqf,
 			call, jnz, jmp, label,
 			symbolb, symboli, symbolf, symbols,
-			cmt, nop
+			timer1, timer2,
+			cmt, delay, nop
 		);
 
 		VARTYPE GetVarType(const eCommand::Enum cmd);
@@ -64,6 +65,7 @@ namespace common
 		// ldsc register_name, value ;load constant string type value
 		// ldcmp register_name ;load compare flag, bool type value
 		// ldncmp register_name ;load negate compare flag, bool type value
+		// ldtim register_name ;load time flag from register, float type value
 		// getb scope_name, varname, register_name ;load register bool type value from symboltable
 		// geti scope_name, varname, register_name ;load register int type value from symboltable
 		// getf scope_name, varname, register_name ;load register float type value from symboltable
@@ -102,7 +104,10 @@ namespace common
 		// symboli scope_name, varname, value ;initialize int type symbol table
 		// symbolf scope_name, varname, value ;initialize float type symbol table
 		// symbols scope_name, varname, value ;initialize string type symbol table
+		// timer1 scope_name, value ; loop timer, value:interval (milliseconds)
+		// timer2 scope_name, value ; timer, value:interval (milliseconds), loop on/off
 		// #comment command string, from pinId, to pinId ;comment string, no instruction
+		// delay ; time flag -= dt, execute next instruction until time flag 0
 		// nop ;nothing to operate
 
 

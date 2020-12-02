@@ -25,9 +25,12 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::gri:
 	case eCommand::greqi:
 	case eCommand::symboli:
+	case eCommand::timer1:
+	case eCommand::timer2:
 		return VT_INT;
 
 	case eCommand::ldfc:
+	case eCommand::ldtim:
 	case eCommand::getf:
 	case eCommand::setf:
 	case eCommand::addf:
@@ -52,6 +55,8 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 		return VT_BSTR;
 
 	case eCommand::ldbc:
+	case eCommand::ldcmp:
+	case eCommand::ldncmp:
 	case eCommand::getb:
 	case eCommand::setb:
 	case eCommand::symbolb:
@@ -63,6 +68,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::nop:
 	case eCommand::label:
 	case eCommand::cmt:
+	case eCommand::delay:
 	default:
 		break;
 	}

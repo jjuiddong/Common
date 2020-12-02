@@ -337,7 +337,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 
 	m_visit.clear(); // avoid duplicate execution
 
-	// make main branch
+	// make main entry
 	{
 		out.m_codes.push_back({ script::eCommand::nop });
 		script::sInstruction code;
@@ -347,7 +347,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		out.m_codes.push_back({ script::eCommand::nop });
 	}
 
-	// make intermediate code
+	// make intermediate code from event
 	for (auto &node : m_nodes)
 		if (eNodeType::Event == node.type)
 			GenerateCode_Event(node, out);
@@ -362,7 +362,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		out.m_codes.push_back({ script::eCommand::nop });
 	}
 
-	// make intermediate code, insert initial symbol
+	// make initial symbol
 	for (auto &kv1 : m_variables.m_vars)
 	{
 		for (auto &kv2 : kv1.second)
@@ -385,6 +385,25 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		}
 	}
 
+	// make register tick event
+	for (auto &node : m_nodes)
+	{
+		if (eNodeType::Event == node.type)
+		{
+			const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
+			script::cSymbolTable::sVar *var = 
+				m_variables.FindVarInfo(name, "out");
+			if (var) // register event?
+			{
+				script::sInstruction code;
+				code.cmd = script::eCommand::timer1;
+				code.str1 = name;
+				code.var1 = var->var;
+				out.m_codes.push_back(code);
+			}
+		}
+	}
+
 	out.m_variables = m_variables;
 	out.m_fileName = m_fileName.GetFileNameExceptExt2();
 	out.m_fileName += ".icode";
@@ -402,7 +421,7 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 	m_visit.insert(node.id);
 
 	out.m_codes.push_back({ script::eCommand::nop });
-	const string labelName = node.name.c_str();
+	const string labelName = common::format("%s-%d", node.name.c_str(), node.id);
 	out.m_codes.push_back({ script::eCommand::label, labelName });
 
 	for (auto &pin : node.outputs)
@@ -531,14 +550,45 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 		{
 			// error occurred!!
 			common::dbg::Logc(2
-				, "Error!! cVProgFile::GenerateCode_SetFunction(), not found input pin\n");
+				, "Error!! cVProgFile::GenerateCode_Function(), not found input pin\n");
 		}
 
 		// Set node has out pint?
 		for (auto &pin : node.outputs)
 			if (ePinType::Flow != pin.type)
 				GenerateCode_Pin2(ePinKind::Input, node, pin, reg, out);
-
+	}
+	else if (node.name == "Delay")
+	{
+		if (inputPin)
+		{
+			{
+				// delay debug information
+				script::sInstruction inst;
+				inst.cmd = script::eCommand::cmt;
+				inst.str1 = "delay";
+				inst.reg1 = node.id;
+				inst.reg2 = reg;
+				out.m_codes.push_back(inst);
+			}
+			{
+				script::sInstruction code;
+				code.cmd = script::eCommand::ldtim;
+				code.reg1 = reg;
+				out.m_codes.push_back(code);
+			}
+			{
+				script::sInstruction code;
+				code.cmd = script::eCommand::delay;
+				out.m_codes.push_back(code);
+			}
+		}
+		else
+		{
+			// error occurred!!
+			common::dbg::Logc(2
+				, "Error!! cVProgFile::GenerateCode_Function(), not found input pin\n");
+		}
 	}
 	else
 	{

@@ -20,6 +20,7 @@ cVirtualMachine::~cVirtualMachine()
 }
 
 
+// initialize virtual machine
 bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *callback
 	, void *arg //= nullptr
 )
@@ -34,17 +35,29 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 	m_callback = callback;
 	m_callbackArgPtr = arg;
 
+	// update timer
+	for (auto time : m_code.m_timer1Events)
+	{
+		m_timers.push_back(
+			{ time.first // timer name
+			, time.second / 1000.f // timer interval (convert seconds unit)
+			, (float)time.second / 1000.f } // timer decrease time (convert seconds unit)
+		);
+	}
+
 	return true;
 }
 
 
+// execute event, instruction
 bool cVirtualMachine::Process(const float deltaSeconds)
 {
 	RETV(eState::Stop == m_state, true);
 	RETV(!m_code.IsLoaded(), true);
 
-	ProcessEvent();
-	ExecuteInstruction(m_reg);
+	if (!ProcessEvent(deltaSeconds))
+		ProcessTimer(deltaSeconds);
+	ExecuteInstruction(deltaSeconds, m_reg);
 
 	return true;
 }
@@ -85,10 +98,10 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 // process event
 // execute event only waitting state
 // waitting state is nop instruction state
-bool cVirtualMachine::ProcessEvent()
+bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 {
 	RETV(eState::Wait != m_state, false);
-	RETV(m_events.empty(), true);
+	RETV(m_events.empty(), false);
 
 	auto &evt = m_events.front();
 	const uint addr = m_code.FindJumpAddress(evt.m_name);
@@ -119,8 +132,31 @@ bool cVirtualMachine::ProcessEvent()
 }
 
 
+// process timer
+// check timer interval time, call timer event
+// execute event only waitting state
+bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
+{
+	RETV(eState::Wait != m_state, false);
+	RETV(m_timers.empty(), false);
+
+	for (auto &time : m_timers)
+	{
+		time.t -= deltaSeconds;
+		if (time.t < 0.f)
+		{
+			PushEvent(cEvent(time.name));
+			time.t = time.interval;
+			break;
+		}
+	}
+
+	return true;
+}
+
+
 // execute intermediate code instruction
-bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
+bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &reg)
 {
 	if (m_code.m_codes.size() <= reg.idx)
 		return false; // end of code
@@ -148,6 +184,15 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 			goto $error_memory;
 		const bool cmp = (code.cmd == eCommand::ldncmp)? !reg.cmp : reg.cmp;
 		reg.val[code.reg1] = cmp ? variant_t((bool)true) : variant_t((bool)false);
+		++reg.idx;
+	}
+	break;
+
+	case eCommand::ldtim:
+	{
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		reg.tim = (float)reg.val[code.reg1];
 		++reg.idx;
 	}
 	break;
@@ -465,13 +510,16 @@ bool cVirtualMachine::ExecuteInstruction(sRegister &reg)
 	}
 	break;
 
-	case eCommand::label:
-		++reg.idx; // no operation
-		break; 
+	case eCommand::delay:
+		reg.tim -= (deltaSeconds * 1000.f); // second -> millisecond unit
+		if (reg.tim < 0.f)
+			++reg.idx; // goto next instruction
+		break;
 
+	case eCommand::label:
 	case eCommand::cmt:
 		++reg.idx; // no operation
-		break;
+		break; 
 
 	case eCommand::nop:
 		// no operation, change wait state
@@ -509,4 +557,5 @@ void cVirtualMachine::Clear()
 	m_code.Clear();
 	while (!m_events.empty())
 		m_events.pop();
+	m_timers.clear();
 }

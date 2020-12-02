@@ -11,6 +11,7 @@ cDebugger::cDebugger(cInterpreter *interpreter //= nullptr
 )
 	: m_interpreter(nullptr)
 	, m_state(eState::Stop)
+	, m_dt(0.f)
 {
 	if (interpreter)
 		Init(interpreter);
@@ -56,11 +57,16 @@ bool cDebugger::Process(const float deltaSeconds)
 	switch (m_state)
 	{
 	case eState::Stop:
+		m_dt = 0.f;
+		break;
 	case eState::Wait:
+		m_dt += deltaSeconds;
 		break;
 	case eState::Step:
-		m_interpreter->Process(deltaSeconds);
+		m_dt += deltaSeconds;
+		m_interpreter->Process(m_dt);
 		m_state = eState::Wait;
+		m_dt = 0.f;
 		break;
 	case eState::Run:
 		m_interpreter->Process(deltaSeconds);

@@ -85,7 +85,8 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if (((toks[0] == "ldcmp") 
-			|| (toks[0] == "ldncmp"))
+			|| (toks[0] == "ldncmp")
+			|| (toks[0] == "ldtim"))
 			&& (toks.size() >= 2))
 		{
 			code.cmd = eCommand::FromString(toks[0]);
@@ -168,6 +169,19 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.reg1 = atoi(toks[2].c_str());
 			code.reg2 = atoi(toks[3].c_str());
 		}
+		else if (toks[0] == "delay")
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+		}
+		else if (((toks[0] == "timer1")
+			|| (toks[0] == "timer2"))
+			&& (toks.size() >= 3))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
+			const VARTYPE vt = common::script::GetVarType(code.cmd);
+			code.var1 = common::str2variant(vt, toks[2]);
+		}
 		else if (toks[0] == "nop")
 		{
 			code.cmd = eCommand::FromString(toks[0]);
@@ -220,6 +234,14 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		}
 	}
 
+	// make timer1 event list
+	for (uint i = 0; i < m_codes.size(); ++i)
+	{
+		auto &code = m_codes[i];
+		if (eCommand::timer1 == code.cmd)
+			m_timer1Events.push_back({ code.str1, (int)code.var1 });
+	}
+
 	return true;
 }
 
@@ -247,6 +269,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 
 		case eCommand::ldcmp:
 		case eCommand::ldncmp:
+		case eCommand::ldtim:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			break;
@@ -339,6 +362,17 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			ofs << ", " << code.reg2;
 			break;
 
+		case eCommand::delay:
+			ofs << "delay";
+			break;
+
+		case eCommand::timer1:
+		case eCommand::timer2:
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " \"" << code.str1 << "\"";
+			ofs << ", " << common::variant2str(code.var1, true);
+			break;
+
 		default:
 			dbg::Logc(3, "Error cIntermediateCode::Write()\n");
 			break;
@@ -395,6 +429,7 @@ cIntermediateCode& cIntermediateCode::operator=(const cIntermediateCode &rhs)
 		m_codes = rhs.m_codes;
 		m_variables = rhs.m_variables;
 		m_jmpMap = rhs.m_jmpMap;
+		m_timer1Events = rhs.m_timer1Events;
 	}
 	return *this;
 }
@@ -404,6 +439,7 @@ void cIntermediateCode::Clear()
 {
 	m_codes.clear();
 	m_jmpMap.clear();
+	m_timer1Events.clear();
 	m_variables.Clear();
 	m_fileName.clear();
 }

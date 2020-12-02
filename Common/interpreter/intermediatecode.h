@@ -73,6 +73,7 @@ namespace common
 			vector<sInstruction> m_codes;
 			cSymbolTable m_variables; // initial variable symboltable
 			map<StrId, uint> m_jmpMap; //key: jump name, data: code line
+			vector<std::pair<StrId, int>> m_timer1Events; // timer name, interval
 		};
 
 	}

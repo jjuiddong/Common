@@ -41,6 +41,7 @@ namespace common
 
 			eState m_state;
 			cInterpreter *m_interpreter; // reference
+			float m_dt; // delta sconds
 		};
 
 	}

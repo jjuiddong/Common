@@ -72,10 +72,15 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 // process webclient, interpreter
 bool cRemoteDebugger2::Process()
 {
+	const float TIME_SYNC_INSTRUCTION = 0.5f;
+	const float TIME_SYNC_REGISTER = 5.0f;
+	const float TIME_SYNC_SYMBOL = 5.0f;
+
 	const float dt = (float)m_timer.GetDeltaSeconds();
 	m_netController.Process(dt);
 	m_debugger.Process(dt);
 
+	// sync instruction, register, syboltable
 	if (eState::Run == m_state)
 	{
 		m_regSyncTime += dt;
@@ -93,18 +98,27 @@ bool cRemoteDebugger2::Process()
 				m_insts[i].push_back(vm->m_reg.idx);
 				m_cmps[i].push_back(vm->m_reg.cmp);
 				m_isChangeInstruction = true;
+
+				// sync delay instruction
+				if (script::eCommand::delay ==
+					vm->m_code.m_codes[vm->m_reg.idx].cmd)
+				{
+					// sync instruction, register
+					m_instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
+					m_regSyncTime = TIME_SYNC_REGISTER + 1.f;
+				}
 			}
 		}
 
 		// sync register?
-		if (m_regSyncTime > 5.0f)
+		if (m_regSyncTime > TIME_SYNC_REGISTER)
 		{
 			m_regSyncTime = 0.f;
 			SendSyncVMRegister();
 		}
 
 		// sync instruction?
-		if (m_isChangeInstruction && (m_instSyncTime > 0.5f))
+		if (m_isChangeInstruction && (m_instSyncTime > TIME_SYNC_INSTRUCTION))
 		{
 			m_instSyncTime = 0.f;
 			m_isChangeInstruction = false;
@@ -127,7 +141,7 @@ bool cRemoteDebugger2::Process()
 		}
 
 		// sync symboltable
-		if (m_symbSyncTime > 5.f) {
+		if (m_symbSyncTime > TIME_SYNC_SYMBOL) {
 			m_symbSyncTime = 0.f;
 
 			for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
