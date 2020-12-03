@@ -3,10 +3,6 @@
 // WebSocket Client class with Poco Library
 //	- poco library websocket client
 //		- https://pocoproject.org/
-//	- websocket protocol constant
-//		- default protocol id: 1000
-//		- default packet id: 2000
-//			- protocol script => {packetid : 2000}
 //
 #pragma once
 

@@ -285,13 +285,13 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (reg.val[code.reg1].vt == VT_BOOL)
 		{
-			reg.val[code.reg1].vt = VT_INT; // force converting int
-			reg.val[code.reg1].intVal = (int)reg.val[code.reg1].boolVal;
+			// force converting int
+			reg.val[code.reg1] = ((bool)reg.val[code.reg1]) ? 1 : 0;
 		}
 		if (reg.val[code.reg2].vt == VT_BOOL)
 		{
-			reg.val[code.reg2].vt = VT_INT; // force converting int
-			reg.val[code.reg2].intVal = (int)reg.val[code.reg2].boolVal;
+			// force converting int
+			reg.val[code.reg2] = ((bool)reg.val[code.reg2]) ? 1 : 0;
 		}
 		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
 			goto $error_semantic;
