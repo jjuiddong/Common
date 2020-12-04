@@ -11,6 +11,8 @@ cPacket::cPacket()
 	, m_readIdx(0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
+	, m_data(m_buffer)
+	, m_bufferSize(DEFAULT_PACKETSIZE)
 {
 }
 
@@ -20,6 +22,8 @@ cPacket::cPacket(iPacketHeader *packetHeader)
 	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
+	, m_data(m_buffer)
+	, m_bufferSize(DEFAULT_PACKETSIZE)
 {
 }
 
@@ -28,9 +32,11 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
+	, m_data(m_buffer)
+	, m_bufferSize(DEFAULT_PACKETSIZE)
 {
-	m_writeIdx = min((uint)byteSize, sizeof(m_data));
-	memcpy_s(m_data, sizeof(m_data), src, byteSize);
+	m_writeIdx = min((uint)byteSize, sizeof(m_buffer));
+	memcpy_s(m_data, sizeof(m_buffer), src, byteSize);
 }
 
 cPacket::cPacket(const cPacket &rhs)
@@ -43,6 +49,14 @@ cPacket::~cPacket()
 }
 
 
+// call before write
+void cPacket::InitWrite()
+{
+	RET(!m_packetHeader);
+	m_writeIdx = m_packetHeader->GetHeaderSize();
+}
+
+
 // call before read
 void cPacket::InitRead()
 {
@@ -50,12 +64,22 @@ void cPacket::InitRead()
 	m_readIdx = m_packetHeader->GetHeaderSize();
 }
 
+
+// initialize read/write cursor
+void cPacket::Initialize()
+{
+	RET(!m_packetHeader);
+	m_readIdx = m_packetHeader->GetHeaderSize();
+	m_writeIdx = m_packetHeader->GetHeaderSize();
+}
+
+
 // call before send packet
 void cPacket::EndPack()
 {
 	RET(!m_packetHeader);
-	if (m_writeIdx < DEFAULT_PACKETSIZE)
-		m_writeIdx += m_packetHeader->SetPacketTerminator(&m_data[m_writeIdx], DEFAULT_PACKETSIZE - m_writeIdx);
+	if (m_writeIdx < m_bufferSize)
+		m_writeIdx += m_packetHeader->SetPacketTerminator(&m_data[m_writeIdx], m_bufferSize - m_writeIdx);
 
 	SetPacketSize(GetWriteSize());
 }
@@ -71,7 +95,7 @@ cPacket& cPacket::operator=(const cPacket &rhs)
 		m_writeIdx = rhs.m_writeIdx;
 		m_lastDelim = rhs.m_lastDelim;
 		m_emptyData = rhs.m_emptyData;
-		memcpy(m_data, rhs.m_data, sizeof(rhs.m_data));
+		memcpy(m_data, rhs.m_data, sizeof(rhs.m_buffer));
 	}
 	return *this;
 }
@@ -106,7 +130,7 @@ uint cPacket::GetPacketId() const {
 }
 uint cPacket::GetPacketSize() const {
 	RETV(!m_packetHeader, 0);
-	return (uint)min((uint)DEFAULT_PACKETSIZE, m_packetHeader->GetPacketLength(m_data));
+	return (uint)min((uint)m_bufferSize, m_packetHeader->GetPacketLength(m_data));
 }
 uint cPacket::GetPacketOption(const uint mask) {
 	RETV(!m_packetHeader, 0);

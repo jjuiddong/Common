@@ -28,6 +28,7 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 	Clear();
 
 	m_reg.idx = 0;
+	m_reg.exeIdx = 0;
 	m_reg.cmp = false;
 
 	m_code = code;
@@ -72,7 +73,7 @@ bool cVirtualMachine::Run()
 	// jump to entry point
 	auto it = m_code.m_jmpMap.find("main");
 	if (m_code.m_jmpMap.end() != it)
-		m_reg.idx = it->second + 1;
+		m_reg.idx = it->second + 1; // +1 next to label command
 
 	m_reg.cmp = false;
 
@@ -84,6 +85,7 @@ bool cVirtualMachine::Stop()
 {
 	m_state = eState::Stop;
 	m_reg.idx = UINT_MAX;
+	m_reg.exeIdx = UINT_MAX;
 	return true;
 }
 
@@ -161,6 +163,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	if (m_code.m_codes.size() <= reg.idx)
 		return false; // end of code
 
+	reg.exeIdx = reg.idx;
 	sInstruction &code = m_code.m_codes[reg.idx];
 
 	switch (code.cmd)

@@ -128,7 +128,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 bool cSocketBuffer::Pop(OUT cPacket &out)
 {
 	if (PopNoRemove(out))
-		return Pop(min(sizeof(out.m_data), (uint)out.m_writeIdx));
+		return Pop(min(sizeof(out.m_buffer), (uint)out.m_writeIdx));
 	return false;
 }
 
@@ -155,7 +155,7 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 	if (packetSize <= size)
 	{
 		out.m_writeIdx = packetSize;
-		m_q.frontCopy(out.m_data, min(sizeof(out.m_data), packetSize));
+		m_q.frontCopy(out.m_data, min(sizeof(out.m_buffer), packetSize));
 		return true;
 	}
 

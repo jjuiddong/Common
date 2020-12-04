@@ -15,7 +15,8 @@ namespace common
 		public:
 			struct sRegister
 			{
-				uint idx; // instruction index
+				uint idx; // instruction index (next execute instruction)
+				uint exeIdx; // executed instruction index
 				bool cmp; // compare output flag
 				float tim; // delay timer (milliseconds unit)
 				variant_t val[10]; // register

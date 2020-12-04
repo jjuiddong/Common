@@ -4,6 +4,11 @@
 //
 // definition Protocol Header by iPacketHeader
 //
+// 2020-12-04
+//	- refactoring
+//	- expand external memory
+//	- bugfix: full packet last data crash
+//
 #pragma once
 
 
@@ -18,8 +23,14 @@ namespace network2
 		cPacket(const cPacket &rhs);
 		virtual ~cPacket();
 
-		// call before read/write
+		// call before write
+		void InitWrite();
+
+		// call before read
 		void InitRead(); 
+
+		// init read/write
+		void Initialize();
 
 		// call before send packet
 		void EndPack();
@@ -60,7 +71,9 @@ namespace network2
 		int m_writeIdx;
 		char m_lastDelim; // GetDataString, GetDataAscii, last delimeter
 		bool m_emptyData; // GetDataAscii
-		BYTE m_data[DEFAULT_PACKETSIZE];
+		int m_bufferSize; // default: DEFAULT_PACKETSIZE
+		BYTE m_buffer[DEFAULT_PACKETSIZE];
+		BYTE *m_data; // reference pointer m_buffer (to expand external memory access)
 	};
 
 
@@ -71,26 +84,26 @@ namespace network2
 	template<class T>
 	inline void cPacket::Append(const T &rhs)
 	{
-		if (m_writeIdx + sizeof(T) >= DEFAULT_PACKETSIZE)
+		if (m_writeIdx + (int)sizeof(T) > m_bufferSize)
 			return;
-		memmove_s(m_data + m_writeIdx, DEFAULT_PACKETSIZE - m_writeIdx, &rhs, sizeof(T));
-		m_writeIdx += sizeof(T);
+		memmove_s(m_data + m_writeIdx, m_bufferSize - m_writeIdx, &rhs, sizeof(T));
+		m_writeIdx += (int)sizeof(T);
 	}
 
 	// size : copy byte size
 	template<class T>
 	inline void cPacket::AppendPtr(const T &rhs, const size_t size)
 	{
-		if (m_writeIdx + size >= DEFAULT_PACKETSIZE)
+		if (m_writeIdx + (int)size > m_bufferSize)
 			return;
-		memmove_s(m_data + m_writeIdx, DEFAULT_PACKETSIZE - m_writeIdx, rhs, size);
+		memmove_s(m_data + m_writeIdx, m_bufferSize - m_writeIdx, rhs, size);
 		m_writeIdx += size;
 	}
 
 	// delimeter를 추가한다.
 	inline void cPacket::AddDelimeter()
 	{
-		if (m_writeIdx + 1 >= DEFAULT_PACKETSIZE)
+		if (m_writeIdx + 1 > m_bufferSize)
 			return;
 		const int len = m_packetHeader->SetDelimeter(&m_data[m_writeIdx]);
 		m_writeIdx += len;
@@ -99,7 +112,7 @@ namespace network2
 	// delimeter를 추가한다.
 	inline void cPacket::AppendDelimeter(const char c)
 	{
-		if (m_writeIdx + 1 >= DEFAULT_PACKETSIZE)
+		if (m_writeIdx + 1 > m_bufferSize)
 			return;
 		m_data[m_writeIdx++] = c;
 	}
@@ -108,16 +121,16 @@ namespace network2
 	template<class T>
 	inline void cPacket::GetData(OUT T &rhs)
 	{
-		if (m_readIdx + sizeof(T) >= DEFAULT_PACKETSIZE)
+		if (m_readIdx + (int)sizeof(T) > m_bufferSize)
 			return;
 		memmove_s(&rhs, sizeof(T), m_data + m_readIdx, sizeof(T));
-		m_readIdx += sizeof(T);
+		m_readIdx += (int)sizeof(T);
 	}
 
 	template<class T>
 	inline void cPacket::GetDataPtr(OUT T &rhs, size_t size)
 	{
-		if (m_readIdx + size >= DEFAULT_PACKETSIZE)
+		if (m_readIdx + size > m_bufferSize)
 			return;
 		memmove_s(rhs, size, m_data + m_readIdx, size);
 		m_readIdx += size;
@@ -126,8 +139,9 @@ namespace network2
 	// NULL 문자가 나올때 까지 복사한 후 리턴한다.
 	inline void cPacket::GetDataString(OUT string &str)
 	{
+		//todo: use heap memory, size=m_bufferSize
 		char buf[DEFAULT_PACKETSIZE] = { NULL, };
-		for (int i = 0; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < DEFAULT_PACKETSIZE); ++i)
+		for (int i = 0; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < m_bufferSize); ++i)
 		{
 			buf[i] = m_data[m_readIdx++];
 			if (NULL == m_data[m_readIdx - 1])
@@ -145,8 +159,9 @@ namespace network2
 		char c = NULL;
 		bool isStart = true;
 		bool isDoubleQuote = false;
+		//todo: use heap memory, size=m_bufferSize
 		char buff[DEFAULT_PACKETSIZE] = { NULL, };
-		while ((m_readIdx < DEFAULT_PACKETSIZE) && (i < (DEFAULT_PACKETSIZE - 1)))
+		while ((m_readIdx < m_bufferSize) && (i < (DEFAULT_PACKETSIZE - 1)))
 		{
 			c = m_data[m_readIdx++];
 			if (isStart && (c == '\"'))
@@ -180,7 +195,7 @@ namespace network2
 	{
 		int i = 0;
 		char c = NULL;
-		while ( (m_readIdx < DEFAULT_PACKETSIZE) && (i < (buffLen-1)))
+		while ( (m_readIdx < m_bufferSize) && (i < (buffLen-1)))
 		{
 			c = m_data[m_readIdx++];
 			if ((c == delimeter1) || (c == delimeter2) || (c == NULL))

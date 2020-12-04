@@ -4,6 +4,10 @@
 
 using namespace network2;
 
+const float TIME_SYNC_INSTRUCTION = 0.5f;
+const float TIME_SYNC_REGISTER = 5.0f;
+const float TIME_SYNC_SYMBOL = 5.0f;
+
 
 cRemoteDebugger2::cRemoteDebugger2()
 	: m_regSyncTime(0.f)
@@ -72,10 +76,6 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 // process webclient, interpreter
 bool cRemoteDebugger2::Process()
 {
-	const float TIME_SYNC_INSTRUCTION = 0.5f;
-	const float TIME_SYNC_REGISTER = 5.0f;
-	const float TIME_SYNC_SYMBOL = 5.0f;
-
 	const float dt = (float)m_timer.GetDeltaSeconds();
 	m_netController.Process(dt);
 	m_debugger.Process(dt);
@@ -101,7 +101,7 @@ bool cRemoteDebugger2::Process()
 
 				// sync delay instruction
 				if (script::eCommand::delay ==
-					vm->m_code.m_codes[vm->m_reg.idx].cmd)
+					vm->m_code.m_codes[vm->m_reg.exeIdx].cmd)
 				{
 					// sync instruction, register
 					m_instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
@@ -261,6 +261,12 @@ bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
 bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 {
 	OneStep();
+
+	// every step debugging, synchronize instruction, register, symboltable information
+	m_regSyncTime = TIME_SYNC_REGISTER + 1.0f;
+	m_instSyncTime = TIME_SYNC_INSTRUCTION + 1.0f;
+	m_symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
+
 	m_protocol.AckOneStep(network2::SERVER_NETID, false, 1);
 	return true;
 }

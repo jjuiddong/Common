@@ -113,10 +113,12 @@ template<class NetNode, class Dispatcher>
 int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 {
 	int procPacketCnt = 0;
+	
+	cPacket packet(netNode->GetPacketHeader());
 
 	while (1000 > procPacketCnt)
 	{
-		cPacket packet(netNode->GetPacketHeader());
+		packet.Initialize();
 		if (!netNode->m_recvQueue.Front(packet))
 			break;
 
