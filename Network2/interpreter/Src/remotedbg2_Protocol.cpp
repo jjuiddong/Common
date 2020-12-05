@@ -335,7 +335,7 @@ void remotedbg2::h2r_Protocol::AckUploadVProgFile(netid targetId, bool isBinary,
 //------------------------------------------------------------------------
 // Protocol: AckIntermediateCode
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary, const int &result, const script::cIntermediateCode &code)
+void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary, const int &result, const uint &count, const uint &index, const vector<BYTE> &data)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -345,7 +345,9 @@ void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary
 	{
 		// marshaling binary
 		marshalling::operator<<(packet, result);
-		marshalling::operator<<(packet, code);
+		marshalling::operator<<(packet, count);
+		marshalling::operator<<(packet, index);
+		marshalling::operator<<(packet, data);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -356,7 +358,9 @@ void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary
 		ptree props;
 		try {
 			put(props, "result", result);
-			put(props, "code", code);
+			put(props, "count", count);
+			put(props, "index", index);
+			put(props, "data", data);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();

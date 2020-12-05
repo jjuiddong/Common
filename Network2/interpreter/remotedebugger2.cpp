@@ -241,8 +241,45 @@ bool cRemoteDebugger2::UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packe
 // request intermeidate code protocol handler
 bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet)
 {
-	const int result = m_interpreter.m_code.IsLoaded() ? 1 : 0;
-	m_protocol.AckIntermediateCode(network2::SERVER_NETID, true, result, m_interpreter.m_code);
+	// tricky code, marshalling intermedatecode to byte stream
+	const uint BUFFER_SIZE = 1024 * 10;
+	BYTE *buff = new BYTE[BUFFER_SIZE];
+	cPacket marsh(m_client.GetPacketHeader());
+	marsh.m_data = buff;
+	marsh.m_bufferSize = BUFFER_SIZE;
+	marsh.m_writeIdx = 0;
+	network2::marshalling::operator<<(marsh, m_interpreter.m_code);
+	
+	// send split
+	const uint bufferSize = (uint)marsh.m_writeIdx;
+	if (bufferSize == 0)
+	{
+		// no intermediate code, fail!
+		m_protocol.AckIntermediateCode(network2::SERVER_NETID, true, 0, 0, 0, {});
+	}
+	else
+	{
+		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
+			(marsh.GetHeaderSize() + 16); // 4 * 4byte = result,count,index,buffsize
+		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
+			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
+
+		uint index = 0;
+		uint cursor = 0;
+		while (cursor < bufferSize) 
+		{
+			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
+			vector<BYTE> data(size);
+			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
+			m_protocol.AckIntermediateCode(network2::SERVER_NETID, true
+				, 1, totalCount, index, data);
+
+			cursor += size;
+			++index;
+		}
+	}
+
+	SAFE_DELETEA(buff);
 	return true;
 }
 

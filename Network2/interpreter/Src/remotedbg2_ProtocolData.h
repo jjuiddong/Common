@@ -73,7 +73,9 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int result;
-		script::cIntermediateCode code;
+		uint count;
+		uint index;
+		vector<BYTE> data;
 	};
 
 	struct AckRun_Packet {

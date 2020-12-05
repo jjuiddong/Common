@@ -32,7 +32,7 @@ class h2r_Protocol : public network2::iProtocol
 public:
 	h2r_Protocol() : iProtocol(h2r_Protocol_ID, ePacketFormat::JSON) {}
 	void AckUploadVProgFile(netid targetId, bool isBinary, const int &result);
-	void AckIntermediateCode(netid targetId, bool isBinary, const int &result, const script::cIntermediateCode &code);
+	void AckIntermediateCode(netid targetId, bool isBinary, const int &result, const uint &count, const uint &index, const vector<BYTE> &data);
 	void AckRun(netid targetId, bool isBinary, const int &result);
 	void AckOneStep(netid targetId, bool isBinary, const int &result);
 	void AckResumeRun(netid targetId, bool isBinary, const int &result);

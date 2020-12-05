@@ -26,7 +26,8 @@ protocol r2h 5301 json
 protocol h2r 5300 json
 {
 	AckUploadVProgFile( int result );
-	AckIntermediateCode( int result, script::cIntermediateCode code );
+	//AckIntermediateCode( int result, uint count, uint index, script::cIntermediateCode code );
+	AckIntermediateCode( int result, uint count, uint index, vector<BYTE> data );
 	AckRun( int result );
 	AckOneStep( int result );
 	AckResumeRun( int result );

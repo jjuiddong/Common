@@ -488,7 +488,9 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
 				marshalling::operator>>(packet, data.result);
-				marshalling::operator>>(packet, data.code);
+				marshalling::operator>>(packet, data.count);
+				marshalling::operator>>(packet, data.index);
+				marshalling::operator>>(packet, data.data);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckIntermediateCode(data));
 			}
 			else
@@ -509,7 +511,9 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "result", data.result);
-					get(props, "code", data.code);
+					get(props, "count", data.count);
+					get(props, "index", data.index);
+					get(props, "data", data.data);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckIntermediateCode(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");
