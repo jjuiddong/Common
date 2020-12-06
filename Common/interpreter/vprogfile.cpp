@@ -437,7 +437,7 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (!next)
 				continue; // error occurred!!
-			GenerateCode_Node(node, *next, out);
+			GenerateCode_Node(node, *next, pin, out);
 		}
 	}
 
@@ -448,13 +448,13 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 
 // generate intermediate code, node
 bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	switch (node.type)
 	{
 	case eNodeType::Function:
-	case eNodeType::Macro: GenerateCode_Function(prevNode, node, out); break;
-	case eNodeType::Control: GenerateCode_Control(prevNode, node, out); break;
+	case eNodeType::Macro: GenerateCode_Function(prevNode, node, fromPin, out); break;
+	case eNodeType::Control: GenerateCode_Control(prevNode, node, fromPin, out); break;
 	case eNodeType::Operator: GenerateCode_Operator(node, out); break;
 	case eNodeType::Variable: GenerateCode_Variable(node, out); break;
 		break;
@@ -470,9 +470,9 @@ bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
 
 // generate intermediate code, function node type
 bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
-	if (!GenerateCode_NodeEnter(prevNode, node, out))
+	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
 	// get input variable
@@ -495,7 +495,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, out);
+				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
 			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
@@ -601,7 +601,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next)
 			{
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 			}
 		}
 	}
@@ -612,18 +612,18 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 
 // generate intermediate code, control node
 bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	if (node.name == "Branch")
-		GenerateCode_Branch(prevNode, node, out);
+		GenerateCode_Branch(prevNode, node, fromPin, out);
 	else if (node.name == "Switch")
-		GenerateCode_Switch(prevNode, node, out);
+		GenerateCode_Switch(prevNode, node, fromPin, out);
 	else if (node.name == "While")
-		GenerateCode_While(prevNode, node, out);
+		GenerateCode_While(prevNode, node, fromPin, out);
 	else if (node.name == "For Loop")
-		GenerateCode_ForLoop(prevNode, node, out);
+		GenerateCode_ForLoop(prevNode, node, fromPin, out);
 	else if (node.name == "Sequence")
-		GenerateCode_Sequence(prevNode, node, out);
+		GenerateCode_Sequence(prevNode, node, fromPin, out);
 
 	return true;
 }
@@ -631,10 +631,10 @@ bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
 
 // generate intermediate code, control node
 bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, out))
+	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
 	// get input variable
@@ -657,7 +657,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, out);
+				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
 			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
@@ -731,7 +731,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "True"))
 			{
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 			}
 		}
 	}
@@ -762,7 +762,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 				break;
 			}
 		}
@@ -774,10 +774,10 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 
 // generate intermediate code, switch case node
 bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, out))
+	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
 	// get input variable
@@ -794,7 +794,7 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, out);
+				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			selPin = &pin;
 			GenerateCode_Pin(*prev, *pp, 0, out); // get data from prev output pin
@@ -942,7 +942,7 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 			out.m_codes.push_back(code);
 		}
 
-		GenerateCode_Node(node, *next, out);
+		GenerateCode_Node(node, *next, pin, out);
 	}
 
 	return true;
@@ -951,10 +951,10 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 
 // generate while syntax code
 bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, out))
+	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
 	// insert while condition jump label
@@ -985,7 +985,7 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, out);
+				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
 			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
@@ -1059,7 +1059,7 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Loop"))
 			{
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 			}
 		}
 	}
@@ -1098,7 +1098,7 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 				break;
 			}
 		}
@@ -1110,10 +1110,10 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 
 // generate for-loop syntax code
 bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, out))
+	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
 	// get input variable
@@ -1144,7 +1144,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, out);
+				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
 			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
@@ -1296,7 +1296,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Loop"))
 			{
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 			}
 		}
 	}
@@ -1371,7 +1371,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 				break;
 			}
 		}
@@ -1383,10 +1383,10 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 
 // generate sequence code
 bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, out))
+	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
 	// generate output node
@@ -1399,7 +1399,7 @@ bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
 			const int linkId = pin.links.empty() ? -1 : pin.links.front();
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && np)
-				GenerateCode_Node(node, *next, out);
+				GenerateCode_Node(node, *next, pin, out);
 		}
 	}
 	return true;
@@ -1433,7 +1433,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		if (prev)
 		{
 			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, out);
+				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
 			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
@@ -1827,33 +1827,23 @@ bool cVProgFile::GenerateCode_DebugInfo(const sPin &from, const sPin &to
 
 // insert flow debug information, if from-to node was linked
 bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(from.id == 0, false);
 
-	int fromId = -1;
+	int fromId = fromPin.id;
 	int toId = -1;
-	for (auto &p1 : from.outputs)
+	for (auto &p2 : to.inputs)
 	{
-		if (p1.type != ePinType::Flow)
+		if (p2.type != ePinType::Flow)
 			continue;
-		if ((fromId != -1) && (toId != -1))
-			break;
-		for (auto &p2 : to.inputs)
+		for (auto &id : p2.links)
 		{
-			if (p2.type != ePinType::Flow)
-				continue;
-			if ((fromId != -1) && (toId != -1))
-				break;
-			for (auto &id : p2.links)
+			if (fromPin.id == id)
 			{
-				if (p1.id == id)
-				{
-					// two node link with flow pin
-					fromId = p1.id;
-					toId = p2.id;
-					break;
-				}
+				// two node link with flow pin
+				toId = p2.id;
+				break;
 			}
 		}
 	}
@@ -1874,9 +1864,9 @@ bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
 
 // if return false, multiple enter, no need generate this node code
 bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
-	, OUT common::script::cIntermediateCode &out)
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
-	GenerateCode_DebugInfo(prevNode, node, out);
+	GenerateCode_DebugInfo(prevNode, node, fromPin, out);
 
 	if (m_visit.find(node.id) != m_visit.end())
 	{
