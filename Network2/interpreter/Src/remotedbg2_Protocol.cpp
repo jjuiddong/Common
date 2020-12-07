@@ -71,7 +71,7 @@ void remotedbg2::r2h_Protocol::ReqIntermediateCode(netid targetId, bool isBinary
 //------------------------------------------------------------------------
 // Protocol: ReqRun
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqRun(netid targetId, bool isBinary)
+void remotedbg2::r2h_Protocol::ReqRun(netid targetId, bool isBinary, const string &runType)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
@@ -80,6 +80,7 @@ void remotedbg2::r2h_Protocol::ReqRun(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		marshalling::operator<<(packet, runType);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -89,6 +90,7 @@ void remotedbg2::r2h_Protocol::ReqRun(netid targetId, bool isBinary)
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "runType", runType);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();

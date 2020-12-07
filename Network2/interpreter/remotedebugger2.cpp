@@ -68,8 +68,8 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 {
 	RETV(m_state != eState::Stop, false);
 	const bool result = m_debugger.LoadIntermediateCode(fileName);
-	if (result)
-		m_state = eState::Run;
+	//if (result)
+	//	m_state = eState::Run;
 	return result;
 }
 
@@ -174,8 +174,26 @@ bool cRemoteDebugger2::Process()
 // start interpreter
 bool cRemoteDebugger2::Run()
 {
-	RETV(m_state != eState::Run, true);
-	return m_debugger.Run();
+	RETV(m_state != eState::Stop, true);
+	if (m_debugger.Run())
+	{
+		m_state = eState::Run;
+		return true;
+	}
+	return false;
+}
+
+
+// start interpreter with one step debugging
+bool cRemoteDebugger2::StepRun()
+{
+	RETV(m_state != eState::Stop, true);
+	if (m_debugger.StepRun())
+	{
+		m_state = eState::Run;
+		return true;
+	}
+	return false;
 }
 
 
@@ -287,8 +305,15 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 // request interpreter run protocol handler
 bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
 {
-	Run();
-	m_protocol.AckRun(network2::SERVER_NETID, false, 1);
+	if (packet.runType == "Run")
+		Run();
+	else if (packet.runType == "DebugRun")
+		Run();
+	else if (packet.runType == "StepRun")
+		StepRun();
+
+	const int result = m_debugger.IsRun() ? 1 : 0;
+	m_protocol.AckRun(network2::SERVER_NETID, false, result);
 	SendSyncVMRegister();
 	return true;
 }

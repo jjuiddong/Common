@@ -35,6 +35,7 @@ namespace network2
 		bool LoadIntermediateCode(const StrPath &fileName);
 		bool Process();
 		bool Run();
+		bool StepRun();
 		bool Stop();
 		bool Resume();
 		bool OneStep();

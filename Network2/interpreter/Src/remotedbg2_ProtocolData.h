@@ -25,6 +25,7 @@ using namespace marshalling_json;
 	struct ReqRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		string runType;
 	};
 
 	struct ReqOneStep_Packet {

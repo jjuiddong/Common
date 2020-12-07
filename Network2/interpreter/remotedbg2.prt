@@ -13,7 +13,7 @@ protocol r2h 5301 json
 {
 	UploadVProgFile( string code );
 	ReqIntermediateCode();
-	ReqRun();
+	ReqRun(string runType);
 	ReqOneStep();
 	ReqResumeRun();
 	ReqBreak();

@@ -95,6 +95,22 @@ bool cDebugger::Run()
 }
 
 
+// cancel debugging, run interpreter, one step debugging state
+bool cDebugger::StepRun()
+{
+	RETV(!m_interpreter, false);
+
+	if (m_state != eState::Wait)
+		return false;
+
+	if (!m_interpreter->Run())
+		return false;
+
+	m_state = eState::Step;
+	return true;
+}
+
+
 // stop debugging state
 bool cDebugger::Stop()
 {

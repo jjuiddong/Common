@@ -336,7 +336,7 @@ bool cPathFinder::Find(const int startIdx, const int endIdx
 			// sorting candidate
 			// value = minimum( startLen + endLen )
 			bool isInsert = false;
-			for (u_int k = 0; k < candidate.size(); ++k)
+			for (uint k = 0; k < candidate.size(); ++k)
 			{
 				++loopCount1;
 
@@ -429,7 +429,7 @@ void cPathFinder::OptimizeAreaPath(const Vector3 &start
 	{
 		int cnt = 0;
 		bool isPathNode = false;
-		for (u_int i = 0; i < out.size() - 1; ++i)
+		for (uint i = 0; i < out.size() - 1; ++i)
 		{
 			auto &p = out[i];
 			if (!m_areas[startAreaId].rect.IsIn(p.x, p.z))
@@ -624,7 +624,7 @@ int cPathFinder::GetNearestVertex(const Vector3 &pos
 
 	if (m_areas.empty())
 	{
-		for (u_int i = 0; i < m_vertices.size(); ++i)
+		for (uint i = 0; i < m_vertices.size(); ++i)
 			if (cnt < ARRAYSIZE(indices))
 				indices[cnt++] = (int)i;
 	}
@@ -673,7 +673,7 @@ int cPathFinder::GetNearestVertex(const Vector3 &pos, const Vector3 &end) const
 
 	if (m_areas.empty())
 	{
-		for (u_int i = 0; i < m_vertices.size(); ++i)
+		for (uint i = 0; i < m_vertices.size(); ++i)
 			if (cnt < ARRAYSIZE(indices))
 				indices[cnt++] = (int)i;
 	}
@@ -711,7 +711,7 @@ int cPathFinder::GetNearestVertex(const Vector3 &pos, const Vector3 &end) const
 
 int cPathFinder::GetNearestArea(const Vector3 &pos) const
 {
-	for (u_int i=0; i < m_areas.size(); ++i)
+	for (uint i=0; i < m_areas.size(); ++i)
 	{
 		auto &area = m_areas[i];
 		if (area.rect.IsIn(pos.x, pos.z))
@@ -725,7 +725,7 @@ int cPathFinder::GetNearestArea(const Vector3 &pos) const
 // return -1, not found
 int cPathFinder::GetVertexFromLinkId(const int linkId) const
 {
-	for (u_int i = 0; i < m_vertices.size(); ++i)
+	for (uint i = 0; i < m_vertices.size(); ++i)
 		if (linkId == m_vertices[i].linkId)
 			return (int)i;
 	return -1;
@@ -816,7 +816,7 @@ bool cPathFinder::AddArea(const sRectf &area)
 	data.indices.reserve(16);
 
 	// add vertex
-	for (u_int i=0; i < m_vertices.size(); ++i)
+	for (uint i=0; i < m_vertices.size(); ++i)
 	{
 		sVertex &v = m_vertices[i];
 		if (area.IsIn(v.pos.x, v.pos.z))

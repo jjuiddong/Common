@@ -17,7 +17,7 @@ public:
 	r2h_Protocol() : iProtocol(r2h_Protocol_ID, ePacketFormat::JSON) {}
 	void UploadVProgFile(netid targetId, bool isBinary, const string &code);
 	void ReqIntermediateCode(netid targetId, bool isBinary);
-	void ReqRun(netid targetId, bool isBinary);
+	void ReqRun(netid targetId, bool isBinary, const string &runType);
 	void ReqOneStep(netid targetId, bool isBinary);
 	void ReqResumeRun(netid targetId, bool isBinary);
 	void ReqBreak(netid targetId, bool isBinary);

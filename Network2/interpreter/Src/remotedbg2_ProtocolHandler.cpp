@@ -120,6 +120,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				marshalling::operator>>(packet, data.runType);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqRun(data));
 			}
 			else
@@ -139,6 +140,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					ReqRun_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
+					get(props, "runType", data.runType);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqRun(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error\n");

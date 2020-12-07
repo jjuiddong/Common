@@ -22,6 +22,7 @@ namespace common
 			bool LoadIntermediateCode(const StrPath &fileName);
 			bool Process(const float deltaSeconds);
 			bool Run();
+			bool StepRun();
 			bool Stop();
 			bool Resume();
 			bool OneStep();
