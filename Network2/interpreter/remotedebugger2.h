@@ -26,14 +26,16 @@ namespace network2
 		cRemoteDebugger2();
 		virtual ~cRemoteDebugger2();
 
-		bool InitHost(const string &url
+		bool InitHost(cNetController &netController
+			, const string &url
 			, const int port
 			, script::iFunctionCallback *callback = nullptr
 			, void *arg = nullptr
 		);
-		bool InitRemote(const Str16 &ip, const int port);
+		bool InitRemote(cNetController &netController
+			, const Str16 &ip, const int port);
 		bool LoadIntermediateCode(const StrPath &fileName);
-		bool Process();
+		bool Process(const float deltaSeconds);
 		bool Run();
 		bool StepRun();
 		bool Stop();
@@ -72,10 +74,8 @@ namespace network2
 
 		string m_url; // webserver url
 		int m_port; // webserver port
-		cNetController m_netController;
 		network2::cWebClient m_client;
 		remotedbg2::h2r_Protocol m_protocol;
-		cTimer m_timer;
 		float m_regSyncTime; // register sync time
 		float m_instSyncTime; // instruction sync time
 		float m_symbSyncTime; // symboltable sync time

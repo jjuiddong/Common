@@ -29,7 +29,8 @@ cRemoteDebugger2::~cRemoteDebugger2()
 // remotedebugger running webclient, interpreter
 // connect webserver to communicate remote debugger
 // receive script data from remote debugger and then run interpreter
-bool cRemoteDebugger2::InitHost(const string &url
+bool cRemoteDebugger2::InitHost(cNetController &netController
+	, const string &url
 	, const int port
 	, script::iFunctionCallback *callback //= nullptr
 	, void *arg //= nullptr
@@ -43,11 +44,10 @@ bool cRemoteDebugger2::InitHost(const string &url
 
 	m_interpreter.Init(callback, arg);
 
-	m_timer.Create();
 	m_client.AddProtocolHandler(this);
 	m_client.RegisterProtocol(&m_protocol);
 
-	if (!m_netController.StartWebClient(&m_client, url, port))
+	if (!netController.StartWebClient(&m_client, url, port))
 	{
 		dbg::Logc(2, "Error WebClient Connection url:%s, port:%d\n", url.c_str(), port);
 		return false;
@@ -58,10 +58,12 @@ bool cRemoteDebugger2::InitHost(const string &url
 
 // initialize RemoteDebugger Remote Mode
 // not implements
-bool cRemoteDebugger2::InitRemote(const Str16 &ip, const int port)
+bool cRemoteDebugger2::InitRemote(cNetController &netController
+	, const Str16 &ip, const int port)
 {
 	return true;
 }
+
 
 // load intermediate code
 bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
@@ -73,19 +75,18 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 	return result;
 }
 
+
 // process webclient, interpreter
-bool cRemoteDebugger2::Process()
+bool cRemoteDebugger2::Process(const float deltaSeconds)
 {
-	const float dt = (float)m_timer.GetDeltaSeconds();
-	m_netController.Process(dt);
-	m_debugger.Process(dt);
+	m_debugger.Process(deltaSeconds);
 
 	// sync instruction, register, syboltable
 	if (eState::Run == m_state)
 	{
-		m_regSyncTime += dt;
-		m_instSyncTime += dt;
-		m_symbSyncTime += dt;
+		m_regSyncTime += deltaSeconds;
+		m_instSyncTime += deltaSeconds;
+		m_symbSyncTime += deltaSeconds;
 
 		// check change instruction
 		for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
@@ -374,6 +375,5 @@ void cRemoteDebugger2::Clear()
 {
 	m_state = eState::Stop;
 	m_client.Close();
-	m_netController.Clear();
 }
 

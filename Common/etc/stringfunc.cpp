@@ -111,7 +111,7 @@ std::string common::variant2str(const _variant_t &var
 	// modify: 2020-11-17
 	// VT_BOOL type variant was diffrent we think
 	// variant_t value has true: -1, false: 0
-	// so direct access variant_t::boolVal was maybe error occurred!
+	// so direct access variant_t::boolVal was error occurr! maybe
 	//case VT_BOOL: ss << var.boolVal; break;
 	case VT_BOOL: ss << ((bool)var)? "1" : "0"; break;
 	case VT_I2: ss << var.iVal; break;

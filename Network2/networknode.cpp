@@ -4,12 +4,15 @@
 
 using namespace network2;
 
+// default packet header is binary format
+// to avoid null packet header
+static cPacketHeader s_binPacketHeader;
 
 cNetworkNode::cNetworkNode(const StrId &name //= "NetNode"
 	, const bool isPacketLog //= false
 )
 	: cSession(common::GenerateId(), name, isPacketLog)
-	, m_packetHeader(nullptr)
+	, m_packetHeader(&s_binPacketHeader)
 {
 }
 
@@ -17,7 +20,8 @@ cNetworkNode::~cNetworkNode()
 {
 	Close();
 
-	SAFE_DELETE(m_packetHeader);
+	if (m_packetHeader != &s_binPacketHeader)
+		SAFE_DELETE(m_packetHeader);
 }
 
 
@@ -79,7 +83,7 @@ iPacketHeader* cNetworkNode::GetPacketHeader()
 // create packet header
 bool cNetworkNode::CreatePacketHeader(const ePacketFormat format)
 {
-	if (m_packetHeader)
+	if (m_packetHeader != &s_binPacketHeader)
 		return true; // already created!
 
 	switch (format)

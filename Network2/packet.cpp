@@ -40,6 +40,8 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 }
 
 cPacket::cPacket(const cPacket &rhs)
+	: m_data(m_buffer)
+	, m_bufferSize(DEFAULT_PACKETSIZE)
 {
 	operator=(rhs);
 }

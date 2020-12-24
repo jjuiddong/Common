@@ -6,7 +6,7 @@ namespace common
 
 	/**
 	 @brief this function only avaible to unique ty value
-	 remove ty and then rotate vector to sequence elements
+	 remove ty and then rotate vector
 	 */
 	template <class Seq>
 	bool removevector(Seq &seq, const typename Seq::value_type &ty)
