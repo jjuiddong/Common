@@ -3,6 +3,40 @@
 using namespace remotedbg2;
 
 //------------------------------------------------------------------------
+// Protocol: Welcome
+//------------------------------------------------------------------------
+void remotedbg2::r2h_Protocol::Welcome(netid targetId, bool isBinary, const string &msg)
+{
+	cPacket packet(m_node->GetPacketHeader());
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 1281093745 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		marshalling::operator<<(packet, msg);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "msg", msg);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
 // Protocol: UploadVProgFile
 //------------------------------------------------------------------------
 void remotedbg2::r2h_Protocol::UploadVProgFile(netid targetId, bool isBinary, const string &code)

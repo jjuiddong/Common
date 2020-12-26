@@ -28,7 +28,6 @@ namespace network2
 
 		bool InitHost(cNetController &netController
 			, const string &url
-			, const int port
 			, script::iFunctionCallback *callback = nullptr
 			, void *arg = nullptr
 		);
@@ -49,7 +48,8 @@ namespace network2
 	protected:
 		bool SendSyncVMRegister();
 
-		// remotedbg2::r2h_ProtocolHandler
+		// remotedbg2 protocol hander
+		virtual bool Welcome(remotedbg2::Welcome_Packet &packet) override;
 		virtual bool UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) override;
 		virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) override;
 		virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) override;

@@ -11,6 +11,12 @@ using namespace network2;
 using namespace marshalling_json;
 
 
+	struct Welcome_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		string msg;
+	};
+
 	struct UploadVProgFile_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;

@@ -53,7 +53,6 @@ namespace network2
 
 		bool StartWebClient(cWebClient *client
 			, const string &url
-			, const int port
 			, const int packetSize = DEFAULT_PACKETSIZE
 			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS

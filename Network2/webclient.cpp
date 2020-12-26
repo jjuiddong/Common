@@ -34,7 +34,6 @@ cWebClient::~cWebClient()
 
 
 bool cWebClient::Init(const string &url
-	, const int port
 	, const int packetSize //= DEFAULT_PACKETSIZE
 	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
@@ -43,8 +42,19 @@ bool cWebClient::Init(const string &url
 {
 	Close();
 
-	m_url = url;
-	m_port = port;
+	// parse url, port
+	vector<string> toks;
+	common::tokenizer(url, ":", "", toks);
+	if (toks.size() == 2)
+	{
+		m_url = toks[0];
+		m_port = atoi(toks[1].c_str());
+	}
+	else {
+		m_url = url;
+		m_port = 80;
+	}
+
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
 	m_isThreadMode = isThreadMode;

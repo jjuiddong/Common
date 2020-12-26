@@ -92,14 +92,13 @@ bool cNetController::StartUdpClient(cUdpClient *client
 
 bool cNetController::StartWebClient(cWebClient *client
 	, const string &url
-	, const int port
 	, const int packetSize //= DEFAULT_PACKETSIZE
 	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThread //= true
 )
 {
-	const bool result = client->Init(url, port, packetSize
+	const bool result = client->Init(url, packetSize
 		, maxPacketCount, sleepMillis, isThread);
 
 	if (!IsExistClient(client))

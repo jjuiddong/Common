@@ -15,6 +15,7 @@ class r2h_Protocol : public network2::iProtocol
 {
 public:
 	r2h_Protocol() : iProtocol(r2h_Protocol_ID, ePacketFormat::JSON) {}
+	void Welcome(netid targetId, bool isBinary, const string &msg);
 	void UploadVProgFile(netid targetId, bool isBinary, const string &code);
 	void ReqIntermediateCode(netid targetId, bool isBinary);
 	void ReqRun(netid targetId, bool isBinary, const string &runType);

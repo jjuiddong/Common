@@ -30,6 +30,7 @@ class r2h_ProtocolHandler : virtual public network2::iProtocolHandler
 public:
 	friend class r2h_Dispatcher;
 	r2h_ProtocolHandler() { m_format = ePacketFormat::JSON; }
+	virtual bool Welcome(remotedbg2::Welcome_Packet &packet) { return true; }
 	virtual bool UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) { return true; }
 	virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) { return true; }
 	virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) { return true; }

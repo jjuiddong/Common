@@ -31,7 +31,6 @@ cRemoteDebugger2::~cRemoteDebugger2()
 // receive script data from remote debugger and then run interpreter
 bool cRemoteDebugger2::InitHost(cNetController &netController
 	, const string &url
-	, const int port
 	, script::iFunctionCallback *callback //= nullptr
 	, void *arg //= nullptr
 )
@@ -40,16 +39,15 @@ bool cRemoteDebugger2::InitHost(cNetController &netController
 
 	m_mode = eDebugMode::Host;
 	m_url = url;
-	m_port = port;
 
 	m_interpreter.Init(callback, arg);
 
 	m_client.AddProtocolHandler(this);
 	m_client.RegisterProtocol(&m_protocol);
 
-	if (!netController.StartWebClient(&m_client, url, port))
+	if (!netController.StartWebClient(&m_client, url))
 	{
-		dbg::Logc(2, "Error WebClient Connection url:%s, port:%d\n", url.c_str(), port);
+		dbg::Logc(2, "Error WebClient Connection url:%s \n", url.c_str());
 		return false;
 	}
 	return true;
@@ -246,6 +244,14 @@ bool cRemoteDebugger2::SendSyncVMRegister()
 		break; // now only one virtual machine sync
 	}
 	return true;
+}
+
+
+// welcome packet from remote server
+bool cRemoteDebugger2::Welcome(remotedbg2::Welcome_Packet &packet)
+{ 
+	dbg::Logc(0, "Success Connection to Remote Debugger Server\n");
+	return true; 
 }
 
 
