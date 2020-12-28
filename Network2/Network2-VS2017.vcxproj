@@ -164,6 +164,13 @@
   <ItemGroup>
     <ClInclude Include="definition.h" />
     <ClInclude Include="definition_marshalling.h" />
+    <ClInclude Include="ftpclient\BlockingSocket.h" />
+    <ClInclude Include="ftpclient\Definements.h" />
+    <ClInclude Include="ftpclient\FTPClient.h" />
+    <ClInclude Include="ftpclient\FTPDataTypes.h" />
+    <ClInclude Include="ftpclient\FTPFileStatus.h" />
+    <ClInclude Include="ftpclient\FTPListParse.h" />
+    <ClInclude Include="ftpclient\smart_ptr.h" />
     <ClInclude Include="interpreter\remotedebugger.h" />
     <ClInclude Include="interpreter\remotedebugger2.h" />
     <ClInclude Include="interpreter\Src\remotedbg2_Protocol.h" />
@@ -214,6 +221,11 @@
     <ClInclude Include="webclient.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ftpclient\BlockingSocket.cpp" />
+    <ClCompile Include="ftpclient\FTPClient.cpp" />
+    <ClCompile Include="ftpclient\FTPDataTypes.cpp" />
+    <ClCompile Include="ftpclient\FTPFileStatus.cpp" />
+    <ClCompile Include="ftpclient\FTPListParse.cpp" />
     <ClCompile Include="interpreter\remotedebugger.cpp" />
     <ClCompile Include="interpreter\remotedebugger2.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg2_Protocol.cpp" />
