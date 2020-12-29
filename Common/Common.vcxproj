@@ -411,6 +411,7 @@
     <ClInclude Include="etc\graphscript.h" />
     <ClInclude Include="etc\inifile.h" />
     <ClInclude Include="etc\ip.h" />
+    <ClInclude Include="etc\json.h" />
     <ClInclude Include="etc\macro.h" />
     <ClInclude Include="etc\memorypool.h" />
     <ClInclude Include="etc\memorypool2.h" />

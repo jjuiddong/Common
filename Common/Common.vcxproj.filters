@@ -238,6 +238,9 @@
     <ClInclude Include="interpreter\vprogjsonfile.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="etc\json.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
