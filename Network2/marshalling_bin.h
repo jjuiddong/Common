@@ -25,8 +25,10 @@ namespace network2
 		cPacket& operator<<(cPacket& packet, const float& rhs);
 		cPacket& operator<<(cPacket& packet, const double& rhs);
 		cPacket& operator<<(cPacket &packet, const string &rhs);
+		cPacket& operator<<(cPacket& packet, const Vector3 &rhs);
 		cPacket& operator<<(cPacket& packet, const _variant_t &rhs);
 		template<class T, size_t N> cPacket& operator<<(cPacket &packet, const T(&rhs)[N]);
+		template<class T, size_t N> cPacket& operator<<(cPacket &packet, const String<T,N> &rhs);
 		template<class T> cPacket& operator<<(cPacket& packet, const vector<T> &v);
 		template<class T> cPacket& operator<<(cPacket& packet, const list<T> &v);
 		template<class T> cPacket& operator<<(cPacket& packet, const set<T> &v);
@@ -45,8 +47,10 @@ namespace network2
 		cPacket& operator>>(cPacket& packet, OUT float& rhs);
 		cPacket& operator>>(cPacket& packet, OUT double& rhs);
 		cPacket& operator>>(cPacket& packet, OUT string &rhs);
+		cPacket& operator>>(cPacket& packet, OUT Vector3 &rhs);
 		cPacket& operator>>(cPacket& packet, OUT _variant_t &rhs);
 		template<class T, size_t N> cPacket& operator>>(cPacket &packet, OUT T(&rhs)[N]);
+		template<class T, size_t N> cPacket& operator>>(cPacket &packet, OUT String<T, N> &rhs);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT vector<T> &v);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT list<T> &v);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT set<T> &v);
@@ -150,6 +154,14 @@ namespace network2
 		return packet;
 	}
 
+	inline cPacket& marshalling::operator<<(cPacket& packet, const Vector3 &rhs)
+	{
+		packet << rhs.x;
+		packet << rhs.y;
+		packet << rhs.z;
+		return packet;
+	}
+
 	inline cPacket& marshalling::operator<<(cPacket& packet, const _variant_t &rhs)
 	{
 		packet << rhs.vt; // value type (2 bytes)
@@ -211,6 +223,12 @@ namespace network2
 		return packet;
 	}
 
+	template<class T, size_t N> 
+	inline cPacket& marshalling::operator<<(cPacket &packet, const String<T, N> &rhs)
+	{
+		packet.AppendPtr(rhs.c_str(), rhs.size() + 1);
+		return packet;
+	}
 
 	template<class T>
 	inline cPacket& marshalling::operator<<(cPacket& packet, const vector<T> &v)
@@ -318,6 +336,14 @@ namespace network2
 		return packet;
 	}
 
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT Vector3 &rhs)
+	{
+		packet >> rhs.x;
+		packet >> rhs.y;
+		packet >> rhs.z;
+		return packet;
+	}
+
 	inline cPacket& marshalling::operator>>(cPacket& packet, _variant_t &out)
 	{
 		packet >> out.vt; // value type (2 bytes)
@@ -390,6 +416,12 @@ namespace network2
 		return packet;
 	}
 
+	template<class T, size_t N> 
+	cPacket& marshalling::operator>>(cPacket &packet, OUT String<T, N> &rhs)
+	{
+		packet.GetDataString(rhs.m_str, N);
+		return packet;
+	}
 
 	template<class T>
 	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::vector<T> &v)

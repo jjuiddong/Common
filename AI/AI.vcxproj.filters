@@ -47,6 +47,9 @@
     <ClInclude Include="nn\genetic.h">
       <Filter>nn</Filter>
     </ClInclude>
+    <ClInclude Include="path\pathfinder2.h">
+      <Filter>path</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -73,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="nn\genetic.cpp">
       <Filter>nn</Filter>
+    </ClCompile>
+    <ClCompile Include="path\pathfinder2.cpp">
+      <Filter>path</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

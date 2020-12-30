@@ -42,6 +42,7 @@ namespace network2
 		void AddDelimeter();
 		void AppendDelimeter(const char c);
 		void GetDataString(OUT string &str);
+		void GetDataString(OUT char buffer[], const uint maxLength);
 		int GetDataString(const char delimeter1, const char delimeter2, OUT string &str);
 		int GetDataAscii(const char delimeter1, const char delimeter2, OUT char *buff, const int buffLen);
 
@@ -136,7 +137,7 @@ namespace network2
 		m_readIdx += size;
 	}
 
-	// NULL 문자가 나올때 까지 복사한 후 리턴한다.
+	// copy until meet nullptr
 	inline void cPacket::GetDataString(OUT string &str)
 	{
 		//todo: use heap memory, size=m_bufferSize
@@ -148,6 +149,17 @@ namespace network2
 				break;
 		}
 		str = buf;
+	}
+
+	// copy until meet nullptr
+	inline void cPacket::GetDataString(OUT char buffer[], const uint maxLength)
+	{
+		for (int i = 0; i < (int)maxLength - 1 && (m_readIdx < m_bufferSize); ++i)
+		{
+			buffer[i] = m_data[m_readIdx++];
+			if (NULL == m_data[m_readIdx - 1])
+				break;
+		}
 	}
 
 	// delimeter가 나올 때까지 ascii를 복사해서 리턴한다.

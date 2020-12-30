@@ -136,6 +136,7 @@
     <ClInclude Include="path\navigationmesh.h" />
     <ClInclude Include="path\pathestimater.h" />
     <ClInclude Include="path\pathfinder.h" />
+    <ClInclude Include="path\pathfinder2.h" />
     <ClInclude Include="path\pathfinder2d.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="path\navigationmesh.cpp" />
     <ClCompile Include="path\pathestimater.cpp" />
     <ClCompile Include="path\pathfinder.cpp" />
+    <ClCompile Include="path\pathfinder2.cpp" />
     <ClCompile Include="path\pathfinder2d.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

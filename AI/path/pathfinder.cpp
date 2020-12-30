@@ -741,7 +741,7 @@ int cPathFinder::GetVertexId(const Str16 &name) const
 
 	for (uint i = 0; i < m_vertices.size(); ++i)
 	{
-		const auto vtx = m_vertices[i];
+		const auto &vtx = m_vertices[i];
 		if (!vtx.name.empty() && (name == vtx.name))
 			return (int)i;
 	}

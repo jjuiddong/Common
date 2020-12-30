@@ -52,7 +52,7 @@ namespace ai
 			int replaceToIdx;
 			float startLen;
 			float endLen;
-			bool visit; // use iternal
+			bool visit; // use internal
 			int linkId; // virtual link vertex id (for fastmap)
 			int edgeKey; // from-to vertex id edgekey (for fastmap)
 

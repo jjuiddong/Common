@@ -1,11 +1,13 @@
-// 인공지능에 관련된 선언들을 모아 놓는다.
+// 
+// ai class
+//
 #pragma once
 
 
 #include "../Common/common.h"
 //using namespace common;
 
-// 부스트 메모리 풀 이용.
+// boost memory pool
 #include <boost/pool/object_pool.hpp>
 
 
@@ -22,6 +24,7 @@
 #include "action/move.h"
 
 #include "path/pathfinder.h"
+#include "path/pathfinder2.h"
 #include "path/pathfinder2d.h"
 #include "path/navigationmesh.h"
 
