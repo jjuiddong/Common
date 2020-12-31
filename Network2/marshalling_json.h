@@ -30,6 +30,7 @@ namespace network2
 		ptree& put(ptree &props, const char *typeName, const int64 rhs);
 		ptree& put(ptree &props, const char *typeName, const uint64 rhs);
 		ptree& put(ptree &props, const char *typeName, const string &rhs);
+		ptree& put(ptree &props, const char *typeName, const Vector3 &rhs);
 
 		template<class T, size_t N> ptree& put(ptree &props, const char *typeName, const T(&rhs)[N]);
 		template<class T> ptree& put(ptree &props, const char *typeName, const vector<T> &v);
@@ -52,6 +53,7 @@ namespace network2
 		ptree& get(ptree &props, const char *typeName, OUT int64 &rhs);
 		ptree& get(ptree &props, const char *typeName, OUT uint64 &rhs);
 		ptree& get(ptree &props, const char *typeName, OUT string &rhs);
+		ptree& get(ptree &props, const char *typeName, OUT Vector3 &rhs);
 		ptree& get(ptree &props, const char *typeName, OUT _variant_t &rhs);
 
 		template<class T, size_t N> ptree& get(ptree &props, const char *typeName, OUT T(&rhs)[N]);
@@ -112,6 +114,12 @@ namespace network2
 		}
 		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const string &rhs) {
 			return props.put(typeName, rhs);
+		}
+		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const Vector3 &rhs) {
+			props.put(string(typeName)+".x", rhs.x);
+			props.put(string(typeName)+".y", rhs.y);
+			props.put(string(typeName)+".z", rhs.z);
+			return props;
 		}
 
 		template<class T, size_t N>
@@ -196,6 +204,12 @@ namespace network2
 		}
 		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT string &out) {
 			out = props.get<string>(typeName, "");
+			return props;
+		}
+		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT Vector3 &out) {
+			out.x = props.get<float>(string(typeName) + ".x", 0.f);
+			out.y = props.get<float>(string(typeName) + ".y", 0.f);
+			out.z = props.get<float>(string(typeName) + ".z", 0.f);
 			return props;
 		}
 		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT _variant_t &out) {

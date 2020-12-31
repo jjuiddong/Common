@@ -59,11 +59,8 @@ void remotedbg::s2c_Protocol::UpdateInformation(netid targetId, const string &fi
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 4250626157 );
 	packet << fileName;
-	AddDelimeter(packet);
 	packet << vmName;
-	AddDelimeter(packet);
 	packet << instIndex;
-	AddDelimeter(packet);
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -77,9 +74,7 @@ void remotedbg::s2c_Protocol::UpdateState(netid targetId, const string &vmName, 
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 3965635729 );
 	packet << vmName;
-	AddDelimeter(packet);
 	packet << instIndex;
-	AddDelimeter(packet);
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -93,15 +88,10 @@ void remotedbg::s2c_Protocol::UpdateSymbolTable(netid targetId, const int &start
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 1225501702 );
 	packet << start;
-	AddDelimeter(packet);
 	packet << count;
-	AddDelimeter(packet);
 	packet << vmName;
-	AddDelimeter(packet);
 	packet << symbols;
-	AddDelimeter(packet);
 	packet << symbolVals;
-	AddDelimeter(packet);
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }

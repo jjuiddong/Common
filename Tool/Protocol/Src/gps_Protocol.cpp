@@ -14,6 +14,7 @@ void gps::c2s_Protocol::GPSInfo(netid targetId, bool isBinary, const double &lon
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, lon);
 		marshalling::operator<<(packet, lat);
 		marshalling::operator<<(packet, altitude);

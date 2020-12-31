@@ -19,7 +19,7 @@ bool gps::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &hand
 	const int packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 2000:
+	case 2000: // GPSInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))
@@ -34,6 +34,7 @@ bool gps::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &hand
 				GPSInfo_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.lon);
 				marshalling::operator>>(packet, data.lat);
 				marshalling::operator>>(packet, data.altitude);

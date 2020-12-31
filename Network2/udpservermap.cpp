@@ -130,6 +130,10 @@ void cUdpServerMap::SetReadyBindPort(const int bindPort)
 
 void cUdpServerMap::Clear()
 {
+	m_isThreadLoop = false;
+	if (m_thread.joinable())
+		m_thread.join();
+
 	for (auto &it : m_svrs)
 	{
 		if (it.second.svr)

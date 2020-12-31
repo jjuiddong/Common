@@ -9,6 +9,13 @@
 //	- expand external memory
 //	- bugfix: full packet last data crash
 //
+// 2020-12-31
+//	- memory alignment 4byte
+//	- websocket binary packet need 4byte alignment
+//		- send / recv
+//		- int, uint, float, double type, offset is always *4 multiple
+//		- need more type?
+//
 #pragma once
 
 
@@ -25,20 +32,19 @@ namespace network2
 
 		// call before write
 		void InitWrite();
-
 		// call before read
 		void InitRead(); 
-
 		// init read/write
 		void Initialize();
-
+		// 4byte algnment
+		void Alignment4();
 		// call before send packet
 		void EndPack();
 
 		template<class T> void Append(const T &rhs);
-		template<class T> void AppendPtr(const T &rhs, const size_t size);
+		template<class T> void AppendPtr(const T *rhs, const size_t size);
 		template<class T> void GetData(OUT T &rhs);
-		template<class T> void GetDataPtr(OUT T &rhs, size_t size);
+		template<class T> void GetDataPtr(OUT T *rhs, size_t size);
 		void AddDelimeter();
 		void AppendDelimeter(const char c);
 		void GetDataString(OUT string &str);
@@ -65,9 +71,17 @@ namespace network2
 		cPacket& operator=(const cPacket &rhs);
 
 
+	protected:
+		template<class T> void Append2(const T &rhs);
+		template<class T> void AppendPtr2(const T *rhs, const size_t size);
+		template<class T> void GetData2(OUT T &rhs);
+		template<class T> void GetDataPtr2(OUT T *rhs, size_t size);
+
+
 	public:
 		iPacketHeader *m_packetHeader; // reference
 		netid m_sndId;
+		bool m_is4Align; // 4byte alignment, websocket binary packet
 		int m_readIdx;
 		int m_writeIdx;
 		char m_lastDelim; // GetDataString, GetDataAscii, last delimeter
@@ -81,9 +95,12 @@ namespace network2
 	//--------------------------------------------------------------------------------------
 	// Implements
 
-	// m_writeIdx 부터 데이타를 저장한다.
+#define MARSHALLING_4BYTE_ALIGN(enable, offset) \
+		if ((enable)) offset = ((offset + 3) & ~3);
+
+
 	template<class T>
-	inline void cPacket::Append(const T &rhs)
+	inline void cPacket::Append2(const T &rhs)
 	{
 		if (m_writeIdx + (int)sizeof(T) > m_bufferSize)
 			return;
@@ -91,15 +108,69 @@ namespace network2
 		m_writeIdx += (int)sizeof(T);
 	}
 
+	template<class T>
+	inline void cPacket::Append(const T &rhs) { Append2(rhs); }
+
+	// Append specialization, int, uint, float, double
+	template<> inline void cPacket::Append<int>(const int &rhs)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		Append2(rhs);
+	}
+	template<> inline void cPacket::Append<uint>(const uint &rhs)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		Append2(rhs);
+	}
+	template<> inline void cPacket::Append<float>(const float&rhs)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		Append2(rhs);
+	}
+	template<> inline void cPacket::Append<double>(const double&rhs)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		Append2(rhs);
+	}
+
+
 	// size : copy byte size
 	template<class T>
-	inline void cPacket::AppendPtr(const T &rhs, const size_t size)
+	inline void cPacket::AppendPtr2(const T *rhs, const size_t size)
 	{
 		if (m_writeIdx + (int)size > m_bufferSize)
 			return;
 		memmove_s(m_data + m_writeIdx, m_bufferSize - m_writeIdx, rhs, size);
 		m_writeIdx += size;
 	}
+
+	template<class T>
+	inline void cPacket::AppendPtr(const T *rhs, const size_t size)
+	{
+		AppendPtr2(rhs, size);
+	}
+	// AppendPtr specialization, int, uint, float, double
+	template<> inline void cPacket::AppendPtr<int>(const int *rhs, const size_t size)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		AppendPtr2(rhs, size);
+	}
+	template<> inline void cPacket::AppendPtr<uint>(const uint *rhs, const size_t size)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		AppendPtr2(rhs, size);
+	}
+	template<> inline void cPacket::AppendPtr<float>(const float *rhs, const size_t size)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		AppendPtr2(rhs, size);
+	}
+	template<> inline void cPacket::AppendPtr<double>(const double *rhs, const size_t size)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		AppendPtr2(rhs, size);
+	}
+
 
 	// delimeter를 추가한다.
 	inline void cPacket::AddDelimeter()
@@ -120,7 +191,7 @@ namespace network2
 
 	// m_readIdx 부터 데이타를 가져온다.
 	template<class T>
-	inline void cPacket::GetData(OUT T &rhs)
+	inline void cPacket::GetData2(OUT T &rhs)
 	{
 		if (m_readIdx + (int)sizeof(T) > m_bufferSize)
 			return;
@@ -129,13 +200,57 @@ namespace network2
 	}
 
 	template<class T>
-	inline void cPacket::GetDataPtr(OUT T &rhs, size_t size)
+	inline void cPacket::GetData(OUT T &rhs) { GetData2(rhs); }
+	// GetData specilization, int, uint, float, double
+	template<> inline void cPacket::GetData<int>(OUT int &rhs) { 
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetData2(rhs); 
+	}
+	template<> inline void cPacket::GetData<uint>(OUT uint &rhs) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetData2(rhs);
+	}
+	template<> inline void cPacket::GetData<float>(OUT float &rhs) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetData2(rhs);
+	}
+	template<> inline void cPacket::GetData<double>(OUT double &rhs) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetData2(rhs);
+	}
+
+
+	template<class T>
+	inline void cPacket::GetDataPtr2(OUT T *rhs, size_t size)
 	{
-		if (m_readIdx + size > m_bufferSize)
+		if (m_readIdx + (int)size > m_bufferSize)
 			return;
 		memmove_s(rhs, size, m_data + m_readIdx, size);
 		m_readIdx += size;
 	}
+
+	template<class T>
+	inline void cPacket::GetDataPtr(OUT T *rhs, size_t size) {
+		GetDataPtr2(rhs, size);
+	}
+	// GetData specialization, int, uint, float, double
+	template<> inline void cPacket::GetDataPtr<int>(OUT int *rhs, size_t size) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetDataPtr2(rhs, size);
+	}
+	template<> inline void cPacket::GetDataPtr<uint>(OUT uint *rhs, size_t size) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetDataPtr2(rhs, size);
+	}
+	template<> inline void cPacket::GetDataPtr<float>(OUT float *rhs, size_t size) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetDataPtr2(rhs, size);
+	}
+	template<> inline void cPacket::GetDataPtr<double>(OUT double *rhs, size_t size) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetDataPtr2(rhs, size);
+	}
+
 
 	// copy until meet nullptr
 	inline void cPacket::GetDataString(OUT string &str)

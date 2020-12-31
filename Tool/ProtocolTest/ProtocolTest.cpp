@@ -6,7 +6,7 @@
 class cTest : public gps::c2s_ProtocolHandler
 {
 public:
-	cTest() : m_client(1000, 2000) {
+	cTest() {
 		m_client.AddProtocolHandler(this);
 		m_client.RegisterProtocol(&m_protocol);
 	}

@@ -19,7 +19,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 	const int packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 3643391279:
+	case 3643391279: // AckOneStep
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -34,7 +34,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 3424042780:
+	case 3424042780: // AckDebugRun
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -49,7 +49,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 2129545277:
+	case 2129545277: // AckBreak
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -64,7 +64,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 2796337704:
+	case 2796337704: // AckTerminate
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -79,7 +79,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 4250626157:
+	case 4250626157: // UpdateInformation
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -97,7 +97,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 3965635729:
+	case 3965635729: // UpdateState
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -114,7 +114,7 @@ bool remotedbg::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 1225501702:
+	case 1225501702: // UpdateSymbolTable
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<s2c_ProtocolHandler>(handlers, prtHandler))
@@ -159,7 +159,7 @@ bool remotedbg::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 	const int packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 2884814738:
+	case 2884814738: // ReqOneStep
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))
@@ -174,7 +174,7 @@ bool remotedbg::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 2143400932:
+	case 2143400932: // ReqDebugRun
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))
@@ -189,7 +189,7 @@ bool remotedbg::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 784411795:
+	case 784411795: // ReqBreak
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))
@@ -204,7 +204,7 @@ bool remotedbg::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers
 		}
 		break;
 
-	case 3042238079:
+	case 3042238079: // ReqTerminate
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))

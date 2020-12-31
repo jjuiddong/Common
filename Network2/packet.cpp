@@ -7,6 +7,7 @@ using namespace marshalling;
 
 cPacket::cPacket()
 	: m_packetHeader(NULL)
+	, m_is4Align(false)
 	, m_writeIdx(0)
 	, m_readIdx(0)
 	, m_lastDelim(NULL)
@@ -73,6 +74,14 @@ void cPacket::Initialize()
 	RET(!m_packetHeader);
 	m_readIdx = m_packetHeader->GetHeaderSize();
 	m_writeIdx = m_packetHeader->GetHeaderSize();
+}
+
+
+// 4byte alignment, websocket binary packet
+// int, uint, float, double type, offset is always *4 multiple
+void cPacket::Alignment4()
+{
+	m_is4Align = true;
 }
 
 

@@ -79,7 +79,8 @@ namespace network2
 	// Functions
 	void PrintToken( Tokentype token, char *szTokenString );
 
-	_variant_t GetTypeStr2Type(const string &typeStr); // sArg->var->type
+	void GetPacketElement(const ePacketFormat format
+		, const string &typeStr, cPacket &packet, OUT _variant_t &var);
 	int GetPacketID(sRmi *rmi, sProtocol *packet);
 	string Packet2String(const cPacket &packet, sProtocol *protocol);
 

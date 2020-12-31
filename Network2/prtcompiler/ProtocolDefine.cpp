@@ -31,64 +31,66 @@ void network2::PrintToken( Tokentype token, char *szTokenString )
 }
 
 
+// packet element parsing
+template <class T>
+void Packet2Variant(const ePacketFormat format, cPacket &packet, OUT _variant_t &var)
+{
+	T v;
+	switch (format) {
+	case ePacketFormat::BINARY: marshalling::operator>>(packet, v); break;
+	case ePacketFormat::ASCII: marshalling_ascii::operator>>(packet, v); break;
+	case ePacketFormat::JSON: break;
+	}
+	var = v;
+}
+// string specialization
+template<>
+void Packet2Variant<std::string>(const ePacketFormat format, cPacket &packet, OUT _variant_t &var)
+{
+	string v;
+	switch (format) {
+	case ePacketFormat::BINARY: marshalling::operator>>(packet, v); break;
+	case ePacketFormat::ASCII: marshalling_ascii::operator>>(packet, v); break;
+	case ePacketFormat::JSON: break;
+	}
+	var = v.c_str();
+}
+
 //------------------------------------------------------------------------
+// packet parsing with typeStr, and then return variant value
 // typeStr: sArg->var->type
-// 스트링을 타입으로 리턴한다.
 //------------------------------------------------------------------------
-_variant_t network2::GetTypeStr2Type(const string &typeStr)
+void network2::GetPacketElement(const ePacketFormat format
+	, const string &typeStr, cPacket &packet, OUT _variant_t &v)
 {
 	if (typeStr == "std::string")
-	{
-		char *v=NULL;
-		return _variant_t(v);
-	}
-	else if (typeStr == "string")
-	{
-		char *v=NULL;
-		return _variant_t(v);
-	}
+		Packet2Variant<string>(format, packet, v);
+	if (typeStr == "string")
+		Packet2Variant<string>(format, packet, v);
 	else if (typeStr == "float")
-	{
-		float v=0.f;
-		return _variant_t(v);
-	}
+		Packet2Variant<float>(format, packet, v);
 	else if (typeStr == "double")
-	{
-		double v=0.f;
-		return _variant_t(v);
-	}
+		Packet2Variant<double>(format, packet, v);
 	else if (typeStr == "int")
-	{
-		int v=0;
-		return _variant_t(v);
-	}
+		Packet2Variant<int>(format, packet, v);
+	else if (typeStr == "uint")
+		Packet2Variant<unsigned int>(format, packet, v);
+	else if (typeStr == "unsigned int")
+		Packet2Variant<unsigned int>(format, packet, v);
 	else if (typeStr == "char")
-	{
-		char v='a';
-		return _variant_t(v);
-	}
+		Packet2Variant<char>(format, packet, v);
+	else if (typeStr == "unsigned char")
+		Packet2Variant<unsigned char>(format, packet, v);
+	else if (typeStr == "BYTE")
+		Packet2Variant<BYTE>(format, packet, v);
 	else if (typeStr == "short")
-	{
-		short v=0;
-		return _variant_t(v);
-	}
+		Packet2Variant<short>(format, packet, v);
 	else if (typeStr == "long")
-	{
-		long v=0;
-		return _variant_t(v);
-	}
+		Packet2Variant<long>(format, packet, v);
 	else if (typeStr == "bool")
-	{
-		bool v=true;
-		return _variant_t(v);
-	}
+		Packet2Variant<bool>(format, packet, v);
 	else if (typeStr == "BOOL")
-	{
-		bool v=true;
-		return _variant_t(v);
-	}
-
-	return _variant_t(1);
+		Packet2Variant<bool>(format, packet, v);
 }
 
 
@@ -133,6 +135,8 @@ string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
 	const int protocolID = tempPacket.GetProtocolId();
 	const int packetID = tempPacket.GetPacketId();
 	const bool isBinaryPacket = dynamic_cast<cPacketHeader*>(tempPacket.m_packetHeader)? true : false;
+	const ePacketFormat format = isBinaryPacket ?
+		ePacketFormat::BINARY : ePacketFormat::ASCII;
 
 	ss << protocol->name << " sender = " << tempPacket.GetSenderId() << " ";
 
@@ -161,19 +165,8 @@ string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
 		}
 		else
 		{
-			_variant_t var = GetTypeStr2Type(arg->var->type);
-
-			if (isBinaryPacket)
-			{
-				using namespace marshalling;
-				tempPacket >> var;
-			}
-			else
-			{
-				using namespace marshalling_ascii;
-				tempPacket >> var;
-			}
-
+			_variant_t var;
+			GetPacketElement(format, arg->var->type, tempPacket, var);
 			ss << arg->var->var + " = ";
 			ss << common::variant2str(var);
 		}
