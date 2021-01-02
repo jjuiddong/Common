@@ -53,6 +53,27 @@ namespace ai
 		cPathFinder2();
 		virtual ~cPathFinder2();
 
+		bool Find(const Vector3 &start, const Vector3 &end
+			, OUT vector<Vector3> &out
+			, const set<sEdge> *disableEdges = nullptr
+			, OUT vector<int> *outTrackVertexIndices = nullptr
+			, OUT vector<sEdge> *outTrackEdges = nullptr
+		);
+
+		bool Find(const int startIdx, const int endIdx
+			, OUT vector<Vector3> &out
+			, const set<sEdge> *disableEdges = nullptr
+			, OUT vector<int> *outTrackVertexIndices = nullptr
+			, OUT vector<sEdge> *outTrackEdges = nullptr
+		);
+
+		bool Find(const int startIdx, const int endIdx
+			, OUT vector<int> &out
+			, const set<sEdge> *disableEdges = nullptr
+		);
+
+		int GetNearestVertex(const Vector3 &pos) const;
+
 		int AddVertex(const sVertex &vtx);
 		bool AddTransition(const uint fromVtxIdx, const uint toVtxIdx
 			, const int prop = 0);
@@ -66,6 +87,7 @@ namespace ai
 
 	public:
 		vector<sVertex> m_vertices;
+		map<int, float> m_lenSet; // key = edgeKey, data = length, for debugging
 	};
 
 }

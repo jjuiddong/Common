@@ -342,7 +342,7 @@ bool cPathFinder::Find(const int startIdx, const int endIdx
 
 				sVertex &compVtx = m_vertices[candidate[k]];
 				if ((compVtx.endLen + compVtx.startLen)
-			> (nextVtx.endLen + nextVtx.startLen))
+					> (nextVtx.endLen + nextVtx.startLen))
 				{
 					++loopCount2;
 

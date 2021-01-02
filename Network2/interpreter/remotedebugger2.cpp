@@ -128,6 +128,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 				
 				m_protocol.SyncVMInstruction(network2::SERVER_NETID
 					, true, 0, m_insts[i], m_cmps[i]);
+				std::cout << m_insts[i].size() << std::endl;
 
 				// clear and setup last data
 				const uint index = m_insts[i].back();
@@ -143,7 +144,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		if (m_symbSyncTime > TIME_SYNC_SYMBOL) {
 			m_symbSyncTime = 0.f;
 
-			for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
+			for (uint i = 0; i < m_interpreter.m_vms.size() && (i < 30); ++i)
 			{
 				vector<script::sSyncSymbol> symbols;
 				script::cVirtualMachine *vm = m_interpreter.m_vms[i];
