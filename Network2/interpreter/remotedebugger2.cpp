@@ -128,7 +128,6 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 				
 				m_protocol.SyncVMInstruction(network2::SERVER_NETID
 					, true, 0, m_insts[i], m_cmps[i]);
-				std::cout << m_insts[i].size() << std::endl;
 
 				// clear and setup last data
 				const uint index = m_insts[i].back();

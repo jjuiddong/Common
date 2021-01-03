@@ -12,7 +12,7 @@ namespace common
 	}
 
 
-	//returns a random integer between x and y
+	//return a random integer between x and y
 	inline int randint(int x, int y) 
 	{ 
 		return rand() % (y - x + 1) + x; 
@@ -33,13 +33,13 @@ namespace common
 		return ((float)(rand() % 2000) / 1000.f) - 1.f;
 	}
 
-	//returns a 0 ~ 1
+	//return 0 ~ 1
 	inline double randfloat2() 
 	{ 
 		return (double)rand() / (RAND_MAX + 1.0f); 
 	}
 
-	//returns a 0 ~ 1
+	//return 0 ~ 1
 	inline float randfloat3()
 	{
 		return ((float)rand() / (float)(RAND_MAX + 1.0f));

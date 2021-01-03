@@ -19,7 +19,7 @@ cPathFinder2::~cPathFinder2()
 bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 	, OUT vector<Vector3> &out
 	, const set<sEdge> *disableEdges //= nullptr
-	, OUT vector<int> *outTrackVertexIndices //= nullptr
+	, OUT vector<ushort> *outTrackVertexIndices //= nullptr
 	, OUT vector<sEdge> *outTrackEdges //= nullptr
 )
 {
@@ -38,11 +38,11 @@ bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 bool cPathFinder2::Find(const int startIdx, const int endIdx
 	, OUT vector<Vector3> &out
 	, const set<sEdge> *disableEdges //= nullptr
-	, OUT vector<int> *outTrackVertexIndices //= nullptr
+	, OUT vector<ushort> *outTrackVertexIndices //= nullptr
 	, OUT vector<sEdge> *outTrackEdges //= nullptr
 )
 {
-	vector<int> verticesIndices;
+	vector<ushort> verticesIndices;
 	Find(startIdx, endIdx, verticesIndices, disableEdges);
 
 	if (outTrackVertexIndices)
@@ -64,147 +64,125 @@ bool cPathFinder2::Find(const int startIdx, const int endIdx
 }
 
 
-// find path
+// find path, a-star algorithm
+// reference: http://www.gisdeveloper.co.kr/?p=3897
 bool cPathFinder2::Find(const int startIdx, const int endIdx
-	, OUT vector<int> &out
+	, OUT vector<ushort> &out
 	, const set<sEdge> *disableEdges //= nullptr
 )
 {
-	const Vector3 start = m_vertices[startIdx].pos;
-	const Vector3 end = m_vertices[endIdx].pos;
+	if (startIdx == endIdx)
+		return true; // no path
 
-	set<int> visitSet;
-	map<int, set<int>> vtxEdges;
-	m_lenSet.clear();
+	struct sNode {
+		int idx; // vertex idx
+		int prev; // previous idx
+		float len; // length from start
+		float h; // heuristic
+		float tot; // total len
+	};
 
-	//vector<int> candidate;
-	//candidate.reserve(m_vertices.size());
-	//candidate.push_back(startIdx);
-	//m_vertices[startIdx].startLen = 0;
-	//m_vertices[startIdx].endLen = Distance(start, end);
+	vector<sNode> open;
+	vector<sNode> close;
+	set<int> oset; // open node vertex index
+	set<int> cset; // close node vertex index
 
-	//int loopCount1 = 0; // debug, loop count
-	//int loopCount2 = 0; // debug, insertion count
-	//bool isFind = false;
-	//while (!candidate.empty())
-	//{
-	//	const int curIdx = candidate.front();
-	//	rotatepopvector(candidate, 0);
+	const sVertex &endVtx = m_vertices[endIdx];
 
-	//	sVertex &curVtx = m_vertices[curIdx];
+	sNode start;
+	start.idx = startIdx;
+	start.prev = -1;
+	start.len = 0;
+	start.tot = 0;
+	close.push_back(start);
+	cset.insert(startIdx);
 
-	//	if (endIdx == curIdx)
-	//	{
-	//		isFind = true;
-	//		break;
-	//	}
+	bool isFind = false; // find path?
+	while (1)
+	{
+		const sNode &node = close.back();
+		if (node.idx == endIdx)
+		{
+			isFind = true;
+			break; // finish
+		}
 
-	//	for (int i = 0; i < sVertex::MAX_EDGE; ++i)
-	//	{
-	//		if (curVtx.edge[i].to < 0)
-	//			break;
+		const sVertex &vtx0 = m_vertices[node.idx];
+		for (auto &tr : vtx0.trs)
+		{
+			const auto it2 = cset.find(tr.to);
+			if (cset.end() != it2)
+				continue;
 
-	//		const int nextIdx = curVtx.edge[i].to;
-	//		sVertex &nextVtx = m_vertices[nextIdx];
+			const sVertex &vtx1 = m_vertices[tr.to];
+			const auto it1 = oset.find(tr.to);
+			if (oset.end() != it1)
+			{
+				sNode *n = nullptr;
+				auto it = std::find_if(open.begin(), open.end()
+					, [&](auto &a) {return a.idx == tr.to; });
+				if (it != open.end())
+				{
+					n = &*it;
+				}
+				else
+				{
+					oset.erase(tr.to); // error occurred, exception process
+					continue;
+				}
 
-	//		const int edgeKey1 = MakeEdgeKey(curIdx, nextIdx);
-	//		const int edgeKey2 = MakeEdgeKey(nextIdx, curIdx);
-	//		if (visitSet.end() != visitSet.find(edgeKey1))
-	//			continue; // is visit?
+				// update node info?
+				const float len = node.len + tr.distance;
+				const float tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos);
+				if (tot < n->tot)
+				{
+					n->prev = node.idx;
+					n->len = len;
+					n->tot = tot;
+				}
+			}
+			else
+			{
+				sNode n;
+				n.idx = tr.to;
+				n.prev = node.idx;
+				n.len = node.len + tr.distance;
+				n.tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos);
+				open.push_back(n);
+				oset.insert(tr.to);
+			}
+		}
 
-	//		if (disableEdges)
-	//		{
-	//			if (disableEdges->end() != disableEdges->find(sEdge(curIdx, nextIdx)))
-	//				continue;
-	//		}
+		if (open.empty())
+			break; // no candidate vertex, no path, finish
 
-	//		nextVtx.startLen = curVtx.startLen
-	//			+ Distance(curVtx.pos, nextVtx.pos) * curVtx.edge[i].w + 0.00001f;
-	//		nextVtx.endLen = Distance(end, nextVtx.pos);
+		// sorting open list, descending
+		std::sort(open.begin(), open.end()
+			, [](auto &a1, auto &a2) { return a1.tot > a2.tot; });
 
-	//		vtxEdges[curIdx].insert(nextIdx);
-	//		vtxEdges[nextIdx].insert(curIdx);
-	//		visitSet.insert(edgeKey1);
-	//		visitSet.insert(edgeKey2);
-	//		m_lenSet[edgeKey1] = nextVtx.startLen + nextVtx.endLen;
-	//		m_lenSet[edgeKey2] = nextVtx.startLen + nextVtx.endLen;
+		close.push_back(open.back());
+		cset.insert(open.back().idx);
+		open.pop_back();
+	}
 
-	//		// sorting candidate
-	//		// value = minimum( startLen + endLen )
-	//		bool isInsert = false;
-	//		for (uint k = 0; k < candidate.size(); ++k)
-	//		{
-	//			++loopCount1;
+	if (!isFind)
+		return false; // not found path
 
-	//			sVertex &compVtx = m_vertices[candidate[k]];
-	//			if ((compVtx.endLen + compVtx.startLen)
-	//		> (nextVtx.endLen + nextVtx.startLen))
-	//			{
-	//				++loopCount2;
+	// backtracking
+	sNode &node = close.back();
+	while (1)
+	{
+		out.push_back(node.idx);
+		if (node.idx == startIdx)
+			break; // finish
+		auto it = find_if(close.begin(), close.end()
+			, [&](auto &a) {return a.idx == node.prev; });
+		if (it == close.end())
+			break; // error occurred
+		node = *it;
+	}
 
-	//				candidate.push_back(nextIdx);
-	//				common::rotateright2(candidate, k);
-	//				isInsert = true;
-	//				break;
-	//			}
-	//		}
-
-	//		if (!isInsert)
-	//			candidate.push_back(nextIdx);
-	//	}
-	//}
-
-	//if (!isFind)
-	//	return false;
-
-	//// backward tracking
-	//// end point to start point
-	//out.push_back(endIdx);
-
-	//visitSet.clear();
-
-	//int curIdx = endIdx;
-	//while ((curIdx != startIdx) && (out.size() < 1000))
-	//{
-	//	float minEdge = FLT_MAX;
-	//	int nextIdx = -1;
-	//	sVertex &vtx = m_vertices[curIdx];
-	//	set<int> edges = vtxEdges[curIdx];
-	//	for (auto next : edges)
-	//	{
-	//		const int edgeKey = MakeEdgeKey(curIdx, next);
-	//		if (visitSet.end() != visitSet.find(edgeKey))
-	//			continue; // is visit?
-
-	//		auto it = m_lenSet.find(edgeKey);
-	//		if (m_lenSet.end() == it)
-	//			continue;
-
-	//		if (minEdge > it->second)
-	//		{
-	//			minEdge = it->second;
-	//			nextIdx = next;
-	//		}
-	//	}
-
-	//	if (nextIdx < 0)
-	//	{
-	//		assert(0);
-	//		break; // error occur
-	//	}
-
-	//	visitSet.insert(MakeEdgeKey(curIdx, nextIdx));
-	//	visitSet.insert(MakeEdgeKey(nextIdx, curIdx));
-	//	out.push_back(nextIdx);
-	//	curIdx = nextIdx;
-	//}
-
-	//assert(out.size() < 1000);
-
-	//std::reverse(out.begin(), out.end());
-
-	//if (!out.empty() && (out.back() != end))
-	//	out.push_back(end);
+	std::reverse(out.begin(), out.end());
 
 	return true;
 }
@@ -333,6 +311,15 @@ int cPathFinder2::GetVertexId(const Str16 &name) const
 			return (int)i;
 	}
 	return -1;
+}
+
+
+// return vertex
+cPathFinder2::sVertex* cPathFinder2::GetVertex(const uint vtxIdx)
+{
+	if (m_vertices.size() <= vtxIdx)
+		return nullptr;
+	return &m_vertices[vtxIdx];
 }
 
 

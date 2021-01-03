@@ -56,19 +56,19 @@ namespace ai
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
 			, const set<sEdge> *disableEdges = nullptr
-			, OUT vector<int> *outTrackVertexIndices = nullptr
+			, OUT vector<ushort> *outTrackVertexIndices = nullptr
 			, OUT vector<sEdge> *outTrackEdges = nullptr
 		);
 
 		bool Find(const int startIdx, const int endIdx
 			, OUT vector<Vector3> &out
 			, const set<sEdge> *disableEdges = nullptr
-			, OUT vector<int> *outTrackVertexIndices = nullptr
+			, OUT vector<ushort> *outTrackVertexIndices = nullptr
 			, OUT vector<sEdge> *outTrackEdges = nullptr
 		);
 
 		bool Find(const int startIdx, const int endIdx
-			, OUT vector<int> &out
+			, OUT vector<ushort> &out
 			, const set<sEdge> *disableEdges = nullptr
 		);
 
@@ -80,6 +80,7 @@ namespace ai
 		bool IsExistTransition(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveTransition(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveVertex(const uint vtxIdx);
+		sVertex* GetVertex(const uint vtxIdx);
 		int GetVertexId(const Str16 &name) const;
 		void ReservedVertexBuffer(const uint vertexCount);
 		void Clear();
@@ -87,7 +88,6 @@ namespace ai
 
 	public:
 		vector<sVertex> m_vertices;
-		map<int, float> m_lenSet; // key = edgeKey, data = length, for debugging
 	};
 
 }
