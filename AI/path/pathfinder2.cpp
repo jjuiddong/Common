@@ -19,7 +19,7 @@ cPathFinder2::~cPathFinder2()
 bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 	, OUT vector<Vector3> &out
 	, const set<sEdge> *disableEdges //= nullptr
-	, OUT vector<ushort> *outTrackVertexIndices //= nullptr
+	, OUT vector<uint> *outTrackVertexIndices //= nullptr
 	, OUT vector<sEdge> *outTrackEdges //= nullptr
 )
 {
@@ -38,11 +38,11 @@ bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<Vector3> &out
 	, const set<sEdge> *disableEdges //= nullptr
-	, OUT vector<ushort> *outTrackVertexIndices //= nullptr
+	, OUT vector<uint> *outTrackVertexIndices //= nullptr
 	, OUT vector<sEdge> *outTrackEdges //= nullptr
 )
 {
-	vector<ushort> verticesIndices;
+	vector<uint> verticesIndices;
 	Find(startIdx, endIdx, verticesIndices, disableEdges);
 
 	if (outTrackVertexIndices)
@@ -67,7 +67,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 // find path, a-star algorithm
 // reference: http://www.gisdeveloper.co.kr/?p=3897
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
-	, OUT vector<ushort> &out
+	, OUT vector<uint> &out
 	, const set<sEdge> *disableEdges //= nullptr
 )
 {

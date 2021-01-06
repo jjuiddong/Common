@@ -14,7 +14,7 @@ namespace ai
 	public:
 		struct sTransition
 		{
-			int to; // link vertex index
+			uint to; // link vertex index
 			float distance; // two vertex distance
 			float w; // weight
 			int prop; // property, bidirection?
@@ -46,9 +46,9 @@ namespace ai
 			}
 		};
 
-		typedef vector<Vector3> ppath;	// position path
-		typedef vector<uint> vpath;		// vertex index path
-		typedef vector<sEdge> epath;	// edge path
+		//typedef vector<Vector3> ppath;	// position path
+		//typedef vector<uint> vpath;		// vertex index path
+		//typedef vector<sEdge> epath;	// edge path
 
 
 		cPathFinder2();
@@ -57,19 +57,19 @@ namespace ai
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
 			, const set<sEdge> *disableEdges = nullptr
-			, OUT vector<ushort> *outTrackVertexIndices = nullptr
+			, OUT vector<uint> *outTrackVertexIndices = nullptr
 			, OUT vector<sEdge> *outTrackEdges = nullptr
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<Vector3> &out
 			, const set<sEdge> *disableEdges = nullptr
-			, OUT vector<ushort> *outTrackVertexIndices = nullptr
+			, OUT vector<uint> *outTrackVertexIndices = nullptr
 			, OUT vector<sEdge> *outTrackEdges = nullptr
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
-			, OUT vector<ushort> &out
+			, OUT vector<uint> &out
 			, const set<sEdge> *disableEdges = nullptr
 		);
 

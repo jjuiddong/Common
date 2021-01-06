@@ -163,6 +163,23 @@ string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
 			for (auto &v : vecs)
 				ss << v << ";";
 		}
+		//if (arg->var->type == "vector<ushort>")
+		//{
+		//	vector<ushort> vecs;
+		//	if (isBinaryPacket)
+		//	{
+		//		using namespace marshalling;
+		//		tempPacket >> vecs;
+		//	}
+		//	else
+		//	{
+		//		using namespace marshalling_ascii;
+		//		tempPacket >> vecs;
+		//	}
+		//	ss << arg->var->var + " = ";
+		//	for (auto &v : vecs)
+		//		ss << v << ";";
+		//}
 		else
 		{
 			_variant_t var;
