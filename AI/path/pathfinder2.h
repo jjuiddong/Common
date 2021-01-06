@@ -24,8 +24,9 @@ namespace ai
 
 		struct sVertex
 		{
+			int id; // calc from name, atoi()
 			int type;
-			Str16 name;
+			Str16 name; // number string
 			Vector3 pos;
 			vector<sTransition> trs;
 			bool visit; // use internal
@@ -60,34 +61,41 @@ namespace ai
 			, OUT vector<sEdge> *outTrackEdges = nullptr
 		);
 
-		bool Find(const int startIdx, const int endIdx
+		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<Vector3> &out
 			, const set<sEdge> *disableEdges = nullptr
 			, OUT vector<ushort> *outTrackVertexIndices = nullptr
 			, OUT vector<sEdge> *outTrackEdges = nullptr
 		);
 
-		bool Find(const int startIdx, const int endIdx
+		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<ushort> &out
 			, const set<sEdge> *disableEdges = nullptr
 		);
 
 		int GetNearestVertex(const Vector3 &pos) const;
 
-		int AddVertex(const sVertex &vtx);
+		uint AddVertex(const sVertex &vtx);
 		bool AddTransition(const uint fromVtxIdx, const uint toVtxIdx
 			, const int prop = 0);
 		bool IsExistTransition(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveTransition(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveVertex(const uint vtxIdx);
-		sVertex* GetVertex(const uint vtxIdx);
-		int GetVertexId(const Str16 &name) const;
+		sVertex* GetVertexByIndex(const uint vtxIdx);
+		sVertex* GetVertexByName(const Str16 &name);
+		sVertex* GetVertexByID(const int id);
+		int GetVertexIndexByName(const Str16 &name) const;
+		int GetVertexIndexByID(const int id);
 		void ReservedVertexBuffer(const uint vertexCount);
 		void Clear();
 
 
 	public:
 		vector<sVertex> m_vertices;
+		map<int, uint> m_vtxMap; // vertex id-index mapping
+								 // to fast search vertex array
+								 // key: vertex name (number only)
+							     // value: m_vertices index
 	};
 
 }

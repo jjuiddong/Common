@@ -35,7 +35,7 @@ bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 
 
 // find path
-bool cPathFinder2::Find(const int startIdx, const int endIdx
+bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<Vector3> &out
 	, const set<sEdge> *disableEdges //= nullptr
 	, OUT vector<ushort> *outTrackVertexIndices //= nullptr
@@ -66,7 +66,7 @@ bool cPathFinder2::Find(const int startIdx, const int endIdx
 
 // find path, a-star algorithm
 // reference: http://www.gisdeveloper.co.kr/?p=3897
-bool cPathFinder2::Find(const int startIdx, const int endIdx
+bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<ushort> &out
 	, const set<sEdge> *disableEdges //= nullptr
 )
@@ -75,8 +75,8 @@ bool cPathFinder2::Find(const int startIdx, const int endIdx
 		return true; // no path
 
 	struct sNode {
-		int idx; // vertex idx
-		int prev; // previous idx
+		uint idx; // vertex idx
+		uint prev; // previous idx
 		float len; // length from start
 		float h; // heuristic
 		float tot; // total len
@@ -189,6 +189,7 @@ bool cPathFinder2::Find(const int startIdx, const int endIdx
 
 
 // return = minimum( distance(pos, nearest vertex) )
+//		    return vertex index
 int cPathFinder2::GetNearestVertex(const Vector3 &pos) const
 {
 	RETV(m_vertices.empty(), -1);
@@ -210,10 +211,14 @@ int cPathFinder2::GetNearestVertex(const Vector3 &pos) const
 
 // add vertex
 // return vertex index
-int cPathFinder2::AddVertex(const sVertex &vtx)
+uint cPathFinder2::AddVertex(const sVertex &vtx)
 {
 	m_vertices.push_back(vtx);
-	return m_vertices.size() - 1;
+	const uint idx = m_vertices.size() - 1;
+	const int id = atoi(vtx.name.c_str());
+	m_vertices[idx].id = id;
+	m_vtxMap[id] = idx;
+	return idx;
 }
 
 
@@ -294,13 +299,51 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 
 	// remove index vertex
 	common::rotatepopvector(m_vertices, vtxIdx);
+
+	// update vertex id-index mapping
+	m_vtxMap.clear();
+	for (uint i=0; i < m_vertices.size(); ++i)
+	{
+		auto &vtx = m_vertices[i];
+		m_vtxMap[vtx.id] = i;
+	}
+
 	return true;
+}
+
+
+// return vertex by index
+cPathFinder2::sVertex* cPathFinder2::GetVertexByIndex(const uint vtxIdx)
+{
+	if (m_vertices.size() <= vtxIdx)
+		return nullptr;
+	return &m_vertices[vtxIdx];
+}
+
+
+// return vertex by name
+cPathFinder2::sVertex* cPathFinder2::GetVertexByName(const Str16 &name)
+{
+	const int idx = GetVertexIndexByName(name);
+	if (idx < 0)
+		return nullptr;
+	return &m_vertices[idx];
+}
+
+
+// return vertex by id
+cPathFinder2::sVertex* cPathFinder2::GetVertexByID(const int id)
+{
+	const int idx = GetVertexIndexByID(id);
+	if (idx < 0)
+		return nullptr;
+	return &m_vertices[idx];
 }
 
 
 // return vertex index from name
 // if not found, return -1
-int cPathFinder2::GetVertexId(const Str16 &name) const
+int cPathFinder2::GetVertexIndexByName(const Str16 &name) const
 {
 	if (name.empty())
 		return -1;
@@ -314,12 +357,14 @@ int cPathFinder2::GetVertexId(const Str16 &name) const
 }
 
 
-// return vertex
-cPathFinder2::sVertex* cPathFinder2::GetVertex(const uint vtxIdx)
+// return vertex index by vertex id
+//		  -1:not found
+int cPathFinder2::GetVertexIndexByID(const int id)
 {
-	if (m_vertices.size() <= vtxIdx)
-		return nullptr;
-	return &m_vertices[vtxIdx];
+	auto it = m_vtxMap.find(id);
+	if (m_vtxMap.end() == it)
+		return -1;
+	return it->second;
 }
 
 
