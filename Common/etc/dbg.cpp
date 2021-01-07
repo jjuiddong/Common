@@ -12,7 +12,7 @@ namespace common {
 		struct sLogData
 		{
 			int type; // 0:log, 1:error log, 2:log + error log, 3:others file
-			Str256 str;
+			Str512 str;
 		};
 
 		StrPath g_logPath = "log.txt";
