@@ -171,7 +171,6 @@ bool cDebugger::IsRun()
 	{
 	case eState::Stop:
 		return false;
-
 	case eState::Wait:
 	case eState::Step:
 	case eState::Run:
@@ -180,6 +179,27 @@ bool cDebugger::IsRun()
 		assert(!"cDebugger::IsRun() not vailid state");
 		return false;
 	}	
+}
+
+
+// is debugging state?
+bool cDebugger::IsDebug()
+{
+	if (!IsLoad())
+		return false;
+
+	switch (m_state)
+	{
+	case eState::Stop:
+	case eState::Run:
+		return false;
+	case eState::Wait:
+	case eState::Step:
+		return true;
+	default:
+		assert(!"cDebugger::IsDebug() not vailid state");
+		return false;
+	}
 }
 
 

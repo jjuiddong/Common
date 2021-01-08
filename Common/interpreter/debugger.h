@@ -29,6 +29,7 @@ namespace common
 			bool Break();
 			bool IsLoad();
 			bool IsRun();
+			bool IsDebug();
 			void Clear();
 
 

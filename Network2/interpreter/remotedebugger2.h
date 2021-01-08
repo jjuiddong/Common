@@ -42,6 +42,7 @@ namespace network2
 		bool OneStep();
 		bool Break();
 		bool IsRun();
+		bool IsDebug();
 		void Clear();
 
 

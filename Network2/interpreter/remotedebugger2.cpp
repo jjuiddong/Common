@@ -234,6 +234,12 @@ bool cRemoteDebugger2::IsRun()
 	return (m_state == eState::Run) && m_debugger.IsRun();
 }
 
+// is debugging interpreter?
+bool cRemoteDebugger2::IsDebug()
+{
+	return (m_state == eState::Run) && m_debugger.IsDebug();
+}
+
 
 // sync vm register info
 bool cRemoteDebugger2::SendSyncVMRegister()
