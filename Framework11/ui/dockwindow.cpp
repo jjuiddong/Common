@@ -25,7 +25,7 @@ cDockWindow::cDockWindow(const StrId &name //=""
 	, m_selectTab(0)
 	, m_dragSlot(eDockSlot::NONE)
 	, m_camera("Dock Camera")
-	, m_sizingOpt(eDockSizingOption::RATE)
+	, m_sizingOpt(eDockSizingOption::RATIO)
 {
 }
 

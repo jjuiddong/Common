@@ -115,7 +115,7 @@ namespace framework
 
 	struct eDockSizingOption {
 		enum Enum {
-			RATE
+			RATIO
 			, PIXEL
 		};
 	};

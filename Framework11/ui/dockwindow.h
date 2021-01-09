@@ -21,7 +21,7 @@ namespace framework
 		virtual bool Create(const eDockState::Enum state, const eDockSlot::Enum type,
 			cRenderWindow *owner, cDockWindow *parent
 			, const float windowSize=0.5f
-			, const eDockSizingOption::Enum option = eDockSizingOption::RATE
+			, const eDockSizingOption::Enum option = eDockSizingOption::RATIO
 		);
 
 		virtual bool Dock(const eDockSlot::Enum type,
