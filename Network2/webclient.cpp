@@ -130,9 +130,14 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 	int result = 0;
 	if (m_websocket && m_packetHeader)
 	{
-		result = m_websocket->sendFrame(packet.m_data
-			, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
-
+		try {
+			result = m_websocket->sendFrame(packet.m_data
+				, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
+		}
+		catch (std::exception &e) {
+			// nothing~
+			dbg::Logc(2, "websocket exception %s\n", e.what());
+		}
 	}
 	return result;
 }
