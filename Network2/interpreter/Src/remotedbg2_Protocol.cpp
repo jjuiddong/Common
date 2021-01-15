@@ -14,6 +14,7 @@ void remotedbg2::r2h_Protocol::Welcome(netid targetId, bool isBinary, const stri
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, msg);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -48,6 +49,7 @@ void remotedbg2::r2h_Protocol::UploadVProgFile(netid targetId, bool isBinary, co
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, code);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -82,6 +84,7 @@ void remotedbg2::r2h_Protocol::ReqIntermediateCode(netid targetId, bool isBinary
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -114,6 +117,7 @@ void remotedbg2::r2h_Protocol::ReqRun(netid targetId, bool isBinary, const strin
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, runType);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -148,6 +152,7 @@ void remotedbg2::r2h_Protocol::ReqOneStep(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -180,6 +185,7 @@ void remotedbg2::r2h_Protocol::ReqResumeRun(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -212,6 +218,7 @@ void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -244,6 +251,7 @@ void remotedbg2::r2h_Protocol::ReqStop(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -276,6 +284,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, vmIdx);
 		marshalling::operator<<(packet, eventName);
 		packet.EndPack();
@@ -312,6 +321,7 @@ void remotedbg2::r2h_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -346,6 +356,7 @@ void remotedbg2::h2r_Protocol::AckUploadVProgFile(netid targetId, bool isBinary,
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -380,6 +391,7 @@ void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		marshalling::operator<<(packet, count);
 		marshalling::operator<<(packet, index);
@@ -420,6 +432,7 @@ void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary, const int &
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -454,6 +467,7 @@ void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary, const i
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -488,6 +502,7 @@ void remotedbg2::h2r_Protocol::AckResumeRun(netid targetId, bool isBinary, const
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -522,6 +537,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -556,6 +572,7 @@ void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary, const int 
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -590,6 +607,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -624,6 +642,7 @@ void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, 
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, vmIdx);
 		marshalling::operator<<(packet, indices);
 		marshalling::operator<<(packet, cmps);
@@ -662,6 +681,7 @@ void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, con
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, vmIdx);
 		marshalling::operator<<(packet, infoType);
 		marshalling::operator<<(packet, reg);
@@ -700,6 +720,7 @@ void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, 
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, vmIdx);
 		marshalling::operator<<(packet, start);
 		marshalling::operator<<(packet, count);
@@ -740,6 +761,7 @@ void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, vmIdx);
 		marshalling::operator<<(packet, output);
 		packet.EndPack();
@@ -776,6 +798,7 @@ void remotedbg2::h2r_Protocol::AckHeartBeat(netid targetId, bool isBinary)
 	if (isBinary)
 	{
 		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}

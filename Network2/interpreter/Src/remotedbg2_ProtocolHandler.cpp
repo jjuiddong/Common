@@ -34,6 +34,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				Welcome_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.msg);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, Welcome(data));
 			}
@@ -78,6 +79,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				UploadVProgFile_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.code);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, UploadVProgFile(data));
 			}
@@ -122,6 +124,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqIntermediateCode_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqIntermediateCode(data));
 			}
 			else
@@ -164,6 +167,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.runType);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqRun(data));
 			}
@@ -208,6 +212,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqOneStep_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqOneStep(data));
 			}
 			else
@@ -250,6 +255,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqResumeRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqResumeRun(data));
 			}
 			else
@@ -292,6 +298,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqBreak_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreak(data));
 			}
 			else
@@ -334,6 +341,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqStop_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqStop(data));
 			}
 			else
@@ -376,6 +384,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqInput_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.eventName);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqInput(data));
@@ -422,6 +431,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				ReqHeartBeat_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqHeartBeat(data));
 			}
 			else
@@ -489,6 +499,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckUploadVProgFile_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckUploadVProgFile(data));
 			}
@@ -533,6 +544,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckIntermediateCode_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				marshalling::operator>>(packet, data.count);
 				marshalling::operator>>(packet, data.index);
@@ -583,6 +595,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckRun(data));
 			}
@@ -627,6 +640,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckOneStep_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckOneStep(data));
 			}
@@ -671,6 +685,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckResumeRun_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckResumeRun(data));
 			}
@@ -715,6 +730,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckBreak_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreak(data));
 			}
@@ -759,6 +775,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckStop_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckStop(data));
 			}
@@ -803,6 +820,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckInput_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
 			}
@@ -847,6 +865,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				SyncVMInstruction_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.indices);
 				marshalling::operator>>(packet, data.cmps);
@@ -895,6 +914,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				SyncVMRegister_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.infoType);
 				marshalling::operator>>(packet, data.reg);
@@ -943,6 +963,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				SyncVMSymbolTable_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.start);
 				marshalling::operator>>(packet, data.count);
@@ -993,6 +1014,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				SyncVMOutput_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.output);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMOutput(data));
@@ -1039,6 +1061,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				AckHeartBeat_Packet data;
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckHeartBeat(data));
 			}
 			else
