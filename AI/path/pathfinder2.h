@@ -83,19 +83,19 @@ namespace ai
 		bool RemoveVertex(const uint vtxIdx);
 		sVertex* GetVertexByIndex(const uint vtxIdx);
 		sVertex* GetVertexByName(const Str16 &name);
-		sVertex* GetVertexByID(const int id);
+		//sVertex* GetVertexByID(const int id);
 		int GetVertexIndexByName(const Str16 &name) const;
-		int GetVertexIndexByID(const int id);
+		//int GetVertexIndexByID(const int id);
 		void ReservedVertexBuffer(const uint vertexCount);
 		void Clear();
 
 
 	public:
 		vector<sVertex> m_vertices;
-		map<int, uint> m_vtxMap; // vertex id-index mapping
-								 // to fast search vertex array
-								 // key: vertex name (number only)
-							     // value: m_vertices index
+		//map<int, uint> m_vtxMap; // vertex id-index mapping
+		//						 // to fast search vertex array
+		//						 // key: vertex name (number only)
+		//					     // value: m_vertices index
 	};
 
 }

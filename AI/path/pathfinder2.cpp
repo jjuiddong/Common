@@ -217,7 +217,7 @@ uint cPathFinder2::AddVertex(const sVertex &vtx)
 	const uint idx = m_vertices.size() - 1;
 	const int id = atoi(vtx.name.c_str());
 	m_vertices[idx].id = id;
-	m_vtxMap[id] = idx;
+	//m_vtxMap[id] = idx;
 	return idx;
 }
 
@@ -301,12 +301,12 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 	common::rotatepopvector(m_vertices, vtxIdx);
 
 	// update vertex id-index mapping
-	m_vtxMap.clear();
-	for (uint i=0; i < m_vertices.size(); ++i)
-	{
-		auto &vtx = m_vertices[i];
-		m_vtxMap[vtx.id] = i;
-	}
+	//m_vtxMap.clear();
+	//for (uint i=0; i < m_vertices.size(); ++i)
+	//{
+	//	auto &vtx = m_vertices[i];
+	//	m_vtxMap[vtx.id] = i;
+	//}
 
 	return true;
 }
@@ -332,13 +332,13 @@ cPathFinder2::sVertex* cPathFinder2::GetVertexByName(const Str16 &name)
 
 
 // return vertex by id
-cPathFinder2::sVertex* cPathFinder2::GetVertexByID(const int id)
-{
-	const int idx = GetVertexIndexByID(id);
-	if (idx < 0)
-		return nullptr;
-	return &m_vertices[idx];
-}
+//cPathFinder2::sVertex* cPathFinder2::GetVertexByID(const int id)
+//{
+//	const int idx = GetVertexIndexByID(id);
+//	if (idx < 0)
+//		return nullptr;
+//	return &m_vertices[idx];
+//}
 
 
 // return vertex index from name
@@ -359,13 +359,13 @@ int cPathFinder2::GetVertexIndexByName(const Str16 &name) const
 
 // return vertex index by vertex id
 //		  -1:not found
-int cPathFinder2::GetVertexIndexByID(const int id)
-{
-	auto it = m_vtxMap.find(id);
-	if (m_vtxMap.end() == it)
-		return -1;
-	return it->second;
-}
+//int cPathFinder2::GetVertexIndexByID(const int id)
+//{
+//	auto it = m_vtxMap.find(id);
+//	if (m_vtxMap.end() == it)
+//		return -1;
+//	return it->second;
+//}
 
 
 // reserver vertex buffer
