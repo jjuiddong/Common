@@ -280,6 +280,23 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		++reg.idx;
 		break;
 
+	case eCommand::adds:
+	{
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (ARRAYSIZE(reg.val) <= code.reg2)
+			goto $error_memory;
+		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+			goto $error_semantic;
+		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+			goto $error_semantic;
+		const string s0 = variant2str(reg.val[code.reg1]);
+		const string s1 = variant2str(reg.val[code.reg2]);
+		reg.val[9] = (s0 + s1).c_str();
+		++reg.idx;
+	}
+	break;
+
 	case eCommand::eqi:
 	case eCommand::eqf:
 		if (ARRAYSIZE(reg.val) <= code.reg1)

@@ -17,7 +17,7 @@ namespace common
 			ldcmp, ldncmp, ldtim,
 			getb, geti, getf, gets,
 			setb, seti, setf, sets,
-			addi, addf,
+			addi, addf, adds,
 			subi, subf,
 			muli, mulf,
 			divi, divf,

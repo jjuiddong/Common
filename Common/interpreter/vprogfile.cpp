@@ -77,6 +77,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 			node.id = sdata.Get<int>(p, "id", 0);
 			node.name = sdata.Get<string>(p, "name", "name");
 			node.desc = sdata.Get<string>(p, "desc", node.name);
+			node.labelName = sdata.Get<string>(p, "labelname", "");
 			for (auto &c : p->children)
 			{
 				if ((c->name == "output") || (c->name == "input"))
@@ -421,7 +422,11 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 	m_visit.insert(node.id);
 
 	out.m_codes.push_back({ script::eCommand::nop });
-	const string labelName = common::format("%s-%d", node.name.c_str(), node.id);
+
+	// labelName: node.name '-' node.id	 
+	// make label name, if need unique event labe name, update from node.labelName
+	const string labelName = node.labelName.empty() ?
+		common::format("%s-%d", node.name.c_str(), node.id) : node.labelName;
 	out.m_codes.push_back({ script::eCommand::label, labelName });
 
 	for (auto &pin : node.outputs)
@@ -1570,6 +1575,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		case VT_BOOL:
 		case VT_INT: code.cmd = script::eCommand::addi; break;
 		case VT_R4: code.cmd = script::eCommand::addf; break;
+		case VT_BSTR: code.cmd = script::eCommand::adds; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1646,6 +1652,11 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			case VT_BOOL:
 			case VT_INT: code.cmd = script::eCommand::seti; break;
 			case VT_R4: code.cmd = script::eCommand::setf; break;
+			case VT_BSTR: code.cmd = script::eCommand::sets; break;
+			default:
+				common::dbg::Logc(1
+					, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				break;
 			}
 			code.str1 = MakeScopeName(node);
 			code.str2 = "O";

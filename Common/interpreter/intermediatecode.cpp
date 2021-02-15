@@ -104,6 +104,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "greqi")
 			|| (toks[0] == "greqf")
 			|| (toks[0] == "addi")
+			|| (toks[0] == "adds")
 			|| (toks[0] == "subi")
 			|| (toks[0] == "muli")
 			|| (toks[0] == "divi")
@@ -300,6 +301,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::greqi:
 		case eCommand::greqf:
 		case eCommand::addi:
+		case eCommand::adds:
 		case eCommand::subi:
 		case eCommand::muli:
 		case eCommand::divi:

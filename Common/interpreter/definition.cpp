@@ -52,6 +52,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::eqs:
 	case eCommand::eqsc:
 	case eCommand::symbols:
+	case eCommand::adds:
 		return VT_BSTR;
 
 	case eCommand::ldbc:

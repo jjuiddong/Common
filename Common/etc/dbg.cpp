@@ -299,7 +299,9 @@ void dbg::Logc(const int level, const char* fmt, ...)
 	switch (level)
 	{
 	case 3:
-		//DebugBreak();
+#ifdef _DEBUG
+		DebugBreak();
+#endif
 		assert(!"dbg::Logc()");
 	case 2:
 		data.type = 2;
@@ -310,6 +312,9 @@ void dbg::Logc(const int level, const char* fmt, ...)
 		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
 		break;
 	default:
+#ifdef _DEBUG
+		DebugBreak();
+#endif
 		assert(!"dbg::Logc()");
 		break;
 	}
@@ -336,7 +341,9 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 	switch (level)
 	{
 	case 3:
-		//DebugBreak();
+#ifdef _DEBUG
+		DebugBreak();
+#endif
 		assert(!"dbg::Logc2()");
 	case 2:
 		data.type = 2;
@@ -347,6 +354,9 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 		std::cout << data.str.m_str;
 		break;
 	default:
+#ifdef _DEBUG
+		DebugBreak();
+#endif
 		assert(!"dbg::Logc2()");
 		break;
 	}

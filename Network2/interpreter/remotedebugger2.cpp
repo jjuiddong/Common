@@ -143,12 +143,18 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		if (m_symbSyncTime > TIME_SYNC_SYMBOL) {
 			m_symbSyncTime = 0.f;
 
-			for (uint i = 0; i < m_interpreter.m_vms.size() && (i < 30); ++i)
+			uint syncCount = 0;
+			for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
 			{
 				vector<script::sSyncSymbol> symbols;
 				script::cVirtualMachine *vm = m_interpreter.m_vms[i];
 				for (auto &kv1 : vm->m_symbTable.m_vars)
 				{
+					// tricky code, packet buffer overflow
+					syncCount++;
+					if (syncCount > 30)
+						break;
+
 					const string &scope = kv1.first;
 					for (auto &kv2 : kv1.second)
 					{
@@ -167,6 +173,13 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 	}
 
 	return m_client.IsFailConnection() ? false : true;
+}
+
+
+// push interpreter event, wraping function
+bool cRemoteDebugger2::PushEvent(const common::script::cEvent &evt)
+{
+	return m_interpreter.PushEvent(evt);	
 }
 
 

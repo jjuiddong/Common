@@ -35,6 +35,7 @@ namespace network2
 			, const Str16 &ip, const int port);
 		bool LoadIntermediateCode(const StrPath &fileName);
 		bool Process(const float deltaSeconds);
+		bool PushEvent(const common::script::cEvent &evt);
 		bool Run();
 		bool StepRun();
 		bool Stop();
