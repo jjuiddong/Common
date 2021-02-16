@@ -83,6 +83,27 @@ bool cSimpleData::ReadLine(const StrPath &fileName
 }
 
 
+// parse from string
+bool cSimpleData::ReadFromString(const string &str
+	, const string &delimiter //= ","
+)
+{
+	Clear();
+
+	vector<string> lines;
+	common::tokenizer2(str, "\n", lines);
+	for (auto &line : lines)
+	{
+		vector<string> out;
+		common::tokenizer2(line, delimiter, out);
+		if (out.empty())
+			continue;
+		m_table.push_back(out);
+	}
+	return true;
+}
+
+
 bool cSimpleData::IsLoad()
 {
 	return !m_table.empty();

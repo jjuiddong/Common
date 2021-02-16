@@ -143,7 +143,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		if (m_symbSyncTime > TIME_SYNC_SYMBOL) {
 			m_symbSyncTime = 0.f;
 
-			uint syncCount = 0;
+			uint symbolCount = 0;
 			for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
 			{
 				vector<script::sSyncSymbol> symbols;
@@ -151,9 +151,9 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 				for (auto &kv1 : vm->m_symbTable.m_vars)
 				{
 					// tricky code, packet buffer overflow
-					syncCount++;
-					if (syncCount > 30)
+					if (symbolCount >= 20)
 						break;
+					symbolCount++;
 
 					const string &scope = kv1.first;
 					for (auto &kv2 : kv1.second)
@@ -166,7 +166,8 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 
 				if (!symbols.empty())
 				{
-					m_protocol.SyncVMSymbolTable(network2::SERVER_NETID, true, i, 0, symbols.size(), symbols);
+					m_protocol.SyncVMSymbolTable(network2::SERVER_NETID, true
+						, i, 0, symbolCount, symbols);
 				}
 			}
 		}
