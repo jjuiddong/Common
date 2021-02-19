@@ -31,6 +31,10 @@ namespace common
 				string type; // special type string
 				variant_t var;
 
+				// array type
+				uint arSize; // array size
+				variant_t *ar; // array
+
 				sVar();
 				sVar(const sVar &rhs);
 				~sVar();

@@ -9,13 +9,20 @@ using namespace common::script;
 //--------------------------------------------------------------------------
 // cSymbolTable::sVar
 //--------------------------------------------------------------------------
-cSymbolTable::sVar::sVar() {
+cSymbolTable::sVar::sVar()
+	: ar(nullptr)
+	, arSize(0)
+{
 }
 cSymbolTable::sVar::sVar(const sVar &rhs) {
 	operator=(rhs);
 }
 cSymbolTable::sVar::~sVar() {
 	common::clearvariant(var);
+	for (uint i = 0; i < arSize; ++i)
+		common::clearvariant(ar[i]);
+	SAFE_DELETEA(ar);
+	arSize = 0;
 }
 cSymbolTable::sVar& cSymbolTable::sVar::operator=(const sVar &rhs) {
 	if (this != &rhs)
@@ -23,6 +30,20 @@ cSymbolTable::sVar& cSymbolTable::sVar::operator=(const sVar &rhs) {
 		type = rhs.type;
 		common::clearvariant(var);
 		var = common::copyvariant(rhs.var);
+
+		// clear array
+		for (uint i = 0; i < arSize; ++i)
+			common::clearvariant(ar[i]);
+		SAFE_DELETEA(ar);
+		arSize = 0;
+
+		// copy array
+		if (rhs.arSize > 0) {
+			arSize = rhs.arSize;
+			ar = new variant_t[rhs.arSize];
+			for (uint i = 0; i < rhs.arSize; ++i)
+				ar[i] = common::copyvariant(rhs.ar[i]);
+		}
 	}
 	return *this;
 }
