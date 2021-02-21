@@ -52,6 +52,8 @@ bool vprog::IsVariable(const eSymbolType::Enum type)
 	case eSymbolType::Int:
 	case eSymbolType::Float:
 	case eSymbolType::String:
+	case eSymbolType::Array:
+	case eSymbolType::Map:
 		return true;
 	case eSymbolType::None:
 	case eSymbolType::Enums:

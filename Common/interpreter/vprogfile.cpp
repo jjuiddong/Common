@@ -85,8 +85,13 @@ bool cVProgFile::Read(const StrPath &fileName)
 					sPin pin;
 
 					const string typeStr = sdata.Get<string>(c, "type", " ");
+					const string subTypeStr0 = sdata.Get<string>(c, "subType0", "None");
+					const string subTypeStr1 = sdata.Get<string>(c, "subType1", "None");
 					pin.typeStr = typeStr;
 					pin.type = ePinType::FromString(typeStr);
+					pin.subType0 = eSymbolType::FromString(subTypeStr0);
+					pin.subType1 = eSymbolType::FromString(subTypeStr1);
+
 					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
 						if (m_variables.FindSymbol(typeStr))
@@ -174,9 +179,11 @@ bool cVProgFile::Read(const StrPath &fileName)
 			const string scopeName = sdata.Get<string>(p, "scopename", "");
 			const string name = sdata.Get<string>(p, "name", "");
 			const string typeStr = sdata.Get<string>(p, "type", "");
+			const string subTypeStr0 = sdata.Get<string>(p, "subType0", "None");
+			const string subTypeStr1 = sdata.Get<string>(p, "subType1", "None");
 
 			variant_t val;
-			ePinType::Enum type = ePinType::FromString(typeStr.c_str());
+			const ePinType::Enum type = ePinType::FromString(typeStr.c_str());
 			switch (type)
 			{
 			case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
@@ -185,9 +192,9 @@ bool cVProgFile::Read(const StrPath &fileName)
 			case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
 			case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
 			case ePinType::String:
-				val = common::str2variant(VT_BSTR
-					, sdata.Get<string>(p, "value", ""));
+				val = common::str2variant(VT_BSTR, sdata.Get<string>(p, "value", ""));
 				break;
+			case ePinType::Array: break;
 			default:
 				common::dbg::Logc(1
 					, "Error!! cVProgFile::Read() symbol parse error!!\n");
@@ -196,10 +203,35 @@ bool cVProgFile::Read(const StrPath &fileName)
 
 			if (!scopeName.empty() && !name.empty())
 			{
-				if (!m_variables.Set(scopeName, name, val, typeStr))
+				// initialize array type
+				if (type == ePinType::Array) 
 				{
-					// error occurred
-					assert(!"cNodefile::Read() symbol parse error!!");
+					const ePinType::Enum subType = ePinType::FromString(subTypeStr0.c_str());
+					switch (subType)
+					{
+					case ePinType::Bool: val = (bool)false; break;
+					case ePinType::Enums:
+					case ePinType::COUNT: // enum type
+					case ePinType::Int: val = (int)0; break;
+					case ePinType::Float: val = (float)0.f; break;
+					case ePinType::String: val = common::str2variant(VT_BSTR, ""); break;
+					case ePinType::Array: // no array accept
+					default:
+						// ignore no subtype variable
+						continue;
+						//common::dbg::Logc(1
+						//	, "Error!! cVProgFile::Read() symbol parse error!! 2\n");
+						break;
+					}
+					m_variables.SetArray(scopeName, name, val, typeStr);
+				}
+				else 
+				{
+					if (!m_variables.Set(scopeName, name, val, typeStr))
+					{
+						// error occurred
+						assert(!"cNodefile::Read() symbol parse error!!");
+					}
 				}
 			}
 		}
@@ -374,9 +406,21 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 			case VT_BOOL: code.cmd = script::eCommand::symbolb; break;
 			case VT_INT: code.cmd = script::eCommand::symboli; break;
 			case VT_R4: code.cmd = script::eCommand::symbolf; break;
-			case VT_BSTR: code.cmd = script::eCommand::symbols; break;				
+			case VT_BSTR: code.cmd = script::eCommand::symbols; break;
+			case VT_ARRAY: 
+				switch (kv2.second.subType0) 
+				{
+				case VT_BOOL: code.cmd = script::eCommand::symbolab; break;
+				case VT_INT: code.cmd = script::eCommand::symbolai; break;
+				case VT_R4: code.cmd = script::eCommand::symbolaf; break;
+				case VT_BSTR: code.cmd = script::eCommand::symbolas; break;
+				default:
+					common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+					break;
+				}
+				break;
 			default:
-				common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type\n");
+				common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
 				break;
 			}
 			code.str1 = kv1.first;

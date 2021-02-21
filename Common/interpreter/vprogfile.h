@@ -49,6 +49,8 @@ namespace vprog
 			string varName; // variable pin? variable symbol name
 			int value; // enum value
 			ePinType::Enum type;
+			eSymbolType::Enum subType0; // array element type, map key type
+			eSymbolType::Enum subType1; // map value type
 			ePinKind::Enum kind;
 			vector<int> links; // pin id array
 		};

@@ -27,6 +27,7 @@ namespace common
 			gri, grf, greqi, greqf,
 			call, jnz, jmp, label,
 			symbolb, symboli, symbolf, symbols,
+			symbolab, symbolai, symbolaf, symbolas,
 			timer1, timer2,
 			cmt, delay, nop
 		);
@@ -96,6 +97,7 @@ namespace common
 		// grf register_name1, register_name2 ;float type compare, if register_name1 > register_name2, then cmp register true
 		// greqi register_name1, register_name2 ;int type compare, if register_name1 >= register_name2, then cmp register true
 		// greqf register_name1, register_name2 ;float type compare, if register_name1 >= register_name2, then cmp register true
+
 		// call function_name ;call callback function, and then customizing function work
 		// jnz jump_label ;jump jump_label if cmp register is true
 		// jmp jump_label ;jump jump_label always
@@ -104,6 +106,10 @@ namespace common
 		// symboli scope_name, varname, value ;initialize int type symbol table
 		// symbolf scope_name, varname, value ;initialize float type symbol table
 		// symbols scope_name, varname, value ;initialize string type symbol table
+		// symbolab scope_name, varname, value ;initialize bool type array symbol table
+		// symbolai scope_name, varname, value ;initialize int type array symbol table
+		// symbolaf scope_name, varname, value ;initialize float type array symbol table
+		// symbolas scope_name, varname, value ;initialize string type array symbol table
 		// timer1 scope_name, value ; loop timer, value:interval (milliseconds)
 		// timer2 scope_name, value ; timer, value:interval (milliseconds), loop on/off
 		// #comment command string, from pinId, to pinId ;comment string, no instruction

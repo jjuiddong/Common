@@ -17,7 +17,9 @@ namespace vprog {
 		Int,
 		Float,
 		Enums,
-		String
+		String,
+		Array,
+		Map
 	);
 
 	DECLARE_ENUM(ePinType,
@@ -30,7 +32,10 @@ namespace vprog {
 		Object,
 		Function,
 		Delegate,
-		NotDef
+		NotDef,
+		None,
+		Array,
+		Map
 	);
 
 	DECLARE_ENUM(ePinKind,
@@ -48,7 +53,8 @@ namespace vprog {
 		Variable,
 		Comment,
 		Define,
-		Tree
+		Tree,
+		Array
 	);
 
 

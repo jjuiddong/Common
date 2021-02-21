@@ -12,31 +12,24 @@ using namespace common::script;
 cSymbolTable::sVar::sVar()
 	: ar(nullptr)
 	, arSize(0)
+	, subType0(0)
+	, subType1(0)
 {
 }
 cSymbolTable::sVar::sVar(const sVar &rhs) {
 	operator=(rhs);
 }
 cSymbolTable::sVar::~sVar() {
-	common::clearvariant(var);
-	for (uint i = 0; i < arSize; ++i)
-		common::clearvariant(ar[i]);
-	SAFE_DELETEA(ar);
-	arSize = 0;
+	Clear();
 }
 cSymbolTable::sVar& cSymbolTable::sVar::operator=(const sVar &rhs) {
 	if (this != &rhs)
 	{
+		Clear();
 		type = rhs.type;
-		common::clearvariant(var);
 		var = common::copyvariant(rhs.var);
-
-		// clear array
-		for (uint i = 0; i < arSize; ++i)
-			common::clearvariant(ar[i]);
-		SAFE_DELETEA(ar);
-		arSize = 0;
-
+		subType0 = rhs.subType0;
+		subType1 = rhs.subType1;
 		// copy array
 		if (rhs.arSize > 0) {
 			arSize = rhs.arSize;
@@ -46,6 +39,13 @@ cSymbolTable::sVar& cSymbolTable::sVar::operator=(const sVar &rhs) {
 		}
 	}
 	return *this;
+}
+void cSymbolTable::sVar::Clear() {
+	common::clearvariant(var);
+	for (uint i = 0; i < arSize; ++i)
+		common::clearvariant(ar[i]);
+	SAFE_DELETEA(ar);
+	arSize = 0;
 }
 
 
@@ -74,6 +74,24 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 	common::clearvariant(m_vars[scopeName][symbolName].var);
 	m_vars[scopeName][symbolName].var = common::copyvariant(var);
 	m_vars[scopeName][symbolName].type = typeStr;
+	return true;
+}
+
+
+// add or update array variable (empty array)
+// var: only update array element type
+bool cSymbolTable::SetArray(const string &scopeName, const string &symbolName
+	, const variant_t &var, 
+	const string &typeStr //= ""
+)
+{
+	sVar arVar;
+	arVar.type = "Array";
+	arVar.var.vt = VT_ARRAY;
+	arVar.subType0 = var.vt; // array element type
+	arVar.arSize = 0;
+	arVar.ar = nullptr;
+	m_vars[scopeName][symbolName] = arVar;
 	return true;
 }
 

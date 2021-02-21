@@ -28,10 +28,12 @@ namespace common
 
 			// variable information
 			struct sVar {
-				string type; // special type string
+				string type; // special type string, Bool, Int, Float, String, Array~
 				variant_t var;
 
 				// array type
+				int subType0; // array element type, map key type (variant_t::VARTYPE)
+				int subType1; // map value type variant_t::VARTYPE)
 				uint arSize; // array size
 				variant_t *ar; // array
 
@@ -39,6 +41,7 @@ namespace common
 				sVar(const sVar &rhs);
 				~sVar();
 				sVar& operator=(const sVar &rhs);
+				void Clear();
 			};
 
 
@@ -50,8 +53,13 @@ namespace common
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName, const T &var
 				, const string &typeStr="");
+			template <class T, size_t N>
+			bool Set(const string &scopeName, const string &symbolName, const T(&var)[N]
+				, const string &typeStr = "");
 			bool Set(const string &scopeName, const string &symbolName, const variant_t &var
 				, const string &typeStr = "");
+			bool SetArray(const string &scopeName, const string &symbolName
+				, const variant_t &var, const string &typeStr = "");
 
 			template <class T>
 			T Get(const string &scopeName, const string &symbolName);
@@ -108,6 +116,22 @@ namespace common
 			common::clearvariant(m_vars[scopeName][symbolName].var);
 			m_vars[scopeName][symbolName].var = v;
 			m_vars[scopeName][symbolName].type = typeStr;
+			return true;
+		}
+
+		// initialize array type
+		template <class T, size_t N>
+		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName
+			, const T(&var)[N], const string &typeStr //= ""
+			)
+		{			
+			sVar arVar;
+			arVar.type = "Array";
+			arVar.arSize = N;
+			arVar.ar = (N > 0) ? new variant_t[N] : nullptr;
+			for (int i = 0; i < N; ++i)
+				arVar.ar[i] = var[i];
+			m_vars[scopeName][symbolName] = arVar;
 			return true;
 		}
 

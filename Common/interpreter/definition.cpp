@@ -63,6 +63,12 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::symbolb:
 		return VT_BOOL;
 
+	case eCommand::symbolab:
+	case eCommand::symbolai:
+	case eCommand::symbolaf:
+	case eCommand::symbolas:
+		return VT_ARRAY;
+
 	case eCommand::call:
 	case eCommand::jnz:
 	case eCommand::jmp:

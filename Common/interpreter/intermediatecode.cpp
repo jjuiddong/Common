@@ -49,21 +49,15 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 
 		sInstruction code;
 
-		if (((toks[0] == "geti") 
+		if (((toks[0] == "geti")
 			|| (toks[0] == "getb")
 			|| (toks[0] == "getf")
-			|| (toks[0] == "gets"))
-			&& (toks.size() >= 4))
-		{
-			code.cmd = eCommand::FromString(toks[0]);
-			code.str1 = toks[1];
-			code.str2 = toks[2];
-			code.reg1 = GetRegisterIndex(toks[3]);
-		}
-		else if (((toks[0] == "seti")
+			|| (toks[0] == "gets")
+			|| (toks[0] == "seti")
 			|| (toks[0] == "setb")
 			|| (toks[0] == "setf")
-			|| (toks[0] == "sets"))
+			|| (toks[0] == "sets")
+			)
 			&& (toks.size() >= 4))
 		{
 			code.cmd = eCommand::FromString(toks[0]);
@@ -84,7 +78,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			if (vt == VT_EMPTY)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
-		else if (((toks[0] == "ldcmp") 
+		else if (((toks[0] == "ldcmp")
 			|| (toks[0] == "ldncmp")
 			|| (toks[0] == "ldtim"))
 			&& (toks.size() >= 2))
@@ -162,6 +156,17 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[3]);
 		}
+		else if (((toks[0] == "symbolab")
+			|| (toks[0] == "symbolai")
+			|| (toks[0] == "symbolaf")
+			|| (toks[0] == "symbolas"))
+			&& (toks.size() >= 3))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
+			code.str2 = toks[2];
+			// todo: array initialize
+		}
 		else if ((toks[0] == "#comment")
 			&& (toks.size() >= 4))
 		{
@@ -224,6 +229,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 	for (uint i = 0; i < m_codes.size(); ++i)
 	{
 		auto &code = m_codes[i];
+		variant_t arElem; // temporal array element type
 		switch (code.cmd)
 		{
 		case eCommand::symbolb:
@@ -231,6 +237,22 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		case eCommand::symbolf:
 		case eCommand::symbols:
 			m_variables.Set(code.str1, code.str2, code.var1);
+			break;
+		case eCommand::symbolab:
+			arElem = (bool)false;
+			m_variables.SetArray(code.str1, code.str2, arElem);
+			break;
+		case eCommand::symbolai:
+			arElem = (int)0;
+			m_variables.SetArray(code.str1, code.str2, arElem);
+			break;
+		case eCommand::symbolaf:
+			arElem = (float)0.f;
+			m_variables.SetArray(code.str1, code.str2, arElem);
+			break;
+		case eCommand::symbolas:
+			arElem = common::str2variant(VT_BSTR, "");
+			m_variables.SetArray(code.str1, code.str2, arElem);
 			break;
 		}
 	}
