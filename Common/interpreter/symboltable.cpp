@@ -5,48 +5,7 @@
 using namespace common;
 using namespace common::script;
 
-
-//--------------------------------------------------------------------------
-// cSymbolTable::sVar
-//--------------------------------------------------------------------------
-cSymbolTable::sVar::sVar()
-	: ar(nullptr)
-	, arSize(0)
-	, subType0(0)
-	, subType1(0)
-{
-}
-cSymbolTable::sVar::sVar(const sVar &rhs) {
-	operator=(rhs);
-}
-cSymbolTable::sVar::~sVar() {
-	Clear();
-}
-cSymbolTable::sVar& cSymbolTable::sVar::operator=(const sVar &rhs) {
-	if (this != &rhs)
-	{
-		Clear();
-		type = rhs.type;
-		var = common::copyvariant(rhs.var);
-		subType0 = rhs.subType0;
-		subType1 = rhs.subType1;
-		// copy array
-		if (rhs.arSize > 0) {
-			arSize = rhs.arSize;
-			ar = new variant_t[rhs.arSize];
-			for (uint i = 0; i < rhs.arSize; ++i)
-				ar[i] = common::copyvariant(rhs.ar[i]);
-		}
-	}
-	return *this;
-}
-void cSymbolTable::sVar::Clear() {
-	common::clearvariant(var);
-	for (uint i = 0; i < arSize; ++i)
-		common::clearvariant(ar[i]);
-	SAFE_DELETEA(ar);
-	arSize = 0;
-}
+std::atomic_int cSymbolTable::s_genId = 1;
 
 
 //--------------------------------------------------------------------------
@@ -72,7 +31,7 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 {
 	// to avoid bstr memory move bug
 	common::clearvariant(m_vars[scopeName][symbolName].var);
-	m_vars[scopeName][symbolName].var = common::copyvariant(var);
+	m_vars[scopeName][symbolName].var = var;
 	m_vars[scopeName][symbolName].type = typeStr;
 	return true;
 }
@@ -81,17 +40,27 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 // add or update array variable (empty array)
 // var: only update array element type
 bool cSymbolTable::SetArray(const string &scopeName, const string &symbolName
-	, const variant_t &var, 
-	const string &typeStr //= ""
+	, const variant_t &var
+	, const string &typeStr //= ""
 )
 {
-	sVar arVar;
+	sVariable arVar;
 	arVar.type = "Array";
-	arVar.var.vt = VT_ARRAY;
+
+	// array tricky code, no memory allocate
+	// no VT_ARRAY type, because reduce array copy time
+	arVar.var.vt = VT_BYREF | var.vt;
+
 	arVar.subType0 = var.vt; // array element type
 	arVar.arSize = 0;
 	arVar.ar = nullptr;
 	m_vars[scopeName][symbolName] = arVar;
+
+	sVariable &variable = m_vars[scopeName][symbolName];
+	variable.var.intVal = variable.id;
+
+	// add fast var search mapping
+	m_varMap[variable.id] = { scopeName, symbolName };
 	return true;
 }
 
@@ -111,7 +80,7 @@ bool cSymbolTable::Get(const string &scopeName, const string &symbolName
 }
 
 
-cSymbolTable::sVar* cSymbolTable::FindVarInfo(const string &scopeName
+sVariable* cSymbolTable::FindVarInfo(const string &scopeName
 	, const string &symbolName)
 {
 	auto it = m_vars.find(scopeName);
@@ -136,15 +105,24 @@ bool cSymbolTable::IsExist(const string &scopeName, const string &symbolName)
 }
 
 
+// remove variable
 bool cSymbolTable::RemoveVar(const string &scopeName, const string &symbolName)
 {
 	auto it = m_vars.find(scopeName);
 	RETV(m_vars.end() == it, nullptr);
+	
+	// remove fast search mapping
+	auto it2 = it->second.find(symbolName);
+	if (it2 != it->second.end())
+		m_varMap.erase(it2->second.id);
+
+	// remove
 	it->second.erase(symbolName);
 	return true;
 }
 
 
+// add symbol
 bool cSymbolTable::AddSymbol(const sSymbol &type)
 {
 	auto it = m_symbols.find(type.name);
@@ -158,6 +136,7 @@ bool cSymbolTable::AddSymbol(const sSymbol &type)
 }
 
 
+// remove symbol
 bool cSymbolTable::RemoveSymbol(const string &typeName)
 {
 	auto it = m_symbols.find(typeName);
@@ -176,6 +155,13 @@ cSymbolTable::sSymbol* cSymbolTable::FindSymbol(const string &typeName)
 	if (m_symbols.end() == it)
 		return nullptr; // not exist
 	return it->second;
+}
+
+
+// generate unique id
+int cSymbolTable::GenID()
+{
+	return s_genId++;
 }
 
 
@@ -211,6 +197,13 @@ cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 			for (auto &kv2 : kv1.second)
 				m_vars[kv1.first][kv2.first] = kv2.second;
 
+		// update fast var search mapping
+		m_varMap.clear();
+		for (auto &kv : m_vars) 
+			for (auto &kv2 : kv.second)
+				if (kv2.second.var.vt & VT_BYREF) // Array type?
+					m_varMap[kv2.second.id] = { kv.first, kv2.first }; // scopeName,varName
+
 		for (auto &kv1 : rhs.m_symbols)
 		{
 			sSymbol *sym = new sSymbol;
@@ -245,6 +238,7 @@ bool cSymbolTable::CopySymbols(const cSymbolTable &rhs)
 void cSymbolTable::Clear()
 {
 	m_vars.clear();
+	m_varMap.clear();
 
 	for (auto &kv : m_symbols)
 		delete kv.second;

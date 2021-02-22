@@ -53,10 +53,12 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "getb")
 			|| (toks[0] == "getf")
 			|| (toks[0] == "gets")
+			|| (toks[0] == "geta")
 			|| (toks[0] == "seti")
 			|| (toks[0] == "setb")
 			|| (toks[0] == "setf")
 			|| (toks[0] == "sets")
+			|| (toks[0] == "seta")
 			)
 			&& (toks.size() >= 4))
 		{
@@ -285,6 +287,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::ldic:
 		case eCommand::ldfc:
 		case eCommand::ldsc:
+		case eCommand::ldac:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << common::variant2str(code.var1, true);
@@ -301,10 +304,12 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::geti:
 		case eCommand::getf:
 		case eCommand::gets:
+		case eCommand::geta:
 		case eCommand::setb:
 		case eCommand::seti:
 		case eCommand::setf:
 		case eCommand::sets:
+		case eCommand::seta:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";
@@ -373,6 +378,10 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::symboli:
 		case eCommand::symbolf:
 		case eCommand::symbols:
+		case eCommand::symbolab:
+		case eCommand::symbolai:
+		case eCommand::symbolaf:
+		case eCommand::symbolas:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";

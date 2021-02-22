@@ -18,6 +18,7 @@ cVProgFile::~cVProgFile()
 }
 
 
+// read *.vprog file
 bool cVProgFile::Read(const StrPath &fileName)
 {
 	Clear();
@@ -71,199 +72,13 @@ bool cVProgFile::Read(const StrPath &fileName)
 	for (auto &p : sdata.m_root->children)
 	{
 		if (p->name == "node")
-		{
-			sNode node;
-			node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
-			node.id = sdata.Get<int>(p, "id", 0);
-			node.name = sdata.Get<string>(p, "name", "name");
-			node.desc = sdata.Get<string>(p, "desc", node.name);
-			node.labelName = sdata.Get<string>(p, "labelname", "");
-			for (auto &c : p->children)
-			{
-				if ((c->name == "output") || (c->name == "input"))
-				{
-					sPin pin;
-
-					const string typeStr = sdata.Get<string>(c, "type", " ");
-					const string subTypeStr0 = sdata.Get<string>(c, "subType0", "None");
-					const string subTypeStr1 = sdata.Get<string>(c, "subType1", "None");
-					pin.typeStr = typeStr;
-					pin.type = ePinType::FromString(typeStr);
-					pin.subType0 = eSymbolType::FromString(subTypeStr0);
-					pin.subType1 = eSymbolType::FromString(subTypeStr1);
-
-					if (pin.type == ePinType::COUNT) // not found type, check enum type
-					{
-						if (m_variables.FindSymbol(typeStr))
-						{
-							pin.type = ePinType::Enums;
-						}
-						else
-						{
-							assert(!"cVProgFile::Read() Error!, not defined type name");
-							pin.type = ePinType::Int;
-						}
-					}
-
-					pin.id = sdata.Get<int>(c, "id", 0);
-					pin.name = sdata.Get<string>(c, "name", "name");
-					pin.varName = sdata.Get<string>(c, "varname", "");
-					auto &ar = sdata.GetArray(c, "links");
-					for (uint i = 1; i < ar.size(); ++i)
-					{
-						//todo: maybe link id duplicated
-						const int toPinId = atoi(ar[i].c_str());
-						pin.links.push_back(toPinId);
-					}
-
-					if (c->name == "output")
-					{
-						pin.kind = ePinKind::Output;
-						node.outputs.push_back(pin);
-					}
-					else // input
-					{
-						pin.kind = ePinKind::Input;
-						node.inputs.push_back(pin);
-					}
-				}
-			}
-			m_nodes.push_back(node);
-		}
+			AddNode(sdata, p);
 		else if (p->name == "symbol")
-		{
-			sPin pin;
-			pin.name = "@symbol@";
-			pin.id = sdata.Get<int>(p, "id", 0);
-
-			// add variable table
-			sNode *n = nullptr;
-			sPin *pp = nullptr;
-			std::tie(n, pp) = FindContainPin(pin.id);
-			if (n && pp)
-			{
-				string scopeName = MakeScopeName(*n);
-				string varName = pp->name.c_str();
-				variant_t val;
-				switch (pp->type)
-				{
-				case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
-				case ePinType::Enums:
-				case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
-				case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
-				case ePinType::String: 
-					val = common::str2variant(VT_BSTR
-						, sdata.Get<string>(p, "value", ""));
-					break;
-				default:
-					common::dbg::Logc(1
-						, "Error!! cVProgFile::Read() symbol parse error!!\n");
-					break;
-				}
-
-				if (!m_variables.Set(scopeName, varName, val))
-				{
-					common::dbg::Logc(1
-						, "Error!! cVProgFile::Read() symbol parse error!!\n");
-				}
-				common::clearvariant(val);
-			}
-			else
-			{
-				common::dbg::Logc(1
-					, "Error!! cVProgFile::Read() symbol parse error!!\n");
-			}
-		}
+			AddSymbol(sdata, p);
 		else if (p->name == "initvar")
-		{
-			const string scopeName = sdata.Get<string>(p, "scopename", "");
-			const string name = sdata.Get<string>(p, "name", "");
-			const string typeStr = sdata.Get<string>(p, "type", "");
-			const string subTypeStr0 = sdata.Get<string>(p, "subType0", "None");
-			const string subTypeStr1 = sdata.Get<string>(p, "subType1", "None");
-
-			variant_t val;
-			const ePinType::Enum type = ePinType::FromString(typeStr.c_str());
-			switch (type)
-			{
-			case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
-			case ePinType::Enums:
-			case ePinType::COUNT: // enum type
-			case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
-			case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
-			case ePinType::String:
-				val = common::str2variant(VT_BSTR, sdata.Get<string>(p, "value", ""));
-				break;
-			case ePinType::Array: break;
-			default:
-				common::dbg::Logc(1
-					, "Error!! cVProgFile::Read() symbol parse error!!\n");
-				break;
-			}
-
-			if (!scopeName.empty() && !name.empty())
-			{
-				// initialize array type
-				if (type == ePinType::Array) 
-				{
-					const ePinType::Enum subType = ePinType::FromString(subTypeStr0.c_str());
-					switch (subType)
-					{
-					case ePinType::Bool: val = (bool)false; break;
-					case ePinType::Enums:
-					case ePinType::COUNT: // enum type
-					case ePinType::Int: val = (int)0; break;
-					case ePinType::Float: val = (float)0.f; break;
-					case ePinType::String: val = common::str2variant(VT_BSTR, ""); break;
-					case ePinType::Array: // no array accept
-					default:
-						// ignore no subtype variable
-						continue;
-						//common::dbg::Logc(1
-						//	, "Error!! cVProgFile::Read() symbol parse error!! 2\n");
-						break;
-					}
-					m_variables.SetArray(scopeName, name, val, typeStr);
-				}
-				else 
-				{
-					if (!m_variables.Set(scopeName, name, val, typeStr))
-					{
-						// error occurred
-						assert(!"cNodefile::Read() symbol parse error!!");
-					}
-				}
-			}
-		}
+			AddVariable(sdata, p);
 		else if (p->name == "define")
-		{
-			namespace script = common::script;
-			script::cSymbolTable::sSymbol type;
-			const string typeStr = sdata.Get<string>(p, "type", "Enum");
-			type.type = (typeStr == "Enum") ?
-				script::cSymbolTable::eType::Enum : script::cSymbolTable::eType::None;
-			type.name = sdata.Get<string>(p, "name", " ");
-
-			if (type.type == script::cSymbolTable::eType::Enum)
-			{
-				for (auto &c : p->children)
-				{
-					if (c->name == "attr")
-					{
-						script::cSymbolTable::sEnum e;
-						e.name = sdata.Get<string>(c, "name", " ");
-						e.value = sdata.Get<int>(c, "value", 0);
-						type.enums.push_back(e);
-					}
-				}
-			}
-			else
-			{
-				assert(!"cVProgFile::Read() Error, not defined type parse");
-			}
-
-			m_variables.AddSymbol(type);
-		}
+			AddDefine(sdata, p);
 		else
 		{
 			assert(!"cVProgFile::Read() Error, not defined node type");
@@ -275,6 +90,206 @@ bool cVProgFile::Read(const StrPath &fileName)
 }
 
 
+// add node from parsed *.vprog file
+bool cVProgFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+{
+	sNode node;
+	node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
+	node.id = sdata.Get<int>(p, "id", 0);
+	node.name = sdata.Get<string>(p, "name", "name");
+	node.desc = sdata.Get<string>(p, "desc", node.name);
+	node.labelName = sdata.Get<string>(p, "labelname", "");
+
+	for (auto &c : p->children)
+	{
+		if ((c->name == "output") || (c->name == "input"))
+		{
+			sPin pin;
+
+			const string typeStr = sdata.Get<string>(c, "type", " ");
+			const string subTypeStr0 = sdata.Get<string>(c, "subType0", "None");
+			const string subTypeStr1 = sdata.Get<string>(c, "subType1", "None");
+			pin.typeStr = typeStr;
+			pin.type = ePinType::FromString(typeStr);
+			pin.subType0 = eSymbolType::FromString(subTypeStr0);
+			pin.subType1 = eSymbolType::FromString(subTypeStr1);
+
+			if (pin.type == ePinType::COUNT) // not found type, check enum type
+			{
+				if (m_variables.FindSymbol(typeStr))
+				{
+					pin.type = ePinType::Enums;
+				}
+				else
+				{
+					assert(!"cVProgFile::Read() Error!, not defined type name");
+					pin.type = ePinType::Int;
+				}
+			}
+
+			pin.id = sdata.Get<int>(c, "id", 0);
+			pin.name = sdata.Get<string>(c, "name", "name");
+			pin.varName = sdata.Get<string>(c, "varname", "");
+			auto &ar = sdata.GetArray(c, "links");
+			for (uint i = 1; i < ar.size(); ++i)
+			{
+				//todo: maybe link id duplicated
+				const int toPinId = atoi(ar[i].c_str());
+				pin.links.push_back(toPinId);
+			}
+
+			if (c->name == "output")
+			{
+				pin.kind = ePinKind::Output;
+				node.outputs.push_back(pin);
+			}
+			else // input
+			{
+				pin.kind = ePinKind::Input;
+				node.inputs.push_back(pin);
+			}
+		}
+	}
+	m_nodes.push_back(node);
+	return true;
+}
+
+
+// add variable from parsed *.vprog file
+bool cVProgFile::AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+{
+	const string scopeName = sdata.Get<string>(p, "scopename", "");
+	const string name = sdata.Get<string>(p, "name", "");
+	const string typeStr = sdata.Get<string>(p, "type", "");
+	const ePinType::Enum type = ePinType::FromString(typeStr.c_str());
+	return AddVariable2(scopeName, name, type, typeStr, sdata, p);
+}
+
+
+// add symbole
+bool cVProgFile::AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+{
+	sPin pin;
+	pin.name = "@symbol@";
+	pin.id = sdata.Get<int>(p, "id", 0);
+
+	sNode *n = nullptr;
+	sPin *pp = nullptr;
+	std::tie(n, pp) = FindContainPin(pin.id);
+	if (!n || !pp)
+	{
+		common::dbg::Logc(1, "Error!! cVProgFile::AddSymbol() symbol parse error!!\n");
+		return false;
+	}
+
+	const string scopeName = MakeScopeName(*n);
+	const string varName = pp->name.c_str();
+	return AddVariable2(scopeName, varName, pp->type, "", sdata, p);
+}
+
+
+// add variable
+bool cVProgFile::AddVariable2(const string &scopeName, const string &name
+	, const ePinType::Enum type, const string &typeStr
+	, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+{
+	if (scopeName.empty() || name.empty())
+	{
+		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable2() symbol parse error!! 1\n");
+		return false; // error
+	}
+
+	variant_t val;
+	switch (type)
+	{
+	case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
+	case ePinType::Enums:
+	case ePinType::COUNT: // enum type
+	case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
+	case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
+	case ePinType::String:
+		val = common::str2variant(VT_BSTR, sdata.Get<string>(p, "value", ""));
+		break;
+	case ePinType::Array: break;
+	default:
+		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable2() symbol parse error!! 2\n");
+		return false;
+	}
+
+	// initialize array type
+	if (type == ePinType::Array)
+	{
+		const string subTypeStr0 = sdata.Get<string>(p, "subType0", "None");
+		const ePinType::Enum subType = ePinType::FromString(subTypeStr0.c_str());
+		switch (subType)
+		{
+		case ePinType::Bool: val = (bool)false; break;
+		case ePinType::Enums:
+		case ePinType::COUNT: // enum type
+		case ePinType::Int: val = (int)0; break;
+		case ePinType::Float: val = (float)0.f; break;
+		case ePinType::String: val = common::str2variant(VT_BSTR, ""); break;
+		case ePinType::Array: // no array accept
+		default:
+			// ignore no subtype variable
+			return false;
+		}
+
+		if (!m_variables.SetArray(scopeName, name, val, typeStr))
+		{
+			assert(!"cNodefile::AddVariable2() symbol parse error!! 3");
+			return false;
+		}
+	}
+	else
+	{
+		if (!m_variables.Set(scopeName, name, val, typeStr))
+		{
+			assert(!"cNodefile::AddVariable2() symbol parse error!! 4");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+// add define from parsed *.vprog file
+bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+{
+	namespace script = common::script;
+
+	script::cSymbolTable::sSymbol type;
+	const string typeStr = sdata.Get<string>(p, "type", "Enum");
+	type.type = (typeStr == "Enum") ?
+		script::cSymbolTable::eType::Enum : script::cSymbolTable::eType::None;
+	type.name = sdata.Get<string>(p, "name", " ");
+
+	if (type.type == script::cSymbolTable::eType::Enum)
+	{
+		for (auto &c : p->children)
+		{
+			if (c->name == "attr")
+			{
+				script::cSymbolTable::sEnum e;
+				e.name = sdata.Get<string>(c, "name", " ");
+				e.value = sdata.Get<int>(c, "value", 0);
+				type.enums.push_back(e);
+			}
+		}
+	}
+	else
+	{
+		assert(!"cVProgFile::Read() Error, not defined type parse");
+	}
+
+	m_variables.AddSymbol(type);
+
+	return true;
+}
+
+
+// write *.vprog file
 bool cVProgFile::Write(const StrPath &fileName)
 {
 	using namespace std;
@@ -400,32 +415,36 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 	{
 		for (auto &kv2 : kv1.second)
 		{
+			const variant_t &var = kv2.second.var;
+
 			script::sInstruction code;
-			switch (kv2.second.var.vt)
+			switch (var.vt)
 			{
 			case VT_BOOL: code.cmd = script::eCommand::symbolb; break;
 			case VT_INT: code.cmd = script::eCommand::symboli; break;
 			case VT_R4: code.cmd = script::eCommand::symbolf; break;
 			case VT_BSTR: code.cmd = script::eCommand::symbols; break;
-			case VT_ARRAY: 
-				switch (kv2.second.subType0) 
+			default:
+				if (var.vt & VT_BYREF) // VT_ARRAY? (tricky code)
 				{
-				case VT_BOOL: code.cmd = script::eCommand::symbolab; break;
-				case VT_INT: code.cmd = script::eCommand::symbolai; break;
-				case VT_R4: code.cmd = script::eCommand::symbolaf; break;
-				case VT_BSTR: code.cmd = script::eCommand::symbolas; break;
-				default:
-					common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+					switch (kv2.second.subType0)
+					{
+					case VT_BOOL: code.cmd = script::eCommand::symbolab; break;
+					case VT_INT: code.cmd = script::eCommand::symbolai; break;
+					case VT_R4: code.cmd = script::eCommand::symbolaf; break;
+					case VT_BSTR: code.cmd = script::eCommand::symbolas; break;
+					default:
+						common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+						break;
+					}
 					break;
 				}
-				break;
-			default:
 				common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
 				break;
 			}
 			code.str1 = kv1.first;
 			code.str2 = kv2.first;
-			code.var1 = kv2.second.var;
+			code.var1 = var;
 			out.m_codes.push_back(code);
 		}
 	}
@@ -436,8 +455,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		if (eNodeType::Event == node.type)
 		{
 			const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
-			script::cSymbolTable::sVar *var = 
-				m_variables.FindVarInfo(name, "out");
+			script::sVariable *var = m_variables.FindVarInfo(name, "out");
 			if (var) // register event?
 			{
 				script::sInstruction code;
@@ -573,6 +591,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			case ePinType::Int: code.cmd = script::eCommand::seti; break;
 			case ePinType::Float: code.cmd = script::eCommand::setf; break;
 			case ePinType::String: code.cmd = script::eCommand::sets; break;
+			case ePinType::Array: code.cmd = script::eCommand::seta; break;
 			default:
 				return false;
 			}
@@ -1196,6 +1215,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 				GenerateCode_Node(nullNode, *prev, pin, out);
 
 			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
 			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
 			++reg;
 		}
@@ -1211,6 +1231,14 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 			in0_prev = prev;
 			in0_prevp = pp;
 			inReg0 = reg - 1;
+
+			// initialize index variable
+			script::sInstruction code;
+			code.cmd = script::eCommand::seti;
+			code.str1 = MakeScopeName(node);
+			code.str2 = "Index";
+			code.reg1 = inReg0;
+			out.m_codes.push_back(code);
 		}
 		if (pin.name == "Last Index")
 		{
@@ -1219,28 +1247,6 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 			in1_nextp = &pin;
 			inReg1 = reg - 1;
 		}
-	}
-
-	// initialize index variable
-	{
-		// update first index
-		script::sInstruction code;
-		code.cmd = script::eCommand::seti;
-		code.str1 = MakeScopeName(node);
-		code.str2 = "Index";
-		code.reg1 = inReg0;
-		out.m_codes.push_back(code);
-	}
-
-	// initialize Last Index variable
-	{
-		// update first index
-		script::sInstruction code;
-		code.cmd = script::eCommand::seti;
-		code.str1 = MakeScopeName(node);
-		code.str2 = "Last Index";
-		code.reg1 = inReg1;
-		out.m_codes.push_back(code);
 	}
 
 	// insert for-loop condition jump label
@@ -1769,6 +1775,7 @@ bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
 		case ePinType::Int: code.cmd = script::eCommand::seti; break;
 		case ePinType::Float: code.cmd = script::eCommand::setf; break;
 		case ePinType::String: code.cmd = script::eCommand::sets; break;
+		case ePinType::Array: code.cmd = script::eCommand::seta; break;
 		default:
 			return false;
 		}
@@ -1788,6 +1795,7 @@ bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
 		case ePinType::Int: code.cmd = script::eCommand::geti; break;
 		case ePinType::Float: code.cmd = script::eCommand::getf; break;
 		case ePinType::String: code.cmd = script::eCommand::gets; break;
+		case ePinType::Array: code.cmd = script::eCommand::geta; break;
 		default:
 			return false;
 		}
@@ -1814,8 +1822,7 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 		// is exist symboltable?
 		// varname = node.name + node.id + pin.name
 		const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
-		script::cSymbolTable::sVar *var =
-			m_variables.FindVarInfo(name, pin.name);
+		script::sVariable *var = m_variables.FindVarInfo(name, pin.name);
 
 		if (var)
 		{
@@ -1826,6 +1833,7 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 			case ePinType::Int: code.cmd = script::eCommand::ldic; break;
 			case ePinType::Float: code.cmd = script::eCommand::ldfc; break;
 			case ePinType::String: code.cmd = script::eCommand::ldsc; break;
+			case ePinType::Array: code.cmd = script::eCommand::ldac; break;
 			default: return false;
 			}
 			code.var1 = var->var;
@@ -1850,6 +1858,10 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 			case ePinType::String: 
 				code.cmd = script::eCommand::ldsc; 
 				code.var1 = emptyStr;
+				break;
+			case ePinType::Array:
+				code.cmd = script::eCommand::ldac;
+				code.var1 = (int)0;
 				break;
 			default:
 				return false;

@@ -165,6 +165,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	reg.exeIdx = reg.idx;
 	sInstruction &code = m_code.m_codes[reg.idx];
+	const VARTYPE varType = GetVarType(code.cmd); // variant type
 
 	switch (code.cmd)
 	{
@@ -172,9 +173,10 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::ldic:
 	case eCommand::ldfc:
 	case eCommand::ldsc:
+	case eCommand::ldac:
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != code.var1.vt)
+		if (varType != code.var1.vt)
 			goto $error_semantic;
 		reg.val[code.reg1] = code.var1;
 		++reg.idx;
@@ -185,7 +187,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	{
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
-		const bool cmp = (code.cmd == eCommand::ldncmp)? !reg.cmp : reg.cmp;
+		const bool cmp = (code.cmd == eCommand::ldncmp) ? !reg.cmp : reg.cmp;
 		reg.val[code.reg1] = cmp ? variant_t((bool)true) : variant_t((bool)false);
 		++reg.idx;
 	}
@@ -208,7 +210,23 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
 		{
-			if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+			if (varType != reg.val[code.reg1].vt)
+				goto $error_semantic;
+			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
+	case eCommand::geta:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
+		{
+			const bool isArrayType = (reg.val[code.reg1].vt & VT_BYREF); // VT_ARRAY? ticky code
+			if (!isArrayType)
 				goto $error_semantic;
 			++reg.idx;
 		}
@@ -224,7 +242,22 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::sets:
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
+			goto $error_semantic;
+		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
+		{
+			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
+	case eCommand::seta:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
 			goto $error_semantic;
 		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
 		{
@@ -244,9 +277,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 		switch (code.cmd)
 		{
@@ -266,9 +299,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 		switch (code.cmd)
 		{
@@ -286,9 +319,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 		const string s0 = variant2str(reg.val[code.reg1]);
 		const string s1 = variant2str(reg.val[code.reg2]);
@@ -313,9 +346,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			// force converting int
 			reg.val[code.reg2] = ((bool)reg.val[code.reg2]) ? 1 : 0;
 		}
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1] == reg.val[code.reg2]);
@@ -328,9 +361,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 #if defined(_UNICODE)
@@ -353,9 +386,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			// force converting integer
 			reg.val[code.reg1] = ((bool)reg.val[code.reg1]) ? 1 : 0;
 		}
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != code.var1.vt)
+		if (varType != code.var1.vt)
 			goto $error_semantic;
 
 		reg.cmp = reg.val[code.reg1] == code.var1;
@@ -366,9 +399,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	{
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != code.var1.vt)
+		if (varType != code.var1.vt)
 			goto $error_semantic;
 
 		reg.cmp = reg.val[code.reg1] == code.var1;
@@ -382,9 +415,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].intVal < reg.val[code.reg2].intVal);
@@ -396,9 +429,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].fltVal < reg.val[code.reg2].fltVal);
@@ -410,9 +443,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].intVal <= reg.val[code.reg2].intVal);
@@ -424,9 +457,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].fltVal <= reg.val[code.reg2].fltVal);
@@ -438,9 +471,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].intVal > reg.val[code.reg2].intVal);
@@ -452,9 +485,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].fltVal > reg.val[code.reg2].fltVal);
@@ -466,9 +499,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].intVal >= reg.val[code.reg2].intVal);
@@ -480,9 +513,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			goto $error_memory;
 		if (ARRAYSIZE(reg.val) <= code.reg2)
 			goto $error_memory;
-		if (GetVarType(code.cmd) != reg.val[code.reg1].vt)
+		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
-		if (GetVarType(code.cmd) != reg.val[code.reg2].vt)
+		if (varType != reg.val[code.reg2].vt)
 			goto $error_semantic;
 
 		reg.cmp = (reg.val[code.reg1].fltVal >= reg.val[code.reg2].fltVal);

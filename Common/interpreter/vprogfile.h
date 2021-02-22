@@ -16,7 +16,7 @@
 //		- name string
 //		- value string
 //		- links num num num...
-//	- output pin
+//	- output
 //		- type string
 //		- id num
 //		- name string
@@ -119,7 +119,15 @@ namespace vprog
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 
 
+		bool AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
+		bool AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
+		bool AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
+		bool AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 		bool AddPin(const int parseState, sNode &node, const sPin &pin);
+		bool AddVariable2(const string &scopeName, const string &name
+			, const ePinType::Enum type, const string &typeStr
+			, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
+
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
 		string MakeScopeName(const sNode &node);
 		uint GetInputFlowCount(const sNode &node);

@@ -2,6 +2,10 @@
 // 2019-10-29, jjuiddong
 // interpreter symboltable
 //
+// 2020-02-21
+//	- add array variable type
+//	- reference https://codemuri.tistory.com/5
+//
 #pragma once
 
 
@@ -26,23 +30,26 @@ namespace common
 				vector<sEnum> enums;
 			};
 
-			// variable information
-			struct sVar {
-				string type; // special type string, Bool, Int, Float, String, Array~
-				variant_t var;
+			//// variable information
+			//struct sVar 
+			//{
+			//	int id; // unique id
+			//	string type; // special type string, Bool, Int, Float, String, Array~
+			//	variant_t var; // value
 
-				// array type
-				int subType0; // array element type, map key type (variant_t::VARTYPE)
-				int subType1; // map value type variant_t::VARTYPE)
-				uint arSize; // array size
-				variant_t *ar; // array
+			//	// array type
+			//	int subType0; // array element type, map key type (variant_t::VARTYPE)
+			//	int subType1; // map value type (variant_t::VARTYPE)
+			//	uint arSize; // array size
+			//	uint arCapacity; // array capacity
+			//	variant_t *ar; // array
 
-				sVar();
-				sVar(const sVar &rhs);
-				~sVar();
-				sVar& operator=(const sVar &rhs);
-				void Clear();
-			};
+			//	sVar();
+			//	sVar(const sVar &rhs);
+			//	~sVar();
+			//	sVar& operator=(const sVar &rhs);
+			//	void Clear();
+			//};
 
 
 			cSymbolTable();
@@ -65,7 +72,7 @@ namespace common
 			T Get(const string &scopeName, const string &symbolName);
 			bool Get(const string &scopeName, const string &symbolName, OUT variant_t &out);
 			
-			sVar* FindVarInfo(const string &scopeName, const string &symbolName);
+			sVariable* FindVarInfo(const string &scopeName, const string &symbolName);
 			bool IsExist(const string &scopeName, const string &symbolName);
 			bool RemoveVar(const string &scopeName, const string &symbolName);
 			
@@ -78,14 +85,19 @@ namespace common
 			void Clear();
 			cSymbolTable& operator=(const cSymbolTable &rhs);
 
+			static int GenID();
 			static string MakeScopeName(const string &name, const int id);
 			static std::pair<string, int> ParseScopeName(const string &scopeName);
 
 
 		public:
-			map<string, map<string, sVar>> m_vars; // key: scopeName
+			map<string, map<string, sVariable>> m_vars; // key: scopeName
 												   // value: varName, value
 			map<string, sSymbol*> m_symbols; // key: symbol name
+			map<int, std::pair<string,string>> m_varMap; // key: variable id, value: scopeName, varName
+														 // for array type
+
+			static std::atomic_int s_genId;
 		};
 
 
@@ -125,11 +137,11 @@ namespace common
 			, const T(&var)[N], const string &typeStr //= ""
 			)
 		{			
-			sVar arVar;
+			sVariable arVar;
 			arVar.type = "Array";
 			arVar.arSize = N;
 			arVar.ar = (N > 0) ? new variant_t[N] : nullptr;
-			for (int i = 0; i < N; ++i)
+			for (uint i = 0; i < N; ++i)
 				arVar.ar[i] = var[i];
 			m_vars[scopeName][symbolName] = arVar;
 			return true;

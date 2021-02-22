@@ -241,6 +241,9 @@
     <ClInclude Include="etc\json.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\variable.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -398,6 +401,9 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="interpreter\vprogjsonfile.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\variable.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>

@@ -151,7 +151,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 				for (auto &kv1 : vm->m_symbTable.m_vars)
 				{
 					// tricky code, packet buffer overflow
-					if (symbolCount >= 20)
+					if (symbolCount >= 15)
 						break;
 					symbolCount++;
 
@@ -159,7 +159,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 					for (auto &kv2 : kv1.second)
 					{
 						const string &name = kv2.first;
-						const script::cSymbolTable::sVar &var = kv2.second;
+						const script::sVariable &var = kv2.second;
 						symbols.push_back(script::sSyncSymbol(&scope, &name, &var.var));
 					}
 				}

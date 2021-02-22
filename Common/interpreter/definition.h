@@ -13,10 +13,10 @@ namespace common
 		// intermediate code command
 		DECLARE_ENUM( eCommand,
 			none,
-			ldbc, ldic, ldfc, ldsc,
+			ldbc, ldic, ldfc, ldsc, ldac,
 			ldcmp, ldncmp, ldtim,
-			getb, geti, getf, gets,
-			setb, seti, setf, sets,
+			getb, geti, getf, gets, geta,
+			setb, seti, setf, sets, seta,
 			addi, addf, adds,
 			subi, subf,
 			muli, mulf,
@@ -71,10 +71,12 @@ namespace common
 		// geti scope_name, varname, register_name ;load register int type value from symboltable
 		// getf scope_name, varname, register_name ;load register float type value from symboltable
 		// gets scope_name, varname, register_name ;load register string type value from symboltable
+		// geta scope_name, varname, register_name ;load register array type value from symboltable
 		// setb scope_name, varname, register_name ;store bool type value to symboltable
 		// seti scope_name, varname, register_name ;store int type value to symboltable
 		// setf scope_name, varname, register_name ;store float type value to symboltable
 		// sets scope_name, varname, register_name ;store string type value to symboltable
+		// seta scope_name, varname, register_name ;store array type value to symboltable
 		// addi register_name1, register_name2 ;add 2 register int type, store register9
 		// addf register_name1, register_name2 ;add 2 register float type, store register9
 		// subi register_name1, register_name2 ;subtract 2 register int type, store register9
