@@ -125,6 +125,11 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.reg1 = GetRegisterIndex(toks[1]);
 			code.reg2 = GetRegisterIndex(toks[2]);
 		}
+		else if ((toks[0] == "negate") && (toks.size() >= 2))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
+		}
 		else if (((toks[0] == "eqic")
 			|| (toks[0] == "eqfc")
 			|| (toks[0] == "eqsc"))
@@ -349,6 +354,11 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << GetRegisterName(code.reg2);
+			break;
+
+		case eCommand::negate:
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
 			break;
 
 		case eCommand::eqic:

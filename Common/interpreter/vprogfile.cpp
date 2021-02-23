@@ -544,43 +544,43 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 
 	// get input variable
 	const uint reg = 0;
-	const sPin *inputPin = nullptr;
-	for (auto &pin : node.inputs)
-	{
-		switch (pin.type)
-		{
-		case ePinType::Flow:
-		case ePinType::Function:
-		case ePinType::Delegate:
-			continue;
-		}
+	GenerateCode_NodeInput(node, reg, true, out);
+	//for (auto &pin : node.inputs)
+	//{
+	//	switch (pin.type)
+	//	{
+	//	case ePinType::Flow:
+	//	case ePinType::Function:
+	//	case ePinType::Delegate:
+	//		continue;
+	//	}
 
-		sNode *prev = nullptr; // prev node
-		sPin *pp = nullptr; // prev pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(prev, pp) = FindContainPin(linkId);
-		if (prev)
-		{
-			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, pin, out);
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (prev)
+	//	{
+	//		//if (m_visit.end() == m_visit.find(prev->id))
+	//		//	GenerateCode_Node(nullNode, *prev, pin, out);
+	//		//GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+	//		GenerateCode_Pin(node, pin, reg, out); // set data to input pin
+	//		//GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+	//	}
+	//	else
+	//	{
+	//		// load temporal variable
+	//		//GenerateCode_TemporalPin(node, pin, reg, out);
+	//		GenerateCode_Pin(node, pin, reg, out); // set data to input pin
+	//	}
 
-			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
-			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
-		}
-		else
-		{
-			// load temporal variable
-			GenerateCode_TemporalPin(node, pin, reg, out);
-			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
-		}
-
-		inputPin = &pin;
-	}
+	//	inputPin = &pin;
+	//}
 
 	// Known function?
 	if (node.name == "Set")
 	{
+		const sPin *inputPin = GetInputPin(node, { "in" });
 		if (inputPin)
 		{
 			script::sInstruction code;
@@ -692,7 +692,6 @@ bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
 		GenerateCode_ForLoop(prevNode, node, fromPin, out);
 	else if (node.name == "Sequence")
 		GenerateCode_Sequence(prevNode, node, fromPin, out);
-
 	return true;
 }
 
@@ -706,41 +705,43 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 		return true;
 
 	// get input variable
-	uint reg = 0;
+	//uint reg = 0;
 	uint condReg = 0; // condition register
-	for (auto &pin : node.inputs)
-	{
-		switch (pin.type)
-		{
-		case ePinType::Flow:
-		case ePinType::Function:
-		case ePinType::Delegate:
-			continue;
-		}
+	GenerateCode_NodeInput(node, 0, false, out);
 
-		sNode *prev = nullptr; // prev node
-		sPin *pp = nullptr; // prev pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(prev, pp) = FindContainPin(linkId);
-		if (prev)
-		{
-			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, pin, out);
+	//for (auto &pin : node.inputs)
+	//{
+	//	switch (pin.type)
+	//	{
+	//	case ePinType::Flow:
+	//	case ePinType::Function:
+	//	case ePinType::Delegate:
+	//		continue;
+	//	}
 
-			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
-			++reg;
-		}
-		else
-		{
-			// load temporal variable
-			GenerateCode_TemporalPin(node, pin, reg, out);
-			++reg;
-		}
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (prev)
+	//	{
+	//		if (m_visit.end() == m_visit.find(prev->id))
+	//			GenerateCode_Node(nullNode, *prev, pin, out);
 
-		if (pin.name == "Condition")
-			condReg = reg - 1;
-	}
+	//		GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+	//		GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+	//		++reg;
+	//	}
+	//	else
+	//	{
+	//		// load temporal variable
+	//		GenerateCode_TemporalPin(node, pin, reg, out);
+	//		++reg;
+	//	}
+
+	//	if (pin.name == "Condition")
+	//		condReg = reg - 1;
+	//}
 
 	// insert branch code
 
@@ -848,34 +849,39 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
+	GenerateCode_NodeInput(node, 0, false, out);
+
 	// get input variable
-	const sPin *selPin = nullptr;
-	for (auto &pin : node.inputs)
-	{
-		if ((pin.name != "Selection") && (pin.name != "in"))
-			continue;
+	const sPin *selPin = GetInputPin(node, { "in", "Selection" });
 
-		sNode *prev = nullptr; // prev node
-		sPin *pp = nullptr; // prev pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(prev, pp) = FindContainPin(linkId);
-		if (prev)
-		{
-			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, pin, out);
 
-			selPin = &pin;
-			GenerateCode_Pin(*prev, *pp, 0, out); // get data from prev output pin
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
-		}
-		else
-		{
-			// load temporal variable
-			selPin = &pin;
-			GenerateCode_TemporalPin(node, pin, 0, out);
-		}
-		break;
-	}
+	//for (auto &pin : node.inputs)
+	//{
+	//	if ((pin.name != "Selection") && (pin.name != "in"))
+	//		continue;
+
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (prev)
+	//	{
+	//		if (m_visit.end() == m_visit.find(prev->id))
+	//			GenerateCode_Node(nullNode, *prev, pin, out);
+
+	//		selPin = &pin;
+	//		GenerateCode_Pin(*prev, *pp, 0, out); // get data from prev output pin
+	//		GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+	//	}
+	//	else
+	//	{
+	//		// load temporal variable
+	//		selPin = &pin;
+	//		GenerateCode_TemporalPin(node, pin, 0, out);
+	//	}
+	//	break;
+	//}
+
 
 	if (!selPin)
 		return false; // error occurred!!
@@ -1034,41 +1040,43 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 	}
 
 	// get input variable
-	uint reg = 0;
+	//uint reg = 0;
 	uint condReg = 0; // condition register
-	for (auto &pin : node.inputs)
-	{
-		switch (pin.type)
-		{
-		case ePinType::Flow:
-		case ePinType::Function:
-		case ePinType::Delegate:
-			continue;
-		}
+	GenerateCode_NodeInput(node, 0, false, out);
 
-		sNode *prev = nullptr; // prev node
-		sPin *pp = nullptr; // prev pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(prev, pp) = FindContainPin(linkId);
-		if (prev)
-		{
-			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, pin, out);
+	//for (auto &pin : node.inputs)
+	//{
+	//	switch (pin.type)
+	//	{
+	//	case ePinType::Flow:
+	//	case ePinType::Function:
+	//	case ePinType::Delegate:
+	//		continue;
+	//	}
 
-			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
-			++reg;
-		}
-		else
-		{
-			// load temporal variable
-			GenerateCode_TemporalPin(node, pin, reg, out);
-			++reg;
-		}
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (prev)
+	//	{
+	//		if (m_visit.end() == m_visit.find(prev->id))
+	//			GenerateCode_Node(nullNode, *prev, pin, out);
 
-		if (pin.name == "Condition")
-			condReg = reg - 1;
-	}
+	//		GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+	//		GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+	//		++reg;
+	//	}
+	//	else
+	//	{
+	//		// load temporal variable
+	//		GenerateCode_TemporalPin(node, pin, reg, out);
+	//		++reg;
+	//	}
+
+	//	if (pin.name == "Condition")
+	//		condReg = reg - 1;
+	//}
 
 	// insert while code
 
@@ -1184,69 +1192,89 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
 		return true;
 
+	GenerateCode_NodeInput(node, 0, true, out);
+
 	// get input variable
-	uint reg = 0;
-	uint inReg0 = 0; // first index register
-	uint inReg1 = 0; // first index register
-	const sNode *in0_prev = nullptr; // first index pin
-	const sPin *in0_prevp = nullptr;
-	const sPin *in0_nextp = nullptr;
-	const sNode *in1_prev = nullptr; // last index pin
-	const sPin *in1_prevp = nullptr;
-	const sPin *in1_nextp = nullptr;
+	//uint reg = 0;
+	//uint inReg0 = 0; // first index register
+	//uint inReg1 = 0; // first index register
+	//const sNode *in0_prev = nullptr; // first index pin
+	//const sPin *in0_prevp = nullptr;
+	//const sPin *in0_nextp = nullptr;
+	//const sNode *in1_prev = nullptr; // last index pin
+	//const sPin *in1_prevp = nullptr;
+	//const sPin *in1_nextp = nullptr;
 
-	for (auto &pin : node.inputs)
+	//for (auto &pin : node.inputs)
+	//{
+	//	switch (pin.type)
+	//	{
+	//	case ePinType::Flow:
+	//	case ePinType::Function:
+	//	case ePinType::Delegate:
+	//		continue;
+	//	}
+
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (prev)
+	//	{
+	//		if (m_visit.end() == m_visit.find(prev->id))
+	//			GenerateCode_Node(nullNode, *prev, pin, out);
+
+	//		GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+	//		GenerateCode_Pin(node, pin, reg, out); // set data to input pin
+	//		GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+	//		++reg;
+	//	}
+	//	else
+	//	{
+	//		// load temporal variable
+	//		GenerateCode_TemporalPin(node, pin, reg, out);
+	//		++reg;
+	//	}
+
+	//	if (pin.name == "First Index")
+	//	{
+	//		in0_prev = prev;
+	//		in0_prevp = pp;
+	//		inReg0 = reg - 1;
+
+	//		// initialize index variable
+	//		script::sInstruction code;
+	//		code.cmd = script::eCommand::seti;
+	//		code.str1 = MakeScopeName(node);
+	//		code.str2 = "Index";
+	//		code.reg1 = inReg0;
+	//		out.m_codes.push_back(code);
+	//	}
+	//	if (pin.name == "Last Index")
+	//	{
+	//		in1_prev = prev;
+	//		in1_prevp = pp;
+	//		in1_nextp = &pin;
+	//		inReg1 = reg - 1;
+	//	}
+	//}
+
+	// initialize index variable (First Index -> Index)
 	{
-		switch (pin.type)
-		{
-		case ePinType::Flow:
-		case ePinType::Function:
-		case ePinType::Delegate:
-			continue;
-		}
-
-		sNode *prev = nullptr; // prev node
-		sPin *pp = nullptr; // prev pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(prev, pp) = FindContainPin(linkId);
-		if (prev)
-		{
-			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, pin, out);
-
-			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
-			GenerateCode_Pin(node, pin, reg, out); // set data to input pin
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
-			++reg;
-		}
-		else
-		{
-			// load temporal variable
-			GenerateCode_TemporalPin(node, pin, reg, out);
-			++reg;
-		}
-
-		if (pin.name == "First Index")
-		{
-			in0_prev = prev;
-			in0_prevp = pp;
-			inReg0 = reg - 1;
-
-			// initialize index variable
-			script::sInstruction code;
-			code.cmd = script::eCommand::seti;
-			code.str1 = MakeScopeName(node);
-			code.str2 = "Index";
-			code.reg1 = inReg0;
-			out.m_codes.push_back(code);
-		}
-		if (pin.name == "Last Index")
-		{
-			in1_prev = prev;
-			in1_prevp = pp;
-			in1_nextp = &pin;
-			inReg1 = reg - 1;
-		}
+		script::sInstruction code;
+		code.cmd = script::eCommand::geti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "First Index";
+		code.reg1 = 0;
+		out.m_codes.push_back(code);
+	}
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::seti;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "Index";
+		code.reg1 = 0;
+		out.m_codes.push_back(code);
 	}
 
 	// insert for-loop condition jump label
@@ -1258,7 +1286,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 	}
 
 	// insert condition code
-	if (!in0_prev || !in0_prevp || !in1_prev || !in1_prevp || !in1_nextp)
+	//if (!in0_prev || !in0_prevp || !in1_prev || !in1_prevp || !in1_nextp)
 	{
 		// modify: 2020-12-03
 		// replace for loop inner variable (first, last index)
@@ -1466,43 +1494,62 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Operator, false);
-	// operator always calc
+	// modify: operator always calc
 	//RETV(m_visit.find(node.id) != m_visit.end(), false);
 	//m_visit.insert(node.id);
 
-	// get input variable
-	uint reg = 8;
-	for (auto &pin : node.inputs)
-	{
-		switch (pin.type)
-		{
-		case ePinType::Flow:
-		case ePinType::Function:
-		case ePinType::Delegate:
-			continue;
-		}
+	GenerateCode_NodeInput(node, 8, false, out);
 
-		sNode *prev = nullptr; // prev node
-		sPin *pp = nullptr; // prev pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(prev, pp) = FindContainPin(linkId);
-		if (prev)
-		{
-			if (m_visit.end() == m_visit.find(prev->id))
-				GenerateCode_Node(nullNode, *prev, pin, out);
+	// calc input pin node
+	//for (auto &pin : node.inputs)
+	//{
+	//	switch (pin.type)
+	//	{
+	//	case ePinType::Flow:
+	//	case ePinType::Function:
+	//	case ePinType::Delegate:
+	//		continue;
+	//	}
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (!prev)
+	//		continue;
+	//	if (m_visit.end() == m_visit.find(prev->id))
+	//		GenerateCode_Node(nullNode, *prev, pin, out);
+	//}
 
-			GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
-			++reg;
-		}
-		else
-		{
-			// load temporal variable
-			GenerateCode_TemporalPin(node, pin, reg, out);
-			++reg;
-		}
-	}
+	//// load operator input pin
+	//uint reg = 8;
+	//for (auto &pin : node.inputs)
+	//{
+	//	switch (pin.type)
+	//	{
+	//	case ePinType::Flow:
+	//	case ePinType::Function:
+	//	case ePinType::Delegate:
+	//		continue;
+	//	}
 
+	//	sNode *prev = nullptr; // prev node
+	//	sPin *pp = nullptr; // prev pin
+	//	const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//	std::tie(prev, pp) = FindContainPin(linkId);
+	//	if (prev)
+	//	{
+	//		GenerateCode_Pin(*prev, *pp, reg, out); // get data from prev output pin
+	//		GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+	//		++reg;
+	//	}
+	//	else
+	//	{
+	//		// load temporal variable
+	//		GenerateCode_TemporalPin(node, pin, reg, out);
+	//		++reg;
+	//	}
+	//}
+	//
 	// get operator type (by input pin type)
 	VARTYPE vt = VT_EMPTY;
 	for (auto &pin : node.inputs)
@@ -1512,8 +1559,8 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			break;
 	}
 
-	bool isMathOp = false; // +-*/
-	bool isNegate = false; // !=
+	int opType = 0; // mathOp:0, CompareOp:1, Negate:2
+	bool isNegateCmp = false; // !=
 
 	// insert compare code
 	if (node.name == "<")
@@ -1531,6 +1578,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		opType = 1;
 	}
 	else if (node.name == "<=")
 	{
@@ -1547,6 +1595,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		opType = 1;
 	}
 	else if (node.name == ">")
 	{
@@ -1563,6 +1612,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		opType = 1;
 	}
 	else if (node.name == ">=")
 	{
@@ -1579,28 +1629,12 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		opType = 1;
 	}
-	else if (node.name == "==")
+	else if ((node.name == "==") || (node.name == "!="))
 	{
-		script::sInstruction code;
-		switch (vt)
-		{
-		case VT_BOOL:
-		case VT_INT: code.cmd = script::eCommand::eqi; break;
-		case VT_R4: code.cmd = script::eCommand::eqf; break;
-		case VT_BSTR: code.cmd = script::eCommand::eqs; break;
-		default:
-			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
-			break;
-		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
-		out.m_codes.push_back(code);
-	}
-	else if (node.name == "!=")
-	{
-		isNegate = true;
+		if (node.name == "!=")
+			isNegateCmp = true;
 
 		script::sInstruction code;
 		switch (vt)
@@ -1617,6 +1651,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
+		opType = 1;
 	}
 	else if (node.name == "+")
 	{
@@ -1635,7 +1670,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
-		isMathOp = true;
+		opType = 0;
 	}
 	else if (node.name == "-")
 	{
@@ -1653,7 +1688,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
-		isMathOp = true;
+		opType = 0;
 	}
 	else if ((node.name == "X") || (node.name == "x") || (node.name == "*"))
 	{
@@ -1671,7 +1706,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
-		isMathOp = true;
+		opType = 0;
 	}
 	else if (node.name == "/")
 	{
@@ -1689,11 +1724,19 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
-		isMathOp = true;
+		opType = 0;
 	}
-	
+	else if (node.name == "!")
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::negate;
+		code.reg1 = 8; // val8
+		out.m_codes.push_back(code);
+		opType = 2;
+	}
+
 	// compare operator? load compare flag
-	if (isMathOp)
+	if (0 == opType) // math operator?
 	{
 		// insert calculate data to symboltable
 		{
@@ -1715,11 +1758,11 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			out.m_codes.push_back(code);
 		}
 	}
-	else // compare operator?
+	else if (1 == opType)// compare operator?
 	{
 		{
 			script::sInstruction code;
-			code.cmd = isNegate? script::eCommand::ldncmp : script::eCommand::ldcmp;
+			code.cmd = isNegateCmp? script::eCommand::ldncmp : script::eCommand::ldcmp;
 			code.reg1 = 9;
 			out.m_codes.push_back(code);
 		}
@@ -1733,6 +1776,15 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			code.reg1 = 9;
 			out.m_codes.push_back(code);
 		}
+	}
+	else if (2 == opType) // negate operator?
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::setb;
+		code.str1 = MakeScopeName(node);
+		code.str2 = "O";
+		code.reg1 = 9;
+		out.m_codes.push_back(code);
 	}
 
 	return true;
@@ -1929,7 +1981,6 @@ bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
 	return true;
 }
 
-
 // if return false, multiple enter, no need generate this node code
 bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
@@ -1947,7 +1998,7 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 	}
 
 	// check macro function
-	// no input flow slot? macro function
+	// no input flow slot? macro function!
 	const bool isFunction = (node.inputs.size() > 0) && (node.inputs[0].type == ePinType::Flow);
 	if (isFunction)
 		m_visit.insert(node.id);
@@ -1961,6 +2012,62 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 		out.m_codes.push_back(code);
 	}
 
+	return true;
+}
+
+
+// generate node input pin code
+// reg: load input pin variable register
+// isUpdateInputPin: set input pin symbol table
+bool cVProgFile::GenerateCode_NodeInput(const sNode &node, const uint reg
+	, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out)
+{
+	// calc input pin node
+	for (auto &pin : node.inputs)
+	{
+		if (IsIgnoreInputPin(pin.type))
+			continue;
+
+		sNode *prev = nullptr; // prev node
+		sPin *pp = nullptr; // prev pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(prev, pp) = FindContainPin(linkId);
+		if (!prev)
+			continue;
+
+		if (m_visit.end() == m_visit.find(prev->id))
+			GenerateCode_Node(nullNode, *prev, pin, out);
+	}
+
+	// load register prev node output pin
+	// isUpdateInputPin == true? store node input symboltable
+	uint r = reg; // start register number
+	for (auto &pin : node.inputs)
+	{
+		if (IsIgnoreInputPin(pin.type))
+			continue;
+
+		sNode *prev = nullptr; // prev node
+		sPin *pp = nullptr; // prev pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(prev, pp) = FindContainPin(linkId);
+		if (prev)
+		{
+			GenerateCode_Pin(*prev, *pp, r, out); // load register from prev output pin
+			if (isUpdateInputPin)
+				GenerateCode_Pin(node, pin, r, out); // store data to input pin symboltable
+			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+			++r;
+		}
+		else
+		{
+			// load temporal variable
+			GenerateCode_TemporalPin(node, pin, r, out);
+			if (isUpdateInputPin)
+				GenerateCode_Pin(node, pin, r, out); // store data to input pin symboltable
+			++r;
+		}
+	}
 	return true;
 }
 
@@ -2018,9 +2125,35 @@ uint cVProgFile::GetInputFlowCount(const sNode &node)
 			cnt = pin.links.size();
 			break;
 		}
-	}
-			
+	}			
 	return cnt;
+}
+
+
+// return matching name in node input pin 
+const cVProgFile::sPin* cVProgFile::GetInputPin(const sNode &node, const vector<string> &names)
+{
+	for (auto &pin : node.inputs)
+	{
+		auto it = std::find(names.begin(), names.end(), pin.name);
+		if (names.end() != it)
+			return &pin;
+	}
+	return nullptr;
+}
+
+
+// is ignore generate code? especially input pin
+bool cVProgFile::IsIgnoreInputPin(const ePinType::Enum type)
+{
+	switch (type)
+	{
+	case ePinType::Flow:
+	case ePinType::Function:
+	case ePinType::Delegate:
+		return true;
+	}
+	return false;
 }
 
 

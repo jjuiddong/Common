@@ -313,6 +313,15 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		++reg.idx;
 		break;
 
+	case eCommand::negate:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (varType != reg.val[code.reg1].vt)
+			goto $error_semantic;
+		reg.val[9] = !((bool)reg.val[code.reg1]);
+		++reg.idx;
+		break;
+
 	case eCommand::adds:
 	{
 		if (ARRAYSIZE(reg.val) <= code.reg1)

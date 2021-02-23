@@ -117,7 +117,8 @@ namespace vprog
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-
+		bool GenerateCode_NodeInput(const sNode &node, const uint reg
+			, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out);
 
 		bool AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 		bool AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
@@ -131,6 +132,9 @@ namespace vprog
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
 		string MakeScopeName(const sNode &node);
 		uint GetInputFlowCount(const sNode &node);
+		const sPin* GetInputPin(const sNode &node, const vector<string> &names);
+		bool IsIgnoreInputPin(const ePinType::Enum type);
+
 		bool Write_Node(std::ostream &ofs, sNode &node);
 		bool Write_Define(std::ostream &ofs, sNode &node);
 

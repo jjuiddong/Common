@@ -21,11 +21,12 @@ namespace common
 			subi, subf,
 			muli, mulf,
 			divi, divf,
+			negate,
 			eqi, eqf, eqs,
 			eqic, eqfc, eqsc,
 			lesi, lesf, leqi, leqf,
 			gri, grf, greqi, greqf,
-			call, jnz, jmp, label,
+			call, jnz, jmp, label, 
 			symbolb, symboli, symbolf, symbols,
 			symbolab, symbolai, symbolaf, symbolas,
 			timer1, timer2,
@@ -64,6 +65,7 @@ namespace common
 		// ldic register_name, value ;load constant int type value
 		// ldfc register_name, value ;load constant float type value
 		// ldsc register_name, value ;load constant string type value
+		// ldac register_name, value ;load constant array type value
 		// ldcmp register_name ;load compare flag, bool type value
 		// ldncmp register_name ;load negate compare flag, bool type value
 		// ldtim register_name ;load time flag from register, float type value
@@ -83,8 +85,9 @@ namespace common
 		// subf register_name1, register_name2 ;subtract 2 register float type, store register9
 		// muli register_name1, register_name2 ;multiply 2 register int type, store register9
 		// mulf register_name1, register_name2 ;multiply 2 register float type, store register9
-		// divi register_name1, register_name2 ;multiply 2 register int type, store register9
-		// divf register_name1, register_name2 ;multiply 2 register float type, store register9
+		// divi register_name1, register_name2 ;divide 2 register int type, store register9
+		// divf register_name1, register_name2 ;divide 2 register float type, store register9
+		// negate register_name1 ;negate register bool type, store register9
 		// eqi register_name1, register_name2 ;compare 2 register int type, if equal, cmp register true
 		// eqf register_name1, register_name2 ;compare 2 register float type, if equal, cmp register true
 		// eqs register_name1, register_name2 ;compare 2 register string type, if equal, cmp register true
