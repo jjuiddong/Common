@@ -8,9 +8,6 @@ using namespace common::script;
 std::atomic_int cSymbolTable::s_genId = 1;
 
 
-//--------------------------------------------------------------------------
-//cSymbolTable
-//--------------------------------------------------------------------------
 cSymbolTable::cSymbolTable()
 {
 }
@@ -44,23 +41,44 @@ bool cSymbolTable::SetArray(const string &scopeName, const string &symbolName
 	, const string &typeStr //= ""
 )
 {
-	sVariable arVar;
-	arVar.type = "Array";
+	sVariable *variable = nullptr;
+	auto it1 = m_vars.find(scopeName);
+	if (it1 != m_vars.end())
+	{
+		auto it2 = it1->second.find(symbolName);
+		if (it2 != it1->second.end())
+		{
+			// already exist symbol
+			variable = &it2->second;
+		}
+	}
 
-	// array tricky code, no memory allocate
-	// no VT_ARRAY type, because reduce array copy time
-	arVar.var.vt = VT_BYREF | var.vt;
+	if (variable && (variable->type == "Array"))
+	{
+		variable->var.vt = VT_BYREF | var.vt;
+		variable->subType0 = var.vt; // array element type
+		variable->ClearArray();
+	}
+	else
+	{
+		sVariable arVar;
+		arVar.type = "Array";
 
-	arVar.subType0 = var.vt; // array element type
-	arVar.arSize = 0;
-	arVar.ar = nullptr;
-	m_vars[scopeName][symbolName] = arVar;
+		// array tricky code, no memory allocate
+		// no VT_ARRAY type, because reduce array copy time
+		arVar.var.vt = VT_BYREF | var.vt;
 
-	sVariable &variable = m_vars[scopeName][symbolName];
-	variable.var.intVal = variable.id;
+		arVar.subType0 = var.vt; // array element type
+		arVar.arSize = 0;
+		arVar.ar = nullptr;
+		m_vars[scopeName][symbolName] = arVar;
 
-	// add fast var search mapping
-	m_varMap[variable.id] = { scopeName, symbolName };
+		sVariable &variable = m_vars[scopeName][symbolName];
+		variable.var.intVal = variable.id;
+
+		// add fast var search mapping
+		m_varMap[variable.id] = { scopeName, symbolName };
+	}
 	return true;
 }
 

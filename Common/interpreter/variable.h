@@ -20,6 +20,7 @@ namespace common
 			bool SetArrayElement(const uint index, const variant_t &v);
 			bool PushArrayElement(const variant_t &v);
 			variant_t& PopArrayElement();
+			bool ReserveArray(const uint size);
 
 			sVariable& operator=(const sVariable &rhs);
 			void Clear();

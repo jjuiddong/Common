@@ -1466,8 +1466,9 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Operator, false);
-	RETV(m_visit.find(node.id) != m_visit.end(), false);
-	m_visit.insert(node.id);
+	// operator always calc
+	//RETV(m_visit.find(node.id) != m_visit.end(), false);
+	//m_visit.insert(node.id);
 
 	// get input variable
 	uint reg = 8;
@@ -1945,7 +1946,11 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 		return false;
 	}
 
-	m_visit.insert(node.id);
+	// check macro function
+	// no input flow slot? macro function
+	const bool isFunction = (node.inputs.size() > 0) && (node.inputs[0].type == ePinType::Flow);
+	if (isFunction)
+		m_visit.insert(node.id);
 
 	// if multiple flow link, insert node jump label
 	if (GetInputFlowCount(node) >= 2)

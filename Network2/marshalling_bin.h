@@ -179,6 +179,11 @@ namespace network2
 		case VT_UINT:
 			packet.Write4ByteAlign();
 			break;
+		default:
+			// tricky code, reference type use integer value
+			if (rhs.vt & VT_BYREF)
+				packet.Write4ByteAlign();
+			break;
 		}
 
 		switch (rhs.vt)
@@ -209,6 +214,9 @@ namespace network2
 		break;
 
 		default:
+			// tricky code, reference type send integer value
+			if (rhs.vt & VT_BYREF)
+				packet << (int)rhs.intVal;
 			break;
 		}
 		return packet;
@@ -361,6 +369,11 @@ namespace network2
 		case VT_UINT:
 			packet.Read4ByteAlign();
 			break;
+		default:
+			// tricky code, reference type has integer value
+			if (out.vt & VT_BYREF)
+				packet.Read4ByteAlign();
+			break;
 		}
 
 		switch (out.vt)
@@ -401,6 +414,9 @@ namespace network2
 		break;
 
 		default:
+			// tricky code, reference type has interger value
+			if (out.vt & VT_BYREF)
+				packet >> (out.intVal);
 			break;
 		}
 		return packet;

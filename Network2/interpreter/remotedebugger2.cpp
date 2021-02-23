@@ -153,11 +153,15 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 					// tricky code, packet buffer overflow
 					if (symbolCount >= 15)
 						break;
-					symbolCount++;
 
 					const string &scope = kv1.first;
 					for (auto &kv2 : kv1.second)
 					{
+						// tricky code, packet buffer overflow
+						if (symbolCount >= 15)
+							break;
+						symbolCount++;
+
 						const string &name = kv2.first;
 						const script::sVariable &var = kv2.second;
 						symbols.push_back(script::sSyncSymbol(&scope, &name, &var.var));
@@ -287,7 +291,7 @@ bool cRemoteDebugger2::UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packe
 bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet)
 {
 	// tricky code, marshalling intermedatecode to byte stream
-	const uint BUFFER_SIZE = 1024 * 10;
+	const uint BUFFER_SIZE = 1024 * 50;
 	BYTE *buff = new BYTE[BUFFER_SIZE];
 	cPacket marsh(m_client.GetPacketHeader());
 	marsh.m_data = buff;

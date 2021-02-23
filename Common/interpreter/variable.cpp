@@ -76,15 +76,8 @@ bool sVariable::PushArrayElement(const variant_t &v)
 	else
 	{
 		const uint size = (arSize == 0) ? 1 : arSize * 2;
-		variant_t *newAr = new variant_t[size];
-		for (uint i = 0; i < arSize; ++i)
-			newAr[i] = ar[i];
-		newAr[arSize] = v;
-		const uint tmp = arSize + 1;
-		ClearArrayMemory();
-		ar = newAr;
-		arSize = tmp;
-		arCapacity = size;
+		ReserveArray(size);
+		ar[arSize++] = v;
 	}
 	return true;
 }
@@ -95,7 +88,7 @@ variant_t& sVariable::PopArrayElement()
 {
 	if (arSize > 0)
 	{
-		return ar[arSize--];
+		return ar[--arSize];
 	}
 	else
 	{
@@ -112,12 +105,30 @@ variant_t& sVariable::PopArrayElement()
 }
 
 
+// reserve array memory
+bool sVariable::ReserveArray(const uint size)
+{
+	if (arCapacity > size)
+		return false;
+
+	variant_t *newAr = new variant_t[size];
+	for (uint i = 0; i < arSize; ++i)
+		newAr[i] = ar[i];
+	const uint tmp = arSize;
+	ClearArrayMemory();
+	ar = newAr;
+	arSize = tmp;
+	arCapacity = size;
+	return true;
+}
+
+
 // assign operator
 sVariable& sVariable::operator=(const sVariable &rhs) 
 {
 	if (this != &rhs)
 	{
-		Clear();
+		ClearArray();
 		type = rhs.type;
 		var = rhs.var;
 		subType0 = rhs.subType0;
@@ -129,18 +140,17 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 			var.intVal = id;
 
 		if (rhs.arSize > 0) {
-			arSize = rhs.arSize;
-			arCapacity = rhs.arSize;
-			ar = new variant_t[rhs.arSize];
+			ReserveArray(rhs.arSize);
 			for (uint i = 0; i < rhs.arSize; ++i)
 				ar[i] = rhs.ar[i];
+			arSize = rhs.arSize;
 		}
 	}
 	return *this;
 }
 
 
-// clear variable
+// clear variable, delete allocated memory 
 void sVariable::Clear() 
 {
 	common::clearvariant(var);

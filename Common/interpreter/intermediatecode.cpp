@@ -80,6 +80,16 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			if (vt == VT_EMPTY)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
+		else if ((toks[0] == "ldac")
+			&& (toks.size() >= 3))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
+			const VARTYPE vt = common::script::GetVarType(code.cmd);
+			code.var1 = common::str2variant(vt, toks[2]);
+			if (vt == VT_EMPTY)
+				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
+		}
 		else if (((toks[0] == "ldcmp")
 			|| (toks[0] == "ldncmp")
 			|| (toks[0] == "ldtim"))
