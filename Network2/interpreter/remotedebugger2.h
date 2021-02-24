@@ -9,6 +9,10 @@
 //		- remote work
 //		- webserver work
 //
+// 2021-02-24
+//	- change variable synchronize
+//	- streaming
+//
 #pragma once
 
 #include "Src/remotedbg2_Protocol.h"
@@ -22,6 +26,14 @@ namespace network2
 	{
 	public:
 		enum class eDebugMode { None, Host, Remote };
+
+		// synchronize symbol to check change variable
+		// only change variable synchroinizing
+		struct sSymbol {
+			StrId name; // symbol name
+			float t; // sync time
+			common::script::sVariable var; // compare variable
+		};
 
 		cRemoteDebugger2();
 		virtual ~cRemoteDebugger2();
@@ -49,6 +61,7 @@ namespace network2
 
 	protected:
 		bool SendSyncVMRegister();
+		bool SendSyncSymbolTable();
 
 		// remotedbg2 protocol hander
 		virtual bool Welcome(remotedbg2::Welcome_Packet &packet) override;
@@ -81,6 +94,9 @@ namespace network2
 		float m_regSyncTime; // register sync time
 		float m_instSyncTime; // instruction sync time
 		float m_symbSyncTime; // symboltable sync time
+
+		// detect change variable
+		map<string, sSymbol> m_symbols;
 	};
 
 }

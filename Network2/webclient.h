@@ -45,6 +45,7 @@ namespace network2
 		virtual int SendAll(const cPacket &packet) override { return 0; }
 		virtual int SendPacket(const SOCKET sock, const cPacket &packet);
 
+
 	protected:
 		bool ConnectServer();
 		static int ThreadFunction(cWebClient *client);

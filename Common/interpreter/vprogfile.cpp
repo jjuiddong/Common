@@ -9,6 +9,7 @@ const static cVProgFile::sNode nullNode = { 0, };
 
 
 cVProgFile::cVProgFile()
+	: m_jmpLabelSeedId(0)
 {
 }
 
@@ -490,6 +491,9 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 	const string labelName = node.labelName.empty() ?
 		common::format("%s-%d", node.name.c_str(), node.id) : node.labelName;
 	out.m_codes.push_back({ script::eCommand::label, labelName });
+	
+	// clear stack
+	out.m_codes.push_back({ script::eCommand::cstack });
 
 	for (auto &pin : node.outputs)
 	{
@@ -508,6 +512,10 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 		}
 	}
 
+	// return, if has jump address
+	out.m_codes.push_back({ script::eCommand::sret });
+
+	// finish, stop execute
 	out.m_codes.push_back({ script::eCommand::nop });
 	return true;
 }
@@ -643,6 +651,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 		}
 	}
 
+	GenerateCode_NodeEscape(node, out);
 	return true;
 }
 
@@ -686,10 +695,11 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 		code.var1 = variant_t((int)0);
 		out.m_codes.push_back(code);
 	}
+	
+	string jumpLabel; // false jump label
 	{
 		// jump if true, jump false flow
 		// find False branch pin
-		string jumpLabel;
 		for (auto &pin : node.outputs)
 		{
 			if ((ePinType::Flow == pin.type)
@@ -700,7 +710,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 				const int linkId = pin.links.empty() ? -1 : pin.links.front();
 				std::tie(next, np) = FindContainPin(linkId);
 				if (next)
-					jumpLabel = MakeScopeName(*next);
+					jumpLabel = MakeScopeName(node) + "-False";
 			}
 		}
 
@@ -750,17 +760,11 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "False"))
 			{
-				// insert nop
-				{
-					script::sInstruction code;
-					code.cmd = script::eCommand::nop;
-					out.m_codes.push_back(code);
-				}
 				// insert jump label
 				{
 					script::sInstruction code;
 					code.cmd = script::eCommand::label;
-					code.str1 = MakeScopeName(*next);
+					code.str1 = jumpLabel;
 					out.m_codes.push_back(code);
 				}
 
@@ -770,6 +774,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 		}
 	}
 
+	GenerateCode_NodeEscape(node, out);
 	return true;
 }
 
@@ -905,12 +910,6 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 		if (!next)
 			continue; // not connect flow
 
-		// insert nop
-		{
-			script::sInstruction code;
-			code.cmd = script::eCommand::nop;
-			out.m_codes.push_back(code);
-		}
 		// insert jump label
 		{
 			script::sInstruction code;
@@ -922,6 +921,7 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 		GenerateCode_Node(node, *next, pin, out);
 	}
 
+	GenerateCode_NodeEscape(node, out);
 	return true;
 }
 
@@ -1027,12 +1027,6 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Exit"))
 			{
-				// insert nop
-				{
-					script::sInstruction code;
-					code.cmd = script::eCommand::nop;
-					out.m_codes.push_back(code);
-				}
 				// insert jump label
 				{
 					script::sInstruction code;
@@ -1047,6 +1041,7 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 		}
 	}
 
+	GenerateCode_NodeEscape(node, out);
 	return true;
 }
 
@@ -1227,12 +1222,6 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Exit"))
 			{
-				// insert nop
-				{
-					script::sInstruction code;
-					code.cmd = script::eCommand::nop;
-					out.m_codes.push_back(code);
-				}
 				// insert jump label
 				{
 					script::sInstruction code;
@@ -1247,6 +1236,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 		}
 	}
 
+	GenerateCode_NodeEscape(node, out);
 	return true;
 }
 
@@ -1269,9 +1259,27 @@ bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
 			const int linkId = pin.links.empty() ? -1 : pin.links.front();
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && np)
+			{
+				// push instruction index (not determine)
+				const uint addressIdx = out.m_codes.size();
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::pushic;
+					code.var1 = 0; // not determine return address
+					out.m_codes.push_back(code);
+				}
+
 				GenerateCode_Node(node, *next, pin, out);
+
+				// update jump address
+				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
+				// pop return jump address
+				out.m_codes.push_back({ script::eCommand::pop });
+			}
 		}
 	}
+
+	GenerateCode_NodeEscape(node, out);
 	return true;
 }
 
@@ -1727,6 +1735,7 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 {
 	GenerateCode_DebugInfo(prevNode, node, fromPin, out);
 
+	// todo: visit node, function call mechanism
 	if (m_visit.find(node.id) != m_visit.end())
 	{
 		// if already generate this code, jump this node
@@ -1752,6 +1761,52 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 		out.m_codes.push_back(code);
 	}
 
+	return true;
+}
+
+
+// generate node escape code
+bool cVProgFile::GenerateCode_NodeEscape(const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	// check macro function
+	// no input flow slot? macro function!
+	const bool isMacro = (node.inputs.size() > 0) && (node.inputs[0].type != ePinType::Flow);
+	if (isMacro)
+		return true; // macro function no need return
+
+	// no link output flow pin? 
+	// insert ret/nop command, to return instruction
+	bool isNoLink = false;
+	for (auto &pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (!next)
+			{
+				isNoLink = true;
+				break;
+			}
+		}
+	}
+
+	// check sret/nop duplicate
+	bool isAlreadyEscapeCode = false;
+	const uint csize = out.m_codes.size();
+	if (csize >= 2) 
+	{
+		isAlreadyEscapeCode = (out.m_codes[csize - 2].cmd == script::eCommand::sret)
+			&& (out.m_codes[csize - 1].cmd == script::eCommand::nop);
+	}
+	if (!isAlreadyEscapeCode)
+	{
+		out.m_codes.push_back({ script::eCommand::sret });
+		out.m_codes.push_back({ script::eCommand::nop });
+	}
 	return true;
 }
 
@@ -1845,12 +1900,26 @@ std::pair<cVProgFile::sNode*, cVProgFile::sPin*>
 }
 
 
-string cVProgFile::MakeScopeName(const sNode &node)
+// make scope name
+// event scopeName: nodeName
+// scopeName: nodeName '-' nodeId
+// unique scopeName: nodeName '-' nodeId '-' uniqueId
+string cVProgFile::MakeScopeName(const sNode &node
+	, const int uniqueId // =-1
+)
 {
 	if (eNodeType::Event == node.type)
+	{
 		return node.name.c_str();
+	}
 	else
-		return script::cSymbolTable::MakeScopeName(node.name.c_str(), node.id).c_str();
+	{
+		string scopeName = script::cSymbolTable::MakeScopeName(node.name.c_str(), node.id).c_str();
+		if (uniqueId >= 0)
+			return common::format("%s-%d", scopeName.c_str(), uniqueId);
+		else
+			return scopeName;
+	}
 }
 
 

@@ -26,7 +26,8 @@ namespace common
 			eqic, eqfc, eqsc,
 			lesi, lesf, leqi, leqf,
 			gri, grf, greqi, greqf,
-			call, jnz, jmp, label, 
+			call, jnz, jmp, label,
+			pushic, pop, sret, cstack,
 			symbolb, symboli, symbolf, symbols,
 			symbolab, symbolai, symbolaf, symbolas,
 			timer1, timer2,
@@ -107,6 +108,11 @@ namespace common
 		// jnz jump_label ;jump jump_label if cmp register is true
 		// jmp jump_label ;jump jump_label always
 		// label label_name ;jump label name, nothing to operate
+		// pushic value ; push stack value, int type
+		// pop ; pop stack
+		// sret ; if has stack data, get top stack, jump instruction index
+		// cstack ; clear stack
+
 		// symbolb scope_name, varname, value ;initialize bool type symbol table
 		// symboli scope_name, varname, value ;initialize int type symbol table
 		// symbolf scope_name, varname, value ;initialize float type symbol table

@@ -161,6 +161,21 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.cmd = eCommand::FromString(toks[0]);
 			code.str1 = toks[1];
 		}
+		else if ((toks[0] == "pushic") && (toks.size() >= 2))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			const VARTYPE vt = common::script::GetVarType(code.cmd);
+			code.var1 = common::str2variant(vt, toks[1]);
+			if (vt == VT_EMPTY)
+				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
+		}
+		else if (((toks[0] == "sret") 
+			|| (toks[0] == "pop")
+			|| (toks[0] == "cstack"))
+			&& (toks.size() >= 1))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+		}
 		else if (((toks[0] == "symbolb")
 			|| (toks[0] == "symboli")
 			|| (toks[0] == "symbolf")
@@ -392,6 +407,17 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 
 		case eCommand::label:
 			ofs << "\"" << code.str1 << "\":";
+			break;
+
+		case eCommand::pushic:
+			ofs << eCommand::ToString(code.cmd);
+			ofs << " " << common::variant2str(code.var1, true);
+			break;
+
+		case eCommand::sret:
+		case eCommand::cstack:
+		case eCommand::pop:
+			ofs << eCommand::ToString(code.cmd);
 			break;
 
 		case eCommand::symbolb:

@@ -6,7 +6,7 @@ using namespace network2;
 
 const float TIME_SYNC_INSTRUCTION = 0.5f;
 const float TIME_SYNC_REGISTER = 5.0f;
-const float TIME_SYNC_SYMBOL = 5.0f;
+const float TIME_SYNC_SYMBOL = 3.0f;
 
 
 cRemoteDebugger2::cRemoteDebugger2()
@@ -139,42 +139,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 			}
 		}
 
-		// sync symboltable
-		if (m_symbSyncTime > TIME_SYNC_SYMBOL) {
-			m_symbSyncTime = 0.f;
-
-			uint symbolCount = 0;
-			for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
-			{
-				vector<script::sSyncSymbol> symbols;
-				script::cVirtualMachine *vm = m_interpreter.m_vms[i];
-				for (auto &kv1 : vm->m_symbTable.m_vars)
-				{
-					// tricky code, packet buffer overflow
-					if (symbolCount >= 15)
-						break;
-
-					const string &scope = kv1.first;
-					for (auto &kv2 : kv1.second)
-					{
-						// tricky code, packet buffer overflow
-						if (symbolCount >= 15)
-							break;
-						symbolCount++;
-
-						const string &name = kv2.first;
-						const script::sVariable &var = kv2.second;
-						symbols.push_back(script::sSyncSymbol(&scope, &name, &var.var));
-					}
-				}
-
-				if (!symbols.empty())
-				{
-					m_protocol.SyncVMSymbolTable(network2::SERVER_NETID, true
-						, i, 0, symbolCount, symbols);
-				}
-			}
-		}
+		SendSyncSymbolTable();
 	}
 
 	return m_client.IsFailConnection() ? false : true;
@@ -267,6 +232,81 @@ bool cRemoteDebugger2::SendSyncVMRegister()
 		m_protocol.SyncVMRegister(network2::SERVER_NETID, true, 0, 0, vm->m_reg);
 		break; // now only one virtual machine sync
 	}
+	return true;
+}
+
+
+// synchronize symboltable
+bool cRemoteDebugger2::SendSyncSymbolTable()
+{
+	const uint MaxSyncSymbolCount = 10; // tricky code (todo: streaming)
+
+	if (m_symbSyncTime < TIME_SYNC_SYMBOL)
+		return true;
+	m_symbSyncTime = 0.f;
+
+	for (uint i = 0; i < m_interpreter.m_vms.size(); ++i)
+	{
+		vector<script::sSyncSymbol> symbols;
+		script::cVirtualMachine *vm = m_interpreter.m_vms[i];
+
+		for (auto &kv1 : vm->m_symbTable.m_vars)
+		{
+			// tricky code, prevent packet overflow
+			if (symbols.size() >= MaxSyncSymbolCount)
+				break;
+
+			const string &scope = kv1.first;
+			for (auto &kv2 : kv1.second)
+			{
+				const string &name = kv2.first;
+				const string varName = kv1.first + "-" + kv2.first;
+				const script::sVariable &var = kv2.second;
+
+				bool isSync = false;
+				auto it = m_symbols.find(varName);
+				if (m_symbols.end() == it)
+				{
+					// add new symbol
+					isSync = true;
+					sSymbol ssymb;
+					ssymb.name = varName;
+					ssymb.t = 0;
+					ssymb.var = var;
+					m_symbols[varName] = ssymb;
+				}
+				else
+				{
+					// check change? (VT_BYREF crash)
+					sSymbol &ssymb = it->second;
+					if (!(ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var != var.var))
+					{
+						isSync = true;
+						ssymb.var.var = var.var;
+					}
+				}
+
+				if (isSync)
+				{
+					symbols.push_back(script::sSyncSymbol(&scope, &name, &var.var));
+					// tricky code, prevent packet overflow
+					if (symbols.size() >= MaxSyncSymbolCount)
+						break;
+				}
+			}
+		}
+
+		if (!symbols.empty())
+		{
+			m_protocol.SyncVMSymbolTable(network2::SERVER_NETID, true
+				, i, 0, symbols.size(), symbols);
+
+			// continue send symbols
+			if (symbols.size() >= MaxSyncSymbolCount)
+				m_symbSyncTime = TIME_SYNC_SYMBOL;
+		}
+	}
+	
 	return true;
 }
 
@@ -404,6 +444,7 @@ bool cRemoteDebugger2::ReqInput(remotedbg2::ReqInput_Packet &packet)
 void cRemoteDebugger2::Clear()
 {
 	m_state = eState::Stop;
+	m_symbols.clear();
 	m_client.Close();
 }
 

@@ -46,6 +46,7 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 		);
 	}
 
+	m_stack.reserve(32);
 	return true;
 }
 
@@ -64,6 +65,7 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 }
 
 
+// start virtual machine
 bool cVirtualMachine::Run()
 {
 	RETV(eState::Run == m_state, false); // already run
@@ -81,11 +83,18 @@ bool cVirtualMachine::Run()
 }
 
 
+// stop virtual machine
 bool cVirtualMachine::Stop()
 {
 	m_state = eState::Stop;
 	m_reg.idx = UINT_MAX;
 	m_reg.exeIdx = UINT_MAX;
+
+	// clear event, timer, stack
+	while (!m_events.empty())
+		m_events.pop();
+	m_timers.clear();
+	m_stack.clear();
 	return true;
 }
 
@@ -568,6 +577,47 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	}
 	break;
 
+	case eCommand::pushic:
+	{
+		if (varType != code.var1.vt)
+			goto $error_semantic;
+		m_stack.push_back((int)code.var1);
+		++reg.idx;
+	}
+	break;
+
+	case eCommand::pop:
+	{
+		if (!m_stack.empty())
+			m_stack.pop_back();
+		++reg.idx;
+	}
+	break;
+
+	case eCommand::sret:
+	{
+		if (m_stack.empty())
+		{
+			// no target to jump?, next instruction
+			++reg.idx;
+		}
+		else
+		{
+			// no pop stack
+			const int idx = m_stack.back();
+			if (m_code.m_codes.size() > (uint)idx)
+				reg.idx = idx; // jump instruction index
+		}
+	}
+	break;
+
+	case eCommand::cstack:
+	{
+		m_stack.clear();
+		++reg.idx;
+	}
+	break;
+
 	case eCommand::delay:
 		reg.tim -= (deltaSeconds * 1000.f); // second -> millisecond unit
 		if (reg.tim < 0.f)
@@ -616,4 +666,5 @@ void cVirtualMachine::Clear()
 	while (!m_events.empty())
 		m_events.pop();
 	m_timers.clear();
+	m_stack.clear();
 }

@@ -61,6 +61,7 @@ namespace common
 			cIntermediateCode m_code;
 			queue<cEvent> m_events;
 			vector<sTimer> m_timers;
+			vector<int> m_stack; // simple integer stack
 			iFunctionCallback *m_callback;
 			void *m_callbackArgPtr;
 		};

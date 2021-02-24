@@ -117,6 +117,8 @@ namespace vprog
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
+		bool GenerateCode_NodeEscape(const sNode &node
+			, OUT common::script::cIntermediateCode &out);
 		bool GenerateCode_NodeInput(const sNode &node, const uint reg
 			, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out);
 
@@ -130,7 +132,7 @@ namespace vprog
 			, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
-		string MakeScopeName(const sNode &node);
+		string MakeScopeName(const sNode &node, const int uniqueId = -1);
 		uint GetInputFlowCount(const sNode &node);
 		const sPin* GetInputPin(const sNode &node, const vector<string> &names);
 		bool IsIgnoreInputPin(const ePinType::Enum type);
@@ -145,6 +147,7 @@ namespace vprog
 		vector<sLink> m_links;
 		common::script::cSymbolTable m_variables;
 		set<int> m_visit; // visit node, use generate intermediate code
+		int m_jmpLabelSeedId; // to generate unique jump label id
 	};
 
 }

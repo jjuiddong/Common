@@ -25,6 +25,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::gri:
 	case eCommand::greqi:
 	case eCommand::symboli:
+	case eCommand::pushic:
 	case eCommand::timer1:
 	case eCommand::timer2:
 		return VT_INT;
@@ -76,8 +77,11 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::call:
 	case eCommand::jnz:
 	case eCommand::jmp:
-	case eCommand::nop:
 	case eCommand::label:
+	case eCommand::sret:
+	case eCommand::pop:
+	case eCommand::cstack:
+	case eCommand::nop:
 	case eCommand::cmt:
 	case eCommand::delay:
 	default:

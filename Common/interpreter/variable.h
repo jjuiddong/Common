@@ -2,6 +2,8 @@
 // 2021-02-21, jjuiddong
 // variable
 //	- symboltable variable
+//		- primitive variable : variant_t 
+//		- array 
 //
 #pragma once
 
