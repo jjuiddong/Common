@@ -59,6 +59,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "setf")
 			|| (toks[0] == "sets")
 			|| (toks[0] == "seta")
+			|| (toks[0] == "copya")
 			)
 			&& (toks.size() >= 4))
 		{
@@ -272,19 +273,19 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			break;
 		case eCommand::symbolab:
 			arElem = (bool)false;
-			m_variables.SetArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, arElem);
 			break;
 		case eCommand::symbolai:
 			arElem = (int)0;
-			m_variables.SetArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, arElem);
 			break;
 		case eCommand::symbolaf:
 			arElem = (float)0.f;
-			m_variables.SetArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, arElem);
 			break;
 		case eCommand::symbolas:
 			arElem = common::str2variant(VT_BSTR, "");
-			m_variables.SetArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, arElem);
 			break;
 		}
 	}
@@ -340,6 +341,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::setf:
 		case eCommand::sets:
 		case eCommand::seta:
+		case eCommand::copya:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";

@@ -278,6 +278,21 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		}
 		break;
 
+	case eCommand::copya:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
+			goto $error_semantic;
+		if (m_symbTable.CopyArray(code.str1, code.str2, reg.val[code.reg1]))
+		{
+			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
 	case eCommand::addi:
 	case eCommand::subi:
 	case eCommand::muli:

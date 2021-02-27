@@ -36,7 +36,7 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 
 // add or update array variable (empty array)
 // var: only update array element type
-bool cSymbolTable::SetArray(const string &scopeName, const string &symbolName
+bool cSymbolTable::InitArray(const string &scopeName, const string &symbolName
 	, const variant_t &var
 	, const string &typeStr //= ""
 )
@@ -55,7 +55,7 @@ bool cSymbolTable::SetArray(const string &scopeName, const string &symbolName
 
 	if (variable && (variable->type == "Array"))
 	{
-		variable->var.vt = VT_BYREF | var.vt;
+		variable->var.vt = VT_BYREF | var.vt; // array tricky code
 		variable->subType0 = var.vt; // array element type
 		variable->ClearArray();
 	}
@@ -78,6 +78,50 @@ bool cSymbolTable::SetArray(const string &scopeName, const string &symbolName
 
 		// add fast var search mapping
 		m_varMap[variable.id] = { scopeName, symbolName };
+	}
+	return true;
+}
+
+
+// copy array
+// dest: scopeName + symbolName
+// src: var
+bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
+	, const variant_t &var )
+{
+	sVariable *dstVar = nullptr;
+	auto it1 = m_vars.find(scopeName);
+	if (it1 != m_vars.end())
+	{
+		auto it2 = it1->second.find(symbolName);
+		if (it2 != it1->second.end())
+		{
+			// already exist symbol
+			dstVar = &it2->second;
+		}
+	}
+
+	// find source array variable
+	const int varId = var.intVal;
+	script::sVariable *srcVar = nullptr;
+	auto it = m_varMap.find(varId);
+	if (m_varMap.end() == it)
+		return false; // not found source array variable
+	srcVar = FindVarInfo(it->second.first, it->second.second);
+	if (!srcVar)
+		return false; // error
+
+	if (dstVar)
+	{
+		*dstVar = *srcVar;
+	}
+	else
+	{
+		m_vars[scopeName][symbolName] = *srcVar;
+		sVariable &dstVar = m_vars[scopeName][symbolName];
+
+		// add fast var search mapping
+		m_varMap[dstVar.id] = { scopeName, symbolName };
 	}
 	return true;
 }
@@ -188,19 +232,43 @@ int cSymbolTable::GenID()
 // id: node id
 string cSymbolTable::MakeScopeName(const string &name, const int id)
 {
-	string scopeName = common::format("%s-%d", name.c_str(), id);
+	//string scopeName = common::format("%s-%d", name.c_str(), id); modified - => _
+	string scopeName = common::format("%s_%d", name.c_str(), id);
 	return scopeName;
 }
 
+// return scope name
+// name: node name
+// id: node id
+// name2: pin name
+string cSymbolTable::MakeScopeName2(const string &name, const int id, const string &name2)
+{
+	string scopeName = common::format("%s_%d_%s", name.c_str(), id, name2.c_str());
+	return scopeName;
+}
 
 // parse scope name -> node name , node id
 std::pair<string, int> cSymbolTable::ParseScopeName(const string &scopeName)
 {
 	vector<string> out;
-	common::tokenizer(scopeName.c_str(), "-", "", out);
+	//common::tokenizer(scopeName.c_str(), "-", "", out); modified - => _
+	common::tokenizer(scopeName.c_str(), "_", "", out);
 	if (out.size() < 2)
 		return std::make_pair("", 0);
 	return std::make_pair(out[0], atoi(out[1].c_str()));
+}
+
+// parse scope name -> node name , node id
+std::tuple<string, int, string> cSymbolTable::ParseScopeName2(const string &scopeName)
+{
+	vector<string> out;
+	//common::tokenizer(scopeName.c_str(), "-", "", out); modified - => _
+	common::tokenizer(scopeName.c_str(), "_", "", out);
+	if (out.size() < 2)
+		return std::make_tuple("", 0, "");
+	if (out.size() < 3)
+		return std::make_tuple(out[0], atoi(out[1].c_str()), "");
+	return std::make_tuple(out[0], atoi(out[1].c_str()), out[2]);
 }
 
 

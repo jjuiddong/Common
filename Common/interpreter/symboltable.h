@@ -47,8 +47,10 @@ namespace common
 
 			bool Set(const string &scopeName, const string &symbolName, const variant_t &var
 				, const string &typeStr = "");
-			bool SetArray(const string &scopeName, const string &symbolName
+			bool InitArray(const string &scopeName, const string &symbolName
 				, const variant_t &var, const string &typeStr = "");
+			bool CopyArray(const string &scopeName, const string &symbolName
+				, const variant_t &var);
 
 			template <class T>
 			T Get(const string &scopeName, const string &symbolName);
@@ -69,7 +71,9 @@ namespace common
 
 			static int GenID();
 			static string MakeScopeName(const string &name, const int id);
+			static string MakeScopeName2(const string &name, const int id, const string &name2);
 			static std::pair<string, int> ParseScopeName(const string &scopeName);
+			static std::tuple<string, int, string> ParseScopeName2(const string &scopeName);
 
 
 		public:
@@ -115,12 +119,14 @@ namespace common
 
 		// vector<T>
 		template <class T>
-		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName
-			, const vector<T> &var, const string &typeStr //= ""
+		inline bool cSymbolTable::Set(const string &scopeName
+			, const string &symbolName
+			, const vector<T> &var
+			, const string &typeStr //= ""
 			)
 		{
-			const variant_t tvar = (T)0; // tricky code
-			SetArray(scopeName, symbolName, tvar, typeStr);
+			const variant_t tvar = (T)0; // type T inference tricky code
+			InitArray(scopeName, symbolName, tvar, typeStr);
 			sVariable &variable = m_vars[scopeName][symbolName];
 			variable.ReserveArray(var.size());
 			for (auto &v : var)
@@ -130,13 +136,16 @@ namespace common
 
 		// initialize array type
 		template <class T, size_t N>
-		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName
-			, const T(&var)[N], const string &typeStr //= ""
+		inline bool cSymbolTable::Set(const string &scopeName
+			, const string &symbolName
+			, const T(&var)[N]
+			, const string &typeStr //= ""
 			)
 		{			
-			const variant_t var = (T)0; // tricky code
-			SetArray(scopeName, symbolName, var, typeStr);
+			const variant_t var = (T)0; // type T inference tricky code
+			InitArray(scopeName, symbolName, var, typeStr);
 			sVariable &variable = m_vars[scopeName][symbolName];
+			variable.ReserveArray(N);
 			for (uint i = 0; i < N; ++i)
 				variable.PushArrayElement(var[i]);
 			return true;

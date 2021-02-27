@@ -236,7 +236,7 @@ bool cVProgFile::AddVariable2(const string &scopeName, const string &name
 			return false;
 		}
 
-		if (!m_variables.SetArray(scopeName, name, val, typeStr))
+		if (!m_variables.InitArray(scopeName, name, val, typeStr))
 		{
 			assert(!"cNodefile::AddVariable2() symbol parse error!! 3");
 			return false;
@@ -489,7 +489,7 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 	// labelName: node.name '-' node.id	 
 	// make label name, if need unique event labe name, update from node.labelName
 	const string labelName = node.labelName.empty() ?
-		common::format("%s-%d", node.name.c_str(), node.id) : node.labelName;
+		script::cSymbolTable::MakeScopeName(node.name, node.id) : node.labelName;
 	out.m_codes.push_back({ script::eCommand::label, labelName });
 	
 	// clear stack
@@ -568,7 +568,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			case ePinType::Int: code.cmd = script::eCommand::seti; break;
 			case ePinType::Float: code.cmd = script::eCommand::setf; break;
 			case ePinType::String: code.cmd = script::eCommand::sets; break;
-			case ePinType::Array: code.cmd = script::eCommand::seta; break;
+			case ePinType::Array: code.cmd = script::eCommand::copya; break;
 			default:
 				return false;
 			}
@@ -1002,7 +1002,21 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Loop"))
 			{
+				// push instruction index (not determine)
+				const uint addressIdx = out.m_codes.size();
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::pushic;
+					code.var1 = 0; // not determine return address
+					out.m_codes.push_back(code);
+				}
+
 				GenerateCode_Node(node, *next, pin, out);
+
+				// update jump address
+				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
+				// pop return jump address
+				out.m_codes.push_back({ script::eCommand::pop });
 			}
 		}
 	}
@@ -1161,7 +1175,21 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Loop"))
 			{
+				// push instruction index (not determine)
+				const uint addressIdx = out.m_codes.size();
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::pushic;
+					code.var1 = 0; // not determine return address
+					out.m_codes.push_back(code);
+				}
+
 				GenerateCode_Node(node, *next, pin, out);
+
+				// update jump address
+				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
+				// pop return jump address
+				out.m_codes.push_back({ script::eCommand::pop });
 			}
 		}
 	}

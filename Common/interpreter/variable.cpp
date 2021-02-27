@@ -124,6 +124,7 @@ bool sVariable::ReserveArray(const uint size)
 
 
 // assign operator
+// array shallow copy
 sVariable& sVariable::operator=(const sVariable &rhs) 
 {
 	if (this != &rhs)
@@ -134,7 +135,7 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 		subType0 = rhs.subType0;
 		subType1 = rhs.subType1;
 
-		// copy array
+		// copy array, deep copy
 		// arraytype? intVal is sVar id
 		if (rhs.var.vt & VT_BYREF)
 			var.intVal = id;
