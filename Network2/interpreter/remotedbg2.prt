@@ -18,6 +18,7 @@ protocol r2h 5301 json
 	ReqOneStep();
 	ReqResumeRun();
 	ReqBreak();
+	ReqBreakPoint(bool enable, uint id);
 	ReqStop();
 	ReqInput( int vmIdx, string eventName );
 	ReqHeartBeat();
@@ -33,6 +34,7 @@ protocol h2r 5300 json
 	AckOneStep( int result );
 	AckResumeRun( int result );
 	AckBreak( int result );
+	AckBreakPoint( bool enable, uint id, int result );
 	AckStop( int result );
 	AckInput( int result );
 	SyncVMInstruction( int vmIdx, vector<uint> indices, vector<bool> cmps );

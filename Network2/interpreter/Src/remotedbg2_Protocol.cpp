@@ -240,6 +240,43 @@ void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary)
 }
 
 //------------------------------------------------------------------------
+// Protocol: ReqBreakPoint
+//------------------------------------------------------------------------
+void remotedbg2::r2h_Protocol::ReqBreakPoint(netid targetId, bool isBinary, const bool &enable, const uint &id)
+{
+	cPacket packet(m_node->GetPacketHeader());
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 2487089996 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, enable);
+		marshalling::operator<<(packet, id);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "enable", enable);
+			put(props, "id", id);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
 // Protocol: ReqStop
 //------------------------------------------------------------------------
 void remotedbg2::r2h_Protocol::ReqStop(netid targetId, bool isBinary)
@@ -548,6 +585,45 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
+			put(props, "result", result);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: AckBreakPoint
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::AckBreakPoint(netid targetId, bool isBinary, const bool &enable, const uint &id, const int &result)
+{
+	cPacket packet(m_node->GetPacketHeader());
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 2045074648 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, enable);
+		marshalling::operator<<(packet, id);
+		marshalling::operator<<(packet, result);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "enable", enable);
+			put(props, "id", id);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);

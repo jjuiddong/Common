@@ -64,18 +64,93 @@ bool cDebugger::Process(const float deltaSeconds)
 		break;
 	case eState::Step:
 		m_dt += deltaSeconds;
-		m_interpreter->Process(m_dt);
-		m_state = eState::Wait;
+		if (ProcessUntilNodeEnter(m_dt) == 1)
+			m_state = eState::Wait;
+		else
+			m_state = eState::Step;
 		m_dt = 0.f;
 		break;
 	case eState::Run:
 		m_interpreter->Process(deltaSeconds);
+
+		// check breakpoint
+		if (!m_breakPoints.empty())
+			if (CheckBreakPoint())
+				m_state = eState::Break;
+		break;
+	case eState::Break:
+		m_state = eState::Wait;
 		break;
 	default:
 		assert(!"cDebugger::Process() not vailid state");
 		break;
 	}
 	return true;
+}
+
+
+// process until node enter
+// return 0: no meet 'node enter'
+//		  1: meet 'node enter'
+int cDebugger::ProcessUntilNodeEnter(const float deltaSeconds)
+{
+	int state = 1; // 1:loop, 2:meet node enter, 3:wait event, 4:fail
+	while (state == 1)
+	{
+		m_interpreter->Process(deltaSeconds);
+
+		state = 0; // initial state
+		for (auto &vm : m_interpreter->m_vms)
+		{
+			if (vm->m_code.m_codes.size() <= (vm->m_reg.idx))
+			{
+				if (state == 0)
+					state = 4; // fail, no running virtual machine
+				continue;
+			}
+		
+			const script::sInstruction &code = vm->m_code.m_codes[vm->m_reg.idx];
+			if (code.cmd == script::eCommand::nop)
+			{
+				if ((state == 0) || (state == 4))
+					state = 3; // wait event
+				continue;
+			}
+
+			state = 1; // at least, one virtual machine running
+			if (code.cmd != script::eCommand::cmt)
+				continue;
+			if (code.str1 == "node enter")
+			{
+				state = 2;
+				break;
+			}
+		}
+		break;
+	}
+
+	return (state == 2)? 1 : 0;
+}
+
+
+// check current instruction location has contain breakpoint
+// return: true = foundbreakpoint
+//		   false = not found
+bool cDebugger::CheckBreakPoint()
+{
+	for (auto &vm : m_interpreter->m_vms)
+	{
+		if (vm->m_code.m_codes.size() <= vm->m_reg.idx)
+			continue;
+		const sInstruction &code = vm->m_code.m_codes[vm->m_reg.idx];
+		if ((code.cmd != eCommand::cmt) || (code.str1 != "node enter"))
+			continue;
+		if (m_breakPoints.end() == m_breakPoints.find(code.reg1))
+			continue;
+		// find breakpoint
+		return true;	
+	}
+	return false;
 }
 
 
@@ -154,6 +229,18 @@ bool cDebugger::Break()
 }
 
 
+// register break point
+// id: node id
+bool cDebugger::BreakPoint(const bool enable, const uint id)
+{
+	if (enable)
+		m_breakPoints.insert(id);
+	else
+		m_breakPoints.erase(id);
+	return true;
+}
+
+
 // is load interpreter
 bool cDebugger::IsLoad()
 {
@@ -173,6 +260,7 @@ bool cDebugger::IsRun()
 		return false;
 	case eState::Wait:
 	case eState::Step:
+	case eState::Break:
 	case eState::Run:
 		return true;
 	default:
@@ -195,11 +283,18 @@ bool cDebugger::IsDebug()
 		return false;
 	case eState::Wait:
 	case eState::Step:
+	case eState::Break:
 		return true;
 	default:
 		assert(!"cDebugger::IsDebug() not vailid state");
 		return false;
 	}
+}
+
+
+bool cDebugger::IsBreak()
+{
+	return m_state == eState::Break;
 }
 
 
@@ -211,4 +306,5 @@ void cDebugger::Clear()
 
 	m_interpreter = nullptr;
 	m_state = eState::Stop;
+	m_breakPoints.clear();
 }

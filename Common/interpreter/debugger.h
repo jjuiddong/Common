@@ -27,10 +27,17 @@ namespace common
 			bool Resume();
 			bool OneStep();
 			bool Break();
+			bool BreakPoint(const bool enable, const uint id);
 			bool IsLoad();
 			bool IsRun();
 			bool IsDebug();
+			bool IsBreak();
 			void Clear();
+
+
+		protected:
+			int ProcessUntilNodeEnter(const float deltaSeconds);
+			bool CheckBreakPoint();
 
 
 		public:
@@ -38,12 +45,14 @@ namespace common
 				Stop  // no load code
 				, Wait // load code, wait operation
 				, Step // one step execute instruction, and move DebugWait state
+				, Break // meet breakpoint, next frame change Wait state
 				, Run // run until break
 			};
 
 			eState m_state;
 			cInterpreter *m_interpreter; // reference
 			float m_dt; // delta sconds
+			set<uint> m_breakPoints;
 		};
 
 	}

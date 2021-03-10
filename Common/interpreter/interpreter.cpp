@@ -40,7 +40,7 @@ bool cInterpreter::ReadIntermediateCode(const StrPath &icodeFileName)
 }
 
 
-// process interpreter virtualmachine
+// process interpreter virtual machine
 bool cInterpreter::Process(const float deltaSeconds)
 {
 	RETV(eState::Stop == m_state, true);

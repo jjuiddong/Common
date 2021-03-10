@@ -22,6 +22,7 @@ public:
 	void ReqOneStep(netid targetId, bool isBinary);
 	void ReqResumeRun(netid targetId, bool isBinary);
 	void ReqBreak(netid targetId, bool isBinary);
+	void ReqBreakPoint(netid targetId, bool isBinary, const bool &enable, const uint &id);
 	void ReqStop(netid targetId, bool isBinary);
 	void ReqInput(netid targetId, bool isBinary, const int &vmIdx, const string &eventName);
 	void ReqHeartBeat(netid targetId, bool isBinary);
@@ -38,6 +39,7 @@ public:
 	void AckOneStep(netid targetId, bool isBinary, const int &result);
 	void AckResumeRun(netid targetId, bool isBinary, const int &result);
 	void AckBreak(netid targetId, bool isBinary, const int &result);
+	void AckBreakPoint(netid targetId, bool isBinary, const bool &enable, const uint &id, const int &result);
 	void AckStop(netid targetId, bool isBinary, const int &result);
 	void AckInput(netid targetId, bool isBinary, const int &result);
 	void SyncVMInstruction(netid targetId, bool isBinary, const int &vmIdx, const vector<uint> &indices, const vector<bool> &cmps);

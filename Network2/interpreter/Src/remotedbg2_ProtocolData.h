@@ -49,6 +49,13 @@ using namespace marshalling_json;
 		netid senderId;
 	};
 
+	struct ReqBreakPoint_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		bool enable;
+		uint id;
+	};
+
 	struct ReqStop_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -106,6 +113,14 @@ using namespace marshalling_json;
 	struct AckBreak_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int result;
+	};
+
+	struct AckBreakPoint_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		bool enable;
+		uint id;
 		int result;
 	};
 

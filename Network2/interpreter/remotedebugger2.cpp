@@ -140,6 +140,12 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		}
 
 		SendSyncSymbolTable();
+
+		// is meet breakpoint? change step debugging mode
+		if (m_debugger.IsBreak())
+		{
+			m_protocol.AckOneStep(network2::SERVER_NETID, false, 1);
+		}
 	}
 
 	return m_client.IsFailConnection() ? false : true;
@@ -417,6 +423,15 @@ bool cRemoteDebugger2::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 {
 	Break();
 	m_protocol.AckBreak(network2::SERVER_NETID, false, 1);
+	return true;
+}
+
+
+// request interpreter register breakpoint
+bool cRemoteDebugger2::ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet)
+{
+	m_debugger.BreakPoint(packet.enable, packet.id);
+	m_protocol.AckBreakPoint(network2::SERVER_NETID, true, packet.enable, packet.id, 1);
 	return true;
 }
 

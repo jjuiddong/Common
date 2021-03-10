@@ -1316,10 +1316,14 @@ bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
 bool cVProgFile::GenerateCode_Operator(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
-	RETV(node.type != eNodeType::Operator, false);
-	// modify: operator always calc
-	//RETV(m_visit.find(node.id) != m_visit.end(), false);
-	//m_visit.insert(node.id);
+	// node enter comment, to step debugging, and node break point
+	{
+		script::sInstruction inst;
+		inst.cmd = script::eCommand::cmt;
+		inst.str1 = "node enter";
+		inst.reg1 = node.id;
+		out.m_codes.push_back(inst);
+	}
 
 	GenerateCode_NodeInput(node, 8, false, out);
 
@@ -1787,6 +1791,15 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 		code.cmd = script::eCommand::label;
 		code.str1 = MakeScopeName(node) + "_Header";
 		out.m_codes.push_back(code);
+	}
+
+	// node enter comment, to step debugging, and node break point
+	{
+		script::sInstruction inst;
+		inst.cmd = script::eCommand::cmt;
+		inst.str1 = "node enter";
+		inst.reg1 = node.id;
+		out.m_codes.push_back(inst);
 	}
 
 	return true;

@@ -71,6 +71,7 @@ namespace network2
 		virtual bool ReqOneStep(remotedbg2::ReqOneStep_Packet &packet) override;
 		virtual bool ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet) override;
 		virtual bool ReqBreak(remotedbg2::ReqBreak_Packet &packet) override;
+		virtual bool ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet) override;
 		virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) override;
 		virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) override;
 
