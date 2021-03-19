@@ -678,7 +678,7 @@ bool cEditManager::AddLink(const ed::PinId from, const ed::PinId to)
 }
 
 
-common::script::cSymbolTable::sVar* 
+common::script::sVariable* 
  cEditManager::FindVarInfo(const ed::PinId id)
 {
 	cNode *node = FindContainNode(id);
@@ -692,7 +692,7 @@ common::script::cSymbolTable::sVar*
 		common::script::cSymbolTable::MakeScopeName(
 			node->m_name.c_str(), node->m_id.Get());
 
-	common::script::cSymbolTable::sVar *var = 
+	common::script::sVariable *var =
 		m_symbTable.FindVarInfo(scopeName, pin->name.c_str());
 
 	return var;

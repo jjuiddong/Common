@@ -2,7 +2,7 @@
 // 2019-10-29, jjuiddong
 // interpreter symboltable
 //
-// 2020-02-21
+// 2021-02-21
 //	- add array variable type
 //	- reference https://codemuri.tistory.com/5
 //

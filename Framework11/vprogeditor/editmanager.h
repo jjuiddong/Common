@@ -41,7 +41,7 @@ namespace vprog
 		bool AddLink(const ed::PinId from, const ed::PinId to);
 
 		// symbol table
-		common::script::cSymbolTable::sVar* FindVarInfo(const ed::PinId id);
+		common::script::sVariable* FindVarInfo(const ed::PinId id);
 		bool AddTemporalVar(const ed::PinId id);
 		string GetScopeName(const ed::PinId id);
 
