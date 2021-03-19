@@ -269,7 +269,7 @@ bool cNode::RenderStringPin(cEditManager &editMgr
 		common::script::cSymbolTable::MakeScopeName(
 			m_name.c_str(), m_id.Get());
 
-	common::script::cSymbolTable::sVar *varInfo = 
+	common::script::sVariable *varInfo =
 		editMgr.m_symbTable.FindVarInfo(scopeName, pin.name.c_str());
 	if (!varInfo)
 		return true;
@@ -311,7 +311,7 @@ bool cNode::RenderEnumPin(cEditManager &editMgr
 	const string scopeName =
 		common::script::cSymbolTable::MakeScopeName(
 			m_name.c_str(), m_id.Get());
-	common::script::cSymbolTable::sVar *varInfo =
+	common::script::sVariable *varInfo =
 		editMgr.m_symbTable.FindVarInfo(scopeName, pin.name.c_str());
 	if (!varInfo)
 		return true;
