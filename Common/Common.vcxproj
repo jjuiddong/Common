@@ -211,10 +211,23 @@
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
-    <VcpkgTriplet>$(VcpkgUserTriplet)-static-md</VcpkgTriplet>
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
     <VcpkgConfiguration>$(Configuration)</VcpkgConfiguration>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug_MD|Win32'">
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug_MT|Win32'">
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release_MD|Win32'">
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
     <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
