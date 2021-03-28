@@ -17,10 +17,10 @@ cTcpServer::cTcpServer(
 	, m_sessionFactory(sessionFactory)
 	, m_sendQueue(this, isPacketLog)
 	, m_recvQueue(this, isPacketLog)
+	, m_sessionListener(nullptr)
 	, m_tempRecvBuffer(NULL)
 	, m_lastAcceptTime(0)
 	, m_isThreadMode(true)
-	, m_sessionListener(NULL)
 {
 }
 
@@ -197,6 +197,12 @@ bool cTcpServer::ReceiveProcces()
 	}
 
 	return true;
+}
+
+// update session listener
+void cTcpServer::SetSessionListener(iSessionListener *listener)
+{
+	m_sessionListener = listener;
 }
 
 
@@ -382,12 +388,6 @@ bool cTcpServer::IsExist(const netid netId)
 
 	auto it = m_sessions.find(netId);
 	return m_sessions.end() != it;
-}
-
-
-void cTcpServer::SetSessionListener(iSessionListener *listener)
-{
-	m_sessionListener = listener;
 }
 
 

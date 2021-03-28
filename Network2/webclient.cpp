@@ -166,13 +166,14 @@ bool cWebClient::Process()
 	}
 	catch (std::exception)
 	{
-		// error occurred!!
+		// socket error occurred!!
 		result = SOCKET_ERROR;
 	}
 
 	if (result == SOCKET_ERROR) // connection error, disconnect
 	{
 		m_state = cWebClient::DISCONNECT;
+		m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 	}
 	else if (result > 0)
 	{
@@ -199,7 +200,10 @@ bool cWebClient::Process()
 		m_sendQueue.SendAll(socks, &errSocks);
 
 		if (!errSocks.empty())
+		{
 			m_state = cWebClient::DISCONNECT;
+			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
+		}
 	}
 	return true;
 }
@@ -241,10 +245,11 @@ bool cWebClient::ConnectServer()
 }
 
 
+// try reconnect
 bool cWebClient::ReConnect()
 {
 	if (IsReadyConnect())
-		return false; // already try connect
+		return true; // already try connect
 
 	Close();
 

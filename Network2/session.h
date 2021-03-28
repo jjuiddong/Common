@@ -23,7 +23,7 @@ namespace network2
 
 
 	public:
-		enum State {
+		enum eState {
 			READYCONNECT,  // 커넥션 전, 쓰레드 구동하기 직전.
 			TRYCONNECT,  // 쓰레드 내에서 소켓 커넥션 요청 상태
 			CONNECT,  // 커넥션 성공
@@ -33,7 +33,7 @@ namespace network2
 
 		netid m_id;
 		SOCKET m_socket;
-		State m_state;
+		eState m_state;
 		StrId m_name;
 		Str16 m_ip;
 		int m_port;
@@ -42,6 +42,8 @@ namespace network2
 
 
 	// Change Session State Listener
+	// server side: accept, disconnect session
+	// client side: connect, disconnect session
 	class iSessionListener
 	{
 	public:

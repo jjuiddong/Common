@@ -61,5 +61,5 @@ bool cSession::IsReadyConnect() const
 
 bool cSession::IsFailConnection() const
 { 
-	return m_state == DISCONNECT; 
+	return (m_state == DISCONNECT); 
 }

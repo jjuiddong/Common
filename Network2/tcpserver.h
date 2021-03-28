@@ -24,13 +24,13 @@ namespace network2
 			, const bool isThreadMode = true
 		);
 		bool Process();
-		void SetSessionListener(iSessionListener *listener);
 		bool AddSession(const SOCKET sock, const Str16 &ip, const int port);
 		bool RemoveSession(const netid netId);
 		bool IsExist(const netid netId);
 		cSession* FindSessionBySocket(const SOCKET sock);
 		cSession* FindSessionByNetId(const netid netId);
 		cSession* FindSessionByName(const StrId &name);
+		void SetSessionListener(iSessionListener *listener);
 		void MakeFdSet(OUT fd_set &out);
 		virtual void Close() override;
 
@@ -55,8 +55,8 @@ namespace network2
 		common::VectorMap<SOCKET, cSession*> m_sockets; // reference
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
-		iSessionListener *m_sessionListener;
 		iSessionFactory *m_sessionFactory;
+		iSessionListener *m_sessionListener;
 
 		std::thread m_thread;
 		common::CriticalSection m_cs;

@@ -136,8 +136,9 @@ bool cTcpClient::Process()
 		const int result = recv(readSockets.fd_array[0], m_recvBuffer, m_maxBuffLen, 0);
 		if (result == SOCKET_ERROR || result == 0) // 받은 패킷사이즈가 0이면 서버와 접속이 끊겼다는 의미다.
 		{
-			// error occur
-			m_state = cTcpClient::DISCONNECT;
+			// socket error occur
+			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
+			m_state = cSession::DISCONNECT;
 		}
 		else
 		{
@@ -162,7 +163,10 @@ bool cTcpClient::Process()
 		m_sendQueue.SendAll(socks, &errSocks);
 
 		if (!errSocks.empty())
-			m_state = cTcpClient::DISCONNECT;
+		{
+			m_state = cSession::DISCONNECT;
+			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
+		}
 	}
 
 	return true;
@@ -195,10 +199,11 @@ bool cTcpClient::ConnectServer()
 }
 
 
+// try reconnect
 bool cTcpClient::ReConnect()
 {
 	if (IsReadyConnect())
-		return false; // already try connect
+		return true; // already try connect
 
 	Close();
 
