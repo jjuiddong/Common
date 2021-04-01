@@ -22,6 +22,7 @@ namespace common
 		bool PushTask(cTask *task);
 		cTask* PopTask();
 		bool RemoveTask(const StrId &taskName);
+		bool RemoveTask(const int taskId);
 		void Wait();
 		bool IsInit();
 		void Terminate();

@@ -86,6 +86,23 @@ bool cTPSemaphore::RemoveTask(const StrId &taskName)
 }
 
 
+bool cTPSemaphore::RemoveTask(const int taskId)
+{
+	m_cs.Lock();
+	auto it = std::find_if(m_tasks.begin(), m_tasks.end()
+		, [&](auto &t) { return t->m_id == taskId; });
+	const bool isExist = (m_tasks.end() != it);
+	if (isExist)
+	{
+		delete *it;
+		m_tasks.erase(it);
+		m_sema.Wait();
+	}
+	m_cs.Unlock();
+	return true;
+}
+
+
 // wait all task finish
 // no optimize
 void cTPSemaphore::Wait()
