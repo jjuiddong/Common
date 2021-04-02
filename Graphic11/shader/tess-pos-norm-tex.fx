@@ -399,6 +399,87 @@ PixelInputType2 ColorDomainShader_LightHeightmap(ConstantOutputType input
 }
 
 
+[domain("quad")]
+
+PixelInputType DomainShader_NoHeightmap(ConstantOutputType input
+	, float2 uv : SV_DomainLocation
+	, const OutputPatch<HullOutputType, 4> patch)
+{
+	float3 vertexPosition;
+	PixelInputType output = (PixelInputType)0;
+
+	const float u = saturate(uv.x);
+	const float v = saturate(uv.y);
+
+	const float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
+	const float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
+	const float2 pos2 = lerp(p12, p22, v);
+	vertexPosition.xz = pos2.xy;
+	vertexPosition.y = 0.1f;
+
+	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+
+	output.Pos = mul(PosW, gView);
+	output.Pos = mul(output.Pos, gProjection);
+
+	const float2 tuv = float2(uv.x, uv.y);
+	const float tu = lerp(gTUVs.x, gTUVs.z, tuv.x);
+	const float tv = lerp(gTUVs.y, gTUVs.w, tuv.y);
+
+	output.Normal = float3(0, 1, 0);
+	output.Tex = float2(tu, tv);
+	output.toEye = normalize(gEyePosW - PosW).xyz;
+	output.PosW = PosW.xyz;
+
+	return output;
+}
+
+
+[domain("quad")]
+
+PixelInputType DomainShader_ArcGis(ConstantOutputType input
+	, float2 uv : SV_DomainLocation
+	, const OutputPatch<HullOutputType, 4> patch)
+{
+	float3 vertexPosition;
+	PixelInputType output = (PixelInputType)0;
+
+	const float ac1 = 1.0f / 64.0f; // 64:vertex size
+	const float ac2 = 64.f / 62.f; // except skirt size, ratio
+	const float u = saturate((uv.x - ac1) * ac2);
+	const float v = saturate((uv.y - ac1) * ac2);
+
+	const float2 p12 = lerp(patch[0].Pos, patch[1].Pos, u) * gSize;
+	const float2 p22 = lerp(patch[2].Pos, patch[3].Pos, u) * gSize;
+	const float2 pos2 = lerp(p12, p22, v);
+	vertexPosition.xz = pos2.xy;
+	vertexPosition.y = 0.1f;
+
+	float4 PosW = mul(float4(vertexPosition, 1.0f), gWorld);
+	const float2 tex = float2(lerp(gHUVs.x, gHUVs.z, u), lerp(gHUVs.y, gHUVs.w, v));
+	const float height = txHeight.SampleLevel(samAnis, tex, 0).x;
+	PosW.y = height * 0.05f;
+
+	if ((uv.x == 0.f) || (uv.x == 1.f) || (uv.y == 0.f) || (uv.y == 1.f))
+		PosW.y = 0.0f;
+
+	output.Pos = mul(PosW, gView);
+	output.Pos = mul(output.Pos, gProjection);
+
+	const float2 tuv = float2((uv.x - ac1) * ac2, (uv.y - ac1) * ac2);
+	const float tu = lerp(gTUVs.x, gTUVs.z, tuv.x);
+	const float tv = lerp(gTUVs.y, gTUVs.w, tuv.y);
+
+	output.Normal = float3(0, 1, 0);
+	output.Tex = float2(tu, tv);
+	output.toEye = normalize(gEyePosW - PosW).xyz;
+	output.PosW = PosW.xyz;
+
+	return output;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Pixel Shader
 ////////////////////////////////////////////////////////////////////////////////
@@ -533,5 +614,27 @@ technique11 Wireframe
 		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
 		SetDomainShader(CompileShader(ds_5_0, ColorDomainShader_Wireframe()));
 		SetPixelShader(CompileShader(ps_5_0, PS_Wireframe()));
+	}
+}
+
+technique11 NoHeightmap
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, main()));
+		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
+		SetDomainShader(CompileShader(ds_5_0, DomainShader_NoHeightmap()));
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
+}
+
+technique11 ArcGis
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, main()));
+		SetHullShader(CompileShader(hs_5_0, ColorHullShader()));
+		SetDomainShader(CompileShader(ds_5_0, DomainShader_ArcGis()));
+		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }
