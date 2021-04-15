@@ -91,7 +91,7 @@ void cCamera::UpdateMove(const float deltaSeconds)
 
 	// eyepos move
 	int check = 0;
-	m_oldPosDir;
+	//m_oldPosDir;
 	Vector3 posDir = mover.eyePos - m_eyePos;
 	const float len = posDir.Length();
 	if (len > 0.1f)// 1.f)
