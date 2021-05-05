@@ -251,17 +251,20 @@ namespace network2
 		}
 
 		template<class T, size_t N>
-		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT T(&rhs)[N]) {
+		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT T(&out)[N]) {
 			for (int i = 0; i < N; ++i)
-				get(props, typeName, rhs[i]);
+				get(props, typeName, out[i]);
 			return props;
 		}
 		template<class T>
-		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT vector<T> &v) {
+		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT vector<T> &out) {
+			auto it = props.get_child(typeName);
+			for (auto &kv : it)
+				out.push_back(kv.second.get<T>(""));
 			return props;
 		}	
 		template<class T> 
-		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT list<T> &v) {
+		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT list<T> &out) {
 			return props;
 		}
 

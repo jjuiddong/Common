@@ -193,7 +193,7 @@ namespace network2
 	template<class T>
 	inline void cPacket::GetData2(OUT T &rhs)
 	{
-		if (m_readIdx + (int)sizeof(T) > m_bufferSize)
+		if (m_readIdx + (int)sizeof(T) > m_writeIdx)
 			return;
 		memmove_s(&rhs, sizeof(T), m_data + m_readIdx, sizeof(T));
 		m_readIdx += (int)sizeof(T);
@@ -223,7 +223,7 @@ namespace network2
 	template<class T>
 	inline void cPacket::GetDataPtr2(OUT T *rhs, size_t size)
 	{
-		if (m_readIdx + (int)size > m_bufferSize)
+		if (m_readIdx + (int)size > m_writeIdx)
 			return;
 		memmove_s(rhs, size, m_data + m_readIdx, size);
 		m_readIdx += size;
@@ -257,7 +257,7 @@ namespace network2
 	{
 		//todo: use heap memory, size=m_bufferSize
 		char buf[DEFAULT_PACKETSIZE] = { NULL, };
-		for (int i = 0; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < m_bufferSize); ++i)
+		for (int i = 0; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < m_writeIdx); ++i)
 		{
 			buf[i] = m_data[m_readIdx++];
 			if (NULL == m_data[m_readIdx - 1])
@@ -269,7 +269,7 @@ namespace network2
 	// copy until meet nullptr
 	inline void cPacket::GetDataString(OUT char buffer[], const uint maxLength)
 	{
-		for (int i = 0; i < (int)maxLength - 1 && (m_readIdx < m_bufferSize); ++i)
+		for (int i = 0; i < (int)maxLength - 1 && (m_readIdx < m_writeIdx); ++i)
 		{
 			buffer[i] = m_data[m_readIdx++];
 			if (NULL == m_data[m_readIdx - 1])
@@ -288,7 +288,7 @@ namespace network2
 		bool isDoubleQuote = false;
 		//todo: use heap memory, size=m_bufferSize
 		char buff[DEFAULT_PACKETSIZE] = { NULL, };
-		while ((m_readIdx < m_bufferSize) && (i < (DEFAULT_PACKETSIZE - 1)))
+		while ((m_readIdx < m_writeIdx) && (i < (DEFAULT_PACKETSIZE - 1)))
 		{
 			c = m_data[m_readIdx++];
 			if (isStart && (c == '\"'))
@@ -322,7 +322,7 @@ namespace network2
 	{
 		int i = 0;
 		char c = NULL;
-		while ( (m_readIdx < m_bufferSize) && (i < (buffLen-1)))
+		while ( (m_readIdx < m_writeIdx) && (i < (buffLen-1)))
 		{
 			c = m_data[m_readIdx++];
 			if ((c == delimeter1) || (c == delimeter2) || (c == NULL))
