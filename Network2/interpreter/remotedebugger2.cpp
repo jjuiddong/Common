@@ -10,11 +10,8 @@ const float TIME_SYNC_SYMBOL = 3.0f;
 
 
 cRemoteDebugger2::cRemoteDebugger2()
-	: m_regSyncTime(0.f)
-	, m_instSyncTime(0.f)
-	, m_symbSyncTime(0.f)
-	, m_state(eState::Stop)
-	, m_isChangeInstruction(false)
+	: m_callback(nullptr)
+	, m_arg(nullptr)
 {
 }
 
@@ -38,8 +35,8 @@ bool cRemoteDebugger2::InitHost(cNetController &netController
 
 	m_mode = eDebugMode::Host;
 	m_url = url;
-
-	m_interpreter.Init(callback, arg);
+	m_callback = callback;
+	m_arg = arg;
 
 	m_client.AddProtocolHandler(this);
 	m_client.RegisterProtocol(&m_protocol);
@@ -66,10 +63,7 @@ bool cRemoteDebugger2::InitRemote(cNetController &netController
 // load intermediate code
 bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 {
-	RETV(m_state != eState::Stop, false);
-	//const bool result = m_interpreter.ReadIntermediateCode(fileName);
-	//if (result)
-	//	m_state = eState::Run;
+	//RETV(m_state != eState::Stop, false);
 	vector<StrPath> fileNames;
 	fileNames.push_back(fileName);
 	const bool result = LoadIntermediateCode(fileNames);
@@ -78,9 +72,9 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 
 
 // load intermediate code 
+// fileNames: intermediate code filename array
 bool cRemoteDebugger2::LoadIntermediateCode(const vector<StrPath> &fileNames)
 {
-	RETV(m_state != eState::Stop, false);
 	ClearInterpreters();
 	m_interpreters.reserve(fileNames.size());
 
@@ -88,6 +82,8 @@ bool cRemoteDebugger2::LoadIntermediateCode(const vector<StrPath> &fileNames)
 	for (auto &fileName : fileNames)
 	{
 		script::cInterpreter *interpreter = new script::cInterpreter();
+		interpreter->Init(m_callback, m_arg? m_arg : interpreter);
+
 		if (!interpreter->ReadIntermediateCode(fileName))
 		{
 			delete interpreter;
@@ -114,83 +110,80 @@ bool cRemoteDebugger2::LoadIntermediateCode(const vector<StrPath> &fileNames)
 // process webclient, interpreter
 bool cRemoteDebugger2::Process(const float deltaSeconds)
 {
-	//m_interpreter.Process(deltaSeconds);
-	for (auto &itpr : m_interpreters)
+	// sync instruction, register, syboltable
+	// check change instruction
+	for (uint k=0; k < m_interpreters.size(); ++k)
+	{
+		const int itprId = (int)k;
+		sItpr &itpr = m_interpreters[itprId];
 		itpr.interpreter->Process(deltaSeconds);
 
-	// sync instruction, register, syboltable
-	if (eState::Run == m_state)
-	{
-		m_regSyncTime += deltaSeconds;
-		m_instSyncTime += deltaSeconds;
-		m_symbSyncTime += deltaSeconds;
+		if (itpr.state != eState::Run)
+			continue;
 
-		// check change instruction
-		for (uint k=0; k < m_interpreters.size(); ++k)
+		itpr.regSyncTime += deltaSeconds;
+		itpr.instSyncTime += deltaSeconds;
+		itpr.symbSyncTime += deltaSeconds;
+
+		script::cInterpreter *interpreter = itpr.interpreter;
+		for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 		{
-			const int itprId = (int)k;
-			sItpr &itpr = m_interpreters[itprId];
-
-			script::cInterpreter *interpreter = itpr.interpreter;
-			for (uint i = 0; i < interpreter->m_vms.size(); ++i)
+			script::cVirtualMachine *vm = interpreter->m_vms[i];
+			if (itpr.insts[i].empty()
+				|| ((itpr.insts[i].size() < 100)
+					&& (itpr.insts[i].back() != vm->m_reg.idx)))
 			{
-				script::cVirtualMachine *vm = interpreter->m_vms[i];
-				if (itpr.insts[i].empty()
-					|| ((itpr.insts[i].size() < 100)
-						&& (itpr.insts[i].back() != vm->m_reg.idx)))
-				{
-					itpr.insts[i].push_back(vm->m_reg.idx);
-					itpr.cmps[i].push_back(vm->m_reg.cmp);
-					itpr.isChangeInstruction = true;
+				itpr.insts[i].push_back(vm->m_reg.idx);
+				itpr.cmps[i].push_back(vm->m_reg.cmp);
+				itpr.isChangeInstruction = true;
 
-					// sync delay instruction
-					if (script::eCommand::delay ==
-						vm->m_code.m_codes[vm->m_reg.exeIdx].cmd)
-					{
-						// sync instruction, register
-						itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
-						itpr.regSyncTime = TIME_SYNC_REGISTER + 1.f;
-					}
+				// sync delay instruction
+				if (script::eCommand::delay ==
+					vm->m_code.m_codes[vm->m_reg.exeIdx].cmd)
+				{
+					// sync instruction, register
+					itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
+					itpr.regSyncTime = TIME_SYNC_REGISTER + 1.f;
 				}
 			}
+		}
 
-			// sync register?
-			if (itpr.regSyncTime > TIME_SYNC_REGISTER)
+		// sync register?
+		if (itpr.regSyncTime > TIME_SYNC_REGISTER)
+		{
+			itpr.regSyncTime = 0.f;
+			SendSyncVMRegister(itprId);
+		}
+
+		// sync instruction?
+		if (itpr.isChangeInstruction && (itpr.instSyncTime > TIME_SYNC_INSTRUCTION))
+		{
+			itpr.instSyncTime = 0.f;
+			itpr.isChangeInstruction = false;
+			for (uint i = 0; i < 10; ++i)
 			{
-				itpr.regSyncTime = 0.f;
-				SendSyncVMRegister(itprId);
+				if (itpr.insts[i].empty())
+					continue;
+
+				m_protocol.SyncVMInstruction(network2::SERVER_NETID
+					, true, itprId, 0, itpr.insts[i], itpr.cmps[i]);
+
+				// clear and setup last data
+				const uint index = itpr.insts[i].back();
+				const bool cmp = itpr.cmps[i].back();
+				itpr.insts[i].clear();
+				itpr.cmps[i].clear();
+				itpr.insts[i].push_back(index); // last data
+				itpr.cmps[i].push_back(cmp); // last data
 			}
+		}
 
-			// sync instruction?
-			if (itpr.isChangeInstruction && (itpr.instSyncTime > TIME_SYNC_INSTRUCTION))
-			{
-				itpr.instSyncTime = 0.f;
-				itpr.isChangeInstruction = false;
-				for (uint i = 0; i < 10; ++i)
-				{
-					if (itpr.insts[i].empty())
-						continue;
+		SendSyncSymbolTable(itprId);
 
-					m_protocol.SyncVMInstruction(network2::SERVER_NETID
-						, true, itprId, 0, itpr.insts[i], itpr.cmps[i]);
-
-					// clear and setup last data
-					const uint index = itpr.insts[i].back();
-					const bool cmp = itpr.cmps[i].back();
-					itpr.insts[i].clear();
-					itpr.cmps[i].clear();
-					itpr.insts[i].push_back(index); // last data
-					itpr.cmps[i].push_back(cmp); // last data
-				}
-			}
-
-			SendSyncSymbolTable(itprId);
-
-			// is meet breakpoint? change step debugging mode
-			if (interpreter->IsBreak())
-			{
-				m_protocol.AckOneStep(network2::SERVER_NETID, false, itprId, 1);
-			}
+		// is meet breakpoint? change step debugging mode
+		if (interpreter->IsBreak())
+		{
+			m_protocol.AckOneStep(network2::SERVER_NETID, true, itprId, 1);
 		}
 	}
 
@@ -246,6 +239,40 @@ bool cRemoteDebugger2::Run(const int itprId)
 			return true;
 		script::cInterpreter *interpreter = itpr.interpreter;
 		if (interpreter->Run())
+		{
+			itpr.state = eState::Run;
+			return true;
+		}
+		return false;
+	}
+	return true;
+}
+
+
+// start interpreter with debug run
+// itprId: interpreter index, -1: all interpreter
+bool cRemoteDebugger2::DebugRun(const int itprId)
+{
+	if (itprId < 0)
+	{
+		for (auto &itpr : m_interpreters)
+		{
+			if (eState::Stop != itpr.state)
+				continue;
+			script::cInterpreter *interpreter = itpr.interpreter;
+			if (interpreter->DebugRun())
+				itpr.state = eState::Run;
+		}
+	}
+	else
+	{
+		if (m_interpreters.size() <= (uint)itprId)
+			return false;
+		sItpr &itpr = m_interpreters[itprId];
+		if (eState::Stop != itpr.state)
+			return true;
+		script::cInterpreter *interpreter = itpr.interpreter;
+		if (interpreter->DebugRun())
 		{
 			itpr.state = eState::Run;
 			return true;
@@ -446,10 +473,9 @@ bool cRemoteDebugger2::IsRun(const int itprId)
 		{
 			script::cInterpreter *interpreter = itpr.interpreter;
 			const bool res = (eState::Run == itpr.state) && interpreter->IsRun();
-			if (!res)
-				return false;
+			if (res)
+				return true;
 		}
-		return true;
 	}
 	else
 	{
@@ -474,10 +500,9 @@ bool cRemoteDebugger2::IsDebug(const int itprId)
 		{
 			script::cInterpreter *interpreter = itpr.interpreter;
 			const bool res = (eState::Run == itpr.state) && interpreter->IsDebug();
-			if (!res)
-				return false;
+			if (res)
+				return true;
 		}
-		return true;
 	}
 	else
 	{
@@ -643,7 +668,7 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 	else
 	{
 		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
-			(marsh.GetHeaderSize() + 16); // 4 * 4byte = result,count,index,buffsize
+			(marsh.GetHeaderSize() + 20); // 5 * 4byte = itpr,result,count,index,buffsize
 		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
 			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
 
@@ -673,12 +698,12 @@ bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
 	if (packet.runType == "Run")
 		Run(packet.itprId);
 	else if (packet.runType == "DebugRun")
-		Run(packet.itprId);
+		DebugRun(packet.itprId);
 	else if (packet.runType == "StepRun")
 		StepRun(packet.itprId);
 
 	const int result = IsRun(packet.itprId) ? 1 : 0;
-	m_protocol.AckRun(network2::SERVER_NETID, false, packet.itprId, result);
+	m_protocol.AckRun(network2::SERVER_NETID, true, packet.itprId, result);
 	SendSyncVMRegister(0);
 	return true;
 }
@@ -703,7 +728,7 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 	{
 		if (m_interpreters.size() <= (uint)packet.itprId)
 		{
-			m_protocol.AckOneStep(network2::SERVER_NETID, false, packet.itprId, 0);
+			m_protocol.AckOneStep(network2::SERVER_NETID, true, packet.itprId, 0);
 			return true;
 		}
 
@@ -713,7 +738,7 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 	}
 
-	m_protocol.AckOneStep(network2::SERVER_NETID, false, packet.itprId, 1);
+	m_protocol.AckOneStep(network2::SERVER_NETID, true, packet.itprId, 1);
 	return true;
 }
 
@@ -721,7 +746,7 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 bool cRemoteDebugger2::ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet)
 {
 	Resume(packet.itprId);
-	m_protocol.AckResumeRun(network2::SERVER_NETID, false, packet.itprId, 1);
+	m_protocol.AckResumeRun(network2::SERVER_NETID, true, packet.itprId, 1);
 	return true; 
 }
 
@@ -729,7 +754,7 @@ bool cRemoteDebugger2::ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet)
 bool cRemoteDebugger2::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 {
 	Break(packet.itprId);
-	m_protocol.AckBreak(network2::SERVER_NETID, false, packet.itprId, 1);
+	m_protocol.AckBreak(network2::SERVER_NETID, true, packet.itprId, 1);
 	return true;
 }
 
@@ -747,7 +772,7 @@ bool cRemoteDebugger2::ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet)
 bool cRemoteDebugger2::ReqStop(remotedbg2::ReqStop_Packet &packet)
 {
 	Stop(packet.itprId);
-	m_protocol.AckStop(network2::SERVER_NETID, false, packet.itprId, 1);
+	m_protocol.AckStop(network2::SERVER_NETID, true, packet.itprId, 1);
 	return true;
 }
 
@@ -757,7 +782,7 @@ bool cRemoteDebugger2::ReqInput(remotedbg2::ReqInput_Packet &packet)
 {
 	script::cEvent evt(packet.eventName);
 	PushEvent(packet.itprId, evt);
-	m_protocol.AckInput(network2::SERVER_NETID, false, packet.itprId, 1);
+	m_protocol.AckInput(network2::SERVER_NETID, true, packet.itprId, 1);
 	return true;
 }
 
@@ -765,8 +790,9 @@ bool cRemoteDebugger2::ReqInput(remotedbg2::ReqInput_Packet &packet)
 // clear all data
 void cRemoteDebugger2::Clear()
 {
-	m_state = eState::Stop;
+	//m_state = eState::Stop;
 	m_symbols.clear();
 	m_client.Close();
+	ClearInterpreters();
 }
 

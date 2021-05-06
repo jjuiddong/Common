@@ -13,6 +13,9 @@
 //	- change variable synchronize
 //	- streaming
 //
+// 2021-05-06
+//	- execute multi interpreter
+//
 #pragma once
 
 #include "Src/remotedbg2_Protocol.h"
@@ -51,6 +54,7 @@ namespace network2
 		bool Process(const float deltaSeconds);
 		bool PushEvent(const int itprId, const common::script::cEvent &evt);
 		bool Run(const int itprId);
+		bool DebugRun(const int itprId);
 		bool StepRun(const int itprId);
 		bool Stop(const int itprId);
 		bool Resume(const int itprId);
@@ -82,7 +86,6 @@ namespace network2
 
 	public:
 		enum class eState { Stop, Run };
-		eState m_state;
 		eDebugMode m_mode;
 
 		// interpreter information
@@ -99,18 +102,12 @@ namespace network2
 		};
 		vector<sItpr> m_interpreters;
 
-		script::cInterpreter m_interpreter;
-		vector<uint> m_insts[10]; // vm instruction index check, max check 10
-		vector<bool> m_cmps[10];
-		bool m_isChangeInstruction;
-
 		string m_url; // webserver url
 		int m_port; // webserver port
 		network2::cWebClient m_client;
 		remotedbg2::h2r_Protocol m_protocol;
-		float m_regSyncTime; // register sync time
-		float m_instSyncTime; // instruction sync time
-		float m_symbSyncTime; // symboltable sync time
+		script::iFunctionCallback *m_callback;
+		void *m_arg;
 
 		// detect change variable
 		map<string, sSymbol> m_symbols;
