@@ -17,41 +17,48 @@ using namespace marshalling_json;
 		string msg;
 	};
 
-	struct UploadVProgFile_Packet {
+	struct UploadIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		string code;
 	};
 
 	struct ReqIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 	};
 
 	struct ReqRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		string runType;
 	};
 
 	struct ReqOneStep_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 	};
 
 	struct ReqResumeRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 	};
 
 	struct ReqBreak_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 	};
 
 	struct ReqBreakPoint_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		bool enable;
 		uint id;
 	};
@@ -59,11 +66,13 @@ using namespace marshalling_json;
 	struct ReqStop_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 	};
 
 	struct ReqInput_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int vmIdx;
 		string eventName;
 	};
@@ -77,15 +86,17 @@ using namespace marshalling_json;
 
 
 
-	struct AckUploadVProgFile_Packet {
+	struct AckUploadIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct AckIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 		uint count;
 		uint index;
@@ -95,30 +106,35 @@ using namespace marshalling_json;
 	struct AckRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct AckOneStep_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct AckResumeRun_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct AckBreak_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct AckBreakPoint_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		bool enable;
 		uint id;
 		int result;
@@ -127,18 +143,21 @@ using namespace marshalling_json;
 	struct AckStop_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct AckInput_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int result;
 	};
 
 	struct SyncVMInstruction_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int vmIdx;
 		vector<uint> indices;
 		vector<bool> cmps;
@@ -147,6 +166,7 @@ using namespace marshalling_json;
 	struct SyncVMRegister_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int vmIdx;
 		int infoType;
 		script::cVirtualMachine::sRegister reg;
@@ -155,6 +175,7 @@ using namespace marshalling_json;
 	struct SyncVMSymbolTable_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int vmIdx;
 		uint start;
 		uint count;
@@ -164,6 +185,7 @@ using namespace marshalling_json;
 	struct SyncVMOutput_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
+		int itprId;
 		int vmIdx;
 		string output;
 	};

@@ -46,26 +46,30 @@ namespace network2
 		bool InitRemote(cNetController &netController
 			, const Str16 &ip, const int port);
 		bool LoadIntermediateCode(const StrPath &fileName);
+		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
+
 		bool Process(const float deltaSeconds);
-		bool PushEvent(const common::script::cEvent &evt);
-		bool Run();
-		bool StepRun();
-		bool Stop();
-		bool Resume();
-		bool OneStep();
-		bool Break();
-		bool IsRun();
-		bool IsDebug();
+		bool PushEvent(const int itprId, const common::script::cEvent &evt);
+		bool Run(const int itprId);
+		bool StepRun(const int itprId);
+		bool Stop(const int itprId);
+		bool Resume(const int itprId);
+		bool OneStep(const int itprId);
+		bool Break(const int itprId);
+		bool BreakPoint(const int itprId, const bool enable, const uint id);
+		bool IsRun(const int itprId);
+		bool IsDebug(const int itprId);
 		void Clear();
 
 
 	protected:
-		bool SendSyncVMRegister();
-		bool SendSyncSymbolTable();
+		bool SendSyncVMRegister(const int itprId);
+		bool SendSyncSymbolTable(const int itprId);
+		void ClearInterpreters();
 
 		// remotedbg2 protocol hander
 		virtual bool Welcome(remotedbg2::Welcome_Packet &packet) override;
-		virtual bool UploadVProgFile(remotedbg2::UploadVProgFile_Packet &packet) override;
+		virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) override;
 		virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) override;
 		virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) override;
 		virtual bool ReqOneStep(remotedbg2::ReqOneStep_Packet &packet) override;
@@ -81,9 +85,21 @@ namespace network2
 		eState m_state;
 		eDebugMode m_mode;
 
+		// interpreter information
+		struct sItpr {
+			StrId name;
+			eState state;
+			script::cInterpreter *interpreter;
+			vector<uint> insts[10]; // vm instruction index check, max check 10
+			vector<bool> cmps[10];
+			bool isChangeInstruction;
+			float regSyncTime; // register sync time
+			float instSyncTime; // instruction sync time
+			float symbSyncTime; // symboltable sync time
+		};
+		vector<sItpr> m_interpreters;
+
 		script::cInterpreter m_interpreter;
-		script::cDebugger m_debugger;
-		script::cIntermediateCode m_icode;
 		vector<uint> m_insts[10]; // vm instruction index check, max check 10
 		vector<bool> m_cmps[10];
 		bool m_isChangeInstruction;

@@ -23,7 +23,8 @@ cSymbolTable::~cSymbolTable()
 
 // add or update variable in symboltable
 bool cSymbolTable::Set(const string &scopeName, const string &symbolName
-	, const variant_t &var, const string &typeStr //= ""
+	, const variant_t &var
+	, const string &typeStr //= ""
 	)
 {
 	// to avoid bstr memory move bug
@@ -272,6 +273,7 @@ std::tuple<string, int, string> cSymbolTable::ParseScopeName2(const string &scop
 }
 
 
+// assign operator
 cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 {
 	if (this != &rhs)

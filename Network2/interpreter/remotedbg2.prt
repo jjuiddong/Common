@@ -2,45 +2,45 @@
 // Script Remote Debugger Protocol 2
 //	- WebSocket Communication
 //		- binary/json format communication
-//	- Host : Interpreter Server/Client (Run Script, c++)
+//	- Host : Interpreter Client (Run Script, c++)
 //	- Remote : WebServer or WebBrowser (javascript)
-//	- h2r : Host Server/Client -> Remote Server Protocol
-//	- r2h : Remote Server -> Host Server/Client Protocol
+//	- h2r : Host Client -> Remote Server Protocol
+//	- r2h : Remote Server -> Host Client Protocol
 //
 
 
 protocol r2h 5301 json
 {
 	Welcome( string msg );
-	UploadVProgFile( string code );
-	ReqIntermediateCode();
-	ReqRun(string runType);
-	ReqOneStep();
-	ReqResumeRun();
-	ReqBreak();
-	ReqBreakPoint(bool enable, uint id);
-	ReqStop();
-	ReqInput( int vmIdx, string eventName );
+	UploadIntermediateCode(int itprId, string code );
+	ReqIntermediateCode(int itprId);
+	ReqRun(int itprId, string runType);
+	ReqOneStep(int itprId);
+	ReqResumeRun(int itprId);
+	ReqBreak(int itprId);
+	ReqBreakPoint( int itprId, bool enable, uint id );
+	ReqStop(int itprId);
+	ReqInput(int itprId, int vmIdx, string eventName );
 	ReqHeartBeat();
 }
 
 
 protocol h2r 5300 json
 {
-	AckUploadVProgFile( int result );
-	//AckIntermediateCode( int result, uint count, uint index, script::cIntermediateCode code );
-	AckIntermediateCode( int result, uint count, uint index, vector<BYTE> data );
-	AckRun( int result );
-	AckOneStep( int result );
-	AckResumeRun( int result );
-	AckBreak( int result );
-	AckBreakPoint( bool enable, uint id, int result );
-	AckStop( int result );
-	AckInput( int result );
-	SyncVMInstruction( int vmIdx, vector<uint> indices, vector<bool> cmps );
-	SyncVMRegister( int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
-	SyncVMSymbolTable( int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
-	SyncVMOutput( int vmIdx, string output );
+	AckUploadIntermediateCode(int itprId, int result );
+	//AckIntermediateCode( int itprId, int result, uint count, uint index, script::cIntermediateCode code );
+	AckIntermediateCode( int itprId, int result, uint count, uint index, vector<BYTE> data );
+	AckRun( int itprId, int result );
+	AckOneStep( int itprId, int result );
+	AckResumeRun( int itprId, int result );
+	AckBreak( int itprId, int result );
+	AckBreakPoint( int itprId, bool enable, uint id, int result );
+	AckStop( int itprId, int result );
+	AckInput( int itprId, int result );
+	SyncVMInstruction( int itprId, int vmIdx, vector<uint> indices, vector<bool> cmps );
+	SyncVMRegister( int itprId,int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
+	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
+	SyncVMOutput( int itprId, int vmIdx, string output );
 	AckHeartBeat();
 }
 
