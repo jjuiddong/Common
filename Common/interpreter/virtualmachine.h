@@ -2,6 +2,9 @@
 // 2019-10-29, jjuiddong
 // excute script intermediate code
 //
+// 2021-05-18
+//	- add array, map type
+//
 #pragma once
 
 

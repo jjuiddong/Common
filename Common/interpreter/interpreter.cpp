@@ -238,6 +238,8 @@ bool cInterpreter::InitAndRunVM()
 		return false;
 
 	vm->Run();
+	vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
+
 	return true;
 }
 

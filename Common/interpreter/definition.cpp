@@ -75,6 +75,15 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::symbolas:
 		return VT_ARRAY;
 
+	case eCommand::getm:
+	case eCommand::setm:
+	case eCommand::copym:
+	case eCommand::symbolmb:
+	case eCommand::symbolmi:
+	case eCommand::symbolmf:
+	case eCommand::symbolms:
+		return VT_RESERVED; // map type, tricky code
+
 	case eCommand::call:
 	case eCommand::jnz:
 	case eCommand::jmp:

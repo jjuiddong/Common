@@ -17,6 +17,7 @@ namespace
 
 sVariable::sVariable()
 	: ar(nullptr)
+	, m(nullptr)
 	, id(cSymbolTable::GenID())
 	, arSize(0)
 	, arCapacity(0)
@@ -123,6 +124,61 @@ bool sVariable::ReserveArray(const uint size)
 }
 
 
+// return m[key]
+variant_t& sVariable::GetMapElement(const string &key)
+{
+	if (m)
+	{
+		return (*m)[key];
+	}
+	else
+	{
+		// except process
+		switch (subType1)
+		{
+		case VT_BOOL: return g_emptyBool;
+		case VT_INT: return g_emptyInt;
+		case VT_R4: return g_emptyFloat;
+		case VT_BSTR: return g_emptyString;
+		default: return g_emptyInt;
+		}
+	}
+}
+
+
+// set m[key] = v
+bool sVariable::SetMapElement(const string &key, const variant_t &v)
+{
+	if (m)
+	{
+		(*m)[key] = v;
+		return true;
+	}
+	return false;
+}
+
+
+// has m[key]?
+bool sVariable::HasMapElement(const string &key)
+{
+	if (m)
+	{
+		auto it = m->find(key);
+		return (m->end() != it);
+	}
+	return false;
+}
+
+
+// return map size
+uint sVariable::GetMapSize()
+{
+	if (m)
+		return m->size();
+	return 0;
+}
+
+
 // assign operator
 // array shallow copy
 sVariable& sVariable::operator=(const sVariable &rhs) 
@@ -136,16 +192,33 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 		subType1 = rhs.subType1;
 
 		// copy array, deep copy
-		// arraytype? intVal is sVar id
-		if (rhs.var.vt & VT_BYREF)
+		// array or map type? intVal is sVar id
+		if ((rhs.var.vt & VT_BYREF) || (rhs.var.vt & VT_RESERVED))
 			var.intVal = id;
 
-		if (rhs.arSize > 0) {
-			ReserveArray(rhs.arSize);
-			for (uint i = 0; i < rhs.arSize; ++i)
-				ar[i] = rhs.ar[i];
-			arSize = rhs.arSize;
+		// array copy
+		if (rhs.var.vt & VT_BYREF) {
+			if (rhs.arSize > 0) {
+				ReserveArray(rhs.arSize);
+				for (uint i = 0; i < rhs.arSize; ++i)
+					ar[i] = rhs.ar[i];
+				arSize = rhs.arSize;
+			}
 		}
+
+		// map copy
+		if (rhs.var.vt & VT_RESERVED) {
+			ClearMap();
+			if (!rhs.m)
+				m = new map<string, variant_t>();
+
+			if (rhs.m) 
+			{
+				for (auto &kv : *rhs.m)
+					(*m)[kv.first] = kv.second;
+			}
+		}
+
 	}
 	return *this;
 }
@@ -156,6 +229,7 @@ void sVariable::Clear()
 {
 	common::clearvariant(var);
 	ClearArrayMemory();
+	ClearMapMemory();
 }
 
 
@@ -174,4 +248,19 @@ void sVariable::ClearArrayMemory()
 	SAFE_DELETEA(ar);
 	arSize = 0;
 	arCapacity = 0;
+}
+
+
+// clear map
+void sVariable::ClearMap()
+{
+	if (m)
+		m->clear();
+}
+
+
+// clear map allocated memory
+void sVariable::ClearMapMemory()
+{
+	SAFE_DELETE(m);
 }

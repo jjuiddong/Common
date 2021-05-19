@@ -23,15 +23,21 @@ namespace common
 			bool PushArrayElement(const variant_t &v);
 			variant_t& PopArrayElement();
 			bool ReserveArray(const uint size);
+			variant_t& GetMapElement(const string &key);
+			bool SetMapElement(const string &key, const variant_t &v);
+			bool HasMapElement(const string &key);
+			uint GetMapSize();
 
 			sVariable& operator=(const sVariable &rhs);
 			void Clear();
 			void ClearArray();
 			void ClearArrayMemory();
+			void ClearMap();
+			void ClearMapMemory();
 
 
 			int id; // unique id
-			string type; // special type string, Bool, Int, Float, String, Array~
+			string type; // special type string, Bool, Int, Float, String, Array, Map
 			variant_t var; // value
 
 			// array type
@@ -40,6 +46,9 @@ namespace common
 			uint arSize; // array size
 			uint arCapacity; // array capacity
 			variant_t *ar; // array
+
+			// map type
+			map<string, variant_t> *m; // map
 		};
 
 	}

@@ -128,6 +128,98 @@ bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
 }
 
 
+// add or update map variable (empty map)
+// var: only update map element type
+bool cSymbolTable::InitMap(const string &scopeName, const string &symbolName
+	, const variant_t &var
+	, const string &typeStr //= ""
+)
+{
+	sVariable *variable = nullptr;
+	auto it1 = m_vars.find(scopeName);
+	if (it1 != m_vars.end())
+	{
+		auto it2 = it1->second.find(symbolName);
+		if (it2 != it1->second.end())
+		{
+			// already exist symbol
+			variable = &it2->second;
+		}
+	}
+
+	if (variable && (variable->type == "Map"))
+	{
+		variable->var.vt = VT_RESERVED | var.vt; // map tricky code
+		variable->subType0 = VT_BSTR; // map key type (always string)
+		variable->subType1 = var.vt; // map value type
+		variable->ClearMap();
+	}
+	else
+	{
+		sVariable arVar;
+		arVar.type = "Map";
+
+		// map tricky code, no memory allocate
+		arVar.var.vt = VT_RESERVED | var.vt;
+
+		arVar.subType0 = VT_BSTR; // map key type
+		arVar.subType1 = var.vt; // map value type
+		m_vars[scopeName][symbolName] = arVar;
+
+		sVariable &variable = m_vars[scopeName][symbolName];
+		variable.var.intVal = variable.id;
+
+		// add fast var search mapping
+		m_varMap[variable.id] = { scopeName, symbolName };
+	}
+	return true;
+}
+
+
+// copy map
+// dest: scopeName + symbolName
+// src: var
+bool cSymbolTable::CopyMap(const string &scopeName, const string &symbolName
+	, const variant_t &var)
+{
+	sVariable *dstVar = nullptr;
+	auto it1 = m_vars.find(scopeName);
+	if (it1 != m_vars.end())
+	{
+		auto it2 = it1->second.find(symbolName);
+		if (it2 != it1->second.end())
+		{
+			// already exist symbol
+			dstVar = &it2->second;
+		}
+	}
+
+	// find source array variable
+	const int varId = var.intVal;
+	script::sVariable *srcVar = nullptr;
+	auto it = m_varMap.find(varId);
+	if (m_varMap.end() == it)
+		return false; // not found source map variable
+	srcVar = FindVarInfo(it->second.first, it->second.second);
+	if (!srcVar)
+		return false; // error
+
+	if (dstVar)
+	{
+		*dstVar = *srcVar;
+	}
+	else
+	{
+		m_vars[scopeName][symbolName] = *srcVar;
+		sVariable &dstVar = m_vars[scopeName][symbolName];
+
+		// add fast var search mapping
+		m_varMap[dstVar.id] = { scopeName, symbolName };
+	}
+	return true;
+}
+
+
 // get variable in symboltable
 bool cSymbolTable::Get(const string &scopeName, const string &symbolName
 	, OUT variant_t &out)

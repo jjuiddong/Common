@@ -426,7 +426,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 			case VT_R4: code.cmd = script::eCommand::symbolf; break;
 			case VT_BSTR: code.cmd = script::eCommand::symbols; break;
 			default:
-				if (var.vt & VT_BYREF) // VT_ARRAY? (tricky code)
+				if (var.vt & VT_BYREF) // array? (tricky code)
 				{
 					switch (kv2.second.subType0)
 					{
@@ -436,6 +436,20 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 					case VT_BSTR: code.cmd = script::eCommand::symbolas; break;
 					default:
 						common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+						break;
+					}
+					break;
+				}
+				else if (var.vt & VT_RESERVED) // map? (tricky code)
+				{
+					switch (kv2.second.subType1)
+					{
+					case VT_BOOL: code.cmd = script::eCommand::symbolmb; break;
+					case VT_INT: code.cmd = script::eCommand::symbolmi; break;
+					case VT_R4: code.cmd = script::eCommand::symbolmf; break;
+					case VT_BSTR: code.cmd = script::eCommand::symbolms; break;
+					default:
+						common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type3\n");
 						break;
 					}
 					break;

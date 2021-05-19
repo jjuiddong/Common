@@ -15,9 +15,9 @@ namespace common
 			none,
 			ldbc, ldic, ldfc, ldsc, ldac,
 			ldcmp, ldncmp, ldtim,
-			getb, geti, getf, gets, geta,
-			setb, seti, setf, sets, seta, 
-			copya,
+			getb, geti, getf, gets, geta, getm,
+			setb, seti, setf, sets, seta, setm,
+			copya, copym,
 			addi, addf, adds,
 			subi, subf,
 			muli, mulf,
@@ -31,6 +31,7 @@ namespace common
 			pushic, pop, sret, cstack,
 			symbolb, symboli, symbolf, symbols,
 			symbolab, symbolai, symbolaf, symbolas,
+			symbolmb, symbolmi, symbolmf, symbolms,
 			timer1, timer2,
 			cmt, delay, nop
 		);
@@ -76,12 +77,15 @@ namespace common
 		// getf scope_name, varname, register_name ;load register float type value from symboltable
 		// gets scope_name, varname, register_name ;load register string type value from symboltable
 		// geta scope_name, varname, register_name ;load register array type value from symboltable (shallow copy)
+		// getm scope_name, varname, register_name ;load register map type value from symboltable (shallow copy)
 		// setb scope_name, varname, register_name ;store bool type value to symboltable
 		// seti scope_name, varname, register_name ;store int type value to symboltable
 		// setf scope_name, varname, register_name ;store float type value to symboltable
 		// sets scope_name, varname, register_name ;store string type value to symboltable
 		// seta scope_name, varname, register_name ;store array type value to symboltable (shallow copy)
+		// setm scope_name, varname, register_name ;store map type value to symboltable (shallow copy)
 		// copya scope_name, varname, register_name ;store array type value to symboltable (deep copy)
+		// copym scope_name, varname, register_name ;store map type value to symboltable (deep copy)
 		// addi register_name1, register_name2 ;add 2 register int type, store register9
 		// addf register_name1, register_name2 ;add 2 register float type, store register9
 		// subi register_name1, register_name2 ;subtract 2 register int type, store register9
@@ -123,6 +127,11 @@ namespace common
 		// symbolai scope_name, varname, value ;initialize int type array symbol table
 		// symbolaf scope_name, varname, value ;initialize float type array symbol table
 		// symbolas scope_name, varname, value ;initialize string type array symbol table
+		// symbolmb scope_name, varname, value ;initialize map<string,bool> type symbol table
+		// symbolmi scope_name, varname, value ;initialize map<string,int> type symbol table
+		// symbolmf scope_name, varname, value ;initialize map<string,float> type symbol table
+		// symbolms scope_name, varname, value ;initialize map<string,string> type symbol table
+
 		// timer1 scope_name, value ; loop timer, value:interval (milliseconds)
 		// timer2 scope_name, value ; timer, value:interval (milliseconds), loop on/off
 		// #comment command string, from pinId, to pinId ;comment string, no instruction

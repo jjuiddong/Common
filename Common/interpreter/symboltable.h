@@ -47,9 +47,14 @@ namespace common
 
 			bool Set(const string &scopeName, const string &symbolName, const variant_t &var
 				, const string &typeStr = "");
+
 			bool InitArray(const string &scopeName, const string &symbolName
 				, const variant_t &var, const string &typeStr = "");
 			bool CopyArray(const string &scopeName, const string &symbolName
+				, const variant_t &var);
+			bool InitMap(const string &scopeName, const string &symbolName
+				, const variant_t &var, const string &typeStr = "");
+			bool CopyMap(const string &scopeName, const string &symbolName
 				, const variant_t &var);
 
 			template <class T>

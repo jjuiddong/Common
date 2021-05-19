@@ -245,6 +245,23 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		}
 		break;
 
+	case eCommand::getm:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
+		{
+			// ticky code, check map type 
+			const bool isMapType = (reg.val[code.reg1].vt & VT_RESERVED);
+			if (!isMapType)
+				goto $error_semantic;
+			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
 	case eCommand::setb:
 	case eCommand::seti:
 	case eCommand::setf:
@@ -278,12 +295,44 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		}
 		break;
 
+	case eCommand::setm:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		// tricky code, check map type
+		if (!(reg.val[code.reg1].vt & VT_RESERVED))
+			goto $error_semantic;
+		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
+		{
+			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
 	case eCommand::copya:
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
 		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
 			goto $error_semantic;
 		if (m_symbTable.CopyArray(code.str1, code.str2, reg.val[code.reg1]))
+		{
+			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
+	case eCommand::copym:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		// tricky code, check map type
+		if (!(reg.val[code.reg1].vt & VT_RESERVED))
+			goto $error_semantic;
+		if (m_symbTable.CopyMap(code.str1, code.str2, reg.val[code.reg1]))
 		{
 			++reg.idx;
 		}
