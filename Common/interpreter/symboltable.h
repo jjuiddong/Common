@@ -38,22 +38,36 @@ namespace common
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName, const T &var
 				, const string &typeStr="");
-			template <class T, size_t N>
-			bool Set(const string &scopeName, const string &symbolName, const T(&var)[N]
-				, const string &typeStr = "");
+
+			// vector<string> specialization
+			bool Set(const string &scopeName, const string &symbolName
+				, const vector<string> &var, const string &typeStr = "");
+
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName
 				, const vector<T> &var, const string &typeStr = "");
+
+			template <class T, size_t N>
+			bool Set(const string &scopeName, const string &symbolName, const T(&var)[N]
+				, const string &typeStr = "");
+
+			template <class T>
+			bool Set(const string &scopeName, const string &symbolName
+				, const map<string,T> &var, const string &typeStr = "");
+
+			template <class T>
+			bool Set(const string &scopeName, const string &symbolName
+				, const map<string, vector<T>> &var, const string &typeStr = "");
 
 			bool Set(const string &scopeName, const string &symbolName, const variant_t &var
 				, const string &typeStr = "");
 
 			bool InitArray(const string &scopeName, const string &symbolName
-				, const variant_t &var, const string &typeStr = "");
+				, const string &typeStr );
 			bool CopyArray(const string &scopeName, const string &symbolName
 				, const variant_t &var);
 			bool InitMap(const string &scopeName, const string &symbolName
-				, const variant_t &var, const string &typeStr = "");
+				, const string &typeStr);
 			bool CopyMap(const string &scopeName, const string &symbolName
 				, const variant_t &var);
 
@@ -83,7 +97,7 @@ namespace common
 
 		public:
 			map<string, map<string, sVariable>> m_vars; // key: scopeName
-												   // value: varName, value
+														// value: varName, value
 			map<string, sSymbol*> m_symbols; // key: symbol name
 			map<int, std::pair<string,string>> m_varMap; // key: variable id, value: scopeName, varName
 														 // for array type
@@ -99,7 +113,7 @@ namespace common
 			, const T &var, const string &typeStr //= ""
 			)
 		{
-			variant_t v((T)var);
+			variant_t v = var;
 			const bool r = Set(scopeName, symbolName, v, typeStr);
 			common::clearvariant(v);
 			return r;
@@ -122,6 +136,21 @@ namespace common
 			return true;
 		}
 
+		// vector<string> specialization
+		inline bool cSymbolTable::Set(const string &scopeName
+			, const string &symbolName
+			, const vector<string> &var
+			, const string &typeStr //= ""
+		)
+		{
+			InitArray(scopeName, symbolName, typeStr);
+			sVariable &variable = m_vars[scopeName][symbolName];
+			variable.ReserveArray(var.size());
+			for (auto &v : var)
+				variable.PushArrayElement((bstr_t)v.c_str());
+			return true;
+		}
+
 		// vector<T>
 		template <class T>
 		inline bool cSymbolTable::Set(const string &scopeName
@@ -130,10 +159,10 @@ namespace common
 			, const string &typeStr //= ""
 			)
 		{
-			const variant_t tvar = (T)0; // type T inference tricky code
-			InitArray(scopeName, symbolName, tvar, typeStr);
+			InitArray(scopeName, symbolName, typeStr);
 			sVariable &variable = m_vars[scopeName][symbolName];
 			variable.ReserveArray(var.size());
+			variable.ClearArray();
 			for (auto &v : var)
 				variable.PushArrayElement(v);
 			return true;
@@ -147,12 +176,53 @@ namespace common
 			, const string &typeStr //= ""
 			)
 		{			
-			const variant_t var = (T)0; // type T inference tricky code
-			InitArray(scopeName, symbolName, var, typeStr);
+			InitArray(scopeName, symbolName, typeStr);
 			sVariable &variable = m_vars[scopeName][symbolName];
 			variable.ReserveArray(N);
+			variable.ClearArray();
 			for (uint i = 0; i < N; ++i)
 				variable.PushArrayElement(var[i]);
+			return true;
+		}
+
+		// map<string,T>
+		template <class T>
+		inline bool cSymbolTable::Set(const string &scopeName
+			, const string &symbolName
+			, const map<string, T> &var
+			, const string &typeStr //= ""
+		)
+		{
+			InitMap(scopeName, symbolName, typeStr);
+			sVariable &mapVar = m_vars[scopeName][symbolName];
+			for (auto &kv : var)
+				mapVar.SetMapValue(kv.first, kv.second);
+			return true;
+		}
+
+		// map<string,T>, vector<T> specialization
+		template <class T>
+		inline bool cSymbolTable::Set(const string &scopeName
+			, const string &symbolName
+			, const map<string, vector<T>> &var
+			, const string &typeStr //= ""
+		)
+		{
+			InitMap(scopeName, symbolName, typeStr);
+
+			sVariable &mapVar = m_vars[scopeName][symbolName];
+			const string &subTypeStr = mapVar.GetMapValueTypeStr();
+
+			for (auto &kv : var)
+			{
+				const string &key = kv.first;
+				stringstream ss;
+				ss << symbolName << "[" << key << "]";
+				const string varName = ss.str();
+				Set(scopeName, varName, kv.second, subTypeStr);
+				sVariable &arVar = m_vars[scopeName][varName];
+				mapVar.SetMapValue(key, arVar.var);
+			}
 			return true;
 		}
 
@@ -161,7 +231,7 @@ namespace common
 		{
 			variant_t var;
 			if (!Get(scopeName, symbolName, var))
-				return variant_t((T)0);
+				return variant_t(T(0));
 			return (T)var;
 		}
 

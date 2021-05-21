@@ -21,9 +21,8 @@ sVariable::sVariable()
 	, id(cSymbolTable::GenID())
 	, arSize(0)
 	, arCapacity(0)
-	, subType0(0)
-	, subType1(0)
 {
+	ZeroMemory(typeValues, sizeof(typeValues));
 }
 
 sVariable::sVariable(const sVariable &rhs) 
@@ -42,14 +41,14 @@ variant_t& sVariable::GetArrayElement(const uint index)
 {
 	if (arSize > index)
 		return ar[index];
-	
+
 	// except process
-	switch (subType0)
+	switch (typeValues[1])
 	{
-	case VT_BOOL: return g_emptyBool;
-	case VT_INT: return g_emptyInt;
-	case VT_R4: return g_emptyFloat;
-	case VT_BSTR: return g_emptyString;
+	case eSymbolType::Bool: return g_emptyBool;
+	case eSymbolType::Int: return g_emptyInt;
+	case eSymbolType::Float: return g_emptyFloat;
+	case eSymbolType::String: return g_emptyString;
 	default: return g_emptyInt;
 	}
 }
@@ -94,12 +93,12 @@ variant_t& sVariable::PopArrayElement()
 	else
 	{
 		// except process
-		switch (subType0)
+		switch (typeValues[1])
 		{
-		case VT_BOOL: return g_emptyBool;
-		case VT_INT: return g_emptyInt;
-		case VT_R4: return g_emptyFloat;
-		case VT_BSTR: return g_emptyString;
+		case eSymbolType::Bool: return g_emptyBool;
+		case eSymbolType::Int: return g_emptyInt;
+		case eSymbolType::Float: return g_emptyFloat;
+		case eSymbolType::String: return g_emptyString;
 		default: return g_emptyInt;
 		}
 	}
@@ -109,8 +108,8 @@ variant_t& sVariable::PopArrayElement()
 // reserve array memory
 bool sVariable::ReserveArray(const uint size)
 {
-	if (arCapacity > size)
-		return false;
+	if (arCapacity >= size)
+		return true;
 
 	variant_t *newAr = new variant_t[size];
 	for (uint i = 0; i < arSize; ++i)
@@ -125,30 +124,75 @@ bool sVariable::ReserveArray(const uint size)
 
 
 // return m[key]
-variant_t& sVariable::GetMapElement(const string &key)
+// no data? create new data
+variant_t& sVariable::GetMapValue(cSymbolTable &symbolTable, const string &key)
 {
 	if (m)
 	{
-		return (*m)[key];
+		auto it = m->find(key);
+		if (m->end() != it)
+			return it->second;
 	}
-	else
+
+	// except process
+	switch (typeValues[2]) // get map value type
 	{
-		// except process
-		switch (subType1)
-		{
-		case VT_BOOL: return g_emptyBool;
-		case VT_INT: return g_emptyInt;
-		case VT_R4: return g_emptyFloat;
-		case VT_BSTR: return g_emptyString;
-		default: return g_emptyInt;
-		}
+	case eSymbolType::Bool: return g_emptyBool;
+	case eSymbolType::Int: return g_emptyInt;
+	case eSymbolType::Float: return g_emptyFloat;
+	case eSymbolType::String: return g_emptyString;
+	case eSymbolType::Array:
+	{
+		// check current variable available
+		auto it = symbolTable.m_varMap.find(id);
+		if (symbolTable.m_varMap.end() == it)
+			return g_emptyInt; // error
+
+		// find source map variable
+		const string scopeName = it->second.first;
+		const string varName = it->second.second;
+		sVariable *mapVar = symbolTable.FindVarInfo(scopeName, varName);
+		if (!mapVar)
+			return g_emptyInt; // error
+
+		// create new array
+		stringstream ss;
+		ss << varName << "[" << key << "]";
+		const string newVarName = ss.str(); // array key
+		symbolTable.InitArray(scopeName, newVarName, subTypeStr);
+
+		// get creation array
+		sVariable *arVar = symbolTable.FindVarInfo(scopeName, newVarName);
+		if (!arVar)
+			return g_emptyInt; // error
+		if (!m)
+			m = new map<string, variant_t>();
+		(*m)[key] = arVar->var;
+		return arVar->var;
+	}
+	default: return g_emptyInt;
 	}
 }
 
 
-// set m[key] = v
-bool sVariable::SetMapElement(const string &key, const variant_t &v)
+// return map value type string
+const string& sVariable::GetMapValueTypeStr()
 {
+	return subTypeStr;
+}
+
+// return array element type string
+const string& sVariable::GetArrayElementTypeStr()
+{
+	return subTypeStr;
+}
+
+
+// set m[key] = v
+bool sVariable::SetMapValue(const string &key, const variant_t &v)
+{
+	if (!m)
+		m = new map<string, variant_t>();
 	if (m)
 	{
 		(*m)[key] = v;
@@ -159,7 +203,7 @@ bool sVariable::SetMapElement(const string &key, const variant_t &v)
 
 
 // has m[key]?
-bool sVariable::HasMapElement(const string &key)
+bool sVariable::HasMapValue(const string &key)
 {
 	if (m)
 	{
@@ -187,17 +231,17 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 	{
 		ClearArray();
 		type = rhs.type;
-		var = rhs.var;
-		subType0 = rhs.subType0;
-		subType1 = rhs.subType1;
+		var = rhs.var; // variable or array, map type id assign
+		memcpy(typeValues, rhs.typeValues, sizeof(rhs.typeValues));
 
 		// copy array, deep copy
 		// array or map type? intVal is sVar id
-		if ((rhs.var.vt & VT_BYREF) || (rhs.var.vt & VT_RESERVED))
+		if (rhs.var.vt & VT_BYREF)
 			var.intVal = id;
 
 		// array copy
-		if (rhs.var.vt & VT_BYREF) {
+		if (rhs.type == "Array") 
+		{
 			if (rhs.arSize > 0) {
 				ReserveArray(rhs.arSize);
 				for (uint i = 0; i < rhs.arSize; ++i)
@@ -205,15 +249,17 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 				arSize = rhs.arSize;
 			}
 		}
-
 		// map copy
-		if (rhs.var.vt & VT_RESERVED) {
+		else if (rhs.type == "Map") 
+		{
 			ClearMap();
-			if (!rhs.m)
-				m = new map<string, variant_t>();
-
-			if (rhs.m) 
+			if (m) 
+				m->clear();
+			if (rhs.m)
 			{
+				if (!m)
+					m = new map<string, variant_t>();
+				m->clear();
 				for (auto &kv : *rhs.m)
 					(*m)[kv.first] = kv.second;
 			}
@@ -243,8 +289,8 @@ void sVariable::ClearArray()
 // clear array allocated memory
 void sVariable::ClearArrayMemory()
 {
-	for (uint i = 0; i < arSize; ++i)
-		common::clearvariant(ar[i]);
+	//for (uint i = 0; i < arSize; ++i)
+	//	common::clearvariant(ar[i]);
 	SAFE_DELETEA(ar);
 	arSize = 0;
 	arCapacity = 0;
@@ -264,3 +310,4 @@ void sVariable::ClearMapMemory()
 {
 	SAFE_DELETE(m);
 }
+

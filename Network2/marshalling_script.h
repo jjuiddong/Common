@@ -35,6 +35,7 @@ namespace network2 {
 			packet << (BYTE)rhs.cmd;
 			packet << rhs.str1;
 			packet << rhs.str2;
+			packet << rhs.str3;
 			packet.Write4ByteAlign();
 			packet << rhs.reg1;
 			packet << rhs.reg2;

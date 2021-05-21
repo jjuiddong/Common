@@ -54,12 +54,15 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "getf")
 			|| (toks[0] == "gets")
 			|| (toks[0] == "geta")
+			|| (toks[0] == "getm")
 			|| (toks[0] == "seti")
 			|| (toks[0] == "setb")
 			|| (toks[0] == "setf")
 			|| (toks[0] == "sets")
 			|| (toks[0] == "seta")
+			|| (toks[0] == "setm")
 			|| (toks[0] == "copya")
+			|| (toks[0] == "copym")
 			)
 			&& (toks.size() >= 4))
 		{
@@ -181,24 +184,34 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "symboli")
 			|| (toks[0] == "symbolf")
 			|| (toks[0] == "symbols"))
-			&& (toks.size() >= 4))
-		{
-			code.cmd = eCommand::FromString(toks[0]);
-			code.str1 = toks[1];
-			code.str2 = toks[2];
-			const VARTYPE vt = common::script::GetVarType(code.cmd);
-			code.var1 = common::str2variant(vt, toks[3]);
-		}
-		else if (((toks[0] == "symbolab")
-			|| (toks[0] == "symbolai")
-			|| (toks[0] == "symbolaf")
-			|| (toks[0] == "symbolas"))
 			&& (toks.size() >= 3))
 		{
 			code.cmd = eCommand::FromString(toks[0]);
 			code.str1 = toks[1];
 			code.str2 = toks[2];
-			// todo: array initialize
+			const VARTYPE vt = common::script::GetVarType(code.cmd);
+			code.var1 = common::str2variant(vt
+				, (toks.size()>=4)? toks[3] : "");
+		}
+		else if (
+			(
+				(toks[0] == "symbolab")
+				|| (toks[0] == "symbolai")
+				|| (toks[0] == "symbolaf")
+				|| (toks[0] == "symbolas")
+				|| (toks[0] == "symbolmb")
+				|| (toks[0] == "symbolmi")
+				|| (toks[0] == "symbolmf")
+				|| (toks[0] == "symbolms")
+				|| (toks[0] == "symbolma")
+			)
+			&& (toks.size() >= 3))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.str1 = toks[1];
+			code.str2 = toks[2];
+			if (toks.size() >= 4)
+				code.str3 = toks[3]; // array, map type string
 		}
 		else if ((toks[0] == "#comment")
 			&& (toks.size() >= 4))
@@ -262,7 +275,6 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 	for (uint i = 0; i < m_codes.size(); ++i)
 	{
 		auto &code = m_codes[i];
-		variant_t arElem; // temporal array element type
 		switch (code.cmd)
 		{
 		case eCommand::symbolb:
@@ -272,20 +284,31 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			m_variables.Set(code.str1, code.str2, code.var1);
 			break;
 		case eCommand::symbolab:
-			arElem = (bool)false;
-			m_variables.InitArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, "array<bool>");
 			break;
 		case eCommand::symbolai:
-			arElem = (int)0;
-			m_variables.InitArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, "array<int>");
 			break;
 		case eCommand::symbolaf:
-			arElem = (float)0.f;
-			m_variables.InitArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, "array<float>");
 			break;
 		case eCommand::symbolas:
-			arElem = common::str2variant(VT_BSTR, "");
-			m_variables.InitArray(code.str1, code.str2, arElem);
+			m_variables.InitArray(code.str1, code.str2, "array<string>");
+			break;
+		case eCommand::symbolmb:
+			m_variables.InitMap(code.str1, code.str2, "map<string,bool>");
+			break;
+		case eCommand::symbolmi:
+			m_variables.InitMap(code.str1, code.str2, "map<string,int>");
+			break;
+		case eCommand::symbolmf:
+			m_variables.InitMap(code.str1, code.str2, "map<string,float>");
+			break;
+		case eCommand::symbolms:
+			m_variables.InitMap(code.str1, code.str2, "map<string,string>");
+			break;
+		case eCommand::symbolma:
+			m_variables.InitMap(code.str1, code.str2, code.str3);
 			break;
 		}
 	}
@@ -336,12 +359,15 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::getf:
 		case eCommand::gets:
 		case eCommand::geta:
+		case eCommand::getm:
 		case eCommand::setb:
 		case eCommand::seti:
 		case eCommand::setf:
 		case eCommand::sets:
 		case eCommand::seta:
+		case eCommand::setm:
 		case eCommand::copya:
+		case eCommand::copym:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";
@@ -430,10 +456,17 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::symbolai:
 		case eCommand::symbolaf:
 		case eCommand::symbolas:
+		case eCommand::symbolmb:
+		case eCommand::symbolmi:
+		case eCommand::symbolmf:
+		case eCommand::symbolms:
+		case eCommand::symbolma:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";
 			ofs << ", " << common::variant2str(code.var1, true);
+			if (!code.str3.empty())
+				ofs << ", \"" << code.str3 << "\"";
 			break;
 
 		case eCommand::cmt:

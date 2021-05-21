@@ -580,7 +580,7 @@ bool cRemoteDebugger2::SendSyncSymbolTable(const int itprId)
 				}
 				else
 				{
-					// check change? (VT_BYREF crash)
+					// check change? (VT_BYREF (array or map type) crash)
 					sSymbol &ssymb = it->second;
 					if (!(ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var != var.var))
 					{

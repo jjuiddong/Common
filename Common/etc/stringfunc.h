@@ -15,10 +15,13 @@ namespace common
 {
 	void replaceAll(string& str, const string& from, const string& to);
 	string& trim(string &str);
+	string trim2(const string &str);
 	void trimw(wstring &str);
 
 	string& lowerCase(string &str);
+	string lowerCase2(const string &str);
 	string& upperCase(string &str);
+	string upperCase2(const string &str);
 	wstring& lowerCasew(wstring &str);
 	wstring& upperCasew(wstring &str);
 

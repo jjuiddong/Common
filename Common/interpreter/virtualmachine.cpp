@@ -251,7 +251,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
 		{
 			// ticky code, check map type 
-			const bool isMapType = (reg.val[code.reg1].vt & VT_RESERVED);
+			const bool isMapType = (reg.val[code.reg1].vt & VT_BYREF);
 			if (!isMapType)
 				goto $error_semantic;
 			++reg.idx;
@@ -299,7 +299,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
 		// tricky code, check map type
-		if (!(reg.val[code.reg1].vt & VT_RESERVED))
+		if (!(reg.val[code.reg1].vt & VT_BYREF))
 			goto $error_semantic;
 		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
 		{
@@ -330,7 +330,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
 		// tricky code, check map type
-		if (!(reg.val[code.reg1].vt & VT_RESERVED))
+		if (!(reg.val[code.reg1].vt & VT_BYREF))
 			goto $error_semantic;
 		if (m_symbTable.CopyMap(code.str1, code.str2, reg.val[code.reg1]))
 		{

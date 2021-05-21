@@ -10,18 +10,6 @@ namespace vprog {
 	using common::StrId;
 	using common::StrPath;
 
-
-	DECLARE_ENUM(eSymbolType,
-		None,
-		Bool,
-		Int,
-		Float,
-		Enums,
-		String,
-		Array,
-		Map
-	);
-
 	DECLARE_ENUM(ePinType,
 		Flow,
 		Bool,
@@ -32,7 +20,7 @@ namespace vprog {
 		Object,
 		Function,
 		Delegate,
-		NotDef,
+		Any,//NotDef,
 		None,
 		Array,
 		Map
@@ -63,6 +51,5 @@ namespace vprog {
 
 	// Is Variable Type? int, float .. etc
 	bool IsVarType(const ePinType::Enum type);
-	bool IsVariable(const eSymbolType::Enum type);
 
 }

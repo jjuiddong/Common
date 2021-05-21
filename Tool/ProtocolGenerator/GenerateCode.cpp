@@ -798,7 +798,7 @@ void compiler::WriteDispatchSwitchCase(ofstream &fs, sProtocol *pProtocol, eForm
 
 		tab = "\t\t\t\t";
 		fs << tab << "} catch (...) {\n";
-		fs << tab << "\tdbg::Logp(\"json packet parsing error\\n\");\n";
+		fs << tab << "\tdbg::Logp(\"json packet parsing error packetid = %lu\\n\", packetId);\n";
 		fs << tab << "}\n";
 
 		fs << "\t\t\t}\n";

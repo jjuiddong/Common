@@ -31,7 +31,7 @@ namespace common
 			pushic, pop, sret, cstack,
 			symbolb, symboli, symbolf, symbols,
 			symbolab, symbolai, symbolaf, symbolas,
-			symbolmb, symbolmi, symbolmf, symbolms,
+			symbolmb, symbolmi, symbolmf, symbolms, symbolma,
 			timer1, timer2,
 			cmt, delay, nop
 		);
@@ -44,6 +44,7 @@ namespace common
 			eCommand::Enum cmd;
 			string str1; // function name, variable name, etc..
 			string str2; // function name, variable name, etc..
+			string str3; // function name, variable name, etc..
 			uint reg1; // register index (val0, val1, ...), or variable id
 			uint reg2; // register index (val0, val1, ...), or variable id
 			variant_t var1; // variable value
@@ -54,8 +55,8 @@ namespace common
 			sInstruction(const eCommand::Enum cmd0, const string &_str1) 
 				: cmd(cmd0), str1(_str1), reg1(0), reg2(0) {}
 			sInstruction(const eCommand::Enum cmd0, const string &_str1
-				, const string &_str2)
-				: cmd(cmd0), str1(_str1), str2(_str2), reg1(0), reg2(0) {}
+				, const string &_str2, const string &_str3)
+				: cmd(cmd0), str1(_str1), str2(_str2), str3(_str3), reg1(0), reg2(0) {}
 			~sInstruction();
 
 			sInstruction& operator=(const sInstruction &rhs);
@@ -131,6 +132,7 @@ namespace common
 		// symbolmi scope_name, varname, value ;initialize map<string,int> type symbol table
 		// symbolmf scope_name, varname, value ;initialize map<string,float> type symbol table
 		// symbolms scope_name, varname, value ;initialize map<string,string> type symbol table
+		// symbolma scope_name, varname, value ;initialize map<string,array<>> type symbol table
 
 		// timer1 scope_name, value ; loop timer, value:interval (milliseconds)
 		// timer2 scope_name, value ; timer, value:interval (milliseconds), loop on/off
@@ -161,6 +163,32 @@ namespace common
 				, const variant_t *var_ = nullptr) 
 			: scope(scope_), name(name_), var(var_) { }
 		};
+
+
+		// symboltype
+		DECLARE_ENUM(eSymbolType,
+			None,
+			Bool,
+			Int,
+			Float,
+			Enums,
+			String,
+			Array,
+			Map,
+			Any
+		);
+
+		// eSymbolType Functions
+		bool IsVariable(const eSymbolType::Enum type);
+
+		// convert type string to symbol type Array
+		bool ParseTypeString(const string &typeStr, OUT vector<eSymbolType::Enum> &out);
+		bool ParseTypeString(const string &typeStr, OUT eSymbolType::Enum out[4]);
+
+		// generate type string from type array
+		string GenerateTypeString(const vector<eSymbolType::Enum> &typeValues);
+		string GenerateTypeString(const eSymbolType::Enum typeValues[4]
+			, const uint startIdx = 0);
 
 	}
 }

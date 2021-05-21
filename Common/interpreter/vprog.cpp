@@ -13,11 +13,13 @@ VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 	{
 	case ePinType::Bool: return VT_BOOL;
 	case ePinType::Enums:
-	case ePinType::NotDef:
+	case ePinType::Any://NotDef:
 	case ePinType::Int: return VT_INT;
 	case ePinType::Float: return VT_R4;
 	case ePinType::String: return VT_BSTR;
 	case ePinType::Flow: return VT_EMPTY;
+	case ePinType::Array: return VT_BYREF; // tricky type
+	case ePinType::Map: return VT_BYREF; // tricky type
 	default:
 		assert(!"vprog::GetPin2VarType() Error symbol parse error!!");
 		break;
@@ -27,6 +29,7 @@ VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 
 
 // Is Variable Type? int, float .. etc
+// is primitive type?
 bool vprog::IsVarType(const ePinType::Enum type)
 {
 	switch (type)
@@ -37,26 +40,6 @@ bool vprog::IsVarType(const ePinType::Enum type)
 	case ePinType::Float:
 	case ePinType::String:
 		return true;
-	default:
-		return false;
-	}
-}
-
-
-// is variable type?
-bool vprog::IsVariable(const eSymbolType::Enum type)
-{
-	switch (type)
-	{
-	case eSymbolType::Bool:
-	case eSymbolType::Int:
-	case eSymbolType::Float:
-	case eSymbolType::String:
-	case eSymbolType::Array:
-	case eSymbolType::Map:
-		return true;
-	case eSymbolType::None:
-	case eSymbolType::Enums:
 	default:
 		return false;
 	}

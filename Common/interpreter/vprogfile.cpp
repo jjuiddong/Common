@@ -107,17 +107,15 @@ bool cVProgFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNod
 		{
 			sPin pin;
 
-			const string typeStr = sdata.Get<string>(c, "type", " ");
-			const string subTypeStr0 = sdata.Get<string>(c, "subType0", "None");
-			const string subTypeStr1 = sdata.Get<string>(c, "subType1", "None");
+			const string type = sdata.Get<string>(c, "type", " ");
+			const string typeStr = sdata.Get<string>(c, "typeStr", "");
+			pin.type = ePinType::FromString(type);
 			pin.typeStr = typeStr;
-			pin.type = ePinType::FromString(typeStr);
-			pin.subType0 = eSymbolType::FromString(subTypeStr0);
-			pin.subType1 = eSymbolType::FromString(subTypeStr1);
+			common::script::ParseTypeString(typeStr, pin.typeValues);
 
-			if (pin.type == ePinType::COUNT) // not found type, check enum type
+			if (pin.type == ePinType::COUNT) // not found type, check enum type?
 			{
-				if (m_variables.FindSymbol(typeStr))
+				if (m_variables.FindSymbol(type))
 				{
 					pin.type = ePinType::Enums;
 				}
@@ -161,9 +159,8 @@ bool cVProgFile::AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::
 {
 	const string scopeName = sdata.Get<string>(p, "scopename", "");
 	const string name = sdata.Get<string>(p, "name", "");
-	const string typeStr = sdata.Get<string>(p, "type", "");
-	const ePinType::Enum type = ePinType::FromString(typeStr.c_str());
-	return AddVariable2(scopeName, name, type, typeStr, sdata, p);
+	const string typeStr = sdata.Get<string>(p, "typeStr", "");
+	return AddVariable2(scopeName, name, typeStr, sdata, p);
 }
 
 
@@ -185,13 +182,13 @@ bool cVProgFile::AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 
 	const string scopeName = MakeScopeName(*n);
 	const string varName = pp->name.c_str();
-	return AddVariable2(scopeName, varName, pp->type, "", sdata, p);
+	return AddVariable2(scopeName, varName, pp->typeStr, sdata, p);
 }
 
 
 // add variable
 bool cVProgFile::AddVariable2(const string &scopeName, const string &name
-	, const ePinType::Enum type, const string &typeStr
+	, const string &typeStr
 	, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	if (scopeName.empty() || name.empty())
@@ -200,53 +197,53 @@ bool cVProgFile::AddVariable2(const string &scopeName, const string &name
 		return false; // error
 	}
 
-	variant_t val;
-	switch (type)
+	//ePinType::Enum pinType;
+	using namespace common::script;
+	vector<eSymbolType::Enum> typeValues;
+	if (!ParseTypeString(typeStr, typeValues)) 
 	{
-	case ePinType::Bool: val = sdata.Get<bool>(p, "value", false); break;
-	case ePinType::Enums:
-	case ePinType::COUNT: // enum type
-	case ePinType::Int: val = sdata.Get<int>(p, "value", 0); break;
-	case ePinType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
-	case ePinType::String:
+		common::dbg::Logc(1
+			, "Error!! cVProgFile::AddVariable2() symbol parse error!! 1-1, typeStr = %s\n"
+			, typeStr.c_str());
+		return false;
+	}
+	const common::script::eSymbolType::Enum symbType = typeValues.front();
+
+	variant_t val;
+	switch (symbType)
+	{
+	case eSymbolType::Bool: val = sdata.Get<bool>(p, "value", false); break;
+	case eSymbolType::Enums:
+	case eSymbolType::Int: val = sdata.Get<int>(p, "value", 0); break;
+	case eSymbolType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
+	case eSymbolType::String:
 		val = common::str2variant(VT_BSTR, sdata.Get<string>(p, "value", ""));
 		break;
-	case ePinType::Array: break;
+	case eSymbolType::Array:
+		if (!m_variables.InitArray(scopeName, name, typeStr))
+		{
+			assert(!"cNodefile::AddVariable2() symbol parse error!! 3");
+			return false;
+		}
+		break;
+	case eSymbolType::Map:
+		if (!m_variables.InitMap(scopeName, name, typeStr))
+		{
+			assert(!"cNodefile::AddVariable2() symbol parse error!! 4");
+			return false;
+		}
+		break;
 	default:
 		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable2() symbol parse error!! 2\n");
 		return false;
 	}
 
-	// initialize array type
-	if (type == ePinType::Array)
-	{
-		const string subTypeStr0 = sdata.Get<string>(p, "subType0", "None");
-		const ePinType::Enum subType = ePinType::FromString(subTypeStr0.c_str());
-		switch (subType)
-		{
-		case ePinType::Bool: val = (bool)false; break;
-		case ePinType::Enums:
-		case ePinType::COUNT: // enum type
-		case ePinType::Int: val = (int)0; break;
-		case ePinType::Float: val = (float)0.f; break;
-		case ePinType::String: val = common::str2variant(VT_BSTR, ""); break;
-		case ePinType::Array: // no array accept
-		default:
-			// ignore no subtype variable
-			return false;
-		}
-
-		if (!m_variables.InitArray(scopeName, name, val, typeStr))
-		{
-			assert(!"cNodefile::AddVariable2() symbol parse error!! 3");
-			return false;
-		}
-	}
-	else
+	// update value bool, int, float, string, enum
+	if ((symbType != eSymbolType::Array) && (symbType != eSymbolType::Map))
 	{
 		if (!m_variables.Set(scopeName, name, val, typeStr))
 		{
-			assert(!"cNodefile::AddVariable2() symbol parse error!! 4");
+			assert(!"cNodefile::AddVariable2() symbol parse error!! 5");
 			return false;
 		}
 	}
@@ -260,13 +257,13 @@ bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 {
 	namespace script = common::script;
 
-	script::cSymbolTable::sSymbol type;
+	script::cSymbolTable::sSymbol symbol;
 	const string typeStr = sdata.Get<string>(p, "type", "Enum");
-	type.type = (typeStr == "Enum") ?
+	symbol.type = (typeStr == "Enum") ?
 		script::cSymbolTable::eType::Enum : script::cSymbolTable::eType::None;
-	type.name = sdata.Get<string>(p, "name", " ");
+	symbol.name = sdata.Get<string>(p, "name", " ");
 
-	if (type.type == script::cSymbolTable::eType::Enum)
+	if (symbol.type == script::cSymbolTable::eType::Enum)
 	{
 		for (auto &c : p->children)
 		{
@@ -275,7 +272,7 @@ bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 				script::cSymbolTable::sEnum e;
 				e.name = sdata.Get<string>(c, "name", " ");
 				e.value = sdata.Get<int>(c, "value", 0);
-				type.enums.push_back(e);
+				symbol.enums.push_back(e);
 			}
 		}
 	}
@@ -284,7 +281,7 @@ bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 		assert(!"cVProgFile::Read() Error, not defined type parse");
 	}
 
-	m_variables.AddSymbol(type);
+	m_variables.AddSymbol(symbol);
 
 	return true;
 }
@@ -327,7 +324,7 @@ bool cVProgFile::Write_Node(std::ostream &ofs, sNode &node)
 	for (auto &pin : node.inputs)
 	{
 		ofs << "\tinput" << endl;
-		ofs << "\t\t" << "type " << pin.typeStr.c_str() << endl;
+		ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
 		ofs << "\t\t" << "id " << pin.id << endl;
 		if (pin.name.empty())
 			ofs << "\t\t" << "name \" \"" << endl; // blank name
@@ -344,7 +341,7 @@ bool cVProgFile::Write_Node(std::ostream &ofs, sNode &node)
 	for (auto &pin : node.outputs)
 	{
 		ofs << "\toutput" << endl;
-		ofs << "\t\t" << "type " << pin.typeStr.c_str() << endl;
+		ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
 		ofs << "\t\t" << "id " << pin.id << endl;
 		if (pin.name.empty())
 			ofs << "\t\t" << "name \" \"" << endl; // blank name
@@ -382,6 +379,8 @@ bool cVProgFile::Write_Define(std::ostream &ofs, sNode &node)
 // generate script intermediate code
 bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &out)
 {
+	using namespace common::script;
+
 	RETV(m_nodes.empty(), false);
 
 	m_visit.clear(); // avoid duplicate execution
@@ -399,7 +398,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 	// make intermediate code from event
 	for (auto &node : m_nodes)
 		if (eNodeType::Event == node.type)
-			GenerateCode_Event(node, out);
+			Event_GenCode(node, out);
 
 	// make blank branch
 	{
@@ -412,54 +411,66 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 	}
 
 	// make initial symbol
-	for (auto &kv1 : m_variables.m_vars)
+	for (auto &kv1 : m_variables.m_vars) // loop all scope
 	{
-		for (auto &kv2 : kv1.second)
+		for (auto &kv2 : kv1.second) // loop all scope variable
 		{
-			const variant_t &var = kv2.second.var;
+			const sVariable &var = kv2.second;
 
 			script::sInstruction code;
-			switch (var.vt)
+			string typeStr; // array, map type string
+
+			const eSymbolType::Enum symbType = var.typeValues[0];
+			switch (symbType)
 			{
-			case VT_BOOL: code.cmd = script::eCommand::symbolb; break;
-			case VT_INT: code.cmd = script::eCommand::symboli; break;
-			case VT_R4: code.cmd = script::eCommand::symbolf; break;
-			case VT_BSTR: code.cmd = script::eCommand::symbols; break;
+			case eSymbolType::Bool: code.cmd = script::eCommand::symbolb; break;
+			case eSymbolType::Int: code.cmd = script::eCommand::symboli; break;
+			case eSymbolType::Float: code.cmd = script::eCommand::symbolf; break;
+			case eSymbolType::String: code.cmd = script::eCommand::symbols; break;
+			case eSymbolType::Array:
+			{
+				typeStr = var.type;
+				const eSymbolType::Enum elementType = var.typeValues[1]; //array<type>
+				switch (elementType)
+				{
+				case eSymbolType::Bool: code.cmd = script::eCommand::symbolab; break;
+				case eSymbolType::Int: code.cmd = script::eCommand::symbolai; break;
+				case eSymbolType::Float: code.cmd = script::eCommand::symbolaf; break;
+				case eSymbolType::String: code.cmd = script::eCommand::symbolas; break;
+				default:
+					common::dbg::Logc(3,
+						"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+					break;
+				}
+			}
+			break;
+			case eSymbolType::Map:
+			{
+				typeStr = var.type;
+				const eSymbolType::Enum valueType = var.typeValues[2]; //map<string,type>
+				switch (valueType)
+				{
+				case eSymbolType::Bool: code.cmd = script::eCommand::symbolmb; break;
+				case eSymbolType::Int: code.cmd = script::eCommand::symbolmi; break;
+				case eSymbolType::Float: code.cmd = script::eCommand::symbolmf; break;
+				case eSymbolType::String: code.cmd = script::eCommand::symbolms; break;
+				case eSymbolType::Array: code.cmd = script::eCommand::symbolma; break;
+				default:
+					common::dbg::Logc(3, 
+						"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type3\n");
+					break;
+				}
+			}
+			break;
 			default:
-				if (var.vt & VT_BYREF) // array? (tricky code)
-				{
-					switch (kv2.second.subType0)
-					{
-					case VT_BOOL: code.cmd = script::eCommand::symbolab; break;
-					case VT_INT: code.cmd = script::eCommand::symbolai; break;
-					case VT_R4: code.cmd = script::eCommand::symbolaf; break;
-					case VT_BSTR: code.cmd = script::eCommand::symbolas; break;
-					default:
-						common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
-						break;
-					}
-					break;
-				}
-				else if (var.vt & VT_RESERVED) // map? (tricky code)
-				{
-					switch (kv2.second.subType1)
-					{
-					case VT_BOOL: code.cmd = script::eCommand::symbolmb; break;
-					case VT_INT: code.cmd = script::eCommand::symbolmi; break;
-					case VT_R4: code.cmd = script::eCommand::symbolmf; break;
-					case VT_BSTR: code.cmd = script::eCommand::symbolms; break;
-					default:
-						common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type3\n");
-						break;
-					}
-					break;
-				}
-				common::dbg::Logc(3, "Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
+				common::dbg::Logc(3, 
+					"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
 				break;
 			}
-			code.str1 = kv1.first;
-			code.str2 = kv2.first;
-			code.var1 = var;
+			code.str1 = kv1.first; // scopename
+			code.str2 = kv2.first; // varname
+			code.str3 = typeStr; // array, map type string
+			code.var1 = var.var;
 			out.m_codes.push_back(code);
 		}
 	}
@@ -491,7 +502,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 
 
 // generate intermediate code, event node
-bool cVProgFile::GenerateCode_Event(const sNode &node
+bool cVProgFile::Event_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Event, false);
@@ -522,7 +533,7 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (!next)
 				continue; // error occurred!!
-			GenerateCode_Node(node, *next, pin, out);
+			Node_GenCode(node, *next, pin, out);
 		}
 	}
 
@@ -536,16 +547,16 @@ bool cVProgFile::GenerateCode_Event(const sNode &node
 
 
 // generate intermediate code, node
-bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
+bool cVProgFile::Node_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	switch (node.type)
 	{
 	case eNodeType::Function:
-	case eNodeType::Macro: GenerateCode_Function(prevNode, node, fromPin, out); break;
-	case eNodeType::Control: GenerateCode_Control(prevNode, node, fromPin, out); break;
-	case eNodeType::Operator: GenerateCode_Operator(node, out); break;
-	case eNodeType::Variable: GenerateCode_Variable(node, out); break;
+	case eNodeType::Macro: Function_GenCode(prevNode, node, fromPin, out); break;
+	case eNodeType::Control: Control_GenCode(prevNode, node, fromPin, out); break;
+	case eNodeType::Operator: Operator_GenCode(node, out); break;
+	case eNodeType::Variable: Variable_GenCode(node, out); break;
 		break;
 	default:
 		common::dbg::Logc(1
@@ -558,15 +569,15 @@ bool cVProgFile::GenerateCode_Node(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, function node type
-bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
+bool cVProgFile::Function_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
-	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
 		return true;
 
 	// get input variable
 	const uint reg = 0;
-	GenerateCode_NodeInput(node, reg, true, out);
+	NodeInput_GenCode(node, reg, true, out);
 
 	// Known function?
 	if (node.name == "Set")
@@ -583,6 +594,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			case ePinType::Float: code.cmd = script::eCommand::setf; break;
 			case ePinType::String: code.cmd = script::eCommand::sets; break;
 			case ePinType::Array: code.cmd = script::eCommand::copya; break;
+			case ePinType::Map: code.cmd = script::eCommand::copym; break;
 			default:
 				return false;
 			}
@@ -615,7 +627,7 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 		// Set node has out pint?
 		for (auto &pin : node.outputs)
 			if (ePinType::Flow != pin.type)
-				GenerateCode_Pin2(ePinKind::Input, node, pin, reg, out);
+				Pin2_GenCode(ePinKind::Input, node, pin, reg, out);
 	}
 	else if (node.name == "Delay")
 	{
@@ -660,44 +672,44 @@ bool cVProgFile::GenerateCode_Function(const sNode &prevNode, const sNode &node
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next)
 			{
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 			}
 		}
 	}
 
-	GenerateCode_NodeEscape(node, out);
+	NodeEscape_GenCode(node, out);
 	return true;
 }
 
 
 // generate intermediate code, control node
-bool cVProgFile::GenerateCode_Control(const sNode &prevNode, const sNode &node
+bool cVProgFile::Control_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	if (node.name == "Branch")
-		GenerateCode_Branch(prevNode, node, fromPin, out);
+		Branch_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "Switch")
-		GenerateCode_Switch(prevNode, node, fromPin, out);
+		Switch_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "While")
-		GenerateCode_While(prevNode, node, fromPin, out);
+		While_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "For Loop")
-		GenerateCode_ForLoop(prevNode, node, fromPin, out);
+		ForLoop_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "Sequence")
-		GenerateCode_Sequence(prevNode, node, fromPin, out);
+		Sequence_GenCode(prevNode, node, fromPin, out);
 	return true;
 }
 
 
 // generate intermediate code, control node
-bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
+bool cVProgFile::Branch_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
 		return true;
 
 	uint condReg = 0; // condition register
-	GenerateCode_NodeInput(node, 0, false, out);
+	NodeInput_GenCode(node, 0, false, out);
 
 	// insert branch code
 
@@ -710,7 +722,7 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 		out.m_codes.push_back(code);
 	}
 	
-	string jumpLabel; // false jump label
+	string jumpLabel_False; // false jump label
 	{
 		// jump if true, jump false flow
 		// find False branch pin
@@ -724,84 +736,95 @@ bool cVProgFile::GenerateCode_Branch(const sNode &prevNode, const sNode &node
 				const int linkId = pin.links.empty() ? -1 : pin.links.front();
 				std::tie(next, np) = FindContainPin(linkId);
 				if (next)
-					jumpLabel = MakeScopeName(node) + "-False";
+					jumpLabel_False = MakeScopeName(node) + "-False";
 			}
 		}
 
-		if (jumpLabel.empty())
+		if (jumpLabel_False.empty())
 		{
 			// no branch node, jump blank code
 			script::sInstruction code;
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			common::dbg::Logc(1, "cVProgFile::GenerateCode_Branch, no branch label\n");
+			//common::dbg::Logc(1, "cVProgFile::GenerateCode_Branch, no branch label\n");
 		}
 		else
 		{
 			script::sInstruction code;
 			code.cmd = script::eCommand::jnz;
-			code.str1 = jumpLabel;
+			code.str1 = jumpLabel_False;
 			out.m_codes.push_back(code);
 		}
 	}
 
 	// next flow node (generate True branch node)
+	bool hasTrueBranch = false;
 	for (auto &pin : node.outputs)
 	{
-		if (ePinType::Flow == pin.type)
+		if ((ePinType::Flow == pin.type) 
+			&& (pin.name == "True"))
 		{
 			sNode *next = nullptr; // next node
 			sPin *np = nullptr; // next pin
 			const int linkId = pin.links.empty() ? -1 : pin.links.front();
 			std::tie(next, np) = FindContainPin(linkId);
-			if (next && (pin.name == "True"))
+			if (next)
 			{
-				GenerateCode_Node(node, *next, pin, out);
+				hasTrueBranch = true;
+				Node_GenCode(node, *next, pin, out);
 			}
 		}
+	}
+
+	// no has TRUE branch node?
+	if (!hasTrueBranch)
+	{
+		// no branch node, no operation
+		NodeEscape_GenCode(node, out);
 	}
 
 	// generate False branch node
 	// seperate from this node
 	for (auto &pin : node.outputs)
 	{
-		if (ePinType::Flow == pin.type)
+		if ((ePinType::Flow == pin.type) 
+			&& (pin.name == "False"))
 		{
 			sNode *next = nullptr; // next node
 			sPin *np = nullptr; // next pin
 			const int linkId = pin.links.empty() ? -1 : pin.links.front();
 			std::tie(next, np) = FindContainPin(linkId);
-			if (next && (pin.name == "False"))
+			if (next)
 			{
 				// insert jump label
 				{
 					script::sInstruction code;
 					code.cmd = script::eCommand::label;
-					code.str1 = jumpLabel;
+					code.str1 = jumpLabel_False;
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 				break;
 			}
 		}
 	}
 
-	GenerateCode_NodeEscape(node, out);
+	NodeEscape_GenCode(node, out);
 	return true;
 }
 
 
 // generate intermediate code, switch case node
-bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
+bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
 		return true;
 
-	GenerateCode_NodeInput(node, 0, false, out);
+	NodeInput_GenCode(node, 0, false, out);
 
 	// get input variable
 	const sPin *selPin = GetInputPin(node, { "in", "Selection" });
@@ -932,20 +955,20 @@ bool cVProgFile::GenerateCode_Switch(const sNode &prevNode, const sNode &node
 			out.m_codes.push_back(code);
 		}
 
-		GenerateCode_Node(node, *next, pin, out);
+		Node_GenCode(node, *next, pin, out);
 	}
 
-	GenerateCode_NodeEscape(node, out);
+	NodeEscape_GenCode(node, out);
 	return true;
 }
 
 
 // generate while syntax code
-bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
+bool cVProgFile::While_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
 		return true;
 
 	// insert while condition jump label
@@ -957,7 +980,7 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 	}
 
 	uint condReg = 0; // condition register
-	GenerateCode_NodeInput(node, 0, false, out);
+	NodeInput_GenCode(node, 0, false, out);
 
 	// insert while code
 
@@ -1025,7 +1048,7 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 
 				// update jump address
 				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
@@ -1063,26 +1086,26 @@ bool cVProgFile::GenerateCode_While(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 				break;
 			}
 		}
 	}
 
-	GenerateCode_NodeEscape(node, out);
+	NodeEscape_GenCode(node, out);
 	return true;
 }
 
 
 // generate for-loop syntax code
-bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
+bool cVProgFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
 		return true;
 
-	GenerateCode_NodeInput(node, 0, true, out);
+	NodeInput_GenCode(node, 0, true, out);
 
 	// initialize index variable (First Index -> Index)
 	{
@@ -1198,7 +1221,7 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 
 				// update jump address
 				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
@@ -1272,23 +1295,23 @@ bool cVProgFile::GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 				break;
 			}
 		}
 	}
 
-	GenerateCode_NodeEscape(node, out);
+	NodeEscape_GenCode(node, out);
 	return true;
 }
 
 
 // generate sequence code
-bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
+bool cVProgFile::Sequence_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
-	if (!GenerateCode_NodeEnter(prevNode, node, fromPin, out))
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
 		return true;
 
 	// generate output node
@@ -1311,7 +1334,7 @@ bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
 					out.m_codes.push_back(code);
 				}
 
-				GenerateCode_Node(node, *next, pin, out);
+				Node_GenCode(node, *next, pin, out);
 
 				// update jump address
 				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
@@ -1321,15 +1344,17 @@ bool cVProgFile::GenerateCode_Sequence(const sNode &prevNode, const sNode &node
 		}
 	}
 
-	GenerateCode_NodeEscape(node, out);
+	NodeEscape_GenCode(node, out);
 	return true;
 }
 
 
 // generate intermediate code, operator node
-bool cVProgFile::GenerateCode_Operator(const sNode &node
+bool cVProgFile::Operator_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
+	using namespace common::script;
+
 	// node enter comment, to step debugging, and node break point
 	{
 		script::sInstruction inst;
@@ -1339,15 +1364,21 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		out.m_codes.push_back(inst);
 	}
 
-	GenerateCode_NodeInput(node, 8, false, out);
+	NodeInput_GenCode(node, 8, false, out);
 
 	// get operator type (by input pin type)
-	VARTYPE vt = VT_EMPTY;
+	eSymbolType::Enum symbType = eSymbolType::None;
 	for (auto &pin : node.inputs)
 	{
-		vt = vprog::GetPin2VarType(pin.type);
-		if (VT_EMPTY != vt)
+		if (pin.typeValues.empty())
+			continue;
+
+		symbType = pin.typeValues[0];
+		if (eSymbolType::None != symbType)
 			break;
+		//vt = vprog::GetPin2VarType(pin.type);
+		//if (VT_EMPTY != vt)
+		//	break;
 	}
 
 	// get output pin name
@@ -1360,10 +1391,10 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	if (node.name == "<")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_INT: code.cmd = script::eCommand::lesi; break;
-		case VT_R4: code.cmd = script::eCommand::lesf; break;
+		case eSymbolType::Int: code.cmd = script::eCommand::lesi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::lesf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1377,10 +1408,10 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if (node.name == "<=")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_INT: code.cmd = script::eCommand::leqi; break;
-		case VT_R4: code.cmd = script::eCommand::leqf; break;
+		case eSymbolType::Int: code.cmd = script::eCommand::leqi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::leqf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1394,10 +1425,10 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if (node.name == ">")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_INT: code.cmd = script::eCommand::gri; break;
-		case VT_R4: code.cmd = script::eCommand::grf; break;
+		case eSymbolType::Int: code.cmd = script::eCommand::gri; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::grf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1411,10 +1442,10 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if (node.name == ">=")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_INT: code.cmd = script::eCommand::greqi; break;
-		case VT_R4: code.cmd = script::eCommand::greqf; break;
+		case eSymbolType::Int: code.cmd = script::eCommand::greqi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::greqf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1431,12 +1462,12 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 			isNegateCmp = true;
 
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_BOOL:
-		case VT_INT: code.cmd = script::eCommand::eqi; break;
-		case VT_R4: code.cmd = script::eCommand::eqf; break;
-		case VT_BSTR: code.cmd = script::eCommand::eqs; break;
+		case eSymbolType::Bool:
+		case eSymbolType::Int: code.cmd = script::eCommand::eqi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::eqf; break;
+		case eSymbolType::String: code.cmd = script::eCommand::eqs; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1450,12 +1481,12 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if (node.name == "+")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_BOOL:
-		case VT_INT: code.cmd = script::eCommand::addi; break;
-		case VT_R4: code.cmd = script::eCommand::addf; break;
-		case VT_BSTR: code.cmd = script::eCommand::adds; break;
+		case eSymbolType::Bool:
+		case eSymbolType::Int: code.cmd = script::eCommand::addi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::addf; break;
+		case eSymbolType::String: code.cmd = script::eCommand::adds; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1469,11 +1500,11 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if (node.name == "-")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_BOOL:
-		case VT_INT: code.cmd = script::eCommand::subi; break;
-		case VT_R4: code.cmd = script::eCommand::subf; break;
+		case eSymbolType::Bool:
+		case eSymbolType::Int: code.cmd = script::eCommand::subi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::subf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1487,11 +1518,11 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if ((node.name == "X") || (node.name == "x") || (node.name == "*"))
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_BOOL:
-		case VT_INT: code.cmd = script::eCommand::muli; break;
-		case VT_R4: code.cmd = script::eCommand::mulf; break;
+		case eSymbolType::Bool:
+		case eSymbolType::Int: code.cmd = script::eCommand::muli; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::mulf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1505,11 +1536,11 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 	else if (node.name == "/")
 	{
 		script::sInstruction code;
-		switch (vt)
+		switch (symbType)
 		{
-		case VT_BOOL:
-		case VT_INT: code.cmd = script::eCommand::divi; break;
-		case VT_R4: code.cmd = script::eCommand::divf; break;
+		case eSymbolType::Bool:
+		case eSymbolType::Int: code.cmd = script::eCommand::divi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::divf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1535,12 +1566,12 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 		// insert calculate data to symboltable
 		{
 			script::sInstruction code;
-			switch (vt)
+			switch (symbType)
 			{
-			case VT_BOOL:
-			case VT_INT: code.cmd = script::eCommand::seti; break;
-			case VT_R4: code.cmd = script::eCommand::setf; break;
-			case VT_BSTR: code.cmd = script::eCommand::sets; break;
+			case eSymbolType::Bool:
+			case eSymbolType::Int: code.cmd = script::eCommand::seti; break;
+			case eSymbolType::Float: code.cmd = script::eCommand::setf; break;
+			case eSymbolType::String: code.cmd = script::eCommand::sets; break;
 			default:
 				common::dbg::Logc(1
 					, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
@@ -1586,7 +1617,7 @@ bool cVProgFile::GenerateCode_Operator(const sNode &node
 
 
 // generate intermediate code, variable node
-bool cVProgFile::GenerateCode_Variable(const sNode &node
+bool cVProgFile::Variable_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Operator, false);
@@ -1600,15 +1631,15 @@ bool cVProgFile::GenerateCode_Variable(const sNode &node
 
 
 // generate intermediate code, pin
-bool cVProgFile::GenerateCode_Pin(const sNode &node, const sPin &pin, const uint reg
+bool cVProgFile::Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
 {
-	return GenerateCode_Pin2(pin.kind, node, pin, reg, out);
+	return Pin2_GenCode(pin.kind, node, pin, reg, out);
 }
 
 
 // generate intermediate code, pin
-bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
+bool cVProgFile::Pin2_GenCode(const ePinKind::Enum kind
 	, const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
 {
@@ -1623,6 +1654,7 @@ bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
 		case ePinType::Float: code.cmd = script::eCommand::setf; break;
 		case ePinType::String: code.cmd = script::eCommand::sets; break;
 		case ePinType::Array: code.cmd = script::eCommand::seta; break;
+		case ePinType::Map: code.cmd = script::eCommand::setm; break;
 		default:
 			return false;
 		}
@@ -1643,6 +1675,7 @@ bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
 		case ePinType::Float: code.cmd = script::eCommand::getf; break;
 		case ePinType::String: code.cmd = script::eCommand::gets; break;
 		case ePinType::Array: code.cmd = script::eCommand::geta; break;
+		case ePinType::Map: code.cmd = script::eCommand::getm; break;
 		default:
 			return false;
 		}
@@ -1657,7 +1690,7 @@ bool cVProgFile::GenerateCode_Pin2(const ePinKind::Enum kind
 
 
 // generate intermedate code, load temporal value to register
-bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
+bool cVProgFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
 	, const uint reg, OUT common::script::cIntermediateCode &out)
 {
 	const _bstr_t emptyStr(" "); // avoid crash local variable (1 space string)
@@ -1726,7 +1759,7 @@ bool cVProgFile::GenerateCode_TemporalPin(const sNode &node, const sPin &pin
 
 
 // insert flow debug information
-bool cVProgFile::GenerateCode_DebugInfo(const sPin &from, const sPin &to
+bool cVProgFile::DebugInfo_GenCode(const sPin &from, const sPin &to
 	, OUT common::script::cIntermediateCode &out)
 {
 	script::sInstruction inst;
@@ -1740,7 +1773,7 @@ bool cVProgFile::GenerateCode_DebugInfo(const sPin &from, const sPin &to
 
 
 // insert flow debug information, if from-to node was linked
-bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
+bool cVProgFile::DebugInfo_GenCode(const sNode &from, const sNode &to
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(from.id == 0, false);
@@ -1776,10 +1809,10 @@ bool cVProgFile::GenerateCode_DebugInfo(const sNode &from, const sNode &to
 }
 
 // if return false, multiple enter, no need generate this node code
-bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
+bool cVProgFile::NodeEnter_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
-	GenerateCode_DebugInfo(prevNode, node, fromPin, out);
+	DebugInfo_GenCode(prevNode, node, fromPin, out);
 
 	// todo: visit node, function call mechanism
 	if (m_visit.find(node.id) != m_visit.end())
@@ -1821,7 +1854,7 @@ bool cVProgFile::GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
 
 
 // generate node escape code
-bool cVProgFile::GenerateCode_NodeEscape(const sNode &node
+bool cVProgFile::NodeEscape_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	// check macro function
@@ -1869,7 +1902,7 @@ bool cVProgFile::GenerateCode_NodeEscape(const sNode &node
 // generate node input pin code
 // reg: load input pin variable register
 // isUpdateInputPin: set input pin symbol table
-bool cVProgFile::GenerateCode_NodeInput(const sNode &node, const uint reg
+bool cVProgFile::NodeInput_GenCode(const sNode &node, const uint reg
 	, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out)
 {
 	// calc input pin node
@@ -1886,7 +1919,7 @@ bool cVProgFile::GenerateCode_NodeInput(const sNode &node, const uint reg
 			continue;
 
 		if (m_visit.end() == m_visit.find(prev->id))
-			GenerateCode_Node(nullNode, *prev, pin, out);
+			Node_GenCode(nullNode, *prev, pin, out);
 	}
 
 	// load register prev node output pin
@@ -1903,18 +1936,18 @@ bool cVProgFile::GenerateCode_NodeInput(const sNode &node, const uint reg
 		std::tie(prev, pp) = FindContainPin(linkId);
 		if (prev)
 		{
-			GenerateCode_Pin(*prev, *pp, r, out); // load register from prev output pin
+			Pin_GenCode(*prev, *pp, r, out); // load register from prev output pin
 			if (isUpdateInputPin)
-				GenerateCode_Pin(node, pin, r, out); // store data to input pin symboltable
-			GenerateCode_DebugInfo(*pp, pin, out); // insert debuginfo
+				Pin_GenCode(node, pin, r, out); // store data to input pin symboltable
+			DebugInfo_GenCode(*pp, pin, out); // insert debuginfo
 			++r;
 		}
 		else
 		{
 			// load temporal variable
-			GenerateCode_TemporalPin(node, pin, r, out);
+			TemporalPin_GenCode(node, pin, r, out);
 			if (isUpdateInputPin)
-				GenerateCode_Pin(node, pin, r, out); // store data to input pin symboltable
+				Pin_GenCode(node, pin, r, out); // store data to input pin symboltable
 			++r;
 		}
 	}

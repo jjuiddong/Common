@@ -82,7 +82,8 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::symbolmi:
 	case eCommand::symbolmf:
 	case eCommand::symbolms:
-		return VT_RESERVED; // map type, tricky code
+	case eCommand::symbolma:
+		return VT_ARRAY; // map type, tricky code
 
 	case eCommand::call:
 	case eCommand::jnz:
@@ -127,4 +128,148 @@ sInstruction& sInstruction::operator=(const sInstruction &rhs)
 		var1 = common::copyvariant(rhs.var1);
 	}
 	return *this;
+}
+
+
+//----------------------------------------------------------------
+// eSymbolType global functions
+
+// is variable type?
+bool script::IsVariable(const eSymbolType::Enum type)
+{
+	switch (type)
+	{
+	case eSymbolType::Bool:
+	case eSymbolType::Int:
+	case eSymbolType::Float:
+	case eSymbolType::String:
+	case eSymbolType::Array:
+	case eSymbolType::Map:
+		return true;
+	case eSymbolType::None:
+	case eSymbolType::Enums:
+	default:
+		return false;
+	}
+}
+
+
+// convert type string to VarType Array
+// type string -> B[b]ool | I[i]nt | S[s]tring | F[f]loat | A[a]rray | M[m]ap
+// Array<type string>, Map<type string, type string>
+// ex) Map<string, Array<string>>
+//      - return: [Map, String, Array, String]
+bool script::ParseTypeString(const string &typeStr, OUT vector<eSymbolType::Enum> &out)
+{
+	const int idx0 = typeStr.find('>');
+	const int idx1 = typeStr.find('<');
+	const int idx = ((idx0 < 0) && (idx1 < 0)) ? -1 :
+		(((idx0 < 0) || (idx1 < 0)) ? max(idx0, idx1)
+			: min(idx0, idx1));
+
+	if (idx < 0)
+	{
+		vector<string> strs;
+		common::tokenizer(typeStr, ",", "", strs);
+		for (auto &s : strs)
+		{
+			common::trim(s);
+			if (s.empty())
+				continue;
+			eSymbolType::Enum st = eSymbolType::FromString(s);
+			if (eSymbolType::COUNT == st)
+				st = eSymbolType::Enums; // not found symbol? maybe enum type
+			out.push_back(st);
+		}
+	}
+	else
+	{
+		const string tstr = common::trim2(typeStr.substr(0, idx));
+		ParseTypeString(tstr, out);
+		const string str = common::trim2(typeStr.substr(idx + 1));
+		ParseTypeString(str, out);
+	}
+	return !out.empty();
+}
+
+
+// parse type string, array version
+bool script::ParseTypeString(const string &typeStr, OUT eSymbolType::Enum out[4])
+{
+	vector<eSymbolType::Enum> temp;
+	ParseTypeString(typeStr, temp);
+
+	for (uint i = 0; i < 4; ++i)
+		out[i] = eSymbolType::None;
+	for (uint i = 0; (i < 4) && (i < temp.size()); ++i)
+		out[i] = temp[i];
+	
+	return !temp.empty();
+}
+
+
+// generate typestring from type array
+// idx: in/out index
+string GetTypeString(const vector<eSymbolType::Enum> &typeValues, INOUT uint &idx
+	, const uint size)
+{
+	if (typeValues.size() <= idx)
+		return "";
+
+	string typeStr;
+	for (uint i = 0; i < size; ++i)
+	{
+		if (typeValues.size() <= idx)
+			return typeStr;
+
+		if (i > 0)
+			typeStr += ",";
+
+		const eSymbolType::Enum type = typeValues[idx];
+		switch (type)
+		{
+		case eSymbolType::Map:
+			typeStr += "map<";
+			typeStr += GetTypeString(typeValues, ++idx, 2);
+			typeStr += ">";
+			break;
+		case eSymbolType::Array:
+			typeStr += "array<";
+			typeStr += GetTypeString(typeValues, ++idx, 1);
+			typeStr += ">";
+			break;
+		case eSymbolType::Enums:
+		default:
+			typeStr += eSymbolType::ToString(type);
+			++idx;
+			break;
+		}
+	}
+	return typeStr;
+}
+
+
+// generate typestring from type vector
+// ex) [eSymbolType::Array, eSymbolType::Int] => "array<Int>"
+string script::GenerateTypeString(const vector<eSymbolType::Enum> &typeValues)
+{
+	uint idx = 0;
+	const string typeStr = GetTypeString(typeValues, idx, 1);
+	return typeStr;
+}
+
+
+// generate typestring from type array
+string script::GenerateTypeString(const eSymbolType::Enum typeValues[4]
+	, const uint startIdx //=0
+)
+{
+	vector<eSymbolType::Enum> temp;
+	for (uint i = startIdx; i < 4; ++i)
+	{
+		if (eSymbolType::None == typeValues[i])
+			break;
+		temp.push_back(typeValues[i]);
+	}
+	return GenerateTypeString(temp);
 }

@@ -43,6 +43,12 @@ string& common::trim(string &str)
 
 	return str;
 }
+string common::trim2(const string &str)
+{
+	string val = str;
+	trim(val);
+	return val;
+}
 
 
 // "  skdfjskdjf  "
@@ -296,12 +302,24 @@ string& common::lowerCase(string &str)
 	std::transform(str.begin(), str.end(), str.begin(), tolower);
 	return str;
 }
+string common::lowerCase2(const string &str)
+{
+	string val = str;
+	std::transform(val.begin(), val.end(), val.begin(), tolower);
+	return val;
+}
 
 // 넘어온 인자 str 을 대문자로 바꿔서 리턴한다.
 string& common::upperCase(string &str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), toupper);
 	return str;
+}
+string common::upperCase2(const string &str)
+{
+	string val = str;
+	std::transform(val.begin(), val.end(), val.begin(), toupper);
+	return val;
 }
 
 

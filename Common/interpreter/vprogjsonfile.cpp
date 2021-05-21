@@ -30,6 +30,8 @@ bool cVProgJsonFile::ReadJson(const StrPath &fileName)
 // read json string data
 bool cVProgJsonFile::ReadJsonRaw(const string &rawStr)
 {
+	using namespace common::script;
+
 	Clear();
 
 	try
@@ -69,9 +71,11 @@ bool cVProgJsonFile::ReadJsonRaw(const string &rawStr)
 						pin.name = vt.second.get<string>("name", "");
 						const int kind = vt.second.get<int>("kind", 0);//input/output
 						const int type = vt.second.get<int>("type", 0);//flow/bool/int~
+						const string typeStr = vt.second.get<string>("typeStr", "");//flow/bool/int~
 						pin.kind = ePinKind::Input;
 						pin.type = (ePinType::Enum)type;
-						pin.typeStr = ePinType::ToString((ePinType::Enum)type);
+						pin.typeStr = typeStr;
+						ParseTypeString(typeStr, pin.typeValues);
 						node.inputs.push_back(pin);
 					}
 				}
@@ -87,9 +91,11 @@ bool cVProgJsonFile::ReadJsonRaw(const string &rawStr)
 						pin.name = vt.second.get<string>("name", "");
 						const int kind = vt.second.get<int>("kind", 0);//input/output
 						const int type = vt.second.get<int>("type", 0);//flow/bool/int~
+						const string typeStr = vt.second.get<string>("typeStr", "");//flow/bool/int~
 						pin.kind = ePinKind::Output;
 						pin.type = (ePinType::Enum)type;
-						pin.typeStr = ePinType::ToString((ePinType::Enum)type);
+						pin.typeStr = typeStr;
+						ParseTypeString(typeStr, pin.typeValues);
 						node.outputs.push_back(pin);
 					}
 				}

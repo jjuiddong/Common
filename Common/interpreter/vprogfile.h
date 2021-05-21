@@ -30,6 +30,10 @@
 //	- variable pin
 //		- sPin::varName
 //
+// 2021-05-20
+//	- symboltype refactoring
+//	- add array<>, map<> type
+//
 //
 #pragma once
 
@@ -45,12 +49,11 @@ namespace vprog
 		struct sPin {
 			int id;
 			string name;
-			string typeStr; // type name
 			string varName; // variable pin? variable symbol name
 			int value; // enum value
 			ePinType::Enum type;
-			eSymbolType::Enum subType0; // array element type, map key type
-			eSymbolType::Enum subType1; // map value type
+			string typeStr; // type name
+			vector<common::script::eSymbolType::Enum> typeValues;
 			ePinKind::Enum kind;
 			vector<int> links; // pin id array
 		};
@@ -80,46 +83,46 @@ namespace vprog
 
 
 	protected:
-		bool GenerateCode_Event(const sNode &node
+		bool Event_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Node(const sNode &prevNode, const sNode &node
+		bool Node_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Function(const sNode &prevNode, const sNode &node
+		bool Function_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Control(const sNode &prevNode, const sNode &node
+		bool Control_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Branch(const sNode &prevNode, const sNode &node
+		bool Branch_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Switch(const sNode &prevNode, const sNode &node
+		bool Switch_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_While(const sNode &prevNode, const sNode &node
+		bool While_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_ForLoop(const sNode &prevNode, const sNode &node
+		bool ForLoop_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Sequence(const sNode &prevNode, const sNode &node
+		bool Sequence_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Operator(const sNode &node
+		bool Operator_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Variable(const sNode &node
+		bool Variable_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Pin(const sNode &node, const sPin &pin, const uint reg
+		bool Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_Pin2(const ePinKind::Enum kind
+		bool Pin2_GenCode(const ePinKind::Enum kind
 			, const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 
-		bool GenerateCode_TemporalPin(const sNode &node, const sPin &pin, const uint reg
+		bool TemporalPin_GenCode(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 
-		bool GenerateCode_DebugInfo(const sPin &from, const sPin &to
+		bool DebugInfo_GenCode(const sPin &from, const sPin &to
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_DebugInfo(const sNode &from, const sNode &to
+		bool DebugInfo_GenCode(const sNode &from, const sNode &to
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_NodeEnter(const sNode &prevNode, const sNode &node
+		bool NodeEnter_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_NodeEscape(const sNode &node
+		bool NodeEscape_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
-		bool GenerateCode_NodeInput(const sNode &node, const uint reg
+		bool NodeInput_GenCode(const sNode &node, const uint reg
 			, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out);
 
 		bool AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
@@ -128,7 +131,7 @@ namespace vprog
 		bool AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 		bool AddPin(const int parseState, sNode &node, const sPin &pin);
 		bool AddVariable2(const string &scopeName, const string &name
-			, const ePinType::Enum type, const string &typeStr
+			, const string &typeStr
 			, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);

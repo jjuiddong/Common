@@ -519,7 +519,6 @@ void remotedbg2::h2r_Protocol::AckRun(netid targetId, bool isBinary, const int &
 //------------------------------------------------------------------------
 // Protocol: AckOneStep
 //------------------------------------------------------------------------
-
 void remotedbg2::h2r_Protocol::AckOneStep(netid targetId, bool isBinary, const int &itprId, const int &result)
 {
 	cPacket packet(m_node->GetPacketHeader());

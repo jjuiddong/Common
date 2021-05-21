@@ -29,8 +29,10 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 {
 	// to avoid bstr memory move bug
 	common::clearvariant(m_vars[scopeName][symbolName].var);
-	m_vars[scopeName][symbolName].var = var;
-	m_vars[scopeName][symbolName].type = typeStr;
+	sVariable &variable = m_vars[scopeName][symbolName];
+	variable.type = typeStr;
+	variable.var = var;
+	ParseTypeString(typeStr, variable.typeValues);
 	return true;
 }
 
@@ -38,41 +40,35 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 // add or update array variable (empty array)
 // var: only update array element type
 bool cSymbolTable::InitArray(const string &scopeName, const string &symbolName
-	, const variant_t &var
-	, const string &typeStr //= ""
-)
+	, const string &typeStr)
 {
-	sVariable *variable = nullptr;
+	// find exist array variable
+	sVariable *arrayVar = nullptr;
 	auto it1 = m_vars.find(scopeName);
 	if (it1 != m_vars.end())
 	{
+		// already exist symbol?
 		auto it2 = it1->second.find(symbolName);
 		if (it2 != it1->second.end())
-		{
-			// already exist symbol
-			variable = &it2->second;
-		}
+			arrayVar = &it2->second;
 	}
 
-	if (variable && (variable->type == "Array"))
+	if (arrayVar && (eSymbolType::Array == arrayVar->typeValues[0]))
 	{
-		variable->var.vt = VT_BYREF | var.vt; // array tricky code
-		variable->subType0 = var.vt; // array element type
-		variable->ClearArray();
+		arrayVar->ClearArray();
 	}
 	else
 	{
-		sVariable arVar;
-		arVar.type = "Array";
-
+		sVariable newVar;
+		newVar.type = typeStr;
+		common::script::ParseTypeString(typeStr, newVar.typeValues);
+		newVar.subTypeStr = GenerateTypeString(newVar.typeValues, 1);
 		// array tricky code, no memory allocate
 		// no VT_ARRAY type, because reduce array copy time
-		arVar.var.vt = VT_BYREF | var.vt;
-
-		arVar.subType0 = var.vt; // array element type
-		arVar.arSize = 0;
-		arVar.ar = nullptr;
-		m_vars[scopeName][symbolName] = arVar;
+		newVar.var.vt = VT_BYREF | VT_INT;
+		newVar.arSize = 0;
+		newVar.ar = nullptr;
+		m_vars[scopeName][symbolName] = newVar;
 
 		sVariable &variable = m_vars[scopeName][symbolName];
 		variable.var.intVal = variable.id;
@@ -94,12 +90,10 @@ bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
 	auto it1 = m_vars.find(scopeName);
 	if (it1 != m_vars.end())
 	{
+		// already exist symbol?
 		auto it2 = it1->second.find(symbolName);
 		if (it2 != it1->second.end())
-		{
-			// already exist symbol
 			dstVar = &it2->second;
-		}
 	}
 
 	// find source array variable
@@ -131,40 +125,31 @@ bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
 // add or update map variable (empty map)
 // var: only update map element type
 bool cSymbolTable::InitMap(const string &scopeName, const string &symbolName
-	, const variant_t &var
-	, const string &typeStr //= ""
-)
+	, const string &typeStr )
 {
-	sVariable *variable = nullptr;
+	sVariable *mapVar = nullptr;
 	auto it1 = m_vars.find(scopeName);
 	if (it1 != m_vars.end())
 	{
+		// already exist symbol?
 		auto it2 = it1->second.find(symbolName);
 		if (it2 != it1->second.end())
-		{
-			// already exist symbol
-			variable = &it2->second;
-		}
+			mapVar = &it2->second;
 	}
 
-	if (variable && (variable->type == "Map"))
+	if (mapVar && (eSymbolType::Map == mapVar->typeValues[0]))
 	{
-		variable->var.vt = VT_RESERVED | var.vt; // map tricky code
-		variable->subType0 = VT_BSTR; // map key type (always string)
-		variable->subType1 = var.vt; // map value type
-		variable->ClearMap();
+		mapVar->ClearMap();
 	}
 	else
 	{
-		sVariable arVar;
-		arVar.type = "Map";
+		sVariable newVar;
+		newVar.type = typeStr;
+		common::script::ParseTypeString(typeStr, newVar.typeValues);
+		newVar.subTypeStr = GenerateTypeString(newVar.typeValues, 2);
+		newVar.var.vt = VT_BYREF | VT_INT; // map tricky code, no memory allocate
 
-		// map tricky code, no memory allocate
-		arVar.var.vt = VT_RESERVED | var.vt;
-
-		arVar.subType0 = VT_BSTR; // map key type
-		arVar.subType1 = var.vt; // map value type
-		m_vars[scopeName][symbolName] = arVar;
+		m_vars[scopeName][symbolName] = newVar;
 
 		sVariable &variable = m_vars[scopeName][symbolName];
 		variable.var.intVal = variable.id;
@@ -344,7 +329,6 @@ string cSymbolTable::MakeScopeName2(const string &name, const int id, const stri
 std::pair<string, int> cSymbolTable::ParseScopeName(const string &scopeName)
 {
 	vector<string> out;
-	//common::tokenizer(scopeName.c_str(), "-", "", out); modified - => _
 	common::tokenizer(scopeName.c_str(), "_", "", out);
 	if (out.size() < 2)
 		return std::make_pair("", 0);
@@ -355,7 +339,6 @@ std::pair<string, int> cSymbolTable::ParseScopeName(const string &scopeName)
 std::tuple<string, int, string> cSymbolTable::ParseScopeName2(const string &scopeName)
 {
 	vector<string> out;
-	//common::tokenizer(scopeName.c_str(), "-", "", out); modified - => _
 	common::tokenizer(scopeName.c_str(), "_", "", out);
 	if (out.size() < 2)
 		return std::make_tuple("", 0, "");
@@ -381,7 +364,7 @@ cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 		m_varMap.clear();
 		for (auto &kv : m_vars) 
 			for (auto &kv2 : kv.second)
-				if (kv2.second.var.vt & VT_BYREF) // Array type?
+				if (kv2.second.var.vt & VT_BYREF) // Array, Map type?
 					m_varMap[kv2.second.id] = { kv.first, kv2.first }; // scopeName,varName
 
 		for (auto &kv1 : rhs.m_symbols)

@@ -5,6 +5,10 @@
 //		- primitive variable : variant_t 
 //		- array 
 //
+// 2021-05-20
+//	- add map type
+//	- add enum symboltype
+//
 #pragma once
 
 
@@ -12,6 +16,7 @@ namespace common
 {
 	namespace script
 	{
+
 		struct sVariable
 		{
 			sVariable();
@@ -23,10 +28,12 @@ namespace common
 			bool PushArrayElement(const variant_t &v);
 			variant_t& PopArrayElement();
 			bool ReserveArray(const uint size);
-			variant_t& GetMapElement(const string &key);
-			bool SetMapElement(const string &key, const variant_t &v);
-			bool HasMapElement(const string &key);
+			variant_t& GetMapValue(cSymbolTable &symbolTable, const string &key);
+			bool SetMapValue(const string &key, const variant_t &v);
+			bool HasMapValue(const string &key);
 			uint GetMapSize();
+			const string& GetMapValueTypeStr();
+			const string& GetArrayElementTypeStr();
 
 			sVariable& operator=(const sVariable &rhs);
 			void Clear();
@@ -38,17 +45,17 @@ namespace common
 
 			int id; // unique id
 			string type; // special type string, Bool, Int, Float, String, Array, Map
+			string subTypeStr; // array element, map value type string
+			eSymbolType::Enum typeValues[4]; // maximum: map<string, vector<primitive type>>
 			variant_t var; // value
 
 			// array type
-			int subType0; // array element type, map key type (variant_t::VARTYPE)
-			int subType1; // map value type (variant_t::VARTYPE)
 			uint arSize; // array size
 			uint arCapacity; // array capacity
 			variant_t *ar; // array
 
 			// map type
-			map<string, variant_t> *m; // map
+			map<string, variant_t> *m;
 		};
 
 	}
