@@ -16,6 +16,7 @@ namespace common
 {
 	namespace script
 	{
+		class cSymbolTable;
 
 		struct sVariable
 		{

@@ -383,6 +383,32 @@ bool cRemoteDebugger2::Resume(const int itprId)
 }
 
 
+// resume virtual machine
+bool cRemoteDebugger2::ResumeVM(const int itprId, const StrId &vmName)
+{
+	if (itprId < 0)
+	{
+		for (auto &itpr : m_interpreters)
+		{
+			script::cInterpreter *interpreter = itpr.interpreter;
+			if (eState::Run == itpr.state)
+				interpreter->ResumeVM(vmName);
+		}
+	}
+	else
+	{
+		if (m_interpreters.size() <= (uint)itprId)
+			return false;
+		sItpr &itpr = m_interpreters[itprId];
+		if (eState::Run != itpr.state)
+			return false;
+		script::cInterpreter *interpreter = itpr.interpreter;
+		interpreter->ResumeVM(vmName);
+	}
+	return true;
+}
+
+
 // onestep interpreter if debug mode
 // itprId: interpreter index
 bool cRemoteDebugger2::OneStep(const int itprId)

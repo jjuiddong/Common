@@ -142,10 +142,17 @@ namespace common
 
 
 		// interpreter function callback interface
-		class cSymbolTable;
+		enum class eCallbackState {
+			None, // initial state, not defined
+			NoHandler, // no handler 
+			Done, // callback work done
+			Wait, // callback working but not finished
+		};
+
+		class cVirtualMachine;
 		interface iFunctionCallback
 		{
-			virtual int Function(cSymbolTable &symbolTable
+			virtual eCallbackState Function(cVirtualMachine &vm
 				, const string &scopeName
 				, const string &funcName
 				, void *arg) = 0;

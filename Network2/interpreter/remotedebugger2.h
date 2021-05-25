@@ -58,6 +58,7 @@ namespace network2
 		bool StepRun(const int itprId);
 		bool Stop(const int itprId);
 		bool Resume(const int itprId);
+		bool ResumeVM(const int itprId, const StrId &vmName);
 		bool OneStep(const int itprId);
 		bool Break(const int itprId);
 		bool BreakPoint(const int itprId, const bool enable, const uint id);

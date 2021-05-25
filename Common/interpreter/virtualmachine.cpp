@@ -54,7 +54,7 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 // execute event, instruction
 bool cVirtualMachine::Process(const float deltaSeconds)
 {
-	RETV(eState::Stop == m_state, true);
+	RETV((eState::Stop == m_state) || (eState::WaitCallback == m_state), true);
 	RETV(!m_code.IsLoaded(), true);
 
 	if (!ProcessEvent(deltaSeconds))
@@ -79,6 +79,17 @@ bool cVirtualMachine::Run()
 
 	m_reg.cmp = false;
 
+	return true;
+}
+
+
+// resume process
+bool cVirtualMachine::Resume()
+{
+	RETV(eState::WaitCallback != m_state, false);
+
+	m_state = eState::Run;
+	++m_reg.idx; // goto next instruction
 	return true;
 }
 
@@ -636,8 +647,17 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		if (funcName.empty())
 			goto $error;
 
-		m_callback->Function(m_symbTable, code.str1, funcName, m_callbackArgPtr);
-		++reg.idx;
+		const eCallbackState res = 
+			m_callback->Function(*this, code.str1, funcName, m_callbackArgPtr);
+		if (res == eCallbackState::Wait)
+		{
+			// wait until resume
+			m_state = eState::WaitCallback;
+		}
+		else
+		{
+			++reg.idx;
+		}
 	}
 	break;
 

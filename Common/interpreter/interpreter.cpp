@@ -188,6 +188,16 @@ bool cInterpreter::Resume()
 }
 
 
+// resume virtual machine if WaitCallback state
+bool cInterpreter::ResumeVM(const StrId &vmName)
+{
+	for (auto &vm : m_vms)
+		if (vm->m_name == vmName)
+			return vm->Resume();
+	return false;
+}
+
+
 // one step debugging
 bool cInterpreter::OneStep()
 {

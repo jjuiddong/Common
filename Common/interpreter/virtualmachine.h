@@ -39,6 +39,7 @@ namespace common
 				, void *arg = nullptr);
 			bool Process(const float deltaSeconds);
 			bool Run();
+			bool Resume();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
 			void Clear();
@@ -54,6 +55,7 @@ namespace common
 			enum class eState { 
 				Stop  // waitting for start
 				, Run // execute instruction
+				, WaitCallback // wait until finish callback function
 				, Wait // no operation state, wait until event trigger
 			};
 
