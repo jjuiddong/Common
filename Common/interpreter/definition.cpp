@@ -63,6 +63,8 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::setb:
 	case eCommand::symbolb:
 	case eCommand::negate:
+	case eCommand::opand:
+	case eCommand::opor:
 		return VT_BOOL;
 
 	case eCommand::ldac:

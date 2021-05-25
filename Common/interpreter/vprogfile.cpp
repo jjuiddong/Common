@@ -407,6 +407,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		code.cmd = script::eCommand::label;
 		code.str1 = "blank";
 		out.m_codes.push_back(code);
+		out.m_codes.push_back({ script::eCommand::sret });
 		out.m_codes.push_back({ script::eCommand::nop });
 	}
 
@@ -742,7 +743,7 @@ bool cVProgFile::Branch_GenCode(const sNode &prevNode, const sNode &node
 
 		if (jumpLabel_False.empty())
 		{
-			// no branch node, jump blank code
+			// no branch node, jump to blank
 			script::sInstruction code;
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
@@ -1017,7 +1018,7 @@ bool cVProgFile::While_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			common::dbg::Logc(1, "cVProgFile::GenerateCode_While, no branch label\n");
+			//common::dbg::Logc(1, "cVProgFile::GenerateCode_While, no branch label\n");
 		}
 		else
 		{
@@ -1190,7 +1191,7 @@ bool cVProgFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			common::dbg::Logc(1, "cVProgFile::GenerateCode_ForLoop, no branch label\n");
+			//common::dbg::Logc(1, "cVProgFile::GenerateCode_ForLoop, no branch label\n");
 		}
 		else
 		{
@@ -1384,7 +1385,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 	// get output pin name
 	const string outputName = (node.outputs.size() > 0)? node.outputs[0].name : "O";
 
-	int opType = 0; // mathOp:0, CompareOp:1, Negate:2
+	int opType = 0; // mathOp:0, CompareOp:1, Negate:2, LogicOp:3
 	bool isNegateCmp = false; // !=
 
 	// insert compare code
@@ -1477,6 +1478,16 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		code.reg2 = 9; // val9
 		out.m_codes.push_back(code);
 		opType = 1;
+	}
+	else if ((node.name == "&&") || (node.name == "||"))
+	{
+		script::sInstruction code;
+		code.cmd = (node.name == "&&") ? 
+			script::eCommand::opand : script::eCommand::opor;
+		code.reg1 = 8; // val8
+		code.reg2 = 9; // val9
+		out.m_codes.push_back(code);
+		opType = 3;
 	}
 	else if (node.name == "+")
 	{
@@ -1610,6 +1621,25 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		code.str2 = outputName;
 		code.reg1 = 9;
 		out.m_codes.push_back(code);
+	}
+	else if (3 == opType) // logic operator?
+	{
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::ldcmp;
+			code.reg1 = 9;
+			out.m_codes.push_back(code);
+		}
+
+		// insert compare data to symboltable
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::setb;
+			code.str1 = MakeScopeName(node);
+			code.str2 = outputName;
+			code.reg1 = 9;
+			out.m_codes.push_back(code);
+		}
 	}
 
 	return true;
@@ -1865,22 +1895,22 @@ bool cVProgFile::NodeEscape_GenCode(const sNode &node
 
 	// no link output flow pin? 
 	// insert ret/nop command, to return instruction
-	bool isNoLink = false;
-	for (auto &pin : node.outputs)
-	{
-		if (ePinType::Flow == pin.type)
-		{
-			sNode *next = nullptr; // next node
-			sPin *np = nullptr; // next pin
-			const int linkId = pin.links.empty() ? -1 : pin.links.front();
-			std::tie(next, np) = FindContainPin(linkId);
-			if (!next)
-			{
-				isNoLink = true;
-				break;
-			}
-		}
-	}
+	//bool isNoLink = false;
+	//for (auto &pin : node.outputs)
+	//{
+	//	if (ePinType::Flow == pin.type)
+	//	{
+	//		sNode *next = nullptr; // next node
+	//		sPin *np = nullptr; // next pin
+	//		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+	//		std::tie(next, np) = FindContainPin(linkId);
+	//		if (!next)
+	//		{
+	//			isNoLink = true;
+	//			break;
+	//		}
+	//	}
+	//}
 
 	// check sret/nop duplicate
 	bool isAlreadyEscapeCode = false;

@@ -611,6 +611,23 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		++reg.idx;
 		break;
 
+	case eCommand::opand:
+	case eCommand::opor:
+		if (ARRAYSIZE(reg.val) <= code.reg1)
+			goto $error_memory;
+		if (ARRAYSIZE(reg.val) <= code.reg2)
+			goto $error_memory;
+		if (varType != reg.val[code.reg1].vt)
+			goto $error_semantic;
+		if (varType != reg.val[code.reg2].vt)
+			goto $error_semantic;
+		if (eCommand::opand == code.cmd)
+			reg.cmp = ((bool)reg.val[code.reg1] && (bool)reg.val[code.reg2]);
+		else
+			reg.cmp = ((bool)reg.val[code.reg1] || (bool)reg.val[code.reg2]);
+		++reg.idx;
+		break;
+
 	case eCommand::jnz:
 		// jump, if reg.cmp true
 		if (reg.cmp)

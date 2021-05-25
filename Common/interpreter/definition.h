@@ -22,6 +22,7 @@ namespace common
 			subi, subf,
 			muli, mulf,
 			divi, divf,
+			opand, opor, 
 			negate,
 			eqi, eqf, eqs,
 			eqic, eqfc, eqsc,
@@ -110,6 +111,8 @@ namespace common
 		// grf register_name1, register_name2 ;float type compare, if register_name1 > register_name2, then cmp register true
 		// greqi register_name1, register_name2 ;int type compare, if register_name1 >= register_name2, then cmp register true
 		// greqf register_name1, register_name2 ;float type compare, if register_name1 >= register_name2, then cmp register true
+		// opand register_name1, register_name2 ;bool type and, if register_name1 && register_name2, then cmp register true
+		// opor register_name1, register_name2 ;bool type or, if register_name1 || register_name2, then cmp register true
 
 		// call function_name ;call callback function, and then customizing function work
 		// jnz jump_label ;jump jump_label if cmp register is true

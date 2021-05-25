@@ -264,6 +264,11 @@ int cInterpreter::ProcessUntilNodeEnter(const float deltaSeconds)
 	{
 		RunProcess(deltaSeconds);
 
+		// code one step debugging
+		//state = 2;
+		//break;
+
+		// node debugging
 		state = 0; // initial state
 		for (auto &vm : m_vms)
 		{

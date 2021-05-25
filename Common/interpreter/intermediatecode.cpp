@@ -122,6 +122,8 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "subf")
 			|| (toks[0] == "mulf")
 			|| (toks[0] == "divf")
+			|| (toks[0] == "opand")
+			|| (toks[0] == "opor")
 			)
 			&& (toks.size() >= 3))
 		{
@@ -394,6 +396,8 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::subf:
 		case eCommand::mulf:
 		case eCommand::divf:
+		case eCommand::opand:
+		case eCommand::opor:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << GetRegisterName(code.reg2);

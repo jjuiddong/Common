@@ -58,7 +58,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "msg", data.msg);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, Welcome(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -105,7 +105,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "code", data.code);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, UploadIntermediateCode(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -150,7 +150,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqIntermediateCode(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -197,7 +197,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "runType", data.runType);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqRun(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -242,7 +242,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqOneStep(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -287,7 +287,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqResumeRun(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -332,7 +332,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreak(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -381,7 +381,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "id", data.id);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreakPoint(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -426,7 +426,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqStop(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -475,7 +475,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "eventName", data.eventName);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqInput(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -518,7 +518,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.senderId = packet.GetSenderId();
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqHeartBeat(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -590,7 +590,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckUploadIntermediateCode(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -643,7 +643,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "data", data.data);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckIntermediateCode(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -690,7 +690,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckRun(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -737,7 +737,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckOneStep(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -784,7 +784,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckResumeRun(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -831,7 +831,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreak(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -882,7 +882,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreakPoint(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -929,7 +929,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckStop(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -976,7 +976,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -1027,7 +1027,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "cmps", data.cmps);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -1078,7 +1078,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "reg", data.reg);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMRegister(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -1131,7 +1131,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "symbol", data.symbol);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMSymbolTable(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -1180,7 +1180,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "output", data.output);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMOutput(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
@@ -1223,7 +1223,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.senderId = packet.GetSenderId();
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckHeartBeat(data));
 				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
 			}
 		}
