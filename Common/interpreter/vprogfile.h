@@ -62,7 +62,8 @@ namespace vprog
 			int id;
 			eNodeType::Enum type;
 			string name;
-			string desc; // description
+			//string desc; // description
+			string typeStr;
 			string labelName; // to set unique node name (especially, event label name)
 			vector<sPin> inputs;
 			vector<sPin> outputs;

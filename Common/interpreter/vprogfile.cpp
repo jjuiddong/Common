@@ -98,7 +98,8 @@ bool cVProgFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNod
 	node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
 	node.id = sdata.Get<int>(p, "id", 0);
 	node.name = sdata.Get<string>(p, "name", "name");
-	node.desc = sdata.Get<string>(p, "desc", node.name);
+	//node.desc = sdata.Get<string>(p, "desc", node.name);
+	node.typeStr = sdata.Get<string>(p, "typeStr", node.name);
 	node.labelName = sdata.Get<string>(p, "labelname", "");
 
 	for (auto &c : p->children)
@@ -319,7 +320,8 @@ bool cVProgFile::Write_Node(std::ostream &ofs, sNode &node)
 		ofs << "\t" << "name \" \"" << endl; // blank name
 	else
 		ofs << "\t" << "name \"" << node.name.c_str() << "\"" << endl;
-	ofs << "\t" << "desc \"" << node.desc.c_str() << "\"" << endl;
+	//ofs << "\t" << "desc \"" << node.desc.c_str() << "\"" << endl;
+	ofs << "\t" << "typeStr \"" << node.typeStr.c_str() << "\"" << endl;
 
 	for (auto &pin : node.inputs)
 	{
@@ -364,7 +366,8 @@ bool cVProgFile::Write_Define(std::ostream &ofs, sNode &node)
 	using namespace std;
 
 	ofs << "define" << endl;
-	ofs << "\t" << "type " << node.desc.c_str() << endl;
+	//ofs << "\t" << "type " << node.desc.c_str() << endl;
+	ofs << "\t" << "type " << node.typeStr.c_str() << endl;
 	ofs << "\t" << "name \"" << node.name.c_str() << "\"" << endl;
 	for (auto &pin : node.outputs)
 	{
@@ -601,10 +604,12 @@ bool cVProgFile::Function_GenCode(const sNode &prevNode, const sNode &node
 			}
 
 			// 2020-11-23, variable name data from desc
-			const std::size_t found = node.desc.find("varname:");
+			//const std::size_t found = node.desc.find("varname:");
+			const std::size_t found = node.typeStr.find("varname:");
 			if (found != string::npos)
 			{
-				string scope = node.desc.substr(found+8);
+				//string scope = node.desc.substr(found+8);
+				string scope = node.typeStr.substr(found + 8);
 				code.str1 = scope; // variable name (scope name)
 				code.str2 = "out";
 				code.reg1 = reg;
@@ -612,7 +617,8 @@ bool cVProgFile::Function_GenCode(const sNode &prevNode, const sNode &node
 			} 
 			else
 			{
-				code.str1 = node.desc; // scope name
+				//code.str1 = node.desc; // scope name
+				code.str1 = node.typeStr; // scope name
 				code.str2 = inputPin->name.c_str();
 				code.reg1 = reg;
 				out.m_codes.push_back(code);
