@@ -20,7 +20,8 @@ ImColor vprog::GetIconColor(ePinType::Enum type)
 	case ePinType::Object:   return ImColor(51, 150, 215);
 	case ePinType::Function: return ImColor(218, 0, 183);
 	case ePinType::Delegate: return ImColor(255, 48, 48);
-	case ePinType::NotDef:   return ImColor(68, 201, 156);
+	//case ePinType::NotDef:   return ImColor(68, 201, 156);
+	case ePinType::Any:   return ImColor(68, 201, 156);
 	}
 };
 

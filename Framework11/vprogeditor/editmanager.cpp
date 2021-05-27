@@ -295,8 +295,8 @@ bool cEditManager::Proc_NewLink()
 	const bool isEnumMatch = ((endPin->type == ePinType::Enums) && (startPin->type == ePinType::Int))
 		|| ((endPin->type == ePinType::Int) && (startPin->type == ePinType::Enums));
 
-	const bool isNotDefType = ((endPin->type == ePinType::NotDef) && vprog::IsVarType(startPin->type))
-		|| ((startPin->type == ePinType::NotDef) && vprog::IsVarType(endPin->type));
+	const bool isNotDefType = ((endPin->type == ePinType::Any) && vprog::IsVarType(startPin->type))
+		|| ((startPin->type == ePinType::Any) && vprog::IsVarType(endPin->type));
 
 	if (endPin == startPin)
 	{
@@ -326,7 +326,7 @@ bool cEditManager::Proc_NewLink()
 			m_links.back().color = GetIconColor(startPin->type);
 
 			// if NotDef type pin, Update Pin Type
-			if (ePinType::NotDef != endPin->type)
+			if (ePinType::Any != endPin->type)
 				return true;
 
 			endPin->type = startPin->type;

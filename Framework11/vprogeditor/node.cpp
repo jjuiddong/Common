@@ -111,7 +111,7 @@ bool cNode::Render(cEditManager &editMgr
 
 		switch (input.type)
 		{
-		case ePinType::NotDef:
+		case ePinType::Any:
 			// set variable node?
 			if (m_name == "Set")
 			{
