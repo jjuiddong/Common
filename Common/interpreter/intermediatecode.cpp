@@ -89,10 +89,24 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		{
 			code.cmd = eCommand::FromString(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
-			const VARTYPE vt = common::script::GetVarType(code.cmd);
-			code.var1 = common::str2variant(vt, toks[2]);
-			if (vt == VT_EMPTY)
-				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
+			code.var1.vt = VT_BYREF | VT_INT;
+			code.var1.intVal = 0; // tricky code, array type
+			//const VARTYPE vt = common::script::GetVarType(code.cmd);
+			//code.var1 = common::str2variant(vt, toks[2]);
+			//if (vt == VT_EMPTY)
+			//	dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
+		}
+		else if ((toks[0] == "ldmc")
+			&& (toks.size() >= 3))
+		{
+			code.cmd = eCommand::FromString(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
+			code.var1.vt = VT_BYREF | VT_INT;
+			code.var1.intVal = 0; // tricky code, map type
+			//const VARTYPE vt = common::script::GetVarType(code.cmd);
+			//code.var1 = common::str2variant(vt, toks[2]);
+			//if (vt == VT_EMPTY)
+			//	dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if (((toks[0] == "ldcmp")
 			|| (toks[0] == "ldncmp")
@@ -344,6 +358,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::ldfc:
 		case eCommand::ldsc:
 		case eCommand::ldac:
+		case eCommand::ldmc:
 			ofs << eCommand::ToString(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << common::variant2str(code.var1, true);

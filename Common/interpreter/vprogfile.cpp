@@ -1750,6 +1750,7 @@ bool cVProgFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
 			case ePinType::Float: code.cmd = script::eCommand::ldfc; break;
 			case ePinType::String: code.cmd = script::eCommand::ldsc; break;
 			case ePinType::Array: code.cmd = script::eCommand::ldac; break;
+			case ePinType::Map: code.cmd = script::eCommand::ldmc; break;
 			default: return false;
 			}
 			code.var1 = var->var;
@@ -1777,6 +1778,10 @@ bool cVProgFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
 				break;
 			case ePinType::Array:
 				code.cmd = script::eCommand::ldac;
+				code.var1 = (int)0;
+				break;
+			case ePinType::Map:
+				code.cmd = script::eCommand::ldmc;
 				code.var1 = (int)0;
 				break;
 			default:

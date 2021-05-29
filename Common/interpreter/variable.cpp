@@ -231,6 +231,7 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 	{
 		ClearArray();
 		type = rhs.type;
+		subTypeStr = rhs.subTypeStr;
 		var = rhs.var; // variable or array, map type id assign
 		memcpy(typeValues, rhs.typeValues, sizeof(rhs.typeValues));
 
@@ -240,7 +241,7 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 			var.intVal = id;
 
 		// array copy
-		if (rhs.type == "Array") 
+		if ((rhs.type == "Array") || (rhs.type == "array"))
 		{
 			if (rhs.arSize > 0) {
 				ReserveArray(rhs.arSize);
@@ -250,7 +251,7 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 			}
 		}
 		// map copy
-		else if (rhs.type == "Map") 
+		else if ((rhs.type == "Map") || (rhs.type == "map"))
 		{
 			ClearMap();
 			if (m) 

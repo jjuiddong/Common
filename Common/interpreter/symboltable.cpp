@@ -60,7 +60,8 @@ bool cSymbolTable::InitArray(const string &scopeName, const string &symbolName
 	else
 	{
 		sVariable newVar;
-		newVar.type = typeStr;
+		//newVar.type = typeStr;
+		newVar.type = "Array";
 		common::script::ParseTypeString(typeStr, newVar.typeValues);
 		newVar.subTypeStr = GenerateTypeString(newVar.typeValues, 1);
 		// array tricky code, no memory allocate
@@ -144,7 +145,8 @@ bool cSymbolTable::InitMap(const string &scopeName, const string &symbolName
 	else
 	{
 		sVariable newVar;
-		newVar.type = typeStr;
+		//newVar.type = typeStr;
+		newVar.type = "Map";
 		common::script::ParseTypeString(typeStr, newVar.typeValues);
 		newVar.subTypeStr = GenerateTypeString(newVar.typeValues, 2);
 		newVar.var.vt = VT_BYREF | VT_INT; // map tricky code, no memory allocate

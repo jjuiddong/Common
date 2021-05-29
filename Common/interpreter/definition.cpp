@@ -75,8 +75,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::symbolai:
 	case eCommand::symbolaf:
 	case eCommand::symbolas:
-		return VT_ARRAY;
-
+	case eCommand::ldmc:
 	case eCommand::getm:
 	case eCommand::setm:
 	case eCommand::copym:
@@ -85,7 +84,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::symbolmf:
 	case eCommand::symbolms:
 	case eCommand::symbolma:
-		return VT_ARRAY; // map type, tricky code
+		return VT_BYREF | VT_INT; // array, map type, tricky code
 
 	case eCommand::call:
 	case eCommand::jnz:
@@ -124,6 +123,7 @@ sInstruction& sInstruction::operator=(const sInstruction &rhs)
 		cmd = rhs.cmd;
 		str1 = rhs.str1;
 		str2 = rhs.str2;
+		str3 = rhs.str3;
 		reg1 = rhs.reg1;
 		reg2 = rhs.reg2;
 		common::clearvariant(var1);

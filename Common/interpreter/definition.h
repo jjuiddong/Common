@@ -13,7 +13,7 @@ namespace common
 		// intermediate code command
 		DECLARE_ENUM( eCommand,
 			none,
-			ldbc, ldic, ldfc, ldsc, ldac,
+			ldbc, ldic, ldfc, ldsc, ldac, ldmc,
 			ldcmp, ldncmp, ldtim,
 			getb, geti, getf, gets, geta, getm,
 			setb, seti, setf, sets, seta, setm,
@@ -71,6 +71,7 @@ namespace common
 		// ldfc register_name, value ;load constant float type value
 		// ldsc register_name, value ;load constant string type value
 		// ldac register_name, value ;load constant array type value
+		// ldmc register_name, value ;load constant map type value
 		// ldcmp register_name ;load compare flag, bool type value
 		// ldncmp register_name ;load negate compare flag, bool type value
 		// ldtim register_name ;load time flag from register, float type value

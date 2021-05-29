@@ -194,6 +194,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::ldfc:
 	case eCommand::ldsc:
 	case eCommand::ldac:
+	case eCommand::ldmc:
 		if (ARRAYSIZE(reg.val) <= code.reg1)
 			goto $error_memory;
 		if (varType != code.var1.vt)

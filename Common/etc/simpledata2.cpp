@@ -43,6 +43,13 @@ bool cSimpleData2::Read(const StrPath &fileName)
 		if (toks.empty())
 			continue;
 
+		// check comment, two slash //
+		if (toks[0].size() >= 2)
+		{
+			if (('/' == toks[0][0]) && ('/' == toks[0][1]))
+				continue; // ignore this line
+		}
+
 		sRule *rule = FindRule(state, toks[0]);
 		if (rule)
 		{
