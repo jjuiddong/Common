@@ -710,6 +710,8 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 
 			cursor += size;
 			++index;
+
+			Sleep(5); // wait until socket send
 		}
 	}
 

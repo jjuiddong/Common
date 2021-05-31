@@ -1485,10 +1485,14 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		out.m_codes.push_back(code);
 		opType = 1;
 	}
-	else if ((node.name == "&&") || (node.name == "||"))
+	else if ((node.name == "&&") 
+		|| (node.name == "||")
+		|| (node.name == "and")
+		|| (node.name == "or")
+		)
 	{
 		script::sInstruction code;
-		code.cmd = (node.name == "&&") ? 
+		code.cmd = ((node.name == "&&") || (node.name == "and")) ?
 			script::eCommand::opand : script::eCommand::opor;
 		code.reg1 = 8; // val8
 		code.reg2 = 9; // val9
