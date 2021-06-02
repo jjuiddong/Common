@@ -137,9 +137,10 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 				itpr.cmps[i].push_back(vm->m_reg.cmp);
 				itpr.isChangeInstruction = true;
 
-				// sync delay instruction
+				// sync delay instruction (check next instruction is delay node?)
+				// 'vm->m_reg.idx' is next execute instruction code index
 				if (script::eCommand::delay ==
-					vm->m_code.m_codes[vm->m_reg.exeIdx].cmd)
+					vm->m_code.m_codes[vm->m_reg.idx].cmd)
 				{
 					// sync instruction, register
 					itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
