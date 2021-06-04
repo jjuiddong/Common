@@ -34,33 +34,38 @@ namespace common
 			cSymbolTable(const cSymbolTable &rhs);
 			virtual ~cSymbolTable();
 
-			// variable
+			// set variable
 			template <class T>
-			bool Set(const string &scopeName, const string &symbolName, const T &var
-				, const string &typeStr="");
-
-			// vector<string> specialization
 			bool Set(const string &scopeName, const string &symbolName
-				, const vector<string> &var, const string &typeStr = "");
+				, const T &var, const string &typeStr="");
 
+			// variant_t overloading
+			bool Set(const string &scopeName, const string &symbolName
+				, const variant_t &var, const string &typeStr = "");
+
+			// vector<T> specialization
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName
 				, const vector<T> &var, const string &typeStr = "");
 
+			// T[N] specialization
 			template <class T, size_t N>
-			bool Set(const string &scopeName, const string &symbolName, const T(&var)[N]
-				, const string &typeStr = "");
+			bool Set(const string &scopeName, const string &symbolName
+				, const T(&var)[N], const string &typeStr = "");
 
+			// map<string,T> specialization
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName
 				, const map<string,T> &var, const string &typeStr = "");
 
+			// map<string,vector<T>> specialization
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName
 				, const map<string, vector<T>> &var, const string &typeStr = "");
 
-			bool Set(const string &scopeName, const string &symbolName, const variant_t &var
-				, const string &typeStr = "");
+			// map<string,variant_t> specialization
+			//bool Set(const string &scopeName, const string &symbolName
+			//	, const map<string, variant_t> &var, const string &typeStr = "");
 
 			bool InitArray(const string &scopeName, const string &symbolName
 				, const string &typeStr );
@@ -73,7 +78,11 @@ namespace common
 
 			template <class T>
 			T Get(const string &scopeName, const string &symbolName);
-			bool Get(const string &scopeName, const string &symbolName, OUT variant_t &out);
+
+			// variant_t overloading
+			bool Get(const string &scopeName, const string &symbolName
+				, OUT variant_t &out);
+
 			
 			sVariable* FindVarInfo(const string &scopeName, const string &symbolName);
 			bool IsExist(const string &scopeName, const string &symbolName);
@@ -106,11 +115,13 @@ namespace common
 		};
 
 
-		//---------------------------------------------------------------------------------------
-		// template function
+		//--------------------------------------------------------------------------------
+		// set symboltable variable
 		template <class T>
-		inline bool cSymbolTable::Set(const string &scopeName, const string &symbolName
-			, const T &var, const string &typeStr //= ""
+		inline bool cSymbolTable::Set(const string &scopeName
+			, const string &symbolName
+			, const T &var
+			, const string &typeStr //= ""
 			)
 		{
 			variant_t v = var;
@@ -121,8 +132,10 @@ namespace common
 
 		// template specialization (string)
 		template <>
-		inline bool cSymbolTable::Set<string>(const string &scopeName, const string &symbolName
-			, const string &var, const string &typeStr //= ""
+		inline bool cSymbolTable::Set<string>(const string &scopeName
+			, const string &symbolName
+			, const string &var
+			, const string &typeStr //= ""
 			)
 		{
 			variant_t v;
@@ -137,6 +150,7 @@ namespace common
 		}
 
 		// vector<string> specialization
+		template <>
 		inline bool cSymbolTable::Set(const string &scopeName
 			, const string &symbolName
 			, const vector<string> &var
@@ -151,7 +165,7 @@ namespace common
 			return true;
 		}
 
-		// vector<T>
+		// vector<T> specialization
 		template <class T>
 		inline bool cSymbolTable::Set(const string &scopeName
 			, const string &symbolName
@@ -168,7 +182,7 @@ namespace common
 			return true;
 		}
 
-		// initialize array type
+		// T[N] specialization
 		template <class T, size_t N>
 		inline bool cSymbolTable::Set(const string &scopeName
 			, const string &symbolName
@@ -226,6 +240,9 @@ namespace common
 			return true;
 		}
 
+
+		//--------------------------------------------------------------------------------
+		// get symboltable variable
 		template <class T>
 		inline T cSymbolTable::Get(const string &scopeName, const string &symbolName) 
 		{
@@ -237,12 +254,86 @@ namespace common
 
 		// template specialization (string)
 		template <>
-		inline string cSymbolTable::Get<string>(const string &scopeName, const string &symbolName) 
+		inline string cSymbolTable::Get<string>(const string &scopeName
+			, const string &symbolName) 
 		{
 			variant_t var;
 			if (!Get(scopeName, symbolName, var))
 				return "";
 			return WStr128(var.bstrVal).str().c_str();
+		}
+
+		// vector<string> template specialization 
+		template <>
+		inline vector<string> cSymbolTable::Get<vector<string>>(const string &scopeName
+			, const string &symbolName)
+		{
+			vector<string> ar;
+			sVariable *arVar = FindVarInfo(scopeName, symbolName);
+			if (!arVar)
+				return ar; // not found variable
+
+			// find array source variable
+			const int arId = arVar->var.intVal;
+			auto it = m_varMap.find(arId);
+			if (m_varMap.end() == it)
+				return ar; // error, not found source value
+			if ((it->second.first != scopeName) || (it->second.second != symbolName))
+				arVar = FindVarInfo(it->second.first, it->second.second);
+			if (!arVar || !arVar->m)
+				return ar; // not found variable or no map instance
+			//
+
+			if ((arVar->type != "Array") && (arVar->type != "array"))
+				return ar; // no array type
+			for (uint i = 0; i < arVar->GetArraySize(); ++i)
+			{
+				variant_t v = arVar->GetArrayElement(i);
+				ar.push_back(common::variant2str(v));
+			}
+			return ar;
+		}
+
+		// map<string,vector<string>> template specialization 
+		template <>
+		inline map<string,vector<string>> cSymbolTable::Get<map<string,vector<string>>>
+			(const string &scopeName, const string &symbolName)
+		{
+			map<string, vector<string>> ret;
+			sVariable *srcVar = FindVarInfo(scopeName, symbolName);
+			if (!srcVar)
+				return ret; // not found variable
+
+			// find map source variable
+			const int mapId = srcVar->var.intVal;
+			auto it = m_varMap.find(mapId);
+			if (m_varMap.end() == it)
+				return ret; // error, not found source value
+			if ((it->second.first != scopeName) || (it->second.second != symbolName))
+				srcVar = FindVarInfo(it->second.first, it->second.second);
+			if (!srcVar || !srcVar->m)
+				return ret; // not found variable or no map instance
+			//
+
+			// traverse map variable
+			for (auto &kv : *srcVar->m)
+			{
+				// traverse array variable
+				// val: array<string>
+				variant_t val = srcVar->GetMapValue(*this, kv.first);
+				if (!(val.vt & (VT_BYREF | VT_INT)))
+					continue; // error, no array type
+
+				const int varId = val.intVal;
+				auto it2 = m_varMap.find(varId);
+				if (m_varMap.end() == it2)
+					continue; // error, not found array variable
+
+				vector<string> strAr = Get<vector<string>>(
+					it2->second.first, it2->second.second);
+				ret[kv.first] = strAr;
+			}
+			return ret;
 		}
 
 	}

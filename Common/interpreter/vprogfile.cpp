@@ -889,15 +889,18 @@ bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 			}
 		}
 
-		string jumpLabel = "blank"; // wait address
 		sNode *next = nullptr; // next node
 		sPin *np = nullptr; // next pin
 		const int linkId = pin.links.empty() ? -1 : pin.links.front();
 		std::tie(next, np) = FindContainPin(linkId);
 		if (!next)
+		{
+			// no link, finish node
+			NodeEscape_GenCode(node, out);
 			continue; // no link
+		}
 
-		jumpLabel = MakeScopeName(*next);
+		const string jumpLabel = MakeScopeName(*next);
 
 		// compare reg0, enum value (int type)
 		// if result is true, jump correspond flow code
@@ -917,13 +920,18 @@ bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 
 	}//~for
 
-	// jump default case
+	// generate default case
 	auto it = std::find_if(node.outputs.begin(), node.outputs.end()
 		, [&](const auto &a) {return (a.name == "Default") || (a.name == "default"); });
 	if (node.outputs.end() != it)
 	{
 		auto &pin = *it;
-		if (!pin.links.empty())
+		if (pin.links.empty())
+		{
+			// no default link? finish node
+			NodeEscape_GenCode(node, out);
+		}
+		else
 		{
 			sNode *next = nullptr; // next node
 			sPin *np = nullptr; // next pin
@@ -1908,25 +1916,6 @@ bool cVProgFile::NodeEscape_GenCode(const sNode &node
 	if (isMacro)
 		return true; // macro function no need return
 
-	// no link output flow pin? 
-	// insert ret/nop command, to return instruction
-	//bool isNoLink = false;
-	//for (auto &pin : node.outputs)
-	//{
-	//	if (ePinType::Flow == pin.type)
-	//	{
-	//		sNode *next = nullptr; // next node
-	//		sPin *np = nullptr; // next pin
-	//		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-	//		std::tie(next, np) = FindContainPin(linkId);
-	//		if (!next)
-	//		{
-	//			isNoLink = true;
-	//			break;
-	//		}
-	//	}
-	//}
-
 	// check sret/nop duplicate
 	bool isAlreadyEscapeCode = false;
 	const uint csize = out.m_codes.size();
@@ -1935,6 +1924,7 @@ bool cVProgFile::NodeEscape_GenCode(const sNode &node
 		isAlreadyEscapeCode = (out.m_codes[csize - 2].cmd == script::eCommand::sret)
 			&& (out.m_codes[csize - 1].cmd == script::eCommand::nop);
 	}
+
 	if (!isAlreadyEscapeCode)
 	{
 		out.m_codes.push_back({ script::eCommand::sret });

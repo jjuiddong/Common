@@ -6,7 +6,7 @@ using namespace common;
 using namespace common::script;
 
 
-cVirtualMachine::cVirtualMachine(const StrId &name)
+cVirtualMachine::cVirtualMachine(const string &name)
 	: m_state(eState::Stop)
 	, m_callback(nullptr)
 	, m_callbackArgPtr(nullptr)

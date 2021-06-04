@@ -170,7 +170,7 @@ bool cRemoteDebugger::HostProcess(const float deltaSeconds)
 	common::script::cInterpreter *interpreter = m_debugger->m_interpreter;
 
 	// check change interpreter state
-	set<StrId> sendVms;
+	set<string> sendVms;
 	for (auto &vm : interpreter->m_vms)
 	{
 		auto it = m_checkMap.find(vm->m_name);

@@ -29,7 +29,7 @@ namespace common
 			bool DebugRun();
 			bool StepRun();
 			bool Resume();
-			bool ResumeVM(const StrId &vmName);
+			bool ResumeVM(const string &vmName);
 			bool OneStep();
 			bool Break();
 			bool BreakPoint(const bool enable, const uint id);

@@ -123,6 +123,13 @@ bool sVariable::ReserveArray(const uint size)
 }
 
 
+// return array size
+uint sVariable::GetArraySize()
+{
+	return arSize;
+}
+
+
 // return m[key]
 // no data? create new data
 variant_t& sVariable::GetMapValue(cSymbolTable &symbolTable, const string &key)

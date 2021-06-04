@@ -32,7 +32,7 @@ namespace common
 				float t; // decrease time, seconds unit
 			};
 
-			cVirtualMachine(const StrId &name);
+			cVirtualMachine(const string &name);
 			virtual ~cVirtualMachine();
 
 			bool Init(const cIntermediateCode &code, iFunctionCallback *callback
@@ -60,7 +60,7 @@ namespace common
 			};
 
 			eState m_state;
-			StrId m_name;
+			string m_name;
 			sRegister m_reg;
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;

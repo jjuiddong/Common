@@ -21,7 +21,8 @@ cSymbolTable::~cSymbolTable()
 }
 
 
-// add or update variable in symboltable
+ 
+// add or update variable in symboltable (Set overloading)
 bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 	, const variant_t &var
 	, const string &typeStr //= ""

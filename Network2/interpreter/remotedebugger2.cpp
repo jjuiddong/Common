@@ -385,7 +385,7 @@ bool cRemoteDebugger2::Resume(const int itprId)
 
 
 // resume virtual machine
-bool cRemoteDebugger2::ResumeVM(const int itprId, const StrId &vmName)
+bool cRemoteDebugger2::ResumeVM(const int itprId, const string &vmName)
 {
 	if (itprId < 0)
 	{
