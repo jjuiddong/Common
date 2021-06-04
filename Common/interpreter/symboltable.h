@@ -280,7 +280,7 @@ namespace common
 				return ar; // error, not found source value
 			if ((it->second.first != scopeName) || (it->second.second != symbolName))
 				arVar = FindVarInfo(it->second.first, it->second.second);
-			if (!arVar || !arVar->m)
+			if (!arVar || !arVar->ar)
 				return ar; // not found variable or no map instance
 			//
 
