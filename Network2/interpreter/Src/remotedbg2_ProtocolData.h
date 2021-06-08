@@ -159,7 +159,7 @@ using namespace marshalling_json;
 		netid senderId;
 		int itprId;
 		int vmIdx;
-		vector<uint> indices;
+		vector<ushort> indices;
 		vector<bool> cmps;
 	};
 

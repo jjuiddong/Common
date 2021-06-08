@@ -94,7 +94,7 @@ namespace network2
 			StrId name;
 			eState state;
 			script::cInterpreter *interpreter;
-			vector<uint> insts[10]; // vm instruction index check, max check 10
+			vector<ushort> insts[10]; // vm instruction index check, max check 10
 			vector<bool> cmps[10];
 			bool isChangeInstruction;
 			float regSyncTime; // register sync time

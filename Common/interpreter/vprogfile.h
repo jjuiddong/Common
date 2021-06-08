@@ -62,7 +62,6 @@ namespace vprog
 			int id;
 			eNodeType::Enum type;
 			string name;
-			//string desc; // description
 			string typeStr;
 			string labelName; // to set unique node name (especially, event label name)
 			vector<sPin> inputs;
@@ -84,6 +83,9 @@ namespace vprog
 
 
 	protected:
+		bool Symbol_GenCode(const string &scopeName, const string &varName
+			, const common::script::sVariable &var
+			, OUT common::script::cIntermediateCode &out);
 		bool Event_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool Node_GenCode(const sNode &prevNode, const sNode &node
@@ -134,6 +136,8 @@ namespace vprog
 		bool AddVariable2(const string &scopeName, const string &name
 			, const string &typeStr
 			, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
+		bool AddVariable3(const string &scopeName, const string &name
+			, const string &typeStr);
 
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
 		string MakeScopeName(const sNode &node, const int uniqueId = -1);

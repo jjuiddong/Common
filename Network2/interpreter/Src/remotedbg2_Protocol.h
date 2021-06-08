@@ -42,7 +42,7 @@ public:
 	void AckBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id, const int &result);
 	void AckStop(netid targetId, bool isBinary, const int &itprId, const int &result);
 	void AckInput(netid targetId, bool isBinary, const int &itprId, const int &result);
-	void SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<uint> &indices, const vector<bool> &cmps);
+	void SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<ushort> &indices, const vector<bool> &cmps);
 	void SyncVMRegister(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const int &infoType, const script::cVirtualMachine::sRegister &reg);
 	void SyncVMSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol);
 	void SyncVMOutput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &output);

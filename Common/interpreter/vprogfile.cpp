@@ -253,6 +253,76 @@ bool cVProgFile::AddVariable2(const string &scopeName, const string &name
 }
 
 
+// add temporal initialize variable
+bool cVProgFile::AddVariable3(const string &scopeName, const string &name
+	, const string &typeStr)
+{
+	using namespace common::script;
+
+	if (scopeName.empty() || name.empty())
+	{
+		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable3() symbol parse error!! 1\n");
+		return false; // error
+	}
+
+	vector<eSymbolType::Enum> typeValues;
+	if (!ParseTypeString(typeStr, typeValues))
+	{
+		common::dbg::Logc(1
+			, "Error!! cVProgFile::AddVariable3() symbol parse error!! 1-1, typeStr = %s\n"
+			, typeStr.c_str());
+		return false;
+	}
+	const eSymbolType::Enum symbType = typeValues.front();
+
+	variant_t val;
+	switch (symbType)
+	{
+	case eSymbolType::Bool: val = (bool)false; break;
+	case eSymbolType::Enums:
+	case eSymbolType::Int: val = (int)0; break;
+	case eSymbolType::Float: val = (float)0; break;
+	case eSymbolType::String:
+		val = common::str2variant(VT_BSTR, "");
+		break;
+	case eSymbolType::Array:
+	case eSymbolType::Map:
+		break;  // nothing, todo: array type temporal symbol createion
+	case eSymbolType::Any:
+		return true; // nothing, anytype ignore
+	//case eSymbolType::Array:
+	//	if (!m_variables.InitArray(scopeName, name, typeStr))
+	//	{
+	//		assert(!"cNodefile::AddVariable3() symbol parse error!! 3");
+	//		return false;
+	//	}
+	//	break;
+	//case eSymbolType::Map:
+	//	if (!m_variables.InitMap(scopeName, name, typeStr))
+	//	{
+	//		assert(!"cNodefile::AddVariable3() symbol parse error!! 4");
+	//		return false;
+	//	}
+	//	break;
+	default:
+		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable3() symbol parse error!! 2\n");
+		return false;
+	}
+
+	// update value bool, int, float, string, enum
+	if ((symbType != eSymbolType::Array) && (symbType != eSymbolType::Map))
+	{
+		if (!m_variables.Set(scopeName, name, val, typeStr))
+		{
+			assert(!"cNodefile::AddVariable3() symbol parse error!! 5");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
 // add define from parsed *.vprog file
 bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
@@ -414,68 +484,39 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		out.m_codes.push_back({ script::eCommand::nop });
 	}
 
-	// make initial symbol
+	// make initial variable in node output pin
+	// to avoid no symbol assertion 
+	for (auto &node : m_nodes)
+	{
+		for (auto &pin : node.outputs)
+		{
+			if (ePinType::Flow == pin.type)
+				continue;
+			const string scopeName = script::cSymbolTable::MakeScopeName(node.name, node.id);
+			script::sVariable *var = m_variables.FindVarInfo(scopeName, pin.name);
+			if (var)
+				continue; // already exist, ignore
+			switch (pin.type)
+			{
+			case ePinType::Bool: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::Enums:
+			case ePinType::Int: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::Float: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::String: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::Array: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::Map: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			default: break;
+			}
+		}
+	}
+
+	// make initial symbol (register in symboltable)
 	for (auto &kv1 : m_variables.m_vars) // loop all scope
 	{
-		for (auto &kv2 : kv1.second) // loop all scope variable
+		for (auto &kv2 : kv1.second) // loop scope variable
 		{
 			const sVariable &var = kv2.second;
-
-			script::sInstruction code;
-			string typeStr; // array, map type string
-
-			const eSymbolType::Enum symbType = var.typeValues[0];
-			switch (symbType)
-			{
-			case eSymbolType::Bool: code.cmd = script::eCommand::symbolb; break;
-			case eSymbolType::Int: code.cmd = script::eCommand::symboli; break;
-			case eSymbolType::Float: code.cmd = script::eCommand::symbolf; break;
-			case eSymbolType::String: code.cmd = script::eCommand::symbols; break;
-			case eSymbolType::Array:
-			{
-				typeStr = var.type;
-				const eSymbolType::Enum elementType = var.typeValues[1]; //array<type>
-				switch (elementType)
-				{
-				case eSymbolType::Bool: code.cmd = script::eCommand::symbolab; break;
-				case eSymbolType::Int: code.cmd = script::eCommand::symbolai; break;
-				case eSymbolType::Float: code.cmd = script::eCommand::symbolaf; break;
-				case eSymbolType::String: code.cmd = script::eCommand::symbolas; break;
-				default:
-					common::dbg::Logc(3,
-						"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
-					break;
-				}
-			}
-			break;
-			case eSymbolType::Map:
-			{
-				typeStr = var.type;
-				const eSymbolType::Enum valueType = var.typeValues[2]; //map<string,type>
-				switch (valueType)
-				{
-				case eSymbolType::Bool: code.cmd = script::eCommand::symbolmb; break;
-				case eSymbolType::Int: code.cmd = script::eCommand::symbolmi; break;
-				case eSymbolType::Float: code.cmd = script::eCommand::symbolmf; break;
-				case eSymbolType::String: code.cmd = script::eCommand::symbolms; break;
-				case eSymbolType::Array: code.cmd = script::eCommand::symbolma; break;
-				default:
-					common::dbg::Logc(3, 
-						"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type3\n");
-					break;
-				}
-			}
-			break;
-			default:
-				common::dbg::Logc(3, 
-					"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
-				break;
-			}
-			code.str1 = kv1.first; // scopename
-			code.str2 = kv2.first; // varname
-			code.str3 = typeStr; // array, map type string
-			code.var1 = var.var;
-			out.m_codes.push_back(code);
+			Symbol_GenCode(kv1.first, kv2.first, var, out);
 		}
 	}
 
@@ -501,6 +542,73 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 	out.m_fileName = m_fileName.GetFileNameExceptExt2();
 	out.m_fileName += ".icode";
 
+	return true;
+}
+
+
+// generate symbol initialize code
+bool cVProgFile::Symbol_GenCode(const string &scopeName, const string &varName
+	, const common::script::sVariable &var
+	, OUT common::script::cIntermediateCode &out)
+{
+	using namespace common::script;
+
+	script::sInstruction code;
+	string typeStr; // array, map type string
+
+	const eSymbolType::Enum symbType = var.typeValues[0];
+	switch (symbType)
+	{
+	case eSymbolType::Bool: code.cmd = script::eCommand::symbolb; break;
+	case eSymbolType::Int: code.cmd = script::eCommand::symboli; break;
+	case eSymbolType::Float: code.cmd = script::eCommand::symbolf; break;
+	case eSymbolType::String: code.cmd = script::eCommand::symbols; break;
+	case eSymbolType::Array:
+	{
+		typeStr = var.type;
+		const eSymbolType::Enum elementType = var.typeValues[1]; //array<type>
+		switch (elementType)
+		{
+		case eSymbolType::Bool: code.cmd = script::eCommand::symbolab; break;
+		case eSymbolType::Int: code.cmd = script::eCommand::symbolai; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::symbolaf; break;
+		case eSymbolType::String: code.cmd = script::eCommand::symbolas; break;
+		default:
+			common::dbg::Logc(3,
+				"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+			break;
+		}
+	}
+	break;
+	case eSymbolType::Map:
+	{
+		typeStr = var.type;
+		const eSymbolType::Enum valueType = var.typeValues[2]; //map<string,type>
+		switch (valueType)
+		{
+		case eSymbolType::Bool: code.cmd = script::eCommand::symbolmb; break;
+		case eSymbolType::Int: code.cmd = script::eCommand::symbolmi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::symbolmf; break;
+		case eSymbolType::String: code.cmd = script::eCommand::symbolms; break;
+		case eSymbolType::Array: code.cmd = script::eCommand::symbolma; break;
+		default:
+			common::dbg::Logc(3,
+				"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type3\n");
+			break;
+		}
+	}
+	break;
+	default:
+		common::dbg::Logc(3,
+			"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
+		break;
+	}
+
+	code.str1 = scopeName;// kv1.first; // scopename
+	code.str2 = varName;// kv2.first; // varname
+	code.str3 = typeStr; // array, map type string
+	code.var1 = var.var;
+	out.m_codes.push_back(code);
 	return true;
 }
 

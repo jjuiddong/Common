@@ -130,7 +130,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		{
 			script::cVirtualMachine *vm = interpreter->m_vms[i];
 			if (itpr.insts[i].empty()
-				|| ((itpr.insts[i].size() < 100)
+				|| ((itpr.insts[i].size() < 300)
 					&& (itpr.insts[i].back() != vm->m_reg.idx)))
 			{
 				itpr.insts[i].push_back(vm->m_reg.idx);
@@ -168,6 +168,8 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 
 				m_protocol.SyncVMInstruction(network2::SERVER_NETID
 					, true, itprId, 0, itpr.insts[i], itpr.cmps[i]);
+
+				//dbg::Logc(1, "size = %d\n", itpr.insts[i].size());
 
 				// clear and setup last data
 				const uint index = itpr.insts[i].back();

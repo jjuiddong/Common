@@ -59,8 +59,8 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 
 	if (!ProcessEvent(deltaSeconds))
 		ProcessTimer(deltaSeconds);
+	
 	ExecuteInstruction(deltaSeconds, m_reg);
-
 	return true;
 }
 

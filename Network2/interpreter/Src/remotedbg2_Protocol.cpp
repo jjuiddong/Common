@@ -745,7 +745,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: SyncVMInstruction
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<uint> &indices, const vector<bool> &cmps)
+void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<ushort> &indices, const vector<bool> &cmps)
 {
 	cPacket packet(m_node->GetPacketHeader());
 	packet.SetProtocolId( GetId() );
