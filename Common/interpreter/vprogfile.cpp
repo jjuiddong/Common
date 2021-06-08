@@ -485,7 +485,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		if (eNodeType::Event == node.type)
 		{
 			const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
-			script::sVariable *var = m_variables.FindVarInfo(name, "out");
+			script::sVariable *var = m_variables.FindVarInfo(name, "interval");
 			if (var) // register event?
 			{
 				script::sInstruction code;
@@ -515,7 +515,7 @@ bool cVProgFile::Event_GenCode(const sNode &node
 
 	out.m_codes.push_back({ script::eCommand::nop });
 
-	// labelName: node.name '-' node.id	 
+	// labelName: node.name '_' node.id	 
 	// make label name, if need unique event labe name, update from node.labelName
 	const string labelName = node.labelName.empty() ?
 		script::cSymbolTable::MakeScopeName(node.name, node.id) : node.labelName;
