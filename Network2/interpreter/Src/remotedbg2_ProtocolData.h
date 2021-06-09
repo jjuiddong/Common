@@ -160,7 +160,6 @@ using namespace marshalling_json;
 		int itprId;
 		int vmIdx;
 		vector<ushort> indices;
-		vector<bool> cmps;
 	};
 
 	struct SyncVMRegister_Packet {

@@ -492,7 +492,21 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 		{
 			if (ePinType::Flow == pin.type)
 				continue;
-			const string scopeName = script::cSymbolTable::MakeScopeName(node.name, node.id);
+
+			string scopeName;
+			// event scopename no has id because event is unique
+			// except 'tick event'
+			if (eNodeType::Event == node.type)
+			{
+				scopeName = (node.name == "Tick Event") ?
+					script::cSymbolTable::MakeScopeName(node.name, node.id)
+					: node.name;
+			}
+			else
+			{
+				scopeName = script::cSymbolTable::MakeScopeName(node.name, node.id);
+			}
+
 			script::sVariable *var = m_variables.FindVarInfo(scopeName, pin.name);
 			if (var)
 				continue; // already exist, ignore

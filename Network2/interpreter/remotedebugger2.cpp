@@ -129,12 +129,23 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 		{
 			script::cVirtualMachine *vm = interpreter->m_vms[i];
-			if (itpr.insts[i].empty()
-				|| ((itpr.insts[i].size() < 300)
-					&& (itpr.insts[i].back() != vm->m_reg.idx)))
+			vector<ushort> &insts = itpr.insts[i];
+
+			if (insts.empty() || (insts.back() != vm->m_reg.idx))
 			{
-				itpr.insts[i].push_back(vm->m_reg.idx);
-				itpr.cmps[i].push_back(vm->m_reg.cmp);
+				// continuous instruction index? (can optimize)
+				const bool isNextInst = !insts.empty()
+					&& ((insts.back() + 1) == vm->m_reg.idx);
+
+				if (insts.empty() || !isNextInst)
+				{
+					insts.push_back(vm->m_reg.idx);
+					insts.push_back(vm->m_reg.idx);
+				}
+				else
+				{
+					insts.back() = vm->m_reg.idx; // continuous instruction
+				}
 				itpr.isChangeInstruction = true;
 
 				// sync delay instruction (check next instruction is delay node?)
@@ -167,17 +178,15 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 					continue;
 
 				m_protocol.SyncVMInstruction(network2::SERVER_NETID
-					, true, itprId, 0, itpr.insts[i], itpr.cmps[i]);
+					, true, itprId, 0, itpr.insts[i]);
 
 				//dbg::Logc(1, "size = %d\n", itpr.insts[i].size());
 
 				// clear and setup last data
 				const uint index = itpr.insts[i].back();
-				const bool cmp = itpr.cmps[i].back();
 				itpr.insts[i].clear();
-				itpr.cmps[i].clear();
-				itpr.insts[i].push_back(index); // last data
-				itpr.cmps[i].push_back(cmp); // last data
+				itpr.insts[i].push_back(index); // last data (idx-idx)
+				itpr.insts[i].push_back(index);
 			}
 		}
 
@@ -592,7 +601,7 @@ bool cRemoteDebugger2::SendSyncSymbolTable(const int itprId)
 			for (auto &kv2 : kv1.second)
 			{
 				const string &name = kv2.first;
-				const string varName = kv1.first + "-" + kv2.first;
+				const string varName = kv1.first + "_" + kv2.first;
 				const script::sVariable &var = kv2.second;
 
 				bool isSync = false;

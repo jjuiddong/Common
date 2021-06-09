@@ -7,7 +7,8 @@ using namespace common::script;
 
 
 cVirtualMachine::cVirtualMachine(const string &name)
-	: m_state(eState::Stop)
+	: m_id(common::GenerateId())
+	, m_state(eState::Stop)
 	, m_callback(nullptr)
 	, m_callbackArgPtr(nullptr)
 	, m_name(name)

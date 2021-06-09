@@ -1001,7 +1001,6 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.itprId);
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.indices);
-				marshalling::operator>>(packet, data.cmps);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
 			}
 			else
@@ -1024,7 +1023,6 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					get(props, "vmIdx", data.vmIdx);
 					get(props, "indices", data.indices);
-					get(props, "cmps", data.cmps);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);

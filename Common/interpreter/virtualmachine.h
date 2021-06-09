@@ -60,6 +60,7 @@ namespace common
 			};
 
 			eState m_state;
+			int m_id; // unique id
 			string m_name;
 			sRegister m_reg;
 			cSymbolTable m_symbTable;

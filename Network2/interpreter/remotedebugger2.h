@@ -4,7 +4,8 @@
 //	- synchronize debug information with webserver
 //	- now only Host Mode
 //		- connect webserver
-//		- remote debugger is webclient
+//		- remote debugger is webclient mode
+//		- run interpreter and synchroinize with webserver
 //	- todo:
 //		- remote work
 //		- webserver work
@@ -94,8 +95,7 @@ namespace network2
 			StrId name;
 			eState state;
 			script::cInterpreter *interpreter;
-			vector<ushort> insts[10]; // vm instruction index check, max check 10
-			vector<bool> cmps[10];
+			vector<ushort> insts[10]; // vm instruction index array, max vm count:10
 			bool isChangeInstruction;
 			float regSyncTime; // register sync time
 			float instSyncTime; // instruction sync time
