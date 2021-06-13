@@ -38,7 +38,7 @@ protocol h2r 5300 json
 	AckStop( int itprId, int result );
 	AckInput( int itprId, int result );
 	SyncVMInstruction( int itprId, int vmIdx, vector<ushort> indices );
-	SyncVMRegister( int itprId,int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
+	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
 	SyncVMOutput( int itprId, int vmIdx, string output );
 	AckHeartBeat();

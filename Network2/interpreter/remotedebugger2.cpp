@@ -150,7 +150,8 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 
 				// sync delay instruction (check next instruction is delay node?)
 				// 'vm->m_reg.idx' is next execute instruction code index
-				if (script::eCommand::delay ==
+				// ldtim is previous delay command
+				if (script::eCommand::ldtim ==
 					vm->m_code.m_codes[vm->m_reg.idx].cmd)
 				{
 					// sync instruction, register
@@ -178,9 +179,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 					continue;
 
 				m_protocol.SyncVMInstruction(network2::SERVER_NETID
-					, true, itprId, 0, itpr.insts[i]);
-
-				//dbg::Logc(1, "size = %d\n", itpr.insts[i].size());
+					, true, itprId, i, itpr.insts[i]);
 
 				// clear and setup last data
 				const uint index = itpr.insts[i].back();
@@ -562,9 +561,11 @@ bool cRemoteDebugger2::SendSyncVMRegister(const int itprId)
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
 	script::cInterpreter *interpreter = m_interpreters[itprId].interpreter;
-	for (auto &vm : interpreter->m_vms)
+	for (uint i=0; i < interpreter->m_vms.size(); ++i)
 	{
-		m_protocol.SyncVMRegister(network2::SERVER_NETID, true, itprId, 0, 0, vm->m_reg);
+		auto &vm = interpreter->m_vms[i];
+		m_protocol.SyncVMRegister(network2::SERVER_NETID, true, itprId
+			, (int)i, 0, vm->m_reg);
 		break; // now only one virtual machine sync
 	}
 	return true;
