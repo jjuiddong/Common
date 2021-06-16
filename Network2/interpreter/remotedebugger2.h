@@ -53,7 +53,8 @@ namespace network2
 		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
 
 		bool Process(const float deltaSeconds);
-		bool PushEvent(const int itprId, const common::script::cEvent &evt);
+		bool PushEvent(const int itprId, const common::script::cEvent &evt
+			, const bool isUnique = false);
 		bool Run(const int itprId);
 		bool DebugRun(const int itprId);
 		bool StepRun(const int itprId);
@@ -84,6 +85,7 @@ namespace network2
 		virtual bool ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet) override;
 		virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) override;
 		virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) override;
+		virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) override;
 
 
 	public:

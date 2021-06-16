@@ -33,8 +33,11 @@ namespace common
 			bool OneStep();
 			bool Break();
 			bool BreakPoint(const bool enable, const uint id);
-			bool PushEvent(const cEvent &evt);
+			bool PushEvent(const cEvent &evt, const bool isUnique = false);
+			void SetCodeTrace(const bool isTrace);
+			void SetICodeStepDebug(const bool isICodeStep);
 			bool IsRun() const;
+			bool IsDebugRun() const;
 			bool IsStop() const;
 			bool IsDebug();
 			bool IsBreak();
@@ -65,12 +68,14 @@ namespace common
 			eDebugState m_dbgState;
 			StrPath m_fileName; // intermediate code filename
 			cIntermediateCode m_code;
-			queue<cEvent> m_events;
+			deque<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms;
 			iFunctionCallback *m_callback;
 			void *m_callbackArgPtr;
 			float m_dt;
 			set<uint> m_breakPoints;
+			bool m_isCodeTrace; // vm code trace?
+			bool m_isICodeStep; // one intermediate code step trace?
 		};
 
 	}

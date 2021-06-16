@@ -110,6 +110,7 @@ typedef unsigned int hashcode;
 #include <map>
 #include <vector>
 #include <list>
+#include <deque>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -139,6 +140,7 @@ using std::map;
 using std::list;
 using std::set;
 using std::queue;
+using std::deque;
 using std::stringstream;
 using std::wstringstream;
 using std::min;

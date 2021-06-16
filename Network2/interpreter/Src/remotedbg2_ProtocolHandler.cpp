@@ -481,6 +481,51 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
+	case 3084593987: // ReqStepDebugType
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				ReqStepDebugType_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.stepDbgType);
+				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqStepDebugType(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					ReqStepDebugType_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "stepDbgType", data.stepDbgType);
+					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqStepDebugType(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
+		}
+		break;
+
 	case 2532286881: // ReqHeartBeat
 		{
 			ProtocolHandlers prtHandler;
@@ -975,6 +1020,53 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
+		}
+		break;
+
+	case 4225702489: // AckStepDebugType
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				AckStepDebugType_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.stepDbgType);
+				marshalling::operator>>(packet, data.result);
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckStepDebugType(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					AckStepDebugType_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "stepDbgType", data.stepDbgType);
+					get(props, "result", data.result);
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckStepDebugType(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}

@@ -13,6 +13,8 @@ cInterpreter::cInterpreter()
 	, m_callback(nullptr)
 	, m_callbackArgPtr(nullptr)
 	, m_dt(0.f)
+	, m_isCodeTrace(false)
+	, m_isICodeStep(false)
 {
 }
 
@@ -69,7 +71,7 @@ bool cInterpreter::RunProcess(const float deltaSeconds)
 		cEvent &evt = m_events.front();
 		for (auto &vm : m_vms)
 			vm->PushEvent(evt);
-		m_events.pop();
+		m_events.pop_front();
 	}
 
 	for (auto &vm : m_vms)
@@ -92,10 +94,19 @@ bool cInterpreter::DebugProcess(const float deltaSeconds)
 		break;
 	case eDebugState::Step:
 		m_dt += deltaSeconds;
-		if (ProcessUntilNodeEnter(m_dt) == 1)
+		if (m_isICodeStep)
+		{
+			// one icode execution
+			RunProcess(m_dt);
 			m_dbgState = eDebugState::Wait;
+		}
 		else
-			m_dbgState = eDebugState::Step;
+		{
+			if (ProcessUntilNodeEnter(m_dt) == 1)
+				m_dbgState = eDebugState::Wait;
+			else
+				m_dbgState = eDebugState::Step;
+		}
 		m_dt = 0.f;
 		break;
 	case eDebugState::Run:
@@ -167,10 +178,57 @@ bool cInterpreter::Stop()
 }
 
 
-bool cInterpreter::PushEvent(const cEvent &evt)
+// add event
+// isUnique: no has same event, (check same event)
+bool cInterpreter::PushEvent(const cEvent &evt
+	, const bool isUnique //= false
+)
 {
-	m_events.push(evt);
+	// check same event
+	if (isUnique)
+	{
+		for (auto &e : m_events)
+		{
+			if (e.m_name != evt.m_name)
+				continue;
+
+			bool isSame = true;
+			for (auto &kv : evt.m_vars)
+			{
+				auto it = e.m_vars.find(kv.first);
+				if (e.m_vars.end() == it) {
+					isSame = false;
+					break;
+				}
+				if (it->second != kv.second)
+				{
+					isSame = false;
+					break;
+				}
+			}
+			if (isSame)
+				return false; // already exist same event
+		}
+	}
+
+	m_events.push_back(evt);
 	return true;
+}
+
+
+// set virtual machine instruction index trace for debugging
+void cInterpreter::SetCodeTrace(const bool isTrace)
+{
+	m_isCodeTrace = isTrace;
+	for (auto &vm : m_vms)
+		vm->SetCodeTrace(isTrace);
+}
+
+
+// set one intermediate code step debugging
+void cInterpreter::SetICodeStepDebug(const bool isICodeStep)
+{
+	m_isICodeStep = isICodeStep;
 }
 
 
@@ -237,6 +295,7 @@ bool cInterpreter::InitAndRunVM()
 	if (m_vms.empty())
 	{
 		vm = new cVirtualMachine("VM1");
+		vm->SetCodeTrace(m_isCodeTrace);
 		m_vms.push_back(vm);
 	}
 	else
@@ -259,14 +318,12 @@ bool cInterpreter::InitAndRunVM()
 //		  1: meet 'node enter'
 int cInterpreter::ProcessUntilNodeEnter(const float deltaSeconds)
 {
+	float dt = deltaSeconds;
 	int state = 1; // 1:loop, 2:meet node enter, 3:wait event, 4:fail
 	while (state == 1)
 	{
-		RunProcess(deltaSeconds);
-
-		// code one step debugging
-		//state = 2;
-		//break;
+		RunProcess(dt);
+		dt = 0.f;
 
 		// node debugging
 		state = 0; // initial state
@@ -325,6 +382,7 @@ bool cInterpreter::CheckBreakPoint()
 
 
 bool cInterpreter::IsRun() const { return eState::Run == m_state; }
+bool cInterpreter::IsDebugRun() const { return eState::DebugRun == m_state; }
 bool cInterpreter::IsStop() const { return eState::Stop == m_state; }
 
 
@@ -375,6 +433,5 @@ void cInterpreter::Clear()
 	m_vms.clear();
 
 	m_code.Clear();
-	while (!m_events.empty())
-		m_events.pop();
+	m_events.clear();
 }

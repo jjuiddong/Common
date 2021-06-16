@@ -1,7 +1,7 @@
 //
 // Script Remote Debugger Protocol 2
 //	- WebSocket Communication
-//		- binary/json format communication
+//		- binary/json format
 //	- Host : Interpreter Client (Run Script, c++)
 //	- Remote : WebServer or WebBrowser (javascript)
 //	- h2r : Host Client -> Remote Server Protocol
@@ -18,9 +18,10 @@ protocol r2h 5301 json
 	ReqOneStep(int itprId);
 	ReqResumeRun(int itprId);
 	ReqBreak(int itprId);
-	ReqBreakPoint( int itprId, bool enable, uint id );
+	ReqBreakPoint( int itprId, bool enable, uint id);
 	ReqStop(int itprId);
-	ReqInput(int itprId, int vmIdx, string eventName );
+	ReqInput(int itprId, int vmIdx, string eventName);
+	ReqStepDebugType(int stepDbgType);
 	ReqHeartBeat();
 }
 
@@ -37,6 +38,7 @@ protocol h2r 5300 json
 	AckBreakPoint( int itprId, bool enable, uint id, int result );
 	AckStop( int itprId, int result );
 	AckInput( int itprId, int result );
+	AckStepDebugType(int stepDbgType, int result);
 	SyncVMInstruction( int itprId, int vmIdx, vector<ushort> indices );
 	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );

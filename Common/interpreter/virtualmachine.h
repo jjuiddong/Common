@@ -42,6 +42,8 @@ namespace common
 			bool Resume();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
+			void SetCodeTrace(const bool isCodeTrace);
+			void ClearCodeTrace(const bool isTakeLast=false);
 			void Clear();
 
 
@@ -49,6 +51,7 @@ namespace common
 			bool ProcessEvent(const float deltaSeconds);
 			bool ProcessTimer(const float deltaSeconds);
 			bool ExecuteInstruction(const float deltaSeconds, sRegister &reg);
+			void CodeTraceLog();
 
 
 		public:
@@ -59,8 +62,8 @@ namespace common
 				, Wait // no operation state, wait until event trigger
 			};
 
-			eState m_state;
 			int m_id; // unique id
+			eState m_state;
 			string m_name;
 			sRegister m_reg;
 			cSymbolTable m_symbTable;
@@ -70,6 +73,11 @@ namespace common
 			vector<int> m_stack; // simple integer stack
 			iFunctionCallback *m_callback;
 			void *m_callbackArgPtr;
+
+			// debugging
+			bool m_isCodeTraceLog;
+			vector<ushort> m_trace; // executed code index log (pair data)
+									// 0-10,15-20,101-101
 		};
 
 	}

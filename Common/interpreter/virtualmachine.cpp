@@ -12,6 +12,7 @@ cVirtualMachine::cVirtualMachine(const string &name)
 	, m_callback(nullptr)
 	, m_callbackArgPtr(nullptr)
 	, m_name(name)
+	, m_isCodeTraceLog(false)
 {
 }
 
@@ -60,8 +61,12 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 
 	if (!ProcessEvent(deltaSeconds))
 		ProcessTimer(deltaSeconds);
-	
+
 	ExecuteInstruction(deltaSeconds, m_reg);
+
+	if (m_isCodeTraceLog)
+		CodeTraceLog();
+
 	return true;
 }
 
@@ -758,6 +763,61 @@ $error_memory:
 	dbg::Logc(3, "Error cVirtualMachine::Execute() Memory Error. index=%d, type=%d, reg1=%d, reg2=%d\n"
 		, reg.idx, (int)code.cmd, code.reg1, code.reg2);
 	return false;
+}
+
+
+// executed code index log
+// ex) 0-10, 15-20, 101-101
+void cVirtualMachine::CodeTraceLog()
+{
+	if (m_trace.empty())
+	{
+		// start idx-idx
+		m_trace.push_back(m_reg.idx);
+		m_trace.push_back(m_reg.idx);
+	}
+	else
+	{
+		const int curIdx = m_trace.back();
+		if (curIdx == m_reg.idx)
+			return; // nothing~
+		
+		// contineous instruction index?
+		if ((curIdx + 1) == m_reg.idx)
+		{
+			m_trace.back() = m_reg.idx;
+		}
+		else
+		{
+			// jump instruction index
+			m_trace.push_back(m_reg.idx);
+			m_trace.push_back(m_reg.idx);
+		}
+	}
+}
+
+
+// set executed code index log on/off
+void cVirtualMachine::SetCodeTrace(const bool isCodeTrace) 
+{
+	m_isCodeTraceLog = isCodeTrace;
+}
+
+
+// clear executed code index log
+// isTakeLast: m_trace.back() take, clear remains
+void cVirtualMachine::ClearCodeTrace(
+	const bool isTakeLast //=false
+)
+{
+	const int back = (isTakeLast && !m_trace.empty()) ? m_trace.back() : -1;
+	m_trace.clear();
+	
+	if (isTakeLast)
+	{
+		m_trace.push_back(back);
+		m_trace.push_back(back);
+	}
 }
 
 
