@@ -507,12 +507,12 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 		{
 			if (*c == '\"')
 			{
-				if (!tok.empty())
-				{
+				//if (!tok.empty())
+				//{
 					out.push_back(tok);
 					tok.clear();
 					state = 0;
-				}
+				//}
 			}
 			else
 			{

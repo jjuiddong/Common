@@ -35,9 +35,11 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		return false;
 
 	int state = 0;
+	int lineCnt = 0;
 	string line;
 	while (getline(ifs, line))
 	{
+		++lineCnt;
 		common::trim(line);
 		vector<string> toks;
 		common::tokenizer_space(line, toks);
