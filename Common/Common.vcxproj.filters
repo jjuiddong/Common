@@ -199,9 +199,6 @@
     <ClInclude Include="interpreter\symboltable.h">
       <Filter>interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\vprogfile.h">
-      <Filter>interpreter</Filter>
-    </ClInclude>
     <ClInclude Include="interpreter\event.h">
       <Filter>interpreter</Filter>
     </ClInclude>
@@ -209,9 +206,6 @@
       <Filter>interpreter</Filter>
     </ClInclude>
     <ClInclude Include="interpreter\definition.h">
-      <Filter>interpreter</Filter>
-    </ClInclude>
-    <ClInclude Include="interpreter\vprog.h">
       <Filter>interpreter</Filter>
     </ClInclude>
     <ClInclude Include="interpreter\debugger.h">
@@ -235,13 +229,19 @@
     <ClInclude Include="math\plane3.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\vprogjsonfile.h">
-      <Filter>interpreter</Filter>
-    </ClInclude>
     <ClInclude Include="etc\json.h">
       <Filter>Etc</Filter>
     </ClInclude>
     <ClInclude Include="interpreter\variable.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\vpl.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\vplfile.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\vpljsonfile.h">
       <Filter>interpreter</Filter>
     </ClInclude>
   </ItemGroup>
@@ -364,9 +364,6 @@
     <ClCompile Include="interpreter\symboltable.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter\vprogfile.cpp">
-      <Filter>interpreter</Filter>
-    </ClCompile>
     <ClCompile Include="interpreter\event.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
@@ -391,19 +388,22 @@
     <ClCompile Include="etc\simpledata2.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter\vprog.cpp">
-      <Filter>interpreter</Filter>
-    </ClCompile>
     <ClCompile Include="math\plane2.cpp">
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="math\plane3.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter\vprogjsonfile.cpp">
+    <ClCompile Include="interpreter\variable.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter\variable.cpp">
+    <ClCompile Include="interpreter\vpl.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\vplfile.cpp">
+      <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\vpljsonfile.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>

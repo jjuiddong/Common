@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
-#include "vprog.h"
+#include "vpl.h"
 
-using namespace vprog;
+using namespace vpl;
 
 
 // Convert ePinType to Value Type
-VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
+VARTYPE vpl::GetPin2VarType(const ePinType::Enum type)
 {
 	VARTYPE vt = VT_EMPTY;
 	switch (type)
@@ -21,7 +21,7 @@ VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 	case ePinType::Array: return VT_BYREF; // tricky type
 	case ePinType::Map: return VT_BYREF; // tricky type
 	default:
-		assert(!"vprog::GetPin2VarType() Error symbol parse error!!");
+		assert(!"vpl:::GetPin2VarType() Error symbol parse error!!");
 		break;
 	}
 	return VT_EMPTY;
@@ -30,7 +30,7 @@ VARTYPE vprog::GetPin2VarType(const ePinType::Enum type)
 
 // Is Variable Type? int, float .. etc
 // is primitive type?
-bool vprog::IsVarType(const ePinType::Enum type)
+bool vpl::IsVarType(const ePinType::Enum type)
 {
 	switch (type)
 	{

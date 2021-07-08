@@ -204,5 +204,5 @@ using std::max;
 #include "interpreter/virtualmachine.h"
 #include "interpreter/interpreter.h"
 #include "interpreter/debugger.h"
-#include "interpreter/vprogfile.h"
-#include "interpreter/vprogjsonfile.h"
+#include "interpreter/vplfile.h"
+#include "interpreter/vpljsonfile.h"

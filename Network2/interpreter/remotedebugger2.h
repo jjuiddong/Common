@@ -2,7 +2,7 @@
 // 2020-11-20, jjuiddong
 // RemoteDebugger with WebServer
 //	- synchronize debug information with webserver
-//	- now only Host Mode
+//	- now only Host Mode available
 //		- connect webserver
 //		- remote debugger is webclient mode
 //		- run interpreter and synchroinize with webserver
@@ -32,7 +32,7 @@ namespace network2
 		enum class eDebugMode { None, Host, Remote };
 
 		// synchronize symbol to check change variable
-		// only change variable synchroinizing
+		// only change variable synchronizing
 		struct sSymbol {
 			StrId name; // symbol name
 			float t; // sync time

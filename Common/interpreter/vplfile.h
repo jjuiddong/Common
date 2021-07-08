@@ -1,6 +1,6 @@
 //
 // 2019-10-30, jjuiddong
-// Visual Programming File Read/Write
+// Visual Programming Language File Read/Write
 //	- convert to intermediate code
 //	- common::script::cIntermediateCode
 //
@@ -34,16 +34,19 @@
 //	- symboltype refactoring
 //	- add array<>, map<> type
 //
+// 2021-07-09
+//	- change name vprogfile -> vplfile
+//
 //
 #pragma once
 
-#include "vprog.h"
+#include "vpl.h"
 
 
-namespace vprog
+namespace vpl
 {
 
-	class cVProgFile
+	class cVplFile
 	{
 	public:
 		struct sPin {
@@ -73,8 +76,8 @@ namespace vprog
 			int to; // to pin id
 		};
 
-		cVProgFile();
-		virtual ~cVProgFile();
+		cVplFile();
+		virtual ~cVplFile();
 
 		bool Read(const StrPath &fileName);
 		bool Write(const StrPath &fileName);

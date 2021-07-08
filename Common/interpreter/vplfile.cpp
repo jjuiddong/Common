@@ -1,26 +1,26 @@
 
 #include "stdafx.h"
-#include "vprogfile.h"
+#include "vplfile.h"
 
-using namespace vprog;
+using namespace vpl;
 namespace script = common::script;
 
-const static cVProgFile::sNode nullNode = { 0, };
+const static cVplFile::sNode nullNode = { 0, };
 
 
-cVProgFile::cVProgFile()
+cVplFile::cVplFile()
 	: m_jmpLabelSeedId(0)
 {
 }
 
-cVProgFile::~cVProgFile()
+cVplFile::~cVplFile()
 {
 	Clear();
 }
 
 
-// read *.vprog file
-bool cVProgFile::Read(const StrPath &fileName)
+// read *.vpl file
+bool cVplFile::Read(const StrPath &fileName)
 {
 	Clear();
 
@@ -82,7 +82,7 @@ bool cVProgFile::Read(const StrPath &fileName)
 			AddDefine(sdata, p);
 		else
 		{
-			assert(!"cVProgFile::Read() Error, not defined node type");
+			assert(!"cVplFile::Read() Error, not defined node type");
 			break;
 		}
 	} //~for nodes, type, symbol
@@ -91,8 +91,8 @@ bool cVProgFile::Read(const StrPath &fileName)
 }
 
 
-// add node from parsed *.vprog file
-bool cVProgFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+// add node from parsed *.vpl file
+bool cVplFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	sNode node;
 	node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
@@ -122,7 +122,7 @@ bool cVProgFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNod
 				}
 				else
 				{
-					assert(!"cVProgFile::Read() Error!, not defined type name");
+					assert(!"cVplFile::Read() Error!, not defined type name");
 					pin.type = ePinType::Int;
 				}
 			}
@@ -155,8 +155,8 @@ bool cVProgFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNod
 }
 
 
-// add variable from parsed *.vprog file
-bool cVProgFile::AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+// add variable from parsed *.vpl file
+bool cVplFile::AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	const string scopeName = sdata.Get<string>(p, "scopename", "");
 	const string name = sdata.Get<string>(p, "name", "");
@@ -166,7 +166,7 @@ bool cVProgFile::AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::
 
 
 // add symbole
-bool cVProgFile::AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+bool cVplFile::AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	sPin pin;
 	pin.name = "@symbol@";
@@ -177,7 +177,7 @@ bool cVProgFile::AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 	std::tie(n, pp) = FindContainPin(pin.id);
 	if (!n || !pp)
 	{
-		common::dbg::Logc(1, "Error!! cVProgFile::AddSymbol() symbol parse error!!\n");
+		common::dbg::Logc(1, "Error!! cVplFile::AddSymbol() symbol parse error!!\n");
 		return false;
 	}
 
@@ -188,13 +188,13 @@ bool cVProgFile::AddSymbol(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 
 
 // add variable
-bool cVProgFile::AddVariable2(const string &scopeName, const string &name
+bool cVplFile::AddVariable2(const string &scopeName, const string &name
 	, const string &typeStr
 	, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	if (scopeName.empty() || name.empty())
 	{
-		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable2() symbol parse error!! 1\n");
+		common::dbg::Logc(1, "Error!! cVplFile::AddVariable2() symbol parse error!! 1\n");
 		return false; // error
 	}
 
@@ -204,7 +204,7 @@ bool cVProgFile::AddVariable2(const string &scopeName, const string &name
 	if (!ParseTypeString(typeStr, typeValues)) 
 	{
 		common::dbg::Logc(1
-			, "Error!! cVProgFile::AddVariable2() symbol parse error!! 1-1, typeStr = %s\n"
+			, "Error!! cVplFile::AddVariable2() symbol parse error!! 1-1, typeStr = %s\n"
 			, typeStr.c_str());
 		return false;
 	}
@@ -235,7 +235,7 @@ bool cVProgFile::AddVariable2(const string &scopeName, const string &name
 		}
 		break;
 	default:
-		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable2() symbol parse error!! 2\n");
+		common::dbg::Logc(1, "Error!! cVplFile::AddVariable2() symbol parse error!! 2\n");
 		return false;
 	}
 
@@ -254,14 +254,14 @@ bool cVProgFile::AddVariable2(const string &scopeName, const string &name
 
 
 // add temporal initialize variable
-bool cVProgFile::AddVariable3(const string &scopeName, const string &name
+bool cVplFile::AddVariable3(const string &scopeName, const string &name
 	, const string &typeStr)
 {
 	using namespace common::script;
 
 	if (scopeName.empty() || name.empty())
 	{
-		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable3() symbol parse error!! 1\n");
+		common::dbg::Logc(1, "Error!! cVplFile::AddVariable3() symbol parse error!! 1\n");
 		return false; // error
 	}
 
@@ -269,7 +269,7 @@ bool cVProgFile::AddVariable3(const string &scopeName, const string &name
 	if (!ParseTypeString(typeStr, typeValues))
 	{
 		common::dbg::Logc(1
-			, "Error!! cVProgFile::AddVariable3() symbol parse error!! 1-1, typeStr = %s\n"
+			, "Error!! cVplFile::AddVariable3() symbol parse error!! 1-1, typeStr = %s\n"
 			, typeStr.c_str());
 		return false;
 	}
@@ -305,7 +305,7 @@ bool cVProgFile::AddVariable3(const string &scopeName, const string &name
 	//	}
 	//	break;
 	default:
-		common::dbg::Logc(1, "Error!! cVProgFile::AddVariable3() symbol parse error!! 2\n");
+		common::dbg::Logc(1, "Error!! cVplFile::AddVariable3() symbol parse error!! 2\n");
 		return false;
 	}
 
@@ -323,8 +323,8 @@ bool cVProgFile::AddVariable3(const string &scopeName, const string &name
 }
 
 
-// add define from parsed *.vprog file
-bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
+// add define from parsed *.vpl file
+bool cVplFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	namespace script = common::script;
 
@@ -349,7 +349,7 @@ bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 	}
 	else
 	{
-		assert(!"cVProgFile::Read() Error, not defined type parse");
+		assert(!"cVplFile::Read() Error, not defined type parse");
 	}
 
 	m_variables.AddSymbol(symbol);
@@ -358,8 +358,8 @@ bool cVProgFile::AddDefine(common::cSimpleData2 &sdata, common::cSimpleData2::sN
 }
 
 
-// write *.vprog file
-bool cVProgFile::Write(const StrPath &fileName)
+// write *.vpl file
+bool cVplFile::Write(const StrPath &fileName)
 {
 	using namespace std;
 	ofstream ofs(fileName.c_str());
@@ -379,7 +379,7 @@ bool cVProgFile::Write(const StrPath &fileName)
 
 
 // write node data
-bool cVProgFile::Write_Node(std::ostream &ofs, sNode &node)
+bool cVplFile::Write_Node(std::ostream &ofs, sNode &node)
 {
 	using namespace std;
 
@@ -431,7 +431,7 @@ bool cVProgFile::Write_Node(std::ostream &ofs, sNode &node)
 
 
 // write define type node data
-bool cVProgFile::Write_Define(std::ostream &ofs, sNode &node)
+bool cVplFile::Write_Define(std::ostream &ofs, sNode &node)
 {
 	using namespace std;
 
@@ -450,7 +450,7 @@ bool cVProgFile::Write_Define(std::ostream &ofs, sNode &node)
 
 
 // generate script intermediate code
-bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &out)
+bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &out)
 {
 	using namespace common::script;
 
@@ -561,7 +561,7 @@ bool cVProgFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode 
 
 
 // generate symbol initialize code
-bool cVProgFile::Symbol_GenCode(const string &scopeName, const string &varName
+bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 	, const common::script::sVariable &var
 	, OUT common::script::cIntermediateCode &out)
 {
@@ -589,7 +589,7 @@ bool cVProgFile::Symbol_GenCode(const string &scopeName, const string &varName
 		case eSymbolType::String: code.cmd = script::eCommand::symbolas; break;
 		default:
 			common::dbg::Logc(3,
-				"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type2\n");
+				"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type2\n");
 			break;
 		}
 	}
@@ -607,14 +607,14 @@ bool cVProgFile::Symbol_GenCode(const string &scopeName, const string &varName
 		case eSymbolType::Array: code.cmd = script::eCommand::symbolma; break;
 		default:
 			common::dbg::Logc(3,
-				"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type3\n");
+				"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type3\n");
 			break;
 		}
 	}
 	break;
 	default:
 		common::dbg::Logc(3,
-			"Error!! cVProgFile::GenerateIntermediateCode(), invalid symbol type1\n");
+			"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type1\n");
 		break;
 	}
 
@@ -628,7 +628,7 @@ bool cVProgFile::Symbol_GenCode(const string &scopeName, const string &varName
 
 
 // generate intermediate code, event node
-bool cVProgFile::Event_GenCode(const sNode &node
+bool cVplFile::Event_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Event, false);
@@ -651,7 +651,7 @@ bool cVProgFile::Event_GenCode(const sNode &node
 		if ((ePinType::Flow == pin.type) && (!pin.links.empty()))
 		{
 			if (pin.links.size() >= 2)
-				common::dbg::Logc(3, "Error!! cVProgFile::Generate intermediate code, flow link too many setting \n");
+				common::dbg::Logc(3, "Error!! cVplFile::Generate intermediate code, flow link too many setting \n");
 
 			sNode *next = nullptr;
 			sPin *np = nullptr;
@@ -673,7 +673,7 @@ bool cVProgFile::Event_GenCode(const sNode &node
 
 
 // generate intermediate code, node
-bool cVProgFile::Node_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::Node_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	switch (node.type)
@@ -686,7 +686,7 @@ bool cVProgFile::Node_GenCode(const sNode &prevNode, const sNode &node
 		break;
 	default:
 		common::dbg::Logc(1
-			, "Error!! cVProgFile::GenerateCode_Node(), node type is invalid\n");
+			, "Error!! cVplFile::GenerateCode_Node(), node type is invalid\n");
 		return false; // nothing generate this type
 	}
 
@@ -695,7 +695,7 @@ bool cVProgFile::Node_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, function node type
-bool cVProgFile::Function_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
@@ -750,7 +750,7 @@ bool cVProgFile::Function_GenCode(const sNode &prevNode, const sNode &node
 		{
 			// error occurred!!
 			common::dbg::Logc(2
-				, "Error!! cVProgFile::GenerateCode_Function(), not found input pin\n");
+				, "Error!! cVplFile::GenerateCode_Function(), not found input pin\n");
 		}
 
 		// Set node has out pint?
@@ -812,7 +812,7 @@ bool cVProgFile::Function_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, control node
-bool cVProgFile::Control_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::Control_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	if (node.name == "Branch")
@@ -830,7 +830,7 @@ bool cVProgFile::Control_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, control node
-bool cVProgFile::Branch_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::Branch_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
@@ -876,7 +876,7 @@ bool cVProgFile::Branch_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			//common::dbg::Logc(1, "cVProgFile::GenerateCode_Branch, no branch label\n");
+			//common::dbg::Logc(1, "cVplFile::GenerateCode_Branch, no branch label\n");
 		}
 		else
 		{
@@ -946,7 +946,7 @@ bool cVProgFile::Branch_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, switch case node
-bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
@@ -979,7 +979,7 @@ bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 				, [&](const auto &a) {return a.name == pin.name; });
 			if (symbol->enums.end() == it)
 			{
-				assert(!"cVProgFile::GenerateCode_Switch() error");
+				assert(!"cVplFile::GenerateCode_Switch() error");
 				continue; // error occurred!!
 			}
 			value = (int)it->value;
@@ -989,24 +989,24 @@ bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 		{
 			// int selection type, name is value
 			switch (selPin->type) {
-			case vprog::ePinType::Bool:
+			case vpl::ePinType::Bool:
 				value = ((pin.name == "true") || (pin.name == "True")) ? 1 : 0;
 				cmd = script::eCommand::eqic;
 				break;
-			case vprog::ePinType::Int:
+			case vpl::ePinType::Int:
 				value = atoi(pin.name.c_str());
 				cmd = script::eCommand::eqic;
 				break;
-			case vprog::ePinType::Float:
+			case vpl::ePinType::Float:
 				value = atof(pin.name.c_str());
 				cmd = script::eCommand::eqfc;
 				break;
-			case vprog::ePinType::String:
+			case vpl::ePinType::String:
 				value = pin.name.c_str();
 				cmd = script::eCommand::eqsc;
 				break;
 			default:
-				common::dbg::Logc(3, "cVProgFile::GenerateCode_Switch() error");
+				common::dbg::Logc(3, "cVplFile::GenerateCode_Switch() error");
 				continue; // error occurred!!, ignore this code
 			}
 		}
@@ -1101,7 +1101,7 @@ bool cVProgFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate while syntax code
-bool cVProgFile::While_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::While_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
@@ -1154,7 +1154,7 @@ bool cVProgFile::While_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			//common::dbg::Logc(1, "cVProgFile::GenerateCode_While, no branch label\n");
+			//common::dbg::Logc(1, "cVplFile::GenerateCode_While, no branch label\n");
 		}
 		else
 		{
@@ -1235,7 +1235,7 @@ bool cVProgFile::While_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate for-loop syntax code
-bool cVProgFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
@@ -1327,7 +1327,7 @@ bool cVProgFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			//common::dbg::Logc(1, "cVProgFile::GenerateCode_ForLoop, no branch label\n");
+			//common::dbg::Logc(1, "cVplFile::GenerateCode_ForLoop, no branch label\n");
 		}
 		else
 		{
@@ -1444,7 +1444,7 @@ bool cVProgFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate sequence code
-bool cVProgFile::Sequence_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::Sequence_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(eNodeType::Control != node.type, false);
@@ -1487,7 +1487,7 @@ bool cVProgFile::Sequence_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate intermediate code, operator node
-bool cVProgFile::Operator_GenCode(const sNode &node
+bool cVplFile::Operator_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	using namespace common::script;
@@ -1513,7 +1513,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		symbType = pin.typeValues[0];
 		if (eSymbolType::None != symbType)
 			break;
-		//vt = vprog::GetPin2VarType(pin.type);
+		//vt = vpl::GetPin2VarType(pin.type);
 		//if (VT_EMPTY != vt)
 		//	break;
 	}
@@ -1534,7 +1534,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::lesf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1551,7 +1551,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::leqf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1568,7 +1568,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::grf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1585,7 +1585,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::greqf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1607,7 +1607,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::String: code.cmd = script::eCommand::eqs; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1640,7 +1640,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::String: code.cmd = script::eCommand::adds; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1658,7 +1658,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::subf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1676,7 +1676,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::mulf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1694,7 +1694,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::divf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // val8
@@ -1725,7 +1725,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 			case eSymbolType::String: code.cmd = script::eCommand::sets; break;
 			default:
 				common::dbg::Logc(1
-					, "Error!! cVProgFile::Generate_Operator(), compare type invalid\n");
+					, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 				break;
 			}
 			code.str1 = MakeScopeName(node);
@@ -1787,7 +1787,7 @@ bool cVProgFile::Operator_GenCode(const sNode &node
 
 
 // generate intermediate code, variable node
-bool cVProgFile::Variable_GenCode(const sNode &node
+bool cVplFile::Variable_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Operator, false);
@@ -1801,7 +1801,7 @@ bool cVProgFile::Variable_GenCode(const sNode &node
 
 
 // generate intermediate code, pin
-bool cVProgFile::Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
+bool cVplFile::Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
 {
 	return Pin2_GenCode(pin.kind, node, pin, reg, out);
@@ -1809,7 +1809,7 @@ bool cVProgFile::Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 
 
 // generate intermediate code, pin
-bool cVProgFile::Pin2_GenCode(const ePinKind::Enum kind
+bool cVplFile::Pin2_GenCode(const ePinKind::Enum kind
 	, const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
 {
@@ -1860,7 +1860,7 @@ bool cVProgFile::Pin2_GenCode(const ePinKind::Enum kind
 
 
 // generate intermedate code, load temporal value to register
-bool cVProgFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
+bool cVplFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
 	, const uint reg, OUT common::script::cIntermediateCode &out)
 {
 	const _bstr_t emptyStr(" "); // avoid crash local variable (1 space string)
@@ -1934,7 +1934,7 @@ bool cVProgFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
 
 
 // insert flow debug information
-bool cVProgFile::DebugInfo_GenCode(const sPin &from, const sPin &to
+bool cVplFile::DebugInfo_GenCode(const sPin &from, const sPin &to
 	, OUT common::script::cIntermediateCode &out)
 {
 	script::sInstruction inst;
@@ -1948,7 +1948,7 @@ bool cVProgFile::DebugInfo_GenCode(const sPin &from, const sPin &to
 
 
 // insert flow debug information, if from-to node was linked
-bool cVProgFile::DebugInfo_GenCode(const sNode &from, const sNode &to
+bool cVplFile::DebugInfo_GenCode(const sNode &from, const sNode &to
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	RETV(from.id == 0, false);
@@ -1984,7 +1984,7 @@ bool cVProgFile::DebugInfo_GenCode(const sNode &from, const sNode &to
 }
 
 // if return false, multiple enter, no need generate this node code
-bool cVProgFile::NodeEnter_GenCode(const sNode &prevNode, const sNode &node
+bool cVplFile::NodeEnter_GenCode(const sNode &prevNode, const sNode &node
 	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
 {
 	DebugInfo_GenCode(prevNode, node, fromPin, out);
@@ -2029,7 +2029,7 @@ bool cVProgFile::NodeEnter_GenCode(const sNode &prevNode, const sNode &node
 
 
 // generate node escape code
-bool cVProgFile::NodeEscape_GenCode(const sNode &node
+bool cVplFile::NodeEscape_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	// check macro function
@@ -2059,7 +2059,7 @@ bool cVProgFile::NodeEscape_GenCode(const sNode &node
 // generate node input pin code
 // reg: load input pin variable register
 // isUpdateInputPin: set input pin symbol table
-bool cVProgFile::NodeInput_GenCode(const sNode &node, const uint reg
+bool cVplFile::NodeInput_GenCode(const sNode &node, const uint reg
 	, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out)
 {
 	// calc input pin node
@@ -2112,7 +2112,7 @@ bool cVProgFile::NodeInput_GenCode(const sNode &node, const uint reg
 }
 
 
-bool cVProgFile::AddPin(const int parseState, sNode &node, const sPin &pin)
+bool cVplFile::AddPin(const int parseState, sNode &node, const sPin &pin)
 {
 	sPin p = pin;
 	p.kind = (parseState == 2) ? ePinKind::Input : ePinKind::Output;
@@ -2126,8 +2126,8 @@ bool cVProgFile::AddPin(const int parseState, sNode &node, const sPin &pin)
 
 
 // return pin contain node
-std::pair<cVProgFile::sNode*, cVProgFile::sPin*> 
-	cVProgFile::FindContainPin(const int pinId)
+std::pair<cVplFile::sNode*, cVplFile::sPin*> 
+	cVplFile::FindContainPin(const int pinId)
 {
 	if (pinId < 0)
 		return std::make_pair(nullptr, nullptr);
@@ -2149,7 +2149,7 @@ std::pair<cVProgFile::sNode*, cVProgFile::sPin*>
 // event scopeName: nodeName
 // scopeName: nodeName '-' nodeId
 // unique scopeName: nodeName '-' nodeId '-' uniqueId
-string cVProgFile::MakeScopeName(const sNode &node
+string cVplFile::MakeScopeName(const sNode &node
 	, const int uniqueId // =-1
 )
 {
@@ -2169,7 +2169,7 @@ string cVProgFile::MakeScopeName(const sNode &node
 
 
 // return Input Flow links count
-uint cVProgFile::GetInputFlowCount(const sNode &node)
+uint cVplFile::GetInputFlowCount(const sNode &node)
 {
 	uint cnt = 0;
 	for (auto &pin : node.inputs)
@@ -2185,7 +2185,7 @@ uint cVProgFile::GetInputFlowCount(const sNode &node)
 
 
 // return matching name in node input pin 
-const cVProgFile::sPin* cVProgFile::GetInputPin(const sNode &node, const vector<string> &names)
+const cVplFile::sPin* cVplFile::GetInputPin(const sNode &node, const vector<string> &names)
 {
 	for (auto &pin : node.inputs)
 	{
@@ -2198,7 +2198,7 @@ const cVProgFile::sPin* cVProgFile::GetInputPin(const sNode &node, const vector<
 
 
 // is ignore generate code? especially input pin
-bool cVProgFile::IsIgnoreInputPin(const ePinType::Enum type)
+bool cVplFile::IsIgnoreInputPin(const ePinType::Enum type)
 {
 	switch (type)
 	{
@@ -2211,7 +2211,7 @@ bool cVProgFile::IsIgnoreInputPin(const ePinType::Enum type)
 }
 
 
-void cVProgFile::Clear()
+void cVplFile::Clear()
 {
 	m_nodes.clear();
 	m_variables.Clear();

@@ -35,7 +35,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		return false;
 
 	int state = 0;
-	int lineCnt = 0;
+	int lineCnt = 0; // for debugging
 	string line;
 	while (getline(ifs, line))
 	{

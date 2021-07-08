@@ -1,26 +1,26 @@
 
 #include "stdafx.h"
-#include "vprogjsonfile.h"
+#include "vpljsonfile.h"
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // ignore warning boost bind placehoder
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-using namespace vprog;
+using namespace vpl;
 using namespace common;
 
 
-cVProgJsonFile::cVProgJsonFile()
+cVplJsonFile::cVplJsonFile()
 {
 }
 
-cVProgJsonFile::~cVProgJsonFile()
+cVplJsonFile::~cVplJsonFile()
 {
 	Clear();
 }
 
 
 // read json file
-bool cVProgJsonFile::ReadJson(const StrPath &fileName)
+bool cVplJsonFile::ReadJson(const StrPath &fileName)
 {
 	assert(0); // not implements
 	return true;
@@ -28,7 +28,7 @@ bool cVProgJsonFile::ReadJson(const StrPath &fileName)
 
 
 // read json string data
-bool cVProgJsonFile::ReadJsonRaw(const string &rawStr)
+bool cVplJsonFile::ReadJsonRaw(const string &rawStr)
 {
 	using namespace common::script;
 
@@ -142,14 +142,14 @@ bool cVProgJsonFile::ReadJsonRaw(const string &rawStr)
 
 
 // write json file
-bool cVProgJsonFile::WriteJson(const StrPath &fileName)
+bool cVplJsonFile::WriteJson(const StrPath &fileName)
 {
 	assert(0); // not implements
 	return true;
 }
 
 
-void cVProgJsonFile::Clear()
+void cVplJsonFile::Clear()
 {
 	__super::Clear();
 }

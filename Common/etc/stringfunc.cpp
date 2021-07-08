@@ -468,9 +468,7 @@ void common::tokenizer3(const char *data, const int size, const char delimeter, 
 }
 
 
-// 공백문자와 (space, newline, tab) 쌍따옴표(double quote), 콤마(,)를 
-// 기준으로 문자를 구분한다.
-// 쌍따옴표 사이의 문자는 어떤 문자든지 (delimeter 여부와 상관없이) 문자로 인식한다.
+// string parse with delimeter (space, newline, tab, double quote, comma)
 void common::tokenizer_space(const string &str, OUT vector<string> &out)
 {
 	int state = 0;
@@ -478,7 +476,7 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 	const char *c = str.c_str();
 	while (*c)
 	{
-		if (state == 0)
+		if (0 == state)
 		{
 			switch (*c)
 			{
@@ -503,7 +501,7 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 				break;
 			}
 		}
-		else if (state == 1)
+		else if (1 == state)
 		{
 			if (*c == '\"')
 			{

@@ -1,11 +1,14 @@
 //
 // 2019-11-01, jjuiddong
-// visual programming global header
+// visual programming language global header
+//
+// 2021-07-09
+//	- change name vprog -> vpl (visual programming language)
 //
 #pragma once
 
 
-namespace vprog {
+namespace vpl {
 
 	using common::StrId;
 	using common::StrPath;

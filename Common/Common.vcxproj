@@ -453,9 +453,9 @@
     <ClInclude Include="interpreter\symboltable.h" />
     <ClInclude Include="interpreter\variable.h" />
     <ClInclude Include="interpreter\virtualmachine.h" />
-    <ClInclude Include="interpreter\vprog.h" />
-    <ClInclude Include="interpreter\vprogfile.h" />
-    <ClInclude Include="interpreter\vprogjsonfile.h" />
+    <ClInclude Include="interpreter\vpl.h" />
+    <ClInclude Include="interpreter\vplfile.h" />
+    <ClInclude Include="interpreter\vpljsonfile.h" />
     <ClInclude Include="math\line.h" />
     <ClInclude Include="math\Math.h" />
     <ClInclude Include="math\mathutility.h" />
@@ -519,9 +519,9 @@
     <ClCompile Include="interpreter\symboltable.cpp" />
     <ClCompile Include="interpreter\variable.cpp" />
     <ClCompile Include="interpreter\virtualmachine.cpp" />
-    <ClCompile Include="interpreter\vprog.cpp" />
-    <ClCompile Include="interpreter\vprogfile.cpp" />
-    <ClCompile Include="interpreter\vprogjsonfile.cpp" />
+    <ClCompile Include="interpreter\vpl.cpp" />
+    <ClCompile Include="interpreter\vplfile.cpp" />
+    <ClCompile Include="interpreter\vpljsonfile.cpp" />
     <ClCompile Include="math\line.cpp" />
     <ClCompile Include="math\matrix44.cpp" />
     <ClCompile Include="math\plane.cpp" />
