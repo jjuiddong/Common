@@ -150,8 +150,8 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	{
 		// error occurred!!
 		// not found event handling
-		dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
-			, evt.m_name.c_str());
+		//dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
+		//	, evt.m_name.c_str());
 	}
 
 	m_events.pop();
