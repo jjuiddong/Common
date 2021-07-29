@@ -217,9 +217,6 @@
     <ClInclude Include="vprogeditor\node.h">
       <Filter>vprogeditor</Filter>
     </ClInclude>
-    <ClInclude Include="vprogeditor\vprog.h">
-      <Filter>vprogeditor</Filter>
-    </ClInclude>
     <ClInclude Include="vprogeditor\editmanager.h">
       <Filter>vprogeditor</Filter>
     </ClInclude>
@@ -230,6 +227,9 @@
       <Filter>vprogeditor</Filter>
     </ClInclude>
     <ClInclude Include="vprogeditor\nodefile.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\vpl.h">
       <Filter>vprogeditor</Filter>
     </ClInclude>
   </ItemGroup>
@@ -379,13 +379,13 @@
     <ClCompile Include="vprogeditor\node.cpp">
       <Filter>vprogeditor</Filter>
     </ClCompile>
-    <ClCompile Include="vprogeditor\vprog.cpp">
-      <Filter>vprogeditor</Filter>
-    </ClCompile>
     <ClCompile Include="vprogeditor\editmanager.cpp">
       <Filter>vprogeditor</Filter>
     </ClCompile>
     <ClCompile Include="vprogeditor\nodefile.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\vpl.cpp">
       <Filter>vprogeditor</Filter>
     </ClCompile>
   </ItemGroup>

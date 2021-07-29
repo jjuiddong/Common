@@ -5,7 +5,7 @@
 #include "../external/NodeEditor/imgui_node_editor_internal.h"
 
 using namespace framework;
-using namespace vprog;
+using namespace vpl;
 
 
 cNode::cNode(int id, const StrId &name
@@ -391,7 +391,7 @@ bool cNode::RenderSwitchCaseNode(cEditManager &editMgr
 				// insert case, before Default case
 				StrId text;
 				text.Format("%d", val);
-				vprog::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
+				vpl::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
 				pin.typeStr = "Flow";
 				pin.nodeId = m_id;
 				pin.kind = ePinKind::Output;
@@ -425,7 +425,7 @@ bool cNode::RenderSequenceNode(cEditManager &editMgr
 	{
 		StrId text;
 		text.Format("Then %d", m_outputs.size());
-		vprog::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
+		vpl::sPin pin(editMgr.GetUniqueId(), text.c_str(), ePinType::Flow);
 		pin.typeStr = "Flow";
 		pin.nodeId = m_id;
 		pin.kind = ePinKind::Output;

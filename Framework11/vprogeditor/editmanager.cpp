@@ -6,7 +6,7 @@
 #include <imgui_internal.h>
 
 using namespace framework;
-using namespace vprog;
+using namespace vpl;
 
 void BuildNode(cNode* node);
 
@@ -35,7 +35,7 @@ cEditManager::~cEditManager()
 }
 
 
-// Initialize vProg Edit Manager
+// Initialize vpl Edit Manager
 bool cEditManager::Init(graphic::cRenderer &renderer)
 {
 	ed::Config config;
@@ -88,7 +88,7 @@ bool cEditManager::Read(const StrPath &fileName)
 }
 
 
-// *.vprog 파일로 저장한다.
+// *.vpl 파일로 저장한다.
 bool cEditManager::Write(const StrPath &fileName)
 {
 	if (m_nodes.empty())
@@ -115,12 +115,12 @@ bool cEditManager::Write(const StrPath &fileName)
 			continue;
 
 		// Make Define Node, and then insert node file
-		vprog::cNode defNode(0, symbol->name);
+		vpl::cNode defNode(0, symbol->name);
 		defNode.m_type = eNodeType::Define;
 		defNode.m_desc = "Enum";
 		for (auto &e : symbol->enums)
 		{
-			vprog::sPin pin(0, e.name, ePinType::Enums);
+			vpl::sPin pin(0, e.name, ePinType::Enums);
 			pin.value = e.value;
 			pin.kind = ePinKind::Output;
 			defNode.m_outputs.push_back(pin);
@@ -145,7 +145,7 @@ bool cEditManager::Write(const StrPath &fileName)
 }
 
 
-// render vprog node
+// render vpl node
 bool cEditManager::Render(graphic::cRenderer &renderer)
 {
 	namespace util = ax::NodeEditor::Utilities;
@@ -295,8 +295,8 @@ bool cEditManager::Proc_NewLink()
 	const bool isEnumMatch = ((endPin->type == ePinType::Enums) && (startPin->type == ePinType::Int))
 		|| ((endPin->type == ePinType::Int) && (startPin->type == ePinType::Enums));
 
-	const bool isNotDefType = ((endPin->type == ePinType::Any) && vprog::IsVarType(startPin->type))
-		|| ((startPin->type == ePinType::Any) && vprog::IsVarType(endPin->type));
+	const bool isNotDefType = ((endPin->type == ePinType::Any) && vpl::IsVarType(startPin->type))
+		|| ((startPin->type == ePinType::Any) && vpl::IsVarType(endPin->type));
 
 	if (endPin == startPin)
 	{
@@ -322,7 +322,7 @@ bool cEditManager::Proc_NewLink()
 		showLabel("+ Create Link", ImColor(32, 45, 32, 180));
 		if (ed::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
 		{
-			m_links.emplace_back(vprog::sLink(GetUniqueId(), fromPinId, toPinId));
+			m_links.emplace_back(vpl::sLink(GetUniqueId(), fromPinId, toPinId));
 			m_links.back().color = GetIconColor(startPin->type);
 
 			// if NotDef type pin, Update Pin Type
@@ -344,7 +344,7 @@ bool cEditManager::Proc_NewLink()
 					endPin->typeStr = t->name; // selection typename
 					for (auto &e : t->enums)
 					{
-						vprog::sPin pin(GetUniqueId(), e.name, ePinType::Flow);
+						vpl::sPin pin(GetUniqueId(), e.name, ePinType::Flow);
 						pin.typeStr = "Flow";
 						pin.nodeId = enode->m_id;
 						pin.kind = ePinKind::Output;
@@ -363,7 +363,7 @@ bool cEditManager::Proc_NewLink()
 				{
 					StrId text;
 					text.Format("%d", i);
-					vprog::sPin pin(GetUniqueId(), text.c_str(), ePinType::Flow);
+					vpl::sPin pin(GetUniqueId(), text.c_str(), ePinType::Flow);
 					pin.typeStr = "Flow";
 					pin.nodeId = GetUniqueId();
 					pin.kind = ePinKind::Output;
@@ -373,7 +373,7 @@ bool cEditManager::Proc_NewLink()
 
 				{
 					// insert default pin
-					vprog::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
+					vpl::sPin pin(GetUniqueId(), "Default", ePinType::Flow);
 					pin.typeStr = "Flow";
 					pin.nodeId = enode->m_id;
 					pin.kind = ePinKind::Output;
@@ -402,7 +402,7 @@ bool cEditManager::RenderPopup(graphic::cRenderer &renderer)
 		//auto drawList = ImGui::GetWindowDrawList();
 		//drawList->AddCircleFilled(ImGui::GetMousePosOnOpeningCurrentPopup(), 10.0f, 0xFFFF00FF);
 
-		vprog::cNode* node = nullptr;
+		vpl::cNode* node = nullptr;
 		if (ImGui::MenuItem("Input Action"))
 			node = Generate_ReservedDefinition("InputAction Fire");
 		if (ImGui::MenuItem("Output Action"))
@@ -443,7 +443,7 @@ bool cEditManager::RenderPopup(graphic::cRenderer &renderer)
 
 			if (auto startPin = m_newNodeLinkPin)
 			{
-				auto& pins = startPin->kind == vprog::ePinKind::Input ?
+				auto& pins = startPin->kind == vpl::ePinKind::Input ?
 					node->m_outputs : node->m_inputs;
 
 				for (auto& pin : pins)
@@ -454,7 +454,7 @@ bool cEditManager::RenderPopup(graphic::cRenderer &renderer)
 						if (startPin->kind == ePinKind::Input)
 							std::swap(startPin, endPin);
 
-						m_links.emplace_back(vprog::sLink(GetUniqueId(), startPin->id, endPin->id));
+						m_links.emplace_back(vpl::sLink(GetUniqueId(), startPin->id, endPin->id));
 						m_links.back().color = GetIconColor(startPin->type);
 
 						break;
@@ -713,7 +713,7 @@ bool cEditManager::AddTemporalVar(const ed::PinId id)
 		common::script::cSymbolTable::MakeScopeName(
 			node->m_name.c_str(), node->m_id.Get());
 
-	const VARTYPE vt = vprog::GetPin2VarType(pin->type);
+	const VARTYPE vt = vpl::GetPin2VarType(pin->type);
 	_variant_t var = common::str2variant(vt, "");
 	m_symbTable.Set(scopeName, pin->name.c_str(), var, pin->typeStr.c_str());
 	return true;
@@ -740,7 +740,7 @@ string cEditManager::GetScopeName(const ed::PinId id)
 
 
 // read function definition file
-// format: vProg node file
+// format: vpl node file
 // add to reserved node data
 bool cEditManager::ReadDefinitionFile(const StrPath &fileName)
 {

@@ -5,7 +5,7 @@
 #pragma once
 
 
-namespace vprog
+namespace vpl
 {
 	namespace ed = ax::NodeEditor;
 	namespace util = ax::NodeEditor::Utilities;

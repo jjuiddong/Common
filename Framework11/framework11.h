@@ -97,5 +97,5 @@
 #include "gamemain/GameMain2.h"
 
 #include "dbg/dbgmonitor.h"
-#include "vprogeditor/vprog.h"
+#include "vprogeditor/vpl.h"
 

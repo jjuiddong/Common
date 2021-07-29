@@ -3,7 +3,7 @@
 #include "pin.h"
 
 using namespace framework;
-using namespace vprog;
+using namespace vpl;
 
 
 cPin::cPin(int id, const char* name, PinType type)

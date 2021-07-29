@@ -3,6 +3,9 @@
 // visual programming editor
 //		- ui definition
 //
+// 2021-07-27
+//	- rename vprog -> vpl
+//
 #pragma once
 
 #include "pin.h"
@@ -12,7 +15,7 @@
 #include "editmanager.h"
 
 
-namespace vprog {
+namespace vpl {
 
 	ImColor GetIconColor(ePinType::Enum type);
  	void DrawPinIcon(const sPin& pin, bool connected, int alpha);

@@ -3,7 +3,7 @@
 #include "nodefile.h"
 
 using namespace framework;
-using namespace vprog;
+using namespace vpl;
 
 
 cNodeFile::cNodeFile()
@@ -367,7 +367,7 @@ sPin* cNodeFile::FindPin(const ed::PinId id)
 
 
 // return pin contain node
-std::pair<vprog::cNode*, vprog::sPin*>
+std::pair<vpl::cNode*, vpl::sPin*>
  cNodeFile::FindContainPin(const ed::PinId pinId)
 {
 	for (auto &node : m_nodes)

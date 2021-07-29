@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
-#include "vprog.h"
+#include "vpl.h"
 
 using namespace framework;
-using namespace vprog;
+using namespace vpl;
 
 
-ImColor vprog::GetIconColor(ePinType::Enum type)
+ImColor vpl::GetIconColor(ePinType::Enum type)
 {
 	switch (type)
 	{
@@ -26,7 +26,7 @@ ImColor vprog::GetIconColor(ePinType::Enum type)
 };
 
 
-void vprog::DrawPinIcon(const sPin& pin, bool connected, int alpha)
+void vpl::DrawPinIcon(const sPin& pin, bool connected, int alpha)
 {
 	using ax::Widgets::IconType;
 	const int PinIconSize = 24;
@@ -52,7 +52,7 @@ void vprog::DrawPinIcon(const sPin& pin, bool connected, int alpha)
 }
 
 
-bool vprog::CanCreateLink(vprog::sPin* a, vprog::sPin* b)
+bool vpl::CanCreateLink(vpl::sPin* a, vpl::sPin* b)
 {
 	if (!a || !b || a == b || a->kind == b->kind
 		|| a->type != b->type || a->nodeId == b->nodeId)

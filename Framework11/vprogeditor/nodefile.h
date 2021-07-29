@@ -26,7 +26,7 @@
 #pragma once
 
 
-namespace vprog 
+namespace vpl
 {
 	namespace script = common::script;
 
