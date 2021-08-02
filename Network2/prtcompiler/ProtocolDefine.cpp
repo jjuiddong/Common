@@ -124,7 +124,7 @@ string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
 {
 	if (!protocol)
 	{
-		return format( " protocol id = %d, packet id = %d"
+		return format( " protocol id = %d, packet id = %u"
 			, packet.GetProtocolId(), packet.GetPacketId() );
 	}
 
@@ -133,7 +133,7 @@ string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
 	tempPacket.InitRead();
 
 	const int protocolID = tempPacket.GetProtocolId();
-	const int packetID = tempPacket.GetPacketId();
+	const uint packetID = tempPacket.GetPacketId();
 	const bool isBinaryPacket = dynamic_cast<cPacketHeader*>(tempPacket.m_packetHeader)? true : false;
 	const ePacketFormat format = isBinaryPacket ?
 		ePacketFormat::BINARY : ePacketFormat::ASCII;

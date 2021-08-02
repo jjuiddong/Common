@@ -284,7 +284,7 @@ void dbg::TerminateLogThread()
 }
 
 
-// log classfy, maybe no thread safe (va_list, vsnprintf_s)
+// log classfy
 // none/log/errlog, multithread
 //
 // level 0 : none
@@ -326,7 +326,7 @@ void dbg::Logc(const int level, const char* fmt, ...)
 }
 
 
-// log classfy, maybe no thread safe (va_list, vsnprintf_s)
+// log classfy
 // print/log/errlog, multithread
 //
 // level 0 : printf
@@ -368,7 +368,7 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 }
 
 
-// log classfy, no use va_list, thread safe!!
+// log classfy, no use va_list
 void dbg::Logc3(const int level, const char* str)
 {
 	sLogData data;
