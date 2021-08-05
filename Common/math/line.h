@@ -15,7 +15,9 @@ namespace common
 
 		bool Create(const Vector3 &p0, const Vector3 &p1);
 		float GetDistance(const Vector3 &position) const;
+		float GetDistance(const Line &line) const;
 		Vector3 Projection(const Vector3 &position) const;
+		Vector3 GetPointOnLine(const Vector3 &position) const;
 
 		Vector3 dir; // unit vector
 		Vector3 pos; // line center

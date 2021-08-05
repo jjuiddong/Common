@@ -52,3 +52,4 @@ namespace common
 #include "boundinghemisphere.h"
 #include "boundingplane.h"
 #include "boundingsphere.h"
+#include "boundingcapsule.h"

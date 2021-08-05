@@ -212,6 +212,7 @@
     <ClInclude Include="base\viewport.h" />
     <ClInclude Include="collision\boundingbox.h" />
     <ClInclude Include="collision\boundingbox2.h" />
+    <ClInclude Include="collision\boundingcapsule.h" />
     <ClInclude Include="collision\boundinghemisphere.h" />
     <ClInclude Include="collision\boundingplane.h" />
     <ClInclude Include="collision\boundingsphere.h" />
@@ -349,6 +350,7 @@
     <ClCompile Include="base\viewport.cpp" />
     <ClCompile Include="collision\boundingbox.cpp" />
     <ClCompile Include="collision\boundingbox2.cpp" />
+    <ClCompile Include="collision\boundingcapsule.cpp" />
     <ClCompile Include="collision\boundinghemisphere.cpp" />
     <ClCompile Include="collision\boundingplane.cpp" />
     <ClCompile Include="collision\boundingsphere.cpp" />

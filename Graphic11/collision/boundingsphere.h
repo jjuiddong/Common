@@ -3,8 +3,8 @@
 // Bounding Sphere
 //
 //	BoundingSphere
-//		- XMFLOAT3 Center;            // Center of the sphere.
-//		- float Radius;               // Radius of the sphere.
+//		- XMFLOAT3 Center; // Center of the sphere.
+//		- float Radius; // Radius of the sphere.
 //
 #pragma once
 

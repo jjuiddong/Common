@@ -410,6 +410,9 @@
     <ClInclude Include="base\line2dlist.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="collision\boundingcapsule.h">
+      <Filter>collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -781,6 +784,9 @@
     </ClCompile>
     <ClCompile Include="base\line2dlist.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingcapsule.cpp">
+      <Filter>collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
