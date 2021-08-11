@@ -36,7 +36,7 @@ namespace common
 	public:
 		int m_id;
 		bool m_isTopPriority;
-		cThread *m_pThread;
+		cThread *m_pThread; // reference
 		StrId m_name;
 	};
 
