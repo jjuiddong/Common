@@ -126,7 +126,7 @@ void cTPSemaphore::Terminate()
 
 	for (auto th : m_threads)
 		if (th->joinable())
-			PushTask(NULL); // finish thread
+			PushTask(nullptr); // finish thread
 
 	for (auto th : m_threads)
 	{
@@ -143,7 +143,7 @@ void cTPSemaphore::Clear()
 	// wait all task finish
 	for (auto th : m_threads)
 		if (th->joinable())
-			PushTask(NULL); // finish thread
+			PushTask(nullptr); // finish thread
 
 	m_isThreadLoop = false;
 
