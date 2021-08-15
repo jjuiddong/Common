@@ -80,7 +80,7 @@ void network2::DisplayPacket(const Str128 &firstStr, const cPacket &packet
 	ss << firstStr.c_str();
 	ss << Packet2String(packet, protocol);
 	ss << std::endl;
-	common::dbg::Logc3(logLevel, ss.str().c_str());
+	common::dbg::Logc(logLevel, ss.str().c_str());
 }
 
 

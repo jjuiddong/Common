@@ -366,39 +366,3 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 	if (data.type >= 0)
 		g_logThread.PushTask(new cLogTask(data));
 }
-
-
-// log classfy, no use va_list
-void dbg::Logc3(const int level, const char* str)
-{
-	sLogData data;
-	strcpy_s(data.str.m_str, str);
-
-	switch (level)
-	{
-	case 3:
-#ifdef _DEBUG
-		DebugBreak();
-#endif
-		assert(!"dbg::Logc3()");
-	case 2:
-		data.type = 2;
-	case 1:
-		if (level == 1)
-			data.type = 0;
-	case 0:
-		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
-		break;
-	default:
-#ifdef _DEBUG
-		DebugBreak();
-#endif
-		assert(!"dbg::Logc3()");
-		break;
-	}
-
-	//------------------------------------------------------------------------
-	// add string to log thread
-	if (data.type >= 0)
-		g_logThread.PushTask(new cLogTask(data));
-}
