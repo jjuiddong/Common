@@ -8,7 +8,7 @@
 namespace gps {
 
 using namespace network2;
-using namespace marshalling_json;
+using namespace marshalling;
 
 
 	struct GPSInfo_Packet {
@@ -18,7 +18,13 @@ using namespace marshalling_json;
 		double lat;
 		float altitude;
 		float speed;
-		string descript;
+	};
+
+	struct AddLandMark_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		double lon;
+		double lat;
 	};
 
 

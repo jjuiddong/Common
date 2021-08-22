@@ -3,128 +3,151 @@
 
 using namespace network2;
 
+
 cProtocolParser::cProtocolParser()
 {
-	m_pScan = new cProtocolScanner();
-	m_pRmiList = NULL;
-	m_bTrace = FALSE;
-	m_bError = FALSE;
-	m_bAutoRemove = TRUE;
-
+	m_stmts = nullptr;
+	m_isTrace = false;
+	m_isError = false;
+	m_isAutoRemove = true;
 }
 
 cProtocolParser::~cProtocolParser()
 {
-	SAFE_DELETE(m_pScan);
-
-	if (m_bAutoRemove)
+	if (m_isAutoRemove)
 	{
-		ReleaseRmi(m_pRmiList);
+		ReleaseStmt(m_stmts);
 	}
 }
 
 
 //---------------------------------------------------------------------
-// 튜토리얼 스크립트를 파싱한다.
+// parse protocol script
 //---------------------------------------------------------------------
-sRmi* cProtocolParser::Parse( const char *szFileName
-	, BOOL bTrace //= FALSE
-	, BOOL bLog //= TRUE
+sStmt* cProtocolParser::Parse( const string &fileName
+	, bool isTrace //= false
+	, bool isLog //= true
 )
 {
-	if( !m_pScan->LoadFile(szFileName, bTrace) )
-		return NULL;
+	if (!m_scan.LoadFile(fileName, isTrace))
+		return nullptr;
 
-	strcpy_s( m_FileName, sizeof(m_FileName), szFileName );
+	m_fileName = fileName;
 	
-	if (bLog)
-		printf( "%s file Compile\n", szFileName );
+	if (isLog)
+		std::cout << fileName << " file Compile\n";
 
-	m_Token = m_pScan->GetToken();
-	if( ENDFILE == m_Token )
+	m_token = m_scan.GetToken();
+	if (ENDFILE == m_token)
 	{
-		m_pScan->Clear();
-		return NULL;
+		m_scan.Clear();
+		return nullptr;
 	}
 
-	m_pRmiList = rmi_list();
+	m_stmts = stmt_list();
 
-	if( ENDFILE != m_Token )
+	if (ENDFILE != m_token)
 	{
-		SyntaxError( " code ends before file " );
-		PrintToken( m_Token, m_pScan->GetTokenStringQ(0) );
-		m_pScan->Clear();
-		return NULL;
+		SyntaxError(" code ends before file ");
+		PrintToken(m_token, m_scan.GetTokenStringQ(0));
+		m_scan.Clear();
+		return nullptr;
 	}
 
-	return m_pRmiList;
+	return m_stmts;
 }
 
 
-// rmi_list -> (rmi)*
-sRmi* cProtocolParser::rmi_list()
+// stmt_list -> (protocol | type)*
+sStmt* cProtocolParser::stmt_list()
 {
-	sRmi *p = rmi();
-	sRmi *first = p;
-	while (p && (p->next = rmi()))
+	sProtocol *p = nullptr;
+	sType *t = nullptr;
+	if (PROTOCOL == m_token)
 	{
-		p = p->next;
+		p = protocol();
 	}
-	return first;
+	else if (TYPE == m_token)
+	{
+		t = type_stmt();
+	}
+
+	sStmt *stmt = nullptr;
+	if (p || t)
+	{
+		stmt = new sStmt;
+		stmt->protocol = p;
+		stmt->type = t;
+	}
+	if (stmt)
+		stmt->next = stmt_list();
+	return stmt;
 }
 
-// rmi -> global id number [id] '{' stmt_list '}'
-sRmi* cProtocolParser::rmi()
+
+// protocol -> global id number [id] '{' packet_list '}'
+sProtocol* cProtocolParser::protocol()
 {
-	sRmi *p = NULL;
+	sProtocol *p = nullptr;
 	
-	if (PROTOCOL == m_Token)
+	if (PROTOCOL == m_token)
 	{
 		Match(PROTOCOL);
-		p = new sRmi;
+		p = new sProtocol;
 		p->name = id();
 		p->number = num();
+		p->next = nullptr;
 
 		// protocol format (binary, ascii, json)
-		if (ID == m_pScan->GetTokenQ(0))
+		if (ID == m_scan.GetTokenQ(0))
 			p->format = id();
 
 		Match(LBRACE);
-		p->protocol = stmt_list();
+		p->packet = packet_list();
 		Match(RBRACE);
 	}
 
 	return p;
 }
 
-// stmt_list -> (stmt)*
-sProtocol* cProtocolParser::stmt_list()
+
+// type_stmt -> type id '{' decl_list '}'
+sType* cProtocolParser::type_stmt()
 {
-	sProtocol *p = stmt();
-	sProtocol *first = p;
-	while (p && (p->next = stmt()))
+	sType *p = nullptr;
+	if (TYPE == m_token)
+	{
+		Match(TYPE);
+		p = new sType;
+		p->name = id();
+		Match(LBRACE);
+		p->vars = decl_list();
+		Match(RBRACE);
+	}
+	return p;
+}
+
+
+// packet_list -> (packet)*
+sPacket* cProtocolParser::packet_list()
+{
+	sPacket *p = packet();
+	sPacket *first = p;
+	while (p && (p->next = packet()))
 	{
 		p = p->next;
 	}
 	return first;
 }
 
-// stmt -> protocol semicolon
-sProtocol* cProtocolParser::stmt()
-{
-	sProtocol *p = protocol();
-	if (p)
-		Match(SEMICOLON);
-	return p;
-}
 
-// protocol -> [ packetid_stmt ] id '(' arg_list ')'
-sProtocol* cProtocolParser::protocol()
+// packet -> [ packetid_stmt ] id '(' arg_list ')' semicolon
+sPacket* cProtocolParser::packet()
 {
-	sProtocol*p=NULL;
+	sPacket*p= nullptr;
 
 	uint packetId = 0;
-	if (LBRACE == m_Token)
+	if (LBRACE == m_token)
 	{
 		Match(LBRACE);
 		if (id() == "packetid")
@@ -135,9 +158,9 @@ sProtocol* cProtocolParser::protocol()
 		Match(RBRACE);
 	}
 
-	if (ID == m_Token)
+	if (ID == m_token)
 	{
-		p = new sProtocol;
+		p = new sPacket;
 		p->name = id();
 
 		if (packetId == 0)
@@ -148,8 +171,12 @@ sProtocol* cProtocolParser::protocol()
 		Match(LPAREN);
 		p->argList = arg_list();
 		Match(RPAREN);
-		p->next = NULL;
+		p->next = nullptr;
 	}
+
+	if (p)
+		Match(SEMICOLON);
+
 	return p;
 }
 
@@ -159,10 +186,10 @@ sArg* cProtocolParser::arg_list()
 {
 	sArg *p = arg();
 	if (!p)
-		return NULL;
+		return nullptr;
 
 	sArg *first = p;
-	while (COMMA == m_Token)
+	while (COMMA == m_token)
 	{
 		Match(COMMA);
 		p->next = arg();
@@ -172,27 +199,49 @@ sArg* cProtocolParser::arg_list()
 	return first;
 }
 
+
+// decl_list -> decl [ decl_list ]
+sArg* cProtocolParser::decl_list()
+{
+	sArg *p = decl();
+	if (p)
+		p->next = decl_list();
+	return p;
+}
+
+
 // arg -> type
 sArg* cProtocolParser::arg()
 {
-	sArg *p = NULL;
-	if (ID == m_Token)
+	sArg *p = nullptr;
+	if (ID == m_token)
 	{
 		p = new sArg;
 		p->var = type();
-		p->next = NULL;
+		p->next = nullptr;
 	}
 	return p;
 }
 
+
+// decl -> arg semicolon
+sArg* cProtocolParser::decl()
+{
+	sArg *p = arg();
+	if (p)
+		Match(SEMICOLON);
+	return p;
+}
+
+
 // type -> type_sub (var)?
 sTypeVar* cProtocolParser::type()
 {
-	sTypeVar *p=NULL;
-	if (ID != m_Token)
-		return NULL;
+	sTypeVar *p= nullptr;
+	if (ID != m_token)
+		return nullptr;
 
-	Tokentype nextTok = m_pScan->GetTokenQ(1);
+	eTokentype nextTok = m_scan.GetTokenQ(1);
 	p = new sTypeVar;
 	p->type = type_sub();
 	p->var = var();
@@ -207,9 +256,9 @@ std::string cProtocolParser::type_sub()
 {
 	std::string str = "";
 
-	if (ID == m_Token)
+	if (ID == m_token)
 	{
-		Tokentype nextTok = m_pScan->GetTokenQ(1);
+		eTokentype nextTok = m_scan.GetTokenQ(1);
 		if (LT == nextTok)
 		{
 			str += id();
@@ -243,33 +292,33 @@ std::string cProtocolParser::type_sub()
 std::string cProtocolParser::var()
 {
 	std::string str = "";
-	Tokentype nextTok = m_pScan->GetTokenQ(1);
+	eTokentype nextTok = m_scan.GetTokenQ(1);
 
-	if (TIMES == m_Token && ID == nextTok)
+	if (TIMES == m_token && ID == nextTok)
 	{
 		Match(TIMES);
 		str += "*";
 		str += id();
 		str += index();
 	}
-	else if (REF == m_Token && ID == nextTok)
+	else if (REF == m_token && ID == nextTok)
 	{
 		Match(REF);
 		str += "&";
 		str += id();
 		str += index();
 	}
-	else if (ID == m_Token)
+	else if (ID == m_token)
 	{
 		str += id();
 		str += index();
 	}
-	else if (TIMES == m_Token)
+	else if (TIMES == m_token)
 	{
 		Match(TIMES);
 		str += "*";
 	}
-	else if (REF == m_Token)
+	else if (REF == m_token)
 	{
 		Match(REF);
 		str += "&";
@@ -281,7 +330,7 @@ std::string cProtocolParser::var()
 std::string cProtocolParser::index()
 {
 	std::string str = "";
-	if (LBRACKET == m_Token)
+	if (LBRACKET == m_token)
 	{
 		Match(LBRACKET);
 		str += "[";
@@ -295,187 +344,51 @@ std::string cProtocolParser::index()
 std::string cProtocolParser::number()
 {
 	std::string str = "";
-	str = m_pScan->GetTokenStringQ(0);
+	str = m_scan.GetTokenStringQ(0);
 	Match(NUM);
 	return str;
 }
 
 int cProtocolParser::num()
 {
-	int n = atoi(m_pScan->GetTokenStringQ(0));
+	int n = atoi(m_scan.GetTokenStringQ(0));
 	Match(NUM);
 	return n;
 }
 
 std::string cProtocolParser::id()
 {
-	std::string str = m_pScan->GetTokenStringQ(0);
+	std::string str = m_scan.GetTokenStringQ(0);
 	Match( ID );
 	return str;
 }
 
-BOOL cProtocolParser::Match( Tokentype t )
+bool cProtocolParser::Match(eTokentype t )
 {
-	if( m_Token == t )
+	if (m_token == t)
 	{
-		m_Token = m_pScan->GetToken();
+		m_token = m_scan.GetToken();
 	}
 	else
 	{
 		SyntaxError( "unexpected token -> " );
-		PrintToken( m_Token, m_pScan->GetTokenStringQ(0) );
-		printf( "\n" );
+		PrintToken(m_token, m_scan.GetTokenStringQ(0) );
+		std::cout << "\n";
 	}
-	return TRUE;
+	return true;
 }
 
 
 void cProtocolParser::SyntaxError( const char *szMsg, ... )
 {
-	m_bError = TRUE;
-	char buf[ 256];
+	m_isError = true;
+	char buf[256];
 	va_list marker;
 	va_start(marker, szMsg);
 	vsprintf_s(buf, sizeof(buf), szMsg, marker);
 	va_end(marker);
- 	printf( ">>>" );
- 	printf( "Syntax error at line %s %d: %s", m_FileName, m_pScan->GetLineNo(), buf );
+	std::cout << ">>>";
+	std::cout << "Syntax error at line " << m_fileName << " " << m_scan.GetLineNo()
+		<< ": " << buf;
 }
 
-
-void cProtocolParser::WritePIDLMacro(std::string PIDLFileName, sRmi *rmi)
-{
-// 	string fileName = PIDLFileName;
-// 	fileName += "_procstub";
-
-	char srcFileName[ MAX_PATH];
-	strcpy_s(srcFileName, MAX_PATH, PIDLFileName.c_str() );
-	char *name = strtok_s(srcFileName, ".", NULL);
-
-	std::string fileName = name;
-	fileName += "_procstub.h";
-
-//	OFSTRUCT of;
-// 	HFILE hFile = OpenFile(fileName.c_str(), &of, OF_WRITE);
-// 	if (hFile != EOF)
-
-	FILE *fp;
-	fopen_s(&fp, fileName.c_str(), "w" );
-	if (!fp)
-		return;
-
-	fprintf( fp, "// Compiled by PIDLCompiler.exe\n" );
-	fprintf( fp, "// CNetListener 에서 사용된다. 패킷 처리 전과 처리한 후 를 분리하기 위해 만들어졌다.\n" );
-	fprintf( fp, "// jjuiddong \n\n" );
-	fprintf( fp, "#pragma once\n\n" );
-	WriteRmi(fp, rmi);
-
-	fclose(fp);
-}
-
-void cProtocolParser::WriteRmi(FILE *fp, sRmi *p)
-{
-	if (!p) return;
-	
-	fprintf( fp, "namespace %s {\n", p->name.c_str() );
-	fprintf( fp, "\tclass ProcessStub {\n" );
-	fprintf( fp, "\tpublic:\n" );
-
-	WriteProtocol(fp, p, p->protocol);
-
-	// BeforeRmiInvocation 인터페이스 추가
-	fprintf( fp, "virtual void BeforeRmiInvocation(const Proud::BeforeRmiSummary& summary) {} \n" );
-
-	fprintf( fp, "\t};\n" );
-	fprintf( fp, "}\n\n" );
-
-	WriteRmi(fp, p->next);
-}
-
-void cProtocolParser::WriteProtocol(FILE *fp, sRmi *rmi, sProtocol *p)
-{
-	if (!p) return;
-	
-//	printf( "\t\t%s( ", p->name.c_str() );
-
-	// Before
-	fprintf( fp, "#define DECRMI_%s_Before_%s bool Before_%s(", rmi->name.c_str(), p->name.c_str(), p->name.c_str() );
-	WriteFirstArg(fp, p->argList);
-	fprintf( fp, ")\n" );
-
-	fprintf( fp, "#define DEFRMI_%s_Before_%s(DerivedClass) bool DerivedClass::Before_%s(", rmi->name.c_str(), 
-		p->name.c_str(), p->name.c_str() );
-	WriteFirstArg(fp, p->argList);
-	fprintf( fp, ")\n" );
-
-	fprintf( fp, "#define CALL_%s_Before_%s Before_%s(", rmi->name.c_str(), 
-		p->name.c_str(), p->name.c_str() );
-	WriteFirstArgVar(fp, p->argList);
-	fprintf( fp, ")\n" );
-
-	fprintf( fp, "virtual bool Before_%s(", p->name.c_str() );
-	WriteFirstArg(fp, p->argList);
-	fprintf( fp, ")\n{\n\nreturn false;\n}\n" );
-
-
-
-	// After
-	fprintf( fp, "#define DECRMI_%s_After_%s bool After_%s(", rmi->name.c_str(), p->name.c_str(), p->name.c_str() );
-	WriteFirstArg(fp, p->argList);
-	fprintf( fp, ")\n" );
-
-	fprintf( fp, "#define DEFRMI_%s_After_%s(DerivedClass) bool DerivedClass::After_%s(", rmi->name.c_str(), 
-		p->name.c_str(), p->name.c_str() );
-	WriteFirstArg(fp, p->argList);
-	fprintf( fp, ")\n" );
-
-	fprintf( fp, "#define CALL_%s_After_%s After_%s(", rmi->name.c_str(), 
-		p->name.c_str(), p->name.c_str() );
-	WriteFirstArgVar(fp, p->argList);
-	fprintf( fp, ")\n" );
-	fprintf( fp, "\n" );
-
-	fprintf( fp, "virtual bool After_%s(", p->name.c_str() );
-	WriteFirstArg(fp, p->argList);
-	fprintf( fp, ")\n{\n\nreturn false;\n}\n" );
-
-	fprintf( fp, "\n" );
-
-	WriteProtocol(fp, rmi, p->next);
-}
-
-// 인자값 처음 출력 
-// Proud::HostID remote,Proud::RmiContext &rmiContext 를 넣어줘야 한다.
-void cProtocolParser::WriteFirstArg(FILE *fp, sArg*p)
-{
-	fprintf( fp, "Proud::HostID remote, Proud::RmiContext &rmiContext" );
-	WriteArg(fp, p, true);
-}
-
-// 변수의 타입과 이름을 출력한다.
-void cProtocolParser::WriteArg(FILE *fp, sArg*p, bool isComma)
-{
-	if (!p) return;
-	if (isComma)
-		fprintf( fp, ", " );
-	fprintf( fp, "const %s &%s", p->var->type.c_str(), p->var->var.c_str());
-	WriteArg(fp, p->next, true);
-}
-
-// 변수이름 출력 처음
-// Proud::HostID remote,Proud::RmiContext &rmiContext 를 넣어줘야 한다.
-void cProtocolParser::WriteFirstArgVar(FILE *fp, sArg*p)
-{
-	fprintf( fp, "remote, rmiContext" );
-	WriteArgVar(fp, p, true);
-}
-
-// 변수 이름만 출력한다.
-void cProtocolParser::WriteArgVar(FILE *fp, sArg*p, bool isComma)
-{
-	if (!p) return;
-	if (isComma)
-		fprintf( fp, ", " );
-	fprintf( fp, "%s", p->var->var.c_str());
-	WriteArgVar(fp, p->next, true);
-}

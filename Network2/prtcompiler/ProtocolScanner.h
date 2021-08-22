@@ -3,7 +3,7 @@
 // Author:  jjuiddong
 // Date:    12/26/2012
 // 
-// 프로토콜 스캐너
+// Protocol Scanner
 //
 // 2019-03-31, jjuiddong
 //	- check UTF-8 with BOM
@@ -13,54 +13,36 @@
 //		  If you save a file as UTF - 8, Notepad will put the BOM(byte order mark) 
 //		  EF BB BF at the beginning of the file.
 //
+//
+// 2021-08-22
+//	- refactoring
+//
 //------------------------------------------------------------------------
 #pragma once
 
 #include "ProtocolDefine.h"
 
+
 namespace network2
 {
+
 	class cProtocolScanner
 	{
 	public:
 		cProtocolScanner();
 		virtual ~cProtocolScanner();
 
-	protected:
-		enum { MAX_QSIZE=5, MAX_BUFF=256, MAX_TOKENLEN=256 };
-		enum StateType { START, INASSIGN, INCOMMENT, INMULTI_COMMENT
-			, OUTMULTI_COMMENT, INNUM, INID, INSTR, INDIV, INEQ, INNEQ, INOR, INAND
-			, INLTEQ, INRTEQ, INARROW, INSCOPE, DONE };
-
-		typedef struct _tagSTokDat
-		{
-			std::string str;
-			Tokentype tok;
-		} STokDat;
-
-		BYTE *m_pFileMem;
-		int m_pCurrentMemPoint;
-		int m_nMemSize;
-
-		int m_nLineNo;
-		int m_nLinePos;
-		int m_nBufSize;
-		char m_Buf[ MAX_BUFF];
-		std::deque<STokDat> m_TokQ;
-		BOOL m_bTrace;
-
-
 	public:
-		BOOL LoadFile( const char *szFileName, BOOL bTrace=FALSE );
-		BOOL LoadPackageFile( BYTE *pFileMem, int nFileSize );
+		bool LoadFile( const string &fileName, bool isTrace=false );
+		bool LoadPackageFile( BYTE *fileMem, int fileSize );
 
-		Tokentype GetToken();
-		Tokentype GetTokenQ( int nIdx );
+		eTokentype GetToken();
+		eTokentype GetTokenQ( int nIdx );
 		char* GetTokenStringQ( int nIdx );
 		char* CopyTokenStringQ( int nIdx );
-		int GetLineNo() { return m_nLineNo; }
+		int GetLineNo() { return m_lineNo; }
 		void CheckUTF8WithBOM();
-		BOOL IsEnd();
+		bool IsEnd();
 		void Clear();
 
 
@@ -68,8 +50,34 @@ namespace network2
 		void Init();
 		char GetNextChar();
 		void UngetNextChar();
-		Tokentype _GetToken( char *pToken );
+		eTokentype _GetToken( char *pToken );
+		bool GetString(char *receiveBuffer, int maxBufferLength);
 
-		BOOL GetString(char *receiveBuffer, int maxBufferLength);
+
+	public:
+		enum { MAX_QSIZE = 5, MAX_BUFF = 256, MAX_TOKENLEN = 256 };
+		enum eStateType {
+			START, INASSIGN, INCOMMENT, INMULTI_COMMENT
+			, OUTMULTI_COMMENT, INNUM, INID, INSTR, INDIV, INEQ, INNEQ, INOR, INAND
+			, INLTEQ, INRTEQ, INARROW, INSCOPE, DONE
+		};
+
+		struct sTokDat
+		{
+			string str;
+			eTokentype tok;
+		};
+
+		BYTE *m_fileMem;
+		int m_currentMemPoint;
+		int m_memSize;
+
+		int m_lineNo;
+		int m_linePos;
+		int m_bufSize;
+		char m_buf[MAX_BUFF];
+		std::deque<sTokDat> m_tokQ;
+		bool m_isTrace;
 	};
+
 }

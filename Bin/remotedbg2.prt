@@ -44,3 +44,13 @@ protocol h2r 5300 json
 	SyncVMOutput( int itprId, int vmIdx, string output );
 	AckHeartBeat();
 }
+
+
+// custom struct type
+type sSyncSymbol
+{
+	string scope;
+	string name;
+	variant_t var;
+}
+

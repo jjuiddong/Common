@@ -1,11 +1,11 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "gps_ProtocolHandler.h"
 
 using namespace gps;
 
 
 gps::c2s_Dispatcher::c2s_Dispatcher()
-	: cProtocolDispatcher(gps::c2s_Dispatcher_ID, ePacketFormat::JSON)
+	: cProtocolDispatcher(gps::c2s_Dispatcher_ID, ePacketFormat::BINARY)
 {
 	cProtocolDispatcher::GetDispatcherMap()->insert({c2s_Dispatcher_ID, this });
 }
@@ -19,7 +19,7 @@ bool gps::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &hand
 	const int packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 2000: // GPSInfo
+	case 1288261456: // GPSInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))
@@ -27,48 +27,31 @@ bool gps::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &hand
 
 			SetCurrentDispatchPacket( &packet );
 
-			const bool isBinary = packet.GetPacketOption(0x01) > 0;
-			if (isBinary)
-			{
-				// binary parsing
-				GPSInfo_Packet data;
-				data.pdispatcher = this;
-				data.senderId = packet.GetSenderId();
-				packet.Alignment4(); // set 4byte alignment
-				marshalling::operator>>(packet, data.lon);
-				marshalling::operator>>(packet, data.lat);
-				marshalling::operator>>(packet, data.altitude);
-				marshalling::operator>>(packet, data.speed);
-				marshalling::operator>>(packet, data.descript);
-				SEND_HANDLER(c2s_ProtocolHandler, prtHandler, GPSInfo(data));
-			}
-			else
-			{
-				// json format packet parsing using property_tree
-				using boost::property_tree::ptree;
-				ptree root;
+			GPSInfo_Packet data;
+			data.pdispatcher = this;
+			data.senderId = packet.GetSenderId();
+			packet >> data.lon;
+			packet >> data.lat;
+			packet >> data.altitude;
+			packet >> data.speed;
+			SEND_HANDLER(c2s_ProtocolHandler, prtHandler, GPSInfo(data));
+		}
+		break;
 
-				try {
-					string str;
-					packet >> str;
-					stringstream ss(str);
-					
-					boost::property_tree::read_json(ss, root);
-					ptree &props = root.get_child("");
+	case 4019554964: // AddLandMark
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<c2s_ProtocolHandler>(handlers, prtHandler))
+				return false;
 
-					GPSInfo_Packet data;
-					data.pdispatcher = this;
-					data.senderId = packet.GetSenderId();
-					get(props, "lon", data.lon);
-					get(props, "lat", data.lat);
-					get(props, "altitude", data.altitude);
-					get(props, "speed", data.speed);
-					get(props, "descript", data.descript);
-					SEND_HANDLER(c2s_ProtocolHandler, prtHandler, GPSInfo(data));
-				} catch (...) {
-					dbg::Logp("json packet parsing error\n");
-				}
-			}
+			SetCurrentDispatchPacket( &packet );
+
+			AddLandMark_Packet data;
+			data.pdispatcher = this;
+			data.senderId = packet.GetSenderId();
+			packet >> data.lon;
+			packet >> data.lat;
+			SEND_HANDLER(c2s_ProtocolHandler, prtHandler, AddLandMark(data));
 		}
 		break;
 

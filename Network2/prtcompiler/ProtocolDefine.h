@@ -3,7 +3,13 @@
 // Author:  jjuiddong
 // Date:    1/3/2013
 // 
-// 프로토콜 파싱에 관련된 구문트리나, 상수값들을 모아놓았다.
+// protocol compiler definition
+//	- parse tree
+//
+// 2021-08-22
+//	- refactoring
+//	- parse custom type structure
+//
 //------------------------------------------------------------------------
 #pragma once
 
@@ -16,16 +22,16 @@ namespace network2
 		MAX_ARGUMENT = 10,
 	};
 
-	enum Tokentype
+	enum eTokentype
 	{
 		_ERROR, ENDFILE, ID, NUM, FNUM, STRING, ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, COMMA, COLON, SEMICOLON,
 		PLUS, MINUS, TIMES, DIV, REMAINDER, REF, ARROW,
 		LT/* < */, RT/* > */, LTEQ/* <= */, RTEQ/* >= */, NEQ/* != */, EQ/* == */, OR/* || */, AND/* && */, NEG/* ! */, SCOPE/*::*/,
-		EVENT, UIEVENT, CUSTOMEVENT, IF, ELSE, WHILE, FUNCTION, ARG_IN, PROTOCOL,
+		EVENT, UIEVENT, CUSTOMEVENT, IF, ELSE, WHILE, FUNCTION, ARG_IN, PROTOCOL, TYPE,
 	};
 
-	enum NodeKind { Stmt, Exp };
-	enum Kind
+	enum eNodeKind { Stmt, Exp };
+	enum eKind
 	{
 		ProgramK, TutorialK, RoleTutorialK, TrainingK, PracticeK, StatementK, AIK, EventK, UIEventK, 
 		CustomEventK, SuccessK, FailK, AssignK,
@@ -38,50 +44,65 @@ namespace network2
 	enum eCONDITION_OP { OP_NONE, OP_AND, OP_OR, OP_NEG, OP_LT, OP_RT, OP_LTEQ, OP_RTEQ, OP_EQ, OP_NEQ };
 
 
-	typedef struct _sTypeVar
+	struct sTypeVar
 	{
-		std::string type;
-		std::string var;
+		string type; // type name
+		string var; // variable name
+	};
 
-	} sTypeVar;
-
-	typedef struct _sArg
+	struct sArg
 	{
 		sTypeVar *var;
-		_sArg *next;
-	} sArg;
+		sArg *next;
+	};
 
-	typedef struct _sProtocol
+	struct sPacket
 	{
-		std::string name;
+		string name;
 		uint packetId;
 		sArg *argList;
-		_sProtocol *next;
-	} sProtocol;
+		sPacket *next;
+	};
 
-	typedef struct _sRmi
+	struct sProtocol
 	{
-		std::string name;
+		string name;
 		int number;
-		std::string format; // binary, ascii, json
-		sProtocol *protocol;
-		_sRmi *next;
-	} sRmi;
+		string format; // binary, ascii, json
+		sPacket *packet;
+		sProtocol *next;
+	};
 
+	struct sType
+	{
+		string name;
+		sArg *vars;
+	};
+
+	struct sStmt
+	{
+		sProtocol *protocol;
+		sType *type;
+		sStmt *next;
+		sStmt() : protocol(nullptr), type(nullptr) {}
+	};
 
 	// Release Protocol Parser Tree
-	void ReleaseRmi(sRmi *p);
-	void ReleaseRmiOnly(sRmi *p);
+	void ReleaseStmt(sStmt *p);
 	void ReleaseProtocol(sProtocol *p);
-	void ReleaseCurrentProtocol(sProtocol *p);
+	void ReleaseProtocolOnly(sProtocol *p);
+	void ReleaseProtocolOnly(sStmt *p);
+	void ReleaseType(sType *p);
+	void ReleasePacket(sPacket *p);
+	void ReleaseCurrentPacket(sPacket *p);
 	void ReleaseArg(sArg *p);
 	
 	// Functions
-	void PrintToken( Tokentype token, char *szTokenString );
+	void PrintToken( eTokentype token, char *szTokenString );
 
 	void GetPacketElement(const ePacketFormat format
 		, const string &typeStr, cPacket &packet, OUT _variant_t &var);
-	int GetPacketID(sRmi *rmi, sProtocol *packet);
-	string Packet2String(const cPacket &packet, sProtocol *protocol);
+	//int GetPacketID(sRmi *rmi, sPacket *packet);
+	string Packet2String(const cPacket &packet, sPacket *protocol);
 
 }

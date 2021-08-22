@@ -10,7 +10,7 @@
 namespace gps {
 
 using namespace network2;
-using namespace marshalling_json;
+using namespace marshalling;
 static const int c2s_Dispatcher_ID = 1000;
 
 // Protocol Dispatcher
@@ -29,8 +29,9 @@ class c2s_ProtocolHandler : virtual public network2::iProtocolHandler
 {
 public:
 	friend class c2s_Dispatcher;
-	c2s_ProtocolHandler() { m_format = ePacketFormat::JSON; }
+	c2s_ProtocolHandler() { m_format = ePacketFormat::BINARY; }
 	virtual bool GPSInfo(gps::GPSInfo_Packet &packet) { return true; }
+	virtual bool AddLandMark(gps::AddLandMark_Packet &packet) { return true; }
 };
 
 

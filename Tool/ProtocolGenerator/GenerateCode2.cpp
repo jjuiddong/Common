@@ -1,12 +1,12 @@
 
 #include "pch.h"
-#include "GenerateCode.h"
+#include "GenerateCode2.h"
 #include <direct.h>
 
 using namespace network2;
 using namespace std;
 
-namespace compiler
+namespace compiler2
 {
 	enum class eFormatType { Binary, Ascii, Json, };
 
@@ -64,13 +64,13 @@ namespace compiler
 	string g_srcFolderName = "Src";
 }
 
-using namespace compiler;
+using namespace compiler2;
 
 
 //------------------------------------------------------------------------
 // generate Protocol, Handler, Dispatcher, Packet Data class
 //------------------------------------------------------------------------
-bool compiler::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
+bool compiler2::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
 	, const string &pchFileName
 )
 {
@@ -109,7 +109,7 @@ bool compiler::WriteProtocolCode(const string &protocolFileName, sProtocol *prot
 //------------------------------------------------------------------------
 // return filename except extends name
 //------------------------------------------------------------------------
-string compiler::GetProtocolName(const string &fileName)
+string compiler2::GetProtocolName(const string &fileName)
 {
 	return common::GetFileNameExceptExt(fileName);
 }
@@ -118,7 +118,7 @@ string compiler::GetProtocolName(const string &fileName)
 //------------------------------------------------------------------------
 // return protocol class name, protocol name + _Protocol
 //------------------------------------------------------------------------
-string compiler::GetProtocolClassName(const string &protocolName )
+string compiler2::GetProtocolClassName(const string &protocolName )
 {
 	return protocolName + "_Protocol";
 }
@@ -127,7 +127,7 @@ string compiler::GetProtocolClassName(const string &protocolName )
 //------------------------------------------------------------------------
 // return protocol handler class name, protocol name + _ProtocolHandler
 //------------------------------------------------------------------------
-string compiler::GetProtocolHandlerClassName(const string &protocolName )
+string compiler2::GetProtocolHandlerClassName(const string &protocolName )
 {
 	return protocolName + "_ProtocolHandler";
 }
@@ -136,7 +136,7 @@ string compiler::GetProtocolHandlerClassName(const string &protocolName )
 //------------------------------------------------------------------------
 // return protocol dispatcher class name, protocol name + _Dispatcher
 //------------------------------------------------------------------------
-string compiler::GetProtocolDispatcherClassName(const string &protocolName )
+string compiler2::GetProtocolDispatcherClassName(const string &protocolName )
 {
 	return protocolName + "_Dispatcher";
 }
@@ -145,7 +145,7 @@ string compiler::GetProtocolDispatcherClassName(const string &protocolName )
 //------------------------------------------------------------------------
 // Protocol Header 파일을 생성하는 처음부분의 코드를 생성한다.
 //------------------------------------------------------------------------
-bool compiler::WriteFirstProtocolClassHeader(sProtocol *protocol, const string &marshallingName)
+bool compiler2::WriteFirstProtocolClassHeader(sProtocol *protocol, const string &marshallingName)
 {
 	const string fileName = g_origianlFileName + "_Protocol.h";
 
@@ -176,7 +176,7 @@ bool compiler::WriteFirstProtocolClassHeader(sProtocol *protocol, const string &
 //------------------------------------------------------------------------
 // generate Protocol.h code
 //------------------------------------------------------------------------
-bool compiler::WriteProtocolClassHeader(ofstream &fs, sProtocol *protocol)
+bool compiler2::WriteProtocolClassHeader(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -213,7 +213,7 @@ bool compiler::WriteProtocolClassHeader(ofstream &fs, sProtocol *protocol)
 /**
  @brief WriteFirstDataHeader
  */
-bool compiler::WriteFirstDataHeader(sProtocol *protocol, const string &marshallingName)
+bool compiler2::WriteFirstDataHeader(sProtocol *protocol, const string &marshallingName)
 {
 	const string fileName = g_origianlFileName + "_ProtocolData.h";
 
@@ -244,7 +244,7 @@ bool compiler::WriteFirstDataHeader(sProtocol *protocol, const string &marshalli
 /**
  @brief WriteDataHeader
  */
-bool compiler::WriteProtocolDataHeader(ofstream &fs, sProtocol *protocol)
+bool compiler2::WriteProtocolDataHeader(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -266,7 +266,7 @@ bool compiler::WriteProtocolDataHeader(ofstream &fs, sProtocol *protocol)
 /**
  @brief 
  */
-bool compiler::WritePacketData(ofstream &fs, sPacket *packet)
+bool compiler2::WritePacketData(ofstream &fs, sPacket *packet)
 {
 	if (!packet) return true;
 
@@ -285,7 +285,7 @@ bool compiler::WritePacketData(ofstream &fs, sPacket *packet)
 /**
  @brief 
  */
-void compiler::WritePacketDataArg(ofstream &fs, sArg *arg)
+void compiler2::WritePacketDataArg(ofstream &fs, sArg *arg)
 {
 	if (!arg) return;
 	fs << "\t\t" << arg->var->type << " " << arg->var->var << ";" << endl;
@@ -296,7 +296,7 @@ void compiler::WritePacketDataArg(ofstream &fs, sArg *arg)
 //------------------------------------------------------------------------
 // ProtocolHandler 헤더파일에서 처음 들어갈 주석 코드 추가
 //------------------------------------------------------------------------
-bool compiler::WriteFirstHandlerHeader(sProtocol *protocol, const string &marshallingName)
+bool compiler2::WriteFirstHandlerHeader(sProtocol *protocol, const string &marshallingName)
 {
 	const string fileName = g_origianlFileName + "_ProtocolHandler.h";
 
@@ -329,7 +329,7 @@ bool compiler::WriteFirstHandlerHeader(sProtocol *protocol, const string &marsha
 //------------------------------------------------------------------------
 // ProtocolHandler 헤더 클래스 소스파일을 생성한다.
 //------------------------------------------------------------------------
-bool compiler::WriteHandlerHeader(ofstream &fs, sProtocol *protocol)
+bool compiler2::WriteHandlerHeader(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -387,7 +387,7 @@ bool compiler::WriteHandlerHeader(ofstream &fs, sProtocol *protocol)
 //------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------
-bool compiler::WriteFirstHandlerCpp(sProtocol *protocol, const string &pchFileName)
+bool compiler2::WriteFirstHandlerCpp(sProtocol *protocol, const string &pchFileName)
 {
 	const string fileName = g_origianlFileName + "_ProtocolHandler.cpp";
 	const string headerFileName = g_protocolName + "_ProtocolHandler.h";
@@ -411,7 +411,7 @@ bool compiler::WriteFirstHandlerCpp(sProtocol *protocol, const string &pchFileNa
 //------------------------------------------------------------------------
 // ProtocolHandler Cpp 파일을 생성한다.
 //------------------------------------------------------------------------
-bool compiler::WriteHandlerCpp(ofstream &fs, sProtocol *protocol)
+bool compiler2::WriteHandlerCpp(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -455,7 +455,7 @@ bool compiler::WriteHandlerCpp(ofstream &fs, sProtocol *protocol)
 // in Protocol.h
 // generate packet function list code
 //------------------------------------------------------------------------
-void compiler::WriteDeclPacketList(ofstream &fs, sPacket *packet
+void compiler2::WriteDeclPacketList(ofstream &fs, sPacket *packet
 	, bool isVirtual, bool isImpl, bool isTarget, eFormatType format)
 {
 	if (!packet) return;
@@ -499,7 +499,7 @@ void compiler::WriteDeclPacketList(ofstream &fs, sPacket *packet
 // in Protocol.cpp
 // generate packet send function code
 //------------------------------------------------------------------------
-void compiler::WriteImplPacketList(ofstream &fs, sPacket *packet, eFormatType format)
+void compiler2::WriteImplPacketList(ofstream &fs, sPacket *packet, eFormatType format)
 {
 	if (!packet) return;
 	fs << "//------------------------------------------------------------------------\n";
@@ -519,7 +519,7 @@ void compiler::WriteImplPacketList(ofstream &fs, sPacket *packet, eFormatType fo
 //------------------------------------------------------------------------
 // generate make packet argument code
 //------------------------------------------------------------------------
-void compiler::WriteFirstArg(ofstream &fs, sArg*p, bool isTarget, eFormatType format)
+void compiler2::WriteFirstArg(ofstream &fs, sArg*p, bool isTarget, eFormatType format)
 {
 	if (isTarget)
 	{
@@ -537,7 +537,7 @@ void compiler::WriteFirstArg(ofstream &fs, sArg*p, bool isTarget, eFormatType fo
 
 	WriteArg(fs, p, true);
 }
-void compiler::WriteArg(ofstream &fs, sArg *arg, bool comma)
+void compiler2::WriteArg(ofstream &fs, sArg *arg, bool comma)
 {
 	if (!arg) return;
 	if (comma)
@@ -549,7 +549,7 @@ void compiler::WriteArg(ofstream &fs, sArg *arg, bool comma)
 //------------------------------------------------------------------------
 // 프로토콜 인자값의 변수 이름만 출력한다. (함수 호출시 사용)
 //------------------------------------------------------------------------
-void compiler::WriteArgVar(ofstream &fs, sArg *arg, bool comma)
+void compiler2::WriteArgVar(ofstream &fs, sArg *arg, bool comma)
 {
 	if (!arg) return;
 	if (comma)
@@ -563,7 +563,7 @@ void compiler::WriteArgVar(ofstream &fs, sArg *arg, bool comma)
 // in Protocol Class
 // generate make packet and send code
 //------------------------------------------------------------------------
-void compiler::WriteFirstImplePacket(ofstream &fs, sPacket *packet
+void compiler2::WriteFirstImplePacket(ofstream &fs, sPacket *packet
 	, sArg *p, eFormatType format)
 {
 	fs << "\tcPacket packet(m_node->GetPacketHeader());\n";
@@ -617,7 +617,7 @@ void compiler::WriteFirstImplePacket(ofstream &fs, sPacket *packet
 // in Protocol class
 // generate make packet code
 //------------------------------------------------------------------------
-void compiler::WriteImpleArg(ofstream &fs, sArg*p, const string &tab
+void compiler2::WriteImpleArg(ofstream &fs, sArg*p, const string &tab
 	, eFormatType format, bool isJsonPut //= false
 )
 {
@@ -649,7 +649,7 @@ void compiler::WriteImpleArg(ofstream &fs, sArg*p, const string &tab
 // in Protocol class
 // generate send packet code 
 //------------------------------------------------------------------------
-void compiler::WriteLastImplePacket(ofstream &fs, const string &tab)
+void compiler2::WriteLastImplePacket(ofstream &fs, const string &tab)
 {
 	fs << tab << "GetNode()->Send(targetId, packet);\n";
 }
@@ -658,7 +658,7 @@ void compiler::WriteLastImplePacket(ofstream &fs, const string &tab)
 //------------------------------------------------------------------------
 // generate protocol.cpp code
 //------------------------------------------------------------------------
-bool compiler::WriteFirstProtocolCpp(sProtocol *protocol, const string &pchFileName, eFormatType format)
+bool compiler2::WriteFirstProtocolCpp(sProtocol *protocol, const string &pchFileName, eFormatType format)
 {
 	const string fileName = g_origianlFileName + "_Protocol.cpp";
 	const string headerFileName = g_protocolName + "_Protocol.h";
@@ -682,7 +682,7 @@ bool compiler::WriteFirstProtocolCpp(sProtocol *protocol, const string &pchFileN
 //------------------------------------------------------------------------
 // generate protocol.cpp code
 //------------------------------------------------------------------------
-bool compiler::WriteProtocolCpp(ofstream &fs, sProtocol *protocol, eFormatType format)
+bool compiler2::WriteProtocolCpp(ofstream &fs, sProtocol *protocol, eFormatType format)
 {
 	if (!protocol) return true;
 	
@@ -698,7 +698,7 @@ bool compiler::WriteProtocolCpp(ofstream &fs, sProtocol *protocol, eFormatType f
 //------------------------------------------------------------------------
 // generate Dispatcher::Dispatch() code
 //------------------------------------------------------------------------
-void compiler::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol, eFormatType format)
+void compiler2::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol, eFormatType format)
 {
 	g_handlerClassName = GetProtocolHandlerClassName(protocol->name);
 
@@ -730,7 +730,7 @@ void compiler::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol, eFor
 //------------------------------------------------------------------------
 // generate Dispatcher switch case code
 //------------------------------------------------------------------------
-void compiler::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet, eFormatType format)
+void compiler2::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet, eFormatType format)
 {
 	if (!packet) return;
 
@@ -821,7 +821,7 @@ void compiler::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet, eFormatTyp
 // in dispatcher class
 // read packet data and save protocol data structure
 //------------------------------------------------------------------------
-void compiler::WriteDispatchImpleArg(ofstream &fs, sArg*p, const string &tab
+void compiler2::WriteDispatchImpleArg(ofstream &fs, sArg*p, const string &tab
 	, bool isJson, bool isBinary)
 {
 	if (!p) return;
@@ -851,7 +851,7 @@ void compiler::WriteDispatchImpleArg(ofstream &fs, sArg*p, const string &tab
 // generate call handler function code
 // ex) SEND_HANDLER(c2s_ProtocolHandler, prtHandler, SpawnRobot(data));
 //------------------------------------------------------------------------
-void compiler::WriteLastDispatchSwitchCase(ofstream &fs, sPacket *packet, const string &tab)
+void compiler2::WriteLastDispatchSwitchCase(ofstream &fs, sPacket *packet, const string &tab)
 {
 	fs << tab << "SEND_HANDLER(" << g_handlerClassName << ", prtHandler, " 
 		<< packet->name << "(data));\n";

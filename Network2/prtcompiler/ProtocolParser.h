@@ -3,10 +3,10 @@
 // Author:  jjuiddong
 // Date:    12/26/2012
 // 
-// 프로토콜 파서
+// Protocol Parser
 //
 // 2019-02-26
-//	- {packetid : number} 명령어 추가
+//	- add command {packetid : number} 
 //	- packetid = packet name hashcode
 //
 // 2020-11-11
@@ -18,13 +18,26 @@
 //		ex) protocol c2s 1000 ascii
 //		ex) protocol c2s 1000 json
 //
+// 2021-08-22
+//	- refactoring
+//	- custom struture type parsing
+//	- ex)
+//			type sSyncSymbol
+//			{
+//				string scope;
+//				string name;
+//				variant_t var;
+//			}
+//
 //------------------------------------------------------------------------
 #pragma once
 
 #include "ProtocolScanner.h"
 
+
 namespace network2
 {
+
 	class cProtocolScanner;
 	class cProtocolParser
 	{
@@ -32,33 +45,23 @@ namespace network2
 		cProtocolParser();
 		virtual ~cProtocolParser();
 
-		sRmi* Parse( const char *szFileName, BOOL bTrace=FALSE, BOOL bLog=TRUE );
-		BOOL Parse( BYTE *pFileMem, int nFileSize , BOOL bTrace=FALSE );
-		BOOL IsError() { return m_bError; }
-		void SetAutoRemove(BOOL bAutoRemove) { m_bAutoRemove = bAutoRemove; }
-		void Clear();
+		sStmt* Parse( const string &fileName, bool isTrace=false, bool isLog=true );
+		bool IsError() { return m_isError; }
+		void SetAutoRemove(bool isAutoRemove) { m_isAutoRemove = isAutoRemove; }
 
 
 	private:
-		BOOL Match( Tokentype t );
+		bool Match( eTokentype t );
 		void SyntaxError( const char *szMsg, ... );
 
-		void WritePIDLMacro(std::string PIDLFileName, sRmi *p);
-		void WriteRmi(FILE *fp, sRmi *p);
-		void WriteProtocol(FILE *fp, sRmi *rmi, sProtocol *p);
-		void WriteFirstArg(FILE *fp, sArg*p);
-		void WriteArg(FILE *fp, sArg*p, bool isComma);
-		void WriteFirstArgVar(FILE *fp, sArg*p);
-		void WriteArgVar(FILE *fp, sArg*p, bool isComma);
-
-
-		// expr -> rmi_list
-		// rmi_list -> (rmi)*
-		// rmi -> protocol id number [id] '{' stmt_list '}'
-		// stmt_list -> (stmt)*
-		// stmt -> protocol semicolon
-		// protocol -> [ packetid_stmt ] id '(' arg_list ')'
-		// packetid_stmt -> '{' 'packetid' : number }
+		// expr -> stmt_list
+		// stmt_list -> (protocol | type_stmt)*
+		// protocol -> 'protocol' id number [id] '{' packet_list '}'
+		// packet_list -> (packet)*
+		// packet -> [ packetid_stmt ] id '(' arg_list ')' semicolon
+		// type_stmt -> type id '{' decl_list '}'
+		// decl_list -> decl [ decl_list ]
+		// decl -> arg semicolon
 		// arg_list -> [arg (',' arg)*]
 		// arg -> type
 		// type -> type_sub (var)?
@@ -72,28 +75,32 @@ namespace network2
 		//		| '&'
 		// index -> '[' (number)? ']'
 
-		sRmi* rmi_list();
-		sRmi* rmi();
-		sProtocol* stmt_list();
-		sProtocol* stmt();
+		sStmt* stmt_list();
 		sProtocol* protocol();
+		sType* type_stmt();
+		sPacket* packet_list();
+		sPacket* packet();
 		sArg* arg_list();
+		sArg* decl_list();
 		sArg* arg();
+		sArg* decl();
 		sTypeVar* type();
-		std::string type_sub();
-		std::string var();
-		std::string index();
-		std::string number();
+		string type_sub();
+		string var();
+		string index();
+		string number();
 		int num();
-		std::string id();
+		string id();
 
-	private:
-		cProtocolScanner *m_pScan;
-		sRmi *m_pRmiList;
-		char m_FileName[ MAX_PATH];
-		Tokentype m_Token;
-		BOOL m_bTrace;
-		BOOL m_bError;
-		BOOL m_bAutoRemove;
+
+	protected:
+		string m_fileName;
+		sStmt *m_stmts; // statement linked list
+		cProtocolScanner m_scan;
+		eTokentype m_token;
+		bool m_isTrace;
+		bool m_isError;
+		bool m_isAutoRemove;
 	};
+
 }

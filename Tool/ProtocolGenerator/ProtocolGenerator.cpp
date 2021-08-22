@@ -28,6 +28,9 @@
 //		ex) protocol c2s 1000 ascii
 //		ex) protocol c2s 1000 json
 //
+// 2021-08-22
+//	- generate typescript code
+//
 
 #include "pch.h"
 #include <boost/program_options.hpp>
@@ -76,10 +79,12 @@ int main(int argc, char* argv[])
 	if (!fileName.empty())
 	{
 		network2::cProtocolParser parser;
-		sRmi *rmiList = parser.Parse(fileName.c_str());
-		if (rmiList)
+		sStmt *stmts = parser.Parse(fileName);
+		while (stmts)
 		{
-			compiler::WriteProtocolCode(fileName, rmiList, pchFileName);
+			if (stmts->protocol)
+				compiler::WriteProtocolCode(fileName, stmts->protocol, pchFileName);
+			stmts = stmts->next;
 		}
 	}
 

@@ -1,26 +1,17 @@
 //------------------------------------------------------------------------
-// Name:    GenerateProtocolCode.h
-// Author:  jjuiddong
-// Date:    12/26/2012
+// 2021-08-22, jjuiddong
 // 
 // generate protocol source code with *.prt script
-//	- generate C++ code
+//	- generate TypeScript code
 //		- protocol sender
 //		- protocol handler/dispatcher
 //		- protocol packet data structure
-//
-// 2020-11-10
-//	- add json format string send/recv
-//	- remove marshallingName
-//
-// 2021-08-22
-//	- refactoring
 //
 //------------------------------------------------------------------------
 #pragma once
 
 
-namespace compiler
+namespace compiler2
 {
 
 	bool WriteProtocolCode(const string &protocolFileName

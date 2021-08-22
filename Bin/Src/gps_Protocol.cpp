@@ -11,13 +11,9 @@ void gps::c2s_Protocol::GPSInfo(netid targetId, const double &lon, const double 
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 1288261456 );
 	packet << lon;
-	AddDelimeter(packet);
 	packet << lat;
-	AddDelimeter(packet);
 	packet << altitude;
-	AddDelimeter(packet);
 	packet << speed;
-	AddDelimeter(packet);
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -31,9 +27,7 @@ void gps::c2s_Protocol::AddLandMark(netid targetId, const double &lon, const dou
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 4019554964 );
 	packet << lon;
-	AddDelimeter(packet);
 	packet << lat;
-	AddDelimeter(packet);
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }

@@ -8,7 +8,7 @@ using namespace network2;
 //------------------------------------------------------------------------
 // 
 //------------------------------------------------------------------------
-void network2::PrintToken( Tokentype token, char *szTokenString )
+void network2::PrintToken( eTokentype token, char *szTokenString )
 {
 	switch( token )
 	{
@@ -94,33 +94,33 @@ void network2::GetPacketElement(const ePacketFormat format
 }
 
 
-//------------------------------------------------------------------------
-// packetID를 리턴한다. 여기서 Packet이란 sProtocol protocol을 의미하고, 
-// sRmi 의 자식으로 순서대로 번호가 매겨진 값이 Packet ID이다.
-//------------------------------------------------------------------------
-int	network2::GetPacketID(sRmi *rmi, sProtocol *packet)
-{
-	if (!rmi) return 0;
-	if (!packet) return rmi->number;
-
-	int id = rmi->number + 1;
-	sProtocol *p = rmi->protocol;
-	while (p)
-	{
-		if (p == packet)
-			break;
-		++id;
-		p = p->next;
-	}
-	return id;
-}
+////------------------------------------------------------------------------
+//// packetID를 리턴한다. 여기서 Packet이란 sProtocol protocol을 의미하고, 
+//// sProtocol 의 자식으로 순서대로 번호가 매겨진 값이 Packet ID이다.
+////------------------------------------------------------------------------
+//int	network2::GetPacketID(sRmi *rmi, sPacket *packet)
+//{
+//	if (!rmi) return 0;
+//	if (!packet) return rmi->number;
+//
+//	int id = rmi->number + 1;
+//	sPacket *p = rmi->packet;
+//	while (p)
+//	{
+//		if (p == packet)
+//			break;
+//		++id;
+//		p = p->next;
+//	}
+//	return id;
+//}
 
 
 //------------------------------------------------------------------------
 // 패킷내용을 스트링으로 변환 한다.
 // 동적 메모리 할당이 많기 때문에, 디버깅 시에만 쓸것
 //------------------------------------------------------------------------
-string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
+string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 {
 	if (!protocol)
 	{
@@ -200,27 +200,16 @@ string network2::Packet2String(const cPacket &packet, sProtocol *protocol)
 }
 
 
-/**
- @brief 
- */
-void network2::ReleaseRmi(sRmi *p)
+// release statement structure
+void network2::ReleaseStmt(sStmt *p)
 {
 	if (!p) return;
 	ReleaseProtocol(p->protocol);
-	ReleaseRmi(p->next);
+	ReleaseType(p->type);
+	ReleaseStmt(p->next);
 	delete p;
 }
 
-
-/**
- @brief ReleaseRmiOnly
- */
-void network2::ReleaseRmiOnly(sRmi *p)
-{
-	if (!p) return;
-	ReleaseRmiOnly(p->next);
-	delete p;
-}
 
 /**
  @brief 
@@ -228,8 +217,40 @@ void network2::ReleaseRmiOnly(sRmi *p)
 void network2::ReleaseProtocol(sProtocol *p)
 {
 	if (!p) return;
-	ReleaseArg(p->argList);
+	ReleasePacket(p->packet);
 	ReleaseProtocol(p->next);
+	delete p;
+}
+
+
+/**
+ @brief ReleaseRmiOnly
+ */
+void network2::ReleaseProtocolOnly(sProtocol *p)
+{
+	if (!p) return;
+	ReleaseProtocolOnly(p->next);
+	delete p;
+}
+
+
+/**
+ @brief ReleaseRmiOnly
+ */
+void network2::ReleaseProtocolOnly(sStmt *p)
+{
+	if (!p) return;
+	ReleaseProtocolOnly(p->protocol);
+	ReleaseProtocolOnly(p->next);
+	delete p;
+}
+
+
+// release type structure
+void network2::ReleaseType(sType *p)
+{
+	if (!p) return;
+	ReleaseArg(p->vars);
 	delete p;
 }
 
@@ -237,7 +258,19 @@ void network2::ReleaseProtocol(sProtocol *p)
 /**
  @brief 
  */
-void network2::ReleaseCurrentProtocol(sProtocol *p)
+void network2::ReleasePacket(sPacket *p)
+{
+	if (!p) return;
+	ReleaseArg(p->argList);
+	ReleasePacket(p->next);
+	delete p;
+}
+
+
+/**
+ @brief 
+ */
+void network2::ReleaseCurrentPacket(sPacket *p)
 {
 	if (!p) return;
 	ReleaseArg(p->argList);

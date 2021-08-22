@@ -5,13 +5,13 @@
 using namespace network2;
 
 // lookup table of reserved words
-typedef struct _SReservedWord
+struct sReservedWord
 {
 	const char *str;
-	Tokentype tok;
-} SReservedWord;
+	eTokentype tok;
+};
 
-SReservedWord reservedWords[] =
+sReservedWord reservedWords[] =
 {
 	//{"event", EVENT },
 	{"if", IF },
@@ -23,10 +23,11 @@ SReservedWord reservedWords[] =
 	//{"CustomEvent", CUSTOMEVENT},
 	//{"in",	ARG_IN},
 	{"protocol", PROTOCOL},
+	{"type", TYPE},
 };
-const int g_rlusize = sizeof(reservedWords) / sizeof(SReservedWord);
+const int g_rlusize = sizeof(reservedWords) / sizeof(sReservedWord);
 
-static Tokentype reservedLookup( char *s )
+static eTokentype reservedLookup( char *s )
 {
 	int i=0;
 	for( i=0; i < g_rlusize; ++i )
@@ -39,7 +40,7 @@ static Tokentype reservedLookup( char *s )
 
 
 cProtocolScanner::cProtocolScanner() :
-	m_pFileMem(NULL)
+	m_fileMem(nullptr)
 {
 }
 
@@ -50,138 +51,134 @@ cProtocolScanner::~cProtocolScanner()
 
 
 //----------------------------------------------------------------------------
-// 
+// scann file
 //----------------------------------------------------------------------------
-BOOL cProtocolScanner::LoadFile( const char *szFileName
-	, BOOL bTrace //=FALSE
+bool cProtocolScanner::LoadFile( const string &fileName
+	, bool isTrace //=false
 )
 {
 	OFSTRUCT of;
 
-	HFILE hFile = OpenFile(szFileName, &of, OF_READ);
+	HFILE hFile = OpenFile(fileName.c_str(), &of, OF_READ);
 	if (hFile != EOF)
 	{
-		const int fileSize = GetFileSize((HANDLE)hFile, NULL);
+		const int fileSize = GetFileSize((HANDLE)hFile, nullptr);
 		if (fileSize <= 0)
 			return FALSE;
 
-		if (m_pFileMem)
-			delete[] m_pFileMem;
+		SAFE_DELETEA(m_fileMem);
 
 		DWORD readSize = 0;
-		m_pFileMem = new BYTE[ fileSize];
-		ReadFile((HANDLE)hFile, m_pFileMem, fileSize, &readSize, NULL);
+		m_fileMem = new BYTE[ fileSize];
+		ReadFile((HANDLE)hFile, m_fileMem, fileSize, &readSize, nullptr);
 		CloseHandle((HANDLE)hFile);
 
-		m_nMemSize = fileSize;
-		m_bTrace = bTrace;
+		m_memSize = fileSize;
+		m_isTrace = isTrace;
 		Init();
 		CheckUTF8WithBOM();
-		return TRUE;
+		return true;
 	}
 
-	printf( "[%s] 파일이 없습니다.\n", szFileName );
-	return FALSE;
+	std::cout << "[" << fileName << "] not found file\n";
+	return false;
 }
 
 
 //----------------------------------------------------------------------------
-// 패키지 파일을 읽어서 복사해서 사용한다.
+// load from external memory
 //----------------------------------------------------------------------------
-BOOL cProtocolScanner::LoadPackageFile( BYTE *pFileMem, int nFileSize )
+bool cProtocolScanner::LoadPackageFile( BYTE *fileMem, int fileSize )
 {
-	if (m_pFileMem)
-		delete[] m_pFileMem;
+	SAFE_DELETEA(m_fileMem);
 
-	m_nMemSize = nFileSize;
-	m_pFileMem = new BYTE[ nFileSize];
-	memcpy(m_pFileMem, pFileMem, nFileSize);
+	m_memSize = fileSize;
+	m_fileMem = new BYTE[ fileSize];
+	memcpy(m_fileMem, fileMem, fileSize);
 
 	Init();
 
-	return TRUE;
+	return true;
 }
 
 
 //----------------------------------------------------------------------------
-// 메모리의 끝을 가르키거나, 로드되지 않았다면 true를 리턴한다.
+// end of memory? or is load file?
 //----------------------------------------------------------------------------
-BOOL cProtocolScanner::IsEnd()
+bool cProtocolScanner::IsEnd()
 {
-	if (!m_pFileMem) return TRUE;
-	if (m_pCurrentMemPoint >= m_nMemSize) return TRUE;
-
-	return FALSE;
+	if (!m_fileMem) return true;
+	if (m_currentMemPoint >= m_memSize) return true;
+	return false;
 }
 
 
-Tokentype cProtocolScanner::GetToken()
+eTokentype cProtocolScanner::GetToken()
 {
-	if (!m_pFileMem) return ENDFILE;
+	if (!m_fileMem) return ENDFILE;
 
-	if( m_TokQ.size() == 0 )
+	if( m_tokQ.size() == 0 )
 	{
-		for( int i=0; i < MAX_QSIZE; ++i )
+		for (int i=0; i < MAX_QSIZE; ++i)
 		{
-			STokDat d;
+			sTokDat d;
 			char buf[ MAX_TOKENLEN];
 			d.tok = _GetToken( buf );
 			d.str = buf;
-			m_TokQ.push_back( d );
+			m_tokQ.push_back( d );
 		}
 	}
 	else
 	{
-		STokDat d;
+		sTokDat d;
 		char buf[ MAX_TOKENLEN];
 		d.tok = _GetToken( buf );
 		d.str = buf;
-		m_TokQ.push_back( d );
-		m_TokQ.pop_front();
+		m_tokQ.push_back( d );
+		m_tokQ.pop_front();
 	}
 
-	return m_TokQ[ 0].tok;
+	return m_tokQ[ 0].tok;
 }
 
 
-Tokentype cProtocolScanner::GetTokenQ( int nIdx )
+eTokentype cProtocolScanner::GetTokenQ( int nIdx )
 {
-	if (!m_pFileMem) return ENDFILE;
+	if (!m_fileMem) return ENDFILE;
 
-	return m_TokQ[ nIdx].tok;
+	return m_tokQ[ nIdx].tok;
 }
 
 
 char* cProtocolScanner::GetTokenStringQ( int nIdx )
 {
-	if (!m_pFileMem) return NULL;
-	return 	(char*)m_TokQ[ nIdx].str.c_str();
+	if (!m_fileMem) return nullptr;
+	return 	(char*)m_tokQ[ nIdx].str.c_str();
 }
 
 
 char* cProtocolScanner::CopyTokenStringQ( int nIdx )
 {
-	if (!m_pFileMem) return NULL;
+	if (!m_fileMem) return nullptr;
 
-	int len = m_TokQ[ nIdx].str.size();
+	int len = m_tokQ[ nIdx].str.size();
 	char *p = new char[ len + 1];
-	strcpy_s( p, len+1, m_TokQ[ nIdx].str.c_str() );
+	strcpy_s( p, len+1, m_tokQ[ nIdx].str.c_str() );
 	return p;
 }
 
 
 char cProtocolScanner::GetNextChar()
 {
-	if( m_nLinePos >= m_nBufSize )
+	if (m_linePos >= m_bufSize)
 	{
-		++m_nLineNo;
-//		if( fgets(m_Buf, MAX_BUFF-1, m_fp) )
-		if (GetString(m_Buf, MAX_BUFF))
+		++m_lineNo;
+		if (GetString(m_buf, MAX_BUFF))
 		{
-			m_nLinePos = 0;
-			m_nBufSize = strlen( m_Buf );
- 			if( m_bTrace )
- 				printf( "%4d: %s", m_nLineNo, m_Buf );
+			m_linePos = 0;
+			m_bufSize = strlen(m_buf);
+ 			if (m_isTrace)
+ 				printf( "%4d: %s", m_lineNo, m_buf );
 		}
 		else 
 		{
@@ -189,37 +186,33 @@ char cProtocolScanner::GetNextChar()
 		}
 	}
 
-	return m_Buf[ m_nLinePos++];
+	return m_buf[ m_linePos++];
 }
 
 
 //----------------------------------------------------------------------------
-// fgets() 함수와 비슷한 일을 한다. 파일에 있는 데이타가 아니라, 메모리에
-// 있는 데이타를 가져온다는 것이 다르다.
+// read string from memory, delimeter: new line
 //----------------------------------------------------------------------------
-BOOL cProtocolScanner::GetString(char *receiveBuffer, int maxBufferLength)
+bool cProtocolScanner::GetString(char *receiveBuffer, int maxBufferLength)
 {
-	if (m_pCurrentMemPoint >= m_nMemSize)
+	if (m_currentMemPoint >= m_memSize)
 		return FALSE;
 
-	// 메모리는 바이너리 형식으로 얻어오기 때문에, 
-	// 개행문자 만큼 데이타를 얻어와야 한다.
 	int i=0;
-	for (i=0; (i < maxBufferLength) && (m_pCurrentMemPoint < m_nMemSize); ++i)
+	for (i=0; (i < maxBufferLength) && (m_currentMemPoint < m_memSize); ++i)
 	{
-		const int memPoint = m_pCurrentMemPoint;
+		const int memPoint = m_currentMemPoint;
 
-		// 개행문자?
-		if ( '\r' == m_pFileMem[ memPoint] ) // '\n' == m_pFileMem[idx]
+		if ('\r' == m_fileMem[ memPoint]) // new line?
 		{
-			m_pCurrentMemPoint += 2;
+			m_currentMemPoint += 2;
 			receiveBuffer[ i++] = '\n';
 			break;
 		}
 		else
 		{
-			receiveBuffer[ i] = m_pFileMem[ memPoint];
-			++m_pCurrentMemPoint;
+			receiveBuffer[ i] = m_fileMem[ memPoint];
+			++m_currentMemPoint;
 		}
 	}
 
@@ -228,28 +221,28 @@ BOOL cProtocolScanner::GetString(char *receiveBuffer, int maxBufferLength)
 	else
 		receiveBuffer[ maxBufferLength-1] = NULL;
 
-	return TRUE;
+	return true;
 }
 
 
 void cProtocolScanner::UngetNextChar()
 {
-	--m_nLinePos;
+	--m_linePos;
 }
 
 
 // lexer
-Tokentype cProtocolScanner::_GetToken( char *pToken )
+eTokentype cProtocolScanner::_GetToken( char *pToken )
 {
-	BOOL bFloat = FALSE;
-	Tokentype currentToken;
-	StateType state = START;
+	bool isFloat = false;
+	eTokentype currentToken;
+	eStateType state = START;
 
 	int nTok = 0;
 	while( DONE != state )
 	{
 		char c = GetNextChar();
-		BOOL save = TRUE;
+		bool save = true;
 		switch( state )
 		{
 		case START:
@@ -260,70 +253,70 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 			else if( '=' == c )
 			{
 				state = INEQ;
-				save = FALSE;
+				save = false;
 			}
 			else if( '!' == c )
 			{
 				state = INNEQ;
-				save = FALSE;
+				save = false;
 			}
 			else if( '|' == c )
 			{
 				state = INOR;
-				save = FALSE;
+				save = false;
 			}
 			else if( '&' == c )
 			{
 				state = INAND;
-				save = FALSE;
+				save = false;
 			}
 			else if( '"' == c )
 			{
 				state = INSTR;
-				save = FALSE;
+				save = false;
 			}
 			else if( '/' == c )
 			{
 				state = INDIV;
-				save = FALSE;
+				save = false;
 			}
 			else if( '$' == c )
 			{
 				state = INCOMMENT;
-				save = FALSE;
+				save = false;
 			}
 			else if ( '-' == c)
 			{
 				state = INARROW;
-				save = FALSE;
+				save = false;
 			}
 			else if ( '<' == c)
 			{
 				state = INLTEQ;
-				save = FALSE;
+				save = false;
 			}
 			else if ( '>' == c)
 			{
 				state = INRTEQ;
-				save = FALSE;
+				save = false;
 			}
 			else if (':' == c)
 			{
 				state = INSCOPE;
-				save = FALSE;
+				save = false;
 			}
 			else if( (' ' == c) || ('\t' == c) || ('\n' == c) )
-				save = FALSE;
+				save = false;
 			else
 			{
 				state = DONE;
 				switch( c )
 				{
 				case EOF:
-					save = FALSE;
+					save = false;
 					currentToken = ENDFILE;
 					//					fclose( m_fp );
-					//					m_fp = NULL;
+					//					m_fp = nullptr;
 					break;
 				case '*':
 					currentToken = TIMES;
@@ -379,7 +372,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 			break;
 
 		case INCOMMENT:
-			save = FALSE;
+			save = false;
 			if( '\n' == c ) state = START;
 			break;
 
@@ -405,7 +398,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 			if( !isdigit(c) && '.' != c )
 			{
 				UngetNextChar();
-				save = FALSE;
+				save = false;
 				state = DONE;
 				currentToken = NUM;
 			}
@@ -414,7 +407,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 			if( !isalpha(c) && !isdigit(c) && ('_' != c) && ('.' != c) && ('@' != c) )
 			{
 				UngetNextChar();
-				save = FALSE;
+				save = false;
 				state = DONE;
 				currentToken = ID;
 			}
@@ -434,7 +427,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 				currentToken = DIV;
 				state = DONE;
 			}
-			save = FALSE;
+			save = false;
 			break;
 
 		case INEQ:
@@ -447,7 +440,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 				UngetNextChar();
 				currentToken = ASSIGN;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 		case INNEQ:
@@ -461,7 +454,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
  				UngetNextChar();
 // 				currentToken = _ERROR;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 		case INOR:
@@ -474,7 +467,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 				UngetNextChar();
 				currentToken = _ERROR;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 		case INAND:
@@ -488,13 +481,13 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
  				UngetNextChar();
 // 				currentToken = _ERROR;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 		case INSTR:
 			if( '"' == c )
 			{
-				save = FALSE;
+				save = false;
 				state = DONE;
 				currentToken = STRING;
 			}
@@ -510,7 +503,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 				UngetNextChar();
 				currentToken = MINUS;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 
@@ -524,7 +517,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 				UngetNextChar();
 				currentToken = LT;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 
@@ -538,7 +531,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 				UngetNextChar();
 				currentToken = RT;
 			}
-			save = FALSE;
+			save = false;
 			state = DONE;
 			break;
 
@@ -553,7 +546,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 					UngetNextChar();
 					currentToken = COLON;
 				}
-				save = FALSE;
+				save = false;
 				state = DONE;
 			}
 			break;
@@ -569,7 +562,7 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 		if( (save) && (nTok < MAX_TOKENLEN) )
 		{
 			//			if( (INNUM==state) && ('.' == c) )
-			//				bFloat = TRUE;
+			//				isFloat = true;
 
 			pToken[ nTok++] = c;
 		}
@@ -587,9 +580,9 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 		}
 	}
 
-	if( m_bTrace )
+	if (m_isTrace)
 	{
-		printf( "    %d: ", m_nLineNo );
+		printf( "    %d: ", m_lineNo);
 		//printToken( currentToken, pString );
 	}
 
@@ -601,32 +594,28 @@ Tokentype cProtocolScanner::_GetToken( char *pToken )
 // https://stackoverflow.com/questions/6769311/how-windows-notepad-interpret-characters
 void cProtocolScanner::CheckUTF8WithBOM()
 {
-	if (m_nMemSize < 3)
+	if (m_memSize < 3)
 		return;
 
-	if ((m_pFileMem[0] == 0xEF)
-		&& (m_pFileMem[1] == 0xBB)
-		&& (m_pFileMem[2] == 0xBF))
+	if ((m_fileMem[0] == 0xEF)
+		&& (m_fileMem[1] == 0xBB)
+		&& (m_fileMem[2] == 0xBF))
 	{
-		m_pCurrentMemPoint = 3;
+		m_currentMemPoint = 3;
 	}
 }
 
 
 void cProtocolScanner::Init()
 {
-	m_nLineNo = 0;
-	m_nLinePos = 0;
-	m_nBufSize = 0;
-	m_pCurrentMemPoint = 0;
-
+	m_lineNo = 0;
+	m_linePos = 0;
+	m_bufSize = 0;
+	m_currentMemPoint = 0;
 }
+
 
 void cProtocolScanner::Clear()
 {
-	if (m_pFileMem)
-	{
-		delete[] m_pFileMem;
-		m_pFileMem = NULL;
-	}
+	SAFE_DELETEA(m_fileMem);
 }
