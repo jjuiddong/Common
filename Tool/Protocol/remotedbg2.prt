@@ -54,3 +54,10 @@ type sSyncSymbol
 	variant_t var;
 }
 
+type sRegister
+{
+	uint idx;
+	bool cmp;
+	vector<variant_t> val;
+}
+

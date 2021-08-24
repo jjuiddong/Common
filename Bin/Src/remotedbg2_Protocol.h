@@ -9,6 +9,25 @@ namespace remotedbg2 {
 
 using namespace network2;
 using namespace marshalling_json;
+static const int r2h_Protocol_ID = 5301;
+
+class r2h_Protocol : public network2::iProtocol
+{
+public:
+	r2h_Protocol() : iProtocol(r2h_Protocol_ID, ePacketFormat::JSON) {}
+	void Welcome(netid targetId, bool isBinary, const string &msg);
+	void UploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const string &code);
+	void ReqIntermediateCode(netid targetId, bool isBinary, const int &itprId);
+	void ReqRun(netid targetId, bool isBinary, const int &itprId, const string &runType);
+	void ReqOneStep(netid targetId, bool isBinary, const int &itprId);
+	void ReqResumeRun(netid targetId, bool isBinary, const int &itprId);
+	void ReqBreak(netid targetId, bool isBinary, const int &itprId);
+	void ReqBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id);
+	void ReqStop(netid targetId, bool isBinary, const int &itprId);
+	void ReqInput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName);
+	void ReqStepDebugType(netid targetId, bool isBinary, const int &stepDbgType);
+	void ReqHeartBeat(netid targetId, bool isBinary);
+};
 static const int h2r_Protocol_ID = 5300;
 
 class h2r_Protocol : public network2::iProtocol

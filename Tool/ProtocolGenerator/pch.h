@@ -9,3 +9,5 @@
 
 #include <comutil.h>
 #include "GenerateCode.h"
+#include "GenerateCode2.h"
+#include "GenerateCode3.h"

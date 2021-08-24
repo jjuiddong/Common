@@ -22,7 +22,11 @@ namespace common
 				uint exeIdx; // executed instruction index
 				bool cmp; // compare output flag
 				float tim; // delay timer (milliseconds unit)
-				variant_t val[10]; // register
+				vector<variant_t> val; // register
+				
+				sRegister() { 
+					val.resize(10);
+				}
 			};
 
 			struct sTimer

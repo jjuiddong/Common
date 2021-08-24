@@ -201,7 +201,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::ldsc:
 	case eCommand::ldac:
 	case eCommand::ldmc:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (varType != code.var1.vt)
 			goto $error_semantic;
@@ -212,7 +212,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::ldcmp:
 	case eCommand::ldncmp:
 	{
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		const bool cmp = (code.cmd == eCommand::ldncmp) ? !reg.cmp : reg.cmp;
 		reg.val[code.reg1] = cmp ? variant_t((bool)true) : variant_t((bool)false);
@@ -222,7 +222,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::ldtim:
 	{
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		reg.tim = (float)reg.val[code.reg1];
 		++reg.idx;
@@ -233,7 +233,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::geti:
 	case eCommand::getf:
 	case eCommand::gets:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
 		{
@@ -248,7 +248,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::geta:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
 		{
@@ -264,7 +264,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::getm:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
 		{
@@ -284,7 +284,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::seti:
 	case eCommand::setf:
 	case eCommand::sets:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -299,7 +299,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::seta:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
 			goto $error_semantic;
@@ -314,7 +314,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::setm:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		// tricky code, check map type
 		if (!(reg.val[code.reg1].vt & VT_BYREF))
@@ -330,7 +330,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::copya:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
 			goto $error_semantic;
@@ -345,7 +345,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::copym:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		// tricky code, check map type
 		if (!(reg.val[code.reg1].vt & VT_BYREF))
@@ -364,9 +364,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::subi:
 	case eCommand::muli:
 	case eCommand::divi:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -386,9 +386,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::subf:
 	case eCommand::mulf:
 	case eCommand::divf:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -405,7 +405,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::negate:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -415,9 +415,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::adds:
 	{
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -432,9 +432,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::eqi:
 	case eCommand::eqf:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (reg.val[code.reg1].vt == VT_BOOL)
 		{
@@ -457,9 +457,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::eqs:
 	{
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -475,7 +475,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::eqic:
 	case eCommand::eqfc:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (reg.val[code.reg1].vt == VT_BOOL)
 		{
@@ -493,7 +493,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::eqsc:
 	{
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -507,9 +507,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 
 	case eCommand::lesi:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -521,9 +521,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::lesf:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -535,9 +535,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::leqi:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -549,9 +549,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::leqf:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -563,9 +563,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::gri:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -577,9 +577,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::grf:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -591,9 +591,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::greqi:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -605,9 +605,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::greqf:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;
@@ -620,9 +620,9 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::opand:
 	case eCommand::opor:
-		if (ARRAYSIZE(reg.val) <= code.reg1)
+		if (reg.val.size() <= code.reg1)
 			goto $error_memory;
-		if (ARRAYSIZE(reg.val) <= code.reg2)
+		if (reg.val.size() <= code.reg2)
 			goto $error_memory;
 		if (varType != reg.val[code.reg1].vt)
 			goto $error_semantic;

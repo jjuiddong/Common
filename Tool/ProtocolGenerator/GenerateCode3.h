@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------
-// 2021-08-22, jjuiddong
+// 2021-08-24, jjuiddong
 // 
 // generate protocol source code with *.prt script
-//	- generate TypeScript code
+//	- generate JavaScript code
 //		- protocol sender
 //		- protocol handler/dispatcher
 //		- protocol packet data structure
@@ -11,7 +11,7 @@
 #pragma once
 
 
-namespace compiler2
+namespace compiler3
 {
 
 	bool WriteProtocolCode(const string &protocolFileName

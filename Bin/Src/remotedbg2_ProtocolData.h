@@ -11,6 +11,87 @@ using namespace network2;
 using namespace marshalling_json;
 
 
+	struct Welcome_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		string msg;
+	};
+
+	struct UploadIntermediateCode_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		string code;
+	};
+
+	struct ReqIntermediateCode_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+	};
+
+	struct ReqRun_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		string runType;
+	};
+
+	struct ReqOneStep_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+	};
+
+	struct ReqResumeRun_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+	};
+
+	struct ReqBreak_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+	};
+
+	struct ReqBreakPoint_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		bool enable;
+		uint id;
+	};
+
+	struct ReqStop_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+	};
+
+	struct ReqInput_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string eventName;
+	};
+
+	struct ReqStepDebugType_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int stepDbgType;
+	};
+
+	struct ReqHeartBeat_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+	};
+
+
+
+
+
 	struct AckUploadIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;

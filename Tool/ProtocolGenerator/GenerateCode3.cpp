@@ -1,12 +1,12 @@
 
 #include "pch.h"
-#include "GenerateCode2.h"
+#include "GenerateCode3.h"
 #include <direct.h>
 
 using namespace network2;
 using namespace std;
 
-namespace compiler2
+namespace compiler3
 {
 	// Write Protocol Data Code
 	bool WriteProtocolData(ofstream &fs, sProtocol *protocol);
@@ -175,14 +175,14 @@ namespace compiler2
 	map<string, sType*> g_customTypes; // reference
 }
 
-using namespace compiler2;
+using namespace compiler3;
 
 
 //------------------------------------------------------------------------
 // generate TypeScript code
 // generate Protocol, Handler, Dispatcher, Packet Data class
 //------------------------------------------------------------------------
-bool compiler2::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
+bool compiler3::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
 	, sType *type)
 {
 	const string fileName = common::GetFileNameExceptExt(protocolFileName);
@@ -196,7 +196,7 @@ bool compiler2::WriteProtocolCode(const string &protocolFileName, sProtocol *pro
 
 	g_protocolName = GetProtocolName(protocolFileName);
 
-	const string tsFileName = g_origianlFileName + "_handler.ts";
+	const string tsFileName = g_origianlFileName + "_handler.js";
 
 	// update custom type table
 	{
@@ -219,19 +219,18 @@ bool compiler2::WriteProtocolCode(const string &protocolFileName, sProtocol *pro
 	fs << "// Author:  ProtocolGenerator (by jjuiddong)\n";
 	fs << "// Date:    \n";
 	fs << "//------------------------------------------------------------------------\n";
-	fs << "import TypeVariant from \"../common/variant\";\n";
-	fs << "import { Network } from \"../network/network\";\n";
+	fs << "import Dbg from \"../../dbg/dbg\";\n";
+	fs << "import WsSockServer from \"../wsserver\";\n";
+	fs << "import Packet from \"../packet\"\n";
 	fs << "\n";
 
-	fs << "export namespace " << g_protocolName << " {\n";
+	fs << "export default class " << g_protocolName << " {}\n";
+	fs << "\n";
 
 	WriteCustomStruct(fs, type);
-	WriteProtocolData(fs, protocol);
 	WriteDispatcher(fs, protocol);
 	WriteProtocol(fs, protocol);
 	WriteHandler(fs, protocol);
-
-	fs << "}\n\n";
 
 	return true;
 }
@@ -240,7 +239,7 @@ bool compiler2::WriteProtocolCode(const string &protocolFileName, sProtocol *pro
 //------------------------------------------------------------------------
 // return filename except extends name
 //------------------------------------------------------------------------
-string compiler2::GetProtocolName(const string &fileName)
+string compiler3::GetProtocolName(const string &fileName)
 {
 	return common::GetFileNameExceptExt(fileName);
 }
@@ -249,7 +248,7 @@ string compiler2::GetProtocolName(const string &fileName)
 //------------------------------------------------------------------------
 // return protocol class name, protocol name + _Protocol
 //------------------------------------------------------------------------
-string compiler2::GetProtocolClassName(const string &protocolName )
+string compiler3::GetProtocolClassName(const string &protocolName )
 {
 	return protocolName + "_Protocol";
 }
@@ -258,7 +257,7 @@ string compiler2::GetProtocolClassName(const string &protocolName )
 //------------------------------------------------------------------------
 // return protocol handler class name, protocol name + _ProtocolHandler
 //------------------------------------------------------------------------
-string compiler2::GetProtocolHandlerClassName(const string &protocolName )
+string compiler3::GetProtocolHandlerClassName(const string &protocolName )
 {
 	return protocolName + "_ProtocolHandler";
 }
@@ -267,7 +266,7 @@ string compiler2::GetProtocolHandlerClassName(const string &protocolName )
 //------------------------------------------------------------------------
 // return protocol dispatcher class name, protocol name + _Dispatcher
 //------------------------------------------------------------------------
-string compiler2::GetProtocolDispatcherClassName(const string &protocolName )
+string compiler3::GetProtocolDispatcherClassName(const string &protocolName )
 {
 	return protocolName + "_Dispatcher";
 }
@@ -278,7 +277,7 @@ string compiler2::GetProtocolDispatcherClassName(const string &protocolName )
 // vector<type string>, map<type string, type string>
 // ex) map<string, vector<string>>
 //      - return: [map, string, vector, string]
-bool compiler2::ParseTypeString(const string &typeStr, OUT vector<string> &out)
+bool compiler3::ParseTypeString(const string &typeStr, OUT vector<string> &out)
 {
 	const int idx0 = typeStr.find('>');
 	const int idx1 = typeStr.find('<');
@@ -313,7 +312,7 @@ bool compiler2::ParseTypeString(const string &typeStr, OUT vector<string> &out)
 // in Protocol
 // generate Protocol code
 //------------------------------------------------------------------------
-bool compiler2::WriteProtocol(ofstream &fs, sProtocol *protocol)
+bool compiler3::WriteProtocol(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -322,8 +321,8 @@ bool compiler2::WriteProtocol(ofstream &fs, sProtocol *protocol)
 	fs << "//------------------------------------------------------------------------\n";
 	fs << "// " << g_protocolName << " " << protocol->name << " Protocol \n";
 	fs << "//------------------------------------------------------------------------\n";
-	fs << "export class " << g_className << " extends Network.Protocol {\n";
-	fs << "\t constructor() { super() }\n";
+	fs << g_protocolName << "." << g_className << " = class {\n";
+	fs << "\tconstructor() { }\n";
 	fs << "\n";
 	WriteImplPacketList(fs, protocol, protocol->packet);
 	fs << "}\n";
@@ -334,7 +333,7 @@ bool compiler2::WriteProtocol(ofstream &fs, sProtocol *protocol)
 
 
 // WriteDataHeader
- bool compiler2::WriteProtocolData(ofstream &fs, sProtocol *protocol)
+ bool compiler3::WriteProtocolData(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 	fs << endl;
@@ -346,53 +345,50 @@ bool compiler2::WriteProtocol(ofstream &fs, sProtocol *protocol)
 
 
 // Write Custom Structure
-bool compiler2::WriteCustomStruct(ofstream &fs, sType *type)
+bool compiler3::WriteCustomStruct(ofstream &fs, sType *type)
 {
 	if (!type) return true;
 
+	const string tab = "";
 	// declare custom type
-	fs << "\texport type " << type->name << " = {" << endl;
-	WritePacketField(fs, type->vars);
-	fs << "\t}" << endl;
+	//fs << "\texport type " << type->name << " = {" << endl;
+	//WritePacketField(fs, type->vars);
+	//fs << "\t}" << endl;
 
 	// implement custom type parse
-	fs << "\tfunction Parse_" << type->name << "(packet: Network.Packet) : "
-		<< type->name << " {\n";
-	fs << "\t\treturn {\n";
+	fs << tab << "function Parse_" << type->name << "(packet) {\n";
+	fs << tab << "\treturn {\n";
 	WriteDispatchImpleArg(fs, type->vars, "\t\t\t", true);
-	fs << "\t\t}\n";
-	fs << "\t}\n";
+	fs << tab << "\t}\n";
+	fs << tab << "}\n";
 
 	// implement custom type vector parse
-	fs << "\tfunction Parse_" << type->name << "Vector(packet: Network.Packet) : "
-		<< type->name << "[] {\n";
+	fs << tab << "function Parse_" << type->name << "Vector(packet) {\n";
 
-	fs << "\t\tconst size = packet.getUint32()\n";
-	fs << "\t\tif (size == 0) return []\n";
-	fs << "\t\tlet ar: " << type->name << "[] = []\n";
-	fs << "\t\tfor(let i=0; i < size; ++i)\n";
-	fs << "\t\t\tar.push(";
+	fs << tab << "\tconst size = packet.getUint32()\n";
+	fs << tab << "\tif (size == 0) return []\n";
+	fs << tab << "\tlet ar = []\n";
+	fs << tab << "\tfor(let i=0; i < size; ++i)\n";
+	fs << tab << "\t\tar.push(";
 	WriteParsePacketField(fs, type->name);
 	fs << ")\n";
-	fs << "\t\treturn ar\n";
-	fs << "\t}\n";
+	fs << tab << "\treturn ar\n";
+	fs << tab << "}\n";
 
 	// implement custom type make
-	fs << "\tfunction Make_" << type->name << "(packet: Network.Packet, data: "
-		<< type->name << ") {\n";
-	fs << "\t}\n";
+	fs << tab << "function Make_" << type->name << "(packet, data) {\n";
+	fs << tab << "}\n";
 
 	// implement custom type vector make
-	fs << "\tfunction Make_" << type->name << "Vector(packet: Network.Packet, data: "
-		<< type->name << "[]) {\n";
-	fs << "\t}\n";
+	fs << tab << "function Make_" << type->name << "Vector(packet, data) {\n";
+	fs << tab << "}\n";
 
 	return WriteCustomStruct(fs, type->next);
 }
 
 
  // Write Packet data structure
-bool compiler2::WritePacketStruct(ofstream &fs, sPacket *packet)
+bool compiler3::WritePacketStruct(ofstream &fs, sPacket *packet)
 {
 	if (!packet) return true;
 	fs << "\texport type " << packet->name << "_Packet = {" << endl;
@@ -404,65 +400,65 @@ bool compiler2::WritePacketStruct(ofstream &fs, sPacket *packet)
 
 // Write Packet Field
 // isDecl: declare state?
-void compiler2::WritePacketField(ofstream &fs, sArg *arg
+void compiler3::WritePacketField(ofstream &fs, sArg *arg
 	, const bool isNewLine //=true
 	, const bool isDecl //=false
 )
 {
 	if (!arg) return;
 
-	// convert C++ type to TypeScript type
-	string typeStr = "notdef";
-	auto it1 = g_typeMap.find(arg->var->type);
-	if (g_typeMap.end() != it1)
-	{
-		typeStr = it1->second;
-	}
-	else
-	{
-		vector<string> types;
-		ParseTypeString(arg->var->type, types);
-		if (types.size() > 1)
-		{
-			if ("vector" == types[0])
-			{
-				map<string, string> *typeTable =
-					(isDecl) ? &g_arrayTypeMap : &g_vectorTypeMap;
+	//// convert C++ type to TypeScript type
+	//string typeStr = "notdef";
+	//auto it1 = g_typeMap.find(arg->var->type);
+	//if (g_typeMap.end() != it1)
+	//{
+	//	typeStr = it1->second;
+	//}
+	//else
+	//{
+	//	vector<string> types;
+	//	ParseTypeString(arg->var->type, types);
+	//	if (types.size() > 1)
+	//	{
+	//		if ("vector" == types[0])
+	//		{
+	//			map<string, string> *typeTable =
+	//				(isDecl) ? &g_arrayTypeMap : &g_vectorTypeMap;
 
-				auto it2 = typeTable->find(types[1]);
-				if (typeTable->end() != it2)
-				{
-					typeStr = it2->second;
-				}
-				else
-				{
-					vector<string> toks;
-					common::tokenizer(types[1], "::", "", toks);
-					if (!toks.empty())
-						typeStr = toks.back() + "[]";
-				}
-			}
-		}
-		else
-		{
-			// find custom type
-			vector<string> toks;
-			common::tokenizer(arg->var->type, "::", "", toks);
-			if (!toks.empty())
-			{
-				const string &type = toks.back();
-				auto it2 = g_customTypes.find(type);
-				if (g_customTypes.end() != it2)
-				{
-					typeStr = type;
-				}
-			}
-		}
-	}
+	//			auto it2 = typeTable->find(types[1]);
+	//			if (typeTable->end() != it2)
+	//			{
+	//				typeStr = it2->second;
+	//			}
+	//			else
+	//			{
+	//				vector<string> toks;
+	//				common::tokenizer(types[1], "::", "", toks);
+	//				if (!toks.empty())
+	//					typeStr = toks.back() + "[]";
+	//			}
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// find custom type
+	//		vector<string> toks;
+	//		common::tokenizer(arg->var->type, "::", "", toks);
+	//		if (!toks.empty())
+	//		{
+	//			const string &type = toks.back();
+	//			auto it2 = g_customTypes.find(type);
+	//			if (g_customTypes.end() != it2)
+	//			{
+	//				typeStr = type;
+	//			}
+	//		}
+	//	}
+	//}
 
 	if (isNewLine)
 		fs << "\t\t";
-	fs << arg->var->var << ": " << typeStr << ", ";
+	fs << arg->var->var << ", ";
 	if (isNewLine)
 		fs << endl;
 
@@ -474,7 +470,7 @@ void compiler2::WritePacketField(ofstream &fs, sArg *arg
 // in Protocol Handler
 // generate protocol handler interface code
 //------------------------------------------------------------------------
-bool compiler2::WriteHandler(ofstream &fs, sProtocol *protocol)
+bool compiler3::WriteHandler(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -483,9 +479,8 @@ bool compiler2::WriteHandler(ofstream &fs, sProtocol *protocol)
 	fs << "//------------------------------------------------------------------------\n";
 	fs << "// " << g_protocolName << " " << protocol->name << " Protocol Handler\n";
 	fs << "//------------------------------------------------------------------------\n";
-	fs << "export class " << g_className << " extends Network.Handler {\n";
-	fs << "\t constructor() { super() } \n";
-	fs << "\n";
+	fs << g_protocolName << "." << g_className << " = class {\n";
+	fs << "\tconstructor() { } \n";
 	WriteDeclPacketList(fs, protocol->packet);
 	fs << "}\n";
 	fs << endl;
@@ -496,7 +491,7 @@ bool compiler2::WriteHandler(ofstream &fs, sProtocol *protocol)
 //------------------------------------------------------------------------
 // generate Protocol Dispatcher code
 //------------------------------------------------------------------------
-bool compiler2::WriteDispatcher(ofstream &fs, sProtocol *protocol)
+bool compiler3::WriteDispatcher(ofstream &fs, sProtocol *protocol)
 {
 	if (!protocol) return true;
 
@@ -505,9 +500,9 @@ bool compiler2::WriteDispatcher(ofstream &fs, sProtocol *protocol)
 	fs << "//------------------------------------------------------------------------\n";
 	fs << "// " << g_protocolName << " " << protocol->name << " Protocol Dispatcher\n";
 	fs << "//------------------------------------------------------------------------\n";
-	fs << "export class " << g_className << " extends Network.Dispatcher {\n";
-	fs << "\t constructor() {\n";
-	fs << "\t\tsuper(" << protocol->number << ")\n";
+	fs << g_protocolName << "." << g_className << " = class {\n";
+	fs << "\tconstructor(isNoParseJSON = false) {\n";
+	fs << "\t\tthis.isNoParseJSON = isNoParseJSON\n";
 	fs << "\t}\n";
 	WriteProtocolDispatchFunc(fs, protocol);	
 	fs << "}\n";
@@ -520,15 +515,11 @@ bool compiler2::WriteDispatcher(ofstream &fs, sProtocol *protocol)
 // in Protocol.h
 // generate packet function list code
 //------------------------------------------------------------------------
-void compiler2::WriteDeclPacketList(ofstream &fs, sPacket *packet)
+void compiler3::WriteDeclPacketList(ofstream &fs, sPacket *packet)
 {
 	if (!packet) return;
 
-	fs << "\t" << packet->name << " = (";
-	fs << "packet: " << packet->name << "_Packet";
-	fs << ") => { }"; // Handler header file
-	fs << endl;
-
+	fs << "\t" << packet->name << "(wss, ws, packet) {}\n";
 	WriteDeclPacketList(fs, packet->next);
 }
 
@@ -537,7 +528,7 @@ void compiler2::WriteDeclPacketList(ofstream &fs, sPacket *packet)
 // in Protocol.cpp
 // generate packet send function code
 //------------------------------------------------------------------------
-void compiler2::WriteImplPacketList(ofstream &fs, sProtocol *protocol
+void compiler3::WriteImplPacketList(ofstream &fs, sProtocol *protocol
 	, sPacket *packet)
 {
 	if (!packet) return;
@@ -556,9 +547,9 @@ void compiler2::WriteImplPacketList(ofstream &fs, sProtocol *protocol
 //------------------------------------------------------------------------
 // generate make packet argument code
 //------------------------------------------------------------------------
-void compiler2::WriteDeclPacketFirstArg(ofstream &fs, sArg*p)
+void compiler3::WriteDeclPacketFirstArg(ofstream &fs, sArg*p)
 {
-	fs << "isBinary: boolean, ";
+	fs << "isBinary, ws, ";
 	WritePacketField(fs, p, false, true);
 }
 
@@ -567,17 +558,14 @@ void compiler2::WriteDeclPacketFirstArg(ofstream &fs, sArg*p)
 // in Protocol Class
 // generate make packet and send code
 //------------------------------------------------------------------------
-void compiler2::WriteImplPacket(ofstream &fs, sProtocol *protocol
+void compiler3::WriteImplPacket(ofstream &fs, sProtocol *protocol
 	, sPacket *packet, sArg *p)
 {
 	const string tab = "\t\t";
 
-	fs << tab << "if (!this.ws)\n";
-	fs << tab << "\treturn\n";
-
 	// binary packing
 	fs << tab << "if (isBinary) { // binary send?\n";
-	fs << tab << "\tlet packet = new Network.Packet(512)\n";
+	fs << tab << "\tlet packet = new Packet(512)\n";
 	WriteImpleArg(fs, p, tab + "\t");
 	WriteLastImplePacket(fs, protocol, packet, tab + "\t", true);
 	fs << tab << "} else { // json string send?\n";
@@ -601,7 +589,7 @@ void compiler2::WriteImplPacket(ofstream &fs, sProtocol *protocol
 // in Protocol class
 // generate make packet code
 //------------------------------------------------------------------------
-void compiler2::WriteImpleArg(ofstream &fs, sArg *p, const string &tab)
+void compiler3::WriteImpleArg(ofstream &fs, sArg *p, const string &tab)
 {
 	if (!p) return;
 	fs << tab;
@@ -617,20 +605,20 @@ void compiler2::WriteImpleArg(ofstream &fs, sArg *p, const string &tab)
 // generate send packet code 
 // isBinary: binary packet send?
 //------------------------------------------------------------------------
-void compiler2::WriteLastImplePacket(ofstream &fs, sProtocol *protocol
+void compiler3::WriteLastImplePacket(ofstream &fs, sProtocol *protocol
 	, sPacket *packet, const string &tab
 	, const bool isBinary //= false
 )
 {
 	if (isBinary)
 	{
-		fs << tab << "Network.sendPacketBinary(this.ws, "
+		fs << tab << "WsSockServer.sendPacketBinary(ws, "
 			<< protocol->number << ", " << packet->packetId 
 			<< ", packet.buff, packet.offset)\n";
 	}
 	else
 	{
-		fs << tab << "Network.sendPacket(this.ws, "
+		fs << tab << "WsSockServer.sendPacket(ws, "
 			<< protocol->number << ", " << packet->packetId << ", packet)\n";
 	}
 }
@@ -639,28 +627,56 @@ void compiler2::WriteLastImplePacket(ofstream &fs, sProtocol *protocol
 //------------------------------------------------------------------------
 // generate Dispatcher::Dispatch() code
 //------------------------------------------------------------------------
-void compiler2::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
+void compiler3::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
 {
 	g_handlerClassName = GetProtocolHandlerClassName(protocol->name);
 
-	fs << "\tdispatch(ws: WebSocket, packet: Network.Packet, handlers: Network.Handler[]) {\n";
+	fs << "\t//------------------------------------------------------------------------------\n";
+	fs << "\t// dispatch packet\n";
+	fs << "\t// wss: WebSocket Server\n";
+	fs << "\t// ws: WebSocket\n";
+	fs << "\t// message: ArrayBuffer\n";
+	fs << "\t// handlers: array of protocol handler\n";
+	fs << "\tdispatch(wss, ws, message, handlers) {\n";
 
 	const string tab = "\t\t";
-	fs << tab << "if (!packet.buff) return\n";
-	fs << tab << "packet.init()\n";
-	fs << tab << "// packet format\n";
+	fs << tab << "// parse packet header, 16 bytes\n";
 	fs << tab << "// | protocol id (4) | packet id (4) | packet length (4) | option (4) |\n";
+	fs << tab << "const HeaderSize = 16\n";
+	//fs << tab << "let dv = new DataView(new Uint8Array(message).buffer)\n";
+	fs << tab << "let packet = new Packet()\n";
+	fs << tab << "packet.initWithArrayBuffer(new Uint8Array(message).buffer)\n";
 	fs << tab << "const protocolId = packet.getUint32()\n";
+	fs << tab << "if (protocolId != " << protocol->number << ") return\n";
 	fs << tab << "const packetId = packet.getUint32()\n";
 	fs << tab << "const packetLength = packet.getUint32()\n";
 	fs << tab << "const option = packet.getUint32()\n";
 	fs << "\n";
+	fs << tab << "// dispatch function\n";
+	//fs << tab << "const fn = (packet) => {\n";
 	fs << tab << "switch (packetId) {\n";
+
 	WriteDispatchSwitchCase(fs, protocol->packet);
-	fs << tab << "\tdefault:\n";
-		fs << tab << "\t\tconsole.log(`not found packet ${protocolId}, ${packetId}`)\n";
-		fs << tab << "\t\tbreak;\n";
+
+	fs << tab << "default:\n";
+		fs << tab << "\tDbg.Log(0, 1, `RemoteDbg2 receive not defined packet bin:${option}, ${packetId}`)\n";
+		fs << tab << "\tbreak;\n";
 	fs << tab << "}//~switch\n";
+	//fs << tab << "}//~fn\n";
+
+	//fs << tab << "if (option == 1) {\n";
+	//fs << tab << "\t// binary?, nothing~\n";
+	//fs << tab << "\tfn(message)\n";
+	//fs << tab << "} else {\n";
+	//fs << tab << "\t// json?\n";
+	//fs << tab << "\tif (this.isNoParseJSON) {\n";
+	//fs << tab << "\t\tfn(message)\n";
+	//fs << tab << "\t} else {\n";
+	//fs << tab << "\t\tconst packet = JSON.parse(message.slice(HeaderSize))\n";
+	//fs << tab << "\t\tfn(packet)\n";
+	//fs << tab << "\t}\n";
+	//fs << tab << "}\n";
+	
 	fs << "\t}//~dispatch()\n";
 }
 
@@ -668,7 +684,7 @@ void compiler2::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
 //------------------------------------------------------------------------
 // generate Dispatcher switch case code
 //------------------------------------------------------------------------
-void compiler2::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
+void compiler3::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
 {
 	if (!packet) return;
 
@@ -680,7 +696,7 @@ void compiler2::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
 	// binary parsing
 	fs << tab << "if (option == 1) { // binary?\n";
 		WriteDispatchImpleArg(fs, packet->argList, tab + "\t");
-		fs << tab << "\tconst parsePacket: " << packet->name << "_Packet = {\n";
+		fs << tab << "\tconst parsePacket = {\n";
 		{
 			sArg *p = packet->argList;
 			while (p)
@@ -694,7 +710,7 @@ void compiler2::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
 
 	fs << tab << "} else { // json?\n";
 	// json string parsing
-	fs << tab << "\tconst parsePacket: " << packet->name << "_Packet = \n";
+	fs << tab << "\tconst parsePacket = \n";
 	fs << tab << "\t\tJSON.parse(packet.getStr())\n";
 	WriteLastDispatchSwitchCase(fs, packet, tab + "\t");
 	fs << tab << "}\n";
@@ -712,7 +728,7 @@ void compiler2::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
 // read packet data and save protocol data structure
 // isConstructor: is constructor type implement?
 //------------------------------------------------------------------------
-void compiler2::WriteDispatchImpleArg(ofstream &fs, sArg*p
+void compiler3::WriteDispatchImpleArg(ofstream &fs, sArg*p
 	, const string &tab
 	, const bool isConstructor //=false
 )
@@ -740,7 +756,7 @@ void compiler2::WriteDispatchImpleArg(ofstream &fs, sArg*p
 // typeStr: type string
 // isMake: parse or make packet?
 //------------------------------------------------------------------------
-void compiler2::WriteParsePacketField(ofstream &fs, const string &typeStr
+void compiler3::WriteParsePacketField(ofstream &fs, const string &typeStr
 	, const bool isMake //=false
 )
 {
@@ -829,10 +845,10 @@ void compiler2::WriteParsePacketField(ofstream &fs, const string &typeStr
 // generate call handler function code
 // ex) SEND_HANDLER(c2s_ProtocolHandler, prtHandler, SpawnRobot(data));
 //------------------------------------------------------------------------
-void compiler2::WriteLastDispatchSwitchCase(ofstream &fs, sPacket *packet, const string &tab)
+void compiler3::WriteLastDispatchSwitchCase(ofstream &fs, sPacket *packet, const string &tab)
 {
 	fs << tab << "handlers.forEach(handler => {\n";
-	fs << tab << "\tif (handler instanceof " << g_handlerClassName << ")\n";
+	fs << tab << "\tif (handler instanceof " << g_protocolName << "." << g_handlerClassName << ")\n";
 	fs << tab << "\t\thandler." << packet->name << "(parsePacket)\n";
 	fs << tab << "})\n";
 }

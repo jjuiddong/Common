@@ -1,0 +1,62 @@
+//
+// visual programming web server communication protocol
+// json string format
+//	- web browser <-> webserver <-> remote interpreter
+//
+//	- web browser <-> webserver
+//	   (client)       (server)
+//
+//  - webserver <-> remote interpreter
+//     (server)         (client)
+//
+
+
+// webserver -> webbrowser
+protocol s2w 2100 json
+{
+	AckWebLogin(string id, int result);
+	AckWebRunVisualProgStream(string nodeFileName, int result);
+	AckWebStopVisualProg(int result);
+	ReqWebConnectRIProxyServer(string url, string name);
+}
+
+
+// webbrowser -> webserver
+protocol w2s 2101 json
+{
+	ReqWebLogin(string id);
+	ReqWebRunVisualProgStream(string nodeFileName);
+	ReqWebStopVisualProg();
+}
+
+
+// webserver -> remote interpreter
+protocol s2c 1000 json
+{
+	Welcome(string msg);
+	AckLogin(string id, int result);
+	ReqRunVisualProg(webvpl::sNodeFile nodeFile);
+	ReqRunVisualProgStream(uint count, uint index, vector<BYTE> data);
+	ReqRunVisualProgFiles(vector<string> nodeFileNames);
+	ReqStopVisualProg();
+	ReqConnectRIProxyServer(string url, string name);
+}
+
+
+// remote interpreter -> webserver
+protocol c2s 2000 json
+{
+	ReqLogin(string id);
+	AckRunVisualProg(int result);
+	AckRunVisualProgStream(int result);
+	AckRunVisualProgFiles(int result);
+	AckStopVisualProg(int result);
+	AckConnectRIProxyServer(string url, string name, int result);
+}
+
+
+// custom type
+type sNodeFile
+{
+	string name;
+}

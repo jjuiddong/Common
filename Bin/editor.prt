@@ -1,0 +1,25 @@
+//
+// 2021-01-07, jjuiddong
+//	- simulation editor tool protocol
+//	- json/binary format
+//	- webbrowser   <->   webserver
+//     (client)          (server)
+
+
+// webserver -> webbrowser
+protocol s2c 9000 json
+{
+	AckRunSimulation(string projectName, string mapFileName, string pathFileName, vector<string> nodeFileNames, string taskName, int result );
+	AckRunProject(string projectName, int result );
+	AckStopSimulation(int result);
+}
+
+
+
+// webbrowser -> webserver
+protocol c2s 9100 json
+{
+	ReqRunSimulation(string projectName, string mapFileName, string pathFileName, vector<string> nodeFileNames, string taskName );
+	ReqRunProject(string projectName );
+	ReqStopSimulation();
+}

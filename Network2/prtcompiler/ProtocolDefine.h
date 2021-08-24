@@ -71,12 +71,15 @@ namespace network2
 		string format; // binary, ascii, json
 		sPacket *packet;
 		sProtocol *next;
+		sProtocol() : next(nullptr) {}
 	};
 
 	struct sType
 	{
 		string name;
 		sArg *vars;
+		sType *next;
+		sType() : next(nullptr) {}
 	};
 
 	struct sStmt
@@ -84,7 +87,7 @@ namespace network2
 		sProtocol *protocol;
 		sType *type;
 		sStmt *next;
-		sStmt() : protocol(nullptr), type(nullptr) {}
+		sStmt() : protocol(nullptr), type(nullptr), next(nullptr) {}
 	};
 
 	// Release Protocol Parser Tree

@@ -11,6 +11,40 @@ namespace remotedbg2 {
 
 using namespace network2;
 using namespace marshalling_json;
+static const int r2h_Dispatcher_ID = 5301;
+
+// Protocol Dispatcher
+class r2h_Dispatcher: public network2::cProtocolDispatcher
+{
+public:
+	r2h_Dispatcher();
+protected:
+	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
+};
+static r2h_Dispatcher g_remotedbg2_r2h_Dispatcher;
+
+
+// ProtocolHandler
+class r2h_ProtocolHandler : virtual public network2::iProtocolHandler
+{
+public:
+	friend class r2h_Dispatcher;
+	r2h_ProtocolHandler() { m_format = ePacketFormat::JSON; }
+	virtual bool Welcome(remotedbg2::Welcome_Packet &packet) { return true; }
+	virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) { return true; }
+	virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) { return true; }
+	virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) { return true; }
+	virtual bool ReqOneStep(remotedbg2::ReqOneStep_Packet &packet) { return true; }
+	virtual bool ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet) { return true; }
+	virtual bool ReqBreak(remotedbg2::ReqBreak_Packet &packet) { return true; }
+	virtual bool ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet) { return true; }
+	virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) { return true; }
+	virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) { return true; }
+	virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) { return true; }
+	virtual bool ReqHeartBeat(remotedbg2::ReqHeartBeat_Packet &packet) { return true; }
+};
+
+
 static const int h2r_Dispatcher_ID = 5300;
 
 // Protocol Dispatcher

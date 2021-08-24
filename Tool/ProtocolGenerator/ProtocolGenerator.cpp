@@ -30,6 +30,7 @@
 //
 // 2021-08-22
 //	- generate typescript code
+//	- generate javascript code
 //
 
 #include "pch.h"
@@ -79,13 +80,13 @@ int main(int argc, char* argv[])
 	if (!fileName.empty())
 	{
 		network2::cProtocolParser parser;
-		sStmt *stmts = parser.Parse(fileName);
-		while (stmts)
-		{
-			if (stmts->protocol)
-				compiler::WriteProtocolCode(fileName, stmts->protocol, pchFileName);
-			stmts = stmts->next;
-		}
+		sStmt *stmt = parser.Parse(fileName);
+		if (stmt && stmt->protocol)
+			compiler::WriteProtocolCode(fileName, stmt->protocol, pchFileName);
+		if (stmt && stmt->protocol)
+			compiler2::WriteProtocolCode(fileName, stmt->protocol, stmt->type);
+		if (stmt && stmt->protocol)
+			compiler3::WriteProtocolCode(fileName, stmt->protocol, stmt->type);
 	}
 
 	return 0;

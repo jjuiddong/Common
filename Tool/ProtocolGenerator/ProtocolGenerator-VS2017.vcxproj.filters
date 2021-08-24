@@ -5,10 +5,12 @@
     <ClCompile Include="ProtocolGenerator.cpp" />
     <ClCompile Include="GenerateCode.cpp" />
     <ClCompile Include="GenerateCode2.cpp" />
+    <ClCompile Include="GenerateCode3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="GenerateCode.h" />
     <ClInclude Include="GenerateCode2.h" />
+    <ClInclude Include="GenerateCode3.h" />
   </ItemGroup>
 </Project>

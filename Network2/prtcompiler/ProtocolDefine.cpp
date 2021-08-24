@@ -251,6 +251,7 @@ void network2::ReleaseType(sType *p)
 {
 	if (!p) return;
 	ReleaseArg(p->vars);
+	ReleaseType(p->next);
 	delete p;
 }
 

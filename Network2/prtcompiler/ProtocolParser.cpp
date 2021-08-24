@@ -54,6 +54,57 @@ sStmt* cProtocolParser::Parse( const string &fileName
 		return nullptr;
 	}
 
+	// reconstruct statement parse tree
+	// first statement have all protocol linked list, all type structure linked list
+	{
+		sStmt *s = new sStmt;
+		sProtocol *pr = nullptr;
+		sType *ty = nullptr;
+
+		sStmt *p = m_stmts;
+		while (p)
+		{
+			if (p->protocol)
+			{
+				if (pr)
+				{
+					pr->next = p->protocol;
+					pr = pr->next;
+				}
+				else
+				{
+					s->protocol = p->protocol;
+					pr = p->protocol;
+				}
+			}
+			else if (p->type)
+			{
+				if (ty)
+				{
+					ty->next = p->type;
+					ty = ty->next;
+				}
+				else
+				{
+					s->type = p->type;
+					ty = p->type;
+				}
+			}
+			p = p->next;
+		}
+
+		// remove statement only, no protocol, type
+		p = m_stmts;
+		while (p)
+		{
+			sStmt *t = p;
+			p = p->next;
+			delete t;
+		}
+
+		m_stmts = s;
+	}
+
 	return m_stmts;
 }
 
