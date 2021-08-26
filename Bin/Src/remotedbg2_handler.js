@@ -52,23 +52,29 @@ function Make_sRegisterVector(packet, data) {
 // remotedbg2 r2h Protocol Dispatcher
 //------------------------------------------------------------------------
 remotedbg2.r2h_Dispatcher = class {
-	constructor(isNoParseJSON = false) {
-		this.isNoParseJSON = isNoParseJSON
+	constructor(isRelay = false) {
+		this.protocolId = 5301
+		this.isRelay = isRelay
 	}
 	//------------------------------------------------------------------------------
 	// dispatch packet
 	// wss: WebSocket Server
 	// ws: WebSocket
-	// message: ArrayBuffer
+	// packet: Packet class
 	// handlers: array of protocol handler
-	dispatch(wss, ws, message, handlers) {
+	dispatch(wss, ws, packet, handlers) {
+		if (this.isRelay) {
+			handlers.forEach(handler => {
+				if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+					handler.Relay(wss, ws, packet)
+			})
+			return
+		}
+
 		// parse packet header, 16 bytes
 		// | protocol id (4) | packet id (4) | packet length (4) | option (4) |
-		const HeaderSize = 16
-		let packet = new Packet()
-		packet.initWithArrayBuffer(new Uint8Array(message).buffer)
+		packet.init()
 		const protocolId = packet.getUint32()
-		if (protocolId != 5301) return
 		const packetId = packet.getUint32()
 		const packetLength = packet.getUint32()
 		const option = packet.getUint32()
@@ -84,14 +90,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.Welcome(parsePacket)
+								handler.Welcome(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.Welcome(parsePacket)
+								handler.Welcome(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -108,14 +113,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.UploadIntermediateCode(parsePacket)
+								handler.UploadIntermediateCode(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.UploadIntermediateCode(parsePacket)
+								handler.UploadIntermediateCode(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -130,14 +134,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqIntermediateCode(parsePacket)
+								handler.ReqIntermediateCode(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqIntermediateCode(parsePacket)
+								handler.ReqIntermediateCode(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -154,14 +157,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqRun(parsePacket)
+								handler.ReqRun(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqRun(parsePacket)
+								handler.ReqRun(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -176,14 +178,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqOneStep(parsePacket)
+								handler.ReqOneStep(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqOneStep(parsePacket)
+								handler.ReqOneStep(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -198,14 +199,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqResumeRun(parsePacket)
+								handler.ReqResumeRun(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqResumeRun(parsePacket)
+								handler.ReqResumeRun(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -220,14 +220,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqBreak(parsePacket)
+								handler.ReqBreak(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqBreak(parsePacket)
+								handler.ReqBreak(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -246,14 +245,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqBreakPoint(parsePacket)
+								handler.ReqBreakPoint(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqBreakPoint(parsePacket)
+								handler.ReqBreakPoint(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -268,14 +266,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqStop(parsePacket)
+								handler.ReqStop(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqStop(parsePacket)
+								handler.ReqStop(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -294,14 +291,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqInput(parsePacket)
+								handler.ReqInput(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqInput(parsePacket)
+								handler.ReqInput(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -316,14 +312,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqStepDebugType(parsePacket)
+								handler.ReqStepDebugType(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqStepDebugType(parsePacket)
+								handler.ReqStepDebugType(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -336,14 +331,13 @@ remotedbg2.r2h_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqHeartBeat(parsePacket)
+								handler.ReqHeartBeat(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.ReqHeartBeat(parsePacket)
+								handler.ReqHeartBeat(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -361,23 +355,29 @@ remotedbg2.r2h_Dispatcher = class {
 // remotedbg2 h2r Protocol Dispatcher
 //------------------------------------------------------------------------
 remotedbg2.h2r_Dispatcher = class {
-	constructor(isNoParseJSON = false) {
-		this.isNoParseJSON = isNoParseJSON
+	constructor(isRelay = false) {
+		this.protocolId = 5300
+		this.isRelay = isRelay
 	}
 	//------------------------------------------------------------------------------
 	// dispatch packet
 	// wss: WebSocket Server
 	// ws: WebSocket
-	// message: ArrayBuffer
+	// packet: Packet class
 	// handlers: array of protocol handler
-	dispatch(wss, ws, message, handlers) {
+	dispatch(wss, ws, packet, handlers) {
+		if (this.isRelay) {
+			handlers.forEach(handler => {
+				if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+					handler.Relay(wss, ws, packet)
+			})
+			return
+		}
+
 		// parse packet header, 16 bytes
 		// | protocol id (4) | packet id (4) | packet length (4) | option (4) |
-		const HeaderSize = 16
-		let packet = new Packet()
-		packet.initWithArrayBuffer(new Uint8Array(message).buffer)
+		packet.init()
 		const protocolId = packet.getUint32()
-		if (protocolId != 5300) return
 		const packetId = packet.getUint32()
 		const packetLength = packet.getUint32()
 		const option = packet.getUint32()
@@ -395,14 +395,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckUploadIntermediateCode(parsePacket)
+								handler.AckUploadIntermediateCode(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckUploadIntermediateCode(parsePacket)
+								handler.AckUploadIntermediateCode(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -425,14 +424,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckIntermediateCode(parsePacket)
+								handler.AckIntermediateCode(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckIntermediateCode(parsePacket)
+								handler.AckIntermediateCode(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -449,14 +447,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckRun(parsePacket)
+								handler.AckRun(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckRun(parsePacket)
+								handler.AckRun(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -473,14 +470,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckOneStep(parsePacket)
+								handler.AckOneStep(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckOneStep(parsePacket)
+								handler.AckOneStep(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -497,14 +493,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckResumeRun(parsePacket)
+								handler.AckResumeRun(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckResumeRun(parsePacket)
+								handler.AckResumeRun(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -521,14 +516,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckBreak(parsePacket)
+								handler.AckBreak(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckBreak(parsePacket)
+								handler.AckBreak(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -549,14 +543,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckBreakPoint(parsePacket)
+								handler.AckBreakPoint(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckBreakPoint(parsePacket)
+								handler.AckBreakPoint(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -573,14 +566,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckStop(parsePacket)
+								handler.AckStop(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckStop(parsePacket)
+								handler.AckStop(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -597,14 +589,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckInput(parsePacket)
+								handler.AckInput(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckInput(parsePacket)
+								handler.AckInput(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -621,14 +612,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckStepDebugType(parsePacket)
+								handler.AckStepDebugType(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckStepDebugType(parsePacket)
+								handler.AckStepDebugType(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -647,14 +637,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMInstruction(parsePacket)
+								handler.SyncVMInstruction(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMInstruction(parsePacket)
+								handler.SyncVMInstruction(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -675,14 +664,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMRegister(parsePacket)
+								handler.SyncVMRegister(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMRegister(parsePacket)
+								handler.SyncVMRegister(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -705,14 +693,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMSymbolTable(parsePacket)
+								handler.SyncVMSymbolTable(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMSymbolTable(parsePacket)
+								handler.SyncVMSymbolTable(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -731,14 +718,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMOutput(parsePacket)
+								handler.SyncVMOutput(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.SyncVMOutput(parsePacket)
+								handler.SyncVMOutput(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -751,14 +737,13 @@ remotedbg2.h2r_Dispatcher = class {
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckHeartBeat(parsePacket)
+								handler.AckHeartBeat(wss, ws, parsePacket)
 						})
 					} else { // json?
-						const parsePacket = 
-							JSON.parse(packet.getStr())
+						const parsePacket = JSON.parse(packet.getStr())
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
-								handler.AckHeartBeat(parsePacket)
+								handler.AckHeartBeat(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -779,7 +764,7 @@ remotedbg2.r2h_Protocol = class {
 	constructor() { }
 
 	// Protocol: Welcome
-	Welcome(isBinary, ws, msg, ) {
+	Welcome(ws, isBinary, msg, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushStr(msg)
@@ -793,7 +778,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: UploadIntermediateCode
-	UploadIntermediateCode(isBinary, ws, itprId, code, ) {
+	UploadIntermediateCode(ws, isBinary, itprId, code, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -809,7 +794,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqIntermediateCode
-	ReqIntermediateCode(isBinary, ws, itprId, ) {
+	ReqIntermediateCode(ws, isBinary, itprId, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -823,7 +808,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqRun
-	ReqRun(isBinary, ws, itprId, runType, ) {
+	ReqRun(ws, isBinary, itprId, runType, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -839,7 +824,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqOneStep
-	ReqOneStep(isBinary, ws, itprId, ) {
+	ReqOneStep(ws, isBinary, itprId, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -853,7 +838,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqResumeRun
-	ReqResumeRun(isBinary, ws, itprId, ) {
+	ReqResumeRun(ws, isBinary, itprId, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -867,7 +852,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqBreak
-	ReqBreak(isBinary, ws, itprId, ) {
+	ReqBreak(ws, isBinary, itprId, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -881,7 +866,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqBreakPoint
-	ReqBreakPoint(isBinary, ws, itprId, enable, id, ) {
+	ReqBreakPoint(ws, isBinary, itprId, enable, id, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -899,7 +884,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqStop
-	ReqStop(isBinary, ws, itprId, ) {
+	ReqStop(ws, isBinary, itprId, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -913,7 +898,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqInput
-	ReqInput(isBinary, ws, itprId, vmIdx, eventName, ) {
+	ReqInput(ws, isBinary, itprId, vmIdx, eventName, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -931,7 +916,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqStepDebugType
-	ReqStepDebugType(isBinary, ws, stepDbgType, ) {
+	ReqStepDebugType(ws, isBinary, stepDbgType, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(stepDbgType)
@@ -945,7 +930,7 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqHeartBeat
-	ReqHeartBeat(isBinary, ws, ) {
+	ReqHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			WsSockServer.sendPacketBinary(ws, 5301, 2532286881, packet.buff, packet.offset)
@@ -966,7 +951,7 @@ remotedbg2.h2r_Protocol = class {
 	constructor() { }
 
 	// Protocol: AckUploadIntermediateCode
-	AckUploadIntermediateCode(isBinary, ws, itprId, result, ) {
+	AckUploadIntermediateCode(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -982,7 +967,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckIntermediateCode
-	AckIntermediateCode(isBinary, ws, itprId, result, count, index, data, ) {
+	AckIntermediateCode(ws, isBinary, itprId, result, count, index, data, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1004,7 +989,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckRun
-	AckRun(isBinary, ws, itprId, result, ) {
+	AckRun(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1020,7 +1005,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckOneStep
-	AckOneStep(isBinary, ws, itprId, result, ) {
+	AckOneStep(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1036,7 +1021,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckResumeRun
-	AckResumeRun(isBinary, ws, itprId, result, ) {
+	AckResumeRun(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1052,7 +1037,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckBreak
-	AckBreak(isBinary, ws, itprId, result, ) {
+	AckBreak(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1068,7 +1053,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckBreakPoint
-	AckBreakPoint(isBinary, ws, itprId, enable, id, result, ) {
+	AckBreakPoint(ws, isBinary, itprId, enable, id, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1088,7 +1073,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckStop
-	AckStop(isBinary, ws, itprId, result, ) {
+	AckStop(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1104,7 +1089,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckInput
-	AckInput(isBinary, ws, itprId, result, ) {
+	AckInput(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1120,7 +1105,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckStepDebugType
-	AckStepDebugType(isBinary, ws, stepDbgType, result, ) {
+	AckStepDebugType(ws, isBinary, stepDbgType, result, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(stepDbgType)
@@ -1136,7 +1121,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMInstruction
-	SyncVMInstruction(isBinary, ws, itprId, vmIdx, indices, ) {
+	SyncVMInstruction(ws, isBinary, itprId, vmIdx, indices, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1154,7 +1139,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMRegister
-	SyncVMRegister(isBinary, ws, itprId, vmIdx, infoType, reg, ) {
+	SyncVMRegister(ws, isBinary, itprId, vmIdx, infoType, reg, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1174,7 +1159,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMSymbolTable
-	SyncVMSymbolTable(isBinary, ws, itprId, vmIdx, start, count, symbol, ) {
+	SyncVMSymbolTable(ws, isBinary, itprId, vmIdx, start, count, symbol, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1196,7 +1181,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMOutput
-	SyncVMOutput(isBinary, ws, itprId, vmIdx, output, ) {
+	SyncVMOutput(ws, isBinary, itprId, vmIdx, output, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
@@ -1214,7 +1199,7 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: AckHeartBeat
-	AckHeartBeat(isBinary, ws, ) {
+	AckHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			WsSockServer.sendPacketBinary(ws, 5300, 1133387750, packet.buff, packet.offset)
@@ -1232,7 +1217,8 @@ remotedbg2.h2r_Protocol = class {
 // remotedbg2 r2h Protocol Handler
 //------------------------------------------------------------------------
 remotedbg2.r2h_ProtocolHandler = class {
-	constructor() { } 
+	constructor() {} 
+	Relay(wss, ws, packet) {} 
 	Welcome(wss, ws, packet) {}
 	UploadIntermediateCode(wss, ws, packet) {}
 	ReqIntermediateCode(wss, ws, packet) {}
@@ -1252,7 +1238,8 @@ remotedbg2.r2h_ProtocolHandler = class {
 // remotedbg2 h2r Protocol Handler
 //------------------------------------------------------------------------
 remotedbg2.h2r_ProtocolHandler = class {
-	constructor() { } 
+	constructor() {} 
+	Relay(wss, ws, packet) {} 
 	AckUploadIntermediateCode(wss, ws, packet) {}
 	AckIntermediateCode(wss, ws, packet) {}
 	AckRun(wss, ws, packet) {}

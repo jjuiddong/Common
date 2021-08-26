@@ -480,7 +480,8 @@ bool compiler3::WriteHandler(ofstream &fs, sProtocol *protocol)
 	fs << "// " << g_protocolName << " " << protocol->name << " Protocol Handler\n";
 	fs << "//------------------------------------------------------------------------\n";
 	fs << g_protocolName << "." << g_className << " = class {\n";
-	fs << "\tconstructor() { } \n";
+	fs << "\tconstructor() {} \n";
+	fs << "\tRelay(wss, ws, packet) {} \n";
 	WriteDeclPacketList(fs, protocol->packet);
 	fs << "}\n";
 	fs << endl;
@@ -501,10 +502,11 @@ bool compiler3::WriteDispatcher(ofstream &fs, sProtocol *protocol)
 	fs << "// " << g_protocolName << " " << protocol->name << " Protocol Dispatcher\n";
 	fs << "//------------------------------------------------------------------------\n";
 	fs << g_protocolName << "." << g_className << " = class {\n";
-	fs << "\tconstructor(isNoParseJSON = false) {\n";
-	fs << "\t\tthis.isNoParseJSON = isNoParseJSON\n";
+	fs << "\tconstructor(isRelay = false) {\n";
+	fs << "\t\tthis.protocolId = " << protocol->number << endl;
+	fs << "\t\tthis.isRelay = isRelay\n";
 	fs << "\t}\n";
-	WriteProtocolDispatchFunc(fs, protocol);	
+	WriteProtocolDispatchFunc(fs, protocol);
 	fs << "}\n";
 	fs << endl;
 	return WriteDispatcher(fs, protocol->next);
@@ -549,7 +551,7 @@ void compiler3::WriteImplPacketList(ofstream &fs, sProtocol *protocol
 //------------------------------------------------------------------------
 void compiler3::WriteDeclPacketFirstArg(ofstream &fs, sArg*p)
 {
-	fs << "isBinary, ws, ";
+	fs << "ws, isBinary, ";
 	WritePacketField(fs, p, false, true);
 }
 
@@ -635,25 +637,29 @@ void compiler3::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
 	fs << "\t// dispatch packet\n";
 	fs << "\t// wss: WebSocket Server\n";
 	fs << "\t// ws: WebSocket\n";
-	fs << "\t// message: ArrayBuffer\n";
+	fs << "\t// packet: Packet class\n";
 	fs << "\t// handlers: array of protocol handler\n";
-	fs << "\tdispatch(wss, ws, message, handlers) {\n";
+	fs << "\tdispatch(wss, ws, packet, handlers) {\n";
 
 	const string tab = "\t\t";
+	fs << tab << "if (this.isRelay) {\n";
+	fs << tab << "\thandlers.forEach(handler => {\n";
+	fs << tab << "\t\tif (handler instanceof " << g_protocolName << "."
+		<< g_handlerClassName << ")\n";
+	fs << tab << "\t\t\thandler.Relay(wss, ws, packet)\n";
+	fs << tab << "\t})\n";
+	fs << tab << "\treturn\n";
+	fs << tab << "}\n\n";
+
 	fs << tab << "// parse packet header, 16 bytes\n";
 	fs << tab << "// | protocol id (4) | packet id (4) | packet length (4) | option (4) |\n";
-	fs << tab << "const HeaderSize = 16\n";
-	//fs << tab << "let dv = new DataView(new Uint8Array(message).buffer)\n";
-	fs << tab << "let packet = new Packet()\n";
-	fs << tab << "packet.initWithArrayBuffer(new Uint8Array(message).buffer)\n";
+	fs << tab << "packet.init()\n";
 	fs << tab << "const protocolId = packet.getUint32()\n";
-	fs << tab << "if (protocolId != " << protocol->number << ") return\n";
 	fs << tab << "const packetId = packet.getUint32()\n";
 	fs << tab << "const packetLength = packet.getUint32()\n";
 	fs << tab << "const option = packet.getUint32()\n";
 	fs << "\n";
 	fs << tab << "// dispatch function\n";
-	//fs << tab << "const fn = (packet) => {\n";
 	fs << tab << "switch (packetId) {\n";
 
 	WriteDispatchSwitchCase(fs, protocol->packet);
@@ -662,21 +668,6 @@ void compiler3::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
 		fs << tab << "\tDbg.Log(0, 1, `RemoteDbg2 receive not defined packet bin:${option}, ${packetId}`)\n";
 		fs << tab << "\tbreak;\n";
 	fs << tab << "}//~switch\n";
-	//fs << tab << "}//~fn\n";
-
-	//fs << tab << "if (option == 1) {\n";
-	//fs << tab << "\t// binary?, nothing~\n";
-	//fs << tab << "\tfn(message)\n";
-	//fs << tab << "} else {\n";
-	//fs << tab << "\t// json?\n";
-	//fs << tab << "\tif (this.isNoParseJSON) {\n";
-	//fs << tab << "\t\tfn(message)\n";
-	//fs << tab << "\t} else {\n";
-	//fs << tab << "\t\tconst packet = JSON.parse(message.slice(HeaderSize))\n";
-	//fs << tab << "\t\tfn(packet)\n";
-	//fs << tab << "\t}\n";
-	//fs << tab << "}\n";
-	
 	fs << "\t}//~dispatch()\n";
 }
 
@@ -710,8 +701,7 @@ void compiler3::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
 
 	fs << tab << "} else { // json?\n";
 	// json string parsing
-	fs << tab << "\tconst parsePacket = \n";
-	fs << tab << "\t\tJSON.parse(packet.getStr())\n";
+	fs << tab << "\tconst parsePacket = JSON.parse(packet.getStr())\n";
 	WriteLastDispatchSwitchCase(fs, packet, tab + "\t");
 	fs << tab << "}\n";
 
@@ -849,6 +839,6 @@ void compiler3::WriteLastDispatchSwitchCase(ofstream &fs, sPacket *packet, const
 {
 	fs << tab << "handlers.forEach(handler => {\n";
 	fs << tab << "\tif (handler instanceof " << g_protocolName << "." << g_handlerClassName << ")\n";
-	fs << tab << "\t\thandler." << packet->name << "(parsePacket)\n";
+	fs << tab << "\t\thandler." << packet->name << "(wss, ws, parsePacket)\n";
 	fs << tab << "})\n";
 }
