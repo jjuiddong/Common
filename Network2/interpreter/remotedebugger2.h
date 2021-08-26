@@ -85,6 +85,7 @@ namespace network2
 		virtual bool ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet) override;
 		virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) override;
 		virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) override;
+		virtual bool ReqEvent(remotedbg2::ReqEvent_Packet &packet) override;
 		virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) override;
 
 

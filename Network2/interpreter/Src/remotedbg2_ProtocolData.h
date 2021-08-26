@@ -77,6 +77,14 @@ using namespace marshalling_json;
 		string eventName;
 	};
 
+	struct ReqEvent_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string eventName;
+	};
+
 	struct ReqStepDebugType_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -157,6 +165,15 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int result;
+	};
+
+	struct AckEvent_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string eventName;
 		int result;
 	};
 

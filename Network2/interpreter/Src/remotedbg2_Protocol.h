@@ -25,6 +25,7 @@ public:
 	void ReqBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id);
 	void ReqStop(netid targetId, bool isBinary, const int &itprId);
 	void ReqInput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName);
+	void ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName);
 	void ReqStepDebugType(netid targetId, bool isBinary, const int &stepDbgType);
 	void ReqHeartBeat(netid targetId, bool isBinary);
 };
@@ -43,6 +44,7 @@ public:
 	void AckBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id, const int &result);
 	void AckStop(netid targetId, bool isBinary, const int &itprId, const int &result);
 	void AckInput(netid targetId, bool isBinary, const int &itprId, const int &result);
+	void AckEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName, const int &result);
 	void AckStepDebugType(netid targetId, bool isBinary, const int &stepDbgType, const int &result);
 	void SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<ushort> &indices);
 	void SyncVMRegister(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const int &infoType, const script::cVirtualMachine::sRegister &reg);

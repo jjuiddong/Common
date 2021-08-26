@@ -21,6 +21,7 @@ protocol r2h 5301 json
 	ReqBreakPoint( int itprId, bool enable, uint id);
 	ReqStop(int itprId);
 	ReqInput(int itprId, int vmIdx, string eventName);
+	ReqEvent(int itprId, int vmIdx, string eventName);
 	ReqStepDebugType(int stepDbgType);
 	ReqHeartBeat();
 }
@@ -37,6 +38,7 @@ protocol h2r 5300 json
 	AckBreakPoint( int itprId, bool enable, uint id, int result );
 	AckStop( int itprId, int result );
 	AckInput( int itprId, int result );
+	AckEvent( int itprId, int vmIdx, string eventName, int result);
 	AckStepDebugType(int stepDbgType, int result);
 	SyncVMInstruction( int itprId, int vmIdx, vector<ushort> indices );
 	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
@@ -44,3 +46,20 @@ protocol h2r 5300 json
 	SyncVMOutput( int itprId, int vmIdx, string output );
 	AckHeartBeat();
 }
+
+
+// custom struct type
+type sSyncSymbol
+{
+	string scope;
+	string name;
+	variant_t var;
+}
+
+type sRegister
+{
+	uint idx;
+	bool cmp;
+	vector<variant_t> val;
+}
+

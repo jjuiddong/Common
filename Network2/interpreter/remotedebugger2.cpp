@@ -872,6 +872,17 @@ bool cRemoteDebugger2::ReqInput(remotedbg2::ReqInput_Packet &packet)
 }
 
 
+//request interpreter event protocol handler
+bool cRemoteDebugger2::ReqEvent(remotedbg2::ReqEvent_Packet &packet) 
+{ 
+	script::cEvent evt(packet.eventName);
+	PushEvent(packet.itprId, evt);
+	m_protocol.AckEvent(network2::SERVER_NETID, true
+		, packet.itprId, packet.vmIdx, packet.eventName, 1);
+	return true; 
+}
+
+
 // request interpreter step debugging type
 bool cRemoteDebugger2::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet)
 {

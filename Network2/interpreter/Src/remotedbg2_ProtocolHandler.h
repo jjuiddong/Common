@@ -40,6 +40,7 @@ public:
 	virtual bool ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet) { return true; }
 	virtual bool ReqStop(remotedbg2::ReqStop_Packet &packet) { return true; }
 	virtual bool ReqInput(remotedbg2::ReqInput_Packet &packet) { return true; }
+	virtual bool ReqEvent(remotedbg2::ReqEvent_Packet &packet) { return true; }
 	virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) { return true; }
 	virtual bool ReqHeartBeat(remotedbg2::ReqHeartBeat_Packet &packet) { return true; }
 };
@@ -73,6 +74,7 @@ public:
 	virtual bool AckBreakPoint(remotedbg2::AckBreakPoint_Packet &packet) { return true; }
 	virtual bool AckStop(remotedbg2::AckStop_Packet &packet) { return true; }
 	virtual bool AckInput(remotedbg2::AckInput_Packet &packet) { return true; }
+	virtual bool AckEvent(remotedbg2::AckEvent_Packet &packet) { return true; }
 	virtual bool AckStepDebugType(remotedbg2::AckStepDebugType_Packet &packet) { return true; }
 	virtual bool SyncVMInstruction(remotedbg2::SyncVMInstruction_Packet &packet) { return true; }
 	virtual bool SyncVMRegister(remotedbg2::SyncVMRegister_Packet &packet) { return true; }
