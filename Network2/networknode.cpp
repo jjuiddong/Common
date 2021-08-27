@@ -9,9 +9,9 @@ using namespace network2;
 static cPacketHeader s_binPacketHeader;
 
 cNetworkNode::cNetworkNode(const StrId &name //= "NetNode"
-	, const bool isPacketLog //= false
+	, const int logId //= -1
 )
-	: cSession(common::GenerateId(), name, isPacketLog)
+	: cSession(common::GenerateId(), name, logId)
 	, m_packetHeader(&s_binPacketHeader)
 {
 }

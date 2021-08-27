@@ -9,21 +9,21 @@ cSession::cSession()
 	, m_name("")
 	, m_socket(INVALID_SOCKET)
 	, m_state(DISCONNECT)
-	, m_isPacketLog(false)
+	, m_logId(-1)
 {
 }
 
 cSession::cSession(const netid id, const StrId &name
-	, const bool isPacketLog //= false
+	, const int logId //= -1
 )
 	: m_id(id)
 	, m_name(name)
 	, m_socket(INVALID_SOCKET)
 	, m_state(DISCONNECT)
-	, m_isPacketLog(isPacketLog)
+	, m_logId(logId)
 {
-	if (isPacketLog)
-		network2::LogSession(*this);
+	if (logId >= 0)
+		network2::LogSession(logId, *this);
 }
 
 cSession::~cSession()

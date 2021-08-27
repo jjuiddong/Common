@@ -7,7 +7,8 @@
 
 namespace network2
 {
-	StrPath g_packetLogPath;
+	//StrPath g_packetLogPath;
+	map<int, StrPath> g_packetLogPathMap; // log directory path map
 
 	// Packet Log Thread
 	common::cWQSemaphore g_logThread;
@@ -27,8 +28,7 @@ public:
 	cPacketLogTask(const sPacketLogData &logData)
 		: cTask(0, "cPacketLogTask"), m_logData(logData) {
 	}
-	virtual ~cPacketLogTask() {
-	}
+	virtual ~cPacketLogTask() {}
 
 	virtual eRunResult::Enum Run(const double deltaSeconds) override
 	{
@@ -36,7 +36,7 @@ public:
 		{
 		case 0: // session log
 		{
-			const StrPath path = GetPacketLogPath() + "sessions.ses";
+			const StrPath path = GetPacketLogPath(m_logData.id) + "sessions.ses";
 			std::ofstream ofs(path.c_str(), std::ios::app);
 			if (!ofs.is_open())
 			{
@@ -47,15 +47,14 @@ public:
 			ofs << (char*)m_logData.data << std::endl;
 		}
 		break;
-
 		case 1: // packet log
 		{
 			StrPath path;
-			path.Format("%s%d.plog", GetPacketLogPath().c_str(), m_logData.rcvId);
+			path.Format("%s%d.plog", GetPacketLogPath(m_logData.id).c_str()
+				, m_logData.rcvId);
 			cPacketLog::Write(path.c_str(), m_logData);
 		}
 		break;
-
 		default: assert(0); break;
 		}
 		return eRunResult::END;
@@ -67,28 +66,50 @@ public:
 // set packet log directory path
 // ex) SetPacket("log_packet", "20190309102033112")
 //	-> set directory "log_packet/20190309102033112/"
-void network2::SetPacketLogPath(const string &logFolderName, const string &subFolderName)
+//void network2::SetPacketLogPath(const string &logFolderName, const string &subFolderName)
+//{
+//	_mkdir(logFolderName.c_str());
+//	g_packetLogPath = logFolderName + "/" + subFolderName + "/";
+//	_mkdir(g_packetLogPath.c_str());
+//}
+
+
+// set packet log directory path
+// total path: logFolderName + '/' + subFolderName + '/'
+void network2::SetPacketLogPath(const int logId
+	, const string &logFolderName, const string &subFolderName)
 {
 	_mkdir(logFolderName.c_str());
-	g_packetLogPath = logFolderName + "/" + subFolderName + "/";
-	_mkdir(g_packetLogPath.c_str());
+	StrPath path = logFolderName + "/" + subFolderName + "/";
+	_mkdir(path.c_str());
+	g_packetLogPathMap[logId] = path;
 }
 
 
-const StrPath& network2::GetPacketLogPath()
+// you must set packet log directory path
+// ex) ./log_packet/yyyymmddhhmmssmmm/
+const StrPath& network2::GetPacketLogPath(const int logId)
 {
-	// you must set packet log directory path
-	// ex) ./log_packet/yyyymmddhhmmssmmm/
-	assert(!g_packetLogPath.empty());
-
-	return g_packetLogPath;
+	static StrPath emptyPath;
+	auto it = g_packetLogPathMap.find(logId);
+	if (g_packetLogPathMap.end() == it)
+	{
+		assert(0);
+		return emptyPath;
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
 
 // write file with session data
-bool network2::LogSession(const cSession &session)
+// logId: packet log directory path id
+bool network2::LogSession(const int logId, const cSession &session)
 {
 	cPacketLogTask *task = new cPacketLogTask();
+	task->m_logData.id = logId;
 	task->m_logData.type = 0;
 	
 	if (session.m_name.empty())
@@ -110,11 +131,14 @@ bool network2::LogSession(const cSession &session)
 
 // write packet data to log file
 // read by network2::cPacketLog
-bool network2::LogPacket(const netid rcvId, const cPacket &packet)
+// logId: packet log directory path id
+bool network2::LogPacket(const int logId, const netid sndId
+	, const netid rcvId, const cPacket &packet)
 {
 	cPacketLogTask *task = new cPacketLogTask();
+	task->m_logData.id = logId;
 	task->m_logData.type = 1;
-	task->m_logData.sndId = packet.GetSenderId();
+	task->m_logData.sndId = sndId;// packet.GetSenderId();
 	task->m_logData.rcvId = rcvId;
 	memcpy(task->m_logData.data, packet.m_data, packet.GetPacketSize());
 	task->m_logData.size = packet.GetPacketSize();

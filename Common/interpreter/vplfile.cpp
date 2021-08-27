@@ -468,10 +468,14 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 		out.m_codes.push_back({ script::eCommand::nop });
 	}
 
-	// make intermediate code from event
+	// make intermediate code from event, widget
 	for (auto &node : m_nodes)
+	{
 		if (eNodeType::Event == node.type)
 			Event_GenCode(node, out);
+		if (eNodeType::Widget == node.type)
+			Widget_GenCode(node, out);
+	}
 
 	// make blank branch
 	{
@@ -638,11 +642,56 @@ bool cVplFile::Event_GenCode(const sNode &node
 	out.m_codes.push_back({ script::eCommand::nop });
 
 	// labelName: node.name '_' node.id	 
-	// make label name, if need unique event labe name, update from node.labelName
+	// make label name, if need unique event label name, update from node.labelName
 	const string labelName = node.labelName.empty() ?
 		script::cSymbolTable::MakeScopeName(node.name, node.id) : node.labelName;
 	out.m_codes.push_back({ script::eCommand::label, labelName });
 	
+	// clear stack
+	out.m_codes.push_back({ script::eCommand::cstack });
+
+	for (auto &pin : node.outputs)
+	{
+		if ((ePinType::Flow == pin.type) && (!pin.links.empty()))
+		{
+			if (pin.links.size() >= 2)
+				common::dbg::Logc(3, "Error!! cVplFile::Generate intermediate code, flow link too many setting \n");
+
+			sNode *next = nullptr;
+			sPin *np = nullptr;
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (!next)
+				continue; // error occurred!!
+			Node_GenCode(node, *next, pin, out);
+		}
+	}
+
+	// return, if has jump address
+	out.m_codes.push_back({ script::eCommand::sret });
+
+	// finish, stop execute
+	out.m_codes.push_back({ script::eCommand::nop });
+	return true;
+}
+
+
+// generate intermediate code, widget node
+bool cVplFile::Widget_GenCode(const sNode &node
+	, OUT common::script::cIntermediateCode &out)
+{
+	RETV(node.type != eNodeType::Widget, false);
+	RETV(m_visit.find(node.id) != m_visit.end(), false);
+	m_visit.insert(node.id);
+
+	out.m_codes.push_back({ script::eCommand::nop });
+
+	// labelName: node.name '_' node.id	 
+	// make label name, if need unique event label name, update from node.labelName
+	const string labelName = node.labelName.empty() ?
+		script::cSymbolTable::MakeScopeName(node.name, node.id) : node.labelName;
+	out.m_codes.push_back({ script::eCommand::label, labelName });
+
 	// clear stack
 	out.m_codes.push_back({ script::eCommand::cstack });
 
@@ -2153,18 +2202,25 @@ string cVplFile::MakeScopeName(const sNode &node
 	, const int uniqueId // =-1
 )
 {
+	string scopeName;
 	if (eNodeType::Event == node.type)
 	{
-		return node.name.c_str();
+		// 'Tick Event' is no unique node, (labelName empty)
+		if (!node.labelName.empty())
+			scopeName = node.labelName.c_str();
 	}
-	else
+
+	if (scopeName.empty())
 	{
-		string scopeName = script::cSymbolTable::MakeScopeName(node.name.c_str(), node.id).c_str();
+		const string sname = 
+			script::cSymbolTable::MakeScopeName(node.name.c_str(), node.id).c_str();
 		if (uniqueId >= 0)
-			return common::format("%s-%d", scopeName.c_str(), uniqueId);
+			scopeName = common::format("%s-%d", sname.c_str(), uniqueId);
 		else
-			return scopeName;
+			scopeName = sname;
 	}
+
+	return scopeName;
 }
 
 

@@ -6,14 +6,14 @@ using namespace std;
 using namespace network2;
 
 
-cTcpClient::cTcpClient(const bool isPacketLog //= false
-	, const StrId &name //= "TcpClient"
+cTcpClient::cTcpClient(const StrId &name //= "TcpClient"
+	, const int logId //= -1
 )
-	: cNetworkNode(name, isPacketLog)
+	: cNetworkNode(name, logId)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
-	, m_sendQueue(this, isPacketLog)
-	, m_recvQueue(this, isPacketLog)
+	, m_sendQueue(this, logId)
+	, m_recvQueue(this, logId)
 	, m_recvBuffer(NULL)
 	, m_isThreadMode(false)
 {

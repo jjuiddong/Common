@@ -23,7 +23,7 @@ namespace network2
 			, const int packetSize = network2::DEFAULT_PACKETSIZE
 			, const int packetCount = network2::DEFAULT_MAX_PACKETCOUNT
 			, const int sleepMillis = network2::DEFAULT_SLEEPMILLIS
-			, const bool isPacketLog = false
+			, const int logId = -1
 		);
 		int AddUdpServer(const StrId &name, network2::iProtocolHandler *handler);
 		bool RemoveUdpServer(const StrId &name);
@@ -43,7 +43,7 @@ namespace network2
 		int m_packetSize;
 		int m_packetCount;
 		int m_sleepMillis;
-		bool m_isPacketLog;
+		int m_logId; // packet log id, default: -1
 
 		// Thread
 		struct sThreadMsg

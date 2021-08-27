@@ -9,7 +9,7 @@ cUdpServerMap::cUdpServerMap()
 	, m_packetSize(network2::DEFAULT_PACKETSIZE)
 	, m_packetCount(network2::DEFAULT_MAX_PACKETCOUNT)
 	, m_sleepMillis(network2::DEFAULT_SLEEPMILLIS)
-	, m_isPacketLog(false)
+	, m_logId(-1)
 {
 }
 
@@ -23,7 +23,7 @@ bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
 	, const int packetSize //= network2::DEFAULT_PACKETSIZE
 	, const int packetCount //= network2::DEFAULT_MAX_PACKETCOUNT
 	, const int sleepMillis //= network2::DEFAULT_SLEEPMILLIS
-	, const bool isPacketLog //= false
+	, const int logId //= -1
 )
 {
 	// 미리 UDP Server Bind Port를 등록한다.
@@ -33,7 +33,7 @@ bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
 	m_packetSize = packetSize;
 	m_packetCount = packetCount;
 	m_sleepMillis = sleepMillis;
-	m_isPacketLog = isPacketLog;
+	m_logId = logId;
 
 	m_isThreadLoop = true;
 	m_thread = std::thread(cUdpServerMap::ThreadFunction, this);
@@ -166,8 +166,8 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 			case sThreadMsg::START_SERVER:
 			{
 				network2::cUdpServer *svr = new network2::cUdpServer(
-					udpSvrMap->m_isPacketLog
-					, StrId("UdpServer") + "-" + msg.name);
+					StrId("UdpServer") + "-" + msg.name
+					, udpSvrMap->m_logId);
 				svr->AddProtocolHandler(msg.handler);
 
 				netController.StartUdpServer(svr, msg.port

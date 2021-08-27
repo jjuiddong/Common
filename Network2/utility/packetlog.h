@@ -12,6 +12,7 @@ namespace network2
 
 	struct sPacketLogData
 	{
+		int id; // log id
 		int type; // 0:session, 1:packet
 		netid sndId; // type=1, sender id
 		netid rcvId; // type=1, receiver id

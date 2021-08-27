@@ -12,7 +12,7 @@ namespace network2
 	{
 	public:
 		cSession();
-		cSession(const netid id, const StrId &name, const bool isPacketLog = false);
+		cSession(const netid id, const StrId &name, const int logId = -1);
 		virtual ~cSession();
 
 		virtual void Close();
@@ -37,7 +37,7 @@ namespace network2
 		StrId m_name;
 		Str16 m_ip;
 		int m_port;
-		bool m_isPacketLog;
+		int m_logId; // packet log id, default: -1
 	};
 
 

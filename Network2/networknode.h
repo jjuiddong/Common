@@ -16,7 +16,7 @@ namespace network2
 		friend class cPacketQueue;
 	public:
 		cNetworkNode(const StrId &name = "NetNode"
-			, const bool isPacketLog = false
+			, const int logId = -1
 		);
 		virtual ~cNetworkNode();
 

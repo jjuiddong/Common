@@ -10,8 +10,8 @@ cUdpClientMap::cUdpClientMap()
 	, m_packetSize(network2::DEFAULT_PACKETSIZE)
 	, m_packetCount(network2::DEFAULT_MAX_PACKETCOUNT)
 	, m_sleepMillis(network2::DEFAULT_SLEEPMILLIS)
-	, m_isPacketLog(false)
 	, m_isThreadMode(false)
+	, m_logId(-1)
 {
 }
 
@@ -25,7 +25,7 @@ bool cUdpClientMap::Init(const int startUdpPort, const int portCount
 	, const int packetSize //= network2::DEFAULT_PACKETSIZE
 	, const int packetCount //= network2::DEFAULT_MAX_PACKETCOUNT
 	, const int sleepMillis //= network2::DEFAULT_SLEEPMILLIS
-	, const bool isPacketLog //= false
+	, const int logId //= -1
 	, const bool isThread //= false;
 )
 {
@@ -38,7 +38,7 @@ bool cUdpClientMap::Init(const int startUdpPort, const int portCount
 	m_packetSize = packetSize;
 	m_packetCount = packetCount;
 	m_sleepMillis = sleepMillis;
-	m_isPacketLog = isPacketLog;
+	m_logId = logId;
 	m_isThreadMode = isThread;
 
 	m_isThreadLoop = true;
@@ -176,8 +176,8 @@ int cUdpClientMap::ThreadFunction(cUdpClientMap *udpSvrMap)
 			case sThreadMsg::START_CLIENT:
 			{
 				network2::cUdpClient *client = new network2::cUdpClient(
-					udpSvrMap->m_isPacketLog
-					, StrId("UdpClient") + "-" + msg.name);
+					StrId("UdpClient") + "-" + msg.name
+					, udpSvrMap->m_logId);
 
 				netController.StartUdpClient(client, msg.ip, msg.port
 					, udpSvrMap->m_packetSize, udpSvrMap->m_packetCount, udpSvrMap->m_sleepMillis

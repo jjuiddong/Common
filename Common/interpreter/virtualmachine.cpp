@@ -42,7 +42,8 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 	for (auto time : m_code.m_timer1Events)
 	{
 		m_timers.push_back(
-			{ time.first // timer name
+			{ common::GenerateId()
+			, time.first // timer name
 			, time.second / 1000.f // timer interval (convert seconds unit)
 			, (float)time.second / 1000.f } // timer decrease time (convert seconds unit)
 		);
@@ -123,6 +124,23 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 }
 
 
+// stop timer
+bool cVirtualMachine::StopTimer(const int timerId)
+{
+	int idx = -1;
+	for (uint i = 0; i < m_timers.size(); ++i)
+		if (m_timers[i].id == timerId)
+		{
+			idx = (int)i;
+			break;
+		}
+	if (idx < 0)
+		return false;
+	common::rotatepopvector(m_timers, idx);
+	return true;
+}
+
+
 // process event
 // execute event only waitting state
 // waitting state is nop instruction state
@@ -168,13 +186,16 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 	RETV(eState::Wait != m_state, false);
 	RETV(m_timers.empty(), false);
 
-	for (auto &time : m_timers)
+	for (auto &timer : m_timers)
 	{
-		time.t -= deltaSeconds;
-		if (time.t < 0.f)
+		timer.t -= deltaSeconds;
+		if (timer.t < 0.f)
 		{
-			PushEvent(cEvent(time.name));
-			time.t = time.interval;
+			// timer event trigger
+			// timer id output
+			const string scopeName = (timer.name + "::id").c_str();
+			PushEvent(cEvent(timer.name, { {scopeName, timer.id} }));
+			timer.t = timer.interval;
 			break;
 		}
 	}

@@ -22,8 +22,8 @@ namespace network2
 	class cWebClient : public cNetworkNode
 	{
 	public:
-		explicit cWebClient( const bool isPacketLog = false
-			, const StrId &name = "WebClient"
+		explicit cWebClient( const StrId &name = "WebClient"
+			, const int logId = -1
 		);
 		virtual ~cWebClient();
 

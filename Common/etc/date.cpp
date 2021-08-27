@@ -119,10 +119,9 @@ unsigned __int64 common::GetCurrentDateTime3()
 
 // return time string, yyyymmdd
 // ex) 20170108
+// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
 string common::GetCurrentDateTime4()
 {
-	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
-
 	using namespace boost::gregorian;
 	using namespace boost::posix_time;
 

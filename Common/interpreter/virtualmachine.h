@@ -31,6 +31,7 @@ namespace common
 
 			struct sTimer
 			{
+				int id; // unique timer id
 				StrId name;
 				float interval; // seconds unit
 				float t; // decrease time, seconds unit
@@ -46,6 +47,7 @@ namespace common
 			bool Resume();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
+			bool StopTimer(const int timerId);
 			void SetCodeTrace(const bool isCodeTrace);
 			void ClearCodeTrace(const bool isTakeLast=false);
 			void Clear();
@@ -74,9 +76,9 @@ namespace common
 			cIntermediateCode m_code;
 			queue<cEvent> m_events;
 			vector<sTimer> m_timers;
-			vector<int> m_stack; // simple integer stack
-			iFunctionCallback *m_callback;
-			void *m_callbackArgPtr;
+			vector<int> m_stack; // simple integer stack (save return address)
+			iFunctionCallback *m_callback; // customize function interface
+			void *m_callbackArgPtr; // callback function argument
 
 			// debugging
 			bool m_isCodeTraceLog;

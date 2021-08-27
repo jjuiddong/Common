@@ -5,13 +5,13 @@ using namespace network2;
 using namespace std;
 
 
-cUdpServer::cUdpServer(const bool isPacketLog //= false
-	, const StrId &name //= "UdpServer"
+cUdpServer::cUdpServer(const StrId &name //= "UdpServer"
+	, const int logId //= -1
 )
-	: cNetworkNode(name, isPacketLog)
+	: cNetworkNode(name, logId)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
-	, m_recvQueue(this, isPacketLog)
+	, m_recvQueue(this, logId)
 	, m_tempRecvBuffer(NULL)
 {
 }

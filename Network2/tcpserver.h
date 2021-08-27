@@ -12,8 +12,8 @@ namespace network2
 	{
 	public:
 		explicit cTcpServer(iSessionFactory *sessionFactory = new cSessionFactory()
-			, const bool isPacketLog = false
 			, const StrId &name = "TcpServer"
+			, const int logId = -1
 		);
 		virtual ~cTcpServer();
 

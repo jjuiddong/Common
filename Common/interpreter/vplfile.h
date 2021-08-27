@@ -5,26 +5,27 @@
 //	- common::script::cIntermediateCode
 //
 // read/write node, pin, link information
-// ASCII format
 //
-// node
-//	- name string 
-//	- rect num num num num
-//	- input
-//		- type string
-//		- id num
-//		- name string
-//		- value string
-//		- links num num num...
-//	- output
-//		- type string
-//		- id num
-//		- name string
-//		- value string
-//		- links num num num...
+// vpl file format (text)
+// sample:
+//	node
+//		- name string 
+//		- rect num num num num
+//		- input
+//			- type string
+//			- id num
+//			- name string
+//			- value string
+//			- links num num num...
+//		- output
+//			- type string
+//			- id num
+//			- name string
+//			- value string
+//			- links num num num...
 // symbol
-//	- id num
-//	- value string
+//		- id num
+//		- value string
 //
 // 2020-11-17
 //	- variable pin
@@ -90,6 +91,8 @@ namespace vpl
 			, const common::script::sVariable &var
 			, OUT common::script::cIntermediateCode &out);
 		bool Event_GenCode(const sNode &node
+			, OUT common::script::cIntermediateCode &out);
+		bool Widget_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool Node_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);

@@ -8,15 +8,15 @@ using namespace std;
 
 cTcpServer::cTcpServer(
 	iSessionFactory *sessionFactory //= new cSessionFactory()
-	, const bool isPacketLog //= false
 	, const StrId &name //= "TcpServer"
+	, const int logId //= -1
 )
-	: cNetworkNode(name, isPacketLog)
+	: cNetworkNode(name, logId)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_sessionFactory(sessionFactory)
-	, m_sendQueue(this, isPacketLog)
-	, m_recvQueue(this, isPacketLog)
+	, m_sendQueue(this, logId)
+	, m_recvQueue(this, logId)
 	, m_sessionListener(nullptr)
 	, m_tempRecvBuffer(NULL)
 	, m_lastAcceptTime(0)
@@ -308,8 +308,8 @@ bool cTcpServer::AddSession(const SOCKET sock, const Str16 &ip, const int port)
 	m_sessions.insert({ session->m_id, session });
 	m_sockets.insert({ sock, session });
 
-	if (m_isPacketLog)
-		network2::LogSession(*session);
+	if (m_logId >= 0)
+		network2::LogSession(m_logId, *session);
 
 	if (m_sessionListener)
 		m_sessionListener->AddSession(*session);

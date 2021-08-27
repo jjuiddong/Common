@@ -11,17 +11,17 @@ using namespace std;
 using namespace network2;
 
 
-cWebClient::cWebClient( const bool isPacketLog //= false
-	, const StrId &name //= "WebClient"
+cWebClient::cWebClient( const StrId &name //= "WebClient"
+	, const int logId //= -1
 )
-	: cNetworkNode(name, isPacketLog)
+	: cNetworkNode(name, logId)
 	, m_session(nullptr)
 	, m_request(nullptr)
 	, m_response(nullptr)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
-	, m_sendQueue(this, isPacketLog)
-	, m_recvQueue(this, isPacketLog)
+	, m_sendQueue(this, logId)
+	, m_recvQueue(this, logId)
 	, m_recvBuffer(nullptr)
 	, m_isThreadMode(false)
 {

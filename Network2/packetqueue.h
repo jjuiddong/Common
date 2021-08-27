@@ -30,7 +30,7 @@ namespace network2
 	class cPacketQueue
 	{
 	public:
-		cPacketQueue(cNetworkNode *node, const bool isPacketLog = false);
+		cPacketQueue(cNetworkNode *node, const int logId = -1);
 		virtual ~cPacketQueue();
 
 		bool Init(const int packetSize, const int maxPacketCount);
@@ -50,7 +50,7 @@ namespace network2
 
 
 	public:
-		bool m_isPacketLog;
+		int m_logId; // packet log id, default: -1
 		int m_sockBufferSize; // packetSize * maxPacketCount
 		cNetworkNode *m_netNode; // owner networknode, reference
 		common::VectorMap<netid, cSocketBuffer*> m_sockBuffers;

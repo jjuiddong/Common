@@ -45,7 +45,8 @@ namespace vpl {
 		Comment,
 		Define,
 		Tree,
-		Array
+		Array,
+		Widget
 	);
 
 

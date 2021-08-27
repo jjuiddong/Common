@@ -6,9 +6,9 @@ using namespace network2;
 
 
 cPacketQueue::cPacketQueue(cNetworkNode *node
-	, const bool isPacketLog //= false
+	, const int logId //= -1
 )
-	: m_isPacketLog(isPacketLog)
+	: m_logId(logId)
 	, m_isLogIgnorePacket(true)
 	, m_netNode(node)
 	, m_nextFrontIdx(0)
@@ -90,9 +90,9 @@ bool cPacketQueue::Front(OUT cPacket &out)
 	out.m_sndId = sockBuff->m_netId;
 	const bool result = sockBuff->Pop(out);
 	
-	// write packet log
-	if (m_isPacketLog && result)
-		network2::LogPacket(m_netNode->m_id, out);
+	// write packet log?
+	if ((m_logId >= 0) && result)
+		network2::LogPacket(m_logId, out.GetSenderId(), m_netNode->m_id, out);
 
 	return result;
 }
@@ -143,9 +143,9 @@ void cPacketQueue::SendAll(
 					break;
 				}
 
-				// write packet log
-				if (m_isPacketLog)
-					network2::LogPacket(m_netNode->m_id, packet);
+				// write packet log?
+				if (m_logId >= 0)
+					network2::LogPacket(m_logId, m_netNode->m_id, 0, packet);
 			}
 			else
 			{
@@ -162,9 +162,10 @@ void cPacketQueue::SendAll(
 						break;
 					}
 
-					// write packet log
-					if (m_isPacketLog && (result != SOCKET_ERROR))
-						network2::LogPacket(m_netNode->m_id, packet);
+					// write packet log?
+					if ((m_logId >= 0) && (result != SOCKET_ERROR))
+						network2::LogPacket(m_logId, m_netNode->m_id
+							, sockBuffer->m_netId, packet);
 				}
 
 				if (outErrSocks && (result == SOCKET_ERROR))
@@ -187,7 +188,7 @@ void cPacketQueue::SendAll(
 }
 
 
-// udpclient send all
+// send all
 void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 {
 	RET(m_sockBuffers.empty());
