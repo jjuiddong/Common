@@ -1,7 +1,8 @@
 //
 // 2019-01-09, jjuiddong
 //
-// 패킷을 저장한다. Thread Safe
+// PacketQueue class
+// packet save . Thread Safe
 // - 한 패킷이 분리되어서 네트워크로 들어올 때, 합치는 기능이 있다. (cSocketBuffer에서 처리)
 // - 각 소켓마다 packetSize 크기만큼 채울 때까지 다음으로 넘어가지 않는다.
 // - 버퍼가 가득차면 들어온 패킷은 무시한다.
