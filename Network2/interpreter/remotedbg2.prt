@@ -49,14 +49,14 @@ protocol h2r 5300 json
 
 
 // custom struct type
-type sSyncSymbol
+struct sSyncSymbol
 {
 	string scope;
 	string name;
 	variant_t var;
 }
 
-type sRegister
+struct sRegister
 {
 	uint idx;
 	bool cmp;

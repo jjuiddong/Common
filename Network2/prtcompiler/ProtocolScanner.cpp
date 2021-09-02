@@ -23,7 +23,7 @@ sReservedWord reservedWords[] =
 	//{"CustomEvent", CUSTOMEVENT},
 	//{"in",	ARG_IN},
 	{"protocol", PROTOCOL},
-	{"type", TYPE},
+	{"struct", STRUCT},
 };
 const int g_rlusize = sizeof(reservedWords) / sizeof(sReservedWord);
 

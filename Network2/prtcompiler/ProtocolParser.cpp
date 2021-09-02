@@ -109,7 +109,7 @@ sStmt* cProtocolParser::Parse( const string &fileName
 }
 
 
-// stmt_list -> (protocol | type)*
+// stmt_list -> (protocol | struct)*
 sStmt* cProtocolParser::stmt_list()
 {
 	sProtocol *p = nullptr;
@@ -118,7 +118,7 @@ sStmt* cProtocolParser::stmt_list()
 	{
 		p = protocol();
 	}
-	else if (TYPE == m_token)
+	else if (STRUCT == m_token)
 	{
 		t = type_stmt();
 	}
@@ -162,13 +162,13 @@ sProtocol* cProtocolParser::protocol()
 }
 
 
-// type_stmt -> type id '{' decl_list '}'
+// struct_stmt -> struct id '{' decl_list '}'
 sType* cProtocolParser::type_stmt()
 {
 	sType *p = nullptr;
-	if (TYPE == m_token)
+	if (STRUCT == m_token)
 	{
-		Match(TYPE);
+		Match(STRUCT);
 		p = new sType;
 		p->name = id();
 		Match(LBRACE);
@@ -439,7 +439,7 @@ void cProtocolParser::SyntaxError( const char *szMsg, ... )
 	vsprintf_s(buf, sizeof(buf), szMsg, marker);
 	va_end(marker);
 	std::cout << ">>>";
-	std::cout << "Syntax error at line " << m_fileName << " " << m_scan.GetLineNo()
+	std::cout << "Syntax error at line " << m_fileName << "(" << m_scan.GetLineNo() << ")"
 		<< ": " << buf;
 }
 

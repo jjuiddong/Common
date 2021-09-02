@@ -55,11 +55,11 @@ namespace network2
 		void SyntaxError( const char *szMsg, ... );
 
 		// expr -> stmt_list
-		// stmt_list -> (protocol | type_stmt)*
+		// stmt_list -> (protocol | struct_stmt)*
 		// protocol -> 'protocol' id number [id] '{' packet_list '}'
 		// packet_list -> (packet)*
 		// packet -> [ packetid_stmt ] id '(' arg_list ')' semicolon
-		// type_stmt -> type id '{' decl_list '}'
+		// struct_stmt -> struct id '{' decl_list '}'
 		// decl_list -> decl [ decl_list ]
 		// decl -> arg semicolon
 		// arg_list -> [arg (',' arg)*]

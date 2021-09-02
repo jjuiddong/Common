@@ -525,7 +525,7 @@ void compiler2::WriteDeclPacketList(ofstream &fs, sPacket *packet)
 	if (!packet) return;
 
 	fs << "\t" << packet->name << " = (";
-	fs << "packet: " << packet->name << "_Packet";
+	fs << "packet: " << g_protocolName << "." << packet->name << "_Packet";
 	fs << ") => { }"; // Handler header file
 	fs << endl;
 

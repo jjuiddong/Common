@@ -1502,19 +1502,19 @@ export class h2r_Protocol extends Network.Protocol {
 export class r2h_ProtocolHandler extends Network.Handler {
 	 constructor() { super() } 
 
-	Welcome = (packet: Welcome_Packet) => { }
-	UploadIntermediateCode = (packet: UploadIntermediateCode_Packet) => { }
-	ReqIntermediateCode = (packet: ReqIntermediateCode_Packet) => { }
-	ReqRun = (packet: ReqRun_Packet) => { }
-	ReqOneStep = (packet: ReqOneStep_Packet) => { }
-	ReqResumeRun = (packet: ReqResumeRun_Packet) => { }
-	ReqBreak = (packet: ReqBreak_Packet) => { }
-	ReqBreakPoint = (packet: ReqBreakPoint_Packet) => { }
-	ReqStop = (packet: ReqStop_Packet) => { }
-	ReqInput = (packet: ReqInput_Packet) => { }
-	ReqEvent = (packet: ReqEvent_Packet) => { }
-	ReqStepDebugType = (packet: ReqStepDebugType_Packet) => { }
-	ReqHeartBeat = (packet: ReqHeartBeat_Packet) => { }
+	Welcome = (packet: remotedbg2.Welcome_Packet) => { }
+	UploadIntermediateCode = (packet: remotedbg2.UploadIntermediateCode_Packet) => { }
+	ReqIntermediateCode = (packet: remotedbg2.ReqIntermediateCode_Packet) => { }
+	ReqRun = (packet: remotedbg2.ReqRun_Packet) => { }
+	ReqOneStep = (packet: remotedbg2.ReqOneStep_Packet) => { }
+	ReqResumeRun = (packet: remotedbg2.ReqResumeRun_Packet) => { }
+	ReqBreak = (packet: remotedbg2.ReqBreak_Packet) => { }
+	ReqBreakPoint = (packet: remotedbg2.ReqBreakPoint_Packet) => { }
+	ReqStop = (packet: remotedbg2.ReqStop_Packet) => { }
+	ReqInput = (packet: remotedbg2.ReqInput_Packet) => { }
+	ReqEvent = (packet: remotedbg2.ReqEvent_Packet) => { }
+	ReqStepDebugType = (packet: remotedbg2.ReqStepDebugType_Packet) => { }
+	ReqHeartBeat = (packet: remotedbg2.ReqHeartBeat_Packet) => { }
 }
 
 
@@ -1524,22 +1524,22 @@ export class r2h_ProtocolHandler extends Network.Handler {
 export class h2r_ProtocolHandler extends Network.Handler {
 	 constructor() { super() } 
 
-	AckUploadIntermediateCode = (packet: AckUploadIntermediateCode_Packet) => { }
-	AckIntermediateCode = (packet: AckIntermediateCode_Packet) => { }
-	AckRun = (packet: AckRun_Packet) => { }
-	AckOneStep = (packet: AckOneStep_Packet) => { }
-	AckResumeRun = (packet: AckResumeRun_Packet) => { }
-	AckBreak = (packet: AckBreak_Packet) => { }
-	AckBreakPoint = (packet: AckBreakPoint_Packet) => { }
-	AckStop = (packet: AckStop_Packet) => { }
-	AckInput = (packet: AckInput_Packet) => { }
-	AckEvent = (packet: AckEvent_Packet) => { }
-	AckStepDebugType = (packet: AckStepDebugType_Packet) => { }
-	SyncVMInstruction = (packet: SyncVMInstruction_Packet) => { }
-	SyncVMRegister = (packet: SyncVMRegister_Packet) => { }
-	SyncVMSymbolTable = (packet: SyncVMSymbolTable_Packet) => { }
-	SyncVMOutput = (packet: SyncVMOutput_Packet) => { }
-	AckHeartBeat = (packet: AckHeartBeat_Packet) => { }
+	AckUploadIntermediateCode = (packet: remotedbg2.AckUploadIntermediateCode_Packet) => { }
+	AckIntermediateCode = (packet: remotedbg2.AckIntermediateCode_Packet) => { }
+	AckRun = (packet: remotedbg2.AckRun_Packet) => { }
+	AckOneStep = (packet: remotedbg2.AckOneStep_Packet) => { }
+	AckResumeRun = (packet: remotedbg2.AckResumeRun_Packet) => { }
+	AckBreak = (packet: remotedbg2.AckBreak_Packet) => { }
+	AckBreakPoint = (packet: remotedbg2.AckBreakPoint_Packet) => { }
+	AckStop = (packet: remotedbg2.AckStop_Packet) => { }
+	AckInput = (packet: remotedbg2.AckInput_Packet) => { }
+	AckEvent = (packet: remotedbg2.AckEvent_Packet) => { }
+	AckStepDebugType = (packet: remotedbg2.AckStepDebugType_Packet) => { }
+	SyncVMInstruction = (packet: remotedbg2.SyncVMInstruction_Packet) => { }
+	SyncVMRegister = (packet: remotedbg2.SyncVMRegister_Packet) => { }
+	SyncVMSymbolTable = (packet: remotedbg2.SyncVMSymbolTable_Packet) => { }
+	SyncVMOutput = (packet: remotedbg2.SyncVMOutput_Packet) => { }
+	AckHeartBeat = (packet: remotedbg2.AckHeartBeat_Packet) => { }
 }
 
 }
