@@ -422,6 +422,7 @@ void common::tokenizer2(const string &str, const string &delimeters, OUT vector<
 			tok += tmp[offset++];
 		}
 
+		common::trim(tok);
 		if (!tok.empty())
 			out.push_back(tok);
 	}

@@ -1008,7 +1008,8 @@ bool common::FindFile2(const StrPath &findName, const StrPath &searchPath
 }
 
 
-// searchPath 하위 폴더를 찾아서 리턴한다.
+// collect sub directory name
+// searchPath: search directory name
 // maxLoop : avoid too much process time
 // return : process loop
 int common::CollectFolder(const char *searchPath, OUT vector<string> &out
@@ -1054,6 +1055,56 @@ int common::CollectFolder(const char *searchPath, OUT vector<string> &out
 	FindClose(hFind);
 
 	return loop;
+}
+
+
+// collect sub directory name
+// searchPath: search directory name
+// level: search sub directory count, -1: infinity
+// return: 1
+int common::CollectFolder2(const char *searchPath, OUT vector<string> &out
+	, const int level //= -1
+)
+{
+	if (level == 0)
+		return 1; // finish.
+	string modifySearchPath;
+	const int searchLen = strlen(searchPath);
+	if ((searchLen != 0) &&
+		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
+	{
+		modifySearchPath = searchPath;
+	}
+	else
+	{
+		modifySearchPath = searchPath;
+		modifySearchPath += "\\";
+	}
+
+	WIN32_FIND_DATAA fd;
+	string searchDir = modifySearchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
+			{
+				const string newPath = modifySearchPath + fd.cFileName;
+				out.push_back(newPath);
+
+				CollectFolder(newPath.c_str(), out, (level < 0)? -1 : level-1);
+			}
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return 1;
 }
 
 

@@ -9,10 +9,9 @@ using namespace common;
 
 // return time string, yyyy-mm-dd-hh-mm-ss-mmm
 // ex) 2017-01-08-11-05-30-010
+// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
 string common::GetCurrentDateTime()
 {
-	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
-
 	using namespace boost::gregorian;
 	using namespace boost::posix_time;
 
@@ -43,12 +42,45 @@ string common::GetCurrentDateTime()
 }
 
 
+// return time string, yyyy-mm-dd-hh-mm-ss
+// ex) 2017-01-08-11-05-30
+// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
+string common::GetCurrentDateTime1()
+{
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	boost::gregorian::date dayte(boost::gregorian::day_clock::local_day());
+	boost::posix_time::ptime midnight(dayte);
+	boost::posix_time::ptime
+		now(boost::posix_time::microsec_clock::local_time());
+	boost::posix_time::time_duration td = now - midnight;
+
+	date::ymd_type ymd = second_clock::local_time().date().year_month_day();
+
+	stringstream ss;
+	try {
+		ss << ymd.year
+			<< "-" << std::setfill('0') << std::setw(2) << ymd.month.as_number()
+			<< "-" << std::setfill('0') << std::setw(2) << ymd.day
+			<< "-" << std::setfill('0') << std::setw(2) << td.hours()
+			<< "-" << std::setfill('0') << std::setw(2) << td.minutes()
+			<< "-" << std::setfill('0') << std::setw(2) << td.seconds()
+			;
+	}
+	catch (...)
+	{
+		// nothing~
+	}
+	return ss.str();
+}
+
+
 // return time string, yyyymmddhhmmssmmm
 // ex) 20170108110530010
+// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
 string common::GetCurrentDateTime2()
 {
-	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
-
 	using namespace boost::gregorian;
 	using namespace boost::posix_time;
 
@@ -82,10 +114,9 @@ string common::GetCurrentDateTime2()
 // return uint64 time value
 // yyyymmddhhmmssmmm
 // ex) 20170108110530010
+// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
 unsigned __int64 common::GetCurrentDateTime3()
 {
-	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
-
 	using namespace boost::gregorian;
 	using namespace boost::posix_time;
 

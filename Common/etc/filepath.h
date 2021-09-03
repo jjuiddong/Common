@@ -46,6 +46,8 @@ namespace common
 
 	int CollectFolder(const char *searchPath, OUT vector<string> &out
 		, const int maxLoop = 10000);
+	int CollectFolder2(const char *searchPath, OUT vector<string> &out
+		, const int level = -1);
 
 	bool IsFileExist(const char *fileName);
 	bool IsFileExist(const wchar_t *fileName);

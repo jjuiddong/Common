@@ -6,7 +6,6 @@
 // 2020-05-09
 //	- refactoring, update comment
 //
-//
 #pragma once
 
 
@@ -14,6 +13,7 @@ namespace common
 {
 
 	string GetCurrentDateTime(); // yyyy-mm-dd-hh-mm-ss-mmm
+	string GetCurrentDateTime1(); // yyyy-mm-dd-hh-mm-ss
 	string GetCurrentDateTime2(); // yyyymmddhhmmssmmm
 	unsigned __int64 GetCurrentDateTime3();
 	string GetCurrentDateTime4(); // yyyymmdd
