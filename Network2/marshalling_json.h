@@ -133,6 +133,14 @@ namespace network2
 		template<class T>
 		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const vector<T> &v)
 		{
+			ptree children;
+			for (auto &val : v)
+			{
+				ptree child;
+				child.put("", val);
+				children.push_back(std::make_pair("", child));
+			}
+			props.add_child(typeName, children);
 			return props;
 		}
 
