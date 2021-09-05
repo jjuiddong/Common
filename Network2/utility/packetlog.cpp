@@ -253,7 +253,7 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 
 		sPacketLogInfo *plog = new sPacketLogInfo;
 
-		// Check Ascii or Binary Format Packet (²Ç¼ö ÄÚµå)
+		// Check Ascii or Binary Format Packet (tricky code)
 		{
 			const bool isAsciiFormat = (isalpha(tmpBuff[0]) > 0) 
 				&& (isalpha(tmpBuff[1]) > 0)
@@ -262,7 +262,8 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 			iPacketHeader *packetHeader = (isAsciiFormat ?
 				(iPacketHeader*)&m_asciiPacketHeader : (iPacketHeader*)&m_binPacketHeader);
 			packet->m_packetHeader = packetHeader;
-			packet->m_writeIdx = packetHeader->GetHeaderSize();
+			//packet->m_writeIdx = packetHeader->GetHeaderSize();
+			packet->m_writeIdx = tmp.size;
 			packet->m_readIdx = packetHeader->GetHeaderSize();
 
 			plog->packet = packet;

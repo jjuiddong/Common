@@ -5,7 +5,7 @@
 namespace network2
 {
 	bool Init();
-	void InsertProtocol(sStmt *stmt);
+	void InsertProtocol(sProtocol *protocol);
 	void InsertPacket(sProtocol *protocol, sPacket *packet);
 	sPacket* GetPacket(const __int64 packetId);
 
@@ -16,12 +16,11 @@ using namespace network2;
 
 
 // Insert Protocol
-void network2::InsertProtocol(sStmt *stmt)
+void network2::InsertProtocol(sProtocol *protocol)
 {
-	RET(!stmt);
-	if (stmt->protocol)
-		InsertPacket(stmt->protocol, stmt->protocol->packet);
-	InsertProtocol(stmt->next);
+	RET(!protocol);
+	InsertPacket(protocol, protocol->packet);
+	InsertProtocol(protocol->next);
 }
 
 
@@ -35,6 +34,7 @@ void network2::InsertPacket(sProtocol *protocol, sPacket *packet)
 }
 
 
+// read all *.prt file
 bool network2::Init()
 {
 	list<string> exts;
@@ -48,7 +48,8 @@ bool network2::Init()
 		parser.SetAutoRemove(FALSE);
 
 		sStmt *stmts = parser.Parse(str.c_str(), FALSE, FALSE);
-		InsertProtocol(stmts);
+		if (stmts)
+			InsertProtocol(stmts->protocol);
 		ReleaseProtocolOnly(stmts);
 	}
 	return true;

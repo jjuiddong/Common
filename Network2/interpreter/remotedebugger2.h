@@ -39,7 +39,7 @@ namespace network2
 			common::script::sVariable var; // compare variable
 		};
 
-		cRemoteDebugger2();
+		cRemoteDebugger2(const int logId = -1);
 		virtual ~cRemoteDebugger2();
 
 		bool InitHost(cNetController &netController

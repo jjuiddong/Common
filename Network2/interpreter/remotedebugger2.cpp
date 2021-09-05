@@ -9,8 +9,11 @@ const float TIME_SYNC_REGISTER = 5.0f;
 const float TIME_SYNC_SYMBOL = 3.0f;
 
 
-cRemoteDebugger2::cRemoteDebugger2()
-	: m_callback(nullptr)
+cRemoteDebugger2::cRemoteDebugger2(
+	const int logId //= -1
+)
+	: m_client("WebClient", logId)
+	, m_callback(nullptr)
 	, m_arg(nullptr)
 {
 }
