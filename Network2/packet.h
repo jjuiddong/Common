@@ -111,13 +111,23 @@ namespace network2
 	template<class T>
 	inline void cPacket::Append(const T &rhs) { Append2(rhs); }
 
-	// Append specialization, int, uint, float, double
+	// Append specialization, int, uint, int64, float, double
 	template<> inline void cPacket::Append<int>(const int &rhs)
 	{
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
 		Append2(rhs);
 	}
 	template<> inline void cPacket::Append<uint>(const uint &rhs)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		Append2(rhs);
+	}
+	template<> inline void cPacket::Append<int64>(const int64 &rhs)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		Append2(rhs);
+	}
+	template<> inline void cPacket::Append<uint64>(const uint64 &rhs)
 	{
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
 		Append2(rhs);

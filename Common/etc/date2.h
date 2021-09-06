@@ -51,7 +51,8 @@ namespace common
 		static Str32 GetTimeStr5(const uint64 dateTime); // yyyymmdd
 		static void GetTimeValue(const uint64 dateTime, OUT sDateTime &out);
 
-		cDateTime2& operator+=(const uint64 &microSeconds);
+		cDateTime2& operator+=(const uint64 &milliSeconds);
+		cDateTime2& operator-=(const uint64 &milliSeconds);
 		bool operator<(const cDateTime2 &rhs) const;
 		bool operator<=(const cDateTime2 &rhs) const;
 		bool operator>(const cDateTime2 &rhs) const;

@@ -43,7 +43,11 @@ namespace network2
 		bool ReadAll(const char *fileName);
 		uint Streaming();
 		sPacketLogInfo* ReadPacket(const uint64 dateTime);
+		bool ReadPacket(const uint64 beginDateTime, const uint64 endDateTime
+			, OUT vector<sPacketLogInfo*> &out);
 		cDateTimeRange GetTimeRange(const char *fileName);
+		cDateTimeRange GetTimeRange2(const char *fileName);
+		void ClearSearchCursor();
 		void Clear();
 
 		static bool Write(const char *fileName, const sPacketLogData &logData);

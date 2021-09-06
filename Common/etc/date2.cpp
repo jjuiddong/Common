@@ -15,6 +15,7 @@ cDateTime2::cDateTime2()
 {
 }
 
+// dateTime: yyyymmddhhmmssmmm
 cDateTime2::cDateTime2(const uint64 dateTime)
 	: m_t(0)
 {
@@ -130,12 +131,18 @@ Str32 cDateTime2::GetTimeStr5() const {
 }
 
 
-// add micro seconds
+// add milliseconds
 cDateTime2& cDateTime2::operator+=(const uint64 &milliseconds)
 {
 	m_t += milliseconds;
 	return *this;
 }
+cDateTime2& cDateTime2::operator-=(const uint64 &milliseconds)
+{
+	m_t -= milliseconds;
+	return *this;
+}
+
 bool cDateTime2::operator<(const cDateTime2 &rhs) const
 {
 	return m_t < rhs.m_t;

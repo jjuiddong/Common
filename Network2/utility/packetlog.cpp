@@ -67,20 +67,19 @@ bool cPacketLog::ReadAll(const char *fileName)
 }
 
 
-// dateTime과 가장 가까운 시간의 패킷정보를 리턴한다.
+// return packet near dateTime
 // dateTime: yyyymmddhhmmssmmm
 // return : sPacketLog reference pointer
 cPacketLog::sPacketLogInfo* cPacketLog::ReadPacket(const uint64 dateTime)
 {
-	uint64 timeSearch = dateTime;
 	uint64 prevGap = 0;
 	auto itor = m_searchItor;
 	if (m_packets.end() == m_searchItor)
 		itor = m_packets.begin();
 
 	int state = 0; // 0:search, 1:goto next, 2:goto prev
-	sPacketLogInfo *ret = NULL;
-	sPacketLogInfo *prevLog = NULL;
+	sPacketLogInfo *ret = nullptr;
+	sPacketLogInfo *prevLog = nullptr;
 	auto prevItor = itor;
 	while (m_packets.end() != itor)
 	{
@@ -94,8 +93,8 @@ cPacketLog::sPacketLogInfo* cPacketLog::ReadPacket(const uint64 dateTime)
 			break;
 		}
 
-		// 시간차가 줄어드는 방향으로 이동한다.
-		if (0 == state)
+		// move cursor decrease time
+		if (0 == state) // check next, previous?
 		{
 			if (gap < 0)
 			{
@@ -150,6 +149,70 @@ cPacketLog::sPacketLogInfo* cPacketLog::ReadPacket(const uint64 dateTime)
 }
 
 
+// return packet time range in begin - end
+// beginDateTime, endDateTime: yyyymmddhhmmssmmm
+// out: sPacketLog reference pointer
+bool cPacketLog::ReadPacket(const uint64 beginDateTime, const uint64 endDateTime
+	, OUT vector<sPacketLogInfo*> &out)
+{
+	uint64 prevGap = 0;
+	auto itor = m_searchItor;
+	if (m_packets.end() == m_searchItor)
+		itor = m_packets.begin();
+
+	int state = 0; // 0:check begin, 1:check end
+	sPacketLogInfo *ret = nullptr;
+	sPacketLogInfo *prevLog = nullptr;
+	auto prevItor = itor;
+	__int64 dateTime = beginDateTime;
+
+	while (m_packets.end() != itor)
+	{
+		sPacketLogInfo *plog = *itor;
+		const __int64 dt = (__int64)plog->dateTime - (__int64)dateTime;
+
+		if (0 == state) // compare begin time
+		{
+			if (0 == dt)
+			{
+				out.push_back(plog);
+				dateTime = endDateTime;
+				state = 1;
+				++itor;
+			}
+			else if (0 < dt)
+			{
+				dateTime = endDateTime;
+				state = 1;
+			}
+			else
+			{
+				++itor;
+			}
+		}
+		else // compare end time
+		{
+			if (dt <= 0)
+			{
+				out.push_back(plog);
+				++itor;
+			}
+			else
+			{
+				break; // finish
+			}
+		}
+	}
+
+	if (m_packets.end() == itor)
+		m_searchItor = m_packets.end();
+	else
+		m_searchItor = itor;
+
+	return true;
+}
+
+
 // File Streaming
 // Streaming Process : Read() -> while(1){ Streaming(); }
 uint cPacketLog::Streaming()
@@ -166,9 +229,8 @@ uint cPacketLog::Streaming()
 }
 
 
-// 로그에 저장된 패킷 시간 범위를 리턴한다.
-// firsst : begin time
-// second : end time
+// return logfile time range
+// return time range, begin time, end time
 cDateTimeRange cPacketLog::GetTimeRange(const char *fileName)
 {
 	using namespace std;
@@ -178,6 +240,7 @@ cDateTimeRange cPacketLog::GetTimeRange(const char *fileName)
 
 	uint64 beginTime = 0;
 	uint64 endTime = 0;
+	BYTE tmpBuff[DEFAULT_PACKETSIZE];
 
 	while (!ifs.eof())
 	{
@@ -191,8 +254,47 @@ cDateTimeRange cPacketLog::GetTimeRange(const char *fileName)
 		{
 			break; // eof
 		}
-		BYTE tmpBuff[DEFAULT_PACKETSIZE];
 		ifs.read((char*)tmpBuff, tmp.size);
+
+		if (0 == beginTime)
+			beginTime = tmp.dateTime;
+		else
+			endTime = tmp.dateTime;
+	}
+
+	return cDateTimeRange(beginTime, endTime);
+}
+
+
+// return logfile time range (optimize version)
+// return time range, begin time, end time
+cDateTimeRange cPacketLog::GetTimeRange2(const char *fileName)
+{
+	using namespace std;
+	ifstream ifs(fileName, ios::binary);
+	if (!ifs.is_open())
+		return { 0, 0 };
+
+	uint64 beginTime = 0; // yyyymmddhhmmssmmm
+	uint64 endTime = 0; // yyyymmddhhmmssmmm
+
+	std::streampos pos(0);
+	while (!ifs.eof())
+	{
+		sPacketLogInfo tmp;
+		tmp.size = 0;
+		ifs.read((char*)&tmp.dateTime, sizeof(tmp.dateTime));
+
+		pos += sizeof(tmp.dateTime) + sizeof(tmp.rcvId) + sizeof(tmp.sndId);
+		ifs.seekg(pos, std::ios::beg);
+
+		ifs.read((char*)&tmp.size, sizeof(tmp.size));
+		if (tmp.size == 0)
+		{
+			break; // eof
+		}
+		pos += tmp.size + sizeof(tmp.size);
+		ifs.seekg(pos, std::ios::beg);
 
 		if (0 == beginTime)
 			beginTime = tmp.dateTime;
@@ -233,6 +335,7 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 	if (m_readPos != std::streampos(0))
 		ifs.seekg(m_readPos, std::ios::beg);
 
+	BYTE tmpBuff[DEFAULT_PACKETSIZE];
 	list<sPacketLogInfo*> logs; // temporal buffer
 	while (!ifs.eof())
 	{
@@ -248,7 +351,6 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 			break; // eof
 		}
 
-		BYTE tmpBuff[DEFAULT_PACKETSIZE];
 		ifs.read((char*)tmpBuff, tmp.size);
 
 		sPacketLogInfo *plog = new sPacketLogInfo;
@@ -262,9 +364,8 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 			iPacketHeader *packetHeader = (isAsciiFormat ?
 				(iPacketHeader*)&m_asciiPacketHeader : (iPacketHeader*)&m_binPacketHeader);
 			packet->m_packetHeader = packetHeader;
-			//packet->m_writeIdx = packetHeader->GetHeaderSize();
 			packet->m_writeIdx = tmp.size;
-			packet->m_readIdx = packetHeader->GetHeaderSize();
+			packet->m_readIdx = tmp.size; //packetHeader->GetHeaderSize();
 
 			plog->packet = packet;
 		}
@@ -288,9 +389,11 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 		m_readPos = ifs.tellg(); // last file pointer
 	}
 
+	// when streaming packetlog file, logs read different data
+	// and then m_packets update and remove
 	for (auto &p : logs)
 	{
-		while ((m_maxFileSize != 0) 
+		while ((m_maxFileSize != 0)
 			&& ((int)m_packets.size() >= m_maxFileSize))
 		{
 			auto *packet = m_packets.front();
@@ -306,8 +409,7 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 }
 
 
-// m_maxFileSize 크기만큼 패킷정보를 파일에서 읽을 때, 
-// 최대한 읽을 수 있는 위치의 파일 포인터를 리턴한다.
+// return file pointer that m_maxFileSize size store
 std::streampos cPacketLog::GetReadPos(const char *fileName)
 {
 	using namespace std;
@@ -315,6 +417,7 @@ std::streampos cPacketLog::GetReadPos(const char *fileName)
 	if (!ifs.is_open())
 		return false;
 
+	BYTE tmpBuff[DEFAULT_PACKETSIZE];
 	list<std::streampos> poss;
 	while (!ifs.eof())
 	{
@@ -330,7 +433,6 @@ std::streampos cPacketLog::GetReadPos(const char *fileName)
 		{
 			break; // eof
 		}
-		BYTE tmpBuff[DEFAULT_PACKETSIZE];
 		ifs.read((char*)tmpBuff, tmp.size);
 	}
 
@@ -343,6 +445,13 @@ std::streampos cPacketLog::GetReadPos(const char *fileName)
 		++count;
 	}
 	return pos;
+}
+
+
+// initialize search cursor, search cursor move to begin
+void cPacketLog::ClearSearchCursor()
+{
+	m_searchItor = m_packets.begin();
 }
 
 
