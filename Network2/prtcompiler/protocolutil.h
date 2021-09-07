@@ -14,6 +14,8 @@ namespace network2
 	
 	StrId GetPacketName(const cPacket &packet);
 
+	ePacketFormat GetPacketFormat(const cPacket &packet);
+
 	void DisplayPacketCleanup();
 
 }

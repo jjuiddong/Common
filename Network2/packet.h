@@ -40,6 +40,7 @@ namespace network2
 		void Alignment4();
 		// call before send packet
 		void EndPack();
+		void ShallowCopy(const cPacket &packet);
 
 		template<class T> void Append(const T &rhs);
 		template<class T> void AppendPtr(const T *rhs, const size_t size);

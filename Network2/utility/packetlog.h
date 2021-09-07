@@ -65,6 +65,7 @@ namespace network2
 		bool m_isCompareDisplay; // dateTime compare display on/off
 		cPacketHeader m_binPacketHeader;
 		cPacketHeaderAscii m_asciiPacketHeader;
+		cPacketHeaderJson m_jsonPacketHeader;
 		list<sPacketLogInfo*> m_packets; // vector -> list (for streaming)
 
 		// streaming

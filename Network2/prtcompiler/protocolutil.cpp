@@ -10,6 +10,7 @@ namespace network2
 	sPacket* GetPacket(const __int64 packetId);
 
 	map<__int64, sPacket*> g_packets; // key: protocolid << 32 + packetID
+	map<__int64, ePacketFormat> g_protocolFormat; // key: protocolid
 }
 
 using namespace network2;
@@ -19,6 +20,14 @@ using namespace network2;
 void network2::InsertProtocol(sProtocol *protocol)
 {
 	RET(!protocol);
+
+	// update protocol format
+	const ePacketFormat format = (protocol->format == "json") ?
+		ePacketFormat::JSON : ((protocol->format == "ascii") ?
+			ePacketFormat::ASCII : ePacketFormat::BINARY);
+	g_protocolFormat.insert({ protocol->number, format });
+	//~
+
 	InsertPacket(protocol, protocol->packet);
 	InsertProtocol(protocol->next);
 }
@@ -99,7 +108,7 @@ void network2::GetPacketString(const cPacket &packet, OUT string &out)
 }
 
 
-// Packet 이름을 리턴한다.
+// return packet name
 StrId network2::GetPacketName(const cPacket &packet)
 {
 	if (g_packets.empty())
@@ -115,6 +124,20 @@ StrId network2::GetPacketName(const cPacket &packet)
 }
 
 
+// return packet format, binary, ascii, json
+ePacketFormat network2::GetPacketFormat(const cPacket &packet)
+{
+	if (g_packets.empty())
+		Init();
+
+	const int protocolID = packet.GetProtocolId();
+	auto it = g_protocolFormat.find(protocolID);
+	if (g_protocolFormat.end() == it)
+		return ePacketFormat::BINARY; // exception 
+	return it->second;
+}
+
+
 // g_packets 변수 제거
 // cProtocolDisplayer 객체를 사용했다면, 프로그램이 종료 될 때, 
 // 이 함수를 호출해서 파싱한 데이타를 제거해야 한다.
@@ -123,4 +146,5 @@ void network2::DisplayPacketCleanup()
 	for (auto &prt : g_packets)
 		ReleaseCurrentPacket(prt.second);
 	g_packets.clear();
+	g_protocolFormat.clear();
 }

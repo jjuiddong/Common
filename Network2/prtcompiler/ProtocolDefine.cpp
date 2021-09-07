@@ -38,7 +38,7 @@ void Packet2Variant(const ePacketFormat format, cPacket &packet, OUT _variant_t 
 	switch (format) {
 	case ePacketFormat::BINARY: marshalling::operator>>(packet, v); break;
 	case ePacketFormat::ASCII: marshalling_ascii::operator>>(packet, v); break;
-	case ePacketFormat::JSON: break;
+	case ePacketFormat::JSON: v =(T)0; break;
 	}
 	var = v;
 }
@@ -50,7 +50,7 @@ void Packet2Variant<std::string>(const ePacketFormat format, cPacket &packet, OU
 	switch (format) {
 	case ePacketFormat::BINARY: marshalling::operator>>(packet, v); break;
 	case ePacketFormat::ASCII: marshalling_ascii::operator>>(packet, v); break;
-	case ePacketFormat::JSON: break;
+	case ePacketFormat::JSON: v = ""; break;
 	}
 	var = v.c_str();
 }
@@ -90,6 +90,14 @@ void network2::GetPacketElement(const ePacketFormat format
 		Packet2Variant<bool>(format, packet, v);
 	else if (typeStr == "BOOL")
 		Packet2Variant<bool>(format, packet, v);
+	else if (typeStr == "int64")
+		Packet2Variant<__int64>(format, packet, v);
+	else if (typeStr == "uint64")
+		Packet2Variant<unsigned __int64>(format, packet, v);
+	else if (typeStr == "unsigned __int64")
+		Packet2Variant<unsigned __int64>(format, packet, v);
+	else if (typeStr == "__int64")
+		Packet2Variant<__int64>(format, packet, v);
 }
 
 
@@ -114,10 +122,32 @@ void network2::GetPacketElement(const ePacketFormat format
 //	return id;
 //}
 
+template<class T>
+void Vector2String(cPacket &packet, const bool isBinaryPacket
+	, sArg *arg, INOUT stringstream &ss)
+{
+	vector<T> vecs;
+	if (isBinaryPacket)
+	{
+		using namespace marshalling;
+		packet >> vecs;
+	}
+	else
+	{
+		using namespace marshalling_ascii;
+		packet >> vecs;
+	}
+
+	ss << arg->var->var + " = {";
+	for (auto &v : vecs)
+		ss << v << ",";
+	ss << "}";
+}
+
 
 //------------------------------------------------------------------------
-// 패킷내용을 스트링으로 변환 한다.
-// 동적 메모리 할당이 많기 때문에, 디버깅 시에만 쓸것
+// convert packet data to string
+// no optimize, use debugging mode
 //------------------------------------------------------------------------
 string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 {
@@ -128,14 +158,24 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 	}
 
 	std::stringstream ss;
-	cPacket tempPacket = packet;
+	cPacket tempPacket;
+	tempPacket.ShallowCopy(packet);
+
 	tempPacket.InitRead();
 
 	const int protocolID = tempPacket.GetProtocolId();
 	const uint packetID = tempPacket.GetPacketId();
-	const bool isBinaryPacket = dynamic_cast<cPacketHeader*>(tempPacket.m_packetHeader)? true : false;
-	const ePacketFormat format = isBinaryPacket ?
-		ePacketFormat::BINARY : ePacketFormat::ASCII;
+	ePacketFormat format = dynamic_cast<cPacketHeader*>(tempPacket.m_packetHeader)? 
+		ePacketFormat::BINARY : 
+		(dynamic_cast<cPacketHeaderJson*>(tempPacket.m_packetHeader)? 
+			ePacketFormat::JSON : ePacketFormat::ASCII);
+	if (ePacketFormat::JSON == format)
+	{
+		const uint option = tempPacket.GetPacketOption(0x01);
+		if (option)
+			format = ePacketFormat::BINARY;
+	}
+	const bool isBinaryPacket = ePacketFormat::BINARY == format;
 
 	ss << protocol->name << " sender = " << tempPacket.GetSenderId() << " ";
 
@@ -144,41 +184,13 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 	{
 		// todo: 좀더 일반적인 처리가 필요하다.
 		// vector<float>, vector<char> 는 동작하지 않는다.
-		if (arg->var->type == "vector<int>")
-		{
-			vector<int> vecs;
-			if (isBinaryPacket)
-			{
-				using namespace marshalling;
-				tempPacket >> vecs;
-			}
-			else
-			{
-				using namespace marshalling_ascii;
-				tempPacket >> vecs;
-			}
-
-			ss << arg->var->var + " = ";
-			for (auto &v : vecs)
-				ss << v << ";";
-		}
-		//if (arg->var->type == "vector<ushort>")
-		//{
-		//	vector<ushort> vecs;
-		//	if (isBinaryPacket)
-		//	{
-		//		using namespace marshalling;
-		//		tempPacket >> vecs;
-		//	}
-		//	else
-		//	{
-		//		using namespace marshalling_ascii;
-		//		tempPacket >> vecs;
-		//	}
-		//	ss << arg->var->var + " = ";
-		//	for (auto &v : vecs)
-		//		ss << v << ";";
-		//}
+		const string &type = arg->var->type;
+		if (type == "vector<int>")
+			Vector2String<int>(tempPacket, isBinaryPacket, arg, ss);
+		else if (type == "vector<ushort>")
+			Vector2String<ushort>(tempPacket, isBinaryPacket, arg, ss);
+		else if (type == "vector<uint>")
+			Vector2String<uint>(tempPacket, isBinaryPacket, arg, ss);
 		else
 		{
 			_variant_t var;

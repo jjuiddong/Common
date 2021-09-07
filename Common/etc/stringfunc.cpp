@@ -120,8 +120,14 @@ std::string common::variant2str(const _variant_t &var
 	// so direct access variant_t::boolVal was error occurr! maybe
 	//case VT_BOOL: ss << var.boolVal; break;
 	case VT_BOOL: ss << ((bool)var)? "1" : "0"; break;
+	case VT_I1: ss << (char)var; break;
+	case VT_UI1: ss << (unsigned int)(unsigned char)var; break;
 	case VT_I2: ss << var.iVal; break;
+	case VT_UI2: ss << (unsigned short)var; break;
 	case VT_I4: ss << var.lVal; break;
+	case VT_UI4: ss << (unsigned int)var; break;
+	case VT_I8: ss << (__int64)var; break;
+	case VT_UI8: ss << (unsigned __int64)var; break;
 	case VT_R4: ss << var.fltVal; break;
 	case VT_R8: ss << var.dblVal; break;
 
@@ -153,10 +159,6 @@ std::string common::variant2str(const _variant_t &var
 	break;
 
 	case VT_DECIMAL:
-	case VT_I1:
-	case VT_UI1:
-	case VT_UI2:
-	case VT_UI4:
 		break;
 
 	case VT_INT: ss << var.intVal; break;

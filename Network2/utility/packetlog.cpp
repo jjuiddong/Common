@@ -355,20 +355,25 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 
 		sPacketLogInfo *plog = new sPacketLogInfo;
 
-		// Check Ascii or Binary Format Packet (tricky code)
+		// Check Ascii or Binary or Json Format Packet (tricky code)
 		{
-			const bool isAsciiFormat = (isalpha(tmpBuff[0]) > 0) 
-				&& (isalpha(tmpBuff[1]) > 0)
-				&& (isalpha(tmpBuff[2]) > 0);
-			cPacket *packet = m_packetMemPool.Alloc();
-			iPacketHeader *packetHeader = (isAsciiFormat ?
-				(iPacketHeader*)&m_asciiPacketHeader : (iPacketHeader*)&m_binPacketHeader);
-			packet->m_packetHeader = packetHeader;
-			packet->m_writeIdx = tmp.size;
-			packet->m_readIdx = tmp.size; //packetHeader->GetHeaderSize();
-
-			plog->packet = packet;
+			//const bool isAsciiFormat = (isalpha(tmpBuff[0]) > 0) 
+			//	&& (isalpha(tmpBuff[1]) > 0)
+			//	&& (isalpha(tmpBuff[2]) > 0);
+			//cPacket *packet = m_packetMemPool.Alloc();
+			//iPacketHeader *packetHeader = (isAsciiFormat ?
+			//	(iPacketHeader*)&m_asciiPacketHeader : (iPacketHeader*)&m_binPacketHeader);
+			//packet->m_packetHeader = packetHeader;
+			//packet->m_writeIdx = tmp.size;
+			//packet->m_readIdx = tmp.size;
+			//plog->packet = packet;
 		}
+
+		cPacket *packet = m_packetMemPool.Alloc();
+		packet->m_packetHeader = &m_binPacketHeader; // default binary
+		packet->m_writeIdx = tmp.size;
+		packet->m_readIdx = tmp.size;
+		plog->packet = packet;
 
 		plog->dateTime = tmp.dateTime;
 		plog->rcvId = tmp.rcvId;
@@ -376,6 +381,15 @@ uint cPacketLog::ReadStream(std::istream &ifs)
 		plog->size = tmp.size;
 		plog->packet->m_sndId = plog->sndId;
 		memcpy(plog->packet->m_data, tmpBuff, plog->size);
+
+		const ePacketFormat format = network2::GetPacketFormat(*packet);
+		switch (format)
+		{
+		case ePacketFormat::BINARY: packet->m_packetHeader = &m_binPacketHeader; break;
+		case ePacketFormat::ASCII: packet->m_packetHeader = &m_asciiPacketHeader; break;
+		case ePacketFormat::JSON: packet->m_packetHeader = &m_jsonPacketHeader; break;
+		default: assert(0); break;
+		}
 
 		// get packet name
 		plog->name = network2::GetPacketName(*plog->packet);

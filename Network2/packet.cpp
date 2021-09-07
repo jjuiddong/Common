@@ -96,6 +96,21 @@ void cPacket::EndPack()
 }
 
 
+// shallow clone
+void cPacket::ShallowCopy(const cPacket &packet)
+{
+	m_packetHeader = packet.m_packetHeader;
+	m_sndId = packet.m_sndId;
+	m_is4Align = packet.m_is4Align;
+	m_readIdx = packet.m_readIdx;
+	m_writeIdx = packet.m_writeIdx;
+	m_lastDelim = packet.m_lastDelim;
+	m_emptyData = packet.m_emptyData;
+	m_bufferSize = packet.m_bufferSize;
+	m_data = packet.m_data;
+}
+
+
 cPacket& cPacket::operator=(const cPacket &rhs)
 {
 	if (this != &rhs)
