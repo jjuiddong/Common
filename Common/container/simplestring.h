@@ -823,7 +823,6 @@ namespace common
 	};
 
 
-
 	// Define Type
 	typedef String<char, 16> Str16;
 	typedef String<char, 32> Str32;
@@ -845,3 +844,4 @@ namespace common
 	typedef String<wchar_t, 128> WStrPath;
 	typedef String<wchar_t, 256> WStrGlobalPath;
 }
+
