@@ -2,12 +2,13 @@
 #include "remotedbg_Protocol.h"
 using namespace remotedbg;
 
+cPacketHeader remotedbg::s2c_Protocol::s_packetHeader;
 //------------------------------------------------------------------------
 // Protocol: AckOneStep
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::AckOneStep(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 3643391279 );
 	packet.EndPack();
@@ -19,7 +20,7 @@ void remotedbg::s2c_Protocol::AckOneStep(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::AckDebugRun(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 3424042780 );
 	packet.EndPack();
@@ -31,7 +32,7 @@ void remotedbg::s2c_Protocol::AckDebugRun(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::AckBreak(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 2129545277 );
 	packet.EndPack();
@@ -43,7 +44,7 @@ void remotedbg::s2c_Protocol::AckBreak(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::AckTerminate(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 2796337704 );
 	packet.EndPack();
@@ -55,7 +56,7 @@ void remotedbg::s2c_Protocol::AckTerminate(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::UpdateInformation(netid targetId, const string &fileName, const string &vmName, const int &instIndex)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 4250626157 );
 	packet << fileName;
@@ -70,7 +71,7 @@ void remotedbg::s2c_Protocol::UpdateInformation(netid targetId, const string &fi
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::UpdateState(netid targetId, const string &vmName, const int &instIndex)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 3965635729 );
 	packet << vmName;
@@ -84,7 +85,7 @@ void remotedbg::s2c_Protocol::UpdateState(netid targetId, const string &vmName, 
 //------------------------------------------------------------------------
 void remotedbg::s2c_Protocol::UpdateSymbolTable(netid targetId, const int &start, const int &count, const string &vmName, const vector<string> &symbols, const vector<int> &symbolVals)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 1225501702 );
 	packet << start;
@@ -98,12 +99,13 @@ void remotedbg::s2c_Protocol::UpdateSymbolTable(netid targetId, const int &start
 
 
 
+cPacketHeader remotedbg::c2s_Protocol::s_packetHeader;
 //------------------------------------------------------------------------
 // Protocol: ReqOneStep
 //------------------------------------------------------------------------
 void remotedbg::c2s_Protocol::ReqOneStep(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 2884814738 );
 	packet.EndPack();
@@ -115,7 +117,7 @@ void remotedbg::c2s_Protocol::ReqOneStep(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::c2s_Protocol::ReqDebugRun(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 2143400932 );
 	packet.EndPack();
@@ -127,7 +129,7 @@ void remotedbg::c2s_Protocol::ReqDebugRun(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::c2s_Protocol::ReqBreak(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 784411795 );
 	packet.EndPack();
@@ -139,7 +141,7 @@ void remotedbg::c2s_Protocol::ReqBreak(netid targetId)
 //------------------------------------------------------------------------
 void remotedbg::c2s_Protocol::ReqTerminate(netid targetId)
 {
-	cPacket packet(m_node->GetPacketHeader());
+	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
 	packet.SetPacketId( 3042238079 );
 	packet.EndPack();

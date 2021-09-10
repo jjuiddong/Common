@@ -20,12 +20,11 @@ cSocketBuffer::~cSocketBuffer()
 }
 
 
-// 여러개로 나눠진 패킷을 처리할 때 사용.
-// data가 두개 이상의 패킷을 포함할 때 사용.
+// push packet buffer
+// split packet buffer merge
 uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const uint size)
 {
 	uint dataSize = size;
-	const uint headerSize = packetHeader->GetHeaderSize();
 
 	if (m_isHeaderCopy)
 	{
@@ -41,10 +40,9 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 	while (offset < dataSize)
 	{
 		const BYTE *ptr = data + offset;
-		const uint len = max((uint)0, dataSize - offset);
+		const uint len = (uint)max(0, (int)dataSize - (int)offset);
 
-		// 패킷이 쪼개져서 들어올 경우 (m_readLen > 0) 상태가 된다.
-		// 패킷 하나가 완성되기까지, 몇바이트의 데이타가 읽을게 남았다는 의미.
+		// split packet buffer merge
 		if (m_readLen > 0)
 		{
 			// remain receive packet
@@ -71,53 +69,75 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 
 			offset += cpSize;
 		}
-		else if (len < headerSize)
-		{
-			// need full packet header
-			m_isHeaderCopy = true;
-			memcpy(m_tempHeader, ptr, len);
-			m_readLen = len;
-			offset += len;
-		}
 		else
 		{
-			const uint totalLen = (headerSize == 0)? size : packetHeader->GetPacketLength(ptr);
-			if (totalLen > (uint)m_q.SIZE)
+			// check packet header
+			uint headerSize = 0;
+			if (packetHeader)
 			{
-				dbg::Logc(2, "error!! sockbuffer packet size too big, size = %d, totalLen = %d\n"
-					, size, totalLen);
-				break; // error occur, packet size error, maybe data corrupt
-			}
-			else if (totalLen == 0)
-			{
-				dbg::Logc(2, "error!! sockbuffer packet size zero\n");
-				break; // error occur, packet size error, maybe data corrupt
-			}
-
-			const uint cpSize = min(totalLen, len);
-			const uint pushSize = m_q.push(ptr, cpSize);
-			if (pushSize != cpSize)
-			{
-				// error occur
-				// queue memory full
-				offset = 0;
-				dbg::Logc(2, "error!! sockbuffer queue memory full3, size = %d, cpSize = %d, pushSize = %d\n"
-					, size, cpSize, pushSize);
-				break;
-			}
-
-			if (totalLen == pushSize)
-			{
-				m_readLen = 0;
+				headerSize = packetHeader->GetHeaderSize();
 			}
 			else
 			{
-				m_totalLen = totalLen;
-				m_readLen = pushSize;
+				if (len >= 4)
+				{
+					packetHeader = network2::GetPacketHeader(*(int*)ptr);
+					headerSize = packetHeader->GetHeaderSize();
+				}
 			}
 
-			offset += cpSize;
-		}
+			// check split header data
+			const bool isSplitHeader = (len < 4) || (len < headerSize) || !packetHeader;
+
+			if (isSplitHeader)
+			{
+				// need full packet header
+				m_isHeaderCopy = true;
+				memcpy(m_tempHeader, ptr, len);
+				m_readLen = len;
+				offset += len;
+			}
+			else
+			{
+				const uint totalLen = (headerSize == 0) ? size : packetHeader->GetPacketLength(ptr);
+				if (totalLen > (uint)m_q.SIZE)
+				{
+					dbg::Logc(2, "error!! sockbuffer packet size too big, size = %d, totalLen = %d\n"
+						, size, totalLen);
+					break; // error occur, packet size error, maybe data corrupt
+				}
+				else if (totalLen == 0)
+				{
+					dbg::Logc(2, "error!! sockbuffer packet size zero\n");
+					break; // error occur, packet size error, maybe data corrupt
+				}
+
+				const uint cpSize = min(totalLen, len);
+				const uint pushSize = m_q.push(ptr, cpSize);
+				if (pushSize != cpSize)
+				{
+					// error occur
+					// queue memory full
+					offset = 0;
+					dbg::Logc(2, "error!! sockbuffer queue memory full3, size = %d, cpSize = %d, pushSize = %d\n"
+						, size, cpSize, pushSize);
+					break;
+				}
+
+				if (totalLen == pushSize)
+				{
+					m_readLen = 0;
+					packetHeader = nullptr;
+				}
+				else
+				{
+					m_totalLen = totalLen;
+					m_readLen = pushSize;
+				}
+
+				offset += cpSize;
+			}
+		}//~else
 	}
 
 	return offset;
@@ -140,11 +160,17 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 
 	const uint size = m_q.size();
 	BYTE tempHeader[64];
-	const uint headerSize = out.m_packetHeader->GetHeaderSize();
+	//const uint headerSize = out.m_packetHeader->GetHeaderSize();
+	//if (!m_q.frontCopy(tempHeader, headerSize))
+	if (!m_q.frontCopy(tempHeader, 4)) // check protocol id
+		return false;
+
+	out.SetPacketHeader(GetPacketHeader(*(int*)tempHeader));
+	const uint headerSize = out.GetHeaderSize();
 	if (!m_q.frontCopy(tempHeader, headerSize))
 		return false;
 
-	const uint packetSize = out.m_packetHeader->GetPacketLength(tempHeader);
+	const uint packetSize = out.m_header->GetPacketLength(tempHeader);
 	if ((packetSize <= 0) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
 	{
 		m_q.clear();

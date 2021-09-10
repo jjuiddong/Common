@@ -113,13 +113,15 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 {
 	int procPacketCnt = 0;
 	
-	cPacket packet(netNode->GetPacketHeader());
+	//cPacket packet(netNode->GetPacketHeader());
+	cPacket packet;
 
 	while (1000 > procPacketCnt)
 	{
-		packet.Initialize();
+		//packet.Initialize();
 		if (!netNode->m_recvQueue.Front(packet))
 			break;
+		packet.InitRead();
 
 		++procPacketCnt;
 

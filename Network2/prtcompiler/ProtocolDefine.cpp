@@ -165,15 +165,19 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 
 	const int protocolID = tempPacket.GetProtocolId();
 	const uint packetID = tempPacket.GetPacketId();
-	ePacketFormat format = dynamic_cast<cPacketHeader*>(tempPacket.m_packetHeader)? 
-		ePacketFormat::BINARY : 
-		(dynamic_cast<cPacketHeaderJson*>(tempPacket.m_packetHeader)? 
-			ePacketFormat::JSON : ePacketFormat::ASCII);
+	ePacketFormat format = GetPacketFormat(tempPacket);
+	//ePacketFormat format = dynamic_cast<cPacketHeader*>(tempPacket.m_header)?
+	//	ePacketFormat::BINARY : 
+	//	(dynamic_cast<cPacketHeaderJson*>(tempPacket.m_header)?
+	//		ePacketFormat::JSON : ePacketFormat::ASCII);
 	if (ePacketFormat::JSON == format)
 	{
 		const uint option = tempPacket.GetPacketOption(0x01);
 		if (option)
+		{
+			tempPacket.Alignment4();
 			format = ePacketFormat::BINARY;
+		}
 	}
 	const bool isBinaryPacket = ePacketFormat::BINARY == format;
 
@@ -191,6 +195,8 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 			Vector2String<ushort>(tempPacket, isBinaryPacket, arg, ss);
 		else if (type == "vector<uint>")
 			Vector2String<uint>(tempPacket, isBinaryPacket, arg, ss);
+		else if (type == "vector<string>")
+			Vector2String<string>(tempPacket, isBinaryPacket, arg, ss);
 		else
 		{
 			_variant_t var;

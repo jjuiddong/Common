@@ -61,6 +61,8 @@ namespace compiler
 	string g_protocolName;	// *.prt filename except extends name
 	string g_origianlFileName; // protocol name with directory path
 	string g_handlerClassName; // protocol handler class name
+	string g_packetHeaderClassName; // protocol packet header class name
+									// cPacketHeader, cPacketHeaderAscii, cPacketHeaderJson
 	string g_srcFolderName = "Src";
 }
 
@@ -185,18 +187,22 @@ bool compiler::WriteProtocolClassHeader(ofstream &fs, sProtocol *protocol)
 
 	eFormatType format = eFormatType::Binary;
 	string packetFormat = "ePacketFormat::BINARY";
+	g_packetHeaderClassName = "cPacketHeader";
 	if (protocol->format == "ascii")
 	{
 		format = eFormatType::Ascii;
 		packetFormat = "ePacketFormat::ASCII";
+		g_packetHeaderClassName = "cPacketHeaderAscii";
 	}
 	else if (protocol->format == "json")
 	{
 		format = eFormatType::Json;
 		packetFormat = "ePacketFormat::JSON";
+		g_packetHeaderClassName = "cPacketHeaderJson";
 	}
 
 	fs << "static const int " << g_protocolId << " = " << protocol->number << ";\n";
+	//fs << "static " << packetHeader << " g_" << protocol->name << "_PacketHeader;\n";
 	fs << endl;
 	fs << "class " << g_className <<  " : public network2::iProtocol\n";
 	fs << "{" << endl;
@@ -204,6 +210,7 @@ bool compiler::WriteProtocolClassHeader(ofstream &fs, sProtocol *protocol)
 	fs << "\t" << g_className << "() : iProtocol(" << g_protocolId 
 		<< ", " << packetFormat << ") {}\n";
 	WriteDeclPacketList( fs, protocol->packet, false, false, true, format);
+	fs << "\tstatic " << g_packetHeaderClassName << " s_" << "packetHeader;\n";
 	fs << "};\n";
 
 	return WriteProtocolClassHeader(fs, protocol->next);
@@ -338,15 +345,18 @@ bool compiler::WriteHandlerHeader(ofstream &fs, sProtocol *protocol)
 
 	eFormatType format = eFormatType::Binary;
 	string packetFormat = "ePacketFormat::BINARY";
+	g_packetHeaderClassName = "cPacketHeader";
 	if (protocol->format == "ascii")
 	{
 		format = eFormatType::Ascii;
 		packetFormat = "ePacketFormat::ASCII";
+		g_packetHeaderClassName = "cPacketHeaderAscii";
 	}
 	else if (protocol->format == "json")
 	{
 		format = eFormatType::Json;
 		packetFormat = "ePacketFormat::JSON";
+		g_packetHeaderClassName = "cPacketHeaderJson";
 	}
 
 	fs << "static const int " << g_protocolId << " = " << protocol->number << ";\n";
@@ -360,6 +370,7 @@ bool compiler::WriteHandlerHeader(ofstream &fs, sProtocol *protocol)
 	fs << "\t" << g_className << "();\n";
 	fs << "protected:\n";
 	fs << "\tvirtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;\n";
+	fs << "\tstatic " << g_packetHeaderClassName << " s_" << "packetHeader;\n";
 	fs << "};\n";
 	fs << "static " << g_className << " g_" << g_protocolName << "_" << g_className << ";\n";// 전역변수 선언
 	fs << endl;
@@ -432,11 +443,15 @@ bool compiler::WriteHandlerCpp(ofstream &fs, sProtocol *protocol)
 	}
 
 	fs << "\n";
+	fs << g_packetHeaderClassName << " " << g_protocolName << "::" << g_className;
+	fs << "::s_packetHeader;\n";
+
 	fs << g_protocolName << "::" << g_className << "::" << g_className << "()\n";
 	fs << "\t: cProtocolDispatcher(" << g_protocolName << "::" << g_protocolId 
 		<< ", " << packetFormat << ")\n";
 	fs << "{\n";
-	fs << "\tcProtocolDispatcher::GetDispatcherMap()->insert({" << g_protocolId << ", this });\n";
+	fs << "\tcProtocolDispatcher::GetDispatcherMap()->insert({" << g_protocolId << ", this});\n";
+	fs << "\tcProtocolDispatcher::GetPacketHeaderMap()->insert({" << g_protocolId << ", &s_packetHeader});\n";
 	fs << "}\n";
 	fs << endl;
 	//
@@ -566,7 +581,9 @@ void compiler::WriteArgVar(ofstream &fs, sArg *arg, bool comma)
 void compiler::WriteFirstImplePacket(ofstream &fs, sPacket *packet
 	, sArg *p, eFormatType format)
 {
-	fs << "\tcPacket packet(m_node->GetPacketHeader());\n";
+	//fs << "\tcPacket packet(m_node->GetPacketHeader());\n";
+	fs << "\tcPacket packet(&s_packetHeader);\n";
+
 	fs << "\tpacket.SetProtocolId( GetId() );\n";
 	fs << "\tpacket.SetPacketId( " << packet->packetId << " );\n";
 
@@ -687,6 +704,11 @@ bool compiler::WriteProtocolCpp(ofstream &fs, sProtocol *protocol, eFormatType f
 	if (!protocol) return true;
 	
 	g_className = GetProtocolClassName(protocol->name);
+
+	// protocol packet header declare
+	fs << g_packetHeaderClassName << " " << g_protocolName << "::" << g_className;
+	fs << "::s_packetHeader;\n";
+
 	WriteImplPacketList( fs, protocol->packet, format);
 	fs << endl;
 	fs << endl;

@@ -4,10 +4,12 @@
 using namespace remotedbg2;
 
 
+cPacketHeaderJson remotedbg2::r2h_Dispatcher::s_packetHeader;
 remotedbg2::r2h_Dispatcher::r2h_Dispatcher()
 	: cProtocolDispatcher(remotedbg2::r2h_Dispatcher_ID, ePacketFormat::JSON)
 {
-	cProtocolDispatcher::GetDispatcherMap()->insert({r2h_Dispatcher_ID, this });
+	cProtocolDispatcher::GetDispatcherMap()->insert({r2h_Dispatcher_ID, this});
+	cProtocolDispatcher::GetPacketHeaderMap()->insert({r2h_Dispatcher_ID, &s_packetHeader});
 }
 
 //------------------------------------------------------------------------
@@ -628,10 +630,12 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 
 
 
+cPacketHeaderJson remotedbg2::h2r_Dispatcher::s_packetHeader;
 remotedbg2::h2r_Dispatcher::h2r_Dispatcher()
 	: cProtocolDispatcher(remotedbg2::h2r_Dispatcher_ID, ePacketFormat::JSON)
 {
-	cProtocolDispatcher::GetDispatcherMap()->insert({h2r_Dispatcher_ID, this });
+	cProtocolDispatcher::GetDispatcherMap()->insert({h2r_Dispatcher_ID, this});
+	cProtocolDispatcher::GetPacketHeaderMap()->insert({h2r_Dispatcher_ID, &s_packetHeader});
 }
 
 //------------------------------------------------------------------------

@@ -22,6 +22,7 @@ public:
 	void UpdateInformation(netid targetId, const string &fileName, const string &vmName, const int &instIndex);
 	void UpdateState(netid targetId, const string &vmName, const int &instIndex);
 	void UpdateSymbolTable(netid targetId, const int &start, const int &count, const string &vmName, const vector<string> &symbols, const vector<int> &symbolVals);
+	static cPacketHeader s_packetHeader;
 };
 static const int c2s_Protocol_ID = 5201;
 
@@ -33,5 +34,6 @@ public:
 	void ReqDebugRun(netid targetId);
 	void ReqBreak(netid targetId);
 	void ReqTerminate(netid targetId);
+	static cPacketHeader s_packetHeader;
 };
 }

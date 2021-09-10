@@ -738,7 +738,7 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 	// tricky code, marshalling intermedatecode to byte stream
 	const uint BUFFER_SIZE = 1024 * 50;
 	BYTE *buff = new BYTE[BUFFER_SIZE];
-	cPacket marsh(m_client.GetPacketHeader());
+	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
 	marsh.m_data = buff;
 	marsh.m_bufferSize = BUFFER_SIZE;
 	marsh.m_writeIdx = 0;

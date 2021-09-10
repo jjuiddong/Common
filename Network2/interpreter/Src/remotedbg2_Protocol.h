@@ -28,6 +28,7 @@ public:
 	void ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName);
 	void ReqStepDebugType(netid targetId, bool isBinary, const int &stepDbgType);
 	void ReqHeartBeat(netid targetId, bool isBinary);
+	static cPacketHeaderJson s_packetHeader;
 };
 static const int h2r_Protocol_ID = 5300;
 
@@ -51,5 +52,6 @@ public:
 	void SyncVMSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol);
 	void SyncVMOutput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &output);
 	void AckHeartBeat(netid targetId, bool isBinary);
+	static cPacketHeaderJson s_packetHeader;
 };
 }

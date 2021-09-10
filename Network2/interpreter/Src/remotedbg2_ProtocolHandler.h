@@ -20,6 +20,7 @@ public:
 	r2h_Dispatcher();
 protected:
 	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
+	static cPacketHeaderJson s_packetHeader;
 };
 static r2h_Dispatcher g_remotedbg2_r2h_Dispatcher;
 
@@ -55,6 +56,7 @@ public:
 	h2r_Dispatcher();
 protected:
 	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
+	static cPacketHeaderJson s_packetHeader;
 };
 static h2r_Dispatcher g_remotedbg2_h2r_Dispatcher;
 

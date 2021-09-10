@@ -219,6 +219,7 @@
     <ClInclude Include="utility\log.h" />
     <ClInclude Include="utility\packetlog.h" />
     <ClInclude Include="utility\sessionlog.h" />
+    <ClInclude Include="utility\utility.h" />
     <ClInclude Include="webclient.h" />
   </ItemGroup>
   <ItemGroup>
@@ -267,6 +268,7 @@
     <ClCompile Include="utility\log.cpp" />
     <ClCompile Include="utility\packetlog.cpp" />
     <ClCompile Include="utility\sessionlog.cpp" />
+    <ClCompile Include="utility\utility.cpp" />
     <ClCompile Include="webclient.cpp" />
   </ItemGroup>
   <ItemGroup>

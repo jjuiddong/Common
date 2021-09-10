@@ -128,7 +128,8 @@ int cWebClient::Send(const netid rcvId, const cPacket &packet)
 int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 {
 	int result = 0;
-	if (m_websocket && m_packetHeader)
+	//if (m_websocket && m_packetHeader)
+	if (m_websocket)
 	{
 		try {
 			result = m_websocket->sendFrame(packet.m_data
@@ -184,8 +185,8 @@ bool cWebClient::Process()
 		}
 		else
 		{
-			if (!m_packetHeader)
-				return false; // internal error occurred!!
+			//if (!m_packetHeader)
+			//	return false; // internal error occurred!!
 
 			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 		}

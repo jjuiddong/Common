@@ -37,14 +37,15 @@ bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 // push packet
 bool cPacketQueue::Push(const netid rcvId, const cPacket &packet)
 {
-	return Push(rcvId, packet.m_packetHeader, packet.m_data, packet.GetPacketSize());
+	return Push(rcvId, packet.m_header, packet.m_data, packet.GetPacketSize());
 }
 
 
 // push packet data
 bool cPacketQueue::Push(const netid senderId, const BYTE *data, const int len)
 {
-	return Push(senderId, m_netNode->GetPacketHeader(), data, len);
+	//return Push(senderId, m_netNode->GetPacketHeader(), data, len);
+	return Push(senderId, nullptr, data, len);
 }
 
 
@@ -128,7 +129,7 @@ void cPacketQueue::SendAll(
 
 		while (1)
 		{
-			cPacket packet(m_netNode->GetPacketHeader());
+			cPacket packet;
 			if (!sockBuffer->PopNoRemove(packet))
 				break;
 
@@ -152,7 +153,6 @@ void cPacketQueue::SendAll(
 				int result = 0;
 				if (INVALID_SOCKET != sock)
 				{
-					//result = send(sock, (const char*)packet.m_data, packet.GetPacketSize(), 0);
 					const int result = m_netNode->SendPacket(sock, packet);
 					if (result != packet.GetPacketSize())
 					{
@@ -200,7 +200,7 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 		const SOCKET sock = m_netNode->GetSocket(sockBuffer->m_netId);
 		while (1)
 		{
-			cPacket packet(m_netNode->GetPacketHeader());
+			cPacket packet;
 			if (!sockBuffer->Pop(packet))
 				break;
 
@@ -231,7 +231,7 @@ bool cPacketQueue::SendBroadcast(
 		cSocketBuffer *sockBuffer = m_sockBuffers.m_seq[i];
 		while (1)
 		{
-			cPacket packet(m_netNode->GetPacketHeader());
+			cPacket packet;
 			if (!sockBuffer->Pop(packet))
 				break;
 

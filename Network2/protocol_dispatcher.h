@@ -11,6 +11,9 @@
 // 2020-11-11
 //	- add packet format type (ePacketFormat)
 //
+// 2021-09-08
+//	- add PacketHeaderMap
+//
 #pragma once
 
 
@@ -34,7 +37,7 @@ namespace network2
 		cPacket *m_packet; // reference
 
 		//-----------------------------------------------------------------
-		// singleton dispatchermap
+		// singleton DispatcherMap
 		static map<int, cProtocolDispatcher*>* GetDispatcherMap() {
 			if (!s_dispatchers)
 				s_dispatchers = new map<int, cProtocolDispatcher*>();
@@ -43,7 +46,19 @@ namespace network2
 		static void ReleaseDispatcherMap() {
 			SAFE_DELETE(s_dispatchers);
 		}
-		static map<int, cProtocolDispatcher*> *s_dispatchers;
+		static map<int, cProtocolDispatcher*> *s_dispatchers; //key: protocol id
+
+		//-----------------------------------------------------------------
+		// singleton PacketHeaderMap
+		static map<int, iPacketHeader*>* GetPacketHeaderMap() {
+			if (!s_packetHeaders)
+				s_packetHeaders = new map<int, iPacketHeader*>();
+			return s_packetHeaders;
+		}
+		static void ReleasePacketHeaderMap() {
+			SAFE_DELETE(s_packetHeaders);
+		}
+		static map<int, iPacketHeader*> *s_packetHeaders; // key: protocol id
 	};
 
 }

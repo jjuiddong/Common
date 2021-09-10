@@ -25,8 +25,8 @@ namespace network2
 
 	public:
 		netid m_netId; // session id
-		uint m_totalLen;
-		uint m_readLen;
+		uint m_totalLen; // packet total length
+		uint m_readLen; // data read length
 		bool m_isHeaderCopy;
 		BYTE m_tempHeader[DEFAULT_PACKETSIZE * 2];
 		common::cCircularQueue2<BYTE> m_q;

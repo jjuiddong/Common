@@ -13,8 +13,11 @@
 //	- memory alignment 4byte
 //	- websocket binary packet need 4byte alignment
 //		- send / recv
-//		- int, uint, float, double type, offset is always *4 multiple
+//		- int, uint, int64, uint64, float, double type, offset is always *4 multiple
 //		- need more type?
+//
+// 2021-09-08
+//	- packetheader refactoring
 //
 #pragma once
 
@@ -41,6 +44,7 @@ namespace network2
 		// call before send packet
 		void EndPack();
 		void ShallowCopy(const cPacket &packet);
+		bool InferPacketHeader();
 
 		template<class T> void Append(const T &rhs);
 		template<class T> void AppendPtr(const T *rhs, const size_t size);
@@ -53,6 +57,7 @@ namespace network2
 		int GetDataString(const char delimeter1, const char delimeter2, OUT string &str);
 		int GetDataAscii(const char delimeter1, const char delimeter2, OUT char *buff, const int buffLen);
 
+		void SetPacketHeader(iPacketHeader *header);
 		void SetProtocolId(const int protocolId);
 		void SetPacketId(const int packetId);
 		void SetPacketSize(const short packetSize);
@@ -80,7 +85,7 @@ namespace network2
 
 
 	public:
-		iPacketHeader *m_packetHeader; // reference
+		iPacketHeader *m_header; // reference
 		netid m_sndId;
 		bool m_is4Align; // 4byte alignment, websocket binary packet
 		int m_readIdx;
@@ -188,7 +193,7 @@ namespace network2
 	{
 		if (m_writeIdx + 1 > m_bufferSize)
 			return;
-		const int len = m_packetHeader->SetDelimeter(&m_data[m_writeIdx]);
+		const int len = m_header->SetDelimeter(&m_data[m_writeIdx]);
 		m_writeIdx += len;
 	}
 

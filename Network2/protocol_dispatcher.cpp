@@ -4,7 +4,8 @@
 
 using namespace network2;
 
-map<int, cProtocolDispatcher*> *cProtocolDispatcher::s_dispatchers = NULL;
+map<int, cProtocolDispatcher*> *cProtocolDispatcher::s_dispatchers = nullptr;
+map<int, iPacketHeader*> *cProtocolDispatcher::s_packetHeaders = nullptr;
 
 cProtocolDispatcher::cProtocolDispatcher(const int id
 	, const ePacketFormat format //= ePacketFormat::BINARY

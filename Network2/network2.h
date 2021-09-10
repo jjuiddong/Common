@@ -71,6 +71,7 @@ typedef int netid;
 #include "utility/log.h"
 #include "utility/packetlog.h"
 #include "utility/sessionlog.h"
+#include "utility/utility.h"
 
 #include "FtpClient/FTPClient.h"
 
