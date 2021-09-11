@@ -27,8 +27,6 @@ namespace network2
 		virtual bool AddProtocolHandler(iProtocolHandler *handler);
 		virtual bool RemoveProtocolHandler(iProtocolHandler *handler);
 		vector<iProtocolHandler*>& GetProtocolHandlers();
-		//bool CreatePacketHeader(const ePacketFormat format);
-		//iPacketHeader* GetPacketHeader();
 		virtual void Close() override;
 
 		// pure virtual functions..
@@ -47,7 +45,6 @@ namespace network2
 
 
 	public:
-		//iPacketHeader *m_packetHeader;
 		vector<iProtocolHandler*> m_protocolHandlers;
 	};
 

@@ -113,12 +113,10 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 {
 	int procPacketCnt = 0;
 	
-	//cPacket packet(netNode->GetPacketHeader());
 	cPacket packet;
 
 	while (1000 > procPacketCnt)
 	{
-		//packet.Initialize();
 		if (!netNode->m_recvQueue.Front(packet))
 			break;
 		packet.InitRead();
@@ -146,7 +144,7 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 
 		if (handlers.empty())
 		{
-			dbg::Logc(2, " Error!! cNetController::Process() 프로토콜 핸들러가 없습니다. protocol: %d, netid: %d\n"
+			dbg::Logc(2, " Error!! cNetController::Process() Not Found Protocol Handler. protocol: %d, netid: %d\n"
 				, protocolId, netNode->GetId());
 			continue;
 		}
@@ -154,7 +152,7 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 		auto it = cProtocolDispatcher::GetDispatcherMap()->find(packet.GetProtocolId());
 		if (cProtocolDispatcher::GetDispatcherMap()->end() == it)
 		{
-			dbg::Logc(2, " Error!! cNetController::Process() %d 에 해당하는 프로토콜 디스패쳐가 없습니다.\n",
+			dbg::Logc(2, " Error!! cNetController::Process() Not Found Dispatcher Correspond %d Protocol.\n",
 				packet.GetPacketId());
 		}
 		else
@@ -167,8 +165,9 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 }
 
 
-// 등록된 서버와 클라이언트에서 받은 패킷을 핸들러에게 전달한다.
-// 처리한 패킷 개수를 리턴한다.
+// process network nodes
+// dispatch receive packet to handler
+// return process packet count
 int cNetController::Process(const float deltaSeconds)
 {
 	int procPacketCnt = 0;

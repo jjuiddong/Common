@@ -12,23 +12,18 @@ cNetworkNode::cNetworkNode(const StrId &name //= "NetNode"
 	, const int logId //= -1
 )
 	: cSession(common::GenerateId(), name, logId)
-	//, m_packetHeader(&s_binPacketHeader)
 {
 }
 
 cNetworkNode::~cNetworkNode()
 {
 	Close();
-
-	//if (m_packetHeader != &s_binPacketHeader)
-	//	SAFE_DELETE(m_packetHeader);
 }
 
 
 void cNetworkNode::RegisterProtocol(iProtocol *protocol)
 {
 	protocol->SetNode(this);
-	//CreatePacketHeader(protocol->m_format);
 }
 
 
@@ -45,8 +40,6 @@ bool cNetworkNode::AddProtocolHandler(iProtocolHandler *handler)
 		if (p == handler)
 			return false; // already exist
 	m_protocolHandlers.push_back(handler);
-
-	//CreatePacketHeader(handler->m_format);
 	return true;
 }
 
@@ -71,31 +64,6 @@ vector<iProtocolHandler*>& cNetworkNode::GetProtocolHandlers()
 {
 	return m_protocolHandlers;
 }
-
-
-// return Protocol Packet Header
-//iPacketHeader* cNetworkNode::GetPacketHeader()
-//{
-//	return m_packetHeader;
-//}
-
-
-//// create packet header
-//bool cNetworkNode::CreatePacketHeader(const ePacketFormat format)
-//{
-//	if (m_packetHeader != &s_binPacketHeader)
-//		return true; // already created!
-//
-//	switch (format)
-//	{
-//	case ePacketFormat::BINARY: m_packetHeader = new cPacketHeader(); break;
-//	case ePacketFormat::ASCII: m_packetHeader = new cPacketHeaderAscii(); break;
-//	case ePacketFormat::JSON: m_packetHeader = new cPacketHeaderJson(); break;
-//	case ePacketFormat::FREE: m_packetHeader = new cPacketHeaderNoFormat(); break;
-//	default: return false; // error type
-//	}
-//	return true;
-//}
 
 
 // default send

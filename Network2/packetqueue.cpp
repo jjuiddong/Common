@@ -44,7 +44,6 @@ bool cPacketQueue::Push(const netid rcvId, const cPacket &packet)
 // push packet data
 bool cPacketQueue::Push(const netid senderId, const BYTE *data, const int len)
 {
-	//return Push(senderId, m_netNode->GetPacketHeader(), data, len);
 	return Push(senderId, nullptr, data, len);
 }
 
