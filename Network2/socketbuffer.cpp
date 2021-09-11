@@ -160,8 +160,6 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 
 	const uint size = m_q.size();
 	BYTE tempHeader[64];
-	//const uint headerSize = out.m_packetHeader->GetHeaderSize();
-	//if (!m_q.frontCopy(tempHeader, headerSize))
 	if (!m_q.frontCopy(tempHeader, 4)) // check protocol id
 		return false;
 

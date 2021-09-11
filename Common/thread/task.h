@@ -3,7 +3,7 @@
 // Author:  jjuiddong
 // Date:    2012-12-02
 // 
-// 쓰레드에서 실행되는 태스크를 정의한다.
+// execute task in thread
 //
 // 2016-06-06
 //		- refactoring
@@ -46,7 +46,7 @@ namespace common
 		: m_id(id), m_pThread(NULL), m_name(name), m_isTopPriority(isTopPriority) { }
 
 
-	// list<CTask*>에서 cTask를 찾는 객체
+	// cTask search object
 	class IsTask : public std::unary_function<cTask*, bool>
 	{
 	public:

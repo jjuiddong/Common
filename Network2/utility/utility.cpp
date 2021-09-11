@@ -8,7 +8,7 @@ using namespace network2;
 // get packet header by protocol id
 iPacketHeader* network2::GetPacketHeader(const int protocolId)
 {
-	// exception packet header
+	// global packet header
 	static cPacketHeader s_packetHeader;
 	static cPacketHeaderAscii s_packetHeaderAscii;
 	static cPacketHeaderNoFormat s_packetHeaderNoFormat;
