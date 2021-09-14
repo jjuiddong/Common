@@ -104,7 +104,7 @@ bool cNetController::StartWebClient(cWebClient *client
 	if (!IsExistClient(client))
 		m_webClients.push_back(client);
 
-	return true;
+	return result;
 }
 
 

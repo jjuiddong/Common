@@ -78,9 +78,6 @@
     <ClInclude Include="prtcompiler\ProtocolScanner.h">
       <Filter>PrtCompiler</Filter>
     </ClInclude>
-    <ClInclude Include="prtcompiler\protocolutil.h">
-      <Filter>PrtCompiler</Filter>
-    </ClInclude>
     <ClInclude Include="protocol_all_handler.h">
       <Filter>Protocol</Filter>
     </ClInclude>
@@ -229,9 +226,6 @@
       <Filter>PrtCompiler</Filter>
     </ClCompile>
     <ClCompile Include="prtcompiler\ProtocolScanner.cpp">
-      <Filter>PrtCompiler</Filter>
-    </ClCompile>
-    <ClCompile Include="prtcompiler\protocolutil.cpp">
       <Filter>PrtCompiler</Filter>
     </ClCompile>
     <ClCompile Include="protocol_all_handler.cpp">

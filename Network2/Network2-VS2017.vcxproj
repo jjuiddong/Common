@@ -204,7 +204,6 @@
     <ClInclude Include="prtcompiler\ProtocolDefine.h" />
     <ClInclude Include="prtcompiler\ProtocolParser.h" />
     <ClInclude Include="prtcompiler\ProtocolScanner.h" />
-    <ClInclude Include="prtcompiler\protocolutil.h" />
     <ClInclude Include="session.h" />
     <ClInclude Include="socketbuffer.h" />
     <ClInclude Include="sql\mysqlquery.h" />
@@ -248,7 +247,6 @@
     <ClCompile Include="prtcompiler\ProtocolDefine.cpp" />
     <ClCompile Include="prtcompiler\ProtocolParser.cpp" />
     <ClCompile Include="prtcompiler\ProtocolScanner.cpp" />
-    <ClCompile Include="prtcompiler\protocolutil.cpp" />
     <ClCompile Include="session.cpp" />
     <ClCompile Include="socketbuffer.cpp" />
     <ClCompile Include="sql\mysqlquery.cpp" />

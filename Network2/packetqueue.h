@@ -56,7 +56,7 @@ namespace network2
 		cNetworkNode *m_netNode; // owner networknode, reference
 		common::VectorMap<netid, cSocketBuffer*> m_sockBuffers;
 		int m_nextFrontIdx; // for Front() load balancing
-		bool m_isLogIgnorePacket; // 버려진 패킷이 있을 경우, 로그를 남길지 여부, default = false
+		bool m_isLogIgnorePacket; // log queue full?, default = false
 		CRITICAL_SECTION m_cs;
 	};
 
