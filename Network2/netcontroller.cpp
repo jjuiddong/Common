@@ -174,21 +174,21 @@ int cNetController::Process(const float deltaSeconds)
 
 	// Server Process
 	basic_protocol::ServerDispatcher svrDispatcher;
-	for (auto &p : m_tcpServers)
-		procPacketCnt += ProcessNetworkNode(p, &svrDispatcher);
+	for (uint i=0; i < m_tcpServers.size(); ++i)
+		procPacketCnt += ProcessNetworkNode(m_tcpServers[i], &svrDispatcher);
 
 	basic_protocol::UdpServerDispatcher udpSvrDispatcher;
-	for (auto &p : m_udpServers)
-		procPacketCnt += ProcessNetworkNode(p, &udpSvrDispatcher);
+	for (uint i=0; i < m_udpServers.size(); ++i)
+		procPacketCnt += ProcessNetworkNode(m_udpServers[i], &udpSvrDispatcher);
 
 	// Client Process
 	basic_protocol::ClientDispatcher clientDispatcher;
-	for (auto &p : m_tcpClients)
-		procPacketCnt += ProcessNetworkNode(p, &clientDispatcher);
+	for (uint i=0; i < m_tcpClients.size(); ++i)
+		procPacketCnt += ProcessNetworkNode(m_tcpClients[i], &clientDispatcher);
 
 	basic_protocol::WebClientDispatcher webClientDispatcher;
-	for (auto &p : m_webClients)
-		procPacketCnt += ProcessNetworkNode(p, &webClientDispatcher);
+	for (uint i=0; i < m_webClients.size(); ++i)
+		procPacketCnt += ProcessNetworkNode(m_webClients[i], &webClientDispatcher);
 
 	return procPacketCnt;
 }

@@ -77,8 +77,8 @@ namespace common
 
 	public:
 		static CriticalSection s_cs;
-		static vector<T*> s_freePtrs;
-		static vector<T*> s_allocPtrs;
+		static set<T*> s_freePtrs;
+		static set<T*> s_allocPtrs;
 		static boost::pool<> m_pool;
 	};
 
@@ -86,10 +86,10 @@ namespace common
 	CriticalSection cMemoryPool4<T>::s_cs;
 
 	template<class T>
-	vector<T*> cMemoryPool4<T>::s_freePtrs;
+	set<T*> cMemoryPool4<T>::s_freePtrs;
 
 	template<class T>
-	vector<T*> cMemoryPool4<T>::s_allocPtrs;
+	set<T*> cMemoryPool4<T>::s_allocPtrs;
 
 	template<class T>
 	boost::pool<> cMemoryPool4<T>::m_pool(sizeof(T));
@@ -106,13 +106,13 @@ namespace common
 		}
 		else
 		{
-			p = s_freePtrs.back();
-			s_freePtrs.pop_back();
+			p = *s_freePtrs.begin();
+			s_freePtrs.erase(p);
 		}
 
 		if (p)
 		{
-			s_allocPtrs.push_back(p);
+			s_allocPtrs.insert(p);
 		}
 		return p;
 	}
@@ -120,12 +120,13 @@ namespace common
 	template<class T>
 	bool cMemoryPool4<T>::Free(void* p) {
 		AutoCSLock cs(s_cs);
-		if (!removevector(s_allocPtrs, (T*)p))
-		{
-			assert(0);
-			return false;
-		}
-		s_freePtrs.push_back((T*)p);
+		//if (!removevector(s_allocPtrs, (T*)p))
+		//{
+		//	assert(0);
+		//	return false;
+		//}
+		s_allocPtrs.erase((T*)p);
+		s_freePtrs.insert((T*)p);
 		return false;
 	}
 

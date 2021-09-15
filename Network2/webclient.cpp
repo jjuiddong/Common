@@ -45,10 +45,16 @@ bool cWebClient::Init(const string &url
 	// parse url, port
 	vector<string> toks;
 	common::tokenizer(url, ":", "", toks);
-	if (toks.size() == 2)
+	if (toks.size() >= 2)
 	{
-		m_url = toks[0];
-		m_port = atoi(toks[1].c_str());
+		m_url = "";
+		for (int i = 0; i < (int)toks.size() - 1; ++i)
+		{
+			m_url += toks[i];
+			if (i != (int)toks.size() - 2)
+				m_url += ":";
+		}
+		m_port = atoi(toks.back().c_str());
 	}
 	else {
 		m_url = url;
@@ -128,7 +134,6 @@ int cWebClient::Send(const netid rcvId, const cPacket &packet)
 int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 {
 	int result = 0;
-	//if (m_websocket && m_packetHeader)
 	if (m_websocket)
 	{
 		try {
@@ -185,9 +190,6 @@ bool cWebClient::Process()
 		}
 		else
 		{
-			//if (!m_packetHeader)
-			//	return false; // internal error occurred!!
-
 			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 		}
 	}
@@ -232,11 +234,11 @@ bool cWebClient::ConnectServer()
 		m_websocket = new Poco::Net::WebSocket(*m_session, *m_request, *m_response);
 		m_websocket->setReceiveTimeout(Poco::Timespan(0, m_sleepMillis * 1000));
 	}
-	catch (std::exception &)
+	catch (std::exception &e)
 	{
 		m_state = cWebClient::DISCONNECT;
-		dbg::Logc(2, "Error!! WebClient Connection, url=%s, port=%d\n"
-			, m_url.c_str(), m_port);
+		dbg::Logc(2, "Error!! WebClient Connection, url=%s, port=%d, desc=%s\n"
+			, m_url.c_str(), m_port, e.what());
 		return false;
 	}
 
