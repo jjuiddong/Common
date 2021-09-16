@@ -30,7 +30,7 @@ public:
 	}
 	virtual ~cPacketLogTask() {}
 
-	virtual eRunResult::Enum Run(const double deltaSeconds) override
+	virtual eRunResult Run(const double deltaSeconds) override
 	{
 		switch (m_logData.type)
 		{

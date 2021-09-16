@@ -51,7 +51,7 @@ public:
 	virtual ~cLogTask() {
 	}
 
-	virtual eRunResult::Enum Run(const double deltaSeconds) override
+	virtual eRunResult Run(const double deltaSeconds) override
 	{
 		const string timeStr = common::GetCurrentDateTime();
 

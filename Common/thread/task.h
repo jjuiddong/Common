@@ -22,13 +22,11 @@ namespace common
 	class cTask
 	{
 	public:
-		struct eRunResult {
-			enum Enum { END, CONTINUE };
-		};
+		enum class eRunResult { END, CONTINUE };		
 
 		cTask(int id, const StrId &name="", const bool isTopPriority=false);
 		virtual ~cTask() {}
-		virtual eRunResult::Enum Run(const double deltaSeconds) { return eRunResult::END; }
+		virtual eRunResult Run(const double deltaSeconds) { return eRunResult::END; }
 		virtual void MessageProc( threadmsg::MSG msg, WPARAM wParam, LPARAM lParam, LPARAM added ) {}
 		virtual void Clear() {}
 

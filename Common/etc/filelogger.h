@@ -54,7 +54,7 @@ namespace common
 		virtual ~cFileLogTask() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds) override
+		virtual eRunResult Run(const double deltaSeconds) override
 		{
 			std::ofstream ofs(m_fileName, std::ios::app);
 			if (ofs.is_open())
