@@ -11,7 +11,8 @@ namespace network2
 	class cTcpClient : public cNetworkNode
 	{
 	public:
-		explicit cTcpClient(const StrId &name = "TcpClient"
+		explicit cTcpClient(
+			const StrId &name = "TcpClient"
 			, const int logId = -1
 		);
 		virtual ~cTcpClient();
@@ -49,7 +50,7 @@ namespace network2
 		cPacketQueue m_recvQueue;
 
 		std::thread m_thread;
-		common::CriticalSection m_cs;
+		CriticalSection m_cs;
 		int m_sleepMillis;
 		char *m_recvBuffer;
 	};	

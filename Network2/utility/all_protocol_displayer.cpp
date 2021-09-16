@@ -11,6 +11,15 @@ void AllProtocolDisplayer::RecvPacket(const cPacket &packet)
 	const int packetID = packet.GetPacketId();
 	if (m_ignorePackets.end() != m_ignorePackets.find({ protocolID, packetID }))
 		return;
+	if (m_ignorePackets.end() != m_ignorePackets.find({ protocolID, 0 }))
+		return;
 
-	DisplayPacket("Recv = ", packet, m_logLevel);
+	const bool isShow = (
+		m_showPackets.empty()
+		|| (m_showPackets.end() != m_showPackets.find({ protocolID, 0 }))
+		|| (m_showPackets.end() != m_showPackets.find({ protocolID, packetID }))
+		);
+	
+	if (isShow)
+		DisplayPacket("Recv = ", packet, m_logLevel);
 }

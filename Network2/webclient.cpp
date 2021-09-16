@@ -11,7 +11,8 @@ using namespace std;
 using namespace network2;
 
 
-cWebClient::cWebClient( const StrId &name //= "WebClient"
+cWebClient::cWebClient( 
+	const StrId &name //= "WebClient"
 	, const int logId //= -1
 )
 	: cNetworkNode(name, logId)
@@ -65,7 +66,7 @@ bool cWebClient::Init(const string &url
 	m_maxBuffLen = packetSize;
 	m_isThreadMode = isThreadMode;
 
-	m_state = READYCONNECT;
+	m_state = eState::ReadyConnect;
 
 	if (isThreadMode)
 	{
@@ -153,7 +154,7 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 // for single thread tcpclient
 bool cWebClient::Process()
 {
-	if (CONNECT != m_state)
+	if (eState::Connect != m_state)
 		return false;
 
 	if (!m_recvBuffer)
@@ -178,7 +179,7 @@ bool cWebClient::Process()
 
 	if (result == SOCKET_ERROR) // connection error, disconnect
 	{
-		m_state = cWebClient::DISCONNECT;
+		m_state = eState::Disconnect;
 		m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 	}
 	else if (result > 0)
@@ -204,7 +205,7 @@ bool cWebClient::Process()
 
 		if (!errSocks.empty())
 		{
-			m_state = cWebClient::DISCONNECT;
+			m_state = eState::Disconnect;
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 		}
 	}
@@ -215,13 +216,13 @@ bool cWebClient::Process()
 // Connect Server
 bool cWebClient::ConnectServer()
 {
-	if (m_state != cWebClient::READYCONNECT)
+	if (eState::ReadyConnect != m_state)
 	{
-		m_state = cWebClient::CONNECT_ERROR;
+		m_state = eState::ConnectError;
 		return false;
 	}
 
-	m_state = cWebClient::TRYCONNECT;
+	m_state = eState::TryConnect;
 
 	m_session = new Poco::Net::HTTPClientSession(m_url, m_port);
 	m_request = new Poco::Net::HTTPRequest(Poco::Net::HTTPRequest::HTTP_GET
@@ -236,13 +237,13 @@ bool cWebClient::ConnectServer()
 	}
 	catch (std::exception &e)
 	{
-		m_state = cWebClient::DISCONNECT;
+		m_state = eState::Disconnect;
 		dbg::Logc(2, "Error!! WebClient Connection, url=%s, port=%d, desc=%s\n"
 			, m_url.c_str(), m_port, e.what());
 		return false;
 	}
 
-	m_state = cWebClient::CONNECT;
+	m_state = eState::Connect;
 
 	return true;
 }
@@ -256,7 +257,7 @@ bool cWebClient::ReConnect()
 
 	Close();
 
-	m_state = READYCONNECT;
+	m_state = eState::ReadyConnect;
 
 	if (m_isThreadMode)
 	{
@@ -274,7 +275,7 @@ bool cWebClient::ReConnect()
 
 void cWebClient::Close()
 {
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 	if (m_thread.joinable()) // wait thread terminate
 		m_thread.join();
 
@@ -288,7 +289,7 @@ void cWebClient::Close()
 
 	cNetworkNode::Close();
 	SAFE_DELETEA(m_recvBuffer);
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 }
 
 
@@ -298,7 +299,7 @@ int cWebClient::ThreadFunction(cWebClient *client)
 	if (!client->ConnectServer())
 		return 0; // error connection, stop thread
 
-	while (cWebClient::CONNECT == client->m_state)
+	while (eState::Connect == client->m_state)
 	{
 		client->Process();
 	}

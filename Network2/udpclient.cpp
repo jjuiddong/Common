@@ -6,7 +6,8 @@ using namespace std;
 using namespace network2;
 
 
-cUdpClient::cUdpClient(const StrId &name //= "UdpClient"
+cUdpClient::cUdpClient(
+	const StrId &name //= "UdpClient"
 	, const int logId //= -1
 )
 	: cNetworkNode(name, logId)
@@ -41,7 +42,7 @@ bool cUdpClient::Init(const Str16 &ip
 
 	if (network2::LaunchUDPClient(ip.c_str(), port, m_sockaddr, m_socket))
 	{
-		m_state = CONNECT;
+		m_state = eState::Connect;
 		dbg::Logc(1, "Connect UDP Client ip=%s, port=%d\n", ip.c_str(), port);
 
 		if (!m_sendQueue.Init(packetSize, maxPacketCount))
@@ -73,7 +74,7 @@ $error:
 // for single thread tcpclient
 bool cUdpClient::Process()
 {
-	if (CONNECT != m_state)
+	if (eState::Connect != m_state)
 		return false;
 
 	m_sendQueue.SendAll(m_sockaddr);
@@ -120,20 +121,20 @@ int cUdpClient::Send(const netid rcvId, const cPacket &packet)
 
 void cUdpClient::Close()
 {
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 	if (m_thread.joinable()) // 쓰레드 종료.
 		m_thread.join();
 
 	Sleep(100);
 	cNetworkNode::Close();
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 }
 
 
 // UDP Client Thread Function
 int cUdpClient::ThreadFunction(cUdpClient *udp)
 {
-	while (CONNECT == udp->m_state)
+	while (eState::Connect == udp->m_state)
 	{
 		if (!udp->IsConnect() || (INVALID_SOCKET == udp->m_socket))
 		{

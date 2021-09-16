@@ -8,7 +8,7 @@ cSession::cSession()
 	: m_id(0)
 	, m_name("")
 	, m_socket(INVALID_SOCKET)
-	, m_state(DISCONNECT)
+	, m_state(eState::Disconnect)
 	, m_logId(-1)
 {
 }
@@ -19,7 +19,7 @@ cSession::cSession(const netid id, const StrId &name
 	: m_id(id)
 	, m_name(name)
 	, m_socket(INVALID_SOCKET)
-	, m_state(DISCONNECT)
+	, m_state(eState::Disconnect)
 	, m_logId(logId)
 {
 	if (logId >= 0)
@@ -49,17 +49,17 @@ int cSession::GetId() const
 
 bool cSession::IsConnect() const
 {
-	return m_state == CONNECT;
+	return eState::Connect == m_state;
 }
 
 
 bool cSession::IsReadyConnect() const
 { 
-	return (m_state == READYCONNECT) || (m_state == TRYCONNECT); 
+	return (eState::ReadyConnect == m_state) || (eState::TryConnect == m_state);
 }
 
 
 bool cSession::IsFailConnection() const
 { 
-	return (m_state == DISCONNECT); 
+	return ((eState::Disconnect == m_state) || (eState::ConnectError == m_state));
 }

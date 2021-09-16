@@ -12,7 +12,7 @@ const float TIME_SYNC_SYMBOL = 3.0f;
 cRemoteDebugger2::cRemoteDebugger2(
 	const int logId //= -1
 )
-	: m_client("WebClient", logId)
+	: m_client("RemoteDebugger2", logId)
 	, m_callback(nullptr)
 	, m_arg(nullptr)
 {
@@ -894,6 +894,20 @@ bool cRemoteDebugger2::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &pac
 
 	m_protocol.AckStepDebugType(network2::SERVER_NETID, true, packet.stepDbgType, 1);
 	return true;
+}
+
+
+// is webserver connected?
+bool cRemoteDebugger2::IsConnect()
+{
+	return m_client.IsConnect();
+}
+
+
+// is webserver fail connection?
+bool cRemoteDebugger2::IsFailConnect()
+{
+	return m_client.IsFailConnection();
 }
 
 

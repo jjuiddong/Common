@@ -6,7 +6,8 @@ using namespace std;
 using namespace network2;
 
 
-cTcpClient::cTcpClient(const StrId &name //= "TcpClient"
+cTcpClient::cTcpClient(
+	const StrId &name //= "TcpClient"
 	, const int logId //= -1
 )
 	: cNetworkNode(name, logId)
@@ -43,7 +44,7 @@ bool cTcpClient::Init(const Str16 &ip
 	m_maxBuffLen = packetSize;
 	m_isThreadMode = isThreadMode;
 
-	m_state = READYCONNECT;
+	m_state = eState::ReadyConnect;
 
 	if (isThreadMode)
 	{
@@ -118,7 +119,7 @@ int cTcpClient::Send(const netid rcvId, const cPacket &packet)
 // for single thread tcpclient
 bool cTcpClient::Process()
 {
-	if (CONNECT != m_state)
+	if (eState::Connect != m_state)
 		return false;
 
 	const timeval t = { 0, m_sleepMillis * 1000};
@@ -138,7 +139,7 @@ bool cTcpClient::Process()
 		{
 			// socket error occur
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
-			m_state = cSession::DISCONNECT;
+			m_state = eState::Disconnect;
 		}
 		else
 		{
@@ -164,7 +165,7 @@ bool cTcpClient::Process()
 
 		if (!errSocks.empty())
 		{
-			m_state = cSession::DISCONNECT;
+			m_state = eState::Disconnect;
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 		}
 	}
@@ -176,24 +177,24 @@ bool cTcpClient::Process()
 // Connect Server
 bool cTcpClient::ConnectServer()
 {
-	if (m_state != cTcpClient::READYCONNECT)
+	if (m_state != eState::ReadyConnect)
 	{
-		m_state = cTcpClient::CONNECT_ERROR;
+		m_state = eState::ConnectError;
 		return false;
 	}
 
-	m_state = cTcpClient::TRYCONNECT;
+	m_state = eState::TryConnect;
 
 	if (!network2::LaunchTCPClient(m_ip.c_str(), m_port
 		, m_socket, true, m_clientSidePort))
 	{
-		m_state = cTcpClient::DISCONNECT;
+		m_state = eState::Disconnect;
 		dbg::Logc(2, "Error!! TCP Connection, ip=%s, port=%d\n"
 			, m_ip.c_str(), m_port);
 		return false;
 	}
 
-	m_state = cTcpClient::CONNECT;
+	m_state = eState::Connect;
 
 	return true;
 }
@@ -207,7 +208,7 @@ bool cTcpClient::ReConnect()
 
 	Close();
 
-	m_state = READYCONNECT;
+	m_state = eState::ReadyConnect;
 
 	if (m_isThreadMode)
 	{
@@ -225,13 +226,13 @@ bool cTcpClient::ReConnect()
 
 void cTcpClient::Close()
 {
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 	if (m_thread.joinable()) // 쓰레드 종료.
 		m_thread.join();
 
 	cNetworkNode::Close();
 	SAFE_DELETEA(m_recvBuffer);
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 }
 
 
@@ -241,7 +242,7 @@ int cTcpClient::ThreadFunction(cTcpClient *client)
 	if (!client->ConnectServer())
 		return 0;
 
-	while (cTcpClient::CONNECT == client->m_state)
+	while (eState::Connect == client->m_state)
 	{
 		client->Process();
 	}

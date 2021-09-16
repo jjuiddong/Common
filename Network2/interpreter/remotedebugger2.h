@@ -66,6 +66,8 @@ namespace network2
 		bool BreakPoint(const int itprId, const bool enable, const uint id);
 		bool IsRun(const int itprId);
 		bool IsDebug(const int itprId);
+		bool IsConnect();
+		bool IsFailConnect();
 		void Clear();
 
 

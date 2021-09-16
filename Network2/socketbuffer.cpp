@@ -169,7 +169,7 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 		return false;
 
 	const uint packetSize = out.m_header->GetPacketLength(tempHeader);
-	if ((packetSize <= 0) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
+	if ((packetSize == 0) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
 	{
 		m_q.clear();
 		dbg::Logc(2, "Error!! cSocketBuffer::PopNoRemove, PacketHeader error, packetSize = %d\n", packetSize);

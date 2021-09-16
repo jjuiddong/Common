@@ -11,6 +11,8 @@ namespace network2
 	void InsertPacket(sProtocol *protocol, sPacket *packet);
 	sPacket* GetPacket(const __int64 packetId);
 
+	bool g_isLoadProtocol = false; // load *.prt file?
+	CriticalSection g_cs; // sync initialize g_packets, g_protocolFormat
 	map<__int64, sPacket*> g_packets; // key: protocolid << 32 + packetID
 	map<__int64, ePacketFormat> g_protocolFormat; // key: protocolid
 }
@@ -47,6 +49,10 @@ void network2::InsertPacket(sProtocol *protocol, sPacket *packet)
 // search directory "./media/protocol/*.prt"
 bool network2::Init()
 {
+	AutoCSLock cs(g_cs);
+	if (g_isLoadProtocol)
+		return true; // already loaded
+
 	list<string> exts;
 	exts.push_back(".prt");
 	string protocolDir = "./media/protocol/";
@@ -62,6 +68,7 @@ bool network2::Init()
 			InsertProtocol(stmts->protocol);
 		ReleaseProtocolOnly(stmts);
 	}
+	g_isLoadProtocol = true;
 	return true;
 }
 
@@ -81,7 +88,7 @@ void network2::DisplayPacket(const Str128 &firstStr, const cPacket &packet
 	, const int logLevel //= 0
 )
 {
-	if (g_packets.empty())
+	if (!g_isLoadProtocol)
 		Init();
 
 	const int protocolID = packet.GetProtocolId();
@@ -99,7 +106,7 @@ void network2::DisplayPacket(const Str128 &firstStr, const cPacket &packet
 // Packet정보를 문자열로 변환해 리턴한다.
 void network2::GetPacketString(const cPacket &packet, OUT string &out)
 {
-	if (g_packets.empty())
+	if (!g_isLoadProtocol)
 		Init();
 
 	const int protocolID = packet.GetProtocolId();
@@ -113,7 +120,7 @@ void network2::GetPacketString(const cPacket &packet, OUT string &out)
 // return packet name
 StrId network2::GetPacketName(const cPacket &packet)
 {
-	if (g_packets.empty())
+	if (!g_isLoadProtocol)
 		Init();
 
 	const int protocolID = packet.GetProtocolId();
@@ -139,7 +146,7 @@ ePacketFormat network2::GetPacketFormat(const cPacket &packet)
 // find from *.prt file
 ePacketFormat network2::GetPacketFormat(const int protocolId)
 {
-	if (g_packets.empty())
+	if (!g_isLoadProtocol)
 		Init();
 	// basic protocol?
 	if (0 == protocolId)

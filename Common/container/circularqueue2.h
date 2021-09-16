@@ -72,7 +72,7 @@ namespace common
 	template<class T>
 	uint cCircularQueue2<T>::push(const T *t, const uint size0)
 	{
-		const uint remainSize = SIZE - size();
+		const uint remainSize = SIZE - size() - 1;
 		if (remainSize < size0)
 			return 0;
 
@@ -257,8 +257,8 @@ namespace common
 	template<class T>
 	bool cCircularQueue2<T>::full() const
 	{
-		const uint remainSize = SIZE - size();
-		return (remainSize == 0);
+		const int remainSize = SIZE - (int)size() - 1;
+		return (remainSize <= 0);
 	}
 
 

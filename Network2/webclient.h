@@ -22,7 +22,8 @@ namespace network2
 	class cWebClient : public cNetworkNode
 	{
 	public:
-		explicit cWebClient( const StrId &name = "WebClient"
+		explicit cWebClient( 
+			const StrId &name = "WebClient"
 			, const int logId = -1
 		);
 		virtual ~cWebClient();
@@ -65,7 +66,7 @@ namespace network2
 		cPacketQueue m_recvQueue;
 
 		std::thread m_thread;
-		common::CriticalSection m_cs;
+		CriticalSection m_cs;
 		int m_sleepMillis;
 		char *m_recvBuffer;
 	};

@@ -11,7 +11,8 @@ namespace network2
 	class cTcpServer : public cNetworkNode
 	{
 	public:
-		explicit cTcpServer(iSessionFactory *sessionFactory = new cSessionFactory()
+		explicit cTcpServer(
+			iSessionFactory *sessionFactory = new cSessionFactory()
 			, const StrId &name = "TcpServer"
 			, const int logId = -1
 		);
@@ -59,7 +60,7 @@ namespace network2
 		iSessionListener *m_sessionListener;
 
 		std::thread m_thread;
-		common::CriticalSection m_cs;
+		CriticalSection m_cs;
 		int m_sleepMillis;
 		double m_lastAcceptTime;
 		char *m_tempRecvBuffer;

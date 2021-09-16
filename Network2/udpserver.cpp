@@ -5,7 +5,8 @@ using namespace network2;
 using namespace std;
 
 
-cUdpServer::cUdpServer(const StrId &name //= "UdpServer"
+cUdpServer::cUdpServer(
+	const StrId &name //= "UdpServer"
 	, const int logId //= -1
 )
 	: cNetworkNode(name, logId)
@@ -39,7 +40,7 @@ bool cUdpServer::Init(const int bindPort
 	{
 		dbg::Logc(1, "Bind UDP Server port = %d\n", bindPort);
 
-		m_state = CONNECT;
+		m_state = eState::Connect;
 		if (!m_recvQueue.Init(packetSize, maxPacketCount))
 		{
 			goto $error;
@@ -99,7 +100,7 @@ bool cUdpServer::Process()
 
 void cUdpServer::Close()
 {
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 	if (m_thread.joinable())
 		m_thread.join();
 
@@ -156,7 +157,7 @@ int cUdpServer::SendAll(const cPacket &packet)
 // UDP Server Thread Function
 unsigned WINAPI cUdpServer::ThreadFunction(cUdpServer* udp)
 {
-	while (CONNECT == udp->m_state)
+	while (eState::Connect == udp->m_state)
 	{
 		udp->Process();
 

@@ -50,7 +50,7 @@ bool cTcpServer::Init(const int bindPort
 
 	if (network2::LaunchTCPServer(bindPort, m_socket))
 	{
-		m_state = CONNECT;
+		m_state = eState::Connect;
 		dbg::Logc(1, "Bind TCP Server port = %d\n", bindPort);
 
 		if (!m_recvQueue.Init(packetSize, maxPacketCount))
@@ -208,7 +208,7 @@ void cTcpServer::SetSessionListener(iSessionListener *listener)
 
 void cTcpServer::Close()
 {
-	m_state = DISCONNECT;
+	m_state = eState::Disconnect;
 	if (m_thread.joinable())
 		m_thread.join();
 
@@ -304,7 +304,7 @@ bool cTcpServer::AddSession(const SOCKET sock, const Str16 &ip, const int port)
 	session->m_socket = sock;
 	session->m_ip = ip;
 	session->m_port = port;
-	session->m_state = cSession::CONNECT;
+	session->m_state = eState::Connect;
 	m_sessions.insert({ session->m_id, session });
 	m_sockets.insert({ sock, session });
 
@@ -395,7 +395,7 @@ bool cTcpServer::IsExist(const netid netId)
 // TCP Server Thread Function
 unsigned WINAPI cTcpServer::ThreadFunction(cTcpServer* server)
 {
-	while (cTcpServer::CONNECT == server->m_state)
+	while (eState::Connect == server->m_state)
 	{
 		server->Process();
 

@@ -18,6 +18,7 @@ namespace network2
 	protected:
 		int m_logLevel; // default:1
 		set<std::pair<int,int>> m_ignorePackets; // protocolid, packetid
+		set<std::pair<int, int>> m_showPackets; // protocolid, packetid
 	};
 
 }

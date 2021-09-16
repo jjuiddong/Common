@@ -14,7 +14,7 @@ cFile::~cFile()
 }
 
 
-// 파일 전체를 읽어서 문자열로 리턴한다.
+// read file and convert to string
 bool cFile::ReadFile2String(const StrPath &fileName
 	, OUT string &out)
 {
