@@ -143,7 +143,7 @@ namespace graphic
 		virtual ~cTaskFileLoader2() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds)
+		virtual eRunResult Run(const double deltaSeconds)
 		{
 			T *data = nullptr;
 			const StrPath &path = m_fileName;
@@ -238,7 +238,7 @@ namespace graphic
 		virtual ~cTaskFileRemover2() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds)
+		virtual eRunResult Run(const double deltaSeconds)
 		{
 			T *p = nullptr;
 			const StrPath &path = m_fileName;

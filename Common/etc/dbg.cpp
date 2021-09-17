@@ -108,7 +108,7 @@ public:
 
 		default: assert(!"LogTask Error"); break;
 		}
-		return eRunResult::END;
+		return eRunResult::End;
 	}
 };
 //-----------------------------------------------------------------------

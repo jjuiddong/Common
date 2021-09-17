@@ -304,7 +304,7 @@ int cThread::Run()
 			{
 				++taskProcCnt;
 				cTask *task = m_tasks[m_procTaskIndex];
-				if (cTask::eRunResult::END == task->Run(dt))
+				if (cTask::eRunResult::End == task->Run(dt))
 				{
 					// finish task , remove taks
 					common::rotatepopvector(m_tasks, m_procTaskIndex);

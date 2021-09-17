@@ -111,7 +111,7 @@ namespace graphic
 		virtual ~cTaskFileLoader() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds)
+		virtual eRunResult Run(const double deltaSeconds)
 		{
 			T *data = NULL;
 			try 

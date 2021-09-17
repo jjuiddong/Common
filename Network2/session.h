@@ -24,11 +24,11 @@ namespace network2
 
 	public:
 		enum class eState {
-			ReadyConnect,  // 커넥션 전, 쓰레드 구동하기 직전.
-			TryConnect,  // 쓰레드 내에서 소켓 커넥션 요청 상태
-			Connect,  // 커넥션 성공
-			Disconnect, // 커넥션 실패
-			ConnectError, // 커넥션 에러, 주로 동기화 문제에서 발생
+			ReadyConnect,  // before connect, before start thread
+			TryConnect,  // try connect
+			Connect,  // success connect
+			Disconnect, // close connect
+			ConnectError, // connect error
 		};
 
 		netid m_id;

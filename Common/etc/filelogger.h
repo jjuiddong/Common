@@ -65,7 +65,7 @@ namespace common
 
 			using namespace std::chrono_literals;
 			std::this_thread::sleep_for(33ms);
-			return eRunResult::END;
+			return eRunResult::End;
 		}
 
 		const char *m_fileName;

@@ -22,7 +22,7 @@ namespace graphic
 		virtual ~cTaskAssimpLoader() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds)
+		virtual eRunResult Run(const double deltaSeconds)
 		{
 			cAssimpModel *model = NULL;
 			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
@@ -34,13 +34,13 @@ namespace graphic
 				goto error;
 
 			cResourceManager::Get()->InsertAssimpModel(m_fileName, model);
-			return eRunResult::END; 
+			return eRunResult::End;
 
 
 		error:
 			dbg::ErrLog("Error cTaskAssimpLoader %s \n", m_fileName.c_str());
 			SAFE_DELETE(model);
-			return eRunResult::END;
+			return eRunResult::End;
 		}
 
 		StrPath m_fileName;
@@ -62,7 +62,7 @@ namespace graphic
 		virtual ~cTaskTextureLoader() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds)
+		virtual eRunResult Run(const double deltaSeconds)
 		{
 			cTexture *texture = NULL;
 			const StrPath resourcePath = cResourceManager::Get()->GetResourceFilePath(m_fileName);
@@ -83,7 +83,7 @@ namespace graphic
 			{
 				//dbg::Log("Success Load Texture %s\n", m_key.c_str());
 				cResourceManager::Get()->InsertTexture(m_key, texture);
-				return eRunResult::END;
+				return eRunResult::End;
 			}
 			else
 			{
@@ -95,7 +95,7 @@ namespace graphic
 		error:
 			dbg::ErrLog("Error cTaskTextureLoader %s \n", m_fileName.c_str());
 			SAFE_DELETE(texture);
-			return eRunResult::END;
+			return eRunResult::End;
 		}
 
 		StrPath m_key;
@@ -116,17 +116,17 @@ namespace graphic
 		~cTaskDelay() {
 		}
 
-		virtual eRunResult::Enum Run(const double deltaSeconds) override
+		virtual eRunResult Run(const double deltaSeconds) override
 		{
 			const int curT = timeGetTime();
 			if (m_oldTime == 0)
 				m_oldTime = curT;
 			const int elapseT = curT - m_oldTime;
 			if (elapseT < 30)
-				return eRunResult::CONTINUE;
+				return eRunResult::Continue;
 			m_oldTime = curT;
 			m_delaySeconds -= (elapseT * 0.001f);
-			return (m_delaySeconds < 0) ? eRunResult::END : eRunResult::CONTINUE;
+			return (m_delaySeconds < 0) ? eRunResult::End : eRunResult::Continue;
 		}
 
 		float m_delaySeconds;
