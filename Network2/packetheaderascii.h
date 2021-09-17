@@ -5,8 +5,10 @@
 // generalizes the packet header information.
 // ASCII Format Packet Header
 //
+// -------------------------------------------------------------
 // |     Protocol ID    |     Packet ID     | Packet Size     |
 // |      0 bytes       |   4 bytes (ASCII) |  4 bytes (ASCII)|
+// -------------------------------------------------------------
 //
 // HeaderSize Total 8 Bytes
 //

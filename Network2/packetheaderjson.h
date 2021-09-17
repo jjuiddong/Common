@@ -6,8 +6,10 @@
 //
 // Packet Header Format
 //
+// -------------------------------------------------------------------------
 // | Protocol ID | Packet ID | Packet Size | Option (Binary Format Check) |
 // |   4 bytes   |  4 bytes	 |   4 bytes   |        4 bytes	              |
+// -------------------------------------------------------------------------
 //
 // HeaderSize Total 16 Bytes
 //
