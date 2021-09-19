@@ -54,7 +54,7 @@ bool cPacketQueue::Push(const netid senderId, iPacketHeader *packetHeader
 {
 	cAutoCS cs(m_cs);
 
-	cSocketBuffer *sockBuff = NULL;
+	cSocketBuffer *sockBuff = nullptr;
 	auto it = m_sockBuffers.find(senderId);
 	if (m_sockBuffers.end() == it)
 	{
@@ -100,7 +100,7 @@ bool cPacketQueue::Front(OUT cPacket &out)
 
 void cPacketQueue::SendAll(
 	const map<netid, SOCKET> &socks
-	, OUT set<netid> *outErrSocks //= NULL
+	, OUT set<netid> *outErrNetIds //= nullptr
 )
 {
 	RET(m_sockBuffers.empty());
@@ -134,7 +134,7 @@ void cPacketQueue::SendAll(
 
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
-				const bool result = SendBroadcast(socks, packet, outErrSocks);
+				const bool result = SendBroadcast(socks, packet, outErrNetIds);
 				if (!result)
 				{
 					// error!!, no remove buffer, resend
@@ -152,7 +152,7 @@ void cPacketQueue::SendAll(
 				int result = 0;
 				if (INVALID_SOCKET != sock)
 				{
-					const int result = m_netNode->SendPacket(sock, packet);
+					result = m_netNode->SendPacket(sock, packet);
 					if (result != packet.GetPacketSize())
 					{
 						// error!!, no remove buffer, resend
@@ -167,10 +167,10 @@ void cPacketQueue::SendAll(
 							, sockBuffer->m_netId, packet);
 				}
 
-				if (outErrSocks && (result == SOCKET_ERROR))
+				if (outErrNetIds && (result == SOCKET_ERROR))
 				{
 					// error!!, close socket
-					outErrSocks->insert(sockBuffer->m_netId);
+					outErrNetIds->insert(sockBuffer->m_netId);
 				}
 			} //~else ALL_NETID
 
@@ -181,7 +181,67 @@ void cPacketQueue::SendAll(
 
 	if (isSendError)
 	{
-		// send 에러가 발생하면, 딜레이를 줘서 다른 쓰레드로 스위칭할 수 있게한다.
+		// when occur error, sleep some seconds to thread context switching
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+}
+
+
+// send all 
+void cPacketQueue::SendAll(
+	set<netid> *outErrNetIds //= nullptr
+)
+{
+	RET(m_sockBuffers.empty());
+
+	cAutoCS cs(m_cs);
+
+	bool isSendError = false;
+	for (uint i = 0; i < m_sockBuffers.m_seq.size(); ++i)
+	{
+		cSocketBuffer *sockBuffer = m_sockBuffers.m_seq[i];
+		while (1)
+		{
+			cPacket packet;
+			if (!sockBuffer->PopNoRemove(packet))
+				break;
+
+			if (ALL_NETID == sockBuffer->m_netId)
+			{
+				// not implements
+				assert(0);
+			}
+			else
+			{
+				const int result = m_netNode->SendImmediate(sockBuffer->m_netId, packet);
+				if (result != packet.GetPacketSize())
+				{
+					// error!!, no remove buffer, resend
+					dbg::Logc(2, "Error Send Packet\n");
+					isSendError = true;
+					break;
+				}
+
+				// write packet log?
+				if ((m_logId >= 0) && (result != SOCKET_ERROR))
+					network2::LogPacket(m_logId, m_netNode->m_id
+						, sockBuffer->m_netId, packet);
+
+				if (outErrNetIds && (result == SOCKET_ERROR))
+				{
+					// error!!, close socket
+					outErrNetIds->insert(sockBuffer->m_netId);
+				}
+			} //~else ALL_NETID
+
+			sockBuffer->Pop(packet.m_writeIdx);
+
+		} // ~while
+	} // ~for
+
+	if (isSendError)
+	{
+		// when occur error, sleep some seconds to thread context switching
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
@@ -252,7 +312,7 @@ bool cPacketQueue::SendBroadcast(
 // return false if send error
 bool cPacketQueue::SendBroadcast(const map<netid, SOCKET> &socks
 	, const cPacket &packet
-	, OUT set<netid> *outErrSocks //= NULL
+	, OUT set<netid> *outErrSocks //= nullptr
 )
 {
 	bool isSendError = false;

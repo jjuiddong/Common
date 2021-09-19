@@ -16,7 +16,13 @@ namespace network2
 
 	class cSessionFactory : public iSessionFactory
 	{
+	public:
 		virtual cSession* New() override { return new cSession(); }
 	};
 
+	class cWebSessionFactory : public iSessionFactory
+	{
+	public:
+		virtual cWebSession* New() override { return new cWebSession(); }
+	};
 }

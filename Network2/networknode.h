@@ -34,6 +34,7 @@ namespace network2
 		virtual netid GetNetIdFromSocket(const SOCKET sock) = 0;
 		virtual void GetAllSocket(OUT map<netid, SOCKET> &out) = 0;
 		virtual int Send(const netid rcvId, const cPacket &packet) = 0;
+		virtual int SendImmediate(const netid rcvId, const cPacket &packet) = 0;
 		virtual int SendAll(const cPacket &packet) = 0;
 
 

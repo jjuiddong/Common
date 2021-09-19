@@ -220,6 +220,8 @@
     <ClInclude Include="utility\sessionlog.h" />
     <ClInclude Include="utility\utility.h" />
     <ClInclude Include="webclient.h" />
+    <ClInclude Include="webserver.h" />
+    <ClInclude Include="websession.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ftpclient\BlockingSocket.cpp" />
@@ -268,6 +270,8 @@
     <ClCompile Include="utility\sessionlog.cpp" />
     <ClCompile Include="utility\utility.cpp" />
     <ClCompile Include="webclient.cpp" />
+    <ClCompile Include="webserver.cpp" />
+    <ClCompile Include="websession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="interpreter\remotedbg.prt">

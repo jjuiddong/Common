@@ -168,6 +168,12 @@
     <ClInclude Include="utility\utility.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="websession.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="webserver.h">
+      <Filter>Service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -290,6 +296,12 @@
     </ClCompile>
     <ClCompile Include="utility\utility.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="websession.cpp">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="webserver.cpp">
+      <Filter>Service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

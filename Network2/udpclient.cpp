@@ -119,6 +119,13 @@ int cUdpClient::Send(const netid rcvId, const cPacket &packet)
 }
 
 
+int cUdpClient::SendImmediate(const netid rcvId, const cPacket &packet)
+{
+	assert(0); // not implements
+	return 1;
+}
+
+
 void cUdpClient::Close()
 {
 	m_state = eState::Disconnect;

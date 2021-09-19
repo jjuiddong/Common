@@ -35,6 +35,13 @@ namespace basic_protocol
 		void Dispatch(cPacket &packet, cUdpServer *svr) {} // nothing
 	};
 
+	// Web Server Basic Protocol Dispatcher
+	class WebServerDispatcher
+	{
+	public:
+		void Dispatch(cPacket &packet, cWebServer *svr);
+	};
+
 	// Web Client Basic Protocol Dispatcher
 	class WebClientDispatcher
 	{

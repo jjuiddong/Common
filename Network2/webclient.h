@@ -43,8 +43,9 @@ namespace network2
 		virtual netid GetNetIdFromSocket(const SOCKET sock) override;
 		virtual void GetAllSocket(OUT map<netid, SOCKET> &out) override;
 		virtual int Send(const netid rcvId, const cPacket &packet) override;
+		virtual int SendImmediate(const netid rcvId, const cPacket &packet) override;
 		virtual int SendAll(const cPacket &packet) override { return 0; }
-		virtual int SendPacket(const SOCKET sock, const cPacket &packet);
+		virtual int SendPacket(const SOCKET sock, const cPacket &packet) override;
 
 
 	protected:
@@ -58,6 +59,7 @@ namespace network2
 		Poco::Net::HTTPRequest *m_request;
 		Poco::Net::HTTPResponse *m_response;
 		Poco::Net::WebSocket *m_websocket;
+		//
 
 		string m_url;
 		bool m_isThreadMode;

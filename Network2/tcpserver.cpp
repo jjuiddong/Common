@@ -84,7 +84,7 @@ $error:
 
 
 // Network Packet Recv/Send
-// for single thread tcpclient
+// for single thread
 bool cTcpServer::Process()
 {
 	if (!m_tempRecvBuffer)
@@ -139,7 +139,7 @@ bool cTcpServer::AcceptProcess()
 	SOCKET remoteSocket = accept(acceptSockets.fd_array[0], (sockaddr*)&addr, &sockLen);
 	if (remoteSocket == INVALID_SOCKET)
 	{
-		//Client를 Accept하는 도중에 에러가 발생함
+		// error occurred!
 		return true;
 	}
 
@@ -283,10 +283,17 @@ int cTcpServer::Send(const netid rcvId, const cPacket &packet)
 }
 
 
+int cTcpServer::SendImmediate(const netid rcvId, const cPacket &packet)
+{
+	assert(0); // not implements
+	return 1;
+}
+
+
 // send packet to all client
 int cTcpServer::SendAll(const cPacket &packet)
 {
-	return 1;
+	return 1; // not implements
 }
 
 
@@ -381,7 +388,7 @@ cSession* cTcpServer::FindSessionByName(const StrId &name)
 }
 
 
-// 해당 socket이 sockets리스트에 존재한다면 true를 리턴한다.
+// check exist session correspond netid
 bool cTcpServer::IsExist(const netid netId)
 {
 	common::AutoCSLock cs(m_cs);

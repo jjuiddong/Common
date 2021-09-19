@@ -115,6 +115,13 @@ int cTcpClient::Send(const netid rcvId, const cPacket &packet)
 }
 
 
+int cTcpClient::SendImmediate(const netid rcvId, const cPacket &packet)
+{
+	assert(0); // not implements
+	return 1;
+}
+
+
 // Network Packet Recv/Send
 // for single thread tcpclient
 bool cTcpClient::Process()
@@ -227,7 +234,7 @@ bool cTcpClient::ReConnect()
 void cTcpClient::Close()
 {
 	m_state = eState::Disconnect;
-	if (m_thread.joinable()) // 쓰레드 종료.
+	if (m_thread.joinable()) // wait until thread terminate
 		m_thread.join();
 
 	cNetworkNode::Close();

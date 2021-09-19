@@ -192,6 +192,7 @@ iPacketHeader* network2::GetPacketHeader(const int protocolId)
 	if ((code >= 65) && (code <= 90))
 		return &s_packetHeaderAscii;
 
+	// get packet header from media/protocol/*.prt files
 	const ePacketFormat format = GetPacketFormat(protocolId);
 	return GetPacketHeader(format);
 }

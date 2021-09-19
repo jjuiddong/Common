@@ -29,6 +29,7 @@ typedef int netid;
 
 #include "definition.h"
 #include "session.h"
+#include "websession.h"
 #include "packetheader.h"
 #include "packetheaderascii.h"
 #include "packetheaderjson.h"
@@ -46,6 +47,7 @@ typedef int netid;
 #include "tcpclient.h"
 #include "udpserver.h"
 #include "udpclient.h"
+#include "webserver.h"
 #include "webclient.h"
 #include "netcontroller.h"
 #include "udpservermap.h"

@@ -90,6 +90,24 @@ bool cNetController::StartUdpClient(cUdpClient *client
 }
 
 
+bool cNetController::StartWebServer(cWebServer *svr
+	, const int bindPort
+	, const int packetSize //= DEFAULT_PACKETSIZE
+	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
+	, const bool isThreadMode //=true
+)
+{
+	const bool result = svr->Init(bindPort, packetSize, maxPacketCount
+		, sleepMillis, isThreadMode);
+
+	if (!IsExistServer(svr))
+		m_webServers.push_back(svr);
+
+	return result;
+}
+
+
 bool cNetController::StartWebClient(cWebClient *client
 	, const string &url
 	, const int packetSize //= DEFAULT_PACKETSIZE
@@ -181,6 +199,10 @@ int cNetController::Process(const float deltaSeconds)
 	for (uint i=0; i < m_udpServers.size(); ++i)
 		procPacketCnt += ProcessNetworkNode(m_udpServers[i], &udpSvrDispatcher);
 
+	basic_protocol::WebServerDispatcher webSvrDispatcher;
+	for (uint i = 0; i < m_webServers.size(); ++i)
+		procPacketCnt += ProcessNetworkNode(m_webServers[i], &webSvrDispatcher);
+
 	// Client Process
 	basic_protocol::ClientDispatcher clientDispatcher;
 	for (uint i=0; i < m_tcpClients.size(); ++i)
@@ -199,10 +221,12 @@ bool cNetController::RemoveServer(cNetworkNode *svr)
 	if (!IsExistServer(svr))
 		return false;
 
-	if (cTcpServer *p = (cTcpServer*)dynamic_cast<cTcpServer*>(svr))
+	if (cTcpServer *p = dynamic_cast<cTcpServer*>(svr))
 		common::removevector(m_tcpServers, p);
-	if (cUdpServer *p = (cUdpServer*)dynamic_cast<cUdpServer*>(svr))
+	if (cUdpServer *p = dynamic_cast<cUdpServer*>(svr))
 		common::removevector(m_udpServers, p);
+	if (cWebServer *p = dynamic_cast<cWebServer*>(svr))
+		common::removevector(m_webServers, p);
 
 	return true;
 }
@@ -213,11 +237,11 @@ bool cNetController::RemoveClient(cNetworkNode *svr)
 	if (!IsExistClient(svr))
 		return false;
 
-	if (cTcpClient *p = (cTcpClient*)dynamic_cast<cTcpClient*>(svr))
+	if (cTcpClient *p = dynamic_cast<cTcpClient*>(svr))
 		common::removevector(m_tcpClients, p);
-	if (cUdpClient *p = (cUdpClient*)dynamic_cast<cUdpClient*>(svr))
+	if (cUdpClient *p = dynamic_cast<cUdpClient*>(svr))
 		common::removevector(m_udpClients, p);
-	if (cWebClient *p = (cWebClient*)dynamic_cast<cWebClient*>(svr))
+	if (cWebClient *p = dynamic_cast<cWebClient*>(svr))
 		common::removevector(m_webClients, p);
 
 	return true;
@@ -231,6 +255,10 @@ bool cNetController::IsExistServer(const cNetworkNode *svr)
 			return true;
 
 	for (auto &p : m_udpServers)
+		if (p == svr)
+			return true;
+
+	for (auto &p : m_webServers)
 		if (p == svr)
 			return true;
 

@@ -145,6 +145,13 @@ int cUdpServer::Send(const netid rcvId, const cPacket &packet)
 }
 
 
+int cUdpServer::SendImmediate(const netid rcvId, const cPacket &packet)
+{
+	assert(0); // not implements
+	return 1;
+}
+
+
 // send packet to all client
 int cUdpServer::SendAll(const cPacket &packet)
 {

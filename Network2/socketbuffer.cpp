@@ -79,7 +79,8 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 			}
 			else
 			{
-				if (len >= 4)
+				// no packet header? infer from protocol id
+				if (len >= 4) // minimum protocol id size 4 bytes
 				{
 					packetHeader = network2::GetPacketHeader(*(int*)ptr);
 					headerSize = packetHeader->GetHeaderSize();
@@ -102,13 +103,13 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 				const uint totalLen = (headerSize == 0) ? size : packetHeader->GetPacketLength(ptr);
 				if (totalLen > (uint)m_q.SIZE)
 				{
-					dbg::Logc(2, "error!! sockbuffer packet size too big, size = %d, totalLen = %d\n"
+					dbg::Logc(2, "error!! sockbuffer, packet size too big, size = %d, totalLen = %d\n"
 						, size, totalLen);
 					break; // error occur, packet size error, maybe data corrupt
 				}
 				else if (totalLen == 0)
 				{
-					dbg::Logc(2, "error!! sockbuffer packet size zero\n");
+					dbg::Logc(2, "error!! sockbuffer, packet size zero\n");
 					break; // error occur, packet size error, maybe data corrupt
 				}
 
@@ -119,7 +120,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 					// error occur
 					// queue memory full
 					offset = 0;
-					dbg::Logc(2, "error!! sockbuffer queue memory full3, size = %d, cpSize = %d, pushSize = %d\n"
+					dbg::Logc(2, "error!! sockbuffer, queue memory full3, size = %d, cpSize = %d, pushSize = %d\n"
 						, size, cpSize, pushSize);
 					break;
 				}

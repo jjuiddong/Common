@@ -1,22 +1,38 @@
 //
-// 2019-01-08, jjuiddong
-// tcp server
+// 2021-09-19, jjuiddong
+// WebSocket Server
+//	- poco library websocket server
+//		- https://pocoproject.org/
 //
 #pragma once
+
+#include "Poco/Net/HTTPRequestHandlerFactory.h"
+
+// Poco library class forward declaration
+namespace Poco {
+	namespace Net {
+		class HTTPClientSession;
+		class HTTPRequest;
+		class HTTPResponse;
+		class WebSocket;
+		class ServerSocket;
+		class HTTPServer;
+	}
+}
 
 
 namespace network2
 {
-
-	class cTcpServer : public cNetworkNode
+	class cWebServer : public network2::cNetworkNode
+					 , public Poco::Net::HTTPRequestHandlerFactory
 	{
 	public:
-		explicit cTcpServer(
-			iSessionFactory *sessionFactory = new cSessionFactory()
-			, const StrId &name = "TcpServer"
+		cWebServer(
+			cWebSessionFactory *sessionFactory = new cWebSessionFactory()
+			, const StrId &name = "WebServer"
 			, const int logId = -1
 		);
-		virtual ~cTcpServer();
+		virtual ~cWebServer();
 
 		bool Init(const int bindPort
 			, const int packetSize = DEFAULT_PACKETSIZE
@@ -32,10 +48,9 @@ namespace network2
 		cSession* FindSessionByNetId(const netid netId);
 		cSession* FindSessionByName(const StrId &name);
 		void SetSessionListener(iSessionListener *listener);
-		void MakeFdSet(OUT fd_set &out);
 		virtual void Close() override;
 
-		// Override
+		// cNetworkNode interface 
 		virtual SOCKET GetSocket(const netid netId) override;
 		virtual netid GetNetIdFromSocket(const SOCKET sock) override;
 		virtual void GetAllSocket(OUT map<netid, SOCKET> &out) override;
@@ -43,28 +58,37 @@ namespace network2
 		virtual int SendImmediate(const netid rcvId, const cPacket &packet) override;
 		virtual int SendAll(const cPacket &packet) override;
 
+		// Poco::Net::HTTPRequestHandlerFactory interface
+		Poco::Net::HTTPRequestHandler* createRequestHandler(
+			const Poco::Net::HTTPServerRequest& request) override;
+
 
 	protected:
-		static unsigned WINAPI ThreadFunction(cTcpServer *server);
-		bool AcceptProcess();
+		static unsigned WINAPI ThreadFunction(cWebServer *server);
 		bool ReceiveProcces();
 
 
 	public:
+		// poco library object
+		Poco::Net::ServerSocket *m_websocket;
+		Poco::Net::HTTPServer *m_httpServer;
+		//
+
 		bool m_isThreadMode;
 		int m_maxBuffLen;
-		common::VectorMap<netid, cSession*> m_sessions;
-		common::VectorMap<SOCKET, cSession*> m_sockets; // reference
+		common::VectorMap<netid, cWebSession*> m_sessions;
+		common::VectorMap<SOCKET, cWebSession*> m_sockets; // reference
+		vector<cWebSession*> m_tempSessions; // temporal session
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
-		iSessionFactory *m_sessionFactory;
+		cWebSessionFactory *m_sessionFactory;
 		iSessionListener *m_sessionListener;
 
 		std::thread m_thread;
 		CriticalSection m_cs;
 		int m_sleepMillis;
 		double m_lastAcceptTime;
-		char *m_tempRecvBuffer;
+		char *m_recvBuffer;
 		common::cTimer m_timer;
 	};
 

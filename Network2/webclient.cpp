@@ -131,6 +131,13 @@ int cWebClient::Send(const netid rcvId, const cPacket &packet)
 }
 
 
+int cWebClient::SendImmediate(const netid rcvId, const cPacket &packet)
+{
+	assert(0); // not implements
+	return 1;
+}
+
+
 // default send
 int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 {
@@ -143,7 +150,7 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 		}
 		catch (std::exception &e) {
 			// nothing~
-			dbg::Logc(2, "websocket exception %s\n", e.what());
+			dbg::Logc(2, "websocket client send exception %s\n", e.what());
 		}
 	}
 	return result;
