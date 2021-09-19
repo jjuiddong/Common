@@ -295,6 +295,8 @@ bool cWebServer::ReceiveProcces()
 		{
 			int flags = 0;
 			result = session->m_ws->receiveFrame(m_recvBuffer, m_maxBuffLen, flags);
+			if (flags & Poco::Net::WebSocket::FRAME_OP_CLOSE)
+				result = INVALID_SOCKET;
 		}
 		catch (Poco::TimeoutException)
 		{
@@ -302,7 +304,13 @@ bool cWebServer::ReceiveProcces()
 		}
 		catch (std::exception)
 		{
-			// connection error, disconnect
+			// connection error
+			result = INVALID_SOCKET;
+		}
+
+		if (INVALID_SOCKET == result)
+		{
+			// disconnect session
 			if (!m_recvQueue.Push(session->m_id, DisconnectPacket(this, session->m_id)))
 				rmSessions.insert(session->m_id); // exception process
 		}
