@@ -11,10 +11,6 @@
 // Poco library class forward declaration
 namespace Poco {
 	namespace Net {
-		class HTTPClientSession;
-		class HTTPRequest;
-		class HTTPResponse;
-		class WebSocket;
 		class ServerSocket;
 		class HTTPServer;
 	}
