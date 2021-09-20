@@ -17,6 +17,7 @@ cTcpClient::cTcpClient(
 	, m_recvQueue(this, logId)
 	, m_recvBuffer(NULL)
 	, m_isThreadMode(false)
+	, m_sessionListener(nullptr)
 {
 }
 
@@ -77,8 +78,8 @@ $error:
 }
 
 
-// netId에 해당하는 socket을 리턴한다.
-// 클라이언트는 netid를 한개 만 관리한다. 
+// return socket correspond netid
+// client has only one netid
 SOCKET cTcpClient::GetSocket(const netid netId)
 {
 	if ((m_id != netId) && (network2::SERVER_NETID != netId))
@@ -89,7 +90,8 @@ SOCKET cTcpClient::GetSocket(const netid netId)
 }
 
 
-// 클라이언트는 SOCKET을 한개 만 관리한다. 
+// return netid correspond socket
+// client han only one socket
 netid cTcpClient::GetNetIdFromSocket(const SOCKET sock)
 {
 	if (m_socket != sock)
@@ -142,8 +144,9 @@ bool cTcpClient::Process()
 	if (ret != 0 && ret != SOCKET_ERROR)
 	{
 		const int result = recv(readSockets.fd_array[0], m_recvBuffer, m_maxBuffLen, 0);
-		if (result == SOCKET_ERROR || result == 0) // 받은 패킷사이즈가 0이면 서버와 접속이 끊겼다는 의미다.
+		if (result == SOCKET_ERROR || result == 0)
 		{
+			// when receive packet size == 0, disconnect state
 			// socket error occur
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 			m_state = eState::Disconnect;
@@ -178,6 +181,24 @@ bool cTcpClient::Process()
 	}
 
 	return true;
+}
+
+
+// disconnect server event
+bool cTcpClient::RemoveSession()
+{
+	if (m_sessionListener)
+		m_sessionListener->RemoveSession(*this);
+
+	Close();
+	return true;
+}
+
+
+// update session listener
+void cTcpClient::SetSessionListener(iSessionListener *listener)
+{
+	m_sessionListener = listener;
 }
 
 

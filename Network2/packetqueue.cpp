@@ -58,7 +58,16 @@ bool cPacketQueue::Push(const netid senderId, iPacketHeader *packetHeader
 	auto it = m_sockBuffers.find(senderId);
 	if (m_sockBuffers.end() == it)
 	{
-		sockBuff = new cSocketBuffer(senderId, m_sockBufferSize);
+		if (!m_frees.empty())
+		{
+			sockBuff = *m_frees.begin();
+			m_frees.erase(*m_frees.begin());
+			sockBuff->m_netId = senderId;
+		}
+		else
+		{
+			sockBuff = new cSocketBuffer(senderId, m_sockBufferSize);
+		}
 		m_sockBuffers.insert({ senderId, sockBuff });
 	}
 	else
@@ -213,13 +222,14 @@ void cPacketQueue::SendAll(
 			}
 			else
 			{
-				const int result = m_netNode->SendImmediate(sockBuffer->m_netId, packet);
+				int result = m_netNode->SendImmediate(sockBuffer->m_netId, packet);
 				if (result != packet.GetPacketSize())
 				{
 					// error!!, no remove buffer, resend
 					dbg::Logc(2, "Error Send Packet\n");
+					result = SOCKET_ERROR;
 					isSendError = true;
-					break;
+					//break;
 				}
 
 				// write packet log?
@@ -335,6 +345,21 @@ bool cPacketQueue::SendBroadcast(const map<netid, SOCKET> &socks
 }
 
 
+// remove socket buffer correspond netid
+bool cPacketQueue::Remove(const netid id)
+{
+	cAutoCS cs(m_cs);
+
+	auto it = m_sockBuffers.find(id);
+	if (m_sockBuffers.end() == it)
+		return false; // not found
+	it->second->Clear();
+	m_frees.insert(it->second);
+	m_sockBuffers.remove(id);
+	return true;
+}
+
+
 void cPacketQueue::Lock()
 {
 	EnterCriticalSection(&m_cs);
@@ -352,6 +377,9 @@ void cPacketQueue::Clear()
 	cAutoCS cs(m_cs);
 	for (auto sock : m_sockBuffers.m_seq)
 		delete sock;
+	for (auto &sock : m_frees)
+		delete sock;
 	m_sockBuffers.clear();
+	m_frees.clear();
 	m_nextFrontIdx = 0;
 }

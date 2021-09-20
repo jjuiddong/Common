@@ -25,6 +25,7 @@ cWebClient::cWebClient(
 	, m_recvQueue(this, logId)
 	, m_recvBuffer(nullptr)
 	, m_isThreadMode(false)
+	, m_sessionListener(nullptr)
 {
 }
 
@@ -68,6 +69,11 @@ bool cWebClient::Init(const string &url
 
 	m_state = eState::ReadyConnect;
 
+	if (!m_recvQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+	if (!m_sendQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+
 	if (isThreadMode)
 	{
 		m_thread = std::thread(cWebClient::ThreadFunction, this);
@@ -78,11 +84,6 @@ bool cWebClient::Init(const string &url
 			goto $error;
 	}
 
-	if (!m_recvQueue.Init(packetSize, maxPacketCount))
-		goto $error;
-	if (!m_sendQueue.Init(packetSize, maxPacketCount))
-		goto $error;
-
 	return true;
 
 
@@ -92,8 +93,8 @@ $error:
 }
 
 
-// netId에 해당하는 socket을 리턴한다.
-// 클라이언트는 netid를 한개 만 관리한다. 
+// return socket correspond netid
+// webclient has one socket
 SOCKET cWebClient::GetSocket(const netid netId)
 {
 	if ((m_id != netId) && (network2::SERVER_NETID != netId))
@@ -104,7 +105,8 @@ SOCKET cWebClient::GetSocket(const netid netId)
 }
 
 
-// 클라이언트는 SOCKET을 한개 만 관리한다. 
+// return netid correspond socket
+// webclient has one netid
 netid cWebClient::GetNetIdFromSocket(const SOCKET sock)
 {
 	if (m_socket != sock)
@@ -118,7 +120,6 @@ netid cWebClient::GetNetIdFromSocket(const SOCKET sock)
 void cWebClient::GetAllSocket(OUT map<netid, SOCKET> &out)
 {
 	// add temporal socket value to process socket send
-	common::AutoCSLock cs(m_cs);
 	out.insert({ m_id, 0});
 	out.insert({ network2::SERVER_NETID, 0 });
 }
@@ -167,38 +168,63 @@ bool cWebClient::Process()
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];
 
-	// Receive Packet
-	int result = 0;
+	// receive packet
+	Poco::Net::Socket::SocketList reads;
+	Poco::Net::Socket::SocketList writes;
+	Poco::Net::Socket::SocketList excepts;
+	reads.push_back(*m_websocket);
+
+	int selResult = 0;
 	try
 	{
-		int flags = 0;
-		result = m_websocket->receiveFrame(m_recvBuffer, m_maxBuffLen, flags);
+		selResult = m_websocket->select(reads, writes, excepts, Poco::Timespan(0, 0));
 	}
 	catch (Poco::TimeoutException)
 	{
 		// timeout
 	}
-	catch (std::exception)
+	catch (std::exception &e)
 	{
-		// socket error occurred!!
-		result = SOCKET_ERROR;
+		dbg::Logc(2, "error cWebClient select(), %s\n", e.what());
 	}
 
-	if (result == SOCKET_ERROR) // connection error, disconnect
+	if ((0 != selResult) && (SOCKET_ERROR != selResult))
 	{
-		m_state = eState::Disconnect;
-		m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
-	}
-	else if (result > 0)
-	{
-		const netid netId = GetNetIdFromSocket(m_socket);
-		if (netId == INVALID_NETID)
+		int result = 0;
+		try
 		{
-			// not found netid
+			int flags = 0;
+			result = m_websocket->receiveFrame(m_recvBuffer, m_maxBuffLen, flags);
+			if (flags & Poco::Net::WebSocket::FRAME_OP_CLOSE)
+				result = INVALID_SOCKET;
 		}
-		else
+		catch (Poco::TimeoutException)
 		{
-			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
+			// timeout
+		}
+		catch (std::exception &e)
+		{
+			// socket error occurred!!
+			dbg::Logc(2, "error cWebClient receive, %s\n", e.what());
+			result = SOCKET_ERROR;
+		}
+
+		if (SOCKET_ERROR == result) // connection error, disconnect
+		{
+			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
+			m_state = eState::Disconnect;
+		}
+		else if (result > 0)
+		{
+			const netid netId = GetNetIdFromSocket(m_socket);
+			if (netId == INVALID_NETID)
+			{
+				// not found netid
+			}
+			else
+			{
+				m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
+			}
 		}
 	}
 
@@ -207,16 +233,33 @@ bool cWebClient::Process()
 		map<netid, SOCKET> socks;
 		GetAllSocket(socks);
 
-		set<netid> errSocks;
-		m_sendQueue.SendAll(socks, &errSocks);
+		set<netid> errNetIds;
+		m_sendQueue.SendAll(socks, &errNetIds);
 
-		if (!errSocks.empty())
+		if (!errNetIds.empty())
 		{
 			m_state = eState::Disconnect;
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 		}
 	}
 	return true;
+}
+
+
+// disconnect server event
+bool cWebClient::RemoveSession()
+{
+	if (m_sessionListener)
+		m_sessionListener->RemoveSession(*this);
+
+	Close();
+	return true;
+}
+
+
+void cWebClient::SetSessionListener(iSessionListener *listener)
+{
+	m_sessionListener = listener;
 }
 
 

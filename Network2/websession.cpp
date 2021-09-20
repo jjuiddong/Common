@@ -18,6 +18,8 @@ cWebSession::cWebSession(const netid id, const StrId &name
 	: cSession(id, name, logId)
 	, m_ws(ws)
 {
+	if (ws)
+		m_socket = ws->impl()->sockfd();
 }
 
 cWebSession::~cWebSession()
@@ -29,5 +31,9 @@ cWebSession::~cWebSession()
 // close session
 void cWebSession::Close()
 {
+	if (m_ws)
+		m_ws->close();
 	SAFE_DELETE(m_ws);
+	m_socket = INVALID_SOCKET;
+	__super::Close();
 }

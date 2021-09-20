@@ -36,6 +36,8 @@ namespace network2
 		);
 		bool ReConnect();
 		bool Process();
+		bool RemoveSession();
+		void SetSessionListener(iSessionListener *listener);
 		virtual void Close() override;
 
 		// Override
@@ -66,6 +68,7 @@ namespace network2
 		int m_maxBuffLen;
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
+		iSessionListener *m_sessionListener;
 
 		std::thread m_thread;
 		CriticalSection m_cs;

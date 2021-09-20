@@ -185,8 +185,9 @@ bool cTcpServer::ReceiveProcces()
 		if (netId == INVALID_NETID)
 			continue; // not found netid
 
-		if (result == SOCKET_ERROR || result == 0) // 받은 패킷사이즈가 0이면 서버와 접속이 끊겼다는 의미다.
+		if (result == SOCKET_ERROR || result == 0) 
 		{
+			// when receive packet size == 0, disconnect state
 			if (!m_recvQueue.Push(netId, DisconnectPacket(this, netId)))
 				RemoveSession(netId); // exception process
 		}
@@ -198,6 +199,7 @@ bool cTcpServer::ReceiveProcces()
 
 	return true;
 }
+
 
 // update session listener
 void cTcpServer::SetSessionListener(iSessionListener *listener)
@@ -235,7 +237,7 @@ void cTcpServer::MakeFdSet(OUT fd_set &out)
 }
 
 
-// netId에 해당하는 socket을 리턴한다.
+// return socket correspond netid
 SOCKET cTcpServer::GetSocket(const netid netId)
 {
 	if (netId == m_id)
@@ -250,7 +252,7 @@ SOCKET cTcpServer::GetSocket(const netid netId)
 }
 
 
-// SOCKET에 해당하는 netid를 리턴한다.
+// return netid correspond socket
 netid cTcpServer::GetNetIdFromSocket(const SOCKET sock)
 {
 	if (sock == m_socket)
@@ -349,6 +351,7 @@ bool cTcpServer::RemoveSession(const netid netId)
 		SAFE_DELETE(session);
 		m_sessions.remove(netId);
 		m_sockets.remove(sock);
+		m_recvQueue.Remove(netId);
 	}
 
 	return true;

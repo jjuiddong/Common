@@ -6,6 +6,7 @@
 //
 #pragma once
 
+#include "Poco/Net/Socket.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 
 // Poco library class forward declaration
@@ -40,9 +41,9 @@ namespace network2
 		bool AddSession(const SOCKET sock, const Str16 &ip, const int port);
 		bool RemoveSession(const netid netId);
 		bool IsExist(const netid netId);
-		cSession* FindSessionBySocket(const SOCKET sock);
-		cSession* FindSessionByNetId(const netid netId);
-		cSession* FindSessionByName(const StrId &name);
+		cWebSession* FindSessionBySocket(const SOCKET sock);
+		cWebSession* FindSessionByNetId(const netid netId);
+		cWebSession* FindSessionByName(const StrId &name);
 		void SetSessionListener(iSessionListener *listener);
 		virtual void Close() override;
 

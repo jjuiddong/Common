@@ -21,6 +21,9 @@
 // 2020-11-12
 //	- send, sendto interface with cNetNode
 //
+// 2021-09-20
+//	- socket buffer remove & reuse
+//
 #pragma once
 
 
@@ -46,6 +49,7 @@ namespace network2
 		bool SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner = true);
 		bool SendBroadcast(const map<netid, SOCKET> &socks, const cPacket &packet
 			, OUT set<netid> *outErrSocks = nullptr);
+		bool Remove(const netid id);
 		void Lock();
 		void Unlock();
 		void Clear();
@@ -56,6 +60,7 @@ namespace network2
 		int m_sockBufferSize; // packetSize * maxPacketCount
 		cNetworkNode *m_netNode; // owner networknode, reference
 		common::VectorMap<netid, cSocketBuffer*> m_sockBuffers;
+		set<cSocketBuffer*> m_frees; // reuse socket buffer
 		int m_nextFrontIdx; // for Front() load balancing
 		bool m_isLogIgnorePacket; // log queue full?, default = false
 		CRITICAL_SECTION m_cs;

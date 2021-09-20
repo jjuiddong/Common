@@ -62,7 +62,7 @@ void basic_protocol::ClientDispatcher::Dispatch(cPacket &packet, cTcpClient *cli
 	{
 	case PACKETID_DISCONNECT:
 	{
-		client->Close();
+		client->RemoveSession();		
 	}
 	break;
 	}
@@ -125,7 +125,7 @@ void basic_protocol::WebClientDispatcher::Dispatch(cPacket &packet, cWebClient *
 	{
 	case PACKETID_DISCONNECT:
 	{
-		client->Close();
+		client->RemoveSession();
 	}
 	break;
 	}

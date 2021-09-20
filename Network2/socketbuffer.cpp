@@ -201,5 +201,6 @@ void cSocketBuffer::Clear()
 {
 	m_totalLen = 0;
 	m_readLen = 0;
+	m_isHeaderCopy = false;
 	m_q.clear();
 }
