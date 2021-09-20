@@ -21,7 +21,6 @@ namespace Poco {
 namespace network2
 {
 	class cWebServer : public network2::cNetworkNode
-					 , public Poco::Net::HTTPRequestHandlerFactory
 	{
 	public:
 		cWebServer(
@@ -54,10 +53,6 @@ namespace network2
 		virtual int Send(const netid rcvId, const cPacket &packet) override;
 		virtual int SendImmediate(const netid rcvId, const cPacket &packet) override;
 		virtual int SendAll(const cPacket &packet) override;
-
-		// Poco::Net::HTTPRequestHandlerFactory interface
-		Poco::Net::HTTPRequestHandler* createRequestHandler(
-			const Poco::Net::HTTPServerRequest& request) override;
 
 
 	protected:

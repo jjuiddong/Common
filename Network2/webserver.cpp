@@ -71,6 +71,24 @@ public:
 	}
 };
 
+//----------------------------------------------------------------------------------
+// HTTPRequestHandlerFactory
+class cHTTPRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
+{
+public:
+	cWebServer &m_webServer;
+	cHTTPRequestHandlerFactory(cWebServer &wsServer) : m_webServer(wsServer) {
+	}
+	Poco::Net::HTTPRequestHandler* createRequestHandler(
+		const Poco::Net::HTTPServerRequest& request)
+	{
+		if (request.find("Upgrade") != request.end()
+			&& Poco::icompare(request["Upgrade"], "websocket") == 0)
+			return new cWebSocketRequestHandler(m_webServer);
+		return nullptr;
+	}
+};
+
 
 //----------------------------------------------------------------------------------
 // cWebServer
@@ -117,7 +135,8 @@ bool cWebServer::Init(const int bindPort
 	m_timer.Create();
 
 	m_websocket = new Poco::Net::ServerSocket(bindPort);
-	m_httpServer = new Poco::Net::HTTPServer(this, *m_websocket, new HTTPServerParams);
+	m_httpServer = new Poco::Net::HTTPServer(new cHTTPRequestHandlerFactory(*this)
+		, *m_websocket, new HTTPServerParams);
 	m_httpServer->start(); // http server thread start
 
 	m_state = eState::Connect;
@@ -460,20 +479,23 @@ int cWebServer::SendAll(const cPacket &packet)
 }
 
 
-// httprequesthandler factory hanlder
-Poco::Net::HTTPRequestHandler* cWebServer::createRequestHandler(
-	const Poco::Net::HTTPServerRequest& request)
-{
-	if (request.find("Upgrade") != request.end()
-		&& Poco::icompare(request["Upgrade"], "websocket") == 0)
-		return new cWebSocketRequestHandler(*this);
-	return nullptr;
-}
-
-
 // clear
 void cWebServer::Close()
 {
+	m_state = eState::Disconnect;
+	if (m_thread.joinable())
+		m_thread.join();
+
+	{
+		AutoCSLock cs(m_cs);
+		for (auto &session : m_sessions.m_seq)
+			SAFE_DELETE(session);
+		m_sessions.clear();
+		m_sockets.clear();
+	}
+
+	SAFE_DELETEA(m_recvBuffer);
+
 	if (m_httpServer)
 	{
 		m_httpServer->stopAll();
@@ -482,6 +504,8 @@ void cWebServer::Close()
 		SAFE_DELETE(m_websocket);
 		SAFE_DELETE(m_httpServer);
 	}
+
+	cNetworkNode::Close();
 }
 
 
