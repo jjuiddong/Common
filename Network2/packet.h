@@ -30,6 +30,7 @@ namespace network2
 		cPacket();
 		cPacket(iPacketHeader *packetHeader);
 		cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSize);
+		cPacket(BYTE *src);
 		cPacket(const cPacket &rhs);
 		virtual ~cPacket();
 

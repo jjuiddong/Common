@@ -54,7 +54,9 @@ namespace network2
 		bool m_isThreadMode;
 		int m_maxBuffLen;
 		common::VectorMap<netid, cSession*> m_sessions;
-		common::VectorMap<SOCKET, cSession*> m_sockets; // reference
+		common::VectorMap<SOCKET, cSession*> m_sessions2; // reference
+		fd_set m_sockets;
+		std::atomic<bool> m_isUpdateSocket; // sync m_sockets
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
 		iSessionFactory *m_sessionFactory;

@@ -18,9 +18,10 @@ cTcpServer::cTcpServer(
 	, m_sendQueue(this, logId)
 	, m_recvQueue(this, logId)
 	, m_sessionListener(nullptr)
-	, m_tempRecvBuffer(NULL)
+	, m_tempRecvBuffer(nullptr)
 	, m_lastAcceptTime(0)
 	, m_isThreadMode(true)
+	, m_isUpdateSocket(false)
 {
 }
 
@@ -162,8 +163,18 @@ bool cTcpServer::AcceptProcess()
 bool cTcpServer::ReceiveProcces()
 {
 	fd_set readSockets;
-	MakeFdSet(readSockets);
-	if (readSockets.fd_count <= 0)
+	if (m_isUpdateSocket)
+	{
+		common::AutoCSLock cs(m_cs);
+		readSockets = m_sockets;
+		m_isUpdateSocket = false;
+	}
+	else
+	{
+		readSockets = m_sockets;
+	}
+	//MakeFdSet(readSockets);
+	if (0 == readSockets.fd_count)
 		return true;
 
 	const timeval t = { 0, 1 };
@@ -219,7 +230,7 @@ void cTcpServer::Close()
 		for (auto &session : m_sessions.m_seq)
 			SAFE_DELETE(session);
 		m_sessions.clear();
-		m_sockets.clear();
+		m_sessions2.clear();
 	}
 
 	SAFE_DELETEA(m_tempRecvBuffer);
@@ -260,8 +271,8 @@ netid cTcpServer::GetNetIdFromSocket(const SOCKET sock)
 
 	{
 		common::AutoCSLock cs(m_cs);
-		auto it = m_sockets.find(sock);
-		if (it == m_sockets.end())
+		auto it = m_sessions2.find(sock);
+		if (it == m_sessions2.end())
 			return INVALID_NETID;
 		return it->second->m_id;
 	}
@@ -272,7 +283,7 @@ netid cTcpServer::GetNetIdFromSocket(const SOCKET sock)
 void cTcpServer::GetAllSocket(OUT map<netid, SOCKET> &out)
 {
 	common::AutoCSLock cs(m_cs);
-	for (auto &sock : m_sockets.m_seq)
+	for (auto &sock : m_sessions2.m_seq)
 		out.insert({ sock->m_id, sock->m_socket });
 }
 
@@ -315,7 +326,9 @@ bool cTcpServer::AddSession(const SOCKET sock, const Str16 &ip, const int port)
 	session->m_port = port;
 	session->m_state = eState::Connect;
 	m_sessions.insert({ session->m_id, session });
-	m_sockets.insert({ sock, session });
+	m_sessions2.insert({ sock, session });
+	m_isUpdateSocket = true; // update socket list
+	FD_SET(sock, &m_sockets);
 
 	if (m_logId >= 0)
 		network2::LogSession(m_logId, *session);
@@ -340,18 +353,24 @@ bool cTcpServer::RemoveSession(const netid netId)
 		session = it->second;
 	}
 
+	bool isRemove = true;
 	if (m_sessionListener)
-		m_sessionListener->RemoveSession(*session);
+		isRemove = m_sessionListener->RemoveSession(*session);
 
 	{
 		common::AutoCSLock cs(m_cs);
 
 		const SOCKET sock = session->m_socket;
-		session->Close();
-		SAFE_DELETE(session);
+		if (isRemove)
+		{
+			session->Close();
+			SAFE_DELETE(session);
+		}
 		m_sessions.remove(netId);
-		m_sockets.remove(sock);
+		m_sessions2.remove(sock);
 		m_recvQueue.Remove(netId);
+		m_isUpdateSocket = true;
+		FD_CLR(sock, &m_sockets);
 	}
 
 	return true;
@@ -362,8 +381,8 @@ cSession* cTcpServer::FindSessionBySocket(const SOCKET sock)
 {
 	common::AutoCSLock cs(m_cs);
 
-	auto it = m_sockets.find(sock);
-	if (m_sockets.end() == it)
+	auto it = m_sessions2.find(sock);
+	if (m_sessions2.end() == it)
 		return NULL; // not found session
 	return it->second;
 }

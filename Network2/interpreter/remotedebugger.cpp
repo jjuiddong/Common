@@ -232,13 +232,13 @@ void cRemoteDebugger::Clear()
 
 
 // if remote debugger connection, send debug information
-void cRemoteDebugger::AddSession(cSession &session)
+bool cRemoteDebugger::AddSession(cSession &session)
 {
-	RET(!m_debugger);
-	RET(!m_debugger->IsLoad());
+	RETV(!m_debugger, true);
+	RETV(!m_debugger->IsLoad(), true);
 
 	common::script::cInterpreter *interpreter = m_debugger->m_interpreter;
-	RET(interpreter->m_vms.empty());
+	RETV(interpreter->m_vms.empty(), true);
 
 	const StrPath &fileName = interpreter->m_fileName;
 	common::script::cVirtualMachine *vm = interpreter->m_vms.front();
@@ -246,6 +246,7 @@ void cRemoteDebugger::AddSession(cSession &session)
 
 	m_hostProtocol.UpdateInformation(network2::ALL_NETID
 		, fileName.GetFileName(), vmName.c_str(), vm->m_reg.idx);
+	return true;
 }
 
 

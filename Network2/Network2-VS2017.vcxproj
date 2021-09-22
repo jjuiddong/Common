@@ -217,6 +217,7 @@
     <ClInclude Include="utility\all_protocol_displayer.h" />
     <ClInclude Include="utility\log.h" />
     <ClInclude Include="utility\packetlog.h" />
+    <ClInclude Include="utility\packetlog2.h" />
     <ClInclude Include="utility\sessionlog.h" />
     <ClInclude Include="utility\utility.h" />
     <ClInclude Include="webclient.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="utility\all_protocol_displayer.cpp" />
     <ClCompile Include="utility\log.cpp" />
     <ClCompile Include="utility\packetlog.cpp" />
+    <ClCompile Include="utility\packetlog2.cpp" />
     <ClCompile Include="utility\sessionlog.cpp" />
     <ClCompile Include="utility\utility.cpp" />
     <ClCompile Include="webclient.cpp" />

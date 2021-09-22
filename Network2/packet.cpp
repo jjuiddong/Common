@@ -40,6 +40,18 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 	memcpy_s(m_data, sizeof(m_buffer), src, byteSize);
 }
 
+cPacket::cPacket(BYTE *src)
+{
+	iPacketHeader *packetHeader = network2::GetPacketHeader(*(int*)src);
+	m_header = packetHeader;
+	m_lastDelim = NULL;
+	m_emptyData = false;
+	m_data = src;
+	m_readIdx = packetHeader ? packetHeader->GetHeaderSize() : 0;
+	m_writeIdx = GetPacketSize();
+	m_bufferSize = DEFAULT_PACKETSIZE;
+}
+
 cPacket::cPacket(const cPacket &rhs)
 	: m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)

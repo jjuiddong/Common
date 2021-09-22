@@ -45,8 +45,8 @@ namespace network2
 		bool RemoteProcess(const float deltaSeconds);
 
 		// cTcpServer session listener handler
-		virtual void RemoveSession(cSession &session) override {} // nothing
-		virtual void AddSession(cSession &session) override;
+		virtual bool RemoveSession(cSession &session) override { return true; } // nothing
+		virtual bool AddSession(cSession &session) override;
 
 		// Remote Debugging Protocol Handler (Host)
 		virtual bool ReqOneStep(remotedbg::ReqOneStep_Packet &packet) override;

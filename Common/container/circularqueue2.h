@@ -28,11 +28,12 @@ namespace common
 		bool empty() const;
 		bool full() const;
 		uint size() const;
+		uint remain() const;
 		void clear();
 
 
 	public:
-		T *m_datas;
+		T *m_buffer;
 		int m_front;
 		int m_rear;
 		const int SIZE;
@@ -43,7 +44,7 @@ namespace common
 	cCircularQueue2<T>::cCircularQueue2(const uint maxSize)
 		: m_front(0)
 		, m_rear(0)
-		, m_datas(new T[maxSize])
+		, m_buffer(new T[maxSize])
 		, SIZE(maxSize)
 	{
 	}
@@ -53,15 +54,15 @@ namespace common
 	cCircularQueue2<T>::~cCircularQueue2()
 	{
 		clear();
-		delete[] m_datas;
-		m_datas = NULL;
+		delete[] m_buffer;
+		m_buffer = NULL;
 	}
 
 
 	template<class T>
 	void cCircularQueue2<T>::push(const T &t)
 	{
-		m_datas[m_rear] = t;
+		m_buffer[m_rear] = t;
 		m_rear = (m_rear + 1) % SIZE;
 		if (m_rear == m_front)
 			m_front = (m_front + 1) % SIZE;
@@ -72,14 +73,14 @@ namespace common
 	template<class T>
 	uint cCircularQueue2<T>::push(const T *t, const uint size0)
 	{
-		const uint remainSize = SIZE - size() - 1;
+		const uint remainSize = remain();
 		if (remainSize < size0)
 			return 0;
 
 		uint totalCpSize = 0;
 		const uint maxSize = (m_front > m_rear) ? (m_front - m_rear - 1) : (SIZE - m_rear);
 		const uint cpSize = min(maxSize, size0);
-		memcpy(&m_datas[m_rear], t, cpSize);
+		memcpy(&m_buffer[m_rear], t, cpSize);
 		totalCpSize += cpSize;
 
 		if ((cpSize < size0) && (m_rear >= m_front))
@@ -87,7 +88,7 @@ namespace common
 			// copy remain data
 			const uint remainSize = max(0, m_front - 1);
 			const uint remainCpSize = min(remainSize, size0 - cpSize);
-			memcpy(&m_datas[0], t + cpSize, remainCpSize);
+			memcpy(&m_buffer[0], t + cpSize, remainCpSize);
 			totalCpSize += remainCpSize;
 
 			m_rear = remainCpSize;
@@ -160,7 +161,7 @@ namespace common
 		if (m_front < m_rear)
 		{
 			const uint popSize = min(curSize, size0);
-			memcpy(dst, &m_datas[m_front], popSize);
+			memcpy(dst, &m_buffer[m_front], popSize);
 			m_front += popSize;
 			m_front %= SIZE;
 			return popSize == size0;
@@ -168,14 +169,14 @@ namespace common
 		else
 		{
 			const uint popSize = min((uint)(SIZE - m_front), size0);
-			memcpy(dst, &m_datas[m_front], popSize);
+			memcpy(dst, &m_buffer[m_front], popSize);
 			m_front += popSize;
 			m_front %= SIZE;
 
 			if (popSize < size0)
 			{
 				const uint popRemainSize = min((uint)m_rear, size0 - popSize);
-				memcpy(dst + popSize, &m_datas[0], popRemainSize);
+				memcpy(dst + popSize, &m_buffer[0], popRemainSize);
 				m_front = popRemainSize;
 				m_front %= SIZE;
 				return size0 == (popSize + popRemainSize);
@@ -189,7 +190,7 @@ namespace common
 	template<class T>
 	T& cCircularQueue2<T>::front()
 	{
-		return m_datas[m_front];
+		return m_buffer[m_front];
 	}
 
 
@@ -206,18 +207,18 @@ namespace common
 		if (m_front < m_rear)
 		{
 			const uint cpSize = min(curSize, size0);
-			memcpy(dst, &m_datas[m_front], cpSize);
+			memcpy(dst, &m_buffer[m_front], cpSize);
 			return cpSize == size0;
 		}
 		else
 		{
 			const uint cpSize = min((uint)(SIZE - m_front), size0);
-			memcpy(dst, &m_datas[m_front], cpSize);
+			memcpy(dst, &m_buffer[m_front], cpSize);
 
 			if (cpSize < size0)
 			{
 				const uint cpRemainSize = min((uint)m_rear, size0 - cpSize);
-				memcpy(dst + cpSize, &m_datas[0], cpRemainSize);
+				memcpy(dst + cpSize, &m_buffer[0], cpRemainSize);
 				return size0 == (cpSize + cpRemainSize);
 			}
 		}
@@ -229,21 +230,21 @@ namespace common
 	template<class T>
 	T* cCircularQueue2<T>::frontPtr()
 	{
-		return &m_datas[m_front];
+		return &m_buffer[m_front];
 	}
 
 
 	template<class T>
 	T& cCircularQueue2<T>::back()
 	{
-		return m_datas[(m_rear - 1 + SIZE) % SIZE];
+		return m_buffer[(m_rear - 1 + SIZE) % SIZE];
 	}
 
 
 	template<class T>
 	T* cCircularQueue2<T>::backPtr()
 	{
-		return &m_datas[(m_rear - 1 + SIZE) % SIZE];
+		return &m_buffer[(m_rear - 1 + SIZE) % SIZE];
 	}
 
 
@@ -270,6 +271,14 @@ namespace common
 			return (uint)((SIZE - m_front) + m_rear);
 		}
 		return (uint)(m_rear - m_front);
+	}
+
+
+	// return remainning size
+	template<class T>
+	uint cCircularQueue2<T>::remain() const
+	{
+		return full()? 0 : (SIZE - size() - 1);
 	}
 
 

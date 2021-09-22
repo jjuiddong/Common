@@ -108,6 +108,7 @@ cWebServer::cWebServer(
 	, m_recvBuffer(nullptr)
 	, m_lastAcceptTime(0)
 	, m_isThreadMode(true)
+	, m_isUpdateSocket(false)
 {
 }
 
@@ -207,13 +208,15 @@ bool cWebServer::AddSession(const SOCKET sock, const Str16 &ip, const int port)
 
 	cWebSession *session = m_sessionFactory->New();
 	session->m_id = tmpSession->m_id;
-	session->m_socket = tmpSession->m_socket;
+	session->m_socket = sock;
 	session->m_ws = ws;
 	session->m_ip = ip;
 	session->m_port = port;
 	session->m_state = eState::Connect;
 	m_sessions.insert({ session->m_id, session });
-	m_sockets.insert({ sock, session });
+	m_sessions2.insert({ sock, session });
+	m_isUpdateSocket = true; // update socket list
+	FD_SET(sock, &m_sockets);
 
 	if (m_logId >= 0)
 		network2::LogSession(m_logId, *session);
@@ -242,18 +245,24 @@ bool cWebServer::RemoveSession(const netid netId)
 		session = it->second;
 	}
 
+	bool isRemove = true;
 	if (m_sessionListener)
-		m_sessionListener->RemoveSession(*session);
+		isRemove = m_sessionListener->RemoveSession(*session);
 
 	{
 		common::AutoCSLock cs(m_cs);
 
 		const SOCKET sock = session->m_socket;
-		session->Close();
-		SAFE_DELETE(session);
+		if (isRemove)
+		{
+			session->Close();
+			SAFE_DELETE(session);
+		}
 		m_sessions.remove(netId);
-		m_sockets.remove(sock);
+		m_sessions2.remove(sock);
 		m_recvQueue.Remove(netId);
+		m_isUpdateSocket = true;
+		FD_CLR(sock, &m_sockets);
 	}
 
 	return true;
@@ -274,8 +283,8 @@ cWebSession* cWebServer::FindSessionBySocket(const SOCKET sock)
 {
 	common::AutoCSLock cs(m_cs);
 
-	auto it = m_sockets.find(sock);
-	if (m_sockets.end() == it)
+	auto it = m_sessions2.find(sock);
+	if (m_sessions2.end() == it)
 		return NULL; // not found session
 	return it->second;
 }
@@ -306,44 +315,38 @@ cWebSession* cWebServer::FindSessionByName(const StrId &name)
 // packet receive process
 bool cWebServer::ReceiveProcces()
 {
-	set<netid> rmSessions; // remove session ids
-	Poco::Net::Socket::SocketList reads;
-	Poco::Net::Socket::SocketList writes;
-	Poco::Net::Socket::SocketList excepts;
+	fd_set readSockets;
+	if (m_isUpdateSocket)
 	{
 		common::AutoCSLock cs(m_cs);
-		reads.reserve(m_sessions.size());
-		for (auto &session : m_sessions.m_seq)
-			if (session->IsConnect())
-			reads.push_back(*session->m_ws);
+		readSockets = m_sockets;
+		m_isUpdateSocket = false;
 	}
+	else
+	{
+		readSockets = m_sockets;
+	}
+	if (0 == readSockets.fd_count)
+		return true;
 
-	int selResult = 0;
-	try
-	{
-		selResult = m_websocket->select(reads, writes, excepts, Poco::Timespan(0, 0));
-	}
-	catch (Poco::TimeoutException)
-	{
-		// timeout
-	}
-	catch (std::exception &e)
-	{
-		dbg::Logc(2, "error cWebServer select(), %s\n", e.what());		
-	}
-	
+	set<netid> rmSessions; // remove session ids
+	const timeval t = { 0, 1 };
+	const fd_set sockets = readSockets;
+
+	const int selResult = select(readSockets.fd_count, &readSockets, nullptr, nullptr, &t);
 	if (0 == selResult)
 		return true; // nothing
 	if (SOCKET_ERROR == selResult)
 		return false; // error occurred, nothing
 
-	// receive packet process
 	{
 		common::AutoCSLock cs(m_cs);
-		for (auto &sock : reads)
+		for (u_int i = 0; i < sockets.fd_count; ++i)
 		{
-			auto it = m_sockets.find(sock.impl()->sockfd());
-			if (m_sockets.end() == it)
+			if (!FD_ISSET(sockets.fd_array[i], &readSockets))
+				continue;
+			auto it = m_sessions2.find(sockets.fd_array[i]);
+			if (m_sessions2.end() == it)
 				continue; // not found session
 
 			cWebSession *session = it->second;
@@ -376,14 +379,6 @@ bool cWebServer::ReceiveProcces()
 			if (result > 0)
 				m_recvQueue.Push(session->m_id, (BYTE*)m_recvBuffer, result);
 		}//~for
-
-		// exception socket
-		for (auto &sock : excepts)
-		{
-			auto it = m_sockets.find(sock.impl()->sockfd());
-			if (m_sockets.end() != it)
-				rmSessions.insert(it->second->m_id);
-		}
 	}
 
 	// exception process, remove session
@@ -423,8 +418,8 @@ netid cWebServer::GetNetIdFromSocket(const SOCKET sock)
 
 	{
 		common::AutoCSLock cs(m_cs);
-		auto it = m_sockets.find(sock);
-		if (it == m_sockets.end())
+		auto it = m_sessions2.find(sock);
+		if (it == m_sessions2.end())
 			return INVALID_NETID;
 		return it->second->m_id;
 	}
@@ -435,7 +430,7 @@ netid cWebServer::GetNetIdFromSocket(const SOCKET sock)
 void cWebServer::GetAllSocket(OUT map<netid, SOCKET> &out)
 {
 	common::AutoCSLock cs(m_cs);
-	for (auto &sock : m_sockets.m_seq)
+	for (auto &sock : m_sessions2.m_seq)
 		out.insert({ sock->m_id, sock->m_socket });
 }
 
@@ -491,7 +486,7 @@ void cWebServer::Close()
 		for (auto &session : m_sessions.m_seq)
 			SAFE_DELETE(session);
 		m_sessions.clear();
-		m_sockets.clear();
+		m_sessions2.clear();
 	}
 
 	SAFE_DELETEA(m_recvBuffer);

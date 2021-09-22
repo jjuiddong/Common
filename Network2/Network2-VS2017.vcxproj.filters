@@ -174,6 +174,9 @@
     <ClInclude Include="webserver.h">
       <Filter>Service</Filter>
     </ClInclude>
+    <ClInclude Include="utility\packetlog2.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -302,6 +305,9 @@
     </ClCompile>
     <ClCompile Include="webserver.cpp">
       <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\packetlog2.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

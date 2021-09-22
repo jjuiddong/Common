@@ -52,7 +52,7 @@ public:
 			StrPath path;
 			path.Format("%s%d.plog", GetPacketLogPath(m_logData.id).c_str()
 				, m_logData.rcvId);
-			cPacketLog::Write(path.c_str(), m_logData);
+			cPacketLog2::Write(path.c_str(), m_logData);
 		}
 		break;
 		default: assert(0); break;

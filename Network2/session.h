@@ -47,8 +47,8 @@ namespace network2
 	class iSessionListener
 	{
 	public:
-		virtual void RemoveSession(network2::cSession &session) = 0;
-		virtual void AddSession(network2::cSession &session) = 0;
+		virtual bool RemoveSession(network2::cSession &session) = 0;
+		virtual bool AddSession(network2::cSession &session) = 0;
 	};
 
 }
