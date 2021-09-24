@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "log.h"
 #include <direct.h>
-#include "packetlog.h"
 
 
 namespace network2
@@ -52,7 +51,7 @@ public:
 			StrPath path;
 			path.Format("%s%d.plog", GetPacketLogPath(m_logData.id).c_str()
 				, m_logData.rcvId);
-			cPacketLog2::Write(path.c_str(), m_logData);
+			cPacketLog::Write(path.c_str(), m_logData);
 		}
 		break;
 		default: assert(0); break;

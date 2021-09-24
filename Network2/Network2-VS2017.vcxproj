@@ -173,7 +173,7 @@
     <ClInclude Include="ftpclient\FTPListParse.h" />
     <ClInclude Include="ftpclient\smart_ptr.h" />
     <ClInclude Include="interpreter\remotedebugger.h" />
-    <ClInclude Include="interpreter\remotedebugger2.h" />
+    <ClInclude Include="interpreter\remoteinterpreter.h" />
     <ClInclude Include="interpreter\Src\remotedbg2_Protocol.h" />
     <ClInclude Include="interpreter\Src\remotedbg2_ProtocolData.h" />
     <ClInclude Include="interpreter\Src\remotedbg2_ProtocolHandler.h" />
@@ -217,7 +217,6 @@
     <ClInclude Include="utility\all_protocol_displayer.h" />
     <ClInclude Include="utility\log.h" />
     <ClInclude Include="utility\packetlog.h" />
-    <ClInclude Include="utility\packetlog2.h" />
     <ClInclude Include="utility\sessionlog.h" />
     <ClInclude Include="utility\utility.h" />
     <ClInclude Include="webclient.h" />
@@ -231,7 +230,7 @@
     <ClCompile Include="ftpclient\FTPFileStatus.cpp" />
     <ClCompile Include="ftpclient\FTPListParse.cpp" />
     <ClCompile Include="interpreter\remotedebugger.cpp" />
-    <ClCompile Include="interpreter\remotedebugger2.cpp" />
+    <ClCompile Include="interpreter\remoteinterpreter.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg2_Protocol.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg2_ProtocolHandler.cpp" />
     <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp" />
@@ -268,7 +267,6 @@
     <ClCompile Include="utility\all_protocol_displayer.cpp" />
     <ClCompile Include="utility\log.cpp" />
     <ClCompile Include="utility\packetlog.cpp" />
-    <ClCompile Include="utility\packetlog2.cpp" />
     <ClCompile Include="utility\sessionlog.cpp" />
     <ClCompile Include="utility\utility.cpp" />
     <ClCompile Include="webclient.cpp" />

@@ -221,8 +221,24 @@ void cPacket::Write4ByteAlign()
 // Basic Packet
 
 // Global Reserved Packet
-// Disconnect 패킷을 리턴한다.
-// netid: disconnect 된 netid
+
+// return Connect packet
+// netid: disconnect netid
+// binary marshalling
+cPacket network2::ConnectPacket(cNetworkNode *node, netid connectId)
+{
+	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
+	packet.SetSenderId(SERVER_NETID);
+	packet.SetProtocolId(0); // basic_protocol
+	packet.SetPacketId(PACKETID_CONNECT);
+	packet << connectId;
+	packet.EndPack();
+	return packet;
+}
+
+
+// return Disconnect packet
+// netid: disconnect netid
 // binary marshalling
 cPacket network2::DisconnectPacket(cNetworkNode *node, netid disconnectId)
 {
@@ -236,19 +252,19 @@ cPacket network2::DisconnectPacket(cNetworkNode *node, netid disconnectId)
 }
 
 
-// Client Disconnect 패킷을 리턴한다.
-// netid: disconnect 된 netid
+// return Client Disconnect packet connect Server
+// netid: disconnect netid
 // binary marshalling
-cPacket network2::ClientDisconnectPacket(cNetworkNode *node, netid disconnectId)
-{
-	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
-	packet.SetSenderId(SERVER_NETID);
-	packet.SetProtocolId(0); // basic_protocol
-	packet.SetPacketId(PACKETID_CLIENT_DISCONNECT);
-	packet << disconnectId;
-	packet.EndPack();
-	return packet;
-}
+//cPacket network2::ClientDisconnectPacket(cNetworkNode *node, netid disconnectId)
+//{
+//	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
+//	packet.SetSenderId(SERVER_NETID);
+//	packet.SetProtocolId(0); // basic_protocol
+//	packet.SetPacketId(PACKETID_CLIENT_DISCONNECT);
+//	packet << disconnectId;
+//	packet.EndPack();
+//	return packet;
+//}
 
 
 // return the AcceptPacket

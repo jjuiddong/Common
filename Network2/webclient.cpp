@@ -209,7 +209,7 @@ bool cWebClient::Process()
 			result = SOCKET_ERROR;
 		}
 
-		if (SOCKET_ERROR == result) // connection error, disconnect
+		if ((SOCKET_ERROR == result) || (0 == result)) // connection error, disconnect
 		{
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 			m_state = eState::Disconnect;
@@ -246,7 +246,16 @@ bool cWebClient::Process()
 }
 
 
-// disconnect server event
+// connect server event, call from basic dispatcher
+bool cWebClient::AddSession()
+{
+	if (m_sessionListener)
+		m_sessionListener->AddSession(*this);
+	return true;
+}
+
+
+// disconnect server event, call from basic dispatcher
 bool cWebClient::RemoveSession()
 {
 	if (m_sessionListener)
@@ -284,10 +293,12 @@ bool cWebClient::ConnectServer()
 	{
 		m_websocket = new Poco::Net::WebSocket(*m_session, *m_request, *m_response);
 		m_websocket->setReceiveTimeout(Poco::Timespan(0, m_sleepMillis * 1000));
+		m_recvQueue.Push(m_id, ConnectPacket(this, m_id));
 	}
 	catch (std::exception &e)
 	{
 		m_state = eState::Disconnect;
+		m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 		dbg::Logc(2, "Error!! WebClient Connection, url=%s, port=%d, desc=%s\n"
 			, m_url.c_str(), m_port, e.what());
 		return false;
@@ -348,11 +359,9 @@ int cWebClient::ThreadFunction(cWebClient *client)
 {
 	if (!client->ConnectServer())
 		return 0; // error connection, stop thread
-
 	while (eState::Connect == client->m_state)
 	{
 		client->Process();
 	}
-
 	return 0;
 }

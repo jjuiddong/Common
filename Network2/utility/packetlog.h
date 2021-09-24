@@ -4,6 +4,10 @@
 //	- *.plog file read
 //	- write network2::LogPacket()
 //
+// 2021-09-21
+//	- optimize
+//	- binary streaming
+//
 #pragma once
 
 
@@ -20,60 +24,52 @@ namespace network2
 		BYTE data[DEFAULT_PACKETSIZE];
 	};
 
-
 	class cPacketLog
 	{
 	public:
-		struct sPacketLogInfo : public common::cMemoryPool4<sPacketLogInfo>
+		struct sPacketInfo
 		{
 			uint64 dateTime; // yyyymmddhhmmssmmm
 			netid sndId;
 			netid rcvId;
 			uint size;
-			cPacket *packet;
-			StrId name; // packet name
-			hashcode nameHashcode; // for fast compare
-			string packetInfo;
 		};
 
 		cPacketLog();
 		virtual ~cPacketLog();
 
-		bool Read(const char *fileName);
-		bool ReadAll(const char *fileName);
-		uint Streaming();
-		sPacketLogInfo* ReadPacket(const uint64 dateTime);
+		bool Read(const StrPath &fileName);
 		bool ReadPacket(const uint64 beginDateTime, const uint64 endDateTime
-			, OUT vector<sPacketLogInfo*> &out);
-		cDateTimeRange GetTimeRange(const char *fileName);
-		cDateTimeRange GetTimeRange2(const char *fileName);
-		void ClearSearchCursor();
+			, OUT vector<sPacketInfo*> &out1, OUT vector<BYTE*> &out2);
+		bool SetTimeLine(const uint64 dateTime);
+		cDateTimeRange GetTimeRange(const StrPath &fileName);
 		void Clear();
 
 		static bool Write(const char *fileName, const sPacketLogData &logData);
 
 
 	protected:
-		uint ReadStream(std::istream &ifs);
-		std::streampos GetReadPos(const char *fileName);
+		int Load();
+		bool IsLogHeader(const BYTE *buffer);
+		bool IsValidDateTime(const uint64 dateTime);
 
 
 	public:
+		enum {
+			BUFFER_SIZE = 1024 * 100
+		};
+
 		netid m_id; // session id
 		StrId m_name; // session Name
-		int m_totalCount; // total packet count
-		bool m_isCompareDisplay; // dateTime compare display on/off
-		cPacketHeader m_binPacketHeader;
-		cPacketHeaderAscii m_asciiPacketHeader;
-		cPacketHeaderJson m_jsonPacketHeader;
-		list<sPacketLogInfo*> m_packets; // vector -> list (for streaming)
+		StrPath m_fileName; // packet log filename
 
-		// streaming
-		StrPath m_fileName;
+		// streaming information
 		std::streampos m_readPos;
-		int m_maxFileSize; // default: 500, (0:infinite packets)
-		list<sPacketLogInfo*>::iterator m_searchItor; // ReadPacket() fast search itor
-		common::cMemoryPool3<cPacket> m_packetMemPool;
+		int m_cursor; // buffer cursor
+		uint64 m_fileSize; // packet logfile size
+		bool m_isEof; // is end of file?
+		BYTE *m_buffer; // streaming buffer
+		cDateTimeRange m_timeRange; // packet log start, end time range
 	};
 
 }

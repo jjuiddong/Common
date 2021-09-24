@@ -304,8 +304,10 @@ int cTcpServer::SendImmediate(const netid rcvId, const cPacket &packet)
 
 
 // send packet to all client
-int cTcpServer::SendAll(const cPacket &packet)
+int cTcpServer::SendAll(const cPacket &packet, set<netid> *outErrs //= nullptr
+)
 {
+	assert(0);
 	return 1; // not implements
 }
 

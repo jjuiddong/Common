@@ -66,12 +66,11 @@ typedef int netid;
 #include "prtcompiler/ProtocolParser.h"
 
 #include "interpreter/remotedebugger.h"
-#include "interpreter/remotedebugger2.h"
+#include "interpreter/remoteinterpreter.h"
 
 #include "utility/all_protocol_displayer.h"
 #include "utility/log.h"
 #include "utility/packetlog.h"
-#include "utility/packetlog2.h"
 #include "utility/sessionlog.h"
 #include "utility/utility.h"
 

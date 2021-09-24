@@ -1,9 +1,12 @@
 //
-// 2021-09-21, jjuiddong
-// Packet Log Reader Second version
-//	- upgrade cPacketLog
+// 2019-03-09, jjuiddong
+// Packet Log Reader
+//	- *.plog file read
+//	- write network2::LogPacket()
+//
+// 2021-09-21
+//	- optimize
 //	- binary streaming
-//	- read packet logfile writed network2::LogPacket2()
 //
 #pragma once
 
@@ -11,7 +14,17 @@
 namespace network2
 {
 
-	class cPacketLog2
+	struct sPacketLogData
+	{
+		int id; // log id
+		int type; // 0:session, 1:packet
+		netid sndId; // type=1, sender id
+		netid rcvId; // type=1, receiver id
+		uint size; // type=1, data size
+		BYTE data[DEFAULT_PACKETSIZE];
+	};
+
+	class cPacketLog
 	{
 	public:
 		struct sPacketInfo
@@ -22,8 +35,8 @@ namespace network2
 			uint size;
 		};
 
-		cPacketLog2();
-		virtual ~cPacketLog2();
+		cPacketLog();
+		virtual ~cPacketLog();
 
 		bool Read(const StrPath &fileName);
 		bool ReadPacket(const uint64 beginDateTime, const uint64 endDateTime

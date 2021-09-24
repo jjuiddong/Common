@@ -87,9 +87,6 @@
     <ClInclude Include="utility\log.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="utility\packetlog.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="utility\sessionlog.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -119,9 +116,6 @@
     </ClInclude>
     <ClInclude Include="packetheaderjson.h">
       <Filter>Packet</Filter>
-    </ClInclude>
-    <ClInclude Include="interpreter\remotedebugger2.h">
-      <Filter>Interpreter</Filter>
     </ClInclude>
     <ClInclude Include="interpreter\Src\remotedbg_Protocol.h">
       <Filter>Interpreter\protocol_src</Filter>
@@ -174,8 +168,11 @@
     <ClInclude Include="webserver.h">
       <Filter>Service</Filter>
     </ClInclude>
-    <ClInclude Include="utility\packetlog2.h">
+    <ClInclude Include="utility\packetlog.h">
       <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter\remoteinterpreter.h">
+      <Filter>Interpreter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -246,9 +243,6 @@
     <ClCompile Include="utility\log.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="utility\packetlog.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
     <ClCompile Include="utility\sessionlog.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
@@ -266,9 +260,6 @@
     </ClCompile>
     <ClCompile Include="packetheaderjson.cpp">
       <Filter>Packet</Filter>
-    </ClCompile>
-    <ClCompile Include="interpreter\remotedebugger2.cpp">
-      <Filter>Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="interpreter\Src\remotedbg_Protocol.cpp">
       <Filter>Interpreter\protocol_src</Filter>
@@ -306,8 +297,11 @@
     <ClCompile Include="webserver.cpp">
       <Filter>Service</Filter>
     </ClCompile>
-    <ClCompile Include="utility\packetlog2.cpp">
+    <ClCompile Include="utility\packetlog.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\remoteinterpreter.cpp">
+      <Filter>Interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

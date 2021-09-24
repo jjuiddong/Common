@@ -135,10 +135,20 @@ bool cWebServer::Init(const int bindPort
 	m_isThreadMode = isThreadMode;
 	m_timer.Create();
 
-	m_websocket = new Poco::Net::ServerSocket(bindPort);
-	m_httpServer = new Poco::Net::HTTPServer(new cHTTPRequestHandlerFactory(*this)
-		, *m_websocket, new HTTPServerParams);
-	m_httpServer->start(); // http server thread start
+	try
+	{
+		m_websocket = new Poco::Net::ServerSocket(bindPort);
+		m_httpServer = new Poco::Net::HTTPServer(new cHTTPRequestHandlerFactory(*this)
+			, *m_websocket, new HTTPServerParams);
+		m_httpServer->start(); // http server thread start
+	}
+	catch (std::exception &e)
+	{
+		dbg::Logc(1, "Error Bind WebSocket Server port=%d, msg=%s\n"
+			, bindPort, e.what());
+		m_state = eState::Disconnect;
+		return false;
+	}
 
 	m_state = eState::Connect;
 	dbg::Logc(1, "Bind WebSocket Server port = %d\n", bindPort);
@@ -368,7 +378,7 @@ bool cWebServer::ReceiveProcces()
 				result = INVALID_SOCKET; // connection error
 			}
 
-			if (INVALID_SOCKET == result)
+			if ((INVALID_SOCKET == result) || (0 == result))
 			{
 				// disconnect session
 				session->m_state = eState::Disconnect;
@@ -467,10 +477,25 @@ int cWebServer::SendImmediate(const netid rcvId, const cPacket &packet)
 
 
 // send packet to all client
-int cWebServer::SendAll(const cPacket &packet)
+int cWebServer::SendAll(const cPacket &packet, set<netid> *outErrs //= nullptr
+)
 {
-	assert(0);
-	return 1; // not implements
+	for (auto &session : m_sessions.m_seq)
+	{
+		if (!session->m_ws)
+			continue;
+		int result = 0;
+		try {
+			result = session->m_ws->sendFrame(packet.m_data
+				, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
+		}
+		catch (std::exception &e) {
+			dbg::Logc(2, "error cWebServer send exception, %s\n", e.what());
+			if (outErrs)
+				outErrs->insert(session->m_id);
+		}
+	}
+	return 1;
 }
 
 

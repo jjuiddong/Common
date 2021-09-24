@@ -153,9 +153,10 @@ int cUdpServer::SendImmediate(const netid rcvId, const cPacket &packet)
 
 
 // send packet to all client
-int cUdpServer::SendAll(const cPacket &packet)
+int cUdpServer::SendAll(const cPacket &packet, set<netid> *outErrs //= nullptr
+)
 {
-	// UDP Server는 패킷을 받을 수만 있다.
+	// udp server only receive packet
 	assert(0);
 	return 1;
 }

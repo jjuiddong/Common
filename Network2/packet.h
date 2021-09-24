@@ -360,13 +360,14 @@ namespace network2
 	{
 		PACKETID_CONNECT = 1,
 		PACKETID_DISCONNECT,
-		PACKETID_CLIENT_DISCONNECT,
+		//PACKETID_CLIENT_DISCONNECT,
 		PACKETID_ACCEPT,
 	};
 
 	class cNetworkNode;
+	cPacket ConnectPacket(cNetworkNode *node, netid connectId);
 	cPacket DisconnectPacket(cNetworkNode *node, netid disconnectId);
-	cPacket ClientDisconnectPacket(cNetworkNode *node, netid disconnectId);
+	//cPacket ClientDisconnectPacket(cNetworkNode *node, netid disconnectId);
 	cPacket AcceptPacket(cNetworkNode *node, SOCKET acceptSocket, const string &clientIP, int port);
 	//--------------------------------------------------------------------------------------
 }

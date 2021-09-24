@@ -109,7 +109,7 @@ bool cPacketQueue::Front(OUT cPacket &out)
 
 void cPacketQueue::SendAll(
 	const map<netid, SOCKET> &socks
-	, OUT set<netid> *outErrNetIds //= nullptr
+	, OUT set<netid> *outErrs //= nullptr
 )
 {
 	RET(m_sockBuffers.empty());
@@ -143,7 +143,7 @@ void cPacketQueue::SendAll(
 
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
-				const bool result = SendBroadcast(socks, packet, outErrNetIds);
+				const bool result = SendBroadcast(socks, packet, outErrs);
 				if (!result)
 				{
 					// error!!, no remove buffer, resend
@@ -176,10 +176,10 @@ void cPacketQueue::SendAll(
 							, sockBuffer->m_netId, packet);
 				}
 
-				if (outErrNetIds && (result == SOCKET_ERROR))
+				if (outErrs && (result == SOCKET_ERROR))
 				{
 					// error!!, close socket
-					outErrNetIds->insert(sockBuffer->m_netId);
+					outErrs->insert(sockBuffer->m_netId);
 				}
 			} //~else ALL_NETID
 
@@ -198,7 +198,7 @@ void cPacketQueue::SendAll(
 
 // send all 
 void cPacketQueue::SendAll(
-	set<netid> *outErrNetIds //= nullptr
+	set<netid> *outErrs //= nullptr
 )
 {
 	RET(m_sockBuffers.empty());
@@ -217,8 +217,7 @@ void cPacketQueue::SendAll(
 
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
-				// not implements
-				assert(0);
+				m_netNode->SendAll(packet, outErrs);
 			}
 			else
 			{
@@ -229,7 +228,6 @@ void cPacketQueue::SendAll(
 					dbg::Logc(2, "Error Send Packet\n");
 					result = SOCKET_ERROR;
 					isSendError = true;
-					//break;
 				}
 
 				// write packet log?
@@ -237,15 +235,14 @@ void cPacketQueue::SendAll(
 					network2::LogPacket(m_logId, m_netNode->m_id
 						, sockBuffer->m_netId, packet);
 
-				if (outErrNetIds && (result == SOCKET_ERROR))
+				if (outErrs && (result == SOCKET_ERROR))
 				{
 					// error!!, close socket
-					outErrNetIds->insert(sockBuffer->m_netId);
+					outErrs->insert(sockBuffer->m_netId);
 				}
 			} //~else ALL_NETID
 
 			sockBuffer->Pop(packet.m_writeIdx);
-
 		} // ~while
 	} // ~for
 

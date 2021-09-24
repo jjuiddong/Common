@@ -32,7 +32,7 @@ namespace network2
 		virtual void GetAllSocket(OUT map<netid, SOCKET> &out) override;
 		virtual int Send(const netid rcvId, const cPacket &packet) override;
 		virtual int SendImmediate(const netid rcvId, const cPacket &packet) override;
-		virtual int SendAll(const cPacket &packet) override { return 0; }
+		virtual int SendAll(const cPacket &packet, set<netid> *outErrs = nullptr) override { return 0; }
 
 
 	protected:

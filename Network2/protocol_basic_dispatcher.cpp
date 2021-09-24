@@ -29,13 +29,13 @@ void basic_protocol::ServerDispatcher::Dispatch(cPacket &packet, cTcpServer *svr
 	}
 	break;
 
-	case PACKETID_CLIENT_DISCONNECT:
-	{
-		netid disconnectId = INVALID_NETID;
-		packet >> disconnectId;
-		svr->RemoveSession(disconnectId);
-	}
-	break;
+	//case PACKETID_CLIENT_DISCONNECT:
+	//{
+	//	netid disconnectId = INVALID_NETID;
+	//	packet >> disconnectId;
+	//	svr->RemoveSession(disconnectId);
+	//}
+	//break;
 
 	case PACKETID_ACCEPT:
 	{
@@ -92,13 +92,13 @@ void basic_protocol::WebServerDispatcher::Dispatch(cPacket &packet, cWebServer *
 	}
 	break;
 
-	case PACKETID_CLIENT_DISCONNECT:
-	{
-		netid disconnectId = INVALID_NETID;
-		packet >> disconnectId;
-		svr->RemoveSession(disconnectId);
-	}
-	break;
+	//case PACKETID_CLIENT_DISCONNECT:
+	//{
+	//	netid disconnectId = INVALID_NETID;
+	//	packet >> disconnectId;
+	//	svr->RemoveSession(disconnectId);
+	//}
+	//break;
 
 	case PACKETID_ACCEPT:
 	{
@@ -123,11 +123,12 @@ void basic_protocol::WebClientDispatcher::Dispatch(cPacket &packet, cWebClient *
 
 	switch (packet.GetPacketId())
 	{
+	case PACKETID_CONNECT:
+		client->AddSession();
+		break;
 	case PACKETID_DISCONNECT:
-	{
 		client->RemoveSession();
-	}
-	break;
+		break;
 	}
 }
 

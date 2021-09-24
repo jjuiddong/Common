@@ -43,8 +43,8 @@ namespace network2
 		bool Push(const netid senderId, iPacketHeader *packetHeader
 			, const BYTE *data, const int len);
 		bool Front(OUT cPacket &out);
-		void SendAll(const map<netid, SOCKET> &socks, OUT set<netid> *outErrNetIds = nullptr);
-		void SendAll(set<netid> *outErrNetIds = nullptr);
+		void SendAll(const map<netid, SOCKET> &socks, OUT set<netid> *outErrs = nullptr);
+		void SendAll(set<netid> *outErrs = nullptr);
 		void SendAll(const sockaddr_in &sockAddr);
 		bool SendBroadcast(const vector<cSession*> &sessions, const bool exceptOwner = true);
 		bool SendBroadcast(const map<netid, SOCKET> &socks, const cPacket &packet

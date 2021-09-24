@@ -1,70 +1,62 @@
 
 #include "stdafx.h"
-#include "remotedebugger2.h"
+#include "remoteinterpreter.h"
 
 using namespace network2;
 
-const float TIME_SYNC_INSTRUCTION = 0.5f;
-const float TIME_SYNC_REGISTER = 5.0f;
-const float TIME_SYNC_SYMBOL = 3.0f;
+namespace
+{
+	const float TIME_SYNC_INSTRUCTION = 0.5f;
+	const float TIME_SYNC_REGISTER = 5.0f;
+	const float TIME_SYNC_SYMBOL = 3.0f;
+}
 
 
-cRemoteDebugger2::cRemoteDebugger2(
+cRemoteInterpreter::cRemoteInterpreter(
 	const int logId //= -1
 )
-	: m_client("RemoteDebugger2", logId)
+	: m_server(new network2::cWebSessionFactory(), "RemoteInterpreter", logId)
 	, m_callback(nullptr)
 	, m_arg(nullptr)
 {
 }
 
-cRemoteDebugger2::~cRemoteDebugger2()
+cRemoteInterpreter::~cRemoteInterpreter()
 {
 	Clear();
 }
 
 
-// initialize RemoteDebugger Host Mode
-// remotedebugger running webclient, interpreter
-// connect webserver to communicate remote debugger
+// initialize RemoteInterpreter
+// remote interpreter run webserver
 // receive script data from remote debugger and then run interpreter
-bool cRemoteDebugger2::InitHost(cNetController &netController
-	, const string &url
+bool cRemoteInterpreter::Init(cNetController &netController
+	, const int bindPort
 	, script::iFunctionCallback *callback //= nullptr
 	, void *arg //= nullptr
 )
 {
 	Clear();
 
-	m_mode = eDebugMode::Host;
-	m_url = url;
 	m_callback = callback;
+	m_port = bindPort;
 	m_arg = arg;
 
-	m_client.AddProtocolHandler(this);
-	m_client.RegisterProtocol(&m_protocol);
+	m_server.AddProtocolHandler(this);
+	m_server.RegisterProtocol(&m_protocol);
 
-	if (!netController.StartWebClient(&m_client, url))
+	if (!netController.StartWebServer(&m_server, bindPort))
 	{
-		dbg::Logc(2, "Error WebClient Connection url:%s \n", url.c_str());
+		dbg::Logc(2, "Error Start WebServer port:%d \n", bindPort);
 		return false;
 	}
+
 	return true;
 }
 
 
-// initialize RemoteDebugger Remote Mode
-// not implements
-bool cRemoteDebugger2::InitRemote(cNetController &netController
-	, const Str16 &ip, const int port)
-{
-	assert(0); // not implements
-	return false;
-}
-
-
 // load intermediate code
-bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
+bool cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName)
 {
 	//RETV(m_state != eState::Stop, false);
 	vector<StrPath> fileNames;
@@ -76,7 +68,7 @@ bool cRemoteDebugger2::LoadIntermediateCode(const StrPath &fileName)
 
 // load intermediate code 
 // fileNames: intermediate code filename array
-bool cRemoteDebugger2::LoadIntermediateCode(const vector<StrPath> &fileNames)
+bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames)
 {
 	ClearInterpreters();
 	m_interpreters.reserve(fileNames.size());
@@ -111,7 +103,7 @@ bool cRemoteDebugger2::LoadIntermediateCode(const vector<StrPath> &fileNames)
 
 
 // process webclient, interpreter
-bool cRemoteDebugger2::Process(const float deltaSeconds)
+bool cRemoteInterpreter::Process(const float deltaSeconds)
 {
 	// sync instruction, register, syboltable
 	// check change instruction
@@ -213,7 +205,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 				itpr.instSyncTime = 0.f;
 				itpr.isChangeInstruction = false;
 
-				m_protocol.SyncVMInstruction(network2::SERVER_NETID
+				m_protocol.SyncVMInstruction(network2::ALL_NETID
 					, true, itprId, i, vm->m_trace);
 
 				vm->ClearCodeTrace(true);
@@ -227,7 +219,7 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 			//	if (itpr.insts[i].empty())
 			//		continue;
 
-			//	m_protocol.SyncVMInstruction(network2::SERVER_NETID
+			//	m_protocol.SyncVMInstruction(network2::ALL_NETID
 			//		, true, itprId, i, itpr.insts[i]);
 
 			//	// clear and setup last data
@@ -243,17 +235,17 @@ bool cRemoteDebugger2::Process(const float deltaSeconds)
 		// is meet breakpoint? change step debugging mode
 		if (interpreter->IsBreak())
 		{
-			m_protocol.AckOneStep(network2::SERVER_NETID, true, itprId, 1);
+			m_protocol.AckOneStep(network2::ALL_NETID, true, itprId, 1);
 		}
 	}
 
-	return m_client.IsFailConnection() ? false : true;
+	return m_server.IsFailConnection() ? false : true;
 }
 
 
 // push interpreter event, wraping function
 // isUnique: no has same event, (check same event)
-bool cRemoteDebugger2::PushEvent(const int itprId
+bool cRemoteInterpreter::PushEvent(const int itprId
 	, const common::script::cEvent &evt
 	, const bool isUnique //= false
 )
@@ -282,7 +274,7 @@ bool cRemoteDebugger2::PushEvent(const int itprId
 
 // start interpreter
 // itprId: interpreter index, -1: all interpreter
-bool cRemoteDebugger2::Run(const int itprId)
+bool cRemoteInterpreter::Run(const int itprId)
 {
 	if (itprId < 0) 
 	{
@@ -319,7 +311,7 @@ bool cRemoteDebugger2::Run(const int itprId)
 
 // start interpreter with debug run
 // itprId: interpreter index, -1: all interpreter
-bool cRemoteDebugger2::DebugRun(const int itprId)
+bool cRemoteInterpreter::DebugRun(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -356,7 +348,7 @@ bool cRemoteDebugger2::DebugRun(const int itprId)
 
 // start interpreter with one step debugging
 // itprId: interpreter index, -1: all interpreter
-bool cRemoteDebugger2::StepRun(const int itprId)
+bool cRemoteInterpreter::StepRun(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -391,7 +383,7 @@ bool cRemoteDebugger2::StepRun(const int itprId)
 
 // stop interpreter
 // itprId: interpreter index, -1: all interpreter
-bool cRemoteDebugger2::Stop(const int itprId)
+bool cRemoteInterpreter::Stop(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -418,7 +410,7 @@ bool cRemoteDebugger2::Stop(const int itprId)
 
 // resume run interpreter
 // itprId: interpreter index
-bool cRemoteDebugger2::Resume(const int itprId)
+bool cRemoteInterpreter::Resume(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -445,7 +437,7 @@ bool cRemoteDebugger2::Resume(const int itprId)
 
 
 // resume virtual machine
-bool cRemoteDebugger2::ResumeVM(const int itprId, const string &vmName)
+bool cRemoteInterpreter::ResumeVM(const int itprId, const string &vmName)
 {
 	if (itprId < 0)
 	{
@@ -473,7 +465,7 @@ bool cRemoteDebugger2::ResumeVM(const int itprId, const string &vmName)
 
 // onestep interpreter if debug mode
 // itprId: interpreter index
-bool cRemoteDebugger2::OneStep(const int itprId)
+bool cRemoteInterpreter::OneStep(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -501,7 +493,7 @@ bool cRemoteDebugger2::OneStep(const int itprId)
 
 // break(pause) interpreter
 // itprId: interpreter index
-bool cRemoteDebugger2::Break(const int itprId)
+bool cRemoteInterpreter::Break(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -529,7 +521,7 @@ bool cRemoteDebugger2::Break(const int itprId)
 
 // set break point
 // itprId: interpreter index
-bool cRemoteDebugger2::BreakPoint(const int itprId, const bool enable, const uint id)
+bool cRemoteInterpreter::BreakPoint(const int itprId, const bool enable, const uint id)
 {
 	if (itprId < 0)
 	{
@@ -549,7 +541,7 @@ bool cRemoteDebugger2::BreakPoint(const int itprId, const bool enable, const uin
 
 // is run or debug run interpreter?
 // itprId: interpreter index
-bool cRemoteDebugger2::IsRun(const int itprId)
+bool cRemoteInterpreter::IsRun(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -576,7 +568,7 @@ bool cRemoteDebugger2::IsRun(const int itprId)
 
 // is debugging interpreter?
 // itprId: interpreter index
-bool cRemoteDebugger2::IsDebug(const int itprId)
+bool cRemoteInterpreter::IsDebug(const int itprId)
 {
 	if (itprId < 0)
 	{
@@ -603,7 +595,7 @@ bool cRemoteDebugger2::IsDebug(const int itprId)
 
 // sync vm register info
 // itprId: interpreter index
-bool cRemoteDebugger2::SendSyncVMRegister(const int itprId)
+bool cRemoteInterpreter::SendSyncVMRegister(const int itprId)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
@@ -611,7 +603,7 @@ bool cRemoteDebugger2::SendSyncVMRegister(const int itprId)
 	for (uint i=0; i < interpreter->m_vms.size(); ++i)
 	{
 		auto &vm = interpreter->m_vms[i];
-		m_protocol.SyncVMRegister(network2::SERVER_NETID, true, itprId
+		m_protocol.SyncVMRegister(network2::ALL_NETID, true, itprId
 			, (int)i, 0, vm->m_reg);
 		break; // now only one virtual machine sync
 	}
@@ -621,7 +613,7 @@ bool cRemoteDebugger2::SendSyncVMRegister(const int itprId)
 
 // synchronize symboltable
 // itprId: interpreter index
-bool cRemoteDebugger2::SendSyncSymbolTable(const int itprId)
+bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
@@ -687,7 +679,7 @@ bool cRemoteDebugger2::SendSyncSymbolTable(const int itprId)
 
 		if (!symbols.empty())
 		{
-			m_protocol.SyncVMSymbolTable(network2::SERVER_NETID, true
+			m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
 				, itprId, i, 0, symbols.size(), symbols);
 
 			// continue send symbols
@@ -701,7 +693,7 @@ bool cRemoteDebugger2::SendSyncSymbolTable(const int itprId)
 
 
 // clear interpreter array
-void cRemoteDebugger2::ClearInterpreters()
+void cRemoteInterpreter::ClearInterpreters()
 {
 	for (auto itr : m_interpreters) 
 		SAFE_DELETE(itr.interpreter);
@@ -710,7 +702,7 @@ void cRemoteDebugger2::ClearInterpreters()
 
 
 // welcome packet from remote server
-bool cRemoteDebugger2::Welcome(remotedbg2::Welcome_Packet &packet)
+bool cRemoteInterpreter::Welcome(remotedbg2::Welcome_Packet &packet)
 { 
 	dbg::Logc(0, "Success Connection to Remote Debugger Server\n");
 	return true; 
@@ -718,7 +710,7 @@ bool cRemoteDebugger2::Welcome(remotedbg2::Welcome_Packet &packet)
 
 
 // request upload intermediate code protocol handler
-bool cRemoteDebugger2::UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet)
+bool cRemoteInterpreter::UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet)
 { 
 	// nothing~
 	return true; 
@@ -726,11 +718,11 @@ bool cRemoteDebugger2::UploadIntermediateCode(remotedbg2::UploadIntermediateCode
 
 
 // request intermeidate code protocol handler
-bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet)
+bool cRemoteInterpreter::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet)
 {
 	if (m_interpreters.size() <= (uint)packet.itprId) {
 		// fail, iterpreter id invalid
-		m_protocol.AckIntermediateCode(network2::SERVER_NETID, true, packet.itprId, 0, 0, 0, {});
+		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId, 0, 0, 0, {});
 		return true;
 	}
 	script::cInterpreter *interpreter = m_interpreters[packet.itprId].interpreter;
@@ -749,7 +741,7 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 	if (bufferSize == 0)
 	{
 		// no intermediate code, fail!
-		m_protocol.AckIntermediateCode(network2::SERVER_NETID, true, packet.itprId, 0, 0, 0, {});
+		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId, 0, 0, 0, {});
 	}
 	else
 	{
@@ -765,7 +757,7 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
 			vector<BYTE> data(size);
 			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
-			m_protocol.AckIntermediateCode(network2::SERVER_NETID, true
+			m_protocol.AckIntermediateCode(packet.senderId, true
 				, packet.itprId, 1, totalCount, index, data);
 
 			cursor += size;
@@ -781,7 +773,7 @@ bool cRemoteDebugger2::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packe
 
 
 // request interpreter run protocol handler
-bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
+bool cRemoteInterpreter::ReqRun(remotedbg2::ReqRun_Packet &packet)
 {
 	if (packet.runType == "Run")
 		Run(packet.itprId);
@@ -791,14 +783,14 @@ bool cRemoteDebugger2::ReqRun(remotedbg2::ReqRun_Packet &packet)
 		StepRun(packet.itprId);
 
 	const int result = IsRun(packet.itprId) ? 1 : 0;
-	m_protocol.AckRun(network2::SERVER_NETID, true, packet.itprId, result);
+	m_protocol.AckRun(packet.senderId, true, packet.itprId, result);
 	SendSyncVMRegister(0);
 	return true;
 }
 
 
 // request one stp debugging protocol handler
-bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
+bool cRemoteInterpreter::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 {
 	OneStep(packet.itprId);
 
@@ -816,7 +808,7 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 	{
 		if (m_interpreters.size() <= (uint)packet.itprId)
 		{
-			m_protocol.AckOneStep(network2::SERVER_NETID, true, packet.itprId, 0);
+			m_protocol.AckOneStep(packet.senderId, true, packet.itprId, 0);
 			return true;
 		}
 
@@ -826,97 +818,97 @@ bool cRemoteDebugger2::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 	}
 
-	m_protocol.AckOneStep(network2::SERVER_NETID, true, packet.itprId, 1);
+	m_protocol.AckOneStep(packet.senderId, true, packet.itprId, 1);
 	return true;
 }
 
 // request resume debugging run protocol handler
-bool cRemoteDebugger2::ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet)
+bool cRemoteInterpreter::ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet)
 {
 	Resume(packet.itprId);
-	m_protocol.AckResumeRun(network2::SERVER_NETID, true, packet.itprId, 1);
+	m_protocol.AckResumeRun(packet.senderId, true, packet.itprId, 1);
 	return true; 
 }
 
 // request interprter break to debugging protocol handler
-bool cRemoteDebugger2::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
+bool cRemoteInterpreter::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 {
 	Break(packet.itprId);
-	m_protocol.AckBreak(network2::SERVER_NETID, true, packet.itprId, 1);
+	m_protocol.AckBreak(packet.senderId, true, packet.itprId, 1);
 	return true;
 }
 
 
 // request interpreter register breakpoint
-bool cRemoteDebugger2::ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet)
+bool cRemoteInterpreter::ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet)
 {
 	BreakPoint(packet.itprId, packet.enable, packet.id);
-	m_protocol.AckBreakPoint(network2::SERVER_NETID, true, packet.itprId, packet.enable, packet.id, 1);
+	m_protocol.AckBreakPoint(packet.senderId, true, packet.itprId, packet.enable, packet.id, 1);
 	return true;
 }
 
 
 // request interpreter stop protocol handler
-bool cRemoteDebugger2::ReqStop(remotedbg2::ReqStop_Packet &packet)
+bool cRemoteInterpreter::ReqStop(remotedbg2::ReqStop_Packet &packet)
 {
 	Stop(packet.itprId);
-	m_protocol.AckStop(network2::SERVER_NETID, true, packet.itprId, 1);
+	m_protocol.AckStop(packet.senderId, true, packet.itprId, 1);
 	return true;
 }
 
 
 // request interpreter input event protocol handler
-bool cRemoteDebugger2::ReqInput(remotedbg2::ReqInput_Packet &packet)
+bool cRemoteInterpreter::ReqInput(remotedbg2::ReqInput_Packet &packet)
 {
 	script::cEvent evt(packet.eventName);
 	PushEvent(packet.itprId, evt);
-	m_protocol.AckInput(network2::SERVER_NETID, true, packet.itprId, 1);
+	m_protocol.AckInput(packet.senderId, true, packet.itprId, 1);
 	return true;
 }
 
 
 //request interpreter event protocol handler
-bool cRemoteDebugger2::ReqEvent(remotedbg2::ReqEvent_Packet &packet) 
+bool cRemoteInterpreter::ReqEvent(remotedbg2::ReqEvent_Packet &packet) 
 { 
 	script::cEvent evt(packet.eventName);
 	PushEvent(packet.itprId, evt);
-	m_protocol.AckEvent(network2::SERVER_NETID, true
+	m_protocol.AckEvent(packet.senderId, true
 		, packet.itprId, packet.vmIdx, packet.eventName, 1);
 	return true; 
 }
 
 
 // request interpreter step debugging type
-bool cRemoteDebugger2::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet)
+bool cRemoteInterpreter::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet)
 {
 	for (auto &itpr : m_interpreters)
 		itpr.interpreter->SetICodeStepDebug(packet.stepDbgType == 1);
 
-	m_protocol.AckStepDebugType(network2::SERVER_NETID, true, packet.stepDbgType, 1);
+	m_protocol.AckStepDebugType(packet.senderId, true, packet.stepDbgType, 1);
 	return true;
 }
 
 
 // is webserver connected?
-bool cRemoteDebugger2::IsConnect()
+bool cRemoteInterpreter::IsConnect()
 {
-	return m_client.IsConnect();
+	return m_server.IsConnect();
 }
 
 
 // is webserver fail connection?
-bool cRemoteDebugger2::IsFailConnect()
+bool cRemoteInterpreter::IsFailConnect()
 {
-	return m_client.IsFailConnection();
+	return m_server.IsFailConnection();
 }
 
 
 // clear all data
-void cRemoteDebugger2::Clear()
+void cRemoteInterpreter::Clear()
 {
 	//m_state = eState::Stop;
 	m_symbols.clear();
-	m_client.Close();
+	m_server.Close();
 	ClearInterpreters();
 }
 

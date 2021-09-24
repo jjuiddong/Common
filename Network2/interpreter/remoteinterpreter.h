@@ -1,21 +1,12 @@
 //
-// 2020-11-20, jjuiddong
-// RemoteDebugger with WebServer
-//	- synchronize debug information with webserver
-//	- now only Host Mode available
-//		- connect webserver
-//		- remote debugger is webclient mode
-//		- run interpreter and synchroinize with webserver
-//	- todo:
-//		- remote work
-//		- webserver work
+// 2021-09-23, jjuiddong
+// RemoteInterpreter
+//  - naming change RemoteDebugger2 -> RemoteInterpreter
+//	- communication with remote debugger (client)
+//	- remote interpreter is Server (WebSocket Server)
+//	- run intermediate code with interpreter
+//	- synchronize with remote debugger
 //
-// 2021-02-24
-//	- change variable synchronize
-//	- streaming
-//
-// 2021-05-06
-//	- execute multi interpreter
 //
 #pragma once
 
@@ -26,11 +17,9 @@
 namespace network2
 {
 
-	class cRemoteDebugger2 : public remotedbg2::r2h_ProtocolHandler
+	class cRemoteInterpreter : public remotedbg2::r2h_ProtocolHandler
 	{
 	public:
-		enum class eDebugMode { None, Host, Remote };
-
 		// synchronize symbol to check change variable
 		// only change variable synchronizing
 		struct sSymbol {
@@ -39,16 +28,14 @@ namespace network2
 			common::script::sVariable var; // compare variable
 		};
 
-		cRemoteDebugger2(const int logId = -1);
-		virtual ~cRemoteDebugger2();
+		cRemoteInterpreter(const int logId = -1);
+		virtual ~cRemoteInterpreter();
 
-		bool InitHost(cNetController &netController
-			, const string &url
+		bool Init(cNetController &netController
+			, const int bindPort
 			, script::iFunctionCallback *callback = nullptr
 			, void *arg = nullptr
 		);
-		bool InitRemote(cNetController &netController
-			, const Str16 &ip, const int port);
 		bool LoadIntermediateCode(const StrPath &fileName);
 		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
 
@@ -93,7 +80,6 @@ namespace network2
 
 	public:
 		enum class eState { Stop, Run };
-		eDebugMode m_mode;
 
 		// interpreter information
 		struct sItpr {
@@ -102,15 +88,14 @@ namespace network2
 			script::cInterpreter *interpreter;
 			vector<ushort> insts[10]; // vm instruction index array, max vm count:10
 			bool isChangeInstruction;
-			float regSyncTime; // register sync time
-			float instSyncTime; // instruction sync time
-			float symbSyncTime; // symboltable sync time
+			float regSyncTime; // register sync time, seconds unit
+			float instSyncTime; // instruction sync time, seconds unit
+			float symbSyncTime; // symboltable sync time, seconds unit
 		};
 		vector<sItpr> m_interpreters;
 
-		string m_url; // webserver url
 		int m_port; // webserver port
-		network2::cWebClient m_client;
+		network2::cWebServer m_server;
 		remotedbg2::h2r_Protocol m_protocol;
 		script::iFunctionCallback *m_callback;
 		void *m_arg;
