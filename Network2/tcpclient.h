@@ -20,7 +20,7 @@ namespace network2
 		bool Init(const Str16 &ip
 			, const int port
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const int clientSidePort = -1
 			, const bool isThreadMode = true

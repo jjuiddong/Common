@@ -94,7 +94,7 @@ public:
 // cWebServer
 cWebServer::cWebServer(
 	cWebSessionFactory *sessionFactory //= new cWebSessionFactory()
-	, const StrId &name //= "TcpServer"
+	, const StrId &name //= "WebServer"
 	, const int logId //= -1
 )
 	: cNetworkNode(name, logId)
@@ -121,7 +121,7 @@ cWebServer::~cWebServer()
 // initialize websocket server
 bool cWebServer::Init(const int bindPort
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //= true
 )
@@ -374,7 +374,7 @@ bool cWebServer::ReceiveProcces()
 			}
 			catch (std::exception &e)
 			{
-				dbg::Logc(2, "error cWebServer receive, %s\n", e.what());
+				dbg::Logc(2, "error cWebServer receive %d, %s\n", session->m_id, e.what());
 				result = INVALID_SOCKET; // connection error
 			}
 

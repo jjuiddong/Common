@@ -24,7 +24,7 @@ namespace network2
 
 		bool Init(const int startUdpPort, const int portCount
 			, const int packetSize = network2::DEFAULT_PACKETSIZE
-			, const int packetCount = network2::DEFAULT_MAX_PACKETCOUNT
+			, const int packetCount = network2::DEFAULT_PACKETCOUNT
 			, const int sleepMillis = network2::DEFAULT_SLEEPMILLIS
 			, const int logId = -1
 			, const bool isThread = false

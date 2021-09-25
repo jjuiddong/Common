@@ -18,7 +18,7 @@ cNetController::~cNetController()
 bool cNetController::StartTcpServer(cTcpServer *svr
 	, const int bindPort
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
 )
@@ -37,7 +37,7 @@ bool cNetController::StartTcpClient(cTcpClient *client
 	, const Str16 &ip
 	, const int port
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const int clientSidePort //= -1
 	, const bool isThread //= true
@@ -56,7 +56,7 @@ bool cNetController::StartTcpClient(cTcpClient *client
 bool cNetController::StartUdpServer(cUdpServer *svr
 	, const int bindPort
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
 )
@@ -75,7 +75,7 @@ bool cNetController::StartUdpClient(cUdpClient *client
 	, const Str16 &ip
 	, const int port
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThread //= true
 )
@@ -93,7 +93,7 @@ bool cNetController::StartUdpClient(cUdpClient *client
 bool cNetController::StartWebServer(cWebServer *svr
 	, const int bindPort
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
 )
@@ -111,7 +111,7 @@ bool cNetController::StartWebServer(cWebServer *svr
 bool cNetController::StartWebClient(cWebClient *client
 	, const string &url
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThread //= true
 )

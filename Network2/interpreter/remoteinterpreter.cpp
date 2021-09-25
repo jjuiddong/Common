@@ -12,12 +12,97 @@ namespace
 }
 
 
+// send intermediate code, using remotedbg2 protocol
+bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
+	, const netid recvId, const int itprId, const script::cIntermediateCode &icode)
+{
+	// tricky code, marshalling intermedatecode to byte stream
+	const uint BUFFER_SIZE = 1024 * 50;
+	BYTE *buff = new BYTE[BUFFER_SIZE];
+	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
+	marsh.m_data = buff;
+	marsh.m_bufferSize = BUFFER_SIZE;
+	marsh.m_writeIdx = 0;
+	network2::marshalling::operator<<(marsh, icode);
+
+	// send split
+	const uint bufferSize = (uint)marsh.m_writeIdx;
+	if (bufferSize == 0)
+	{
+		// no intermediate code, fail!
+		protocol.AckIntermediateCode(recvId, true, itprId, 0, 0, 0, {});
+	}
+	else
+	{
+		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
+			(marsh.GetHeaderSize() + 20); // 5 * 4byte = itpr,result,count,index,buffsize
+		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
+			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
+
+		uint index = 0;
+		uint cursor = 0;
+		while (cursor < bufferSize)
+		{
+			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
+			vector<BYTE> data(size);
+			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
+			protocol.AckIntermediateCode(recvId, true
+				, itprId, 1, totalCount, index, data);
+
+			cursor += size;
+			++index;
+			//Sleep(5); // wait until socket send
+		}
+	}
+
+	SAFE_DELETEA(buff);
+	return true;
+}
+
+
+//----------------------------------------------------------------------------------
+// Send Intermediate Code Task
+class cSendICodeTask : public common::cTask
+{
+public:
+	cSendICodeTask(cRemoteInterpreter *rmtItpr, const int itprId, const netid rcvId)
+		: cTask(1, "cSendICodeTask")
+		, m_rmtItpr(rmtItpr), m_itprId(itprId), m_rcvId(rcvId) {
+	}
+	virtual eRunResult Run(const double deltaSeconds)
+	{
+		if (m_rmtItpr->m_interpreters.size() <= (uint)m_itprId) {
+			// fail, iterpreter id invalid
+			m_rmtItpr->m_protocol.AckIntermediateCode(m_rcvId, true, m_itprId
+				, 0, 0, 0, {});
+			--m_rmtItpr->m_multiThreading;
+			return eRunResult::End;
+		}
+		script::cInterpreter *interpreter = 
+			m_rmtItpr->m_interpreters[m_itprId].interpreter;
+		SendIntermediateCode(m_rmtItpr->m_protocol, m_rcvId, m_itprId
+			, interpreter->m_code);
+		--m_rmtItpr->m_multiThreading;
+		return eRunResult::End;
+	}
+
+public:
+	cRemoteInterpreter *m_rmtItpr; // reference
+	int m_itprId;
+	netid m_rcvId;
+};
+
+
+//----------------------------------------------------------------------------------
+// cRemoteInterpreter
 cRemoteInterpreter::cRemoteInterpreter(
 	const int logId //= -1
 )
 	: m_server(new network2::cWebSessionFactory(), "RemoteInterpreter", logId)
 	, m_callback(nullptr)
 	, m_arg(nullptr)
+	, m_threads(nullptr)
+	, m_multiThreading(0)
 {
 }
 
@@ -32,6 +117,10 @@ cRemoteInterpreter::~cRemoteInterpreter()
 // receive script data from remote debugger and then run interpreter
 bool cRemoteInterpreter::Init(cNetController &netController
 	, const int bindPort
+	, const int packetSize //= DEFAULT_PACKETSIZE
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
+	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
+	, const bool isThreadMode //=true
 	, script::iFunctionCallback *callback //= nullptr
 	, void *arg //= nullptr
 )
@@ -39,13 +128,14 @@ bool cRemoteInterpreter::Init(cNetController &netController
 	Clear();
 
 	m_callback = callback;
-	m_port = bindPort;
+	m_bindPort = bindPort;
 	m_arg = arg;
 
 	m_server.AddProtocolHandler(this);
 	m_server.RegisterProtocol(&m_protocol);
 
-	if (!netController.StartWebServer(&m_server, bindPort))
+	if (!netController.StartWebServer(&m_server, bindPort, packetSize
+		, maxPacketCount, sleepMillis, isThreadMode))
 	{
 		dbg::Logc(2, "Error Start WebServer port:%d \n", bindPort);
 		return false;
@@ -645,8 +735,8 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 				const script::sVariable &var = kv2.second;
 
 				bool isSync = false;
-				auto it = m_symbols.find(varName);
-				if (m_symbols.end() == it)
+				auto it = m_chSymbols.find(varName);
+				if (m_chSymbols.end() == it)
 				{
 					// add new symbol
 					isSync = true;
@@ -654,7 +744,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 					ssymb.name = varName;
 					ssymb.t = 0;
 					ssymb.var = var;
-					m_symbols[varName] = ssymb;
+					m_chSymbols[varName] = ssymb;
 				}
 				else
 				{
@@ -722,52 +812,21 @@ bool cRemoteInterpreter::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Pac
 {
 	if (m_interpreters.size() <= (uint)packet.itprId) {
 		// fail, iterpreter id invalid
-		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId, 0, 0, 0, {});
+		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId
+			, 0, 0, 0, {});
 		return true;
 	}
-	script::cInterpreter *interpreter = m_interpreters[packet.itprId].interpreter;
 
-	// tricky code, marshalling intermedatecode to byte stream
-	const uint BUFFER_SIZE = 1024 * 50;
-	BYTE *buff = new BYTE[BUFFER_SIZE];
-	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
-	marsh.m_data = buff;
-	marsh.m_bufferSize = BUFFER_SIZE;
-	marsh.m_writeIdx = 0;
-	network2::marshalling::operator<<(marsh, interpreter->m_code);
-	
-	// send split
-	const uint bufferSize = (uint)marsh.m_writeIdx;
-	if (bufferSize == 0)
+	if (m_threads)
 	{
-		// no intermediate code, fail!
-		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId, 0, 0, 0, {});
+		++m_multiThreading;
+		m_threads->PushTask(new cSendICodeTask(this, packet.itprId, packet.senderId));
 	}
 	else
 	{
-		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
-			(marsh.GetHeaderSize() + 20); // 5 * 4byte = itpr,result,count,index,buffsize
-		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
-			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
-
-		uint index = 0;
-		uint cursor = 0;
-		while (cursor < bufferSize) 
-		{
-			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
-			vector<BYTE> data(size);
-			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
-			m_protocol.AckIntermediateCode(packet.senderId, true
-				, packet.itprId, 1, totalCount, index, data);
-
-			cursor += size;
-			++index;
-
-			Sleep(5); // wait until socket send
-		}
+		script::cInterpreter *interpreter = m_interpreters[packet.itprId].interpreter;
+		SendIntermediateCode(m_protocol, packet.senderId, packet.itprId, interpreter->m_code);
 	}
-
-	SAFE_DELETEA(buff);
 	return true;
 }
 
@@ -907,8 +966,9 @@ bool cRemoteInterpreter::IsFailConnect()
 void cRemoteInterpreter::Clear()
 {
 	//m_state = eState::Stop;
-	m_symbols.clear();
+	m_chSymbols.clear();
 	m_server.Close();
 	ClearInterpreters();
+	m_threads = nullptr;
 }
 

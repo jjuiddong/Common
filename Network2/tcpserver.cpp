@@ -35,7 +35,7 @@ cTcpServer::~cTcpServer()
 
 bool cTcpServer::Init(const int bindPort
 	, const int packetSize //= DEFAULT_PACKETSIZE
-	, const int maxPacketCount //= DEFAULT_MAX_PACKETCOUNT
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //= true;
 )

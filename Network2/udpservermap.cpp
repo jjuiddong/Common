@@ -7,7 +7,7 @@ using namespace network2;
 cUdpServerMap::cUdpServerMap()
 	: m_isThreadLoop(true)
 	, m_packetSize(network2::DEFAULT_PACKETSIZE)
-	, m_packetCount(network2::DEFAULT_MAX_PACKETCOUNT)
+	, m_packetCount(network2::DEFAULT_PACKETCOUNT)
 	, m_sleepMillis(network2::DEFAULT_SLEEPMILLIS)
 	, m_logId(-1)
 {
@@ -21,7 +21,7 @@ cUdpServerMap::~cUdpServerMap()
 
 bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
 	, const int packetSize //= network2::DEFAULT_PACKETSIZE
-	, const int packetCount //= network2::DEFAULT_MAX_PACKETCOUNT
+	, const int packetCount //= network2::DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= network2::DEFAULT_SLEEPMILLIS
 	, const int logId //= -1
 )

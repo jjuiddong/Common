@@ -19,7 +19,7 @@ namespace network2
 		bool StartTcpServer(cTcpServer *svr
 			, const int bindPort
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
 		);
@@ -28,7 +28,7 @@ namespace network2
 			, const Str16 &ip
 			, const int port
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const int clientSidePort = -1	
 			, const bool isThread = true
@@ -37,7 +37,7 @@ namespace network2
 		bool StartUdpServer(cUdpServer *svr
 			, const int bindPort
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
 		);
@@ -46,7 +46,7 @@ namespace network2
 			, const Str16 &ip
 			, const int port
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThread = true
 		);
@@ -54,7 +54,7 @@ namespace network2
 		bool StartWebServer(cWebServer *svr
 			, const int bindPort
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
 		);
@@ -62,7 +62,7 @@ namespace network2
 		bool StartWebClient(cWebClient *client
 			, const string &url
 			, const int packetSize = DEFAULT_PACKETSIZE
-			, const int maxPacketCount = DEFAULT_MAX_PACKETCOUNT
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThread = true
 		);

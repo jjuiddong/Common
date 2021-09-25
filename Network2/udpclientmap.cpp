@@ -8,7 +8,7 @@ using namespace network2;
 cUdpClientMap::cUdpClientMap()
 	: m_isThreadLoop(true)
 	, m_packetSize(network2::DEFAULT_PACKETSIZE)
-	, m_packetCount(network2::DEFAULT_MAX_PACKETCOUNT)
+	, m_packetCount(network2::DEFAULT_PACKETCOUNT)
 	, m_sleepMillis(network2::DEFAULT_SLEEPMILLIS)
 	, m_isThreadMode(false)
 	, m_logId(-1)
@@ -23,7 +23,7 @@ cUdpClientMap::~cUdpClientMap()
 
 bool cUdpClientMap::Init(const int startUdpPort, const int portCount
 	, const int packetSize //= network2::DEFAULT_PACKETSIZE
-	, const int packetCount //= network2::DEFAULT_MAX_PACKETCOUNT
+	, const int packetCount //= network2::DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= network2::DEFAULT_SLEEPMILLIS
 	, const int logId //= -1
 	, const bool isThread //= false;

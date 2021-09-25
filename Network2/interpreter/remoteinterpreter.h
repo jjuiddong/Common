@@ -7,7 +7,6 @@
 //	- run intermediate code with interpreter
 //	- synchronize with remote debugger
 //
-//
 #pragma once
 
 #include "Src/remotedbg2_Protocol.h"
@@ -33,6 +32,10 @@ namespace network2
 
 		bool Init(cNetController &netController
 			, const int bindPort
+			, const int packetSize = DEFAULT_PACKETSIZE
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
+			, const int sleepMillis = DEFAULT_SLEEPMILLIS
+			, const bool isThreadMode = true
 			, script::iFunctionCallback *callback = nullptr
 			, void *arg = nullptr
 		);
@@ -94,14 +97,14 @@ namespace network2
 		};
 		vector<sItpr> m_interpreters;
 
-		int m_port; // webserver port
+		int m_bindPort; // webserver bind port
 		network2::cWebServer m_server;
 		remotedbg2::h2r_Protocol m_protocol;
 		script::iFunctionCallback *m_callback;
-		void *m_arg;
-
-		// detect change variable
-		map<string, sSymbol> m_symbols;
+		void *m_arg; // callback function argument
+		map<string, sSymbol> m_chSymbols; // check change variable
+		common::cTPSemaphore *m_threads; // thread pool reference
+		std::atomic<int> m_multiThreading; // multithread work?, 0:no threading work
 	};
 
 }

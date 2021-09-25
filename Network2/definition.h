@@ -10,15 +10,15 @@ namespace network2
 
 	enum {
 		// netid definition
-		INVALID_NETID = -1 // 잘못된 NetId를 뜻한다. 오류값으로 쓰임
-		, SERVER_NETID = 0 // 연결된 Server의 NetId를 뜻함 (클라이언트 일 때)
-		, CLIENT_NETID = 0 // 연결된 Client의 NetId를 뜻함 (UDP 서버 일 때)
-		, ALL_NETID = ~1 // 연결된 Connection 모두를 뜻함 (서버/클라이언트)
+		INVALID_NETID = -1 // invalid netid
+		, SERVER_NETID = 0 // client case, connected server netid
+		, CLIENT_NETID = 0 // udp server case, connected client netid
+		, ALL_NETID = ~1 // all connected netid, client/server all case
 
 		// constant definition
 		, RECV_BUFFER_LENGTH = 1024 * 2
 		, DEFAULT_PACKETSIZE = 1024 * 1
-		, DEFAULT_MAX_PACKETCOUNT = 20
+		, DEFAULT_PACKETCOUNT = 20
 		, DEFAULT_SLEEPMILLIS = 30 // milliseconds
 		, DEFAULT_SOCKETBUFFER_SIZE = 1024 * 20
 	};
