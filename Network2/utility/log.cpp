@@ -4,10 +4,10 @@
 #include <direct.h>
 
 
-namespace network2
+namespace
 {
-	//StrPath g_packetLogPath;
 	map<int, StrPath> g_packetLogPathMap; // log directory path map
+	common::CriticalSection g_cs; // g_packetLogPathMap critical section
 
 	// Packet Log Thread
 	common::cWQSemaphore g_logThread;
@@ -78,6 +78,7 @@ public:
 void network2::SetPacketLogPath(const int logId
 	, const string &logFolderName, const string &subFolderName)
 {
+	AutoCSLock cs(g_cs);
 	_mkdir(logFolderName.c_str());
 	StrPath path = logFolderName + "/" + subFolderName + "/";
 	_mkdir(path.c_str());
@@ -89,6 +90,7 @@ void network2::SetPacketLogPath(const int logId
 // ex) ./log_packet/yyyymmddhhmmssmmm/
 const StrPath& network2::GetPacketLogPath(const int logId)
 {
+	AutoCSLock cs(g_cs);
 	static StrPath emptyPath;
 	auto it = g_packetLogPathMap.find(logId);
 	if (g_packetLogPathMap.end() == it)

@@ -29,14 +29,6 @@ void basic_protocol::ServerDispatcher::Dispatch(cPacket &packet, cTcpServer *svr
 	}
 	break;
 
-	//case PACKETID_CLIENT_DISCONNECT:
-	//{
-	//	netid disconnectId = INVALID_NETID;
-	//	packet >> disconnectId;
-	//	svr->RemoveSession(disconnectId);
-	//}
-	//break;
-
 	case PACKETID_ACCEPT:
 	{
 		SOCKET remoteClientSock;
@@ -62,7 +54,22 @@ void basic_protocol::ClientDispatcher::Dispatch(cPacket &packet, cTcpClient *cli
 	{
 	case PACKETID_DISCONNECT:
 	{
-		client->RemoveSession();		
+		client->RemoveSession();
+	}
+	break;
+	}
+}
+
+
+// Server Basic Protocol Dispatcher
+void UdpServerDispatcher::Dispatch(cPacket &packet, cUdpServer *svr) 
+{
+	RET(!svr);
+	switch (packet.GetPacketId())
+	{
+	case PACKETID_ERROR_BIND:
+	{
+		svr->ErrorSession(svr->m_id);			
 	}
 	break;
 	}
@@ -91,14 +98,6 @@ void basic_protocol::WebServerDispatcher::Dispatch(cPacket &packet, cWebServer *
 		}
 	}
 	break;
-
-	//case PACKETID_CLIENT_DISCONNECT:
-	//{
-	//	netid disconnectId = INVALID_NETID;
-	//	packet >> disconnectId;
-	//	svr->RemoveSession(disconnectId);
-	//}
-	//break;
 
 	case PACKETID_ACCEPT:
 	{

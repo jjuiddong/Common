@@ -228,7 +228,11 @@ void cTcpServer::Close()
 	{
 		AutoCSLock cs(m_cs);
 		for (auto &session : m_sessions.m_seq)
+		{
+			if (m_sessionListener)
+				m_sessionListener->RemoveSession(*session);
 			SAFE_DELETE(session);
+		}
 		m_sessions.clear();
 		m_sessions2.clear();
 	}

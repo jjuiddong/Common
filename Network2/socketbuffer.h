@@ -20,6 +20,7 @@ namespace network2
 		bool Pop(OUT cPacket &out);
 		bool Pop(const uint size);
 		bool PopNoRemove(OUT cPacket &out);
+		bool IsEmpty();
 		void Clear();
 
 

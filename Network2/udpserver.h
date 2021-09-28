@@ -24,6 +24,7 @@ namespace network2
 			, const bool isThreadMode = true
 		);
 		bool Process();
+		bool ErrorSession(const netid netId);
 		virtual void Close() override;
 
 		// Override
@@ -45,7 +46,7 @@ namespace network2
 
 		std::thread m_thread;
 		int m_sleepMillis;
-		char *m_tempRecvBuffer;
+		char *m_recvBuffer;
 	};
 
 }

@@ -252,21 +252,6 @@ cPacket network2::DisconnectPacket(cNetworkNode *node, netid disconnectId)
 }
 
 
-// return Client Disconnect packet connect Server
-// netid: disconnect netid
-// binary marshalling
-//cPacket network2::ClientDisconnectPacket(cNetworkNode *node, netid disconnectId)
-//{
-//	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
-//	packet.SetSenderId(SERVER_NETID);
-//	packet.SetProtocolId(0); // basic_protocol
-//	packet.SetPacketId(PACKETID_CLIENT_DISCONNECT);
-//	packet << disconnectId;
-//	packet.EndPack();
-//	return packet;
-//}
-
-
 // return the AcceptPacket
 // binary marshalling
 cPacket network2::AcceptPacket(cNetworkNode *node, SOCKET acceptSocket, const string &clientIP, int port)
@@ -278,6 +263,32 @@ cPacket network2::AcceptPacket(cNetworkNode *node, SOCKET acceptSocket, const st
 	packet << acceptSocket;
 	packet << clientIP;
 	packet << port;
+	packet.EndPack();
+	return packet;
+}
+
+
+// return bind error packet
+cPacket network2::ErrorBindPacket(cNetworkNode *node)
+{
+	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
+	packet.SetSenderId(SERVER_NETID);
+	packet.SetProtocolId(0); // basic_protocol
+	packet.SetPacketId(PACKETID_ERROR_BIND);
+	packet << node->m_id;
+	packet.EndPack();
+	return packet;
+}
+
+
+// return connect error packet
+cPacket ErrorConnectPacket(cNetworkNode *node)
+{
+	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
+	packet.SetSenderId(node->m_id);
+	packet.SetProtocolId(0); // basic_protocol
+	packet.SetPacketId(PACKETID_ERROR_CONNECT);
+	packet << node->m_id;
 	packet.EndPack();
 	return packet;
 }

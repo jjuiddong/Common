@@ -310,6 +310,8 @@ void dbg::Logc(const int level, const char* fmt, ...)
 			data.type = 0;
 	case 0:
 		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
+		if (0 == level)
+			return;
 		break;
 	default:
 #ifdef _DEBUG

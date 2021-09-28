@@ -209,6 +209,8 @@ void cPacketQueue::SendAll(
 	for (uint i = 0; i < m_sockBuffers.m_seq.size(); ++i)
 	{
 		cSocketBuffer *sockBuffer = m_sockBuffers.m_seq[i];
+		if (sockBuffer->IsEmpty())
+			continue;
 		while (1)
 		{
 			cPacket packet;

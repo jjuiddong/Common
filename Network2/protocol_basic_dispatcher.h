@@ -32,7 +32,7 @@ namespace basic_protocol
 	class UdpServerDispatcher
 	{
 	public:
-		void Dispatch(cPacket &packet, cUdpServer *svr) {} // nothing
+		void Dispatch(cPacket &packet, cUdpServer *svr);
 	};
 
 	// Web Server Basic Protocol Dispatcher

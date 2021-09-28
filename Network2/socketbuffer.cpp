@@ -197,6 +197,13 @@ bool cSocketBuffer::Pop(const uint size)
 }
 
 
+// empty buffer?
+bool cSocketBuffer::IsEmpty()
+{
+	return m_q.empty();
+}
+
+
 void cSocketBuffer::Clear()
 {
 	m_totalLen = 0;

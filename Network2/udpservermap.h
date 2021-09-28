@@ -2,6 +2,10 @@
 // 2019-07-01, jjuiddong 
 // mulitple udp server managing class
 //
+// 2021-09-27
+//	- add UdpServer Bind Error Handling Protocol
+//	- thread mode on/off
+//
 #pragma once
 
 
@@ -24,6 +28,7 @@ namespace network2
 			, const int packetCount = network2::DEFAULT_PACKETCOUNT
 			, const int sleepMillis = network2::DEFAULT_SLEEPMILLIS
 			, const int logId = -1
+			, const bool isThreadMode = true
 		);
 		int AddUdpServer(const StrId &name, network2::iProtocolHandler *handler);
 		bool RemoveUdpServer(const StrId &name);
@@ -38,27 +43,72 @@ namespace network2
 
 
 	public:
-		vector<std::pair<int, bool>> m_bindPortMap; // 사용할수있는 UDP Bind Port, (port, available)
+		vector<std::pair<int, bool>> m_bindPortMap; // port mapping (port, available)
 		map<StrId, sServerData> m_svrs;
 		int m_packetSize;
 		int m_packetCount;
 		int m_sleepMillis;
 		int m_logId; // packet log id, default: -1
+		bool m_isThreadMode; // udpserver thread mode? default: true
 
-		// Thread
+		// Thread Message
 		struct sThreadMsg
 		{
-			enum TYPE { START_SERVER, REMOVE_SERVER };
-			TYPE type;
+			enum class eType { StartServer, RemoveServer };
+			eType type;
 			StrId name;
 			int port;
 			network2::iProtocolHandler *handler;
 		};
 		std::thread m_thread;
-		bool m_isThreadLoop;
-		CriticalSection m_cs;
-		vector<sThreadMsg> m_sendThreadMsgs;
+		bool m_isLoop; // thread loop?
+		CriticalSection m_csMsg; // sync msg
+		CriticalSection m_csSvr; // sync m_svrs
+		vector<sThreadMsg> m_sendThreadMsgs; // external -> thread msg
 		vector<sThreadMsg> m_recvThreadMsgs;
+
+
+		// spawn udpserver thread
+		common::cWQSemaphore m_spawnThread; // run no thread mode
 	};
 
 }
+
+
+// cUdpServerMap Error Handling Protocol
+//	- override udpsvrmap::ProtocolHanlder interface
+namespace udpsvrmap {
+	using namespace network2;
+	using namespace marshalling;
+	static const int dispatcher_ID = 11; // reserved protocol id
+
+	struct Error_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		string serverName;
+		int errCode;
+	};
+
+	// Protocol Dispatcher
+	class Dispatcher : public network2::cProtocolDispatcher
+	{
+	public:
+		Dispatcher();
+	protected:
+		virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
+		static cPacketHeader s_packetHeader;
+	};
+	static Dispatcher g_udpsvrmap_Dispatcher;
+
+	// ProtocolHandler
+	class ProtocolHandler : virtual public network2::iProtocolHandler
+	{
+	public:
+		friend class Dispatcher;
+		ProtocolHandler() { m_format = ePacketFormat::BINARY; }
+		virtual bool Error(udpsvrmap::Error_Packet &packet) { return true; }
+	};
+
+	cPacket SendError(network2::cNetworkNode *node, int errCode);
+}
+

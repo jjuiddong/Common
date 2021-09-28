@@ -358,16 +358,23 @@ namespace network2
 	// Global Reserved Packet ID
 	enum RESERVED_PACKETID
 	{
+		// basic protocol packet id
 		PACKETID_CONNECT = 1,
 		PACKETID_DISCONNECT,
-		//PACKETID_CLIENT_DISCONNECT,
 		PACKETID_ACCEPT,
+		PACKETID_ERROR_BIND,
+		PACKETID_ERROR_CONNECT,
+		
+		// user protocol packet id
+		PACKETID_USER = 10,
+		PACKETID_ERROR_UDPSVRMAP, // cUdpServerMap error packet
 	};
 
 	class cNetworkNode;
 	cPacket ConnectPacket(cNetworkNode *node, netid connectId);
 	cPacket DisconnectPacket(cNetworkNode *node, netid disconnectId);
-	//cPacket ClientDisconnectPacket(cNetworkNode *node, netid disconnectId);
 	cPacket AcceptPacket(cNetworkNode *node, SOCKET acceptSocket, const string &clientIP, int port);
+	cPacket ErrorBindPacket(cNetworkNode *node);
+	cPacket ErrorConnectPacket(cNetworkNode *node);
 	//--------------------------------------------------------------------------------------
 }

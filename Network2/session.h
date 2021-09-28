@@ -49,6 +49,7 @@ namespace network2
 	public:
 		virtual bool AddSession(network2::cSession &session) = 0;
 		virtual bool RemoveSession(network2::cSession &session) = 0;
+		virtual bool ErrorSession(network2::cSession &session) { return true; }
 	};
 
 }

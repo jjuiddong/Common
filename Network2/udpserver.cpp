@@ -13,7 +13,7 @@ cUdpServer::cUdpServer(
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
 	, m_recvQueue(this, logId)
-	, m_tempRecvBuffer(NULL)
+	, m_recvBuffer(nullptr)
 {
 }
 
@@ -36,15 +36,12 @@ bool cUdpServer::Init(const int bindPort
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
 
+	m_recvQueue.Init(packetSize, maxPacketCount);
+
 	if (network2::LaunchUDPServer(bindPort, m_socket))
 	{
 		dbg::Logc(1, "Bind UDP Server port = %d\n", bindPort);
-
 		m_state = eState::Connect;
-		if (!m_recvQueue.Init(packetSize, maxPacketCount))
-		{
-			goto $error;
-		}
 	}
 	else
 	{
@@ -68,8 +65,8 @@ $error:
 
 bool cUdpServer::Process()
 {
-	if (!m_tempRecvBuffer)
-		m_tempRecvBuffer = new char[m_maxBuffLen];
+	if (!m_recvBuffer)
+		m_recvBuffer = new char[m_maxBuffLen];
 
 	const timeval t = { 0, 1 };
 	fd_set readSockets;
@@ -82,18 +79,26 @@ bool cUdpServer::Process()
 	if (ret == SOCKET_ERROR)
 		return false;
 
-	const int result = recv(readSockets.fd_array[0], (char*)m_tempRecvBuffer, m_maxBuffLen, 0);
-	if (result == SOCKET_ERROR || result == 0) // 받은 패킷사이즈가 0이면 서버와 접속이 끊겼다는 의미다.
+	const int result = recv(readSockets.fd_array[0], (char*)m_recvBuffer, m_maxBuffLen, 0);
+	if (result == SOCKET_ERROR || result == 0)
 	{
-		// 에러가 발생하더라도, 수신 대기상태로 계속 둔다.
+		// disconcet state
 	}
 	else
 	{
 		const netid netId = GetNetIdFromSocket(readSockets.fd_array[0]);
 		if (netId != INVALID_NETID)
-			m_recvQueue.Push(netId, (BYTE*)m_tempRecvBuffer, result);
+			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 	}
 
+	return true;
+}
+
+
+// error session, calling from UdpServerDispatcher
+// udp server bind error
+bool cUdpServer::ErrorSession(const netid netId)
+{
 	return true;
 }
 
@@ -104,7 +109,7 @@ void cUdpServer::Close()
 	if (m_thread.joinable())
 		m_thread.join();
 
-	SAFE_DELETEA(m_tempRecvBuffer);
+	SAFE_DELETEA(m_recvBuffer);
 	cNetworkNode::Close();
 }
 
@@ -139,7 +144,7 @@ void cUdpServer::GetAllSocket(OUT map<netid, SOCKET> &out)
 // send packet 
 int cUdpServer::Send(const netid rcvId, const cPacket &packet)
 {
-	// UDP Server는 패킷을 받을 수만 있다.
+	// UDP Server only receive packet
 	assert(0);
 	return 1;
 }
