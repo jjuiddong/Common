@@ -68,9 +68,10 @@ namespace network2
 		);
 
 		int Process(const float deltaSeconds);
+		int Dispatch(cNetworkNode *node);
 		
 		bool RemoveServer(cNetworkNode *svr);
-		bool RemoveClient(cNetworkNode *svr);
+		bool RemoveClient(cNetworkNode *cli);
 		bool IsExistServer(const cNetworkNode *svr);
 		bool IsExistClient(const cNetworkNode *cli);
 		void Clear();

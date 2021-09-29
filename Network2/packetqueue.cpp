@@ -371,6 +371,15 @@ void cPacketQueue::Unlock()
 }
 
 
+// clear buffer
+void cPacketQueue::ClearBuffer()
+{
+	cAutoCS cs(m_cs);
+	for (auto sock : m_sockBuffers.m_seq)
+		sock->Clear();
+}
+
+
 void cPacketQueue::Clear()
 {
 	cAutoCS cs(m_cs);

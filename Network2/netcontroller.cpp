@@ -151,7 +151,8 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 		// Process Basic Protocol
 		if ((protocolId == 0) || (packetId < 10))
 		{
-			basicDispatcher->Dispatch(packet, netNode);
+			if (basicDispatcher)
+				basicDispatcher->Dispatch(packet, netNode);
 			continue;
 		}
 
@@ -216,6 +217,38 @@ int cNetController::Process(const float deltaSeconds)
 }
 
 
+// dispatch packet specific network node
+int cNetController::Dispatch(cNetworkNode *node)
+{
+	if (cTcpServer *svr = dynamic_cast<cTcpServer*>(node))
+	{
+		basic_protocol::ServerDispatcher svrDispatcher;
+		return ProcessNetworkNode(svr, &svrDispatcher);
+	}
+	else if (cUdpServer *svr = dynamic_cast<cUdpServer*>(node))
+	{
+		basic_protocol::UdpServerDispatcher udpSvrDispatcher;
+		return ProcessNetworkNode(svr, &udpSvrDispatcher);
+	}
+	else if (cWebServer *svr = dynamic_cast<cWebServer*>(node))
+	{
+		basic_protocol::WebServerDispatcher webSvrDispatcher;
+		return ProcessNetworkNode(svr, &webSvrDispatcher);
+	}
+	else if (cTcpClient *cli = dynamic_cast<cTcpClient*>(node))
+	{
+		basic_protocol::ClientDispatcher clientDispatcher;
+		return ProcessNetworkNode(cli, &clientDispatcher);
+	}
+	else if (cWebClient *cli = dynamic_cast<cWebClient*>(node))
+	{
+		basic_protocol::WebClientDispatcher webClientDispatcher;
+		return ProcessNetworkNode(cli, &webClientDispatcher);
+	}
+	return 0;
+}
+
+
 bool cNetController::RemoveServer(cNetworkNode *svr)
 {
 	if (!IsExistServer(svr))
@@ -232,16 +265,16 @@ bool cNetController::RemoveServer(cNetworkNode *svr)
 }
 
 
-bool cNetController::RemoveClient(cNetworkNode *svr)
+bool cNetController::RemoveClient(cNetworkNode *cli)
 {
-	if (!IsExistClient(svr))
+	if (!IsExistClient(cli))
 		return false;
 
-	if (cTcpClient *p = dynamic_cast<cTcpClient*>(svr))
+	if (cTcpClient *p = dynamic_cast<cTcpClient*>(cli))
 		common::removevector(m_tcpClients, p);
-	if (cUdpClient *p = dynamic_cast<cUdpClient*>(svr))
+	if (cUdpClient *p = dynamic_cast<cUdpClient*>(cli))
 		common::removevector(m_udpClients, p);
-	if (cWebClient *p = dynamic_cast<cWebClient*>(svr))
+	if (cWebClient *p = dynamic_cast<cWebClient*>(cli))
 		common::removevector(m_webClients, p);
 
 	return true;

@@ -137,10 +137,6 @@ bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
 int cUdpServerMap::AddUdpServer(const StrId &name
 	, network2::iProtocolHandler *handler)
 {
-	//sServerData &svrData = FindUdpServer(name);
-	//if (svrData.svr)
-	//	return svrData.svr->m_port; // Already Exist 
-
 	const int bindPort = GetReadyBindPort();
 	if (bindPort < 0)
 		return -1;
@@ -160,10 +156,6 @@ int cUdpServerMap::AddUdpServer(const StrId &name
 // Remove UDP Server
 bool cUdpServerMap::RemoveUdpServer(const StrId &name)
 {
-	//auto &udpSvr = FindUdpServer(name);
-	//if (!udpSvr.svr)
-	//	return false; // Not Exist
-
 	sThreadMsg msg;
 	msg.type = sThreadMsg::eType::RemoveServer;
 	msg.name = name;
@@ -228,7 +220,7 @@ void cUdpServerMap::Clear()
 		if (it.second.svr)
 		{
 			it.second.svr->Close();
-			delete it.second.svr;
+			SAFE_DELETE(it.second.svr);
 		}
 	}
 	m_svrs.clear();
@@ -242,7 +234,10 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 	while (udpSvrMap->m_isLoop)
 	{
 		// Process Message
-		while (udpSvrMap->m_isLoop && !udpSvrMap->m_sendThreadMsgs.empty())
+		int procCnt = 0; // message process count
+		while (udpSvrMap->m_isLoop 
+			&& (procCnt++ < 5)
+			&& !udpSvrMap->m_sendThreadMsgs.empty())
 		{
 			sThreadMsg msg;
 			udpSvrMap->m_csMsg.Lock();
@@ -311,14 +306,23 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 				int svrPort = -1;
 				if (udpSvrMap->m_svrs.end() != it)
 				{
-					auto svr = it->second;
-					netController.RemoveServer(svr.svr);
-					if (svr.svr)
-						svrPort = svr.svr->m_port;
+					auto info = it->second;
+					netController.RemoveServer(info.svr);
+					if (info.svr)
+					{
+						svrPort = info.svr->m_port;
+						info.svr->Close();
+					}
 					udpSvrMap->m_svrs.erase(msg.name);
 
+					// send udpsvrmap protocol, Close event trigger
+					// to remove instance, send immediate
+					info.svr->m_recvQueue.ClearBuffer();
+					info.svr->m_recvQueue.Push(info.svr->m_id, udpsvrmap::SendClose(info.svr));
+					netController.Dispatch(info.svr);
+
 					// delete multithread
-					udpSvrMap->m_spawnThread.PushTask(new cDeletUdpServerTask(svr.svr));
+					udpSvrMap->m_spawnThread.PushTask(new cDeletUdpServerTask(info.svr));
 				}
 				udpSvrMap->m_csSvr.Unlock();
 				if (svrPort > 0) // outside cs, to avoid deadlock
@@ -369,9 +373,23 @@ bool udpsvrmap::Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &ha
 {
 	const int protocolId = packet.GetProtocolId();
 	const int packetId = packet.GetPacketId();
-	switch (packetId) // 
+	switch (packetId)
 	{
-	case PACKETID_ERROR_UDPSVRMAP: // Error
+	case PACKETID_UDPSVRMAP_CLOSE:
+	{
+		ProtocolHandlers prtHandler;
+		if (!HandlerMatching<ProtocolHandler>(handlers, prtHandler))
+			return false;
+		SetCurrentDispatchPacket(&packet);
+		Close_Packet data;
+		data.pdispatcher = this;
+		data.senderId = packet.GetSenderId();
+		packet >> data.serverName;
+		SEND_HANDLER(ProtocolHandler, prtHandler, Close(data));
+	}
+	break;
+
+	case PACKETID_UDPSVRMAP_ERROR:
 	{
 		ProtocolHandlers prtHandler;
 		if (!HandlerMatching<ProtocolHandler>(handlers, prtHandler))
@@ -393,13 +411,26 @@ bool udpsvrmap::Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &ha
 }
 
 
+// return reserved Close packet
+cPacket udpsvrmap::SendClose(network2::cNetworkNode *node)
+{
+	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
+	packet.SetSenderId(node->m_id);
+	packet.SetProtocolId(dispatcher_ID);
+	packet.SetPacketId(PACKETID_UDPSVRMAP_CLOSE);
+	packet << node->m_name;
+	packet.EndPack();
+	return packet;
+}
+
+
 // return reserved Error packet
 cPacket udpsvrmap::SendError(network2::cNetworkNode *node, int errCode)
 {
 	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
 	packet.SetSenderId(node->m_id);
 	packet.SetProtocolId(dispatcher_ID);
-	packet.SetPacketId(PACKETID_ERROR_UDPSVRMAP);
+	packet.SetPacketId(PACKETID_UDPSVRMAP_ERROR);
 	packet << node->m_name;
 	packet << errCode;
 	packet.EndPack();

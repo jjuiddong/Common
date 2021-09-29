@@ -52,6 +52,7 @@ namespace network2
 		bool Remove(const netid id);
 		void Lock();
 		void Unlock();
+		void ClearBuffer();
 		void Clear();
 
 

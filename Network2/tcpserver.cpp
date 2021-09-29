@@ -88,6 +88,8 @@ $error:
 // for single thread
 bool cTcpServer::Process()
 {
+	RETV(eState::Connect != m_state, false);
+
 	if (!m_tempRecvBuffer)
 		m_tempRecvBuffer = new char[m_maxBuffLen];
 

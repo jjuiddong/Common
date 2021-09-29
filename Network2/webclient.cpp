@@ -162,8 +162,7 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 // for single thread tcpclient
 bool cWebClient::Process()
 {
-	if (eState::Connect != m_state)
-		return false;
+	RETV(eState::Connect != m_state, false);
 
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];

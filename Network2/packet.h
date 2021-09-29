@@ -367,7 +367,8 @@ namespace network2
 		
 		// user protocol packet id
 		PACKETID_USER = 10,
-		PACKETID_ERROR_UDPSVRMAP, // cUdpServerMap error packet
+		PACKETID_UDPSVRMAP_CLOSE, // cUdpServerMap close packet
+		PACKETID_UDPSVRMAP_ERROR, // cUdpServerMap error packet
 	};
 
 	class cNetworkNode;

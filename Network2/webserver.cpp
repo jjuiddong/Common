@@ -174,6 +174,8 @@ $error:
 // for single thread
 bool cWebServer::Process()
 {
+	RETV(eState::Connect != m_state, false);
+
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];
 

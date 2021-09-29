@@ -128,8 +128,7 @@ int cTcpClient::SendImmediate(const netid rcvId, const cPacket &packet)
 // for single thread tcpclient
 bool cTcpClient::Process()
 {
-	if (eState::Connect != m_state)
-		return false;
+	RETV(eState::Connect != m_state, false);
 
 	const timeval t = { 0, m_sleepMillis * 1000};
 
