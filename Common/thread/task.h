@@ -34,14 +34,14 @@ namespace common
 	public:
 		int m_id;
 		bool m_isTopPriority;
-		cThread *m_pThread; // reference
 		StrId m_name;
+		cThread *m_pThread; // reference
 	};
 
 	inline cTask::cTask(int id, const StrId &name
 		, const bool isTopPriority //= false
 	) 
-		: m_id(id), m_pThread(NULL), m_name(name), m_isTopPriority(isTopPriority) { }
+		: m_id(id), m_pThread(nullptr), m_name(name), m_isTopPriority(isTopPriority) { }
 
 
 	// cTask search object

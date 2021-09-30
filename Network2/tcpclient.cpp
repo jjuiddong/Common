@@ -257,7 +257,7 @@ void cTcpClient::Close()
 	if (m_thread.joinable()) // wait until thread terminate
 		m_thread.join();
 
-	cNetworkNode::Close();
+	__super::Close();
 	SAFE_DELETEA(m_recvBuffer);
 	m_state = eState::Disconnect;
 }

@@ -179,7 +179,7 @@ bool cTcpServer::ReceiveProcces()
 	if (0 == readSockets.fd_count)
 		return true;
 
-	const timeval t = { 0, 1 };
+	const timeval t = { 0, 0 };
 	const fd_set sockets = readSockets;
 
 	const int ret = select(readSockets.fd_count, &readSockets, NULL, NULL, &t);

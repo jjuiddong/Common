@@ -40,7 +40,7 @@ bool cUdpServer::Init(const int bindPort
 
 	if (network2::LaunchUDPServer(bindPort, m_socket))
 	{
-		dbg::Logc(1, "Bind UDP Server port = %d\n", bindPort);
+		//dbg::Logc(1, "Bind UDP Server port = %d\n", bindPort);
 		m_state = eState::Connect;
 	}
 	else
@@ -70,7 +70,7 @@ bool cUdpServer::Process()
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];
 
-	const timeval t = { 0, 1 };
+	const timeval t = { 0, 0 };
 	fd_set readSockets;
 	FD_ZERO(&readSockets);
 	FD_SET(m_socket, &readSockets);

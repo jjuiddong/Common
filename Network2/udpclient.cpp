@@ -82,8 +82,8 @@ bool cUdpClient::Process()
 }
 
 
-// netId에 해당하는 socket을 리턴한다.
-// 클라이언트는 netid를 한개 만 관리한다. 
+// return socket correspond netid
+// client has only one netid
 SOCKET cUdpClient::GetSocket(const netid netId)
 {
 	if ((m_id != netId) && (network2::SERVER_NETID != netId))
@@ -94,7 +94,8 @@ SOCKET cUdpClient::GetSocket(const netid netId)
 }
 
 
-// 클라이언트는 SOCKET을 한개 만 관리한다. 
+// return netid correspond socket
+// client has only one socket
 netid cUdpClient::GetNetIdFromSocket(const SOCKET sock)
 {
 	if (m_socket != sock)
@@ -129,11 +130,10 @@ int cUdpClient::SendImmediate(const netid rcvId, const cPacket &packet)
 void cUdpClient::Close()
 {
 	m_state = eState::Disconnect;
-	if (m_thread.joinable()) // 쓰레드 종료.
+	if (m_thread.joinable())
 		m_thread.join();
 
-	Sleep(100);
-	cNetworkNode::Close();
+	__super::Close();
 	m_state = eState::Disconnect;
 }
 

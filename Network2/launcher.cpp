@@ -21,7 +21,7 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		if (isLog)
-			dbg::Logc(2, "윈속 버전이 틀렸습니다\n");
+			dbg::Logc(2, "error winsock version\n");
 		return false;
 	}
 
@@ -158,7 +158,7 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		if (isLog)
-			dbg::Logc(2, "윈속 버전이 틀렸습니다\n");
+			dbg::Logc(2, "error winsock version\n");
 		return false;
 	}
 
@@ -277,7 +277,7 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		if (isLog)
-			dbg::Logc(2, "윈속 버전이 틀렸습니다\n");
+			dbg::Logc(2, "error winsock version\n");
 		return false;
 	}
 
@@ -329,7 +329,7 @@ bool network2::LaunchUDPClient(const std::string &ip, const int port
 	if (wsaData.wVersion != wVersionRequested)
 	{
 		if (isLog)
-			dbg::Logc(2, "윈속 버전이 틀렸습니다\n");
+			dbg::Logc(2, "error winsock version\n");
 		return false;
 	}
 

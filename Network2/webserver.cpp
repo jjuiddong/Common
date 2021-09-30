@@ -344,7 +344,7 @@ bool cWebServer::ReceiveProcces()
 		return true;
 
 	set<netid> rmSessions; // remove session ids
-	const timeval t = { 0, 1 };
+	const timeval t = { 0, 0 };
 	const fd_set sockets = readSockets;
 
 	const int selResult = select(readSockets.fd_count, &readSockets, nullptr, nullptr, &t);

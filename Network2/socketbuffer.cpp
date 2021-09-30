@@ -103,8 +103,8 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 				const uint totalLen = (headerSize == 0) ? size : packetHeader->GetPacketLength(ptr);
 				if (totalLen > (uint)m_q.SIZE)
 				{
-					dbg::Logc(2, "error!! sockbuffer, packet size too big, size = %d, totalLen = %d\n"
-						, size, totalLen);
+					dbg::Logc(2, "error!! sockbuffer, packet size too big, size = %d, totalLen = %d, q = %d\n"
+						, size, totalLen, m_q.SIZE);
 					break; // error occur, packet size error, maybe data corrupt
 				}
 				else if (totalLen == 0)

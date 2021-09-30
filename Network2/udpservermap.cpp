@@ -38,12 +38,7 @@ public:
 		}
 
 		if (!svrData)
-		{
-			// update port availible
-			m_udpSvrMap->SetReadyBindPort(m_bindPort);
-			delete m_svr;
-			return eRunResult::End; // not found
-		}
+			return eRunResult::End; // not found, maybe deleted
 
 		// udpserver bind
 		const bool result = m_svr->Init(m_bindPort
@@ -231,6 +226,11 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 {
 	network2::cNetController netController;
 
+	cTimer timer;
+	timer.Create();
+	double incT = 0.0;
+	int loop = 0;
+
 	while (udpSvrMap->m_isLoop)
 	{
 		// Process Message
@@ -267,8 +267,8 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 					, udpSvrMap->m_logId);
 				svr->AddProtocolHandler(msg.handler);
 
-				if (udpSvrMap->m_isThreadMode)
-				{
+				//if (udpSvrMap->m_isThreadMode)
+				//{
 					const bool result = netController.StartUdpServer(svr, msg.port
 						, udpSvrMap->m_packetSize, udpSvrMap->m_packetCount
 						, udpSvrMap->m_sleepMillis, udpSvrMap->m_isThreadMode);
@@ -280,20 +280,21 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 						// send udpsvrmap protocol, Error event trigger
 						svr->m_recvQueue.Push(svr->m_id, udpsvrmap::SendError(svr, 0));
 					}
-				}
-				else
-				{
-					// no thread mode, but server binding is multithreading
-					udpSvrMap->m_spawnThread.PushTask(
-						new cSpawnUdpServerTask(&netController, udpSvrMap, msg.name
-							, svr, msg.port));
-				}
+				//}
+				//else
+				//{
+				//	// no thread mode, but server binding is multithreading
+				//	udpSvrMap->m_spawnThread.PushTask(
+				//		new cSpawnUdpServerTask(&netController, udpSvrMap, msg.name
+				//			, svr, msg.port));
+				//}
 				
 				{
 					AutoCSLock cs(udpSvrMap->m_csSvr);
 					sServerData svrData;
 					svrData.name = msg.name;
-					svrData.svr = udpSvrMap->m_isThreadMode? svr : nullptr;
+					//svrData.svr = udpSvrMap->m_isThreadMode? svr : nullptr;
+					svrData.svr = svr;
 					udpSvrMap->m_svrs.insert({ msg.name, svrData });
 				}
 			}
@@ -346,6 +347,16 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 					kv.second.svr->Process();
 
 			netController.Process(0.001f);
+		}
+
+		const double dt = timer.GetDeltaSeconds();
+		incT += dt;
+		++loop;
+		if (incT > 1.0)
+		{
+			incT = 0.0;
+			dbg::Logc(1, "UdpServerMap Loop: %d\n", loop);
+			loop = 0;
 		}
 
 		const int sleepTime = udpSvrMap->m_svrs.empty() ? 100 : udpSvrMap->m_sleepMillis;
