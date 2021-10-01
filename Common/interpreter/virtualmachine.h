@@ -57,7 +57,8 @@ namespace common
 			bool ProcessEvent(const float deltaSeconds);
 			bool ProcessTimer(const float deltaSeconds);
 			bool ExecuteInstruction(const float deltaSeconds, sRegister &reg);
-			void CodeTraceLog();
+			void CodeTraceLog(vector<ushort> &trace);
+			void WriteTraceLog(const vector<ushort> &trace);
 
 
 		public:
@@ -83,6 +84,9 @@ namespace common
 			// debugging
 			bool m_isCodeTraceLog;
 			vector<ushort> m_trace; // executed code index log (pair data)
+									// 0-10,15-20,101-101
+			bool m_isDebugging; // special purpose flag, dev debugging
+			vector<ushort> m_trace2; // executed code index log (pair data)
 									// 0-10,15-20,101-101
 		};
 

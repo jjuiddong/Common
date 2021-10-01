@@ -6,7 +6,7 @@ using namespace common;
 
 
 cShmmem::cShmmem() 
-	: m_memPtr(NULL)
+	: m_memPtr(nullptr)
 	, m_memoryByteSyze(0)
 {
 }
@@ -16,7 +16,7 @@ cShmmem::~cShmmem()
 }
 
 
-// 공유메모리 생성
+// create shared memory
 bool cShmmem::Init(const std::string &sharedMemoryName, const int memoryByteSize)
 {
 	using namespace boost::interprocess;
@@ -37,7 +37,7 @@ bool cShmmem::Init(const std::string &sharedMemoryName, const int memoryByteSize
 		ss << "Shared Memory Error!!";
 		dbg::ErrLog(ss.str().c_str());
 		//::AfxMessageBox(str2wstr(ss.str()).c_str());
-		m_memPtr = NULL;
+		m_memPtr = nullptr;
 		m_memoryByteSyze = 0;
 		return false;
 	}

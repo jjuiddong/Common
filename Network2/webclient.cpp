@@ -24,6 +24,7 @@ cWebClient::cWebClient(
 	, m_sendQueue(this, logId)
 	, m_recvQueue(this, logId)
 	, m_recvBuffer(nullptr)
+	, m_sendBuffer(nullptr)
 	, m_isThreadMode(false)
 	, m_sessionListener(nullptr)
 {
@@ -64,7 +65,7 @@ bool cWebClient::Init(const string &url
 	}
 
 	m_sleepMillis = sleepMillis;
-	m_maxBuffLen = packetSize;
+	m_maxBuffLen = packetSize + 14; //+14 websocket header
 	m_isThreadMode = isThreadMode;
 
 	m_state = eState::ReadyConnect;
@@ -146,8 +147,10 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 	if (m_websocket)
 	{
 		try {
-			result = m_websocket->sendFrame(packet.m_data
-				, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
+			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
+			result = m_websocket->sendFrame2(m_sendBuffer, m_maxBuffLen
+				, packet.m_data, packet.GetPacketSize()
+				, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
 			// nothing~
@@ -166,6 +169,8 @@ bool cWebClient::Process()
 
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];
+	if (!m_sendBuffer)
+		m_sendBuffer = new char[m_maxBuffLen];
 
 	// receive packet
 	Poco::Net::Socket::SocketList reads;
@@ -349,6 +354,7 @@ void cWebClient::Close()
 
 	cNetworkNode::Close();
 	SAFE_DELETEA(m_recvBuffer);
+	SAFE_DELETEA(m_sendBuffer);
 	m_state = eState::Disconnect;
 }
 

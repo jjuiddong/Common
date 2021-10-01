@@ -244,6 +244,9 @@
     <ClInclude Include="interpreter\vpljsonfile.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="thread\loadbalancer.h">
+      <Filter>thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -405,6 +408,9 @@
     </ClCompile>
     <ClCompile Include="interpreter\vpljsonfile.cpp">
       <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="thread\loadbalancer.cpp">
+      <Filter>thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

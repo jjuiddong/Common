@@ -476,6 +476,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="thread\Instance.h" />
+    <ClInclude Include="thread\loadbalancer.h" />
     <ClInclude Include="thread\mutex.h" />
     <ClInclude Include="thread\semaphore.h" />
     <ClInclude Include="thread\task.h" />
@@ -547,6 +548,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_MD|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_MD|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="thread\loadbalancer.cpp" />
     <ClCompile Include="thread\thread.cpp" />
     <ClCompile Include="thread\tpsemaphore.cpp" />
     <ClCompile Include="thread\wqsemaphore.cpp" />

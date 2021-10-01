@@ -112,7 +112,7 @@ void cUdpServer::Close()
 		m_thread.join();
 
 	SAFE_DELETEA(m_recvBuffer);
-	cNetworkNode::Close();
+	__super::Close();
 }
 
 

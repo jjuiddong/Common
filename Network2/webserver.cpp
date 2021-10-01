@@ -106,6 +106,7 @@ cWebServer::cWebServer(
 	, m_recvQueue(this, logId)
 	, m_sessionListener(nullptr)
 	, m_recvBuffer(nullptr)
+	, m_sendBuffer(nullptr)
 	, m_lastAcceptTime(0)
 	, m_isThreadMode(true)
 	, m_isUpdateSocket(false)
@@ -115,6 +116,8 @@ cWebServer::cWebServer(
 cWebServer::~cWebServer()
 {
 	Close();
+
+	SAFE_DELETE(m_sessionFactory);
 }
 
 
@@ -131,7 +134,7 @@ bool cWebServer::Init(const int bindPort
 	m_ip = "localhost";
 	m_port = bindPort;
 	m_sleepMillis = sleepMillis;
-	m_maxBuffLen = packetSize;
+	m_maxBuffLen = packetSize + 14; //+14 websocket header
 	m_isThreadMode = isThreadMode;
 	m_timer.Create();
 
@@ -178,6 +181,8 @@ bool cWebServer::Process()
 
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];
+	if (!m_sendBuffer)
+		m_sendBuffer = new char[m_maxBuffLen];
 
 	ReceiveProcces();
 
@@ -469,8 +474,10 @@ int cWebServer::SendImmediate(const netid rcvId, const cPacket &packet)
 	if (session->m_ws)
 	{
 		try {
-			result = session->m_ws->sendFrame(packet.m_data
-				, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
+			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
+			result = session->m_ws->sendFrame2(m_sendBuffer, m_maxBuffLen
+				, packet.m_data, packet.GetPacketSize()
+				, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
 			dbg::Logc(2, "error cWebServer send exception, %s\n", e.what());
@@ -490,8 +497,10 @@ int cWebServer::SendAll(const cPacket &packet, set<netid> *outErrs //= nullptr
 			continue;
 		int result = 0;
 		try {
-			result = session->m_ws->sendFrame(packet.m_data
-				, packet.GetPacketSize(), Poco::Net::WebSocket::FRAME_BINARY);
+			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
+			result = session->m_ws->sendFrame2(m_sendBuffer, m_maxBuffLen
+				, packet.m_data, packet.GetPacketSize()
+				, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
 			dbg::Logc(2, "error cWebServer send exception, %s\n", e.what());
@@ -520,9 +529,14 @@ void cWebServer::Close()
 		}
 		m_sessions.clear();
 		m_sessions2.clear();
+
+		for (auto &session : m_tempSessions)
+			SAFE_DELETE(session);
+		m_tempSessions.clear();
 	}
 
 	SAFE_DELETEA(m_recvBuffer);
+	SAFE_DELETEA(m_sendBuffer);
 
 	if (m_httpServer)
 	{
@@ -533,7 +547,7 @@ void cWebServer::Close()
 		SAFE_DELETE(m_httpServer);
 	}
 
-	cNetworkNode::Close();
+	__super::Close();
 }
 
 

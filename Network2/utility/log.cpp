@@ -144,6 +144,6 @@ bool network2::LogPacket(const int logId, const netid sndId
 	memcpy(task->m_logData.data, packet.m_data, packet.GetPacketSize());
 	task->m_logData.size = packet.GetPacketSize();
 	
-	g_logThread.PushTask(task);	
+	g_logThread.PushTask(task);
 	return true;
 }

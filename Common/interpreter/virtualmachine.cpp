@@ -13,6 +13,7 @@ cVirtualMachine::cVirtualMachine(const string &name)
 	, m_callbackArgPtr(nullptr)
 	, m_name(name)
 	, m_isCodeTraceLog(false)
+	, m_isDebugging(false)
 {
 }
 
@@ -66,7 +67,10 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 	ExecuteInstruction(deltaSeconds, m_reg);
 
 	if (m_isCodeTraceLog)
-		CodeTraceLog();
+		CodeTraceLog(m_trace);
+
+	if (m_isDebugging)
+		CodeTraceLog(m_trace2);
 
 	return true;
 }
@@ -771,50 +775,72 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 
 $error:
-	dbg::Logc(3, "Error cVirtualMachine::Execute() not valid command. index=%d, cmd=%d\n"
-		, reg.idx, (int)code.cmd);
+	dbg::Logc(3, "Error cVirtualMachine::Execute() not valid command. '%s' index=%d, cmd=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd);
+	WriteTraceLog(m_trace2);
+	m_state = eState::Stop;
 	return false;
 
 $error_semantic:
-	dbg::Logc(3, "Error cVirtualMachine::Execute() Semantic Error. index=%d, cmd=%d\n"
-		, reg.idx, (int)code.cmd);
+	dbg::Logc(3, "Error cVirtualMachine::Execute() Semantic Error.' %s', index=%d, cmd=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd);
+	WriteTraceLog(m_trace2);
+	m_state = eState::Stop;
 	return false;
 
 $error_memory:
-	dbg::Logc(3, "Error cVirtualMachine::Execute() Memory Error. index=%d, type=%d, reg1=%d, reg2=%d\n"
-		, reg.idx, (int)code.cmd, code.reg1, code.reg2);
+	dbg::Logc(3, "Error cVirtualMachine::Execute() Memory Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2);
+	WriteTraceLog(m_trace2);
+	m_state = eState::Stop;
 	return false;
 }
 
 
 // executed code index log
 // ex) 0-10, 15-20, 101-101
-void cVirtualMachine::CodeTraceLog()
+void cVirtualMachine::CodeTraceLog(vector<ushort> &trace)
 {
-	if (m_trace.empty())
+	if (trace.empty())
 	{
 		// start idx-idx
-		m_trace.push_back(m_reg.idx);
-		m_trace.push_back(m_reg.idx);
+		trace.push_back(m_reg.idx);
+		trace.push_back(m_reg.idx);
 	}
 	else
 	{
-		const int curIdx = m_trace.back();
+		const int curIdx = trace.back();
 		if (curIdx == m_reg.idx)
 			return; // nothing~
 		
 		// contineous instruction index?
 		if ((curIdx + 1) == m_reg.idx)
 		{
-			m_trace.back() = m_reg.idx;
+			trace.back() = m_reg.idx;
 		}
 		else
 		{
 			// jump instruction index
-			m_trace.push_back(m_reg.idx);
-			m_trace.push_back(m_reg.idx);
+			trace.push_back(m_reg.idx);
+			trace.push_back(m_reg.idx);
 		}
 	}
+}
+
+
+// write tracelog for debugging
+void cVirtualMachine::WriteTraceLog(const vector<ushort> &trace)
+{
+	if (trace.empty())
+		return;
+
+	StrPath fileName = m_code.m_fileName.GetFileNameExceptExt2();
+	fileName += ".trace";
+	std::ofstream ofs(fileName.c_str());
+	if (!ofs.is_open())
+		return;
+	for (auto t : trace)
+		ofs << t << std::endl;
 }
 
 

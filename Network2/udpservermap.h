@@ -80,7 +80,8 @@ namespace network2
 		std::thread m_thread;
 
 		// spawn udpserver thread
-		common::cWQSemaphore m_spawnThread; // run no thread mode
+		queue<network2::cUdpServer*> m_freeSvrs; // reuse free udpserver
+		//common::cWQSemaphore m_spawnThread; // run no thread mode
 	};
 
 }

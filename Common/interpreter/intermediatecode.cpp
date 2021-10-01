@@ -8,6 +8,9 @@ using namespace common::script;
 
 cIntermediateCode::cIntermediateCode()
 {
+	// m_regName: val0 ~ 9
+	m_regName[0] = 'v', m_regName[1] = 'a', m_regName[2] = 'l';
+	m_regName[4] = '\0';
 }
 
 cIntermediateCode::cIntermediateCode(const cIntermediateCode &rhs)
@@ -550,9 +553,8 @@ uint cIntermediateCode::GetRegisterIndex(const string &regName)
 
 const char* cIntermediateCode::GetRegisterName(const uint regIdx)
 {
-	static char regName[5] = "val0";
-	regName[3] = (char)('0' + min((uint)9, regIdx));
-	return regName;
+	m_regName[3] = (char)('0' + min((uint)9, regIdx));
+	return m_regName;
 }
 
 

@@ -75,6 +75,9 @@ namespace network2
 		CriticalSection m_cs;
 		int m_sleepMillis;
 		char *m_recvBuffer;
+		char *m_sendBuffer; // poco library sendFrame() has memory alloc
+							// to avoid memory alloc, modified sendFrame() to sendFrame2()
+							// use external memory this m_sendBuffer
 	};
 
 }

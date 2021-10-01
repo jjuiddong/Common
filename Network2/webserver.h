@@ -83,6 +83,9 @@ namespace network2
 		int m_sleepMillis;
 		double m_lastAcceptTime;
 		char *m_recvBuffer;
+		char *m_sendBuffer; // poco library sendFrame() has memory alloc
+							// to avoid memory alloc, modified sendFrame() to sendFrame2()
+							// use external memory this m_sendBuffer
 		common::cTimer m_timer;
 	};
 
