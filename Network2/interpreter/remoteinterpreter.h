@@ -27,7 +27,7 @@ namespace network2
 			common::script::sVariable var; // compare variable
 		};
 
-		cRemoteInterpreter(const int logId = -1);
+		cRemoteInterpreter(const StrId &name, const int logId = -1);
 		virtual ~cRemoteInterpreter();
 
 		bool Init(cNetController &netController
@@ -97,6 +97,7 @@ namespace network2
 		};
 		vector<sItpr> m_interpreters;
 
+		bool m_isThreadMode;
 		int m_bindPort; // webserver bind port
 		network2::cWebServer m_server;
 		remotedbg2::h2r_Protocol m_protocol;

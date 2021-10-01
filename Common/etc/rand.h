@@ -22,7 +22,7 @@ namespace common
 	// percentageOfTrue : 0 ~ 1
 	inline bool randbool(const float percentageOfTrue)
 	{
-		return randint(0, 100) < (int)(100 * percentageOfTrue);
+		return randint(0, 100) < (int)(100.f * percentageOfTrue);
 	}
 
 

@@ -201,6 +201,7 @@
     <ClInclude Include="protocol_dispatcher.h" />
     <ClInclude Include="protocol_handler.h" />
     <ClInclude Include="protocol_macro.h" />
+    <ClInclude Include="protocol_udpsvrmap.h" />
     <ClInclude Include="prtcompiler\ProtocolDefine.h" />
     <ClInclude Include="prtcompiler\ProtocolParser.h" />
     <ClInclude Include="prtcompiler\ProtocolScanner.h" />
@@ -246,6 +247,7 @@
     <ClCompile Include="packetqueue.cpp" />
     <ClCompile Include="protocol_basic_dispatcher.cpp" />
     <ClCompile Include="protocol_dispatcher.cpp" />
+    <ClCompile Include="protocol_udpsvrmap.cpp" />
     <ClCompile Include="prtcompiler\ProtocolDefine.cpp" />
     <ClCompile Include="prtcompiler\ProtocolParser.cpp" />
     <ClCompile Include="prtcompiler\ProtocolScanner.cpp" />

@@ -96,13 +96,15 @@ public:
 //----------------------------------------------------------------------------------
 // cRemoteInterpreter
 cRemoteInterpreter::cRemoteInterpreter(
-	const int logId //= -1
+	const StrId &name
+	, const int logId //= -1
 )
-	: m_server(new network2::cWebSessionFactory(), "RemoteInterpreter", logId)
+	: m_server(new network2::cWebSessionFactory(), name, logId)
 	, m_callback(nullptr)
 	, m_arg(nullptr)
 	, m_threads(nullptr)
 	, m_multiThreading(0)
+	, m_isThreadMode(true)
 {
 }
 
@@ -130,6 +132,7 @@ bool cRemoteInterpreter::Init(cNetController &netController
 	m_callback = callback;
 	m_bindPort = bindPort;
 	m_arg = arg;
+	m_isThreadMode = isThreadMode;
 
 	m_server.AddProtocolHandler(this);
 	m_server.RegisterProtocol(&m_protocol);

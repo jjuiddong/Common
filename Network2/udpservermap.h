@@ -4,6 +4,7 @@
 //
 // 2021-09-27
 //	- add UdpServer Bind Error, Close Handling Protocol
+//		- override udpsvrmap::ProtocolHanlder interface
 //	- thread mode on/off
 //
 #pragma once
@@ -23,7 +24,8 @@ namespace network2
 		cUdpServerMap();
 		virtual ~cUdpServerMap();
 
-		bool Init(const int startUdpBindPort, const int bindCount
+		bool Init(const int startUdpBindPort
+			, const int maxServerCount
 			, const int packetSize = network2::DEFAULT_PACKETSIZE
 			, const int packetCount = network2::DEFAULT_PACKETCOUNT
 			, const int sleepMillis = network2::DEFAULT_SLEEPMILLIS
@@ -32,24 +34,34 @@ namespace network2
 		);
 		int AddUdpServer(const StrId &name, network2::iProtocolHandler *handler);
 		bool RemoveUdpServer(const StrId &name);
-		void SetReadyBindPort(const int bindPort);
 		sServerData& FindUdpServer(const StrId &name);
 		void Clear();
 
 
 	protected:
-		int GetReadyBindPort();
+		void SetReadyPort(const int port);
+		void SetPortError(const int port, const int error);
+		int GetReadyPort();
 		static int ThreadFunction(cUdpServerMap *udpSvrMap);
 
 
 	public:
+		// udpserver port information
+		struct sBindPort
+		{
+			int port;
+			bool used;
+			int error; // error code, greater than 0
+		};
+
 		int m_packetSize;
 		int m_packetCount;
 		int m_sleepMillis;
 		int m_logId; // packet log id, default: -1
 		bool m_isThreadMode; // udpserver thread mode? default: true
-		vector<std::pair<int, bool>> m_bindPortMap; // port mapping (port, available)
+		vector<sBindPort> m_bindPortMap; // port mapping (port, available)
 		map<StrId, sServerData> m_svrs;
+		uint m_portCursor;
 
 		// Thread Message
 		struct sThreadMsg
@@ -72,49 +84,3 @@ namespace network2
 	};
 
 }
-
-
-// cUdpServerMap Error Handling Protocol
-//	- override udpsvrmap::ProtocolHanlder interface
-namespace udpsvrmap {
-	using namespace network2;
-	using namespace marshalling;
-	static const int dispatcher_ID = 11; // reserved protocol id
-
-	struct Close_Packet {
-		cProtocolDispatcher *pdispatcher;
-		netid senderId;
-		string serverName;
-	};
-	struct Error_Packet {
-		cProtocolDispatcher *pdispatcher;
-		netid senderId;
-		string serverName;
-		int errCode;
-	};
-
-	// Protocol Dispatcher
-	class Dispatcher : public network2::cProtocolDispatcher
-	{
-	public:
-		Dispatcher();
-	protected:
-		virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
-		static cPacketHeader s_packetHeader;
-	};
-	static Dispatcher g_udpsvrmap_Dispatcher;
-
-	// ProtocolHandler
-	class ProtocolHandler : virtual public network2::iProtocolHandler
-	{
-	public:
-		friend class Dispatcher;
-		ProtocolHandler() { m_format = ePacketFormat::BINARY; }
-		virtual bool Close(udpsvrmap::Close_Packet &packet) { return true; }
-		virtual bool Error(udpsvrmap::Error_Packet &packet) { return true; }
-	};
-
-	cPacket SendClose(network2::cNetworkNode *node);
-	cPacket SendError(network2::cNetworkNode *node, int errCode);
-}
-

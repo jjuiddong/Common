@@ -54,6 +54,7 @@ typedef int netid;
 #include "marshalling_ascii.h"
 #include "marshalling_json.h"
 #include "marshalling_script.h"
+#include "protocol_udpsvrmap.h"
 #include "netcontroller.h"
 #include "udpservermap.h"
 #include "udpclientmap.h"

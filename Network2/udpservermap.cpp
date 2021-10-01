@@ -7,80 +7,80 @@ using namespace network2;
 
 //----------------------------------------------------------------------------------
 // cSpawnUdpServerTask
-class cSpawnUdpServerTask : public common::cTask
-{
-public:
-	cNetController *m_netController;
-	cUdpServerMap *m_udpSvrMap;
-	StrId m_keyName; // udpservermap key name
-	cUdpServer *m_svr;
-	int m_bindPort;
-
-	cSpawnUdpServerTask(cNetController *netController, cUdpServerMap *svrMap
-		, const StrId &keyName, cUdpServer *svr, const int bindPort)
-		: common::cTask(1, "cSpawnUdpServerTask")
-		, m_netController(netController)
-		, m_udpSvrMap(svrMap)
-		, m_keyName(keyName)
-		, m_svr(svr)
-		, m_bindPort(bindPort)
-	{
-	}
-
-	virtual eRunResult Run(const double deltaSeconds)
-	{
-		cUdpServerMap::sServerData *svrData = nullptr;
-		{
-			AutoCSLock cs(m_udpSvrMap->m_csSvr);
-			auto it = m_udpSvrMap->m_svrs.find(m_keyName);
-			if (m_udpSvrMap->m_svrs.end() != it)
-				svrData = &it->second;
-		}
-
-		if (!svrData)
-			return eRunResult::End; // not found, maybe deleted
-
-		// udpserver bind
-		const bool result = m_svr->Init(m_bindPort
-			, m_udpSvrMap->m_packetSize, m_udpSvrMap->m_packetCount
-			, m_udpSvrMap->m_sleepMillis, m_udpSvrMap->m_isThreadMode);
-		if (!result)
-		{
-			// udpserver initialize error!!
-			// send basic protocol, ErrorSession event trigger
-			m_svr->m_recvQueue.Push(m_svr->m_id, ErrorBindPacket(m_svr));
-			// send udpsvrmap protocol, Error event trigger
-			m_svr->m_recvQueue.Push(m_svr->m_id, udpsvrmap::SendError(m_svr, 0));
-		}
-
-		{
-			AutoCSLock cs(m_udpSvrMap->m_csSvr);
-			auto it = m_udpSvrMap->m_svrs.find(m_keyName);
-			if (m_udpSvrMap->m_svrs.end() != it)
-			{
-				it->second.svr = m_svr; // update instance ptr
-				m_netController->m_udpServers.push_back(m_svr);
-			}
-		}
-		return eRunResult::End;
-	}
-};
+//class cSpawnUdpServerTask : public common::cTask
+//{
+//public:
+//	cNetController *m_netController;
+//	cUdpServerMap *m_udpSvrMap;
+//	StrId m_keyName; // udpservermap key name
+//	cUdpServer *m_svr;
+//	int m_bindPort;
+//
+//	cSpawnUdpServerTask(cNetController *netController, cUdpServerMap *svrMap
+//		, const StrId &keyName, cUdpServer *svr, const int bindPort)
+//		: common::cTask(1, "cSpawnUdpServerTask")
+//		, m_netController(netController)
+//		, m_udpSvrMap(svrMap)
+//		, m_keyName(keyName)
+//		, m_svr(svr)
+//		, m_bindPort(bindPort)
+//	{
+//	}
+//
+//	virtual eRunResult Run(const double deltaSeconds)
+//	{
+//		cUdpServerMap::sServerData *svrData = nullptr;
+//		{
+//			AutoCSLock cs(m_udpSvrMap->m_csSvr);
+//			auto it = m_udpSvrMap->m_svrs.find(m_keyName);
+//			if (m_udpSvrMap->m_svrs.end() != it)
+//				svrData = &it->second;
+//		}
+//
+//		if (!svrData)
+//			return eRunResult::End; // not found, maybe deleted
+//
+//		// udpserver bind
+//		const bool result = m_svr->Init(m_bindPort
+//			, m_udpSvrMap->m_packetSize, m_udpSvrMap->m_packetCount
+//			, m_udpSvrMap->m_sleepMillis, m_udpSvrMap->m_isThreadMode);
+//		if (!result)
+//		{
+//			// udpserver initialize error!!
+//			// send basic protocol, ErrorSession event trigger
+//			m_svr->m_recvQueue.Push(m_svr->m_id, ErrorBindPacket(m_svr));
+//			// send udpsvrmap protocol, Error event trigger
+//			m_svr->m_recvQueue.Push(m_svr->m_id, udpsvrmap::SendError(m_svr, 0));
+//		}
+//
+//		{
+//			AutoCSLock cs(m_udpSvrMap->m_csSvr);
+//			auto it = m_udpSvrMap->m_svrs.find(m_keyName);
+//			if (m_udpSvrMap->m_svrs.end() != it)
+//			{
+//				it->second.svr = m_svr; // update instance ptr
+//				m_netController->m_udpServers.push_back(m_svr);
+//			}
+//		}
+//		return eRunResult::End;
+//	}
+//};
 
 
 //----------------------------------------------------------------------------------
 // cDeleteUdpServerTask
-class cDeletUdpServerTask : public common::cTask
-{
-public:
-	cUdpServer *m_svr;
-	cDeletUdpServerTask(cUdpServer *svr) : common::cTask(1, "cDeletUdpServerTask")
-		, m_svr(svr) { }
-	virtual eRunResult Run(const double deltaSeconds)
-	{
-		SAFE_DELETE(m_svr);
-		return eRunResult::End;
-	}
-};
+//class cDeletUdpServerTask : public common::cTask
+//{
+//public:
+//	cUdpServer *m_svr;
+//	cDeletUdpServerTask(cUdpServer *svr) : common::cTask(1, "cDeletUdpServerTask")
+//		, m_svr(svr) { }
+//	virtual eRunResult Run(const double deltaSeconds)
+//	{
+//		SAFE_DELETE(m_svr);
+//		return eRunResult::End;
+//	}
+//};
 
 
 
@@ -93,6 +93,7 @@ cUdpServerMap::cUdpServerMap()
 	, m_sleepMillis(network2::DEFAULT_SLEEPMILLIS)
 	, m_logId(-1)
 	, m_isThreadMode(true)
+	, m_portCursor(0)
 {
 }
 
@@ -102,7 +103,10 @@ cUdpServerMap::~cUdpServerMap()
 }
 
 
-bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
+// startUdpBindPort: udpserver bind starting port
+// maxServerCount: maximum udpserver count
+bool cUdpServerMap::Init(const int startUdpBindPort
+	, const int maxServerCount
 	, const int packetSize //= network2::DEFAULT_PACKETSIZE
 	, const int packetCount //= network2::DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= network2::DEFAULT_SLEEPMILLIS
@@ -111,9 +115,9 @@ bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
 )
 {
 	// update port mapper
-	m_bindPortMap.reserve(bindCount);
-	for (int i = 0; i < bindCount; ++i)
-		m_bindPortMap.push_back({ startUdpBindPort + i, false });
+	m_bindPortMap.reserve(maxServerCount);
+	for (int i = 0; i < maxServerCount; ++i)
+		m_bindPortMap.push_back({ startUdpBindPort + i, false, 0 });
 
 	m_packetSize = packetSize;
 	m_packetCount = packetCount;
@@ -132,7 +136,7 @@ bool cUdpServerMap::Init(const int startUdpBindPort, const int bindCount
 int cUdpServerMap::AddUdpServer(const StrId &name
 	, network2::iProtocolHandler *handler)
 {
-	const int bindPort = GetReadyBindPort();
+	const int bindPort = GetReadyPort();
 	if (bindPort < 0)
 		return -1;
 
@@ -164,7 +168,7 @@ bool cUdpServerMap::RemoveUdpServer(const StrId &name)
 cUdpServerMap::sServerData& cUdpServerMap::FindUdpServer(const StrId &name)
 {
 	static sServerData nullSvrData{ "null", nullptr };
-	AutoCSLock cs(m_csSvr);
+	//AutoCSLock cs(m_csSvr);
 	auto it = m_svrs.find(name);
 	if (m_svrs.end() == it)
 		return nullSvrData;
@@ -173,34 +177,56 @@ cUdpServerMap::sServerData& cUdpServerMap::FindUdpServer(const StrId &name)
 
 
 // return availible port
-// -1: no port
-int cUdpServerMap::GetReadyBindPort()
+// return -1, no availible port
+int cUdpServerMap::GetReadyPort()
 {
-	common::AutoCSLock cs(m_csSvr);
-	for (auto &port : m_bindPortMap)
+	//common::AutoCSLock cs(m_csSvr);
+
+	uint cnt = 0;
+	uint i = m_portCursor;
+	while (cnt++ < m_bindPortMap.size())
 	{
-		if (!port.second)
+		i %= m_bindPortMap.size();
+		sBindPort &info = m_bindPortMap[i];
+		if (!info.used && (0 == info.error))
 		{
-			port.second = true;
-			return port.first;
+			m_portCursor = i + 1;
+			info.used = true;
+			return info.port;
 		}
+		++i;
 	}
+	//for (auto &info : m_bindPortMap)
+	//{
+	//	if (!info.used && (0 == info.error))
+	//	{
+	//		info.used = true;
+	//		return info.port;
+	//	}
+	//}
 	return -1;
 }
 
 
 // set unused port
-void cUdpServerMap::SetReadyBindPort(const int bindPort)
+void cUdpServerMap::SetReadyPort(const int port)
 {
-	common::AutoCSLock cs(m_csSvr);
-	for (auto &port : m_bindPortMap)
-	{
-		if (bindPort == port.first)
-		{
-			port.second = false;
-			break;
-		}
-	}
+	//common::AutoCSLock cs(m_csSvr);
+	auto it = find_if(m_bindPortMap.begin(), m_bindPortMap.end()
+		, [&](auto &a) { return port == a.port; });
+	if (m_bindPortMap.end() != it)
+		it->used = false;
+}
+
+
+// set port error
+void cUdpServerMap::SetPortError(const int port, const int error)
+{
+	//common::AutoCSLock cs(m_csSvr);
+	auto it = find_if(m_bindPortMap.begin(), m_bindPortMap.end()
+		, [&](auto &a) { return port == a.port; });
+	if (m_bindPortMap.end() != it)
+		it->error = error;
 }
 
 
@@ -250,15 +276,15 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 			case sThreadMsg::eType::StartServer:
 			{
 				bool isAlreadyExist = false;
-				udpSvrMap->m_csSvr.Lock();
+				//udpSvrMap->m_csSvr.Lock();
 				auto it = udpSvrMap->m_svrs.find(msg.name);
 				isAlreadyExist = (udpSvrMap->m_svrs.end() != it);
-				udpSvrMap->m_csSvr.Unlock();
+				//udpSvrMap->m_csSvr.Unlock();
 
 				if (isAlreadyExist)
 				{
 					if (msg.port != it->second.svr->m_port)
-						udpSvrMap->SetReadyBindPort(msg.port);
+						udpSvrMap->SetReadyPort(msg.port);
 					break; // already exist server, ignore
 				}
 
@@ -279,6 +305,8 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 						svr->m_recvQueue.Push(svr->m_id, ErrorBindPacket(svr));
 						// send udpsvrmap protocol, Error event trigger
 						svr->m_recvQueue.Push(svr->m_id, udpsvrmap::SendError(svr, 0));
+
+						udpSvrMap->SetPortError(msg.port, 1);
 					}
 				//}
 				//else
@@ -290,7 +318,7 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 				//}
 				
 				{
-					AutoCSLock cs(udpSvrMap->m_csSvr);
+					//AutoCSLock cs(udpSvrMap->m_csSvr);
 					sServerData svrData;
 					svrData.name = msg.name;
 					//svrData.svr = udpSvrMap->m_isThreadMode? svr : nullptr;
@@ -302,7 +330,7 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 
 			case sThreadMsg::eType::RemoveServer:
 			{
-				udpSvrMap->m_csSvr.Lock();
+				//udpSvrMap->m_csSvr.Lock();
 				auto it = udpSvrMap->m_svrs.find(msg.name);
 				int svrPort = -1;
 				if (udpSvrMap->m_svrs.end() != it)
@@ -323,11 +351,12 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 					netController.Dispatch(info.svr);
 
 					// delete multithread
-					udpSvrMap->m_spawnThread.PushTask(new cDeletUdpServerTask(info.svr));
+					//udpSvrMap->m_spawnThread.PushTask(new cDeletUdpServerTask(info.svr));
+					delete info.svr;
 				}
-				udpSvrMap->m_csSvr.Unlock();
+				//udpSvrMap->m_csSvr.Unlock();
 				if (svrPort > 0) // outside cs, to avoid deadlock
-					udpSvrMap->SetReadyBindPort(svrPort);
+					udpSvrMap->SetReadyPort(svrPort);
 			}
 			break;
 
@@ -341,7 +370,7 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 		}
 		else
 		{
-			AutoCSLock cs(udpSvrMap->m_csSvr);
+			//AutoCSLock cs(udpSvrMap->m_csSvr);
 			for (auto &kv : udpSvrMap->m_svrs)
 				if (kv.second.svr && kv.second.svr->IsConnect())
 					kv.second.svr->Process();
@@ -355,7 +384,7 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 		if (incT > 1.0)
 		{
 			incT = 0.0;
-			dbg::Logc(1, "UdpServerMap Loop: %d\n", loop);
+			//dbg::Logc(1, "UdpServerMap Loop: %d\n", loop);
 			loop = 0;
 		}
 
@@ -366,84 +395,4 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 
 	udpSvrMap->m_spawnThread.Clear();
 	return 0;
-}
-
-
-//----------------------------------------------------------------------------------
-// cUdpServerMap Basic Protocol
-using namespace udpsvrmap;
-cPacketHeader udpsvrmap::Dispatcher::s_packetHeader;
-Dispatcher::Dispatcher()
-	: cProtocolDispatcher(udpsvrmap::dispatcher_ID, ePacketFormat::BINARY)
-{
-	cProtocolDispatcher::GetDispatcherMap()->insert({ dispatcher_ID, this });
-	cProtocolDispatcher::GetPacketHeaderMap()->insert({ dispatcher_ID, &s_packetHeader });
-}
-
-bool udpsvrmap::Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &handlers)
-{
-	const int protocolId = packet.GetProtocolId();
-	const int packetId = packet.GetPacketId();
-	switch (packetId)
-	{
-	case PACKETID_UDPSVRMAP_CLOSE:
-	{
-		ProtocolHandlers prtHandler;
-		if (!HandlerMatching<ProtocolHandler>(handlers, prtHandler))
-			return false;
-		SetCurrentDispatchPacket(&packet);
-		Close_Packet data;
-		data.pdispatcher = this;
-		data.senderId = packet.GetSenderId();
-		packet >> data.serverName;
-		SEND_HANDLER(ProtocolHandler, prtHandler, Close(data));
-	}
-	break;
-
-	case PACKETID_UDPSVRMAP_ERROR:
-	{
-		ProtocolHandlers prtHandler;
-		if (!HandlerMatching<ProtocolHandler>(handlers, prtHandler))
-			return false;
-		SetCurrentDispatchPacket(&packet);
-		Error_Packet data;
-		data.pdispatcher = this;
-		data.senderId = packet.GetSenderId();
-		packet >> data.serverName;
-		packet >> data.errCode;
-		SEND_HANDLER(ProtocolHandler, prtHandler, Error(data));
-	}
-	break;
-	default:
-		assert(0);
-		break;
-	}
-	return true;
-}
-
-
-// return reserved Close packet
-cPacket udpsvrmap::SendClose(network2::cNetworkNode *node)
-{
-	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
-	packet.SetSenderId(node->m_id);
-	packet.SetProtocolId(dispatcher_ID);
-	packet.SetPacketId(PACKETID_UDPSVRMAP_CLOSE);
-	packet << node->m_name;
-	packet.EndPack();
-	return packet;
-}
-
-
-// return reserved Error packet
-cPacket udpsvrmap::SendError(network2::cNetworkNode *node, int errCode)
-{
-	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
-	packet.SetSenderId(node->m_id);
-	packet.SetProtocolId(dispatcher_ID);
-	packet.SetPacketId(PACKETID_UDPSVRMAP_ERROR);
-	packet << node->m_name;
-	packet << errCode;
-	packet.EndPack();
-	return packet;
 }
