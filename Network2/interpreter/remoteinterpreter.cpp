@@ -11,57 +11,11 @@ namespace
 	const float TIME_SYNC_SYMBOL = 3.0f;
 }
 
-
-// send intermediate code, using remotedbg2 protocol
-bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
-	, const netid recvId, const int itprId, const script::cIntermediateCode &icode)
-{
-	// tricky code, marshalling intermedatecode to byte stream
-	const uint BUFFER_SIZE = 1024 * 50;
-	BYTE *buff = new BYTE[BUFFER_SIZE];
-	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
-	marsh.m_data = buff;
-	marsh.m_bufferSize = BUFFER_SIZE;
-	marsh.m_writeIdx = 0;
-	network2::marshalling::operator<<(marsh, icode);
-
-	// send split
-	const uint bufferSize = (uint)marsh.m_writeIdx;
-	if (bufferSize == 0)
-	{
-		// no intermediate code, fail!
-		protocol.AckIntermediateCode(recvId, true, itprId, 0, 0, 0, {});
-	}
-	else
-	{
-		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
-			(marsh.GetHeaderSize() + 20); // 5 * 4byte = itpr,result,count,index,buffsize
-		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
-			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
-
-		uint index = 0;
-		uint cursor = 0;
-		while (cursor < bufferSize)
-		{
-			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
-			vector<BYTE> data(size);
-			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
-			protocol.AckIntermediateCode(recvId, true
-				, itprId, 1, totalCount, index, data);
-
-			cursor += size;
-			++index;
-			//Sleep(5); // wait until socket send
-		}
-	}
-
-	SAFE_DELETEA(buff);
-	return true;
-}
-
-
 //----------------------------------------------------------------------------------
 // Send Intermediate Code Task
+bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
+	, const netid recvId, const int itprId, const script::cIntermediateCode &icode);
+
 class cSendICodeTask : public common::cTask
 {
 public:
@@ -111,6 +65,24 @@ cRemoteInterpreter::cRemoteInterpreter(
 cRemoteInterpreter::~cRemoteInterpreter()
 {
 	Clear();
+}
+
+
+// reuse remote interpreter
+bool cRemoteInterpreter::Reuse(const StrId &name, const int logId)
+{
+	m_server.m_name = name;
+	m_server.m_id = common::GenerateId(); // new netid
+	m_server.SetLogId(logId);
+	network2::LogSession(logId, m_server);
+	m_server.m_sendQueue.ClearBuffer();
+	m_server.m_recvQueue.ClearBuffer();
+
+	m_callback = nullptr;
+	m_arg = nullptr;
+	m_threads = nullptr;
+	m_multiThreading = 0;
+	return true;
 }
 
 
@@ -975,3 +947,56 @@ void cRemoteInterpreter::Clear()
 	m_threads = nullptr;
 }
 
+
+namespace {
+	common::cMemoryPool2<1024 * 50> g_memPool;
+}
+
+// send intermediate code, using remotedbg2 protocol
+bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
+	, const netid recvId, const int itprId, const script::cIntermediateCode &icode)
+{
+	// tricky code, marshalling intermedatecode to byte stream
+	const uint BUFFER_SIZE = 1024 * 50;
+	//BYTE *buff = new BYTE[BUFFER_SIZE];
+	BYTE *buff = (BYTE*)g_memPool.Alloc();
+
+	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
+	marsh.m_data = buff;
+	marsh.m_bufferSize = BUFFER_SIZE;
+	marsh.m_writeIdx = 0;
+	network2::marshalling::operator<<(marsh, icode);
+
+	// send split
+	const uint bufferSize = (uint)marsh.m_writeIdx;
+	if (bufferSize == 0)
+	{
+		// no intermediate code, fail!
+		protocol.AckIntermediateCode(recvId, true, itprId, 0, 0, 0, {});
+	}
+	else
+	{
+		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
+			(marsh.GetHeaderSize() + 20); // 5 * 4byte = itpr,result,count,index,buffsize
+		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
+			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
+
+		uint index = 0;
+		uint cursor = 0;
+		while (cursor < bufferSize)
+		{
+			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
+			vector<BYTE> data(size);
+			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
+			protocol.AckIntermediateCode(recvId, true
+				, itprId, 1, totalCount, index, data);
+
+			cursor += size;
+			++index;
+		}
+	}
+
+	//SAFE_DELETEA(buff);
+	g_memPool.Free(buff);
+	return true;
+}

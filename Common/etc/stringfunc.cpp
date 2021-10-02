@@ -23,7 +23,8 @@ string& common::trim(string &str)
 	{
 		if ((str[i] == '\n') || (str[i] == '\t') || (str[i] == '\r') || (str[i] == ' '))
 		{
-			rotatepopvector(str, i);
+			//rotatepopvector(str, i);
+			common::removevector2(str, i);
 			--i;
 		}
 		else
@@ -35,7 +36,8 @@ string& common::trim(string &str)
 	{
 		if ((str[i] == '\n') || (str[i] == '\t') || (str[i] == '\r') || (str[i] == ' '))
 		{
-			rotatepopvector(str, i);
+			//rotatepopvector(str, i);
+			common::removevector2(str, i);
 		}
 		else
 			break;

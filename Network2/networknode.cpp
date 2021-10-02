@@ -29,7 +29,7 @@ void cNetworkNode::RegisterProtocol(iProtocol *protocol)
 
 void cNetworkNode::Close()
 {
-	cSession::Close();
+	__super::Close();
 }
 
 

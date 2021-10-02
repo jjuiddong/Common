@@ -225,7 +225,8 @@ bool cNavigationMesh::Find(const Vector3 &start, const Vector3 &end
 	while (!candidate.empty())
 	{
 		const int curIdx = candidate.front();
-		rotatepopvector(candidate, 0);
+		//rotatepopvector(candidate, 0);
+		removevector2(candidate, 0);
 
 		sNaviNode &curNode = m_naviNodes[curIdx];
 

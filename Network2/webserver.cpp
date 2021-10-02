@@ -107,7 +107,6 @@ cWebServer::cWebServer(
 	, m_sessionListener(nullptr)
 	, m_recvBuffer(nullptr)
 	, m_sendBuffer(nullptr)
-	, m_lastAcceptTime(0)
 	, m_isThreadMode(true)
 	, m_isUpdateSocket(false)
 {
@@ -118,6 +117,8 @@ cWebServer::~cWebServer()
 	Close();
 
 	SAFE_DELETE(m_sessionFactory);
+	SAFE_DELETEA(m_recvBuffer);
+	SAFE_DELETEA(m_sendBuffer);
 }
 
 
@@ -285,6 +286,15 @@ bool cWebServer::RemoveSession(const netid netId)
 	}
 
 	return true;
+}
+
+
+// update logId
+void cWebServer::SetLogId(const int logId)
+{
+	m_logId = logId;
+	m_sendQueue.SetLogId(logId);
+	m_recvQueue.SetLogId(logId);
 }
 
 
@@ -535,9 +545,6 @@ void cWebServer::Close()
 		m_tempSessions.clear();
 	}
 
-	SAFE_DELETEA(m_recvBuffer);
-	SAFE_DELETEA(m_sendBuffer);
-
 	if (m_httpServer)
 	{
 		m_httpServer->stopAll();
@@ -547,6 +554,7 @@ void cWebServer::Close()
 		SAFE_DELETE(m_httpServer);
 	}
 
+	FD_ZERO(&m_sockets);
 	__super::Close();
 }
 

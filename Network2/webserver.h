@@ -1,6 +1,6 @@
 //
 // 2021-09-19, jjuiddong
-// WebSocket Server
+// WebSocket Server with poco library
 //	- poco library websocket server
 //		- https://pocoproject.org/
 //
@@ -39,6 +39,7 @@ namespace network2
 		bool Process();
 		bool AddSession(const SOCKET sock, const Str16 &ip, const int port);
 		bool RemoveSession(const netid netId);
+		void SetLogId(const int logId);
 		bool IsExist(const netid netId);
 		cWebSession* FindSessionBySocket(const SOCKET sock);
 		cWebSession* FindSessionByNetId(const netid netId);
@@ -81,7 +82,6 @@ namespace network2
 		std::thread m_thread;
 		CriticalSection m_cs;
 		int m_sleepMillis;
-		double m_lastAcceptTime;
 		char *m_recvBuffer;
 		char *m_sendBuffer; // poco library sendFrame() has memory alloc
 							// to avoid memory alloc, modified sendFrame() to sendFrame2()

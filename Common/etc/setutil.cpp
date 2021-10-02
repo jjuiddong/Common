@@ -25,7 +25,8 @@ bool common::CollectAllSubset(const vector<int> &initial
 	for (uint i=0; i < initial.size(); ++i)
 	{
 		vector<int> new_set(initial);
-		common::rotatepopvector(new_set, i);
+		//common::rotatepopvector(new_set, i);
+		common::removevector2(new_set, i);
 		CollectAllSubset(new_set, out);
 	}
 
@@ -48,7 +49,8 @@ bool common::CollectAllSubset(const uint subSetSize, const vector<int> &initial
 	for (uint i = 0; i < initial.size(); ++i)
 	{
 		vector<int> new_set(initial);
-		common::rotatepopvector(new_set, i);
+		//common::rotatepopvector(new_set, i);
+		common::removevector2(new_set, i);
 		CollectAllSubset(subSetSize, new_set, out);
 	}
 	return true;

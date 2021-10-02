@@ -20,6 +20,7 @@ cUdpServer::cUdpServer(
 cUdpServer::~cUdpServer()
 {
 	Close();
+	SAFE_DELETEA(m_recvBuffer);
 }
 
 
@@ -110,8 +111,6 @@ void cUdpServer::Close()
 	m_state = eState::Disconnect;
 	if (m_thread.joinable())
 		m_thread.join();
-
-	SAFE_DELETEA(m_recvBuffer);
 	__super::Close();
 }
 
@@ -175,10 +174,8 @@ unsigned WINAPI cUdpServer::ThreadFunction(cUdpServer* udp)
 	while (eState::Connect == udp->m_state)
 	{
 		udp->Process();
-
 		if (udp->m_sleepMillis)
 			std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 	}
-
 	return 0;
 }

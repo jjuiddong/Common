@@ -307,7 +307,8 @@ int cThread::Run()
 				if (cTask::eRunResult::End == task->Run(dt))
 				{
 					// finish task , remove taks
-					common::rotatepopvector(m_tasks, m_procTaskIndex);
+					//common::rotatepopvector(m_tasks, m_procTaskIndex);
+					common::removevector2(m_tasks, m_procTaskIndex);
 					ReleaseTask(task);
 				}
 				else

@@ -274,7 +274,8 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 			sThreadMsg msg;
 			udpSvrMap->m_csMsg.Lock();
 			msg = udpSvrMap->m_sendThreadMsgs.front();
-			common::rotatepopvector(udpSvrMap->m_sendThreadMsgs, 0);
+			//common::rotatepopvector(udpSvrMap->m_sendThreadMsgs, 0);
+			common::removevector2(udpSvrMap->m_sendThreadMsgs, 0);
 			udpSvrMap->m_csMsg.Unlock();
 
 			switch (msg.type)
@@ -357,12 +358,7 @@ int cUdpServerMap::ThreadFunction(cUdpServerMap *udpSvrMap)
 					if (info.svr)
 					{
 						svrPort = info.svr->m_port;
-
-						// tricky code, udpserver close
-						info.svr->m_state = cSession::eState::Disconnect;
-						if (info.svr->m_thread.joinable())
-							info.svr->m_thread.join();
-						info.svr->cNetworkNode::Close(); // only socket close
+						info.svr->Close();
 					}
 					udpSvrMap->m_svrs.erase(msg.name);
 

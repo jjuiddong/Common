@@ -33,6 +33,8 @@ cWebClient::cWebClient(
 cWebClient::~cWebClient()
 {
 	Close();
+	SAFE_DELETEA(m_recvBuffer);
+	SAFE_DELETEA(m_sendBuffer);
 }
 
 
@@ -352,9 +354,7 @@ void cWebClient::Close()
 	SAFE_DELETE(m_request);
 	SAFE_DELETE(m_response);
 
-	cNetworkNode::Close();
-	SAFE_DELETEA(m_recvBuffer);
-	SAFE_DELETEA(m_sendBuffer);
+	__super::Close();
 	m_state = eState::Disconnect;
 }
 

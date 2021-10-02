@@ -140,7 +140,8 @@ bool cVirtualMachine::StopTimer(const int timerId)
 		}
 	if (idx < 0)
 		return false;
-	common::rotatepopvector(m_timers, idx);
+	//common::rotatepopvector(m_timers, idx);
+	common::removevector2(m_timers, idx);
 	return true;
 }
 

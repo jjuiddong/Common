@@ -29,6 +29,7 @@ namespace network2
 
 		cRemoteInterpreter(const StrId &name, const int logId = -1);
 		virtual ~cRemoteInterpreter();
+		bool Reuse(const StrId &name, const int logId);
 
 		bool Init(cNetController &netController
 			, const int bindPort

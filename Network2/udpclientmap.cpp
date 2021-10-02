@@ -168,7 +168,8 @@ int cUdpClientMap::ThreadFunction(cUdpClientMap *udpSvrMap)
 			sThreadMsg msg;
 			udpSvrMap->m_cs.Lock();
 			msg = udpSvrMap->m_sendThreadMsgs.front();
-			common::rotatepopvector(udpSvrMap->m_sendThreadMsgs, 0);
+			//common::rotatepopvector(udpSvrMap->m_sendThreadMsgs, 0);
+			common::removevector2(udpSvrMap->m_sendThreadMsgs, 0);
 			udpSvrMap->m_cs.Unlock();
 
 			switch (msg.type)

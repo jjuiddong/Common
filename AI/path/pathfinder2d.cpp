@@ -231,7 +231,8 @@ bool cPathFinder2D::Find(const Vector2i &startPos
 	while (!candidate.empty())
 	{
 		const Vector2i curPos = candidate.front();
-		rotatepopvector(candidate, 0);
+		//rotatepopvector(candidate, 0);
+		removevector2(candidate, 0);
 
 		const int curIdx = curPos.y*m_cols + curPos.x;
 		sVertex &curVtx = GetMap(curIdx);

@@ -27,9 +27,12 @@ cPacketQueue::~cPacketQueue()
 
 bool cPacketQueue::Init(const int packetSize, const int maxPacketCount)
 {
-	Clear();
+	ClearBuffer();
 
-	m_sockBufferSize = packetSize * maxPacketCount;
+	if (0 == m_sockBufferSize)
+		m_sockBufferSize = packetSize * maxPacketCount;
+	else if (m_sockBufferSize != (packetSize * maxPacketCount))
+		assert(0);
 	return true;
 }
 
@@ -359,6 +362,13 @@ bool cPacketQueue::Remove(const netid id)
 }
 
 
+// update logid
+void cPacketQueue::SetLogId(const int logId)
+{
+	m_logId = logId;
+}
+
+
 void cPacketQueue::Lock()
 {
 	EnterCriticalSection(&m_cs);
@@ -375,8 +385,13 @@ void cPacketQueue::Unlock()
 void cPacketQueue::ClearBuffer()
 {
 	cAutoCS cs(m_cs);
-	for (auto sock : m_sockBuffers.m_seq)
-		sock->Clear();
+	for (auto &buff : m_sockBuffers.m_seq)
+	{
+		buff->Clear();
+		m_frees.insert(buff);
+	}
+	m_sockBuffers.clear();
+	m_nextFrontIdx = 0;
 }
 
 
@@ -385,9 +400,9 @@ void cPacketQueue::Clear()
 	cAutoCS cs(m_cs);
 	for (auto sock : m_sockBuffers.m_seq)
 		delete sock;
+	m_sockBuffers.clear();
 	for (auto &sock : m_frees)
 		delete sock;
-	m_sockBuffers.clear();
 	m_frees.clear();
 	m_nextFrontIdx = 0;
 }

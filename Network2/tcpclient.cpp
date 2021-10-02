@@ -24,6 +24,7 @@ cTcpClient::cTcpClient(
 cTcpClient::~cTcpClient()
 {
 	Close();
+	SAFE_DELETEA(m_recvBuffer);
 }
 
 
@@ -258,7 +259,6 @@ void cTcpClient::Close()
 		m_thread.join();
 
 	__super::Close();
-	SAFE_DELETEA(m_recvBuffer);
 	m_state = eState::Disconnect;
 }
 

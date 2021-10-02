@@ -11,27 +11,31 @@ namespace common
 	template <class Seq>
 	bool removevector(Seq &seq, const typename Seq::value_type &ty)
 	{
-		for (size_t i=0; i < seq.size(); ++i)
-		{
-			if (seq[i] == ty)
-			{
-				if ((seq.size()-1) > i) // elements를 회전해서 제거한다.
-					std::rotate( seq.begin()+i, seq.begin()+i+1, seq.end() );
-				seq.pop_back();
-				return true;
-			}
-		}
+		auto it = std::find(seq.begin(), seq.end(), ty);
+		if (seq.end() != it)
+			seq.erase(it);
+		//for (size_t i=0; i < seq.size(); ++i)
+		//{
+		//	if (seq[i] == ty)
+		//	{
+		//		if ((seq.size()-1) > i)
+		//			std::rotate( seq.begin()+i, seq.begin()+i+1, seq.end() );
+		//		seq.pop_back();
+		//		return true;
+		//	}
+		//}
 		return false;
 	}
 
 
-	// elements를 회전해서 제거한다.
 	template <class Seq>
-	void rotatepopvector(Seq &seq, const unsigned int idx)
+	void removevector2(Seq &seq, const unsigned int idx)
 	{
-		if ((seq.size()-1) > idx)
-			std::rotate( seq.begin()+idx, seq.begin()+idx+1, seq.end() );
-		seq.pop_back();
+		if (seq.size() > idx)
+			seq.erase(seq.begin() + idx);
+		//if ((seq.size()-1) > idx)
+		//	std::rotate( seq.begin()+idx, seq.begin()+idx+1, seq.end() );
+		//seq.pop_back();
 	}
 
 
@@ -60,7 +64,7 @@ namespace common
 	}
 
 
-	// idx 위치의 아이템을 제거하고, 마지막에 있는 아이템을 넣는다.
+	// remove idx element, and then put last element move to idx
 	template <class Seq>
 	void popvector(Seq &seq, const unsigned int idx)
 	{
@@ -98,10 +102,8 @@ namespace common
 	{
 		if (idx == 0)
 			return;
-
 		for (uint i = idx; i < size; ++i)
 			p[i - idx] = p[i];
-
 		// todo : rotation
 	}
 
@@ -116,7 +118,8 @@ namespace common
 			{
 				if (seq[i] == seq[k])
 				{
-					rotatepopvector(seq, k);
+					seq.erase(seq.begin() + k);
+					//removevector2(seq, k);
 				}
 				else
 				{
@@ -125,6 +128,5 @@ namespace common
 			}
 		}
 	}
-
 
 }

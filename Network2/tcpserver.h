@@ -27,6 +27,7 @@ namespace network2
 		bool Process();
 		bool AddSession(const SOCKET sock, const Str16 &ip, const int port);
 		bool RemoveSession(const netid netId);
+		void SetLogId(const int logId);
 		bool IsExist(const netid netId);
 		cSession* FindSessionBySocket(const SOCKET sock);
 		cSession* FindSessionByNetId(const netid netId);

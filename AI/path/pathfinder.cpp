@@ -293,7 +293,8 @@ bool cPathFinder::Find(const int startIdx, const int endIdx
 	while (!candidate.empty())
 	{
 		const int curIdx = candidate.front();
-		rotatepopvector(candidate, 0);
+		//rotatepopvector(candidate, 0);
+		removevector2(candidate, 0);
 
 		sVertex &curVtx = m_vertices[curIdx];
 
@@ -446,8 +447,10 @@ void cPathFinder::OptimizeAreaPath(const Vector3 &start
 
 		for (int i = 0; i < cnt; ++i)
 		{
-			common::rotatepopvector(out, 0);
-			common::rotatepopvector(verticesIndices, 0);
+			//common::rotatepopvector(out, 0);
+			//common::rotatepopvector(verticesIndices, 0);
+			common::removevector2(out, 0);
+			common::removevector2(verticesIndices, 0);
 		}
 	}
 
@@ -606,7 +609,8 @@ bool cPathFinder::RemoveVertex(const int index)
 	}
 
 	// remove index vertex
-	common::rotatepopvector(m_vertices, index);
+	//common::rotatepopvector(m_vertices, index);
+	removevector2(m_vertices, index);
 	
 	return true;
 }

@@ -30,6 +30,7 @@ cTcpServer::~cTcpServer()
 	Close();
 
 	SAFE_DELETE(m_sessionFactory);
+	SAFE_DELETEA(m_tempRecvBuffer);
 }
 
 
@@ -47,6 +48,7 @@ bool cTcpServer::Init(const int bindPort
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
 	m_isThreadMode = isThreadMode;
+	m_lastAcceptTime = 0.0;
 	m_timer.Create();
 
 	if (network2::LaunchTCPServer(bindPort, m_socket))
@@ -238,9 +240,9 @@ void cTcpServer::Close()
 		m_sessions.clear();
 		m_sessions2.clear();
 	}
-
-	SAFE_DELETEA(m_tempRecvBuffer);
-	cNetworkNode::Close();
+	
+	FD_ZERO(&m_sockets);
+	__super::Close();
 }
 
 
@@ -415,6 +417,15 @@ cSession* cTcpServer::FindSessionByName(const StrId &name)
 		if (session->m_name == name)
 			return session;
 	return NULL; // not found session
+}
+
+
+// update log id
+void cTcpServer::SetLogId(const int logId)
+{
+	m_logId = logId;
+	m_sendQueue.SetLogId(logId);
+	m_recvQueue.SetLogId(logId);
 }
 
 

@@ -298,7 +298,8 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 				--tr.to;
 
 	// remove index vertex
-	common::rotatepopvector(m_vertices, vtxIdx);
+	//common::rotatepopvector(m_vertices, vtxIdx);
+	removevector2(m_vertices, vtxIdx);
 
 	// update vertex id-index mapping
 	//m_vtxMap.clear();

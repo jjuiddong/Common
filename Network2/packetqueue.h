@@ -50,6 +50,7 @@ namespace network2
 		bool SendBroadcast(const map<netid, SOCKET> &socks, const cPacket &packet
 			, OUT set<netid> *outErrSocks = nullptr);
 		bool Remove(const netid id);
+		void SetLogId(const int logId);
 		void Lock();
 		void Unlock();
 		void ClearBuffer();

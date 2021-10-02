@@ -140,7 +140,8 @@ void cCamera::UpdateMove(const float deltaSeconds)
 	}
 
 	if (check >= 2)
-		rotatepopvector(m_mover, 0);
+		removevector2(m_mover, 0);
+		//rotatepopvector(m_mover, 0);
 
 	//KeepHorizontal();
 	UpdateViewMatrix();
