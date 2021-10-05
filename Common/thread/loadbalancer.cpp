@@ -55,7 +55,7 @@ bool cLoadBalancer::PushTask(cTask *task)
 		return false;
 	}
 
-	// load balance: find minimum task count context
+	// load balance: find context has minimum task count
 	sThreadContext *minCtx = nullptr;
 	uint min = UINT_MAX;
 	for (auto &ctx : m_ctxs)
@@ -144,6 +144,7 @@ void cLoadBalancer::Clear()
 }
 
 
+// loadbalancer thread function
 int cLoadBalancer::ThreadFunction(cLoadBalancer *balancer, sThreadContext *ctx)
 {
 	cTimer timer;
@@ -155,7 +156,7 @@ int cLoadBalancer::ThreadFunction(cLoadBalancer *balancer, sThreadContext *ctx)
 		// message process
 		if (!ctx->msgs.empty())
 		{
-			ctx->cs.Lock();
+			AutoCSLock cs(ctx->cs);
 			while (!ctx->msgs.empty())
 			{
 				const sMsg &msg = ctx->msgs.front();
@@ -193,7 +194,6 @@ int cLoadBalancer::ThreadFunction(cLoadBalancer *balancer, sThreadContext *ctx)
 				}
 				ctx->msgs.pop();
 			}
-			ctx->cs.Unlock();
 		}
 		//~message process
 
