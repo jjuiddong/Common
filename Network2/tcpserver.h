@@ -33,7 +33,6 @@ namespace network2
 		cSession* FindSessionByNetId(const netid netId);
 		cSession* FindSessionByName(const StrId &name);
 		void SetSessionListener(iSessionListener *listener);
-		void MakeFdSet(OUT fd_set &out);
 		virtual void Close() override;
 
 		// Override
@@ -52,11 +51,12 @@ namespace network2
 
 
 	public:
-		bool m_isThreadMode;
-		int m_maxBuffLen;
+		bool m_isThreadMode; // thread mode?
+		int m_maxBuffLen; // recv buffer size
 		common::VectorMap<netid, cSession*> m_sessions;
 		common::VectorMap<SOCKET, cSession*> m_sessions2; // reference
-		fd_set m_sockets;
+		fd_set m_sockets; // all sockets
+		fd_set m_readSockets; // thread sync all sockets
 		std::atomic<bool> m_isUpdateSocket; // sync m_sockets
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;

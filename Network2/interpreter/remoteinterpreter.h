@@ -1,11 +1,11 @@
 //
 // 2021-09-23, jjuiddong
 // RemoteInterpreter
-//  - naming change RemoteDebugger2 -> RemoteInterpreter
-//	- communication with remote debugger (client)
-//	- remote interpreter is Server (WebSocket Server)
 //	- run intermediate code with interpreter
+//	- remote interpreter is Server (WebSocket Server)
+//	- communication with remote debugger (client)
 //	- synchronize with remote debugger
+//  - naming change RemoteDebugger2 -> RemoteInterpreter
 //
 #pragma once
 
@@ -19,8 +19,7 @@ namespace network2
 	class cRemoteInterpreter : public remotedbg2::r2h_ProtocolHandler
 	{
 	public:
-		// synchronize symbol to check change variable
-		// only change variable synchronizing
+		// synchronize changed variable
 		struct sSymbol {
 			StrId name; // symbol name
 			float t; // sync time
@@ -68,7 +67,6 @@ namespace network2
 		void ClearInterpreters();
 
 		// remotedbg2 protocol hander
-		virtual bool Welcome(remotedbg2::Welcome_Packet &packet) override;
 		virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) override;
 		virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) override;
 		virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) override;

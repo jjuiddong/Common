@@ -1,11 +1,8 @@
 //
-// 2019-07-01, jjuiddong 
+// 2021-10-06, jjuiddong 
 // mulitple udp server managing class
-//
-// 2021-09-27
-//	- add UdpServer Bind Error, Close Handling Protocol
-//		- override udpsvrmap::ProtocolHanlder interface
-//	- thread mode on/off
+//	- udp socket polling system using select()
+//	- error, close event trigger with udpsvrmap::ProtocolHanlder
 //
 #pragma once
 
@@ -13,7 +10,7 @@
 namespace network2
 {
 
-	class cUdpServerMap
+	class cUdpServerMap2
 	{
 	public:
 		struct sServerData {
@@ -21,8 +18,8 @@ namespace network2
 			network2::cUdpServer *svr;
 		};
 
-		cUdpServerMap();
-		virtual ~cUdpServerMap();
+		cUdpServerMap2();
+		virtual ~cUdpServerMap2();
 
 		bool Init(const int startUdpBindPort
 			, const int maxServerCount
@@ -30,7 +27,6 @@ namespace network2
 			, const int packetCount = network2::DEFAULT_PACKETCOUNT
 			, const int sleepMillis = network2::DEFAULT_SLEEPMILLIS
 			, const int logId = -1
-			, const bool isThreadMode = true
 		);
 		int AddUdpServer(const StrId &name, network2::iProtocolHandler *handler);
 		bool RemoveUdpServer(const StrId &name);
@@ -42,7 +38,9 @@ namespace network2
 		void SetReadyPort(const int port);
 		void SetPortError(const int port, const int error);
 		int GetReadyPort();
-		static int ThreadFunction(cUdpServerMap *udpSvrMap);
+		bool MessageProcess();
+		bool ReceiveProcess();
+		static int ThreadFunction(cUdpServerMap2 *udpSvrMap);
 
 
 	public:
@@ -54,15 +52,16 @@ namespace network2
 			int error; // error code, greater than 0
 		};
 
-		int m_packetSize;
-		int m_packetCount;
-		int m_sleepMillis;
+		int m_packetSize; // packet buffer size
+		int m_packetCount; // maximum packet count
+		int m_sleepMillis; // sleep time, milliseconds unit
 		int m_logId; // packet log id, default: -1
-		bool m_isThreadMode; // udpserver thread mode? default: true
 		vector<sBindPort> m_bindPortMap; // port mapping (port, available)
 		uint m_portCursor;
 		map<StrId, sServerData> m_svrs;
+		map<SOCKET, cUdpServer*> m_svrs2; // reference from m_svrs, key: udpserver socket
 		queue<network2::cUdpServer*> m_freeSvrs; // reuse free udpserver
+		fd_set m_readSockets; // read udp socket set
 
 		// Thread Message
 		struct sThreadMsg
@@ -73,9 +72,11 @@ namespace network2
 			int port;
 			network2::iProtocolHandler *handler;
 		};
+
 		bool m_isLoop; // thread loop?
-		CriticalSection m_csMsg; // sync msg
+		CriticalSection m_csMsg; // sync message
 		vector<sThreadMsg> m_sendThreadMsgs; // external -> thread msg
+		char *m_tempRecvBuffer;
 		std::thread m_thread;
 	};
 

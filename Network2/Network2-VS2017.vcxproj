@@ -215,6 +215,7 @@
     <ClInclude Include="udpclientmap.h" />
     <ClInclude Include="udpserver.h" />
     <ClInclude Include="udpservermap.h" />
+    <ClInclude Include="udpservermap2.h" />
     <ClInclude Include="utility\all_protocol_displayer.h" />
     <ClInclude Include="utility\log.h" />
     <ClInclude Include="utility\packetlog.h" />
@@ -266,6 +267,7 @@
     <ClCompile Include="udpclientmap.cpp" />
     <ClCompile Include="udpserver.cpp" />
     <ClCompile Include="udpservermap.cpp" />
+    <ClCompile Include="udpservermap2.cpp" />
     <ClCompile Include="utility\all_protocol_displayer.cpp" />
     <ClCompile Include="utility\log.cpp" />
     <ClCompile Include="utility\packetlog.cpp" />

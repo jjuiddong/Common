@@ -6,7 +6,7 @@ using namespace network2;
 using namespace basic_protocol;
 
 
-// server packet basic dispatcher
+// tcp server packet basic dispatcher
 // Connect, Disconnect, Accept packet handler
 void basic_protocol::ServerDispatcher::Dispatch(cPacket &packet, cTcpServer *svr)
 {
@@ -44,7 +44,7 @@ void basic_protocol::ServerDispatcher::Dispatch(cPacket &packet, cTcpServer *svr
 }
 
 
-// client basic packet dispatcher
+// tcp client basic packet dispatcher
 // Disconnect packet dispatch
 void basic_protocol::ClientDispatcher::Dispatch(cPacket &packet, cTcpClient *client)
 {
@@ -61,7 +61,7 @@ void basic_protocol::ClientDispatcher::Dispatch(cPacket &packet, cTcpClient *cli
 }
 
 
-// Server Basic Protocol Dispatcher
+// udp Server Basic Protocol Dispatcher
 void UdpServerDispatcher::Dispatch(cPacket &packet, cUdpServer *svr) 
 {
 	RET(!svr);
@@ -76,7 +76,7 @@ void UdpServerDispatcher::Dispatch(cPacket &packet, cUdpServer *svr)
 }
 
 
-// server packet basic dispatcher
+// web server packet basic dispatcher
 // Connect, Disconnect, Accept packet handler
 void basic_protocol::WebServerDispatcher::Dispatch(cPacket &packet, cWebServer *svr)
 {

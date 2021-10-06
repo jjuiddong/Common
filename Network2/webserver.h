@@ -62,16 +62,15 @@ namespace network2
 
 
 	public:
-		// poco library object
 		Poco::Net::ServerSocket *m_websocket;
 		Poco::Net::HTTPServer *m_httpServer;
-		//
 
-		bool m_isThreadMode;
-		int m_maxBuffLen;
+		bool m_isThreadMode; // thread mode?
+		int m_maxBuffLen; // recv buffer size
 		common::VectorMap<netid, cWebSession*> m_sessions;
 		common::VectorMap<SOCKET, cWebSession*> m_sessions2; // reference
-		fd_set m_sockets;
+		fd_set m_sockets; // all sockets
+		fd_set m_readSockets; // thread sync all sockets
 		std::atomic<bool> m_isUpdateSocket; // sync m_sockets
 		vector<cWebSession*> m_tempSessions; // temporal session
 		cPacketQueue m_sendQueue;

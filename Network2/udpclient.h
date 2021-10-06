@@ -40,8 +40,8 @@ namespace network2
 
 
 	public:
-		bool m_isThreadMode;
-		int m_maxBuffLen;
+		bool m_isThreadMode; // thread mode?
+		int m_maxBuffLen; // recv buffer size
 		sockaddr_in m_sockaddr;
 		cPacketQueue m_sendQueue;
 

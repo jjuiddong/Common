@@ -189,18 +189,6 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 		{
 			script::cVirtualMachine *vm = interpreter->m_vms[i];
-			//if (vm->m_trace.empty())
-			//	continue; // no process
-			//const uint size = vm->m_trace.size();
-			//if ((size % 2) != 0)
-			//	continue; // error, always pair data
-			//if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
-			//	continue; // no process
-
-			//itpr.insts[i] = vm->m_trace;
-			//vm->ClearCodeTrace();
-
-			//itpr.isChangeInstruction = true;
 
 			// sync delay instruction (check next instruction is delay node?)
 			// 'vm->m_reg.idx' is next execute instruction code index
@@ -212,38 +200,6 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 				itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
 				itpr.regSyncTime = TIME_SYNC_REGISTER + 1.f;
 			}
-
-
-			//vector<ushort> &insts = itpr.insts[i];
-
-			//if (insts.empty() || (insts.back() != vm->m_reg.idx))
-			//{
-			//	// continuous instruction index? (can optimize)
-			//	const bool isNextInst = !insts.empty()
-			//		&& ((insts.back() + 1) == vm->m_reg.idx);
-
-			//	if (insts.empty() || !isNextInst)
-			//	{
-			//		insts.push_back(vm->m_reg.idx);
-			//		insts.push_back(vm->m_reg.idx);
-			//	}
-			//	else
-			//	{
-			//		insts.back() = vm->m_reg.idx; // continuous instruction
-			//	}
-			//	itpr.isChangeInstruction = true;
-
-			//	// sync delay instruction (check next instruction is delay node?)
-			//	// 'vm->m_reg.idx' is next execute instruction code index
-			//	// ldtim is previous delay command
-			//	if (script::eCommand::ldtim ==
-			//		vm->m_code.m_codes[vm->m_reg.idx].cmd)
-			//	{
-			//		// sync instruction & register
-			//		itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
-			//		itpr.regSyncTime = TIME_SYNC_REGISTER + 1.f;
-			//	}
-			//}
 		}
 
 		// sync register?
@@ -254,7 +210,6 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		}
 
 		// sync instruction?
-		//if (itpr.isChangeInstruction && (itpr.instSyncTime > TIME_SYNC_INSTRUCTION))
 		if (itpr.instSyncTime > TIME_SYNC_INSTRUCTION)
 		{
 			script::cInterpreter *interpreter = itpr.interpreter;
@@ -265,34 +220,16 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 					continue; // no process
 				const uint size = vm->m_trace.size();
 				if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
-					continue; // no process
+					continue; // no process, no changed
 
 				itpr.instSyncTime = 0.f;
-				itpr.isChangeInstruction = false;
+				itpr.isChangeInstruction = false; // initialize flag
 
 				m_protocol.SyncVMInstruction(network2::ALL_NETID
 					, true, itprId, i, vm->m_trace);
 
 				vm->ClearCodeTrace(true);
 			}
-
-
-			//itpr.instSyncTime = 0.f;
-			//itpr.isChangeInstruction = false;
-			//for (uint i = 0; i < 10; ++i)
-			//{
-			//	if (itpr.insts[i].empty())
-			//		continue;
-
-			//	m_protocol.SyncVMInstruction(network2::ALL_NETID
-			//		, true, itprId, i, itpr.insts[i]);
-
-			//	// clear and setup last data
-			//	const uint index = itpr.insts[i].back();
-			//	itpr.insts[i].clear();
-			//	itpr.insts[i].push_back(index); // last data (idx-idx)
-			//	itpr.insts[i].push_back(index);
-			//}
 		}
 
 		SendSyncSymbolTable(itprId);
@@ -766,14 +703,6 @@ void cRemoteInterpreter::ClearInterpreters()
 }
 
 
-// welcome packet from remote server
-bool cRemoteInterpreter::Welcome(remotedbg2::Welcome_Packet &packet)
-{ 
-	dbg::Logc(0, "Success Connection to Remote Debugger Server\n");
-	return true; 
-}
-
-
 // request upload intermediate code protocol handler
 bool cRemoteInterpreter::UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet)
 { 
@@ -956,7 +885,7 @@ namespace {
 bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	, const netid recvId, const int itprId, const script::cIntermediateCode &icode)
 {
-	// tricky code, marshalling intermedatecode to byte stream
+	// marshalling intermedatecode to byte stream
 	const uint BUFFER_SIZE = 1024 * 50;
 	//BYTE *buff = new BYTE[BUFFER_SIZE];
 	BYTE *buff = (BYTE*)g_memPool.Alloc();

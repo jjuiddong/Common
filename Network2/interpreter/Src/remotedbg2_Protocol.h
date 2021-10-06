@@ -15,7 +15,6 @@ class r2h_Protocol : public network2::iProtocol
 {
 public:
 	r2h_Protocol() : iProtocol(r2h_Protocol_ID, ePacketFormat::JSON) {}
-	void Welcome(netid targetId, bool isBinary, const string &msg);
 	void UploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const string &code);
 	void ReqIntermediateCode(netid targetId, bool isBinary, const int &itprId);
 	void ReqRun(netid targetId, bool isBinary, const int &itprId, const string &runType);
@@ -36,6 +35,7 @@ class h2r_Protocol : public network2::iProtocol
 {
 public:
 	h2r_Protocol() : iProtocol(h2r_Protocol_ID, ePacketFormat::JSON) {}
+	void Welcome(netid targetId, bool isBinary, const string &msg);
 	void AckUploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &result);
 	void AckIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &result, const uint &count, const uint &index, const vector<BYTE> &data);
 	void AckRun(netid targetId, bool isBinary, const int &itprId, const int &result);

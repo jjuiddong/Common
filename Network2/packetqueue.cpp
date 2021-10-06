@@ -110,6 +110,7 @@ bool cPacketQueue::Front(OUT cPacket &out)
 }
 
 
+// send packet all
 void cPacketQueue::SendAll(
 	const map<netid, SOCKET> &socks
 	, OUT set<netid> *outErrs //= nullptr
@@ -199,7 +200,7 @@ void cPacketQueue::SendAll(
 }
 
 
-// send all 
+// send packet all 
 void cPacketQueue::SendAll(
 	set<netid> *outErrs //= nullptr
 )
@@ -259,7 +260,7 @@ void cPacketQueue::SendAll(
 }
 
 
-// send all
+// send packet all, udp
 void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 {
 	RET(m_sockBuffers.empty());
@@ -288,10 +289,9 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 }
 
 
-// exceptOwner 가 true 일때, 패킷을 보낸 클라이언트를 제외한 나머지 클라이언트들에게 모두
-// 패킷을 보낸다.
-bool cPacketQueue::SendBroadcast(
-	const vector<cSession*> &sessions
+// send packet to sessions
+// exceptOwner: if true except self
+bool cPacketQueue::SendBroadcast(const vector<cSession*> &sessions
 	, const bool exceptOwner // =true
 )
 {
@@ -308,7 +308,7 @@ bool cPacketQueue::SendBroadcast(
 
 			for (u_int k = 0; k < sessions.size(); ++k)
 			{
-				// exceptOwner가 true일 때, 패킷을 준 클라이언트에게는 보내지 않는다.
+				// send self?
 				const bool isSend = !exceptOwner 
 					|| (exceptOwner && (sockBuffer->m_netId != sessions[k]->m_id));
 				if (isSend)

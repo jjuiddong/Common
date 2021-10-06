@@ -5,6 +5,7 @@
 using namespace network2;
 using namespace marshalling;
 
+
 cPacket::cPacket()
 	: m_header(nullptr)
 	, m_is4Align(false)
@@ -103,8 +104,8 @@ void cPacket::EndPack()
 {
 	RET(!m_header);
 	if (m_writeIdx < m_bufferSize)
-		m_writeIdx += m_header->SetPacketTerminator(&m_data[m_writeIdx], m_bufferSize - m_writeIdx);
-
+		m_writeIdx += m_header->SetPacketTerminator(
+			&m_data[m_writeIdx], m_bufferSize - m_writeIdx);
 	SetPacketSize(GetWriteSize());
 }
 
@@ -129,7 +130,7 @@ void cPacket::ShallowCopy(const cPacket &packet)
 bool cPacket::InferPacketHeader()
 {
 	SetPacketHeader(GetPacketHeader(*(int*)m_data));
-	return true;
+	return true; // always success
 }
 
 
@@ -219,7 +220,6 @@ void cPacket::Write4ByteAlign()
 
 //--------------------------------------------------------------------------------
 // Basic Packet
-
 // Global Reserved Packet
 
 // return Connect packet
@@ -282,7 +282,7 @@ cPacket network2::ErrorBindPacket(cNetworkNode *node)
 
 
 // return connect error packet
-cPacket ErrorConnectPacket(cNetworkNode *node)
+cPacket network2::ErrorConnectPacket(cNetworkNode *node)
 {
 	cPacket packet(GetPacketHeader(ePacketFormat::BINARY));
 	packet.SetSenderId(node->m_id);

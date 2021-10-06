@@ -46,9 +46,9 @@ namespace network2
 
 
 	public:
-		bool m_isThreadMode;
+		bool m_isThreadMode; // thread mode?
+		int m_maxBuffLen; // recv buffer size
 		int m_clientSidePort;
-		int m_maxBuffLen;
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
 		iSessionListener *m_sessionListener;

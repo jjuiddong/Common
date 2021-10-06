@@ -81,27 +81,6 @@ remotedbg2.r2h_Dispatcher = class {
 
 		// dispatch function
 		switch (packetId) {
-			case 1281093745: // Welcome
-				{
-					if (option == 1) { // binary?
-						const msg = packet.getStr()
-						const parsePacket = {
-							msg,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.Welcome(wss, ws, parsePacket)
-						})
-					} else { // json?
-						const parsePacket = JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
-								handler.Welcome(wss, ws, parsePacket)
-						})
-					}
-				}
-				break;
-
 			case 1418562193: // UploadIntermediateCode
 				{
 					if (option == 1) { // binary?
@@ -409,6 +388,27 @@ remotedbg2.h2r_Dispatcher = class {
 
 		// dispatch function
 		switch (packetId) {
+			case 1281093745: // Welcome
+				{
+					if (option == 1) { // binary?
+						const msg = packet.getStr()
+						const parsePacket = {
+							msg,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.Welcome(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.Welcome(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 4005257575: // AckUploadIntermediateCode
 				{
 					if (option == 1) { // binary?
@@ -815,20 +815,6 @@ remotedbg2.h2r_Dispatcher = class {
 remotedbg2.r2h_Protocol = class {
 	constructor() { }
 
-	// Protocol: Welcome
-	Welcome(ws, isBinary, msg, ) {
-		if (isBinary) { // binary send?
-			let packet = new Packet(512)
-			packet.pushStr(msg)
-			WsSockServer.sendPacketBinary(ws, 5301, 1281093745, packet.buff, packet.offset)
-		} else { // json string send?
-			const packet = {
-				msg,
-			}
-			WsSockServer.sendPacket(ws, 5301, 1281093745, packet)
-		}
-	}
-	
 	// Protocol: UploadIntermediateCode
 	UploadIntermediateCode(ws, isBinary, itprId, code, ) {
 		if (isBinary) { // binary send?
@@ -1020,6 +1006,20 @@ remotedbg2.r2h_Protocol = class {
 remotedbg2.h2r_Protocol = class {
 	constructor() { }
 
+	// Protocol: Welcome
+	Welcome(ws, isBinary, msg, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushStr(msg)
+			WsSockServer.sendPacketBinary(ws, 5300, 1281093745, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				msg,
+			}
+			WsSockServer.sendPacket(ws, 5300, 1281093745, packet)
+		}
+	}
+	
 	// Protocol: AckUploadIntermediateCode
 	AckUploadIntermediateCode(ws, isBinary, itprId, result, ) {
 		if (isBinary) { // binary send?
@@ -1309,7 +1309,6 @@ remotedbg2.h2r_Protocol = class {
 remotedbg2.r2h_ProtocolHandler = class {
 	constructor() {} 
 	Relay(wss, ws, packet) {} 
-	Welcome(wss, ws, packet) {}
 	UploadIntermediateCode(wss, ws, packet) {}
 	ReqIntermediateCode(wss, ws, packet) {}
 	ReqRun(wss, ws, packet) {}
@@ -1331,6 +1330,7 @@ remotedbg2.r2h_ProtocolHandler = class {
 remotedbg2.h2r_ProtocolHandler = class {
 	constructor() {} 
 	Relay(wss, ws, packet) {} 
+	Welcome(wss, ws, packet) {}
 	AckUploadIntermediateCode(wss, ws, packet) {}
 	AckIntermediateCode(wss, ws, packet) {}
 	AckRun(wss, ws, packet) {}

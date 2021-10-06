@@ -41,7 +41,7 @@ namespace network2
 
 
 	public:
-		int m_maxBuffLen;
+		int m_maxBuffLen; // recv buffer size
 		cPacketQueue m_recvQueue;
 
 		std::thread m_thread;

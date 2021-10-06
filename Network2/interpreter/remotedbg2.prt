@@ -2,16 +2,15 @@
 // Script Remote Debugger Protocol 2
 //	- WebSocket Communication
 //		- binary/json format
-//	- Host : Interpreter Client (Run Script, c++)
+//	- Host : Interpreter (Run Script, c++)
 //	- Remote : WebServer or WebBrowser (javascript)
-//	- h2r : Host Client -> Remote Server Protocol
-//	- r2h : Remote Server -> Host Client Protocol
+//	- h2r : Host -> Remote Client
+//	- r2h : Remote Client -> Host
 //
 
 
 protocol r2h 5301 json
 {
-	Welcome( string msg );
 	UploadIntermediateCode(int itprId, string code );
 	ReqIntermediateCode(int itprId);
 	ReqRun(int itprId, string runType);
@@ -29,6 +28,7 @@ protocol r2h 5301 json
 
 protocol h2r 5300 json
 {
+	Welcome( string msg );
 	AckUploadIntermediateCode(int itprId, int result );
 	AckIntermediateCode( int itprId, int result, uint count, uint index, vector<BYTE> data );
 	AckRun( int itprId, int result );

@@ -57,16 +57,14 @@ namespace network2
 
 
 	public:
-		// poco library object
 		Poco::Net::HTTPClientSession *m_session;
 		Poco::Net::HTTPRequest *m_request;
 		Poco::Net::HTTPResponse *m_response;
 		Poco::Net::WebSocket *m_websocket;
-		//
 
-		string m_url;
-		bool m_isThreadMode;
-		int m_maxBuffLen;
+		string m_url; // webserver url
+		bool m_isThreadMode; // thread mode?
+		int m_maxBuffLen; // recv buffer size
 		cPacketQueue m_sendQueue;
 		cPacketQueue m_recvQueue;
 		iSessionListener *m_sessionListener;

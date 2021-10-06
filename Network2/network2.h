@@ -57,6 +57,7 @@ typedef int netid;
 #include "protocol_udpsvrmap.h"
 #include "netcontroller.h"
 #include "udpservermap.h"
+#include "udpservermap2.h"
 #include "udpclientmap.h"
 #include "protocol_basic_dispatcher.h"
 #include "protocol_all_handler.h"

@@ -2,13 +2,12 @@
 // 2019-01-09, jjuiddong
 //
 // PacketQueue class
-// packet save . Thread Safe
-// - 한 패킷이 분리되어서 네트워크로 들어올 때, 합치는 기능이 있다. (cSocketBuffer에서 처리)
-// - 각 소켓마다 packetSize 크기만큼 채울 때까지 다음으로 넘어가지 않는다.
-// - 버퍼가 가득차면 들어온 패킷은 무시한다.
+// packet save. Thread Safe
+//	- merge split packet data
+//	- ignore packet if full buffer
 //
 // 2019-02-03
-//	- cSocketBuffer 추가
+//	- add cSocketBuffer
 //
 // 2019-03-08
 //	- Packet Log
@@ -22,7 +21,7 @@
 //	- send, sendto interface with cNetNode
 //
 // 2021-09-20
-//	- socket buffer remove & reuse
+//	- socket buffer reuse
 //
 #pragma once
 

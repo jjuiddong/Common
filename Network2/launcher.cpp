@@ -7,13 +7,12 @@ using namespace common;
 
 
 // Start TCP Client
-bool network2::LaunchTCPClient(const std::string &ip, const int port
+bool network2::LaunchTCPClient(const string ip, const int port
 	, OUT SOCKET &out
 	, const bool isLog // = true
 	, const int clientSidePort //= -1
 )
 {
-	const string tmpIp = ip; // thread safety
 
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA wsaData;
@@ -26,7 +25,7 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 	}
 
 	LPHOSTENT lpHostEntry;
-	lpHostEntry = gethostbyname(tmpIp.c_str());
+	lpHostEntry = gethostbyname(ip.c_str());
 	if(lpHostEntry == NULL)
 	{
 		if (isLog)
@@ -34,7 +33,7 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 		return false;
 	}
 
-	SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	const SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (clientSocket == INVALID_SOCKET)
 	{
 		if (isLog)
@@ -118,7 +117,7 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 		saClient.sin_addr.s_addr = INADDR_ANY;
 		saClient.sin_port = htons(clientSidePort);
 		nRet = bind(clientSocket, (LPSOCKADDR)&saClient, sizeof(struct sockaddr));
-		if (nRet == SOCKET_ERROR)
+		if (SOCKET_ERROR == nRet)
 		{
 			if (isLog)
 				dbg::Logc(2, "client bind() error port=%d\n", clientSidePort);
@@ -129,16 +128,17 @@ bool network2::LaunchTCPClient(const std::string &ip, const int port
 
 	SOCKADDR_IN saServer;
 	saServer.sin_family = AF_INET;
-	saServer.sin_addr = *((LPIN_ADDR)*lpHostEntry->h_addr_list); // 서버 주소
+	saServer.sin_addr = *((LPIN_ADDR)*lpHostEntry->h_addr_list); // server address
 	saServer.sin_port = htons(port);
 
 	nRet = connect(clientSocket, (LPSOCKADDR)&saServer, sizeof(struct sockaddr) );
-	if (nRet == SOCKET_ERROR)
+	if (SOCKET_ERROR == nRet)
 	{
 		const DWORD errorVal = GetLastError();
 
 		if (isLog)
-			dbg::Logc(2, "connect() error ip=%s, port=%d, error=0x%x\n", ip.c_str(), port, errorVal);
+			dbg::Logc(2, "connect() error ip=%s, port=%d, error=0x%x\n"
+				, ip.c_str(), port, errorVal);
 		closesocket(clientSocket);
 		return false;
 	}
@@ -162,8 +162,8 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	SOCKET svrSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(svrSocket == INVALID_SOCKET)
+	const SOCKET svrSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if(INVALID_SOCKET == svrSocket)
 	{
 		if (isLog)
 			dbg::Logc(2, "socket() error\n");
@@ -226,14 +226,13 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 		}
 	}
 
-
 	SOCKADDR_IN saServer;
 	saServer.sin_family = AF_INET;
 	saServer.sin_addr.s_addr = INADDR_ANY;
 	saServer.sin_port = htons(port);
 
 	nRet = bind(svrSocket, (LPSOCKADDR)&saServer, sizeof(struct sockaddr) );
-	if (nRet == SOCKET_ERROR)
+	if (SOCKET_ERROR == nRet)
 	{
 		if (isLog)
 			dbg::Logc(2, "bind() error port: %d\n", port);
@@ -241,9 +240,9 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	char szBuf[256];
-	nRet = gethostname( szBuf, sizeof(szBuf) );
-	if (nRet == SOCKET_ERROR)
+	char buffer[256];
+	nRet = gethostname(buffer, sizeof(buffer));
+	if (SOCKET_ERROR == nRet)
 	{
 		if (isLog)
 			dbg::Logc(2, "gethostname() error\n");
@@ -251,10 +250,8 @@ bool network2::LaunchTCPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	// listen(오는 소켓, 요청 수용 가능한 용량)
 	nRet = listen(svrSocket, SOMAXCONN);
-
-	if (nRet == SOCKET_ERROR)
+	if (SOCKET_ERROR == nRet)
 	{
 		if (isLog)
 			dbg::Logc(2, "listen() error\n");
@@ -281,8 +278,8 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	SOCKET svrSocket = socket(AF_INET, SOCK_DGRAM, 0);
-	if (svrSocket == INVALID_SOCKET)
+	const SOCKET svrSocket = socket(AF_INET, SOCK_DGRAM, 0);
+	if (INVALID_SOCKET == svrSocket)
 	{
 		if (isLog)
 			dbg::Logc(2, "socket() error\n");
@@ -295,7 +292,7 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 	saServer.sin_port = htons(port);
 
 	nRet = bind(svrSocket, (LPSOCKADDR)&saServer, sizeof(struct sockaddr));
-	if (nRet == SOCKET_ERROR)
+	if (SOCKET_ERROR == nRet)
 	{
 		if (isLog)
 			dbg::Logc(2, "bind() error port: %d\n", port);
@@ -303,9 +300,9 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	char szBuf[256];
-	nRet = gethostname(szBuf, sizeof(szBuf));
-	if (nRet == SOCKET_ERROR)
+	char buffer[256];
+	nRet = gethostname(buffer, sizeof(buffer));
+	if (SOCKET_ERROR == nRet)
 	{
 		if (isLog)
 			dbg::Logc(2, "gethostname() error\n");
@@ -320,7 +317,7 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 
 
 // Start UDP Client
-bool network2::LaunchUDPClient(const std::string &ip, const int port
+bool network2::LaunchUDPClient(const string ip, const int port
 	, OUT SOCKADDR_IN &sockAddr, OUT SOCKET &out, const bool isLog)
 {
 	WORD wVersionRequested = MAKEWORD(2, 2);
@@ -335,15 +332,15 @@ bool network2::LaunchUDPClient(const std::string &ip, const int port
 
 	LPHOSTENT lpHostEntry;
 	lpHostEntry = gethostbyname(ip.c_str());
-	if (lpHostEntry == NULL)
+	if (NULL == lpHostEntry)
 	{
 		if (isLog)
 			dbg::Logc(2, "gethostbyname() error\n");
 		return false;
 	}
 
-	SOCKET clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
-	if (clientSocket == INVALID_SOCKET)
+	const SOCKET clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
+	if (INVALID_SOCKET == clientSocket)
 	{
 		if (isLog)
 			dbg::Logc(2, "socket() error\n");
@@ -355,7 +352,7 @@ bool network2::LaunchUDPClient(const std::string &ip, const int port
 	sockAddr.sin_port = htons(port);
 
 	nRet = connect(clientSocket, (LPSOCKADDR)&sockAddr, sizeof(struct sockaddr));
-	if (nRet == SOCKET_ERROR)
+	if (SOCKET_ERROR == nRet)
 	{
 		if (isLog)
 			dbg::Logc(2, "connect() error ip=%s, port=%d\n", ip.c_str(), port);

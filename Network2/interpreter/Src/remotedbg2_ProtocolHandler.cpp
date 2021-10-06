@@ -21,51 +21,6 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 	const int packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 1281093745: // Welcome
-		{
-			ProtocolHandlers prtHandler;
-			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
-				return false;
-
-			SetCurrentDispatchPacket( &packet );
-
-			const bool isBinary = packet.GetPacketOption(0x01) > 0;
-			if (isBinary)
-			{
-				// binary parsing
-				Welcome_Packet data;
-				data.pdispatcher = this;
-				data.senderId = packet.GetSenderId();
-				packet.Alignment4(); // set 4byte alignment
-				marshalling::operator>>(packet, data.msg);
-				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, Welcome(data));
-			}
-			else
-			{
-				// json format packet parsing using property_tree
-				using boost::property_tree::ptree;
-				ptree root;
-
-				try {
-					string str;
-					packet >> str;
-					stringstream ss(str);
-					
-					boost::property_tree::read_json(ss, root);
-					ptree &props = root.get_child("");
-
-					Welcome_Packet data;
-					data.pdispatcher = this;
-					data.senderId = packet.GetSenderId();
-					get(props, "msg", data.msg);
-					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, Welcome(data));
-				} catch (...) {
-					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
-				}
-			}
-		}
-		break;
-
 	case 1418562193: // UploadIntermediateCode
 		{
 			ProtocolHandlers prtHandler;
@@ -647,6 +602,51 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 	const int packetId = packet.GetPacketId();
 	switch (packetId)
 	{
+	case 1281093745: // Welcome
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				Welcome_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.msg);
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, Welcome(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					Welcome_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "msg", data.msg);
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, Welcome(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
+		}
+		break;
+
 	case 4005257575: // AckUploadIntermediateCode
 		{
 			ProtocolHandlers prtHandler;

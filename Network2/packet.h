@@ -87,7 +87,7 @@ namespace network2
 
 	public:
 		iPacketHeader *m_header; // reference
-		netid m_sndId;
+		netid m_sndId; // sender id
 		bool m_is4Align; // 4byte alignment, websocket binary packet
 		int m_readIdx;
 		int m_writeIdx;
@@ -166,13 +166,23 @@ namespace network2
 	{
 		AppendPtr2(rhs, size);
 	}
-	// AppendPtr specialization, int, uint, float, double
+	// AppendPtr specialization, int, uint, int64, uint64, float, double
 	template<> inline void cPacket::AppendPtr<int>(const int *rhs, const size_t size)
 	{
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
 		AppendPtr2(rhs, size);
 	}
 	template<> inline void cPacket::AppendPtr<uint>(const uint *rhs, const size_t size)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		AppendPtr2(rhs, size);
+	}
+	template<> inline void cPacket::AppendPtr<int64>(const int64 *rhs, const size_t size)
+	{
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
+		AppendPtr2(rhs, size);
+	}
+	template<> inline void cPacket::AppendPtr<uint64>(const uint64 *rhs, const size_t size)
 	{
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_writeIdx);
 		AppendPtr2(rhs, size);
@@ -189,7 +199,7 @@ namespace network2
 	}
 
 
-	// delimeter를 추가한다.
+	// add delimeter
 	inline void cPacket::AddDelimeter()
 	{
 		if (m_writeIdx + 1 > m_bufferSize)
@@ -198,7 +208,8 @@ namespace network2
 		m_writeIdx += len;
 	}
 
-	// delimeter를 추가한다.
+	// add delimeter
+	// c: delimeter
 	inline void cPacket::AppendDelimeter(const char c)
 	{
 		if (m_writeIdx + 1 > m_bufferSize)
@@ -206,8 +217,8 @@ namespace network2
 		m_data[m_writeIdx++] = c;
 	}
 
-	// m_readIdx 부터 데이타를 가져온다.
-	template<class T>
+	// get data from m_readIdx index
+	template<class T> 
 	inline void cPacket::GetData2(OUT T &rhs)
 	{
 		if (m_readIdx + (int)sizeof(T) > m_writeIdx)
@@ -218,12 +229,20 @@ namespace network2
 
 	template<class T>
 	inline void cPacket::GetData(OUT T &rhs) { GetData2(rhs); }
-	// GetData specilization, int, uint, float, double
+	// GetData specilization, int, uint, int64, uint64, float, double
 	template<> inline void cPacket::GetData<int>(OUT int &rhs) { 
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
 		GetData2(rhs); 
 	}
 	template<> inline void cPacket::GetData<uint>(OUT uint &rhs) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetData2(rhs);
+	}
+	template<> inline void cPacket::GetData<int64>(OUT int64 &rhs) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetData2(rhs);
+	}
+	template<> inline void cPacket::GetData<uint64>(OUT uint64 &rhs) {
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
 		GetData2(rhs);
 	}
@@ -250,12 +269,20 @@ namespace network2
 	inline void cPacket::GetDataPtr(OUT T *rhs, size_t size) {
 		GetDataPtr2(rhs, size);
 	}
-	// GetData specialization, int, uint, float, double
+	// GetData specialization, int, uint, int64, uint64, float, double
 	template<> inline void cPacket::GetDataPtr<int>(OUT int *rhs, size_t size) {
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
 		GetDataPtr2(rhs, size);
 	}
 	template<> inline void cPacket::GetDataPtr<uint>(OUT uint *rhs, size_t size) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetDataPtr2(rhs, size);
+	}
+	template<> inline void cPacket::GetDataPtr<int64>(OUT int64 *rhs, size_t size) {
+		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
+		GetDataPtr2(rhs, size);
+	}
+	template<> inline void cPacket::GetDataPtr<uint64>(OUT uint64 *rhs, size_t size) {
 		MARSHALLING_4BYTE_ALIGN(m_is4Align, m_readIdx);
 		GetDataPtr2(rhs, size);
 	}
@@ -294,9 +321,8 @@ namespace network2
 		}
 	}
 
-	// delimeter가 나올 때까지 ascii를 복사해서 리턴한다.
-	// 문자열이 쌍따옴표로 시작했다면, 쌍따옴표로 끝날때 까지 읽는다.
-	// 이때 delimeter는 무시된다.
+	// read ascii data until meet delimeter
+	// ignore delimeter if begin double quoto
 	inline int cPacket::GetDataString(const char delimeter1, const char delimeter2, OUT string &str)
 	{
 		int i = 0;
@@ -333,7 +359,8 @@ namespace network2
 	}
 
 
-	// delimeter가 나올 때까지 ascii를 복사해서 리턴한다.
+	// read ascii data until meet delimeter
+	// delieter1,2: two delimeter
 	inline int cPacket::GetDataAscii(const char delimeter1, const char delimeter2
 		, OUT char *buff, const int buffLen)
 	{

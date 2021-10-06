@@ -11,10 +11,10 @@ namespace network2
 	void InsertPacket(sProtocol *protocol, sPacket *packet);
 	sPacket* GetPacket(const __int64 packetId);
 
-	bool g_isLoadProtocol = false; // load *.prt file?
+	std::atomic<bool> g_isLoadProtocol = false; // load *.prt file?
 	CriticalSection g_cs; // sync initialize g_packets, g_protocolFormat
-	map<__int64, sPacket*> g_packets; // key: protocolid << 32 + packetID
-	map<__int64, ePacketFormat> g_protocolFormat; // key: protocolid
+	map<int64, sPacket*> g_packets; // key: protocolid << 32 + packetID
+	map<int64, ePacketFormat> g_protocolFormat; // key: protocolid
 }
 
 
@@ -83,7 +83,7 @@ sPacket* network2::GetPacket(const __int64 packetId)
 }
 
 
-// display packet data
+// write packet string data to logfile
 void network2::DisplayPacket(const Str128 &firstStr, const cPacket &packet
 	, const int logLevel //= 0
 )
@@ -103,7 +103,7 @@ void network2::DisplayPacket(const Str128 &firstStr, const cPacket &packet
 }
 
 
-// Packet정보를 문자열로 변환해 리턴한다.
+// convert packet data to string (for debugging)
 void network2::GetPacketString(const cPacket &packet, OUT string &out)
 {
 	if (!g_isLoadProtocol)
@@ -148,8 +148,7 @@ ePacketFormat network2::GetPacketFormat(const int protocolId)
 {
 	if (!g_isLoadProtocol)
 		Init();
-	// basic protocol?
-	if (0 == protocolId)
+	if (0 == protocolId) // basic protocol?
 		return ePacketFormat::BINARY;
 	auto it = g_protocolFormat.find(protocolId);
 	if (g_protocolFormat.end() == it)
@@ -158,9 +157,8 @@ ePacketFormat network2::GetPacketFormat(const int protocolId)
 }
 
 
-// g_packets 변수 제거
-// cProtocolDisplayer 객체를 사용했다면, 프로그램이 종료 될 때, 
-// 이 함수를 호출해서 파싱한 데이타를 제거해야 한다.
+// remove global packet data especially g_packets
+// call this function when terminate program
 void network2::DisplayPacketCleanup()
 {
 	for (auto &prt : g_packets)
@@ -174,8 +172,8 @@ void network2::DisplayPacketCleanup()
 // find from cProtocolDispatcher::GetPacketHeaderMap()
 iPacketHeader* network2::GetPacketHeader(const int protocolId)
 {
-	// global packet header
-	static cPacketHeader s_packetHeader; // binary packet header
+	// global(static variable), packet header
+	static cPacketHeader s_packetHeaderBinary;
 	static cPacketHeaderAscii s_packetHeaderAscii;
 	static cPacketHeaderNoFormat s_packetHeaderNoFormat;
 
@@ -185,7 +183,7 @@ iPacketHeader* network2::GetPacketHeader(const int protocolId)
 
 	// basic protocol?
 	if (0 == protocolId)
-		return &s_packetHeader;
+		return &s_packetHeaderBinary;
 
 	// check ascii format, alphabet A~Z
 	const char code = (protocolId & 0xff000000) >> 24;
@@ -201,15 +199,15 @@ iPacketHeader* network2::GetPacketHeader(const int protocolId)
 // return global packet header correspond packet format
 iPacketHeader* network2::GetPacketHeader(const ePacketFormat format)
 {
-	// global packet header
-	static cPacketHeader s_packetHeader;
+	// global (static variable), packet header
+	static cPacketHeader s_packetHeaderBinary;
 	static cPacketHeaderAscii s_packetHeaderAscii;
 	static cPacketHeaderJson s_packetHeaderJson;
 	static cPacketHeaderNoFormat s_packetHeaderNoFormat;
 
 	switch (format)
 	{
-	case ePacketFormat::BINARY: return &s_packetHeader;
+	case ePacketFormat::BINARY: return &s_packetHeaderBinary;
 	case ePacketFormat::JSON: return &s_packetHeaderJson;
 	case ePacketFormat::ASCII: return &s_packetHeaderAscii;
 	case ePacketFormat::FREE: 

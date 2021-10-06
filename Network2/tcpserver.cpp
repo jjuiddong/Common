@@ -49,6 +49,7 @@ bool cTcpServer::Init(const int bindPort
 	m_maxBuffLen = packetSize;
 	m_isThreadMode = isThreadMode;
 	m_lastAcceptTime = 0.0;
+
 	m_timer.Create();
 
 	if (network2::LaunchTCPServer(bindPort, m_socket))
@@ -134,15 +135,15 @@ bool cTcpServer::AcceptProcess()
 	FD_ZERO(&acceptSockets);
 	FD_SET(m_socket, &acceptSockets);
 	const int ret = select(acceptSockets.fd_count, &acceptSockets, NULL, NULL, &t);
-	if (ret == 0)
+	if (0 == ret)
 		return true; // nothing~
-	if (ret == SOCKET_ERROR)
+	if (SOCKET_ERROR == ret)
 		return true; // error occur
 
 	int sockLen = sizeof(sockaddr_in);
 	sockaddr_in addr;
 	SOCKET remoteSocket = accept(acceptSockets.fd_array[0], (sockaddr*)&addr, &sockLen);
-	if (remoteSocket == INVALID_SOCKET)
+	if (INVALID_SOCKET == remoteSocket)
 	{
 		// error occurred!
 		return true;
@@ -166,28 +167,24 @@ bool cTcpServer::AcceptProcess()
 // Packet Receive From TCP/IP Socket
 bool cTcpServer::ReceiveProcces()
 {
-	fd_set readSockets;
 	if (m_isUpdateSocket)
 	{
 		common::AutoCSLock cs(m_cs);
-		readSockets = m_sockets;
+		m_readSockets = m_sockets;
 		m_isUpdateSocket = false;
 	}
-	else
-	{
-		readSockets = m_sockets;
-	}
-	//MakeFdSet(readSockets);
-	if (0 == readSockets.fd_count)
+
+	if (0 == m_readSockets.fd_count)
 		return true;
 
 	const timeval t = { 0, 0 };
-	const fd_set sockets = readSockets;
+	const fd_set &sockets = m_readSockets;
+	fd_set readSockets = m_readSockets;
 
 	const int ret = select(readSockets.fd_count, &readSockets, NULL, NULL, &t);
-	if (ret == 0)
+	if (0 == ret)
 		return true; // nothing
-	if (ret == SOCKET_ERROR)
+	if (SOCKET_ERROR == ret)
 		return false; // error occur, nothing
 
 	for (u_int i = 0; i < sockets.fd_count; ++i)
@@ -200,7 +197,7 @@ bool cTcpServer::ReceiveProcces()
 		if (netId == INVALID_NETID)
 			continue; // not found netid
 
-		if (result == SOCKET_ERROR || result == 0) 
+		if (SOCKET_ERROR == result || 0 == result)
 		{
 			// when receive packet size == 0, disconnect state
 			if (!m_recvQueue.Push(netId, DisconnectPacket(this, netId)))
@@ -242,17 +239,8 @@ void cTcpServer::Close()
 	}
 	
 	FD_ZERO(&m_sockets);
+	FD_ZERO(&m_readSockets);
 	__super::Close();
-}
-
-
-void cTcpServer::MakeFdSet(OUT fd_set &out)
-{
-	AutoCSLock cs(m_cs);
-
-	FD_ZERO(&out);
-	for (auto &session : m_sessions.m_seq)
-		FD_SET(session->m_socket, (fd_set*)&out);
 }
 
 

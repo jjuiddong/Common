@@ -177,6 +177,9 @@
     <ClInclude Include="protocol_udpsvrmap.h">
       <Filter>Protocol</Filter>
     </ClInclude>
+    <ClInclude Include="udpservermap2.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -308,6 +311,9 @@
     </ClCompile>
     <ClCompile Include="protocol_udpsvrmap.cpp">
       <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="udpservermap2.cpp">
+      <Filter>Controller</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

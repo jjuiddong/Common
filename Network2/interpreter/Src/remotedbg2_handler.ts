@@ -57,9 +57,6 @@ export namespace remotedbg2 {
 	}
 
 	// r2h Protocol Packet Data
-	export type Welcome_Packet = {
-		msg: string, 
-	}
 	export type UploadIntermediateCode_Packet = {
 		itprId: number, 
 		code: string, 
@@ -106,6 +103,9 @@ export namespace remotedbg2 {
 
 
 	// h2r Protocol Packet Data
+	export type Welcome_Packet = {
+		msg: string, 
+	}
 	export type AckUploadIntermediateCode_Packet = {
 		itprId: number, 
 		result: number, 
@@ -202,28 +202,6 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 		const option = packet.getUint32()
 
 		switch (packetId) {
-			case 1281093745: // Welcome
-				{
-					if (option == 1) { // binary?
-						const msg = packet.getStr()
-						const parsePacket: Welcome_Packet = {
-							msg,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.Welcome(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: Welcome_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.Welcome(parsePacket)
-						})
-					}
-				}
-				break;
-
 			case 1418562193: // UploadIntermediateCode
 				{
 					if (option == 1) { // binary?
@@ -528,6 +506,28 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 		const option = packet.getUint32()
 
 		switch (packetId) {
+			case 1281093745: // Welcome
+				{
+					if (option == 1) { // binary?
+						const msg = packet.getStr()
+						const parsePacket: Welcome_Packet = {
+							msg,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.Welcome(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: Welcome_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.Welcome(parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 4005257575: // AckUploadIntermediateCode
 				{
 					if (option == 1) { // binary?
@@ -950,22 +950,6 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 export class r2h_Protocol extends Network.Protocol {
 	 constructor() { super() }
 
-	// Protocol: Welcome
-	Welcome(isBinary: boolean, msg: string, ) {
-		if (!this.ws)
-			return
-		if (isBinary) { // binary send?
-			let packet = new Network.Packet(512)
-			packet.pushStr(msg)
-			Network.sendPacketBinary(this.ws, 5301, 1281093745, packet.buff, packet.offset)
-		} else { // json string send?
-			const packet = {
-				msg,
-			}
-			Network.sendPacket(this.ws, 5301, 1281093745, packet)
-		}
-	}
-	
 	// Protocol: UploadIntermediateCode
 	UploadIntermediateCode(isBinary: boolean, itprId: number, code: string, ) {
 		if (!this.ws)
@@ -1181,6 +1165,22 @@ export class r2h_Protocol extends Network.Protocol {
 export class h2r_Protocol extends Network.Protocol {
 	 constructor() { super() }
 
+	// Protocol: Welcome
+	Welcome(isBinary: boolean, msg: string, ) {
+		if (!this.ws)
+			return
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushStr(msg)
+			Network.sendPacketBinary(this.ws, 5300, 1281093745, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				msg,
+			}
+			Network.sendPacket(this.ws, 5300, 1281093745, packet)
+		}
+	}
+	
 	// Protocol: AckUploadIntermediateCode
 	AckUploadIntermediateCode(isBinary: boolean, itprId: number, result: number, ) {
 		if (!this.ws)
@@ -1502,7 +1502,6 @@ export class h2r_Protocol extends Network.Protocol {
 export class r2h_ProtocolHandler extends Network.Handler {
 	 constructor() { super() } 
 
-	Welcome = (packet: remotedbg2.Welcome_Packet) => { }
 	UploadIntermediateCode = (packet: remotedbg2.UploadIntermediateCode_Packet) => { }
 	ReqIntermediateCode = (packet: remotedbg2.ReqIntermediateCode_Packet) => { }
 	ReqRun = (packet: remotedbg2.ReqRun_Packet) => { }
@@ -1524,6 +1523,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 export class h2r_ProtocolHandler extends Network.Handler {
 	 constructor() { super() } 
 
+	Welcome = (packet: remotedbg2.Welcome_Packet) => { }
 	AckUploadIntermediateCode = (packet: remotedbg2.AckUploadIntermediateCode_Packet) => { }
 	AckIntermediateCode = (packet: remotedbg2.AckIntermediateCode_Packet) => { }
 	AckRun = (packet: remotedbg2.AckRun_Packet) => { }

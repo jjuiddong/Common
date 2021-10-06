@@ -4,15 +4,7 @@
 
 #pragma once
 
-//#include <windows.h>
-//#include <iostream>
 #include <mysql.h>
-//#include <stdint.h>
-//#include <string>
-//#include <algorithm>
-//#include <map>
-//#include <iostream>
-//#include <sstream>
 
 class MySQLConnection
 {

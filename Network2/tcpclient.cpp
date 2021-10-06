@@ -18,6 +18,7 @@ cTcpClient::cTcpClient(
 	, m_recvBuffer(NULL)
 	, m_isThreadMode(false)
 	, m_sessionListener(nullptr)
+	, m_clientSidePort(-1)
 {
 }
 
@@ -164,6 +165,7 @@ bool cTcpClient::Process()
 			}
 		}
 	}
+	//~Receive Packet	
 
 	// Send Packet
 	{

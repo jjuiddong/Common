@@ -31,7 +31,6 @@ class r2h_ProtocolHandler : virtual public network2::iProtocolHandler
 public:
 	friend class r2h_Dispatcher;
 	r2h_ProtocolHandler() { m_format = ePacketFormat::JSON; }
-	virtual bool Welcome(remotedbg2::Welcome_Packet &packet) { return true; }
 	virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) { return true; }
 	virtual bool ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet) { return true; }
 	virtual bool ReqRun(remotedbg2::ReqRun_Packet &packet) { return true; }
@@ -67,6 +66,7 @@ class h2r_ProtocolHandler : virtual public network2::iProtocolHandler
 public:
 	friend class h2r_Dispatcher;
 	h2r_ProtocolHandler() { m_format = ePacketFormat::JSON; }
+	virtual bool Welcome(remotedbg2::Welcome_Packet &packet) { return true; }
 	virtual bool AckUploadIntermediateCode(remotedbg2::AckUploadIntermediateCode_Packet &packet) { return true; }
 	virtual bool AckIntermediateCode(remotedbg2::AckIntermediateCode_Packet &packet) { return true; }
 	virtual bool AckRun(remotedbg2::AckRun_Packet &packet) { return true; }

@@ -11,12 +11,6 @@ using namespace network2;
 using namespace marshalling_json;
 
 
-	struct Welcome_Packet {
-		cProtocolDispatcher *pdispatcher;
-		netid senderId;
-		string msg;
-	};
-
 	struct UploadIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -99,6 +93,12 @@ using namespace marshalling_json;
 
 
 
+
+	struct Welcome_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		string msg;
+	};
 
 	struct AckUploadIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;

@@ -202,7 +202,7 @@ bool cWebServer::Process()
 }
 
 
-// add session
+// add session, call from webserver basic protocol
 bool cWebServer::AddSession(const SOCKET sock, const Str16 &ip, const int port)
 {
 	RETV(!m_sessionFactory, false);
@@ -344,23 +344,19 @@ cWebSession* cWebServer::FindSessionByName(const StrId &name)
 // packet receive process
 bool cWebServer::ReceiveProcces()
 {
-	fd_set readSockets;
 	if (m_isUpdateSocket)
 	{
 		common::AutoCSLock cs(m_cs);
-		readSockets = m_sockets;
+		m_readSockets = m_sockets;
 		m_isUpdateSocket = false;
 	}
-	else
-	{
-		readSockets = m_sockets;
-	}
-	if (0 == readSockets.fd_count)
+	if (0 == m_readSockets.fd_count)
 		return true;
 
 	set<netid> rmSessions; // remove session ids
 	const timeval t = { 0, 0 };
-	const fd_set sockets = readSockets;
+	const fd_set &sockets = m_readSockets;
+	fd_set readSockets = m_readSockets;
 
 	const int selResult = select(readSockets.fd_count, &readSockets, nullptr, nullptr, &t);
 	if (0 == selResult)
@@ -555,6 +551,7 @@ void cWebServer::Close()
 	}
 
 	FD_ZERO(&m_sockets);
+	FD_ZERO(&m_readSockets);	
 	__super::Close();
 }
 

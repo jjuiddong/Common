@@ -77,20 +77,20 @@ bool cUdpServer::Process()
 	FD_SET(m_socket, &readSockets);
 
 	const int ret = select(readSockets.fd_count, &readSockets, NULL, NULL, &t);
-	if (ret == 0)
+	if (0 == ret)
 		return true;
-	if (ret == SOCKET_ERROR)
+	if (SOCKET_ERROR == ret)
 		return false;
 
 	const int result = recv(readSockets.fd_array[0], (char*)m_recvBuffer, m_maxBuffLen, 0);
-	if (result == SOCKET_ERROR || result == 0)
+	if (SOCKET_ERROR == result || 0 == result)
 	{
-		// disconcet state
+		// disconnect state
 	}
 	else
 	{
 		const netid netId = GetNetIdFromSocket(readSockets.fd_array[0]);
-		if (netId != INVALID_NETID)
+		if (INVALID_NETID != netId)
 			m_recvQueue.Push(netId, (BYTE*)m_recvBuffer, result);
 	}
 

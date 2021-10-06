@@ -223,7 +223,7 @@ bool cWebClient::Process()
 		else if (result > 0)
 		{
 			const netid netId = GetNetIdFromSocket(m_socket);
-			if (netId == INVALID_NETID)
+			if (INVALID_NETID == netId)
 			{
 				// not found netid
 			}

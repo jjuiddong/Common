@@ -159,7 +159,6 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 {
 	RETV(m_q.empty(), false);
 
-	const uint size = m_q.size();
 	BYTE tempHeader[64];
 	if (!m_q.frontCopy(tempHeader, 4)) // check protocol id
 		return false;
@@ -170,13 +169,14 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 		return false;
 
 	const uint packetSize = out.m_header->GetPacketLength(tempHeader);
-	if ((packetSize == 0) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
+	if ((0 == packetSize) || (packetSize >= DEFAULT_SOCKETBUFFER_SIZE))
 	{
 		m_q.clear();
 		dbg::Logc(2, "Error!! cSocketBuffer::PopNoRemove, PacketHeader error, packetSize = %d\n", packetSize);
 		return false;
 	}
 
+	const uint size = m_q.size();
 	if (packetSize <= size)
 	{
 		out.m_writeIdx = packetSize;
