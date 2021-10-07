@@ -878,7 +878,7 @@ void cRemoteInterpreter::Clear()
 
 
 namespace {
-	common::cMemoryPool2<1024 * 50> g_memPool;
+	common::cMemoryPool2<1024 * 100> g_memPool;
 }
 
 // send intermediate code, using remotedbg2 protocol
@@ -886,7 +886,7 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	, const netid recvId, const int itprId, const script::cIntermediateCode &icode)
 {
 	// marshalling intermedatecode to byte stream
-	const uint BUFFER_SIZE = 1024 * 50;
+	const uint BUFFER_SIZE = 1024 * 100;
 	//BYTE *buff = new BYTE[BUFFER_SIZE];
 	BYTE *buff = (BYTE*)g_memPool.Alloc();
 

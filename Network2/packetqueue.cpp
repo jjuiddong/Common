@@ -89,6 +89,7 @@ bool cPacketQueue::Push(const netid senderId, iPacketHeader *packetHeader
 }
 
 
+// return front of queue element
 bool cPacketQueue::Front(OUT cPacket &out)
 {
 	RETV(m_sockBuffers.empty(), false);
@@ -97,15 +98,27 @@ bool cPacketQueue::Front(OUT cPacket &out)
 
 	if (m_nextFrontIdx >= (int)m_sockBuffers.m_seq.size())
 		m_nextFrontIdx = 0;
-	
-	cSocketBuffer *sockBuff = m_sockBuffers.m_seq[m_nextFrontIdx++];
-	out.m_sndId = sockBuff->m_netId;
-	const bool result = sockBuff->Pop(out);
-	
-	// write packet log?
-	if ((m_logId >= 0) && result)
-		network2::LogPacket(m_logId, out.GetSenderId(), m_netNode->m_id, out);
 
+	bool result = false;
+	uint cnt = 0;
+	int idx = m_nextFrontIdx;
+	while (cnt++ < m_sockBuffers.size())
+	{
+		cSocketBuffer *sockBuff = m_sockBuffers.m_seq[idx++];
+		idx %= (int)m_sockBuffers.size();
+		if (sockBuff->IsEmpty())
+			continue;
+
+		out.m_sndId = sockBuff->m_netId;
+		result = sockBuff->Pop(out);
+	
+		// write packet log?
+		if ((m_logId >= 0) && result)
+			network2::LogPacket(m_logId, out.GetSenderId(), m_netNode->m_id, out);
+		break;
+	}
+
+	m_nextFrontIdx = idx;
 	return result;
 }
 
