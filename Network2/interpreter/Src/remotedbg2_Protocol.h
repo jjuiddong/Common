@@ -37,7 +37,7 @@ public:
 	h2r_Protocol() : iProtocol(h2r_Protocol_ID, ePacketFormat::JSON) {}
 	void Welcome(netid targetId, bool isBinary, const string &msg);
 	void AckUploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &result);
-	void AckIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &result, const uint &count, const uint &index, const vector<BYTE> &data);
+	void AckIntermediateCode(netid targetId, bool isBinary, const BYTE &itprId, const BYTE &result, const BYTE &count, const BYTE &index, const uint &totalBufferSize, const vector<BYTE> &data);
 	void AckRun(netid targetId, bool isBinary, const int &itprId, const int &result);
 	void AckOneStep(netid targetId, bool isBinary, const int &itprId, const int &result);
 	void AckResumeRun(netid targetId, bool isBinary, const int &itprId, const int &result);

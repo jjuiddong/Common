@@ -81,6 +81,8 @@ namespace vpl
 		virtual ~cVplFile();
 
 		bool Read(const StrPath &fileName);
+		bool Load(std::istream &is);
+		bool Load(common::cSimpleData2 &sdata);
 		bool Write(const StrPath &fileName);
 		bool GenerateIntermediateCode(OUT common::script::cIntermediateCode &out);
 		void Clear();
@@ -151,6 +153,7 @@ namespace vpl
 		const sPin* GetInputPin(const sNode &node, const vector<string> &names);
 		bool IsIgnoreInputPin(const ePinType::Enum type);
 
+		void MakeParsingRule(OUT vector<common::cSimpleData2::sRule> &out);
 		bool Write_Node(std::ostream &ofs, sNode &node);
 		bool Write_Define(std::ostream &ofs, sNode &node);
 
@@ -165,4 +168,3 @@ namespace vpl
 	};
 
 }
-

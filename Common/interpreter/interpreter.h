@@ -22,7 +22,8 @@ namespace common
 			virtual ~cInterpreter();
 
 			bool Init(iFunctionCallback *callback, void *arg = nullptr);
-			bool ReadIntermediateCode(const StrPath &icodeFileName);
+			bool LoadIntermediateCode(const StrPath &icodeFileName);
+			bool LoadIntermediateCode(const cIntermediateCode &icode);
 			bool Process(const float deltaSeconds);
 			bool Run();
 			bool Stop();

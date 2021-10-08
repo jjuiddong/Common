@@ -28,7 +28,7 @@ public:
 		if (m_rmtItpr->m_interpreters.size() <= (uint)m_itprId) {
 			// fail, iterpreter id invalid
 			m_rmtItpr->m_protocol.AckIntermediateCode(m_rcvId, true, m_itprId
-				, 0, 0, 0, {});
+				, 0, 0, 0, 0, {});
 			--m_rmtItpr->m_multiThreading;
 			return eRunResult::End;
 		}
@@ -121,13 +121,29 @@ bool cRemoteInterpreter::Init(cNetController &netController
 
 
 // load intermediate code
+// fileName: intermediate code filename
 bool cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName)
 {
-	//RETV(m_state != eState::Stop, false);
-	vector<StrPath> fileNames;
-	fileNames.push_back(fileName);
-	const bool result = LoadIntermediateCode(fileNames);
-	return result;
+	script::cInterpreter *interpreter = new script::cInterpreter();
+	interpreter->Init(m_callback, m_arg ? m_arg : interpreter);
+
+	if (!interpreter->LoadIntermediateCode(fileName))
+	{
+		delete interpreter;
+		return false;
+	}
+
+	sItpr itpr;
+	itpr.name = interpreter->m_fileName.c_str();
+	itpr.state = eState::Stop;
+	itpr.interpreter = interpreter;
+	itpr.isChangeInstruction = false;
+	itpr.regSyncTime = 0.f;
+	itpr.instSyncTime = 0.f;
+	itpr.symbSyncTime = 0.f;
+
+	m_interpreters.push_back(itpr);
+	return true;
 }
 
 
@@ -141,29 +157,42 @@ bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames)
 	bool isSuccess = true;
 	for (auto &fileName : fileNames)
 	{
-		script::cInterpreter *interpreter = new script::cInterpreter();
-		interpreter->Init(m_callback, m_arg? m_arg : interpreter);
-
-		if (!interpreter->ReadIntermediateCode(fileName))
+		if (!LoadIntermediateCode(fileNames))
 		{
-			delete interpreter;
 			isSuccess = false;
 			break;
 		}
-		sItpr itpr;
-		itpr.name = fileName.c_str();
-		itpr.state = eState::Stop;
-		itpr.interpreter = interpreter;
-		itpr.isChangeInstruction = false;
-		itpr.regSyncTime = 0.f;
-		itpr.instSyncTime = 0.f;
-		itpr.symbSyncTime = 0.f;
-
-		m_interpreters.push_back(itpr);
 	}
 	if (!isSuccess)
 		ClearInterpreters();
 	return isSuccess;
+}
+
+
+// load intermediate code
+bool cRemoteInterpreter::LoadIntermediateCode(
+	const common::script::cIntermediateCode &icode)
+{
+	script::cInterpreter *interpreter = new script::cInterpreter();
+	interpreter->Init(m_callback, m_arg ? m_arg : interpreter);
+
+	if (!interpreter->LoadIntermediateCode(icode))
+	{
+		delete interpreter;
+		return false;
+	}
+
+	sItpr itpr;
+	itpr.name = interpreter->m_fileName.c_str();
+	itpr.state = eState::Stop;
+	itpr.interpreter = interpreter;
+	itpr.isChangeInstruction = false;
+	itpr.regSyncTime = 0.f;
+	itpr.instSyncTime = 0.f;
+	itpr.symbSyncTime = 0.f;
+
+	m_interpreters.push_back(itpr);
+	return true;
 }
 
 
@@ -717,7 +746,7 @@ bool cRemoteInterpreter::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Pac
 	if (m_interpreters.size() <= (uint)packet.itprId) {
 		// fail, iterpreter id invalid
 		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId
-			, 0, 0, 0, {});
+			, 0, 0, 0, 0, {});
 		return true;
 	}
 
@@ -887,7 +916,6 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 {
 	// marshalling intermedatecode to byte stream
 	const uint BUFFER_SIZE = 1024 * 100;
-	//BYTE *buff = new BYTE[BUFFER_SIZE];
 	BYTE *buff = (BYTE*)g_memPool.Alloc();
 
 	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
@@ -901,12 +929,15 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	if (bufferSize == 0)
 	{
 		// no intermediate code, fail!
-		protocol.AckIntermediateCode(recvId, true, itprId, 0, 0, 0, {});
+		protocol.AckIntermediateCode(recvId, true, itprId, 0, 0, 0, 0, {});
 	}
 	else
 	{
+		// 4 bytes = itpr, result, count, index
+		// 2 * 4byte = totalBufferSize, buffsize
+		// 12 bytes = 4 + 8
 		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
-			(marsh.GetHeaderSize() + 20); // 5 * 4byte = itpr,result,count,index,buffsize
+			(marsh.GetHeaderSize() + 12);
 		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
 			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
 
@@ -918,14 +949,13 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 			vector<BYTE> data(size);
 			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
 			protocol.AckIntermediateCode(recvId, true
-				, itprId, 1, totalCount, index, data);
+				, (BYTE)itprId, 1, (BYTE)totalCount, (BYTE)index, bufferSize, data);
 
 			cursor += size;
 			++index;
 		}
 	}
 
-	//SAFE_DELETEA(buff);
 	g_memPool.Free(buff);
 	return true;
 }

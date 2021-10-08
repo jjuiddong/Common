@@ -110,10 +110,11 @@ using namespace marshalling_json;
 	struct AckIntermediateCode_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
-		int itprId;
-		int result;
-		uint count;
-		uint index;
+		BYTE itprId;
+		BYTE result;
+		BYTE count;
+		BYTE index;
+		uint totalBufferSize;
 		vector<BYTE> data;
 	};
 

@@ -47,7 +47,10 @@ public:
 				AutoCSLock cs(m_webServer.m_cs);
 				m_webServer.m_tempSessions.push_back(session);
 			}
-			const string clientAddr = ws->address().toString();
+			vector<string> toks;
+			const string addr = ws->address().toString();
+			common::tokenizer(addr, ":", "", toks);
+			const string clientAddr = (toks.size() == 2) ? toks[0] : addr;
 			const int port = ws->address().port();
 			m_webServer.m_recvQueue.Push(SERVER_NETID
 				, network2::AcceptPacket(&m_webServer, ws->impl()->sockfd(), clientAddr, port));

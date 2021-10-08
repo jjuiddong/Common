@@ -234,13 +234,14 @@ void cPacketQueue::SendAll(
 			if (!sockBuffer->PopNoRemove(packet))
 				break;
 
+			int result = SOCKET_ERROR;
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
-				m_netNode->SendAll(packet, outErrs);
+				result = m_netNode->SendAll(packet, outErrs);
 			}
 			else
 			{
-				int result = m_netNode->SendImmediate(sockBuffer->m_netId, packet);
+				result = m_netNode->SendImmediate(sockBuffer->m_netId, packet);
 				if (result != packet.GetPacketSize())
 				{
 					// error!!, no remove buffer, resend
@@ -248,18 +249,18 @@ void cPacketQueue::SendAll(
 					result = SOCKET_ERROR;
 					isSendError = true;
 				}
-
-				// write packet log?
-				if ((m_logId >= 0) && (result != SOCKET_ERROR))
-					network2::LogPacket(m_logId, m_netNode->m_id
-						, sockBuffer->m_netId, packet);
-
-				if (outErrs && (result == SOCKET_ERROR))
-				{
-					// error!!, close socket
-					outErrs->insert(sockBuffer->m_netId);
-				}
 			} //~else ALL_NETID
+
+			// write packet log?
+			if ((m_logId >= 0) && (result != SOCKET_ERROR))
+				network2::LogPacket(m_logId, m_netNode->m_id
+					, sockBuffer->m_netId, packet);
+
+			if (outErrs && (result == SOCKET_ERROR))
+			{
+				// error!!, close socket
+				outErrs->insert(sockBuffer->m_netId);
+			}
 
 			sockBuffer->Pop(packet.m_writeIdx);
 		} // ~while

@@ -714,6 +714,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.result);
 				marshalling::operator>>(packet, data.count);
 				marshalling::operator>>(packet, data.index);
+				marshalling::operator>>(packet, data.totalBufferSize);
 				marshalling::operator>>(packet, data.data);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckIntermediateCode(data));
 			}
@@ -738,6 +739,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "result", data.result);
 					get(props, "count", data.count);
 					get(props, "index", data.index);
+					get(props, "totalBufferSize", data.totalBufferSize);
 					get(props, "data", data.data);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckIntermediateCode(data));
 				} catch (...) {

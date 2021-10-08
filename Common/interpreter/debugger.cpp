@@ -41,7 +41,7 @@ bool cDebugger::LoadIntermediateCode(const StrPath &fileName)
 	if (!m_interpreter->IsStop())
 		return false; // error, already running~
 
-	if (!m_interpreter->ReadIntermediateCode(fileName))
+	if (!m_interpreter->LoadIntermediateCode(fileName))
 		return false;
 
 	m_state = eState::Wait;

@@ -52,6 +52,7 @@ namespace common
 		virtual ~cSimpleData2();
 
 		bool Read(const StrPath &fileName);
+		bool Read(std::istream &is);
 		vector<string>& GetArray(sNode *node, const string &key);
 		template<class T> const T Get(sNode *node, const string &key, const T &defaultValue);
 		void Clear();

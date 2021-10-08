@@ -19,55 +19,85 @@ cVplFile::~cVplFile()
 }
 
 
+// make *.vpl parsine rule
+void cVplFile::MakeParsingRule(OUT vector<common::cSimpleData2::sRule> &out)
+{
+	out.push_back({ 0, "node", 1, -1 });
+	out.push_back({ 1, "output", 2, -1 });
+	out.push_back({ 2, "output", 2, 1 });
+	out.push_back({ 3, "output", 2, 1 });
+	out.push_back({ 1, "input", 3, -1 });
+	out.push_back({ 3, "input", 3, 1 });
+	out.push_back({ 2, "input", 3, 1 });
+	out.push_back({ 1, "node", 1, 0 });
+	out.push_back({ 2, "node", 1, 0 });
+	out.push_back({ 3, "node", 1, 0 });
+	out.push_back({ 4, "node", 1, 0 });
+	out.push_back({ 5, "node", 1, 0 });
+	out.push_back({ 7, "node", 1, 0 });
+	out.push_back({ 1, "symbol", 4, 0 });
+	out.push_back({ 2, "symbol", 4, 0 });
+	out.push_back({ 3, "symbol", 4, 0 });
+	out.push_back({ 4, "symbol", 4, 0 });
+	out.push_back({ 5, "symbol", 4, 0 });
+	out.push_back({ 7, "symbol", 4, 0 });
+	out.push_back({ 0, "define", 5, 0 });
+	out.push_back({ 1, "define", 5, 0 });
+	out.push_back({ 2, "define", 5, 0 });
+	out.push_back({ 3, "define", 5, 0 });
+	out.push_back({ 4, "define", 5, 0 });
+	out.push_back({ 5, "define", 5, 0 });
+	out.push_back({ 7, "define", 5, 0 });
+	out.push_back({ 5, "attr", 6, -1 });
+	out.push_back({ 6, "attr", 6, 5 });
+	out.push_back({ 6, "node", 1, 0 });
+	out.push_back({ 6, "symbol", 4, 0 });
+	out.push_back({ 6, "define", 5, 0 });
+	out.push_back({ 6, "initvar", 7, 0 });
+	out.push_back({ 1, "initvar", 7, 0 });
+	out.push_back({ 2, "initvar", 7, 0 });
+	out.push_back({ 3, "initvar", 7, 0 });
+	out.push_back({ 4, "initvar", 7, 0 });
+	out.push_back({ 5, "initvar", 7, 0 });
+	out.push_back({ 7, "initvar", 7, 0 });
+}
+
+
 // read *.vpl file
 bool cVplFile::Read(const StrPath &fileName)
 {
 	Clear();
 
+	vector<common::cSimpleData2::sRule> rules;
+	MakeParsingRule(rules);
+	common::cSimpleData2 sdata(rules);
+	if (!sdata.Read(fileName))
+		return false;
+
 	m_fileName = fileName.GetFullFileName();
+	return Load(sdata);
+}
+
+
+// load from input stream
+bool cVplFile::Load(std::istream &is)
+{
+	Clear();
 
 	vector<common::cSimpleData2::sRule> rules;
-	rules.push_back({ 0, "node", 1, -1 });
-	rules.push_back({ 1, "output", 2, -1 });
-	rules.push_back({ 2, "output", 2, 1 });
-	rules.push_back({ 3, "output", 2, 1 });
-	rules.push_back({ 1, "input", 3, -1 });
-	rules.push_back({ 3, "input", 3, 1 });
-	rules.push_back({ 2, "input", 3, 1 });
-	rules.push_back({ 1, "node", 1, 0 });
-	rules.push_back({ 2, "node", 1, 0 });
-	rules.push_back({ 3, "node", 1, 0 });
-	rules.push_back({ 4, "node", 1, 0 });
-	rules.push_back({ 5, "node", 1, 0 });
-	rules.push_back({ 7, "node", 1, 0 });
-	rules.push_back({ 1, "symbol", 4, 0 });
-	rules.push_back({ 2, "symbol", 4, 0 });
-	rules.push_back({ 3, "symbol", 4, 0 });
-	rules.push_back({ 4, "symbol", 4, 0 });
-	rules.push_back({ 5, "symbol", 4, 0 });
-	rules.push_back({ 7, "symbol", 4, 0 });
-	rules.push_back({ 0, "define", 5, 0 });
-	rules.push_back({ 1, "define", 5, 0 });
-	rules.push_back({ 2, "define", 5, 0 });
-	rules.push_back({ 3, "define", 5, 0 });
-	rules.push_back({ 4, "define", 5, 0 });
-	rules.push_back({ 5, "define", 5, 0 });
-	rules.push_back({ 7, "define", 5, 0 });
-	rules.push_back({ 5, "attr", 6, -1 });
-	rules.push_back({ 6, "attr", 6, 5 });
-	rules.push_back({ 6, "node", 1, 0 });
-	rules.push_back({ 6, "symbol", 4, 0 });
-	rules.push_back({ 6, "define", 5, 0 });
-	rules.push_back({ 6, "initvar", 7, 0 });
-	rules.push_back({ 1, "initvar", 7, 0 });
-	rules.push_back({ 2, "initvar", 7, 0 });
-	rules.push_back({ 3, "initvar", 7, 0 });
-	rules.push_back({ 4, "initvar", 7, 0 });
-	rules.push_back({ 5, "initvar", 7, 0 });
-	rules.push_back({ 7, "initvar", 7, 0 });
-
+	MakeParsingRule(rules);
 	common::cSimpleData2 sdata(rules);
-	sdata.Read(fileName);
+	if (!sdata.Read(is))
+		return false;
+
+	m_fileName.clear();
+	return Load(sdata);
+}
+
+
+// load from simpledata2
+bool cVplFile::Load(common::cSimpleData2 &sdata)
+{
 	RETV(!sdata.m_root, false);
 
 	for (auto &p : sdata.m_root->children)
@@ -86,7 +116,6 @@ bool cVplFile::Read(const StrPath &fileName)
 			break;
 		}
 	} //~for nodes, type, symbol
-
 	return true;
 }
 
@@ -559,6 +588,7 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 	out.m_variables = m_variables;
 	out.m_fileName = m_fileName.GetFileNameExceptExt2();
 	out.m_fileName += ".icode";
+	out.InitOptimizeInfo();
 
 	return true;
 }

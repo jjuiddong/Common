@@ -56,6 +56,7 @@ namespace common
 
 			bool Read(const StrPath &fileName);
 			bool Write(const StrPath &fileName);
+			bool InitOptimizeInfo();
 			uint FindJumpAddress(const StrId &label);
 			bool IsLoaded();
 			void Clear();

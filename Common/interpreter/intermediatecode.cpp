@@ -284,64 +284,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			m_codes.push_back(code);
 	}
 
-	// make jump map
-	for (uint i=0; i < m_codes.size(); ++i)
-	{
-		auto &code = m_codes[i];
-		if (eCommand::label == code.cmd)
-			m_jmpMap.insert({ code.str1, i });
-	}
-
-	// setup initial symbol table
-	for (uint i = 0; i < m_codes.size(); ++i)
-	{
-		auto &code = m_codes[i];
-		switch (code.cmd)
-		{
-		case eCommand::symbolb:
-		case eCommand::symboli:
-		case eCommand::symbolf:
-		case eCommand::symbols:
-			m_variables.Set(code.str1, code.str2, code.var1);
-			break;
-		case eCommand::symbolab:
-			m_variables.InitArray(code.str1, code.str2, "array<bool>");
-			break;
-		case eCommand::symbolai:
-			m_variables.InitArray(code.str1, code.str2, "array<int>");
-			break;
-		case eCommand::symbolaf:
-			m_variables.InitArray(code.str1, code.str2, "array<float>");
-			break;
-		case eCommand::symbolas:
-			m_variables.InitArray(code.str1, code.str2, "array<string>");
-			break;
-		case eCommand::symbolmb:
-			m_variables.InitMap(code.str1, code.str2, "map<string,bool>");
-			break;
-		case eCommand::symbolmi:
-			m_variables.InitMap(code.str1, code.str2, "map<string,int>");
-			break;
-		case eCommand::symbolmf:
-			m_variables.InitMap(code.str1, code.str2, "map<string,float>");
-			break;
-		case eCommand::symbolms:
-			m_variables.InitMap(code.str1, code.str2, "map<string,string>");
-			break;
-		case eCommand::symbolma:
-			m_variables.InitMap(code.str1, code.str2, code.str3);
-			break;
-		}
-	}
-
-	// make timer1 event list
-	for (uint i = 0; i < m_codes.size(); ++i)
-	{
-		auto &code = m_codes[i];
-		if (eCommand::timer1 == code.cmd)
-			m_timer1Events.push_back({ code.str1, (int)code.var1 });
-	}
-
+	InitOptimizeInfo();
 	return true;
 }
 
@@ -517,6 +460,72 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		}
 
 		ofs << endl;
+	}
+
+	return true;
+}
+
+
+// initialize jump map, symbol table, timer event
+// to fast search
+bool cIntermediateCode::InitOptimizeInfo()
+{
+	// make jump map
+	for (uint i = 0; i < m_codes.size(); ++i)
+	{
+		auto &code = m_codes[i];
+		if (eCommand::label == code.cmd)
+			m_jmpMap.insert({ code.str1, i });
+	}
+
+	// setup initial symbol table
+	for (uint i = 0; i < m_codes.size(); ++i)
+	{
+		auto &code = m_codes[i];
+		switch (code.cmd)
+		{
+		case eCommand::symbolb:
+		case eCommand::symboli:
+		case eCommand::symbolf:
+		case eCommand::symbols:
+			m_variables.Set(code.str1, code.str2, code.var1);
+			break;
+		case eCommand::symbolab:
+			m_variables.InitArray(code.str1, code.str2, "array<bool>");
+			break;
+		case eCommand::symbolai:
+			m_variables.InitArray(code.str1, code.str2, "array<int>");
+			break;
+		case eCommand::symbolaf:
+			m_variables.InitArray(code.str1, code.str2, "array<float>");
+			break;
+		case eCommand::symbolas:
+			m_variables.InitArray(code.str1, code.str2, "array<string>");
+			break;
+		case eCommand::symbolmb:
+			m_variables.InitMap(code.str1, code.str2, "map<string,bool>");
+			break;
+		case eCommand::symbolmi:
+			m_variables.InitMap(code.str1, code.str2, "map<string,int>");
+			break;
+		case eCommand::symbolmf:
+			m_variables.InitMap(code.str1, code.str2, "map<string,float>");
+			break;
+		case eCommand::symbolms:
+			m_variables.InitMap(code.str1, code.str2, "map<string,string>");
+			break;
+		case eCommand::symbolma:
+			m_variables.InitMap(code.str1, code.str2, code.str3);
+			break;
+		}
+	}
+
+	// make timer1 event list
+	for (uint i = 0; i < m_codes.size(); ++i)
+	{
+		auto &code = m_codes[i];
+		if (eCommand::timer1 == code.cmd)
+			m_timer1Events.push_back({ code.str1, (int)code.var1 });
 	}
 
 	return true;

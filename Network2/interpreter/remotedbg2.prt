@@ -30,7 +30,8 @@ protocol h2r 5300 json
 {
 	Welcome( string msg );
 	AckUploadIntermediateCode(int itprId, int result );
-	AckIntermediateCode( int itprId, int result, uint count, uint index, vector<BYTE> data );
+	AckIntermediateCode( BYTE itprId, BYTE result, BYTE count, BYTE index, uint totalBufferSize
+		, vector<BYTE> data );
 	AckRun( int itprId, int result );
 	AckOneStep( int itprId, int result );
 	AckResumeRun( int itprId, int result );

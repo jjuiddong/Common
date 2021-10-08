@@ -41,6 +41,7 @@ namespace network2
 		);
 		bool LoadIntermediateCode(const StrPath &fileName);
 		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
+		bool LoadIntermediateCode(const common::script::cIntermediateCode &icode);
 
 		bool Process(const float deltaSeconds);
 		bool PushEvent(const int itprId, const common::script::cEvent &evt
@@ -58,13 +59,13 @@ namespace network2
 		bool IsDebug(const int itprId);
 		bool IsConnect();
 		bool IsFailConnect();
+		void ClearInterpreters();
 		void Clear();
 
 
 	protected:
 		bool SendSyncVMRegister(const int itprId);
 		bool SendSyncSymbolTable(const int itprId);
-		void ClearInterpreters();
 
 		// remotedbg2 protocol hander
 		virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) override;

@@ -115,6 +115,7 @@ export namespace remotedbg2 {
 		result: number, 
 		count: number, 
 		index: number, 
+		totalBufferSize: number, 
 		data: Uint8Array | null, 
 	}
 	export type AckRun_Packet = {
@@ -555,16 +556,18 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 			case 1397310616: // AckIntermediateCode
 				{
 					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const count = packet.getUint32()
-						const index = packet.getUint32()
+						const itprId = packet.getUint8()
+						const result = packet.getUint8()
+						const count = packet.getUint8()
+						const index = packet.getUint8()
+						const totalBufferSize = packet.getUint32()
 						const data = packet.getUint8Array()
 						const parsePacket: AckIntermediateCode_Packet = {
 							itprId,
 							result,
 							count,
 							index,
+							totalBufferSize,
 							data,
 						}
 						handlers.forEach(handler => {
@@ -1200,15 +1203,16 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckIntermediateCode
-	AckIntermediateCode(isBinary: boolean, itprId: number, result: number, count: number, index: number, data: number[], ) {
+	AckIntermediateCode(isBinary: boolean, itprId: number, result: number, count: number, index: number, totalBufferSize: number, data: number[], ) {
 		if (!this.ws)
 			return
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
-			packet.pushInt32(itprId)
-			packet.pushInt32(result)
-			packet.pushUint32(count)
-			packet.pushUint32(index)
+			packet.pushUint8(itprId)
+			packet.pushUint8(result)
+			packet.pushUint8(count)
+			packet.pushUint8(index)
+			packet.pushUint32(totalBufferSize)
 			packet.pushUint8Array(data)
 			Network.sendPacketBinary(this.ws, 5300, 1397310616, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1217,6 +1221,7 @@ export class h2r_Protocol extends Network.Protocol {
 				result,
 				count,
 				index,
+				totalBufferSize,
 				data,
 			}
 			Network.sendPacket(this.ws, 5300, 1397310616, packet)

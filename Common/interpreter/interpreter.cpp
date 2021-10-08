@@ -37,12 +37,21 @@ bool cInterpreter::Init(iFunctionCallback *callback
 }
 
 
-// read intermediate code
-bool cInterpreter::ReadIntermediateCode(const StrPath &icodeFileName)
+// load intermediate code
+bool cInterpreter::LoadIntermediateCode(const StrPath &icodeFileName)
 {
 	m_fileName = icodeFileName;
 	if (!m_code.Read(icodeFileName))
 		return false;
+	return true;
+}
+
+
+// load intermediate code, deep copy
+bool cInterpreter::LoadIntermediateCode(const cIntermediateCode &icode)
+{
+	m_fileName = icode.m_fileName;
+	m_code = icode;
 	return true;
 }
 

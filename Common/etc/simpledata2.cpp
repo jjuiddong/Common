@@ -18,15 +18,21 @@ cSimpleData2::~cSimpleData2()
 }
 
 
+// read text file
+// fileName: ascii format data file name
 bool cSimpleData2::Read(const StrPath &fileName)
 {
 	Clear();
+	std::ifstream ifs(fileName.c_str());
+	if (ifs.is_open())
+		return Read(ifs);
+	return false;
+}
 
-	using namespace std;
-	ifstream ifs(fileName.c_str());
-	if (!ifs.is_open())
-		return false;
 
+// read from input stream
+bool cSimpleData2::Read(std::istream &is)
+{
 	map<int, sNode*> parents; // state, parent node
 	m_root = new sNode;
 	m_root->name = "root";
@@ -35,7 +41,7 @@ bool cSimpleData2::Read(const StrPath &fileName)
 
 	int state = 0;
 	string line;
-	while (getline(ifs, line))
+	while (getline(is, line))
 	{
 		common::trim(line);
 		vector<string> toks;
@@ -76,7 +82,6 @@ bool cSimpleData2::Read(const StrPath &fileName)
 			node->attrs[toks[0]] = toks;
 		}
 	}
-
 	return true;
 }
 

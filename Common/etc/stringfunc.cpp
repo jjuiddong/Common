@@ -474,11 +474,11 @@ void common::tokenizer3(const char *data, const int size, const char delimeter, 
 
 
 // string parse with delimeter (space, newline, tab, double quote, comma)
-void common::tokenizer_space(const string &str, OUT vector<string> &out)
+void common::tokenizer_space(const char *str, OUT vector<string> &out)
 {
 	int state = 0;
 	string tok;
-	const char *c = str.c_str();
+	const char *c = str;
 	while (*c)
 	{
 		if (0 == state)
@@ -501,7 +501,7 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 				state = 1;
 				break;
 
-			default: 
+			default:
 				tok += *c;
 				break;
 			}
@@ -510,12 +510,9 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 		{
 			if (*c == '\"')
 			{
-				//if (!tok.empty())
-				//{
-					out.push_back(tok);
-					tok.clear();
-					state = 0;
-				//}
+				out.push_back(tok);
+				tok.clear();
+				state = 0;
 			}
 			else
 			{
@@ -532,6 +529,11 @@ void common::tokenizer_space(const string &str, OUT vector<string> &out)
 
 	if (!tok.empty())
 		out.push_back(tok);
+}
+
+void common::tokenizer_space(const string &str, OUT vector<string> &out)
+{
+	tokenizer_space(str.c_str(), out);
 }
 
 
