@@ -6,11 +6,9 @@
 
 namespace
 {
-	map<int, StrPath> g_packetLogPathMap; // log directory path map
-	common::CriticalSection g_cs; // g_packetLogPathMap critical section
-
-	// Packet Log Thread
-	common::cWQSemaphore g_logThread;
+	map<int, string> g_packetLogPathMap; // log directory path map
+	common::CriticalSection g_cs; // g_packetLogPathMap sync
+	common::cWQSemaphore g_logThread; // Packet Log Thread
 }
 
 using namespace network2;
@@ -63,35 +61,25 @@ public:
 
 
 // set packet log directory path
-// ex) SetPacket("log_packet", "20190309102033112")
-//	-> set directory "log_packet/20190309102033112/"
-//void network2::SetPacketLogPath(const string &logFolderName, const string &subFolderName)
-//{
-//	_mkdir(logFolderName.c_str());
-//	g_packetLogPath = logFolderName + "/" + subFolderName + "/";
-//	_mkdir(g_packetLogPath.c_str());
-//}
-
-
-// set packet log directory path
 // total path: logFolderName + '/' + subFolderName + '/'
 void network2::SetPacketLogPath(const int logId
 	, const string &logFolderName, const string &subFolderName)
 {
 	AutoCSLock cs(g_cs);
 	_mkdir(logFolderName.c_str());
-	StrPath path = logFolderName + "/" + subFolderName + "/";
+	const string path = logFolderName + "/" + subFolderName + "/";
 	_mkdir(path.c_str());
 	g_packetLogPathMap[logId] = path;
 }
 
 
-// you must set packet log directory path
+// return packet log path by logId
+// you must set packet log directory path using 'SetPacketLogPath()'
 // ex) ./log_packet/yyyymmddhhmmssmmm/
-const StrPath& network2::GetPacketLogPath(const int logId)
+const string& network2::GetPacketLogPath(const int logId)
 {
 	AutoCSLock cs(g_cs);
-	static StrPath emptyPath;
+	static string emptyPath;
 	auto it = g_packetLogPathMap.find(logId);
 	if (g_packetLogPathMap.end() == it)
 	{
@@ -146,4 +134,11 @@ bool network2::LogPacket(const int logId, const netid sndId
 	
 	g_logThread.PushTask(task);
 	return true;
+}
+
+
+// return packet log thread
+cWQSemaphore& network2::GetLogThread()
+{
+	return g_logThread;
 }

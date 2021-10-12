@@ -1,8 +1,9 @@
 //
 // 2019-01-08, jjuiddong
 // Packet class
-//
-// definition Protocol Header by iPacketHeader
+//	- push, pop packet data 
+//	- packet format descript by iPacketHeader
+//		- binary, ascii, json, etc...
 //
 // 2020-12-04
 //	- refactoring

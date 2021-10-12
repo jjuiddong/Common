@@ -2,20 +2,55 @@
 #include "stdafx.h"
 #include "utility.h"
 
-using namespace network2;
-
 namespace network2
 {
+	// *.prt file parsing functions
 	bool Init();
 	void InsertProtocol(sProtocol *protocol);
 	void InsertPacket(sProtocol *protocol, sPacket *packet);
 	sPacket* GetPacket(const __int64 packetId);
+	//~
 
 	std::atomic<bool> g_isLoadProtocol = false; // load *.prt file?
 	CriticalSection g_cs; // sync initialize g_packets, g_protocolFormat
 	map<int64, sPacket*> g_packets; // key: protocolid << 32 + packetID
-	map<int64, ePacketFormat> g_protocolFormat; // key: protocolid
+	map<int, ePacketFormat> g_protocolFormat; // key: protocolId
 }
+
+using namespace network2;
+
+
+// packet data display task
+class cPacketDisplayTask : public common::cTask
+						 , public common::cMemoryPool4<cPacketDisplayTask>
+{
+public:
+	cPacket m_packet;
+	int m_logLevel;
+	string m_prefix;
+	cPacketDisplayTask(const Str128 &prefix, const cPacket &packet, const int logLevel = 0)
+		: common::cTask(0, "cPacketDisplayTask") 
+		, m_packet(packet)
+		, m_logLevel(logLevel)
+		, m_prefix(prefix.c_str())
+	{
+	}
+
+	virtual eRunResult Run(const double deltaSeconds) 
+	{
+		const int protocolID = m_packet.GetProtocolId();
+		const uint packetID = m_packet.GetPacketId();
+		const __int64 id = ((__int64)protocolID << 32) + packetID;
+		sPacket *p = GetPacket(id);
+		std::stringstream ss;
+		ss << m_prefix;
+		ss << Packet2String(m_packet, p);
+		ss << std::endl;
+		common::dbg::Logc(m_logLevel, ss.str().c_str());
+		return eRunResult::End; 
+	}
+};
+//~
 
 
 // Insert Protocol
@@ -61,9 +96,9 @@ bool network2::Init()
 	for (auto &str : fileList)
 	{
 		cProtocolParser parser;
-		parser.SetAutoRemove(FALSE);
+		parser.SetAutoRemove(false);
 
-		sStmt *stmts = parser.Parse(str.c_str(), FALSE, FALSE);
+		sStmt *stmts = parser.Parse(str.c_str(), false, false);
 		if (stmts)
 			InsertProtocol(stmts->protocol);
 		ReleaseProtocolOnly(stmts);
@@ -84,22 +119,24 @@ sPacket* network2::GetPacket(const __int64 packetId)
 
 
 // write packet string data to logfile
-void network2::DisplayPacket(const Str128 &firstStr, const cPacket &packet
+void network2::DisplayPacket(const string &firstStr, const cPacket &packet
 	, const int logLevel //= 0
 )
 {
 	if (!g_isLoadProtocol)
 		Init();
 
-	const int protocolID = packet.GetProtocolId();
-	const uint packetID = packet.GetPacketId();
-	const __int64 id = ((__int64)protocolID << 32) + packetID;
-	sPacket *p = GetPacket(id);
-	std::stringstream ss;
-	ss << firstStr.c_str();
-	ss << Packet2String(packet, p);
-	ss << std::endl;
-	common::dbg::Logc(logLevel, ss.str().c_str());
+	network2::GetLogThread().PushTask(new cPacketDisplayTask(firstStr, packet, logLevel));
+
+	//const int protocolID = packet.GetProtocolId();
+	//const uint packetID = packet.GetPacketId();
+	//const __int64 id = ((__int64)protocolID << 32) + packetID;
+	//sPacket *p = GetPacket(id);
+	//std::stringstream ss;
+	//ss << firstStr.c_str();
+	//ss << Packet2String(packet, p);
+	//ss << std::endl;
+	//common::dbg::Logc(logLevel, ss.str().c_str());
 }
 
 

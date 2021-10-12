@@ -120,11 +120,6 @@ namespace common
 	template<class T>
 	bool cMemoryPool4<T>::Free(void* p) {
 		AutoCSLock cs(s_cs);
-		//if (!removevector(s_allocPtrs, (T*)p))
-		//{
-		//	assert(0);
-		//	return false;
-		//}
 		s_allocPtrs.erase((T*)p);
 		s_freePtrs.insert((T*)p);
 		return false;

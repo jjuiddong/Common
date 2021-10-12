@@ -21,5 +21,5 @@ void AllProtocolDisplayer::RecvPacket(const cPacket &packet)
 		);
 	
 	if (isShow)
-		DisplayPacket("Recv = ", packet, m_logLevel);
+		network2::DisplayPacket("Recv = ", packet, m_logLevel);
 }

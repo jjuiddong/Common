@@ -166,10 +166,6 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 	const int protocolID = tempPacket.GetProtocolId();
 	const uint packetID = tempPacket.GetPacketId();
 	ePacketFormat format = GetPacketFormat(tempPacket);
-	//ePacketFormat format = dynamic_cast<cPacketHeader*>(tempPacket.m_header)?
-	//	ePacketFormat::BINARY : 
-	//	(dynamic_cast<cPacketHeaderJson*>(tempPacket.m_header)?
-	//		ePacketFormat::JSON : ePacketFormat::ASCII);
 	if (ePacketFormat::JSON == format)
 	{
 		const uint option = tempPacket.GetPacketOption(0x01);
@@ -186,8 +182,8 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 	sArg *arg = protocol->argList;
 	while (arg)
 	{
-		// todo: 좀더 일반적인 처리가 필요하다.
-		// vector<float>, vector<char> 는 동작하지 않는다.
+		// todo: need more generalize code
+		// not work vector<float>, vector<char> type
 		const string &type = arg->var->type;
 		if (type == "vector<int>")
 			Vector2String<int>(tempPacket, isBinaryPacket, arg, ss);
