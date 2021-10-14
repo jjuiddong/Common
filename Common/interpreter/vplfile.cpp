@@ -1990,12 +1990,16 @@ bool cVplFile::TemporalPin_GenCode(const sNode &node, const sPin &pin
 				code.var1 = emptyStr;
 				break;
 			case ePinType::Array:
+				// empty array
 				code.cmd = script::eCommand::ldac;
-				code.var1 = (int)0;
+				code.var1.vt = VT_BYREF | VT_INT; // map tricky code, no memory allocate
+				code.var1.intVal = 0;
 				break;
 			case ePinType::Map:
+				// empty map
 				code.cmd = script::eCommand::ldmc;
-				code.var1 = (int)0;
+				code.var1.vt = VT_BYREF | VT_INT; // map tricky code, no memory allocate
+				code.var1.intVal = 0;
 				break;
 			default:
 				return false;
