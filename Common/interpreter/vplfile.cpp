@@ -1038,6 +1038,12 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 	const sPin *selPin = GetInputPin(node, { "in", "Selection" });
 	if (!selPin)
 		return false; // error occurred!!
+	if (vpl::ePinType::Any == selPin->type)
+	{
+		// empty input slot, nothing to do
+		NodeEscape_GenCode(node, out);
+		return true;
+	}
 
 	common::script::cSymbolTable::sSymbol *symbol = nullptr;
 	if (ePinType::Enums == selPin->type)
@@ -1077,7 +1083,7 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 				cmd = script::eCommand::eqic;
 				break;
 			case vpl::ePinType::Float:
-				value = atof(pin.name.c_str());
+				value = (float)atof(pin.name.c_str());
 				cmd = script::eCommand::eqfc;
 				break;
 			case vpl::ePinType::String:
@@ -1090,6 +1096,7 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 			}
 		}
 
+		string jumpLabel;
 		sNode *next = nullptr; // next node
 		sPin *np = nullptr; // next pin
 		const int linkId = pin.links.empty() ? -1 : pin.links.front();
@@ -1097,11 +1104,12 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 		if (!next)
 		{
 			// no link, finish node
-			NodeEscape_GenCode(node, out);
-			continue; // no link
+			jumpLabel = MakeScopeName(node) + "-Blank";
 		}
-
-		const string jumpLabel = MakeScopeName(*next);
+		else
+		{
+			jumpLabel = MakeScopeName(*next);
+		}
 
 		// compare reg0, enum value (int type)
 		// if result is true, jump correspond flow code
@@ -1118,7 +1126,6 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 			code.str1 = jumpLabel;
 			out.m_codes.push_back(code);
 		}
-
 	}//~for
 
 	// generate default case
@@ -1129,8 +1136,14 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 		auto &pin = *it;
 		if (pin.links.empty())
 		{
-			// no default link? finish node
-			NodeEscape_GenCode(node, out);
+			// no default link? jump blank case
+			//NodeEscape_GenCode(node, out);
+			{
+				script::sInstruction code;
+				code.cmd = script::eCommand::jmp;
+				code.str1 = MakeScopeName(node) + "-Blank";
+				out.m_codes.push_back(code);
+			}
 		}
 		else
 		{
@@ -1172,6 +1185,14 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 		}
 
 		Node_GenCode(node, *next, pin, out);
+	}
+
+	// insert blank case jump label
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::label;
+		code.str1 = MakeScopeName(node) + "-Blank";
+		out.m_codes.push_back(code);
 	}
 
 	NodeEscape_GenCode(node, out);
@@ -1592,9 +1613,6 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		symbType = pin.typeValues[0];
 		if (eSymbolType::None != symbType)
 			break;
-		//vt = vpl::GetPin2VarType(pin.type);
-		//if (VT_EMPTY != vt)
-		//	break;
 	}
 
 	// get output pin name
@@ -1616,8 +1634,8 @@ bool cVplFile::Operator_GenCode(const sNode &node
 				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
 		opType = 1;
 	}
@@ -1633,8 +1651,8 @@ bool cVplFile::Operator_GenCode(const sNode &node
 				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
 		opType = 1;
 	}
@@ -1650,8 +1668,8 @@ bool cVplFile::Operator_GenCode(const sNode &node
 				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
 		opType = 1;
 	}
@@ -1667,8 +1685,8 @@ bool cVplFile::Operator_GenCode(const sNode &node
 				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
 		opType = 1;
 	}
@@ -1689,8 +1707,8 @@ bool cVplFile::Operator_GenCode(const sNode &node
 				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
 		opType = 1;
 	}
@@ -1703,9 +1721,10 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		script::sInstruction code;
 		code.cmd = ((node.name == "&&") || (node.name == "and")) ?
 			script::eCommand::opand : script::eCommand::opor;
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
+		MathInput_GenCode(node, code, out);
 		opType = 3;
 	}
 	else if (node.name == "+")
@@ -1719,12 +1738,13 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::String: code.cmd = script::eCommand::adds; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
+		MathInput_GenCode(node, code, out);
 		opType = 0;
 	}
 	else if (node.name == "-")
@@ -1737,12 +1757,13 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::subf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
+		MathInput_GenCode(node, code, out);
 		opType = 0;
 	}
 	else if ((node.name == "X") || (node.name == "x") || (node.name == "*"))
@@ -1755,12 +1776,13 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::mulf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
+		MathInput_GenCode(node, code, out);
 		opType = 0;
 	}
 	else if (node.name == "/")
@@ -1773,19 +1795,20 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::divf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
 			break;
 		}
-		code.reg1 = 8; // val8
-		code.reg2 = 9; // val9
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
 		out.m_codes.push_back(code);
+		MathInput_GenCode(node, code, out);
 		opType = 0;
 	}
 	else if (node.name == "!")
 	{
 		script::sInstruction code;
 		code.cmd = script::eCommand::negate;
-		code.reg1 = 8; // val8
+		code.reg1 = 8; // reg8
 		out.m_codes.push_back(code);
 		opType = 2;
 	}
@@ -2169,6 +2192,8 @@ bool cVplFile::NodeInput_GenCode(const sNode &node, const uint reg
 	{
 		if (IsIgnoreInputPin(pin.type))
 			continue;
+		if (r >= 10) // check max register count
+			break;
 
 		sNode *prev = nullptr; // prev node
 		sPin *pp = nullptr; // prev pin
@@ -2190,6 +2215,46 @@ bool cVplFile::NodeInput_GenCode(const sNode &node, const uint reg
 				Pin_GenCode(node, pin, r, out); // store data to input pin symboltable
 			++r;
 		}
+	}
+	return true;
+}
+
+
+// arithmatic, logic operator generation code
+bool cVplFile::MathInput_GenCode(const sNode &node
+	, const script::sInstruction &opCode
+	, OUT common::script::cIntermediateCode &out)
+{
+	if (node.inputs.size() <= 2)
+		return false; // nothing to do
+
+	// reg[9] = reg[9] op reg[8]
+	script::sInstruction code = opCode;
+	code.reg1 = 9;
+	code.reg2 = 8;
+
+	// start third input pin
+	for (uint i = 2; i < node.inputs.size(); ++i)
+	{
+		const sPin &pin = node.inputs[i];
+		if (IsIgnoreInputPin(pin.type))
+			continue;
+
+		sNode *prev = nullptr; // prev node
+		sPin *pp = nullptr; // prev pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(prev, pp) = FindContainPin(linkId);
+		if (prev)
+		{
+			Pin_GenCode(*prev, *pp, 8, out); // load register from prev output pin
+			DebugInfo_GenCode(*pp, pin, out); // insert debuginfo
+		}
+		else
+		{
+			// load temporal variable
+			TemporalPin_GenCode(node, pin, 8, out);
+		}
+		out.m_codes.push_back(code);
 	}
 	return true;
 }

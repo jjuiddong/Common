@@ -227,30 +227,30 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::ldsc:
 	case eCommand::ldac:
 	case eCommand::ldmc:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		if (varType != code.var1.vt)
 			goto $error_semantic;
-		reg.val[code.reg1] = code.var1;
+		reg.reg[code.reg1] = code.var1;
 		++reg.idx;
 		break;
 
 	case eCommand::ldcmp:
 	case eCommand::ldncmp:
 	{
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		const bool cmp = (code.cmd == eCommand::ldncmp) ? !reg.cmp : reg.cmp;
-		reg.val[code.reg1] = cmp ? variant_t((bool)true) : variant_t((bool)false);
+		reg.reg[code.reg1] = cmp ? variant_t((bool)true) : variant_t((bool)false);
 		++reg.idx;
 	}
 	break;
 
 	case eCommand::ldtim:
 	{
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		reg.tim = (float)reg.val[code.reg1];
+		reg.tim = (float)reg.reg[code.reg1];
 		++reg.idx;
 	}
 	break;
@@ -259,11 +259,11 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::geti:
 	case eCommand::getf:
 	case eCommand::gets:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.Get(code.str1, code.str2, reg.reg[code.reg1]))
 		{
-			if (varType != reg.val[code.reg1].vt)
+			if (varType != reg.reg[code.reg1].vt)
 				goto $error_semantic;
 			++reg.idx;
 		}
@@ -274,11 +274,11 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::geta:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.Get(code.str1, code.str2, reg.reg[code.reg1]))
 		{
-			const bool isArrayType = (reg.val[code.reg1].vt & VT_BYREF); // VT_ARRAY? ticky code
+			const bool isArrayType = (reg.reg[code.reg1].vt & VT_BYREF); // VT_ARRAY? ticky code
 			if (!isArrayType)
 				goto $error_semantic;
 			++reg.idx;
@@ -290,12 +290,12 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::getm:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (m_symbTable.Get(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.Get(code.str1, code.str2, reg.reg[code.reg1]))
 		{
 			// ticky code, check map type 
-			const bool isMapType = (reg.val[code.reg1].vt & VT_BYREF);
+			const bool isMapType = (reg.reg[code.reg1].vt & VT_BYREF);
 			if (!isMapType)
 				goto $error_semantic;
 			++reg.idx;
@@ -310,11 +310,11 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::seti:
 	case eCommand::setf:
 	case eCommand::sets:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.Set(code.str1, code.str2, reg.reg[code.reg1]))
 		{
 			++reg.idx;
 		}
@@ -325,11 +325,11 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::seta:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
+		if (!(reg.reg[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
 			goto $error_semantic;
-		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.Set(code.str1, code.str2, reg.reg[code.reg1]))
 		{
 			++reg.idx;
 		}
@@ -340,12 +340,12 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::setm:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		// tricky code, check map type
-		if (!(reg.val[code.reg1].vt & VT_BYREF))
+		if (!(reg.reg[code.reg1].vt & VT_BYREF))
 			goto $error_semantic;
-		if (m_symbTable.Set(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.Set(code.str1, code.str2, reg.reg[code.reg1]))
 		{
 			++reg.idx;
 		}
@@ -356,11 +356,11 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::copya:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (!(reg.val[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
+		if (!(reg.reg[code.reg1].vt & VT_BYREF)) //VT_ARRAY? (tricky code)
 			goto $error_semantic;
-		if (m_symbTable.CopyArray(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.CopyArray(code.str1, code.str2, reg.reg[code.reg1]))
 		{
 			++reg.idx;
 		}
@@ -371,12 +371,12 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::copym:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		// tricky code, check map type
-		if (!(reg.val[code.reg1].vt & VT_BYREF))
+		if (!(reg.reg[code.reg1].vt & VT_BYREF))
 			goto $error_semantic;
-		if (m_symbTable.CopyMap(code.str1, code.str2, reg.val[code.reg1]))
+		if (m_symbTable.CopyMap(code.str1, code.str2, reg.reg[code.reg1]))
 		{
 			++reg.idx;
 		}
@@ -390,20 +390,20 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::subi:
 	case eCommand::muli:
 	case eCommand::divi:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 		switch (code.cmd)
 		{
-		case eCommand::addi: reg.val[9] = reg.val[code.reg1].intVal + reg.val[code.reg2].intVal; break;
-		case eCommand::subi: reg.val[9] = reg.val[code.reg1].intVal - reg.val[code.reg2].intVal; break;
-		case eCommand::muli: reg.val[9] = reg.val[code.reg1].intVal * reg.val[code.reg2].intVal; break;
-		case eCommand::divi: reg.val[9] = reg.val[code.reg1].intVal / reg.val[code.reg2].intVal; break;
+		case eCommand::addi: reg.reg[9] = reg.reg[code.reg1].intVal + reg.reg[code.reg2].intVal; break;
+		case eCommand::subi: reg.reg[9] = reg.reg[code.reg1].intVal - reg.reg[code.reg2].intVal; break;
+		case eCommand::muli: reg.reg[9] = reg.reg[code.reg1].intVal * reg.reg[code.reg2].intVal; break;
+		case eCommand::divi: reg.reg[9] = reg.reg[code.reg1].intVal / reg.reg[code.reg2].intVal; break;
 		}		
 		++reg.idx;
 		break;
@@ -412,252 +412,278 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::subf:
 	case eCommand::mulf:
 	case eCommand::divf:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 		switch (code.cmd)
 		{
-		case eCommand::addf: reg.val[9] = reg.val[code.reg1].fltVal + reg.val[code.reg2].fltVal; break;
-		case eCommand::subf: reg.val[9] = reg.val[code.reg1].fltVal - reg.val[code.reg2].fltVal; break;
-		case eCommand::mulf: reg.val[9] = reg.val[code.reg1].fltVal * reg.val[code.reg2].fltVal; break;
-		case eCommand::divf: reg.val[9] = reg.val[code.reg1].fltVal / reg.val[code.reg2].fltVal; break;
+		case eCommand::addf: reg.reg[9] = reg.reg[code.reg1].fltVal + reg.reg[code.reg2].fltVal; break;
+		case eCommand::subf: reg.reg[9] = reg.reg[code.reg1].fltVal - reg.reg[code.reg2].fltVal; break;
+		case eCommand::mulf: reg.reg[9] = reg.reg[code.reg1].fltVal * reg.reg[code.reg2].fltVal; break;
+		case eCommand::divf: 
+			if (0 == reg.reg[code.reg2].fltVal)
+				break;
+			reg.reg[9] = reg.reg[code.reg1].fltVal / reg.reg[code.reg2].fltVal; break;
 		}
 		++reg.idx;
 		break;
 
 	case eCommand::negate:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		reg.val[9] = !((bool)reg.val[code.reg1]);
+		reg.reg[9] = !((bool)reg.reg[code.reg1]);
 		++reg.idx;
 		break;
 
 	case eCommand::adds:
 	{
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
-		const string s0 = variant2str(reg.val[code.reg1]);
-		const string s1 = variant2str(reg.val[code.reg2]);
-		reg.val[9] = (s0 + s1).c_str();
+		const string s0 = variant2str(reg.reg[code.reg1]);
+		const string s1 = variant2str(reg.reg[code.reg2]);
+		reg.reg[9] = (s0 + s1).c_str();
 		++reg.idx;
 	}
 	break;
 
 	case eCommand::eqi:
 	case eCommand::eqf:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (reg.val[code.reg1].vt == VT_BOOL)
+		if (reg.reg[code.reg1].vt == VT_BOOL)
 		{
 			// force converting int
-			reg.val[code.reg1] = ((bool)reg.val[code.reg1]) ? 1 : 0;
+			reg.reg[code.reg1] = ((bool)reg.reg[code.reg1]) ? 1 : 0;
 		}
-		if (reg.val[code.reg2].vt == VT_BOOL)
+		if (reg.reg[code.reg2].vt == VT_BOOL)
 		{
 			// force converting int
-			reg.val[code.reg2] = ((bool)reg.val[code.reg2]) ? 1 : 0;
+			reg.reg[code.reg2] = ((bool)reg.reg[code.reg2]) ? 1 : 0;
 		}
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1] == reg.val[code.reg2]);
+		reg.cmp = (reg.reg[code.reg1] == reg.reg[code.reg2]);
 		++reg.idx;
 		break;
 
 	case eCommand::eqs:
 	{
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		const string str1 = common::variant2str(reg.val[code.reg1]);
-		const string str2 = common::variant2str(reg.val[code.reg2]);
+		const string str1 = common::variant2str(reg.reg[code.reg1]);
+		const string str2 = common::variant2str(reg.reg[code.reg2]);
 		reg.cmp = (str1 == str2);
 		++reg.idx;
 	}
 	break;
 
 	case eCommand::eqic:
-	case eCommand::eqfc:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val[code.reg1].vt == VT_BOOL)
+		if (reg.reg[code.reg1].vt == VT_BOOL)
 		{
 			// force converting integer
-			reg.val[code.reg1] = ((bool)reg.val[code.reg1]) ? 1 : 0;
+			reg.reg[code.reg1] = (int)((bool)reg.reg[code.reg1]) ? 1 : 0;
 		}
-		if (varType != reg.val[code.reg1].vt)
+		//if (varType != reg.reg[code.reg1].vt)
+		//	goto $error_semantic;
+		//if (varType != code.var1.vt)
+		//	goto $error_semantic;
+
+		// can compare int, float
+		if ((VT_INT != reg.reg[code.reg1].vt) && (VT_R4 != reg.reg[code.reg1].vt))
 			goto $error_semantic;
-		if (varType != code.var1.vt)
+		if ((VT_INT != code.var1.vt) && (VT_R4 != code.var1.vt))
+			goto $error_semantic;
+		reg.cmp = (int)reg.reg[code.reg1] == (int)code.var1;
+		++reg.idx;
+		break;
+
+	case eCommand::eqfc:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (reg.reg[code.reg1].vt == VT_BOOL)
+		{
+			// force converting float
+			reg.reg[code.reg1] = ((bool)reg.reg[code.reg1]) ? 1.f : 0.f;
+		}
+		// can compare int, float
+		if ((VT_INT != reg.reg[code.reg1].vt) && (VT_R4 != reg.reg[code.reg1].vt))
+			goto $error_semantic;
+		if ((VT_INT != code.var1.vt) && (VT_R4 != code.var1.vt))
 			goto $error_semantic;
 
-		reg.cmp = reg.val[code.reg1] == code.var1;
+		reg.cmp = (float)reg.reg[code.reg1] == (float)code.var1;
 		++reg.idx;
 		break;
 
 	case eCommand::eqsc:
 	{
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
 		if (varType != code.var1.vt)
 			goto $error_semantic;
 
-		reg.cmp = reg.val[code.reg1] == code.var1;
+		reg.cmp = reg.reg[code.reg1] == code.var1;
 		++reg.idx;
 	}
 	break;
 
 
 	case eCommand::lesi:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].intVal < reg.val[code.reg2].intVal);
+		reg.cmp = (reg.reg[code.reg1].intVal < reg.reg[code.reg2].intVal);
 		++reg.idx;
 		break;
 
 	case eCommand::lesf:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].fltVal < reg.val[code.reg2].fltVal);
+		reg.cmp = (reg.reg[code.reg1].fltVal < reg.reg[code.reg2].fltVal);
 		++reg.idx;
 		break;
 
 	case eCommand::leqi:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].intVal <= reg.val[code.reg2].intVal);
+		reg.cmp = (reg.reg[code.reg1].intVal <= reg.reg[code.reg2].intVal);
 		++reg.idx;
 		break;
 
 	case eCommand::leqf:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].fltVal <= reg.val[code.reg2].fltVal);
+		reg.cmp = (reg.reg[code.reg1].fltVal <= reg.reg[code.reg2].fltVal);
 		++reg.idx;
 		break;
 
 	case eCommand::gri:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].intVal > reg.val[code.reg2].intVal);
+		reg.cmp = (reg.reg[code.reg1].intVal > reg.reg[code.reg2].intVal);
 		++reg.idx;
 		break;
 
 	case eCommand::grf:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].fltVal > reg.val[code.reg2].fltVal);
+		reg.cmp = (reg.reg[code.reg1].fltVal > reg.reg[code.reg2].fltVal);
 		++reg.idx;
 		break;
 
 	case eCommand::greqi:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].intVal >= reg.val[code.reg2].intVal);
+		reg.cmp = (reg.reg[code.reg1].intVal >= reg.reg[code.reg2].intVal);
 		++reg.idx;
 		break;
 
 	case eCommand::greqf:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 
-		reg.cmp = (reg.val[code.reg1].fltVal >= reg.val[code.reg2].fltVal);
+		reg.cmp = (reg.reg[code.reg1].fltVal >= reg.reg[code.reg2].fltVal);
 		++reg.idx;
 		break;
 
 	case eCommand::opand:
 	case eCommand::opor:
-		if (reg.val.size() <= code.reg1)
+		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
-		if (reg.val.size() <= code.reg2)
+		if (reg.reg.size() <= code.reg2)
 			goto $error_memory;
-		if (varType != reg.val[code.reg1].vt)
+		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
-		if (varType != reg.val[code.reg2].vt)
+		if (varType != reg.reg[code.reg2].vt)
 			goto $error_semantic;
 		if (eCommand::opand == code.cmd)
-			reg.cmp = ((bool)reg.val[code.reg1] && (bool)reg.val[code.reg2]);
+			reg.cmp = ((bool)reg.reg[code.reg1] && (bool)reg.reg[code.reg2]);
 		else
-			reg.cmp = ((bool)reg.val[code.reg1] || (bool)reg.val[code.reg2]);
+			reg.cmp = ((bool)reg.reg[code.reg1] || (bool)reg.reg[code.reg2]);
+		reg.reg[9] = reg.cmp;
 		++reg.idx;
 		break;
 

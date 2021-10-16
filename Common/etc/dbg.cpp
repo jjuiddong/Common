@@ -309,7 +309,7 @@ void dbg::Logc(const int level, const char* fmt, ...)
 		if (level == 1)
 			data.type = 0;
 	case 0:
-		// cout 은 화면이 Freeze 현상으로 멈출수 있기 때문에 제외됨
+		// skip std::cout to prevent freeze program
 		if (0 == level)
 			return;
 		break;

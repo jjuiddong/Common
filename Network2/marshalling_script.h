@@ -55,7 +55,7 @@ namespace network2 {
 		{
 			packet << rhs.idx;
 			packet << rhs.cmp;
-			packet << rhs.val;
+			packet << rhs.reg;
 			//for (uint i = 0; i < ARRAYSIZE(rhs.val); ++i)
 			//	packet << rhs.val[i];
 			return packet;

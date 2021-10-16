@@ -135,6 +135,9 @@ namespace vpl
 			, OUT common::script::cIntermediateCode &out);
 		bool NodeInput_GenCode(const sNode &node, const uint reg
 			, const bool isUpdateInputPin, OUT common::script::cIntermediateCode &out);
+		bool MathInput_GenCode(const sNode &node
+			, const common::script::sInstruction &opCode
+			, OUT common::script::cIntermediateCode &out);
 
 		bool AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 		bool AddVariable(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);

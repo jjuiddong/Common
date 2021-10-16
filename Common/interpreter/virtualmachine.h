@@ -22,10 +22,10 @@ namespace common
 				uint exeIdx; // executed instruction index
 				bool cmp; // compare output flag
 				float tim; // delay timer (milliseconds unit)
-				vector<variant_t> val; // register
+				vector<variant_t> reg; // register
 				
 				sRegister() { 
-					val.resize(10);
+					reg.resize(10);
 				}
 			};
 
