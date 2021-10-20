@@ -231,7 +231,7 @@ uint sVariable::GetMapSize()
 
 
 // assign operator
-// array shallow copy
+// array deep copy
 sVariable& sVariable::operator=(const sVariable &rhs) 
 {
 	if (this != &rhs)
@@ -243,14 +243,15 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 		memcpy(typeValues, rhs.typeValues, sizeof(rhs.typeValues));
 
 		// copy array, deep copy
-		// array or map type? intVal is sVar id
+		// array or map type? intVal is sVariable id
 		if (rhs.var.vt & VT_BYREF)
 			var.intVal = id;
 
 		// array copy
 		if ((rhs.type == "Array") || (rhs.type == "array"))
 		{
-			if (rhs.arSize > 0) {
+			if (rhs.arSize > 0) 
+			{
 				ReserveArray(rhs.arSize);
 				for (uint i = 0; i < rhs.arSize; ++i)
 					ar[i] = rhs.ar[i];
@@ -272,7 +273,6 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 					(*m)[kv.first] = kv.second;
 			}
 		}
-
 	}
 	return *this;
 }
@@ -297,8 +297,6 @@ void sVariable::ClearArray()
 // clear array allocated memory
 void sVariable::ClearArrayMemory()
 {
-	//for (uint i = 0; i < arSize; ++i)
-	//	common::clearvariant(ar[i]);
 	SAFE_DELETEA(ar);
 	arSize = 0;
 	arCapacity = 0;

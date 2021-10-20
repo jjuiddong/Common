@@ -30,6 +30,7 @@ namespace common
 			variant_t& PopArrayElement();
 			bool ReserveArray(const uint size);
 			uint GetArraySize();
+			
 			variant_t& GetMapValue(cSymbolTable &symbolTable, const string &key);
 			bool SetMapValue(const string &key, const variant_t &v);
 			bool HasMapValue(const string &key);

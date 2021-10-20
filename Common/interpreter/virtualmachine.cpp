@@ -256,8 +256,6 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	break;
 
 	case eCommand::getb:
-	case eCommand::geti:
-	case eCommand::getf:
 	case eCommand::gets:
 		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
@@ -266,6 +264,56 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			if (varType != reg.reg[code.reg1].vt)
 				goto $error_semantic;
 			++reg.idx;
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
+	case eCommand::geti:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (m_symbTable.Get(code.str1, code.str2, reg.reg[code.reg1]))
+		{
+			if (varType == reg.reg[code.reg1].vt)
+			{
+				++reg.idx;
+			}
+			else if (IsAssignable(reg.reg[code.reg1].vt, varType))
+			{
+				reg.reg[code.reg1] = (int)reg.reg[code.reg1];
+				++reg.idx;
+			}
+			else
+			{
+				goto $error_semantic;
+			}
+		}
+		else
+		{
+			goto $error;
+		}
+		break;
+
+	case eCommand::getf:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (m_symbTable.Get(code.str1, code.str2, reg.reg[code.reg1]))
+		{
+			if (varType == reg.reg[code.reg1].vt)
+			{
+				++reg.idx;
+			}
+			else if (IsAssignable(reg.reg[code.reg1].vt, varType))
+			{
+				reg.reg[code.reg1] = (float)reg.reg[code.reg1];
+				++reg.idx;
+			}
+			else
+			{
+				goto $error_semantic;
+			}
 		}
 		else
 		{
@@ -307,21 +355,55 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		break;
 
 	case eCommand::setb:
-	case eCommand::seti:
-	case eCommand::setf:
 	case eCommand::sets:
 		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		if (varType != reg.reg[code.reg1].vt)
 			goto $error_semantic;
 		if (m_symbTable.Set(code.str1, code.str2, reg.reg[code.reg1]))
-		{
 			++reg.idx;
+		else
+			goto $error;
+		break;
+
+	case eCommand::seti:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (varType == reg.reg[code.reg1].vt)
+		{
+			if (!m_symbTable.Set(code.str1, code.str2, reg.reg[code.reg1]))
+				goto $error;
+		}
+		else if (IsAssignable(reg.reg[code.reg1].vt, varType))
+		{
+			if (!m_symbTable.Set(code.str1, code.str2, (int)reg.reg[code.reg1]))
+				goto $error;
 		}
 		else
 		{
-			goto $error;
+			goto $error_semantic;
 		}
+		++reg.idx;
+		break;
+
+	case eCommand::setf:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (varType == reg.reg[code.reg1].vt)
+		{
+			if (!m_symbTable.Set(code.str1, code.str2, reg.reg[code.reg1]))
+				goto $error;
+		}
+		else if (IsAssignable(reg.reg[code.reg1].vt, varType))
+		{
+			if (!m_symbTable.Set(code.str1, code.str2, (float)reg.reg[code.reg1]))
+				goto $error;
+		}
+		else
+		{
+			goto $error_semantic;
+		}
+		++reg.idx;
 		break;
 
 	case eCommand::seta:
@@ -868,6 +950,30 @@ void cVirtualMachine::WriteTraceLog(const vector<ushort> &trace)
 		return;
 	for (auto t : trace)
 		ofs << t << std::endl;
+}
+
+
+// is assignable?
+// srcVarType: source variable type
+// dstVarType: destination variable type
+// dstVarType = srcVarType
+bool cVirtualMachine::IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVarType)
+{
+	if (srcVarType == dstVarType)
+		return true;
+	switch (srcVarType)
+	{
+	case VT_INT:
+		switch (dstVarType)
+		{
+		case VT_R4:
+			return true;
+		}
+		break;
+
+	case VT_R4: return IsAssignable(dstVarType, srcVarType);
+	}
+	return false;
 }
 
 

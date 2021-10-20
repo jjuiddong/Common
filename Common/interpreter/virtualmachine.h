@@ -59,6 +59,7 @@ namespace common
 			bool ExecuteInstruction(const float deltaSeconds, sRegister &reg);
 			void CodeTraceLog(vector<ushort> &trace);
 			void WriteTraceLog(const vector<ushort> &trace);
+			bool IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVarType);
 
 
 		public:

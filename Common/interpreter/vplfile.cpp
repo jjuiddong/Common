@@ -798,8 +798,8 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 			case ePinType::Int: code.cmd = script::eCommand::seti; break;
 			case ePinType::Float: code.cmd = script::eCommand::setf; break;
 			case ePinType::String: code.cmd = script::eCommand::sets; break;
-			case ePinType::Array: code.cmd = script::eCommand::copya; break;
-			case ePinType::Map: code.cmd = script::eCommand::copym; break;
+			case ePinType::Array: code.cmd = script::eCommand::seta; break;
+			case ePinType::Map: code.cmd = script::eCommand::setm; break;
 			default:
 				return false;
 			}

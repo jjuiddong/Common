@@ -31,6 +31,18 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 	// to avoid bstr memory move bug
 	common::clearvariant(m_vars[scopeName][symbolName].var);
 	sVariable &variable = m_vars[scopeName][symbolName];
+
+	// if already setting array or map, clear
+	if ((var.vt & VT_BYREF) && (variable.ar || variable.m))
+	{
+		// check same variable
+		if (var.intVal != variable.id)
+		{
+			variable.ClearArrayMemory();
+			variable.ClearMapMemory();
+		}
+	}
+
 	variable.type = typeStr;
 	variable.var = var;
 	ParseTypeString(typeStr, variable.typeValues);
@@ -84,7 +96,7 @@ bool cSymbolTable::InitArray(const string &scopeName, const string &symbolName
 
 // copy array
 // dest: scopeName + symbolName
-// src: var
+// src: source array var
 bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
 	, const variant_t &var )
 {
@@ -106,7 +118,7 @@ bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
 		return false; // not found source array variable
 	srcVar = FindVarInfo(it->second.first, it->second.second);
 	if (!srcVar)
-		return false; // error
+		return false; // error, not found source array
 
 	if (dstVar)
 	{
