@@ -145,24 +145,6 @@ namespace common
 		// nop ;nothing to operate
 
 
-		// interpreter function callback interface
-		enum class eCallbackState {
-			None, // initial state, not defined
-			NoHandler, // no handler 
-			Done, // callback work done
-			Wait, // callback working but not finished
-		};
-
-		class cVirtualMachine;
-		interface iFunctionCallback
-		{
-			virtual eCallbackState Function(cVirtualMachine &vm
-				, const string &scopeName
-				, const string &funcName
-				, void *arg) = 0;
-		};
-
-
 		// synchronize symbol variable (to marshalling)
 		struct sSyncSymbol
 		{

@@ -450,6 +450,7 @@
     <ClInclude Include="interpreter\intermediatecode.h" />
     <ClInclude Include="interpreter\interpreter.h" />
     <ClInclude Include="interpreter\definition.h" />
+    <ClInclude Include="interpreter\module.h" />
     <ClInclude Include="interpreter\symboltable.h" />
     <ClInclude Include="interpreter\variable.h" />
     <ClInclude Include="interpreter\virtualmachine.h" />

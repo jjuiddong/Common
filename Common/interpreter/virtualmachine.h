@@ -22,7 +22,7 @@ namespace common
 				uint exeIdx; // executed instruction index
 				bool cmp; // compare output flag
 				float tim; // delay timer (milliseconds unit)
-				vector<variant_t> reg; // register
+				vector<variant_t> reg; // register[10]
 				
 				sRegister() { 
 					reg.resize(10);
@@ -40,8 +40,9 @@ namespace common
 			cVirtualMachine(const string &name);
 			virtual ~cVirtualMachine();
 
-			bool Init(const cIntermediateCode &code, iFunctionCallback *callback
-				, void *arg = nullptr);
+			bool Init(const cIntermediateCode &code);
+			bool AddModule(iModule *mod);
+			bool RemoveModule(iModule *mod);
 			bool Process(const float deltaSeconds);
 			bool Run();
 			bool Resume();
@@ -79,8 +80,7 @@ namespace common
 			queue<cEvent> m_events;
 			vector<sTimer> m_timers;
 			vector<int> m_stack; // simple integer stack (save return address)
-			iFunctionCallback *m_callback; // customize function interface
-			void *m_callbackArgPtr; // callback function argument
+			vector<iModule*> m_modules; // execute function module, reference
 
 			// debugging
 			bool m_isCodeTraceLog;

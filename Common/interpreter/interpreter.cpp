@@ -10,8 +10,6 @@ cInterpreter::cInterpreter()
 	: m_state(eState::Stop)
 	, m_runState(eRunState::Stop)
 	, m_dbgState(eDebugState::Stop)
-	, m_callback(nullptr)
-	, m_callbackArgPtr(nullptr)
 	, m_dt(0.f)
 	, m_isCodeTrace(false)
 	, m_isICodeStep(false)
@@ -25,14 +23,9 @@ cInterpreter::~cInterpreter()
 
 
 // initialize interpreter
-bool cInterpreter::Init(iFunctionCallback *callback
-	, void *arg //= nullptr
-)
+bool cInterpreter::Init()
 {
 	Clear();
-
-	m_callback = callback;
-	m_callbackArgPtr = arg;
 	return true;
 }
 
@@ -52,6 +45,25 @@ bool cInterpreter::LoadIntermediateCode(const cIntermediateCode &icode)
 {
 	m_fileName = icode.m_fileName;
 	m_code = icode;
+	return true;
+}
+
+
+// add function execute module
+bool cInterpreter::AddModule(iModule *mod)
+{
+	auto it = std::find(m_modules.begin(), m_modules.end(), mod);
+	if (m_modules.end() != it)
+		return false; // already exist
+	m_modules.push_back(mod);
+	return true;
+}
+
+
+// remove function execute module
+bool cInterpreter::RemoveModule(iModule *mod)
+{
+	common::removevector(m_modules, mod);
 	return true;
 }
 
@@ -312,8 +324,11 @@ bool cInterpreter::InitAndRunVM()
 		vm = m_vms.back();
 	}
 
-	if (!vm->Init(m_code, m_callback, m_callbackArgPtr))
+	if (!vm->Init(m_code))
 		return false;
+
+	for (auto &mod : m_modules)
+		vm->AddModule(mod);
 
 	vm->Run();
 	vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
@@ -443,4 +458,5 @@ void cInterpreter::Clear()
 
 	m_code.Clear();
 	m_events.clear();
+	m_modules.clear();
 }

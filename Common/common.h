@@ -202,6 +202,7 @@ using std::max;
 #include "interpreter/variable.h"
 #include "interpreter/symboltable.h"
 #include "interpreter/intermediatecode.h"
+#include "interpreter/module.h"
 #include "interpreter/virtualmachine.h"
 #include "interpreter/interpreter.h"
 #include "interpreter/debugger.h"

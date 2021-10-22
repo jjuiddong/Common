@@ -54,8 +54,6 @@ cRemoteInterpreter::cRemoteInterpreter(
 	, const int logId //= -1
 )
 	: m_server(new network2::cWebSessionFactory(), name, logId)
-	, m_callback(nullptr)
-	, m_arg(nullptr)
 	, m_threads(nullptr)
 	, m_multiThreading(0)
 	, m_isThreadMode(true)
@@ -78,8 +76,6 @@ bool cRemoteInterpreter::Reuse(const StrId &name, const int logId)
 	m_server.m_sendQueue.ClearBuffer();
 	m_server.m_recvQueue.ClearBuffer();
 
-	m_callback = nullptr;
-	m_arg = nullptr;
 	m_threads = nullptr;
 	m_multiThreading = 0;
 	return true;
@@ -95,15 +91,11 @@ bool cRemoteInterpreter::Init(cNetController &netController
 	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
-	, script::iFunctionCallback *callback //= nullptr
-	, void *arg //= nullptr
 )
 {
 	Clear();
 
-	m_callback = callback;
 	m_bindPort = bindPort;
-	m_arg = arg;
 	m_isThreadMode = isThreadMode;
 
 	m_server.AddProtocolHandler(this);
@@ -125,7 +117,7 @@ bool cRemoteInterpreter::Init(cNetController &netController
 bool cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName)
 {
 	script::cInterpreter *interpreter = new script::cInterpreter();
-	interpreter->Init(m_callback, m_arg ? m_arg : interpreter);
+	interpreter->Init();
 
 	if (!interpreter->LoadIntermediateCode(fileName))
 	{
@@ -174,7 +166,7 @@ bool cRemoteInterpreter::LoadIntermediateCode(
 	const common::script::cIntermediateCode &icode)
 {
 	script::cInterpreter *interpreter = new script::cInterpreter();
-	interpreter->Init(m_callback, m_arg ? m_arg : interpreter);
+	interpreter->Init();
 
 	if (!interpreter->LoadIntermediateCode(icode))
 	{
@@ -192,6 +184,25 @@ bool cRemoteInterpreter::LoadIntermediateCode(
 	itpr.symbSyncTime = 0.f;
 
 	m_interpreters.push_back(itpr);
+	return true;
+}
+
+
+// add function execute module
+bool cRemoteInterpreter::AddModule(common::script::iModule *mod)
+{
+	auto it = std::find(m_modules.begin(), m_modules.end(), mod);
+	if (m_modules.end() != it)
+		return false; // already exist
+	m_modules.push_back(mod);
+	return true;
+}
+
+
+// remove function execute module
+bool cRemoteInterpreter::RemoveModule(common::script::iModule *mod)
+{
+	common::removevector(m_modules, mod);
 	return true;
 }
 
@@ -315,6 +326,9 @@ bool cRemoteInterpreter::Run(const int itprId)
 				continue;
 			script::cInterpreter *interpreter = itpr.interpreter;
 			interpreter->SetCodeTrace(true);
+			for (auto &mod : m_modules)
+				interpreter->AddModule(mod);
+
 			if (interpreter->Run())
 				itpr.state = eState::Run;
 		}
@@ -329,6 +343,9 @@ bool cRemoteInterpreter::Run(const int itprId)
 
 		script::cInterpreter *interpreter = itpr.interpreter;
 		interpreter->SetCodeTrace(true);
+		for (auto &mod : m_modules)
+			interpreter->AddModule(mod);
+
 		if (interpreter->Run())
 		{
 			itpr.state = eState::Run;
@@ -352,6 +369,9 @@ bool cRemoteInterpreter::DebugRun(const int itprId)
 				continue;
 			script::cInterpreter *interpreter = itpr.interpreter;
 			interpreter->SetCodeTrace(true);
+			for (auto &mod : m_modules)
+				interpreter->AddModule(mod);
+
 			if (interpreter->DebugRun())
 				itpr.state = eState::Run;
 		}
@@ -366,6 +386,9 @@ bool cRemoteInterpreter::DebugRun(const int itprId)
 
 		script::cInterpreter *interpreter = itpr.interpreter;
 		interpreter->SetCodeTrace(true);
+		for (auto &mod : m_modules)
+			interpreter->AddModule(mod);
+
 		if (interpreter->DebugRun())
 		{
 			itpr.state = eState::Run;
@@ -388,6 +411,9 @@ bool cRemoteInterpreter::StepRun(const int itprId)
 			if (eState::Stop != itpr.state)
 				continue;
 			script::cInterpreter *interpreter = itpr.interpreter;
+			for (auto &mod : m_modules)
+				interpreter->AddModule(mod);
+
 			if (interpreter->StepRun())
 				itpr.state = eState::Run;
 		}
@@ -401,6 +427,9 @@ bool cRemoteInterpreter::StepRun(const int itprId)
 			return true;
 
 		script::cInterpreter *interpreter = itpr.interpreter;
+		for (auto &mod : m_modules)
+			interpreter->AddModule(mod);
+
 		if (interpreter->StepRun())
 		{
 			itpr.state = eState::Run;
@@ -903,6 +932,7 @@ void cRemoteInterpreter::Clear()
 	m_server.Close();
 	ClearInterpreters();
 	m_threads = nullptr;
+	m_modules.clear();
 }
 
 

@@ -36,12 +36,12 @@ namespace network2
 			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
-			, script::iFunctionCallback *callback = nullptr
-			, void *arg = nullptr
 		);
 		bool LoadIntermediateCode(const StrPath &fileName);
 		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
 		bool LoadIntermediateCode(const common::script::cIntermediateCode &icode);
+		bool AddModule(common::script::iModule *mod);
+		bool RemoveModule(common::script::iModule *mod);
 
 		bool Process(const float deltaSeconds);
 		bool PushEvent(const int itprId, const common::script::cEvent &evt
@@ -96,13 +96,12 @@ namespace network2
 			float symbSyncTime; // symboltable sync time, seconds unit
 		};
 		vector<sItpr> m_interpreters;
+		vector<script::iModule*> m_modules;
 
 		bool m_isThreadMode;
 		int m_bindPort; // webserver bind port
 		network2::cWebServer m_server;
 		remotedbg2::h2r_Protocol m_protocol;
-		script::iFunctionCallback *m_callback;
-		void *m_arg; // callback function argument
 		map<string, sSymbol> m_chSymbols; // check change variable
 		common::cTPSemaphore *m_threads; // thread pool reference
 		std::atomic<int> m_multiThreading; // multithread work?, 0:no threading work

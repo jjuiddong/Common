@@ -9,8 +9,6 @@ using namespace common::script;
 cVirtualMachine::cVirtualMachine(const string &name)
 	: m_id(common::GenerateId())
 	, m_state(eState::Stop)
-	, m_callback(nullptr)
-	, m_callbackArgPtr(nullptr)
 	, m_name(name)
 	, m_isCodeTraceLog(false)
 	, m_isDebugging(false)
@@ -24,9 +22,7 @@ cVirtualMachine::~cVirtualMachine()
 
 
 // initialize virtual machine
-bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *callback
-	, void *arg //= nullptr
-)
+bool cVirtualMachine::Init(const cIntermediateCode &code)
 {
 	Clear();
 
@@ -36,8 +32,6 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 
 	m_code = code;
 	m_symbTable = code.m_variables; // initial variable
-	m_callback = callback;
-	m_callbackArgPtr = arg;
 
 	// update timer
 	for (auto time : m_code.m_timer1Events)
@@ -51,6 +45,25 @@ bool cVirtualMachine::Init(const cIntermediateCode &code, iFunctionCallback *cal
 	}
 
 	m_stack.reserve(32);
+	return true;
+}
+
+
+// add function execute module
+bool cVirtualMachine::AddModule(iModule *mod)
+{
+	auto it = std::find(m_modules.begin(), m_modules.end(), mod);
+	if (m_modules.end() != it)
+		return false; // already exist
+	m_modules.push_back(mod);
+	return true;
+}
+
+
+// remove function execute module
+bool cVirtualMachine::RemoveModule(iModule *mod)
+{
+	common::removevector(m_modules, mod);
 	return true;
 }
 
@@ -796,26 +809,27 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 
 	case eCommand::call:
 	{
-		if (!m_callback)
-			goto $error;
-		
 		string funcName;
 		int nodeId;
 		std::tie(funcName, nodeId) = cSymbolTable::ParseScopeName(code.str1);
 		if (funcName.empty())
 			goto $error;
-
-		const eCallbackState res = 
-			m_callback->Function(*this, code.str1, funcName, m_callbackArgPtr);
-		if (res == eCallbackState::Wait)
+		
+		bool isFind = false;
+		for (auto &mod : m_modules)
 		{
-			// wait until resume
-			m_state = eState::WaitCallback;
+			const eModuleResult res = mod->Execute(*this, code.str1, funcName);
+			if ((eModuleResult::None == res) || (eModuleResult::NoHandler == res))
+				continue;
+			isFind = true;
+			if (eModuleResult::Wait == res)
+				m_state = eState::WaitCallback; // wait until resume
+			else
+				++reg.idx;
+			break;
 		}
-		else
-		{
-			++reg.idx;
-		}
+		if (!isFind)
+			goto $error;
 	}
 	break;
 
@@ -977,7 +991,7 @@ bool cVirtualMachine::IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVa
 }
 
 
-// set executed code index log on/off
+// enable executed code index log on/off
 void cVirtualMachine::SetCodeTrace(const bool isCodeTrace) 
 {
 	m_isCodeTraceLog = isCodeTrace;
@@ -1010,4 +1024,5 @@ void cVirtualMachine::Clear()
 		m_events.pop();
 	m_timers.clear();
 	m_stack.clear();
+	m_modules.clear();
 }

@@ -21,9 +21,11 @@ namespace common
 			cInterpreter();
 			virtual ~cInterpreter();
 
-			bool Init(iFunctionCallback *callback, void *arg = nullptr);
+			bool Init();
 			bool LoadIntermediateCode(const StrPath &icodeFileName);
 			bool LoadIntermediateCode(const cIntermediateCode &icode);
+			bool AddModule(iModule *mod);
+			bool RemoveModule(iModule *mod);
 			bool Process(const float deltaSeconds);
 			bool Run();
 			bool Stop();
@@ -71,8 +73,7 @@ namespace common
 			cIntermediateCode m_code;
 			deque<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms;
-			iFunctionCallback *m_callback;
-			void *m_callbackArgPtr;
+			vector<iModule*> m_modules; // execute function module, reference
 			float m_dt;
 			set<uint> m_breakPoints;
 			bool m_isCodeTrace; // vm code trace?
