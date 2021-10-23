@@ -24,6 +24,8 @@ namespace common
 			virtual eModuleResult Execute(cVirtualMachine &vm
 				, const string &scopeName
 				, const string &funcName) = 0;
+
+			virtual bool CloseModule(cVirtualMachine &vm) = 0;
 		};
 	}
 }

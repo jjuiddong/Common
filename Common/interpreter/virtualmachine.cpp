@@ -63,7 +63,11 @@ bool cVirtualMachine::AddModule(iModule *mod)
 // remove function execute module
 bool cVirtualMachine::RemoveModule(iModule *mod)
 {
-	common::removevector(m_modules, mod);
+	auto it = std::find(m_modules.begin(), m_modules.end(), mod);
+	if (m_modules.end() == it)
+		return false; // not exist
+	(*it)->CloseModule(*this);
+	m_modules.erase(it);
 	return true;
 }
 
@@ -130,6 +134,11 @@ bool cVirtualMachine::Stop()
 		m_events.pop();
 	m_timers.clear();
 	m_stack.clear();
+
+	// close vm module
+	for (auto &mod : m_modules)
+		mod->CloseModule(*this);
+
 	return true;
 }
 
@@ -153,7 +162,6 @@ bool cVirtualMachine::StopTimer(const int timerId)
 		}
 	if (idx < 0)
 		return false;
-	//common::rotatepopvector(m_timers, idx);
 	common::removevector2(m_timers, idx);
 	return true;
 }
@@ -1024,5 +1032,7 @@ void cVirtualMachine::Clear()
 		m_events.pop();
 	m_timers.clear();
 	m_stack.clear();
+	for (auto &mod : m_modules)
+		mod->CloseModule(*this);
 	m_modules.clear();
 }
