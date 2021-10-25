@@ -7,8 +7,7 @@
 namespace common {
 	namespace dbg {
 
-		// Log Thread
-		common::cWQSemaphore g_logThread;
+		common::cWQSemaphore g_logThread; // Log Thread
 		struct sLogData
 		{
 			int type; // 0:log, 1:error log, 2:log + error log, 3:others file

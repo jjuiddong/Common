@@ -65,7 +65,7 @@ namespace network2
 		// arg_list -> [arg (',' arg)*]
 		// arg -> type
 		// type -> type_sub (var)?
-		// type_sub -> id '<' type_sub '>'
+		// type_sub -> id '<' type_sub [, type_sub] '>'
 		//			| id::id
 		//			| id
 		// var -> '*' id (index)?

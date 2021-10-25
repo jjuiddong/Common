@@ -129,18 +129,16 @@ bool cNetController::StartWebClient(cWebClient *client
 template<class NetNode, class Dispatcher>
 int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 {
-	int procPacketCnt = 0;
-	
+	all::Dispatcher allDispatcher;
 	cPacket packet;
+	int procPacketCnt = 0;
 
 	while (1000 > procPacketCnt)
 	{
 		if (!netNode->m_recvQueue.Front(packet))
 			break;
-		packet.InitRead();
-
 		++procPacketCnt;
-
+		packet.InitRead();
 		if (!packet.IsValid())
 			continue;
 
@@ -149,34 +147,27 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 		const uint packetId = packet.GetPacketId();
 
 		// Process Basic Protocol
-		if ((protocolId == 0) || (packetId < 10))
+		if ((0 == protocolId) || (10 > packetId))
 		{
 			if (basicDispatcher)
 				basicDispatcher->Dispatch(packet, netNode);
 			continue;
 		}
 
-		// All Protocol Dispatcher
-		all::Dispatcher allDispatcher;
-		allDispatcher.Dispatch(packet, handlers);
-		//
-
 		if (handlers.empty())
-		{
-			dbg::Logc(2, " Error!! cNetController::Process() Not Found Protocol Handler. protocol: %d, netid: %d\n"
-				, protocolId, netNode->GetId());
-			continue;
-		}
+			continue; // no handler, nothing to do
+
+		// All Protocol Dispatcher
+		allDispatcher.Dispatch(packet, handlers);
 
 		auto it = cProtocolDispatcher::GetDispatcherMap()->find(packet.GetProtocolId());
-		if (cProtocolDispatcher::GetDispatcherMap()->end() == it)
+		if (cProtocolDispatcher::GetDispatcherMap()->end() != it)
 		{
-			dbg::Logc(2, " Error!! cNetController::Process() Not Found Dispatcher Correspond %d Protocol.\n",
-				packet.GetPacketId());
+			it->second->Dispatch(packet, handlers);
 		}
 		else
 		{
-			it->second->Dispatch(packet, handlers);
+			// not found dispatcher, nothing to do
 		}
 	}
 
@@ -189,31 +180,31 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 // return process packet count
 int cNetController::Process(const float deltaSeconds)
 {
-	int procPacketCnt = 0;
+	int cnt = 0;
 
 	// Server Process
 	basic_protocol::ServerDispatcher svrDispatcher;
 	for (uint i=0; i < m_tcpServers.size(); ++i)
-		procPacketCnt += ProcessNetworkNode(m_tcpServers[i], &svrDispatcher);
+		cnt += ProcessNetworkNode(m_tcpServers[i], &svrDispatcher);
 
 	basic_protocol::UdpServerDispatcher udpSvrDispatcher;
 	for (uint i=0; i < m_udpServers.size(); ++i)
-		procPacketCnt += ProcessNetworkNode(m_udpServers[i], &udpSvrDispatcher);
+		cnt += ProcessNetworkNode(m_udpServers[i], &udpSvrDispatcher);
 
 	basic_protocol::WebServerDispatcher webSvrDispatcher;
 	for (uint i = 0; i < m_webServers.size(); ++i)
-		procPacketCnt += ProcessNetworkNode(m_webServers[i], &webSvrDispatcher);
+		cnt += ProcessNetworkNode(m_webServers[i], &webSvrDispatcher);
 
 	// Client Process
 	basic_protocol::ClientDispatcher clientDispatcher;
 	for (uint i=0; i < m_tcpClients.size(); ++i)
-		procPacketCnt += ProcessNetworkNode(m_tcpClients[i], &clientDispatcher);
+		cnt += ProcessNetworkNode(m_tcpClients[i], &clientDispatcher);
 
 	basic_protocol::WebClientDispatcher webClientDispatcher;
 	for (uint i=0; i < m_webClients.size(); ++i)
-		procPacketCnt += ProcessNetworkNode(m_webClients[i], &webClientDispatcher);
+		cnt += ProcessNetworkNode(m_webClients[i], &webClientDispatcher);
 
-	return procPacketCnt;
+	return cnt;
 }
 
 

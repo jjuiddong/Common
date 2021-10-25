@@ -206,7 +206,7 @@ bool cInterpreter::PushEvent(const cEvent &evt
 )
 {
 	// check same event
-	if (isUnique)
+	if (isUnique || evt.m_isUnique)
 	{
 		for (auto &e : m_events)
 		{

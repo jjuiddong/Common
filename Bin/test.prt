@@ -1,0 +1,18 @@
+//
+// 2021-10-22, jjuiddong
+// test protocol
+//
+// visual programming network module test protocol
+//
+
+
+protocol s2c 100000
+{
+	AckResult(string packetName, float result, map<string, string> vars);
+}
+
+
+protocol c2s 100001
+{
+	PacketName1(string id, string data, float num);
+}

@@ -65,12 +65,14 @@ namespace network2
 		void SetPacketSize(const short packetSize);
 		void SetPacketOption(const uint mask, const uint option);
 		void SetSenderId(const netid netId);
+		void SetReceiverId(const netid netId);
 		int GetProtocolId() const;
 		uint GetPacketId() const;
 		uint GetPacketSize() const;
 		uint GetPacketOption(const uint mask);
 		int GetWriteSize() const;
-		int GetSenderId() const;
+		netid GetSenderId() const;
+		netid GetReceiverId() const;
 		int GetHeaderSize() const;
 		bool IsValid();
 		void Read4ByteAlign();
@@ -89,6 +91,7 @@ namespace network2
 	public:
 		iPacketHeader *m_header; // reference
 		netid m_sndId; // sender id
+		netid m_rcvId; // receiver id
 		bool m_is4Align; // 4byte alignment, websocket binary packet
 		int m_readIdx;
 		int m_writeIdx;

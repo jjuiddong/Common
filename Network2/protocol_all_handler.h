@@ -25,7 +25,7 @@ namespace all
 		friend class Dispatcher;
 
 		// call handling packet
-		virtual void RecvPacket(const cPacket &packet) {}
+		virtual void RecvPacket(cPacket &packet) {}
 	};
 
 }

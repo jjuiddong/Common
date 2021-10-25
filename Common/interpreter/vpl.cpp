@@ -28,9 +28,8 @@ VARTYPE vpl::GetPin2VarType(const ePinType::Enum type)
 }
 
 
-// Is Variable Type? int, float .. etc
-// is primitive type?
-bool vpl::IsVarType(const ePinType::Enum type)
+// is primitive type? bool, int, float, string
+bool vpl::IsPrimitiveType(const ePinType::Enum type)
 {
 	switch (type)
 	{

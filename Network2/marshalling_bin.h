@@ -32,6 +32,7 @@ namespace network2
 		template<class T> cPacket& operator<<(cPacket& packet, const vector<T> &v);
 		template<class T> cPacket& operator<<(cPacket& packet, const list<T> &v);
 		template<class T> cPacket& operator<<(cPacket& packet, const set<T> &v);
+		template<class T, class U> cPacket& operator<<(cPacket& packet, const map<T,U> &v);
 
 		cPacket& operator>>(cPacket& packet, OUT bool& rhs);
 		cPacket& operator>>(cPacket& packet, OUT char& rhs);
@@ -54,6 +55,7 @@ namespace network2
 		template<class T> cPacket& operator>>(cPacket& packet, OUT vector<T> &v);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT list<T> &v);
 		template<class T> cPacket& operator>>(cPacket& packet, OUT set<T> &v);
+		template<class T, class U> cPacket& operator>>(cPacket& packet, OUT map<T,U> &v);
 
 		template<class Seq> cPacket& AppendSequence(cPacket &packet, const Seq &seq);
 		template<class Seq> cPacket& GetSequence(cPacket& packet, OUT Seq& seq);
@@ -259,6 +261,18 @@ namespace network2
 		return packet;
 	}
 
+	template<class T, class U>
+	inline cPacket& marshalling::operator<<(cPacket& packet, const map<T,U> &v)
+	{
+		packet << (int)v.size();
+		for (const auto &kv : v)
+		{
+			packet << kv.first;
+			packet << kv.second;
+		}
+		return packet;
+	}
+
 	//--------------------------------------------------------------------------
 	inline cPacket& marshalling::operator>>(cPacket& packet, OUT bool& rhs)
 	{
@@ -457,6 +471,25 @@ namespace network2
 		return GetUnOrderedSequence(packet, v);
 	}
 
+	template<class T, class U>
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT map<T,U> &v)
+	{
+		int size = 0;
+		packet >> size;
+		if (size < 0)
+			return packet;
+		if (size > 10000)
+			return packet;
+		for (int i = 0; i < size; ++i)
+		{
+			T first;
+			U second;
+			packet >> first;
+			packet >> second;
+			v.insert({ first, second });
+		}
+		return packet;
+	}
 
 	template<class Seq>
 	inline cPacket& marshalling::AppendSequence(cPacket &packet, const Seq &seq)
@@ -464,7 +497,6 @@ namespace network2
 		MARSHALLING_BIN_APPEND_SEQ(packet, seq);
 		return packet;
 	}
-
 
 	template<class Seq>
 	inline cPacket& marshalling::GetSequence(cPacket& packet, OUT Seq& seq)

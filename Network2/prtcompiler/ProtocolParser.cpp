@@ -300,7 +300,7 @@ sTypeVar* cProtocolParser::type()
 	return p;
 }
 
-// type_sub -> id '<' type_sub '>'
+// type_sub -> id '<' type_sub [, type_sub] '>'
 //			| id::id
 //			| id
 std::string cProtocolParser::type_sub()
@@ -309,13 +309,21 @@ std::string cProtocolParser::type_sub()
 
 	if (ID == m_token)
 	{
-		eTokentype nextTok = m_scan.GetTokenQ(1);
+		const eTokentype nextTok = m_scan.GetTokenQ(1);
 		if (LT == nextTok)
 		{
 			str += id();
 			str += "<";
 			Match(LT);
 			str += type_sub();
+
+			if (COMMA == m_scan.GetTokenQ(0))
+			{
+				Match(COMMA);
+				str += ",";
+				str += type_sub();
+			}
+
 			str += ">";
 			Match(RT);
 		}

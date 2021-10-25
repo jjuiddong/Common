@@ -15,6 +15,8 @@ cPacket::cPacket()
 	, m_emptyData(false)
 	, m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
+	, m_sndId(0)
+	, m_rcvId(0)
 {
 }
 
@@ -26,6 +28,8 @@ cPacket::cPacket(iPacketHeader *packetHeader)
 	, m_emptyData(false)
 	, m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
+	, m_sndId(0)
+	, m_rcvId(0)
 {
 }
 
@@ -36,12 +40,16 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 	, m_emptyData(false)
 	, m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
+	, m_sndId(0)
+	, m_rcvId(0)
 {
 	m_writeIdx = min((uint)byteSize, sizeof(m_buffer));
 	memcpy_s(m_data, sizeof(m_buffer), src, byteSize);
 }
 
 cPacket::cPacket(BYTE *src)
+	: m_sndId(0)
+	, m_rcvId(0)
 {
 	iPacketHeader *packetHeader = network2::GetPacketHeader(*(int*)src);
 	m_header = packetHeader;
@@ -56,6 +64,8 @@ cPacket::cPacket(BYTE *src)
 cPacket::cPacket(const cPacket &rhs)
 	: m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
+	, m_sndId(0)
+	, m_rcvId(0)
 {
 	operator=(rhs);
 }
@@ -115,6 +125,7 @@ void cPacket::ShallowCopy(const cPacket &packet)
 {
 	m_header = packet.m_header;
 	m_sndId = packet.m_sndId;
+	m_rcvId = packet.m_rcvId;
 	m_is4Align = packet.m_is4Align;
 	m_readIdx = packet.m_readIdx;
 	m_writeIdx = packet.m_writeIdx;
@@ -140,6 +151,7 @@ cPacket& cPacket::operator=(const cPacket &rhs)
 	{
 		m_header = rhs.m_header;
 		m_sndId = rhs.m_sndId;
+		m_rcvId = rhs.m_rcvId;
 		m_readIdx = rhs.m_readIdx;
 		m_writeIdx = rhs.m_writeIdx;
 		m_lastDelim = rhs.m_lastDelim;
@@ -172,6 +184,9 @@ void cPacket::SetPacketOption(const uint mask, const uint option) {
 void cPacket::SetSenderId(const netid netId) {
 	m_sndId = netId;
 }
+void cPacket::SetReceiverId(const netid netId) {
+	m_rcvId = netId;
+}
 int cPacket::GetProtocolId() const {
 	return m_header->GetProtocolId(m_data);
 }
@@ -190,7 +205,10 @@ uint cPacket::GetPacketOption(const uint mask) {
 int cPacket::GetWriteSize() const {
 	return m_writeIdx;
 }
-int cPacket::GetSenderId() const {
+netid cPacket::GetSenderId() const {
+	return m_sndId;
+}
+netid cPacket::GetReceiverId() const {
 	return m_sndId;
 }
 

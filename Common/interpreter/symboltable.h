@@ -88,7 +88,7 @@ namespace common
 			bool IsExist(const string &scopeName, const string &symbolName);
 			bool RemoveVar(const string &scopeName, const string &symbolName);
 			
-			// symbol
+			// symbol (enum)
 			bool AddSymbol(const sSymbol &type);
 			bool RemoveSymbol(const string &typeName);
 			sSymbol* FindSymbol(const string &typeName);

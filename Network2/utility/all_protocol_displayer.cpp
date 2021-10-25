@@ -5,7 +5,7 @@
 using namespace network2;
 
 
-void AllProtocolDisplayer::RecvPacket(const cPacket &packet)
+void AllProtocolDisplayer::RecvPacket(cPacket &packet)
 {
 	const int protocolID = packet.GetProtocolId();
 	const int packetID = packet.GetPacketId();

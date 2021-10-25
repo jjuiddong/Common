@@ -54,6 +54,6 @@ namespace vpl {
 	VARTYPE GetPin2VarType(const ePinType::Enum type);
 
 	// Is Variable Type? int, float .. etc
-	bool IsVarType(const ePinType::Enum type);
+	bool IsPrimitiveType(const ePinType::Enum type);
 
 }

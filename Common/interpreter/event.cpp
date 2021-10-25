@@ -12,9 +12,11 @@ cEvent::cEvent()
 
 cEvent::cEvent(const StrId &name
 	, const map<string, variant_t> &vars //= {}
+	, const bool isUnique //= false
 )
 	: m_name(name)
 	, m_vars(vars)
+	, m_isUnique(isUnique)
 {
 }
 

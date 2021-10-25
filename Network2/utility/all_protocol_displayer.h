@@ -13,7 +13,7 @@ namespace network2
 	{
 	public:
 		AllProtocolDisplayer() : m_logLevel(1) {}
-		virtual void RecvPacket(const cPacket &packet) override;
+		virtual void RecvPacket(cPacket &packet) override;
 
 	protected:
 		int m_logLevel; // default:1

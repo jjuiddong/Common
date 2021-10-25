@@ -179,6 +179,7 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 	const uint size = m_q.size();
 	if (packetSize <= size)
 	{
+		out.m_rcvId = m_netId;
 		out.m_writeIdx = packetSize;
 		m_q.frontCopy(out.m_data, min(sizeof(out.m_buffer), packetSize));
 		return true;
