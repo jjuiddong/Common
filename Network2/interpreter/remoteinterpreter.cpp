@@ -6,9 +6,9 @@ using namespace network2;
 
 namespace
 {
-	const float TIME_SYNC_INSTRUCTION = 0.5f;
-	const float TIME_SYNC_REGISTER = 5.0f;
-	const float TIME_SYNC_SYMBOL = 3.0f;
+	const float TIME_SYNC_INSTRUCTION = 0.5f; // seconds unit
+	const float TIME_SYNC_REGISTER = 5.0f; // seconds unit
+	const float TIME_SYNC_SYMBOL = 3.0f; // seconds unit
 }
 
 //----------------------------------------------------------------------------------
@@ -57,6 +57,7 @@ cRemoteInterpreter::cRemoteInterpreter(
 	, m_threads(nullptr)
 	, m_multiThreading(0)
 	, m_isThreadMode(true)
+	, m_symbolTableSyncItprId(-1)
 {
 }
 
@@ -220,6 +221,8 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 
 		if (itpr.state != eState::Run)
 			continue;
+		if (m_syncItptrs.end() == m_syncItptrs.find(itprId))
+			continue; // no need sync
 
 		itpr.regSyncTime += deltaSeconds;
 		itpr.instSyncTime += deltaSeconds;
@@ -272,7 +275,8 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 			}
 		}
 
-		SendSyncSymbolTable(itprId);
+		if (itprId == m_symbolTableSyncItprId)
+			SendSyncSymbolTable(itprId);
 
 		// is meet breakpoint? change step debugging mode
 		if (interpreter->IsBreak())
@@ -697,11 +701,11 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 			if (symbols.size() >= MaxSyncSymbolCount)
 				break;
 
-			const string &scope = kv1.first;
+			const string &scopeName = kv1.first;
 			for (auto &kv2 : kv1.second)
 			{
 				const string &name = kv2.first;
-				const string varName = kv1.first + "_" + kv2.first;
+				const string varName = scopeName + "_" + kv2.first;
 				const script::sVariable &var = kv2.second;
 
 				bool isSync = false;
@@ -729,7 +733,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 
 				if (isSync)
 				{
-					symbols.push_back(script::sSyncSymbol(&scope, &name, &var.var));
+					symbols.push_back(script::sSyncSymbol(&scopeName, &name, &var.var));
 					// tricky code, prevent packet overflow
 					if (symbols.size() >= MaxSyncSymbolCount)
 						break;
@@ -910,6 +914,22 @@ bool cRemoteInterpreter::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &p
 }
 
 
+// remotedbg2 protocol, request debug info, sync instruction, symboltable, register
+bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) 
+{ 
+	m_syncItptrs.clear();
+	for (auto &id : packet.itprIds)
+		m_syncItptrs.insert(id);
+
+	// refresh symboltable
+	m_symbolTableSyncItprId = packet.itprIds.empty() ? -1 : packet.itprIds[0];
+	m_chSymbols.clear();
+
+	m_protocol.AckDebugInfo(packet.senderId, true, packet.itprIds, 1);
+	return true;
+}
+
+
 // is webserver connected?
 bool cRemoteInterpreter::IsConnect()
 {
@@ -929,6 +949,7 @@ void cRemoteInterpreter::Clear()
 {
 	//m_state = eState::Stop;
 	m_chSymbols.clear();
+	m_syncItptrs.clear();
 	m_server.Close();
 	ClearInterpreters();
 	m_threads = nullptr;

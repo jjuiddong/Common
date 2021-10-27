@@ -405,6 +405,41 @@ void remotedbg2::r2h_Protocol::ReqStepDebugType(netid targetId, bool isBinary, c
 }
 
 //------------------------------------------------------------------------
+// Protocol: ReqDebugInfo
+//------------------------------------------------------------------------
+void remotedbg2::r2h_Protocol::ReqDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 2166551586 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprIds);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprIds", itprIds);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
 // Protocol: ReqHeartBeat
 //------------------------------------------------------------------------
 void remotedbg2::r2h_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
@@ -886,6 +921,43 @@ void remotedbg2::h2r_Protocol::AckStepDebugType(netid targetId, bool isBinary, c
 		ptree props;
 		try {
 			put(props, "stepDbgType", stepDbgType);
+			put(props, "result", result);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: AckDebugInfo
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds, const int &result)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 4276104084 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprIds);
+		marshalling::operator<<(packet, result);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprIds", itprIds);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);

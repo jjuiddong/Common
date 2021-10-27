@@ -98,6 +98,9 @@ export namespace remotedbg2 {
 	export type ReqStepDebugType_Packet = {
 		stepDbgType: number, 
 	}
+	export type ReqDebugInfo_Packet = {
+		itprIds: Int32Array | null, 
+	}
 	export type ReqHeartBeat_Packet = {
 	}
 
@@ -156,6 +159,10 @@ export namespace remotedbg2 {
 	}
 	export type AckStepDebugType_Packet = {
 		stepDbgType: number, 
+		result: number, 
+	}
+	export type AckDebugInfo_Packet = {
+		itprIds: Int32Array | null, 
 		result: number, 
 	}
 	export type SyncVMInstruction_Packet = {
@@ -456,6 +463,28 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 						handlers.forEach(handler => {
 							if (handler instanceof r2h_ProtocolHandler)
 								handler.ReqStepDebugType(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 2166551586: // ReqDebugInfo
+				{
+					if (option == 1) { // binary?
+						const itprIds = packet.getInt32Array()
+						const parsePacket: ReqDebugInfo_Packet = {
+							itprIds,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqDebugInfo(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: ReqDebugInfo_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqDebugInfo(parsePacket)
 						})
 					}
 				}
@@ -809,6 +838,30 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 				}
 				break;
 
+			case 4276104084: // AckDebugInfo
+				{
+					if (option == 1) { // binary?
+						const itprIds = packet.getInt32Array()
+						const result = packet.getInt32()
+						const parsePacket: AckDebugInfo_Packet = {
+							itprIds,
+							result,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckDebugInfo(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: AckDebugInfo_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckDebugInfo(parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 4206107288: // SyncVMInstruction
 				{
 					if (option == 1) { // binary?
@@ -1145,6 +1198,22 @@ export class r2h_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ReqDebugInfo
+	ReqDebugInfo(isBinary: boolean, itprIds: number[], ) {
+		if (!this.ws)
+			return
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32Array(itprIds)
+			Network.sendPacketBinary(this.ws, 5301, 2166551586, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprIds,
+			}
+			Network.sendPacket(this.ws, 5301, 2166551586, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(isBinary: boolean, ) {
 		if (!this.ws)
@@ -1398,6 +1467,24 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: AckDebugInfo
+	AckDebugInfo(isBinary: boolean, itprIds: number[], result: number, ) {
+		if (!this.ws)
+			return
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32Array(itprIds)
+			packet.pushInt32(result)
+			Network.sendPacketBinary(this.ws, 5300, 4276104084, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprIds,
+				result,
+			}
+			Network.sendPacket(this.ws, 5300, 4276104084, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(isBinary: boolean, itprId: number, vmIdx: number, indices: number[], ) {
 		if (!this.ws)
@@ -1518,6 +1605,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 	ReqInput = (packet: remotedbg2.ReqInput_Packet) => { }
 	ReqEvent = (packet: remotedbg2.ReqEvent_Packet) => { }
 	ReqStepDebugType = (packet: remotedbg2.ReqStepDebugType_Packet) => { }
+	ReqDebugInfo = (packet: remotedbg2.ReqDebugInfo_Packet) => { }
 	ReqHeartBeat = (packet: remotedbg2.ReqHeartBeat_Packet) => { }
 }
 
@@ -1540,6 +1628,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	AckInput = (packet: remotedbg2.AckInput_Packet) => { }
 	AckEvent = (packet: remotedbg2.AckEvent_Packet) => { }
 	AckStepDebugType = (packet: remotedbg2.AckStepDebugType_Packet) => { }
+	AckDebugInfo = (packet: remotedbg2.AckDebugInfo_Packet) => { }
 	SyncVMInstruction = (packet: remotedbg2.SyncVMInstruction_Packet) => { }
 	SyncVMRegister = (packet: remotedbg2.SyncVMRegister_Packet) => { }
 	SyncVMSymbolTable = (packet: remotedbg2.SyncVMSymbolTable_Packet) => { }

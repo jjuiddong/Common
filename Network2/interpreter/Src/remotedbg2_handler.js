@@ -328,6 +328,27 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
+			case 2166551586: // ReqDebugInfo
+				{
+					if (option == 1) { // binary?
+						const itprIds = packet.getInt32Array()
+						const parsePacket = {
+							itprIds,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+								handler.ReqDebugInfo(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+								handler.ReqDebugInfo(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 2532286881: // ReqHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -678,6 +699,29 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
+			case 4276104084: // AckDebugInfo
+				{
+					if (option == 1) { // binary?
+						const itprIds = packet.getInt32Array()
+						const result = packet.getInt32()
+						const parsePacket = {
+							itprIds,
+							result,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.AckDebugInfo(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.AckDebugInfo(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 4206107288: // SyncVMInstruction
 				{
 					if (option == 1) { // binary?
@@ -987,6 +1031,20 @@ remotedbg2.r2h_Protocol = class {
 		}
 	}
 	
+	// Protocol: ReqDebugInfo
+	ReqDebugInfo(ws, isBinary, itprIds, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32Array(itprIds)
+			WsSockServer.sendPacketBinary(ws, 5301, 2166551586, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprIds,
+			}
+			WsSockServer.sendPacket(ws, 5301, 2166551586, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
@@ -1214,6 +1272,22 @@ remotedbg2.h2r_Protocol = class {
 		}
 	}
 	
+	// Protocol: AckDebugInfo
+	AckDebugInfo(ws, isBinary, itprIds, result, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32Array(itprIds)
+			packet.pushInt32(result)
+			WsSockServer.sendPacketBinary(ws, 5300, 4276104084, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprIds,
+				result,
+			}
+			WsSockServer.sendPacket(ws, 5300, 4276104084, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(ws, isBinary, itprId, vmIdx, indices, ) {
 		if (isBinary) { // binary send?
@@ -1324,6 +1398,7 @@ remotedbg2.r2h_ProtocolHandler = class {
 	ReqInput(wss, ws, packet) {}
 	ReqEvent(wss, ws, packet) {}
 	ReqStepDebugType(wss, ws, packet) {}
+	ReqDebugInfo(wss, ws, packet) {}
 	ReqHeartBeat(wss, ws, packet) {}
 }
 
@@ -1346,6 +1421,7 @@ remotedbg2.h2r_ProtocolHandler = class {
 	AckInput(wss, ws, packet) {}
 	AckEvent(wss, ws, packet) {}
 	AckStepDebugType(wss, ws, packet) {}
+	AckDebugInfo(wss, ws, packet) {}
 	SyncVMInstruction(wss, ws, packet) {}
 	SyncVMRegister(wss, ws, packet) {}
 	SyncVMSymbolTable(wss, ws, packet) {}
