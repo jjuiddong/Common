@@ -221,8 +221,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 
 		if (itpr.state != eState::Run)
 			continue;
-		if (m_syncItptrs.end() == m_syncItptrs.find(itprId))
-			continue; // no need sync
+		const bool isSync = (m_syncItptrs.end() != m_syncItptrs.find(itprId));
 
 		itpr.regSyncTime += deltaSeconds;
 		itpr.instSyncTime += deltaSeconds;
@@ -249,7 +248,8 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		if (itpr.regSyncTime > TIME_SYNC_REGISTER)
 		{
 			itpr.regSyncTime = 0.f;
-			SendSyncVMRegister(itprId);
+			if (isSync)
+				SendSyncVMRegister(itprId);
 		}
 
 		// sync instruction?
@@ -268,14 +268,15 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 				itpr.instSyncTime = 0.f;
 				itpr.isChangeInstruction = false; // initialize flag
 
-				m_protocol.SyncVMInstruction(network2::ALL_NETID
-					, true, itprId, i, vm->m_trace);
+				if (isSync)
+					m_protocol.SyncVMInstruction(network2::ALL_NETID
+						, true, itprId, i, vm->m_trace);
 
 				vm->ClearCodeTrace(true);
 			}
 		}
 
-		if (itprId == m_symbolTableSyncItprId)
+		if (isSync && (itprId == m_symbolTableSyncItprId))
 			SendSyncSymbolTable(itprId);
 
 		// is meet breakpoint? change step debugging mode

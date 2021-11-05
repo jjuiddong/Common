@@ -92,7 +92,7 @@ namespace network2
 		iPacketHeader *m_header; // reference
 		netid m_sndId; // sender id
 		netid m_rcvId; // receiver id
-		bool m_is4Align; // 4byte alignment, websocket binary packet
+		bool m_is4Align; // 4byte alignment?, websocket binary packet
 		int m_readIdx;
 		int m_writeIdx;
 		char m_lastDelim; // GetDataString, GetDataAscii, last delimeter
