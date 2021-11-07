@@ -95,8 +95,14 @@ int cWQSemaphore::ThreadFunction(cWQSemaphore *wqSemaphore)
 		cTask *task = wqSemaphore->PopTask();
 		if (!task) // end thread command
 			break;
-
-		task->Run(0.f);
+		try
+		{
+			task->Run(0.f);
+		}
+		catch (std::exception &e)
+		{
+			dbg::Logc(2, "error cWQSemaphore Task exception, %s\n", e.what());
+		}
 		delete task;
 	}
 	return 1;

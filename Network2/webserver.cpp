@@ -489,7 +489,7 @@ int cWebServer::SendImmediate(const netid rcvId, const cPacket &packet)
 				, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
-			dbg::Logc(2, "error cWebServer send exception, %s\n", e.what());
+			dbg::Logc(2, "error cWebServer send exception1, %s\n", e.what());
 		}
 	}
 	return result;
@@ -512,7 +512,7 @@ int cWebServer::SendAll(const cPacket &packet, set<netid> *outErrs //= nullptr
 				, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
-			dbg::Logc(2, "error cWebServer send exception, %s\n", e.what());
+			dbg::Logc(2, "error cWebServer send exception2, %s\n", e.what());
 			if (outErrs)
 				outErrs->insert(session->m_id);
 		}

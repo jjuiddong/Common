@@ -295,8 +295,8 @@ bool cEditManager::Proc_NewLink()
 	const bool isEnumMatch = ((endPin->type == ePinType::Enums) && (startPin->type == ePinType::Int))
 		|| ((endPin->type == ePinType::Int) && (startPin->type == ePinType::Enums));
 
-	const bool isNotDefType = ((endPin->type == ePinType::Any) && vpl::IsVarType(startPin->type))
-		|| ((startPin->type == ePinType::Any) && vpl::IsVarType(endPin->type));
+	const bool isNotDefType = ((endPin->type == ePinType::Any) && vpl::IsPrimitiveType(startPin->type))
+		|| ((startPin->type == ePinType::Any) && vpl::IsPrimitiveType(endPin->type));
 
 	if (endPin == startPin)
 	{

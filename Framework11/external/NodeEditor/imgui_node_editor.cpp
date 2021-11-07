@@ -1818,7 +1818,7 @@ static bool RemoveItem(C& container, Id id)
 		auto &item = container[i];
 		if (item.m_ID == id)
 		{
-			common::rotatepopvector(container, i);
+			common::removevector2(container, i);
 			return true;
 		}
 	}
