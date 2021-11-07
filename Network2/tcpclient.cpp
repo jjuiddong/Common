@@ -49,6 +49,11 @@ bool cTcpClient::Init(const Str16 &ip
 
 	m_state = eState::ReadyConnect;
 
+	if (!m_recvQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+	if (!m_sendQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+
 	if (isThreadMode)
 	{
 		m_thread = std::thread(cTcpClient::ThreadFunction, this);
@@ -56,21 +61,8 @@ bool cTcpClient::Init(const Str16 &ip
 	else
 	{
 		if (!ConnectServer())
-		{
 			goto $error;
-		}
 	}
-
-	if (!m_recvQueue.Init(packetSize, maxPacketCount))
-	{
-		goto $error;
-	}
-
-	if (!m_sendQueue.Init(packetSize, maxPacketCount))
-	{
-		goto $error;
-	}
-
 	return true;
 
 

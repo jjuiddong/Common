@@ -97,6 +97,7 @@ namespace network2
 		int m_writeIdx;
 		char m_lastDelim; // GetDataString, GetDataAscii, last delimeter
 		bool m_emptyData; // GetDataAscii
+		bool m_isOverflow; // write overflow? (m_writeIdx > m_bufferSize)
 		int m_bufferSize; // default: DEFAULT_PACKETSIZE
 		BYTE m_buffer[DEFAULT_PACKETSIZE];
 		BYTE *m_data; // reference pointer m_buffer (to expand external memory access)
@@ -114,7 +115,11 @@ namespace network2
 	inline void cPacket::Append2(const T &rhs)
 	{
 		if (m_writeIdx + (int)sizeof(T) > m_bufferSize)
+		{
+			m_isOverflow = true;
 			return;
+		}
+
 		memmove_s(m_data + m_writeIdx, m_bufferSize - m_writeIdx, &rhs, sizeof(T));
 		m_writeIdx += (int)sizeof(T);
 	}
@@ -160,7 +165,10 @@ namespace network2
 	inline void cPacket::AppendPtr2(const T *rhs, const size_t size)
 	{
 		if (m_writeIdx + (int)size > m_bufferSize)
+		{
+			m_isOverflow = true;
 			return;
+		}
 		memmove_s(m_data + m_writeIdx, m_bufferSize - m_writeIdx, rhs, size);
 		m_writeIdx += size;
 	}
@@ -207,7 +215,10 @@ namespace network2
 	inline void cPacket::AddDelimeter()
 	{
 		if (m_writeIdx + 1 > m_bufferSize)
+		{
+			m_isOverflow = true;
 			return;
+		}
 		const int len = m_header->SetDelimeter(&m_data[m_writeIdx]);
 		m_writeIdx += len;
 	}
@@ -217,7 +228,10 @@ namespace network2
 	inline void cPacket::AppendDelimeter(const char c)
 	{
 		if (m_writeIdx + 1 > m_bufferSize)
+		{
+			m_isOverflow = true;
 			return;
+		}
 		m_data[m_writeIdx++] = c;
 	}
 

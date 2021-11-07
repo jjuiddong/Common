@@ -101,6 +101,7 @@ cWebServer::cWebServer(
 	, const int logId //= -1
 )
 	: cNetworkNode(name, logId)
+	, m_websocket(nullptr)
 	, m_httpServer(nullptr)
 	, m_maxBuffLen(RECV_BUFFER_LENGTH)
 	, m_sleepMillis(10)
@@ -126,11 +127,13 @@ cWebServer::~cWebServer()
 
 
 // initialize websocket server
+// isSpawnHttpSvr: create and start http server?
 bool cWebServer::Init(const int bindPort
 	, const int packetSize //= DEFAULT_PACKETSIZE
 	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //= true
+	, const bool isSpawnHttpSvr //= true
 )
 {
 	Close();
@@ -142,32 +145,39 @@ bool cWebServer::Init(const int bindPort
 	m_isThreadMode = isThreadMode;
 	m_timer.Create();
 
-	try
-	{
-		m_websocket = new Poco::Net::ServerSocket(bindPort);
-		m_httpServer = new Poco::Net::HTTPServer(new cHTTPRequestHandlerFactory(*this)
-			, *m_websocket, new HTTPServerParams);
-		m_httpServer->start(); // http server thread start
-	}
-	catch (std::exception &e)
-	{
-		dbg::Logc(1, "Error Bind WebSocket Server port=%d, msg=%s\n"
-			, bindPort, e.what());
-		m_state = eState::Disconnect;
-		return false;
-	}
-
-	m_state = eState::Connect;
-	dbg::Logc(1, "Bind WebSocket Server port = %d\n", bindPort);
-
 	if (!m_recvQueue.Init(packetSize, maxPacketCount))
 		goto $error;
 	if (!m_sendQueue.Init(packetSize, maxPacketCount))
 		goto $error;
 
+	if (isSpawnHttpSvr)
+	{
+		try
+		{
+			m_websocket = new Poco::Net::ServerSocket(bindPort);
+			m_httpServer = new Poco::Net::HTTPServer( new cHTTPRequestHandlerFactory(*this)
+				, *m_websocket, new HTTPServerParams);
+			m_httpServer->start(); // http server thread start
+		}
+		catch (std::exception &e)
+		{
+			dbg::Logc(1, "Error Bind WebSocket Server port=%d, msg=%s\n"
+				, bindPort, e.what());
+			m_state = eState::Disconnect;
+			return false;
+		}
+
+		dbg::Logc(1, "Bind WebSocket Server port = %d\n", bindPort);
+	}
+	else
+	{
+		dbg::Logc(1, "Start WebSocket Server with No HttpServer\n");
+	}
+
+	m_state = eState::Connect;
+
 	if (isThreadMode)
 		m_thread = std::thread(cWebServer::ThreadFunction, this);
-
 	return true;
 
 
@@ -287,6 +297,59 @@ bool cWebServer::RemoveSession(const netid netId)
 		m_isUpdateSocket = true;
 		FD_CLR(sock, &m_sockets);
 	}
+
+	return true;
+}
+
+
+// move session to another network node
+// tricky code to share websession
+// poco library httpserver always run thread mode
+// many webserver has many multi threading and slow program
+// so, one httpserver running and accept websession
+// websession move another network node
+cWebSession* cWebServer::MoveSession(const netid netId)
+{
+	cWebSession *session = nullptr;
+	common::AutoCSLock cs(m_cs);
+	auto it = m_sessions.find(netId);
+	if (m_sessions.end() == it)
+		return nullptr; // not found session
+	session = it->second;
+
+	const SOCKET sock = session->m_socket;
+	m_sessions.remove(netId);
+	m_sessions2.remove(sock);
+	m_recvQueue.Remove(netId);
+	m_isUpdateSocket = true;
+	FD_CLR(sock, &m_sockets);
+	return session;
+}
+
+
+// insert external session
+// tricky code, no httpserver mode need to insert external session
+bool cWebServer::InsertSession(cWebSession *session)
+{
+	RETV(!m_sessionFactory, false);
+
+	const SOCKET sock = session->m_socket;
+
+	if (FindSessionBySocket(sock))
+		return false; // Error!! Already Exist
+
+	common::AutoCSLock cs(m_cs);
+
+	m_sessions.insert({ session->m_id, session });
+	m_sessions2.insert({ sock, session });
+	m_isUpdateSocket = true; // update socket list
+	FD_SET(sock, &m_sockets);
+
+	if (m_logId >= 0)
+		network2::LogSession(m_logId, *session);
+
+	if (m_sessionListener)
+		m_sessionListener->AddSession(*session);
 
 	return true;
 }

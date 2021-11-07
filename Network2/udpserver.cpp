@@ -37,7 +37,8 @@ bool cUdpServer::Init(const int bindPort
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize;
 
-	m_recvQueue.Init(packetSize, maxPacketCount);
+	if (!m_recvQueue.Init(packetSize, maxPacketCount))
+		goto $error;
 
 	if (network2::LaunchUDPServer(bindPort, m_socket))
 	{
@@ -51,10 +52,7 @@ bool cUdpServer::Init(const int bindPort
 	}
 
 	if (isThreadMode)
-	{
 		m_thread = std::thread(cUdpServer::ThreadFunction, this);
-	}
-
 	return true;
 
 

@@ -35,10 +35,13 @@ namespace network2
 			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
+			, const bool isSpawnHttpSvr = true
 		);
 		bool Process();
 		bool AddSession(const SOCKET sock, const Str16 &ip, const int port);
 		bool RemoveSession(const netid netId);
+		cWebSession* MoveSession(const netid netId);
+		bool InsertSession(cWebSession *session);
 		void SetLogId(const int logId);
 		bool IsExist(const netid netId);
 		cWebSession* FindSessionBySocket(const SOCKET sock);

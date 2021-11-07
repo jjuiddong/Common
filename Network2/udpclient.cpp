@@ -40,15 +40,13 @@ bool cUdpClient::Init(const Str16 &ip
 	m_maxBuffLen = packetSize;
 	m_isThreadMode = isThreadMode;
 
+	if (!m_sendQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+
 	if (network2::LaunchUDPClient(ip.c_str(), port, m_sockaddr, m_socket))
 	{
 		m_state = eState::Connect;
 		dbg::Logc(1, "Connect UDP Client ip=%s, port=%d\n", ip.c_str(), port);
-
-		if (!m_sendQueue.Init(packetSize, maxPacketCount))
-		{
-			goto $error;
-		}
 	}
 	else
 	{
@@ -57,10 +55,7 @@ bool cUdpClient::Init(const Str16 &ip
 	}
 
 	if (isThreadMode)
-	{
 		m_thread = std::thread(cUdpClient::ThreadFunction, this);
-	}
-
 	return true;
 
 

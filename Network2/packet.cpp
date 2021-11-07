@@ -13,6 +13,7 @@ cPacket::cPacket()
 	, m_readIdx(0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
+	, m_isOverflow(false)
 	, m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
 	, m_sndId(0)
@@ -26,6 +27,7 @@ cPacket::cPacket(iPacketHeader *packetHeader)
 	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
+	, m_isOverflow(false)
 	, m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
 	, m_sndId(0)
@@ -38,6 +40,7 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
+	, m_isOverflow(false)
 	, m_data(m_buffer)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
 	, m_sndId(0)
@@ -50,6 +53,7 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 cPacket::cPacket(BYTE *src)
 	: m_sndId(0)
 	, m_rcvId(0)
+	, m_isOverflow(false)
 {
 	iPacketHeader *packetHeader = network2::GetPacketHeader(*(int*)src);
 	m_header = packetHeader;
@@ -66,6 +70,7 @@ cPacket::cPacket(const cPacket &rhs)
 	, m_bufferSize(DEFAULT_PACKETSIZE)
 	, m_sndId(0)
 	, m_rcvId(0)
+	, m_isOverflow(false)
 {
 	operator=(rhs);
 }
@@ -131,6 +136,7 @@ void cPacket::ShallowCopy(const cPacket &packet)
 	m_writeIdx = packet.m_writeIdx;
 	m_lastDelim = packet.m_lastDelim;
 	m_emptyData = packet.m_emptyData;
+	m_isOverflow = packet.m_isOverflow;
 	m_bufferSize = packet.m_bufferSize;
 	m_data = packet.m_data;
 }
@@ -156,6 +162,7 @@ cPacket& cPacket::operator=(const cPacket &rhs)
 		m_writeIdx = rhs.m_writeIdx;
 		m_lastDelim = rhs.m_lastDelim;
 		m_emptyData = rhs.m_emptyData;
+		m_isOverflow = rhs.m_isOverflow;
 		memcpy(m_data, rhs.m_data, sizeof(rhs.m_buffer));
 	}
 	return *this;

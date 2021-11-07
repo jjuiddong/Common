@@ -96,10 +96,11 @@ bool cNetController::StartWebServer(cWebServer *svr
 	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
+	, const bool isSpawnHttpSvr //= true
 )
 {
 	const bool result = svr->Init(bindPort, packetSize, maxPacketCount
-		, sleepMillis, isThreadMode);
+		, sleepMillis, isThreadMode, isSpawnHttpSvr);
 
 	if (!IsExistServer(svr))
 		m_webServers.push_back(svr);

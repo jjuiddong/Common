@@ -57,6 +57,7 @@ namespace network2
 			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
+			, const bool isSpawnHttpSvr = true
 		);
 
 		bool StartWebClient(cWebClient *client

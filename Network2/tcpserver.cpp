@@ -52,20 +52,15 @@ bool cTcpServer::Init(const int bindPort
 
 	m_timer.Create();
 
+	if (!m_recvQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+	if (!m_sendQueue.Init(packetSize, maxPacketCount))
+		goto $error;
+
 	if (network2::LaunchTCPServer(bindPort, m_socket))
 	{
 		m_state = eState::Connect;
 		dbg::Logc(1, "Bind TCP Server port = %d\n", bindPort);
-
-		if (!m_recvQueue.Init(packetSize, maxPacketCount))
-		{
-			goto $error;
-		}
-
-		if (!m_sendQueue.Init(packetSize, maxPacketCount))
-		{
-			goto $error;
-		}
 	}
 	else
 	{
@@ -74,9 +69,7 @@ bool cTcpServer::Init(const int bindPort
 	}
 
 	if (isThreadMode)
-	{
 		m_thread = std::thread(cTcpServer::ThreadFunction, this);
-	}
 
 	return true;
 

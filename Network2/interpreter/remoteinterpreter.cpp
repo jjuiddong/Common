@@ -92,6 +92,7 @@ bool cRemoteInterpreter::Init(cNetController &netController
 	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
+	, const bool isSpawnHttpSvr //= true
 )
 {
 	Clear();
@@ -103,7 +104,7 @@ bool cRemoteInterpreter::Init(cNetController &netController
 	m_server.RegisterProtocol(&m_protocol);
 
 	if (!netController.StartWebServer(&m_server, bindPort, packetSize
-		, maxPacketCount, sleepMillis, isThreadMode))
+		, maxPacketCount, sleepMillis, isThreadMode, isSpawnHttpSvr))
 	{
 		dbg::Logc(2, "Error Start WebServer port:%d \n", bindPort);
 		return false;
@@ -268,9 +269,8 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 				itpr.instSyncTime = 0.f;
 				itpr.isChangeInstruction = false; // initialize flag
 
-				if (isSync)
-					m_protocol.SyncVMInstruction(network2::ALL_NETID
-						, true, itprId, i, vm->m_trace);
+				m_protocol.SyncVMInstruction(network2::ALL_NETID
+					, true, itprId, i, vm->m_trace);
 
 				vm->ClearCodeTrace(true);
 			}

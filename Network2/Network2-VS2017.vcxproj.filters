@@ -180,6 +180,9 @@
     <ClInclude Include="udpservermap2.h">
       <Filter>Controller</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\basicmodule.h">
+      <Filter>Interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -314,6 +317,9 @@
     </ClCompile>
     <ClCompile Include="udpservermap2.cpp">
       <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\basicmodule.cpp">
+      <Filter>Interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
