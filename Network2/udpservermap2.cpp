@@ -12,7 +12,6 @@ cUdpServerMap2::cUdpServerMap2()
 	, m_sleepMillis(network2::DEFAULT_SLEEPMILLIS)
 	, m_logId(-1)
 	, m_portCursor(0)
-	, m_tempRecvBuffer(nullptr)
 {
 }
 
@@ -43,7 +42,18 @@ bool cUdpServerMap2::Init(const int startUdpBindPort
 	m_logId = logId;
 
 	m_isLoop = true;
-	m_thread = std::thread(cUdpServerMap2::ThreadFunction, this);
+	const uint maxThreadCnt = 2;
+	for (uint i = 0; i < maxThreadCnt; ++i)
+	{
+		sThreadContext *ctx = new sThreadContext;
+		ctx->name.Format("thread-%d", i);
+		ctx->count = 0; // udpserver count
+		ctx->recvBuffer = nullptr;
+		FD_ZERO(&ctx->readSockets);
+		ctx->thr = new std::thread(cUdpServerMap2::ThreadFunction, this, ctx);
+		m_ctxs.push_back(ctx);
+	}
+
 	return true;
 }
 
@@ -57,14 +67,31 @@ int cUdpServerMap2::AddUdpServer(const StrId &name
 	if (bindPort < 0)
 		return -1;
 
+	// add minimum udpserver context
+	sThreadContext *sel = nullptr;
+	uint minCount = 10000;
+	for (auto &ctx : m_ctxs)
+	{
+		if (ctx->count < minCount)
+		{
+			minCount = ctx->count;
+			sel = ctx;
+		}
+	}
+	if (!sel)
+	{
+		SetReadyPort(bindPort);
+		return -1;	
+	}
+
 	sThreadMsg msg;
 	msg.type = sThreadMsg::StartServer;
 	msg.name = name;
 	msg.port = bindPort;
 	msg.handler = handler;
-	m_csMsg.Lock();
-		m_sendThreadMsgs.push_back(msg);
-	m_csMsg.Unlock();
+	sel->cs.Lock();
+		sel->msgs.push(msg);
+	sel->cs.Unlock();
 	return bindPort;
 }
 
@@ -72,23 +99,16 @@ int cUdpServerMap2::AddUdpServer(const StrId &name
 // Remove UDP Server
 bool cUdpServerMap2::RemoveUdpServer(const StrId &name)
 {
-	sThreadMsg msg;
-	msg.type = sThreadMsg::RemoveServer;
-	msg.name = name;
-	m_csMsg.Lock();
-		m_sendThreadMsgs.push_back(msg);
-	m_csMsg.Unlock();
+	for (auto &ctx : m_ctxs)
+	{
+		sThreadMsg msg;
+		msg.type = sThreadMsg::RemoveServer;
+		msg.name = name;
+		ctx->cs.Lock();
+			ctx->msgs.push(msg);
+		ctx->cs.Unlock();
+	}
 	return true;
-}
-
-
-cUdpServerMap2::sServerData& cUdpServerMap2::FindUdpServer(const StrId &name)
-{
-	static sServerData nullSvrData{ "null", nullptr };
-	auto it = m_svrs.find(name);
-	if (m_svrs.end() == it)
-		return nullSvrData;
-	return it->second;
 }
 
 
@@ -135,26 +155,26 @@ void cUdpServerMap2::SetPortError(const int port, const int error)
 
 
 // message process
-bool cUdpServerMap2::MessageProcess()
+bool cUdpServerMap2::MessageProcess(sThreadContext *ctx)
 {
 	int procCnt = 0; // message process count
 	while (m_isLoop
 		&& (procCnt++ < 5)
-		&& !m_sendThreadMsgs.empty())
+		&& !ctx->msgs.empty())
 	{
 		sThreadMsg msg;
-		m_csMsg.Lock();
-		msg = m_sendThreadMsgs.front();
-		common::removevector2(m_sendThreadMsgs, 0);
-		m_csMsg.Unlock();
+		ctx->cs.Lock();
+		msg = ctx->msgs.front();
+		ctx->msgs.pop();
+		ctx->cs.Unlock();
 
 		switch (msg.type)
 		{
 		case sThreadMsg::StartServer:
 		{
 			bool isAlreadyExist = false;
-			auto it = m_svrs.find(msg.name);
-			isAlreadyExist = (m_svrs.end() != it);
+			auto it = ctx->svrs.find(msg.name);
+			isAlreadyExist = (ctx->svrs.end() != it);
 
 			if (isAlreadyExist)
 			{
@@ -164,6 +184,7 @@ bool cUdpServerMap2::MessageProcess()
 			}
 
 			network2::cUdpServer *svr = nullptr;
+			m_csFree.Lock();
 			if (m_freeSvrs.empty())
 			{
 				svr = new network2::cUdpServer(StrId("UdpServer") + "-" + msg.name
@@ -178,6 +199,7 @@ bool cUdpServerMap2::MessageProcess()
 				svr->m_name = StrId("UdpServer") + "-" + msg.name;
 				svr->AddProtocolHandler(msg.handler);
 			}
+			m_csFree.Unlock();
 
 			const bool result = svr->Init(msg.port
 				, m_packetSize, m_packetCount
@@ -197,11 +219,11 @@ bool cUdpServerMap2::MessageProcess()
 				sServerData svrData;
 				svrData.name = msg.name;
 				svrData.svr = svr;
-				m_svrs.insert({ msg.name, svrData });
+				ctx->svrs.insert({ msg.name, svrData });
 				if (result)
 				{
-					m_svrs2.insert({ svr->m_socket, svr });
-					FD_SET(svr->m_socket, &m_readSockets);
+					ctx->svrs2.insert({ svr->m_socket, svr });
+					FD_SET(svr->m_socket, &ctx->readSockets);
 				}
 			}
 		}
@@ -209,10 +231,10 @@ bool cUdpServerMap2::MessageProcess()
 
 		case sThreadMsg::RemoveServer:
 		{
-			auto it = m_svrs.find(msg.name);
+			auto it = ctx->svrs.find(msg.name);
 			int svrPort = -1;
 			SOCKET socket = INVALID_SOCKET;
-			if (m_svrs.end() != it)
+			if (ctx->svrs.end() != it)
 			{
 				auto info = it->second;
 				if (info.svr)
@@ -221,8 +243,8 @@ bool cUdpServerMap2::MessageProcess()
 					svrPort = info.svr->m_port;
 					info.svr->Close();
 				}
-				m_svrs.erase(msg.name);
-				m_svrs2.erase(socket);
+				ctx->svrs.erase(msg.name);
+				ctx->svrs2.erase(socket);
 
 				// send udpsvrmap protocol, Close event trigger
 				// to remove instance, send immediate
@@ -235,8 +257,10 @@ bool cUdpServerMap2::MessageProcess()
 					// initialize udpserver to reuse
 					info.svr->m_protocolHandlers.clear();
 					info.svr->m_recvQueue.ClearBuffer();
-					m_freeSvrs.push(info.svr);
-					FD_CLR(socket, &m_readSockets);
+					m_csFree.Lock();
+						m_freeSvrs.push(info.svr);
+					m_csFree.Unlock();
+					FD_CLR(socket, &ctx->readSockets);
 				}
 			}
 			if (svrPort > 0) // outside cs, to avoid deadlock
@@ -252,17 +276,17 @@ bool cUdpServerMap2::MessageProcess()
 
 
 // packet recv process
-bool cUdpServerMap2::ReceiveProcess()
+bool cUdpServerMap2::ReceiveProcess(sThreadContext *ctx)
 {
-	if (0 == m_readSockets.fd_count)
+	if (0 == ctx->readSockets.fd_count)
 		return true;
 
-	if (!m_tempRecvBuffer)
-		m_tempRecvBuffer = new char[m_packetSize];
+	if (!ctx->recvBuffer)
+		ctx->recvBuffer = new char[m_packetSize];
 
 	const timeval t = { 0, 0 };
-	const fd_set &sockets = m_readSockets;
-	fd_set readSockets = m_readSockets;
+	const fd_set &sockets = ctx->readSockets;
+	fd_set readSockets = ctx->readSockets;
 
 	const int ret = select(readSockets.fd_count, &readSockets, nullptr, nullptr, &t);
 	if (0 == ret)
@@ -276,9 +300,9 @@ bool cUdpServerMap2::ReceiveProcess()
 		if (!FD_ISSET(sock, &readSockets))
 			continue;
 
-		const int result = recv(sock, m_tempRecvBuffer, m_packetSize, 0);
-		auto it = m_svrs2.find(sock);
-		if (m_svrs2.end() == it)
+		const int result = recv(sock, ctx->recvBuffer, m_packetSize, 0);
+		auto it = ctx->svrs2.find(sock);
+		if (ctx->svrs2.end() == it)
 			continue; // not found udpserver
 
 		cUdpServer* svr = it->second;
@@ -288,7 +312,7 @@ bool cUdpServerMap2::ReceiveProcess()
 		}
 		else
 		{
-			svr->m_recvQueue.Push(svr->m_id, (BYTE*)m_tempRecvBuffer, result);
+			svr->m_recvQueue.Push(svr->m_id, (BYTE*)ctx->recvBuffer, result);
 		}
 	}
 
@@ -300,51 +324,57 @@ bool cUdpServerMap2::ReceiveProcess()
 void cUdpServerMap2::Clear()
 {
 	m_isLoop = false;
-	if (m_thread.joinable())
-		m_thread.join();
 
-	for (auto &it : m_svrs)
-	{
-		if (it.second.svr)
-		{
-			it.second.svr->Close();
-			SAFE_DELETE(it.second.svr);
-		}
-	}
-	m_svrs.clear();
-	m_svrs2.clear();
-
+	m_csFree.Lock();
 	while (!m_freeSvrs.empty())
 	{
 		delete m_freeSvrs.front();
 		m_freeSvrs.pop();
 	}
+	m_csFree.Unlock();
 
-	FD_ZERO(&m_readSockets);
-	SAFE_DELETEA(m_tempRecvBuffer);
+	for (auto &ctx : m_ctxs)
+	{
+		if (ctx->thr->joinable())
+			ctx->thr->join();
+		delete ctx->thr;
+
+		for (auto &it : ctx->svrs)
+		{
+			if (it.second.svr)
+			{
+				it.second.svr->Close();
+				SAFE_DELETE(it.second.svr);
+			}
+		}
+		ctx->svrs.clear();
+		ctx->svrs2.clear();
+		FD_ZERO(&ctx->readSockets);
+		SAFE_DELETEA(ctx->recvBuffer);
+		delete ctx;
+	}
+	m_ctxs.clear();
 }
 
 
-int cUdpServerMap2::ThreadFunction(cUdpServerMap2 *udpSvrMap)
+int cUdpServerMap2::ThreadFunction(cUdpServerMap2 *udpSvrMap, sThreadContext *ctx)
 {
-	cTimer timer;
-	timer.Create();
-	//double incT = 0.0;
-	//int loop = 0;
-
+	//cTimer timer;
+	//timer.Create();
 	while (udpSvrMap->m_isLoop)
 	{
-		udpSvrMap->MessageProcess();
-		udpSvrMap->ReceiveProcess();
+		udpSvrMap->MessageProcess(ctx);
+		udpSvrMap->ReceiveProcess(ctx);
 
-		auto it = udpSvrMap->m_svrs2.begin();
-		while (it != udpSvrMap->m_svrs2.end())
+		ctx->count = ctx->svrs.size();
+		auto it = ctx->svrs2.begin();
+		while (it != ctx->svrs2.end())
 		{
 			cUdpServer *svr = it++->second;
 			cNetController::Dispatch(svr);
 		}
 
-		const int sleepTime = udpSvrMap->m_svrs.empty() ? 100 : udpSvrMap->m_sleepMillis;
+		const int sleepTime = ctx->svrs.empty() ? 100 : udpSvrMap->m_sleepMillis;
 		if (sleepTime > 0)
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}

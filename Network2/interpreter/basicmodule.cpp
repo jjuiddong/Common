@@ -91,6 +91,7 @@ eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 		const int id = symbolTable.Get<int>(scopeName, "id");
 		const bool result = vm.StopTimer(id);
 		symbolTable.Set<bool>(scopeName, "result", result, "bool");
+		return eModuleResult::Done;
 	}
 	else if ((funcName == "Array.Get")
 		|| (funcName == "Array.Set")

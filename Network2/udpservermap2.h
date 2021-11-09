@@ -18,6 +18,30 @@ namespace network2
 			network2::cUdpServer *svr;
 		};
 
+		// Thread Message
+		struct sThreadMsg
+		{
+			enum eType { StartServer, RemoveServer };
+			eType type;
+			StrId name;
+			int port;
+			network2::iProtocolHandler *handler;
+		};
+
+		struct sThreadContext
+		{
+			StrId name; // thread name
+			queue<sThreadMsg> msgs; // external -> thread msg
+			std::atomic<uint> count; // udpserver count
+			map<StrId, sServerData> svrs;
+			map<SOCKET, cUdpServer*> svrs2; // reference from svrs, key: udpserver socket
+			char *recvBuffer;
+			fd_set readSockets; // read udp socket set
+			CriticalSection cs; // sync message
+			std::thread *thr;
+		};
+
+
 		cUdpServerMap2();
 		virtual ~cUdpServerMap2();
 
@@ -30,7 +54,6 @@ namespace network2
 		);
 		int AddUdpServer(const StrId &name, network2::iProtocolHandler *handler);
 		bool RemoveUdpServer(const StrId &name);
-		sServerData& FindUdpServer(const StrId &name);
 		void Clear();
 
 
@@ -38,9 +61,9 @@ namespace network2
 		void SetReadyPort(const int port);
 		void SetPortError(const int port, const int error);
 		int GetReadyPort();
-		bool MessageProcess();
-		bool ReceiveProcess();
-		static int ThreadFunction(cUdpServerMap2 *udpSvrMap);
+		bool MessageProcess(sThreadContext *ctx);
+		bool ReceiveProcess(sThreadContext *ctx);
+		static int ThreadFunction(cUdpServerMap2 *udpSvrMap, sThreadContext *ctx);
 
 
 	public:
@@ -58,26 +81,11 @@ namespace network2
 		int m_logId; // packet log id, default: -1
 		vector<sBindPort> m_bindPortMap; // port mapping (port, available)
 		uint m_portCursor;
-		map<StrId, sServerData> m_svrs;
-		map<SOCKET, cUdpServer*> m_svrs2; // reference from m_svrs, key: udpserver socket
-		queue<network2::cUdpServer*> m_freeSvrs; // reuse free udpserver
-		fd_set m_readSockets; // read udp socket set
-
-		// Thread Message
-		struct sThreadMsg
-		{
-			enum eType { StartServer, RemoveServer };
-			eType type;
-			StrId name;
-			int port;
-			network2::iProtocolHandler *handler;
-		};
 
 		bool m_isLoop; // thread loop?
-		CriticalSection m_csMsg; // sync message
-		vector<sThreadMsg> m_sendThreadMsgs; // external -> thread msg
-		char *m_tempRecvBuffer;
-		std::thread m_thread;
+		CriticalSection m_csFree;
+		queue<network2::cUdpServer*> m_freeSvrs; // reuse free udpserver
+		vector<sThreadContext*> m_ctxs;
 	};
 
 }
