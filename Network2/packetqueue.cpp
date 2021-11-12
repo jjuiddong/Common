@@ -164,7 +164,7 @@ void cPacketQueue::SendAll(
 				if (!result)
 				{
 					// error!!, no remove buffer, resend
-					dbg::Logc(2, "Error Send Packet\n");
+					//dbg::Logc(2, "Error Send Packet\n");
 					isSendError = true;
 					break;
 				}
@@ -182,7 +182,7 @@ void cPacketQueue::SendAll(
 					if (result != packet.GetPacketSize())
 					{
 						// error!!, no remove buffer, resend
-						dbg::Logc(2, "Error Send Packet\n");
+						//dbg::Logc(2, "Error Send Packet\n");
 						isSendError = true;
 						break;
 					}
@@ -245,7 +245,7 @@ void cPacketQueue::SendAll(
 				if (result != packet.GetPacketSize())
 				{
 					// error!!, no remove buffer, resend
-					dbg::Logc(2, "Error Send Packet\n");
+					//dbg::Logc(2, "Error Send Packet\n");
 					result = SOCKET_ERROR;
 					isSendError = true;
 				}

@@ -70,6 +70,10 @@ void network2::GetPacketElement(const ePacketFormat format
 		Packet2Variant<float>(format, packet, v);
 	else if (typeStr == "double")
 		Packet2Variant<double>(format, packet, v);
+	else if (typeStr == "short")
+		Packet2Variant<short>(format, packet, v);
+	else if (typeStr == "ushort")
+		Packet2Variant<ushort>(format, packet, v);
 	else if (typeStr == "int")
 		Packet2Variant<int>(format, packet, v);
 	else if (typeStr == "uint")
@@ -179,34 +183,39 @@ string network2::Packet2String(const cPacket &packet, sPacket *protocol)
 
 	ss << protocol->name << " sender = " << tempPacket.GetSenderId() << " ";
 
-	sArg *arg = protocol->argList;
-	while (arg)
-	{
-		// todo: need more generalize code
-		// not work vector<float>, vector<char> type
-		const string &type = arg->var->type;
-		if (type == "vector<int>")
-			Vector2String<int>(tempPacket, isBinaryPacket, arg, ss);
-		else if (type == "vector<ushort>")
-			Vector2String<ushort>(tempPacket, isBinaryPacket, arg, ss);
-		else if (type == "vector<uint>")
-			Vector2String<uint>(tempPacket, isBinaryPacket, arg, ss);
-		else if (type == "vector<string>")
-			Vector2String<string>(tempPacket, isBinaryPacket, arg, ss);
-		else
+	try {
+		sArg *arg = protocol->argList;
+		while (arg)
 		{
-			_variant_t var;
-			GetPacketElement(format, arg->var->type, tempPacket, var);
-			ss << arg->var->var + " = ";
-			ss << common::variant2str(var);
+			// todo: need more generalize code
+			// not work vector<float>, vector<char> type
+			const string &type = arg->var->type;
+			if (type == "vector<int>")
+				Vector2String<int>(tempPacket, isBinaryPacket, arg, ss);
+			else if (type == "vector<ushort>")
+				Vector2String<ushort>(tempPacket, isBinaryPacket, arg, ss);
+			else if (type == "vector<uint>")
+				Vector2String<uint>(tempPacket, isBinaryPacket, arg, ss);
+			else if (type == "vector<string>")
+				Vector2String<string>(tempPacket, isBinaryPacket, arg, ss);
+			else
+			{
+				_variant_t var;
+				GetPacketElement(format, arg->var->type, tempPacket, var);
+				ss << arg->var->var + " = ";
+				ss << common::variant2str(var);
+			}
+
+			//if ( arg->var->var == "errorCode")
+			//	ss << "(" << ErrorCodeString((error::ERROR_CODE)(int)var) << ")";
+
+			arg = arg->next;
+			if (arg)
+				ss << ", ";
 		}
-
-		//if ( arg->var->var == "errorCode")
-		//	ss << "(" << ErrorCodeString((error::ERROR_CODE)(int)var) << ")";
-
-		arg = arg->next;
-		if (arg)
-			ss << ", ";
+	}
+	catch (std::exception &e) {
+		dbg::Logc(1, "error, packet2string %s\n", e.what());
 	}
 
 	return ss.str();
