@@ -23,7 +23,6 @@ string& common::trim(string &str)
 	{
 		if ((str[i] == '\n') || (str[i] == '\t') || (str[i] == '\r') || (str[i] == ' '))
 		{
-			//rotatepopvector(str, i);
 			common::removevector2(str, i);
 			--i;
 		}
@@ -36,7 +35,6 @@ string& common::trim(string &str)
 	{
 		if ((str[i] == '\n') || (str[i] == '\t') || (str[i] == '\r') || (str[i] == ' '))
 		{
-			//rotatepopvector(str, i);
 			common::removevector2(str, i);
 		}
 		else
@@ -59,6 +57,12 @@ string common::trim2(const string &str)
 void common::trimw(wstring &str)
 {
 	str = str2wstr(trim(wstr2str(str)));
+}
+wstring common::trimw2(const wstring &str)
+{
+	wstring val = str;
+	trimw(val);
+	return val;
 }
 
 
@@ -354,7 +358,9 @@ void common::tokenizer(const string &str, const string &delimeter
 		const int pos = (int)tmp.find(delimeter, offset);
 		if (string::npos == pos)
 		{
-			out.push_back(tmp.substr(first));
+			string tok = common::trim2(tmp.substr(first));
+			if (!tok.empty())
+				out.push_back(tok);
 			break;
 		}
 		else
@@ -384,7 +390,10 @@ void common::wtokenizer(const wstring &str, const wstring &delimeter, const wstr
 		const int pos = (int)tmp.find(delimeter, offset);
 		if (wstring::npos == pos)
 		{
-			out.push_back(tmp.substr(first));
+			wstring tok = common::trimw2(tmp.substr(first));
+			if (!tok.empty())
+				out.push_back(tok);
+			//out.push_back(tmp.substr(first));
 			break;
 		}
 		else

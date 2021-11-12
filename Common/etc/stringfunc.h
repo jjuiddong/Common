@@ -17,6 +17,7 @@ namespace common
 	string& trim(string &str);
 	string trim2(const string &str);
 	void trimw(wstring &str);
+	wstring trimw2(const wstring &str);
 
 	string& lowerCase(string &str);
 	string lowerCase2(const string &str);
