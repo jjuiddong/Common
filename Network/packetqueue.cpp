@@ -314,7 +314,7 @@ void cPacketQueue::Pop()
 	RET(m_queue.empty());
 
 	Free(m_queue.front().buffer);
-	common::rotatepopvector(m_queue, 0);
+	common::removevector2(m_queue, 0);
 }
 
 

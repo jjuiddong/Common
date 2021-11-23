@@ -314,21 +314,29 @@ namespace network2
 	}
 
 
-	// copy until meet nullptr
+	// copy until meet null
 	inline void cPacket::GetDataString(OUT string &str)
 	{
-		//todo: use heap memory, size=m_bufferSize
+		bool isLoop = true;
 		char buf[DEFAULT_PACKETSIZE] = { NULL, };
-		for (int i = 0; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < m_writeIdx); ++i)
+		while (isLoop && (m_readIdx < m_writeIdx))
 		{
-			buf[i] = m_data[m_readIdx++];
-			if (NULL == m_data[m_readIdx - 1])
-				break;
+			int i = 0;
+			for (; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < m_writeIdx); ++i)
+			{
+				buf[i] = m_data[m_readIdx++];
+				if (NULL == m_data[m_readIdx - 1])
+				{
+					isLoop = false;
+					break;
+				}
+			}
+			buf[i] = NULL;
+			str += buf;
 		}
-		str = buf;
 	}
 
-	// copy until meet nullptr
+	// copy until meet null
 	inline void cPacket::GetDataString(OUT char buffer[], const uint maxLength)
 	{
 		for (int i = 0; i < (int)maxLength - 1 && (m_readIdx < m_writeIdx); ++i)
@@ -343,37 +351,51 @@ namespace network2
 	// ignore delimeter if begin double quoto
 	inline int cPacket::GetDataString(const char delimeter1, const char delimeter2, OUT string &str)
 	{
-		int i = 0;
-		char c = NULL;
+		int len = 0;
+		bool isLoop = true;
 		bool isStart = true;
 		bool isDoubleQuote = false;
-		//todo: use heap memory, size=m_bufferSize
-		char buff[DEFAULT_PACKETSIZE] = { NULL, };
-		while ((m_readIdx < m_writeIdx) && (i < (DEFAULT_PACKETSIZE - 1)))
+		
+		while (isLoop && (m_readIdx < m_writeIdx))
 		{
-			c = m_data[m_readIdx++];
-			if (isStart && (c == '\"'))
+			int i = 0;
+			char c = NULL;
+			char buff[DEFAULT_PACKETSIZE] = { NULL, };
+			while ((m_readIdx < m_writeIdx) && (i < (DEFAULT_PACKETSIZE - 1)))
 			{
+				c = m_data[m_readIdx++];
+				if (isStart && (c == '\"'))
+				{
+					isStart = false;
+					isDoubleQuote = true;
+					continue;
+				}
+
+				if (isDoubleQuote && ((c == '\"') || (c == NULL)))
+				{
+					isLoop = false;
+					break;
+				}
+				if (!isDoubleQuote && ((c == delimeter1) || (c == delimeter2) || (c == NULL)))
+				{
+					isLoop = false;
+					break;
+				}
+
+				buff[i++] = c;
 				isStart = false;
-				isDoubleQuote = true;
-				continue;
+				++len;
 			}
 
-			if (isDoubleQuote && ((c == '\"') || (c == NULL)))
-				break;
-			if (!isDoubleQuote && ((c == delimeter1) || (c == delimeter2) || (c == NULL)))
-				break;
+			if (i < DEFAULT_PACKETSIZE)
+				buff[i] = NULL;
+			str += buff;
 
-			buff[i++] = c;
-			isStart = false;
+			m_lastDelim = c;
+			m_emptyData = (len <= 0);
 		}
 
-		if (i < DEFAULT_PACKETSIZE)
-			buff[i] = NULL;
-		str = buff;
-		m_lastDelim = c;
-		m_emptyData = (i <= 0);
-		return i;
+		return len;
 	}
 
 

@@ -139,7 +139,7 @@ void cTCPServer::RemoveSession(const SOCKET remoteSock)
 				m_listener->RemoveSession(m_sessions[i]);
 
 			closesocket(m_sessions[i].socket);
-			common::rotatepopvector(m_sessions, i);
+			common::removevector2(m_sessions, i);
 			break;
 		}
 	}
