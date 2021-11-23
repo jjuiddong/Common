@@ -318,21 +318,21 @@ namespace network2
 	inline void cPacket::GetDataString(OUT string &str)
 	{
 		bool isLoop = true;
-		char buf[DEFAULT_PACKETSIZE] = { NULL, };
+		char buff[128] = { NULL, };
 		while (isLoop && (m_readIdx < m_writeIdx))
 		{
 			int i = 0;
-			for (; i < DEFAULT_PACKETSIZE - 1 && (m_readIdx < m_writeIdx); ++i)
+			for (; i < ARRAYSIZE(buff)- 1 && (m_readIdx < m_writeIdx); ++i)
 			{
-				buf[i] = m_data[m_readIdx++];
+				buff[i] = m_data[m_readIdx++];
 				if (NULL == m_data[m_readIdx - 1])
 				{
 					isLoop = false;
 					break;
 				}
 			}
-			buf[i] = NULL;
-			str += buf;
+			buff[i] = NULL;
+			str += buff;
 		}
 	}
 
@@ -360,8 +360,8 @@ namespace network2
 		{
 			int i = 0;
 			char c = NULL;
-			char buff[DEFAULT_PACKETSIZE] = { NULL, };
-			while ((m_readIdx < m_writeIdx) && (i < (DEFAULT_PACKETSIZE - 1)))
+			char buff[128] = { NULL, };
+			while ((m_readIdx < m_writeIdx) && (i < (ARRAYSIZE(buff) - 1)))
 			{
 				c = m_data[m_readIdx++];
 				if (isStart && (c == '\"'))
@@ -387,7 +387,7 @@ namespace network2
 				++len;
 			}
 
-			if (i < DEFAULT_PACKETSIZE)
+			if (i < ARRAYSIZE(buff))
 				buff[i] = NULL;
 			str += buff;
 

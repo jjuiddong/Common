@@ -183,6 +183,9 @@
     <ClInclude Include="interpreter\basicmodule.h">
       <Filter>Interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="utility\packetpump.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -320,6 +323,9 @@
     </ClCompile>
     <ClCompile Include="interpreter\basicmodule.cpp">
       <Filter>Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\packetpump.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
