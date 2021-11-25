@@ -418,7 +418,7 @@ namespace network2
 		return packet;
 	}
 
-	inline cPacket& marshalling::operator>>(cPacket& packet, _variant_t &out)
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT _variant_t &out)
 	{
 		packet >> out.vt; // value type (2 bytes)
 
@@ -516,19 +516,19 @@ namespace network2
 	}
 
 	template<class T>
-	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::vector<T> &v)
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT vector<T> &v)
 	{
 		return GetSequence(packet, v);
 	}
 
 	template<class T>
-	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::list<T> &v)
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT list<T> &v)
 	{
 		return GetSequence(packet, v);
 	}
 
 	template<class T>
-	inline cPacket& marshalling::operator>>(cPacket& packet, OUT std::set<T> &v)
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT set<T> &v)
 	{
 		return GetUnOrderedSequence(packet, v);
 	}
