@@ -34,8 +34,8 @@ namespace common
 		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
 		virtual Transform GetTransform() const override;
 
-		bool Intersects(const cBoundingCapsule &bcapsule) const;
-		bool Intersects(const cBoundingSphere &bsphere) const;
+		bool Intersects(const cBoundingCapsule &bcapsule, float *outGap = nullptr) const;
+		bool Intersects(const cBoundingSphere &bsphere, float *outGap = nullptr) const;
 
 		void SetCapsule(const Vector3 &pos0, const Vector3 &pos1, const float radius);
 		void SetPos(const Vector3 &pos);

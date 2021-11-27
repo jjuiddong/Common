@@ -49,17 +49,27 @@ Transform cBoundingCapsule::GetTransform() const
 
 
 // intersect test with bounding capusle
-bool cBoundingCapsule::Intersects(const cBoundingCapsule &bcapsule) const
+// outGap: return intersect distance
+bool cBoundingCapsule::Intersects(const cBoundingCapsule &bcapsule
+	, float *outGap //= nullptr
+) const
 {
 	const float dist = m_line.GetDistance(bcapsule.m_line);
+	if (outGap)
+		*outGap = abs(dist - (m_radius + bcapsule.m_radius));
 	return dist <= (m_radius + bcapsule.m_radius);
 }
 
 
 // intersect test with bounding sphere
-bool cBoundingCapsule::Intersects(const cBoundingSphere &bsphere) const
+// outGap: return intersect distance
+bool cBoundingCapsule::Intersects(const cBoundingSphere &bsphere
+	, float *outGap //= nullptr
+) const
 {
 	const float dist = m_line.GetDistance(bsphere.GetPos());
+	if (outGap)
+		*outGap = abs(dist - (m_radius + bsphere.GetRadius()));
 	return dist <= (m_radius + bsphere.GetRadius());
 }
 
