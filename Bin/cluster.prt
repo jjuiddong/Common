@@ -1,0 +1,53 @@
+//
+// 2020-12-31, jjuiddong
+// cluster protocol
+//	- websocket communication
+//		- json/binary format
+//	- cluster info, robot info sync
+//
+//	-  cluster  <->  web browser
+//    (Server)        (client)
+//
+
+
+// cluster -> web browser
+protocol s2c 8200 json
+{
+	Welcome(string msg);
+	AckLogin(string name, int result);
+	AckLogout(string name, int result);
+	AckRun(string projectName, string mapFileName, string pathFileName
+		, vector<string> nodeFileNames, string taskName, int result);
+	AckStop(int result);
+
+	SpawnRobot(string robotName, string modelName);
+	RemoveRobot(string robotName);
+	RobotWorkFinish(string robotName, uint taskId, uint totalWorkCount, uint finishWorkCount);
+	RealtimeRobotState(string robotName, BYTE state1, BYTE state2
+		, BYTE state3, BYTE state4, Vector3 pos, Vector3 dir );
+	RobotPath(string robotName, vector<ushort> path, vector<ushort> wtimes);
+	AckLogFileName(string logFileName);
+	ReqPing(int id);
+}
+
+
+// web browser -> cluster
+protocol c2s 8300 json
+{
+	ReqLogin(string name);
+	ReqLogout(string name);
+	ReqRun(string projectName, string mapFileName, string pathFileName
+		, vector<string> nodeFileNames, string taskName);
+	ReqStop();
+	ReqLogFileName();
+	AckPing(int id, int result);
+}
+
+
+// custom type
+struct Vector3 
+{
+	float x;
+	float y;
+	float z;
+}

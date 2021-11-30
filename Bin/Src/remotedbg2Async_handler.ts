@@ -6,7 +6,7 @@
 import TypeVariant from "../common/variant";
 import { Network } from "../network/network";
 
-export namespace remotedbg2 {
+export namespace remotedbg2Async {
 	export type sSyncSymbol = {
 		scope: string, 
 		name: string, 
@@ -193,320 +193,128 @@ export namespace remotedbg2 {
 
 
 //------------------------------------------------------------------------
-// remotedbg2 r2h Protocol Dispatcher
+// remotedbg2Async r2h Protocol Dispatcher
 //------------------------------------------------------------------------
 export class r2h_Dispatcher extends Network.Dispatcher {
 	 constructor() {
 		super(5301)
 	}
-	dispatch(ws: WebSocket, packet: Network.Packet, handlers: Network.Handler[]) {
-		if (!packet.buff) return
-		packet.init()
-		// packet format
-		// | protocol id (4) | packet id (4) | packet length (4) | option (4) |
-		const protocolId = packet.getUint32()
-		const packetId = packet.getUint32()
-		const packetLength = packet.getUint32()
-		const option = packet.getUint32()
-
+	dispatchAsync(protocolId: number, packetId: number, parsePacket: any, handlers: Network.Handler[]) {
 		switch (packetId) {
 			case 1418562193: // UploadIntermediateCode
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const code = packet.getStr()
-						const parsePacket: UploadIntermediateCode_Packet = {
-							itprId,
-							code,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.UploadIntermediateCode(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: UploadIntermediateCode_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.UploadIntermediateCode(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.UploadIntermediateCode(parsePacket)
+					})
 				}
 				break;
 
 			case 1644585100: // ReqIntermediateCode
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const parsePacket: ReqIntermediateCode_Packet = {
-							itprId,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqIntermediateCode(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqIntermediateCode_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqIntermediateCode(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqIntermediateCode(parsePacket)
+					})
 				}
 				break;
 
 			case 923151823: // ReqRun
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const runType = packet.getStr()
-						const parsePacket: ReqRun_Packet = {
-							itprId,
-							runType,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqRun(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqRun_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqRun(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqRun(parsePacket)
+					})
 				}
 				break;
 
 			case 2884814738: // ReqOneStep
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const parsePacket: ReqOneStep_Packet = {
-							itprId,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqOneStep(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqOneStep_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqOneStep(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqOneStep(parsePacket)
+					})
 				}
 				break;
 
 			case 742173167: // ReqResumeRun
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const parsePacket: ReqResumeRun_Packet = {
-							itprId,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqResumeRun(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqResumeRun_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqResumeRun(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqResumeRun(parsePacket)
+					})
 				}
 				break;
 
 			case 784411795: // ReqBreak
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const parsePacket: ReqBreak_Packet = {
-							itprId,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqBreak(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqBreak_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqBreak(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqBreak(parsePacket)
+					})
 				}
 				break;
 
 			case 2487089996: // ReqBreakPoint
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const enable = packet.getBool()
-						const id = packet.getUint32()
-						const parsePacket: ReqBreakPoint_Packet = {
-							itprId,
-							enable,
-							id,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqBreakPoint(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqBreakPoint_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqBreakPoint(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqBreakPoint(parsePacket)
+					})
 				}
 				break;
 
 			case 1453251868: // ReqStop
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const parsePacket: ReqStop_Packet = {
-							itprId,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqStop(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqStop_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqStop(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqStop(parsePacket)
+					})
 				}
 				break;
 
 			case 3140751413: // ReqInput
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const eventName = packet.getStr()
-						const parsePacket: ReqInput_Packet = {
-							itprId,
-							vmIdx,
-							eventName,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqInput(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqInput_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqInput(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqInput(parsePacket)
+					})
 				}
 				break;
 
 			case 186222094: // ReqEvent
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const eventName = packet.getStr()
-						const parsePacket: ReqEvent_Packet = {
-							itprId,
-							vmIdx,
-							eventName,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqEvent(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqEvent_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqEvent(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqEvent(parsePacket)
+					})
 				}
 				break;
 
 			case 3084593987: // ReqStepDebugType
 				{
-					if (option == 1) { // binary?
-						const stepDbgType = packet.getInt32()
-						const parsePacket: ReqStepDebugType_Packet = {
-							stepDbgType,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqStepDebugType(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqStepDebugType_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqStepDebugType(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqStepDebugType(parsePacket)
+					})
 				}
 				break;
 
 			case 2166551586: // ReqDebugInfo
 				{
-					if (option == 1) { // binary?
-						const itprIds = packet.getInt32Array()
-						const parsePacket: ReqDebugInfo_Packet = {
-							itprIds,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqDebugInfo(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqDebugInfo_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqDebugInfo(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqDebugInfo(parsePacket)
+					})
 				}
 				break;
 
 			case 2532286881: // ReqHeartBeat
 				{
-					if (option == 1) { // binary?
-						const parsePacket: ReqHeartBeat_Packet = {
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqHeartBeat(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: ReqHeartBeat_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof r2h_ProtocolHandler)
-								handler.ReqHeartBeat(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqHeartBeat(parsePacket)
+					})
 				}
 				break;
 
@@ -519,476 +327,173 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 
 
 //------------------------------------------------------------------------
-// remotedbg2 h2r Protocol Dispatcher
+// remotedbg2Async h2r Protocol Dispatcher
 //------------------------------------------------------------------------
 export class h2r_Dispatcher extends Network.Dispatcher {
 	 constructor() {
 		super(5300)
 	}
-	dispatch(ws: WebSocket, packet: Network.Packet, handlers: Network.Handler[]) {
-		if (!packet.buff) return
-		packet.init()
-		// packet format
-		// | protocol id (4) | packet id (4) | packet length (4) | option (4) |
-		const protocolId = packet.getUint32()
-		const packetId = packet.getUint32()
-		const packetLength = packet.getUint32()
-		const option = packet.getUint32()
-
+	dispatchAsync(protocolId: number, packetId: number, parsePacket: any, handlers: Network.Handler[]) {
 		switch (packetId) {
 			case 1281093745: // Welcome
 				{
-					if (option == 1) { // binary?
-						const msg = packet.getStr()
-						const parsePacket: Welcome_Packet = {
-							msg,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.Welcome(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: Welcome_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.Welcome(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.Welcome(parsePacket)
+					})
 				}
 				break;
 
 			case 4005257575: // AckUploadIntermediateCode
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckUploadIntermediateCode_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckUploadIntermediateCode(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckUploadIntermediateCode_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckUploadIntermediateCode(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckUploadIntermediateCode(parsePacket)
+					})
 				}
 				break;
 
 			case 1397310616: // AckIntermediateCode
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getUint8()
-						const result = packet.getUint8()
-						const count = packet.getUint8()
-						const index = packet.getUint8()
-						const totalBufferSize = packet.getUint32()
-						const data = packet.getUint8Array()
-						const parsePacket: AckIntermediateCode_Packet = {
-							itprId,
-							result,
-							count,
-							index,
-							totalBufferSize,
-							data,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckIntermediateCode(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckIntermediateCode_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckIntermediateCode(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckIntermediateCode(parsePacket)
+					})
 				}
 				break;
 
 			case 4148808214: // AckRun
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckRun_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckRun(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckRun_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckRun(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckRun(parsePacket)
+					})
 				}
 				break;
 
 			case 3643391279: // AckOneStep
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckOneStep_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckOneStep(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckOneStep_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckOneStep(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckOneStep(parsePacket)
+					})
 				}
 				break;
 
 			case 1012496086: // AckResumeRun
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckResumeRun_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckResumeRun(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckResumeRun_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckResumeRun(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckResumeRun(parsePacket)
+					})
 				}
 				break;
 
 			case 2129545277: // AckBreak
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckBreak_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckBreak(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckBreak_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckBreak(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckBreak(parsePacket)
+					})
 				}
 				break;
 
 			case 2045074648: // AckBreakPoint
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const enable = packet.getBool()
-						const id = packet.getUint32()
-						const result = packet.getInt32()
-						const parsePacket: AckBreakPoint_Packet = {
-							itprId,
-							enable,
-							id,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckBreakPoint(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckBreakPoint_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckBreakPoint(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckBreakPoint(parsePacket)
+					})
 				}
 				break;
 
 			case 114435221: // AckStop
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckStop_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckStop(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckStop_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckStop(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckStop(parsePacket)
+					})
 				}
 				break;
 
 			case 1658444570: // AckInput
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckInput_Packet = {
-							itprId,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckInput(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckInput_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckInput(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckInput(parsePacket)
+					})
 				}
 				break;
 
 			case 1906481345: // AckEvent
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const eventName = packet.getStr()
-						const result = packet.getInt32()
-						const parsePacket: AckEvent_Packet = {
-							itprId,
-							vmIdx,
-							eventName,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckEvent(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckEvent_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckEvent(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckEvent(parsePacket)
+					})
 				}
 				break;
 
 			case 4225702489: // AckStepDebugType
 				{
-					if (option == 1) { // binary?
-						const stepDbgType = packet.getInt32()
-						const result = packet.getInt32()
-						const parsePacket: AckStepDebugType_Packet = {
-							stepDbgType,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckStepDebugType(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckStepDebugType_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckStepDebugType(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckStepDebugType(parsePacket)
+					})
 				}
 				break;
 
 			case 4276104084: // AckDebugInfo
 				{
-					if (option == 1) { // binary?
-						const itprIds = packet.getInt32Array()
-						const result = packet.getInt32()
-						const parsePacket: AckDebugInfo_Packet = {
-							itprIds,
-							result,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckDebugInfo(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckDebugInfo_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckDebugInfo(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckDebugInfo(parsePacket)
+					})
 				}
 				break;
 
 			case 4206107288: // SyncVMInstruction
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const indices = packet.getUint16Array()
-						const parsePacket: SyncVMInstruction_Packet = {
-							itprId,
-							vmIdx,
-							indices,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMInstruction(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: SyncVMInstruction_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMInstruction(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMInstruction(parsePacket)
+					})
 				}
 				break;
 
 			case 3001685594: // SyncVMRegister
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const infoType = packet.getInt32()
-						const reg = Parse_sRegister(packet)
-						const parsePacket: SyncVMRegister_Packet = {
-							itprId,
-							vmIdx,
-							infoType,
-							reg,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMRegister(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: SyncVMRegister_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMRegister(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMRegister(parsePacket)
+					})
 				}
 				break;
 
 			case 3045798844: // SyncVMSymbolTable
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const start = packet.getUint32()
-						const count = packet.getUint32()
-						const symbol = Parse_sSyncSymbolVector(packet)
-						const parsePacket: SyncVMSymbolTable_Packet = {
-							itprId,
-							vmIdx,
-							start,
-							count,
-							symbol,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMSymbolTable(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: SyncVMSymbolTable_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMSymbolTable(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMSymbolTable(parsePacket)
+					})
 				}
 				break;
 
 			case 1348120458: // SyncVMOutput
 				{
-					if (option == 1) { // binary?
-						const itprId = packet.getInt32()
-						const vmIdx = packet.getInt32()
-						const output = packet.getStr()
-						const parsePacket: SyncVMOutput_Packet = {
-							itprId,
-							vmIdx,
-							output,
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMOutput(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: SyncVMOutput_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.SyncVMOutput(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMOutput(parsePacket)
+					})
 				}
 				break;
 
 			case 1133387750: // AckHeartBeat
 				{
-					if (option == 1) { // binary?
-						const parsePacket: AckHeartBeat_Packet = {
-						}
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckHeartBeat(parsePacket)
-						})
-					} else { // json?
-						const parsePacket: AckHeartBeat_Packet = 
-							JSON.parse(packet.getStr())
-						handlers.forEach(handler => {
-							if (handler instanceof h2r_ProtocolHandler)
-								handler.AckHeartBeat(parsePacket)
-						})
-					}
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckHeartBeat(parsePacket)
+					})
 				}
 				break;
 
@@ -1001,7 +506,7 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 
 
 //------------------------------------------------------------------------
-// remotedbg2 r2h Protocol 
+// remotedbg2Async r2h Protocol 
 //------------------------------------------------------------------------
 export class r2h_Protocol extends Network.Protocol {
 	 constructor() { super() }
@@ -1206,7 +711,7 @@ export class r2h_Protocol extends Network.Protocol {
 
 
 //------------------------------------------------------------------------
-// remotedbg2 h2r Protocol 
+// remotedbg2Async h2r Protocol 
 //------------------------------------------------------------------------
 export class h2r_Protocol extends Network.Protocol {
 	 constructor() { super() }
@@ -1527,51 +1032,51 @@ export class h2r_Protocol extends Network.Protocol {
 
 
 //------------------------------------------------------------------------
-// remotedbg2 r2h Protocol Handler
+// remotedbg2Async r2h Protocol Handler
 //------------------------------------------------------------------------
 export class r2h_ProtocolHandler extends Network.Handler {
 	 constructor() { super() } 
 
-	UploadIntermediateCode = (packet: remotedbg2.UploadIntermediateCode_Packet) => { }
-	ReqIntermediateCode = (packet: remotedbg2.ReqIntermediateCode_Packet) => { }
-	ReqRun = (packet: remotedbg2.ReqRun_Packet) => { }
-	ReqOneStep = (packet: remotedbg2.ReqOneStep_Packet) => { }
-	ReqResumeRun = (packet: remotedbg2.ReqResumeRun_Packet) => { }
-	ReqBreak = (packet: remotedbg2.ReqBreak_Packet) => { }
-	ReqBreakPoint = (packet: remotedbg2.ReqBreakPoint_Packet) => { }
-	ReqStop = (packet: remotedbg2.ReqStop_Packet) => { }
-	ReqInput = (packet: remotedbg2.ReqInput_Packet) => { }
-	ReqEvent = (packet: remotedbg2.ReqEvent_Packet) => { }
-	ReqStepDebugType = (packet: remotedbg2.ReqStepDebugType_Packet) => { }
-	ReqDebugInfo = (packet: remotedbg2.ReqDebugInfo_Packet) => { }
-	ReqHeartBeat = (packet: remotedbg2.ReqHeartBeat_Packet) => { }
+	UploadIntermediateCode = (packet: remotedbg2Async.UploadIntermediateCode_Packet) => { }
+	ReqIntermediateCode = (packet: remotedbg2Async.ReqIntermediateCode_Packet) => { }
+	ReqRun = (packet: remotedbg2Async.ReqRun_Packet) => { }
+	ReqOneStep = (packet: remotedbg2Async.ReqOneStep_Packet) => { }
+	ReqResumeRun = (packet: remotedbg2Async.ReqResumeRun_Packet) => { }
+	ReqBreak = (packet: remotedbg2Async.ReqBreak_Packet) => { }
+	ReqBreakPoint = (packet: remotedbg2Async.ReqBreakPoint_Packet) => { }
+	ReqStop = (packet: remotedbg2Async.ReqStop_Packet) => { }
+	ReqInput = (packet: remotedbg2Async.ReqInput_Packet) => { }
+	ReqEvent = (packet: remotedbg2Async.ReqEvent_Packet) => { }
+	ReqStepDebugType = (packet: remotedbg2Async.ReqStepDebugType_Packet) => { }
+	ReqDebugInfo = (packet: remotedbg2Async.ReqDebugInfo_Packet) => { }
+	ReqHeartBeat = (packet: remotedbg2Async.ReqHeartBeat_Packet) => { }
 }
 
 
 //------------------------------------------------------------------------
-// remotedbg2 h2r Protocol Handler
+// remotedbg2Async h2r Protocol Handler
 //------------------------------------------------------------------------
 export class h2r_ProtocolHandler extends Network.Handler {
 	 constructor() { super() } 
 
-	Welcome = (packet: remotedbg2.Welcome_Packet) => { }
-	AckUploadIntermediateCode = (packet: remotedbg2.AckUploadIntermediateCode_Packet) => { }
-	AckIntermediateCode = (packet: remotedbg2.AckIntermediateCode_Packet) => { }
-	AckRun = (packet: remotedbg2.AckRun_Packet) => { }
-	AckOneStep = (packet: remotedbg2.AckOneStep_Packet) => { }
-	AckResumeRun = (packet: remotedbg2.AckResumeRun_Packet) => { }
-	AckBreak = (packet: remotedbg2.AckBreak_Packet) => { }
-	AckBreakPoint = (packet: remotedbg2.AckBreakPoint_Packet) => { }
-	AckStop = (packet: remotedbg2.AckStop_Packet) => { }
-	AckInput = (packet: remotedbg2.AckInput_Packet) => { }
-	AckEvent = (packet: remotedbg2.AckEvent_Packet) => { }
-	AckStepDebugType = (packet: remotedbg2.AckStepDebugType_Packet) => { }
-	AckDebugInfo = (packet: remotedbg2.AckDebugInfo_Packet) => { }
-	SyncVMInstruction = (packet: remotedbg2.SyncVMInstruction_Packet) => { }
-	SyncVMRegister = (packet: remotedbg2.SyncVMRegister_Packet) => { }
-	SyncVMSymbolTable = (packet: remotedbg2.SyncVMSymbolTable_Packet) => { }
-	SyncVMOutput = (packet: remotedbg2.SyncVMOutput_Packet) => { }
-	AckHeartBeat = (packet: remotedbg2.AckHeartBeat_Packet) => { }
+	Welcome = (packet: remotedbg2Async.Welcome_Packet) => { }
+	AckUploadIntermediateCode = (packet: remotedbg2Async.AckUploadIntermediateCode_Packet) => { }
+	AckIntermediateCode = (packet: remotedbg2Async.AckIntermediateCode_Packet) => { }
+	AckRun = (packet: remotedbg2Async.AckRun_Packet) => { }
+	AckOneStep = (packet: remotedbg2Async.AckOneStep_Packet) => { }
+	AckResumeRun = (packet: remotedbg2Async.AckResumeRun_Packet) => { }
+	AckBreak = (packet: remotedbg2Async.AckBreak_Packet) => { }
+	AckBreakPoint = (packet: remotedbg2Async.AckBreakPoint_Packet) => { }
+	AckStop = (packet: remotedbg2Async.AckStop_Packet) => { }
+	AckInput = (packet: remotedbg2Async.AckInput_Packet) => { }
+	AckEvent = (packet: remotedbg2Async.AckEvent_Packet) => { }
+	AckStepDebugType = (packet: remotedbg2Async.AckStepDebugType_Packet) => { }
+	AckDebugInfo = (packet: remotedbg2Async.AckDebugInfo_Packet) => { }
+	SyncVMInstruction = (packet: remotedbg2Async.SyncVMInstruction_Packet) => { }
+	SyncVMRegister = (packet: remotedbg2Async.SyncVMRegister_Packet) => { }
+	SyncVMSymbolTable = (packet: remotedbg2Async.SyncVMSymbolTable_Packet) => { }
+	SyncVMOutput = (packet: remotedbg2Async.SyncVMOutput_Packet) => { }
+	AckHeartBeat = (packet: remotedbg2Async.AckHeartBeat_Packet) => { }
 }
 
 }

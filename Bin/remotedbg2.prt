@@ -2,16 +2,15 @@
 // Script Remote Debugger Protocol 2
 //	- WebSocket Communication
 //		- binary/json format
-//	- Host : Interpreter Client (Run Script, c++)
+//	- Host : Interpreter (Run Script, c++)
 //	- Remote : WebServer or WebBrowser (javascript)
-//	- h2r : Host Client -> Remote Server Protocol
-//	- r2h : Remote Server -> Host Client Protocol
+//	- h2r : Host -> Remote Client
+//	- r2h : Remote Client -> Host
 //
 
 
 protocol r2h 5301 json
 {
-	Welcome( string msg );
 	UploadIntermediateCode(int itprId, string code );
 	ReqIntermediateCode(int itprId);
 	ReqRun(int itprId, string runType);
@@ -21,15 +20,19 @@ protocol r2h 5301 json
 	ReqBreakPoint( int itprId, bool enable, uint id);
 	ReqStop(int itprId);
 	ReqInput(int itprId, int vmIdx, string eventName);
+	ReqEvent(int itprId, int vmIdx, string eventName);
 	ReqStepDebugType(int stepDbgType);
+	ReqDebugInfo(vector<int> itprIds);
 	ReqHeartBeat();
 }
 
 
 protocol h2r 5300 json
 {
+	Welcome( string msg );
 	AckUploadIntermediateCode(int itprId, int result );
-	AckIntermediateCode( int itprId, int result, uint count, uint index, vector<BYTE> data );
+	AckIntermediateCode( BYTE itprId, BYTE result, BYTE count, BYTE index, uint totalBufferSize
+		, vector<BYTE> data );
 	AckRun( int itprId, int result );
 	AckOneStep( int itprId, int result );
 	AckResumeRun( int itprId, int result );
@@ -37,7 +40,9 @@ protocol h2r 5300 json
 	AckBreakPoint( int itprId, bool enable, uint id, int result );
 	AckStop( int itprId, int result );
 	AckInput( int itprId, int result );
+	AckEvent( int itprId, int vmIdx, string eventName, int result);
 	AckStepDebugType(int stepDbgType, int result);
+	AckDebugInfo(vector<int> itprIds, int result);
 	SyncVMInstruction( int itprId, int vmIdx, vector<ushort> indices );
 	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
@@ -47,14 +52,14 @@ protocol h2r 5300 json
 
 
 // custom struct type
-type sSyncSymbol
+struct sSyncSymbol
 {
 	string scope;
 	string name;
-	variant_t val;
+	variant_t var;
 }
 
-type sRegister
+struct sRegister
 {
 	uint idx;
 	bool cmp;

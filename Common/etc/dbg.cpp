@@ -11,7 +11,7 @@ namespace common {
 		struct sLogData
 		{
 			int type; // 0:log, 1:error log, 2:log + error log, 3:others file
-			Str512 str;
+			String<char,512> str;
 		};
 
 		StrPath g_logPath = "log.txt";
@@ -21,11 +21,17 @@ namespace common {
 // make sLogData from argument list
 #define MAKE_LOGDATA(logData, logType, fmt) \
 		{\
+			const int size = ARRAYSIZE(logData.str.m_str);\
 			logData.type = logType;\
 			va_list args;\
 			va_start(args, fmt);\
-			vsnprintf_s(logData.str.m_str, sizeof(logData.str.m_str) - 1, _TRUNCATE, fmt, args);\
+			const int res = vsnprintf_s(logData.str.m_str, size - 2, _TRUNCATE, fmt, args);\
 			va_end(args);\
+			if (res == size - 2)\
+			{\
+				logData.str.m_str[size - 2] = '\n';\
+				logData.str.m_str[size - 1] = NULL;\
+			}\
 		}
 
 	}

@@ -23,7 +23,9 @@ namespace compiler2
 
 	// Write Dispatcher Code
 	void WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol);
+	void WriteProtocolDispatchAsyncFunc(ofstream &fs, sProtocol *protocol);
 	void WriteDispatchSwitchCase(ofstream &fs, sPacket *packet);
+	void WriteDispatchSwitchCaseAsync(ofstream &fs, sPacket *packet);
 	void WriteDispatchImpleArg(ofstream &fs, sArg *p, const string &tab
 		, const bool isConstructor = false);
 	void WriteParsePacketField(ofstream &fs, const string &typeStr
@@ -201,6 +203,7 @@ namespace compiler2
 	};
 	// custom types
 	map<string, sType*> g_customTypes; // reference
+	bool g_isAsync = false; // async protocol handler module?
 }
 
 using namespace compiler2;
@@ -211,18 +214,26 @@ using namespace compiler2;
 // generate Protocol, Handler, Dispatcher, Packet Data class
 //------------------------------------------------------------------------
 bool compiler2::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
-	, sType *type)
+	, sType *type
+	, const bool isAsyncModule //= false
+)
 {
 	const string fileName = common::GetFileNameExceptExt(protocolFileName);
 	const string path = common::GetFilePathExceptFileName(protocolFileName);
 	const string folder = (path.empty()) ? g_srcFolderName : path + "\\" + g_srcFolderName;
 	_mkdir(folder.c_str());
 	g_origianlFileName = folder + "\\" + fileName;
+	if (isAsyncModule)
+		g_origianlFileName += "Async";
 
 	if (protocol->format != "json")
 		return true; // only json format
 
 	g_protocolName = GetProtocolName(protocolFileName);
+	if (isAsyncModule)
+		g_protocolName += "Async";
+
+	g_isAsync = isAsyncModule;
 
 	const string tsFileName = g_origianlFileName + "_handler.ts";
 
@@ -537,7 +548,10 @@ bool compiler2::WriteDispatcher(ofstream &fs, sProtocol *protocol)
 	fs << "\t constructor() {\n";
 	fs << "\t\tsuper(" << protocol->number << ")\n";
 	fs << "\t}\n";
-	WriteProtocolDispatchFunc(fs, protocol);	
+	if (g_isAsync)
+		WriteProtocolDispatchAsyncFunc(fs, protocol);
+	else
+		WriteProtocolDispatchFunc(fs, protocol);	
 	fs << "}\n";
 	fs << endl;
 	return WriteDispatcher(fs, protocol->next);
@@ -600,8 +614,8 @@ void compiler2::WriteImplPacket(ofstream &fs, sProtocol *protocol
 {
 	const string tab = "\t\t";
 
-	fs << tab << "if (!this.ws)\n";
-	fs << tab << "\treturn\n";
+	//fs << tab << "if (!this.ws)\n";
+	//fs << tab << "\treturn\n";
 
 	// binary packing
 	fs << tab << "if (isBinary) { // binary send?\n";
@@ -652,14 +666,21 @@ void compiler2::WriteLastImplePacket(ofstream &fs, sProtocol *protocol
 {
 	if (isBinary)
 	{
-		fs << tab << "Network.sendPacketBinary(this.ws, "
-			<< protocol->number << ", " << packet->packetId 
+		fs << tab << "this.node?.sendPacketBinary("
+			<< protocol->number << ", " << packet->packetId
 			<< ", packet.buff, packet.offset)\n";
+
+		//fs << tab << "Network.sendPacketBinary(this.ws, "
+		//	<< protocol->number << ", " << packet->packetId 
+		//	<< ", packet.buff, packet.offset)\n";
 	}
 	else
 	{
-		fs << tab << "Network.sendPacket(this.ws, "
+		fs << tab << "this.node?.sendPacket("
 			<< protocol->number << ", " << packet->packetId << ", packet)\n";
+
+		//fs << tab << "Network.sendPacket(this.ws, "
+		//	<< protocol->number << ", " << packet->packetId << ", packet)\n";
 	}
 }
 
@@ -688,6 +709,26 @@ void compiler2::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
 	fs << tab << "\tdefault:\n";
 		fs << tab << "\t\tconsole.log(`not found packet ${protocolId}, ${packetId}`)\n";
 		fs << tab << "\t\tbreak;\n";
+	fs << tab << "}//~switch\n";
+	fs << "\t}//~dispatch()\n";
+}
+
+
+//------------------------------------------------------------------------
+// generate Dispatcher::Dispatch() code
+//------------------------------------------------------------------------
+void compiler2::WriteProtocolDispatchAsyncFunc(ofstream &fs, sProtocol *protocol)
+{
+	g_handlerClassName = GetProtocolHandlerClassName(protocol->name);
+
+	fs << "\tdispatchAsync(protocolId: number, packetId: number, parsePacket: any, handlers: Network.Handler[]) {\n";
+
+	const string tab = "\t\t";
+	fs << tab << "switch (packetId) {\n";
+	WriteDispatchSwitchCaseAsync(fs, protocol->packet);
+	fs << tab << "\tdefault:\n";
+	fs << tab << "\t\tconsole.log(`not found packet ${protocolId}, ${packetId}`)\n";
+	fs << tab << "\t\tbreak;\n";
 	fs << tab << "}//~switch\n";
 	fs << "\t}//~dispatch()\n";
 }
@@ -732,6 +773,27 @@ void compiler2::WriteDispatchSwitchCase(ofstream &fs, sPacket *packet)
 	fs << "\n";
 
 	WriteDispatchSwitchCase(fs, packet->next);
+}
+
+
+//------------------------------------------------------------------------
+// generate Dispatcher switch case code
+//------------------------------------------------------------------------
+void compiler2::WriteDispatchSwitchCaseAsync(ofstream &fs, sPacket *packet)
+{
+	if (!packet) return;
+
+	fs << "\t\t\tcase " << packet->packetId << ": // " << packet->name << "\n";
+	fs << "\t\t\t\t{\n";
+
+	const string tab = "\t\t\t\t";
+	WriteLastDispatchSwitchCase(fs, packet, tab + "\t");
+
+	fs << "\t\t\t\t}\n";
+	fs << "\t\t\t\tbreak;\n";
+	fs << "\n";
+
+	WriteDispatchSwitchCaseAsync(fs, packet->next);
 }
 
 

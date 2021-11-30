@@ -1,0 +1,37 @@
+//
+// visual programming language protocol (vplp)
+// json string format
+//
+//  - web browser <-> remote interpreter
+//     (client)         (server)
+//
+
+
+// remote interpreter -> web browser
+protocol s2c 1000 json
+{
+	Welcome(string msg);
+	AckLogin(string id, int result);
+	AckRunVisualProg(int result);
+	AckRunVisualProgStream(int result);
+	AckRunVisualProgFiles(int result);
+	AckStopVisualProg(int result);
+}
+
+
+// webserver -> remote interpreter
+protocol c2s 2000 json
+{
+	ReqLogin(string id);
+	ReqRunVisualProg(webvpl::sNodeFile nodeFile);
+	ReqRunVisualProgStream(uint count, uint index, vector<BYTE> data);
+	ReqRunVisualProgFiles(vector<string> nodeFileNames);
+	ReqStopVisualProg();
+}
+
+
+// custom type
+struct sNodeFile
+{
+	string name;
+}

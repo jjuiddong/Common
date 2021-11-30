@@ -32,6 +32,9 @@
 //	- generate typescript code
 //	- generate javascript code
 //
+// 2021-11-30
+//	- merge javascript code for async websocket
+//
 
 #include "pch.h"
 #include <boost/program_options.hpp>
@@ -48,6 +51,7 @@ int main(int argc, char* argv[])
 		("src,s", boost::program_options::value<std::string>(), "protocol file path")
 		("pch,p", boost::program_options::value<std::string>(), "precompiled header file path")
 		("mar,m", boost::program_options::value<std::string>(), "marshalling name")
+		("config,c", boost::program_options::value<std::string>(), "config filename")
 		;
 
 	variables_map vm;
@@ -77,7 +81,60 @@ int main(int argc, char* argv[])
 		std::cout << "-m, -mar argument ignored!" << std::endl;
 	}
 
-	if (!fileName.empty())
+	string configFileName = "";
+	if (vm.count("config"))
+	{
+		configFileName = vm["config"].as<std::string>();
+	}
+
+	if (!configFileName.empty())
+	{
+		// merge js file
+		// need init0.js, init1.js, init2.js
+
+		cCfg cfg(configFileName);
+		if (!cfg.IsValid())
+		{
+			std::cout << "error read config file" << std::endl;
+			return 0;
+		}
+
+		// path: config file directory name
+		const string path = common::GetFilePathExceptFileName(configFileName);
+		fileName = path + "\\" + cfg.m_output;
+
+		// outputFileName: merged javascript filename
+		const string outputFileName = compiler4::WriteProtocolCode1(fileName);
+		if (outputFileName.empty())
+		{
+			std::cout << "error read 'init0.js'" << std::endl;
+			return 0;
+		}
+
+		// generate async typescript file
+		// merge async javascript file
+		for (auto &src : cfg.m_sources)
+		{
+			// *.prt filename
+			const string protocolFileName = path + "\\" + src;
+
+			network2::cProtocolParser parser;
+			sStmt *stmt = parser.Parse(protocolFileName);
+			if (stmt && stmt->protocol)
+				compiler2::WriteProtocolCode(protocolFileName
+					, stmt->protocol, stmt->type, true);
+			if (stmt && stmt->protocol)
+				compiler3::WriteProtocolCode(protocolFileName
+					, stmt->protocol, stmt->type, true, true, outputFileName);
+		}
+
+		if (!compiler4::WriteProtocolCode2(path, outputFileName, cfg.m_dispatchers, cfg.m_handlers))
+		{
+			std::cout << "error read 'init1.js, init2.js'" << std::endl;
+			return 0;
+		}
+	}
+	else if (!fileName.empty())
 	{
 		network2::cProtocolParser parser;
 		sStmt *stmt = parser.Parse(fileName);

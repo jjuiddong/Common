@@ -17,6 +17,7 @@ namespace compiler2
 	bool WriteProtocolCode(const string &protocolFileName
 		, network2::sProtocol *protocol
 		, network2::sType *type
+		, const bool isAsyncModule = false
 	);
 
 }

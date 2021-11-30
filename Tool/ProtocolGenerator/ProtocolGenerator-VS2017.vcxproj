@@ -170,15 +170,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cfg.h" />
     <ClInclude Include="GenerateCode.h" />
     <ClInclude Include="GenerateCode2.h" />
     <ClInclude Include="GenerateCode3.h" />
+    <ClInclude Include="GenerateCode4.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cfg.cpp" />
     <ClCompile Include="GenerateCode.cpp" />
     <ClCompile Include="GenerateCode2.cpp" />
     <ClCompile Include="GenerateCode3.cpp" />
+    <ClCompile Include="GenerateCode4.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

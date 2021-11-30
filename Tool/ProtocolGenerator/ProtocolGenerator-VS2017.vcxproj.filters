@@ -6,11 +6,15 @@
     <ClCompile Include="GenerateCode.cpp" />
     <ClCompile Include="GenerateCode2.cpp" />
     <ClCompile Include="GenerateCode3.cpp" />
+    <ClCompile Include="cfg.cpp" />
+    <ClCompile Include="GenerateCode4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="GenerateCode.h" />
     <ClInclude Include="GenerateCode2.h" />
     <ClInclude Include="GenerateCode3.h" />
+    <ClInclude Include="cfg.h" />
+    <ClInclude Include="GenerateCode4.h" />
   </ItemGroup>
 </Project>

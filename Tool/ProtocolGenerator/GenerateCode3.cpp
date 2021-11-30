@@ -201,6 +201,7 @@ namespace compiler3
 	};
 	// custom types
 	map<string, sType*> g_customTypes; // reference
+	bool g_isAsync = false; // async protocol handler module?
 }
 
 using namespace compiler3;
@@ -211,7 +212,11 @@ using namespace compiler3;
 // generate Protocol, Handler, Dispatcher, Packet Data class
 //------------------------------------------------------------------------
 bool compiler3::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
-	, sType *type)
+	, sType *type
+	, const bool isAsyncModule //= false
+	, const bool isAddFile //= false
+	, const string outputFileName //=""
+)
 {
 	const string fileName = common::GetFileNameExceptExt(protocolFileName);
 	const string path = common::GetFilePathExceptFileName(protocolFileName);
@@ -223,8 +228,10 @@ bool compiler3::WriteProtocolCode(const string &protocolFileName, sProtocol *pro
 		return true; // only json format
 
 	g_protocolName = GetProtocolName(protocolFileName);
+	g_isAsync = isAsyncModule;
 
-	const string tsFileName = g_origianlFileName + "_handler.js";
+	const string tsFileName = (isAddFile && !outputFileName.empty())?
+		outputFileName : (g_origianlFileName + "_handler.js");
 
 	// update custom type table
 	{
@@ -238,26 +245,33 @@ bool compiler3::WriteProtocolCode(const string &protocolFileName, sProtocol *pro
 	}
 
 	ofstream fs;
-	fs.open(tsFileName.c_str());
+	fs.open(tsFileName.c_str(), isAddFile? std::ios::app : std::ios::out);
 	if (!fs.is_open())
 		return false;
 
-	fs << "//------------------------------------------------------------------------\n";
-	fs << "// Name:    " << fileName << endl;
-	fs << "// Author:  ProtocolGenerator (by jjuiddong)\n";
-	fs << "// Date:    \n";
-	fs << "//------------------------------------------------------------------------\n";
-	fs << "import Dbg from \"../../dbg/dbg\";\n";
-	fs << "import WsSockServer from \"../wsserver\";\n";
-	fs << "import Packet from \"../packet\"\n";
-	fs << "\n";
+	if (!isAddFile)
+	{
+		fs << "//------------------------------------------------------------------------\n";
+		fs << "// Name:    " << fileName << endl;
+		fs << "// Author:  ProtocolGenerator (by jjuiddong)\n";
+		fs << "// Date:    \n";
+		fs << "//------------------------------------------------------------------------\n";
+		fs << "import Dbg from \"../../dbg/dbg\";\n";
+		fs << "import WsSockServer from \"../wsserver\";\n";
+		fs << "import Packet from \"../packet\"\n";
+	}
 
-	fs << "export default class " << g_protocolName << " {}\n";
+	fs << "\n";
+	if (g_isAsync)
+		fs << "class " << g_protocolName << " {}\n";
+	else
+		fs << "export default class " << g_protocolName << " {}\n";
 	fs << "\n";
 
 	WriteCustomStruct(fs, type);
 	WriteDispatcher(fs, protocol);
-	WriteProtocol(fs, protocol);
+	if (!isAddFile)
+		WriteProtocol(fs, protocol);
 	WriteHandler(fs, protocol);
 
 	return true;
@@ -510,7 +524,10 @@ bool compiler3::WriteHandler(ofstream &fs, sProtocol *protocol)
 	fs << g_protocolName << "." << g_className << " = class {\n";
 	fs << "\tconstructor() {} \n";
 	fs << "\tRelay(wss, ws, packet) {} \n";
-	WriteDeclPacketList(fs, protocol->packet);
+	if (g_isAsync)
+		fs << "\tReceive(wss, ws, protocolId, packetId, packet) {} \n";
+	else
+		WriteDeclPacketList(fs, protocol->packet);
 	fs << "}\n";
 	fs << endl;
 	return WriteHandler(fs, protocol->next);
@@ -867,6 +884,9 @@ void compiler3::WriteLastDispatchSwitchCase(ofstream &fs, sPacket *packet, const
 {
 	fs << tab << "handlers.forEach(handler => {\n";
 	fs << tab << "\tif (handler instanceof " << g_protocolName << "." << g_handlerClassName << ")\n";
-	fs << tab << "\t\thandler." << packet->name << "(wss, ws, parsePacket)\n";
+	if (g_isAsync)
+		fs << tab << "\t\thandler.Receive(wss, ws, protocolId, packetId, parsePacket)\n";
+	else
+		fs << tab << "\t\thandler." << packet->name << "(wss, ws, parsePacket)\n";
 	fs << tab << "})\n";
 }

@@ -15,7 +15,7 @@ protocol s2c 6000 json
 	AckLogin(string name, int result);
 	AckLogout(string name, int result);
 	ReqStartCluster(string name, string url, string projectName, string mapFileName
-		, string pathFileName, string taskName);
+		, string pathFileName, vector<string> nodeFileNames, string taskName);
 	ReqCloseCluster(string name);
 }
 
@@ -34,7 +34,7 @@ protocol c2s 6100 json
 
 
 // custom type
-type Vector3 
+struct Vector3 
 {
 	float x;
 	float y;
