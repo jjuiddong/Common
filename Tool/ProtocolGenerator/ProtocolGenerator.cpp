@@ -100,8 +100,9 @@ int main(int argc, char* argv[])
 		}
 
 		// path: config file directory name
-		const string path = common::GetFilePathExceptFileName(configFileName);
-		fileName = path + "\\" + cfg.m_output;
+		const string fullPath = common::GetFullFileName(configFileName);
+		const string path = common::GetFilePathExceptFileName(fullPath);
+		fileName = cfg.m_output;
 
 		// outputFileName: merged javascript filename
 		const string outputFileName = compiler4::WriteProtocolCode1(fileName);
@@ -115,16 +116,13 @@ int main(int argc, char* argv[])
 		// merge async javascript file
 		for (auto &src : cfg.m_sources)
 		{
-			// *.prt filename
-			const string protocolFileName = path + "\\" + src;
-
 			network2::cProtocolParser parser;
-			sStmt *stmt = parser.Parse(protocolFileName);
+			sStmt *stmt = parser.Parse(src);
 			if (stmt && stmt->protocol)
-				compiler2::WriteProtocolCode(protocolFileName
+				compiler2::WriteProtocolCode(src
 					, stmt->protocol, stmt->type, true);
 			if (stmt && stmt->protocol)
-				compiler3::WriteProtocolCode(protocolFileName
+				compiler3::WriteProtocolCode(src
 					, stmt->protocol, stmt->type, true, true, outputFileName);
 		}
 

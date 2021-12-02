@@ -3,7 +3,7 @@
 	[
 		"webrelay.prt",
 		"cluster.prt",
-		"remotedbg2.prt",
+		"c:\\Project\\Common\\Network2\\interpreter\\remotedbg2.prt",
 		"vplp.prt"
 	],
 	"dispatcher":

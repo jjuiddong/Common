@@ -17,6 +17,7 @@ cCfg::~cCfg()
 }
 
 
+// fileName: config filename, absolute path
 bool cCfg::Parse(const string &fileName)
 {
 	using boost::property_tree::ptree;
@@ -28,6 +29,7 @@ bool cCfg::Parse(const string &fileName)
 		ptree props;
 		boost::property_tree::read_json(fileName, props);
 
+		// output filename: configfilename + '.js'
 		m_output = common::GetFileNameExceptExt(fileName);
 		m_output += ".js";
 
@@ -47,6 +49,18 @@ bool cCfg::Parse(const string &fileName)
 		std::cout << err << std::endl;
 		return false;
 	}
+
+	// update *.prt path
+	// dirPath: config file directory name
+	const string fullPath = common::GetFullFileName(fileName);
+	const string dirPath = common::GetFilePathExceptFileName(fullPath);
+	m_output = dirPath + "\\" + m_output;
+	for (auto &src : m_sources)
+	{
+		if (StrPath(src).IsRelativePath())
+			src = dirPath + "\\" + src;
+	}
+
 	return true;
 }
 

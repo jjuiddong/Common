@@ -25,8 +25,7 @@
 //	"remotedbg2.h2r_ProtocolHandler",
 //	"vplp.s2c_ProtocolHandler",
 //	"cluster.s2c_ProtocolHandler"
-//],
-//"output": "output.js"
+//]
 //}
 //
 #pragma once
@@ -44,8 +43,8 @@ public:
 
 
 public:
-	vector<string> m_sources; // source filename
+	vector<string> m_sources; // *.prt source filename
 	vector<string> m_dispatchers; // dispatcher class name
 	vector<string> m_handlers; // handler class name
-	string m_output;  // output filename
+	string m_output;  // output filename, initialize internal by config filename
 };
