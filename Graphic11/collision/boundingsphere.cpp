@@ -192,9 +192,17 @@ bool cBoundingSphere::Intersects(const Ray &ray
 }
 
 
-bool cBoundingSphere::Intersects(const cBoundingSphere &bspere) const 
+bool cBoundingSphere::Intersects(const cBoundingSphere &bspere
+	, OUT float *outGap //= nullptr
+) const
 {
-	return m_bsphere.Intersects(bspere.m_bsphere);
+	bool res = m_bsphere.Intersects(bspere.m_bsphere);
+	if (res && outGap)
+	{
+		const float len = bspere.GetPos().Distance(GetPos());
+		*outGap = GetRadius() + bspere.GetRadius() - len;
+	}
+	return res;
 }
 
 

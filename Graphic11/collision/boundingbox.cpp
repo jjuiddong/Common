@@ -11,13 +11,6 @@ cBoundingBox::cBoundingBox()
 	SetBoundingBox(Vector3(0,0,0), Vector3(1,1,1), Quaternion(0,0,0,1));
 }
 
-//cBoundingBox::cBoundingBox(const cCube &cube)
-//{
-//	m_type = eCollisionType::BOX;
-//	operator=(cube);
-//}
-
-
 cBoundingBox::cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q )
 {
 	m_type = eCollisionType::BOX;
@@ -85,8 +78,8 @@ bool overlaps( float min1, float max1, float min2, float max2 )
 
 
 bool cBoundingBox::Collision(const cCollisionObj &obj
-	, OUT Vector3 *outPos //= NULL
-	, OUT float *distance //= NULL
+	, OUT Vector3 *outPos //= nullptr
+	, OUT float *distance //= nullptr
 ) const
 {
 	switch (obj.m_type)
@@ -138,10 +131,10 @@ bool cBoundingBox::Collision(const cCollisionObj &obj
 // collision Plane : 부딪친 boundingbox 면
 // outVertexLen1, outVertexLen2 : 부딪친 면에, 충돌지점에서 좌우 꼭지점까지의 거리, (좌우 순서는 바뀔수 있다.)
 bool cBoundingBox::Collision2D(cBoundingSphere &sphere
-	, OUT Vector3 *outPos //= NULL
-	, OUT Plane *outPlane //= NULL
-	, OUT Vector3 *outVertex1 //= NULL
-	, OUT Vector3 *outVertex2 //= NULL
+	, OUT Vector3 *outPos //= nullptr
+	, OUT Plane *outPlane //= nullptr
+	, OUT Vector3 *outVertex1 //= nullptr
+	, OUT Vector3 *outVertex2 //= nullptr
 )
 {
 	const Quaternion &q = *(Quaternion*)&m_bbox.Orientation;
@@ -259,7 +252,7 @@ bool cBoundingBox::Collision2D(cBoundingSphere &sphere
 // 피킹 되었다면 true를 리턴한다.
 // orig, dir : ray 값.
 bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
-	, OUT float *distance //=NULL
+	, OUT float *distance //=nullptr
 ) const
 {
 	XMVECTOR o = XMLoadFloat3((XMFLOAT3*)&orig);
@@ -276,13 +269,13 @@ bool cBoundingBox::Pick(const Vector3 &orig, const Vector3 &dir
 
 
 //bool cBoundingBox::Pick(const Ray &ray
-//	, OUT float *distance //= NULL
+//	, OUT float *distance //= nullptr
 //) const
 //{
 //	return Pick(ray.orig, ray.dir, distance);
 //}
 bool cBoundingBox::Pick(const Ray &ray
-	, OUT float *distance //= NULL
+	, OUT float *distance //= nullptr
 ) const
 {
 	return Pick(ray.orig, ray.dir, distance);

@@ -13,30 +13,28 @@
 
 namespace common
 {
-	//class cCube;
 	class cBoundingSphere;
 
 	class cBoundingBox : public cCollisionObj
 	{
 	public:
 		cBoundingBox();
-		//cBoundingBox(const cCube &cube);
 		cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q);
 		void SetBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q);
 		void SetBoundingBox(const Transform &tfm);
 		void SetBoundingBox(const sMinMax &minMax );
 		void SetLineBoundingBox(const Vector3 &p0, const Vector3 &p1, const float width);
 		bool Collision2D(cBoundingSphere &sphere
-			, OUT Vector3 *outPos=NULL
-			, OUT Plane *outPlane=NULL
-			, OUT Vector3 *outVertex1=NULL
-			, OUT Vector3 *outVertex2=NULL
+			, OUT Vector3 *outPos =nullptr
+			, OUT Plane *outPlane = nullptr
+			, OUT Vector3 *outVertex1 = nullptr
+			, OUT Vector3 *outVertex2 = nullptr
 		);
 
 		virtual bool Collision(const cCollisionObj &obj
-			, OUT Vector3 *outPos = NULL, OUT float *distance = NULL) const override;
-		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
-		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance=NULL) const;
+			, OUT Vector3 *outPos = nullptr, OUT float *distance = nullptr) const override;
+		virtual bool Pick(const Ray &ray, OUT float *distance = nullptr) const override;
+		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance= nullptr) const;
 
 		Vector3 Center() const;
 		void Scale(const Vector3 &scale);
