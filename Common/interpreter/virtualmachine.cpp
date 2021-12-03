@@ -837,7 +837,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 			break;
 		}
 		if (!isFind)
-			goto $error;
+			goto $error_call;
 	}
 	break;
 
@@ -924,6 +924,14 @@ $error_memory:
 		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2);
 	WriteTraceLog(m_trace2);
 	m_state = eState::Stop;
+	return false;
+
+$error_call:
+	dbg::Logc(3, "Error cVirtualMachine::Execute() Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2);
+	WriteTraceLog(m_trace2);
+	// vm working, no stop
+	// todo: send error message
 	return false;
 }
 
