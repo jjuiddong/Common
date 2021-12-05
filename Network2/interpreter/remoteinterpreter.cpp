@@ -292,18 +292,20 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 
 // push interpreter event, wraping function
 // isUnique: no has same event, (check same event)
+// return: success push
 bool cRemoteInterpreter::PushEvent(const int itprId
 	, const common::script::cEvent &evt
-	, const bool isUnique //= false
 )
 {
+	bool res = false;
 	if (itprId < 0)
 	{
 		for (auto &itpr : m_interpreters)
 		{
 			script::cInterpreter *interpreter = itpr.interpreter;
 			if (eState::Run == itpr.state)
-				interpreter->PushEvent(evt, isUnique);
+				if (interpreter->PushEvent(evt))
+					res = true;
 		}
 	}
 	else
@@ -313,9 +315,10 @@ bool cRemoteInterpreter::PushEvent(const int itprId
 
 		sItpr &itpr = m_interpreters[itprId];
 		script::cInterpreter *interpreter = itpr.interpreter;
-		interpreter->PushEvent(evt, isUnique);
+		if (interpreter->PushEvent(evt))
+			res = true;
 	}
-	return true;
+	return res;
 }
 
 

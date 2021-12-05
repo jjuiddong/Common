@@ -45,8 +45,7 @@ namespace network2
 		bool RemoveModule(common::script::iModule *mod);
 
 		bool Process(const float deltaSeconds);
-		bool PushEvent(const int itprId, const common::script::cEvent &evt
-			, const bool isUnique = false);
+		bool PushEvent(const int itprId, const common::script::cEvent &evt);
 		bool Run(const int itprId);
 		bool DebugRun(const int itprId);
 		bool StepRun(const int itprId);

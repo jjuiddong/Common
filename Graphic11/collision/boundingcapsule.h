@@ -38,6 +38,8 @@ namespace common
 		bool Intersects(const cBoundingSphere &bsphere, float *outGap = nullptr) const;
 
 		void SetCapsule(const Vector3 &pos0, const Vector3 &pos1, const float radius);
+		void SetCapsule(const Vector3 &center, const Vector3 &dir, const float halfLen
+			, const float radius);
 		void SetPos(const Vector3 &pos);
 		const Vector3& GetPos() const;
 

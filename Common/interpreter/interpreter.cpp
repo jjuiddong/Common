@@ -201,37 +201,8 @@ bool cInterpreter::Stop()
 
 // add event
 // isUnique: no has same event, (check same event)
-bool cInterpreter::PushEvent(const cEvent &evt
-	, const bool isUnique //= false
-)
+bool cInterpreter::PushEvent(const cEvent &evt)
 {
-	// check same event
-	if (isUnique || evt.m_isUnique)
-	{
-		for (auto &e : m_events)
-		{
-			if (e.m_name != evt.m_name)
-				continue;
-
-			bool isSame = true;
-			for (auto &kv : evt.m_vars)
-			{
-				auto it = e.m_vars.find(kv.first);
-				if (e.m_vars.end() == it) {
-					isSame = false;
-					break;
-				}
-				if (it->second != kv.second)
-				{
-					isSame = false;
-					break;
-				}
-			}
-			if (isSame)
-				return false; // already exist same event
-		}
-	}
-
 	m_events.push_back(evt);
 	return true;
 }

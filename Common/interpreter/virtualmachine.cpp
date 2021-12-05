@@ -12,6 +12,7 @@ cVirtualMachine::cVirtualMachine(const string &name)
 	, m_name(name)
 	, m_isCodeTraceLog(false)
 	, m_isDebugging(false)
+	, m_events(128) // maximum queue size
 {
 }
 
@@ -130,8 +131,7 @@ bool cVirtualMachine::Stop()
 	m_reg.exeIdx = UINT_MAX;
 
 	// clear event, timer, stack
-	while (!m_events.empty())
-		m_events.pop();
+	m_events.clear();
 	m_timers.clear();
 	m_stack.clear();
 
@@ -145,6 +145,38 @@ bool cVirtualMachine::Stop()
 
 bool cVirtualMachine::PushEvent(const cEvent &evt)
 {
+	// check same event
+	if (evt.m_isUnique)
+	{
+		uint cnt = 0;
+		uint i = m_events.m_front;
+		uint size = m_events.size();
+		while (cnt++ < size)
+		{
+			const auto &e = m_events.m_buffer[i];
+			if (e.m_name != evt.m_name)
+				continue;
+
+			bool isSame = true;
+			for (auto &kv : evt.m_vars)
+			{
+				auto it = e.m_vars.find(kv.first);
+				if (e.m_vars.end() == it) {
+					isSame = false;
+					break;
+				}
+				if (it->second != kv.second)
+				{
+					isSame = false;
+					break;
+				}
+			}
+			if (isSame)
+				return false; // already exist same event
+
+			i = (i + 1) % m_events.SIZE;
+		}
+	}
 	m_events.push(evt);
 	return true;
 }
@@ -1036,8 +1068,7 @@ void cVirtualMachine::Clear()
 	Stop();
 	m_symbTable.Clear();
 	m_code.Clear();
-	while (!m_events.empty())
-		m_events.pop();
+	m_events.clear();
 	m_timers.clear();
 	m_stack.clear();
 	for (auto &mod : m_modules)

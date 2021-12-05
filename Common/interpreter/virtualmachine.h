@@ -77,7 +77,7 @@ namespace common
 			sRegister m_reg;
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;
-			queue<cEvent> m_events;
+			common::cCircularQueue2<cEvent> m_events;
 			vector<sTimer> m_timers;
 			vector<int> m_stack; // simple integer stack (save return address)
 			vector<iModule*> m_modules; // execute function module, reference

@@ -36,7 +36,7 @@ namespace common
 			bool OneStep();
 			bool Break();
 			bool BreakPoint(const bool enable, const uint id);
-			bool PushEvent(const cEvent &evt, const bool isUnique = false);
+			bool PushEvent(const cEvent &evt);
 			void SetCodeTrace(const bool isTrace);
 			void SetICodeStepDebug(const bool isICodeStep);
 			bool IsRun() const;
