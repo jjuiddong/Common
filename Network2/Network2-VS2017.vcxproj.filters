@@ -180,9 +180,6 @@
     <ClInclude Include="udpservermap2.h">
       <Filter>Controller</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter\basicmodule.h">
-      <Filter>Interpreter</Filter>
-    </ClInclude>
     <ClInclude Include="utility\packetpump.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -320,9 +317,6 @@
     </ClCompile>
     <ClCompile Include="udpservermap2.cpp">
       <Filter>Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="interpreter\basicmodule.cpp">
-      <Filter>Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="utility\packetpump.cpp">
       <Filter>Utility</Filter>

@@ -244,6 +244,36 @@ namespace common
 		//--------------------------------------------------------------------------------
 		// get symboltable variable
 		template <class T>
+		inline vector<T> GetVector(cSymbolTable &symbolTable
+			, const string &scopeName, const string &symbolName)
+		{
+			vector<T> ar;
+			sVariable *arVar = symbolTable.FindVarInfo(scopeName, symbolName);
+			if (!arVar)
+				return ar; // not found variable
+
+			// find array source variable
+			const int arId = arVar->var.intVal;
+			auto it = symbolTable.m_varMap.find(arId);
+			if (symbolTable.m_varMap.end() == it)
+				return ar; // error, not found source value
+			if ((it->second.first != scopeName) || (it->second.second != symbolName))
+				arVar = symbolTable.FindVarInfo(it->second.first, it->second.second);
+			if (!arVar || !arVar->ar)
+				return ar; // not found variable or no map instance
+			//
+
+			if ((arVar->type != "Array") && (arVar->type != "array"))
+				return ar; // no array type
+			for (uint i = 0; i < arVar->GetArraySize(); ++i)
+			{
+				variant_t v = arVar->GetArrayElement(i);
+				ar.push_back((T)v);
+			}
+			return ar;
+		}
+
+		template <class T>
 		inline T cSymbolTable::Get(const string &scopeName, const string &symbolName) 
 		{
 			variant_t var;
@@ -292,6 +322,19 @@ namespace common
 				ar.push_back(common::variant2str(v));
 			}
 			return ar;
+		}
+
+		// vector<float> template specialization 
+		template <>
+		inline vector<float> cSymbolTable::Get<vector<float>>(const string &scopeName, const string &symbolName)
+		{
+			return GetVector<float>(*this, scopeName, symbolName);
+		}
+		// vector<bool> template specialization 
+		template <>
+		inline vector<bool> cSymbolTable::Get<vector<bool>>(const string &scopeName, const string &symbolName)
+		{
+			return GetVector<bool>(*this, scopeName, symbolName);
 		}
 
 		// map<string,vector<string>> template specialization 

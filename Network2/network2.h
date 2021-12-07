@@ -69,7 +69,6 @@ typedef int netid;
 
 #include "interpreter/remotedebugger.h"
 #include "interpreter/remoteinterpreter.h"
-#include "interpreter/basicmodule.h"
 
 #include "utility/all_protocol_displayer.h"
 #include "utility/log.h"

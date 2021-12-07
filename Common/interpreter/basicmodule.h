@@ -7,9 +7,9 @@
 #pragma once
 
 
-namespace network2
+namespace common
 {
-	class cBasicModule : public common::script::iModule
+	class cBasicModule : public script::iModule
 	{
 	public:
 		cBasicModule();

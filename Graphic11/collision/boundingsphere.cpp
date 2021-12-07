@@ -145,7 +145,7 @@ bool cBoundingSphere::Intersects(const Ray &ray
 		const Vector3 pos = line.Projection(center);
 		*distance = pos.Distance(ray.orig);
 	}
-	return true;	
+	return true;
 }
 
 

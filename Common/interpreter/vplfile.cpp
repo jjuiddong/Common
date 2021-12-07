@@ -315,30 +315,27 @@ bool cVplFile::AddVariable3(const string &scopeName, const string &name
 		val = common::str2variant(VT_BSTR, "");
 		break;
 	case eSymbolType::Array:
+		if (!m_variables.InitArray(scopeName, name, typeStr))
+		{
+			assert(!"cNodefile::AddVariable3() symbol parse error!! 3");
+			return false;
+		}
+		break;
 	case eSymbolType::Map:
-		break;  // nothing, todo: array type temporal symbol createion
+		if (!m_variables.InitMap(scopeName, name, typeStr))
+		{
+			assert(!"cNodefile::AddVariable3() symbol parse error!! 4");
+			return false;
+		}
+		break;
 	case eSymbolType::Any:
 		return true; // nothing, anytype ignore
-	//case eSymbolType::Array:
-	//	if (!m_variables.InitArray(scopeName, name, typeStr))
-	//	{
-	//		assert(!"cNodefile::AddVariable3() symbol parse error!! 3");
-	//		return false;
-	//	}
-	//	break;
-	//case eSymbolType::Map:
-	//	if (!m_variables.InitMap(scopeName, name, typeStr))
-	//	{
-	//		assert(!"cNodefile::AddVariable3() symbol parse error!! 4");
-	//		return false;
-	//	}
-	//	break;
 	default:
 		common::dbg::Logc(1, "Error!! cVplFile::AddVariable3() symbol parse error!! 2\n");
 		return false;
 	}
 
-	// update value bool, int, float, string, enum
+	// update value bool, int, float, string, enum (array, map already setting)
 	if ((symbType != eSymbolType::Array) && (symbType != eSymbolType::Map))
 	{
 		if (!m_variables.Set(scopeName, name, val, typeStr))
@@ -621,7 +618,8 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 		case eSymbolType::Int: code.cmd = script::eCommand::symbolai; break;
 		case eSymbolType::Float: code.cmd = script::eCommand::symbolaf; break;
 		case eSymbolType::String: code.cmd = script::eCommand::symbolas; break;
-		default:
+		case eSymbolType::None: code.cmd = script::eCommand::none; break;
+		default: 
 			common::dbg::Logc(3,
 				"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type2\n");
 			break;
@@ -639,6 +637,7 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 		case eSymbolType::Float: code.cmd = script::eCommand::symbolmf; break;
 		case eSymbolType::String: code.cmd = script::eCommand::symbolms; break;
 		case eSymbolType::Array: code.cmd = script::eCommand::symbolma; break;
+		case eSymbolType::None: code.cmd = script::eCommand::none; break;
 		default:
 			common::dbg::Logc(3,
 				"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type3\n");
@@ -652,11 +651,14 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 		break;
 	}
 
-	code.str1 = scopeName;// kv1.first; // scopename
-	code.str2 = varName;// kv2.first; // varname
-	code.str3 = typeStr; // array, map type string
-	code.var1 = var.var;
-	out.m_codes.push_back(code);
+	if (script::eCommand::none != code.cmd)
+	{
+		code.str1 = scopeName;// kv1.first; // scopename
+		code.str2 = varName;// kv2.first; // varname
+		code.str3 = typeStr; // array, map type string
+		code.var1 = var.var;
+		out.m_codes.push_back(code);
+	}
 	return true;
 }
 

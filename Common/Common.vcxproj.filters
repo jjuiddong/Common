@@ -250,6 +250,9 @@
     <ClInclude Include="interpreter\module.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\basicmodule.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -414,6 +417,9 @@
     </ClCompile>
     <ClCompile Include="thread\loadbalancer.cpp">
       <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\basicmodule.cpp">
+      <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

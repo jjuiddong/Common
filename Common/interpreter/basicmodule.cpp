@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "basicmodule.h"
 
-using namespace network2;
+using namespace common;
 using namespace common::script;
 
 
@@ -114,6 +114,20 @@ eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 		|| (funcName == "Map.Clone"))
 	{
 		MapFunction(vm, scopeName, funcName);
+		return eModuleResult::Done;
+	}
+	else if (funcName == "Vector3")
+	{
+		//const int id = symbolTable.Get<int>(scopeName, "id");
+		//const bool result = vm.StopTimer(id);
+		//symbolTable.Set<bool>(scopeName, "result", result, "bool");
+
+		const float x = symbolTable.Get<float>(scopeName, "x");
+		const float y = symbolTable.Get<float>(scopeName, "y");
+		const float z = symbolTable.Get<float>(scopeName, "z");
+		const vector<float> ar = { x, y, z };
+		symbolTable.Set(scopeName, "out", ar, "Array<Float>");
+
 		return eModuleResult::Done;
 	}
 

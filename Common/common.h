@@ -208,3 +208,4 @@ using std::max;
 #include "interpreter/debugger.h"
 #include "interpreter/vplfile.h"
 #include "interpreter/vpljsonfile.h"
+#include "interpreter/basicmodule.h"
