@@ -127,7 +127,6 @@ bool cVplFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode 
 	node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
 	node.id = sdata.Get<int>(p, "id", 0);
 	node.name = sdata.Get<string>(p, "name", "name");
-	//node.desc = sdata.Get<string>(p, "desc", node.name);
 	node.typeStr = sdata.Get<string>(p, "typeStr", node.name);
 	node.labelName = sdata.Get<string>(p, "labelname", "");
 
@@ -179,6 +178,24 @@ bool cVplFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode 
 			}
 		}
 	}
+
+	// check function, macro
+	// if no flow node, macro type
+	if (eNodeType::Function == node.type)
+	{
+		bool hasFlow = false;
+		for (auto &pin : node.inputs)
+		{
+			if (ePinType::Flow == pin.type)
+			{
+				hasFlow = true;
+				break;
+			}
+		}
+		if (!hasFlow) // no flow input? macro type, no function type
+			node.type = eNodeType::Macro;
+	}
+
 	m_nodes.push_back(node);
 	return true;
 }
@@ -569,14 +586,25 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 	{
 		if (eNodeType::Event == node.type)
 		{
-			const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
-			script::sVariable *var = m_variables.FindVarInfo(name, "interval");
-			if (var) // register event?
+			if (node.name == "Tick Event")
 			{
+				const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
+				script::sVariable *var = m_variables.FindVarInfo(name, "interval");
+				if (var)
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::timer1;
+					code.str1 = name;
+					code.var1 = var->var;
+					out.m_codes.push_back(code);
+				}
+			}
+			else if (node.name == "Timer Event")
+			{
+				const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
 				script::sInstruction code;
-				code.cmd = script::eCommand::timer1;
+				code.cmd = script::eCommand::timer2;
 				code.str1 = name;
-				code.var1 = var->var;
 				out.m_codes.push_back(code);
 			}
 		}
@@ -621,7 +649,7 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 		case eSymbolType::None: code.cmd = script::eCommand::none; break;
 		default: 
 			common::dbg::Logc(3,
-				"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type2\n");
+				"Error!! cVplFile::Symbol_GenCode(), invalid symbol type2\n");
 			break;
 		}
 	}
@@ -640,14 +668,14 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 		case eSymbolType::None: code.cmd = script::eCommand::none; break;
 		default:
 			common::dbg::Logc(3,
-				"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type3\n");
+				"Error!! cVplFile::Symbol_GenCode(), invalid symbol type3\n");
 			break;
 		}
 	}
 	break;
 	default:
 		common::dbg::Logc(3,
-			"Error!! cVplFile::GenerateIntermediateCode(), invalid symbol type1\n");
+			"Error!! cVplFile::Symbol_GenCode(), invalid symbol type1\n");
 		break;
 	}
 
@@ -687,7 +715,7 @@ bool cVplFile::Event_GenCode(const sNode &node
 		if ((ePinType::Flow == pin.type) && (!pin.links.empty()))
 		{
 			if (pin.links.size() >= 2)
-				common::dbg::Logc(3, "Error!! cVplFile::Generate intermediate code, flow link too many setting \n");
+				common::dbg::Logc(3, "Error!! cVplFile::Event_GenCode code, flow link too many setting \n");
 
 			sNode *next = nullptr;
 			sPin *np = nullptr;
@@ -732,7 +760,7 @@ bool cVplFile::Widget_GenCode(const sNode &node
 		if ((ePinType::Flow == pin.type) && (!pin.links.empty()))
 		{
 			if (pin.links.size() >= 2)
-				common::dbg::Logc(3, "Error!! cVplFile::Generate intermediate code, flow link too many setting \n");
+				common::dbg::Logc(3, "Error!! cVplFile::Widget_GenCode, flow link too many setting \n");
 
 			sNode *next = nullptr;
 			sPin *np = nullptr;
@@ -764,13 +792,35 @@ bool cVplFile::Node_GenCode(const sNode &prevNode, const sNode &node
 	case eNodeType::Control: Control_GenCode(prevNode, node, fromPin, out); break;
 	case eNodeType::Operator: Operator_GenCode(node, out); break;
 	case eNodeType::Variable: Variable_GenCode(node, out); break;
-		break;
+	case eNodeType::Event: break;
 	default:
 		common::dbg::Logc(1
-			, "Error!! cVplFile::GenerateCode_Node(), node type is invalid\n");
+			, "Error!! cVplFile::Node_GenCode(), node type is invalid %d\n"
+			, node.type);
 		return false; // nothing generate this type
 	}
+	return true;
+}
 
+
+// generate intermediate code, macro, operator node code only
+bool cVplFile::Node_GenCode2(const sNode &prevNode, const sNode &node
+	, const sPin &fromPin, OUT common::script::cIntermediateCode &out)
+{
+	switch (node.type)
+	{
+	case eNodeType::Macro: Function_GenCode(prevNode, node, fromPin, out); break;
+	case eNodeType::Operator: Operator_GenCode(node, out); break;
+	case eNodeType::Function:
+	case eNodeType::Control:
+	case eNodeType::Variable: 
+	case eNodeType::Event: break;
+	default:
+		common::dbg::Logc(1
+			, "Error!! cVplFile::Node_GenCode2(), node type is invalid %d\n"
+			, node.type);
+		return false; // nothing generate this type
+	}
 	return true;
 }
 
@@ -831,7 +881,7 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 		{
 			// error occurred!!
 			common::dbg::Logc(2
-				, "Error!! cVplFile::GenerateCode_Function(), not found input pin\n");
+				, "Error!! cVplFile::Function_GenCode(), not found input pin\n");
 		}
 
 		// Set node has out pint?
@@ -957,7 +1007,7 @@ bool cVplFile::Branch_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			//common::dbg::Logc(1, "cVplFile::GenerateCode_Branch, no branch label\n");
+			//common::dbg::Logc(1, "cVplFile::Branch_GenCode, no branch label\n");
 		}
 		else
 		{
@@ -1093,7 +1143,7 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 				cmd = script::eCommand::eqsc;
 				break;
 			default:
-				common::dbg::Logc(3, "cVplFile::GenerateCode_Switch() error");
+				common::dbg::Logc(3, "cVplFile::Switch_GenCode() error");
 				continue; // error occurred!!, ignore this code
 			}
 		}
@@ -1256,7 +1306,7 @@ bool cVplFile::While_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			//common::dbg::Logc(1, "cVplFile::GenerateCode_While, no branch label\n");
+			//common::dbg::Logc(1, "cVplFile::While_GenCode, no branch label\n");
 		}
 		else
 		{
@@ -1429,7 +1479,7 @@ bool cVplFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 			code.cmd = script::eCommand::jnz;
 			code.str1 = "blank";
 			out.m_codes.push_back(code);
-			//common::dbg::Logc(1, "cVplFile::GenerateCode_ForLoop, no branch label\n");
+			//common::dbg::Logc(1, "cVplFile::ForLoop_GenCode, no branch label\n");
 		}
 		else
 		{
@@ -1633,7 +1683,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::lesf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1650,7 +1700,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::leqf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1667,7 +1717,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::grf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1684,7 +1734,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::greqf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1706,7 +1756,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::String: code.cmd = script::eCommand::eqs; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), compare type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1740,7 +1790,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::String: code.cmd = script::eCommand::adds; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), arithmatic type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1759,7 +1809,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::subf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), arithmatic type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1778,7 +1828,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::mulf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), arithmatic type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1797,7 +1847,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Float: code.cmd = script::eCommand::divf; break;
 		default:
 			common::dbg::Logc(1
-				, "Error!! cVplFile::Generate_Operator(), arithmatic type invalid\n");
+				, "Error!! cVplFile::Operator_GenCode(), arithmatic type invalid\n");
 			break;
 		}
 		code.reg1 = 8; // reg8
@@ -1829,7 +1879,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 			case eSymbolType::String: code.cmd = script::eCommand::sets; break;
 			default:
 				common::dbg::Logc(1
-					, "Error!! cVplFile::Generate_Operator(), compare type invalid\n");
+					, "Error!! cVplFile::Operator_GenCode(), compare type invalid\n");
 				break;
 			}
 			code.str1 = MakeScopeName(node);
@@ -2184,7 +2234,7 @@ bool cVplFile::NodeInput_GenCode(const sNode &node, const uint reg
 			continue;
 
 		if (m_visit.end() == m_visit.find(prev->id))
-			Node_GenCode(nullNode, *prev, pin, out);
+			Node_GenCode2(nullNode, *prev, pin, out);
 	}
 
 	// load register prev node output pin

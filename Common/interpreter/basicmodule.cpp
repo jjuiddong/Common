@@ -86,7 +86,22 @@ eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 		symbolTable.Set<float>(scopeName, "out", round(value), "float");
 		return eModuleResult::Done;
 	}
-	else if (funcName == "Stop Timer")
+	else if (funcName == "SetTimer")
+	{
+		const int id = symbolTable.Get<int>(scopeName, "id");
+		const int time = symbolTable.Get<int>(scopeName, "time ms"); // milliseconds
+		const bool result = vm.SetTimer(id, time);
+		symbolTable.Set<bool>(scopeName, "result", result, "bool");
+		return eModuleResult::Done;
+	}
+	else if ((funcName == "Stop Tick") || (funcName == "StopTick"))
+	{
+		const int id = symbolTable.Get<int>(scopeName, "id");
+		const bool result = vm.StopTick(id);
+		symbolTable.Set<bool>(scopeName, "result", result, "bool");
+		return eModuleResult::Done;
+	}
+	else if ((funcName == "Stop Timer") || (funcName == "StopTimer"))
 	{
 		const int id = symbolTable.Get<int>(scopeName, "id");
 		const bool result = vm.StopTimer(id);

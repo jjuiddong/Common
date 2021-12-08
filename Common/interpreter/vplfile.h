@@ -98,6 +98,8 @@ namespace vpl
 			, OUT common::script::cIntermediateCode &out);
 		bool Node_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
+		bool Node_GenCode2(const sNode &prevNode, const sNode &node
+			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool Function_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool Control_GenCode(const sNode &prevNode, const sNode &node

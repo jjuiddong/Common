@@ -48,7 +48,9 @@ namespace common
 			bool Resume();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
+			bool SetTimer(const int timerId, const int timeMillis);
 			bool StopTimer(const int timerId);
+			bool StopTick(const int tickId);
 			void SetCodeTrace(const bool isCodeTrace);
 			void ClearCodeTrace(const bool isTakeLast=false);
 			void Clear();
@@ -78,9 +80,11 @@ namespace common
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;
 			common::cCircularQueue2<cEvent> m_events;
+			vector<sTimer> m_ticks;
 			vector<sTimer> m_timers;
 			vector<int> m_stack; // simple integer stack (save return address)
 			vector<iModule*> m_modules; // execute function module, reference
+			string m_timerId; // timer event code name, name + id, to trigger event
 
 			// debugging
 			bool m_isCodeTraceLog;

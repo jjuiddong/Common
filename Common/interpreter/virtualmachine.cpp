@@ -34,15 +34,21 @@ bool cVirtualMachine::Init(const cIntermediateCode &code)
 	m_code = code;
 	m_symbTable = code.m_variables; // initial variable
 
-	// update timer
-	for (auto time : m_code.m_timer1Events)
+	// update tick/timer
+	for (auto &tick : m_code.m_timer1Events)
 	{
-		m_timers.push_back(
+		m_ticks.push_back(
 			{ common::GenerateId()
-			, time.first // timer name
-			, time.second / 1000.f // timer interval (convert seconds unit)
-			, (float)time.second / 1000.f } // timer decrease time (convert seconds unit)
+			, tick.first // tick name
+			, tick.second / 1000.f // tick interval (convert seconds unit)
+			, (float)tick.second / 1000.f } // tick decrease time (convert seconds unit)
 		);
+	}
+
+	for (auto &time : m_code.m_timer2Events)
+	{
+		m_timerId = time.first.c_str(); // timer id: node name + node id
+		break;
 	}
 
 	m_stack.reserve(32);
@@ -133,6 +139,7 @@ bool cVirtualMachine::Stop()
 	// clear event, timer, stack
 	m_events.clear();
 	m_timers.clear();
+	m_ticks.clear();
 	m_stack.clear();
 
 	// close vm module
@@ -182,19 +189,47 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 }
 
 
+// set timer
+bool cVirtualMachine::SetTimer(const int timerId, const int timeMillis)
+{
+	if (m_timerId.empty())
+		return false; // error, no has timer event code block
+
+	auto it = std::find_if(m_timers.begin(), m_timers.end()
+		, [&](const auto &a) { return a.id == timerId; });
+	if (m_timers.end() != it)
+		return false; // already exist
+
+	m_timers.push_back(
+		{ timerId
+		, common::format("timer%d", timerId) // timer name
+		, timeMillis / 1000.f // timer interval (convert seconds unit)
+		, (float)timeMillis / 1000.f } // timer decrease time (convert seconds unit)
+	);
+	return true;
+}
+
+
 // stop timer
 bool cVirtualMachine::StopTimer(const int timerId)
 {
-	int idx = -1;
-	for (uint i = 0; i < m_timers.size(); ++i)
-		if (m_timers[i].id == timerId)
-		{
-			idx = (int)i;
-			break;
-		}
-	if (idx < 0)
+	auto it = std::find_if(m_timers.begin(), m_timers.end()
+		, [&](const auto &a) { return a.id == timerId; });
+	if (m_timers.end() == it)
 		return false;
-	common::removevector2(m_timers, idx);
+	m_timers.erase(it);
+	return true;
+}
+
+
+// stop tick
+bool cVirtualMachine::StopTick(const int tickId)
+{
+	auto it = std::find_if(m_ticks.begin(), m_ticks.end()
+		, [&](const auto &a) { return a.id == tickId; });
+	if (m_ticks.end() == it)
+		return false;
+	m_ticks.erase(it);
 	return true;
 }
 
@@ -236,25 +271,51 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 }
 
 
-// process timer
-// check timer interval time, call timer event
+// process tick / timer
+// check tick interval time, call tick event
+// check timer delay time, call timer event
 // execute event only waitting state
 bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 {
 	RETV(eState::Wait != m_state, false);
-	RETV(m_timers.empty(), false);
 
-	for (auto &timer : m_timers)
+	if (!m_ticks.empty())
 	{
-		timer.t -= deltaSeconds;
-		if (timer.t < 0.f)
+		for (auto &tick : m_ticks)
 		{
-			// timer event trigger
-			// timer id output
-			const string scopeName = (timer.name + "::id").c_str();
-			PushEvent(cEvent(timer.name, { {scopeName, timer.id} }));
-			timer.t = timer.interval;
-			break;
+			tick.t -= deltaSeconds;
+			if (tick.t < 0.f)
+			{
+				// tick event trigger
+				// tick id output
+				const string scopeName = (tick.name + "::id").c_str();
+				PushEvent(cEvent(tick.name, { {scopeName, tick.id} }));
+				tick.t = tick.interval;
+				break;
+			}
+		}
+	}
+
+	if (!m_timers.empty())
+	{
+		auto it = m_timers.begin();
+		while (it != m_timers.end())
+		{
+			auto &timer = *it;
+			timer.t -= deltaSeconds;
+			if (timer.t < 0.f)
+			{
+				// timer event trigger
+				// timer id output
+				const string scopeName = (m_timerId + "::id").c_str();
+				PushEvent(cEvent(m_timerId, { {scopeName, timer.id} }));
+
+				it = m_timers.erase(it); // remove this timer
+			}
+			else
+			{
+				++it;
+			}
 		}
 	}
 
@@ -1070,8 +1131,10 @@ void cVirtualMachine::Clear()
 	m_code.Clear();
 	m_events.clear();
 	m_timers.clear();
+	m_ticks.clear();
 	m_stack.clear();
 	for (auto &mod : m_modules)
 		mod->CloseModule(*this);
 	m_modules.clear();
+	m_timerId.clear();
 }
