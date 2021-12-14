@@ -105,7 +105,6 @@ namespace graphic
 		vector<sCommand> m_codes;
 		vector<sDelayGenerateText> m_delayGens;
 		map<__int64, sText*> m_renderMap; // reference m_buffer
-		map<__int64, sText*> m_bufferMap; // reference m_buffer
 		map<__int64, sText*> m_cacheMap; // reference m_buffer
 		set<__int64> m_delayGenSet; // check duplicate m_delayGens
 
