@@ -881,7 +881,8 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 		{
 			// error occurred!!
 			common::dbg::Logc(2
-				, "Error!! cVplFile::Function_GenCode(), not found input pin\n");
+				, "Error!! cVplFile::Function_GenCode(), set node, no input pin, %s\n"
+				, m_fileName.c_str());
 		}
 
 		// Set node has out pint?
