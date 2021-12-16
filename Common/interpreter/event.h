@@ -22,6 +22,7 @@ namespace common
 		public:
 			StrId m_name;
 			map<string, variant_t> m_vars;
+			map<string, map<string, vector<string>>> m_vars2; // special purpose variables
 			bool m_isUnique; // unique event? if true, event queue has only one this event
 		};
 
