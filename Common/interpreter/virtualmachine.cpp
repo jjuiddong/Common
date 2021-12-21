@@ -85,8 +85,8 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 	RETV((eState::Stop == m_state) || (eState::WaitCallback == m_state), true);
 	RETV(!m_code.IsLoaded(), true);
 
-	if (!ProcessEvent(deltaSeconds))
-		ProcessTimer(deltaSeconds);
+	ProcessEvent(deltaSeconds);
+	ProcessTimer(deltaSeconds);
 
 	ExecuteInstruction(deltaSeconds, m_reg);
 
@@ -298,7 +298,7 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 				const string scopeName = (tick.name + "::id").c_str();
 				PushEvent(cEvent(tick.name, { {scopeName, tick.id} }));
 				tick.t = tick.interval;
-				break;
+				//break;
 			}
 		}
 	}
