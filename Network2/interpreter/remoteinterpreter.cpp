@@ -209,6 +209,25 @@ bool cRemoteInterpreter::RemoveModule(common::script::iModule *mod)
 }
 
 
+// send sync vm register, instruction, symbol
+// update latest information with interpreter client
+bool cRemoteInterpreter::SendSyncAll()
+{
+	for (uint k = 0; k < m_interpreters.size(); ++k)
+	{
+		const int itprId = (int)k;
+		sItpr &itpr = m_interpreters[itprId];
+		itpr.regSyncTime = 0.f;
+		itpr.instSyncTime = 0.f;
+		itpr.symbSyncTime = 0.f;
+		SendSyncInstruction(itprId);
+		SendSyncVMRegister(itprId);
+		SendSyncSymbolTable(itprId);
+	}
+	return true;
+}
+
+
 // process webclient, interpreter
 bool cRemoteInterpreter::Process(const float deltaSeconds)
 {
@@ -255,26 +274,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 
 		// sync instruction?
 		if (itpr.instSyncTime > TIME_SYNC_INSTRUCTION)
-		{
-			script::cInterpreter *interpreter = itpr.interpreter;
-			for (uint i = 0; i < interpreter->m_vms.size(); ++i)
-			{
-				script::cVirtualMachine *vm = interpreter->m_vms[i];
-				if (vm->m_trace.empty())
-					continue; // no process
-				const uint size = vm->m_trace.size();
-				if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
-					continue; // no process, no changed
-
-				itpr.instSyncTime = 0.f;
-				itpr.isChangeInstruction = false; // initialize flag
-
-				m_protocol.SyncVMInstruction(network2::ALL_NETID
-					, true, itprId, i, vm->m_trace);
-
-				vm->ClearCodeTrace(true);
-			}
-		}
+			SendSyncInstruction(itprId);
 
 		if (isSync && (itprId == m_symbolTableSyncItprId))
 			SendSyncSymbolTable(itprId);
@@ -658,6 +658,32 @@ bool cRemoteInterpreter::IsDebug(const int itprId)
 		return (eState::Run == itpr.state) && interpreter->IsDebug();
 	}
 	return false;
+}
+
+
+// sync instruction set
+bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
+{
+	sItpr &itpr = m_interpreters[itprId];
+	script::cInterpreter *interpreter = itpr.interpreter;
+	for (uint i = 0; i < interpreter->m_vms.size(); ++i)
+	{
+		script::cVirtualMachine *vm = interpreter->m_vms[i];
+		if (vm->m_trace.empty())
+			continue; // no process
+		const uint size = vm->m_trace.size();
+		if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
+			continue; // no process, no changed
+
+		itpr.instSyncTime = 0.f;
+		itpr.isChangeInstruction = false; // initialize flag
+
+		m_protocol.SyncVMInstruction(network2::ALL_NETID
+			, true, itprId, i, vm->m_trace);
+
+		vm->ClearCodeTrace(true);
+	}
+	return true;
 }
 
 

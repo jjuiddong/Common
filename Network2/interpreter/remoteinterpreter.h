@@ -43,6 +43,7 @@ namespace network2
 		bool LoadIntermediateCode(const common::script::cIntermediateCode &icode);
 		bool AddModule(common::script::iModule *mod);
 		bool RemoveModule(common::script::iModule *mod);
+		bool SendSyncAll();
 
 		bool Process(const float deltaSeconds);
 		bool PushEvent(const int itprId, const common::script::cEvent &evt);
@@ -65,6 +66,7 @@ namespace network2
 
 	protected:
 		bool SendSyncVMRegister(const int itprId);
+		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId);
 
 		// remotedbg2 protocol hander
