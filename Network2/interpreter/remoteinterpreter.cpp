@@ -57,7 +57,7 @@ cRemoteInterpreter::cRemoteInterpreter(
 	, m_threads(nullptr)
 	, m_multiThreading(0)
 	, m_isThreadMode(true)
-	, m_symbolTableSyncItprId(-1)
+	//, m_symbolTableSyncItprId(-1)
 {
 }
 
@@ -276,7 +276,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		if (itpr.instSyncTime > TIME_SYNC_INSTRUCTION)
 			SendSyncInstruction(itprId);
 
-		if (isSync && (itprId == m_symbolTableSyncItprId))
+		//if (isSync && (itprId == m_symbolTableSyncItprId))
 			SendSyncSymbolTable(itprId);
 
 		// is meet breakpoint? change step debugging mode
@@ -952,7 +952,7 @@ bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet)
 		m_syncItptrs.insert(id);
 
 	// refresh symboltable
-	m_symbolTableSyncItprId = packet.itprIds.empty() ? -1 : packet.itprIds[0];
+	//m_symbolTableSyncItprId = packet.itprIds.empty() ? -1 : packet.itprIds[0];
 	m_chSymbols.clear();
 
 	m_protocol.AckDebugInfo(packet.senderId, true, packet.itprIds, 1);

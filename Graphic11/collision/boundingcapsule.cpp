@@ -26,6 +26,7 @@ bool cBoundingCapsule::Collision(const cCollisionObj &obj
 ) const
 {
 	// nothing~
+	assert(0);
 	return false;
 }
 
@@ -36,6 +37,7 @@ bool cBoundingCapsule::Pick(const Ray &ray
 ) const
 {
 	// nothing~
+	assert(0);
 	return false;
 }
 

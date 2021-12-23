@@ -105,7 +105,7 @@ namespace network2
 		int m_bindPort; // webserver bind port
 		network2::cWebServer m_server;
 		remotedbg2::h2r_Protocol m_protocol;
-		int m_symbolTableSyncItprId; // symbol table synchronize interpreter id
+		//int m_symbolTableSyncItprId; // symbol table synchronize interpreter id
 		set<int> m_syncItptrs; // sync debug info interpreter id
 		map<string, sSymbol> m_chSymbols; // check change variable
 										  // key: variable name = scopeName + varname
