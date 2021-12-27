@@ -179,7 +179,8 @@ int cTPSemaphore::ThreadFunction(cTPSemaphore *tpSemaphore)
 		}
 		catch (std::exception &e) 
 		{
-			dbg::Logc(2, "error cTPSemaphore Task exception, %s\n", e.what());
+			dbg::Logc(2, "error cTPSemaphore Task exception, %s, %s\n"
+				, e.what(), task->m_name.c_str());
 		}
 		delete task;
 	}
