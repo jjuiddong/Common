@@ -34,7 +34,7 @@ namespace compiler3
 	bool WriteProtocol(ofstream &fs, sProtocol *protocol);
 	void WriteImplPacketList(ofstream &fs, sProtocol *protocol, sPacket *packet);
 	void WriteImplPacket(ofstream &fs, sProtocol *protocol, sPacket *packet, sArg*p);
-	void WriteImpleArg(ofstream &fs, sArg*p, const string &tab);
+	void WriteImpleArg(ofstream &fs, sArg*p, const string &tab, const string &prefix="");
 	void WriteLastImplePacket(ofstream &fs, sProtocol *protocol, sPacket *packet
 		, const string &tab, const bool isBinary = false);
 
@@ -419,6 +419,7 @@ bool compiler3::WriteCustomStruct(ofstream &fs, sType *type)
 
 	// implement custom type make
 	fs << tab << "function Make_" << type->name << "(packet, data) {\n";
+	WriteImpleArg(fs, type->vars, "\t\t", "data.");
 	fs << tab << "}\n";
 
 	// implement custom type vector make
@@ -636,14 +637,16 @@ void compiler3::WriteImplPacket(ofstream &fs, sProtocol *protocol
 // in Protocol class
 // generate make packet code
 //------------------------------------------------------------------------
-void compiler3::WriteImpleArg(ofstream &fs, sArg *p, const string &tab)
+void compiler3::WriteImpleArg(ofstream &fs, sArg *p, const string &tab
+	, const string &prefix //=""
+)
 {
 	if (!p) return;
 	fs << tab;
 	WriteParsePacketField(fs, p->var->type, true);
-	fs << p->var->var << ")";
+	fs << prefix << p->var->var << ")";
 	fs << "\n";
-	WriteImpleArg(fs, p->next, tab);
+	WriteImpleArg(fs, p->next, tab, prefix);
 }
 
 

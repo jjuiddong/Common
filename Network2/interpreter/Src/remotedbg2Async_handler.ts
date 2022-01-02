@@ -28,6 +28,9 @@ export namespace remotedbg2Async {
 		return ar
 	}
 	function Make_sSyncSymbol(packet: Network.Packet, data: sSyncSymbol) {
+		packet.pushStr(data.scope)
+		packet.pushStr(data.name)
+		packet.pushTypeVariant(data.var)
 	}
 	function Make_sSyncSymbolVector(packet: Network.Packet, data: sSyncSymbol[]) {
 	}
@@ -52,6 +55,9 @@ export namespace remotedbg2Async {
 		return ar
 	}
 	function Make_sRegister(packet: Network.Packet, data: sRegister) {
+		packet.pushUint32(data.idx)
+		packet.pushBool(data.cmp)
+		packet.pushTypeVariantVector(data.val)
 	}
 	function Make_sRegisterVector(packet: Network.Packet, data: sRegister[]) {
 	}
