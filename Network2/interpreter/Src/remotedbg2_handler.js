@@ -25,6 +25,9 @@ function Parse_sSyncSymbolVector(packet) {
 	return ar
 }
 function Make_sSyncSymbol(packet, data) {
+		packet.pushStr(data.scope)
+		packet.pushStr(data.name)
+		packet.pushTypeVariant(data.var)
 }
 function Make_sSyncSymbolVector(packet, data) {
 }
@@ -44,6 +47,9 @@ function Parse_sRegisterVector(packet) {
 	return ar
 }
 function Make_sRegister(packet, data) {
+		packet.pushUint32(data.idx)
+		packet.pushBool(data.cmp)
+		packet.pushTypeVariantVector(data.val)
 }
 function Make_sRegisterVector(packet, data) {
 }
