@@ -297,6 +297,12 @@ Vector3 cBoundingBox::Center() const
 	return *(Vector3*)&m_bbox.Center;
 }
 
+void cBoundingBox::SetCenter(const Vector3 &pos)
+{
+	m_bbox.Center.x = pos.x;
+	m_bbox.Center.y = pos.y;
+	m_bbox.Center.z = pos.z;
+}
 
 void cBoundingBox::Scale(const Vector3 &scale)
 {

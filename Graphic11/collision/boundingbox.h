@@ -37,6 +37,7 @@ namespace common
 		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance= nullptr) const;
 
 		Vector3 Center() const;
+		void SetCenter(const Vector3 &pos);
 		void Scale(const Vector3 &scale);
 		float GetScale() const;
 		Vector3 GetDimension() const;
