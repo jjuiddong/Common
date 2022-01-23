@@ -420,7 +420,7 @@ bool cWebServer::ReceiveProcces()
 		return true;
 
 	set<netid> rmSessions; // remove session ids
-	const timeval t = { 0, 0 };
+	const timeval t = { 0, m_sessions.empty() ? 10000 : m_sleepMillis * 1000 };
 	const fd_set &sockets = m_readSockets;
 	fd_set readSockets = m_readSockets;
 
@@ -631,9 +631,9 @@ unsigned WINAPI cWebServer::ThreadFunction(cWebServer* server)
 	{
 		server->Process();
 
-		const int sleepTime = server->m_sessions.empty() ? 100 : server->m_sleepMillis;
-		if (sleepTime > 0)
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+		//const int sleepTime = server->m_sessions.empty() ? 100 : server->m_sleepMillis;
+		//if (sleepTime > 0)
+		//	std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}
 	return 0;
 }

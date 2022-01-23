@@ -69,7 +69,7 @@ bool cUdpServer::Process()
 	if (!m_recvBuffer)
 		m_recvBuffer = new char[m_maxBuffLen];
 
-	const timeval t = { 0, 0 };
+	const timeval t = { 0, m_sleepMillis * 1000 };
 	fd_set readSockets;
 	FD_ZERO(&readSockets);
 	FD_SET(m_socket, &readSockets);
@@ -172,8 +172,8 @@ unsigned WINAPI cUdpServer::ThreadFunction(cUdpServer* udp)
 	while (eState::Connect == udp->m_state)
 	{
 		udp->Process();
-		if (udp->m_sleepMillis)
-			std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
+		//if (udp->m_sleepMillis)
+		//	std::this_thread::sleep_for(std::chrono::milliseconds(udp->m_sleepMillis));
 	}
 	return 0;
 }

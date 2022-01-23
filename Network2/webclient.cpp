@@ -183,7 +183,8 @@ bool cWebClient::Process()
 	int selResult = 0;
 	try
 	{
-		selResult = m_websocket->select(reads, writes, excepts, Poco::Timespan(0, 0));
+		selResult = m_websocket->select(reads, writes, excepts
+			, Poco::Timespan(0, m_sleepMillis * 1000));
 	}
 	catch (Poco::TimeoutException)
 	{
