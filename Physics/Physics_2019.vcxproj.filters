@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="physics.h" />
+    <ClInclude Include="util\errorcallback.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\utility.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="actor\rigidactor.h">
+      <Filter>actor</Filter>
+    </ClInclude>
+    <ClInclude Include="joint\joint.h">
+      <Filter>joint</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\physicsengine.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\physicssync_interface.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\physicssync.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="actor\rigidactor.cpp">
+      <Filter>actor</Filter>
+    </ClCompile>
+    <ClCompile Include="joint\joint.cpp">
+      <Filter>joint</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\physicsengine.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\physicssync.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="manager">
+      <UniqueIdentifier>{d5f14507-0f28-4b0e-80d9-050b6674bff4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{12a4d6fe-2288-41a3-ba30-db6a08f4e8d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="actor">
+      <UniqueIdentifier>{2a27645c-a9cf-485a-b287-510d3c4bd9b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="joint">
+      <UniqueIdentifier>{aa6b5bce-464f-45aa-b5f1-1ac2cc1088be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

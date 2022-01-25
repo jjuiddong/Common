@@ -1,0 +1,309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{89878D3E-85AC-4E0B-87EB-2DE34A18EADF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Framework11</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>../Lib/$(ProjectName)/$(Configuration)/</OutDir>
+    <IntDir>../Obj/$(ProjectName)/$(Configuration)/</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgTriplet>$(VcpkgUserTriplet)</VcpkgTriplet>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;USE_D3D11_MATH;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>./external/sfml/include/;./external/sfml/src/;./external/imgui/;./external/NodeEditor/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;USE_D3D11_MATH;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>./external/sfml/include/;./external/sfml/src/;./external/imgui/;./external/NodeEditor/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dbg\dbgmonitor.h" />
+    <ClInclude Include="external\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\stb_rect_pack.h" />
+    <ClInclude Include="external\imgui\stb_textedit.h" />
+    <ClInclude Include="external\imgui\stb_truetype.h" />
+    <ClInclude Include="external\NodeEditor\ax\Builders.h" />
+    <ClInclude Include="external\NodeEditor\ax\Drawing.h" />
+    <ClInclude Include="external\NodeEditor\ax\Interop.h" />
+    <ClInclude Include="external\NodeEditor\ax\Math2D.h" />
+    <ClInclude Include="external\NodeEditor\ax\Widgets.h" />
+    <ClInclude Include="external\NodeEditor\crude_json.h" />
+    <ClInclude Include="external\NodeEditor\imgui_bezier_math.h" />
+    <ClInclude Include="external\NodeEditor\imgui_canvas.h" />
+    <ClInclude Include="external\NodeEditor\imgui_extra_math.h" />
+    <ClInclude Include="external\NodeEditor\imgui_node_editor.h" />
+    <ClInclude Include="external\NodeEditor\imgui_node_editor_internal.h" />
+    <ClInclude Include="external\sfml\include\SFML\Config.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Clock.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Err.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Lock.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Mutex.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\NonCopyable.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Sleep.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\String.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Time.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Utf.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Vector2.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\System\Vector3.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Event.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Export.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Joystick.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Keyboard.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Mouse.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Sensor.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Touch.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\VideoMode.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\Window.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowHandle.hpp" />
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowStyle.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\ClockImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\MutexImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\SleepImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\InputImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickManager.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorManager.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\VideoModeImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\InputImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\SensorImpl.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.hpp" />
+    <ClInclude Include="external\sfml\src\SFML\Window\WindowImpl.hpp" />
+    <ClInclude Include="framework11.h" />
+    <ClInclude Include="gamemain\GameMain.h" />
+    <ClInclude Include="gamemain\gamemain2.h" />
+    <ClInclude Include="input\input.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="ui\dock.h" />
+    <ClInclude Include="ui\dockmanager.h" />
+    <ClInclude Include="ui\dockwindow.h" />
+    <ClInclude Include="ui\event.h" />
+    <ClInclude Include="ui\eventhandler.h" />
+    <ClInclude Include="ui\renderwindow.h" />
+    <ClInclude Include="ui\uidef.h" />
+    <ClInclude Include="vprogeditor\editmanager.h" />
+    <ClInclude Include="vprogeditor\link.h" />
+    <ClInclude Include="vprogeditor\node.h" />
+    <ClInclude Include="vprogeditor\nodefile.h" />
+    <ClInclude Include="vprogeditor\pin.h" />
+    <ClInclude Include="vprogeditor\vpl.h" />
+    <ClInclude Include="window\utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dbg\dbgmonitor.cpp" />
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="external\NodeEditor\ax\Builders.cpp" />
+    <ClCompile Include="external\NodeEditor\ax\Drawing.cpp" />
+    <ClCompile Include="external\NodeEditor\ax\Widgets.cpp" />
+    <ClCompile Include="external\NodeEditor\crude_json.cpp" />
+    <ClCompile Include="external\NodeEditor\imgui_canvas.cpp" />
+    <ClCompile Include="external\NodeEditor\imgui_node_editor.cpp" />
+    <ClCompile Include="external\NodeEditor\imgui_node_editor_api.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Clock.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Err.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Lock.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Mutex.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Sleep.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\String.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Time.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\ClockImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\MutexImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\SleepImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Joystick.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\JoystickManager.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Keyboard.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Mouse.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Sensor.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\SensorManager.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Touch.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\VideoMode.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\InputImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\SensorImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\VideoModeImpl.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\Window.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\Window\WindowImpl.cpp" />
+    <ClCompile Include="gamemain\GameMain.cpp" />
+    <ClCompile Include="gamemain\gamemain2.cpp" />
+    <ClCompile Include="input\input.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ui\dockmanager.cpp" />
+    <ClCompile Include="ui\dockwindow.cpp" />
+    <ClCompile Include="ui\event.cpp" />
+    <ClCompile Include="ui\eventhandler.cpp" />
+    <ClCompile Include="ui\renderwindow.cpp" />
+    <ClCompile Include="vprogeditor\editmanager.cpp" />
+    <ClCompile Include="vprogeditor\node.cpp" />
+    <ClCompile Include="vprogeditor\nodefile.cpp" />
+    <ClCompile Include="vprogeditor\vpl.cpp" />
+    <ClCompile Include="window\utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Graphic11\Graphic11.vcxproj">
+      <Project>{6e994653-a69c-4be2-b830-97676e805f29}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\NodeEditor\Support\imgui_node_editor.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="external\NodeEditor\ax\Math2D.inl" />
+    <None Include="external\NodeEditor\imgui_bezier_math.inl" />
+    <None Include="external\NodeEditor\imgui_extra_math.inl" />
+    <None Include="external\NodeEditor\imgui_node_editor_internal.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

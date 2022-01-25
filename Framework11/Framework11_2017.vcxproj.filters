@@ -1,0 +1,458 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="framework11.h" />
+    <ClInclude Include="external\sfml\include\SFML\Window.hpp">
+      <Filter>external\sfml</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Config.hpp">
+      <Filter>external\sfml</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System.hpp">
+      <Filter>external\sfml</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Clock.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Err.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Lock.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Mutex.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\NonCopyable.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Sleep.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\String.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Time.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Utf.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Vector2.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\System\Vector3.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\ClockImpl.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\MutexImpl.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\System\Win32\SleepImpl.hpp">
+      <Filter>external\sfml\system</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Event.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Export.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Joystick.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Keyboard.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Mouse.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Sensor.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Touch.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\VideoMode.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\Window.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowHandle.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\include\SFML\Window\WindowStyle.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\InputImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\JoystickManager.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\SensorManager.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\VideoModeImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\WindowImpl.hpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\InputImpl.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\SensorImpl.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.hpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="gamemain\GameMain.h">
+      <Filter>gamemain</Filter>
+    </ClInclude>
+    <ClInclude Include="input\input.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="window\utility.h">
+      <Filter>window</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\event.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\eventhandler.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\uidef.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imconfig.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_truetype.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_textedit.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\stb_rect_pack.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_internal.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\renderwindow.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dockwindow.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dockmanager.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\dock.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="gamemain\gamemain2.h">
+      <Filter>gamemain</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgmonitor.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_impl_dx11.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\crude_json.h">
+      <Filter>external\nodeeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_bezier_math.h">
+      <Filter>external\nodeeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_canvas.h">
+      <Filter>external\nodeeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_extra_math.h">
+      <Filter>external\nodeeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_node_editor.h">
+      <Filter>external\nodeeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\imgui_node_editor_internal.h">
+      <Filter>external\nodeeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Builders.h">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Drawing.h">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Interop.h">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Math2D.h">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="external\NodeEditor\ax\Widgets.h">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\node.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\editmanager.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\pin.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\link.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\nodefile.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+    <ClInclude Include="vprogeditor\vpl.h">
+      <Filter>vprogeditor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="external\sfml\src\SFML\System\Clock.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\ClockImpl.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\MutexImpl.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Win32\SleepImpl.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Err.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Lock.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Mutex.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Sleep.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\String.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\System\Time.cpp">
+      <Filter>external\sfml\system</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Joystick.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\JoystickManager.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Keyboard.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Mouse.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Sensor.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\SensorManager.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Touch.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\VideoMode.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Window.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\WindowImpl.cpp">
+      <Filter>external\sfml\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\InputImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\JoystickImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\SensorImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\VideoModeImpl.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="external\sfml\src\SFML\Window\Win32\WindowImplWin32.cpp">
+      <Filter>external\sfml\Window\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="gamemain\GameMain.cpp">
+      <Filter>gamemain</Filter>
+    </ClCompile>
+    <ClCompile Include="input\input.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="window\utility.cpp">
+      <Filter>window</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\event.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\eventhandler.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_draw.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_demo.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\renderwindow.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\dockwindow.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\dockmanager.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="gamemain\gamemain2.cpp">
+      <Filter>gamemain</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgmonitor.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_impl_dx11.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_widgets.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\crude_json.cpp">
+      <Filter>external\nodeeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\imgui_canvas.cpp">
+      <Filter>external\nodeeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\imgui_node_editor.cpp">
+      <Filter>external\nodeeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\imgui_node_editor_api.cpp">
+      <Filter>external\nodeeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\ax\Builders.cpp">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\ax\Drawing.cpp">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClCompile>
+    <ClCompile Include="external\NodeEditor\ax\Widgets.cpp">
+      <Filter>external\nodeeditor\ax</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\node.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\editmanager.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\nodefile.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+    <ClCompile Include="vprogeditor\vpl.cpp">
+      <Filter>vprogeditor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="external">
+      <UniqueIdentifier>{fd0905f4-721f-4643-8100-03f9ebc3f518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gamemain">
+      <UniqueIdentifier>{0ab8be35-c6b7-459b-bc9a-30e1b8e7df48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{7ef58778-5547-4577-984d-04583b5755ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{8402afe1-a844-4659-ae4f-7179ba6655ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="window">
+      <UniqueIdentifier>{f24c6f75-9e10-49d2-8f4e-cce791aa26d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\imgui">
+      <UniqueIdentifier>{03fc1c5e-74b6-463f-8e06-af2eba49920f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml">
+      <UniqueIdentifier>{91022374-d6cc-45df-90fe-06b066b177dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml\system">
+      <UniqueIdentifier>{921af06f-e7f6-4ed9-bce6-04f28499601e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml\Window">
+      <UniqueIdentifier>{0650f2f2-8cf1-4e1f-a6e4-c4ec24ef6da5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\sfml\Window\Win32">
+      <UniqueIdentifier>{54d2608b-eb44-4932-8fe3-2a36f19f113a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dbg">
+      <UniqueIdentifier>{30c73c4f-02f1-4c08-8438-8aa6b3e2361c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\nodeeditor">
+      <UniqueIdentifier>{0ca88eff-2f56-46a7-a9a7-a28864fe18ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\nodeeditor\Support">
+      <UniqueIdentifier>{ae35b064-b22e-48b3-bc70-1dc5dd499102}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\nodeeditor\ax">
+      <UniqueIdentifier>{c68c9616-0701-45a9-84ba-6cbb7354e631}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vprogeditor">
+      <UniqueIdentifier>{93f20343-5b97-423e-bab8-70aa186c8a6f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\NodeEditor\Support\imgui_node_editor.natvis">
+      <Filter>external\nodeeditor\Support</Filter>
+    </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="external\NodeEditor\imgui_bezier_math.inl">
+      <Filter>external\nodeeditor</Filter>
+    </None>
+    <None Include="external\NodeEditor\imgui_extra_math.inl">
+      <Filter>external\nodeeditor</Filter>
+    </None>
+    <None Include="external\NodeEditor\imgui_node_editor_internal.inl">
+      <Filter>external\nodeeditor</Filter>
+    </None>
+    <None Include="external\NodeEditor\ax\Math2D.inl">
+      <Filter>external\nodeeditor\ax</Filter>
+    </None>
+  </ItemGroup>
+</Project>

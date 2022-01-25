@@ -1,0 +1,931 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="graphic11.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\BmpOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\Canvas.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\DiffusedShadowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\DrawGradient.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\ExtrudeStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\GDIPath.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\IOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\ITextStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\MaskColor.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\NonSystemFontLoader.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\OutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\PngOutlineText.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextDblGlowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextDblOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextGlowStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextGradOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextImplGetHeight.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="textdesigner\TextNoOutlineStrategy.h">
+      <Filter>textdesigner</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\Renderer.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\dxInit.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\frustum.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="base\texture.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\color.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\viewport.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\camera.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexformat.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\maincamera.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\light.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\grid.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\indexbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\shader11.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\constantbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cube.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vertexlayout.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\utility.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+    <ClInclude Include="base\samplerstate.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\d3dx11effect.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\lightmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\material.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgbox.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgsphere.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgfrustum.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\shape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\cubeshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\sphereshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\sphere.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\pyramid.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\pyramidshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\circle.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\circleshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbglinelist.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgarrow.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\quadshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\billboard.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgaxis.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="base\meshbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\resourcemanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\parallelloader.h">
+      <Filter>importer</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\task_resource.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\animationnode.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\assimploader.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\model_assimp.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\skeleton.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\animation.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="base\skybox.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\tile.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrainloader.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\shadermanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\fontmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\textmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\text3d3.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rendertarget.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgquad.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\water.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="base\graphicdef.h" />
+    <ClInclude Include="shape\torusshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\torus.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\gizmo.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\pickmanager.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\ocean.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="base\depthbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\node.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\mesh.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\model.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\rawani.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="model_assimp\rawmesh.h">
+      <Filter>model_assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="base\skyboxcube.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\camera2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\camera3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terrain.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rect2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rect3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\gridline.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\cascadedshadowmap.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\temporalbuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain\terraincursor.h">
+      <Filter>terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\fileloader.h">
+      <Filter>importer</Filter>
+    </ClInclude>
+    <ClInclude Include="base\texture3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rendertarget2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\rendertarget3d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\RendererInterface.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingbox.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingbox2.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundinghemisphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingplane.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingsphere.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collision.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collisionable.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\collisionobj.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="base\slidebar.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\slidelist.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbglinestrip.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="base\circle2d.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\bezierline.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="manager\renderlist.h">
+      <Filter>manager</Filter>
+    </ClInclude>
+    <ClInclude Include="base\quad2d2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\sphere2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\computeshader.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\resourcebuffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="importer\fileloader2.h">
+      <Filter>importer</Filter>
+    </ClInclude>
+    <ClInclude Include="base\capsule.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\capsuleshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cylinder.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\cylindershape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\cone.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\coneshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="base\line2dlist.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="collision\boundingcapsule.h">
+      <Filter>collision</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="textdesigner\TextOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\BmpOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\Canvas.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\DiffusedShadowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\DrawGradient.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\ExtrudeStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\GDIPath.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\IOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\ITextStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\MaskColor.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\NonSystemFontLoader.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\OutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\PngOutlineText.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextDblGlowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextDblOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextGlowStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextGradOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextImplGetHeight.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextNoOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp">
+      <Filter>textdesigner</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\Renderer.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\dxinit.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\frustum.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="base\texture.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\color.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\viewport.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\camera.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\maincamera.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\light.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\grid.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\vertexbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\indexbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\shader11.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cube.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\vertexlayout.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\utility.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="base\samplerstate.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\lightmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\material.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgbox.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgsphere.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgfrustum.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\cubeshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\sphereshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\sphere.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\pyramid.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\pyramidshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\circle.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\circleshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbglinelist.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgarrow.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\quadshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\billboard.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgaxis.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\meshbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\resourcemanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="importer\parallelloader.cpp">
+      <Filter>importer</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\assimploader.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\model_assimp.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\skeleton.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\animation.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\animationnode.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="base\skybox.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\tile.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrainloader.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\shadermanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\fontmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\textmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\text3d3.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rendertarget.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgquad.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\water.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\torusshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\torus.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\gizmo.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\pickmanager.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\ocean.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="base\depthbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\node.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\mesh.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\model.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="model_assimp\rawmesh.cpp">
+      <Filter>model_assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="base\skyboxcube.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\camera2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\camera3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terrain.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rect2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rect3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\gridline.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\cascadedshadowmap.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\temporalbuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain\terraincursor.cpp">
+      <Filter>terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="base\texture3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rendertarget2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\rendertarget3d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingbox2.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundinghemisphere.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingplane.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingsphere.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="base\slidebar.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\slidelist.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbglinestrip.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\circle2d.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\bezierline.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="manager\renderlist.cpp">
+      <Filter>manager</Filter>
+    </ClCompile>
+    <ClCompile Include="base\quad2d2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\sphere2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\computeshader.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\resourcebuffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\capsule.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\capsuleshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cylinder.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\cylindershape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\cone.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\coneshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="base\line2dlist.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="collision\boundingcapsule.cpp">
+      <Filter>collision</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="action">
+      <UniqueIdentifier>{48491cc9-161d-4448-b68d-d2682485056c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{16c976f2-3ab8-43d2-87b4-17606bc8f33e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="character">
+      <UniqueIdentifier>{2460f72e-d978-4efa-879e-f9a4e6b5c9ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="collision">
+      <UniqueIdentifier>{3b61979b-c933-4a4b-957d-896410e1307d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dbg">
+      <UniqueIdentifier>{44561387-4c7a-4e13-8799-61b485081b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="importer">
+      <UniqueIdentifier>{affa83ff-f44f-4753-ab27-45b133be77d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{83362dab-7805-45c6-a4db-c1f3bd7c02f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="manager">
+      <UniqueIdentifier>{66d52fcd-b1b4-4eeb-9a81-4c394ca10fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="particle">
+      <UniqueIdentifier>{7a7dac2f-5580-465a-8d8d-a295d03a6594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sprite">
+      <UniqueIdentifier>{6364a8df-1e98-4cbc-8edb-7465205f46f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="terrain">
+      <UniqueIdentifier>{0fcfe8a0-b03f-47c5-95a6-16ed686e23c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="textdesigner">
+      <UniqueIdentifier>{1bb0686b-4962-4447-ac88-fea9009992b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utility">
+      <UniqueIdentifier>{6ef36f04-a8b5-4ebe-8319-3953bc694cef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shape">
+      <UniqueIdentifier>{29658cad-a0f1-4692-ae8e-6828a34ec9aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model_assimp">
+      <UniqueIdentifier>{73557f20-9885-43f5-9546-47b62866b67f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{f6d5ff75-3974-4e0e-aa0e-7900b6732eb4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\common.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\Island11.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw-color.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw-color-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-color.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-color.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-color-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-bump.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-skin.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-skin-bump.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\skyboxcube.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-norm.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-norm-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\water.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-tex.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos-box.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\atmosphere_demo.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\atmosphere_precompute.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos-norm-tex-reflect.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\uvcolor.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-pos_rhw-uvcolor.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\tess-box.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shader\pos_rhw.fx">
+      <Filter>shader</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>
