@@ -61,7 +61,7 @@ namespace network2
 
 		void SetPacketHeader(iPacketHeader *header);
 		void SetProtocolId(const int protocolId);
-		void SetPacketId(const int packetId);
+		void SetPacketId(const uint packetId);
 		void SetPacketSize(const short packetSize);
 		void SetPacketOption(const uint mask, const uint option);
 		void SetSenderId(const netid netId);

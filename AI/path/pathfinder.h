@@ -107,14 +107,14 @@ namespace ai
 			, const set<sEdge> *disableEdges = NULL
 		);
 
-		bool cPathFinder::Find(const int startIdx, const int endIdx
+		bool Find(const int startIdx, const int endIdx
 			, OUT vector<Vector3> &out
 			, OUT vector<int> *outTrackVertexIndices = NULL
 			, OUT vector<sEdge> *outTrackEdges = NULL
 			, const set<sEdge> *disableEdges = NULL
 		);
 
-		bool Find(const int startIdx, const int endIdx
+		bool Find2(const int startIdx, const int endIdx
 			, OUT vector<int> &out
 			, const set<sEdge> *disableEdges = NULL
 		);

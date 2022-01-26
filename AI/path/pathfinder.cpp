@@ -246,7 +246,7 @@ bool cPathFinder::Find(const int startIdx, const int endIdx
 )
 {
 	vector<int> verticesIndices;
-	Find(startIdx, endIdx, verticesIndices, disableEdges);
+	Find2(startIdx, endIdx, verticesIndices, disableEdges);
 
 	if (outTrackVertexIndices)
 		*outTrackVertexIndices = verticesIndices;
@@ -269,7 +269,7 @@ bool cPathFinder::Find(const int startIdx, const int endIdx
 }
 
 
-bool cPathFinder::Find(const int startIdx, const int endIdx
+bool cPathFinder::Find2(const int startIdx, const int endIdx
 	, OUT vector<int> &out
 	, const set<sEdge> *disableEdges //= NULL
 )

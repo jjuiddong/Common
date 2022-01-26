@@ -6,6 +6,7 @@
 
 
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+#define BOOST_USE_WINDOWS_H // for vs2019, boost library
 
 // Pre Processor Environment Setting
 //#ifndef _VS2015
@@ -13,7 +14,7 @@
 //#endif
 
 #ifndef _VS2017
-	#define _VS2017
+	#define _VS2017 // vs2019 too
 #endif
 
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -150,6 +151,7 @@ using std::max;
 #include "container/vectorhelper.h"
 #include "container/shmmap.h"
 #include "container/vectormap.h"
+#include "etc/filepath1.h"
 #include "container/simplestring.h"
 #include "container/circularqueue.h"
 #include "container/circularqueue2.h"

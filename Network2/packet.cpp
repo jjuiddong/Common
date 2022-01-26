@@ -176,7 +176,7 @@ void cPacket::SetProtocolId(const int protocolId) {
 	RET(!m_header);
 	m_header->SetProtocolId(m_data, protocolId);
 }
-void cPacket::SetPacketId(const int packetId) {
+void cPacket::SetPacketId(const uint packetId) {
 	RET(!m_header);
 	m_header->SetPacketId(m_data, packetId);
 }

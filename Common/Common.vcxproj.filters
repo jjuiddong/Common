@@ -253,6 +253,9 @@
     <ClInclude Include="interpreter\basicmodule.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="etc\filepath1.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -420,6 +423,9 @@
     </ClCompile>
     <ClCompile Include="interpreter\basicmodule.cpp">
       <Filter>interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\filepath1.cpp">
+      <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
