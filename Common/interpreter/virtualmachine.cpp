@@ -125,6 +125,12 @@ bool cVirtualMachine::Resume()
 
 	m_state = eState::Run;
 	++m_reg.idx; // goto next instruction
+
+	// wait -> resume process, trace instruction log
+	if (m_isCodeTraceLog)
+		CodeTraceLog(m_trace);
+	if (m_isDebugging)
+		CodeTraceLog(m_trace2);
 	return true;
 }
 
