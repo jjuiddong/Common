@@ -68,6 +68,36 @@ eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 		}
 		return eModuleResult::Done;
 	}
+	else if (funcName == "CastToBoolean")
+	{
+		script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+		if (var)
+			symbolTable.Set<bool>(scopeName, "out", (bool)var->var, "bool");
+		else
+			symbolTable.Set<bool>(scopeName, "out", false, "bool"); // exception process
+		return eModuleResult::Done;
+	}
+	else if (funcName == "CastToNumber")
+	{
+		script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+		if (var)
+			symbolTable.Set<float>(scopeName, "out", (float)var->var, "float");
+		else
+			symbolTable.Set<float>(scopeName, "out", 0.f, "float"); // exception process
+		return eModuleResult::Done;
+	}
+	else if (funcName == "CastToString")
+	{
+		script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+		if (var)
+		{
+			const string str = common::variant2str(var->var);
+			symbolTable.Set<string>(scopeName, "out", str, "string");
+		}
+		else
+			symbolTable.Set<string>(scopeName, "out", "null", "string"); // exception process
+		return eModuleResult::Done;
+	}
 	else if (funcName == "Floor")
 	{
 		const float value = symbolTable.Get<float>(scopeName, "number");

@@ -325,7 +325,6 @@ int cSymbolTable::GenID()
 // id: node id
 string cSymbolTable::MakeScopeName(const string &name, const int id)
 {
-	//string scopeName = common::format("%s-%d", name.c_str(), id); modified - => _
 	string scopeName = common::format("%s_%d", name.c_str(), id);
 	return scopeName;
 }
@@ -338,6 +337,15 @@ string cSymbolTable::MakeScopeName2(const string &name, const int id, const stri
 {
 	string scopeName = common::format("%s_%d_%s", name.c_str(), id, name2.c_str());
 	return scopeName;
+}
+
+// return variable scope name
+// scopeName: scope name
+// varName: variable name in scope
+string cSymbolTable::MakeScopeName3(const string& scopeName, const string& varName)
+{
+	string name = common::format("%s_%s", scopeName.c_str(), varName.c_str());
+	return name;
 }
 
 // parse scope name -> node name , node id

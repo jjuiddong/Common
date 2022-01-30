@@ -100,6 +100,7 @@ namespace common
 			static int GenID();
 			static string MakeScopeName(const string &name, const int id);
 			static string MakeScopeName2(const string &name, const int id, const string &name2);
+			static string MakeScopeName3(const string &scopeName, const string &varName);
 			static std::pair<string, int> ParseScopeName(const string &scopeName);
 			static std::tuple<string, int, string> ParseScopeName2(const string &scopeName);
 
