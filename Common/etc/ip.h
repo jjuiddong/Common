@@ -13,6 +13,8 @@ namespace common
 
 	string GetHostIP(const int networkCardIndex);
 
+	string GetHostRealIp();
+
 	void GetHostIPAll(std::vector<std::string> &ips);
 
 	uint32_t parseIPV4string(const string &ipAddress);

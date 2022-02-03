@@ -1,22 +1,22 @@
 
 #include "stdafx.h"
 #include "ip.h"
-//#include <winsock.h>
 #include <winsock2.h>
+#include <wininet.h>
 
+#pragma comment(lib, "wininet.lib")
 
 using namespace common;
 using namespace std;
 
 
-// 현재 컴퓨터의 IP Address를 리턴한다.
+// return host internal ip address
 string common::GetHostIP(const int networkCardIndex)
 {
 	WSAData wsaData;
 	if (WSAStartup(MAKEWORD(1, 1), &wsaData) != 0) {
 		return "";
 	}
-
 
 	char ac[80];
 	if (gethostname(ac, sizeof(ac)) == SOCKET_ERROR) 
@@ -45,7 +45,37 @@ string common::GetHostIP(const int networkCardIndex)
 }
 
 
-// 현재 컴퓨터의 모든 네트워크 카드의 IP Address를 리턴한다.
+// return host external ip address
+// https://stackoverflow.com/questions/39566240/how-to-get-the-external-ip-address-in-c
+string common::GetHostRealIp()
+{
+	HINTERNET net = InternetOpenA("IP retriever",
+		INTERNET_OPEN_TYPE_PRECONFIG,
+		NULL,
+		NULL,
+		0);
+	if (!net)
+		return ""; // error return
+
+	HINTERNET conn = InternetOpenUrlA(net,
+		"http://myexternalip.com/raw",
+		NULL,
+		0,
+		INTERNET_FLAG_RELOAD,
+		0);
+	if (!conn)
+		return ""; // error return
+
+	char buffer[4096];
+	DWORD read;
+	InternetReadFile(conn, buffer, sizeof(buffer) / sizeof(buffer[0]), &read);
+	InternetCloseHandle(net);
+
+	return string(buffer, read);
+}
+
+
+// return all host ip (two more network card)
 void common::GetHostIPAll(vector<string> &ips)
 {
 	WSAData wsaData;
@@ -76,7 +106,7 @@ void common::GetHostIPAll(vector<string> &ips)
 }
 
 
-uint32_t parseIPV4string(const string &ipAddress) 
+uint32_t common::parseIPV4string(const string &ipAddress) 
 {
 	unsigned int ipbytes[4];
 	sscanf(ipAddress.c_str(), "%uhh.%uhh.%uhh.%uhh", &ipbytes[3], &ipbytes[2], &ipbytes[1], &ipbytes[0]);
