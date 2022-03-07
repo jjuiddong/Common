@@ -52,6 +52,7 @@ bool cVirtualMachine::Init(const cIntermediateCode &code)
 	}
 
 	m_stack.reserve(32);
+	m_delayEvents.reserve(16);
 	return true;
 }
 
@@ -85,6 +86,7 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 	RETV((eState::Stop == m_state) || (eState::WaitCallback == m_state), true);
 	RETV(!m_code.IsLoaded(), true);
 
+	ProcessDelayEvent(deltaSeconds);
 	ProcessEvent(deltaSeconds);
 	ProcessTimer(deltaSeconds);
 
@@ -144,6 +146,7 @@ bool cVirtualMachine::Stop()
 
 	// clear event, timer, stack
 	m_events.clear();
+	m_delayEvents.clear();
 	m_timers.clear();
 	m_ticks.clear();
 	m_stack.clear();
@@ -190,7 +193,10 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 			i = (i + 1) % m_events.SIZE;
 		}
 	}
-	m_events.push(evt);
+	if (evt.m_delayTime > 0.f)
+		m_delayEvents.push_back(evt);
+	else
+		m_events.push(evt);
 	return true;
 }
 
@@ -248,7 +254,7 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	RETV(eState::Wait != m_state, false);
 	RETV(m_events.empty(), false);
 
-	auto &evt = m_events.front();
+	cEvent &evt = m_events.front();
 	const uint addr = m_code.FindJumpAddress(evt.m_name);
 	if (UINT_MAX != addr)
 	{
@@ -279,8 +285,58 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	}
 
 	m_events.pop();
-
 	return true;
+}
+
+
+// process delay event
+bool cVirtualMachine::ProcessDelayEvent(const float deltaSeconds)
+{
+	RETV(eState::Wait != m_state, false);
+	RETV(m_delayEvents.empty(), false);
+
+	for (auto& evt : m_delayEvents)
+		evt.m_delayTime -= deltaSeconds;
+
+	for (uint i=0; i < m_delayEvents.size(); ++i)
+	{
+		auto& evt = m_delayEvents[i];
+		if (evt.m_delayTime < 0.f)
+		{
+			const uint addr = m_code.FindJumpAddress(evt.m_name);
+			if (UINT_MAX != addr)
+			{
+				// update symboltable
+				for (auto& kv : evt.m_vars)
+				{
+					vector<string> out;
+					common::tokenizer(kv.first.c_str(), "::", "", out);
+					if (out.size() >= 2)
+						m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+				}
+				for (auto& kv : evt.m_vars2)
+				{
+					vector<string> out;
+					common::tokenizer(kv.first.c_str(), "::", "", out);
+					if (out.size() >= 2)
+						m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+				}
+				m_reg.idx = addr; // jump instruction code
+				m_state = eState::Run;
+			}
+			else
+			{
+				// error occurred!!
+				// not found event handling
+				//dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
+				//	, evt.m_name.c_str());
+			}
+
+			common::removevector2(m_delayEvents, i);
+			return true;
+		}
+	}
+	return false;
 }
 
 

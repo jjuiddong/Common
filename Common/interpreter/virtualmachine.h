@@ -58,6 +58,7 @@ namespace common
 
 		protected:
 			bool ProcessEvent(const float deltaSeconds);
+			bool ProcessDelayEvent(const float deltaSeconds);
 			bool ProcessTimer(const float deltaSeconds);
 			bool ExecuteInstruction(const float deltaSeconds, sRegister &reg);
 			void CodeTraceLog(vector<ushort> &trace);
@@ -80,6 +81,7 @@ namespace common
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;
 			common::cCircularQueue2<cEvent> m_events;
+			vector<cEvent> m_delayEvents;
 			vector<sTimer> m_ticks;
 			vector<sTimer> m_timers;
 			vector<int> m_stack; // simple integer stack (save return address)

@@ -7,6 +7,7 @@ using namespace common::script;
 
 
 cEvent::cEvent()
+	:  m_delayTime(0.f)
 {
 }
 
@@ -17,6 +18,7 @@ cEvent::cEvent(const StrId &name
 	: m_name(name)
 	, m_vars(vars)
 	, m_isUnique(isUnique)
+	, m_delayTime(0.f)
 {
 }
 
