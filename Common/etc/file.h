@@ -16,6 +16,9 @@ namespace common
 
 		bool ReadFile2String(const StrPath &fileName
 			, OUT string &out);
+
+		static int ReadAll(const StrPath& fileName, const bool isBinary
+			, const uint size, OUT char* dest);
 	};
 
 }

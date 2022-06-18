@@ -479,6 +479,55 @@ bool common::FindFile2(const StrPath &findName, const StrPath &searchPath
 }
 
 
+// searchPath 디렉토리 안에서 findName 의 파일이름이 포함되었다면, 해당 경로를
+// out 에 저장하고 true 를 리턴한다.
+// depth 크기만큼 하위 디렉토리를 검색한다.  -1이면 끝까지 검색한다.
+bool common::FindFile3(const StrPath& findName, const StrPath& searchPath, StrPath& out
+	, const int depth //= -1
+)
+{
+	if (depth == 0)
+		return false;
+
+	StrPath lowerCaseFindFileName = findName;
+	lowerCaseFindFileName.lowerCase();
+
+	WIN32_FIND_DATAA fd;
+	const StrPath searchDir = searchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (strcmp(".", fd.cFileName) && strcmp("..", fd.cFileName))
+			{
+				if (FindFile(findName, searchPath + fd.cFileName + "/", out, depth - 1))
+					break;
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			StrPath fileName = fd.cFileName;
+			fileName.lowerCase();
+
+			if (fileName.find(lowerCaseFindFileName))
+			{
+				out = searchPath + findName.GetFileName();
+				break;
+			}
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+
+	return !out.empty();
+}
+
+
 bool common::IsFileExist(const StrPath &fileName) {
 	return _access_s(fileName.c_str(), 0) == 0;
 }

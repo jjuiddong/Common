@@ -66,6 +66,7 @@ uint cPacketHeaderJson::GetOptionBits(const BYTE *src, const uint mask)
 
 void cPacketHeaderJson::SetOptionBits(BYTE *dst, const uint mask, const uint options)
 {
+	*(uint*)(dst + (sizeof(int) * 3)) = 0; // clear option bit
 	*(uint*)(dst + (sizeof(int) * 3)) = 
 		(*(uint*)(dst + (sizeof(int) * 3)) & ~mask)
 		| (mask & options);

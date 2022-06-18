@@ -264,8 +264,13 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 	case eSymbolType::Int: val = sdata.Get<int>(p, "value", 0); break;
 	case eSymbolType::Float: val = sdata.Get<float>(p, "value", 0.f); break;
 	case eSymbolType::String:
-		val = common::str2variant(VT_BSTR, sdata.Get<string>(p, "value", ""));
-		break;
+	{
+		// replace <p> => \n to avoid multiline
+		string str = sdata.Get<string>(p, "value", "");
+		common::replaceAll(str, "<p>", "\n");
+		val = common::str2variant(VT_BSTR, str);
+	}
+	break;
 	case eSymbolType::Array:
 		if (!m_variables.InitArray(scopeName, name, typeStr))
 		{

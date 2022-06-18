@@ -25,6 +25,7 @@ cPacket::cPacket(iPacketHeader *packetHeader)
 	: m_header(packetHeader)
 	, m_writeIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
 	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
+	, m_is4Align(false)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
 	, m_isOverflow(false)
@@ -38,6 +39,7 @@ cPacket::cPacket(iPacketHeader *packetHeader)
 cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSize)
 	: m_header(packetHeader)
 	, m_readIdx(packetHeader? packetHeader->GetHeaderSize() : 0)
+	, m_is4Align(false)
 	, m_lastDelim(NULL)
 	, m_emptyData(false)
 	, m_isOverflow(false)
@@ -54,6 +56,7 @@ cPacket::cPacket(BYTE *src)
 	: m_sndId(0)
 	, m_rcvId(0)
 	, m_isOverflow(false)
+	, m_is4Align(false)
 {
 	iPacketHeader *packetHeader = network2::GetPacketHeader(*(int*)src);
 	m_header = packetHeader;
@@ -71,6 +74,7 @@ cPacket::cPacket(const cPacket &rhs)
 	, m_sndId(0)
 	, m_rcvId(0)
 	, m_isOverflow(false)
+	, m_is4Align(false)
 {
 	operator=(rhs);
 }
