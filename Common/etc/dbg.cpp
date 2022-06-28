@@ -142,7 +142,7 @@ void dbg::SetErrLogPath(const char *path)
 
 
 //------------------------------------------------------------------------
-// 출력창에 스트링을 출력한다.
+// display string to output window (visual studio)
 //------------------------------------------------------------------------
 void dbg::Print( const std::string &str)
 {
@@ -152,7 +152,7 @@ void dbg::Print( const std::string &str)
 
 
 //------------------------------------------------------------------------
-// 출력창에 스트링을 출력한다. (가변인자 출력)
+// dispaly string to output window with args (visual studio)
 //------------------------------------------------------------------------
 void dbg::Print( const char* fmt, ...)
 {
@@ -204,7 +204,7 @@ void dbg::Logp2(const char *fileName, const char* fmt, ...)
 }
 
 
-// fileName 의 파일에 로그를 남긴다.
+// write log to specific file
 void dbg::Log2(const char *fileName, const char* fmt, ...)
 {
 	sLogData data;
@@ -231,7 +231,7 @@ void dbg::ErrLog(const char* fmt, ...)
 		fclose(fp);
 	}
 
-	// 로그파일에도 에러 메세지를 저장한다.
+	// log error message to log file
 	Log( "Error : %s", data.str.c_str());
 }
 
@@ -245,7 +245,7 @@ void dbg::ErrLogp(const char* fmt, ...)
 	// add string to log thread
 	g_logThread.PushTask(new cLogTask(data));
 
-	// 로그파일에도 에러 메세지를 저장한다.
+	// log error message to log file
 	Logp("Error : %s", data.str.m_str);
 }
 

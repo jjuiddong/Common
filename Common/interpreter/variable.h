@@ -24,17 +24,22 @@ namespace common
 			sVariable(const sVariable &rhs);
 			~sVariable();
 
+			bool IsReference() const;
+			bool IsArray() const;
+			bool IsMap() const;
+
 			variant_t& GetArrayElement(const uint index);
 			bool SetArrayElement(const uint index, const variant_t &v);
 			bool PushArrayElement(const variant_t &v);
+			int FindArrayElement(const variant_t& v);
 			variant_t& PopArrayElement();
 			bool ReserveArray(const uint size);
-			uint GetArraySize();
+			uint GetArraySize() const;
 			
 			variant_t& GetMapValue(cSymbolTable &symbolTable, const string &key);
 			bool SetMapValue(const string &key, const variant_t &v);
 			bool HasMapValue(const string &key);
-			uint GetMapSize();
+			uint GetMapSize() const;
 			const string& GetMapValueTypeStr();
 			const string& GetArrayElementTypeStr();
 

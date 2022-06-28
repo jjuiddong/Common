@@ -26,6 +26,11 @@ sVariable::sVariable()
 }
 
 sVariable::sVariable(const sVariable &rhs) 
+	: ar(nullptr)
+	, m(nullptr)
+	, id(cSymbolTable::GenID())
+	, arSize(0)
+	, arCapacity(0)
 {
 	operator=(rhs);
 }
@@ -33,6 +38,28 @@ sVariable::sVariable(const sVariable &rhs)
 sVariable::~sVariable() 
 {
 	Clear();
+}
+
+
+// is array or map reference?
+bool sVariable::IsReference() const
+{
+	const int v = var.vt & (VT_BYREF | VT_INT);
+	return (v > 0)? true : false;
+}
+
+
+// is array type?
+bool sVariable::IsArray() const
+{
+	return (ar) ? true : false;
+}
+
+
+// is map type
+bool sVariable::IsMap() const
+{
+	return (m) ? true : false;
 }
 
 
@@ -83,6 +110,17 @@ bool sVariable::PushArrayElement(const variant_t &v)
 }
 
 
+// find
+// return: index, -1:not found
+int sVariable::FindArrayElement(const variant_t& v)
+{
+	for (uint i = 0; i < arSize; ++i)
+		if (ar[i] == v)
+			return (int)i;
+	return -1;
+}
+
+
 // pop
 variant_t& sVariable::PopArrayElement()
 {
@@ -124,7 +162,7 @@ bool sVariable::ReserveArray(const uint size)
 
 
 // return array size
-uint sVariable::GetArraySize()
+uint sVariable::GetArraySize() const 
 {
 	return arSize;
 }
@@ -222,7 +260,7 @@ bool sVariable::HasMapValue(const string &key)
 
 
 // return map size
-uint sVariable::GetMapSize()
+uint sVariable::GetMapSize() const
 {
 	if (m)
 		return m->size();

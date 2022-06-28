@@ -31,6 +31,7 @@ namespace network2
 		ptree& put(ptree &props, const char *typeName, const uint64 rhs);
 		ptree& put(ptree &props, const char *typeName, const string &rhs);
 		ptree& put(ptree &props, const char *typeName, const Vector3 &rhs);
+		ptree& put(ptree& props, const char* typeName, const _variant_t& rhs);
 
 		template<class T, size_t N> ptree& put(ptree &props, const char *typeName, const T(&rhs)[N]);
 		template<class T> ptree& put(ptree &props, const char *typeName, const vector<T> &v);
@@ -121,6 +122,10 @@ namespace network2
 			props.put(string(typeName)+".z", rhs.z);
 			return props;
 		}
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const _variant_t& rhs) {
+			// todo: _variant_t marshalling
+			return props;
+		}
 
 		template<class T, size_t N>
 		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const T(&rhs)[N])
@@ -141,6 +146,27 @@ namespace network2
 				children.push_back(std::make_pair("", child));
 			}
 			props.add_child(typeName, children);
+			return props;
+		}
+		// template specialization <bool>
+		template<>
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const vector<bool>& v)
+		{
+			ptree children;
+			for (auto val : v)
+			{
+				ptree child;
+				child.put("", val);
+				children.push_back(std::make_pair("", child));
+			}
+			props.add_child(typeName, children);
+			return props;
+		}
+		// template specialization <_variant_t_>
+		template<>
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const vector<_variant_t>& v)
+		{
+			// todo: _variant_t marshalling
 			return props;
 		}
 
@@ -264,6 +290,7 @@ namespace network2
 				get(props, typeName, out[i]);
 			return props;
 		}
+
 		template<class T>
 		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT vector<T> &out) {
 			auto it = props.get_child(typeName);
@@ -271,6 +298,15 @@ namespace network2
 				out.push_back(kv.second.get<T>(""));
 			return props;
 		}	
+
+		// template specialization (_variant_t)
+		template<>
+		inline ptree& marshalling_json::get(ptree& props, const char* typeName
+			, OUT vector<_variant_t>& out) {
+			// todo: _variant_t marshalling
+			return props;
+		}
+
 		template<class T> 
 		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT list<T> &out) {
 			return props;

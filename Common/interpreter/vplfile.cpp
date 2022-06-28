@@ -746,6 +746,7 @@ bool cVplFile::Widget_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
 {
 	RETV(node.type != eNodeType::Widget, false);
+	RETV(node.inputs.size() > 0, false); // only event widget permit
 	RETV(m_visit.find(node.id) != m_visit.end(), false);
 	m_visit.insert(node.id);
 
@@ -792,6 +793,7 @@ bool cVplFile::Node_GenCode(const sNode &prevNode, const sNode &node
 {
 	switch (node.type)
 	{
+	case eNodeType::Widget:
 	case eNodeType::Function:
 	case eNodeType::Macro: Function_GenCode(prevNode, node, fromPin, out); break;
 	case eNodeType::Control: Control_GenCode(prevNode, node, fromPin, out); break;
@@ -1851,6 +1853,25 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		case eSymbolType::Bool:
 		case eSymbolType::Int: code.cmd = script::eCommand::divi; break;
 		case eSymbolType::Float: code.cmd = script::eCommand::divf; break;
+		default:
+			common::dbg::Logc(1
+				, "Error!! cVplFile::Operator_GenCode(), arithmatic type invalid\n");
+			break;
+		}
+		code.reg1 = 8; // reg8
+		code.reg2 = 9; // reg9
+		out.m_codes.push_back(code);
+		MathInput_GenCode(node, code, out);
+		opType = 0;
+	}
+	else if (node.name == "%")
+	{
+		script::sInstruction code;
+		switch (symbType)
+		{
+		case eSymbolType::Bool:
+		case eSymbolType::Int: code.cmd = script::eCommand::remi; break;
+		case eSymbolType::Float: code.cmd = script::eCommand::remf; break;
 		default:
 			common::dbg::Logc(1
 				, "Error!! cVplFile::Operator_GenCode(), arithmatic type invalid\n");

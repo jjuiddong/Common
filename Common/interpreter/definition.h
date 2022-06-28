@@ -22,6 +22,7 @@ namespace common
 			subi, subf,
 			muli, mulf,
 			divi, divf,
+			remi, remf,
 			opand, opor, 
 			negate,
 			eqi, eqf, eqs,
@@ -97,6 +98,8 @@ namespace common
 		// mulf register_name1, register_name2 ;multiply 2 register float type, store register9
 		// divi register_name1, register_name2 ;divide 2 register int type, store register9
 		// divf register_name1, register_name2 ;divide 2 register float type, store register9
+		// remi register_name1, register_name2 ;remainder 2 register int type, store register9
+		// remf register_name1, register_name2 ;remainder 2 register float type, store register9
 		// negate register_name1 ;negate register bool type, store register9
 		// eqi register_name1, register_name2 ;compare 2 register int type, if equal, cmp register true
 		// eqf register_name1, register_name2 ;compare 2 register float type, if equal, cmp register true

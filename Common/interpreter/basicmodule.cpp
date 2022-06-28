@@ -142,6 +142,7 @@ eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 		|| (funcName == "Array.Set")
 		|| (funcName == "Array.Push")
 		|| (funcName == "Array.Pop")
+		|| (funcName == "Array.Find")
 		|| (funcName == "Array.Size")
 		|| (funcName == "Array.Empty")
 		|| (funcName == "Array.Clear")
@@ -180,7 +181,7 @@ eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 }
 
 
-// Array.Get/Set/Push/Pop/Size function process
+// Array.Get/Set/Push/Pop/Find/Size function process
 bool cBasicModule::ArrayFunction(script::cVirtualMachine &vm
 	, const string &scopeName, const string &funcName)
 {
@@ -227,6 +228,19 @@ bool cBasicModule::ArrayFunction(script::cVirtualMachine &vm
 	{
 		variant_t value = srcVar->PopArrayElement();
 		symbolTable.Set(scopeName, "out", value, srcVar->GetArrayElementTypeStr());
+	}
+	else if (funcName == "Array.Find")
+	{
+		variant_t value;
+		if (symbolTable.Get(scopeName, "value", value))
+		{
+			const int ret = srcVar->FindArrayElement(value);
+			symbolTable.Set(scopeName, "index", (float)ret, "float");
+		}
+		else
+		{
+			symbolTable.Set(scopeName, "index", -1.f, "float");
+		}
 	}
 	else if (funcName == "Array.Size")
 	{

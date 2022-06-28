@@ -655,6 +655,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::subi:
 	case eCommand::muli:
 	case eCommand::divi:
+	case eCommand::remi:
 		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		if (reg.reg.size() <= code.reg2)
@@ -668,7 +669,16 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		case eCommand::addi: reg.reg[9] = reg.reg[code.reg1].intVal + reg.reg[code.reg2].intVal; break;
 		case eCommand::subi: reg.reg[9] = reg.reg[code.reg1].intVal - reg.reg[code.reg2].intVal; break;
 		case eCommand::muli: reg.reg[9] = reg.reg[code.reg1].intVal * reg.reg[code.reg2].intVal; break;
-		case eCommand::divi: reg.reg[9] = reg.reg[code.reg1].intVal / reg.reg[code.reg2].intVal; break;
+		case eCommand::divi: 
+			if (0 == reg.reg[code.reg2].intVal)
+				break;
+			reg.reg[9] = reg.reg[code.reg1].intVal / reg.reg[code.reg2].intVal; 
+			break;
+		case eCommand::remi: 
+			if (0 == reg.reg[code.reg2].intVal)
+				break;
+			reg.reg[9] = reg.reg[code.reg1].intVal % reg.reg[code.reg2].intVal; 
+			break;
 		}		
 		++reg.idx;
 		break;
@@ -677,6 +687,7 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	case eCommand::subf:
 	case eCommand::mulf:
 	case eCommand::divf:
+	case eCommand::remf:
 		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
 		if (reg.reg.size() <= code.reg2)
@@ -693,7 +704,13 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		case eCommand::divf: 
 			if (0 == reg.reg[code.reg2].fltVal)
 				break;
-			reg.reg[9] = reg.reg[code.reg1].fltVal / reg.reg[code.reg2].fltVal; break;
+			reg.reg[9] = reg.reg[code.reg1].fltVal / reg.reg[code.reg2].fltVal; 
+			break;
+		case eCommand::remf:
+			if (0.f == reg.reg[code.reg2].fltVal)
+				break;
+			reg.reg[9] = (float)((int)reg.reg[code.reg1].fltVal % (int)reg.reg[code.reg2].fltVal); 
+			break;
 		}
 		++reg.idx;
 		break;

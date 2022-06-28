@@ -107,6 +107,11 @@ export namespace remotedbg2Async {
 	export type ReqDebugInfo_Packet = {
 		itprIds: Int32Array | null, 
 	}
+	export type ReqVariableInfo_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+	}
 	export type ReqHeartBeat_Packet = {
 	}
 
@@ -193,6 +198,39 @@ export namespace remotedbg2Async {
 		itprId: number, 
 		vmIdx: number, 
 		output: string, 
+	}
+	export type SyncVMWidgets_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		widgetName: string, 
+	}
+	export type SyncVMArray_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+		startIdx: number, 
+		array: TypeVariant[], 
+	}
+	export type SyncVMArrayBool_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+		startIdx: number, 
+		array: Uint8Array | null, 
+	}
+	export type SyncVMArrayNumber_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+		startIdx: number, 
+		array: Float32Array | null, 
+	}
+	export type SyncVMArrayString_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+		startIdx: number, 
+		array: string[], 
 	}
 	export type AckHeartBeat_Packet = {
 	}
@@ -311,6 +349,15 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 					handlers.forEach(handler => {
 						if (handler instanceof r2h_ProtocolHandler)
 							handler.ReqDebugInfo(parsePacket)
+					})
+				}
+				break;
+
+			case 4127584998: // ReqVariableInfo
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqVariableInfo(parsePacket)
 					})
 				}
 				break;
@@ -490,6 +537,51 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 					handlers.forEach(handler => {
 						if (handler instanceof h2r_ProtocolHandler)
 							handler.SyncVMOutput(parsePacket)
+					})
+				}
+				break;
+
+			case 323195839: // SyncVMWidgets
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMWidgets(parsePacket)
+					})
+				}
+				break;
+
+			case 1209241191: // SyncVMArray
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMArray(parsePacket)
+					})
+				}
+				break;
+
+			case 3278867969: // SyncVMArrayBool
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMArrayBool(parsePacket)
+					})
+				}
+				break;
+
+			case 3822230413: // SyncVMArrayNumber
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMArrayNumber(parsePacket)
+					})
+				}
+				break;
+
+			case 2291689449: // SyncVMArrayString
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMArrayString(parsePacket)
 					})
 				}
 				break;
@@ -698,6 +790,24 @@ export class r2h_Protocol extends Network.Protocol {
 				itprIds,
 			}
 			this.node?.sendPacket(5301, 2166551586, packet)
+		}
+	}
+	
+	// Protocol: ReqVariableInfo
+	ReqVariableInfo(isBinary: boolean, itprId: number, vmIdx: number, varName: string, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			this.node?.sendPacketBinary(5301, 4127584998, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+			}
+			this.node?.sendPacket(5301, 4127584998, packet)
 		}
 	}
 	
@@ -1022,6 +1132,112 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: SyncVMWidgets
+	SyncVMWidgets(isBinary: boolean, itprId: number, vmIdx: number, widgetName: string, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(widgetName)
+			this.node?.sendPacketBinary(5300, 323195839, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				widgetName,
+			}
+			this.node?.sendPacket(5300, 323195839, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArray
+	SyncVMArray(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: TypeVariant[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushTypeVariantVector(array)
+			this.node?.sendPacketBinary(5300, 1209241191, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			this.node?.sendPacket(5300, 1209241191, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArrayBool
+	SyncVMArrayBool(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: boolean[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushBoolArray(array)
+			this.node?.sendPacketBinary(5300, 3278867969, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			this.node?.sendPacket(5300, 3278867969, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArrayNumber
+	SyncVMArrayNumber(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: number[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushFloat32Array(array)
+			this.node?.sendPacketBinary(5300, 3822230413, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			this.node?.sendPacket(5300, 3822230413, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArrayString
+	SyncVMArrayString(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: string[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushStrArray(array)
+			this.node?.sendPacketBinary(5300, 2291689449, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			this.node?.sendPacket(5300, 2291689449, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -1055,6 +1271,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 	ReqEvent = (packet: remotedbg2Async.ReqEvent_Packet) => { }
 	ReqStepDebugType = (packet: remotedbg2Async.ReqStepDebugType_Packet) => { }
 	ReqDebugInfo = (packet: remotedbg2Async.ReqDebugInfo_Packet) => { }
+	ReqVariableInfo = (packet: remotedbg2Async.ReqVariableInfo_Packet) => { }
 	ReqHeartBeat = (packet: remotedbg2Async.ReqHeartBeat_Packet) => { }
 }
 
@@ -1082,6 +1299,11 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	SyncVMRegister = (packet: remotedbg2Async.SyncVMRegister_Packet) => { }
 	SyncVMSymbolTable = (packet: remotedbg2Async.SyncVMSymbolTable_Packet) => { }
 	SyncVMOutput = (packet: remotedbg2Async.SyncVMOutput_Packet) => { }
+	SyncVMWidgets = (packet: remotedbg2Async.SyncVMWidgets_Packet) => { }
+	SyncVMArray = (packet: remotedbg2Async.SyncVMArray_Packet) => { }
+	SyncVMArrayBool = (packet: remotedbg2Async.SyncVMArrayBool_Packet) => { }
+	SyncVMArrayNumber = (packet: remotedbg2Async.SyncVMArrayNumber_Packet) => { }
+	SyncVMArrayString = (packet: remotedbg2Async.SyncVMArrayString_Packet) => { }
 	AckHeartBeat = (packet: remotedbg2Async.AckHeartBeat_Packet) => { }
 }
 

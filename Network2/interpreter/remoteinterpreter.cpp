@@ -217,9 +217,9 @@ bool cRemoteInterpreter::SendSyncAll()
 	{
 		const int itprId = (int)k;
 		sItpr &itpr = m_interpreters[itprId];
-		itpr.regSyncTime = 0.f;
-		itpr.instSyncTime = 0.f;
-		itpr.symbSyncTime = 0.f;
+		itpr.regSyncTime = TIME_SYNC_REGISTER + 1.0f;
+		itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.0f;
+		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 		SendSyncInstruction(itprId);
 		SendSyncVMRegister(itprId);
 		SendSyncSymbolTable(itprId);
@@ -284,7 +284,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		{
 			m_protocol.AckOneStep(network2::ALL_NETID, true, itprId, 1);
 		}
-	}
+	}//~for interpreters
 
 	return m_server.IsFailConnection() ? false : true;
 }
@@ -607,6 +607,64 @@ bool cRemoteInterpreter::BreakPoint(const int itprId, const bool enable, const u
 }
 
 
+// synchronize interpreter information (only symboltable)
+// varNames: <scopeName;varName> array
+bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>& varNames)
+{
+	if (m_interpreters.size() <= (uint)itprId)
+		return false;
+	sItpr& itpr = m_interpreters[itprId];
+	itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
+	if (varNames.empty())
+	{
+		// sync all
+		SendSyncSymbolTable(itprId);
+		return true; // finish
+	}
+
+	// sync specific variable
+	//for (auto& vm : itpr.interpreter->m_vms)
+	for (uint i=0; i < itpr.interpreter->m_vms.size(); ++i)
+	{
+		auto& vm = itpr.interpreter->m_vms[i];
+		for (auto& varName : varNames)
+		{
+			vector<string> toks;
+			common::tokenizer(varName, ";", "", toks);
+			if (toks.size() != 2)
+				continue; // error
+			script::sVariable *var = vm->m_symbTable.FindVarInfo(toks[0], toks[1]);
+			if (!var)
+				continue; // not found, error
+
+			if (var->IsReference())
+			{
+				auto it = vm->m_symbTable.m_varMap.find(var->var.intVal);
+				if (vm->m_symbTable.m_varMap.end() == it)
+					continue; // error
+				var = vm->m_symbTable.FindVarInfo(it->second.first, it->second.second);
+				if (!var)
+					continue; // not found, error
+				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+					, script::cSymbolTable::MakeScopeName3(it->second.first, it->second.second)
+					, *var);
+			}
+			else if (var->IsArray())
+			{
+				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+					, script::cSymbolTable::MakeScopeName3(toks[0], toks[1]), *var);
+			}
+			else if (var->IsMap())
+			{
+				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+					, script::cSymbolTable::MakeScopeName3(toks[0], toks[1]), *var);
+			}
+		}
+	}
+	return true;
+}
+
+
 // is run or debug run interpreter?
 // itprId: interpreter index
 bool cRemoteInterpreter::IsRun(const int itprId)
@@ -739,8 +797,8 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 				const script::sVariable &var = kv2.second;
 
 				bool isSync = false;
-				auto it = m_chSymbols.find(varName);
-				if (m_chSymbols.end() == it)
+				auto it = itpr.chSymbols.find(varName);
+				if (itpr.chSymbols.end() == it)
 				{
 					// add new symbol
 					isSync = true;
@@ -748,7 +806,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 					ssymb.name = varName;
 					ssymb.t = 0;
 					ssymb.var = var;
-					m_chSymbols[varName] = ssymb;
+					itpr.chSymbols[varName] = ssymb;
 				}
 				else
 				{
@@ -782,6 +840,107 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 		}
 	}
 	
+	return true;
+}
+
+
+// send specific variable sync
+// only sync array, map type 
+bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmIdx
+	, const script::cSymbolTable& symbolTable
+	, const string &varName, const script::sVariable& var)
+{
+	const uint headerSize = 20; // bin/json header size, hard coding
+	const uint maxPacketSize = network2::DEFAULT_PACKETSIZE;
+
+	if (var.IsArray())
+	{
+		if (var.GetArraySize() == 0)
+			return true; 
+
+		switch (var.ar[0].vt)
+		{
+		case VT_BOOL:
+		{
+			uint i = 0;
+			while (i < var.arSize)
+			{
+				uint offset = headerSize + 12 + varName.size() + 1 + 4 + 4; //+4:dummy
+				const uint startIdx = i;
+				vector<bool> values;
+				values.reserve(var.arSize);
+				for (; i < var.arSize; ++i)
+				{
+					values.push_back((bool)var.ar[i]);
+					offset += sizeof(bool);
+					if (offset + sizeof(bool) > maxPacketSize)
+						break;
+				}
+				m_protocol.SyncVMArrayBool(network2::ALL_NETID, true, itprId, vmIdx
+					, varName, startIdx, values);
+			}
+		}
+		break;
+
+		case VT_INT:
+		case VT_R4:
+		{
+			uint i = 0;
+			while (i < var.arSize)
+			{
+				uint offset = headerSize + 12 + varName.size() + 1 + 4 + 4; //+4:dummy
+				const uint startIdx = i;
+				vector<float> values;
+				values.reserve(var.arSize);
+				for (; i < var.arSize; ++i)
+				{
+					values.push_back((float)var.ar[i]);
+					offset += sizeof(float);
+					if (offset + sizeof(float) > maxPacketSize)
+						break;
+				}
+				m_protocol.SyncVMArrayNumber(network2::ALL_NETID, true, itprId, vmIdx
+					, varName, startIdx, values);
+			}
+		}
+		break;
+
+		case VT_BSTR:
+		{
+			uint i = 0;
+			while (i < var.arSize)
+			{
+				uint offset = headerSize + 12 + varName.size() + 1 + 4 + 4; //+4:dummy
+				const uint startIdx = i;
+				vector<string> values;
+				values.reserve(var.arSize);
+				for (; i < var.arSize; ++i)
+				{
+					const string str = (string)(bstr_t)var.ar[i];
+					values.push_back(str);
+					offset += str.size() + 1;
+					if (offset + sizeof(float) > maxPacketSize)
+						break;
+				}
+				m_protocol.SyncVMArrayString(network2::ALL_NETID, true, itprId, vmIdx
+					, varName, startIdx, values);
+			}
+		}
+		break;
+
+		default:
+			break;
+		}
+	}
+	else if (var.IsMap())
+	{
+		// todo: another type synchronize
+	}
+	else
+	{
+		// todo: another type synchronize
+	}
+
 	return true;
 }
 
@@ -953,7 +1112,7 @@ bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet)
 
 	// refresh symboltable
 	//m_symbolTableSyncItprId = packet.itprIds.empty() ? -1 : packet.itprIds[0];
-	m_chSymbols.clear();
+	//m_chSymbols.clear();
 
 	m_protocol.AckDebugInfo(packet.senderId, true, packet.itprIds, 1);
 	return true;
@@ -978,7 +1137,7 @@ bool cRemoteInterpreter::IsFailConnect()
 void cRemoteInterpreter::Clear()
 {
 	//m_state = eState::Stop;
-	m_chSymbols.clear();
+	//m_chSymbols.clear();
 	m_syncItptrs.clear();
 	m_server.Close();
 	ClearInterpreters();

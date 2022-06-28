@@ -43,6 +43,7 @@ public:
 	virtual bool ReqEvent(remotedbg2::ReqEvent_Packet &packet) { return true; }
 	virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) { return true; }
 	virtual bool ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) { return true; }
+	virtual bool ReqVariableInfo(remotedbg2::ReqVariableInfo_Packet &packet) { return true; }
 	virtual bool ReqHeartBeat(remotedbg2::ReqHeartBeat_Packet &packet) { return true; }
 };
 
@@ -84,6 +85,11 @@ public:
 	virtual bool SyncVMRegister(remotedbg2::SyncVMRegister_Packet &packet) { return true; }
 	virtual bool SyncVMSymbolTable(remotedbg2::SyncVMSymbolTable_Packet &packet) { return true; }
 	virtual bool SyncVMOutput(remotedbg2::SyncVMOutput_Packet &packet) { return true; }
+	virtual bool SyncVMWidgets(remotedbg2::SyncVMWidgets_Packet &packet) { return true; }
+	virtual bool SyncVMArray(remotedbg2::SyncVMArray_Packet &packet) { return true; }
+	virtual bool SyncVMArrayBool(remotedbg2::SyncVMArrayBool_Packet &packet) { return true; }
+	virtual bool SyncVMArrayNumber(remotedbg2::SyncVMArrayNumber_Packet &packet) { return true; }
+	virtual bool SyncVMArrayString(remotedbg2::SyncVMArrayString_Packet &packet) { return true; }
 	virtual bool AckHeartBeat(remotedbg2::AckHeartBeat_Packet &packet) { return true; }
 };
 

@@ -18,6 +18,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::subi:
 	case eCommand::muli:
 	case eCommand::divi:
+	case eCommand::remi:
 	case eCommand::eqi:
 	case eCommand::lesi:
 	case eCommand::eqic:
@@ -38,6 +39,7 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::subf:
 	case eCommand::mulf:
 	case eCommand::divf:
+	case eCommand::remf:
 	case eCommand::eqf:
 	case eCommand::eqfc:
 	case eCommand::lesf:

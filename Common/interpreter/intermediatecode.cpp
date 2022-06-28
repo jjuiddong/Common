@@ -137,10 +137,12 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "subi")
 			|| (toks[0] == "muli")
 			|| (toks[0] == "divi")
+			|| (toks[0] == "remi")
 			|| (toks[0] == "addf")
 			|| (toks[0] == "subf")
 			|| (toks[0] == "mulf")
 			|| (toks[0] == "divf")
+			|| (toks[0] == "remf")
 			|| (toks[0] == "opand")
 			|| (toks[0] == "opor")
 			)
@@ -355,10 +357,12 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::subi:
 		case eCommand::muli:
 		case eCommand::divi:
+		case eCommand::remi:
 		case eCommand::addf:
 		case eCommand::subf:
 		case eCommand::mulf:
 		case eCommand::divf:
+		case eCommand::remf:
 		case eCommand::opand:
 		case eCommand::opor:
 			ofs << eCommand::ToString(code.cmd);

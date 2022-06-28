@@ -56,6 +56,7 @@ namespace network2
 		bool OneStep(const int itprId);
 		bool Break(const int itprId);
 		bool BreakPoint(const int itprId, const bool enable, const uint id);
+		bool SyncInformation(const int itprId, const vector<string>& varNames);
 		bool IsRun(const int itprId);
 		bool IsDebug(const int itprId);
 		bool IsConnect();
@@ -68,6 +69,9 @@ namespace network2
 		bool SendSyncVMRegister(const int itprId);
 		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId);
+		bool SendSyncVariable(const int itprId, const int vmIdx
+			, const script::cSymbolTable &symbolTable
+			, const string& varName, const script::sVariable &var);
 
 		// remotedbg2 protocol hander
 		virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) override;
@@ -97,6 +101,9 @@ namespace network2
 			float regSyncTime; // register sync time, seconds unit
 			float instSyncTime; // instruction sync time, seconds unit
 			float symbSyncTime; // symboltable sync time, seconds unit
+
+			map<string, sSymbol> chSymbols; // check change variable
+											// key: variable name = scopeName + varname
 		};
 		vector<sItpr> m_interpreters;
 		vector<script::iModule*> m_modules;
@@ -107,8 +114,6 @@ namespace network2
 		remotedbg2::h2r_Protocol m_protocol;
 		//int m_symbolTableSyncItprId; // symbol table synchronize interpreter id
 		set<int> m_syncItptrs; // sync debug info interpreter id
-		map<string, sSymbol> m_chSymbols; // check change variable
-										  // key: variable name = scopeName + varname
 		common::cTPSemaphore *m_threads; // thread pool reference
 		std::atomic<int> m_multiThreading; // multithread work?, 0:no threading work
 	};

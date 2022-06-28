@@ -355,6 +355,31 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
+			case 4127584998: // ReqVariableInfo
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const parsePacket = {
+							itprId,
+							vmIdx,
+							varName,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+								handler.ReqVariableInfo(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+								handler.ReqVariableInfo(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 2532286881: // ReqHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -834,6 +859,147 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
+			case 323195839: // SyncVMWidgets
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const widgetName = packet.getStr()
+						const parsePacket = {
+							itprId,
+							vmIdx,
+							widgetName,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMWidgets(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMWidgets(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 1209241191: // SyncVMArray
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const startIdx = packet.getUint32()
+						const array = packet.getTypeVariantVector()
+						const parsePacket = {
+							itprId,
+							vmIdx,
+							varName,
+							startIdx,
+							array,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArray(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArray(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 3278867969: // SyncVMArrayBool
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const startIdx = packet.getUint32()
+						const array = packet.getUint8Array()
+						const parsePacket = {
+							itprId,
+							vmIdx,
+							varName,
+							startIdx,
+							array,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArrayBool(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArrayBool(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 3822230413: // SyncVMArrayNumber
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const startIdx = packet.getUint32()
+						const array = packet.getFloat32Array()
+						const parsePacket = {
+							itprId,
+							vmIdx,
+							varName,
+							startIdx,
+							array,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArrayNumber(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArrayNumber(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 2291689449: // SyncVMArrayString
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const startIdx = packet.getUint32()
+						const array = packet.getStrArray()
+						const parsePacket = {
+							itprId,
+							vmIdx,
+							varName,
+							startIdx,
+							array,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArrayString(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMArrayString(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 1133387750: // AckHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -1048,6 +1214,24 @@ remotedbg2.r2h_Protocol = class {
 				itprIds,
 			}
 			WsSockServer.sendPacket(ws, 5301, 2166551586, packet)
+		}
+	}
+	
+	// Protocol: ReqVariableInfo
+	ReqVariableInfo(ws, isBinary, itprId, vmIdx, varName, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			WsSockServer.sendPacketBinary(ws, 5301, 4127584998, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+			}
+			WsSockServer.sendPacket(ws, 5301, 4127584998, packet)
 		}
 	}
 	
@@ -1372,6 +1556,112 @@ remotedbg2.h2r_Protocol = class {
 		}
 	}
 	
+	// Protocol: SyncVMWidgets
+	SyncVMWidgets(ws, isBinary, itprId, vmIdx, widgetName, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(widgetName)
+			WsSockServer.sendPacketBinary(ws, 5300, 323195839, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				widgetName,
+			}
+			WsSockServer.sendPacket(ws, 5300, 323195839, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArray
+	SyncVMArray(ws, isBinary, itprId, vmIdx, varName, startIdx, array, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushTypeVariantVector(array)
+			WsSockServer.sendPacketBinary(ws, 5300, 1209241191, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			WsSockServer.sendPacket(ws, 5300, 1209241191, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArrayBool
+	SyncVMArrayBool(ws, isBinary, itprId, vmIdx, varName, startIdx, array, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushBoolArray(array)
+			WsSockServer.sendPacketBinary(ws, 5300, 3278867969, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			WsSockServer.sendPacket(ws, 5300, 3278867969, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArrayNumber
+	SyncVMArrayNumber(ws, isBinary, itprId, vmIdx, varName, startIdx, array, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushFloat32Array(array)
+			WsSockServer.sendPacketBinary(ws, 5300, 3822230413, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			WsSockServer.sendPacket(ws, 5300, 3822230413, packet)
+		}
+	}
+	
+	// Protocol: SyncVMArrayString
+	SyncVMArrayString(ws, isBinary, itprId, vmIdx, varName, startIdx, array, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushUint32(startIdx)
+			packet.pushStrArray(array)
+			WsSockServer.sendPacketBinary(ws, 5300, 2291689449, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				startIdx,
+				array,
+			}
+			WsSockServer.sendPacket(ws, 5300, 2291689449, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
@@ -1405,6 +1695,7 @@ remotedbg2.r2h_ProtocolHandler = class {
 	ReqEvent(wss, ws, packet) {}
 	ReqStepDebugType(wss, ws, packet) {}
 	ReqDebugInfo(wss, ws, packet) {}
+	ReqVariableInfo(wss, ws, packet) {}
 	ReqHeartBeat(wss, ws, packet) {}
 }
 
@@ -1432,6 +1723,11 @@ remotedbg2.h2r_ProtocolHandler = class {
 	SyncVMRegister(wss, ws, packet) {}
 	SyncVMSymbolTable(wss, ws, packet) {}
 	SyncVMOutput(wss, ws, packet) {}
+	SyncVMWidgets(wss, ws, packet) {}
+	SyncVMArray(wss, ws, packet) {}
+	SyncVMArrayBool(wss, ws, packet) {}
+	SyncVMArrayNumber(wss, ws, packet) {}
+	SyncVMArrayString(wss, ws, packet) {}
 	AckHeartBeat(wss, ws, packet) {}
 }
 

@@ -23,6 +23,7 @@ protocol r2h 5301 json
 	ReqEvent(int itprId, int vmIdx, string eventName);
 	ReqStepDebugType(int stepDbgType);
 	ReqDebugInfo(vector<int> itprIds);
+	ReqVariableInfo(int itprId, int vmIdx, string varName);
 	ReqHeartBeat();
 }
 
@@ -47,6 +48,11 @@ protocol h2r 5300 json
 	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
 	SyncVMOutput( int itprId, int vmIdx, string output );
+	SyncVMWidgets( int itprId, int vmIdx, string widgetName );
+	SyncVMArray( int itprId, int vmIdx, string varName, uint startIdx, vector<variant_t> array );
+	SyncVMArrayBool( int itprId, int vmIdx, string varName, uint startIdx, vector<bool> array );
+	SyncVMArrayNumber( int itprId, int vmIdx, string varName, uint startIdx, vector<float> array );
+	SyncVMArrayString( int itprId, int vmIdx, string varName, uint startIdx, vector<string> array );
 	AckHeartBeat();
 }
 

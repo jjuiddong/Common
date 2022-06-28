@@ -91,6 +91,14 @@ using namespace marshalling_json;
 		vector<int> itprIds;
 	};
 
+	struct ReqVariableInfo_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
+	};
+
 	struct ReqHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -231,6 +239,54 @@ using namespace marshalling_json;
 		int itprId;
 		int vmIdx;
 		string output;
+	};
+
+	struct SyncVMWidgets_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string widgetName;
+	};
+
+	struct SyncVMArray_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
+		uint startIdx;
+		vector<variant_t> array;
+	};
+
+	struct SyncVMArrayBool_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
+		uint startIdx;
+		vector<bool> array;
+	};
+
+	struct SyncVMArrayNumber_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
+		uint startIdx;
+		vector<float> array;
+	};
+
+	struct SyncVMArrayString_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
+		uint startIdx;
+		vector<string> array;
 	};
 
 	struct AckHeartBeat_Packet {
