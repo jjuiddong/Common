@@ -328,8 +328,9 @@ bool cRemoteInterpreter::Run(const int itprId)
 {
 	if (itprId < 0) 
 	{
-		for (auto &itpr : m_interpreters)
+		for (uint i = 0; i < m_interpreters.size(); ++i)
 		{
+			auto& itpr = m_interpreters[i];
 			if (itpr.state != eState::Stop)
 				continue;
 			script::cInterpreter *interpreter = itpr.interpreter;
@@ -338,7 +339,10 @@ bool cRemoteInterpreter::Run(const int itprId)
 				interpreter->AddModule(mod);
 
 			if (interpreter->Run())
+			{
 				itpr.state = eState::Run;
+				SyncInformation(i, {});
+			}
 		}
 	}
 	else 
@@ -357,6 +361,7 @@ bool cRemoteInterpreter::Run(const int itprId)
 		if (interpreter->Run())
 		{
 			itpr.state = eState::Run;
+			SyncInformation(itprId, {});
 			return true;
 		}
 		return false;
@@ -371,8 +376,9 @@ bool cRemoteInterpreter::DebugRun(const int itprId)
 {
 	if (itprId < 0)
 	{
-		for (auto &itpr : m_interpreters)
+		for (uint i=0; i < m_interpreters.size(); ++i)
 		{
+			auto& itpr = m_interpreters[i];
 			if (eState::Stop != itpr.state)
 				continue;
 			script::cInterpreter *interpreter = itpr.interpreter;
@@ -381,7 +387,10 @@ bool cRemoteInterpreter::DebugRun(const int itprId)
 				interpreter->AddModule(mod);
 
 			if (interpreter->DebugRun())
+			{
 				itpr.state = eState::Run;
+				SyncInformation(i, {});
+			}
 		}
 	}
 	else
@@ -400,6 +409,7 @@ bool cRemoteInterpreter::DebugRun(const int itprId)
 		if (interpreter->DebugRun())
 		{
 			itpr.state = eState::Run;
+			SyncInformation(itprId, {});
 			return true;
 		}
 		return false;
@@ -623,7 +633,6 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>&
 	}
 
 	// sync specific variable
-	//for (auto& vm : itpr.interpreter->m_vms)
 	for (uint i=0; i < itpr.interpreter->m_vms.size(); ++i)
 	{
 		auto& vm = itpr.interpreter->m_vms[i];
