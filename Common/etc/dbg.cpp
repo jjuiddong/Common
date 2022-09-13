@@ -298,6 +298,8 @@ void dbg::TerminateLogThread()
 //		 3 : log + err log + assertion
 void dbg::Logc(const int level, const char* fmt, ...)
 {
+	RET(0 == level);
+
 	sLogData data;
 	MAKE_LOGDATA(data, -1, fmt);
 

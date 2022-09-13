@@ -29,7 +29,10 @@ namespace ai
 			Str16 name; // number string
 			Vector3 pos;
 			vector<sTransition> trs;
+			bool avoidable; // is avoidable?
 			bool visit; // use internal
+
+			sVertex() : avoidable(true) {}
 		};
 
 		struct sEdge

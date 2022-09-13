@@ -618,7 +618,7 @@ bool cRemoteInterpreter::BreakPoint(const int itprId, const bool enable, const u
 
 
 // synchronize interpreter information (only symboltable)
-// varNames: <scopeName;varName> array
+// varNames: 'scopeName;varName' array
 bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>& varNames)
 {
 	if (m_interpreters.size() <= (uint)itprId)
@@ -794,10 +794,6 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 
 		for (auto &kv1 : vm->m_symbTable.m_vars)
 		{
-			// tricky code, prevent packet overflow
-			if (symbols.size() >= MaxSyncSymbolCount)
-				break;
-
 			const string &scopeName = kv1.first;
 			for (auto &kv2 : kv1.second)
 			{
@@ -831,21 +827,32 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 				if (isSync)
 				{
 					symbols.push_back(script::sSyncSymbol(&scopeName, &name, &var.var));
-					// tricky code, prevent packet overflow
-					if (symbols.size() >= MaxSyncSymbolCount)
-						break;
 				}
 			}
 		}
 
 		if (!symbols.empty())
 		{
-			m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
-				, itprId, i, 0, symbols.size(), symbols);
+			if (symbols.size() > MaxSyncSymbolCount)
+			{
+				uint start = 0;
+				while (symbols.size() > start)
+				{
+					vector<script::sSyncSymbol> s;
+					for (uint k = 0; 
+						(k < MaxSyncSymbolCount) && (start < symbols.size()); 
+						++k, ++start)
+						s.push_back(symbols[start]);
 
-			// continue send symbols
-			if (symbols.size() >= MaxSyncSymbolCount)
-				itpr.symbSyncTime = TIME_SYNC_SYMBOL;
+					m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
+						, itprId, i, 0, s.size(), s);
+				}
+			}
+			else
+			{
+				m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
+					, itprId, i, 0, symbols.size(), symbols);
+			}
 		}
 	}
 	

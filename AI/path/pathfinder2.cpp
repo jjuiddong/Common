@@ -60,6 +60,10 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		}
 	}
 
+	out.reserve(verticesIndices.size());
+	for (auto idx : verticesIndices)
+		out.push_back(m_vertices[idx].pos);
+
 	return true;
 }
 
