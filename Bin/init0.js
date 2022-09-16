@@ -303,7 +303,8 @@ class Packet {
     this.dv.setFloat64(this.offset, num, true);
     this.offset += 8;
   }
-
+  pushTypeVariant(v) {
+  }
   pushMapBool(m) {
     this.pushUint32(m.size);
     m.forEach((value, key) => {
@@ -482,7 +483,15 @@ class Packet {
       this.offset += 8;
     }
   }
-
+  pushTypeVariantVector(ar) {
+  }
+  pushMapStrArray(m) {
+      this.pushUint32(m.size)
+      m.forEach((value, key) => {
+          this.pushStr(key)
+          this.pushStrArray(value)
+      })
+  }  
   pushMapBoolArray(m) {
     this.pushUint32(m.size);
     m.forEach((value, key) => {
