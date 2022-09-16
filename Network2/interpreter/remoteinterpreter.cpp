@@ -1100,7 +1100,18 @@ bool cRemoteInterpreter::ReqInput(remotedbg2::ReqInput_Packet &packet)
 //request interpreter event protocol handler
 bool cRemoteInterpreter::ReqEvent(remotedbg2::ReqEvent_Packet &packet) 
 { 
-	script::cEvent evt(packet.eventName);
+	// make event variables
+	map<string, variant_t> vars;
+	for (auto& kv : packet.values)
+	{
+		// trick code: one variable use
+		const vector<string>& value = kv.second;
+		if (!value.empty())
+			vars.insert({ kv.first, value[0].c_str() });
+	}
+	//~
+
+	script::cEvent evt(packet.eventName, vars);
 	PushEvent(packet.itprId, evt);
 	m_protocol.AckEvent(packet.senderId, true
 		, packet.itprId, packet.vmIdx, packet.eventName, 1);
