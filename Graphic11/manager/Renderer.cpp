@@ -145,7 +145,7 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_cbClipPlane.m_v->reflectAlpha[0] = 0.1f;
 
 	//m_textMgr.Create(256);
-	m_textMgr.Create(512, 512);
+	m_textMgr.Create(2000, 512);
 
 	m_renderList = new cRenderList();
 

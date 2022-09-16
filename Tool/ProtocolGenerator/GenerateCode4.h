@@ -3,6 +3,7 @@
 // 
 // generate protocol source code with *.prt script
 //	- generate JavaScript code
+//		- merge js code
 //		- packet
 //
 //------------------------------------------------------------------------

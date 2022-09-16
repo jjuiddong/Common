@@ -20,7 +20,7 @@ protocol r2h 5301 json
 	ReqBreakPoint( int itprId, bool enable, uint id);
 	ReqStop(int itprId);
 	ReqInput(int itprId, int vmIdx, string eventName);
-	ReqEvent(int itprId, int vmIdx, string eventName);
+	ReqEvent(int itprId, int vmIdx, string eventName, map<string, vector<string>> values);
 	ReqStepDebugType(int stepDbgType);
 	ReqDebugInfo(vector<int> itprIds);
 	ReqVariableInfo(int itprId, int vmIdx, string varName);

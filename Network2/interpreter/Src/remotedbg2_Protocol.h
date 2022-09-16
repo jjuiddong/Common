@@ -24,7 +24,7 @@ public:
 	void ReqBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id);
 	void ReqStop(netid targetId, bool isBinary, const int &itprId);
 	void ReqInput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName);
-	void ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName);
+	void ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName, const map<string,vector<string>> &values);
 	void ReqStepDebugType(netid targetId, bool isBinary, const int &stepDbgType);
 	void ReqDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds);
 	void ReqVariableInfo(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName);

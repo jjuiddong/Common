@@ -6,13 +6,13 @@
 //
 
 
-protocol s2c 100000
+protocol s2c 100000 json
 {
-	AckResult(string packetName, float result, map<string, string> vars);
+	AckResult(string packetName, float result, map<string, vector<string>> vars);
 }
 
 
-protocol c2s 100001
+protocol c2s 100001 json
 {
 	PacketName1(string id, string data, float num);
 }

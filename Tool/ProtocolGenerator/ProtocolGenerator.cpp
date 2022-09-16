@@ -34,6 +34,9 @@
 //
 // 2021-11-30
 //	- merge javascript code for async websocket
+// 
+// 2022-09-15
+//	- map<string, *>, map<string, vector<*>> type support
 //
 
 #include "pch.h"

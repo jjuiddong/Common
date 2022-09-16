@@ -28,6 +28,9 @@ export namespace clusterAsync {
 		return ar
 	}
 	function Make_Vector3(packet: Network.Packet, data: Vector3) {
+		packet.pushFloat32(data.x)
+		packet.pushFloat32(data.y)
+		packet.pushFloat32(data.z)
 	}
 	function Make_Vector3Vector(packet: Network.Packet, data: Vector3[]) {
 	}

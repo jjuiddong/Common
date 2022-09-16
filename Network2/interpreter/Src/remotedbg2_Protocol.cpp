@@ -333,7 +333,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: ReqEvent
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName)
+void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName, const map<string,vector<string>> &values)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -346,6 +346,7 @@ void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int
 		marshalling::operator<<(packet, itprId);
 		marshalling::operator<<(packet, vmIdx);
 		marshalling::operator<<(packet, eventName);
+		marshalling::operator<<(packet, values);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -358,6 +359,7 @@ void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int
 			put(props, "itprId", itprId);
 			put(props, "vmIdx", vmIdx);
 			put(props, "eventName", eventName);
+			put(props, "values", values);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();

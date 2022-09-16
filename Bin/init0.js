@@ -303,6 +303,113 @@ class Packet {
     this.dv.setFloat64(this.offset, num, true);
     this.offset += 8;
   }
+
+  pushMapBool(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushBool(value);
+    });
+  }
+  pushMapStr() {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushStr(value);
+    });
+  }
+  pushMapByte(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushByte(value);
+    });
+  }
+  pushMapInt(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt(value);
+    });
+  }
+  pushMapFloat(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushFloat(value);
+    });
+  }
+  pushMapUint8(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint8(value);
+    });
+  }
+  pushMapInt8(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt8(value);
+    });
+  }
+  pushMapUint16(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint16(value);
+    });
+  }
+  pushMapInt16(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt16(value);
+    });
+  }
+  pushMapUint32(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint32(value);
+    });
+  }
+  pushMapInt32(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt32(value);
+    });
+  }
+  pushMapUint64(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint64(value);
+    });
+  }
+  pushMapInt64(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt64(value);
+    });
+  }
+  pushMapFloat32(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushFloat32(value);
+    });
+  }
+  pushMapFloat64(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushFloat64(value);
+    });
+  }
+  
   pushBoolArray(ar) {
     if (!this.dv) return;
     this.pushUint32(ar.length);
@@ -374,6 +481,70 @@ class Packet {
       this.dv.setFloat64(this.offset, ar[i], true);
       this.offset += 8;
     }
+  }
+
+  pushMapBoolArray(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushBoolArray(value);
+    });
+  }
+  pushMapUint8Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint8Array(value);
+    });
+  }
+  pushMapInt8Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt8Array(value);
+    });
+  }
+  pushMapUint16Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint16Array(value);
+    });
+  }
+  pushMapInt16Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt16Array(value);
+    });
+  }
+  pushMapUint32Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushUint32Array(value);
+    });
+  }
+  pushMapInt32Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushInt32Array(value);
+    });
+  }
+  pushMapFloat32Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushFloat32Array(value);
+    });
+  }
+  pushMapFloat64Array(m) {
+    this.pushUint32(m.size);
+    m.forEach((value, key) => {
+      this.pushStr(key);
+      this.pushFloat64Array(value);
+    });
   }
 
   //--------------------------------------------------------------------------------
@@ -680,6 +851,243 @@ class Packet {
     const size = this.getUint32();
     return this.getTypeVariantArray(size);
   }
+
+  getMapBool() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getBool();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt8() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt8();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint8() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint8();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt16() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt16();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint16() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint16();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt32() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt32();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint32() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint32();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt64() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt64();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint64() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint64();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapFloat32() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getFloat32();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapFloat64() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getFloat64();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt8Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt8Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint8Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint8Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt16Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt16Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint16Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint16Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapInt32Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getInt32Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapUint32Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getUint32Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapFloat32Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getFloat32Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapFloat64Array() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getFloat64Array();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapStr() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getStr();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapStrArray() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getStrArray();
+      m.set(key, value);
+    }
+    return m;
+  }
+  getMapTypeVariant() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getTypeVariant();
+      m.set(key, value);
+    }
+    return m;
+  }
+  // getMapTypeVariantArray(size: number): TypeVariant[] {
+  //     let ar: TypeVariant[] = []
+  //     for (let i = 0; i < size; ++i)
+  //         ar.push(this.getTypeVariant())
+  //     return ar
+  // }
+  getMapTypeVariantVector() {
+    let m = new Map();
+    const size = this.getUint32();
+    for (let i = 0; i < size; ++i) {
+      const key = this.getStr();
+      const value = this.getTypeVariantVector();
+      m.set(key, value);
+    }
+    return m;
+  }  
 }
 
 //------------------------------------------------------------------------------

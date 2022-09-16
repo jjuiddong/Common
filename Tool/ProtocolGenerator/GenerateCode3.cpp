@@ -51,71 +51,71 @@ namespace compiler3
 	string g_handlerClassName; // protocol handler class name
 	string g_srcFolderName = "Src";
 
-	// c++ type convert to TypeScript type mapping, key:C++ Type
-	map<string, string> g_typeMap = {
-		{"BYTE", "number"},
-		{"char", "number"},
-		{"bool", "boolean"},
-		{"BOOL", "boolean"},
-		{"short", "number"},
-		{"ushort", "number"},
-		{"unsigned short", "number"},
-		{"int", "number"},
-		{"uint", "number"},
-		{"unsigned int", "number"},
-		{"int64", "bigint"},
-		{"uint64", "bigint"},
-		{"__int64", "bigint"},
-		{"unsigned __int64", "bigint"},
-		{"float", "number"},
-		{"double", "number"},
-		{"string", "string"},
-		{"variant_t", "TypeVariant"},
-	};
-	// vector type mapping, key:vector argument field
-	map<string, string> g_vectorTypeMap = {
-		{"BYTE", "Uint8Array | null"},
-		{"char", "Int8Array | null"},
-		{"bool", "Uint8Array | null"},
-		{"BOOL", "Uint8Array | null"},
-		{"short", "Int16Array | null"},
-		{"ushort", "Uint16Array | null"},
-		{"unsigned short", "Uint16Array | null"},
-		{"int", "Int32Array | null"},
-		{"uint", "Uint32Array | null"},
-		{"unsigned int", "Uint32Array | null"},
-		{"int64", "BigInt64Array"},
-		{"uint64", "BigUint64Array"},
-		{"__int64", "BigInt64Array"},
-		{"unsigned __int64", "BigUint64Array"},
-		{"float", "Float32Array | null"},
-		{"double", "Float64Array | null"},
-		{"string", "string[]"},
-		{"variant_t", "TypeVariant[]"},
-	};
-	// array type mapping, key:vector argument field
-	map<string, string> g_arrayTypeMap = {
-		{"BYTE", "number[]"},
-		{"char", "number[]"},
-		{"bool", "boolean[]"},
-		{"BOOL", "boolean[]"},
-		{"short", "number[]"},
-		{"ushort", "number[]"},
-		{"unsigned short", "number[]"},
-		{"int", "number[]"},
-		{"uint", "number[]"},
-		{"unsigned int", "number[]"},
-		{"int64", "bigint[]"},
-		{"uint64", "bigint[]"},
-		{"__int64", "bigint[]"},
-		{"unsigned __int64", "bigint[]"},
-		{"float", "number[]"},
-		{"double", "number[]"},
-		{"string", "string[]"},
-		{"variant_t", "TypeVariant[]"},
-	};
+	// c++ type convert to JavaScript type mapping, key:C++ Type
+	//map<string, string> g_typeMap = {
+	//	{"BYTE", "number"},
+	//	{"char", "number"},
+	//	{"bool", "boolean"},
+	//	{"BOOL", "boolean"},
+	//	{"short", "number"},
+	//	{"ushort", "number"},
+	//	{"unsigned short", "number"},
+	//	{"int", "number"},
+	//	{"uint", "number"},
+	//	{"unsigned int", "number"},
+	//	{"int64", "bigint"},
+	//	{"uint64", "bigint"},
+	//	{"__int64", "bigint"},
+	//	{"unsigned __int64", "bigint"},
+	//	{"float", "number"},
+	//	{"double", "number"},
+	//	{"string", "string"},
+	//	{"variant_t", "TypeVariant"},
+	//};
+	//// vector type mapping, key:vector argument field
+	//map<string, string> g_vectorTypeMap = {
+	//	{"BYTE", "Uint8Array | null"},
+	//	{"char", "Int8Array | null"},
+	//	{"bool", "Uint8Array | null"},
+	//	{"BOOL", "Uint8Array | null"},
+	//	{"short", "Int16Array | null"},
+	//	{"ushort", "Uint16Array | null"},
+	//	{"unsigned short", "Uint16Array | null"},
+	//	{"int", "Int32Array | null"},
+	//	{"uint", "Uint32Array | null"},
+	//	{"unsigned int", "Uint32Array | null"},
+	//	{"int64", "BigInt64Array"},
+	//	{"uint64", "BigUint64Array"},
+	//	{"__int64", "BigInt64Array"},
+	//	{"unsigned __int64", "BigUint64Array"},
+	//	{"float", "Float32Array | null"},
+	//	{"double", "Float64Array | null"},
+	//	{"string", "string[]"},
+	//	{"variant_t", "TypeVariant[]"},
+	//};
+	//// array type mapping, key:vector argument field
+	//map<string, string> g_arrayTypeMap = {
+	//	{"BYTE", "number[]"},
+	//	{"char", "number[]"},
+	//	{"bool", "boolean[]"},
+	//	{"BOOL", "boolean[]"},
+	//	{"short", "number[]"},
+	//	{"ushort", "number[]"},
+	//	{"unsigned short", "number[]"},
+	//	{"int", "number[]"},
+	//	{"uint", "number[]"},
+	//	{"unsigned int", "number[]"},
+	//	{"int64", "bigint[]"},
+	//	{"uint64", "bigint[]"},
+	//	{"__int64", "bigint[]"},
+	//	{"unsigned __int64", "bigint[]"},
+	//	{"float", "number[]"},
+	//	{"double", "number[]"},
+	//	{"string", "string[]"},
+	//	{"variant_t", "TypeVariant[]"},
+	//};
 	// packet parse mapping, key:C++ Type
-	map<string, string> g_parseMap = {
+	map<string, string> g_parseTable = {
 		{"BYTE", "packet.getUint8()"},
 		{"char", "packet.getInt8()"},
 		{"bool", "packet.getBool()"},
@@ -136,7 +136,7 @@ namespace compiler3
 		{"variant_t", "packet.getTypeVariant()"},
 	};
 	// packet parse mapping (vector type), key:C++ Type
-	map<string, string> g_parseVectorMap = {
+	map<string, string> g_parseVectorTable = {
 		{"BYTE", "packet.getUint8Array()"},
 		{"char", "packet.getInt8Array()"},
 		{"bool", "packet.getUint8Array()"},
@@ -156,9 +156,51 @@ namespace compiler3
 		{"string", "packet.getStrArray()"},
 		{"variant_t", "packet.getTypeVariantVector()"},
 	};
+	// packet parse mapping, map<string, *> key:C++ Type
+	map<string, string> g_parseMapTable = {
+		{"BYTE", "packet.getMapUint8()"},
+		{"char", "packet.getMapInt8()"},
+		{"bool", "packet.getMapBool()"},
+		{"BOOL", "packet.getMapBool()"},
+		{"short", "packet.getMapInt16()"},
+		{"ushort", "packet.getMapUint16()"},
+		{"unsigned short", "packet.getMapUint16()"},
+		{"int", "packet.getMapInt32()"},
+		{"uint", "packet.getMapUint32()"},
+		{"unsigned int", "packet.getMapUint32()"},
+		{"int64", "packet.getMapInt64()"},
+		{"uint64", "packet.getMapUint64()"},
+		{"__int64", "packet.getMapInt64()"},
+		{"unsigned __int64", "packet.getMapUint64()"},
+		{"float", "packet.getMapFloat32()"},
+		{"double", "packet.getMapFloat64()"},
+		{"string", "packet.getMapStr()"},
+		{"variant_t", "packet.getMapTypeVariant()"},
+	};
+	// packet parse mapping (map<string, vector<*>> type), key:C++ Type
+	map<string, string> g_parseMapVectorTable = {
+		{"BYTE", "packet.getMapUint8Array()"},
+		{"char", "packet.getMapInt8Array()"},
+		{"bool", "packet.getMapUint8Array()"},
+		{"BOOL", "packet.getMapUint8Array()"},
+		{"short", "packet.getMapInt16Array()"},
+		{"ushort", "packet.getMapUint16Array()"},
+		{"unsigned short", "packet.getMapUint16Array()"},
+		{"int", "packet.getMapInt32Array()"},
+		{"uint", "packet.getMapUint32Array()"},
+		{"unsigned int", "packet.getMapUint32Array()"},
+		{"int64", "packet.getMapBigInt64Array()"},
+		{"uint64", "packet.getMapBigUint64Array()"},
+		{"__int64", "packet.getMapBigInt64Array()"},
+		{"unsigned __int64", "packet.getMapBigUint64Array()"},
+		{"float", "packet.getMapFloat32Array()"},
+		{"double", "packet.getMapFloat64Array()"},
+		{"string", "packet.getMapStrArray()"},
+		{"variant_t", "packet.getMapTypeVariantVector()"},
+	};
 
 	// packet make mapping, key:C++ Type
-	map<string, string> g_makeMap = {
+	map<string, string> g_makeTable = {
 		{"BYTE", "packet.pushUint8("},
 		{"char", "packet.pushInt8("},
 		{"bool", "packet.pushBool("},
@@ -179,7 +221,7 @@ namespace compiler3
 		{"variant_t", "packet.pushTypeVariant("},
 	};
 	// packet make mapping (vector type), key:C++ Type
-	map<string, string> g_makeVectorMap = {
+	map<string, string> g_makeVectorTable = {
 		{"BYTE", "packet.pushUint8Array("},
 		{"char", "packet.pushInt8Array("},
 		{"bool", "packet.pushBoolArray("},
@@ -199,6 +241,48 @@ namespace compiler3
 		{"string", "packet.pushStrArray("},
 		{"variant_t", "packet.pushTypeVariantVector("},
 	};
+	// packet make mapping, map<string, *> key:C++ Type
+	map<string, string> g_makeMapTable = {
+		{"BYTE", "packet.pushMapUint8("},
+		{"char", "packet.pushMapInt8("},
+		{"bool", "packet.pushMapBool("},
+		{"BOOL", "packet.pushMapBool("},
+		{"short", "packet.pushMapInt16("},
+		{"ushort", "packet.pushMapUint16("},
+		{"unsigned short", "packet.pushMapUint16("},
+		{"int", "packet.pushMapInt32("},
+		{"uint", "packet.pushMapUint32("},
+		{"unsigned int", "packet.pushMapUint32("},
+		{"int64", "packet.pushMapInt64("},
+		{"uint64", "packet.pushMapUint64("},
+		{"__int64", "packet.pushMapInt64("},
+		{"unsigned __int64", "packet.pushMapUint64("},
+		{"float", "packet.pushMapFloat32("},
+		{"double", "packet.pushMapFloat64("},
+		{"string", "packet.pushMapStr("},
+		{"variant_t", "packet.pushMapTypeVariant("},
+	};
+	// packet make mapping (map<string, vector<*>> type), key:C++ Type
+	map<string, string> g_makeMapVectorTable = {
+		{"BYTE", "packet.pushMapUint8Array("},
+		{"char", "packet.pushMapInt8Array("},
+		{"bool", "packet.pushMapBoolArray("},
+		{"BOOL", "packet.pushMapBoolArray("},
+		{"short", "packet.pushMapInt16Array("},
+		{"ushort", "packet.pushMapUint16Array("},
+		{"unsigned short", "packet.pushMapUint16Array("},
+		{"int", "packet.pushMapInt32Array("},
+		{"uint", "packet.pushMapUint32Array("},
+		{"unsigned int", "packet.pushMapUint32Array("},
+		{"int64", "packet.pushMapInt64Array("},
+		{"uint64", "packet.pushMapUint64Array("},
+		{"__int64", "packet.pushMapInt64Array("},
+		{"unsigned __int64", "packet.pushMapUint64Array("},
+		{"float", "packet.pushMapFloat32Array("},
+		{"double", "packet.pushMapFloat64Array("},
+		{"string", "packet.pushMapStrArray("},
+		{"variant_t", "packet.pushMapTypeVariantVector("},
+	};
 	// custom types
 	map<string, sType*> g_customTypes; // reference
 	bool g_isAsync = false; // async protocol handler module?
@@ -208,7 +292,7 @@ using namespace compiler3;
 
 
 //------------------------------------------------------------------------
-// generate TypeScript code
+// generate JavaScript code
 // generate Protocol, Handler, Dispatcher, Packet Data class
 //------------------------------------------------------------------------
 bool compiler3::WriteProtocolCode(const string &protocolFileName, sProtocol *protocol
@@ -450,7 +534,7 @@ void compiler3::WritePacketField(ofstream &fs, sArg *arg
 {
 	if (!arg) return;
 
-	//// convert C++ type to TypeScript type
+	//// convert C++ type to JavaScript type
 	//string typeStr = "notdef";
 	//auto it1 = g_typeMap.find(arg->var->type);
 	//if (g_typeMap.end() != it1)
@@ -798,8 +882,8 @@ void compiler3::WriteParsePacketField(ofstream &fs, const string &typeStr
 	, const bool isMake //=false
 )
 {
-	map<string, string> *table = isMake? &g_makeMap : &g_parseMap;
-	map<string, string> *vectorTable = isMake? &g_makeVectorMap : &g_parseVectorMap;
+	map<string, string> *table = isMake? &g_makeTable : &g_parseTable;
+	map<string, string> *vectorTable = isMake? &g_makeVectorTable : &g_parseVectorTable;
 
 	string code = "0"; // default
 	auto it1 = table->find(typeStr);
@@ -854,6 +938,60 @@ void compiler3::WriteParsePacketField(ofstream &fs, const string &typeStr
 				else
 				{
 					code = "[]"; // empty array, todo: parse array
+				}
+			}
+			else if ((types[0] == "map") && (types.size() >= 3))
+			{
+				if (types[2] == "vector") // map value type is vector?
+				{
+					map<string, string>* mapTable = isMake ? &g_makeMapVectorTable : &g_parseMapVectorTable;
+					const string type = (types.size() >= 4) ? types[3] : "";
+
+					auto it2 = mapTable->find(type); // vector type
+					if (mapTable->end() != it2)
+					{
+						code = it2->second;
+					}
+					else
+					{
+						// custom type?
+						vector<string> toks;
+						common::tokenizer(type, "::", "", toks);
+						auto it3 = g_customTypes.find(toks.back());
+						if (g_customTypes.end() != it3)
+						{
+							sType* type = it3->second;
+							if (isMake)
+								code = string("Make_") + type->name + "MapVector(packet,";
+							else
+								code = string("Parse_") + type->name + "MapVector(packet)";
+						}
+					}
+				}
+				else
+				{
+					map<string, string>* mapTable = isMake ? &g_makeMapTable : &g_parseMapTable;
+
+					auto it2 = mapTable->find(types[2]); // value type
+					if (mapTable->end() != it2)
+					{
+						code = it2->second;
+					}
+					else
+					{
+						// custom type?
+						vector<string> toks;
+						common::tokenizer(types[2], "::", "", toks);
+						auto it3 = g_customTypes.find(toks.back());
+						if (g_customTypes.end() != it3)
+						{
+							sType* type = it3->second;
+							if (isMake)
+								code = string("Make_") + type->name + "Map(packet,";
+							else
+								code = string("Parse_") + type->name + "Map(packet)";
+						}
+					}
 				}
 			}
 		}

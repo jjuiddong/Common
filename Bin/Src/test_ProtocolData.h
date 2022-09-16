@@ -8,7 +8,7 @@
 namespace test {
 
 using namespace network2;
-using namespace marshalling;
+using namespace marshalling_json;
 
 
 	struct AckResult_Packet {
@@ -16,7 +16,7 @@ using namespace marshalling;
 		netid senderId;
 		string packetName;
 		float result;
-		map<string,string> vars;
+		map<string,vector<string>> vars;
 	};
 
 

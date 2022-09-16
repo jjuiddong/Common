@@ -10,7 +10,7 @@
 namespace test {
 
 using namespace network2;
-using namespace marshalling;
+using namespace marshalling_json;
 static const int s2c_Dispatcher_ID = 100000;
 
 // Protocol Dispatcher
@@ -20,7 +20,7 @@ public:
 	s2c_Dispatcher();
 protected:
 	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
-	static cPacketHeader s_packetHeader;
+	static cPacketHeaderJson s_packetHeader;
 };
 static s2c_Dispatcher g_test_s2c_Dispatcher;
 
@@ -30,7 +30,7 @@ class s2c_ProtocolHandler : virtual public network2::iProtocolHandler
 {
 public:
 	friend class s2c_Dispatcher;
-	s2c_ProtocolHandler() { m_format = ePacketFormat::BINARY; }
+	s2c_ProtocolHandler() { m_format = ePacketFormat::JSON; }
 	virtual bool AckResult(test::AckResult_Packet &packet) { return true; }
 };
 
@@ -44,7 +44,7 @@ public:
 	c2s_Dispatcher();
 protected:
 	virtual bool Dispatch(cPacket &packet, const ProtocolHandlers &handlers) override;
-	static cPacketHeader s_packetHeader;
+	static cPacketHeaderJson s_packetHeader;
 };
 static c2s_Dispatcher g_test_c2s_Dispatcher;
 
@@ -54,7 +54,7 @@ class c2s_ProtocolHandler : virtual public network2::iProtocolHandler
 {
 public:
 	friend class c2s_Dispatcher;
-	c2s_ProtocolHandler() { m_format = ePacketFormat::BINARY; }
+	c2s_ProtocolHandler() { m_format = ePacketFormat::JSON; }
 	virtual bool PacketName1(test::PacketName1_Packet &packet) { return true; }
 };
 

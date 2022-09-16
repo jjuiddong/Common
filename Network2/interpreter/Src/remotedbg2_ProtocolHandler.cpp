@@ -457,6 +457,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.itprId);
 				marshalling::operator>>(packet, data.vmIdx);
 				marshalling::operator>>(packet, data.eventName);
+				marshalling::operator>>(packet, data.values);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqEvent(data));
 			}
 			else
@@ -479,6 +480,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "itprId", data.itprId);
 					get(props, "vmIdx", data.vmIdx);
 					get(props, "eventName", data.eventName);
+					get(props, "values", data.values);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqEvent(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);

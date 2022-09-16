@@ -36,6 +36,7 @@ namespace network2
 		template<class T, size_t N> ptree& put(ptree &props, const char *typeName, const T(&rhs)[N]);
 		template<class T> ptree& put(ptree &props, const char *typeName, const vector<T> &v);
 		template<class T> ptree& put(ptree &props, const char *typeName, const list<T> &v);
+		template<class T, class U> ptree& put(ptree &props, const char* typeName, const map<T, U>& v);
 
 
 		cPacket& operator>>(cPacket &packet, OUT string &rhs);
@@ -60,6 +61,7 @@ namespace network2
 		template<class T, size_t N> ptree& get(ptree &props, const char *typeName, OUT T(&rhs)[N]);
 		template<class T> ptree& get(ptree &props, const char *typeName, OUT vector<T> &v);
 		template<class T> ptree& get(ptree &props, const char *typeName, OUT list<T> &v);
+		template<class T, class U> ptree& get(ptree &props, const char* typeName, OUT map<T, U>& v);
 	}
 
 
@@ -68,58 +70,58 @@ namespace network2
 	namespace marshalling_json {
 		using boost::property_tree::ptree;
 
-		inline cPacket& marshalling_json::operator<<(cPacket &packet, const string &rhs)
+		inline cPacket& marshalling_json::operator<<(cPacket& packet, const string& rhs)
 		{
 			packet.AppendPtr(rhs.c_str(), rhs.size());
 			return packet;
 		}
 
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const bool rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const bool rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const char rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const char rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const unsigned char rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const unsigned char rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const short rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const short rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const unsigned short rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const unsigned short rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const int rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const int rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const unsigned int rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const unsigned int rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const long rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const long rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const unsigned long rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const unsigned long rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const float rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const float rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const double rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const double rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const int64 rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const int64 rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const uint64 rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const uint64 rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const string &rhs) {
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const string& rhs) {
 			return props.put(typeName, rhs);
 		}
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const Vector3 &rhs) {
-			props.put(string(typeName)+".x", rhs.x);
-			props.put(string(typeName)+".y", rhs.y);
-			props.put(string(typeName)+".z", rhs.z);
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const Vector3& rhs) {
+			props.put(string(typeName) + ".x", rhs.x);
+			props.put(string(typeName) + ".y", rhs.y);
+			props.put(string(typeName) + ".z", rhs.z);
 			return props;
 		}
 		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const _variant_t& rhs) {
@@ -128,7 +130,7 @@ namespace network2
 		}
 
 		template<class T, size_t N>
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const T(&rhs)[N])
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const T(&rhs)[N])
 		{
 			for (int i = 0; i < N; ++i)
 				put(props, "", rhs[i]);
@@ -136,10 +138,10 @@ namespace network2
 		}
 
 		template<class T>
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const vector<T> &v)
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const vector<T>& v)
 		{
 			ptree children;
-			for (auto &val : v)
+			for (auto& val : v)
 			{
 				ptree child;
 				child.put("", val);
@@ -171,11 +173,18 @@ namespace network2
 		}
 
 		template<class T>
-		inline ptree& marshalling_json::put(ptree &props, const char *typeName, const list<T> &v)
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const list<T>& v)
 		{
+			// not yet implements
 			return props;
 		}
 
+		template<class T, class U> 
+		inline ptree& marshalling_json::put(ptree& props, const char* typeName, const map<T, U>& v)
+		{
+			// not yet implements
+			return props;
+		}
 
 		//-----------------------------------------------------------------------
 		inline cPacket& marshalling_json::operator>>(cPacket &packet, OUT string &rhs)
@@ -309,6 +318,13 @@ namespace network2
 
 		template<class T> 
 		inline ptree& marshalling_json::get(ptree &props, const char *typeName, OUT list<T> &out) {
+			// not yet implements
+			return props;
+		}
+
+		template<class T, class U> 
+		inline ptree& marshalling_json::get(ptree& props, const char* typeName, OUT map<T, U>& v) {
+			// not yet implements
 			return props;
 		}
 

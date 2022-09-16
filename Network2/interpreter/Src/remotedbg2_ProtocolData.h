@@ -77,6 +77,7 @@ using namespace marshalling_json;
 		int itprId;
 		int vmIdx;
 		string eventName;
+		map<string,vector<string>> values;
 	};
 
 	struct ReqStepDebugType_Packet {

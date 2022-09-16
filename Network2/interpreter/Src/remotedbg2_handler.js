@@ -294,10 +294,12 @@ remotedbg2.r2h_Dispatcher = class {
 						const itprId = packet.getInt32()
 						const vmIdx = packet.getInt32()
 						const eventName = packet.getStr()
+						const values = packet.getMapStrArray()
 						const parsePacket = {
 							itprId,
 							vmIdx,
 							eventName,
+							values,
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
@@ -1172,18 +1174,20 @@ remotedbg2.r2h_Protocol = class {
 	}
 	
 	// Protocol: ReqEvent
-	ReqEvent(ws, isBinary, itprId, vmIdx, eventName, ) {
+	ReqEvent(ws, isBinary, itprId, vmIdx, eventName, values, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmIdx)
 			packet.pushStr(eventName)
+			packet.pushMapStrArray(values)
 			WsSockServer.sendPacketBinary(ws, 5301, 186222094, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmIdx,
 				eventName,
+				values,
 			}
 			WsSockServer.sendPacket(ws, 5301, 186222094, packet)
 		}

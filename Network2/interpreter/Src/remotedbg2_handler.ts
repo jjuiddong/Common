@@ -100,6 +100,7 @@ export namespace remotedbg2 {
 		itprId: number, 
 		vmIdx: number, 
 		eventName: string, 
+		values: Map<string,string[]>, 
 	}
 	export type ReqStepDebugType_Packet = {
 		stepDbgType: number, 
@@ -470,10 +471,12 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 						const itprId = packet.getInt32()
 						const vmIdx = packet.getInt32()
 						const eventName = packet.getStr()
+						const values = packet.getMapStrArray()
 						const parsePacket: ReqEvent_Packet = {
 							itprId,
 							vmIdx,
 							eventName,
+							values,
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof r2h_ProtocolHandler)
@@ -1361,18 +1364,20 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqEvent
-	ReqEvent(isBinary: boolean, itprId: number, vmIdx: number, eventName: string, ) {
+	ReqEvent(isBinary: boolean, itprId: number, vmIdx: number, eventName: string, values: Map<string,string[]>, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmIdx)
 			packet.pushStr(eventName)
+			packet.pushMapStrArray(values)
 			this.node?.sendPacketBinary(5301, 186222094, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmIdx,
 				eventName,
+				values,
 			}
 			this.node?.sendPacket(5301, 186222094, packet)
 		}

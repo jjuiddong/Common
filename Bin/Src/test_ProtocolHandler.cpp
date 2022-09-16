@@ -4,9 +4,9 @@
 using namespace test;
 
 
-cPacketHeader test::s2c_Dispatcher::s_packetHeader;
+cPacketHeaderJson test::s2c_Dispatcher::s_packetHeader;
 test::s2c_Dispatcher::s2c_Dispatcher()
-	: cProtocolDispatcher(test::s2c_Dispatcher_ID, ePacketFormat::BINARY)
+	: cProtocolDispatcher(test::s2c_Dispatcher_ID, ePacketFormat::JSON)
 {
 	cProtocolDispatcher::GetDispatcherMap()->insert({s2c_Dispatcher_ID, this});
 	cProtocolDispatcher::GetPacketHeaderMap()->insert({s2c_Dispatcher_ID, &s_packetHeader});
@@ -29,13 +29,44 @@ bool test::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &han
 
 			SetCurrentDispatchPacket( &packet );
 
-			AckResult_Packet data;
-			data.pdispatcher = this;
-			data.senderId = packet.GetSenderId();
-			packet >> data.packetName;
-			packet >> data.result;
-			packet >> data.vars;
-			SEND_HANDLER(s2c_ProtocolHandler, prtHandler, AckResult(data));
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				AckResult_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.packetName);
+				marshalling::operator>>(packet, data.result);
+				marshalling::operator>>(packet, data.vars);
+				SEND_HANDLER(s2c_ProtocolHandler, prtHandler, AckResult(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					AckResult_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "packetName", data.packetName);
+					get(props, "result", data.result);
+					get(props, "vars", data.vars);
+					SEND_HANDLER(s2c_ProtocolHandler, prtHandler, AckResult(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
 		}
 		break;
 
@@ -49,9 +80,9 @@ bool test::s2c_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &han
 
 
 
-cPacketHeader test::c2s_Dispatcher::s_packetHeader;
+cPacketHeaderJson test::c2s_Dispatcher::s_packetHeader;
 test::c2s_Dispatcher::c2s_Dispatcher()
-	: cProtocolDispatcher(test::c2s_Dispatcher_ID, ePacketFormat::BINARY)
+	: cProtocolDispatcher(test::c2s_Dispatcher_ID, ePacketFormat::JSON)
 {
 	cProtocolDispatcher::GetDispatcherMap()->insert({c2s_Dispatcher_ID, this});
 	cProtocolDispatcher::GetPacketHeaderMap()->insert({c2s_Dispatcher_ID, &s_packetHeader});
@@ -74,13 +105,44 @@ bool test::c2s_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &han
 
 			SetCurrentDispatchPacket( &packet );
 
-			PacketName1_Packet data;
-			data.pdispatcher = this;
-			data.senderId = packet.GetSenderId();
-			packet >> data.id;
-			packet >> data.data;
-			packet >> data.num;
-			SEND_HANDLER(c2s_ProtocolHandler, prtHandler, PacketName1(data));
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				PacketName1_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.id);
+				marshalling::operator>>(packet, data.data);
+				marshalling::operator>>(packet, data.num);
+				SEND_HANDLER(c2s_ProtocolHandler, prtHandler, PacketName1(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					PacketName1_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "id", data.id);
+					get(props, "data", data.data);
+					get(props, "num", data.num);
+					SEND_HANDLER(c2s_ProtocolHandler, prtHandler, PacketName1(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
 		}
 		break;
 
