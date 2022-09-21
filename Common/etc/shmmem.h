@@ -18,8 +18,6 @@ namespace common
 		virtual ~cShmmem();
 
 		bool Init(const std::string &sharedMemoryName, const int memoryByteSize = 256);
-		bool Open(const std::string& sharedMemoryName, const int memoryByteSize = 256);
-		bool Create(const std::string& sharedMemoryName, const int memoryByteSize = 256);
 		bool IsOpen();
 
 
