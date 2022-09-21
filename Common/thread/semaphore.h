@@ -13,7 +13,7 @@ namespace common
 	class cSemaphore
 	{
 	public:
-		cSemaphore(const int initialCount = 0);
+		cSemaphore(const int initialCount = 0, const string &name = "");
 		virtual ~cSemaphore();
 		void Wait();
 		void Signal(const int count = 1);
@@ -22,10 +22,13 @@ namespace common
 		HANDLE m_handle;
 	};
 
-	inline cSemaphore::cSemaphore(const int initialCount //= 0
+	inline cSemaphore::cSemaphore(
+		const int initialCount //= 0
+		, const string& name //= ""
 	) {
 		assert(initialCount >= 0);
-		m_handle = CreateSemaphore(NULL, initialCount, MAXLONG, NULL);
+		m_handle = CreateSemaphoreA(nullptr, initialCount, MAXLONG
+			, name.empty()? nullptr : name.c_str());
 	}
 
 	inline cSemaphore::~cSemaphore() {

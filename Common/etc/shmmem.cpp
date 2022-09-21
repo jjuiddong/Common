@@ -16,7 +16,7 @@ cShmmem::~cShmmem()
 }
 
 
-// create shared memory
+// create shared memory (open or create)
 bool cShmmem::Init(const std::string &sharedMemoryName, const int memoryByteSize)
 {
 	using namespace boost::interprocess;
@@ -36,7 +36,56 @@ bool cShmmem::Init(const std::string &sharedMemoryName, const int memoryByteSize
 		ss << e.what() << std::endl;
 		ss << "Shared Memory Error!!";
 		dbg::ErrLog(ss.str().c_str());
-		//::AfxMessageBox(str2wstr(ss.str()).c_str());
+		m_memPtr = nullptr;
+		m_memoryByteSyze = 0;
+		return false;
+	}
+
+	return true;
+}
+
+
+// open shared memory
+bool cShmmem::Open(const std::string& sharedMemoryName, const int memoryByteSize)
+{
+	using namespace boost::interprocess;
+
+	m_memoryByteSyze = memoryByteSize;
+
+	try
+	{
+		m_sharedmem = windows_shared_memory(open_only, sharedMemoryName.c_str()
+			, read_write);
+		m_mmap = mapped_region(m_sharedmem, read_write, 0, memoryByteSize);
+		m_memPtr = static_cast<BYTE*>(m_mmap.get_address());
+	}
+	catch (...)
+	{
+		m_memPtr = nullptr;
+		m_memoryByteSyze = 0;
+		return false;
+	}
+
+	return true;
+}
+
+
+// open shared memory
+bool cShmmem::Create(const std::string& sharedMemoryName, const int memoryByteSize)
+{
+	using namespace boost::interprocess;
+
+	m_memoryByteSyze = memoryByteSize;
+
+	try
+	{
+		m_sharedmem = windows_shared_memory(create_only, sharedMemoryName.c_str()
+			, read_write, memoryByteSize);
+		m_mmap = mapped_region(m_sharedmem, read_write, 0, memoryByteSize);
+		m_memPtr = static_cast<BYTE*>(m_mmap.get_address());
+	}
+	catch (...)
+	{
 		m_memPtr = nullptr;
 		m_memoryByteSyze = 0;
 		return false;

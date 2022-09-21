@@ -13,14 +13,14 @@ namespace common
 	public:
 		cMutex(const StrId &name) 
 			: m_name(name) 
-			, m_mutex(NULL) {
+			, m_mutex(nullptr) {
 		}
 
 		virtual ~cMutex() {
 			if (m_mutex)
 			{
 				CloseHandle(m_mutex);
-				m_mutex = NULL;
+				m_mutex = nullptr;
 			}
 		}
 
@@ -33,7 +33,7 @@ namespace common
 				if (m_mutex)
 					break;
 				else
-					m_mutex = CreateMutexA(NULL, TRUE, m_name.c_str());
+					m_mutex = CreateMutexA(nullptr, TRUE, m_name.c_str());
 
 				if (!m_mutex)
 					return false;
