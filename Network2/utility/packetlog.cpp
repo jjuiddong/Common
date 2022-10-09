@@ -374,7 +374,7 @@ int cPacketLog::Load()
 	}
 
 	const std::streampos p0 = ifs.tellg();
-	const uint cpySize = std::min(remainSize, (uint)(m_fileSize - m_readPos));
+	const uint cpySize = (uint)std::min((uint64)remainSize, m_fileSize - m_readPos);
 	if (cpySize > 0)
 		ifs.read((char*)m_buffer + writeCursor, cpySize);
 	const std::streampos p1 = ifs.tellg();
