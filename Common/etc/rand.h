@@ -15,7 +15,9 @@ namespace common
 	//return a random integer between x and y
 	inline int randint(int x, int y) 
 	{ 
-		return rand() % (y - x + 1) + x; 
+		const int p = (y - x + 1) + x;
+		RETV(p <= 0, x);
+		return rand() % p;
 	}
 
 	//returns a random bool

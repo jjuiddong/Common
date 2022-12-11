@@ -3,6 +3,9 @@
 // pathfinder2
 //	- upgrade pathfinder
 //
+// 2022-12-08
+//	- add targetting move algorithm
+//
 #pragma once
 
 
@@ -49,10 +52,24 @@ namespace ai
 			}
 		};
 
-		//typedef vector<Vector3> ppath;	// position path
-		//typedef vector<uint> vpath;		// vertex index path
-		//typedef vector<sEdge> epath;	// edge path
+		// path finding object target information
+		struct sTarget
+		{
+			float radius; // target range
+			Vector3 target; // target position
+			Vector3 dir; // initial object direction
+		};
 
+		// arrive target process argument
+		struct sTargetArg
+		{
+			uint startIdx; // start vertex index
+			uint endIdx; // destination vertex index
+			uint from; // from vertex index
+			uint to; // to vertex index
+			float targetDist; // object to target distance (to optimize)
+			const sTarget* target;
+		};
 
 		cPathFinder2();
 		virtual ~cPathFinder2();
@@ -65,15 +82,17 @@ namespace ai
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
-			, OUT vector<Vector3> &out
-			, const set<sEdge> *disableEdges = nullptr
-			, OUT vector<uint> *outTrackVertexIndices = nullptr
-			, OUT vector<sEdge> *outTrackEdges = nullptr
+			, OUT vector<Vector3>& out
+			, const set<sEdge>* disableEdges = nullptr
+			, OUT vector<uint>* outTrackVertexIndices = nullptr
+			, OUT vector<sEdge>* outTrackEdges = nullptr
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<uint> &out
 			, const set<sEdge> *disableEdges = nullptr
+			, const bool isChangeDirPenalty = false
+			, const sTarget *target = nullptr
 		);
 
 		int GetNearestVertex(const Vector3 &pos) const;
@@ -86,19 +105,16 @@ namespace ai
 		bool RemoveVertex(const uint vtxIdx);
 		sVertex* GetVertexByIndex(const uint vtxIdx);
 		sVertex* GetVertexByName(const Str16 &name);
-		//sVertex* GetVertexByID(const int id);
 		int GetVertexIndexByName(const Str16 &name) const;
-		//int GetVertexIndexByID(const int id);
 		void ReservedVertexBuffer(const uint vertexCount);
 		void Clear();
 
 
+	protected:
+		inline int ArriveTarget(sTargetArg &arg);
+
 	public:
 		vector<sVertex> m_vertices;
-		//map<int, uint> m_vtxMap; // vertex id-index mapping
-		//						 // to fast search vertex array
-		//						 // key: vertex name (number only)
-		//					     // value: m_vertices index
 	};
 
 }

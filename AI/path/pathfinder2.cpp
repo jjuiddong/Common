@@ -70,9 +70,12 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 
 // find path, a-star algorithm
 // reference: http://www.gisdeveloper.co.kr/?p=3897
+// isChangeDirPenalty: add change direction penalty?
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<uint> &out
 	, const set<sEdge> *disableEdges //= nullptr
+	, const bool isChangeDirPenalty //= false
+	, const sTarget* target //= nullptr
 )
 {
 	if (startIdx == endIdx)
@@ -95,17 +98,47 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 
 	sNode start;
 	start.idx = startIdx;
-	start.prev = -1;
+	start.prev = UINT_MAX;
 	start.len = 0;
 	start.tot = 0;
 	close.push_back(start);
 	cset.insert(startIdx);
 
+	sTargetArg arg;
+	if (target)
+	{
+		arg.startIdx = startIdx;
+		arg.endIdx = endIdx;
+		arg.targetDist = target->target.Length();
+		arg.target = target;
+	}
+
 	bool isFind = false; // find path?
 	while (1)
 	{
 		const sNode &node = close.back();
-		if (node.idx == endIdx)
+
+		// target process?
+		if (target)
+		{
+			arg.from = node.prev;
+			arg.to = node.idx;
+			const int res = ArriveTarget(arg);
+			if ((1 == res) || (2 == res))
+			{
+				if (2 == res)
+				{
+					for (int i = (close.size() - 1); i >= 0; --i)
+					{
+						if (close.back().idx == arg.from) break;
+						close.pop_back();
+					}
+				}
+				isFind = true;
+				break;
+			}
+		}
+		else if (node.idx == endIdx)
 		{
 			isFind = true;
 			break; // finish
@@ -119,6 +152,19 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 				continue;
 
 			const sVertex &vtx1 = m_vertices[tr.to];
+
+			// calc direction change penalty
+			float penalty = 0.f;
+			if (isChangeDirPenalty && (UINT_MAX != node.prev))
+			{
+				const sVertex& vtx2 = m_vertices[node.prev];
+				const Vector3 dir0 = (vtx0.pos - vtx2.pos).Normal();
+				const Vector3 dir1 = (vtx1.pos - vtx0.pos).Normal();
+				if (dir0.DotProduct(dir1) < 0.7f)
+					penalty = 2.0f;
+			}
+			//~
+
 			const auto it1 = oset.find(tr.to);
 			if (oset.end() != it1)
 			{
@@ -136,8 +182,8 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 				}
 
 				// update node info?
-				const float len = node.len + tr.distance;
-				const float tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos);
+				const float len = node.len + tr.distance + penalty;
+				const float tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos) + penalty;
 				if (tot < n->tot)
 				{
 					n->prev = node.idx;
@@ -150,8 +196,8 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 				sNode n;
 				n.idx = tr.to;
 				n.prev = node.idx;
-				n.len = node.len + tr.distance;
-				n.tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos);
+				n.len = node.len + tr.distance + penalty;
+				n.tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos) + penalty;
 				open.push_back(n);
 				oset.insert(tr.to);
 			}
@@ -192,6 +238,59 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 }
 
 
+// check arrive target position
+// arge: argument
+// return:	0 = no destination
+//			1 = to destination
+//			2 = from destination
+inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
+{
+	const Vector3& destPos = m_vertices[arg.endIdx].pos;
+	const Vector3& toPos = m_vertices[arg.to].pos;
+	Vector3 frPos;
+	Vector3 objDir;
+
+	if (UINT_MAX == arg.from)
+	{
+		frPos = toPos;
+		objDir = (destPos - toPos).Normal();
+	}
+	else
+	{
+		frPos = m_vertices[arg.from].pos;
+		objDir = (toPos - frPos).Normal();
+	}
+
+	if ((destPos.Distance(frPos) > arg.targetDist)
+		&& (destPos.Distance(toPos) > arg.targetDist))
+		return 0;
+
+	// tricky code: only support OpenGL space
+	// OpenGL -> DX
+	const Vector3 f = arg.target->dir.ToOpenGL();// (arg.target->dir.x, arg.target->dir.y, -arg.target->dir.z);
+	const Vector3 dir = objDir.ToOpenGL();// (objDir.x, objDir.y, -objDir.z);
+	const Vector3 local = arg.target->target.ToOpenGL();// (arg.target->target.x, arg.target->target.y, -arg.target->target.z);
+	Quaternion rot;
+	rot.SetRotationArc(f, dir);
+	const Vector3 localTarget = local * rot;
+	const Vector3 target = toPos + localTarget.ToOpenGL();// Vector3(localTarget.x, localTarget.y, -localTarget.z);
+
+	const float dist1 = destPos.Distance(target);
+	if (dist1 <= arg.target->radius)
+		return 1; // destination
+
+	if (UINT_MAX == arg.from) 
+		return 0;
+
+	const Vector3 target2 = frPos + localTarget;
+	const float dist2 = destPos.Distance(target2);
+	if (dist2 <= arg.target->radius)
+		return 2; // destination from node
+
+	return 1;
+}
+
+
 // return = minimum( distance(pos, nearest vertex) )
 //		    return vertex index
 int cPathFinder2::GetNearestVertex(const Vector3 &pos) const
@@ -221,7 +320,6 @@ uint cPathFinder2::AddVertex(const sVertex &vtx)
 	const uint idx = m_vertices.size() - 1;
 	const int id = atoi(vtx.name.c_str());
 	m_vertices[idx].id = id;
-	//m_vtxMap[id] = idx;
 	return idx;
 }
 
@@ -302,17 +400,7 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 				--tr.to;
 
 	// remove index vertex
-	//common::rotatepopvector(m_vertices, vtxIdx);
 	removevector2(m_vertices, vtxIdx);
-
-	// update vertex id-index mapping
-	//m_vtxMap.clear();
-	//for (uint i=0; i < m_vertices.size(); ++i)
-	//{
-	//	auto &vtx = m_vertices[i];
-	//	m_vtxMap[vtx.id] = i;
-	//}
-
 	return true;
 }
 
@@ -336,16 +424,6 @@ cPathFinder2::sVertex* cPathFinder2::GetVertexByName(const Str16 &name)
 }
 
 
-// return vertex by id
-//cPathFinder2::sVertex* cPathFinder2::GetVertexByID(const int id)
-//{
-//	const int idx = GetVertexIndexByID(id);
-//	if (idx < 0)
-//		return nullptr;
-//	return &m_vertices[idx];
-//}
-
-
 // return vertex index from name
 // if not found, return -1
 int cPathFinder2::GetVertexIndexByName(const Str16 &name) const
@@ -360,17 +438,6 @@ int cPathFinder2::GetVertexIndexByName(const Str16 &name) const
 	}
 	return -1;
 }
-
-
-// return vertex index by vertex id
-//		  -1:not found
-//int cPathFinder2::GetVertexIndexByID(const int id)
-//{
-//	auto it = m_vtxMap.find(id);
-//	if (m_vtxMap.end() == it)
-//		return -1;
-//	return it->second;
-//}
 
 
 // reserver vertex buffer

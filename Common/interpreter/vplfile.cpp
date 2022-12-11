@@ -880,11 +880,12 @@ bool cVplFile::Node_GenCode2(const sNode &prevNode, const sNode &node
 	case eNodeType::Function:
 	case eNodeType::Control:
 	case eNodeType::Variable: 
-	case eNodeType::Event: break;
+	case eNodeType::Event: 
+	case eNodeType::Widget: break;
 	default:
 		common::dbg::Logc(1
-			, "Error!! cVplFile::Node_GenCode2(), node type is invalid %d\n"
-			, node.type);
+			, "Error!! cVplFile::Node_GenCode2(), %s, node type is invalid %d\n"
+			, m_fileName.c_str(), node.type);
 		return false; // nothing generate this type
 	}
 	return true;
