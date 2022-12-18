@@ -40,6 +40,7 @@ namespace common
 		void SetCenter(const Vector3 &pos);
 		void Scale(const Vector3 &scale);
 		float GetScale() const;
+		Vector3 GetExtents() const;
 		Vector3 GetDimension() const;
 		XMMATRIX GetMatrixXM() const;
 		Matrix44 GetMatrix() const;

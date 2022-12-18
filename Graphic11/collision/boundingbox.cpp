@@ -320,7 +320,15 @@ float cBoundingBox::GetScale() const
 }
 
 
-// return x,y,z dimension
+// return extents
+Vector3 cBoundingBox::GetExtents() const
+{
+	Vector3 scale = *(Vector3*)&m_bbox.Extents;
+	return scale;
+}
+
+
+// return x,y,z dimension with rotation
 Vector3 cBoundingBox::GetDimension() const 
 {
 	Vector3 scale = *(Vector3*)&m_bbox.Extents;

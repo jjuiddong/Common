@@ -47,7 +47,11 @@ Quaternion::Quaternion( const Vector3& vDir1, const Vector3& vDir2 )
 {
 	SetRotationArc( vDir1, vDir2 );
 } //Quaternion::Quaternion
-
+Quaternion::Quaternion(const Vector3& vDir1, const Vector3& vDir2, const Vector3& norm)
+{
+	SetRotationArc(vDir1, vDir2, norm);
+	Normalize();
+}
 //--------------------------------
 //
 //--------------------------------
@@ -315,6 +319,7 @@ void Quaternion::SetRotationArc(const Vector3& v0, const Vector3& v1, const Vect
 		// 두 벡터에 직교하는 벡터 norm 에서 180도 회전하거나, 회전하지 않거나
 		// 결정한다.
 		*this = Quaternion(norm, v0.DotProduct(v1) > 0 ? 0 : MATH_PI);
+		Normalize();
 		return;
 	}
 
@@ -325,6 +330,7 @@ void Quaternion::SetRotationArc(const Vector3& v0, const Vector3& v1, const Vect
 	y = vCross.y / s;
 	z = vCross.z / s;
 	w = s * 0.5f;
+	Normalize();
 } //Quaternion::SetRotationArc
 
 

@@ -16,6 +16,7 @@ namespace common
 		Quaternion( const float fX, const float fY, const float fZ, const float fW );
 		Quaternion( const Vector3& vAxis, const float fAngle );
 		Quaternion( const Vector3& vDir1, const Vector3& vDir2 );
+		Quaternion(const Vector3& vDir1, const Vector3& vDir2, const Vector3 &norm);
 
 		Quaternion& operator *= ( const Quaternion& q )
 		{
