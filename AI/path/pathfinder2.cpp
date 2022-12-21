@@ -281,7 +281,7 @@ inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
 
 	if (UINT_MAX != arg.from)
 	{
-		const Vector3 target2 = frPos + localTarget;
+		const Vector3 target2 = frPos + localTarget.ToOpenGL();
 		const float dist2 = destPos.Distance(target2);
 		if (dist2 <= arg.target->radius)
 			return 2; // destination from node
@@ -299,7 +299,7 @@ inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
 
 	if (UINT_MAX != arg.from)
 	{
-		const Vector3 target4 = frPos + localTarget2;
+		const Vector3 target4 = frPos + localTarget2.ToOpenGL();
 		const float dist4 = destPos.Distance(target4);
 		if (dist4 <= arg.target->radius)
 			return 2; // destination from node

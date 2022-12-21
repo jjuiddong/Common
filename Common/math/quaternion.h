@@ -57,6 +57,7 @@ namespace common
 		const Quaternion& Normalize();
 		Quaternion Normal() const;
 		Quaternion Inverse() const;
+		Quaternion ToOpenGL() const;
 
 		float GetRotationAngleXZ() const;
 

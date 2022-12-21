@@ -409,6 +409,12 @@ Quaternion Quaternion::Inverse() const
 	return Quaternion(-x, -y, -z, w);
 }
 
+// https://gamedev.net/forums/topic/555078-convert-quaternions-from-d3d-to-opengl/4566316/
+Quaternion Quaternion::ToOpenGL() const
+{
+	return Quaternion(x, y, z, -w);
+}
+
 
 /** @brief Returns an equivalent euler angle representation of
 	* this quaternion.
