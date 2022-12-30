@@ -35,6 +35,7 @@ namespace common
 				StrId name;
 				float interval; // seconds unit
 				float t; // decrease time, seconds unit
+				bool isLoop;
 			};
 
 			cVirtualMachine(const string &name);
@@ -48,7 +49,7 @@ namespace common
 			bool Resume();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
-			bool SetTimer(const int timerId, const int timeMillis);
+			bool SetTimer(const int timerId, const int timeMillis, const bool isLoop = false);
 			bool StopTimer(const int timerId);
 			bool StopTick(const int tickId);
 			void SetCodeTrace(const bool isCodeTrace);

@@ -202,7 +202,9 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 
 
 // set timer
-bool cVirtualMachine::SetTimer(const int timerId, const int timeMillis)
+bool cVirtualMachine::SetTimer(const int timerId, const int timeMillis
+	, const bool isLoop //= false
+)
 {
 	if (m_timerId.empty())
 		return false; // error, no has timer event code block
@@ -216,7 +218,9 @@ bool cVirtualMachine::SetTimer(const int timerId, const int timeMillis)
 		{ timerId
 		, common::format("timer%d", timerId) // timer name
 		, timeMillis / 1000.f // timer interval (convert seconds unit)
-		, (float)timeMillis / 1000.f } // timer decrease time (convert seconds unit)
+		, (float)timeMillis / 1000.f  // timer decrease time (convert seconds unit)
+		, isLoop // continuous call timer event?
+		}
 	);
 	return true;
 }
@@ -379,7 +383,10 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 				const string scopeName = (m_timerId + "::id").c_str();
 				PushEvent(cEvent(m_timerId, { {scopeName, timer.id} }));
 
-				it = m_timers.erase(it); // remove this timer
+				if (timer.isLoop)
+					++it; // no remove
+				else
+					it = m_timers.erase(it); // remove this timer
 			}
 			else
 			{

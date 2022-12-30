@@ -6,8 +6,66 @@ using namespace common;
 using namespace common::script;
 
 
+// script function handler
+eModuleResult ToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void *arg);
+eModuleResult ToNumber(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult ToBoolean(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult CastToBoolean(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult CastToNumber(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult CastToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult Floor(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult Ceil(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult Round(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult SetTimeOut(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult ClearTimeOut(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult SetInterval(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult ClearInterval(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult StopTick(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult ArrayFunction(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult MapFunction(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult FnVector3(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+
+
 cBasicModule::cBasicModule()
 {
+	m_fnMap.insert({ "ToString", ToString });
+	m_fnMap.insert({ "ToNumber", ToNumber});
+	m_fnMap.insert({ "ToBoolean", ToBoolean});
+	m_fnMap.insert({ "CastToBoolean", CastToBoolean});
+	m_fnMap.insert({ "CastToNumber", CastToNumber});
+	m_fnMap.insert({ "CastToString", CastToString});
+	m_fnMap.insert({ "Floor", Floor});
+	m_fnMap.insert({ "Ceil", Ceil});
+	m_fnMap.insert({ "Round", Round});
+	m_fnMap.insert({ "SetTimeOut", SetTimeOut});
+	m_fnMap.insert({ "SetTimer", SetTimeOut });
+	m_fnMap.insert({ "ClearTimeOut", ClearTimeOut });
+	m_fnMap.insert({ "StopTimer", ClearTimeOut });
+	m_fnMap.insert({ "SetInterval", SetInterval});
+	m_fnMap.insert({ "ClearInterval", ClearInterval });
+	m_fnMap.insert({ "StopTick", StopTick});
+	m_fnMap.insert({ "Stop Tick", StopTick });
+
+	m_fnMap.insert({ "Array.Get", ArrayFunction });
+	m_fnMap.insert({ "Array.Set", ArrayFunction });
+	m_fnMap.insert({ "Array.Push", ArrayFunction });
+	m_fnMap.insert({ "Array.Pop", ArrayFunction });
+	m_fnMap.insert({ "Array.Find", ArrayFunction });
+	m_fnMap.insert({ "Array.Size", ArrayFunction });
+	m_fnMap.insert({ "Array.Empty", ArrayFunction });
+	m_fnMap.insert({ "Array.Clear", ArrayFunction });
+	m_fnMap.insert({ "Array.Clone", ArrayFunction });
+
+	m_fnMap.insert({ "Map.Get", MapFunction });
+	m_fnMap.insert({ "Map.Set", MapFunction });
+	m_fnMap.insert({ "Map.Has", MapFunction });
+	m_fnMap.insert({ "Map.Size", MapFunction });
+	m_fnMap.insert({ "Map.Empty", MapFunction });
+	m_fnMap.insert({ "Map.Clear", MapFunction });
+	m_fnMap.insert({ "Map.Clone", MapFunction });
+
+	m_fnMap.insert({ "Vector3", FnVector3 });
+
 }
 
 cBasicModule::~cBasicModule()
@@ -19,182 +77,226 @@ cBasicModule::~cBasicModule()
 eModuleResult cBasicModule::Execute(cVirtualMachine &vm
 	, const string &scopeName, const string &funcName)
 {
-	script::cSymbolTable &symbolTable = vm.m_symbTable;
-
-	if (funcName == "ToString")
-	{
-		script::sVariable *var = symbolTable.FindVarInfo(scopeName, "in");
-		if (var)
-		{
-			const string str = common::variant2str(var->var);
-			symbolTable.Set<string>(scopeName, "out", str, "string");
-		}
-		else
-		{
-			// exception process
-			symbolTable.Set<string>(scopeName, "out", "null", "string");
-		}
-		return eModuleResult::Done;
-	}
-	else if (funcName == "ToNumber")
-	{
-		script::sVariable *var = symbolTable.FindVarInfo(scopeName, "string");
-		if (var)
-		{
-			const string str = common::variant2str(var->var);
-			symbolTable.Set<float>(scopeName, "out", (float)atof(str.c_str()), "float");
-		}
-		else
-		{
-			// exception process
-			symbolTable.Set<float>(scopeName, "out", 0.f, "float");
-		}
-		return eModuleResult::Done;
-	}
-	else if (funcName == "ToBoolean")
-	{
-		script::sVariable *var = symbolTable.FindVarInfo(scopeName, "string");
-		if (var)
-		{
-			const string str = common::trim2(common::variant2str(var->var));
-			const bool res = str.empty() || (str == "0") || (str == "false")
-				|| (str == "FALSE");
-			symbolTable.Set<bool>(scopeName, "out", !res, "bool");
-		}
-		else
-		{
-			// exception process
-			symbolTable.Set<bool>(scopeName, "out", false, "bool");
-		}
-		return eModuleResult::Done;
-	}
-	else if (funcName == "CastToBoolean")
-	{
-		script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
-		if (var)
-			symbolTable.Set<bool>(scopeName, "out", (bool)var->var, "bool");
-		else
-			symbolTable.Set<bool>(scopeName, "out", false, "bool"); // exception process
-		return eModuleResult::Done;
-	}
-	else if (funcName == "CastToNumber")
-	{
-		script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
-		if (var)
-			symbolTable.Set<float>(scopeName, "out", (float)var->var, "float");
-		else
-			symbolTable.Set<float>(scopeName, "out", 0.f, "float"); // exception process
-		return eModuleResult::Done;
-	}
-	else if (funcName == "CastToString")
-	{
-		script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
-		if (var)
-		{
-			const string str = common::variant2str(var->var);
-			symbolTable.Set<string>(scopeName, "out", str, "string");
-		}
-		else
-			symbolTable.Set<string>(scopeName, "out", "null", "string"); // exception process
-		return eModuleResult::Done;
-	}
-	else if (funcName == "Floor")
-	{
-		const float value = symbolTable.Get<float>(scopeName, "number");
-		symbolTable.Set<float>(scopeName, "out", floor(value), "float");
-		return eModuleResult::Done;
-	}
-	else if (funcName == "Ceil")
-	{
-		const float value = symbolTable.Get<float>(scopeName, "number");
-		symbolTable.Set<float>(scopeName, "out", ceil(value), "float");
-		return eModuleResult::Done;
-	}
-	else if (funcName == "Round")
-	{
-		const float value = symbolTable.Get<float>(scopeName, "number");
-		symbolTable.Set<float>(scopeName, "out", round(value), "float");
-		return eModuleResult::Done;
-	}
-	else if (funcName == "SetTimer")
-	{
-		const int id = symbolTable.Get<int>(scopeName, "id");
-		const int time = symbolTable.Get<int>(scopeName, "time ms"); // milliseconds
-		const bool result = vm.SetTimer(id, time);
-		symbolTable.Set<bool>(scopeName, "result", result, "bool");
-		return eModuleResult::Done;
-	}
-	else if ((funcName == "Stop Tick") || (funcName == "StopTick"))
-	{
-		const int id = symbolTable.Get<int>(scopeName, "id");
-		const bool result = vm.StopTick(id);
-		symbolTable.Set<bool>(scopeName, "result", result, "bool");
-		return eModuleResult::Done;
-	}
-	else if ((funcName == "Stop Timer") || (funcName == "StopTimer"))
-	{
-		const int id = symbolTable.Get<int>(scopeName, "id");
-		const bool result = vm.StopTimer(id);
-		symbolTable.Set<bool>(scopeName, "result", result, "bool");
-		return eModuleResult::Done;
-	}
-	else if ((funcName == "Array.Get")
-		|| (funcName == "Array.Set")
-		|| (funcName == "Array.Push")
-		|| (funcName == "Array.Pop")
-		|| (funcName == "Array.Find")
-		|| (funcName == "Array.Size")
-		|| (funcName == "Array.Empty")
-		|| (funcName == "Array.Clear")
-		|| (funcName == "Array.Clone"))
-	{
-		ArrayFunction(vm, scopeName, funcName);
-		return eModuleResult::Done;
-	}
-	else if ((funcName == "Map.Get")
-		|| (funcName == "Map.Set")
-		|| (funcName == "Map.Has")
-		|| (funcName == "Map.Size")
-		|| (funcName == "Map.Empty")
-		|| (funcName == "Map.Clear")
-		|| (funcName == "Map.Clone"))
-	{
-		MapFunction(vm, scopeName, funcName);
-		return eModuleResult::Done;
-	}
-	else if (funcName == "Vector3")
-	{
-		//const int id = symbolTable.Get<int>(scopeName, "id");
-		//const bool result = vm.StopTimer(id);
-		//symbolTable.Set<bool>(scopeName, "result", result, "bool");
-
-		const float x = symbolTable.Get<float>(scopeName, "x");
-		const float y = symbolTable.Get<float>(scopeName, "y");
-		const float z = symbolTable.Get<float>(scopeName, "z");
-		const vector<float> ar = { x, y, z };
-		symbolTable.Set(scopeName, "out", ar, "Array<Float>");
-
-		return eModuleResult::Done;
-	}
-
+	auto it = m_fnMap.find(funcName);
+	if (m_fnMap.end() != it)
+		return it->second(vm, scopeName, funcName, this);
 	return eModuleResult::NoHandler;
 }
 
 
-// Array.Get/Set/Push/Pop/Find/Size function process
-bool cBasicModule::ArrayFunction(script::cVirtualMachine &vm
-	, const string &scopeName, const string &funcName)
+// close module
+bool cBasicModule::CloseModule(cVirtualMachine &vm)
 {
-	script::cSymbolTable &symbolTable = vm.m_symbTable;
-	script::sVariable *var = symbolTable.FindVarInfo(scopeName, "array");
+	return true;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// script function handler
+
+// ToString
+eModuleResult ToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+	{
+		const string str = common::variant2str(var->var);
+		symbolTable.Set<string>(scopeName, "out", str, "string");
+	}
+	else
+	{
+		// exception process
+		symbolTable.Set<string>(scopeName, "out", "null", "string");
+	}
+	return eModuleResult::Done;
+}
+
+
+eModuleResult ToNumber(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "string");
+	if (var)
+	{
+		const string str = common::variant2str(var->var);
+		symbolTable.Set<float>(scopeName, "out", (float)atof(str.c_str()), "float");
+	}
+	else
+	{
+		// exception process
+		symbolTable.Set<float>(scopeName, "out", 0.f, "float");
+	}
+	return eModuleResult::Done;
+}
+
+
+eModuleResult ToBoolean(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "string");
+	if (var)
+	{
+		const string str = common::trim2(common::variant2str(var->var));
+		const bool res = str.empty() || (str == "0") || (str == "false")
+			|| (str == "FALSE");
+		symbolTable.Set<bool>(scopeName, "out", !res, "bool");
+	}
+	else
+	{
+		// exception process
+		symbolTable.Set<bool>(scopeName, "out", false, "bool");
+	}
+	return eModuleResult::Done;
+}
+
+
+eModuleResult CastToBoolean(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+		symbolTable.Set<bool>(scopeName, "out", (bool)var->var, "bool");
+	else
+		symbolTable.Set<bool>(scopeName, "out", false, "bool"); // exception process
+	return eModuleResult::Done;
+}
+
+
+eModuleResult CastToNumber(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+		symbolTable.Set<float>(scopeName, "out", (float)var->var, "float");
+	else
+		symbolTable.Set<float>(scopeName, "out", 0.f, "float"); // exception process
+	return eModuleResult::Done;
+}
+
+
+eModuleResult CastToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+	{
+		const string str = common::variant2str(var->var);
+		symbolTable.Set<string>(scopeName, "out", str, "string");
+	}
+	else
+		symbolTable.Set<string>(scopeName, "out", "null", "string"); // exception process
+	return eModuleResult::Done;
+}
+
+
+eModuleResult Floor(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const float value = symbolTable.Get<float>(scopeName, "number");
+	symbolTable.Set<float>(scopeName, "out", floor(value), "float");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult Ceil(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const float value = symbolTable.Get<float>(scopeName, "number");
+	symbolTable.Set<float>(scopeName, "out", ceil(value), "float");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult Round(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const float value = symbolTable.Get<float>(scopeName, "number");
+	symbolTable.Set<float>(scopeName, "out", round(value), "float");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult SetTimeOut(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int id = symbolTable.Get<int>(scopeName, "id");
+	const int time = symbolTable.Get<int>(scopeName, "time ms"); // milliseconds
+	const bool result = vm.SetTimer(id, time);
+	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult ClearTimeOut(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int id = symbolTable.Get<int>(scopeName, "id");
+	const bool result = vm.StopTimer(id);
+	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult SetInterval(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int id = symbolTable.Get<int>(scopeName, "id");
+	const int time = symbolTable.Get<int>(scopeName, "interval ms"); // milliseconds
+	const bool result = vm.SetTimer(id, time, true);
+	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult ClearInterval(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int id = symbolTable.Get<int>(scopeName, "id");
+	const bool result = vm.StopTimer(id);
+	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult StopTick(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int id = symbolTable.Get<int>(scopeName, "id");
+	const bool result = vm.StopTick(id);
+	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	return eModuleResult::Done;
+}
+
+
+eModuleResult FnVector3(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const float x = symbolTable.Get<float>(scopeName, "x");
+	const float y = symbolTable.Get<float>(scopeName, "y");
+	const float z = symbolTable.Get<float>(scopeName, "z");
+	const vector<float> ar = { x, y, z };
+	symbolTable.Set(scopeName, "out", ar, "Array<Float>");
+
+	return eModuleResult::Done;
+}
+
+
+// Array.Get/Set/Push/Pop/Find/Size function process
+eModuleResult ArrayFunction(script::cVirtualMachine& vm
+	, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "array");
 	if (!var) {
 		symbolTable.Set<bool>(scopeName, "out", false);
-		return true; // error, not found array
+		return eModuleResult::Done; // error, not found array
 	}
 
 	int index = 0;
 	const int varId = var->var.intVal;
-	script::sVariable *srcVar = nullptr;
+	script::sVariable* srcVar = nullptr;
 
 	auto it = symbolTable.m_varMap.find(varId);
 	if (symbolTable.m_varMap.end() == it)
@@ -259,7 +361,7 @@ bool cBasicModule::ArrayFunction(script::cVirtualMachine &vm
 		symbolTable.CopyArray(scopeName, "out", srcVar->var);
 	}
 
-	return true;
+	return eModuleResult::Done;
 
 
 $error:
@@ -292,25 +394,25 @@ $error:
 	{
 		// nonthing
 	}
-	return true;
+	return eModuleResult::Done;
 }
 
 
 // Map.Get/Set/Has/Size/Clear function process
-bool cBasicModule::MapFunction(script::cVirtualMachine &vm
-	, const string &scopeName, const string &funcName)
+eModuleResult MapFunction(script::cVirtualMachine& vm
+	, const string& scopeName, const string& funcName, void* arg)
 {
 	using namespace common::script;
-	script::cSymbolTable &symbolTable = vm.m_symbTable;
-	script::sVariable *var = symbolTable.FindVarInfo(scopeName, "map");
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "map");
 	if (!var) {
 		symbolTable.Set<bool>(scopeName, "out", false, "bool");
-		return true; // error, not found map
+		return eModuleResult::Done; // error, not found map
 	}
 
 	string key;
 	const int varId = var->var.intVal;
-	sVariable *mapVar = nullptr;
+	sVariable* mapVar = nullptr;
 	string mapScopeName, mapVarName;
 	eSymbolType::Enum valueType; // map value type
 
@@ -361,7 +463,7 @@ bool cBasicModule::MapFunction(script::cVirtualMachine &vm
 		symbolTable.CopyMap(scopeName, "out", mapVar->var);
 	}
 
-	return true;
+	return eModuleResult::Done;
 
 
 $error:
@@ -391,12 +493,5 @@ $error:
 		// nothing
 	}
 
-	return true;
-}
-
-
-// close module
-bool cBasicModule::CloseModule(cVirtualMachine &vm)
-{
-	return true;
+	return eModuleResult::Done;
 }

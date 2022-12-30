@@ -9,6 +9,16 @@
 
 namespace common
 {
+
+	// script function handling function
+	typedef script::eModuleResult (*ModuleFunc) (
+		script::cVirtualMachine& vm
+		, const string& scopeName
+		, const string& funcName
+		, void *arg
+		);
+
+
 	class cBasicModule : public script::iModule
 	{
 	public:
@@ -21,10 +31,7 @@ namespace common
 		virtual bool CloseModule(script::cVirtualMachine &vm) override;
 
 
-	protected:
-		bool ArrayFunction(script::cVirtualMachine &vm
-			, const string &scopeName, const string &funcName);
-		bool MapFunction(script::cVirtualMachine &vm
-			, const string &scopeName, const string &funcName);
+	public:
+		map<string, ModuleFunc> m_fnMap;
 	};
 }
