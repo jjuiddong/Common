@@ -1953,7 +1953,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 		MathInput_GenCode(node, code, out);
 		opType = 0;
 	}
-	else if (node.name == "!")
+	else if ((node.name == "!") || (node.name == "not"))
 	{
 		script::sInstruction code;
 		code.cmd = script::eCommand::negate;
