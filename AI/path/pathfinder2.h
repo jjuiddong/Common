@@ -5,6 +5,10 @@
 //
 // 2022-12-08
 //	- add targetting move algorithm
+// 
+// 2023-01-10
+//	- rename transition -> edge
+//	- curve edge information
 //
 #pragma once
 
@@ -15,14 +19,28 @@ namespace ai
 	class cPathFinder2
 	{
 	public:
-		struct sTransition
+		struct sEdge
 		{
 			uint to; // link vertex index
 			float distance; // two vertex distance
 			float w; // weight
 			int prop; // property, bidirection?
 			int toWaypoint; // direction waypoint id
-			bool enable; // transition enable/disable
+			bool enable; // edge enable/disable
+
+			// direction
+			Vector3 dir0; // out direction from current vertex
+			Vector3 dir1; // in direction to next to-vertex
+
+			// curve edge information
+			bool isCurve; // curve edge?
+			float curveAngle; // bezier curve angle, opengl space, 0>angle:left, 0>angle:right
+			float curveDist; // bezier two control point distance
+			int dirFrVtxIdx; // edge from vertex index to determine curve direction
+			vector<Vector3> bezier; // bezier curve position list
+			vector<float> bezierLens; // bezier curve length list
+
+			sEdge() : isCurve(false) {}
 		};
 
 		struct sVertex
@@ -31,23 +49,23 @@ namespace ai
 			int type;
 			Str16 name; // number string
 			Vector3 pos;
-			vector<sTransition> trs;
+			vector<sEdge> edges;
 			bool avoidable; // is avoidable?
 			bool visit; // use internal
 
 			sVertex() : avoidable(true) {}
 		};
 
-		struct sEdge
+		struct sEdge2
 		{
 			int from, to; // sVertex Index
 
-			sEdge() : from(0), to(0) {}
-			sEdge(int _from, int _to) : from(_from), to(_to) {}
-			bool operator==(const sEdge &rhs) const {
+			sEdge2() : from(0), to(0) {}
+			sEdge2(int _from, int _to) : from(_from), to(_to) {}
+			bool operator==(const sEdge2&rhs) const {
 				return (from == rhs.from) && (to == rhs.to);
 			}
-			bool operator<(const sEdge &rhs) const {
+			bool operator<(const sEdge2&rhs) const {
 				return (from < rhs.from) || ((from == rhs.from) && (to < rhs.to));
 			}
 		};
@@ -76,21 +94,21 @@ namespace ai
 
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
-			, const set<sEdge> *disableEdges = nullptr
+			, const set<sEdge2> *disableEdges = nullptr
 			, OUT vector<uint> *outTrackVertexIndices = nullptr
-			, OUT vector<sEdge> *outTrackEdges = nullptr
+			, OUT vector<sEdge2> *outTrackEdges = nullptr
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<Vector3>& out
-			, const set<sEdge>* disableEdges = nullptr
+			, const set<sEdge2>* disableEdges = nullptr
 			, OUT vector<uint>* outTrackVertexIndices = nullptr
-			, OUT vector<sEdge>* outTrackEdges = nullptr
+			, OUT vector<sEdge2>* outTrackEdges = nullptr
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<uint> &out
-			, const set<sEdge> *disableEdges = nullptr
+			, const set<sEdge2> *disableEdges = nullptr
 			, const bool isChangeDirPenalty = false
 			, const sTarget *target = nullptr
 		);
@@ -98,10 +116,13 @@ namespace ai
 		int GetNearestVertex(const Vector3 &pos) const;
 
 		uint AddVertex(const sVertex &vtx);
-		bool AddTransition(const uint fromVtxIdx, const uint toVtxIdx
+		bool AddEdge(const uint fromVtxIdx, const uint toVtxIdx
 			, const int prop = 0);
-		bool IsExistTransition(const uint fromVtxIdx, const uint toVtxIdx);
-		bool RemoveTransition(const uint fromVtxIdx, const uint toVtxIdx);
+		bool SetCurveEdge(const uint fromVtxIdx, const uint toVtxIdx
+			, const bool isCurve, const float angle, const float dist, const float arcLen
+			, const uint directionFrVtxIdx);
+		bool IsExistEdge(const uint fromVtxIdx, const uint toVtxIdx);
+		bool RemoveEdge(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveVertex(const uint vtxIdx);
 		sVertex* GetVertexByIndex(const uint vtxIdx);
 		sVertex* GetVertexByName(const Str16 &name);

@@ -18,9 +18,9 @@ cPathFinder2::~cPathFinder2()
 // find path
 bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 	, OUT vector<Vector3> &out
-	, const set<sEdge> *disableEdges //= nullptr
+	, const set<sEdge2> *disableEdges //= nullptr
 	, OUT vector<uint> *outTrackVertexIndices //= nullptr
-	, OUT vector<sEdge> *outTrackEdges //= nullptr
+	, OUT vector<sEdge2> *outTrackEdges //= nullptr
 )
 {
 	const int startIdx = GetNearestVertex(start);
@@ -37,9 +37,9 @@ bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 // find path
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<Vector3> &out
-	, const set<sEdge> *disableEdges //= nullptr
+	, const set<sEdge2> *disableEdges //= nullptr
 	, OUT vector<uint> *outTrackVertexIndices //= nullptr
-	, OUT vector<sEdge> *outTrackEdges //= nullptr
+	, OUT vector<sEdge2> *outTrackEdges //= nullptr
 )
 {
 	vector<uint> verticesIndices;
@@ -56,7 +56,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		{
 			const int from = verticesIndices[i];
 			const int to = verticesIndices[i + 1];
-			outTrackEdges->push_back(sEdge(from, to));
+			outTrackEdges->push_back(sEdge2(from, to));
 		}
 	}
 
@@ -73,7 +73,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 // isChangeDirPenalty: add change direction penalty?
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<uint> &out
-	, const set<sEdge> *disableEdges //= nullptr
+	, const set<sEdge2> *disableEdges //= nullptr
 	, const bool isChangeDirPenalty //= false
 	, const sTarget* target //= nullptr
 )
@@ -145,7 +145,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		}
 
 		const sVertex &vtx0 = m_vertices[node.idx];
-		for (auto &tr : vtx0.trs)
+		for (auto &tr : vtx0.edges)
 		{
 			const auto it2 = cset.find(tr.to);
 			if (cset.end() != it2)
@@ -342,61 +342,96 @@ uint cPathFinder2::AddVertex(const sVertex &vtx)
 }
 
 
-// add transition
-// prop: transition property
-bool cPathFinder2::AddTransition(const uint fromVtxIdx, const uint toVtxIdx
+// add edge
+// prop: edge property
+bool cPathFinder2::AddEdge(const uint fromVtxIdx, const uint toVtxIdx
 	, const int prop //=0
 )
 {
 	RETV2((int)m_vertices.size() <= fromVtxIdx, false);
-	RETV(fromVtxIdx  == toVtxIdx, false);
+	RETV(fromVtxIdx == toVtxIdx, false);
 
 	sVertex &vtx = m_vertices[fromVtxIdx];
-	if (IsExistTransition(fromVtxIdx, toVtxIdx))
+	if (IsExistEdge(fromVtxIdx, toVtxIdx))
 		return false; // already linked
 
-	sTransition tr;
+	sEdge tr;
 	tr.to = toVtxIdx;
 	tr.distance = 1.f;
 	tr.w = 1.f;
 	tr.prop = prop;
 	tr.toWaypoint = 0;
 	tr.enable = true;
-	vtx.trs.push_back(tr);
+	tr.isCurve = false; // line type
+	tr.curveAngle = 0.f;
+	tr.curveDist = 0.f;
+	tr.dirFrVtxIdx = -1;
+	vtx.edges.push_back(tr);
 	return true;
 }
 
 
-// is exist same transition?
-bool cPathFinder2::IsExistTransition(const uint fromVtxIdx, const uint toVtxIdx)
+// set cuve edge
+// angle: 0 ~ 180 degree
+// directionFrVtxIdx: direction from vertex index (to determine curve direction)
+bool cPathFinder2::SetCurveEdge(const uint fromVtxIdx, const uint toVtxIdx
+	, const bool isCurve, const float angle, const float dist, const float arcLen
+	, const uint directionFrVtxIdx )
+{
+	RETV2((int)m_vertices.size() <= fromVtxIdx, false);
+	RETV2((int)m_vertices.size() <= toVtxIdx, false);
+	RETV(fromVtxIdx == toVtxIdx, false);
+
+	sVertex& vtx = m_vertices[fromVtxIdx];
+	for (auto &edge : vtx.edges) 
+	{
+		if (edge.to == toVtxIdx)
+		{
+			edge.isCurve = isCurve;
+			if (isCurve)
+			{
+				edge.curveAngle = angle;
+				edge.curveDist = dist;
+				edge.distance = arcLen;
+				edge.dirFrVtxIdx = directionFrVtxIdx;
+			}
+			break;
+		}
+	}
+	return true;
+}
+
+
+// is exist same edge?
+bool cPathFinder2::IsExistEdge(const uint fromVtxIdx, const uint toVtxIdx)
 {
 	RETV2((int)m_vertices.size() <= fromVtxIdx, false);
 	RETV(fromVtxIdx == toVtxIdx, false);
 	sVertex &vtx = m_vertices[fromVtxIdx];
-	for (auto &tr : vtx.trs)
+	for (auto &tr : vtx.edges)
 		if (tr.to == toVtxIdx)
 			return true;
 	return false;
 }
 
 
-// remove transition
-bool cPathFinder2::RemoveTransition(const uint fromVtxIdx, const uint toVtxIdx)
+// remove edge
+bool cPathFinder2::RemoveEdge(const uint fromVtxIdx, const uint toVtxIdx)
 {
 	RETV((int)m_vertices.size() <= fromVtxIdx, false);
 	sVertex &vtx = m_vertices[fromVtxIdx];
 	int idx = -1;
-	for (uint i = 0; i < vtx.trs.size(); ++i)
+	for (uint i = 0; i < vtx.edges.size(); ++i)
 	{
-		if (vtx.trs[i].to == toVtxIdx)
+		if (vtx.edges[i].to == toVtxIdx)
 		{
 			idx = (int)i;
 			break;
 		}
 	}
 	if (idx < 0)
-		return false; // not found transition
-	common::popvector(vtx.trs, idx);
+		return false; // not found edge
+	common::popvector(vtx.edges, idx);
 	return true;
 }
 
@@ -406,14 +441,14 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 {
 	// remove edge and decrease index if greater than remove index
 	for (auto &v : m_vertices)
-		for (uint i=0; i < v.trs.size(); ++i)
-			if (vtxIdx == v.trs[i].to)
+		for (uint i=0; i < v.edges.size(); ++i)
+			if (vtxIdx == v.edges[i].to)
 			{
-				common::popvector(v.trs, i);
+				common::popvector(v.edges, i);
 				break;
 			}
 	for (auto &v : m_vertices)
-		for (auto &tr : v.trs)
+		for (auto &tr : v.edges)
 			if (vtxIdx < (uint)tr.to)
 				--tr.to;
 

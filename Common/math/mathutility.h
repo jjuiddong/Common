@@ -90,6 +90,32 @@ namespace common
 		common::lerp(out, abbc, bccd, t);
 	}
 
+	// calc quadratic bezier arc length
+	// tricky code: calc 50% of bezier arc, and then x2
+	// points: quadratic bezier line, array[4]
+	// slice: bezier line slice count to calc arc length
+	inline float bezierLength(const vector<Vector3>& points, const int slice)
+	{
+		if (slice <= 0) return 0.f;
+		if (points.size() < 4) return 0.f;
+
+		const float inc = (1.0f / slice) * 0.5f;
+		float a = 0.f;
+		float length = 0.f;
+		Vector3 prev;
+		Vector3 pos;
+		for (int i = 0; i < slice + 1; ++i)
+		{
+			bezier(pos, points, a);
+			if (0 != i)
+				length += prev.Distance(pos);
+			prev = pos;
+			a += inc;
+		}
+		return length * 2.f;
+	}
+
+
 	// val : 0 ~ 1
 	template <class T>
 	inline T lerp(const T _min, const T _max, const T val)
