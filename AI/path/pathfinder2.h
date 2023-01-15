@@ -37,6 +37,7 @@ namespace ai
 			float curveAngle; // bezier curve angle, opengl space, 0>angle:left, 0>angle:right
 			float curveDist; // bezier two control point distance
 			int dirFrVtxIdx; // edge from vertex index to determine curve direction
+			vector<Vector3> ctrlPts; // quadratic bezier curve control position list size = 4
 			vector<Vector3> bezier; // bezier curve position list
 			vector<float> bezierLens; // bezier curve length list
 
@@ -114,6 +115,7 @@ namespace ai
 		);
 
 		int GetNearestVertex(const Vector3 &pos) const;
+		bool CreateEdgeMap();
 
 		uint AddVertex(const sVertex &vtx);
 		bool AddEdge(const uint fromVtxIdx, const uint toVtxIdx
@@ -130,12 +132,22 @@ namespace ai
 		void ReservedVertexBuffer(const uint vertexCount);
 		void Clear();
 
+		static float GetCurveEdgeDistance(const sEdge& edge, const Vector3& pos
+			, OUT float* ratio =nullptr);
+		static bool GetCurveEdgeMove(const sEdge& edge, const Vector3& pos
+			, const float dist
+			, OUT Vector3& outPos
+			, OUT Vector3& outDir);
 
 	protected:
 		inline int ArriveTarget(sTargetArg &arg);
 
 	public:
 		vector<sVertex> m_vertices;
+
+		// fast search from-to edge data, generate from CreateEdgeMap
+		// key: from-to vertex index, value: edge
+		map<std::pair<uint, uint>, sEdge*> m_edgeMap;
 	};
 
 }

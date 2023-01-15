@@ -330,6 +330,18 @@ int cPathFinder2::GetNearestVertex(const Vector3 &pos) const
 }
 
 
+// create edge map, direction map
+bool cPathFinder2::CreateEdgeMap()
+{
+	m_edgeMap.clear();
+
+	for (uint i = 0; i < m_vertices.size(); ++i)
+		for (auto &edge : m_vertices[i].edges)
+			m_edgeMap[{i, edge.to}] = &edge;
+	return true;
+}
+
+
 // add vertex
 // return vertex index
 uint cPathFinder2::AddVertex(const sVertex &vtx)
@@ -497,6 +509,241 @@ int cPathFinder2::GetVertexIndexByName(const Str16 &name) const
 void cPathFinder2::ReservedVertexBuffer(const uint vertexCount)
 {
 	m_vertices.reserve(vertexCount);
+}
+
+
+// return bezier curve edge remain distance
+// edge: bezier curve edge
+// pos: position on the bezier curve
+// ratio:	0.0 ~ 1.0, (move distance ratio)
+//			-1.0: no on the bezier curve
+float cPathFinder2::GetCurveEdgeDistance(const sEdge& edge, const Vector3& pos
+	, OUT float *ratio //=nullptr
+)
+{
+	if (edge.bezier.empty() || (edge.bezier.size() == 1))
+	{
+		if (edge.ctrlPts.empty())
+			return 0.f;
+		else
+			return edge.ctrlPts.back().Distance(pos);
+	}
+
+	float minDist = FLT_MAX;
+	uint idx = 0; // min distance index
+	for (uint i = 0; i < edge.bezier.size() - 1; ++i)
+	{
+		const Vector3 &p0 = edge.bezier[i];
+		const Vector3 &p1 = edge.bezier[i + 1];
+
+		const Line line(p0, p1);
+		const float d = line.GetDistance(pos);
+		if (d < minDist)
+		{
+			idx = i;
+			minDist = d;
+		}
+	}
+
+	const Vector3 &v1 = edge.bezier[idx + 1];
+	const float dist1 = v1.Distance(pos);
+	const float dist2 = edge.bezierLens.back() - edge.bezierLens[idx + 1];
+	float d = dist1 + dist2;
+
+	if (ratio)
+	{
+		const float totLen = edge.bezierLens.back();
+		if (totLen <= 0.f)
+		{
+			// exception process
+			*ratio = -1.f;
+			return 0.f;
+		}
+		else
+		{
+			if (dist1 > 0.15f)
+			{
+				// exception process
+				*ratio = -1.f;
+				return d;
+			}
+			*ratio = max(0.f, 1.f - (d / totLen));
+		}
+	}
+
+	return d;
+}
+
+
+// return next position on bezier curve path
+// edge: bezier curve edge
+// pos: current position
+// dist: current position moving distance
+// outPos: next moving pos on the bezier curve
+// outDir: next direction on the bezier curve
+// return: success?
+bool cPathFinder2::GetCurveEdgeMove(const sEdge& edge, const Vector3& pos
+	, const float dist
+	, OUT Vector3& outPos
+	, OUT Vector3& outDir)
+{
+	if (edge.bezier.empty() || edge.ctrlPts.empty())
+		return false;
+	if (edge.bezier.size() == 1)
+		return false;
+
+	float minDist = FLT_MAX;
+	uint idx = 0; // min distance index
+	for (uint i = 0; i < edge.bezier.size() - 1; ++i)
+	{
+		const Vector3& p0 = edge.bezier[i];
+		const Vector3& p1 = edge.bezier[i + 1];
+
+		const Line line(p0, p1);
+		const float d = line.GetDistance(pos);
+		if (d < minDist)
+		{
+			idx = i;
+			minDist = d;
+		}
+	}
+
+	float newDist = dist;
+	Vector3 newPos = pos;
+	if (0 == idx)
+	{
+		const Vector3& p0 = edge.bezier[idx];
+		const Vector3& p1 = edge.bezier[idx + 1];
+		const Vector3 curPos(pos.x, p0.y, pos.z);
+		const float d0 = p0.Distance(curPos);
+		const float d1 = p1.Distance(curPos);
+		Vector3 dir = (p1 - p0).Normal();
+		Vector3 dir0 = (p0 - curPos).Normal();
+		Vector3 dir1 = (p1 - curPos).Normal();
+		if (dir0.IsEmpty())
+			dir0 = dir;
+		if (dir1.IsEmpty())
+			dir1 = dir;
+
+		if (dir0.DotProduct(dir1) < 0.f)
+		{
+			// nothing to do
+		}
+		else
+		{
+			if (d0 < d1)
+			{
+				if (d0 > dist)
+				{
+					outPos = pos + dir0 * dist;
+					outDir = dir0;
+					return true; // finish
+				}
+				else
+				{
+					newDist = dist - d0;
+					newPos = Vector3(p0.x, pos.y, p0.z);
+				}
+			}
+			else
+			{
+				if (d1 < dist)
+				{
+					outPos = pos + dir1 * dist;
+					outDir = dir1;
+					return true; // finish
+				}
+				else
+				{
+					newDist = dist - d1;
+					newPos = Vector3(p1.x, pos.y, p1.z);
+				}
+			}
+		}
+	}
+	else if ((edge.bezier.size() - 2) == idx)
+	{
+		const Vector3& p0 = edge.bezier[idx];
+		const Vector3& p1 = edge.bezier[idx + 1];
+		const Vector3 curPos(pos.x, p0.y, pos.z);
+		const float d0 = p0.Distance(curPos);
+		const float d1 = p1.Distance(curPos);
+		const Vector3 dir0 = (p0 - curPos).Normal();
+		const Vector3 dir1 = (p1 - curPos).Normal();
+
+		if (dir0.DotProduct(dir1) < 0.f)
+		{
+			// nothing to do
+		}
+		else
+		{
+			if (d0 < d1)
+			{
+				if (d0 > dist)
+				{
+					outPos = pos + dir0 * dist;
+					outDir = dir0;
+					return true; // finish
+				}
+				else
+				{
+					newDist = dist - d0;
+					newPos = Vector3(p0.x, pos.y, p0.z);
+				}
+			}
+			else
+			{
+				if (d1 < dist)
+				{
+					outPos = pos + dir1 * dist;
+					outDir = dir1;
+					return true; // finish
+				}
+				else
+				{
+					newDist = dist - d1;
+					newPos = Vector3(p1.x, pos.y, p1.z);
+				}
+			}
+		}
+	}
+
+	float ratio = 0.f;
+	{
+		const Vector3& p0 = edge.bezier[idx];
+		const Vector3& p1 = edge.bezier[idx + 1];
+		const float d1 = p0.Distance(newPos);
+		const float d2 = p1.Distance(newPos);
+		if (d1 + d2 == 0.f)
+			return false;
+		ratio = d1 / (d1 + d2);
+	}
+
+	const float lineDist = edge.bezierLens[idx + 1] - edge.bezierLens[idx];
+	const float len1 = lineDist * ratio;
+	const float moveLen = edge.bezierLens[idx] + len1 + newDist;
+
+	uint moveIdx = edge.bezierLens.size() - 1;
+	for (uint i = idx + 1; i < edge.bezierLens.size(); ++i)
+	{
+		if (edge.bezierLens[i] > moveLen)
+		{
+			moveIdx = i;
+			break;
+		}
+	}
+
+	{
+		const float offsetLen = moveLen - edge.bezierLens[moveIdx - 1];
+		const Vector3 &p0 = edge.bezier[moveIdx - 1];
+		const Vector3 &p1 = edge.bezier[moveIdx];
+		const Vector3 dir = (Vector3(p1.x,0.f,p1.z) - Vector3(p0.x,0.f,p0.z)).Normal();
+		outPos = p0 + dir * offsetLen;
+		outPos.y = newPos.y; // ignore y-axis
+		outDir = dir;
+	}
+
+	return true;
 }
 
 
