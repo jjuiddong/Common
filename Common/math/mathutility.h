@@ -210,4 +210,34 @@ namespace common
 		return len;
 	}
 
+
+	// return acceleration time to out speed
+	// v0: enterance speed
+	// v1: out speed
+	// a: acceleration
+	// dist: total moving distance
+	inline float GetAccelTime(const float v0, const float v1, const float a, 
+		const float dist)
+	{
+		const float A = a;
+		const float B = 2.f * v0;
+		const float C = (v0 * v0) / (2.f * a) - (v1 * v1) / (2.f * a) - dist;
+		// root's formula
+		const float X1 = (-B + sqrt(B * B - (4 * A * C))) / (2.0f * A);
+		const float X2 = (-B - sqrt(B * B - (4 * A * C))) / (2.0f * A);
+		const bool b1 = (X1 < 0.f);
+		const bool b2 = (X2 < 0.f);
+		const float t = (b1 && b2)? 0.f : (b1? X2 : X1);
+
+		// check
+		//const float vm = v0 + a * t;
+		//const float t1 = (vm - v1) / a;
+		//const float d1 = 0.5f * a * t * t + v0 * t;
+		//const float d2 = 0.5f * -a * t1 * t1 + vm * t1;
+		//const float vo = -a * t1 + vm;
+		//const float totDist = d1 + d2;
+		return t;
+	}
+
+
 }

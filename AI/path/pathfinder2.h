@@ -24,6 +24,7 @@ namespace ai
 			uint to; // link vertex index
 			float distance; // two vertex distance
 			float w; // weight
+			float speed; // maximum speed
 			int prop; // property, bidirection?
 			int toWaypoint; // direction waypoint id
 			bool enable; // edge enable/disable
@@ -119,7 +120,7 @@ namespace ai
 
 		uint AddVertex(const sVertex &vtx);
 		bool AddEdge(const uint fromVtxIdx, const uint toVtxIdx
-			, const int prop = 0);
+			, const int prop = 0, const float speed = 0.f);
 		bool SetCurveEdge(const uint fromVtxIdx, const uint toVtxIdx
 			, const bool isCurve, const float angle, const float dist, const float arcLen
 			, const uint directionFrVtxIdx);

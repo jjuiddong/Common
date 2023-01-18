@@ -358,6 +358,7 @@ uint cPathFinder2::AddVertex(const sVertex &vtx)
 // prop: edge property
 bool cPathFinder2::AddEdge(const uint fromVtxIdx, const uint toVtxIdx
 	, const int prop //=0
+	, const float speed //= 0.f
 )
 {
 	RETV2((int)m_vertices.size() <= fromVtxIdx, false);
@@ -367,18 +368,19 @@ bool cPathFinder2::AddEdge(const uint fromVtxIdx, const uint toVtxIdx
 	if (IsExistEdge(fromVtxIdx, toVtxIdx))
 		return false; // already linked
 
-	sEdge tr;
-	tr.to = toVtxIdx;
-	tr.distance = 1.f;
-	tr.w = 1.f;
-	tr.prop = prop;
-	tr.toWaypoint = 0;
-	tr.enable = true;
-	tr.isCurve = false; // line type
-	tr.curveAngle = 0.f;
-	tr.curveDist = 0.f;
-	tr.dirFrVtxIdx = -1;
-	vtx.edges.push_back(tr);
+	sEdge edge;
+	edge.to = toVtxIdx;
+	edge.distance = 1.f;
+	edge.w = 1.f;
+	edge.speed = speed;
+	edge.prop = prop;
+	edge.toWaypoint = 0;
+	edge.enable = true;
+	edge.isCurve = false; // line type
+	edge.curveAngle = 0.f;
+	edge.curveDist = 0.f;
+	edge.dirFrVtxIdx = -1;
+	vtx.edges.push_back(edge);
 	return true;
 }
 
