@@ -392,9 +392,6 @@
     <ClInclude Include="base\capsule.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="shape\capsuleshape.h">
-      <Filter>shape</Filter>
-    </ClInclude>
     <ClInclude Include="base\cylinder.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -412,6 +409,15 @@
     </ClInclude>
     <ClInclude Include="collision\boundingcapsule.h">
       <Filter>collision</Filter>
+    </ClInclude>
+    <ClInclude Include="base\capsule2.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="shape\capsuleshape.h">
+      <Filter>shape</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\utility2.h">
+      <Filter>utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -767,9 +773,6 @@
     <ClCompile Include="base\capsule.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="shape\capsuleshape.cpp">
-      <Filter>shape</Filter>
-    </ClCompile>
     <ClCompile Include="base\cylinder.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -787,6 +790,15 @@
     </ClCompile>
     <ClCompile Include="collision\boundingcapsule.cpp">
       <Filter>collision</Filter>
+    </ClCompile>
+    <ClCompile Include="base\capsule2.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="shape\capsuleshape.cpp">
+      <Filter>shape</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\utility2.cpp">
+      <Filter>utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

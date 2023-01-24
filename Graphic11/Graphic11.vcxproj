@@ -159,6 +159,7 @@
     <ClInclude Include="base\camera2d.h" />
     <ClInclude Include="base\camera3d.h" />
     <ClInclude Include="base\capsule.h" />
+    <ClInclude Include="base\capsule2.h" />
     <ClInclude Include="base\circle.h" />
     <ClInclude Include="base\circle2d.h" />
     <ClInclude Include="base\color.h" />
@@ -293,6 +294,7 @@
     <ClInclude Include="textdesigner\TextOnlyOutlineStrategy.h" />
     <ClInclude Include="textdesigner\TextOutlineStrategy.h" />
     <ClInclude Include="utility\utility.h" />
+    <ClInclude Include="utility\utility2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="base\bezierline.cpp" />
@@ -301,6 +303,7 @@
     <ClCompile Include="base\camera2d.cpp" />
     <ClCompile Include="base\camera3d.cpp" />
     <ClCompile Include="base\capsule.cpp" />
+    <ClCompile Include="base\capsule2.cpp" />
     <ClCompile Include="base\circle.cpp" />
     <ClCompile Include="base\circle2d.cpp" />
     <ClCompile Include="base\color.cpp" />
@@ -425,6 +428,7 @@
     <ClCompile Include="textdesigner\TextOnlyOutlineStrategy.cpp" />
     <ClCompile Include="textdesigner\TextOutlineStrategy.cpp" />
     <ClCompile Include="utility\utility.cpp" />
+    <ClCompile Include="utility\utility2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shader\water.fx">

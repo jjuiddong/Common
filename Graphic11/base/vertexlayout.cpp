@@ -242,17 +242,22 @@ void cVertexLayout::Bind(cRenderer &renderer)
 }
 
 
+// return semantic(POS,NORMAL,TEXTURE..etc) offset, -1:not found
 int cVertexLayout::GetOffset(const char *semanticName) const
 {
 	int offset = 0;
+	bool isFind = false;
 	for (auto &elem : m_elements)
 	{
 		if (!strcmp(elem.SemanticName, semanticName))
+		{
+			isFind = true;
 			break;
+		}
 		offset += BitsPerPixel(elem.Format) / 8;
 	}
 
-	return offset;
+	return isFind? offset : -1;
 }
 
 

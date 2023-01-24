@@ -1,5 +1,5 @@
 //
-// 2020-01-16, jjuiddong
+// 2023-01-21, jjuiddong
 // Capsule Shape
 //
 #pragma once
@@ -15,8 +15,9 @@ namespace graphic
 		cCapsuleShape();
 		virtual ~cCapsuleShape();
 
-		bool Create(cRenderer &renderer, const float radius
-			, const float halfHeight
+		bool Create(cRenderer &renderer
+			, const float radius
+			, const float height
 			, const int stacks
 			, const int slices
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
@@ -24,18 +25,24 @@ namespace graphic
 			);
 
 		void Render(cRenderer &renderer) override;
+		void Render(cRenderer& renderer, const float radius, const float height
+			, const XMMATRIX& parentTm = XMIdentity);
 
 
 	protected:
-		void GenerateSphereMesh(int slices, int stacks, Vector3* positions, WORD* indices);
-		void GenerateConeMesh(int slices, Vector3* positions, WORD* indices, int offset);
+		std::pair<int,int> GenerateHalfSphereMesh( BYTE* vertices, WORD* indices
+			, const int startVerticesIdx, const int startIndicesIdx
+			, const int vtxType, const float radius, const int stacks, const int slices
+			, const cColor &color, const bool isFlipY, const float yOffset);
 
 
 	public:
-		cVertexBuffer m_vtxBuff;
-		cIndexBuffer m_idxBuff;
-		float m_radius;
-		float m_halfHeight;
+		cVertexBuffer m_vtxBuff1; // cylinder
+		cIndexBuffer m_idxBuff1;
+		cVertexBuffer m_vtxBuff2; // half sphere
+		cIndexBuffer m_idxBuff2;
+		int m_stacks;
+		int m_slices;
 	};
 
 }

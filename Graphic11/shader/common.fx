@@ -389,6 +389,17 @@ float GetOutline(float4 PosH)
 }
 
 
+// return Outline Value, with Normal Vector
+float GetOutline2(const float3 normal, const float3 toEye)
+{
+	const float3 E = normalize(toEye);
+	const float3 N = normalize(normal);
+	const float d = abs(dot(N, E)) * 3.0f;
+	const float fOutline = 1.f - (d * d);
+	return fOutline;
+}
+
+
 // return Outline Color
 float4 GetOutlineColor(float outlineVal)
 {

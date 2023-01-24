@@ -146,6 +146,7 @@ namespace graphic {
 #include "base/bezierline.h"
 #include "base/cylinder.h"
 #include "base/capsule.h"
+#include "base/capsule2.h"
 #include "base/cone.h"
 #include "base/line2dlist.h"
 
@@ -229,6 +230,7 @@ namespace graphic
 #include "importer/fileloader2.h"
 
 #include "../ai/ai.h"
+#include "utility/utility2.h"
 
 
 #pragma comment( lib, "gdiplus.lib" ) 

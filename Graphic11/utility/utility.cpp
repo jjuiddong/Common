@@ -295,4 +295,3 @@ void graphic::createTextureAndViews(ID3D11Device* pd3dDevice, UINT width, UINT h
 		assert(*ppRTV);
 	}
 }
-

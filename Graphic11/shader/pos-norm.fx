@@ -47,6 +47,16 @@ float4 PS_Outline(VSOUT_POSNORM In) : SV_Target
 }
 
 
+//--------------------------------------------------------------------------------------
+// Outline Pixel Shader
+//--------------------------------------------------------------------------------------
+float4 PS_Outline2(VSOUT_POSNORM In) : SV_Target
+{
+	const float fOutline = GetOutline2(In.Normal, In.toEye);
+	clip(fOutline - 0.000001f);
+	return GetOutlineColor(fOutline);
+}
+
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader ShadowMap
@@ -154,6 +164,19 @@ technique11 Outline
 		SetHullShader(NULL);
 		SetDomainShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS_Outline()));
+	}
+}
+
+
+technique11 Outline2
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(NotInstancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_Outline2()));
 	}
 }
 

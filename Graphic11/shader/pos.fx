@@ -14,9 +14,8 @@ VSOUT_POS VS( float4 Pos : POSITION
 	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
 
 	float4 PosW = mul(Pos, mWorld);
-    //output.Pos = mul( Pos, mWorld);
-    output.Pos = mul( PosW, gView );
-    output.Pos = mul( output.Pos, gProjection );
+    output.Pos = mul(PosW, gView);
+    output.Pos = mul(output.Pos, gProjection);
 	output.PosH = output.Pos;
 	output.PosW = PosW;
     return output;
