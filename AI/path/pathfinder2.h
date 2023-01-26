@@ -139,6 +139,15 @@ namespace ai
 			, const float dist
 			, OUT Vector3& outPos
 			, OUT Vector3& outDir);
+		static bool GetCurveEdgeFirstPos(const sEdge& edge
+			, const Vector3& pos
+			, const Vector3& dir
+			, const float dist
+			, OUT Vector3& outPos
+			, OUT Vector3& outDir);
+		static bool IsOnEdge(const sEdge& edge, const Vector3& pos
+			, const float offset = 0.05f);
+
 
 	protected:
 		inline int ArriveTarget(sTargetArg &arg);

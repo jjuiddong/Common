@@ -102,6 +102,20 @@ void cBoundingCapsule::SetCapsule(const Vector3 &center, const Vector3 &dir
 }
 
 
+// set bounding capsule with box size
+// center: center pos
+// dir: direction
+// forwardLen: box forward length
+// sideLen: box side length
+void cBoundingCapsule::SetCapsuleBox(const Vector3& center, const Vector3& dir
+	, const float forwardLen, const float sideLen)
+{
+	const float halfLen = forwardLen - sideLen;
+	const float radius = sideLen * sqrt(2.f);
+	SetCapsule(center, dir, halfLen, radius);
+}
+
+
 void cBoundingCapsule::SetPos(const Vector3 &pos) 
 {
 	m_line.pos = pos;
