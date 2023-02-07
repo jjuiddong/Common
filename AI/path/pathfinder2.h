@@ -109,10 +109,11 @@ namespace ai
 		);
 
 		bool Find(const uint startIdx, const uint endIdx
-			, OUT vector<uint> &out
-			, const set<sEdge2> *disableEdges = nullptr
+			, OUT vector<uint>& out
+			, const set<sEdge2>* disableEdges = nullptr
 			, const bool isChangeDirPenalty = false
-			, const sTarget *target = nullptr
+			, const sTarget* target = nullptr
+			, const float rotationLimit = -2.f
 		);
 
 		int GetNearestVertex(const Vector3 &pos) const;
@@ -136,9 +137,8 @@ namespace ai
 		static float GetCurveEdgeDistance(const sEdge& edge, const Vector3& pos
 			, OUT float* ratio =nullptr);
 		static bool GetCurveEdgeMove(const sEdge& edge, const Vector3& pos
-			, const float dist
-			, OUT Vector3& outPos
-			, OUT Vector3& outDir);
+			, const float dist, OUT Vector3& outPos, OUT Vector3& outDir
+			, OUT float* outRatio =nullptr);
 		static bool GetCurveEdgeFirstPos(const sEdge& edge
 			, const Vector3& pos
 			, const Vector3& dir

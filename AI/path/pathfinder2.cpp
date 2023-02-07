@@ -76,6 +76,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, const set<sEdge2> *disableEdges //= nullptr
 	, const bool isChangeDirPenalty //= false
 	, const sTarget* target //= nullptr
+	, const float rotationLimit //= -2.f
 )
 {
 	if (startIdx == endIdx)
@@ -155,12 +156,15 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 
 			// calc direction change penalty
 			float penalty = 0.f;
-			if (isChangeDirPenalty && (UINT_MAX != node.prev))
+			if (UINT_MAX != node.prev)
 			{
 				const sVertex& vtx2 = m_vertices[node.prev];
 				const Vector3 dir0 = (vtx0.pos - vtx2.pos).Normal();
 				const Vector3 dir1 = (vtx1.pos - vtx0.pos).Normal();
-				if (dir0.DotProduct(dir1) < 0.7f)
+				const float d = dir0.DotProduct(dir1);
+				if (d < rotationLimit)
+					continue; // block path
+				if (isChangeDirPenalty && (d < 0.7f))
 					penalty = 2.0f;
 			}
 			//~
@@ -583,11 +587,14 @@ float cPathFinder2::GetCurveEdgeDistance(const sEdge& edge, const Vector3& pos
 // dist: current position moving distance
 // outPos: next moving pos on the bezier curve
 // outDir: next direction on the bezier curve
+// outRatio: 0.0 ~ 1.0, curve position 0:start, 1:end
 // return: success?
 bool cPathFinder2::GetCurveEdgeMove(const sEdge& edge, const Vector3& pos
 	, const float dist
 	, OUT Vector3& outPos
-	, OUT Vector3& outDir)
+	, OUT Vector3& outDir
+	, OUT float *outRatio //=nullptr
+)
 {
 	if (edge.bezier.empty() || edge.ctrlPts.empty())
 		return false;
@@ -748,6 +755,8 @@ bool cPathFinder2::GetCurveEdgeMove(const sEdge& edge, const Vector3& pos
 		outPos = p0 + dir * offsetLen;
 		outPos.y = newPos.y; // ignore y-axis
 		outDir = dir;
+		if (outRatio)
+			*outRatio = (float)moveIdx / (float)edge.bezierLens.size();
 	}
 
 	return true;
