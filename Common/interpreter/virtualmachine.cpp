@@ -384,9 +384,14 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 				PushEvent(cEvent(m_timerId, { {scopeName, timer.id} }));
 
 				if (timer.isLoop)
+				{
+					timer.t = timer.interval;
 					++it; // no remove
+				}
 				else
+				{
 					it = m_timers.erase(it); // remove this timer
+				}
 			}
 			else
 			{

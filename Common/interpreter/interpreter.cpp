@@ -286,7 +286,18 @@ bool cInterpreter::InitAndRunVM()
 	cVirtualMachine *vm = nullptr;
 	if (m_vms.empty())
 	{
-		vm = new cVirtualMachine("VM1");
+		string vmName;
+		if (m_code.m_fileName.empty())
+		{
+			vmName = "VM1";
+		}
+		else
+		{
+			vmName = m_code.m_fileName.GetFileNameExceptExt().c_str();
+			vmName += ".VM1";
+		}
+
+		vm = new cVirtualMachine(vmName);
 		vm->SetCodeTrace(m_isCodeTrace);
 		m_vms.push_back(vm);
 	}
