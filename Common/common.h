@@ -167,6 +167,7 @@ using std::max;
 #include "etc/memorypool2.h"
 #include "etc/memorypool3.h"
 #include "etc/memorypool4.h"
+#include "etc/memorypool5.h"
 #include "etc/rand.h"
 #include "etc/config.h"
 #include "etc/autocs.h"

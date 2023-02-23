@@ -523,6 +523,8 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 			Event_GenCode(node, out);
 		if (eNodeType::Widget == node.type)
 			Widget_GenCode(node, out);
+		if (eNodeType::Function == node.type)
+			Callback_GenCode(node, out);
 	}
 
 	// make blank branch
@@ -542,7 +544,7 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 	{
 		for (auto &pin : node.outputs)
 		{
-			if (ePinType::Flow == pin.type)
+			if ((ePinType::Flow == pin.type) || (ePinType::Blank == pin.type))
 				continue;
 
 			string scopeName;
@@ -604,14 +606,14 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 					out.m_codes.push_back(code);
 				}
 			}
-			else if (node.name == "Timer Event")
-			{
-				const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
-				script::sInstruction code;
-				code.cmd = script::eCommand::timer2;
-				code.str1 = name;
-				out.m_codes.push_back(code);
-			}
+			//else if (node.name == "Timer Event")
+			//{
+			//	const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
+			//	script::sInstruction code;
+			//	code.cmd = script::eCommand::timer2;
+			//	code.str1 = name;
+			//	out.m_codes.push_back(code);
+			//}
 		}
 	}
 
@@ -747,12 +749,12 @@ bool cVplFile::Widget_GenCode(const sNode &node
 {
 	RETV(node.type != eNodeType::Widget, false);
 	RETV(node.name == "Comment", false); // comment widget ignore
-	//RETV(node.inputs.size() > 0, false); 
-	if (node.inputs.size() > 0) // only event widget allow (ex button)
+	if (node.inputs.size() > 0) // listbox widget
 		return Widget_GenCode2(node, out);
 	RETV(m_visit.find(node.id) != m_visit.end(), false);
 	m_visit.insert(node.id);
 
+	// button widget
 	out.m_codes.push_back({ script::eCommand::nop });
 
 	// labelName: node.name '_' node.id	 
@@ -791,7 +793,7 @@ bool cVplFile::Widget_GenCode(const sNode &node
 }
 
 
-// generate intermediate code, event widget node
+// generate intermediate code, listbox widget 
 bool cVplFile::Widget_GenCode2(const sNode& node
 	, OUT common::script::cIntermediateCode& out)
 {
@@ -799,10 +801,7 @@ bool cVplFile::Widget_GenCode2(const sNode& node
 	RETV(node.name == "Comment", false); // comment widget ignore
 	RETV(node.inputs.size() == 0, false); // only output event widget allow
 	RETV(node.outputs.size() < 2, false);
-	//RETV(m_visit.find(node.id) != m_visit.end(), false);
-	//m_visit.insert(node.id);
 
-	// ignore blank name output widget 
 	for (auto& pin : node.outputs)
 	{
 		if (ePinType::Flow != pin.type)
@@ -810,7 +809,7 @@ bool cVplFile::Widget_GenCode2(const sNode& node
 		if (pin.links.empty())
 			continue;
 		if (common::trim2(pin.name).empty())
-			continue;
+			continue; // ignore blank name output widget (main output flow pin)
 		
 		if (pin.links.size() >= 2)
 			common::dbg::Logc(3, "Error!! cVplFile::Widget_GenCode2, flow link too many setting \n");
@@ -998,6 +997,9 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 
 		++outputFlowCount;
 
+		if (outputFlowCount > 1)
+			break; // only default main output flow allow
+
 		sNode *next = nullptr; // next node
 		sPin *np = nullptr; // next pin
 		const int linkId = pin.links.empty() ? -1 : pin.links.front();
@@ -1006,11 +1008,11 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 			continue;
 
 		// Widget Node Event Flow pin?
-		if ((eNodeType::Widget == node.type) && (outputFlowCount > 1))
-		{
-			// already generate code. finish
-			break;
-		}
+		//if ((eNodeType::Widget == node.type) && (outputFlowCount > 1))
+		//{
+		//	// already generate code. finish
+		//	break;
+		//}
 
 		Node_GenCode(node, *next, pin, out);
 	}
@@ -2051,6 +2053,54 @@ bool cVplFile::Variable_GenCode(const sNode &node
 }
 
 
+// generate intermediate code, function node, callback flow
+bool cVplFile::Callback_GenCode(const sNode& node
+	, OUT common::script::cIntermediateCode& out)
+{
+	RETV(node.type != eNodeType::Function, false);
+	RETV(node.outputs.size() < 2, false);
+
+	for (auto& pin : node.outputs)
+	{
+		if ((ePinType::Flow != pin.type) || (pin.links.empty()))
+			continue;
+		if (common::trim2(pin.name).empty())
+			continue; // ignore blank name output widget (main output flow pin)
+
+		if (pin.links.size() >= 2)
+			common::dbg::Logc(3, "Error!! cVplFile::Callback_GenCode, flow link too many setting \n");
+
+		out.m_codes.push_back({ script::eCommand::nop });
+
+		// labelName: node.name '_' node.id	 
+		// make label name, if need unique event label name, update from node.labelName
+		const string labelName =
+			script::cSymbolTable::MakeScopeName2(node.name, node.id, pin.name);
+		out.m_codes.push_back({ script::eCommand::label, labelName });
+
+		// clear stack
+		out.m_codes.push_back({ script::eCommand::cstack });
+
+		sNode* next = nullptr;
+		sPin* np = nullptr;
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(next, np) = FindContainPin(linkId);
+		if (!next)
+			continue; // error occurred!!
+
+		Node_GenCode(node, *next, pin, out);
+
+		// return, if has jump address
+		out.m_codes.push_back({ script::eCommand::sret });
+
+		// finish, stop execute
+		out.m_codes.push_back({ script::eCommand::nop });
+	}
+
+	return true;
+}
+
+
 // generate intermediate code, pin
 bool cVplFile::Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
@@ -2509,6 +2559,7 @@ bool cVplFile::IsIgnoreInputPin(const ePinType::Enum type)
 	case ePinType::Flow:
 	case ePinType::Function:
 	case ePinType::Delegate:
+	case ePinType::Blank:
 		return true;
 	}
 	return false;

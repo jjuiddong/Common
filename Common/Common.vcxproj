@@ -431,6 +431,7 @@
     <ClInclude Include="etc\memorypool2.h" />
     <ClInclude Include="etc\memorypool3.h" />
     <ClInclude Include="etc\memorypool4.h" />
+    <ClInclude Include="etc\memorypool5.h" />
     <ClInclude Include="etc\observer.h" />
     <ClInclude Include="etc\observer2.h" />
     <ClInclude Include="etc\path.h" />

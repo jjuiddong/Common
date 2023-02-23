@@ -45,11 +45,11 @@ bool cVirtualMachine::Init(const cIntermediateCode &code)
 		);
 	}
 
-	for (auto &time : m_code.m_timer2Events)
-	{
-		m_timerId = time.first.c_str(); // timer id: node name + node id
-		break;
-	}
+	//for (auto &time : m_code.m_timer2Events)
+	//{
+	//	m_timerId = time.first.c_str(); // timer id: node name + node id
+	//	break;
+	//}
 
 	m_stack.reserve(32);
 	m_delayEvents.reserve(16);
@@ -202,27 +202,28 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 
 
 // set timer
-bool cVirtualMachine::SetTimer(const int timerId, const int timeMillis
+// name: timer name, format: name_<number>
+// timeMillis: timeout, milliseconds 
+// return: timer id, -1: fail
+int cVirtualMachine::SetTimer(const string& name, const int timeMillis
 	, const bool isLoop //= false
 )
 {
-	if (m_timerId.empty())
-		return false; // error, no has timer event code block
-
 	auto it = std::find_if(m_timers.begin(), m_timers.end()
-		, [&](const auto &a) { return a.id == timerId; });
+		, [&](const auto &a) { return a.name == name; });
 	if (m_timers.end() != it)
-		return false; // already exist
+		return -1; // already exist
 
+	const int timerId = common::GenerateId();
 	m_timers.push_back(
 		{ timerId
-		, common::format("timer%d", timerId) // timer name
+		, name
 		, timeMillis / 1000.f // timer interval (convert seconds unit)
 		, (float)timeMillis / 1000.f  // timer decrease time (convert seconds unit)
 		, isLoop // continuous call timer event?
 		}
 	);
-	return true;
+	return timerId;
 }
 
 
@@ -374,14 +375,16 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 		auto it = m_timers.begin();
 		while (it != m_timers.end())
 		{
-			auto &timer = *it;
+			sTimer &timer = *it;
 			timer.t -= deltaSeconds;
 			if (timer.t < 0.f)
 			{
 				// timer event trigger
 				// timer id output
-				const string scopeName = (m_timerId + "::id").c_str();
-				PushEvent(cEvent(m_timerId, { {scopeName, timer.id} }));
+				//const string scopeName = (m_timerId + "::id").c_str();
+				//PushEvent(cEvent(m_timerId, { {scopeName, timer.id} }));
+				const string timerName = string(timer.name.c_str()) + "_event";
+				PushEvent(cEvent(timerName));
 
 				if (timer.isLoop)
 				{
@@ -1234,5 +1237,5 @@ void cVirtualMachine::Clear()
 	for (auto &mod : m_modules)
 		mod->CloseModule(*this);
 	m_modules.clear();
-	m_timerId.clear();
+	//m_timerId.clear();
 }

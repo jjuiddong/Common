@@ -530,8 +530,8 @@ bool cIntermediateCode::InitOptimizeInfo()
 		auto &code = m_codes[i];
 		if (eCommand::timer1 == code.cmd)
 			m_timer1Events.push_back({ code.str1, (int)code.var1 });
-		else if (eCommand::timer2 == code.cmd)
-			m_timer2Events.push_back({ code.str1, 0 });
+		//else if (eCommand::timer2 == code.cmd)
+		//	m_timer2Events.push_back({ code.str1, 0 });
 	}
 
 	return true;
@@ -582,7 +582,7 @@ cIntermediateCode& cIntermediateCode::operator=(const cIntermediateCode &rhs)
 		m_variables = rhs.m_variables;
 		m_jmpMap = rhs.m_jmpMap;
 		m_timer1Events = rhs.m_timer1Events;
-		m_timer2Events = rhs.m_timer2Events;
+		//m_timer2Events = rhs.m_timer2Events;
 	}
 	return *this;
 }
@@ -593,7 +593,7 @@ void cIntermediateCode::Clear()
 	m_codes.clear();
 	m_jmpMap.clear();
 	m_timer1Events.clear();
-	m_timer2Events.clear();
+	//m_timer2Events.clear();
 	m_variables.Clear();
 	m_fileName.clear();
 }

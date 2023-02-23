@@ -26,7 +26,8 @@ namespace vpl {
 		Any,//NotDef,
 		None,
 		Array,
-		Map
+		Map,
+		Blank
 	);
 
 	DECLARE_ENUM(ePinKind,

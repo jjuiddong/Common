@@ -120,6 +120,8 @@ namespace vpl
 			, OUT common::script::cIntermediateCode &out);
 		bool Variable_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
+		bool Callback_GenCode(const sNode& node
+			, OUT common::script::cIntermediateCode& out);
 		bool Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 		bool Pin2_GenCode(const ePinKind::Enum kind

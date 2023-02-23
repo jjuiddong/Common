@@ -49,7 +49,7 @@ namespace common
 			bool Resume();
 			bool Stop();
 			bool PushEvent(const cEvent &evt);
-			bool SetTimer(const int timerId, const int timeMillis, const bool isLoop = false);
+			int SetTimer(const string &name, const int timeMillis, const bool isLoop = false);
 			bool StopTimer(const int timerId);
 			bool StopTick(const int tickId);
 			void SetCodeTrace(const bool isCodeTrace);
@@ -87,7 +87,7 @@ namespace common
 			vector<sTimer> m_timers;
 			vector<int> m_stack; // simple integer stack (save return address)
 			vector<iModule*> m_modules; // execute function module, reference
-			string m_timerId; // timer event code name, name + id, to trigger event
+			//string m_timerId; // timer event code name, name + id, to trigger event
 
 			// debugging
 			bool m_isCodeTraceLog;

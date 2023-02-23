@@ -256,6 +256,9 @@
     <ClInclude Include="etc\filepath1.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="etc\memorypool5.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

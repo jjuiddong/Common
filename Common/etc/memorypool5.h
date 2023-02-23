@@ -1,55 +1,45 @@
 //
-// 2018-06-17, jjuiddong
+// 2013-02-21, jjuiddong
 // Simple Memory Pool using pointer vector
-// Object Thread Pool, Thread Safe
+// Thread UnSafe
+//	- modify from cMemoryPool3
 //
 #pragma once
 
 
 namespace common
 {
-	// tricky code, for cThread memorypool
-	class iMemoryPool3Destructor
-	{
-	public:
-		virtual bool Free(void* p) = 0;
-	};
-
-
 	template<class T, size_t Size=16>
-	class cMemoryPool3 : public iMemoryPool3Destructor
+	class cMemoryPool5
 	{
 	public:
-		cMemoryPool3();
-		virtual ~cMemoryPool3();
+		cMemoryPool5();
+		virtual ~cMemoryPool5();
 
 		T* Alloc();
-		virtual bool Free(void *p) override;
+		bool Free(T *p);
 		void Clear();
 
 
 	public:
-		CriticalSection m_cs;
 		set<T*> m_freePtrs;
 		set<T*> m_allocPtrs;
 	};
 
 
 	template<class T, size_t Size = 16>
-	cMemoryPool3<T, Size>::cMemoryPool3() {
+	cMemoryPool5<T, Size>::cMemoryPool5() {
 		for (int i = 0; i < Size; ++i)
 			m_freePtrs.insert(new T());
 	}
 
 	template<class T, size_t Size = 16>
-	cMemoryPool3<T, Size>::~cMemoryPool3() {
+	cMemoryPool5<T, Size>::~cMemoryPool5() {
 		Clear();
 	}
 
 	template<class T, size_t Size = 16>
-	T* cMemoryPool3<T, Size>::Alloc() {
-		AutoCSLock cs(m_cs);
-
+	T* cMemoryPool5<T, Size>::Alloc() {
 		T *p = NULL;
 		if (m_freePtrs.empty())
 		{
@@ -69,22 +59,15 @@ namespace common
 	}
 
 	template<class T, size_t Size = 16>
-	bool cMemoryPool3<T, Size>::Free(void* p) {
+	bool cMemoryPool5<T, Size>::Free(T *p) {
 		if (!p) return false;
-		AutoCSLock cs(m_cs);
-		//if (!removevector(m_allocPtrs, (T*)p))
-		//{
-		//	assert(0);
-		//	return false;
-		//}
-		m_allocPtrs.erase((T*)p);
-		m_freePtrs.insert((T*)p);
+		m_allocPtrs.erase(p);
+		m_freePtrs.insert(p);
 		return true;
 	}
 
 	template<class T, size_t Size = 16>
-	void cMemoryPool3<T, Size>::Clear() {
-		AutoCSLock cs(m_cs);
+	void cMemoryPool5<T, Size>::Clear() {
 		for (auto &ptr : m_freePtrs)
 			delete ptr;
 		m_freePtrs.clear();

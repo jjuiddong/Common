@@ -221,10 +221,10 @@ eModuleResult Round(cVirtualMachine& vm, const string& scopeName, const string& 
 eModuleResult SetTimeOut(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
 {
 	script::cSymbolTable& symbolTable = vm.m_symbTable;
-	const int id = symbolTable.Get<int>(scopeName, "id");
 	const int time = symbolTable.Get<int>(scopeName, "time ms"); // milliseconds
-	const bool result = vm.SetTimer(id, time);
-	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	const int timerId = vm.SetTimer(scopeName, time);
+	symbolTable.Set<bool>(scopeName, "result", timerId >= 0);
+	symbolTable.Set<float>(scopeName, "id", (float)timerId);
 	return eModuleResult::Done;
 }
 
@@ -242,10 +242,10 @@ eModuleResult ClearTimeOut(cVirtualMachine& vm, const string& scopeName, const s
 eModuleResult SetInterval(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
 {
 	script::cSymbolTable& symbolTable = vm.m_symbTable;
-	const int id = symbolTable.Get<int>(scopeName, "id");
 	const int time = symbolTable.Get<int>(scopeName, "interval ms"); // milliseconds
-	const bool result = vm.SetTimer(id, time, true);
-	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+	const int timerId = vm.SetTimer(scopeName, time, true);
+	symbolTable.Set<bool>(scopeName, "result", timerId >= 0);
+	symbolTable.Set<float>(scopeName, "id", (float)timerId);
 	return eModuleResult::Done;
 }
 
