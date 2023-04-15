@@ -110,8 +110,10 @@ void cBoundingCapsule::SetCapsule(const Vector3 &center, const Vector3 &dir
 void cBoundingCapsule::SetCapsuleBox(const Vector3& center, const Vector3& dir
 	, const float forwardLen, const float sideLen)
 {
-	const float halfLen = forwardLen - sideLen;
-	const float radius = sideLen * sqrt(2.f);
+	//const float halfLen = forwardLen - sideLen;
+	//const float radius = sideLen * sqrt(2.f);
+	const float halfLen = forwardLen;
+	const float radius = sideLen;
 	SetCapsule(center, dir, halfLen, radius);
 }
 
