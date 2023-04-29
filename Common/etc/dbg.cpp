@@ -25,9 +25,9 @@ namespace common {
 			logData.type = logType;\
 			va_list args;\
 			va_start(args, fmt);\
-			const int res = vsnprintf_s(logData.str.m_str, size - 2, _TRUNCATE, fmt, args);\
+			const int res = vsnprintf_s(logData.str.m_str, size - 1, _TRUNCATE, fmt, args);\
 			va_end(args);\
-			if (res == size - 2)\
+			if (res < 0)\
 			{\
 				logData.str.m_str[size - 2] = '\n';\
 				logData.str.m_str[size - 1] = NULL;\

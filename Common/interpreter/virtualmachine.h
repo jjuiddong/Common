@@ -69,7 +69,7 @@ namespace common
 
 		public:
 			enum class eState { 
-				Stop  // waitting for start
+				Stop  // waiting for start
 				, Run // execute instruction
 				, WaitCallback // wait until finish callback function
 				, Wait // no operation state, wait until event trigger

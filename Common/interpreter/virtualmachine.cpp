@@ -252,8 +252,8 @@ bool cVirtualMachine::StopTick(const int tickId)
 
 
 // process event
-// execute event only waitting state
-// waitting state is nop instruction state
+// execute event only waiting state
+// waiting state is nop instruction state
 bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 {
 	RETV(eState::Wait != m_state, false);
@@ -348,7 +348,7 @@ bool cVirtualMachine::ProcessDelayEvent(const float deltaSeconds)
 // process tick / timer
 // check tick interval time, call tick event
 // check timer delay time, call timer event
-// execute event only waitting state
+// execute event only waiting state
 bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 {
 	RETV(eState::Wait != m_state, false);
