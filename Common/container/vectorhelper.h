@@ -13,7 +13,10 @@ namespace common
 	{
 		auto it = std::find(seq.begin(), seq.end(), ty);
 		if (seq.end() != it)
+		{
 			seq.erase(it);
+			return true;
+		}
 		//for (size_t i=0; i < seq.size(); ++i)
 		//{
 		//	if (seq[i] == ty)

@@ -92,6 +92,25 @@ void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
 }
 
 
+void cDbgArrow::SetDirection2(const Vector3& p0, const Vector3& p1
+	, const float width //= 1.f
+	, const float arrowRatio //= 0.75f
+)
+{
+	const Vector3 dir = (p1 - p0).Normal();
+	const float len = p1.Distance(p0);
+	const Vector3 hpos = dir * len * arrowRatio + p0;
+
+	m_head.SetDirection(hpos, p1, hpos, width * (arrowRatio + 1.0f), 1.f);
+	m_body.SetLine(p0, hpos, width * 0.4f);
+	m_transform.pos = (p0 + hpos) * 0.5f;
+
+	cBoundingBox bbox;
+	bbox.SetBoundingBox(Transform(p1, Vector3::Ones * width * 1.5f));
+	m_headCube.SetCube(bbox);
+}
+
+
 void cDbgArrow::SetDirection(const Vector3 &p0, const Vector3 &p1
 	, const Quaternion &rot
 	, const float width //= 1.f
