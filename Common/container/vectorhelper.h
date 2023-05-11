@@ -17,16 +17,6 @@ namespace common
 			seq.erase(it);
 			return true;
 		}
-		//for (size_t i=0; i < seq.size(); ++i)
-		//{
-		//	if (seq[i] == ty)
-		//	{
-		//		if ((seq.size()-1) > i)
-		//			std::rotate( seq.begin()+i, seq.begin()+i+1, seq.end() );
-		//		seq.pop_back();
-		//		return true;
-		//	}
-		//}
 		return false;
 	}
 
@@ -36,9 +26,6 @@ namespace common
 	{
 		if (seq.size() > idx)
 			seq.erase(seq.begin() + idx);
-		//if ((seq.size()-1) > idx)
-		//	std::rotate( seq.begin()+idx, seq.begin()+idx+1, seq.end() );
-		//seq.pop_back();
 	}
 
 

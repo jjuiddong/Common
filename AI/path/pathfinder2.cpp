@@ -223,17 +223,17 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		return false; // not found path
 
 	// backtracking
-	sNode &node = close.back();
+	sNode *node = &close.back();
 	while (1)
 	{
-		out.push_back(node.idx);
-		if (node.idx == startIdx)
+		out.push_back(node->idx);
+		if (node->idx == startIdx)
 			break; // finish
 		auto it = find_if(close.begin(), close.end()
-			, [&](auto &a) {return a.idx == node.prev; });
+			, [&](auto &a) {return a.idx == node->prev; });
 		if (it == close.end())
 			break; // error occurred
-		node = *it;
+		node = &*it;
 	}
 
 	std::reverse(out.begin(), out.end());
