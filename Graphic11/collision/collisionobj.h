@@ -24,7 +24,10 @@ namespace common
 		virtual ~cCollisionObj() {}
 
 		virtual bool Collision(const cCollisionObj &obj
-			, OUT Vector3 *outPos = NULL, OUT float *distance = NULL) const = 0;
+			, OUT Vector3 *outPos = nullptr
+			, OUT float *distance = nullptr
+			, OUT bool* isContain = nullptr
+		) const = 0;
 
 		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const = 0;
 

@@ -30,7 +30,9 @@ namespace common
 		virtual ~cBoundingCapsule();
 
 		virtual bool Collision(const cCollisionObj &obj
-			, OUT Vector3 *outPos = NULL, OUT float *distance = NULL) const override;
+			, OUT Vector3 *outPos = nullptr
+			, OUT float *distance = nullptr
+			, OUT bool* isContain = nullptr) const override;
 		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
 		virtual Transform GetTransform() const override;
 

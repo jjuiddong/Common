@@ -61,8 +61,9 @@ float cBoundingSphere::GetRadius() const
 
 
 bool cBoundingSphere::Collision(const cCollisionObj &obj
-	, OUT Vector3 *outPos //= NULL
-	, OUT float *distance //= NULL
+	, OUT Vector3 *outPos //= nullptr
+	, OUT float *distance //= nullptr
+	, OUT bool* isContain //= nullptr
 ) const
 {
 	switch (obj.m_type)
@@ -80,6 +81,8 @@ bool cBoundingSphere::Collision(const cCollisionObj &obj
 			{
 			case INTERSECTS:
 			case CONTAINS:
+				if (isContain)
+					*isContain = (result == CONTAINS);
 				return true;
 			}
 		}
@@ -194,13 +197,20 @@ bool cBoundingSphere::Intersects(const Ray &ray
 
 bool cBoundingSphere::Intersects(const cBoundingSphere &bspere
 	, OUT float *outGap //= nullptr
+	, OUT bool* isContain //= nullptr
 ) const
 {
-	bool res = m_bsphere.Intersects(bspere.m_bsphere);
-	if (res && outGap)
+	const bool res = m_bsphere.Intersects(bspere.m_bsphere);
+	if (res && (outGap || isContain))
 	{
 		const float len = bspere.GetPos().Distance(GetPos());
-		*outGap = GetRadius() + bspere.GetRadius() - len;
+		const float r0 = GetRadius();
+		const float r1 = bspere.GetRadius();
+		const float gap = r0 + r1 - len;
+		if (isContain)
+			*isContain = (r0 > r1) && ((r0 - r1) > len) ;
+		if (outGap)
+			*outGap = gap;
 	}
 	return res;
 }

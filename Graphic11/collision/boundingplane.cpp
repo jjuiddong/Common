@@ -42,8 +42,9 @@ void cBoundingPlane::SetVertex(const Vector3 &v0, const Vector3 &v1, const Vecto
 
 
 bool cBoundingPlane::Collision(const cCollisionObj &obj
-	, OUT Vector3 *outPos //= NULL
-	, OUT float *distance //= NULL
+	, OUT Vector3 *outPos //= nullptr
+	, OUT float *distance //= nullptr
+	, OUT bool* isContain //= nullptr
 ) const
 {
 	switch (obj.m_type)

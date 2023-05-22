@@ -21,8 +21,9 @@ cBoundingCapsule::~cBoundingCapsule()
 
 // collision
 bool cBoundingCapsule::Collision(const cCollisionObj &obj
-	, OUT Vector3 *outPos //= NULL
-	, OUT float *distance //= NULL
+	, OUT Vector3 *outPos //= nullptr
+	, OUT float *distance //= nullptr
+	, OUT bool* isContain //= nullptr
 ) const
 {
 	// nothing~

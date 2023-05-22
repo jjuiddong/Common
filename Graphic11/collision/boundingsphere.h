@@ -20,12 +20,18 @@ namespace common
 		virtual ~cBoundingSphere();
 
 		virtual bool Collision(const cCollisionObj &obj
-			, OUT Vector3 *outPos = NULL, OUT float *distance = nullptr) const override;
+			, OUT Vector3 *outPos = nullptr
+			, OUT float *distance = nullptr
+			, OUT bool* isContain = nullptr
+		) const override;
 		virtual bool Pick(const Ray &ray, OUT float *distance = nullptr) const override;
 
 		bool Intersects(const Ray &ray, OUT float *distance = nullptr) const;
 		bool Intersects(const Ray &ray, const float radius, OUT float *distance = nullptr) const;
-		bool Intersects(const cBoundingSphere &bspere, OUT float *outGap = nullptr) const;
+		bool Intersects(const cBoundingSphere &bspere
+			, OUT float *outGap = nullptr
+			, OUT bool* isContain = nullptr
+		) const;
 
 		void SetBoundingSphere(const Vector3 &center, const float radius);
 		void SetBoundingSphere(const cBoundingBox &bbox, const Matrix44 &tm = Matrix44::Identity);

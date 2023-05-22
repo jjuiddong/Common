@@ -32,7 +32,10 @@ namespace common
 		);
 
 		virtual bool Collision(const cCollisionObj &obj
-			, OUT Vector3 *outPos = nullptr, OUT float *distance = nullptr) const override;
+			, OUT Vector3 *outPos = nullptr
+			, OUT float *distance = nullptr
+			, OUT bool *isContain = nullptr
+		) const override;
 		virtual bool Pick(const Ray &ray, OUT float *distance = nullptr) const override;
 		bool Pick(const Vector3 &orig, const Vector3 &dir, OUT float *distance= nullptr) const;
 

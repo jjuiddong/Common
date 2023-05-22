@@ -54,6 +54,7 @@ namespace ai
 			vector<sEdge> edges;
 			bool avoidable; // is avoidable?
 			bool visit; // use internal
+			int userData; // custom data
 
 			sVertex() : avoidable(true) {}
 		};

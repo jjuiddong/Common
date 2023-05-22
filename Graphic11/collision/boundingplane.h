@@ -28,7 +28,10 @@ namespace common
 		
 		void SetVertex(const Vector3 &v0, const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
 		virtual bool Collision(const cCollisionObj &obj
-			, OUT Vector3 *pos = NULL, OUT float *distance = NULL) const override;
+			, OUT Vector3 *pos = nullptr
+			, OUT float *distance = nullptr
+			, OUT bool* isContain = nullptr
+		) const override;
 		virtual bool Pick(const Ray &ray, OUT float *distance = NULL) const override;
 		bool Intersect(const Ray &ray, const float radius, OUT float *distance = NULL
 			, const int recursiveCnt = 0

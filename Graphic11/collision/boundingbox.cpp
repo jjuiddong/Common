@@ -80,11 +80,12 @@ bool overlaps( float min1, float max1, float min2, float max2 )
 bool cBoundingBox::Collision(const cCollisionObj &obj
 	, OUT Vector3 *outPos //= nullptr
 	, OUT float *distance //= nullptr
+	, OUT bool* isContain //= nullptr
 ) const
 {
 	switch (obj.m_type)
 	{
-	// OBB vs OBB 面倒贸府.
+	// OBB vs OBB collision test
 	case eCollisionType::BOX:
 	{
 		if (const cBoundingBox *p = dynamic_cast<const cBoundingBox*>(&obj))
@@ -94,13 +95,15 @@ bool cBoundingBox::Collision(const cCollisionObj &obj
 			{
 			case INTERSECTS:
 			case CONTAINS:
+				if (isContain)
+					*isContain = (result == CONTAINS);
 				return true;
 			}
 		}
 	}
 	break;
 
-	// OBB vs Sphere 面倒贸府
+	// OBB vs Sphere collision test
 	case eCollisionType::SPHERE:
 	{
 		if (const cBoundingSphere *p = dynamic_cast<const cBoundingSphere*>(&obj))
@@ -110,6 +113,8 @@ bool cBoundingBox::Collision(const cCollisionObj &obj
 			{
 			case INTERSECTS:
 			case CONTAINS:
+				if (isContain)
+					*isContain = (result == CONTAINS);
 				return true;
 			}
 		}
