@@ -404,6 +404,7 @@
     <ClInclude Include="container\circularqueue.h" />
     <ClInclude Include="container\circularqueue2.h" />
     <ClInclude Include="container\shmmap.h" />
+    <ClInclude Include="container\shmqueue.h" />
     <ClInclude Include="container\simplestring.h" />
     <ClInclude Include="container\stablevectormap.h" />
     <ClInclude Include="container\vectorhelper.h" />

@@ -259,6 +259,9 @@
     <ClInclude Include="etc\memorypool5.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="container\shmqueue.h">
+      <Filter>container</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />

@@ -189,6 +189,7 @@ using std::max;
 #include "thread/wqsemaphore.h"
 #include "thread/tpsemaphore.h"
 #include "thread/loadbalancer.h"
+#include "container/shmqueue.h"
 #include "etc/filelogger.h"
 #include "etc/dbg.h"
 #include "etc/macro.h"
