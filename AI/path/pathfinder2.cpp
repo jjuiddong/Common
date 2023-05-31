@@ -511,6 +511,19 @@ int cPathFinder2::GetVertexIndexByName(const Str16 &name) const
 }
 
 
+// return edge from, to
+cPathFinder2::sEdge* cPathFinder2::GetEdge(const uint from, const uint to)
+{
+	if ((m_vertices.size() >= from) || (m_vertices.size() >= to))
+		return nullptr;
+	sVertex &vtx = m_vertices[from];
+	for (auto& edge : vtx.edges)
+		if (edge.to == to)
+			return &edge;
+	return nullptr;
+}
+
+
 // reserver vertex buffer
 void cPathFinder2::ReservedVertexBuffer(const uint vertexCount)
 {

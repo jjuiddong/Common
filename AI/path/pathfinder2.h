@@ -132,6 +132,7 @@ namespace ai
 		sVertex* GetVertexByIndex(const uint vtxIdx);
 		sVertex* GetVertexByName(const Str16 &name);
 		int GetVertexIndexByName(const Str16 &name) const;
+		sEdge* GetEdge(const uint from, const uint to);
 		void ReservedVertexBuffer(const uint vertexCount);
 		void Clear();
 

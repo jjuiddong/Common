@@ -53,6 +53,11 @@ namespace common
 			bool Set(const string &scopeName, const string &symbolName
 				, const T(&var)[N], const string &typeStr = "");
 
+			// T* specialization
+			template <class T>
+			bool Set(const string& scopeName, const string& symbolName
+				, const T* var, const uint size, const string& typeStr = "");
+
 			// map<string,T> specialization
 			template <class T>
 			bool Set(const string &scopeName, const string &symbolName
@@ -196,6 +201,24 @@ namespace common
 			variable.ReserveArray(N);
 			variable.ClearArray();
 			for (uint i = 0; i < N; ++i)
+				variable.PushArrayElement(var[i]);
+			return true;
+		}
+
+		// T* specialization
+		template <class T>
+		inline bool cSymbolTable::Set(const string& scopeName
+			, const string& symbolName
+			, const T* var
+			, const uint size
+			, const string& typeStr //= ""
+		)
+		{
+			InitArray(scopeName, symbolName, typeStr);
+			sVariable& variable = m_vars[scopeName][symbolName];
+			variable.ReserveArray(size);
+			variable.ClearArray();
+			for (uint i = 0; i < size; ++i)
 				variable.PushArrayElement(var[i]);
 			return true;
 		}
