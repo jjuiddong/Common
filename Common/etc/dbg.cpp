@@ -375,3 +375,10 @@ void dbg::Logc2(const int level, const char* fmt, ...)
 	if (data.type >= 0)
 		g_logThread.PushTask(new cLogTask(data));
 }
+
+
+// return log thread
+common::cWQSemaphore& dbg::GetLogThread()
+{
+	return g_logThread;
+}
