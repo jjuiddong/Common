@@ -122,7 +122,11 @@ int cTcpClient::SendImmediate(const netid rcvId, const cPacket &packet)
 // for single thread tcpclient
 bool cTcpClient::Process()
 {
-	RETV(eState::Connect != m_state, false);
+	if (eState::Connect != m_state)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepMillis));
+		return false;
+	}
 
 	const timeval t = { 0, m_sleepMillis * 1000};
 

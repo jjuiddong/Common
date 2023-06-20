@@ -84,7 +84,11 @@ $error:
 // for single thread
 bool cTcpServer::Process()
 {
-	RETV(eState::Connect != m_state, false);
+	if (eState::Connect != m_state)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepMillis));
+		return false;
+	}
 
 	if (!m_tempRecvBuffer)
 		m_tempRecvBuffer = new char[m_maxBuffLen];

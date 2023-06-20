@@ -417,7 +417,10 @@ bool cWebServer::ReceiveProcces()
 		m_isUpdateSocket = false;
 	}
 	if (0 == m_readSockets.fd_count)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepMillis));
 		return true;
+	}
 
 	set<netid> rmSessions; // remove session ids
 	const timeval t = { 0, m_sessions.empty() ? 10000 : m_sleepMillis * 1000 };

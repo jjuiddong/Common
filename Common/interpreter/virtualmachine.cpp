@@ -278,6 +278,13 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 			if (out.size() >= 2)
 				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
 		}
+		for (auto& kv : evt.m_vars3)
+		{
+			vector<string> out;
+			common::tokenizer(kv.first.c_str(), "::", "", out);
+			if (out.size() >= 2)
+				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+		}
 		m_reg.idx = addr; // jump instruction code
 		m_state = eState::Run;
 	}
