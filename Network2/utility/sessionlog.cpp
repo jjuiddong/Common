@@ -15,9 +15,9 @@ cSessionLog::~cSessionLog()
 }
 
 
-// *.ses 파일을 읽는다.
+// read <*.ses> file
 // key = netid, value = name
-// 데이타가 중복되면, 가장 나중에 추가 된 정보로 설정한다.
+// if duplciate key, overwrite latest data
 // - data format
 //		- session-name netid
 //

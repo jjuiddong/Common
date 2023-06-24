@@ -12,7 +12,8 @@ namespace common
 	wstring RelativePathToW(const wstring& pathFrom, const wstring& pathTo);
 	bool IsRelativePath(const string& path);
 	string DeleteCurrentPath(const string& fileName);
-	__int64 FileSize(const string& fileName);
+	int64 FileSize(const string& fileName);
+	uint64 FileSize2(const string& fileName);
 	string RemoveFileExt(const string& fileName);
 	string CheckDirectoryPath(const string& fileName);
 

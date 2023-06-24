@@ -2,6 +2,11 @@
 // 2021-09-21, jjuiddong
 // PacketPump from PacketLog File
 //
+// - read packetlog files
+// - packet log directory
+//		- sessions.ses: session info
+//		- <netid>.plog: binary packet log data, filename: netid
+//
 #pragma once
 
 

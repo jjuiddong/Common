@@ -226,12 +226,58 @@ string common::DeleteCurrentPath(const string& fileName)
 }
 
 
-__int64  common::FileSize(const string& fileName)
+// return file size
+int64 common::FileSize(const string& fileName)
 {
 	struct __stat64 buf;
 	if (_stat64(fileName.c_str(), &buf) != 0)
 		return -1; // error, could use errno to find out more
 	return buf.st_size;
+}
+
+
+// return filesize all subdirectory
+uint64 common::FileSize2(const string& fileName)
+{
+	string modifySearchPath = fileName;
+	if (!modifySearchPath.empty()
+		&& modifySearchPath.back() != '/'
+		&& modifySearchPath.back() != '\\'
+		) 
+	{
+		modifySearchPath += "\\";
+	}
+
+	WIN32_FIND_DATAA fd;
+	const string searchDir = modifySearchPath + "*.*";
+	HANDLE hFind = FindFirstFileA(searchDir.c_str(), &fd);
+
+	uint64 fileSize = 0;
+	while (1)
+	{
+		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if ((string(".") != fd.cFileName) && (string("..") != fd.cFileName))
+			{
+				const int64 fsize = FileSize(modifySearchPath + fd.cFileName); // directory size
+				if (fsize > 0)
+					fileSize += fsize;
+				fileSize += FileSize2(modifySearchPath + string(fd.cFileName) + "\\");
+			}
+		}
+		else if (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+		{
+			const int64 fsize = FileSize(modifySearchPath + fd.cFileName); // file size
+			if (fsize > 0)
+				fileSize += fsize;
+		}
+
+		if (!FindNextFileA(hFind, &fd))
+			break;
+	}
+
+	FindClose(hFind);
+	return fileSize;
 }
 
 
