@@ -33,8 +33,8 @@ bool cShmmem::Init(const std::string &sharedMemoryName, const int memoryByteSize
 	catch (interprocess_exception&e)
 	{
 		std::stringstream ss;
+		ss << "Shared Memory Error!! <" << sharedMemoryName << ">, ";
 		ss << e.what() << std::endl;
-		ss << "Shared Memory Error!!";
 		dbg::ErrLog(ss.str().c_str());
 		m_memPtr = nullptr;
 		m_memoryByteSyze = 0;
