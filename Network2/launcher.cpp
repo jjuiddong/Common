@@ -300,7 +300,7 @@ bool network2::LaunchUDPServer(const int port, OUT SOCKET &out, const bool isLog
 		return false;
 	}
 
-	char buffer[256];
+	char buffer[128];
 	nRet = gethostname(buffer, sizeof(buffer));
 	if (SOCKET_ERROR == nRet)
 	{
