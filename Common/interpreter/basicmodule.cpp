@@ -13,6 +13,9 @@ eModuleResult ToBoolean(cVirtualMachine& vm, const string& scopeName, const stri
 eModuleResult CastToBoolean(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult CastToNumber(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult CastToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult CastToBoolArray(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult CastToStringArray(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult CastToNumberArray(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult Floor(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult Ceil(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult Round(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
@@ -34,6 +37,9 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "CastToBoolean", CastToBoolean});
 	m_fnMap.insert({ "CastToNumber", CastToNumber});
 	m_fnMap.insert({ "CastToString", CastToString});
+	m_fnMap.insert({ "CastToBooleanArray", CastToBoolArray });
+	m_fnMap.insert({ "CastToStringArray", CastToStringArray });
+	m_fnMap.insert({ "CastToNumberArray", CastToNumberArray });
 	m_fnMap.insert({ "Floor", Floor});
 	m_fnMap.insert({ "Ceil", Ceil});
 	m_fnMap.insert({ "Round", Round});
@@ -55,6 +61,7 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "Array.Empty", ArrayFunction });
 	m_fnMap.insert({ "Array.Clear", ArrayFunction });
 	m_fnMap.insert({ "Array.Clone", ArrayFunction });
+	m_fnMap.insert({ "Array.Init", ArrayFunction });
 
 	m_fnMap.insert({ "Map.Get", MapFunction });
 	m_fnMap.insert({ "Map.Set", MapFunction });
@@ -187,6 +194,66 @@ eModuleResult CastToString(cVirtualMachine& vm, const string& scopeName, const s
 	}
 	else
 		symbolTable.Set<string>(scopeName, "out", "null", "string"); // exception process
+	return eModuleResult::Done;
+}
+
+
+eModuleResult CastToBoolArray(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+	{
+		symbolTable.Set(scopeName, "out", var->var, "array<bool>");
+	}
+	else
+	{
+		// null array
+		variant_t v;
+		v.vt = VT_BYREF | VT_INT;
+		v.intVal = 0;
+		symbolTable.Set(scopeName, "out", v, "array<bool>");
+	}
+	return eModuleResult::Done;
+}
+
+
+eModuleResult CastToStringArray(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+	{
+		symbolTable.Set(scopeName, "out", var->var, "array<string>");
+	}
+	else
+	{
+		// null array
+		variant_t v;
+		v.vt = VT_BYREF | VT_INT;
+		v.intVal = 0;
+		symbolTable.Set(scopeName, "out", v, "array<string>");
+	}
+	return eModuleResult::Done;
+}
+
+
+eModuleResult CastToNumberArray(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "in");
+	if (var)
+	{
+		symbolTable.Set(scopeName, "out", var->var, "array<float>");
+	}
+	else
+	{
+		// null array
+		variant_t v;
+		v.vt = VT_BYREF | VT_INT;
+		v.intVal = 0;
+		symbolTable.Set(scopeName, "out", v, "array<float>");
+	}
 	return eModuleResult::Done;
 }
 
@@ -359,6 +426,20 @@ eModuleResult ArrayFunction(script::cVirtualMachine& vm
 	else if (funcName == "Array.Clone")
 	{
 		symbolTable.CopyArray(scopeName, "out", srcVar->var);
+	}
+	else if (funcName == "Array.Init")
+	{
+		variant_t value;
+		if (symbolTable.Get(scopeName, "initial data", value))
+		{
+			const bool res = symbolTable.ArrayInitializer(scopeName, "array"
+				, common::variant2str(value));
+			symbolTable.Set(scopeName, "result", res, "bool");
+		}
+		else
+		{
+			symbolTable.Set(scopeName, "result", false, "bool");
+		}		
 	}
 
 	return eModuleResult::Done;

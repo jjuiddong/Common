@@ -272,12 +272,14 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 	}
 	break;
 	case eSymbolType::Array:
+	{
 		if (!m_variables.InitArray(scopeName, name, typeStr))
 		{
 			assert(!"cNodefile::AddVariable2() symbol parse error!! 3");
 			return false;
 		}
-		break;
+	}
+	break;
 	case eSymbolType::Map:
 		if (!m_variables.InitMap(scopeName, name, typeStr))
 		{
@@ -290,8 +292,36 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 		return false;
 	}
 
+	// initialize array
+	if (symbType == eSymbolType::Array)
+	{
+		string str = sdata.Get<string>(p, "value", "");
+		common::replaceAll(str, "<p>", ""); // remove <p> character
+		vector<string> toks;
+		common::tokenizer(str, ",", "", toks);
+
+		sVariable *var = m_variables.FindVarInfo(scopeName, name);
+		if (var && (typeValues.size() > 1))
+		{
+			const eSymbolType::Enum itemType = typeValues[1]; // array item type
+			for (auto& tok : toks)
+			{
+				common::replaceAll(tok, "'", ""); // remove \' character
+				switch (itemType)
+				{
+				case eSymbolType::Bool: val = (bool)atoi(tok.c_str()); break;
+				case eSymbolType::Enums:
+				case eSymbolType::Int: val = (int)atoi(tok.c_str()); break;
+				case eSymbolType::Float: val = (float)atof(tok.c_str()); break;
+				case eSymbolType::String: val = common::str2variant(VT_BSTR, tok); break;
+				default: continue;
+				}
+				var->PushArrayElement(val);
+			}
+		}
+	}
 	// update value bool, int, float, string, enum
-	if ((symbType != eSymbolType::Array) && (symbType != eSymbolType::Map))
+	else if ((symbType != eSymbolType::Map))
 	{
 		if (!m_variables.Set(scopeName, name, val, typeStr))
 		{

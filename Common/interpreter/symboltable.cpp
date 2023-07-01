@@ -136,6 +136,43 @@ bool cSymbolTable::CopyArray(const string &scopeName, const string &symbolName
 }
 
 
+// array initializer
+bool cSymbolTable::ArrayInitializer(const string& scopeName, const string& symbolName
+	, const string& initStr)
+{
+	sVariable* var = FindRealVarInfo(scopeName, symbolName);
+	if (!var) return false; // error return
+
+	string valueStr = initStr;
+	common::replaceAll(valueStr, "\"", "'");
+	vector<string> toks;
+	common::tokenizer(valueStr, ",", "", toks);
+
+	const eSymbolType::Enum itemType = var->typeValues[1]; // array item type
+	if (eSymbolType::None == itemType)
+		return false; // not found array item type, error return
+	
+	var->ClearArray();
+	variant_t val;
+	for (auto& tok : toks)
+	{
+		common::replaceAll(tok, "'", ""); // remove \' character
+		switch (itemType)
+		{
+		case eSymbolType::Bool: val = (bool)atoi(tok.c_str()); break;
+		case eSymbolType::Enums:
+		case eSymbolType::Int: val = (int)atoi(tok.c_str()); break;
+		case eSymbolType::Float: val = (float)atof(tok.c_str()); break;
+		case eSymbolType::String: val = common::str2variant(VT_BSTR, tok); break;
+		default: continue;
+		}
+		var->PushArrayElement(val);
+	}
+
+	return true;
+}
+
+
 // add or update map variable (empty map)
 // var: only update map element type
 bool cSymbolTable::InitMap(const string &scopeName, const string &symbolName
@@ -235,6 +272,92 @@ bool cSymbolTable::Get(const string &scopeName, const string &symbolName
 }
 
 
+// convert variable value to string (only array type)
+bool ConvertVariableToString(script::sVariable& var, OUT string &out)
+{
+	if (var.IsArray())
+	{
+		if (var.GetArraySize() == 0)
+		{
+			out = "[]";
+			return true;
+		}
+
+		out = "[";
+		switch (var.ar[0].vt)
+		{
+		case VT_BOOL:
+			for (uint i=0; i < var.arSize; ++i)
+				out += common::format("%d,", (bool)var.ar[i]);
+			break;
+
+		case VT_INT:
+		case VT_R4:
+			for (uint i=0; i < var.arSize; ++i)
+				out += common::format("%f,", (float)var.ar[i]);
+			break;
+
+		case VT_BSTR:
+			for (uint i=0; i < var.arSize; ++i)
+			{
+				const string str = (bstr_t)var.ar[i];
+				out += str + ",";
+			}
+			break;
+
+		default:
+			break;
+		}
+		out += "]";
+	}
+	else
+	{
+		out = "null";
+	}
+	return true;
+}
+
+
+// get variable value to string
+bool cSymbolTable::GetString(const string& scopeName, const string& symbolName
+	, OUT string& out)
+{
+	sVariable *var = FindRealVarInfo(scopeName, symbolName);
+	//RETV(!var, false);
+	if (!var)
+	{
+		out = "null";
+		return false;
+	}
+
+	switch (var->var.vt)
+	{
+	case VT_BOOL:
+		out = common::format("%d", (bool)var->var);
+		break;
+	case VT_R4:
+		out = common::format("%f", (float)var->var);
+		break;
+	case VT_BSTR:
+		out = (const char*)(bstr_t)var->var;
+		break;
+	default:
+	{
+		if (var->IsArray())
+		{
+			ConvertVariableToString(*var, out);
+		}
+		else if (var->IsMap())
+		{
+			out = "null";
+		}
+	}
+	break;
+	}
+	return true;
+}
+
+
 sVariable* cSymbolTable::FindVarInfo(const string &scopeName
 	, const string &symbolName)
 {
@@ -245,6 +368,23 @@ sVariable* cSymbolTable::FindVarInfo(const string &scopeName
 	RETV(it->second.end() == it2, nullptr);
 
 	return &it2->second;
+}
+
+
+// find variable, if reference of array or map, find real variable and then return
+sVariable* cSymbolTable::FindRealVarInfo(const string& scopeName, const string& symbolName)
+{
+	sVariable* var = FindVarInfo(scopeName, symbolName);
+	RETV(!var, nullptr);
+	if (!var->IsReference())
+		return var;
+
+	auto it = m_varMap.find(var->var.intVal);
+	if (m_varMap.end() == it)
+		return nullptr; // error return, not found real data
+
+	var = FindVarInfo(it->second.first, it->second.second);
+	return var;
 }
 
 

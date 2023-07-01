@@ -44,7 +44,8 @@ sVariable::~sVariable()
 // is array or map reference?
 bool sVariable::IsReference() const
 {
-	const int v = var.vt & (VT_BYREF | VT_INT);
+	//const int v = var.vt == (VT_BYREF | VT_INT);
+	const int v = var.vt & VT_BYREF;
 	return (v > 0)? true : false;
 }
 

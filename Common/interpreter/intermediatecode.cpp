@@ -494,33 +494,37 @@ bool cIntermediateCode::InitOptimizeInfo()
 		case eCommand::symbols:
 			m_variables.Set(code.str1, code.str2, code.var1);
 			break;
-		case eCommand::symbolab:
-			m_variables.InitArray(code.str1, code.str2, "array<bool>");
-			break;
-		case eCommand::symbolai:
-			m_variables.InitArray(code.str1, code.str2, "array<int>");
-			break;
-		case eCommand::symbolaf:
-			m_variables.InitArray(code.str1, code.str2, "array<float>");
-			break;
-		case eCommand::symbolas:
-			m_variables.InitArray(code.str1, code.str2, "array<string>");
-			break;
-		case eCommand::symbolmb:
-			m_variables.InitMap(code.str1, code.str2, "map<string,bool>");
-			break;
-		case eCommand::symbolmi:
-			m_variables.InitMap(code.str1, code.str2, "map<string,int>");
-			break;
-		case eCommand::symbolmf:
-			m_variables.InitMap(code.str1, code.str2, "map<string,float>");
-			break;
-		case eCommand::symbolms:
-			m_variables.InitMap(code.str1, code.str2, "map<string,string>");
-			break;
-		case eCommand::symbolma:
-			m_variables.InitMap(code.str1, code.str2, code.str3);
-			break;
+
+		// skip this code, array, map already initialize
+		// 
+		//case eCommand::symbolab:
+		//	m_variables.InitArray(code.str1, code.str2, "array<bool>");
+		//	break;
+		//case eCommand::symbolai:
+		//	m_variables.InitArray(code.str1, code.str2, "array<int>");
+		//	break;
+		//case eCommand::symbolaf:
+		//	m_variables.InitArray(code.str1, code.str2, "array<float>");
+		//	break;
+		//case eCommand::symbolas:
+		//	m_variables.InitArray(code.str1, code.str2, "array<string>");
+		//	break;
+		//
+		//case eCommand::symbolmb:
+		//	m_variables.InitMap(code.str1, code.str2, "map<string,bool>");
+		//	break;
+		//case eCommand::symbolmi:
+		//	m_variables.InitMap(code.str1, code.str2, "map<string,int>");
+		//	break;
+		//case eCommand::symbolmf:
+		//	m_variables.InitMap(code.str1, code.str2, "map<string,float>");
+		//	break;
+		//case eCommand::symbolms:
+		//	m_variables.InitMap(code.str1, code.str2, "map<string,string>");
+		//	break;
+		//case eCommand::symbolma:
+		//	m_variables.InitMap(code.str1, code.str2, code.str3);
+		//	break;
 		}
 	}
 

@@ -203,7 +203,7 @@ int cLoadBalancer::ThreadFunction(cLoadBalancer *balancer, sThreadContext *ctx)
 			cTask *task = *it;
 			const cTask::eRunResult res = task->Run(dt);
 			if (cTask::eRunResult::End == res)
-			{			
+			{
 				it = ctx->tasks.erase(it);
 				delete task;
 			}
@@ -214,9 +214,9 @@ int cLoadBalancer::ThreadFunction(cLoadBalancer *balancer, sThreadContext *ctx)
 		}
 
 		updateCountTime += dt;
-		if (updateCountTime > 5.f) // update every 5 seconds
+		if (updateCountTime > 5.0) // update every 5 seconds
 		{
-			updateCountTime = 0.f;
+			updateCountTime = 0.0;
 			ctx->count = ctx->tasks.size();
 		}
 

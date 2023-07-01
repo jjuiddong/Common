@@ -76,6 +76,8 @@ namespace common
 				, const string &typeStr );
 			bool CopyArray(const string &scopeName, const string &symbolName
 				, const variant_t &var);
+			bool ArrayInitializer(const string& scopeName, const string& symbolName
+				, const string& initStr);
 			bool InitMap(const string &scopeName, const string &symbolName
 				, const string &typeStr);
 			bool CopyMap(const string &scopeName, const string &symbolName
@@ -88,8 +90,11 @@ namespace common
 			bool Get(const string &scopeName, const string &symbolName
 				, OUT variant_t &out);
 
+			bool GetString(const string& scopeName, const string& symbolName
+				, OUT string& out);
 			
 			sVariable* FindVarInfo(const string &scopeName, const string &symbolName);
+			sVariable* FindRealVarInfo(const string& scopeName, const string& symbolName);
 			bool IsExist(const string &scopeName, const string &symbolName);
 			bool RemoveVar(const string &scopeName, const string &symbolName);
 			
