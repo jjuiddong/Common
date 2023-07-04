@@ -9,6 +9,7 @@ std::atomic_int cSymbolTable::s_genId = 1;
 
 
 cSymbolTable::cSymbolTable()
+	: m_isChange(false)
 {
 }
 cSymbolTable::cSymbolTable(const cSymbolTable &rhs)
@@ -28,6 +29,9 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 	, const string &typeStr //= ""
 	)
 {
+	if (!IsExist(scopeName, symbolName))
+		m_isChange = true;
+
 	// to avoid bstr memory move bug
 	common::clearvariant(m_vars[scopeName][symbolName].var);
 	sVariable &variable = m_vars[scopeName][symbolName];
@@ -55,6 +59,9 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 bool cSymbolTable::InitArray(const string &scopeName, const string &symbolName
 	, const string &typeStr)
 {
+	if (!IsExist(scopeName, symbolName))
+		m_isChange = true;
+
 	// find exist array variable
 	sVariable *arrayVar = nullptr;
 	auto it1 = m_vars.find(scopeName);
@@ -73,7 +80,6 @@ bool cSymbolTable::InitArray(const string &scopeName, const string &symbolName
 	else
 	{
 		sVariable newVar;
-		//newVar.type = typeStr;
 		newVar.type = "Array";
 		common::script::ParseTypeString(typeStr, newVar.typeValues);
 		newVar.subTypeStr = GenerateTypeString(newVar.typeValues, 1);
@@ -178,6 +184,9 @@ bool cSymbolTable::ArrayInitializer(const string& scopeName, const string& symbo
 bool cSymbolTable::InitMap(const string &scopeName, const string &symbolName
 	, const string &typeStr )
 {
+	if (!IsExist(scopeName, symbolName))
+		m_isChange = true;
+
 	sVariable *mapVar = nullptr;
 	auto it1 = m_vars.find(scopeName);
 	if (it1 != m_vars.end())
@@ -563,6 +572,7 @@ bool cSymbolTable::CopySymbols(const cSymbolTable &rhs)
 
 void cSymbolTable::Clear()
 {
+	m_isChange = false;
 	m_vars.clear();
 	m_varMap.clear();
 

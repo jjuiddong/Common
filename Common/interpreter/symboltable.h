@@ -68,10 +68,6 @@ namespace common
 			bool Set(const string &scopeName, const string &symbolName
 				, const map<string, vector<T>> &var, const string &typeStr = "");
 
-			// map<string,variant_t> specialization
-			//bool Set(const string &scopeName, const string &symbolName
-			//	, const map<string, variant_t> &var, const string &typeStr = "");
-
 			bool InitArray(const string &scopeName, const string &symbolName
 				, const string &typeStr );
 			bool CopyArray(const string &scopeName, const string &symbolName
@@ -104,6 +100,7 @@ namespace common
 			sSymbol* FindSymbol(const string &typeName);
 
 			bool CopySymbols(const cSymbolTable &rhs);
+			void SyncChange() { m_isChange = false; }
 			void Clear();
 			cSymbolTable& operator=(const cSymbolTable &rhs);
 
@@ -122,6 +119,7 @@ namespace common
 			map<int, std::pair<string,string>> m_varMap; // key: variable id, value: scopeName, varName
 														 // for array type
 
+			bool m_isChange; // add variable?
 			static std::atomic_int s_genId;
 		};
 
@@ -152,6 +150,9 @@ namespace common
 			variant_t v;
 			v.vt = VT_BSTR;
 			v.bstrVal = ::SysAllocString(common::str2wstr(var).c_str());
+
+			if (!IsExist(scopeName, symbolName))
+				m_isChange = true;
 
 			// to avoid bstr memory move bug
 			common::clearvariant(m_vars[scopeName][symbolName].var);

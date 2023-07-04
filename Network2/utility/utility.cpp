@@ -5,7 +5,6 @@
 namespace network2
 {
 	// *.prt file parsing functions
-	bool Init();
 	void InsertProtocol(sProtocol *protocol);
 	void InsertPacket(sProtocol *protocol, sPacket *packet);
 	sPacket* GetPacket(const __int64 packetId);
@@ -82,7 +81,7 @@ void network2::InsertPacket(sProtocol *protocol, sPacket *packet)
 
 // read all *.prt file
 // search directory "./media/protocol/*.prt"
-bool network2::Init()
+bool network2::InitPacketParser()
 {
 	AutoCSLock cs(g_cs);
 	if (g_isLoadProtocol)
@@ -124,7 +123,7 @@ void network2::DisplayPacket(const string &firstStr, const cPacket &packet
 )
 {
 	if (!g_isLoadProtocol)
-		Init();
+		InitPacketParser();
 
 	network2::GetLogThread().PushTask(new cPacketDisplayTask(firstStr, packet, logLevel));
 
@@ -144,7 +143,7 @@ void network2::DisplayPacket(const string &firstStr, const cPacket &packet
 void network2::GetPacketString(const cPacket &packet, OUT string &out)
 {
 	if (!g_isLoadProtocol)
-		Init();
+		InitPacketParser();
 
 	const int protocolID = packet.GetProtocolId();
 	const uint packetID = packet.GetPacketId();
@@ -158,7 +157,7 @@ void network2::GetPacketString(const cPacket &packet, OUT string &out)
 StrId network2::GetPacketName(const cPacket &packet)
 {
 	if (!g_isLoadProtocol)
-		Init();
+		InitPacketParser();
 
 	const int protocolID = packet.GetProtocolId();
 	const uint packetID = packet.GetPacketId();
@@ -184,7 +183,7 @@ ePacketFormat network2::GetPacketFormat(const cPacket &packet)
 ePacketFormat network2::GetPacketFormat(const int protocolId)
 {
 	if (!g_isLoadProtocol)
-		Init();
+		InitPacketParser();
 	if (0 == protocolId) // basic protocol?
 		return ePacketFormat::BINARY;
 	auto it = g_protocolFormat.find(protocolId);

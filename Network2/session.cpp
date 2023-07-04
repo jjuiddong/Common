@@ -42,7 +42,7 @@ void cSession::Close()
 }
 
 
-int cSession::GetId() const
+netid cSession::GetId() const
 {
 	return m_id;
 }

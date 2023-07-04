@@ -103,7 +103,7 @@ bool cTcpServer::Process()
 		GetAllSocket(socks);
 
 		set<netid> errSocks;
-		m_sendQueue.SendAll(socks, &errSocks);
+		m_sendQueue.SendAll(socks, &errSocks, &m_protocolListeners);
 		for (auto sock : errSocks)
 		{
 			const netid netId = GetNetIdFromSocket(sock);

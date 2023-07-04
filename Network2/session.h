@@ -16,7 +16,7 @@ namespace network2
 		virtual ~cSession();
 
 		virtual void Close();
-		int GetId() const;
+		netid GetId() const;
 		bool IsConnect() const;
 		bool IsReadyConnect() const;
 		bool IsFailConnection() const;

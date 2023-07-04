@@ -245,7 +245,7 @@ bool cWebClient::Process()
 		GetAllSocket(socks);
 
 		set<netid> errNetIds;
-		m_sendQueue.SendAll(socks, &errNetIds);
+		m_sendQueue.SendAll(socks, &errNetIds, &m_protocolListeners);
 
 		if (!errNetIds.empty())
 		{

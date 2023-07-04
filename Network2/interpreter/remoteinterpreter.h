@@ -66,6 +66,7 @@ namespace network2
 
 
 	protected:
+		bool IsChangeSymbolTable(const int itprId);
 		bool SendSyncVMRegister(const int itprId);
 		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId);

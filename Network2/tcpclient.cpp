@@ -169,7 +169,7 @@ bool cTcpClient::Process()
 		GetAllSocket(socks);
 
 		set<netid> errSocks;
-		m_sendQueue.SendAll(socks, &errSocks);
+		m_sendQueue.SendAll(socks, &errSocks, &m_protocolListeners);
 
 		if (!errSocks.empty())
 		{

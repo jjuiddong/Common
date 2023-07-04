@@ -127,12 +127,14 @@ bool cPacketQueue::Front(OUT cPacket &out)
 void cPacketQueue::SendAll(
 	const map<netid, SOCKET> &socks
 	, OUT set<netid> *outErrs //= nullptr
+	, vector<iProtocolHandler*> *listeners //= nullptr
 )
 {
 	RET(m_sockBuffers.empty());
 
 	cAutoCS cs(m_cs);
 
+	all::Dispatcher allDispatcher;
 	bool isSendError = false;
 	for (u_int i = 0; i < m_sockBuffers.m_seq.size(); ++i)
 	{
@@ -200,6 +202,8 @@ void cPacketQueue::SendAll(
 				}
 			} //~else ALL_NETID
 
+			if (listeners)
+				allDispatcher.Dispatch(packet, *listeners);
 			sockBuffer->Pop(packet.m_writeIdx);
 
 		} // ~while
@@ -216,6 +220,7 @@ void cPacketQueue::SendAll(
 // send packet all 
 void cPacketQueue::SendAll(
 	set<netid> *outErrs //= nullptr
+	, vector<iProtocolHandler*>* listeners //= nullptr
 )
 {
 	RET(m_sockBuffers.empty());
@@ -223,6 +228,7 @@ void cPacketQueue::SendAll(
 	cAutoCS cs(m_cs);
 
 	bool isSendError = false;
+	all::Dispatcher allDispatcher;
 	for (uint i = 0; i < m_sockBuffers.m_seq.size(); ++i)
 	{
 		cSocketBuffer *sockBuffer = m_sockBuffers.m_seq[i];
@@ -262,6 +268,8 @@ void cPacketQueue::SendAll(
 				outErrs->insert(sockBuffer->m_netId);
 			}
 
+			if (listeners)
+				allDispatcher.Dispatch(packet, *listeners);
 			sockBuffer->Pop(packet.m_writeIdx);
 		} // ~while
 	} // ~for
@@ -275,11 +283,15 @@ void cPacketQueue::SendAll(
 
 
 // send packet all, udp
-void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
+void cPacketQueue::SendAll(
+	const sockaddr_in &sockAddr
+	, vector<iProtocolHandler*>* listeners //= nullptr
+)
 {
 	RET(m_sockBuffers.empty());
 
 	cAutoCS cs(m_cs);
+	all::Dispatcher allDispatcher;
 	for (u_int i = 0; i < m_sockBuffers.m_seq.size(); ++i)
 	{
 		cSocketBuffer *sockBuffer = m_sockBuffers.m_seq[i];
@@ -297,6 +309,8 @@ void cPacketQueue::SendAll(const sockaddr_in &sockAddr)
 			else
 			{
 				m_netNode->SendToPacket(sock, sockAddr, packet);
+				if (listeners)
+					allDispatcher.Dispatch(packet, *listeners);
 			}
 		}
 	}

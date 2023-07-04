@@ -66,6 +66,39 @@ vector<iProtocolHandler*>& cNetworkNode::GetProtocolHandlers()
 }
 
 
+// Add ProtocolListener
+bool cNetworkNode::AddProtocolListener(iProtocolHandler* listener)
+{
+	for (auto& p : m_protocolListeners)
+		if (p == listener)
+			return false; // already exist
+	m_protocolListeners.push_back(listener);
+	return true;
+}
+
+
+// Remove ProtocolListener
+bool cNetworkNode::RemoveProtocolListener(iProtocolHandler* listener)
+{
+	for (auto& p : m_protocolListeners)
+	{
+		if (p == listener)
+		{
+			common::removevector(m_protocolListeners, listener);
+			return true;
+		}
+	}
+	return false;
+}
+
+
+// return protocol listeners
+vector<iProtocolHandler*>& cNetworkNode::GetProtocolListeners()
+{
+	return m_protocolListeners;
+}
+
+
 // default send
 int cNetworkNode::SendPacket(const SOCKET sock, const cPacket &packet)
 {

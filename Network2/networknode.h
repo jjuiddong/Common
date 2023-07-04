@@ -27,6 +27,9 @@ namespace network2
 		virtual bool AddProtocolHandler(iProtocolHandler *handler);
 		virtual bool RemoveProtocolHandler(iProtocolHandler *handler);
 		vector<iProtocolHandler*>& GetProtocolHandlers();
+		virtual bool AddProtocolListener(iProtocolHandler* handler);
+		virtual bool RemoveProtocolListener(iProtocolHandler* handler);
+		vector<iProtocolHandler*>& GetProtocolListeners();
 		virtual void Close() override;
 
 		// pure virtual functions..
@@ -47,6 +50,7 @@ namespace network2
 
 	public:
 		vector<iProtocolHandler*> m_protocolHandlers;
+		vector<iProtocolHandler*> m_protocolListeners;
 	};
 
 }

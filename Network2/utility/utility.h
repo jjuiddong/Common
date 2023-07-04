@@ -7,6 +7,8 @@
 
 namespace network2 
 {
+	
+	bool InitPacketParser();
 
 	void DisplayPacket(const string &firstStr, const cPacket &packet
 		, const int logLevel = 0);

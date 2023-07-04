@@ -144,6 +144,7 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 			continue;
 
 		auto& handlers = netNode->GetProtocolHandlers();
+		auto& listeners = netNode->GetProtocolListeners();
 		const int protocolId = packet.GetProtocolId();
 		const uint packetId = packet.GetPacketId();
 
@@ -155,11 +156,12 @@ int ProcessNetworkNode(NetNode *netNode, Dispatcher *basicDispatcher)
 			continue;
 		}
 
-		if (handlers.empty())
+		if (handlers.empty() && listeners.empty())
 			continue; // no handler, nothing to do
 
 		// All Protocol Dispatcher
 		allDispatcher.Dispatch(packet, handlers);
+		allDispatcher.Dispatch(packet, listeners);
 
 		auto it = cProtocolDispatcher::GetDispatcherMap()->find(packet.GetProtocolId());
 		if (cProtocolDispatcher::GetDispatcherMap()->end() != it)

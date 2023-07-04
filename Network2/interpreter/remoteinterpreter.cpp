@@ -624,12 +624,13 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>&
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
 	sItpr& itpr = m_interpreters[itprId];
-	itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
-	if (varNames.empty())
+	if (varNames.empty() || IsChangeSymbolTable(itprId))
 	{
 		// sync all
+		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 		SendSyncSymbolTable(itprId);
-		return true; // finish
+		if (varNames.empty())
+			return true; // finish
 	}
 
 	// sync specific variable
@@ -648,6 +649,9 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>&
 
 			if (var->IsReference())
 			{
+				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+					, script::cSymbolTable::MakeScopeName3(toks[0], toks[1]), *var);
+
 				auto it = vm->m_symbTable.m_varMap.find(var->var.intVal);
 				if (vm->m_symbTable.m_varMap.end() == it)
 					continue; // error
@@ -723,6 +727,21 @@ bool cRemoteInterpreter::IsDebug(const int itprId)
 		script::cInterpreter *interpreter = itpr.interpreter;
 		interpreter->Break();
 		return (eState::Run == itpr.state) && interpreter->IsDebug();
+	}
+	return false;
+}
+
+
+// check symboltable change
+bool cRemoteInterpreter::IsChangeSymbolTable(const int itprId)
+{
+	sItpr& itpr = m_interpreters[itprId];
+	script::cInterpreter* interpreter = itpr.interpreter;
+	for (uint i = 0; i < interpreter->m_vms.size(); ++i)
+	{
+		script::cVirtualMachine* vm = interpreter->m_vms[i];
+		if (vm->m_symbTable.m_isChange)
+			return true;
 	}
 	return false;
 }
@@ -854,6 +873,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 					, itprId, i, 0, symbols.size(), symbols);
 			}
 		}
+		vm->m_symbTable.SyncChange(); // clear change flag
 	}
 	
 	return true;
