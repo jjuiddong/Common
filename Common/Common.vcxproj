@@ -413,9 +413,11 @@
     <ClInclude Include="etc\autocs.h" />
     <ClInclude Include="etc\BufferedSerial.h" />
     <ClInclude Include="etc\config.h" />
+    <ClInclude Include="etc\cpu.h" />
     <ClInclude Include="etc\date.h" />
     <ClInclude Include="etc\date2.h" />
     <ClInclude Include="etc\dbg.h" />
+    <ClInclude Include="etc\dump.h" />
     <ClInclude Include="etc\enumser.h" />
     <ClInclude Include="etc\FastMemLoader.h" />
     <ClInclude Include="etc\file.h" />
@@ -446,6 +448,7 @@
     <ClInclude Include="etc\simpledata.h" />
     <ClInclude Include="etc\simpledata2.h" />
     <ClInclude Include="etc\singleton.h" />
+    <ClInclude Include="etc\StackWalker.h" />
     <ClInclude Include="etc\stringfunc.h" />
     <ClInclude Include="etc\timer.h" />
     <ClInclude Include="interpreter\basicmodule.h" />
@@ -493,9 +496,11 @@
   <ItemGroup>
     <ClCompile Include="etc\BufferedSerial.cpp" />
     <ClCompile Include="etc\config.cpp" />
+    <ClCompile Include="etc\cpu.cpp" />
     <ClCompile Include="etc\date.cpp" />
     <ClCompile Include="etc\date2.cpp" />
     <ClCompile Include="etc\dbg.cpp" />
+    <ClCompile Include="etc\dump.cpp" />
     <ClCompile Include="etc\enumser.cpp" />
     <ClCompile Include="etc\FastMemLoader.cpp" />
     <ClCompile Include="etc\file.cpp" />
@@ -516,6 +521,7 @@
     <ClCompile Include="etc\shmmem.cpp" />
     <ClCompile Include="etc\simpledata.cpp" />
     <ClCompile Include="etc\simpledata2.cpp" />
+    <ClCompile Include="etc\StackWalker.cpp" />
     <ClCompile Include="etc\stringfunc.cpp" />
     <ClCompile Include="etc\timer.cpp" />
     <ClCompile Include="interpreter\basicmodule.cpp" />

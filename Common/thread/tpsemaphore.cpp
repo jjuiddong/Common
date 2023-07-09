@@ -173,15 +173,15 @@ int cTPSemaphore::ThreadFunction(cTPSemaphore *tpSemaphore)
 		cTask *task = tpSemaphore->PopTask();
 		if (!task) // end thread command?
 			break;
-		try 
-		{
+		//try 
+		//{
 			task->Run(0.f);
-		}
-		catch (std::exception &e) 
-		{
-			dbg::Logc(2, "error cTPSemaphore Task exception, %s, %s\n"
-				, e.what(), task->m_name.c_str());
-		}
+		//}
+		//catch (std::exception &e) 
+		//{
+		//	dbg::Logc(2, "error cTPSemaphore Task exception, %s, %s\n"
+		//		, e.what(), task->m_name.c_str());
+		//}
 		delete task;
 	}
 	return 1;

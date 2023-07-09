@@ -199,6 +199,9 @@ using std::max;
 #include "etc/setutil.h"
 #include "etc/file.h"
 #include "etc/graphscript.h"
+#include "etc/cpu.h"
+#include "etc/StackWalker.h"
+#include "etc/dump.h"
 
 
 #include "interpreter/definition.h"

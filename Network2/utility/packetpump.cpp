@@ -107,8 +107,11 @@ bool cPacketPump::Update(const float deltaSeconds
 		beginT = t.GetTimeInt64(); // yyyymmddhhmmssmmm
 	}
 
-	for (auto &plog : m_plogs.m_seq)
+	vector<vector<network2::cPacketLog::sPacketInfo*>> ars1(m_plogs.size());
+	vector<vector<BYTE*>> ars2(m_plogs.size());
+	for (uint i=0; i < m_plogs.size(); ++i)
 	{
+		network2::cPacketLog *plog = m_plogs.m_seq[i];
 		vector<network2::cPacketLog::sPacketInfo*> infos;
 		vector<BYTE*> ptrs;
 		plog->ReadPacket(beginT, endT, infos, ptrs);
@@ -116,21 +119,31 @@ bool cPacketPump::Update(const float deltaSeconds
 		{
 			out1.push_back(p);
 			out1PacketLogs.push_back(plog);
+			ars1[i].push_back(p);
 		}
-		for (auto &p : ptrs)
+		for (auto& p : ptrs)
+		{
 			out3.push_back(p);
+			ars2[i].push_back(p);
+		}
 	}
 
 	// change packet store in out2
-	for (uint i=0; i < out1.size(); ++i)
+	vector<vector<network2::cPacketLog::sPacketInfo*>> ars3(m_plogs.size());
+	vector<vector<BYTE*>> ars4(m_plogs.size());
+	for (uint i = 0; i < ars1.size(); ++i)
 	{
-		auto &log = out1[i];
-		auto it = m_timeLines.find(log->dateTime);
-		if (m_timeLines.end() == it)
+		const vector<network2::cPacketLog::sPacketInfo*>& ar1 = ars1[i];
+		const vector<BYTE*>& ar2 = ars2[i];
+		for (uint k = 0; k < ar1.size(); ++k)
 		{
-			out2.push_back(log);
-			out2PacketLogs.push_back(out1PacketLogs[i]);
-			out4.push_back(out3[i]);
+			auto &log = ar1[k];
+			auto it = m_timeLines.find(log->dateTime);
+			if (m_timeLines.end() == it)
+			{
+				ars3[i].push_back(log);
+				ars4[i].push_back(ar2[k]);
+			}
 		}
 	}
 
@@ -138,18 +151,39 @@ bool cPacketPump::Update(const float deltaSeconds
 	for (auto &p : out1)
 		m_timeLines.insert(p->dateTime);
 
+	uint totalSize = 0;
+	for (uint i = 0; i < ars3.size(); ++i)
+		totalSize += ars3[i].size();
+	out2.reserve(totalSize);
+	out4.reserve(totalSize);
+	out2PacketLogs.reserve(totalSize);
+
 	// sorting by dateTime
-	for (int i = 0; i < (int)out2.size() - 1; ++i)
+	vector<uint> indices(ars3.size(), 0);
+	while (1)
 	{
-		for (int k = i+1; k < (int)out2.size(); ++k)
+		int minIdx1 = -1;
+		int minIdx2 = -1;
+		uint64 minDateTime = ULLONG_MAX;
+
+		for (uint i = 0; i < ars3.size(); ++i)
 		{
-			if (out2[i]->dateTime > out2[k]->dateTime)
+			if (ars3[i].size() <= indices[i]) continue; // all saved
+			const uint64 dateTime = ars3[i][indices[i]]->dateTime;
+			if (minDateTime > dateTime)
 			{
-				std::swap(out2[i], out2[k]);
-				std::swap(out2PacketLogs[i], out2PacketLogs[k]);
-				std::swap(out4[i], out4[k]);
+				minDateTime = dateTime;
+				minIdx1 = (int)i;
+				minIdx2 = (int)indices[i];
 			}
 		}
+		if (minIdx1 < 0)
+			break; // finish
+
+		out2.push_back(ars3[minIdx1][minIdx2]);
+		out4.push_back(ars4[minIdx1][minIdx2]);
+		out2PacketLogs.push_back(m_plogs.m_seq[minIdx1]);
+		++indices[minIdx1];
 	}
 
 	return true;

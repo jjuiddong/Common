@@ -262,6 +262,15 @@
     <ClInclude Include="container\shmqueue.h">
       <Filter>container</Filter>
     </ClInclude>
+    <ClInclude Include="etc\cpu.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\StackWalker.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\dump.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -431,6 +440,15 @@
       <Filter>interpreter</Filter>
     </ClCompile>
     <ClCompile Include="etc\filepath1.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\cpu.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\StackWalker.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\dump.cpp">
       <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>

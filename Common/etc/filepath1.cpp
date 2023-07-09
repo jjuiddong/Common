@@ -226,7 +226,7 @@ string common::DeleteCurrentPath(const string& fileName)
 }
 
 
-// return file size
+// return file size (byte unit)
 int64 common::FileSize(const string& fileName)
 {
 	struct __stat64 buf;
@@ -236,7 +236,7 @@ int64 common::FileSize(const string& fileName)
 }
 
 
-// return filesize all subdirectory
+// return filesize all subdirectory (byte unit)
 uint64 common::FileSize2(const string& fileName)
 {
 	string modifySearchPath = fileName;
