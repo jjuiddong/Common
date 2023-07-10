@@ -113,6 +113,12 @@ export namespace remotedbg2 {
 		vmIdx: number, 
 		varName: string, 
 	}
+	export type ReqChangeVariable_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+		value: string, 
+	}
 	export type ReqHeartBeat_Packet = {
 	}
 
@@ -175,6 +181,12 @@ export namespace remotedbg2 {
 	}
 	export type AckDebugInfo_Packet = {
 		itprIds: Int32Array | null, 
+		result: number, 
+	}
+	export type AckChangeVariable_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
 		result: number, 
 	}
 	export type SyncVMInstruction_Packet = {
@@ -563,6 +575,34 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 				}
 				break;
 
+			case 1626832220: // ReqChangeVariable
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const value = packet.getStr()
+						const parsePacket: ReqChangeVariable_Packet = {
+							itprId,
+							vmIdx,
+							varName,
+							value,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqChangeVariable(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: ReqChangeVariable_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqChangeVariable(parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 2532286881: // ReqHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -930,6 +970,34 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 						handlers.forEach(handler => {
 							if (handler instanceof h2r_ProtocolHandler)
 								handler.AckDebugInfo(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 3660358812: // AckChangeVariable
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmIdx = packet.getInt32()
+						const varName = packet.getStr()
+						const result = packet.getInt32()
+						const parsePacket: AckChangeVariable_Packet = {
+							itprId,
+							vmIdx,
+							varName,
+							result,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckChangeVariable(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: AckChangeVariable_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckChangeVariable(parsePacket)
 						})
 					}
 				}
@@ -1429,6 +1497,26 @@ export class r2h_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ReqChangeVariable
+	ReqChangeVariable(isBinary: boolean, itprId: number, vmIdx: number, varName: string, value: string, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushStr(value)
+			this.node?.sendPacketBinary(5301, 1626832220, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				value,
+			}
+			this.node?.sendPacket(5301, 1626832220, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -1672,6 +1760,26 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: AckChangeVariable
+	AckChangeVariable(isBinary: boolean, itprId: number, vmIdx: number, varName: string, result: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushInt32(result)
+			this.node?.sendPacketBinary(5300, 3660358812, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				result,
+			}
+			this.node?.sendPacket(5300, 3660358812, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(isBinary: boolean, itprId: number, vmIdx: number, indices: number[], ) {
 		if (isBinary) { // binary send?
@@ -1890,6 +1998,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 	ReqStepDebugType = (packet: remotedbg2.ReqStepDebugType_Packet) => { }
 	ReqDebugInfo = (packet: remotedbg2.ReqDebugInfo_Packet) => { }
 	ReqVariableInfo = (packet: remotedbg2.ReqVariableInfo_Packet) => { }
+	ReqChangeVariable = (packet: remotedbg2.ReqChangeVariable_Packet) => { }
 	ReqHeartBeat = (packet: remotedbg2.ReqHeartBeat_Packet) => { }
 }
 
@@ -1913,6 +2022,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	AckEvent = (packet: remotedbg2.AckEvent_Packet) => { }
 	AckStepDebugType = (packet: remotedbg2.AckStepDebugType_Packet) => { }
 	AckDebugInfo = (packet: remotedbg2.AckDebugInfo_Packet) => { }
+	AckChangeVariable = (packet: remotedbg2.AckChangeVariable_Packet) => { }
 	SyncVMInstruction = (packet: remotedbg2.SyncVMInstruction_Packet) => { }
 	SyncVMRegister = (packet: remotedbg2.SyncVMRegister_Packet) => { }
 	SyncVMSymbolTable = (packet: remotedbg2.SyncVMSymbolTable_Packet) => { }

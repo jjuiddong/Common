@@ -15,7 +15,7 @@ namespace common
 		public:
 			cDump();
 			virtual ~cDump();
-			bool Init(const string& dumpFileName="");
+			bool Init(const string& name);
 			void Clear();
 
 
@@ -25,7 +25,7 @@ namespace common
 
 
 		public:
-			static string m_fileName; // write dump filename
+			static string s_name; // dump name
 		};
 	}
 }

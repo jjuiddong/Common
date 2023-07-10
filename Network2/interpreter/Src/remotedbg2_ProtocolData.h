@@ -100,6 +100,15 @@ using namespace marshalling_json;
 		string varName;
 	};
 
+	struct ReqChangeVariable_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
+		string value;
+	};
+
 	struct ReqHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -204,6 +213,15 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		vector<int> itprIds;
+		int result;
+	};
+
+	struct AckChangeVariable_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmIdx;
+		string varName;
 		int result;
 	};
 

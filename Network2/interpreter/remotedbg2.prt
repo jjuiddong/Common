@@ -24,6 +24,7 @@ protocol r2h 5301 json
 	ReqStepDebugType(int stepDbgType);
 	ReqDebugInfo(vector<int> itprIds);
 	ReqVariableInfo(int itprId, int vmIdx, string varName);
+	ReqChangeVariable(int itprId, int vmIdx, string varName, string value);
 	ReqHeartBeat();
 }
 
@@ -44,6 +45,7 @@ protocol h2r 5300 json
 	AckEvent( int itprId, int vmIdx, string eventName, int result);
 	AckStepDebugType(int stepDbgType, int result);
 	AckDebugInfo(vector<int> itprIds, int result);
+	AckChangeVariable(int itprId, int vmIdx, string varName, int result);
 	SyncVMInstruction( int itprId, int vmIdx, vector<ushort> indices );
 	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
 	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );

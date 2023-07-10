@@ -260,40 +260,55 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	RETV(m_events.empty(), false);
 
 	cEvent &evt = m_events.front();
-	const uint addr = m_code.FindJumpAddress(evt.m_name);
-	if (UINT_MAX != addr)
+	if (evt.m_name == "@@symbol@@")
 	{
-		// update symboltable
-		for (auto &kv : evt.m_vars)
+		// update symbol value
+		for (auto& kv : evt.m_vars)
 		{
 			vector<string> out;
 			common::tokenizer(kv.first.c_str(), "::", "", out);
 			if (out.size() >= 2)
 				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
 		}
-		for (auto &kv : evt.m_vars2)
-		{
-			vector<string> out;
-			common::tokenizer(kv.first.c_str(), "::", "", out);
-			if (out.size() >= 2)
-				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
-		}
-		for (auto& kv : evt.m_vars3)
-		{
-			vector<string> out;
-			common::tokenizer(kv.first.c_str(), "::", "", out);
-			if (out.size() >= 2)
-				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
-		}
-		m_reg.idx = addr; // jump instruction code
-		m_state = eState::Run;
 	}
 	else
 	{
-		// error occurred!!
-		// not found event handling
-		//dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
-		//	, evt.m_name.c_str());
+		// event trigger
+		const uint addr = m_code.FindJumpAddress(evt.m_name);
+		if (UINT_MAX != addr)
+		{
+			// update symboltable
+			for (auto &kv : evt.m_vars)
+			{
+				vector<string> out;
+				common::tokenizer(kv.first.c_str(), "::", "", out);
+				if (out.size() >= 2)
+					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+			}
+			for (auto &kv : evt.m_vars2)
+			{
+				vector<string> out;
+				common::tokenizer(kv.first.c_str(), "::", "", out);
+				if (out.size() >= 2)
+					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+			}
+			for (auto& kv : evt.m_vars3)
+			{
+				vector<string> out;
+				common::tokenizer(kv.first.c_str(), "::", "", out);
+				if (out.size() >= 2)
+					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
+			}
+			m_reg.idx = addr; // jump instruction code
+			m_state = eState::Run;
+		}
+		else
+		{
+			// error occurred!!
+			// not found event handling
+			//dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
+			//	, evt.m_name.c_str());
+		}
 	}
 
 	m_events.pop();

@@ -481,6 +481,47 @@ void remotedbg2::r2h_Protocol::ReqVariableInfo(netid targetId, bool isBinary, co
 }
 
 //------------------------------------------------------------------------
+// Protocol: ReqChangeVariable
+//------------------------------------------------------------------------
+void remotedbg2::r2h_Protocol::ReqChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const string &value)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 1626832220 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, varName);
+		marshalling::operator<<(packet, value);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprId", itprId);
+			put(props, "vmIdx", vmIdx);
+			put(props, "varName", varName);
+			put(props, "value", value);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
 // Protocol: ReqHeartBeat
 //------------------------------------------------------------------------
 void remotedbg2::r2h_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
@@ -999,6 +1040,47 @@ void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const
 		ptree props;
 		try {
 			put(props, "itprIds", itprIds);
+			put(props, "result", result);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: AckChangeVariable
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::AckChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const int &result)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 3660358812 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, varName);
+		marshalling::operator<<(packet, result);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprId", itprId);
+			put(props, "vmIdx", vmIdx);
+			put(props, "varName", varName);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);

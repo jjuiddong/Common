@@ -28,6 +28,7 @@ public:
 	void ReqStepDebugType(netid targetId, bool isBinary, const int &stepDbgType);
 	void ReqDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds);
 	void ReqVariableInfo(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName);
+	void ReqChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const string &value);
 	void ReqHeartBeat(netid targetId, bool isBinary);
 	static cPacketHeaderJson s_packetHeader;
 };
@@ -50,6 +51,7 @@ public:
 	void AckEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName, const int &result);
 	void AckStepDebugType(netid targetId, bool isBinary, const int &stepDbgType, const int &result);
 	void AckDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds, const int &result);
+	void AckChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const int &result);
 	void SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<ushort> &indices);
 	void SyncVMRegister(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const int &infoType, const script::cVirtualMachine::sRegister &reg);
 	void SyncVMSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol);

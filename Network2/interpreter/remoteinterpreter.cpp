@@ -57,7 +57,6 @@ cRemoteInterpreter::cRemoteInterpreter(
 	, m_threads(nullptr)
 	, m_multiThreading(0)
 	, m_isThreadMode(true)
-	//, m_symbolTableSyncItprId(-1)
 {
 }
 
@@ -276,8 +275,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		if (itpr.instSyncTime > TIME_SYNC_INSTRUCTION)
 			SendSyncInstruction(itprId);
 
-		//if (isSync && (itprId == m_symbolTableSyncItprId))
-			SendSyncSymbolTable(itprId);
+		SendSyncSymbolTable(itprId);
 
 		// is meet breakpoint? change step debugging mode
 		if (interpreter->IsBreak())
@@ -1157,11 +1155,23 @@ bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet)
 	for (auto &id : packet.itprIds)
 		m_syncItptrs.insert(id);
 
-	// refresh symboltable
-	//m_symbolTableSyncItprId = packet.itprIds.empty() ? -1 : packet.itprIds[0];
-	//m_chSymbols.clear();
-
 	m_protocol.AckDebugInfo(packet.senderId, true, packet.itprIds, 1);
+	return true;
+}
+
+
+// remotedbg2 protocol, request change variable
+bool cRemoteInterpreter::ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet)
+{
+	// change symbol event
+	map<string, variant_t> vars;
+	vars[packet.varName] = packet.value.c_str();
+	script::cEvent evt("@@symbol@@", vars);
+	PushEvent(packet.itprId, evt);
+	//~
+
+	m_protocol.AckChangeVariable(packet.senderId, true
+		, packet.itprId, packet.vmIdx, packet.varName, 1);
 	return true;
 }
 

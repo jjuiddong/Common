@@ -87,6 +87,7 @@ namespace network2
 		virtual bool ReqEvent(remotedbg2::ReqEvent_Packet &packet) override;
 		virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) override;
 		virtual bool ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) override;
+		virtual bool ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet) override;
 
 
 	public:
@@ -113,7 +114,6 @@ namespace network2
 		int m_bindPort; // webserver bind port
 		network2::cWebServer m_server;
 		remotedbg2::h2r_Protocol m_protocol;
-		//int m_symbolTableSyncItprId; // symbol table synchronize interpreter id
 		set<int> m_syncItptrs; // sync debug info interpreter id
 		common::cTPSemaphore *m_threads; // thread pool reference
 		std::atomic<int> m_multiThreading; // multithread work?, 0:no threading work

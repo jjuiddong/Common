@@ -113,6 +113,12 @@ export namespace remotedbg2Async {
 		vmIdx: number, 
 		varName: string, 
 	}
+	export type ReqChangeVariable_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
+		value: string, 
+	}
 	export type ReqHeartBeat_Packet = {
 	}
 
@@ -175,6 +181,12 @@ export namespace remotedbg2Async {
 	}
 	export type AckDebugInfo_Packet = {
 		itprIds: Int32Array | null, 
+		result: number, 
+	}
+	export type AckChangeVariable_Packet = {
+		itprId: number, 
+		vmIdx: number, 
+		varName: string, 
 		result: number, 
 	}
 	export type SyncVMInstruction_Packet = {
@@ -363,6 +375,15 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 				}
 				break;
 
+			case 1626832220: // ReqChangeVariable
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof r2h_ProtocolHandler)
+							handler.ReqChangeVariable(parsePacket)
+					})
+				}
+				break;
+
 			case 2532286881: // ReqHeartBeat
 				{
 					handlers.forEach(handler => {
@@ -502,6 +523,15 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 					handlers.forEach(handler => {
 						if (handler instanceof h2r_ProtocolHandler)
 							handler.AckDebugInfo(parsePacket)
+					})
+				}
+				break;
+
+			case 3660358812: // AckChangeVariable
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.AckChangeVariable(parsePacket)
 					})
 				}
 				break;
@@ -814,6 +844,26 @@ export class r2h_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ReqChangeVariable
+	ReqChangeVariable(isBinary: boolean, itprId: number, vmIdx: number, varName: string, value: string, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushStr(value)
+			this.node?.sendPacketBinary(5301, 1626832220, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				value,
+			}
+			this.node?.sendPacket(5301, 1626832220, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -1057,6 +1107,26 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: AckChangeVariable
+	AckChangeVariable(isBinary: boolean, itprId: number, vmIdx: number, varName: string, result: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmIdx)
+			packet.pushStr(varName)
+			packet.pushInt32(result)
+			this.node?.sendPacketBinary(5300, 3660358812, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmIdx,
+				varName,
+				result,
+			}
+			this.node?.sendPacket(5300, 3660358812, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(isBinary: boolean, itprId: number, vmIdx: number, indices: number[], ) {
 		if (isBinary) { // binary send?
@@ -1275,6 +1345,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 	ReqStepDebugType = (packet: remotedbg2Async.ReqStepDebugType_Packet) => { }
 	ReqDebugInfo = (packet: remotedbg2Async.ReqDebugInfo_Packet) => { }
 	ReqVariableInfo = (packet: remotedbg2Async.ReqVariableInfo_Packet) => { }
+	ReqChangeVariable = (packet: remotedbg2Async.ReqChangeVariable_Packet) => { }
 	ReqHeartBeat = (packet: remotedbg2Async.ReqHeartBeat_Packet) => { }
 }
 
@@ -1298,6 +1369,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	AckEvent = (packet: remotedbg2Async.AckEvent_Packet) => { }
 	AckStepDebugType = (packet: remotedbg2Async.AckStepDebugType_Packet) => { }
 	AckDebugInfo = (packet: remotedbg2Async.AckDebugInfo_Packet) => { }
+	AckChangeVariable = (packet: remotedbg2Async.AckChangeVariable_Packet) => { }
 	SyncVMInstruction = (packet: remotedbg2Async.SyncVMInstruction_Packet) => { }
 	SyncVMRegister = (packet: remotedbg2Async.SyncVMRegister_Packet) => { }
 	SyncVMSymbolTable = (packet: remotedbg2Async.SyncVMSymbolTable_Packet) => { }

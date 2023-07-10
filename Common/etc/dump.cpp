@@ -7,7 +7,7 @@
 using namespace common;
 using namespace common::dbg;
 
-string cDump::m_fileName = "dump.dmp";
+string cDump::s_name = "";
 
 
 cDump::cDump()
@@ -21,22 +21,9 @@ cDump::~cDump()
 
 
 // initialize dump class
-bool cDump::Init(
-	const string &dumpFileName //=""
-)
+bool cDump::Init(const string &name)
 {
-	string fileName;
-	if (dumpFileName.empty())
-	{
-		// fileName: YYYY-MM-DD-HH-MM-SS-MMM.dmp
-		fileName = common::GetCurrentDateTime() + ".dmp";
-	}
-	else
-	{
-		fileName = dumpFileName;
-	}
-
-	m_fileName = fileName;
+	s_name = name;
 	::SetUnhandledExceptionFilter(ExceptionCallback);
 	return true;
 }
@@ -56,11 +43,14 @@ LONG WINAPI cDump::ExceptionCallback(
 	if (!exceptioninfo)
 		return 0;
 
+	// fileName: YYYY-MM-DD-HH-MM-SS-MMM-<name>.dmp
+	const string dateTime = common::GetCurrentDateTime();
+	const string fileName = dateTime + "-" + cDump::s_name + ".dmp";
+
 	SYSTEMTIME st = { 0 };
 	::GetLocalTime(&st);
-	std::string fileNname = cDump::m_fileName;
 
-	HANDLE handle = ::CreateFileA(fileNname.c_str(),
+	HANDLE handle = ::CreateFileA(fileName.c_str(),
 		GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (INVALID_HANDLE_VALUE == handle)
 		return 0; // error return
