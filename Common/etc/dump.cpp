@@ -43,12 +43,20 @@ LONG WINAPI cDump::ExceptionCallback(
 	if (!exceptioninfo)
 		return 0;
 
-	// fileName: YYYY-MM-DD-HH-MM-SS-MMM-<name>.dmp
-	const string dateTime = common::GetCurrentDateTime();
-	const string fileName = dateTime + "-" + cDump::s_name + ".dmp";
-
 	SYSTEMTIME st = { 0 };
 	::GetLocalTime(&st);
+
+	// fileName: YYYY-MM-DD-HH-MM-SS-MMM-<name>.dmp
+	stringstream ss;
+	ss << st.wYear
+		<< "-" << std::setfill('0') << std::setw(2) << st.wMonth
+		<< "-" << std::setfill('0') << std::setw(2) << st.wDay
+		<< "-" << std::setfill('0') << std::setw(2) << st.wHour
+		<< "-" << std::setfill('0') << std::setw(2) << st.wMinute
+		<< "-" << std::setfill('0') << std::setw(2) << st.wSecond
+		<< "-" << std::setfill('0') << std::setw(3) << st.wMilliseconds;
+	const string dateTime = ss.str();
+	const string fileName = dateTime + "-" + cDump::s_name + ".dmp";
 
 	HANDLE handle = ::CreateFileA(fileName.c_str(),
 		GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
