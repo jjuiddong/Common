@@ -61,8 +61,8 @@ LONG WINAPI cDump::ExceptionCallback(
 		return 0; // error return
 
 	MINIDUMP_EXCEPTION_INFORMATION ex_info = { 0 };
-	ex_info.ThreadId = ::GetCurrentThreadId(); // Threae ID 설정
-	ex_info.ExceptionPointers = exceptioninfo; // Exception 정보 설정
+	ex_info.ThreadId = ::GetCurrentThreadId();
+	ex_info.ExceptionPointers = exceptioninfo;
 	ex_info.ClientPointers = FALSE;
 
 	if (!::MiniDumpWriteDump(

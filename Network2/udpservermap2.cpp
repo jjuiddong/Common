@@ -220,11 +220,9 @@ bool cUdpServerMap2::MessageProcess(sThreadContext *ctx)
 				svrData.name = msg.name;
 				svrData.svr = svr;
 				ctx->svrs.insert({ msg.name, svrData });
+				ctx->svrs2.insert({ svr->m_socket, svr });
 				if (result)
-				{
-					ctx->svrs2.insert({ svr->m_socket, svr });
 					FD_SET(svr->m_socket, &ctx->readSockets);
-				}
 			}
 		}
 		break;

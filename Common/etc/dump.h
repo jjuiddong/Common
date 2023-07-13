@@ -2,6 +2,9 @@
 // 2023-07-09, jjuiddong
 // minidump class
 //	- create dump file when crash program
+// 
+// reference
+//	- https://wendys.tistory.com/86
 //
 #pragma once
 

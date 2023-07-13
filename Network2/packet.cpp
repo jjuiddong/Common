@@ -167,7 +167,8 @@ cPacket& cPacket::operator=(const cPacket &rhs)
 		m_lastDelim = rhs.m_lastDelim;
 		m_emptyData = rhs.m_emptyData;
 		m_isOverflow = rhs.m_isOverflow;
-		memcpy(m_data, rhs.m_data, sizeof(rhs.m_buffer));
+		//memcpy(m_data, rhs.m_data, sizeof(rhs.m_buffer));
+		memcpy(m_data, rhs.m_data, rhs.m_writeIdx);
 	}
 	return *this;
 }

@@ -198,6 +198,9 @@ bool cWebServer::Process()
 	if (!m_sendBuffer)
 		m_sendBuffer = new char[m_maxBuffLen];
 
+	cTimer time;
+	time.Create();
+
 	ReceiveProcces();
 
 	// Send Packet
@@ -238,6 +241,7 @@ bool cWebServer::AddSession(const SOCKET sock, const Str16 &ip, const int port)
 
 	Poco::Net::WebSocket *ws = tmpSession->m_ws;
 	ws->setReceiveTimeout(Poco::Timespan(0, 1000)); // 1 milliseconds
+	//ws->setBlocking(false); blocking mode
 
 	cWebSession *session = m_sessionFactory->New();
 	session->m_id = tmpSession->m_id;

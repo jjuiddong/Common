@@ -124,14 +124,16 @@ bool cPacketQueue::Front(OUT cPacket &out)
 
 
 // send packet all
-void cPacketQueue::SendAll(
+// return send packet count, -1:error
+int cPacketQueue::SendAll(
 	const map<netid, SOCKET> &socks
 	, OUT set<netid> *outErrs //= nullptr
 	, vector<iProtocolHandler*> *listeners //= nullptr
 )
 {
-	RET(m_sockBuffers.empty());
+	RETV(m_sockBuffers.empty(), 0);
 
+	int count = 0;
 	cAutoCS cs(m_cs);
 
 	all::Dispatcher allDispatcher;
@@ -160,6 +162,7 @@ void cPacketQueue::SendAll(
 			if (!sockBuffer->PopNoRemove(packet))
 				break;
 
+			++count;
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
 				const bool result = SendBroadcast(socks, packet, outErrs);
@@ -214,17 +217,20 @@ void cPacketQueue::SendAll(
 		// when occur error, sleep some seconds to thread context switching
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
+	return count;
 }
 
 
 // send packet all 
-void cPacketQueue::SendAll(
+// return send packet count, -1:error
+int cPacketQueue::SendAll(
 	set<netid> *outErrs //= nullptr
 	, vector<iProtocolHandler*>* listeners //= nullptr
 )
 {
-	RET(m_sockBuffers.empty());
+	RETV(m_sockBuffers.empty(), 0);
 
+	int count = 0;
 	cAutoCS cs(m_cs);
 
 	bool isSendError = false;
@@ -240,6 +246,7 @@ void cPacketQueue::SendAll(
 			if (!sockBuffer->PopNoRemove(packet))
 				break;
 
+			++count;
 			int result = SOCKET_ERROR;
 			if (ALL_NETID == sockBuffer->m_netId)
 			{
@@ -279,17 +286,20 @@ void cPacketQueue::SendAll(
 		// when occur error, sleep some seconds to thread context switching
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
+	return count;
 }
 
 
 // send packet all, udp
-void cPacketQueue::SendAll(
+// return send packet count, -1: error
+int cPacketQueue::SendAll(
 	const sockaddr_in &sockAddr
 	, vector<iProtocolHandler*>* listeners //= nullptr
 )
 {
-	RET(m_sockBuffers.empty());
+	RETV(m_sockBuffers.empty(), 0);
 
+	int count = 0;
 	cAutoCS cs(m_cs);
 	all::Dispatcher allDispatcher;
 	for (u_int i = 0; i < m_sockBuffers.m_seq.size(); ++i)
@@ -308,12 +318,14 @@ void cPacketQueue::SendAll(
 			}
 			else
 			{
+				++count;
 				m_netNode->SendToPacket(sock, sockAddr, packet);
 				if (listeners)
 					allDispatcher.Dispatch(packet, *listeners);
 			}
 		}
 	}
+	return count;
 }
 
 
