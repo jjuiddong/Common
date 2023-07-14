@@ -436,6 +436,6 @@ bool cPacketLog::Write(const char *fileName, const sPacketLogData &logData)
 	info.rcvId = logData.rcvId;
 	info.size = logData.size;
 	ofs.write((const char*)&info, sizeof(info));
-	ofs.write((const char*)&logData.data, logData.size);
+	ofs.write((const char*)logData.data, logData.size);
 	return true;
 }

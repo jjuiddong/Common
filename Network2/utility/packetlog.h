@@ -21,7 +21,7 @@ namespace network2
 		netid sndId; // type=1, sender id
 		netid rcvId; // type=1, receiver id
 		uint size; // type=1, data size
-		BYTE data[DEFAULT_PACKETSIZE];
+		BYTE* data;
 	};
 
 	class cPacketLog

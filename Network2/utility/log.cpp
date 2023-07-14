@@ -17,15 +17,16 @@ using namespace network2;
 //------------------------------------------------------------------------
 // Packet Log Thread Task
 class cPacketLogTask : public cTask
-					, public common::cMemoryPool4<cPacketLogTask>
+//					, public common::cMemoryPool4<cPacketLogTask>
 {
 public:
-	sPacketLogData m_logData;
 	cPacketLogTask() : cTask(0, "cPacketLogTask") {}
 	cPacketLogTask(const sPacketLogData &logData)
 		: cTask(0, "cPacketLogTask"), m_logData(logData) {
 	}
-	virtual ~cPacketLogTask() {}
+	virtual ~cPacketLogTask() {
+		SAFE_DELETEA(m_logData.data);
+	}
 
 	virtual eRunResult Run(const double deltaSeconds) override
 	{
@@ -56,6 +57,10 @@ public:
 		}
 		return eRunResult::End;
 	}
+
+
+public:
+	sPacketLogData m_logData;
 };
 //-----------------------------------------------------------------------
 
@@ -100,15 +105,18 @@ bool network2::LogSession(const int logId, const cSession &session)
 	cPacketLogTask *task = new cPacketLogTask();
 	task->m_logData.id = logId;
 	task->m_logData.type = 0;
+	const uint bufferSize = sizeof(session.m_name);
+	task->m_logData.data = new BYTE[bufferSize];
+	task->m_logData.size = bufferSize;
 	
 	if (session.m_name.empty())
 	{
-		sprintf_s((char*)task->m_logData.data, sizeof(task->m_logData.data)
+		sprintf_s((char*)task->m_logData.data, bufferSize
 			, "%s:%d %d", session.m_ip.c_str(), session.m_port, session.m_id);
 	}
 	else
 	{
-		sprintf_s((char*)task->m_logData.data, sizeof(task->m_logData.data)
+		sprintf_s((char*)task->m_logData.data, bufferSize
 			, "%s %d", session.m_name.c_str(), session.m_id);
 	}
 
@@ -124,13 +132,18 @@ bool network2::LogSession(const int logId, const cSession &session)
 bool network2::LogPacket(const int logId, const netid sndId
 	, const netid rcvId, const cPacket &packet)
 {
+	const uint packetSize = packet.GetPacketSize();
+	if (0 == packetSize)
+		return true; // nothing to do
+
 	cPacketLogTask *task = new cPacketLogTask();
 	task->m_logData.id = logId;
 	task->m_logData.type = 1;
 	task->m_logData.sndId = sndId;// packet.GetSenderId();
 	task->m_logData.rcvId = rcvId;
-	memcpy(task->m_logData.data, packet.m_data, packet.GetPacketSize());
-	task->m_logData.size = packet.GetPacketSize();
+	task->m_logData.data = new BYTE[packetSize];
+	memcpy(task->m_logData.data, packet.m_data, packetSize);
+	task->m_logData.size = packetSize;
 	
 	g_logThread.PushTask(task);
 	return true;
