@@ -46,36 +46,56 @@ float Line::GetDistance(const Vector3 &position) const
 
 // return distance of line to line
 // reference: https://wickedengine.net/2020/04/26/capsule-collision-detection/
+// update 2023-07-18, check bestA point bug,
+//		 all check bestA candidate a0, a1
 float Line::GetDistance(const Line &line) const
 {
 	const Vector3 a0 = dir * len + pos;
 	const Vector3 a1 = dir * -len + pos;
-	const Vector3 b0 = line.dir * line.len + line.pos;
-	const Vector3 b1 = line.dir * -line.len + line.pos;
 
-	const Vector3 v0 = b0 - a0;
-	const Vector3 v1 = b1 - a0;
-	const Vector3 v2 = b0 - a1;
-	const Vector3 v3 = b1 - a1;
+	float d1, d2;
+	{
+		const Vector3 bestB = line.GetPointOnLine(a0);
+		// now do the same for line A segment:
+		const Vector3 bestA = GetPointOnLine(bestB);
+		d1 = bestA.Distance(bestB);
+	}
+	{
+		const Vector3 bestB = line.GetPointOnLine(a1);
+		// now do the same for line A segment:
+		const Vector3 bestA = GetPointOnLine(bestB);
+		d2 = bestA.Distance(bestB);
+	}
+	return min(d1, d2);
+
+	//const Vector3 b0 = line.dir * line.len + line.pos;
+	//const Vector3 b1 = line.dir * -line.len + line.pos;
+	//const Vector3 a0 = dir * len + pos;
+	//const Vector3 a1 = dir * -len + pos;
+
+	//const Vector3 v0 = b0 - a0;
+	//const Vector3 v1 = b1 - a0;
+	//const Vector3 v2 = b0 - a1;
+	//const Vector3 v3 = b1 - a1;
 
 	// squared distance
-	const float d0 = v0.DotProduct(v0);
-	const float d1 = v0.DotProduct(v1);
-	const float d2 = v0.DotProduct(v2);
-	const float d3 = v0.DotProduct(v3);
+	//const float d0 = v0.DotProduct(v0);
+	//const float d1 = v0.DotProduct(v1);
+	//const float d2 = v0.DotProduct(v2);
+	//const float d3 = v0.DotProduct(v3);
 
-	// select best potential endpoint on line A:
-	Vector3 bestA;
-	if (d2 < d0 || d2 < d1 || d3 < d0 || d3 < d1)
-		bestA = a1;
-	else
-		bestA = a0;
+	//// select best potential endpoint on line A:
+	//Vector3 bestA;
+	//if (d2 < d0 || d2 < d1 || d3 < d0 || d3 < d1)
+	//	bestA = a1;
+	//else
+	//	bestA = a0;
 
-	// select point on line B line segment nearest to best potential endpoint on A line:
-	Vector3 bestB = line.GetPointOnLine(bestA);
-	// now do the same for line A segment:
-	bestA = GetPointOnLine(bestB);
-	return bestA.Distance(bestB);
+	//// select point on line B line segment nearest to best potential endpoint on A line:
+	//Vector3 bestB = line.GetPointOnLine(bestA);
+	//// now do the same for line A segment:
+	//bestA = GetPointOnLine(bestB);
+	//return bestA.Distance(bestB);
 }
 
 
