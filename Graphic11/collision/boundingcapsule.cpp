@@ -9,7 +9,8 @@ cBoundingCapsule::cBoundingCapsule(
 	const float radius //= 1.0f
 	, const float halfHeight //= 1.0f
 )
-	: m_radius(radius)
+	: cCollisionObj(eCollisionType::CAPSULE)
+	, m_radius(radius)
 {
 	m_line.len = halfHeight;
 }
@@ -26,8 +27,20 @@ bool cBoundingCapsule::Collision(const cCollisionObj &obj
 	, OUT bool* isContain //= nullptr
 ) const
 {
-	// nothing~
-	assert(0);
+	switch (obj.m_type)
+	{
+	case eCollisionType::SPHERE:
+		if (const cBoundingSphere* p = dynamic_cast<const cBoundingSphere*>(&obj))
+			return Intersects(*p);
+		break;
+	case eCollisionType::CAPSULE:
+		if (const cBoundingCapsule* p = dynamic_cast<const cBoundingCapsule*>(&obj))
+			return Intersects(*p);
+		break;
+	default:
+		assert(0);
+		break;
+	}
 	return false;
 }
 

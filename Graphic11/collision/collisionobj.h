@@ -10,7 +10,7 @@ namespace common
 
 	struct eCollisionType {
 		enum Enum {
-			NONE, BOX, SPHERE, HALFSPHERE, PLANE, FRUSTUM,
+			NONE, BOX, SPHERE, HALFSPHERE, PLANE, FRUSTUM, CAPSULE,
 		};
 	};
 
@@ -20,7 +20,8 @@ namespace common
 	class cCollisionObj
 	{
 	public:
-		cCollisionObj() : m_type(eCollisionType::NONE) {}
+		cCollisionObj(const eCollisionType::Enum type = eCollisionType::NONE) 
+			: m_type(type) {}
 		virtual ~cCollisionObj() {}
 
 		virtual bool Collision(const cCollisionObj &obj

@@ -6,14 +6,14 @@ using namespace common;
 
 
 cBoundingSphere::cBoundingSphere() 
+	: cCollisionObj(eCollisionType::SPHERE)
 {
-	m_type = eCollisionType::SPHERE;
 }
 
 cBoundingSphere::cBoundingSphere(const Vector3 &center, const float radius) 
-	: m_bsphere(*(XMFLOAT3*)&center, radius) 
+	: cCollisionObj(eCollisionType::SPHERE)
+	, m_bsphere(*(XMFLOAT3*)&center, radius)
 {
-	m_type = eCollisionType::SPHERE;
 }
 
 cBoundingSphere::~cBoundingSphere() 
@@ -70,6 +70,11 @@ bool cBoundingSphere::Collision(const cCollisionObj &obj
 	{
 	case eCollisionType::SPHERE:
 		if (const cBoundingSphere *p = dynamic_cast<const cBoundingSphere*>(&obj))
+			return Intersects(*p);
+		break;
+
+	case eCollisionType::CAPSULE:
+		if (const cBoundingCapsule* p = dynamic_cast<const cBoundingCapsule*>(&obj))
 			return Intersects(*p);
 		break;
 
@@ -213,6 +218,15 @@ bool cBoundingSphere::Intersects(const cBoundingSphere &bspere
 			*outGap = gap;
 	}
 	return res;
+}
+
+
+bool cBoundingSphere::Intersects(const cBoundingCapsule& bcapsule
+	, OUT float* outGap //= nullptr
+	, OUT bool* isContain //= nullptr
+) const
+{
+	return bcapsule.Intersects(*this, outGap);
 }
 
 

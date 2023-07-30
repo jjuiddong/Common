@@ -6,14 +6,14 @@ using namespace common;
 
 
 cBoundingBox::cBoundingBox()
+	: cCollisionObj(eCollisionType::BOX)
 {
-	m_type = eCollisionType::BOX;
 	SetBoundingBox(Vector3(0,0,0), Vector3(1,1,1), Quaternion(0,0,0,1));
 }
 
 cBoundingBox::cBoundingBox(const Vector3 &center, const Vector3 &scale, const Quaternion &q )
+	: cCollisionObj(eCollisionType::BOX)
 {
-	m_type = eCollisionType::BOX;
 	SetBoundingBox(center, scale, q);
 }
 

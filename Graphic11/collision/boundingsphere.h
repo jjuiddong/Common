@@ -11,6 +11,7 @@
 
 namespace common
 {
+	class cBoundingCapsule;
 
 	class cBoundingSphere : public cCollisionObj
 	{
@@ -30,6 +31,10 @@ namespace common
 		bool Intersects(const Ray &ray, const float radius, OUT float *distance = nullptr) const;
 		bool Intersects(const cBoundingSphere &bspere
 			, OUT float *outGap = nullptr
+			, OUT bool* isContain = nullptr
+		) const;
+		bool Intersects(const cBoundingCapsule& bcapusle
+			, OUT float* outGap = nullptr
 			, OUT bool* isContain = nullptr
 		) const;
 

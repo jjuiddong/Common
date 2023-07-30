@@ -22,6 +22,7 @@
 
 namespace common
 {
+	class cBoundingSphere;
 
 	class cBoundingCapsule : public cCollisionObj
 	{
