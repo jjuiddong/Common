@@ -65,10 +65,12 @@ export namespace remotedbg2Async {
 	// r2h Protocol Packet Data
 	export type UploadIntermediateCode_Packet = {
 		itprId: number, 
+		vmId: number, 
 		code: string, 
 	}
 	export type ReqIntermediateCode_Packet = {
 		itprId: number, 
+		vmId: number, 
 	}
 	export type ReqRun_Packet = {
 		itprId: number, 
@@ -82,9 +84,11 @@ export namespace remotedbg2Async {
 	}
 	export type ReqBreak_Packet = {
 		itprId: number, 
+		vmId: number, 
 	}
 	export type ReqBreakPoint_Packet = {
 		itprId: number, 
+		vmId: number, 
 		enable: boolean, 
 		id: number, 
 	}
@@ -93,12 +97,12 @@ export namespace remotedbg2Async {
 	}
 	export type ReqInput_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		eventName: string, 
 	}
 	export type ReqEvent_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		eventName: string, 
 		values: Map<string,string[]>, 
 	}
@@ -106,16 +110,16 @@ export namespace remotedbg2Async {
 		stepDbgType: number, 
 	}
 	export type ReqDebugInfo_Packet = {
-		itprIds: Int32Array | null, 
+		vmIds: Int32Array | null, 
 	}
 	export type ReqVariableInfo_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 	}
 	export type ReqChangeVariable_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 		value: string, 
 	}
@@ -129,15 +133,32 @@ export namespace remotedbg2Async {
 	}
 	export type AckUploadIntermediateCode_Packet = {
 		itprId: number, 
+		vmId: number, 
 		result: number, 
 	}
 	export type AckIntermediateCode_Packet = {
 		itprId: number, 
+		vmId: number, 
 		result: number, 
 		count: number, 
 		index: number, 
 		totalBufferSize: number, 
 		data: Uint8Array | null, 
+	}
+	export type SpawnTotalInterpreterInfo_Packet = {
+		totalCount: number, 
+		index: number, 
+		itprId: number, 
+		vmIds: Int32Array | null, 
+	}
+	export type SpawnInterpreterInfo_Packet = {
+		itprId: number, 
+		parentVmId: number, 
+		vmId: number, 
+		nodeFileName: string, 
+	}
+	export type RemoveInterpreter_Packet = {
+		vmId: number, 
 	}
 	export type AckRun_Packet = {
 		itprId: number, 
@@ -153,10 +174,12 @@ export namespace remotedbg2Async {
 	}
 	export type AckBreak_Packet = {
 		itprId: number, 
+		vmId: number, 
 		result: number, 
 	}
 	export type AckBreakPoint_Packet = {
 		itprId: number, 
+		vmId: number, 
 		enable: boolean, 
 		id: number, 
 		result: number, 
@@ -167,11 +190,12 @@ export namespace remotedbg2Async {
 	}
 	export type AckInput_Packet = {
 		itprId: number, 
+		vmId: number, 
 		result: number, 
 	}
 	export type AckEvent_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		eventName: string, 
 		result: number, 
 	}
@@ -180,67 +204,67 @@ export namespace remotedbg2Async {
 		result: number, 
 	}
 	export type AckDebugInfo_Packet = {
-		itprIds: Int32Array | null, 
+		vmIds: Int32Array | null, 
 		result: number, 
 	}
 	export type AckChangeVariable_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 		result: number, 
 	}
 	export type SyncVMInstruction_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		indices: Uint16Array | null, 
 	}
 	export type SyncVMRegister_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		infoType: number, 
 		reg: sRegister, 
 	}
 	export type SyncVMSymbolTable_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		start: number, 
 		count: number, 
 		symbol: sSyncSymbol[], 
 	}
 	export type SyncVMOutput_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		output: string, 
 	}
 	export type SyncVMWidgets_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		widgetName: string, 
 	}
 	export type SyncVMArray_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 		startIdx: number, 
 		array: TypeVariant[], 
 	}
 	export type SyncVMArrayBool_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 		startIdx: number, 
 		array: Uint8Array | null, 
 	}
 	export type SyncVMArrayNumber_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 		startIdx: number, 
 		array: Float32Array | null, 
 	}
 	export type SyncVMArrayString_Packet = {
 		itprId: number, 
-		vmIdx: number, 
+		vmId: number, 
 		varName: string, 
 		startIdx: number, 
 		array: string[], 
@@ -433,6 +457,33 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 					handlers.forEach(handler => {
 						if (handler instanceof h2r_ProtocolHandler)
 							handler.AckIntermediateCode(parsePacket)
+					})
+				}
+				break;
+
+			case 977092268: // SpawnTotalInterpreterInfo
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SpawnTotalInterpreterInfo(parsePacket)
+					})
+				}
+				break;
+
+			case 762776747: // SpawnInterpreterInfo
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SpawnInterpreterInfo(parsePacket)
+					})
+				}
+				break;
+
+			case 940777945: // RemoveInterpreter
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.RemoveInterpreter(parsePacket)
 					})
 				}
 				break;
@@ -641,15 +692,17 @@ export class r2h_Protocol extends Network.Protocol {
 	 constructor() { super() }
 
 	// Protocol: UploadIntermediateCode
-	UploadIntermediateCode(isBinary: boolean, itprId: number, code: string, ) {
+	UploadIntermediateCode(isBinary: boolean, itprId: number, vmId: number, code: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			packet.pushStr(code)
 			this.node?.sendPacketBinary(5301, 1418562193, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				code,
 			}
 			this.node?.sendPacket(5301, 1418562193, packet)
@@ -657,14 +710,16 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqIntermediateCode
-	ReqIntermediateCode(isBinary: boolean, itprId: number, ) {
+	ReqIntermediateCode(isBinary: boolean, itprId: number, vmId: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			this.node?.sendPacketBinary(5301, 1644585100, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 			}
 			this.node?.sendPacket(5301, 1644585100, packet)
 		}
@@ -715,30 +770,34 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqBreak
-	ReqBreak(isBinary: boolean, itprId: number, ) {
+	ReqBreak(isBinary: boolean, itprId: number, vmId: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			this.node?.sendPacketBinary(5301, 784411795, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 			}
 			this.node?.sendPacket(5301, 784411795, packet)
 		}
 	}
 	
 	// Protocol: ReqBreakPoint
-	ReqBreakPoint(isBinary: boolean, itprId: number, enable: boolean, id: number, ) {
+	ReqBreakPoint(isBinary: boolean, itprId: number, vmId: number, enable: boolean, id: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			packet.pushBool(enable)
 			packet.pushUint32(id)
 			this.node?.sendPacketBinary(5301, 2487089996, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				enable,
 				id,
 			}
@@ -761,17 +820,17 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqInput
-	ReqInput(isBinary: boolean, itprId: number, vmIdx: number, eventName: string, ) {
+	ReqInput(isBinary: boolean, itprId: number, vmId: number, eventName: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(eventName)
 			this.node?.sendPacketBinary(5301, 3140751413, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				eventName,
 			}
 			this.node?.sendPacket(5301, 3140751413, packet)
@@ -779,18 +838,18 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqEvent
-	ReqEvent(isBinary: boolean, itprId: number, vmIdx: number, eventName: string, values: Map<string,string[]>, ) {
+	ReqEvent(isBinary: boolean, itprId: number, vmId: number, eventName: string, values: Map<string,string[]>, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(eventName)
 			packet.pushMapStrArray(values)
 			this.node?.sendPacketBinary(5301, 186222094, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				eventName,
 				values,
 			}
@@ -813,31 +872,31 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqDebugInfo
-	ReqDebugInfo(isBinary: boolean, itprIds: number[], ) {
+	ReqDebugInfo(isBinary: boolean, vmIds: number[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
-			packet.pushInt32Array(itprIds)
+			packet.pushInt32Array(vmIds)
 			this.node?.sendPacketBinary(5301, 2166551586, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
-				itprIds,
+				vmIds,
 			}
 			this.node?.sendPacket(5301, 2166551586, packet)
 		}
 	}
 	
 	// Protocol: ReqVariableInfo
-	ReqVariableInfo(isBinary: boolean, itprId: number, vmIdx: number, varName: string, ) {
+	ReqVariableInfo(isBinary: boolean, itprId: number, vmId: number, varName: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			this.node?.sendPacketBinary(5301, 4127584998, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 			}
 			this.node?.sendPacket(5301, 4127584998, packet)
@@ -845,18 +904,18 @@ export class r2h_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: ReqChangeVariable
-	ReqChangeVariable(isBinary: boolean, itprId: number, vmIdx: number, varName: string, value: string, ) {
+	ReqChangeVariable(isBinary: boolean, itprId: number, vmId: number, varName: string, value: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushStr(value)
 			this.node?.sendPacketBinary(5301, 1626832220, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 				value,
 			}
@@ -900,15 +959,17 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckUploadIntermediateCode
-	AckUploadIntermediateCode(isBinary: boolean, itprId: number, result: number, ) {
+	AckUploadIntermediateCode(isBinary: boolean, itprId: number, vmId: number, result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			packet.pushInt32(result)
 			this.node?.sendPacketBinary(5300, 4005257575, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				result,
 			}
 			this.node?.sendPacket(5300, 4005257575, packet)
@@ -916,10 +977,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckIntermediateCode
-	AckIntermediateCode(isBinary: boolean, itprId: number, result: number, count: number, index: number, totalBufferSize: number, data: number[], ) {
+	AckIntermediateCode(isBinary: boolean, itprId: number, vmId: number, result: number, count: number, index: number, totalBufferSize: number, data: number[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushUint8(itprId)
+			packet.pushInt32(vmId)
 			packet.pushUint8(result)
 			packet.pushUint8(count)
 			packet.pushUint8(index)
@@ -929,6 +991,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				result,
 				count,
 				index,
@@ -936,6 +999,60 @@ export class h2r_Protocol extends Network.Protocol {
 				data,
 			}
 			this.node?.sendPacket(5300, 1397310616, packet)
+		}
+	}
+	
+	// Protocol: SpawnTotalInterpreterInfo
+	SpawnTotalInterpreterInfo(isBinary: boolean, totalCount: number, index: number, itprId: number, vmIds: number[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(totalCount)
+			packet.pushInt32(index)
+			packet.pushInt32(itprId)
+			packet.pushInt32Array(vmIds)
+			this.node?.sendPacketBinary(5300, 977092268, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				totalCount,
+				index,
+				itprId,
+				vmIds,
+			}
+			this.node?.sendPacket(5300, 977092268, packet)
+		}
+	}
+	
+	// Protocol: SpawnInterpreterInfo
+	SpawnInterpreterInfo(isBinary: boolean, itprId: number, parentVmId: number, vmId: number, nodeFileName: string, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(parentVmId)
+			packet.pushInt32(vmId)
+			packet.pushStr(nodeFileName)
+			this.node?.sendPacketBinary(5300, 762776747, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				parentVmId,
+				vmId,
+				nodeFileName,
+			}
+			this.node?.sendPacket(5300, 762776747, packet)
+		}
+	}
+	
+	// Protocol: RemoveInterpreter
+	RemoveInterpreter(isBinary: boolean, vmId: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(vmId)
+			this.node?.sendPacketBinary(5300, 940777945, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				vmId,
+			}
+			this.node?.sendPacket(5300, 940777945, packet)
 		}
 	}
 	
@@ -988,15 +1105,17 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckBreak
-	AckBreak(isBinary: boolean, itprId: number, result: number, ) {
+	AckBreak(isBinary: boolean, itprId: number, vmId: number, result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			packet.pushInt32(result)
 			this.node?.sendPacketBinary(5300, 2129545277, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				result,
 			}
 			this.node?.sendPacket(5300, 2129545277, packet)
@@ -1004,10 +1123,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckBreakPoint
-	AckBreakPoint(isBinary: boolean, itprId: number, enable: boolean, id: number, result: number, ) {
+	AckBreakPoint(isBinary: boolean, itprId: number, vmId: number, enable: boolean, id: number, result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			packet.pushBool(enable)
 			packet.pushUint32(id)
 			packet.pushInt32(result)
@@ -1015,6 +1135,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				enable,
 				id,
 				result,
@@ -1040,15 +1161,17 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckInput
-	AckInput(isBinary: boolean, itprId: number, result: number, ) {
+	AckInput(isBinary: boolean, itprId: number, vmId: number, result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
 			packet.pushInt32(result)
 			this.node?.sendPacketBinary(5300, 1658444570, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
+				vmId,
 				result,
 			}
 			this.node?.sendPacket(5300, 1658444570, packet)
@@ -1056,18 +1179,18 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckEvent
-	AckEvent(isBinary: boolean, itprId: number, vmIdx: number, eventName: string, result: number, ) {
+	AckEvent(isBinary: boolean, itprId: number, vmId: number, eventName: string, result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(eventName)
 			packet.pushInt32(result)
 			this.node?.sendPacketBinary(5300, 1906481345, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				eventName,
 				result,
 			}
@@ -1092,15 +1215,15 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckDebugInfo
-	AckDebugInfo(isBinary: boolean, itprIds: number[], result: number, ) {
+	AckDebugInfo(isBinary: boolean, vmIds: number[], result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
-			packet.pushInt32Array(itprIds)
+			packet.pushInt32Array(vmIds)
 			packet.pushInt32(result)
 			this.node?.sendPacketBinary(5300, 4276104084, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
-				itprIds,
+				vmIds,
 				result,
 			}
 			this.node?.sendPacket(5300, 4276104084, packet)
@@ -1108,18 +1231,18 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: AckChangeVariable
-	AckChangeVariable(isBinary: boolean, itprId: number, vmIdx: number, varName: string, result: number, ) {
+	AckChangeVariable(isBinary: boolean, itprId: number, vmId: number, varName: string, result: number, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushInt32(result)
 			this.node?.sendPacketBinary(5300, 3660358812, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 				result,
 			}
@@ -1128,17 +1251,17 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMInstruction
-	SyncVMInstruction(isBinary: boolean, itprId: number, vmIdx: number, indices: number[], ) {
+	SyncVMInstruction(isBinary: boolean, itprId: number, vmId: number, indices: number[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushUint16Array(indices)
 			this.node?.sendPacketBinary(5300, 4206107288, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				indices,
 			}
 			this.node?.sendPacket(5300, 4206107288, packet)
@@ -1146,18 +1269,18 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMRegister
-	SyncVMRegister(isBinary: boolean, itprId: number, vmIdx: number, infoType: number, reg: sRegister, ) {
+	SyncVMRegister(isBinary: boolean, itprId: number, vmId: number, infoType: number, reg: sRegister, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushInt32(infoType)
 			Make_sRegister(packet,reg)
 			this.node?.sendPacketBinary(5300, 3001685594, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				infoType,
 				reg,
 			}
@@ -1166,11 +1289,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMSymbolTable
-	SyncVMSymbolTable(isBinary: boolean, itprId: number, vmIdx: number, start: number, count: number, symbol: sSyncSymbol[], ) {
+	SyncVMSymbolTable(isBinary: boolean, itprId: number, vmId: number, start: number, count: number, symbol: sSyncSymbol[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushUint32(start)
 			packet.pushUint32(count)
 			Make_sSyncSymbolVector(packet,symbol)
@@ -1178,7 +1301,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				start,
 				count,
 				symbol,
@@ -1188,17 +1311,17 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMOutput
-	SyncVMOutput(isBinary: boolean, itprId: number, vmIdx: number, output: string, ) {
+	SyncVMOutput(isBinary: boolean, itprId: number, vmId: number, output: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(output)
 			this.node?.sendPacketBinary(5300, 1348120458, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				output,
 			}
 			this.node?.sendPacket(5300, 1348120458, packet)
@@ -1206,17 +1329,17 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMWidgets
-	SyncVMWidgets(isBinary: boolean, itprId: number, vmIdx: number, widgetName: string, ) {
+	SyncVMWidgets(isBinary: boolean, itprId: number, vmId: number, widgetName: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(widgetName)
 			this.node?.sendPacketBinary(5300, 323195839, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				widgetName,
 			}
 			this.node?.sendPacket(5300, 323195839, packet)
@@ -1224,11 +1347,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArray
-	SyncVMArray(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: TypeVariant[], ) {
+	SyncVMArray(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: TypeVariant[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
 			packet.pushTypeVariantVector(array)
@@ -1236,7 +1359,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 				startIdx,
 				array,
@@ -1246,11 +1369,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArrayBool
-	SyncVMArrayBool(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: boolean[], ) {
+	SyncVMArrayBool(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: boolean[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
 			packet.pushBoolArray(array)
@@ -1258,7 +1381,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 				startIdx,
 				array,
@@ -1268,11 +1391,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArrayNumber
-	SyncVMArrayNumber(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: number[], ) {
+	SyncVMArrayNumber(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: number[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
 			packet.pushFloat32Array(array)
@@ -1280,7 +1403,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 				startIdx,
 				array,
@@ -1290,11 +1413,11 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArrayString
-	SyncVMArrayString(isBinary: boolean, itprId: number, vmIdx: number, varName: string, startIdx: number, array: string[], ) {
+	SyncVMArrayString(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: string[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
-			packet.pushInt32(vmIdx)
+			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
 			packet.pushStrArray(array)
@@ -1302,7 +1425,7 @@ export class h2r_Protocol extends Network.Protocol {
 		} else { // json string send?
 			const packet = {
 				itprId,
-				vmIdx,
+				vmId,
 				varName,
 				startIdx,
 				array,
@@ -1359,6 +1482,9 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	Welcome = (packet: remotedbg2Async.Welcome_Packet) => { }
 	AckUploadIntermediateCode = (packet: remotedbg2Async.AckUploadIntermediateCode_Packet) => { }
 	AckIntermediateCode = (packet: remotedbg2Async.AckIntermediateCode_Packet) => { }
+	SpawnTotalInterpreterInfo = (packet: remotedbg2Async.SpawnTotalInterpreterInfo_Packet) => { }
+	SpawnInterpreterInfo = (packet: remotedbg2Async.SpawnInterpreterInfo_Packet) => { }
+	RemoveInterpreter = (packet: remotedbg2Async.RemoveInterpreter_Packet) => { }
 	AckRun = (packet: remotedbg2Async.AckRun_Packet) => { }
 	AckOneStep = (packet: remotedbg2Async.AckOneStep_Packet) => { }
 	AckResumeRun = (packet: remotedbg2Async.AckResumeRun_Packet) => { }

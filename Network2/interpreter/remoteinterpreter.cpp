@@ -14,35 +14,47 @@ namespace
 //----------------------------------------------------------------------------------
 // Send Intermediate Code Task
 bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
-	, const netid recvId, const int itprId, const script::cIntermediateCode &icode);
+	, const netid recvId, const int itprId, const int vmId
+	, const script::cIntermediateCode &icode);
 
 class cSendICodeTask : public common::cTask
 {
 public:
-	cSendICodeTask(cRemoteInterpreter *rmtItpr, const int itprId, const netid rcvId)
+	cSendICodeTask(cRemoteInterpreter *rmtItpr, const int itprId, const int vmId
+		, const netid rcvId)
 		: cTask(1, "cSendICodeTask")
-		, m_rmtItpr(rmtItpr), m_itprId(itprId), m_rcvId(rcvId) {
+		, m_rmtItpr(rmtItpr), m_itprId(itprId), m_vmId(vmId), m_rcvId(rcvId) {
 	}
 	virtual eRunResult Run(const double deltaSeconds)
 	{
-		if (m_rmtItpr->m_interpreters.size() <= (uint)m_itprId) {
-			// fail, iterpreter id invalid
-			m_rmtItpr->m_protocol.AckIntermediateCode(m_rcvId, true, m_itprId
-				, 0, 0, 0, 0, {});
-			--m_rmtItpr->m_multiThreading;
-			return eRunResult::End;
-		}
-		script::cInterpreter *interpreter = 
-			m_rmtItpr->m_interpreters[m_itprId].interpreter;
-		SendIntermediateCode(m_rmtItpr->m_protocol, m_rcvId, m_itprId
-			, interpreter->m_code);
+		script::cInterpreter* interpreter = nullptr;
+		script::cVirtualMachine* vm = nullptr;
+
+		if (m_rmtItpr->m_interpreters.size() <= (uint)m_itprId)
+			goto $error;		
+		interpreter = m_rmtItpr->m_interpreters[m_itprId].interpreter;
+		vm = interpreter->GetVM(m_vmId);
+		if (!vm)
+			goto $error;		
+
+		SendIntermediateCode(m_rmtItpr->m_protocol, m_rcvId, m_itprId, m_vmId
+			, vm->m_code);
+		--m_rmtItpr->m_multiThreading;
+		return eRunResult::End;
+
+
+	$error:
+		// fail, iterpreter id invalid
+		m_rmtItpr->m_protocol.AckIntermediateCode(m_rcvId, true, m_itprId, m_vmId
+			, 0, 0, 0, 0, {});
 		--m_rmtItpr->m_multiThreading;
 		return eRunResult::End;
 	}
 
 public:
 	cRemoteInterpreter *m_rmtItpr; // reference
-	int m_itprId;
+	int m_itprId; // interpreter id
+	int m_vmId; // virtual machine id
 	netid m_rcvId;
 };
 
@@ -163,6 +175,7 @@ bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames)
 
 
 // load intermediate code
+// vmName: virtual machine name
 bool cRemoteInterpreter::LoadIntermediateCode(
 	const common::script::cIntermediateCode &icode)
 {
@@ -221,7 +234,7 @@ bool cRemoteInterpreter::SendSyncAll()
 		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 		SendSyncInstruction(itprId);
 		SendSyncVMRegister(itprId);
-		SendSyncSymbolTable(itprId);
+		SendSyncSymbolTable(itprId, -1);
 	}
 	return true;
 }
@@ -230,7 +243,7 @@ bool cRemoteInterpreter::SendSyncAll()
 // process webclient, interpreter
 bool cRemoteInterpreter::Process(const float deltaSeconds)
 {
-	// sync instruction, register, syboltable
+	// sync instruction, register, symboltable
 	// check change instruction
 	for (uint k=0; k < m_interpreters.size(); ++k)
 	{
@@ -240,7 +253,8 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 
 		if (itpr.state != eState::Run)
 			continue;
-		const bool isSync = (m_syncItptrs.end() != m_syncItptrs.find(itprId));
+		//const bool isSync = (m_syncItptrs.end() != m_syncItptrs.find(itprId));
+		set<int> syncVms; // sync vm id
 
 		itpr.regSyncTime += deltaSeconds;
 		itpr.instSyncTime += deltaSeconds;
@@ -250,6 +264,9 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 		{
 			script::cVirtualMachine *vm = interpreter->m_vms[i];
+
+			if (m_syncVMIds.end() != m_syncVMIds.find(vm->m_id))
+				syncVms.insert(vm->m_id);
 
 			// sync delay instruction (check next instruction is delay node?)
 			// 'vm->m_reg.idx' is next execute instruction code index
@@ -267,15 +284,15 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 		if (itpr.regSyncTime > TIME_SYNC_REGISTER)
 		{
 			itpr.regSyncTime = 0.f;
-			if (isSync)
-				SendSyncVMRegister(itprId);
+			if (!syncVms.empty())
+				SendSyncVMRegister(itprId, &syncVms);
 		}
 
 		// sync instruction?
 		if (itpr.instSyncTime > TIME_SYNC_INSTRUCTION)
 			SendSyncInstruction(itprId);
 
-		SendSyncSymbolTable(itprId);
+		SendSyncSymbolTable(itprId, -1);
 
 		// is meet breakpoint? change step debugging mode
 		if (interpreter->IsBreak())
@@ -288,11 +305,12 @@ bool cRemoteInterpreter::Process(const float deltaSeconds)
 }
 
 
-// push interpreter event, wraping function
-// isUnique: no has same event, (check same event)
+// push interpreter event, wrapping function
+// itprId: interpreter id, -1: all interpreter, all vm
+// vmId: virtual machine id, -1: all vm
 // return: success push
 bool cRemoteInterpreter::PushEvent(const int itprId
-	, const common::script::cEvent &evt
+	, const int vmId, const common::script::cEvent &evt
 )
 {
 	bool res = false;
@@ -302,7 +320,7 @@ bool cRemoteInterpreter::PushEvent(const int itprId
 		{
 			script::cInterpreter *interpreter = itpr.interpreter;
 			if (eState::Run == itpr.state)
-				if (interpreter->PushEvent(evt))
+				if (interpreter->PushEvent(-1, evt))
 					res = true;
 		}
 	}
@@ -313,7 +331,7 @@ bool cRemoteInterpreter::PushEvent(const int itprId
 
 		sItpr &itpr = m_interpreters[itprId];
 		script::cInterpreter *interpreter = itpr.interpreter;
-		if (interpreter->PushEvent(evt))
+		if (interpreter->PushEvent(vmId, evt))
 			res = true;
 	}
 	return res;
@@ -324,47 +342,7 @@ bool cRemoteInterpreter::PushEvent(const int itprId
 // itprId: interpreter index, -1: all interpreter
 bool cRemoteInterpreter::Run(const int itprId)
 {
-	if (itprId < 0) 
-	{
-		for (uint i = 0; i < m_interpreters.size(); ++i)
-		{
-			auto& itpr = m_interpreters[i];
-			if (itpr.state != eState::Stop)
-				continue;
-			script::cInterpreter *interpreter = itpr.interpreter;
-			interpreter->SetCodeTrace(true);
-			for (auto &mod : m_modules)
-				interpreter->AddModule(mod);
-
-			if (interpreter->Run())
-			{
-				itpr.state = eState::Run;
-				SyncInformation(i, {});
-			}
-		}
-	}
-	else 
-	{
-		if (m_interpreters.size() <= (uint)itprId)
-			return false;
-		sItpr &itpr = m_interpreters[itprId];
-		if (itpr.state != eState::Stop)
-			return true;
-
-		script::cInterpreter *interpreter = itpr.interpreter;
-		interpreter->SetCodeTrace(true);
-		for (auto &mod : m_modules)
-			interpreter->AddModule(mod);
-
-		if (interpreter->Run())
-		{
-			itpr.state = eState::Run;
-			SyncInformation(itprId, {});
-			return true;
-		}
-		return false;
-	}
-	return true;
+	return RunInterpreter(itprId, 0);
 }
 
 
@@ -372,47 +350,7 @@ bool cRemoteInterpreter::Run(const int itprId)
 // itprId: interpreter index, -1: all interpreter
 bool cRemoteInterpreter::DebugRun(const int itprId)
 {
-	if (itprId < 0)
-	{
-		for (uint i=0; i < m_interpreters.size(); ++i)
-		{
-			auto& itpr = m_interpreters[i];
-			if (eState::Stop != itpr.state)
-				continue;
-			script::cInterpreter *interpreter = itpr.interpreter;
-			interpreter->SetCodeTrace(true);
-			for (auto &mod : m_modules)
-				interpreter->AddModule(mod);
-
-			if (interpreter->DebugRun())
-			{
-				itpr.state = eState::Run;
-				SyncInformation(i, {});
-			}
-		}
-	}
-	else
-	{
-		if (m_interpreters.size() <= (uint)itprId)
-			return false;
-		sItpr &itpr = m_interpreters[itprId];
-		if (eState::Stop != itpr.state)
-			return true;
-
-		script::cInterpreter *interpreter = itpr.interpreter;
-		interpreter->SetCodeTrace(true);
-		for (auto &mod : m_modules)
-			interpreter->AddModule(mod);
-
-		if (interpreter->DebugRun())
-		{
-			itpr.state = eState::Run;
-			SyncInformation(itprId, {});
-			return true;
-		}
-		return false;
-	}
-	return true;
+	return RunInterpreter(itprId, 1);
 }
 
 
@@ -420,40 +358,7 @@ bool cRemoteInterpreter::DebugRun(const int itprId)
 // itprId: interpreter index, -1: all interpreter
 bool cRemoteInterpreter::StepRun(const int itprId)
 {
-	if (itprId < 0)
-	{
-		for (auto &itpr : m_interpreters)
-		{
-			if (eState::Stop != itpr.state)
-				continue;
-			script::cInterpreter *interpreter = itpr.interpreter;
-			for (auto &mod : m_modules)
-				interpreter->AddModule(mod);
-
-			if (interpreter->StepRun())
-				itpr.state = eState::Run;
-		}
-	}
-	else
-	{
-		if (m_interpreters.size() <= (uint)itprId)
-			return false;
-		sItpr &itpr = m_interpreters[itprId];
-		if (eState::Stop != itpr.state)
-			return true;
-
-		script::cInterpreter *interpreter = itpr.interpreter;
-		for (auto &mod : m_modules)
-			interpreter->AddModule(mod);
-
-		if (interpreter->StepRun())
-		{
-			itpr.state = eState::Run;
-			return true;
-		}
-		return false;
-	}
-	return true;
+	return RunInterpreter(itprId, 2);
 }
 
 
@@ -597,7 +502,8 @@ bool cRemoteInterpreter::Break(const int itprId)
 
 // set break point
 // itprId: interpreter index
-bool cRemoteInterpreter::BreakPoint(const int itprId, const bool enable, const uint id)
+bool cRemoteInterpreter::BreakPoint(const int itprId, const int vmId
+	, const bool enable, const uint id)
 {
 	if (itprId < 0)
 	{
@@ -609,32 +515,49 @@ bool cRemoteInterpreter::BreakPoint(const int itprId, const bool enable, const u
 			return false;
 		sItpr &itpr = m_interpreters[itprId];
 		script::cInterpreter *interpreter = itpr.interpreter;
-		interpreter->BreakPoint(enable, id);
+		interpreter->BreakPoint(enable, vmId, id);
 	}
 	return true;
 }
 
 
 // synchronize interpreter information (only symboltable)
-// varNames: 'scopeName;varName' array
-bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>& varNames)
+// vmId: -1: all vm
+bool cRemoteInterpreter::SyncInformation(const int itprId, const int vmId)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
+	// sync all
 	sItpr& itpr = m_interpreters[itprId];
-	if (varNames.empty() || IsChangeSymbolTable(itprId))
+	itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
+	SendSyncSymbolTable(itprId, vmId);
+	return true;
+}
+
+
+// synchronize virtual machine information (only symboltable)
+// vmId: virtual machine id
+// varNames: 'scopeName;varName' array
+bool cRemoteInterpreter::SyncVMInformation(const int vmId, const vector<string>& varNames)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	if (itprId < 0)
+		return false; // error return
+
+	sItpr& itpr = m_interpreters[itprId];
+	if (IsChangeSymbolTable(itprId))
 	{
 		// sync all
 		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
-		SendSyncSymbolTable(itprId);
-		if (varNames.empty())
-			return true; // finish
+		SendSyncSymbolTable(itprId, vmId);
 	}
 
 	// sync specific variable
 	for (uint i=0; i < itpr.interpreter->m_vms.size(); ++i)
 	{
 		auto& vm = itpr.interpreter->m_vms[i];
+		if (vm->m_id != vmId) continue;
+
 		for (auto& varName : varNames)
 		{
 			vector<string> toks;
@@ -647,7 +570,7 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>&
 
 			if (var->IsReference())
 			{
-				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+				SendSyncVariable(itprId, vm->m_id, vm->m_symbTable
 					, script::cSymbolTable::MakeScopeName3(toks[0], toks[1]), *var);
 
 				auto it = vm->m_symbTable.m_varMap.find(var->var.intVal);
@@ -656,18 +579,18 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const vector<string>&
 				var = vm->m_symbTable.FindVarInfo(it->second.first, it->second.second);
 				if (!var)
 					continue; // not found, error
-				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+				SendSyncVariable(itprId, vm->m_id, vm->m_symbTable
 					, script::cSymbolTable::MakeScopeName3(it->second.first, it->second.second)
 					, *var);
 			}
 			else if (var->IsArray())
 			{
-				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+				SendSyncVariable(itprId, vm->m_id, vm->m_symbTable
 					, script::cSymbolTable::MakeScopeName3(toks[0], toks[1]), *var);
 			}
 			else if (var->IsMap())
 			{
-				SendSyncVariable(itprId, (int)i, vm->m_symbTable
+				SendSyncVariable(itprId, vm->m_id, vm->m_symbTable
 					, script::cSymbolTable::MakeScopeName3(toks[0], toks[1]), *var);
 			}
 		}
@@ -703,6 +626,7 @@ bool cRemoteInterpreter::IsRun(const int itprId)
 	return false;
 }
 
+
 // is debugging interpreter?
 // itprId: interpreter index
 bool cRemoteInterpreter::IsDebug(const int itprId)
@@ -730,10 +654,134 @@ bool cRemoteInterpreter::IsDebug(const int itprId)
 }
 
 
+// find interpreter id (index)
+// vmId: virtual machine id
+// return: interpreter id (index), -1: not found
+int cRemoteInterpreter::GetInterpreterIdByVMId(const int vmId)
+{
+	int itprId = -1;
+	for (uint i = 0; i < m_interpreters.size(); ++i)
+	{
+		network2::cRemoteInterpreter::sItpr& info = m_interpreters[i];
+		script::cInterpreter* itpr = info.interpreter;
+		if (!itpr)
+			continue;
+		auto it = std::find_if(itpr->m_vms.begin(), itpr->m_vms.end()
+			, [&](const auto& a) { return a->m_id == vmId; });
+		if (itpr->m_vms.end() != it)
+		{
+			itprId = (int)i;
+			break;
+		}
+	}
+	return itprId;
+}
+
+
+// return virtual machine by vmid
+script::cVirtualMachine* cRemoteInterpreter::GetVM(const int vmId)
+{
+	script::cVirtualMachine* vm = nullptr;
+	for (uint i = 0; i < m_interpreters.size(); ++i)
+	{
+		network2::cRemoteInterpreter::sItpr& info = m_interpreters[i];
+		if (vm = info.interpreter->GetVM(vmId))
+			break;
+	}
+	return vm;
+}
+
+
+// find interpreter
+// vmId: virtual machine id
+cRemoteInterpreter::sItpr* cRemoteInterpreter::GetInterpreterByVMId(const int vmId)
+{
+	for (uint i = 0; i < m_interpreters.size(); ++i)
+	{
+		network2::cRemoteInterpreter::sItpr& info = m_interpreters[i];
+		script::cInterpreter* itpr = info.interpreter;
+		if (!itpr)
+			continue;
+		auto it = std::find_if(itpr->m_vms.begin(), itpr->m_vms.end()
+			, [&](const auto& a) { return a->m_id == vmId; });
+		if (itpr->m_vms.end() != it)
+			return &info;
+	}
+	return nullptr;
+}
+
+
+// run interpreter
+// itprId: interpreter id, -1:all interpreter
+// type: 0:run, 1:debug run, 2:step run
+bool cRemoteInterpreter::RunInterpreter(const int itprId, const int type)
+{
+	if (itprId < 0)
+	{
+		for (uint i = 0; i < m_interpreters.size(); ++i)
+			RunInterpreter_Sub(i, type);
+	}
+	else
+	{
+		return RunInterpreter_Sub(itprId, type);
+	}
+	return true;
+}
+
+
+// run interpreter
+// itprId: interpreter id, -1:all interpreter
+// type: 0:run, 1:debug run, 2:step run
+bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int type)
+{
+	if (m_interpreters.size() <= (uint)itprId)
+		return false;
+
+	bool result = false;
+	sItpr& itpr = m_interpreters[itprId];
+	if (eState::Stop == itpr.state)
+	{
+		script::cInterpreter* interpreter = itpr.interpreter;
+		interpreter->SetCodeTrace(true);
+		for (auto& mod : m_modules)
+			interpreter->AddModule(mod);
+
+		switch (type)
+		{
+		case 0: // Run
+			if (result = interpreter->Run())
+			{
+				itpr.state = eState::Run;
+				SyncInformation(itprId, -1);
+				return true;
+			}
+			break;
+		case 1: // DebugRun
+			if (result = interpreter->DebugRun())
+			{
+				itpr.state = eState::Run;
+				SyncInformation(itprId, -1);
+			}
+			break;
+		case 2: // StepRun
+			if (result = interpreter->StepRun())
+				itpr.state = eState::Run;
+			break;
+		default:
+			return false;
+		}
+	}
+	return result;
+}
+
+
 // check symboltable change
 bool cRemoteInterpreter::IsChangeSymbolTable(const int itprId)
 {
-	sItpr& itpr = m_interpreters[itprId];
+	return IsChangeSymbolTable(m_interpreters[itprId]);
+}
+bool cRemoteInterpreter::IsChangeSymbolTable(const sItpr& itpr)
+{
 	script::cInterpreter* interpreter = itpr.interpreter;
 	for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 	{
@@ -763,7 +811,7 @@ bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
 		itpr.isChangeInstruction = false; // initialize flag
 
 		m_protocol.SyncVMInstruction(network2::ALL_NETID
-			, true, itprId, i, vm->m_trace);
+			, true, itprId, vm->m_id, vm->m_trace);
 
 		vm->ClearCodeTrace(true);
 	}
@@ -773,7 +821,9 @@ bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
 
 // sync vm register info
 // itprId: interpreter index
-bool cRemoteInterpreter::SendSyncVMRegister(const int itprId)
+bool cRemoteInterpreter::SendSyncVMRegister(const int itprId
+	, const set<int> *vmIds //=nullptr
+)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
@@ -781,8 +831,13 @@ bool cRemoteInterpreter::SendSyncVMRegister(const int itprId)
 	for (uint i=0; i < interpreter->m_vms.size(); ++i)
 	{
 		auto &vm = interpreter->m_vms[i];
+
+		if (vmIds)
+			if (vmIds->end() == vmIds->find(vm->m_id))
+				continue; // ignore this vm
+
 		m_protocol.SyncVMRegister(network2::ALL_NETID, true, itprId
-			, (int)i, 0, vm->m_reg);
+			, vm->m_id, 0, vm->m_reg);
 		break; // now only one virtual machine sync
 	}
 	return true;
@@ -791,7 +846,7 @@ bool cRemoteInterpreter::SendSyncVMRegister(const int itprId)
 
 // synchronize symboltable
 // itprId: interpreter index
-bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
+bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
@@ -808,6 +863,8 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 	{
 		vector<script::sSyncSymbol> symbols;
 		script::cVirtualMachine *vm = interpreter->m_vms[i];
+		if ((vmId >= 0) && (vm->m_id != vmId))
+			continue; // ignore this vm
 
 		for (auto &kv1 : vm->m_symbTable.m_vars)
 		{
@@ -852,27 +909,28 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 		{
 			if (symbols.size() > MaxSyncSymbolCount)
 			{
-				uint start = 0;
-				while (symbols.size() > start)
+				uint offset = 0;
+				while (symbols.size() > offset)
 				{
+					const uint start = offset;
 					vector<script::sSyncSymbol> s;
 					for (uint k = 0; 
-						(k < MaxSyncSymbolCount) && (start < symbols.size()); 
-						++k, ++start)
-						s.push_back(symbols[start]);
+						(k < MaxSyncSymbolCount) && (offset < symbols.size());
+						++k, ++offset)
+						s.push_back(symbols[offset]);
 
 					m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
-						, itprId, i, 0, s.size(), s);
+						, itprId, vm->m_id, start, s.size(), s);
 				}
 			}
 			else
 			{
 				m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
-					, itprId, i, 0, symbols.size(), symbols);
+					, itprId, vm->m_id, 0, symbols.size(), symbols);
 			}
 		}
 		vm->m_symbTable.SyncChange(); // clear change flag
-	}
+	}//~for
 	
 	return true;
 }
@@ -880,7 +938,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId)
 
 // send specific variable sync
 // only sync array, map type 
-bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmIdx
+bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 	, const script::cSymbolTable& symbolTable
 	, const string &varName, const script::sVariable& var)
 {
@@ -910,7 +968,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmIdx
 					if (offset + sizeof(bool) > maxPacketSize)
 						break;
 				}
-				m_protocol.SyncVMArrayBool(network2::ALL_NETID, true, itprId, vmIdx
+				m_protocol.SyncVMArrayBool(network2::ALL_NETID, true, itprId, vmId
 					, varName, startIdx, values);
 			}
 		}
@@ -933,7 +991,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmIdx
 					if (offset + sizeof(float) > maxPacketSize)
 						break;
 				}
-				m_protocol.SyncVMArrayNumber(network2::ALL_NETID, true, itprId, vmIdx
+				m_protocol.SyncVMArrayNumber(network2::ALL_NETID, true, itprId, vmId
 					, varName, startIdx, values);
 			}
 		}
@@ -956,7 +1014,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmIdx
 					if (offset + sizeof(float) > maxPacketSize)
 						break;
 				}
-				m_protocol.SyncVMArrayString(network2::ALL_NETID, true, itprId, vmIdx
+				m_protocol.SyncVMArrayString(network2::ALL_NETID, true, itprId, vmId
 					, varName, startIdx, values);
 			}
 		}
@@ -999,23 +1057,30 @@ bool cRemoteInterpreter::UploadIntermediateCode(remotedbg2::UploadIntermediateCo
 // request intermeidate code protocol handler
 bool cRemoteInterpreter::ReqIntermediateCode(remotedbg2::ReqIntermediateCode_Packet &packet)
 {
-	if (m_interpreters.size() <= (uint)packet.itprId) {
-		// fail, iterpreter id invalid
-		m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId
-			, 0, 0, 0, 0, {});
-		return true;
-	}
+	if (m_interpreters.size() <= (uint)packet.itprId)
+		goto $error;
 
 	if (m_threads)
 	{
 		++m_multiThreading;
-		m_threads->PushTask(new cSendICodeTask(this, packet.itprId, packet.senderId));
+		m_threads->PushTask(new cSendICodeTask(this, packet.itprId, packet.vmId, packet.senderId));
 	}
 	else
 	{
 		script::cInterpreter *interpreter = m_interpreters[packet.itprId].interpreter;
-		SendIntermediateCode(m_protocol, packet.senderId, packet.itprId, interpreter->m_code);
+		script::cVirtualMachine *vm = interpreter->GetVM(packet.vmId);
+		if (!vm)
+			goto $error;
+
+		SendIntermediateCode(m_protocol, packet.senderId, packet.itprId, packet.vmId, vm->m_code);
 	}
+	return true;
+
+
+$error:
+	// fail, iterpreter id invalid
+	m_protocol.AckIntermediateCode(packet.senderId, true, packet.itprId, packet.vmId
+		, 0, 0, 0, 0, {});
 	return true;
 }
 
@@ -1082,7 +1147,7 @@ bool cRemoteInterpreter::ReqResumeRun(remotedbg2::ReqResumeRun_Packet &packet)
 bool cRemoteInterpreter::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 {
 	Break(packet.itprId);
-	m_protocol.AckBreak(packet.senderId, true, packet.itprId, 1);
+	m_protocol.AckBreak(packet.senderId, true, packet.itprId, packet.vmId, 1);
 	return true;
 }
 
@@ -1090,8 +1155,9 @@ bool cRemoteInterpreter::ReqBreak(remotedbg2::ReqBreak_Packet &packet)
 // request interpreter register breakpoint
 bool cRemoteInterpreter::ReqBreakPoint(remotedbg2::ReqBreakPoint_Packet &packet)
 {
-	BreakPoint(packet.itprId, packet.enable, packet.id);
-	m_protocol.AckBreakPoint(packet.senderId, true, packet.itprId, packet.enable, packet.id, 1);
+	BreakPoint(packet.itprId, packet.vmId, packet.enable, packet.id);
+	m_protocol.AckBreakPoint(packet.senderId, true, packet.itprId, packet.vmId
+		, packet.enable, packet.id, 1);
 	return true;
 }
 
@@ -1109,13 +1175,13 @@ bool cRemoteInterpreter::ReqStop(remotedbg2::ReqStop_Packet &packet)
 bool cRemoteInterpreter::ReqInput(remotedbg2::ReqInput_Packet &packet)
 {
 	script::cEvent evt(packet.eventName);
-	PushEvent(packet.itprId, evt);
-	m_protocol.AckInput(packet.senderId, true, packet.itprId, 1);
+	PushEvent(packet.itprId, packet.vmId, evt);
+	m_protocol.AckInput(packet.senderId, true, packet.itprId, packet.vmId, 1);
 	return true;
 }
 
 
-//request interpreter event protocol handler
+// request interpreter event protocol handler
 bool cRemoteInterpreter::ReqEvent(remotedbg2::ReqEvent_Packet &packet) 
 { 
 	// make event variables
@@ -1130,9 +1196,9 @@ bool cRemoteInterpreter::ReqEvent(remotedbg2::ReqEvent_Packet &packet)
 	//~
 
 	script::cEvent evt(packet.eventName, vars);
-	PushEvent(packet.itprId, evt);
+	PushEvent(packet.itprId, packet.vmId, evt);
 	m_protocol.AckEvent(packet.senderId, true
-		, packet.itprId, packet.vmIdx, packet.eventName, 1);
+		, packet.itprId, packet.vmId, packet.eventName, 1);
 	return true; 
 }
 
@@ -1151,11 +1217,11 @@ bool cRemoteInterpreter::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &p
 // remotedbg2 protocol, request debug info, sync instruction, symboltable, register
 bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) 
 { 
-	m_syncItptrs.clear();
-	for (auto &id : packet.itprIds)
-		m_syncItptrs.insert(id);
+	m_syncVMIds.clear();
+	for (auto &id : packet.vmIds)
+		m_syncVMIds.insert(id);
 
-	m_protocol.AckDebugInfo(packet.senderId, true, packet.itprIds, 1);
+	m_protocol.AckDebugInfo(packet.senderId, true, packet.vmIds, 1);
 	return true;
 }
 
@@ -1167,11 +1233,11 @@ bool cRemoteInterpreter::ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet&
 	map<string, variant_t> vars;
 	vars[packet.varName] = packet.value.c_str();
 	script::cEvent evt("@@symbol@@", vars);
-	PushEvent(packet.itprId, evt);
+	PushEvent(packet.itprId, packet.vmId, evt);
 	//~
 
 	m_protocol.AckChangeVariable(packet.senderId, true
-		, packet.itprId, packet.vmIdx, packet.varName, 1);
+		, packet.itprId, packet.vmId, packet.varName, 1);
 	return true;
 }
 
@@ -1195,7 +1261,7 @@ void cRemoteInterpreter::Clear()
 {
 	//m_state = eState::Stop;
 	//m_chSymbols.clear();
-	m_syncItptrs.clear();
+	m_syncVMIds.clear();
 	m_server.Close();
 	ClearInterpreters();
 	m_threads = nullptr;
@@ -1209,7 +1275,8 @@ namespace {
 
 // send intermediate code, using remotedbg2 protocol
 bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
-	, const netid recvId, const int itprId, const script::cIntermediateCode &icode)
+	, const netid recvId, const int itprId, const int vmId
+	, const script::cIntermediateCode &icode)
 {
 	// marshalling intermedatecode to byte stream
 	const uint BUFFER_SIZE = 1024 * 100;
@@ -1226,15 +1293,15 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	if (bufferSize == 0)
 	{
 		// no intermediate code, fail!
-		protocol.AckIntermediateCode(recvId, true, itprId, 0, 0, 0, 0, {});
+		protocol.AckIntermediateCode(recvId, true, itprId, vmId, 0, 0, 0, 0, {});
 	}
 	else
 	{
-		// 4 bytes = itpr, result, count, index
-		// 2 * 4byte = totalBufferSize, buffsize
-		// 12 bytes = 4 + 8
+		// 12 bytes = itpr, vmId, result, count, index
+		// 2 * 4byte = vmId, totalBufferSize, buffsize
+		// 20 bytes = 12 + 8
 		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
-			(marsh.GetHeaderSize() + 12);
+			(marsh.GetHeaderSize() + 20);
 		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
 			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
 
@@ -1246,7 +1313,7 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 			vector<BYTE> data(size);
 			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
 			protocol.AckIntermediateCode(recvId, true
-				, (BYTE)itprId, 1, (BYTE)totalCount, (BYTE)index, bufferSize, data);
+				, (BYTE)itprId, vmId, 1, (BYTE)totalCount, (BYTE)index, bufferSize, data);
 
 			cursor += size;
 			++index;

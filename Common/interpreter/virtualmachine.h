@@ -88,6 +88,7 @@ namespace common
 			vector<int> m_stack; // simple integer stack (save return address)
 			vector<iModule*> m_modules; // execute function module, reference
 			//string m_timerId; // timer event code name, name + id, to trigger event
+			bool m_isStartEvt; // invoke start event?
 
 			// debugging
 			bool m_isCodeTraceLog;

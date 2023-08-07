@@ -11,20 +11,21 @@
 
 protocol r2h 5301 json
 {
-	UploadIntermediateCode(int itprId, string code );
-	ReqIntermediateCode(int itprId);
+	UploadIntermediateCode(int itprId, int vmId, string code );
+	ReqIntermediateCode(int itprId, int vmId);
+
 	ReqRun(int itprId, string runType);
 	ReqOneStep(int itprId);
 	ReqResumeRun(int itprId);
-	ReqBreak(int itprId);
-	ReqBreakPoint( int itprId, bool enable, uint id);
+	ReqBreak(int itprId, int vmId);
+	ReqBreakPoint( int itprId, int vmId, bool enable, uint id);
 	ReqStop(int itprId);
-	ReqInput(int itprId, int vmIdx, string eventName);
-	ReqEvent(int itprId, int vmIdx, string eventName, map<string, vector<string>> values);
+	ReqInput(int itprId, int vmId, string eventName);
+	ReqEvent(int itprId, int vmId, string eventName, map<string, vector<string>> values);
 	ReqStepDebugType(int stepDbgType);
-	ReqDebugInfo(vector<int> itprIds);
-	ReqVariableInfo(int itprId, int vmIdx, string varName);
-	ReqChangeVariable(int itprId, int vmIdx, string varName, string value);
+	ReqDebugInfo(vector<int> vmIds);
+	ReqVariableInfo(int itprId, int vmId, string varName);
+	ReqChangeVariable(int itprId, int vmId, string varName, string value);
 	ReqHeartBeat();
 }
 
@@ -32,29 +33,33 @@ protocol r2h 5301 json
 protocol h2r 5300 json
 {
 	Welcome( string msg );
-	AckUploadIntermediateCode(int itprId, int result );
-	AckIntermediateCode( BYTE itprId, BYTE result, BYTE count, BYTE index, uint totalBufferSize
-		, vector<BYTE> data );
+	AckUploadIntermediateCode(int itprId, int vmId, int result );
+	AckIntermediateCode( BYTE itprId, int vmId, BYTE result, BYTE count, BYTE index
+		, uint totalBufferSize, vector<BYTE> data );
+	SpawnTotalInterpreterInfo(int totalCount, int index, int itprId, vector<int> vmIds);
+	SpawnInterpreterInfo(int itprId, int parentVmId, int vmId, string nodeFileName);
+	RemoveInterpreter(int vmId);
+
 	AckRun( int itprId, int result );
 	AckOneStep( int itprId, int result );
 	AckResumeRun( int itprId, int result );
-	AckBreak( int itprId, int result );
-	AckBreakPoint( int itprId, bool enable, uint id, int result );
+	AckBreak( int itprId, int vmId, int result );
+	AckBreakPoint( int itprId, int vmId, bool enable, uint id, int result );
 	AckStop( int itprId, int result );
-	AckInput( int itprId, int result );
-	AckEvent( int itprId, int vmIdx, string eventName, int result);
+	AckInput( int itprId, int vmId, int result );
+	AckEvent( int itprId, int vmId, string eventName, int result);
 	AckStepDebugType(int stepDbgType, int result);
-	AckDebugInfo(vector<int> itprIds, int result);
-	AckChangeVariable(int itprId, int vmIdx, string varName, int result);
-	SyncVMInstruction( int itprId, int vmIdx, vector<ushort> indices );
-	SyncVMRegister( int itprId, int vmIdx, int infoType, script::cVirtualMachine::sRegister reg );
-	SyncVMSymbolTable( int itprId, int vmIdx, uint start, uint count, vector<script::sSyncSymbol> symbol );
-	SyncVMOutput( int itprId, int vmIdx, string output );
-	SyncVMWidgets( int itprId, int vmIdx, string widgetName );
-	SyncVMArray( int itprId, int vmIdx, string varName, uint startIdx, vector<variant_t> array );
-	SyncVMArrayBool( int itprId, int vmIdx, string varName, uint startIdx, vector<bool> array );
-	SyncVMArrayNumber( int itprId, int vmIdx, string varName, uint startIdx, vector<float> array );
-	SyncVMArrayString( int itprId, int vmIdx, string varName, uint startIdx, vector<string> array );
+	AckDebugInfo(vector<int> vmIds, int result);
+	AckChangeVariable(int itprId, int vmId, string varName, int result);
+	SyncVMInstruction( int itprId, int vmId, vector<ushort> indices );
+	SyncVMRegister( int itprId, int vmId, int infoType, script::cVirtualMachine::sRegister reg );
+	SyncVMSymbolTable( int itprId, int vmId, uint start, uint count, vector<script::sSyncSymbol> symbol );
+	SyncVMOutput( int itprId, int vmId, string output );
+	SyncVMWidgets( int itprId, int vmId, string widgetName );
+	SyncVMArray( int itprId, int vmId, string varName, uint startIdx, vector<variant_t> array );
+	SyncVMArrayBool( int itprId, int vmId, string varName, uint startIdx, vector<bool> array );
+	SyncVMArrayNumber( int itprId, int vmId, string varName, uint startIdx, vector<float> array );
+	SyncVMArrayString( int itprId, int vmId, string varName, uint startIdx, vector<string> array );
 	AckHeartBeat();
 }
 

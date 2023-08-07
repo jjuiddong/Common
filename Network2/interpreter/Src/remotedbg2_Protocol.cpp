@@ -6,7 +6,7 @@ cPacketHeaderJson remotedbg2::r2h_Protocol::s_packetHeader;
 //------------------------------------------------------------------------
 // Protocol: UploadIntermediateCode
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::UploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const string &code)
+void remotedbg2::r2h_Protocol::UploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &code)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -17,6 +17,7 @@ void remotedbg2::r2h_Protocol::UploadIntermediateCode(netid targetId, bool isBin
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, code);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -28,6 +29,7 @@ void remotedbg2::r2h_Protocol::UploadIntermediateCode(netid targetId, bool isBin
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "code", code);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -43,7 +45,7 @@ void remotedbg2::r2h_Protocol::UploadIntermediateCode(netid targetId, bool isBin
 //------------------------------------------------------------------------
 // Protocol: ReqIntermediateCode
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqIntermediateCode(netid targetId, bool isBinary, const int &itprId)
+void remotedbg2::r2h_Protocol::ReqIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &vmId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -54,6 +56,7 @@ void remotedbg2::r2h_Protocol::ReqIntermediateCode(netid targetId, bool isBinary
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -64,6 +67,7 @@ void remotedbg2::r2h_Protocol::ReqIntermediateCode(netid targetId, bool isBinary
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -185,7 +189,7 @@ void remotedbg2::r2h_Protocol::ReqResumeRun(netid targetId, bool isBinary, const
 //------------------------------------------------------------------------
 // Protocol: ReqBreak
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary, const int &itprId)
+void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary, const int &itprId, const int &vmId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -196,6 +200,7 @@ void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary, const int
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -206,6 +211,7 @@ void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -220,7 +226,7 @@ void remotedbg2::r2h_Protocol::ReqBreak(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: ReqBreakPoint
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id)
+void remotedbg2::r2h_Protocol::ReqBreakPoint(netid targetId, bool isBinary, const int &itprId, const int &vmId, const bool &enable, const uint &id)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -231,6 +237,7 @@ void remotedbg2::r2h_Protocol::ReqBreakPoint(netid targetId, bool isBinary, cons
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, enable);
 		marshalling::operator<<(packet, id);
 		packet.EndPack();
@@ -243,6 +250,7 @@ void remotedbg2::r2h_Protocol::ReqBreakPoint(netid targetId, bool isBinary, cons
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "enable", enable);
 			put(props, "id", id);
 			stringstream ss;
@@ -294,7 +302,7 @@ void remotedbg2::r2h_Protocol::ReqStop(netid targetId, bool isBinary, const int 
 //------------------------------------------------------------------------
 // Protocol: ReqInput
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName)
+void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &eventName)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -305,7 +313,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, eventName);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -317,7 +325,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "eventName", eventName);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -333,7 +341,7 @@ void remotedbg2::r2h_Protocol::ReqInput(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: ReqEvent
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName, const map<string,vector<string>> &values)
+void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &eventName, const map<string,vector<string>> &values)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -344,7 +352,7 @@ void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, eventName);
 		marshalling::operator<<(packet, values);
 		packet.EndPack();
@@ -357,7 +365,7 @@ void remotedbg2::r2h_Protocol::ReqEvent(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "eventName", eventName);
 			put(props, "values", values);
 			stringstream ss;
@@ -409,7 +417,7 @@ void remotedbg2::r2h_Protocol::ReqStepDebugType(netid targetId, bool isBinary, c
 //------------------------------------------------------------------------
 // Protocol: ReqDebugInfo
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds)
+void remotedbg2::r2h_Protocol::ReqDebugInfo(netid targetId, bool isBinary, const vector<int> &vmIds)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -419,7 +427,7 @@ void remotedbg2::r2h_Protocol::ReqDebugInfo(netid targetId, bool isBinary, const
 	{
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
-		marshalling::operator<<(packet, itprIds);
+		marshalling::operator<<(packet, vmIds);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -429,7 +437,7 @@ void remotedbg2::r2h_Protocol::ReqDebugInfo(netid targetId, bool isBinary, const
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
-			put(props, "itprIds", itprIds);
+			put(props, "vmIds", vmIds);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -444,7 +452,7 @@ void remotedbg2::r2h_Protocol::ReqDebugInfo(netid targetId, bool isBinary, const
 //------------------------------------------------------------------------
 // Protocol: ReqVariableInfo
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqVariableInfo(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName)
+void remotedbg2::r2h_Protocol::ReqVariableInfo(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -455,7 +463,7 @@ void remotedbg2::r2h_Protocol::ReqVariableInfo(netid targetId, bool isBinary, co
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -467,7 +475,7 @@ void remotedbg2::r2h_Protocol::ReqVariableInfo(netid targetId, bool isBinary, co
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -483,7 +491,7 @@ void remotedbg2::r2h_Protocol::ReqVariableInfo(netid targetId, bool isBinary, co
 //------------------------------------------------------------------------
 // Protocol: ReqChangeVariable
 //------------------------------------------------------------------------
-void remotedbg2::r2h_Protocol::ReqChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const string &value)
+void remotedbg2::r2h_Protocol::ReqChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const string &value)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -494,7 +502,7 @@ void remotedbg2::r2h_Protocol::ReqChangeVariable(netid targetId, bool isBinary, 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, value);
 		packet.EndPack();
@@ -507,7 +515,7 @@ void remotedbg2::r2h_Protocol::ReqChangeVariable(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "value", value);
 			stringstream ss;
@@ -595,7 +603,7 @@ void remotedbg2::h2r_Protocol::Welcome(netid targetId, bool isBinary, const stri
 //------------------------------------------------------------------------
 // Protocol: AckUploadIntermediateCode
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckUploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &result)
+void remotedbg2::h2r_Protocol::AckUploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &vmId, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -606,6 +614,7 @@ void remotedbg2::h2r_Protocol::AckUploadIntermediateCode(netid targetId, bool is
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -617,6 +626,7 @@ void remotedbg2::h2r_Protocol::AckUploadIntermediateCode(netid targetId, bool is
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -632,7 +642,7 @@ void remotedbg2::h2r_Protocol::AckUploadIntermediateCode(netid targetId, bool is
 //------------------------------------------------------------------------
 // Protocol: AckIntermediateCode
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary, const BYTE &itprId, const BYTE &result, const BYTE &count, const BYTE &index, const uint &totalBufferSize, const vector<BYTE> &data)
+void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary, const BYTE &itprId, const int &vmId, const BYTE &result, const BYTE &count, const BYTE &index, const uint &totalBufferSize, const vector<BYTE> &data)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -643,6 +653,7 @@ void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, result);
 		marshalling::operator<<(packet, count);
 		marshalling::operator<<(packet, index);
@@ -658,11 +669,129 @@ void remotedbg2::h2r_Protocol::AckIntermediateCode(netid targetId, bool isBinary
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "result", result);
 			put(props, "count", count);
 			put(props, "index", index);
 			put(props, "totalBufferSize", totalBufferSize);
 			put(props, "data", data);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: SpawnTotalInterpreterInfo
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::SpawnTotalInterpreterInfo(netid targetId, bool isBinary, const int &totalCount, const int &index, const int &itprId, const vector<int> &vmIds)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 977092268 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, totalCount);
+		marshalling::operator<<(packet, index);
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmIds);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "totalCount", totalCount);
+			put(props, "index", index);
+			put(props, "itprId", itprId);
+			put(props, "vmIds", vmIds);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: SpawnInterpreterInfo
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::SpawnInterpreterInfo(netid targetId, bool isBinary, const int &itprId, const int &parentVmId, const int &vmId, const string &nodeFileName)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 762776747 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, parentVmId);
+		marshalling::operator<<(packet, vmId);
+		marshalling::operator<<(packet, nodeFileName);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprId", itprId);
+			put(props, "parentVmId", parentVmId);
+			put(props, "vmId", vmId);
+			put(props, "nodeFileName", nodeFileName);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: RemoveInterpreter
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::RemoveInterpreter(netid targetId, bool isBinary, const int &vmId)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 940777945 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, vmId);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "vmId", vmId);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();
@@ -788,7 +917,7 @@ void remotedbg2::h2r_Protocol::AckResumeRun(netid targetId, bool isBinary, const
 //------------------------------------------------------------------------
 // Protocol: AckBreak
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int &itprId, const int &result)
+void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int &itprId, const int &vmId, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -799,6 +928,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -810,6 +940,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -825,7 +956,7 @@ void remotedbg2::h2r_Protocol::AckBreak(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: AckBreakPoint
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckBreakPoint(netid targetId, bool isBinary, const int &itprId, const bool &enable, const uint &id, const int &result)
+void remotedbg2::h2r_Protocol::AckBreakPoint(netid targetId, bool isBinary, const int &itprId, const int &vmId, const bool &enable, const uint &id, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -836,6 +967,7 @@ void remotedbg2::h2r_Protocol::AckBreakPoint(netid targetId, bool isBinary, cons
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, enable);
 		marshalling::operator<<(packet, id);
 		marshalling::operator<<(packet, result);
@@ -849,6 +981,7 @@ void remotedbg2::h2r_Protocol::AckBreakPoint(netid targetId, bool isBinary, cons
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "enable", enable);
 			put(props, "id", id);
 			put(props, "result", result);
@@ -903,7 +1036,7 @@ void remotedbg2::h2r_Protocol::AckStop(netid targetId, bool isBinary, const int 
 //------------------------------------------------------------------------
 // Protocol: AckInput
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int &itprId, const int &result)
+void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int &itprId, const int &vmId, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -914,6 +1047,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -925,6 +1059,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -940,7 +1075,7 @@ void remotedbg2::h2r_Protocol::AckInput(netid targetId, bool isBinary, const int
 //------------------------------------------------------------------------
 // Protocol: AckEvent
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckEvent(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &eventName, const int &result)
+void remotedbg2::h2r_Protocol::AckEvent(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &eventName, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -951,7 +1086,7 @@ void remotedbg2::h2r_Protocol::AckEvent(netid targetId, bool isBinary, const int
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, eventName);
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
@@ -964,7 +1099,7 @@ void remotedbg2::h2r_Protocol::AckEvent(netid targetId, bool isBinary, const int
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "eventName", eventName);
 			put(props, "result", result);
 			stringstream ss;
@@ -1018,7 +1153,7 @@ void remotedbg2::h2r_Protocol::AckStepDebugType(netid targetId, bool isBinary, c
 //------------------------------------------------------------------------
 // Protocol: AckDebugInfo
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const vector<int> &itprIds, const int &result)
+void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const vector<int> &vmIds, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1028,7 +1163,7 @@ void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const
 	{
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
-		marshalling::operator<<(packet, itprIds);
+		marshalling::operator<<(packet, vmIds);
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1039,7 +1174,7 @@ void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const
 		using boost::property_tree::ptree;
 		ptree props;
 		try {
-			put(props, "itprIds", itprIds);
+			put(props, "vmIds", vmIds);
 			put(props, "result", result);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1055,7 +1190,7 @@ void remotedbg2::h2r_Protocol::AckDebugInfo(netid targetId, bool isBinary, const
 //------------------------------------------------------------------------
 // Protocol: AckChangeVariable
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::AckChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const int &result)
+void remotedbg2::h2r_Protocol::AckChangeVariable(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const int &result)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1066,7 +1201,7 @@ void remotedbg2::h2r_Protocol::AckChangeVariable(netid targetId, bool isBinary, 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, result);
 		packet.EndPack();
@@ -1079,7 +1214,7 @@ void remotedbg2::h2r_Protocol::AckChangeVariable(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "result", result);
 			stringstream ss;
@@ -1096,7 +1231,7 @@ void remotedbg2::h2r_Protocol::AckChangeVariable(netid targetId, bool isBinary, 
 //------------------------------------------------------------------------
 // Protocol: SyncVMInstruction
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const vector<ushort> &indices)
+void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, const int &itprId, const int &vmId, const vector<ushort> &indices)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1107,7 +1242,7 @@ void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, indices);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1119,7 +1254,7 @@ void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "indices", indices);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1135,7 +1270,7 @@ void remotedbg2::h2r_Protocol::SyncVMInstruction(netid targetId, bool isBinary, 
 //------------------------------------------------------------------------
 // Protocol: SyncVMRegister
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const int &infoType, const script::cVirtualMachine::sRegister &reg)
+void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, const int &itprId, const int &vmId, const int &infoType, const script::cVirtualMachine::sRegister &reg)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1146,7 +1281,7 @@ void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, con
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, infoType);
 		marshalling::operator<<(packet, reg);
 		packet.EndPack();
@@ -1159,7 +1294,7 @@ void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, con
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "infoType", infoType);
 			put(props, "reg", reg);
 			stringstream ss;
@@ -1176,7 +1311,7 @@ void remotedbg2::h2r_Protocol::SyncVMRegister(netid targetId, bool isBinary, con
 //------------------------------------------------------------------------
 // Protocol: SyncVMSymbolTable
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol)
+void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmId, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1187,7 +1322,7 @@ void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, start);
 		marshalling::operator<<(packet, count);
 		marshalling::operator<<(packet, symbol);
@@ -1201,7 +1336,7 @@ void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "start", start);
 			put(props, "count", count);
 			put(props, "symbol", symbol);
@@ -1219,7 +1354,7 @@ void remotedbg2::h2r_Protocol::SyncVMSymbolTable(netid targetId, bool isBinary, 
 //------------------------------------------------------------------------
 // Protocol: SyncVMOutput
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &output)
+void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &output)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1230,7 +1365,7 @@ void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, output);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1242,7 +1377,7 @@ void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "output", output);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1258,7 +1393,7 @@ void remotedbg2::h2r_Protocol::SyncVMOutput(netid targetId, bool isBinary, const
 //------------------------------------------------------------------------
 // Protocol: SyncVMWidgets
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMWidgets(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &widgetName)
+void remotedbg2::h2r_Protocol::SyncVMWidgets(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &widgetName)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1269,7 +1404,7 @@ void remotedbg2::h2r_Protocol::SyncVMWidgets(netid targetId, bool isBinary, cons
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, widgetName);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1281,7 +1416,7 @@ void remotedbg2::h2r_Protocol::SyncVMWidgets(netid targetId, bool isBinary, cons
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "widgetName", widgetName);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1297,7 +1432,7 @@ void remotedbg2::h2r_Protocol::SyncVMWidgets(netid targetId, bool isBinary, cons
 //------------------------------------------------------------------------
 // Protocol: SyncVMArray
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const uint &startIdx, const vector<variant_t> &array)
+void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<variant_t> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1308,7 +1443,7 @@ void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
 		marshalling::operator<<(packet, array);
@@ -1322,7 +1457,7 @@ void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
 			put(props, "array", array);
@@ -1340,7 +1475,7 @@ void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const 
 //------------------------------------------------------------------------
 // Protocol: SyncVMArrayBool
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const uint &startIdx, const vector<bool> &array)
+void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<bool> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1351,7 +1486,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, co
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
 		marshalling::operator<<(packet, array);
@@ -1365,7 +1500,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, co
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
 			put(props, "array", array);
@@ -1383,7 +1518,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, co
 //------------------------------------------------------------------------
 // Protocol: SyncVMArrayNumber
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const uint &startIdx, const vector<float> &array)
+void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<float> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1394,7 +1529,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
 		marshalling::operator<<(packet, array);
@@ -1408,7 +1543,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
 			put(props, "array", array);
@@ -1426,7 +1561,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, 
 //------------------------------------------------------------------------
 // Protocol: SyncVMArrayString
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmIdx, const string &varName, const uint &startIdx, const vector<string> &array)
+void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<string> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1437,7 +1572,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, 
 		// marshaling binary
 		packet.Alignment4(); // set 4byte alignment
 		marshalling::operator<<(packet, itprId);
-		marshalling::operator<<(packet, vmIdx);
+		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
 		marshalling::operator<<(packet, array);
@@ -1451,7 +1586,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, 
 		ptree props;
 		try {
 			put(props, "itprId", itprId);
-			put(props, "vmIdx", vmIdx);
+			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
 			put(props, "array", array);

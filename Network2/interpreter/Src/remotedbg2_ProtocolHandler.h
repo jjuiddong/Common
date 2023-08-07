@@ -72,6 +72,9 @@ public:
 	virtual bool Welcome(remotedbg2::Welcome_Packet &packet) { return true; }
 	virtual bool AckUploadIntermediateCode(remotedbg2::AckUploadIntermediateCode_Packet &packet) { return true; }
 	virtual bool AckIntermediateCode(remotedbg2::AckIntermediateCode_Packet &packet) { return true; }
+	virtual bool SpawnTotalInterpreterInfo(remotedbg2::SpawnTotalInterpreterInfo_Packet &packet) { return true; }
+	virtual bool SpawnInterpreterInfo(remotedbg2::SpawnInterpreterInfo_Packet &packet) { return true; }
+	virtual bool RemoveInterpreter(remotedbg2::RemoveInterpreter_Packet &packet) { return true; }
 	virtual bool AckRun(remotedbg2::AckRun_Packet &packet) { return true; }
 	virtual bool AckOneStep(remotedbg2::AckOneStep_Packet &packet) { return true; }
 	virtual bool AckResumeRun(remotedbg2::AckResumeRun_Packet &packet) { return true; }

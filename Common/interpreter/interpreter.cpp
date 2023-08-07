@@ -34,8 +34,10 @@ bool cInterpreter::Init()
 bool cInterpreter::LoadIntermediateCode(const StrPath &icodeFileName)
 {
 	m_fileName = icodeFileName;
-	if (!m_code.Read(icodeFileName))
+	cIntermediateCode icode;
+	if (!icode.Read(icodeFileName))
 		return false;
+	InitVM(icode);
 	return true;
 }
 
@@ -44,7 +46,7 @@ bool cInterpreter::LoadIntermediateCode(const StrPath &icodeFileName)
 bool cInterpreter::LoadIntermediateCode(const cIntermediateCode &icode)
 {
 	m_fileName = icode.m_fileName;
-	m_code = icode;
+	InitVM(icode);
 	return true;
 }
 
@@ -90,8 +92,9 @@ bool cInterpreter::RunProcess(const float deltaSeconds)
 	while (!m_events.empty())
 	{
 		cEvent &evt = m_events.front();
-		for (auto &vm : m_vms)
-			vm->PushEvent(evt);
+		for (auto& vm : m_vms)
+			if ((evt.m_vmId < 0) || (evt.m_vmId == vm->m_id))
+				vm->PushEvent(evt);
 		m_events.pop_front();
 	}
 
@@ -152,11 +155,11 @@ bool cInterpreter::DebugProcess(const float deltaSeconds)
 // run interpreter
 bool cInterpreter::Run()
 {
-	if (!m_code.IsLoaded())
+	if (m_vms.empty())
 		return false;
 
 	m_state = eState::Run;
-	InitAndRunVM();
+	RunVM();
 	return true;
 }
 
@@ -165,12 +168,12 @@ bool cInterpreter::Run()
 // break when meet break point or force break
 bool cInterpreter::DebugRun()
 {
-	if (!m_code.IsLoaded())
+	if (m_vms.empty())
 		return false;
 
 	m_state = eState::DebugRun;
 	m_dbgState = eDebugState::Run;
-	InitAndRunVM();
+	RunVM();
 	return true;
 }
 
@@ -179,12 +182,12 @@ bool cInterpreter::DebugRun()
 // start with debug wait state
 bool cInterpreter::StepRun()
 {
-	if (!m_code.IsLoaded())
+	if (m_vms.empty())
 		return false;
 
 	m_state = eState::DebugRun;
 	m_dbgState = eDebugState::Step;
-	InitAndRunVM();
+	RunVM();
 	return true;
 }
 
@@ -200,10 +203,11 @@ bool cInterpreter::Stop()
 
 
 // add event
-// isUnique: no has same event, (check same event)
-bool cInterpreter::PushEvent(const cEvent &evt)
+// vmId: virtual machine id, -1: all vm
+bool cInterpreter::PushEvent(const int vmId, const cEvent &evt)
 {
 	m_events.push_back(evt);
+	m_events.back().m_vmId = vmId; // update vmId
 	return true;
 }
 
@@ -270,30 +274,47 @@ bool cInterpreter::Break()
 
 // register break point
 // id: node id
-bool cInterpreter::BreakPoint(const bool enable, const uint id)
+bool cInterpreter::BreakPoint(const bool enable, const int vmId, const uint id)
 {
 	if (enable)
-		m_breakPoints.insert(id);
+		m_breakPoints.insert({ vmId, id });
 	else
-		m_breakPoints.erase(id);
+		m_breakPoints.erase({ vmId, id });
 	return true;
 }
 
 
 // intialize VirtualMachine and Run Intermediate Code
-bool cInterpreter::InitAndRunVM()
+bool cInterpreter::RunVM()
 {
-	cVirtualMachine *vm = nullptr;
+	if (m_vms.empty())
+		return false;
+
+	cVirtualMachine* vm = m_vms.back();
+	for (auto &mod : m_modules)
+		vm->AddModule(mod);
+
+	vm->Run();
+	vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
+	vm->m_isStartEvt = true;
+	return true;
+}
+
+
+// initialize virtual machine
+bool cInterpreter::InitVM(const cIntermediateCode& icode)
+{
+	cVirtualMachine* vm = nullptr;
 	if (m_vms.empty())
 	{
 		string vmName;
-		if (m_code.m_fileName.empty())
+		if (icode.m_fileName.empty())
 		{
 			vmName = "VM1";
 		}
 		else
 		{
-			vmName = m_code.m_fileName.GetFileNameExceptExt().c_str();
+			vmName = icode.m_fileName.GetFileNameExceptExt().c_str();
 			vmName += ".VM1";
 		}
 
@@ -306,14 +327,8 @@ bool cInterpreter::InitAndRunVM()
 		vm = m_vms.back();
 	}
 
-	if (!vm->Init(m_code))
+	if (!vm->Init(icode))
 		return false;
-
-	for (auto &mod : m_modules)
-		vm->AddModule(mod);
-
-	vm->Run();
-	vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
 
 	return true;
 }
@@ -378,7 +393,7 @@ bool cInterpreter::CheckBreakPoint()
 		const sInstruction &code = vm->m_code.m_codes[vm->m_reg.idx];
 		if ((code.cmd != eCommand::cmt) || (code.str1 != "node enter"))
 			continue;
-		if (m_breakPoints.end() == m_breakPoints.find(code.reg1))
+		if (m_breakPoints.end() == m_breakPoints.find({ vm->m_id, code.reg1 }))
 			continue;
 		// find breakpoint
 		return true;
@@ -438,7 +453,17 @@ void cInterpreter::Clear()
 	}
 	m_vms.clear();
 
-	m_code.Clear();
 	m_events.clear();
 	m_modules.clear();
+}
+
+
+// return virtual machine specific id
+cVirtualMachine* cInterpreter::GetVM(const int vmId)
+{
+	auto it = std::find_if(m_vms.begin(), m_vms.end()
+		, [&](const auto& a) { return a->m_id == vmId; });
+	if (m_vms.end() == it)
+		return nullptr;
+	return *it;
 }

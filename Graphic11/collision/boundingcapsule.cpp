@@ -37,6 +37,10 @@ bool cBoundingCapsule::Collision(const cCollisionObj &obj
 		if (const cBoundingCapsule* p = dynamic_cast<const cBoundingCapsule*>(&obj))
 			return Intersects(*p);
 		break;
+	case eCollisionType::BOX:
+		if (const cBoundingBox* p = dynamic_cast<const cBoundingBox*>(&obj))
+			return Intersects(*p);
+		break;
 	default:
 		assert(0);
 		break;
@@ -87,6 +91,17 @@ bool cBoundingCapsule::Intersects(const cBoundingSphere &bsphere
 	if (outGap)
 		*outGap = abs(dist - (m_radius + bsphere.GetRadius()));
 	return dist <= (m_radius + bsphere.GetRadius());
+}
+
+
+// intersect test with bounding box
+// outGap: return intersect distance
+bool cBoundingCapsule::Intersects(const cBoundingBox& bbox
+	, float* outGap //= nullptr
+) const
+{
+	assert(0);
+	return false;
 }
 
 

@@ -26,6 +26,24 @@ namespace network2
 			common::script::sVariable var; // compare variable
 		};
 
+		enum class eState { Stop, Run };
+
+		// interpreter information
+		struct sItpr {
+			StrId name;
+			eState state;
+			script::cInterpreter* interpreter;
+			vector<ushort> insts[10]; // vm instruction index array, max vm count:10
+			bool isChangeInstruction;
+			float regSyncTime; // register sync time, seconds unit
+			float instSyncTime; // instruction sync time, seconds unit
+			float symbSyncTime; // symboltable sync time, seconds unit
+
+			map<string, sSymbol> chSymbols; // check change variable
+											// key: variable name = scopeName + varname
+		};
+
+
 		cRemoteInterpreter(const StrId &name, const int logId = -1);
 		virtual ~cRemoteInterpreter();
 		bool Reuse(const StrId &name, const int logId);
@@ -46,7 +64,7 @@ namespace network2
 		bool SendSyncAll();
 
 		bool Process(const float deltaSeconds);
-		bool PushEvent(const int itprId, const common::script::cEvent &evt);
+		bool PushEvent(const int itprId, const int vmId, const common::script::cEvent &evt);
 		bool Run(const int itprId);
 		bool DebugRun(const int itprId);
 		bool StepRun(const int itprId);
@@ -55,8 +73,9 @@ namespace network2
 		bool ResumeVM(const int itprId, const string &vmName);
 		bool OneStep(const int itprId);
 		bool Break(const int itprId);
-		bool BreakPoint(const int itprId, const bool enable, const uint id);
-		bool SyncInformation(const int itprId, const vector<string>& varNames);
+		bool BreakPoint(const int itprId, const int vmId, const bool enable, const uint id);
+		bool SyncInformation(const int itprId, const int vmId);
+		bool SyncVMInformation(const int vmId, const vector<string>& varNames);
 		bool IsRun(const int itprId);
 		bool IsDebug(const int itprId);
 		bool IsConnect();
@@ -64,13 +83,20 @@ namespace network2
 		void ClearInterpreters();
 		void Clear();
 
+		script::cVirtualMachine* GetVM(const int vmId);
+
 
 	protected:
+		sItpr* GetInterpreterByVMId(const int vmId);
+		int GetInterpreterIdByVMId(const int vmId);
+		bool RunInterpreter(const int itprId, const int type);
+		bool RunInterpreter_Sub(const int itprId, const int type);
 		bool IsChangeSymbolTable(const int itprId);
-		bool SendSyncVMRegister(const int itprId);
+		bool IsChangeSymbolTable(const sItpr &itpr);
+		bool SendSyncVMRegister(const int itprId, const set<int> *vmIds = nullptr);
 		bool SendSyncInstruction(const int itprId);
-		bool SendSyncSymbolTable(const int itprId);
-		bool SendSyncVariable(const int itprId, const int vmIdx
+		bool SendSyncSymbolTable(const int itprId, const int vmId);
+		bool SendSyncVariable(const int itprId, const int vmId
 			, const script::cSymbolTable &symbolTable
 			, const string& varName, const script::sVariable &var);
 
@@ -91,30 +117,14 @@ namespace network2
 
 
 	public:
-		enum class eState { Stop, Run };
-
-		// interpreter information
-		struct sItpr {
-			StrId name;
-			eState state;
-			script::cInterpreter *interpreter;
-			vector<ushort> insts[10]; // vm instruction index array, max vm count:10
-			bool isChangeInstruction;
-			float regSyncTime; // register sync time, seconds unit
-			float instSyncTime; // instruction sync time, seconds unit
-			float symbSyncTime; // symboltable sync time, seconds unit
-
-			map<string, sSymbol> chSymbols; // check change variable
-											// key: variable name = scopeName + varname
-		};
 		vector<sItpr> m_interpreters;
 		vector<script::iModule*> m_modules;
 
 		bool m_isThreadMode;
 		int m_bindPort; // webserver bind port
-		network2::cWebServer m_server;
+		network2::cWebServer m_server; // interpreter host server
 		remotedbg2::h2r_Protocol m_protocol;
-		set<int> m_syncItptrs; // sync debug info interpreter id
+		set<int> m_syncVMIds; // sync debug info virtual machine id
 		common::cTPSemaphore *m_threads; // thread pool reference
 		std::atomic<int> m_multiThreading; // multithread work?, 0:no threading work
 	};

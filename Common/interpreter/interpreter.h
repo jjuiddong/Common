@@ -35,8 +35,8 @@ namespace common
 			bool ResumeVM(const string &vmName);
 			bool OneStep();
 			bool Break();
-			bool BreakPoint(const bool enable, const uint id);
-			bool PushEvent(const cEvent &evt);
+			bool BreakPoint(const bool enable, const int vmId, const uint id);
+			bool PushEvent(const int vmId, const cEvent &evt);
 			void SetCodeTrace(const bool isTrace);
 			void SetICodeStepDebug(const bool isICodeStep);
 			bool IsRun() const;
@@ -46,13 +46,16 @@ namespace common
 			bool IsBreak();
 			void Clear();
 
+			cVirtualMachine* GetVM(const int vmId);
+
 
 		protected:
 			bool RunProcess(const float deltaSeconds);
 			bool DebugProcess(const float deltaSeconds);
 			int ProcessUntilNodeEnter(const float deltaSeconds);
 			bool CheckBreakPoint();
-			bool InitAndRunVM();
+			bool RunVM();
+			bool InitVM(const cIntermediateCode &icode);
 
 
 		public:
@@ -70,12 +73,11 @@ namespace common
 			eRunState m_runState;
 			eDebugState m_dbgState;
 			StrPath m_fileName; // intermediate code filename
-			cIntermediateCode m_code;
 			deque<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms;
 			vector<iModule*> m_modules; // execute function module, reference
 			float m_dt;
-			set<uint> m_breakPoints;
+			set<std::pair<int, uint>> m_breakPoints; // first:vmId, second:node id
 			bool m_isCodeTrace; // vm code trace?
 			bool m_isICodeStep; // one intermediate code step trace?
 		};

@@ -15,6 +15,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 		string code;
 	};
 
@@ -22,6 +23,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 	};
 
 	struct ReqRun_Packet {
@@ -47,12 +49,14 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 	};
 
 	struct ReqBreakPoint_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 		bool enable;
 		uint id;
 	};
@@ -67,7 +71,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string eventName;
 	};
 
@@ -75,7 +79,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string eventName;
 		map<string,vector<string>> values;
 	};
@@ -89,14 +93,14 @@ using namespace marshalling_json;
 	struct ReqDebugInfo_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
-		vector<int> itprIds;
+		vector<int> vmIds;
 	};
 
 	struct ReqVariableInfo_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 	};
 
@@ -104,7 +108,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 		string value;
 	};
@@ -128,6 +132,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 		int result;
 	};
 
@@ -135,11 +140,36 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		BYTE itprId;
+		int vmId;
 		BYTE result;
 		BYTE count;
 		BYTE index;
 		uint totalBufferSize;
 		vector<BYTE> data;
+	};
+
+	struct SpawnTotalInterpreterInfo_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int totalCount;
+		int index;
+		int itprId;
+		vector<int> vmIds;
+	};
+
+	struct SpawnInterpreterInfo_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int parentVmId;
+		int vmId;
+		string nodeFileName;
+	};
+
+	struct RemoveInterpreter_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int vmId;
 	};
 
 	struct AckRun_Packet {
@@ -167,6 +197,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 		int result;
 	};
 
@@ -174,6 +205,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 		bool enable;
 		uint id;
 		int result;
@@ -190,6 +222,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
+		int vmId;
 		int result;
 	};
 
@@ -197,7 +230,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string eventName;
 		int result;
 	};
@@ -212,7 +245,7 @@ using namespace marshalling_json;
 	struct AckDebugInfo_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
-		vector<int> itprIds;
+		vector<int> vmIds;
 		int result;
 	};
 
@@ -220,7 +253,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 		int result;
 	};
@@ -229,7 +262,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		vector<ushort> indices;
 	};
 
@@ -237,7 +270,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		int infoType;
 		script::cVirtualMachine::sRegister reg;
 	};
@@ -246,7 +279,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		uint start;
 		uint count;
 		vector<script::sSyncSymbol> symbol;
@@ -256,7 +289,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string output;
 	};
 
@@ -264,7 +297,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string widgetName;
 	};
 
@@ -272,7 +305,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 		uint startIdx;
 		vector<variant_t> array;
@@ -282,7 +315,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 		uint startIdx;
 		vector<bool> array;
@@ -292,7 +325,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 		uint startIdx;
 		vector<float> array;
@@ -302,7 +335,7 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int itprId;
-		int vmIdx;
+		int vmId;
 		string varName;
 		uint startIdx;
 		vector<string> array;

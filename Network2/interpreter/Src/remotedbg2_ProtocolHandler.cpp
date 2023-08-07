@@ -38,6 +38,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.code);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, UploadIntermediateCode(data));
 			}
@@ -59,6 +60,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "code", data.code);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, UploadIntermediateCode(data));
 				} catch (...) {
@@ -85,6 +87,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqIntermediateCode(data));
 			}
 			else
@@ -105,6 +108,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqIntermediateCode(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
@@ -267,6 +271,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreak(data));
 			}
 			else
@@ -287,6 +292,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreak(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
@@ -312,6 +318,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.enable);
 				marshalling::operator>>(packet, data.id);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreakPoint(data));
@@ -334,6 +341,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "enable", data.enable);
 					get(props, "id", data.id);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqBreakPoint(data));
@@ -406,7 +414,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.eventName);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqInput(data));
 			}
@@ -428,7 +436,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "eventName", data.eventName);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqInput(data));
 				} catch (...) {
@@ -455,7 +463,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.eventName);
 				marshalling::operator>>(packet, data.values);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqEvent(data));
@@ -478,7 +486,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "eventName", data.eventName);
 					get(props, "values", data.values);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqEvent(data));
@@ -550,7 +558,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
-				marshalling::operator>>(packet, data.itprIds);
+				marshalling::operator>>(packet, data.vmIds);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqDebugInfo(data));
 			}
 			else
@@ -570,7 +578,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					ReqDebugInfo_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
-					get(props, "itprIds", data.itprIds);
+					get(props, "vmIds", data.vmIds);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqDebugInfo(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
@@ -596,7 +604,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqVariableInfo(data));
 			}
@@ -618,7 +626,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqVariableInfo(data));
 				} catch (...) {
@@ -645,7 +653,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.value);
 				SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqChangeVariable(data));
@@ -668,7 +676,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "value", data.value);
 					SEND_HANDLER(r2h_ProtocolHandler, prtHandler, ReqChangeVariable(data));
@@ -811,6 +819,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckUploadIntermediateCode(data));
 			}
@@ -832,6 +841,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckUploadIntermediateCode(data));
 				} catch (...) {
@@ -858,6 +868,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.result);
 				marshalling::operator>>(packet, data.count);
 				marshalling::operator>>(packet, data.index);
@@ -883,12 +894,160 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "result", data.result);
 					get(props, "count", data.count);
 					get(props, "index", data.index);
 					get(props, "totalBufferSize", data.totalBufferSize);
 					get(props, "data", data.data);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckIntermediateCode(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
+		}
+		break;
+
+	case 977092268: // SpawnTotalInterpreterInfo
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				SpawnTotalInterpreterInfo_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.totalCount);
+				marshalling::operator>>(packet, data.index);
+				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmIds);
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SpawnTotalInterpreterInfo(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					SpawnTotalInterpreterInfo_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "totalCount", data.totalCount);
+					get(props, "index", data.index);
+					get(props, "itprId", data.itprId);
+					get(props, "vmIds", data.vmIds);
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SpawnTotalInterpreterInfo(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
+		}
+		break;
+
+	case 762776747: // SpawnInterpreterInfo
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				SpawnInterpreterInfo_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.parentVmId);
+				marshalling::operator>>(packet, data.vmId);
+				marshalling::operator>>(packet, data.nodeFileName);
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SpawnInterpreterInfo(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					SpawnInterpreterInfo_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "itprId", data.itprId);
+					get(props, "parentVmId", data.parentVmId);
+					get(props, "vmId", data.vmId);
+					get(props, "nodeFileName", data.nodeFileName);
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SpawnInterpreterInfo(data));
+				} catch (...) {
+					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
+				}
+			}
+		}
+		break;
+
+	case 940777945: // RemoveInterpreter
+		{
+			ProtocolHandlers prtHandler;
+			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
+				return false;
+
+			SetCurrentDispatchPacket( &packet );
+
+			const bool isBinary = packet.GetPacketOption(0x01) > 0;
+			if (isBinary)
+			{
+				// binary parsing
+				RemoveInterpreter_Packet data;
+				data.pdispatcher = this;
+				data.senderId = packet.GetSenderId();
+				packet.Alignment4(); // set 4byte alignment
+				marshalling::operator>>(packet, data.vmId);
+				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, RemoveInterpreter(data));
+			}
+			else
+			{
+				// json format packet parsing using property_tree
+				using boost::property_tree::ptree;
+				ptree root;
+
+				try {
+					string str;
+					packet >> str;
+					stringstream ss(str);
+					
+					boost::property_tree::read_json(ss, root);
+					ptree &props = root.get_child("");
+
+					RemoveInterpreter_Packet data;
+					data.pdispatcher = this;
+					data.senderId = packet.GetSenderId();
+					get(props, "vmId", data.vmId);
+					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, RemoveInterpreter(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);
 				}
@@ -1054,6 +1213,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreak(data));
 			}
@@ -1075,6 +1235,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckBreak(data));
 				} catch (...) {
@@ -1101,6 +1262,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.enable);
 				marshalling::operator>>(packet, data.id);
 				marshalling::operator>>(packet, data.result);
@@ -1124,6 +1286,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "enable", data.enable);
 					get(props, "id", data.id);
 					get(props, "result", data.result);
@@ -1199,6 +1362,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
 			}
@@ -1220,6 +1384,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
+					get(props, "vmId", data.vmId);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckInput(data));
 				} catch (...) {
@@ -1246,7 +1411,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.eventName);
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckEvent(data));
@@ -1269,7 +1434,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "eventName", data.eventName);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckEvent(data));
@@ -1343,7 +1508,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.pdispatcher = this;
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
-				marshalling::operator>>(packet, data.itprIds);
+				marshalling::operator>>(packet, data.vmIds);
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckDebugInfo(data));
 			}
@@ -1364,7 +1529,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					AckDebugInfo_Packet data;
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
-					get(props, "itprIds", data.itprIds);
+					get(props, "vmIds", data.vmIds);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckDebugInfo(data));
 				} catch (...) {
@@ -1391,7 +1556,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.result);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckChangeVariable(data));
@@ -1414,7 +1579,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "result", data.result);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, AckChangeVariable(data));
@@ -1442,7 +1607,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.indices);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
 			}
@@ -1464,7 +1629,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "indices", data.indices);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMInstruction(data));
 				} catch (...) {
@@ -1491,7 +1656,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.infoType);
 				marshalling::operator>>(packet, data.reg);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMRegister(data));
@@ -1514,7 +1679,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "infoType", data.infoType);
 					get(props, "reg", data.reg);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMRegister(data));
@@ -1542,7 +1707,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.start);
 				marshalling::operator>>(packet, data.count);
 				marshalling::operator>>(packet, data.symbol);
@@ -1566,7 +1731,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "start", data.start);
 					get(props, "count", data.count);
 					get(props, "symbol", data.symbol);
@@ -1595,7 +1760,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.output);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMOutput(data));
 			}
@@ -1617,7 +1782,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "output", data.output);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMOutput(data));
 				} catch (...) {
@@ -1644,7 +1809,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.widgetName);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMWidgets(data));
 			}
@@ -1666,7 +1831,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "widgetName", data.widgetName);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMWidgets(data));
 				} catch (...) {
@@ -1693,7 +1858,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
 				marshalling::operator>>(packet, data.array);
@@ -1717,7 +1882,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
 					get(props, "array", data.array);
@@ -1746,7 +1911,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
 				marshalling::operator>>(packet, data.array);
@@ -1770,7 +1935,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
 					get(props, "array", data.array);
@@ -1799,7 +1964,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
 				marshalling::operator>>(packet, data.array);
@@ -1823,7 +1988,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
 					get(props, "array", data.array);
@@ -1852,7 +2017,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				data.senderId = packet.GetSenderId();
 				packet.Alignment4(); // set 4byte alignment
 				marshalling::operator>>(packet, data.itprId);
-				marshalling::operator>>(packet, data.vmIdx);
+				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
 				marshalling::operator>>(packet, data.array);
@@ -1876,7 +2041,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					data.pdispatcher = this;
 					data.senderId = packet.GetSenderId();
 					get(props, "itprId", data.itprId);
-					get(props, "vmIdx", data.vmIdx);
+					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
 					get(props, "array", data.array);
