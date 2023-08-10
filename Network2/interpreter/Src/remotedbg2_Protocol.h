@@ -42,7 +42,7 @@ public:
 	void AckUploadIntermediateCode(netid targetId, bool isBinary, const int &itprId, const int &vmId, const int &result);
 	void AckIntermediateCode(netid targetId, bool isBinary, const BYTE &itprId, const int &vmId, const BYTE &result, const BYTE &count, const BYTE &index, const uint &totalBufferSize, const vector<BYTE> &data);
 	void SpawnTotalInterpreterInfo(netid targetId, bool isBinary, const int &totalCount, const int &index, const int &itprId, const vector<int> &vmIds);
-	void SpawnInterpreterInfo(netid targetId, bool isBinary, const int &itprId, const int &parentVmId, const int &vmId, const string &nodeFileName);
+	void SpawnInterpreterInfo(netid targetId, bool isBinary, const int &itprId, const int &parentVmId, const int &vmId, const string &nodeFileName, const string &nodeName);
 	void RemoveInterpreter(netid targetId, bool isBinary, const int &vmId);
 	void AckRun(netid targetId, bool isBinary, const int &itprId, const int &result);
 	void AckOneStep(netid targetId, bool isBinary, const int &itprId, const int &result);

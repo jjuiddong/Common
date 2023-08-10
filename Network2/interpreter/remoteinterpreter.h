@@ -26,10 +26,10 @@ namespace network2
 			common::script::sVariable var; // compare variable
 		};
 
-		enum class eState { Stop, Run };
-
 		// interpreter information
 		struct sItpr {
+			enum class eState { Stop, Run };
+
 			StrId name;
 			eState state;
 			script::cInterpreter* interpreter;
@@ -56,28 +56,33 @@ namespace network2
 			, const bool isThreadMode = true
 			, const bool isSpawnHttpSvr = true
 		);
-		bool LoadIntermediateCode(const StrPath &fileName);
+		int LoadIntermediateCode(const StrPath &fileName);
 		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
-		bool LoadIntermediateCode(const common::script::cIntermediateCode &icode);
+		int LoadIntermediateCode(const common::script::cIntermediateCode &icode);
+		int AddVM(const int itprId, const common::script::cIntermediateCode& icode);
 		bool AddModule(common::script::iModule *mod);
 		bool RemoveModule(common::script::iModule *mod);
 		bool SendSyncAll();
 
 		bool Process(const float deltaSeconds);
 		bool PushEvent(const int itprId, const int vmId, const common::script::cEvent &evt);
-		bool Run(const int itprId);
-		bool DebugRun(const int itprId);
-		bool StepRun(const int itprId);
-		bool Stop(const int itprId);
-		bool Resume(const int itprId);
-		bool ResumeVM(const int itprId, const string &vmName);
-		bool OneStep(const int itprId);
-		bool Break(const int itprId);
+		bool Run(const int itprId, const int parentVmId = -1, const int vmId = -1
+			, const string& nodeName = "");
+		bool DebugRun(const int itprId, const int parentVmId = -1, const int vmId = -1
+			, const string& nodeName = "");
+		bool StepRun(const int itprId, const int parentVmId = -1, const int vmId = -1
+			, const string& nodeName = "");
+		bool Stop(const int itprId, const int vmId = -1);
+		bool Resume(const int itprId, const int vmId = -1);
+		bool OneStep(const int itprId, const int vmId = -1);
+		bool Break(const int itprId, const int vmId = -1);
 		bool BreakPoint(const int itprId, const int vmId, const bool enable, const uint id);
 		bool SyncInformation(const int itprId, const int vmId);
 		bool SyncVMInformation(const int vmId, const vector<string>& varNames);
+		bool IsRunning(const int itprId);
 		bool IsRun(const int itprId);
-		bool IsDebug(const int itprId);
+		bool IsDebugRun(const int itprId);
+		bool IsDebugging(const int itprId);
 		bool IsConnect();
 		bool IsFailConnect();
 		void ClearInterpreters();
@@ -89,10 +94,14 @@ namespace network2
 	protected:
 		sItpr* GetInterpreterByVMId(const int vmId);
 		int GetInterpreterIdByVMId(const int vmId);
-		bool RunInterpreter(const int itprId, const int type);
-		bool RunInterpreter_Sub(const int itprId, const int type);
+		bool RunInterpreter(const int itprId, const int parentVmId
+			, const int vmId, const string &nodeName, const int type);
+		bool RunInterpreter_Sub(const int itprId, const int parentVmId
+			, const int vmId, const string& nodeName, const int type);
 		bool IsChangeSymbolTable(const int itprId);
 		bool IsChangeSymbolTable(const sItpr &itpr);
+		bool SendSpawnInterpreterInfo(const int itprId, const int parentVmId
+			, const int vmId, const string &nodeName);
 		bool SendSyncVMRegister(const int itprId, const set<int> *vmIds = nullptr);
 		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId, const int vmId);

@@ -979,6 +979,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.parentVmId);
 				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.nodeFileName);
+				marshalling::operator>>(packet, data.nodeName);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SpawnInterpreterInfo(data));
 			}
 			else
@@ -1002,6 +1003,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "parentVmId", data.parentVmId);
 					get(props, "vmId", data.vmId);
 					get(props, "nodeFileName", data.nodeFileName);
+					get(props, "nodeName", data.nodeName);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SpawnInterpreterInfo(data));
 				} catch (...) {
 					dbg::Logp("json packet parsing error packetid = %lu\n", packetId);

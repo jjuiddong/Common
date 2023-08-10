@@ -164,6 +164,7 @@ using namespace marshalling_json;
 		int parentVmId;
 		int vmId;
 		string nodeFileName;
+		string nodeName;
 	};
 
 	struct RemoveInterpreter_Packet {

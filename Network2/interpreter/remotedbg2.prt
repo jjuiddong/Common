@@ -37,7 +37,7 @@ protocol h2r 5300 json
 	AckIntermediateCode( BYTE itprId, int vmId, BYTE result, BYTE count, BYTE index
 		, uint totalBufferSize, vector<BYTE> data );
 	SpawnTotalInterpreterInfo(int totalCount, int index, int itprId, vector<int> vmIds);
-	SpawnInterpreterInfo(int itprId, int parentVmId, int vmId, string nodeFileName);
+	SpawnInterpreterInfo(int itprId, int parentVmId, int vmId, string nodeFileName, string nodeName);
 	RemoveInterpreter(int vmId);
 
 	AckRun( int itprId, int result );

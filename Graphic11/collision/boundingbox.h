@@ -45,6 +45,7 @@ namespace common
 		float GetScale() const;
 		Vector3 GetExtents() const;
 		Vector3 GetDimension() const;
+		Quaternion GetRotation() const;
 		XMMATRIX GetMatrixXM() const;
 		Matrix44 GetMatrix() const;
 		virtual Transform GetTransform() const override;

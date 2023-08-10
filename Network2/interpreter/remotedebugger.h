@@ -29,13 +29,13 @@ namespace network2
 			, iProtocolHandler *dbgProtocolHandler = nullptr
 		);
 		bool Process(const float deltaSeconds);
-		bool Start();
-		bool Stop();
-		bool OneStep();
-		bool DebugRun();
-		bool Break();
-		bool Terminate();
-		bool IsRun();
+		bool Start(const int vmId);
+		bool Stop(const int vmId);
+		bool OneStep(const int vmId);
+		bool DebugRun(const int vmId);
+		bool Break(const int vmId);
+		bool Terminate(const int vmId);
+		bool IsRun(const int vmId);
 		void Clear();
 
 

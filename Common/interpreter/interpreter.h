@@ -22,21 +22,21 @@ namespace common
 			virtual ~cInterpreter();
 
 			bool Init();
-			bool LoadIntermediateCode(const StrPath &icodeFileName);
-			bool LoadIntermediateCode(const cIntermediateCode &icode);
+			int LoadIntermediateCode(const StrPath &icodeFileName);
+			int LoadIntermediateCode(const cIntermediateCode &icode);
 			bool AddModule(iModule *mod);
 			bool RemoveModule(iModule *mod);
 			bool Process(const float deltaSeconds);
-			bool Run();
-			bool Stop();
-			bool DebugRun();
-			bool StepRun();
-			bool Resume();
-			bool ResumeVM(const string &vmName);
-			bool OneStep();
-			bool Break();
+			bool Run(const int vmId);
+			bool Stop(const int vmId);
+			bool DebugRun(const int vmId);
+			bool StepRun(const int vmId);
+			bool Resume(const int vmId);
+			bool OneStep(const int vmId);
+			bool Break(const int vmId);
 			bool BreakPoint(const bool enable, const int vmId, const uint id);
 			bool PushEvent(const int vmId, const cEvent &evt);
+			void SetDebugVM(const int vmId);
 			void SetCodeTrace(const bool isTrace);
 			void SetICodeStepDebug(const bool isICodeStep);
 			bool IsRun() const;
@@ -52,10 +52,10 @@ namespace common
 		protected:
 			bool RunProcess(const float deltaSeconds);
 			bool DebugProcess(const float deltaSeconds);
-			int ProcessUntilNodeEnter(const float deltaSeconds);
+			int ProcessUntilNodeEnter(const int vmId, const float deltaSeconds);
 			bool CheckBreakPoint();
-			bool RunVM();
-			bool InitVM(const cIntermediateCode &icode);
+			bool RunVM(const int vmId);
+			int InitVM(const cIntermediateCode &icode);
 
 
 		public:
@@ -72,12 +72,12 @@ namespace common
 			eState m_state;
 			eRunState m_runState;
 			eDebugState m_dbgState;
-			StrPath m_fileName; // intermediate code filename
 			deque<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms;
 			vector<iModule*> m_modules; // execute function module, reference
 			float m_dt;
 			set<std::pair<int, uint>> m_breakPoints; // first:vmId, second:node id
+			int m_dbgVmId; // debug virtual machine id
 			bool m_isCodeTrace; // vm code trace?
 			bool m_isICodeStep; // one intermediate code step trace?
 		};

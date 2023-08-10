@@ -344,6 +344,16 @@ Vector3 cBoundingBox::GetDimension() const
 }
 
 
+// return rotation
+Quaternion cBoundingBox::GetRotation() const
+{
+	return Quaternion(m_bbox.Orientation.x
+		, m_bbox.Orientation.y
+		, m_bbox.Orientation.z
+		, m_bbox.Orientation.w);
+}
+
+
 //void cBoundingBox::MultiyplyTransform(const Matrix44 &tm)
 //{
 //	XMVECTOR center = XMLoadFloat3(&m_bbox.Center);

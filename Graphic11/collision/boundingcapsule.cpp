@@ -131,6 +131,37 @@ void cBoundingCapsule::SetCapsule(const Vector3 &center, const Vector3 &dir
 }
 
 
+// update capsule
+void cBoundingCapsule::SetCapsule(const cBoundingBox& bbox)
+{
+	// find most distance axis
+	float len1, len2;
+	Vector3 axis;
+	if ((bbox.m_bbox.Extents.x >= bbox.m_bbox.Extents.y)
+		&& (bbox.m_bbox.Extents.x >= bbox.m_bbox.Extents.z))
+	{
+		len1 = bbox.m_bbox.Extents.x;
+		len2 = max(bbox.m_bbox.Extents.y, bbox.m_bbox.Extents.z);
+		axis = Vector3(1, 0, 0);
+	}
+	else if (bbox.m_bbox.Extents.y >= bbox.m_bbox.Extents.z)
+	{
+		len1 = bbox.m_bbox.Extents.y;
+		len2 = max(bbox.m_bbox.Extents.x, bbox.m_bbox.Extents.z);
+		axis = Vector3(0, 1, 0);
+	}
+	else
+	{
+		len1 = bbox.m_bbox.Extents.z;
+		len2 = max(bbox.m_bbox.Extents.x, bbox.m_bbox.Extents.y);
+		axis = Vector3(0, 0, 1);
+	}
+
+	const Vector3 dir = axis * bbox.GetRotation();
+	SetCapsule(bbox.Center(), dir, len1, len2);
+}
+
+
 // set bounding capsule with box size
 // center: center pos
 // dir: direction

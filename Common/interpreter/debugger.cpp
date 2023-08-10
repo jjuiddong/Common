@@ -155,14 +155,15 @@ bool cDebugger::CheckBreakPoint()
 
 
 // cancel debugging, run interpreter
-bool cDebugger::Run()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::Run(const int vmId)
 {
 	RETV(!m_interpreter, false);
 
 	if (m_state != eState::Wait)
 		return false;
 
-	if (!m_interpreter->Run())
+	if (!m_interpreter->Run(vmId))
 		return false;
 
 	m_state = eState::Run;
@@ -171,14 +172,15 @@ bool cDebugger::Run()
 
 
 // cancel debugging, run interpreter, one step debugging state
-bool cDebugger::StepRun()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::StepRun(const int vmId)
 {
 	RETV(!m_interpreter, false);
 
 	if (m_state != eState::Wait)
 		return false;
 
-	if (!m_interpreter->Run())
+	if (!m_interpreter->Run(vmId))
 		return false;
 
 	m_state = eState::Step;
@@ -187,18 +189,20 @@ bool cDebugger::StepRun()
 
 
 // stop debugging state
-bool cDebugger::Stop()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::Stop(const int vmId)
 {
 	RETV(!m_interpreter, false);
 
-	m_interpreter->Stop(); // stop state
+	m_interpreter->Stop(vmId); // stop state
 	m_state = eState::Stop;
 	return true;
 }
 
 
 // resume debug run
-bool cDebugger::Resume()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::Resume(const int vmId)
 {
 	RETV(!m_interpreter, false);
 
@@ -212,7 +216,8 @@ bool cDebugger::Resume()
 
 
 // one step debugging
-bool cDebugger::OneStep()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::OneStep(const int vmId)
 {
 	RETV(!m_interpreter, false);
 	m_state = eState::Step;
@@ -221,7 +226,8 @@ bool cDebugger::OneStep()
 
 
 // break interpreter running state, and then change debug state
-bool cDebugger::Break()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::Break(const int vmId)
 {
 	RETV(!m_interpreter, false);
 	m_state = eState::Wait;
@@ -230,8 +236,9 @@ bool cDebugger::Break()
 
 
 // register break point
+// vmId: virtual machine id, -1: all vm
 // id: node id
-bool cDebugger::BreakPoint(const bool enable, const uint id)
+bool cDebugger::BreakPoint(const int vmId, const bool enable, const uint id)
 {
 	if (enable)
 		m_breakPoints.insert(id);
@@ -242,16 +249,18 @@ bool cDebugger::BreakPoint(const bool enable, const uint id)
 
 
 // is load interpreter
-bool cDebugger::IsLoad()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::IsLoad(const int vmId)
 {
 	return m_interpreter ? true : false;
 }
 
 
 // is run interpreter
-bool cDebugger::IsRun()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::IsRun(const int vmId)
 {
-	if (!IsLoad())
+	if (!IsLoad(vmId))
 		return false;
 
 	switch (m_state)
@@ -271,9 +280,10 @@ bool cDebugger::IsRun()
 
 
 // is debugging state?
-bool cDebugger::IsDebug()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::IsDebug(const int vmId)
 {
-	if (!IsLoad())
+	if (!IsLoad(vmId))
 		return false;
 
 	switch (m_state)
@@ -292,7 +302,8 @@ bool cDebugger::IsDebug()
 }
 
 
-bool cDebugger::IsBreak()
+// vmId: virtual machine id, -1: all vm
+bool cDebugger::IsBreak(const int vmId)
 {
 	return m_state == eState::Break;
 }

@@ -156,6 +156,7 @@ export namespace remotedbg2Async {
 		parentVmId: number, 
 		vmId: number, 
 		nodeFileName: string, 
+		nodeName: string, 
 	}
 	export type RemoveInterpreter_Packet = {
 		vmId: number, 
@@ -1023,13 +1024,14 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SpawnInterpreterInfo
-	SpawnInterpreterInfo(isBinary: boolean, itprId: number, parentVmId: number, vmId: number, nodeFileName: string, ) {
+	SpawnInterpreterInfo(isBinary: boolean, itprId: number, parentVmId: number, vmId: number, nodeFileName: string, nodeName: string, ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(parentVmId)
 			packet.pushInt32(vmId)
 			packet.pushStr(nodeFileName)
+			packet.pushStr(nodeName)
 			this.node?.sendPacketBinary(5300, 762776747, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
@@ -1037,6 +1039,7 @@ export class h2r_Protocol extends Network.Protocol {
 				parentVmId,
 				vmId,
 				nodeFileName,
+				nodeName,
 			}
 			this.node?.sendPacket(5300, 762776747, packet)
 		}

@@ -46,9 +46,10 @@ bool cRemoteDebugger::Process(const float deltaSeconds)
 }
 
 
-bool cRemoteDebugger::Start()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::Start(const int vmId)
 {
-	Stop();
+	Stop(vmId);
 
 	bool result = false;
 	switch (m_mode)
@@ -82,7 +83,8 @@ bool cRemoteDebugger::Start()
 }
 
 
-bool cRemoteDebugger::Stop()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::Stop(const int vmId)
 {
 	switch (m_mode)
 	{
@@ -91,7 +93,7 @@ bool cRemoteDebugger::Stop()
 	default: assert(0); return false;
 	}
 	if (m_debugger)
-		m_debugger->Stop();
+		m_debugger->Stop(vmId);
 	m_netController.Clear();
 	m_state = eState::Stop;
 	return true;
@@ -99,7 +101,8 @@ bool cRemoteDebugger::Stop()
 
 
 // one step debugging for remote client mode
-bool cRemoteDebugger::OneStep()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::OneStep(const int vmId)
 {
 	RETV(eDebugMode::Remote != m_mode, false);
 	RETV(!m_dbgClient.IsConnect(), false);
@@ -109,7 +112,8 @@ bool cRemoteDebugger::OneStep()
 }
 
 
-bool cRemoteDebugger::DebugRun()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::DebugRun(const int vmId)
 {
 	RETV(eDebugMode::Remote != m_mode, false);
 	RETV(!m_dbgClient.IsConnect(), false);
@@ -119,7 +123,8 @@ bool cRemoteDebugger::DebugRun()
 }
 
 
-bool cRemoteDebugger::Break()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::Break(const int vmId)
 {
 	RETV(eDebugMode::Remote != m_mode, false);
 	RETV(!m_dbgClient.IsConnect(), false);
@@ -129,19 +134,21 @@ bool cRemoteDebugger::Break()
 }
 
 
-bool cRemoteDebugger::Terminate()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::Terminate(const int vmId)
 {
 	RETV(eDebugMode::Remote != m_mode, false);
 	RETV(!m_dbgClient.IsConnect(), false);
 
 	m_remoteProtocol.ReqTerminate(network2::SERVER_NETID);
 	
-	Stop();
+	Stop(vmId);
 	return true;
 }
 
 
-bool cRemoteDebugger::IsRun()
+// vmId: virtual machine id, -1: all vm
+bool cRemoteDebugger::IsRun(const int vmId)
 {
 	return m_state == eState::Run;
 }
@@ -151,7 +158,7 @@ bool cRemoteDebugger::IsRun()
 bool cRemoteDebugger::InternalProcess(const float deltaSeconds)
 {
 	RETV(!m_debugger, false);
-	RETV(!m_debugger->IsLoad(), false);
+	RETV(!m_debugger->IsLoad(-1), false);
 
 	switch (m_mode)
 	{
@@ -222,7 +229,7 @@ bool cRemoteDebugger::RemoteProcess(const float deltaSeconds)
 void cRemoteDebugger::Clear()
 {
 	if (eDebugMode::None != m_mode)
-		Stop();
+		Stop(-1);
 	m_checkMap.clear();
 	m_dbgClient.Close();
 	m_dbgServer.Close();
@@ -235,13 +242,13 @@ void cRemoteDebugger::Clear()
 bool cRemoteDebugger::AddSession(cSession &session)
 {
 	RETV(!m_debugger, true);
-	RETV(!m_debugger->IsLoad(), true);
+	RETV(!m_debugger->IsLoad(-1), true);
 
 	common::script::cInterpreter *interpreter = m_debugger->m_interpreter;
 	RETV(interpreter->m_vms.empty(), true);
 
-	const StrPath &fileName = interpreter->m_fileName;
 	common::script::cVirtualMachine *vm = interpreter->m_vms.front();
+	const StrPath& fileName = vm->m_code.m_fileName;
 	const StrId &vmName = vm->m_name;
 
 	m_hostProtocol.UpdateInformation(network2::ALL_NETID
@@ -258,7 +265,7 @@ bool cRemoteDebugger::ReqOneStep(remotedbg::ReqOneStep_Packet &packet)
 	RETV(eDebugMode::Host != m_mode, true);
 	RETV(!m_debugger, true);
 	
-	m_debugger->OneStep();
+	m_debugger->OneStep(-1);
 	return true; 
 }
 
@@ -268,7 +275,7 @@ bool cRemoteDebugger::ReqDebugRun(remotedbg::ReqDebugRun_Packet &packet)
 	RETV(eDebugMode::Host != m_mode, true);
 	RETV(!m_debugger, true);
 
-	m_debugger->Run();
+	m_debugger->Run(-1);
 	return true; 
 }
 
@@ -278,7 +285,7 @@ bool cRemoteDebugger::ReqBreak(remotedbg::ReqBreak_Packet &packet)
 	RETV(eDebugMode::Host != m_mode, true);
 	RETV(!m_debugger, true);
 
-	m_debugger->Break();
+	m_debugger->Break(-1);
 	return true; 
 }
 
@@ -288,7 +295,7 @@ bool cRemoteDebugger::ReqTerminate(remotedbg::ReqTerminate_Packet &packet)
 	RETV(eDebugMode::Host != m_mode, true);
 	RETV(!m_debugger, true);
 
-	m_debugger->Stop();
+	m_debugger->Stop(-1);
 	return true; 
 }
 

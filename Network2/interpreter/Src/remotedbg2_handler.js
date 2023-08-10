@@ -590,11 +590,13 @@ remotedbg2.h2r_Dispatcher = class {
 						const parentVmId = packet.getInt32()
 						const vmId = packet.getInt32()
 						const nodeFileName = packet.getStr()
+						const nodeName = packet.getStr()
 						const parsePacket = {
 							itprId,
 							parentVmId,
 							vmId,
 							nodeFileName,
+							nodeName,
 						}
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
@@ -1514,13 +1516,14 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SpawnInterpreterInfo
-	SpawnInterpreterInfo(ws, isBinary, itprId, parentVmId, vmId, nodeFileName, ) {
+	SpawnInterpreterInfo(ws, isBinary, itprId, parentVmId, vmId, nodeFileName, nodeName, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(parentVmId)
 			packet.pushInt32(vmId)
 			packet.pushStr(nodeFileName)
+			packet.pushStr(nodeName)
 			WsSockServer.sendPacketBinary(ws, 5300, 762776747, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
@@ -1528,6 +1531,7 @@ remotedbg2.h2r_Protocol = class {
 				parentVmId,
 				vmId,
 				nodeFileName,
+				nodeName,
 			}
 			WsSockServer.sendPacket(ws, 5300, 762776747, packet)
 		}

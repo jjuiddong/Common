@@ -13,7 +13,6 @@ cVirtualMachine::cVirtualMachine(const string &name)
 	, m_isCodeTraceLog(false)
 	, m_isDebugging(false)
 	, m_events(128) // maximum queue size
-	, m_isStartEvt(false)
 {
 }
 
@@ -144,7 +143,6 @@ bool cVirtualMachine::Stop()
 	m_state = eState::Stop;
 	m_reg.idx = UINT_MAX;
 	m_reg.exeIdx = UINT_MAX;
-	m_isStartEvt = false;
 
 	// clear event, timer, stack
 	m_events.clear();
@@ -323,7 +321,6 @@ bool cVirtualMachine::ProcessDelayEvent(const float deltaSeconds)
 {
 	RETV(eState::Wait != m_state, false);
 	RETV(m_delayEvents.empty(), false);
-	RETV(!m_isStartEvt, false);
 
 	for (auto& evt : m_delayEvents)
 		evt.m_delayTime -= deltaSeconds;
@@ -377,7 +374,6 @@ bool cVirtualMachine::ProcessDelayEvent(const float deltaSeconds)
 bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 {
 	RETV(eState::Wait != m_state, false);
-	RETV(!m_isStartEvt, false);
 
 	if (!m_ticks.empty())
 	{

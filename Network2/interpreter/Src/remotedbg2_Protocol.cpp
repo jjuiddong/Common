@@ -730,7 +730,7 @@ void remotedbg2::h2r_Protocol::SpawnTotalInterpreterInfo(netid targetId, bool is
 //------------------------------------------------------------------------
 // Protocol: SpawnInterpreterInfo
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SpawnInterpreterInfo(netid targetId, bool isBinary, const int &itprId, const int &parentVmId, const int &vmId, const string &nodeFileName)
+void remotedbg2::h2r_Protocol::SpawnInterpreterInfo(netid targetId, bool isBinary, const int &itprId, const int &parentVmId, const int &vmId, const string &nodeFileName, const string &nodeName)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -744,6 +744,7 @@ void remotedbg2::h2r_Protocol::SpawnInterpreterInfo(netid targetId, bool isBinar
 		marshalling::operator<<(packet, parentVmId);
 		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, nodeFileName);
+		marshalling::operator<<(packet, nodeName);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
 	}
@@ -757,6 +758,7 @@ void remotedbg2::h2r_Protocol::SpawnInterpreterInfo(netid targetId, bool isBinar
 			put(props, "parentVmId", parentVmId);
 			put(props, "vmId", vmId);
 			put(props, "nodeFileName", nodeFileName);
+			put(props, "nodeName", nodeName);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
 			packet << ss.str();

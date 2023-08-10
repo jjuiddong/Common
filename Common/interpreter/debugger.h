@@ -21,17 +21,17 @@ namespace common
 			bool Init(cInterpreter *interpreter);
 			bool LoadIntermediateCode(const StrPath &fileName);
 			bool Process(const float deltaSeconds);
-			bool Run();
-			bool StepRun();
-			bool Stop();
-			bool Resume();
-			bool OneStep();
-			bool Break();
-			bool BreakPoint(const bool enable, const uint id);
-			bool IsLoad();
-			bool IsRun();
-			bool IsDebug();
-			bool IsBreak();
+			bool Run(const int vmId);
+			bool StepRun(const int vmId);
+			bool Stop(const int vmId);
+			bool Resume(const int vmId);
+			bool OneStep(const int vmId);
+			bool Break(const int vmId);
+			bool BreakPoint(const int vmId, const bool enable, const uint id);
+			bool IsLoad(const int vmId);
+			bool IsRun(const int vmId);
+			bool IsDebug(const int vmId);
+			bool IsBreak(const int vmId);
 			void Clear();
 
 
