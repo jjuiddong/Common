@@ -75,7 +75,6 @@ namespace common
 			cSymbolTable m_variables; // initial variable symboltable
 			map<StrId, uint> m_jmpMap; //key: jump name, data: code line
 			vector<std::pair<StrId, int>> m_timer1Events; // timer name, interval (tick)
-			//vector<std::pair<StrId, int>> m_timer2Events; // timer name, interval (timer)
 			char m_regName[5]; // tricky code to optimize memory
 		};
 

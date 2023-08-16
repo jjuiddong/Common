@@ -6,8 +6,126 @@ using namespace common;
 using namespace common::script;
 
 
+static boost::bimap<eCommand, string> g_eCommandToStr =
+	make_bimap<eCommand, string>(
+		{
+			{eCommand::none,"none"},
+			{eCommand::ldbc,"ldbc"},
+			{eCommand::ldic,"ldic"},
+			{eCommand::ldfc,"ldfc"},
+			{eCommand::ldsc,"ldsc"},
+			{eCommand::ldac,"ldac"},
+			{eCommand::ldmc,"ldmc"},
+			{eCommand::ldcmp,"ldcmp"},
+			{eCommand::ldncmp,"ldncmp"},
+			{eCommand::ldtim,"ldtim"},
+			{eCommand::getb,"getb"},
+			{eCommand::geti,"geti"},
+			{eCommand::getf,"getf"},
+			{eCommand::gets,"gets"},
+			{eCommand::geta,"geta"},
+			{eCommand::getm,"getm"},
+			{eCommand::setb,"setb"},
+			{eCommand::seti,"seti"},
+			{eCommand::setf,"setf"},
+			{eCommand::sets,"sets"},
+			{eCommand::seta,"seta"},
+			{eCommand::setm,"setm"},
+			{eCommand::copya,"copya"},
+			{eCommand::copym,"copym"},
+			{eCommand::addi,"addi"},
+			{eCommand::addf,"addf"},
+			{eCommand::adds,"adds"},
+			{eCommand::subi,"subi"},
+			{eCommand::subf,"subf"},
+			{eCommand::muli,"muli"},
+			{eCommand::mulf,"mulf"},
+			{eCommand::divi,"divi"},
+			{eCommand::divf,"divf"},
+			{eCommand::remi,"remi"},
+			{eCommand::remf,"remf"},
+			{eCommand::opand,"opand"},
+			{eCommand::opor,"opor"},
+			{eCommand::negate,"negate"},
+			{eCommand::eqi,"eqi"},
+			{eCommand::eqf,"eqf"},
+			{eCommand::eqs,"eqs"},
+			{eCommand::eqic,"eqic"},
+			{eCommand::eqfc,"eqfc"},
+			{eCommand::eqsc,"eqsc"},
+			{eCommand::lesi,"lesi"},
+			{eCommand::lesf,"lesf"},
+			{eCommand::leqi,"leqi"},
+			{eCommand::leqf,"leqf"},
+			{eCommand::gri,"gri"},
+			{eCommand::grf,"grf"},
+			{eCommand::greqi,"greqi"},
+			{eCommand::greqf,"greqf"},
+			{eCommand::call,"call"},
+			{eCommand::jnz,"jnz"},
+			{eCommand::jmp,"jmp"},
+			{eCommand::label,"label"},
+			{eCommand::pushic,"pushic"},
+			{eCommand::pop,"pop"},
+			{eCommand::sret,"sret"},
+			{eCommand::cstack,"cstack"},
+			{eCommand::synct,"synct"},
+			{eCommand::synci,"synci"},
+			{eCommand::sync,"sync"},
+			{eCommand::symbolb,"symbolb"},
+			{eCommand::symboli,"symboli"},
+			{eCommand::symbolf,"symbolf"},
+			{eCommand::symbols,"symbols"},
+			{eCommand::symbolab,"symbolab"},
+			{eCommand::symbolai,"symbolai"},
+			{eCommand::symbolaf,"symbolaf"},
+			{eCommand::symbolas,"symbolas"},
+			{eCommand::symbolmb,"symbolmb"},
+			{eCommand::symbolmi,"symbolmi"},
+			{eCommand::symbolmf,"symbolmf"},
+			{eCommand::symbolms,"symbolms"},
+			{eCommand::symbolma,"symbolma"},
+			{eCommand::timer1,"timer1"},
+			{eCommand::timer2,"timer2"},
+			{eCommand::cmt,"cmt"},
+			{eCommand::delay,"delay"},
+			{eCommand::nop,"nop"},
+		}
+	);
+
+static boost::bimap<eSymbolType, string> g_eSymbolTypeToStr =
+	make_bimap<eSymbolType, string>(
+		{
+			{eSymbolType::None, "none"},
+			{eSymbolType::Bool, "bool"},
+			{eSymbolType::Int, "int"},
+			{eSymbolType::Float, "float"},
+			{eSymbolType::Enums, "enums"},
+			{eSymbolType::String, "string"},
+			{eSymbolType::Array, "array"},
+			{eSymbolType::Map, "map"},
+			{eSymbolType::Any, "any"},
+		}
+	);
+
+// convert eCommand to string
+string script::CommandToStr(const eCommand cmd)
+{
+	auto it = g_eCommandToStr.left.find(cmd);
+	return (g_eCommandToStr.left.end() == it)? "none" : it->second;
+}
+
+
+// convert string to eCommand
+eCommand script::StrToCommand(const string& str)
+{
+	auto it = g_eCommandToStr.right.find(str);
+	return (g_eCommandToStr.right.end() == it) ? eCommand::none : it->second;
+}
+
+
 // return VarType corresspond eCommand
-VARTYPE script::GetVarType(const eCommand::Enum cmd)
+VARTYPE script::GetVarType(const eCommand cmd)
 {
 	switch (cmd)
 	{
@@ -29,6 +147,9 @@ VARTYPE script::GetVarType(const eCommand::Enum cmd)
 	case eCommand::pushic:
 	case eCommand::timer1:
 	case eCommand::timer2:
+	case eCommand::synct:
+	case eCommand::synci:
+	case eCommand::sync:
 		return VT_INT;
 
 	case eCommand::ldfc:
@@ -138,8 +259,22 @@ sInstruction& sInstruction::operator=(const sInstruction &rhs)
 //----------------------------------------------------------------
 // eSymbolType global functions
 
+string script::SymbolTypeToStr(const eSymbolType& symbType)
+{
+	auto it = g_eSymbolTypeToStr.left.find(symbType);
+	return (g_eSymbolTypeToStr.left.end() == it) ? "none" : it->second;
+}
+
+
+eSymbolType script::StrToSymbolType(const string& str)
+{
+	auto it = g_eSymbolTypeToStr.right.find(common::lowerCase2(str));
+	return (g_eSymbolTypeToStr.right.end() == it) ? eSymbolType::Enums : it->second;
+}
+
+
 // is variable type?
-bool script::IsVariable(const eSymbolType::Enum type)
+bool script::IsVariable(const eSymbolType type)
 {
 	switch (type)
 	{
@@ -163,7 +298,7 @@ bool script::IsVariable(const eSymbolType::Enum type)
 // Array<type string>, Map<type string, type string>
 // ex) Map<string, Array<string>>
 //      - return: [Map, String, Array, String]
-bool script::ParseTypeString(const string &typeStr, OUT vector<eSymbolType::Enum> &out)
+bool script::ParseTypeString(const string &typeStr, OUT vector<eSymbolType> &out)
 {
 	const int idx0 = typeStr.find('>');
 	const int idx1 = typeStr.find('<');
@@ -180,9 +315,7 @@ bool script::ParseTypeString(const string &typeStr, OUT vector<eSymbolType::Enum
 			common::trim(s);
 			if (s.empty())
 				continue;
-			eSymbolType::Enum st = eSymbolType::FromString(s);
-			if (eSymbolType::COUNT == st)
-				st = eSymbolType::Enums; // not found symbol? maybe enum type
+			const eSymbolType st = StrToSymbolType(s);
 			out.push_back(st);
 		}
 	}
@@ -198,9 +331,9 @@ bool script::ParseTypeString(const string &typeStr, OUT vector<eSymbolType::Enum
 
 
 // parse type string, array version
-bool script::ParseTypeString(const string &typeStr, OUT eSymbolType::Enum out[4])
+bool script::ParseTypeString(const string &typeStr, OUT eSymbolType out[4])
 {
-	vector<eSymbolType::Enum> temp;
+	vector<eSymbolType> temp;
 	ParseTypeString(typeStr, temp);
 
 	for (uint i = 0; i < 4; ++i)
@@ -214,7 +347,7 @@ bool script::ParseTypeString(const string &typeStr, OUT eSymbolType::Enum out[4]
 
 // generate typestring from type array
 // idx: in/out index
-string GetTypeString(const vector<eSymbolType::Enum> &typeValues, INOUT uint &idx
+string GetTypeString(const vector<eSymbolType> &typeValues, INOUT uint &idx
 	, const uint size)
 {
 	if (typeValues.size() <= idx)
@@ -229,7 +362,7 @@ string GetTypeString(const vector<eSymbolType::Enum> &typeValues, INOUT uint &id
 		if (i > 0)
 			typeStr += ",";
 
-		const eSymbolType::Enum type = typeValues[idx];
+		const eSymbolType type = typeValues[idx];
 		switch (type)
 		{
 		case eSymbolType::Map:
@@ -244,7 +377,7 @@ string GetTypeString(const vector<eSymbolType::Enum> &typeValues, INOUT uint &id
 			break;
 		case eSymbolType::Enums:
 		default:
-			typeStr += eSymbolType::ToString(type);
+			typeStr += SymbolTypeToStr(type);
 			++idx;
 			break;
 		}
@@ -255,7 +388,7 @@ string GetTypeString(const vector<eSymbolType::Enum> &typeValues, INOUT uint &id
 
 // generate typestring from type vector
 // ex) [eSymbolType::Array, eSymbolType::Int] => "array<Int>"
-string script::GenerateTypeString(const vector<eSymbolType::Enum> &typeValues)
+string script::GenerateTypeString(const vector<eSymbolType> &typeValues)
 {
 	uint idx = 0;
 	const string typeStr = GetTypeString(typeValues, idx, 1);
@@ -264,11 +397,11 @@ string script::GenerateTypeString(const vector<eSymbolType::Enum> &typeValues)
 
 
 // generate typestring from type array
-string script::GenerateTypeString(const eSymbolType::Enum typeValues[4]
+string script::GenerateTypeString(const eSymbolType typeValues[4]
 	, const uint startIdx //=0
 )
 {
-	vector<eSymbolType::Enum> temp;
+	vector<eSymbolType> temp;
 	for (uint i = startIdx; i < 4; ++i)
 	{
 		if (eSymbolType::None == typeValues[i])

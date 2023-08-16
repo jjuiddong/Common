@@ -4,12 +4,6 @@
 
 using namespace network2;
 
-namespace
-{
-	const float TIME_SYNC_INSTRUCTION = 0.5f; // seconds unit
-	const float TIME_SYNC_REGISTER = 5.0f; // seconds unit
-	const float TIME_SYNC_SYMBOL = 3.0f; // seconds unit
-}
 
 //----------------------------------------------------------------------------------
 // Send Intermediate Code Task
@@ -128,12 +122,16 @@ bool cRemoteInterpreter::Init(cNetController &netController
 // load intermediate code
 // fileName: intermediate code filename
 // return virtual machine id, -1:error
-int cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName)
+int cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	script::cInterpreter *interpreter = new script::cInterpreter();
 	interpreter->Init();
+	interpreter->SetListener(this);
 
-	const int vmId = interpreter->LoadIntermediateCode(fileName);
+	const int vmId = interpreter->LoadIntermediateCode(fileName, parentVmId, scopeName);
 	if (vmId < 0)
 	{
 		delete interpreter;
@@ -144,10 +142,6 @@ int cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName)
 	itpr.name = common::format("itpr%d", m_interpreters.size());// interpreter->m_fileName.c_str();
 	itpr.state = sItpr::eState::Stop;
 	itpr.interpreter = interpreter;
-	itpr.isChangeInstruction = false;
-	itpr.regSyncTime = 0.f;
-	itpr.instSyncTime = 0.f;
-	itpr.symbSyncTime = 0.f;
 
 	m_interpreters.push_back(itpr);
 	return vmId;
@@ -156,7 +150,11 @@ int cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName)
 
 // load intermediate code 
 // fileNames: intermediate code filename array
-bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames)
+// parentVmId: parent virtual machine id, -1:root
+bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	ClearInterpreters();
 	m_interpreters.reserve(fileNames.size());
@@ -164,7 +162,7 @@ bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames)
 	bool isSuccess = true;
 	for (auto &fileName : fileNames)
 	{
-		if (LoadIntermediateCode(fileName) < 0)
+		if (LoadIntermediateCode(fileName, parentVmId, scopeName) < 0)
 		{
 			isSuccess = false;
 			break;
@@ -178,14 +176,19 @@ bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames)
 
 // load intermediate code
 // vmName: virtual machine name
+// parentVmId: parent virtual machine id, -1:root
 // return: virutal machine id, -1:error
 int cRemoteInterpreter::LoadIntermediateCode(
-	const common::script::cIntermediateCode &icode)
+	const common::script::cIntermediateCode &icode
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	script::cInterpreter *interpreter = new script::cInterpreter();
 	interpreter->Init();
+	interpreter->SetListener(this);
 
-	const int vmId = interpreter->LoadIntermediateCode(icode);
+	const int vmId = interpreter->LoadIntermediateCode(icode, parentVmId, scopeName);
 	if (vmId < 0)
 	{
 		delete interpreter;
@@ -196,10 +199,6 @@ int cRemoteInterpreter::LoadIntermediateCode(
 	itpr.name = common::format("itpr%d", m_interpreters.size()); //interpreter->m_fileName.c_str();
 	itpr.state = sItpr::eState::Stop;
 	itpr.interpreter = interpreter;
-	itpr.isChangeInstruction = false;
-	itpr.regSyncTime = 0.f;
-	itpr.instSyncTime = 0.f;
-	itpr.symbSyncTime = 0.f;
 
 	m_interpreters.push_back(itpr);
 	return vmId;
@@ -207,14 +206,18 @@ int cRemoteInterpreter::LoadIntermediateCode(
 
 
 // add virtual machine with intermediate code
+// parentVmId: parent virtual machine id, -1:root
 // return: vm id, -1:error
 int cRemoteInterpreter::AddVM(const int itprId
-	, const common::script::cIntermediateCode& icode)
+	, const common::script::cIntermediateCode& icode
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return -1;
 	sItpr &itpr = m_interpreters[itprId];
-	return itpr.interpreter->LoadIntermediateCode(icode);
+	return itpr.interpreter->LoadIntermediateCode(icode, parentVmId, scopeName);
 }
 
 
@@ -245,9 +248,6 @@ bool cRemoteInterpreter::SendSyncAll()
 	{
 		const int itprId = (int)k;
 		sItpr &itpr = m_interpreters[itprId];
-		itpr.regSyncTime = TIME_SYNC_REGISTER + 1.0f;
-		itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.0f;
-		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 		SendSyncInstruction(itprId);
 		SendSyncVMRegister(itprId);
 		SendSyncSymbolTable(itprId, -1);
@@ -256,66 +256,40 @@ bool cRemoteInterpreter::SendSyncAll()
 }
 
 
-// process webclient, interpreter
-bool cRemoteInterpreter::Process(const float deltaSeconds)
+// process with webclient, interpreter
+// procCnt: execute instruction count
+bool cRemoteInterpreter::Process(const float deltaSeconds
+	, const uint procCnt //= 1
+)
 {
-	// sync instruction, register, symboltable
-	// check change instruction
-	for (uint k=0; k < m_interpreters.size(); ++k)
+	float dt = deltaSeconds;
+	uint cnt = 0;
+	while (procCnt > cnt++)
 	{
-		const int itprId = (int)k;
-		sItpr &itpr = m_interpreters[itprId];
-		itpr.interpreter->Process(deltaSeconds);
-
-		if (itpr.state != sItpr::eState::Run)
-			continue;
-
-		set<int> syncVms; // sync vm id
-
-		itpr.regSyncTime += deltaSeconds;
-		itpr.instSyncTime += deltaSeconds;
-		itpr.symbSyncTime += deltaSeconds;
-
-		script::cInterpreter *interpreter = itpr.interpreter;
-		for (uint i = 0; i < interpreter->m_vms.size(); ++i)
+		// execute interpreter
+		for (uint i = 0; i < m_interpreters.size(); ++i)
 		{
-			script::cVirtualMachine *vm = interpreter->m_vms[i];
+			const int itprId = (int)i;
+			sItpr& itpr = m_interpreters[itprId];
+			itpr.interpreter->Process(dt);
 
-			if (m_syncVMIds.end() != m_syncVMIds.find(vm->m_id))
-				syncVms.insert(vm->m_id);
-
-			// sync delay instruction (check next instruction is delay node?)
-			// 'vm->m_reg.idx' is next execute instruction code index
-			// ldtim is previous delay command
-			if (script::eCommand::ldtim ==
-				vm->m_code.m_codes[vm->m_reg.idx].cmd)
-			{
-				// sync instruction & register
-				itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.f;
-				itpr.regSyncTime = TIME_SYNC_REGISTER + 1.f;
-			}
+			if (itpr.interpreter->IsBreak())
+				m_protocol.AckOneStep(network2::ALL_NETID, true, i, 1);
 		}
+		dt = 0.f; // clear
+	}
 
-		// sync register?
-		if (itpr.regSyncTime > TIME_SYNC_REGISTER)
+	// synchronize vm info
+	for (uint i = 0; i < m_interpreters.size(); ++i)
+	{
+		sItpr& itpr = m_interpreters[i];
+		if (sItpr::eState::Run == itpr.state)
 		{
-			itpr.regSyncTime = 0.f;
-			if (!syncVms.empty())
-				SendSyncVMRegister(itprId, &syncVms);
+			SendSyncVMRegister(i);
+			SendSyncInstruction(i);
+			SendSyncSymbolTable(i, -1);
 		}
-
-		// sync instruction?
-		if (itpr.instSyncTime > TIME_SYNC_INSTRUCTION)
-			SendSyncInstruction(itprId);
-
-		SendSyncSymbolTable(itprId, -1);
-
-		// is meet breakpoint? change step debugging mode
-		if (interpreter->IsBreak())
-		{
-			m_protocol.AckOneStep(network2::ALL_NETID, true, itprId, 1);
-		}
-	}//~for interpreters
+	}
 
 	return m_server.IsFailConnection() ? false : true;
 }
@@ -357,42 +331,61 @@ bool cRemoteInterpreter::PushEvent(const int itprId
 // start interpreter
 // itprId: interpreter index, -1: all interpreter
 // vmId: virtual machine id, -1:all vm
-// nodeName: RunNodeFile node name
+// args: execute argument
+// nodeName: RunNodeFile node name (scopeName)
 bool cRemoteInterpreter::Run(const int itprId
 	, const int parentVmId //= -1
 	, const int vmId //= -1
+	, const map<string, vector<string>>& args //=empty
 	, const string& nodeName //= ""
 )
 {
-	return RunInterpreter(itprId, parentVmId, vmId, nodeName, 0);
+	return RunInterpreter(itprId, parentVmId, vmId, args, nodeName, 0);
 }
 
 
 // start interpreter with debug run
 // itprId: interpreter index, -1: all interpreter
 // vmId: virtual machine id, -1:all vm
-// nodeName: RunNodeFile node name
+// args: execute argument
+// nodeName: RunNodeFile node name (scopeName)
 bool cRemoteInterpreter::DebugRun(const int itprId
 	, const int parentVmId //= -1
 	, const int vmId //= -1
+	, const map<string, vector<string>>& args //=empty
 	, const string& nodeName //= ""
 )
 {
-	return RunInterpreter(itprId, parentVmId, vmId, nodeName, 1);
+	return RunInterpreter(itprId, parentVmId, vmId, args, nodeName, 1);
 }
 
 
 // start interpreter with one step debugging
 // itprId: interpreter index, -1: all interpreter
 // vmId: virtual machine id, -1:all vm
-// nodeName: RunNodeFile node name
+// args: execute argument
+// nodeName: RunNodeFile node name (scopeName)
 bool cRemoteInterpreter::StepRun(const int itprId
 	, const int parentVmId //= -1
 	, const int vmId //= -1
+	, const map<string, vector<string>>& args //=empty
 	, const string& nodeName //= ""
 )
 {
-	return RunInterpreter(itprId, parentVmId, vmId, nodeName, 2);
+	return RunInterpreter(itprId, parentVmId, vmId, args, nodeName, 2);
+}
+
+
+// terminate virtual machine
+// vmId: terminate virtual machine id
+// return: success?
+bool cRemoteInterpreter::TerminateVM(const int vmId)
+{
+	sItpr *itpr = GetInterpreterByVMId(vmId);
+	if (!itpr)
+		return false;	
+	const bool result = itpr->interpreter->Terminate(vmId);
+	return result;
 }
 
 
@@ -549,7 +542,24 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const int vmId)
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
 	sItpr& itpr = m_interpreters[itprId];
-	itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
+
+	if (vmId < 0)
+	{
+		for (auto& vm : itpr.interpreter->m_vms)
+		{
+			vm->m_nsync.sync = 0x4; // instant symbol synchronize
+			vm->m_nsync.symbStreaming = true;
+		}
+	}
+	else
+	{
+		if (script::cVirtualMachine* vm = GetVM(vmId))
+		{
+			vm->m_nsync.sync = 0x4; // instant symbol synchronize
+			vm->m_nsync.symbStreaming = true;
+		}
+	}
+
 	SendSyncSymbolTable(itprId, vmId);
 	return true;
 }
@@ -565,10 +575,26 @@ bool cRemoteInterpreter::SyncVMInformation(const int vmId, const vector<string>&
 		return false; // error return
 
 	sItpr& itpr = m_interpreters[itprId];
+
+	if (vmId < 0)
+	{
+		for (auto& vm : itpr.interpreter->m_vms)
+		{
+			vm->m_nsync.sync = 0x4; // instant symbol synchronize
+			vm->m_nsync.symbStreaming = true;
+		}
+	}
+	else
+	{
+		if (script::cVirtualMachine* vm = GetVM(vmId))
+		{
+			vm->m_nsync.sync = 0x04; // instant symbol synchronize
+			vm->m_nsync.symbStreaming = true;
+		}
+	}
+
 	if (IsChangeSymbolTable(itprId))
 	{
-		// sync all
-		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
 		SendSyncSymbolTable(itprId, vmId);
 	}
 
@@ -766,6 +792,13 @@ script::cVirtualMachine* cRemoteInterpreter::GetVM(const int vmId)
 }
 
 
+// terminate virtual machine callback function
+void cRemoteInterpreter::TerminateResponse(const int vmId)
+{
+	m_protocol.RemoveInterpreter(network2::ALL_NETID, true, vmId);
+}
+
+
 // find interpreter by virtual machine id
 // vmId: virtual machine id
 cRemoteInterpreter::sItpr* cRemoteInterpreter::GetInterpreterByVMId(const int vmId)
@@ -788,19 +821,21 @@ cRemoteInterpreter::sItpr* cRemoteInterpreter::GetInterpreterByVMId(const int vm
 // run interpreter
 // itprId: interpreter id, -1:all interpreter
 // vmId: virtual machine id, -1:all vm
-// nodeName: RunNodeFile node name
+// args: execute argument
+// nodeName: RunNodeFile node name (scopeName)
 // type: 0:run, 1:debug run, 2:step run
 bool cRemoteInterpreter::RunInterpreter(const int itprId, const int parentVmId, 
-	const int vmId, const string& nodeName, const int type)
+	const int vmId, const map<string, vector<string>>& args
+	, const string& nodeName, const int type)
 {
 	if (itprId < 0)
 	{
 		for (uint i = 0; i < m_interpreters.size(); ++i)
-			RunInterpreter_Sub(i, parentVmId, vmId, nodeName, type);
+			RunInterpreter_Sub(i, parentVmId, vmId, args, nodeName, type);
 	}
 	else
 	{
-		return RunInterpreter_Sub(itprId, parentVmId, vmId, nodeName, type);
+		return RunInterpreter_Sub(itprId, parentVmId, vmId, args, nodeName, type);
 	}
 	return true;
 }
@@ -809,10 +844,12 @@ bool cRemoteInterpreter::RunInterpreter(const int itprId, const int parentVmId,
 // run interpreter
 // itprId: interpreter id
 // vmId: virtual machine id, -1:all vm
-// nodeName: RunNodeFile node name
+// args: execute argument
+// nodeName: RunNodeFile node name (scopeName)
 // type: 0:run, 1:debug run, 2:step run
 bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVmId
-	, const int vmId, const string& nodeName, const int type)
+	, const int vmId, const map<string, vector<string>>& args
+	, const string& nodeName, const int type)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
@@ -830,7 +867,7 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 	switch (type)
 	{
 	case 0: // Run
-		if (result = interpreter->Run(vmId))
+		if (result = interpreter->Run(vmId, args))
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
@@ -839,7 +876,7 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 		}
 		break;
 	case 1: // DebugRun
-		if (result = interpreter->DebugRun(vmId))
+		if (result = interpreter->DebugRun(vmId, args))
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
@@ -847,7 +884,7 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 		}
 		break;
 	case 2: // StepRun
-		if (result = interpreter->StepRun(vmId))
+		if (result = interpreter->StepRun(vmId, args))
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
@@ -933,19 +970,18 @@ bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
 	for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 	{
 		script::cVirtualMachine *vm = interpreter->m_vms[i];
-		if (vm->m_trace.empty())
+		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x02)) 
+			|| !vm->m_nsync.instStreaming || vm->m_trace.empty())
 			continue; // no process
 		const uint size = vm->m_trace.size();
 		if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
 			continue; // no process, no changed
 
-		itpr.instSyncTime = 0.f;
-		itpr.isChangeInstruction = false; // initialize flag
-
 		m_protocol.SyncVMInstruction(network2::ALL_NETID
 			, true, itprId, vm->m_id, vm->m_trace);
-
 		vm->ClearCodeTrace(true);
+		vm->m_nsync.sync = (vm->m_nsync.sync & ~0x02); // clear flag
+		vm->m_nsync.instStreaming = false; // clear flag
 	}
 	return true;
 }
@@ -953,22 +989,20 @@ bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
 
 // sync vm register info
 // itprId: interpreter index
-bool cRemoteInterpreter::SendSyncVMRegister(const int itprId
-	, const set<int> *vmIds //=nullptr
-)
+bool cRemoteInterpreter::SendSyncVMRegister(const int itprId)
 {
 	script::cInterpreter *interpreter = m_interpreters[itprId].interpreter;
 	for (uint i=0; i < interpreter->m_vms.size(); ++i)
 	{
-		auto &vm = interpreter->m_vms[i];
-
-		if (vmIds)
-			if (vmIds->end() == vmIds->find(vm->m_id))
-				continue; // ignore this vm
-
-		m_protocol.SyncVMRegister(network2::ALL_NETID, true, itprId
-			, vm->m_id, 0, vm->m_reg);
-		break; // now only one virtual machine sync
+		script::cVirtualMachine *vm = interpreter->m_vms[i];
+		if ((vm->m_nsync.enable || (vm->m_nsync.sync & 0x01)) && vm->m_nsync.regStreaming)
+		{
+			m_protocol.SyncVMRegister(network2::ALL_NETID, true, itprId
+				, vm->m_id, 0, vm->m_reg);
+			vm->m_nsync.sync = vm->m_nsync.sync & ~0x01; // clear flag
+			vm->m_nsync.regStreaming = false; // clear flag
+		}
+		//break; // now only one virtual machine sync
 	}
 	return true;
 }
@@ -983,16 +1017,14 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 
 	const uint MaxSyncSymbolCount = 10; // tricky code (todo: streaming)
 
-	if (itpr.symbSyncTime < TIME_SYNC_SYMBOL)
-		return true;
-	itpr.symbSyncTime = 0.f;
-
 	for (uint i = 0; i < interpreter->m_vms.size(); ++i)
 	{
 		vector<script::sSyncSymbol> symbols;
 		script::cVirtualMachine *vm = interpreter->m_vms[i];
 		if ((vmId >= 0) && (vm->m_id != vmId))
 			continue; // ignore this vm
+		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x04)) || !vm->m_nsync.symbStreaming)
+			continue;
 
 		for (auto &kv1 : vm->m_symbTable.m_vars)
 		{
@@ -1004,21 +1036,21 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 				const script::sVariable &var = kv2.second;
 
 				bool isSync = false;
-				auto it = itpr.chSymbols.find(varName);
-				if (itpr.chSymbols.end() == it)
+				auto it = vm->m_nsync.chSymbols.find(varName);
+				if (vm->m_nsync.chSymbols.end() == it)
 				{
 					// add new symbol
 					isSync = true;
-					sSymbol ssymb;
+					script::cVirtualMachine::sSymbol ssymb;
 					ssymb.name = varName;
-					ssymb.t = 0;
+					ssymb.t = 0.f;
 					ssymb.var = var;
-					itpr.chSymbols[varName] = ssymb;
+					vm->m_nsync.chSymbols[varName] = ssymb;
 				}
 				else
 				{
 					// check change? (VT_BYREF (array or map type) crash)
-					sSymbol &ssymb = it->second;
+					script::cVirtualMachine::sSymbol &ssymb = it->second;
 					if (!(ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var != var.var))
 					{
 						isSync = true;
@@ -1058,6 +1090,8 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 			}
 		}
 		vm->m_symbTable.SyncChange(); // clear change flag
+		vm->m_nsync.sync = vm->m_nsync.sync & ~0x04; // clear flag
+		vm->m_nsync.symbStreaming = false; // clear flag
 	}//~for
 	
 	return true;
@@ -1241,9 +1275,13 @@ bool cRemoteInterpreter::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 	{
 		for (auto &itpr : m_interpreters)
 		{
-			itpr.regSyncTime = TIME_SYNC_REGISTER + 1.0f;
-			itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.0f;
-			itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
+			for (auto& vm : itpr.interpreter->m_vms)
+			{
+				vm->m_nsync.sync = 0x0F; // instant sync
+				vm->m_nsync.regStreaming = true;
+				vm->m_nsync.instStreaming = true;
+				vm->m_nsync.symbStreaming = true;
+			}
 		}
 	}
 	else
@@ -1255,9 +1293,13 @@ bool cRemoteInterpreter::ReqOneStep(remotedbg2::ReqOneStep_Packet &packet)
 		}
 
 		sItpr &itpr = m_interpreters[packet.itprId];
-		itpr.regSyncTime = TIME_SYNC_REGISTER + 1.0f;
-		itpr.instSyncTime = TIME_SYNC_INSTRUCTION + 1.0f;
-		itpr.symbSyncTime = TIME_SYNC_SYMBOL + 1.0f;
+		for (auto& vm : itpr.interpreter->m_vms)
+		{
+			vm->m_nsync.sync = 0x0F; // instant sync
+			vm->m_nsync.regStreaming = true;
+			vm->m_nsync.instStreaming = true;
+			vm->m_nsync.symbStreaming = true;
+		}
 	}
 
 	m_protocol.AckOneStep(packet.senderId, true, packet.itprId, 1);
@@ -1346,9 +1388,27 @@ bool cRemoteInterpreter::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &p
 // remotedbg2 protocol, request debug info, sync instruction, symboltable, register
 bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) 
 { 
-	m_syncVMIds.clear();
-	for (auto &id : packet.vmIds)
-		m_syncVMIds.insert(id);
+	// update network synchronize streaming
+	set<int> syncVmIds;
+	for (auto& vmId : packet.vmIds)
+		syncVmIds.insert(vmId);
+	set<int> curSyncVmIds; // current synchronize vm
+	for (auto& itpr : m_interpreters)
+		for (auto& vm : itpr.interpreter->m_vms)
+			if (vm->m_nsync.enable)
+			{
+				curSyncVmIds.insert(vm->m_id);
+				if (syncVmIds.end() == syncVmIds.find(vm->m_id))
+					vm->EnableNetworkSync(false);
+			}
+	set<int> newSyncVmIds;
+	for (auto& vmId : packet.vmIds)
+		if (curSyncVmIds.end() == curSyncVmIds.find(vmId))
+			newSyncVmIds.insert(vmId);
+	for (auto& vmId : newSyncVmIds)
+		if (script::cVirtualMachine* vm = GetVM(vmId))
+			vm->EnableNetworkSync(true);
+	//~
 
 	m_protocol.AckDebugInfo(packet.senderId, true, packet.vmIds, 1);
 	return true;

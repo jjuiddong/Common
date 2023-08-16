@@ -1,4 +1,4 @@
-j
+
 #include "stdafx.h"
 #include "vplfile.h"
 
@@ -10,6 +10,7 @@ const static cVplFile::sNode nullNode = { 0, };
 
 cVplFile::cVplFile()
 	: m_jmpLabelSeedId(0)
+	, m_syncId(1)
 {
 }
 
@@ -124,7 +125,7 @@ bool cVplFile::Load(common::cSimpleData2 &sdata)
 bool cVplFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p)
 {
 	sNode node;
-	node.type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
+	node.type = vpl::StrToNodeType(sdata.Get<string>(p, "type", "Event"));
 	node.id = sdata.Get<int>(p, "id", 0);
 	node.name = sdata.Get<string>(p, "name", "name");
 	node.typeStr = sdata.Get<string>(p, "typeStr", node.name);
@@ -138,11 +139,11 @@ bool cVplFile::AddNode(common::cSimpleData2 &sdata, common::cSimpleData2::sNode 
 
 			const string type = sdata.Get<string>(c, "type", " ");
 			const string typeStr = sdata.Get<string>(c, "typeStr", "");
-			pin.type = ePinType::FromString(type);
+			pin.type = vpl::StrToPinType(type);
 			pin.typeStr = typeStr;
 			common::script::ParseTypeString(typeStr, pin.typeValues);
 
-			if (pin.type == ePinType::COUNT) // not found type, check enum type?
+			if (pin.type == ePinType::None) // not found type, check enum type?
 			{
 				if (m_variables.FindSymbol(type))
 				{
@@ -246,7 +247,7 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 
 	//ePinType::Enum pinType;
 	using namespace common::script;
-	vector<eSymbolType::Enum> typeValues;
+	vector<eSymbolType> typeValues;
 	if (!ParseTypeString(typeStr, typeValues)) 
 	{
 		common::dbg::Logc(1
@@ -254,7 +255,7 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 			, typeStr.c_str());
 		return false;
 	}
-	const common::script::eSymbolType::Enum symbType = typeValues.front();
+	const common::script::eSymbolType symbType = typeValues.front();
 
 	variant_t val;
 	switch (symbType)
@@ -303,7 +304,7 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 		sVariable *var = m_variables.FindVarInfo(scopeName, name);
 		if (var && (typeValues.size() > 1))
 		{
-			const eSymbolType::Enum itemType = typeValues[1]; // array item type
+			const eSymbolType itemType = typeValues[1]; // array item type
 			for (auto& tok : toks)
 			{
 				common::replaceAll(tok, "'", ""); // remove \' character
@@ -346,7 +347,7 @@ bool cVplFile::AddVariable3(const string &scopeName, const string &name
 		return false; // error
 	}
 
-	vector<eSymbolType::Enum> typeValues;
+	vector<eSymbolType> typeValues;
 	if (!ParseTypeString(typeStr, typeValues))
 	{
 		common::dbg::Logc(1
@@ -354,7 +355,7 @@ bool cVplFile::AddVariable3(const string &scopeName, const string &name
 			, typeStr.c_str());
 		return false;
 	}
-	const eSymbolType::Enum symbType = typeValues.front();
+	const eSymbolType symbType = typeValues.front();
 
 	variant_t val;
 	switch (symbType)
@@ -462,7 +463,7 @@ bool cVplFile::Write_Node(std::ostream &ofs, sNode &node)
 	using namespace std;
 
 	ofs << "node" << endl;
-	ofs << "\t" << "type " << eNodeType::ToString(node.type) << endl;
+	ofs << "\t" << "type " << vpl::NodeTypeToStr(node.type) << endl;
 	ofs << "\t" << "id " << node.id << endl;
 	if (node.name.empty())
 		ofs << "\t" << "name \" \"" << endl; // blank name
@@ -474,7 +475,7 @@ bool cVplFile::Write_Node(std::ostream &ofs, sNode &node)
 	for (auto &pin : node.inputs)
 	{
 		ofs << "\tinput" << endl;
-		ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
+		ofs << "\t\t" << "type " << vpl::PinTypeToStr(pin.type) << endl;
 		ofs << "\t\t" << "id " << pin.id << endl;
 		if (pin.name.empty())
 			ofs << "\t\t" << "name \" \"" << endl; // blank name
@@ -491,7 +492,7 @@ bool cVplFile::Write_Node(std::ostream &ofs, sNode &node)
 	for (auto &pin : node.outputs)
 	{
 		ofs << "\toutput" << endl;
-		ofs << "\t\t" << "type " << ePinType::ToString(pin.type) << endl;
+		ofs << "\t\t" << "type " << vpl::PinTypeToStr(pin.type) << endl;
 		ofs << "\t\t" << "id " << pin.id << endl;
 		if (pin.name.empty())
 			ofs << "\t\t" << "name \" \"" << endl; // blank name
@@ -666,7 +667,7 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 	script::sInstruction code;
 	string typeStr; // array, map type string
 
-	const eSymbolType::Enum symbType = var.typeValues[0];
+	const eSymbolType symbType = var.typeValues[0];
 	switch (symbType)
 	{
 	case eSymbolType::Bool: code.cmd = script::eCommand::symbolb; break;
@@ -676,7 +677,7 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 	case eSymbolType::Array:
 	{
 		typeStr = var.type;
-		const eSymbolType::Enum elementType = var.typeValues[1]; //array<type>
+		const eSymbolType elementType = var.typeValues[1]; //array<type>
 		switch (elementType)
 		{
 		case eSymbolType::Bool: code.cmd = script::eCommand::symbolab; break;
@@ -694,7 +695,7 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 	case eSymbolType::Map:
 	{
 		typeStr = var.type;
-		const eSymbolType::Enum valueType = var.typeValues[2]; //map<string,type>
+		const eSymbolType valueType = var.typeValues[2]; //map<string,type>
 		switch (valueType)
 		{
 		case eSymbolType::Bool: code.cmd = script::eCommand::symbolmb; break;
@@ -1066,6 +1067,8 @@ bool cVplFile::Control_GenCode(const sNode &prevNode, const sNode &node
 		ForLoop_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "Sequence")
 		Sequence_GenCode(prevNode, node, fromPin, out);
+	else if (node.name == "Sync")
+		Sync_GenCode(prevNode, node, fromPin, out);
 	return true;
 }
 
@@ -1218,7 +1221,7 @@ bool cVplFile::Switch_GenCode(const sNode &prevNode, const sNode &node
 		if ((pin.name == "Default") || (pin.name == "default"))
 			continue; // not yet
 
-		script::eCommand::Enum cmd;
+		script::eCommand cmd;
 		variant_t value;
 		if (symbol)
 		{
@@ -1600,7 +1603,7 @@ bool cVplFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 		}
 	}
 
-	// next flow node (generate Loop branch node)
+	// loop flow node (generate Loop branch node)
 	for (auto &pin : node.outputs)
 	{
 		if (ePinType::Flow == pin.type)
@@ -1748,6 +1751,171 @@ bool cVplFile::Sequence_GenCode(const sNode &prevNode, const sNode &node
 }
 
 
+// generate sync code
+bool cVplFile::Sync_GenCode(const sNode& prevNode, const sNode& node
+	, const sPin& fromPin, OUT common::script::cIntermediateCode& out)
+{
+	RETV(eNodeType::Control != node.type, false);
+	RETV(fromPin.links.empty(), false);
+
+	int inputPinIdx = -1;
+	for (uint i = 0; i < node.inputs.size(); ++i)
+	{
+		const sPin& pin = node.inputs[i];
+		if (fromPin.links[0] == pin.id)
+		{
+			inputPinIdx = (int)i;
+			break;
+		}
+	}
+	if (inputPinIdx < 0)
+		return false;
+
+	const int syncId = node.id;
+
+	// initialize sync?
+	if (common::trim2(node.inputs[inputPinIdx].name).empty())
+	{
+		if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
+			return true;
+
+		// load timeout value to register0
+		uint condReg = 0; // condition register
+		NodeInput_GenCode(node, 0, false, out);
+
+		// initialize sync 
+		// 1. timeout, synct
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::synct;
+			code.reg1 = 0;
+			code.var1 = syncId;
+			out.m_codes.push_back(code);
+		}
+
+		// 2. link input pin list, synci
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::ldic;
+			code.reg1 = 0;
+			code.var1 = syncId;
+			out.m_codes.push_back(code);
+		}
+
+		for (auto &pin : node.inputs)
+		{
+			if (ePinType::Flow != pin.type) continue;
+
+			if (!common::trim2(pin.name).empty())
+			{
+				script::sInstruction code;
+				code.cmd = script::eCommand::synci;
+				code.reg1 = 0; // reg1:syncId
+				code.var1 = pin.links.empty()? 0 : pin.links[0];
+				out.m_codes.push_back(code);
+			}
+		}
+
+		// next flow node
+		for (auto& pin : node.outputs)
+		{
+			if ((ePinType::Flow == pin.type)
+				&& common::trim2(pin.name).empty())
+			{
+				sNode* next = nullptr; // next node
+				sPin* np = nullptr; // next pin
+				const int linkId = pin.links.empty() ? -1 : pin.links.front();
+				std::tie(next, np) = FindContainPin(linkId);
+				if (next)
+					Node_GenCode(node, *next, pin, out);
+				break;
+			}
+		}
+
+		NodeEscape_GenCode(node, out);
+
+		// generate Sync output pin
+		for (auto& pin : node.outputs)
+		{
+			if (ePinType::Flow == pin.type)
+			{
+				sNode* next = nullptr; // next node
+				sPin* np = nullptr; // next pin
+				const int linkId = pin.links.empty() ? -1 : pin.links.front();
+				std::tie(next, np) = FindContainPin(linkId);
+				if (next && (pin.name == "Sync"))
+				{
+					// insert jump label
+					{
+						script::sInstruction code;
+						code.cmd = script::eCommand::label;
+						code.str1 = MakeScopeName(node) + "-Sync";
+						out.m_codes.push_back(code);
+					}
+
+					Node_GenCode(node, *next, pin, out);
+					break;
+				}
+			}
+		}
+
+		// generate TimeOut output pin
+		for (auto& pin : node.outputs)
+		{
+			if (ePinType::Flow == pin.type)
+			{
+				sNode* next = nullptr; // next node
+				sPin* np = nullptr; // next pin
+				const int linkId = pin.links.empty() ? -1 : pin.links.front();
+				std::tie(next, np) = FindContainPin(linkId);
+				if (next && (pin.name == "TimeOut"))
+				{
+					// insert jump label
+					{
+						script::sInstruction code;
+						code.cmd = script::eCommand::label;
+						code.str1 = MakeScopeName(node) + "-TimeOut_event";
+						out.m_codes.push_back(code);
+					}
+
+					Node_GenCode(node, *next, pin, out);
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		DebugInfo_GenCode(prevNode, node, fromPin, out);
+
+		// check sync, sync
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::ldic;
+			code.reg1 = 0;
+			code.var1 = syncId;
+			out.m_codes.push_back(code);
+		}
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::sync;
+			code.reg1 = 0; // reg1:syncId
+			code.var1 = fromPin.id;
+			out.m_codes.push_back(code);
+		}
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = MakeScopeName(node) + "-Sync";
+			out.m_codes.push_back(code);
+		}
+	}
+	
+	NodeEscape_GenCode(node, out);
+	return true;
+}
+
+
 // generate intermediate code, operator node
 bool cVplFile::Operator_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
@@ -1766,7 +1934,7 @@ bool cVplFile::Operator_GenCode(const sNode &node
 	NodeInput_GenCode(node, 8, false, out);
 
 	// get operator type (by input pin type)
-	eSymbolType::Enum symbType = eSymbolType::None;
+	eSymbolType symbType = eSymbolType::None;
 	for (auto &pin : node.inputs)
 	{
 		if (pin.typeValues.empty())
@@ -2140,7 +2308,7 @@ bool cVplFile::Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 
 
 // generate intermediate code, pin
-bool cVplFile::Pin2_GenCode(const ePinKind::Enum kind
+bool cVplFile::Pin2_GenCode(const ePinKind kind
 	, const sNode &node, const sPin &pin, const uint reg
 	, OUT common::script::cIntermediateCode &out)
 {
@@ -2582,7 +2750,7 @@ const cVplFile::sPin* cVplFile::GetInputPin(const sNode &node, const vector<stri
 
 
 // is ignore generate code? especially input pin
-bool cVplFile::IsIgnoreInputPin(const ePinType::Enum type)
+bool cVplFile::IsIgnoreInputPin(const ePinType type)
 {
 	switch (type)
 	{
@@ -2598,6 +2766,7 @@ bool cVplFile::IsIgnoreInputPin(const ePinType::Enum type)
 
 void cVplFile::Clear()
 {
+	m_syncId = 1;
 	m_nodes.clear();
 	m_variables.Clear();
 }

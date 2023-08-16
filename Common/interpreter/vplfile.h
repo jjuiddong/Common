@@ -55,16 +55,16 @@ namespace vpl
 			string name;
 			string varName; // variable pin? variable symbol name
 			int value; // enum value
-			ePinType::Enum type;
+			ePinType type;
 			string typeStr; // type name
-			vector<common::script::eSymbolType::Enum> typeValues;
-			ePinKind::Enum kind;
+			vector<common::script::eSymbolType> typeValues;
+			ePinKind kind;
 			vector<int> links; // pin id array
 		};
 
 		struct sNode {
 			int id;
-			eNodeType::Enum type;
+			eNodeType type;
 			string name;
 			string typeStr;
 			string labelName; // to set unique node name (especially, event label name)
@@ -116,6 +116,8 @@ namespace vpl
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool Sequence_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
+		bool Sync_GenCode(const sNode& prevNode, const sNode& node
+			, const sPin& fromPin, OUT common::script::cIntermediateCode& out);
 		bool Operator_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool Variable_GenCode(const sNode &node
@@ -124,7 +126,7 @@ namespace vpl
 			, OUT common::script::cIntermediateCode& out);
 		bool Pin_GenCode(const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
-		bool Pin2_GenCode(const ePinKind::Enum kind
+		bool Pin2_GenCode(const ePinKind kind
 			, const sNode &node, const sPin &pin, const uint reg
 			, OUT common::script::cIntermediateCode &out);
 
@@ -160,7 +162,7 @@ namespace vpl
 		string MakeScopeName(const sNode &node, const int uniqueId = -1);
 		uint GetInputFlowCount(const sNode &node);
 		const sPin* GetInputPin(const sNode &node, const vector<string> &names);
-		bool IsIgnoreInputPin(const ePinType::Enum type);
+		bool IsIgnoreInputPin(const ePinType type);
 
 		void MakeParsingRule(OUT vector<common::cSimpleData2::sRule> &out);
 		bool Write_Node(std::ostream &ofs, sNode &node);
@@ -174,6 +176,7 @@ namespace vpl
 		common::script::cSymbolTable m_variables;
 		set<int> m_visit; // visit node, use generate intermediate code
 		int m_jmpLabelSeedId; // to generate unique jump label id
+		int m_syncId; // sync command id
 	};
 
 }

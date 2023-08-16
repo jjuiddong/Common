@@ -34,14 +34,18 @@ bool cDebugger::Init(cInterpreter *interpreter)
 
 
 // load intermediate code, and then DebugRun state
-bool cDebugger::LoadIntermediateCode(const StrPath &fileName)
+// parentVmId: parent virtual machine id, -1:root
+bool cDebugger::LoadIntermediateCode(const StrPath &fileName
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	RETV(!m_interpreter, false);
 
 	if (!m_interpreter->IsStop())
 		return false; // error, already running~
 
-	if (!m_interpreter->LoadIntermediateCode(fileName))
+	if (!m_interpreter->LoadIntermediateCode(fileName, parentVmId, scopeName))
 		return false;
 
 	m_state = eState::Wait;

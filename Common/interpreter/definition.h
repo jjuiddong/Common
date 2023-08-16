@@ -4,6 +4,8 @@
 //
 #pragma once
 
+#include <boost/bimap.hpp>
+
 
 namespace common
 {
@@ -11,52 +13,112 @@ namespace common
 	{
 
 		// intermediate code command
-		DECLARE_ENUM( eCommand,
+		enum class eCommand 
+		{
 			none,
-			ldbc, ldic, ldfc, ldsc, ldac, ldmc,
-			ldcmp, ldncmp, ldtim,
-			getb, geti, getf, gets, geta, getm,
-			setb, seti, setf, sets, seta, setm,
-			copya, copym,
-			addi, addf, adds,
-			subi, subf,
-			muli, mulf,
-			divi, divf,
-			remi, remf,
-			opand, opor, 
+			ldbc, 
+			ldic, // ldic register_name, value ;load constant int type value
+			ldfc, 
+			ldsc, 
+			ldac, 
+			ldmc,
+			ldcmp, 
+			ldncmp, 
+			ldtim,
+			getb, 
+			geti, 
+			getf, 
+			gets, 
+			geta, 
+			getm,
+			setb, 
+			seti, 
+			setf, 
+			sets, 
+			seta, 
+			setm,
+			copya, 
+			copym,
+			addi, 
+			addf, 
+			adds,
+			subi, 
+			subf,
+			muli, 
+			mulf,
+			divi, 
+			divf,
+			remi, 
+			remf,
+			opand, 
+			opor,
 			negate,
-			eqi, eqf, eqs,
-			eqic, eqfc, eqsc,
-			lesi, lesf, leqi, leqf,
-			gri, grf, greqi, greqf,
-			call, jnz, jmp, label,
-			pushic, pop, sret, cstack,
-			symbolb, symboli, symbolf, symbols,
-			symbolab, symbolai, symbolaf, symbolas,
-			symbolmb, symbolmi, symbolmf, symbolms, symbolma,
-			timer1, timer2,
-			cmt, delay, nop
-		);
+			eqi, 
+			eqf, 
+			eqs,
+			eqic, 
+			eqfc, 
+			eqsc,
+			lesi, 
+			lesf, 
+			leqi, 
+			leqf,
+			gri, 
+			grf, 
+			greqi, 
+			greqf,
+			call, 
+			jnz, 
+			jmp, 
+			label,
+			pushic, 
+			pop, 
+			sret, 
+			cstack,
+			synct, // synct, reg1, number	; reg1:timeout ms, number:sync id
+			synci, // synci, reg1, number	; reg1:sync id, number: flow pin id
+			sync, // sync, reg1, number		; reg1:sync id, number: flow pin id, update compare flag
+			symbolb, 
+			symboli, 
+			symbolf, 
+			symbols,
+			symbolab, 
+			symbolai, 
+			symbolaf, 
+			symbolas,
+			symbolmb, 
+			symbolmi, 
+			symbolmf, 
+			symbolms, 
+			symbolma,
+			timer1, 
+			timer2,
+			cmt, 
+			delay, 
+			nop
+		};
 
-		VARTYPE GetVarType(const eCommand::Enum cmd);
+		string CommandToStr(const eCommand cmd);
+		eCommand StrToCommand(const string &str);
+		VARTYPE GetVarType(const eCommand cmd);
 
 
 		// intermediate code instruction data
 		struct sInstruction {
-			eCommand::Enum cmd;
+			eCommand cmd;
 			string str1; // function name, variable name, etc..
 			string str2; // function name, variable name, etc..
 			string str3; // function name, variable name, etc..
 			uint reg1; // register index (val0, val1, ...), or variable id
 			uint reg2; // register index (val0, val1, ...), or variable id
-			variant_t var1; // variable value
+			variant_t var1; // constant value
 
-			sInstruction() : reg1(0), reg2(0) {}
+			sInstruction() : cmd(eCommand::none), reg1(0), reg2(0) {}
 			sInstruction(const sInstruction &rhs);
-			sInstruction(const eCommand::Enum cmd0) : cmd(cmd0), reg1(0), reg2(0) {}
-			sInstruction(const eCommand::Enum cmd0, const string &_str1) 
+			sInstruction(const eCommand cmd0) : cmd(cmd0), reg1(0), reg2(0) {}
+			sInstruction(const eCommand cmd0, const string &_str1) 
 				: cmd(cmd0), str1(_str1), reg1(0), reg2(0) {}
-			sInstruction(const eCommand::Enum cmd0, const string &_str1
+			sInstruction(const eCommand cmd0, const string &_str1
 				, const string &_str2, const string &_str3)
 				: cmd(cmd0), str1(_str1), str2(_str2), str3(_str3), reg1(0), reg2(0) {}
 			~sInstruction();
@@ -162,7 +224,8 @@ namespace common
 
 
 		// symboltype
-		DECLARE_ENUM(eSymbolType,
+		enum class eSymbolType 
+		{
 			None,
 			Bool,
 			Int,
@@ -172,19 +235,31 @@ namespace common
 			Array,
 			Map,
 			Any
-		);
+		};
 
 		// eSymbolType Functions
-		bool IsVariable(const eSymbolType::Enum type);
+		string SymbolTypeToStr(const eSymbolType& symbType);
+		eSymbolType StrToSymbolType(const string& str);
+		bool IsVariable(const eSymbolType type);
 
 		// convert type string to symbol type Array
-		bool ParseTypeString(const string &typeStr, OUT vector<eSymbolType::Enum> &out);
-		bool ParseTypeString(const string &typeStr, OUT eSymbolType::Enum out[4]);
+		bool ParseTypeString(const string &typeStr, OUT vector<eSymbolType> &out);
+		bool ParseTypeString(const string &typeStr, OUT eSymbolType out[4]);
 
 		// generate type string from type array
-		string GenerateTypeString(const vector<eSymbolType::Enum> &typeValues);
-		string GenerateTypeString(const eSymbolType::Enum typeValues[4]
+		string GenerateTypeString(const vector<eSymbolType> &typeValues);
+		string GenerateTypeString(const eSymbolType typeValues[4]
 			, const uint startIdx = 0);
+
+
+		// reference:
+		// https://stackoverflow.com/questions/20288871/how-to-construct-boost-bimap-from-static-list
+		template <typename L, typename R>
+		static boost::bimap<L, R> make_bimap(
+			std::initializer_list<typename boost::bimap<L, R>::value_type> list)
+		{
+			return boost::bimap<L, R>(list.begin(), list.end());
+		}
 
 	}
 }

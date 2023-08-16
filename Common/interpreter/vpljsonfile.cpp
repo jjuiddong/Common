@@ -58,7 +58,7 @@ bool cVplJsonFile::ReadJsonRaw(const string &rawStr)
 				node.id = vt.second.get<int>("id", -1);
 				node.name = vt.second.get<string>("name", "");
 				const int type = vt.second.get<int>("type", 0);
-				node.type = (eNodeType::Enum)type;
+				node.type = (eNodeType)type;
 
 				ptree::assoc_iterator iitor = vt.second.find("inputs");
 				if (vt.second.not_found() != iitor)
@@ -73,7 +73,7 @@ bool cVplJsonFile::ReadJsonRaw(const string &rawStr)
 						const int type = vt.second.get<int>("type", 0);//flow/bool/int~
 						const string typeStr = vt.second.get<string>("typeStr", "");//flow/bool/int~
 						pin.kind = ePinKind::Input;
-						pin.type = (ePinType::Enum)type;
+						pin.type = (ePinType)type;
 						pin.typeStr = typeStr;
 						ParseTypeString(typeStr, pin.typeValues);
 						node.inputs.push_back(pin);
@@ -93,7 +93,7 @@ bool cVplJsonFile::ReadJsonRaw(const string &rawStr)
 						const int type = vt.second.get<int>("type", 0);//flow/bool/int~
 						const string typeStr = vt.second.get<string>("typeStr", "");//flow/bool/int~
 						pin.kind = ePinKind::Output;
-						pin.type = (ePinType::Enum)type;
+						pin.type = (ePinType)type;
 						pin.typeStr = typeStr;
 						ParseTypeString(typeStr, pin.typeValues);
 						node.outputs.push_back(pin);

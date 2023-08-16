@@ -13,6 +13,13 @@ namespace common
 	namespace script
 	{
 
+		// terminate virtual machine listener interface
+		interface iTerminateResponse 
+		{
+			virtual void TerminateResponse(const int vmId) = 0;
+		};
+
+
 		class cVirtualMachine;
 
 		class cInterpreter
@@ -22,15 +29,20 @@ namespace common
 			virtual ~cInterpreter();
 
 			bool Init();
-			int LoadIntermediateCode(const StrPath &icodeFileName);
-			int LoadIntermediateCode(const cIntermediateCode &icode);
+			int LoadIntermediateCode(const StrPath &icodeFileName
+				, const int parentVmId = -1
+				, const string& scopeName = "");
+			int LoadIntermediateCode(const cIntermediateCode &icode
+				, const int parentVmId = -1
+				, const string& scopeName = "");
 			bool AddModule(iModule *mod);
 			bool RemoveModule(iModule *mod);
 			bool Process(const float deltaSeconds);
-			bool Run(const int vmId);
+			bool Run(const int vmId, const map<string, vector<string>>& args = {});
+			bool DebugRun(const int vmId, const map<string, vector<string>>& args = {});
+			bool StepRun(const int vmId, const map<string, vector<string>>& args = {});
 			bool Stop(const int vmId);
-			bool DebugRun(const int vmId);
-			bool StepRun(const int vmId);
+			bool Terminate(const int vmId, const map<string, vector<string>>& args = {});
 			bool Resume(const int vmId);
 			bool OneStep(const int vmId);
 			bool Break(const int vmId);
@@ -47,6 +59,7 @@ namespace common
 			void Clear();
 
 			cVirtualMachine* GetVM(const int vmId);
+			bool SetListener(iTerminateResponse* listener);
 
 
 		protected:
@@ -54,8 +67,9 @@ namespace common
 			bool DebugProcess(const float deltaSeconds);
 			int ProcessUntilNodeEnter(const int vmId, const float deltaSeconds);
 			bool CheckBreakPoint();
-			bool RunVM(const int vmId);
-			int InitVM(const cIntermediateCode &icode);
+			bool RunVM(const int vmId, const map<string, vector<string>>& args = {});
+			int InitVM(const cIntermediateCode &icode, const int parentVmId = -1
+				, const string& scopeName = "");
 
 
 		public:
@@ -73,7 +87,9 @@ namespace common
 			eRunState m_runState;
 			eDebugState m_dbgState;
 			deque<cEvent> m_events;
-			vector<cVirtualMachine*> m_vms;
+			vector<cVirtualMachine*> m_vms; // execute virtual machines
+			vector<cVirtualMachine*> m_rmVms; // remove virtual machines
+			iTerminateResponse* m_listener;
 			vector<iModule*> m_modules; // execute function module, reference
 			float m_dt;
 			set<std::pair<int, uint>> m_breakPoints; // first:vmId, second:node id

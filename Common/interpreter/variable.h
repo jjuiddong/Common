@@ -54,7 +54,7 @@ namespace common
 			int id; // unique id
 			string type; // special type string, Bool, Int, Float, String, Array, Map
 			string subTypeStr; // array element, map value type string
-			eSymbolType::Enum typeValues[4]; // maximum: map<string, vector<primitive type>>
+			eSymbolType typeValues[4]; // maximum: map<string, vector<primitive type>>
 			variant_t var; // value
 
 			// array type

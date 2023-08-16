@@ -27,6 +27,9 @@ eModuleResult StopTick(cVirtualMachine& vm, const string& scopeName, const strin
 eModuleResult ArrayFunction(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult MapFunction(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult FnVector3(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult TerminateVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 
 
 cBasicModule::cBasicModule()
@@ -72,6 +75,9 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "Map.Clone", MapFunction });
 
 	m_fnMap.insert({ "Vector3", FnVector3 });
+	m_fnMap.insert({ "TerminateVM", TerminateVM });
+	m_fnMap.insert({ "TerminateThisVM", TerminateThisVM });
+	m_fnMap.insert({ "Sync", Sync});
 
 }
 
@@ -349,6 +355,46 @@ eModuleResult FnVector3(script::cVirtualMachine& vm, const string& scopeName, co
 	return eModuleResult::Done;
 }
 
+// terminate virtual machine
+eModuleResult TerminateVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int terminateVmId = symbolTable.Get<int>(scopeName, "vmId");
+
+	if ((terminateVmId == vm.m_id) || !vm.m_itpr)
+	{
+		// cannot terminate self
+		symbolTable.Set<bool>(scopeName, "result", false);
+	}
+	else
+	{
+		const bool res = vm.m_itpr->Terminate(terminateVmId);
+		symbolTable.Set<bool>(scopeName, "result", res);
+	}
+
+	return eModuleResult::Done;
+}
+
+
+// terminate virtual machine
+eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const map<string, vector<string>> args = symbolTable.Get<map<string, vector<string>>>(
+		scopeName, "args");
+	const bool res = vm.m_itpr? vm.m_itpr->Terminate(vm.m_id, args) : false;
+	symbolTable.Set<bool>(scopeName, "result", res);
+	return eModuleResult::Done;
+}
+
+
+// synchronize flow pin
+eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	// nothing to do
+	return eModuleResult::Done;
+}
+
 
 // Array.Get/Set/Push/Pop/Find/Size function process
 eModuleResult ArrayFunction(script::cVirtualMachine& vm
@@ -495,7 +541,7 @@ eModuleResult MapFunction(script::cVirtualMachine& vm
 	const int varId = var->var.intVal;
 	sVariable* mapVar = nullptr;
 	string mapScopeName, mapVarName;
-	eSymbolType::Enum valueType; // map value type
+	eSymbolType valueType; // map value type
 
 	auto it = symbolTable.m_varMap.find(varId);
 	if (symbolTable.m_varMap.end() == it)

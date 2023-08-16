@@ -154,7 +154,7 @@ bool cSymbolTable::ArrayInitializer(const string& scopeName, const string& symbo
 	vector<string> toks;
 	common::tokenizer(valueStr, ",", "", toks);
 
-	const eSymbolType::Enum itemType = var->typeValues[1]; // array item type
+	const eSymbolType itemType = var->typeValues[1]; // array item type
 	if (eSymbolType::None == itemType)
 		return false; // not found array item type, error return
 	

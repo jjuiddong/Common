@@ -17,30 +17,17 @@ namespace network2
 {
 
 	class cRemoteInterpreter : public remotedbg2::r2h_ProtocolHandler
+							  , public common::script::iTerminateResponse
 	{
 	public:
-		// synchronize changed variable
-		struct sSymbol {
-			StrId name; // symbol name
-			float t; // sync time
-			common::script::sVariable var; // compare variable
-		};
-
 		// interpreter information
-		struct sItpr {
+		struct sItpr 
+		{
 			enum class eState { Stop, Run };
 
-			StrId name;
+			string name;
 			eState state;
 			script::cInterpreter* interpreter;
-			vector<ushort> insts[10]; // vm instruction index array, max vm count:10
-			bool isChangeInstruction;
-			float regSyncTime; // register sync time, seconds unit
-			float instSyncTime; // instruction sync time, seconds unit
-			float symbSyncTime; // symboltable sync time, seconds unit
-
-			map<string, sSymbol> chSymbols; // check change variable
-											// key: variable name = scopeName + varname
 		};
 
 
@@ -56,23 +43,35 @@ namespace network2
 			, const bool isThreadMode = true
 			, const bool isSpawnHttpSvr = true
 		);
-		int LoadIntermediateCode(const StrPath &fileName);
-		bool LoadIntermediateCode(const vector<StrPath> &fileNames);
-		int LoadIntermediateCode(const common::script::cIntermediateCode &icode);
-		int AddVM(const int itprId, const common::script::cIntermediateCode& icode);
+		int LoadIntermediateCode(const StrPath &fileName
+			, const int parentVmId = -1
+			, const string& scopeName = "");
+		bool LoadIntermediateCode(const vector<StrPath> &fileNames
+			, const int parentVmId = -1
+			, const string& scopeName = "");
+		int LoadIntermediateCode(const common::script::cIntermediateCode &icode
+			, const int parentVmId = -1
+			, const string& scopeName = "");
+		int AddVM(const int itprId, const common::script::cIntermediateCode& icode
+			, const int parentVmId = -1
+			, const string& scopeName = "");
 		bool AddModule(common::script::iModule *mod);
 		bool RemoveModule(common::script::iModule *mod);
 		bool SendSyncAll();
 
-		bool Process(const float deltaSeconds);
+		bool Process(const float deltaSeconds, const uint procCnt = 1);
 		bool PushEvent(const int itprId, const int vmId, const common::script::cEvent &evt);
 		bool Run(const int itprId, const int parentVmId = -1, const int vmId = -1
+			, const map<string, vector<string>>& args = {}
 			, const string& nodeName = "");
 		bool DebugRun(const int itprId, const int parentVmId = -1, const int vmId = -1
+			, const map<string, vector<string>>& args = {}
 			, const string& nodeName = "");
 		bool StepRun(const int itprId, const int parentVmId = -1, const int vmId = -1
+			, const map<string, vector<string>>& args = {}
 			, const string& nodeName = "");
 		bool Stop(const int itprId, const int vmId = -1);
+		bool TerminateVM(const int vmId);
 		bool Resume(const int itprId, const int vmId = -1);
 		bool OneStep(const int itprId, const int vmId = -1);
 		bool Break(const int itprId, const int vmId = -1);
@@ -90,19 +89,24 @@ namespace network2
 
 		script::cVirtualMachine* GetVM(const int vmId);
 
+		// iTerminateResponse handler
+		virtual void TerminateResponse(const int vmId) override;
+
 
 	protected:
 		sItpr* GetInterpreterByVMId(const int vmId);
 		int GetInterpreterIdByVMId(const int vmId);
 		bool RunInterpreter(const int itprId, const int parentVmId
-			, const int vmId, const string &nodeName, const int type);
+			, const int vmId, const map<string, vector<string>>& args
+			, const string &nodeName, const int type);
 		bool RunInterpreter_Sub(const int itprId, const int parentVmId
-			, const int vmId, const string& nodeName, const int type);
+			, const int vmId, const map<string, vector<string>>& args
+			, const string& nodeName, const int type);
 		bool IsChangeSymbolTable(const int itprId);
 		bool IsChangeSymbolTable(const sItpr &itpr);
 		bool SendSpawnInterpreterInfo(const int itprId, const int parentVmId
 			, const int vmId, const string &nodeName);
-		bool SendSyncVMRegister(const int itprId, const set<int> *vmIds = nullptr);
+		bool SendSyncVMRegister(const int itprId);
 		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId, const int vmId);
 		bool SendSyncVariable(const int itprId, const int vmId

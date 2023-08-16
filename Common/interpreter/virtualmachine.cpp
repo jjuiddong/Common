@@ -5,15 +5,25 @@
 using namespace common;
 using namespace common::script;
 
+namespace
+{
+	const float TIME_SYNC_INSTRUCTION = 0.5f; // seconds unit
+	const float TIME_SYNC_REGISTER = 5.0f; // seconds unit
+	const float TIME_SYNC_SYMBOL = 3.0f; // seconds unit
+}
+
 
 cVirtualMachine::cVirtualMachine(const string &name)
 	: m_id(common::GenerateId())
+	, m_parentId(-1)
 	, m_state(eState::Stop)
 	, m_name(name)
 	, m_isCodeTraceLog(false)
 	, m_isDebugging(false)
 	, m_events(128) // maximum queue size
+	, m_itpr(nullptr)
 {
+	ClearNSync(true);
 }
 
 cVirtualMachine::~cVirtualMachine()
@@ -23,10 +33,18 @@ cVirtualMachine::~cVirtualMachine()
 
 
 // initialize virtual machine
-bool cVirtualMachine::Init(const cIntermediateCode &code)
+// parentVmId: parent virtual machine id, -1:root
+// scopeName: execute command scope name
+bool cVirtualMachine::Init(cInterpreter* interpreter, const cIntermediateCode &code
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	Clear();
 
+	m_parentId = parentVmId;
+	m_scopeName = scopeName;
+	m_itpr = interpreter;
 	m_reg.idx = 0;
 	m_reg.exeIdx = 0;
 	m_reg.cmp = false;
@@ -44,12 +62,6 @@ bool cVirtualMachine::Init(const cIntermediateCode &code)
 			, (float)tick.second / 1000.f } // tick decrease time (convert seconds unit)
 		);
 	}
-
-	//for (auto &time : m_code.m_timer2Events)
-	//{
-	//	m_timerId = time.first.c_str(); // timer id: node name + node id
-	//	break;
-	//}
 
 	m_stack.reserve(32);
 	m_delayEvents.reserve(16);
@@ -97,6 +109,40 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 
 	if (m_isDebugging)
 		CodeTraceLog(m_trace2);
+
+	// network synchronize?
+	if (m_nsync.enable)
+	{
+		m_nsync.regTime += deltaSeconds;
+		m_nsync.instTime += deltaSeconds;
+		m_nsync.symbTime += deltaSeconds;
+
+		// sync delay instruction (check next instruction is delay node?)
+		// 'm_reg.idx' is next execute instruction code index
+		// ldtim is previous delay command
+		if (script::eCommand::ldtim == m_code.m_codes[m_reg.idx].cmd)
+		{
+			m_nsync.instTime = TIME_SYNC_INSTRUCTION + 1.f;
+			m_nsync.regTime = TIME_SYNC_REGISTER + 1.f;
+		}
+
+		if (m_nsync.regTime > TIME_SYNC_REGISTER)
+		{
+			m_nsync.regTime = 0.f;
+			m_nsync.regStreaming = true;
+		}
+		if (m_nsync.instTime > TIME_SYNC_INSTRUCTION)
+		{
+			m_nsync.instTime = 0.f;
+			m_nsync.instStreaming = true;
+		}
+		if (m_nsync.symbTime > TIME_SYNC_SYMBOL)
+		{
+			m_nsync.symbTime = 0.f;
+			m_nsync.symbStreaming = true;
+		}
+	}
+	//~
 
 	return true;
 }
@@ -149,6 +195,7 @@ bool cVirtualMachine::Stop()
 	m_delayEvents.clear();
 	m_timers.clear();
 	m_ticks.clear();
+	m_syncs.clear();
 	m_stack.clear();
 
 	// close vm module
@@ -162,7 +209,7 @@ bool cVirtualMachine::Stop()
 bool cVirtualMachine::PushEvent(const cEvent &evt)
 {
 	// check same event
-	if (evt.m_isUnique)
+	if (evt.m_flags & (int)eEventFlags::Unique)
 	{
 		uint cnt = 0;
 		uint i = m_events.m_front;
@@ -204,9 +251,12 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 // set timer
 // name: timer name, format: name_<number>
 // timeMillis: timeout, milliseconds 
+// isLoop: infinity loop?
+// syncId: sync timeout?, syncId
 // return: timer id, -1: fail
 int cVirtualMachine::SetTimer(const string& name, const int timeMillis
 	, const bool isLoop //= false
+	, const int syncId //=-1
 )
 {
 	auto it = std::find_if(m_timers.begin(), m_timers.end()
@@ -221,6 +271,7 @@ int cVirtualMachine::SetTimer(const string& name, const int timeMillis
 		, timeMillis / 1000.f // timer interval (convert seconds unit)
 		, (float)timeMillis / 1000.f  // timer decrease time (convert seconds unit)
 		, isLoop // continuous call timer event?
+		, syncId
 		}
 	);
 	return timerId;
@@ -275,9 +326,15 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	{
 		// event trigger
 		const uint addr = m_code.FindJumpAddress(evt.m_name);
-		if (UINT_MAX != addr)
+		const bool isSyncFlow = (evt.m_flags & (int)eEventFlags::SyncFlow) > 0;
+
+		// update symboltable
+		// tricky code: ignore global event if no handler
+		//              no ignore custom event
+		const bool isUpdateSymbol = (UINT_MAX != addr)
+			|| (evt.m_name.find("_") != nullptr);
+		if (isUpdateSymbol)
 		{
-			// update symboltable
 			for (auto &kv : evt.m_vars)
 			{
 				vector<string> out;
@@ -299,15 +356,16 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 				if (out.size() >= 2)
 					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
 			}
+		}
+
+		if (UINT_MAX != addr)
+		{
 			m_reg.idx = addr; // jump instruction code
 			m_state = eState::Run;
 		}
 		else
 		{
-			// error occurred!!
-			// not found event handling
-			//dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
-			//	, evt.m_name.c_str());
+			// no event handler
 		}
 	}
 
@@ -403,10 +461,18 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 			{
 				// timer event trigger
 				// timer id output
-				//const string scopeName = (m_timerId + "::id").c_str();
-				//PushEvent(cEvent(m_timerId, { {scopeName, timer.id} }));
 				const string timerName = string(timer.name.c_str()) + "_event";
 				PushEvent(cEvent(timerName));
+
+				// if sync object, disable
+				if (timer.syncId >= 0)
+				{
+					auto it2 = std::find_if(m_syncs.begin(), m_syncs.end()
+						, [&](const auto& a) { return a.id == timer.syncId; });
+					if (m_syncs.end() != it2)
+						it2->enable = false; // timeout, sync done
+				}
+				//~
 
 				if (timer.isLoop)
 				{
@@ -1098,6 +1164,42 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 	}
 	break;
 
+	case eCommand::synct:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (!IsAssignable(varType, reg.reg[code.reg1].vt))
+			goto $error_semantic;
+		if (varType != code.var1.vt)
+			goto $error_semantic;
+
+		InitSyncTimer((int)code.var1, (int)reg.reg[code.reg1]);
+		++reg.idx;
+		break;
+
+	case eCommand::synci:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (!IsAssignable(varType, reg.reg[code.reg1].vt))
+			goto $error_semantic;
+		if (varType != code.var1.vt)
+			goto $error_semantic;
+
+		InitSyncFlow((int)reg.reg[code.reg1], (int)code.var1);
+		++reg.idx;
+		break;
+
+	case eCommand::sync:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (!IsAssignable(varType, reg.reg[code.reg1].vt))
+			goto $error_semantic;
+		if (varType != code.var1.vt)
+			goto $error_semantic;
+
+		reg.cmp = CheckSync((int)reg.reg[code.reg1], (int)code.var1);
+		++reg.idx;
+		break;
+
 	case eCommand::delay:
 		reg.tim -= (deltaSeconds * 1000.f); // second -> millisecond unit
 		if (reg.tim < 0.f)
@@ -1223,6 +1325,126 @@ bool cVirtualMachine::IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVa
 }
 
 
+// initialize sync time out
+// timeOut: millisecond unit
+bool cVirtualMachine::InitSyncTimer(const int syncId, const int timeOut)
+{
+	if (timeOut <= 0)
+		return true; // nothing to do
+
+	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
+		, [&](auto& a) { return a.id == syncId; });
+	if (m_syncs.end() != it)
+		return false; // error return, already exist
+
+	sSync sync;
+	sync.id = syncId;
+	sync.enable = true;
+	sync.syncs.clear();
+	sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
+	m_syncs.push_back(sync);
+
+	return true;
+}
+
+
+// initialize sync flow pin id
+// flowId: synchronize flow id
+bool cVirtualMachine::InitSyncFlow(const int syncId, const int flowId)
+{
+	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
+		, [&](auto& a) { return a.id == syncId; });
+	if (m_syncs.end() == it)
+	{
+		sSync sync;
+		sync.id = syncId;
+		sync.enable = true;
+		sync.timerId = -1;
+		sync.syncs.push_back({ flowId, false });
+		m_syncs.push_back(sync);
+	}
+	else
+	{
+		it->syncs.push_back({ flowId, false });
+	}
+	return true;
+}
+
+
+// check sync
+// flowId: synchronize flow id
+bool cVirtualMachine::CheckSync(const int syncId, const int flowId)
+{
+	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
+		, [&](auto& a) { return a.id == syncId; });
+	if (m_syncs.end() == it)
+		return false; // error return
+
+	sSync& sync = *it;
+	if (!sync.enable)
+		return false; // all done, nothing to do
+
+	auto it2 = std::find_if(sync.syncs.begin(), sync.syncs.end()
+		, [&](const auto& a) {return a.first == flowId; });
+	if (sync.syncs.end() == it2)
+		return false; // error return
+
+	it2->second = true; // sync!
+
+	// check all sync
+	bool isAllSync = true;
+	for (auto& s : sync.syncs)
+	{
+		if (!s.second)
+		{
+			isAllSync = false;
+			break;
+		}
+	}
+	if (!isAllSync)
+		return false; // nothing to do
+
+	// all sync?
+	sync.enable = false; // sync done
+	if (sync.timerId >= 0)
+		StopTimer(sync.timerId);
+	return true;
+}
+
+
+// enable network synchronize?
+bool cVirtualMachine::EnableNetworkSync(const bool enable)
+{
+	m_nsync.enable = enable;
+	m_nsync.sync = 0x00;
+	m_nsync.regStreaming = enable;
+	m_nsync.instStreaming = enable;
+	m_nsync.symbStreaming = enable;
+	m_nsync.regTime = TIME_SYNC_REGISTER + 1.0f;
+	m_nsync.instTime = TIME_SYNC_INSTRUCTION + 1.0f;
+	m_nsync.symbTime = TIME_SYNC_SYMBOL + 1.0f;
+	return true;
+}
+
+
+// clear network synchronize data
+// enable: enable network synchronize?
+void cVirtualMachine::ClearNSync(
+	const bool enable //=false
+)
+{
+	m_nsync.enable = enable;
+	m_nsync.sync = 0x00;
+	m_nsync.regStreaming = false;
+	m_nsync.instStreaming = false;
+	m_nsync.symbStreaming = false;
+	m_nsync.regTime = 0.f;
+	m_nsync.instTime = 0.f;
+	m_nsync.symbTime = 0.f;
+	m_nsync.chSymbols.clear();
+}
+
+
 // enable executed code index log on/off
 void cVirtualMachine::SetCodeTrace(const bool isCodeTrace) 
 {
@@ -1250,14 +1472,18 @@ void cVirtualMachine::ClearCodeTrace(
 void cVirtualMachine::Clear()
 {
 	Stop();
+	ClearNSync(true);
+	m_parentId = -1;
+	m_scopeName.clear();
+	m_itpr = nullptr;
 	m_symbTable.Clear();
 	m_code.Clear();
 	m_events.clear();
 	m_timers.clear();
 	m_ticks.clear();
+	m_syncs.clear();
 	m_stack.clear();
 	for (auto &mod : m_modules)
 		mod->CloseModule(*this);
 	m_modules.clear();
-	//m_timerId.clear();
 }

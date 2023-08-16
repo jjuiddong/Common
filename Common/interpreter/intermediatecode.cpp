@@ -71,7 +71,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			)
 			&& (toks.size() >= 4))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 			code.str2 = toks[2];
 			code.reg1 = GetRegisterIndex(toks[3]);
@@ -82,7 +82,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "ldsc"))
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[2]);
@@ -92,7 +92,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		else if ((toks[0] == "ldac")
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 			code.var1.vt = VT_BYREF | VT_INT;
 			code.var1.intVal = 0; // tricky code, array type
@@ -104,7 +104,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		else if ((toks[0] == "ldmc")
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 			code.var1.vt = VT_BYREF | VT_INT;
 			code.var1.intVal = 0; // tricky code, map type
@@ -118,7 +118,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "ldtim"))
 			&& (toks.size() >= 2))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 		}
 		else if (((toks[0] == "lesi")
@@ -148,13 +148,13 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			)
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 			code.reg2 = GetRegisterIndex(toks[2]);
 		}
 		else if ((toks[0] == "negate") && (toks.size() >= 2))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 		}
 		else if (((toks[0] == "eqic")
@@ -162,7 +162,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "eqsc"))
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
 
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
@@ -173,24 +173,24 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		else if ((toks[0] == "call")
 			&& (toks.size() >= 2))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 		}
 		else if ((toks[0] == "jnz")
 			&& (toks.size() >= 2))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 		}
 		else if ((toks[0] == "jmp")
 			&& (toks.size() >= 2))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 		}
 		else if ((toks[0] == "pushic") && (toks.size() >= 2))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[1]);
 			if (vt == VT_EMPTY)
@@ -201,7 +201,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "cstack"))
 			&& (toks.size() >= 1))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 		}
 		else if (((toks[0] == "symbolb")
 			|| (toks[0] == "symboli")
@@ -209,7 +209,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "symbols"))
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 			code.str2 = toks[2];
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
@@ -230,7 +230,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			)
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 			code.str2 = toks[2];
 			if (toks.size() >= 4)
@@ -246,20 +246,20 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		}
 		else if (toks[0] == "delay")
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 		}
 		else if (((toks[0] == "timer1")
 			|| (toks[0] == "timer2"))
 			&& (toks.size() >= 3))
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 			code.str1 = toks[1];
 			const VARTYPE vt = common::script::GetVarType(code.cmd);
 			code.var1 = common::str2variant(vt, toks[2]);
 		}
 		else if (toks[0] == "nop")
 		{
-			code.cmd = eCommand::FromString(toks[0]);
+			code.cmd = script::StrToCommand(toks[0]);
 		}
 		else
 		{
@@ -309,7 +309,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::ldsc:
 		case eCommand::ldac:
 		case eCommand::ldmc:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << common::variant2str(code.var1, true);
 			break;
@@ -317,7 +317,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::ldcmp:
 		case eCommand::ldncmp:
 		case eCommand::ldtim:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			break;
 
@@ -335,7 +335,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::setm:
 		case eCommand::copya:
 		case eCommand::copym:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";
 			ofs << ", " << GetRegisterName(code.reg1);
@@ -365,30 +365,30 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::remf:
 		case eCommand::opand:
 		case eCommand::opor:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << GetRegisterName(code.reg2);
 			break;
 
 		case eCommand::negate:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			break;
 
 		case eCommand::eqic:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << (int)code.var1;
 			break;
 
 		case eCommand::eqfc:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", " << (float)code.var1;
 			break;
 
 		case eCommand::eqsc:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);
 			ofs << ", \"" << (bstr_t)code.var1 << "\"";
 			break;
@@ -396,12 +396,12 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::call:
 		case eCommand::jnz:
 		case eCommand::jmp:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			break;
 
 		case eCommand::nop:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			break;
 
 		case eCommand::label:
@@ -409,14 +409,14 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			break;
 
 		case eCommand::pushic:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << common::variant2str(code.var1, true);
 			break;
 
 		case eCommand::sret:
 		case eCommand::cstack:
 		case eCommand::pop:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			break;
 
 		case eCommand::symbolb:
@@ -432,7 +432,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::symbolmf:
 		case eCommand::symbolms:
 		case eCommand::symbolma:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", \"" << code.str2 << "\"";
 			ofs << ", " << common::variant2str(code.var1, true);
@@ -453,7 +453,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 
 		case eCommand::timer1:
 		case eCommand::timer2:
-			ofs << eCommand::ToString(code.cmd);
+			ofs << script::CommandToStr(code.cmd);
 			ofs << " \"" << code.str1 << "\"";
 			ofs << ", " << common::variant2str(code.var1, true);
 			break;
@@ -534,8 +534,6 @@ bool cIntermediateCode::InitOptimizeInfo()
 		auto &code = m_codes[i];
 		if (eCommand::timer1 == code.cmd)
 			m_timer1Events.push_back({ code.str1, (int)code.var1 });
-		//else if (eCommand::timer2 == code.cmd)
-		//	m_timer2Events.push_back({ code.str1, 0 });
 	}
 
 	return true;
@@ -586,7 +584,6 @@ cIntermediateCode& cIntermediateCode::operator=(const cIntermediateCode &rhs)
 		m_variables = rhs.m_variables;
 		m_jmpMap = rhs.m_jmpMap;
 		m_timer1Events = rhs.m_timer1Events;
-		//m_timer2Events = rhs.m_timer2Events;
 	}
 	return *this;
 }
@@ -597,7 +594,6 @@ void cIntermediateCode::Clear()
 	m_codes.clear();
 	m_jmpMap.clear();
 	m_timer1Events.clear();
-	//m_timer2Events.clear();
 	m_variables.Clear();
 	m_fileName.clear();
 }

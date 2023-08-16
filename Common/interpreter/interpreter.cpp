@@ -14,6 +14,7 @@ cInterpreter::cInterpreter()
 	, m_dt(0.f)
 	, m_isCodeTrace(false)
 	, m_isICodeStep(false)
+	, m_listener(nullptr)
 {
 }
 
@@ -32,21 +33,29 @@ bool cInterpreter::Init()
 
 
 // load intermediate code, add new vm
+// parentVmId: parent virtual machine id, -1:root
 // return virtual machine id, -1: error
-int cInterpreter::LoadIntermediateCode(const StrPath &icodeFileName)
+int cInterpreter::LoadIntermediateCode(const StrPath &icodeFileName
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	cIntermediateCode icode;
 	if (!icode.Read(icodeFileName))
 		return -1;
-	return InitVM(icode);
+	return InitVM(icode, parentVmId, scopeName);
 }
 
 
 // load intermediate code, deep copy, add new vm
+// parentVmId: parent virtual machine id, -1:root
 // return virtual machine id, -1: error
-int cInterpreter::LoadIntermediateCode(const cIntermediateCode &icode)
+int cInterpreter::LoadIntermediateCode(const cIntermediateCode &icode
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
-	return InitVM(icode);
+	return InitVM(icode, parentVmId, scopeName);
 }
 
 
@@ -81,6 +90,23 @@ bool cInterpreter::Process(const float deltaSeconds)
 		assert(0);
 		break;
 	}
+
+	// remove vm
+	if (!m_rmVms.empty())
+	{
+		// remove child first
+		for (auto &it = m_rmVms.rbegin(); it != m_rmVms.rend(); ++it)
+		{
+			auto& vm = *it;
+			if (m_listener)
+				m_listener->TerminateResponse(vm->m_id);
+			vm->Clear();
+			delete vm;
+		}
+		m_rmVms.clear();
+	}
+	//~
+
 	return true;
 }
 
@@ -156,7 +182,10 @@ bool cInterpreter::DebugProcess(const float deltaSeconds)
 
 // run interpreter
 // vmId: virtual machine id, -1:all vm
-bool cInterpreter::Run(const int vmId)
+// args: execute argument
+bool cInterpreter::Run(const int vmId
+	, const map<string, vector<string>>& args //= empty
+)
 {
 	if (m_vms.empty())
 		return false;
@@ -170,14 +199,17 @@ bool cInterpreter::Run(const int vmId)
 		if (eState::Stop == m_state)
 			m_state = eState::Run;
 	}
-	return RunVM(vmId);
+	return RunVM(vmId, args);
 }
 
 
 // run interpreter with debug state
 // break when meet break point or force break
 // vmId: virtual machine id, -1:all vm
-bool cInterpreter::DebugRun(const int vmId)
+// args: execute argument
+bool cInterpreter::DebugRun(const int vmId
+	, const map<string, vector<string>>& args //=empty
+)
 {
 	if (m_vms.empty())
 		return false;
@@ -195,14 +227,17 @@ bool cInterpreter::DebugRun(const int vmId)
 			m_dbgState = eDebugState::Run;
 		}
 	}
-	return RunVM(vmId);
+	return RunVM(vmId, args);
 }
 
 
 // run interpreter with debug state
 // start with debug wait state
 // vmId: virtual machine id, -1:all vm
-bool cInterpreter::StepRun(const int vmId)
+// args: execute argument
+bool cInterpreter::StepRun(const int vmId
+	, const map<string, vector<string>>& args //= empty
+)
 {
 	if (m_vms.empty())
 		return false;
@@ -220,7 +255,7 @@ bool cInterpreter::StepRun(const int vmId)
 			m_dbgState = eDebugState::Step;
 		}
 	}
-	return RunVM(vmId);
+	return RunVM(vmId, args);
 }
 
 
@@ -241,6 +276,54 @@ bool cInterpreter::Stop(const int vmId)
 			vm->Stop();
 	}
 	m_dbgVmId = -1;
+	return true;
+}
+
+
+// terminate virtual machine
+// vmId: terminate virtual machine id
+// return: success?
+bool cInterpreter::Terminate(const int vmId
+	, const map<string, vector<string>>& args //=empty
+)
+{
+	// invoke XXX_Exit event, contain 'return value' with Terminate 'args' data
+	cVirtualMachine* vm = GetVM(vmId);
+	if (!vm)
+		return false;
+	if ((vm->m_parentId >= 0) && !args.empty() && !vm->m_scopeName.empty())
+	{
+		cVirtualMachine* parent = GetVM(vm->m_parentId);
+		if (parent)
+		{
+			script::cEvent evt(vm->m_scopeName + "_Exit");
+			evt.m_vars2[vm->m_scopeName + "::return value"] = args;
+			parent->PushEvent(evt);
+		}
+	}
+	//~
+
+	// remove all child vm
+	queue<int> q;
+	q.push(vmId);
+	while (!q.empty())
+	{
+		const int vid = q.front();
+		q.pop();
+		for (auto& v : m_vms)
+		{
+			if (vid == v->m_parentId)
+				q.push(v->m_id);
+		}
+
+		// cannot remove root vm (parentId:-1)
+		cVirtualMachine* v = GetVM(vid);
+		if (vm && (-1 != v->m_parentId))
+		{
+			common::removevector(m_vms, v);
+			m_rmVms.push_back(v);
+		}
+	}
 	return true;
 }
 
@@ -333,7 +416,10 @@ bool cInterpreter::BreakPoint(const bool enable, const int vmId, const uint id)
 
 // intialize VirtualMachine and Run Intermediate Code
 // vmId: virtual machine id, -1:all vm
-bool cInterpreter::RunVM(const int vmId)
+// args: execute argument
+bool cInterpreter::RunVM(const int vmId
+	, const map<string, vector<string>>& args //= empty
+)
 {
 	if (vmId < 0)
 	{
@@ -342,7 +428,11 @@ bool cInterpreter::RunVM(const int vmId)
 			for (auto& mod : m_modules)
 				vm->AddModule(mod);
 			if (vm->Run())
+			{
 				vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
+				if (!args.empty())
+					vm->m_symbTable.Set("Start Event", "args", args);
+			}
 		}
 	}
 	else
@@ -353,15 +443,23 @@ bool cInterpreter::RunVM(const int vmId)
 		for (auto &mod : m_modules)
 			vm->AddModule(mod);
 		if (vm->Run())
+		{
 			vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
+			if (!args.empty())
+				vm->m_symbTable.Set("Start Event", "args", args);
+		}
 	}
 	return true;
 }
 
 
 // initialize virtual machine
+// parentVmId: parent virtual machine id, -1:root
 // return virtual machine id, -1: error
-int cInterpreter::InitVM(const cIntermediateCode& icode)
+int cInterpreter::InitVM(const cIntermediateCode& icode
+	, const int parentVmId //=-1
+	, const string& scopeName //= ""
+)
 {
 	string vmName;
 	if (icode.m_fileName.empty())
@@ -376,7 +474,7 @@ int cInterpreter::InitVM(const cIntermediateCode& icode)
 
 	cVirtualMachine* vm = new cVirtualMachine(vmName);
 	vm->SetCodeTrace(m_isCodeTrace);
-	if (!vm->Init(icode))
+	if (!vm->Init(this, icode, parentVmId, scopeName))
 	{
 		delete vm;
 		return -1;
@@ -508,6 +606,14 @@ void cInterpreter::Clear()
 		delete vm;
 	}
 	m_vms.clear();
+
+	for (auto& vm : m_rmVms)
+	{
+		vm->Clear();
+		delete vm;
+	}
+	m_rmVms.clear();
+
 	m_events.clear();
 	m_modules.clear();
 }
@@ -521,4 +627,12 @@ cVirtualMachine* cInterpreter::GetVM(const int vmId)
 	if (m_vms.end() == it)
 		return nullptr;
 	return *it;
+}
+
+
+// update terminate virtual machine callback function
+bool cInterpreter::SetListener(iTerminateResponse* listener)
+{
+	m_listener = listener;
+	return true;
 }
