@@ -1336,16 +1336,26 @@ bool cVirtualMachine::InitSyncTimer(const int syncId, const int timeOut)
 
 	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
 		, [&](auto& a) { return a.id == syncId; });
-	if (m_syncs.end() != it)
-		return false; // error return, already exist
-
-	sSync sync;
-	sync.id = syncId;
-	sync.enable = true;
-	sync.syncs.clear();
-	sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
-	m_syncs.push_back(sync);
-
+	if (m_syncs.end() == it)
+	{
+		// add new sync object
+		sSync sync;
+		sync.id = syncId;
+		sync.enable = true;
+		sync.syncs.clear();
+		sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
+		m_syncs.push_back(sync);
+	}
+	else
+	{
+		// already exist?, intialize sync object
+		sSync &sync = *it;
+		sync.id = syncId;
+		sync.enable = true;
+		sync.syncs.clear();
+		StopTimer(syncId);
+		sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
+	}
 	return true;
 }
 
@@ -1367,6 +1377,7 @@ bool cVirtualMachine::InitSyncFlow(const int syncId, const int flowId)
 	}
 	else
 	{
+		it->enable = true; // clear flag
 		it->syncs.push_back({ flowId, false });
 	}
 	return true;
