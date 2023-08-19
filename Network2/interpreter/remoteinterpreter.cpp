@@ -977,9 +977,28 @@ bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
 		if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
 			continue; // no process, no changed
 
-		m_protocol.SyncVMInstruction(network2::ALL_NETID
-			, true, itprId, vm->m_id, vm->m_trace);
-		vm->ClearCodeTrace(true);
+		// exception: check buffer overflow
+		// too many execute instruction, limit 200 size, 300x2byte = 600byte
+		const uint MAX_TRACE_SIZE = 300;
+		if (vm->m_trace.size() < MAX_TRACE_SIZE)
+		{
+			m_protocol.SyncVMInstruction(network2::ALL_NETID
+				, true, itprId, vm->m_id, vm->m_trace);
+			vm->ClearCodeTrace(true);
+		}
+		else
+		{
+			// too many code execute, split trace data
+			vector<ushort> trace;
+			trace.reserve(MAX_TRACE_SIZE);
+			for (uint i = 0; i < MAX_TRACE_SIZE; ++i)
+				trace.push_back(vm->m_trace[i]);
+
+			m_protocol.SyncVMInstruction(network2::ALL_NETID
+				, true, itprId, vm->m_id, trace);
+			vm->ClearCodeTrace(true, MAX_TRACE_SIZE);
+		}
+
 		vm->m_nsync.sync = (vm->m_nsync.sync & ~0x02); // clear flag
 		vm->m_nsync.instStreaming = false; // clear flag
 	}
@@ -1388,26 +1407,30 @@ bool cRemoteInterpreter::ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &p
 // remotedbg2 protocol, request debug info, sync instruction, symboltable, register
 bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) 
 { 
-	// update network synchronize streaming
-	set<int> syncVmIds;
-	for (auto& vmId : packet.vmIds)
-		syncVmIds.insert(vmId);
-	set<int> curSyncVmIds; // current synchronize vm
-	for (auto& itpr : m_interpreters)
-		for (auto& vm : itpr.interpreter->m_vms)
-			if (vm->m_nsync.enable)
-			{
-				curSyncVmIds.insert(vm->m_id);
-				if (syncVmIds.end() == syncVmIds.find(vm->m_id))
-					vm->EnableNetworkSync(false);
-			}
-	set<int> newSyncVmIds;
-	for (auto& vmId : packet.vmIds)
-		if (curSyncVmIds.end() == curSyncVmIds.find(vmId))
-			newSyncVmIds.insert(vmId);
-	for (auto& vmId : newSyncVmIds)
-		if (script::cVirtualMachine* vm = GetVM(vmId))
-			vm->EnableNetworkSync(true);
+	// default all vm network synchronize
+	if (0)
+	{
+		// update network synchronize streaming
+		set<int> syncVmIds;
+		for (auto& vmId : packet.vmIds)
+			syncVmIds.insert(vmId);
+		set<int> curSyncVmIds; // current synchronize vm
+		for (auto& itpr : m_interpreters)
+			for (auto& vm : itpr.interpreter->m_vms)
+				if (vm->m_nsync.enable)
+				{
+					curSyncVmIds.insert(vm->m_id);
+					if (syncVmIds.end() == syncVmIds.find(vm->m_id))
+						vm->EnableNetworkSync(false);
+				}
+		set<int> newSyncVmIds;
+		for (auto& vmId : packet.vmIds)
+			if (curSyncVmIds.end() == curSyncVmIds.find(vmId))
+				newSyncVmIds.insert(vmId);
+		for (auto& vmId : newSyncVmIds)
+			if (script::cVirtualMachine* vm = GetVM(vmId))
+				vm->EnableNetworkSync(true);
+	}
 	//~
 
 	m_protocol.AckDebugInfo(packet.senderId, true, packet.vmIds, 1);

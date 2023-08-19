@@ -52,6 +52,8 @@ bool cVirtualMachine::Init(cInterpreter* interpreter, const cIntermediateCode &c
 	m_code = code;
 	m_symbTable = code.m_variables; // initial variable
 
+	EnableNetworkSync(true); // default network synchronize
+
 	// update tick/timer
 	for (auto &tick : m_code.m_timer1Events)
 	{
@@ -1454,17 +1456,39 @@ void cVirtualMachine::SetCodeTrace(const bool isCodeTrace)
 
 // clear executed code index log
 // isTakeLast: m_trace.back() take, clear remains
+// size: remove size, -1:all remove
 void cVirtualMachine::ClearCodeTrace(
 	const bool isTakeLast //=false
+	, const int removeSize //=-1
 )
 {
-	const int back = (isTakeLast && !m_trace.empty()) ? m_trace.back() : -1;
-	m_trace.clear();
-	
-	if (isTakeLast)
+	if (0 == removeSize)
+		return; // nothing to do
+
+	if (removeSize > 0)
 	{
-		m_trace.push_back(back);
-		m_trace.push_back(back);
+		const int rmSize = ((removeSize % 2) == 0) ? removeSize : removeSize + 1;
+		if ((rmSize + 2) > (int)m_trace.size())
+		{
+			ClearCodeTrace(isTakeLast, -1);
+		}
+		else
+		{
+			int cnt = rmSize;
+			while (cnt-- > 0)
+				m_trace.erase(m_trace.begin());
+		}
+	}
+	else
+	{
+		const int back = (isTakeLast && !m_trace.empty()) ? m_trace.back() : -1;
+		m_trace.clear();
+
+		if (isTakeLast)
+		{
+			m_trace.push_back(back);
+			m_trace.push_back(back);
+		}
 	}
 }
 

@@ -31,11 +31,11 @@ bool cBoundingCapsule::Collision(const cCollisionObj &obj
 	{
 	case eCollisionType::SPHERE:
 		if (const cBoundingSphere* p = dynamic_cast<const cBoundingSphere*>(&obj))
-			return Intersects(*p);
+			return Intersects(*p, distance);
 		break;
 	case eCollisionType::CAPSULE:
 		if (const cBoundingCapsule* p = dynamic_cast<const cBoundingCapsule*>(&obj))
-			return Intersects(*p);
+			return Intersects(*p, distance);
 		break;
 	case eCollisionType::BOX:
 		if (const cBoundingBox* p = dynamic_cast<const cBoundingBox*>(&obj))
