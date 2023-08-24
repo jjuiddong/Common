@@ -47,7 +47,7 @@ namespace common
 				int id; // unique id
 				bool enable; // enable sync?
 				int timerId; // timer id
-				vector<std::pair<int, bool>> syncs; // first:flow pin id, second:sync?
+				vector<std::pair<int, bool>> syncs; // first: pin index, second:sync?
 			};
 
 			cVirtualMachine(const string &name);
@@ -82,8 +82,8 @@ namespace common
 			void WriteTraceLog(const vector<ushort> &trace);
 			bool IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVarType);
 			bool InitSyncTimer(const int syncId, const int timeOut);
-			bool InitSyncFlow(const int syncId, const int flowId);
-			bool CheckSync(const int syncId, const int flowId);
+			bool InitSyncFlow(const int syncId, const int pinCount);
+			bool CheckSync(const int syncId, const int pinIdx);
 			void ClearNSync(const bool enable = false);
 
 

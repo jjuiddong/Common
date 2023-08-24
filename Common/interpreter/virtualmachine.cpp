@@ -1361,8 +1361,8 @@ bool cVirtualMachine::InitSyncTimer(const int syncId, const int timeOut)
 
 
 // initialize sync flow pin id
-// flowId: synchronize flow id
-bool cVirtualMachine::InitSyncFlow(const int syncId, const int flowId)
+// pinCount: synchronize pin count
+bool cVirtualMachine::InitSyncFlow(const int syncId, const int pinCount)
 {
 	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
 		, [&](auto& a) { return a.id == syncId; });
@@ -1372,21 +1372,25 @@ bool cVirtualMachine::InitSyncFlow(const int syncId, const int flowId)
 		sync.id = syncId;
 		sync.enable = true;
 		sync.timerId = -1;
-		sync.syncs.push_back({ flowId, false });
+		sync.syncs.clear();
+		for (int i=0; i < pinCount; ++i)
+			sync.syncs.push_back({ i, false });
 		m_syncs.push_back(sync);
 	}
 	else
 	{
 		it->enable = true; // clear flag
-		it->syncs.push_back({ flowId, false });
+		it->syncs.clear();
+		for (int i = 0; i < pinCount; ++i)
+			it->syncs.push_back({ i, false });
 	}
 	return true;
 }
 
 
 // check sync
-// flowId: synchronize flow id
-bool cVirtualMachine::CheckSync(const int syncId, const int flowId)
+// pinIdx: synchronize pin idx
+bool cVirtualMachine::CheckSync(const int syncId, const int pinIdx)
 {
 	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
 		, [&](auto& a) { return a.id == syncId; });
@@ -1398,7 +1402,7 @@ bool cVirtualMachine::CheckSync(const int syncId, const int flowId)
 		return false; // all done, nothing to do
 
 	auto it2 = std::find_if(sync.syncs.begin(), sync.syncs.end()
-		, [&](const auto& a) {return a.first == flowId; });
+		, [&](const auto& a) {return a.first == pinIdx; });
 	if (sync.syncs.end() == it2)
 		return false; // error return
 

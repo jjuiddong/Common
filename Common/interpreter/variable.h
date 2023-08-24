@@ -52,9 +52,10 @@ namespace common
 
 
 			int id; // unique id
-			string type; // special type string, Bool, Int, Float, String, Array, Map
+			string type; // type string, Bool, Int, Float, String, Array, Map
 			string subTypeStr; // array element, map value type string
 			eSymbolType typeValues[4]; // maximum: map<string, vector<primitive type>>
+			int flags;
 			variant_t var; // value
 
 			// array type

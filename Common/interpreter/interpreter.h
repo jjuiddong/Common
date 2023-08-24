@@ -38,11 +38,15 @@ namespace common
 			bool AddModule(iModule *mod);
 			bool RemoveModule(iModule *mod);
 			bool Process(const float deltaSeconds);
-			bool Run(const int vmId, const map<string, vector<string>>& args = {});
-			bool DebugRun(const int vmId, const map<string, vector<string>>& args = {});
-			bool StepRun(const int vmId, const map<string, vector<string>>& args = {});
+			bool Run(const int vmId, const script::cSymbolTable& symbTable = {}
+				, const string& startEvent = "Start Event");
+			bool DebugRun(const int vmId, const script::cSymbolTable& symbTable = {}
+				, const string& startEvent = "Start Event");
+			bool StepRun(const int vmId, const script::cSymbolTable& symbTable = {}
+				, const string& startEvent = "Start Event");
 			bool Stop(const int vmId);
-			bool Terminate(const int vmId, const map<string, vector<string>>& args = {});
+			bool Terminate(const int vmId, const script::cSymbolTable& symbTable = {}
+				, const string &eventName = "_Exit");
 			bool Resume(const int vmId);
 			bool OneStep(const int vmId);
 			bool Break(const int vmId);
@@ -59,6 +63,7 @@ namespace common
 			void Clear();
 
 			cVirtualMachine* GetVM(const int vmId);
+			cVirtualMachine* GetRemoveVM(const int vmId);
 			bool SetListener(iTerminateResponse* listener);
 
 
@@ -67,7 +72,8 @@ namespace common
 			bool DebugProcess(const float deltaSeconds);
 			int ProcessUntilNodeEnter(const int vmId, const float deltaSeconds);
 			bool CheckBreakPoint();
-			bool RunVM(const int vmId, const map<string, vector<string>>& args = {});
+			bool RunVM(const int vmId, const script::cSymbolTable& symbTable = {}
+				, const string &startEvent = "Start Event");
 			int InitVM(const cIntermediateCode &icode, const int parentVmId = -1
 				, const string& scopeName = "");
 

@@ -337,7 +337,9 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 
 // add temporal initialize variable
 bool cVplFile::AddVariable3(const string &scopeName, const string &name
-	, const string &typeStr)
+	, const string &typeStr
+	, const int flags //= 0
+)
 {
 	using namespace common::script;
 
@@ -398,6 +400,7 @@ bool cVplFile::AddVariable3(const string &scopeName, const string &name
 		}
 	}
 
+	m_variables.SetVarFlag(scopeName, name, flags);
 	return true;
 }
 
@@ -592,18 +595,28 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 				scopeName = script::cSymbolTable::MakeScopeName(node.name, node.id);
 			}
 
+			// check input/output pin same name
+			// this pin determine input pin
+			auto it = std::find_if(node.inputs.begin(), node.inputs.end()
+				, [&](const auto& a) { return a.name == pin.name; });
+			// ouput pin flag to check function node input variable
+			const int flags = (node.inputs.end() == it) ? 0x02 : 0x00;
+
 			script::sVariable *var = m_variables.FindVarInfo(scopeName, pin.name);
-			if (var)
+			if (var) 
+			{
+				m_variables.SetVarFlag(scopeName, pin.name, flags);
 				continue; // already exist, ignore
+			}
 			switch (pin.type)
 			{
-			case ePinType::Bool: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::Bool: AddVariable3(scopeName, pin.name, pin.typeStr, flags); break;
 			case ePinType::Enums:
-			case ePinType::Int: AddVariable3(scopeName, pin.name, pin.typeStr); break;
-			case ePinType::Float: AddVariable3(scopeName, pin.name, pin.typeStr); break;
-			case ePinType::String: AddVariable3(scopeName, pin.name, pin.typeStr); break;
-			case ePinType::Array: AddVariable3(scopeName, pin.name, pin.typeStr); break;
-			case ePinType::Map: AddVariable3(scopeName, pin.name, pin.typeStr); break;
+			case ePinType::Int: AddVariable3(scopeName, pin.name, pin.typeStr, flags); break;
+			case ePinType::Float: AddVariable3(scopeName, pin.name, pin.typeStr, flags); break;
+			case ePinType::String: AddVariable3(scopeName, pin.name, pin.typeStr, flags); break;
+			case ePinType::Array: AddVariable3(scopeName, pin.name, pin.typeStr, flags); break;
+			case ePinType::Map: AddVariable3(scopeName, pin.name, pin.typeStr, flags); break;
 			default: break;
 			}
 		}
@@ -637,14 +650,6 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 					out.m_codes.push_back(code);
 				}
 			}
-			//else if (node.name == "Timer Event")
-			//{
-			//	const string name = script::cSymbolTable::MakeScopeName(node.name, node.id);
-			//	script::sInstruction code;
-			//	code.cmd = script::eCommand::timer2;
-			//	code.str1 = name;
-			//	out.m_codes.push_back(code);
-			//}
 		}
 	}
 
@@ -719,10 +724,11 @@ bool cVplFile::Symbol_GenCode(const string &scopeName, const string &varName
 
 	if (script::eCommand::none != code.cmd)
 	{
-		code.str1 = scopeName;// kv1.first; // scopename
-		code.str2 = varName;// kv2.first; // varname
+		code.str1 = scopeName; // scopename
+		code.str2 = varName; // varname
 		code.str3 = typeStr; // array, map type string
 		code.var1 = var.var;
+		code.reg1 = var.flags;
 		out.m_codes.push_back(code);
 	}
 	return true;
@@ -954,7 +960,6 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 			}
 
 			// 2020-11-23, variable name data from desc
-			//const std::size_t found = node.desc.find("varname:");
 			const std::size_t found = node.typeStr.find("varname:");
 			if (found != string::npos)
 			{
@@ -1019,33 +1024,22 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 		out.m_codes.push_back(code);
 	}
 
-	// next flow node
-	int outputFlowCount = 0;
+	// next flow pin
 	for (auto &pin : node.outputs)
 	{
-		if (ePinType::Flow != pin.type)
-			continue;
+		if ((ePinType::Flow == pin.type) && common::trim2(pin.name).empty())
+		{
+			sNode *next = nullptr; // next node
+			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (!next)
+				continue;
 
-		++outputFlowCount;
-
-		if (outputFlowCount > 1)
-			break; // only default main output flow allow
-
-		sNode *next = nullptr; // next node
-		sPin *np = nullptr; // next pin
-		const int linkId = pin.links.empty() ? -1 : pin.links.front();
-		std::tie(next, np) = FindContainPin(linkId);
-		if (!next)
-			continue;
-
-		// Widget Node Event Flow pin?
-		//if ((eNodeType::Widget == node.type) && (outputFlowCount > 1))
-		//{
-		//	// already generate code. finish
-		//	break;
-		//}
-
-		Node_GenCode(node, *next, pin, out);
+			Node_GenCode(node, *next, pin, out);
+			NodeEscape_GenCode(node, out);
+			break;
+		}
 	}
 
 	NodeEscape_GenCode(node, out);
@@ -1793,25 +1787,26 @@ bool cVplFile::Sync_GenCode(const sNode& prevNode, const sNode& node
 			out.m_codes.push_back(code);
 		}
 
-		// 2. link input pin list, synci
+		// 2. link input pin count, synci
 		{
 			script::sInstruction code;
 			code.cmd = script::eCommand::ldic;
 			code.reg1 = 0;
 			code.var1 = syncId;
 			out.m_codes.push_back(code);
-		}
 
-		for (auto &pin : node.inputs)
-		{
-			if (ePinType::Flow != pin.type) continue;
-
-			if (!common::trim2(pin.name).empty())
+			int count = 0;
+			for (auto& pin : node.inputs)
+			{
+				if ((ePinType::Flow == pin.type)
+					&& !common::trim2(pin.name).empty())
+					++count;
+			}
 			{
 				script::sInstruction code;
 				code.cmd = script::eCommand::synci;
 				code.reg1 = 0; // reg1:syncId
-				code.var1 = pin.links.empty()? 0 : pin.links[0];
+				code.var1 = count;
 				out.m_codes.push_back(code);
 			}
 		}
@@ -1897,10 +1892,23 @@ bool cVplFile::Sync_GenCode(const sNode& prevNode, const sNode& node
 			out.m_codes.push_back(code);
 		}
 		{
+			int syncPinIdx = 0; // sync pin index
+			for (uint i = 0; i < node.inputs.size(); ++i)
+			{
+				const sPin& pin = node.inputs[i];
+				if ((ePinType::Flow == pin.type)
+					&& !common::trim2(pin.name).empty())
+				{
+					if (fromPin.links[0] == pin.id)
+						break;
+					++syncPinIdx;
+				}
+			}
+
 			script::sInstruction code;
 			code.cmd = script::eCommand::sync;
 			code.reg1 = 0; // reg1:syncId
-			code.var1 = fromPin.id;
+			code.var1 = syncPinIdx;
 			out.m_codes.push_back(code);
 		}
 		{
@@ -2256,7 +2264,7 @@ bool cVplFile::Callback_GenCode(const sNode& node
 	, OUT common::script::cIntermediateCode& out)
 {
 	RETV(node.type != eNodeType::Function, false);
-	RETV(node.outputs.size() < 2, false);
+	RETV(node.outputs.empty(), false);
 
 	for (auto& pin : node.outputs)
 	{
@@ -2537,7 +2545,15 @@ bool cVplFile::NodeEscape_GenCode(const sNode &node
 {
 	// check macro function
 	// no input flow slot? macro function!
-	const bool isMacro = (node.inputs.size() > 0) && (node.inputs[0].type != ePinType::Flow);
+	uint inputFlowCnt = 0, outputFlowCnt = 0;
+	for (auto& pin : node.inputs)
+		if ((ePinType::Flow == pin.type) && (common::trim2(pin.name).empty()))
+			++inputFlowCnt;
+	for (auto& pin : node.outputs)
+		if ((ePinType::Flow == pin.type) && (common::trim2(pin.name).empty()))
+			++outputFlowCnt;
+	const bool isMacro = (0 == inputFlowCnt) && (0 == outputFlowCnt);
+	
 	if (isMacro)
 		return true; // macro function no need return
 

@@ -156,7 +156,7 @@ namespace vpl
 			, const string &typeStr
 			, common::cSimpleData2 &sdata, common::cSimpleData2::sNode *p);
 		bool AddVariable3(const string &scopeName, const string &name
-			, const string &typeStr);
+			, const string &typeStr, const int flags = 0);
 
 		std::pair<sNode*,sPin*> FindContainPin(const int pinId);
 		string MakeScopeName(const sNode &node, const int uniqueId = -1);

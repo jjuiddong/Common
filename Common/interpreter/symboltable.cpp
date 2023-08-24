@@ -204,7 +204,6 @@ bool cSymbolTable::InitMap(const string &scopeName, const string &symbolName
 	else
 	{
 		sVariable newVar;
-		//newVar.type = typeStr;
 		newVar.type = "Map";
 		common::script::ParseTypeString(typeStr, newVar.typeValues);
 		newVar.subTypeStr = GenerateTypeString(newVar.typeValues, 2);
@@ -413,7 +412,7 @@ bool cSymbolTable::IsExist(const string &scopeName, const string &symbolName)
 bool cSymbolTable::RemoveVar(const string &scopeName, const string &symbolName)
 {
 	auto it = m_vars.find(scopeName);
-	RETV(m_vars.end() == it, nullptr);
+	RETV(m_vars.end() == it, false);
 	
 	// remove fast search mapping
 	auto it2 = it->second.find(symbolName);
@@ -422,6 +421,23 @@ bool cSymbolTable::RemoveVar(const string &scopeName, const string &symbolName)
 
 	// remove
 	it->second.erase(symbolName);
+	return true;
+}
+
+
+// update variable flag
+bool cSymbolTable::SetVarFlag(const string& scopeName, const string& symbolName
+	, const int flags)
+{
+	auto it = m_vars.find(scopeName);
+	RETV(m_vars.end() == it, false);
+
+	// remove fast search mapping
+	auto it2 = it->second.find(symbolName);
+	if (it->second.end() == it2)
+		return false;
+
+	it2->second.flags = flags;
 	return true;
 }
 
@@ -528,9 +544,33 @@ cSymbolTable& cSymbolTable::operator=(const cSymbolTable &rhs)
 		Clear();
 
 		// copy all symbols
+		map<int, int> cvtIds; // key:old id, value: new id
 		for (auto &kv1 : rhs.m_vars)
-			for (auto &kv2 : kv1.second)
+			for (auto& kv2 : kv1.second)
+			{
 				m_vars[kv1.first][kv2.first] = kv2.second;
+				cvtIds[kv2.second.id] = m_vars[kv1.first][kv2.first].id;
+			}
+		// update reference id
+		for (auto& kv1 : m_vars)
+			for (auto& kv2 : kv1.second)
+			{
+				// tricky code: only map variable has refence data
+				sVariable& var = kv2.second;
+				if (var.IsMap() && var.m)
+				{
+					for (auto& kv3 : *var.m)
+					{
+						if (kv3.second.vt & VT_BYREF) // reference value?
+						{
+							auto it = cvtIds.find(kv3.second.intVal);
+							if (cvtIds.end() != it)
+								kv3.second.intVal = it->second; // update new reference id
+						}
+					}
+				}
+			}
+		//~
 
 		// update fast var search mapping
 		m_varMap.clear();

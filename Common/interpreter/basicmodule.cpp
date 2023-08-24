@@ -7,6 +7,7 @@ using namespace common::script;
 
 
 // script function handler
+eModuleResult EmptyString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult ToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void *arg);
 eModuleResult ToNumber(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult ToBoolean(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
@@ -30,10 +31,13 @@ eModuleResult FnVector3(script::cVirtualMachine& vm, const string& scopeName, co
 eModuleResult TerminateVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult TaskSuccess(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult TaskFail(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 
 
 cBasicModule::cBasicModule()
 {
+	m_fnMap.insert({ "Empty?", EmptyString });
 	m_fnMap.insert({ "ToString", ToString });
 	m_fnMap.insert({ "ToNumber", ToNumber});
 	m_fnMap.insert({ "ToBoolean", ToBoolean});
@@ -77,6 +81,8 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "Vector3", FnVector3 });
 	m_fnMap.insert({ "TerminateVM", TerminateVM });
 	m_fnMap.insert({ "TerminateThisVM", TerminateThisVM });
+	m_fnMap.insert({ "Task Success", TaskSuccess});
+	m_fnMap.insert({ "Task Fail", TaskFail});
 	m_fnMap.insert({ "Sync", Sync});
 
 }
@@ -107,6 +113,25 @@ bool cBasicModule::CloseModule(cVirtualMachine &vm)
 
 //-----------------------------------------------------------------------------
 // script function handler
+
+// Empty?
+eModuleResult EmptyString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	script::sVariable* var = symbolTable.FindVarInfo(scopeName, "string");
+	if (var)
+	{
+		const string str = common::variant2str(var->var);
+		symbolTable.Set<bool>(scopeName, "out", str.empty(), "bool");
+	}
+	else
+	{
+		// exception process
+		symbolTable.Set<bool>(scopeName, "out", false, "bool");
+	}
+	return eModuleResult::Done;
+}
+
 
 // ToString
 eModuleResult ToString(cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
@@ -382,7 +407,10 @@ eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeNa
 	script::cSymbolTable& symbolTable = vm.m_symbTable;
 	const map<string, vector<string>> args = symbolTable.Get<map<string, vector<string>>>(
 		scopeName, "args");
-	const bool res = vm.m_itpr? vm.m_itpr->Terminate(vm.m_id, args) : false;
+
+	script::cSymbolTable symbs;
+	symbs.Set(scopeName, "args", args);
+	const bool res = vm.m_itpr? vm.m_itpr->Terminate(vm.m_id, symbs) : false;
 	symbolTable.Set<bool>(scopeName, "result", res);
 	return eModuleResult::Done;
 }
@@ -392,6 +420,44 @@ eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeNa
 eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
 {
 	// nothing to do
+	return eModuleResult::Done;
+}
+
+
+// task success
+eModuleResult TaskSuccess(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+
+	script::cSymbolTable symbs;
+	auto it = symbolTable.m_vars.find(scopeName);
+	if (symbolTable.m_vars.end() != it)
+	{
+		for (auto& kv : it->second)
+			if (0 == kv.second.flags) // input slot widget variable?
+				symbs.m_vars["Success"][kv.first] = kv.second;
+	}
+	const bool res = vm.m_itpr ? vm.m_itpr->Terminate(vm.m_id, symbs, "_Success") : false;
+	symbolTable.Set<bool>(scopeName, "result", res);
+	return eModuleResult::Done;
+}
+
+
+// task fail
+eModuleResult TaskFail(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+
+	script::cSymbolTable symbs;
+	auto it = symbolTable.m_vars.find(scopeName);
+	if (symbolTable.m_vars.end() != it)
+	{
+		for (auto& kv : it->second)
+			if (0 == kv.second.flags) // input slot widget variable?
+				symbs.m_vars["Fail"][kv.first] = kv.second;
+	}
+	const bool res = vm.m_itpr ? vm.m_itpr->Terminate(vm.m_id, symbs, "_Fail") : false;
+	symbolTable.Set<bool>(scopeName, "result", res);
 	return eModuleResult::Done;
 }
 

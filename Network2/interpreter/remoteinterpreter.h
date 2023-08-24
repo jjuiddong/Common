@@ -62,14 +62,17 @@ namespace network2
 		bool Process(const float deltaSeconds, const uint procCnt = 1);
 		bool PushEvent(const int itprId, const int vmId, const common::script::cEvent &evt);
 		bool Run(const int itprId, const int parentVmId = -1, const int vmId = -1
-			, const map<string, vector<string>>& args = {}
-			, const string& nodeName = "");
+			, const script::cSymbolTable& symbTable = {}
+			, const string& nodeName = ""
+			, const string& startEvent = "Start Event");
 		bool DebugRun(const int itprId, const int parentVmId = -1, const int vmId = -1
-			, const map<string, vector<string>>& args = {}
-			, const string& nodeName = "");
+			, const script::cSymbolTable& symbTable = {}
+			, const string& nodeName = ""
+			, const string& startEvent = "Start Event");
 		bool StepRun(const int itprId, const int parentVmId = -1, const int vmId = -1
-			, const map<string, vector<string>>& args = {}
-			, const string& nodeName = "");
+			, const script::cSymbolTable& symbTable = {}
+			, const string& nodeName = ""
+			, const string& startEvent = "Start Event");
 		bool Stop(const int itprId, const int vmId = -1);
 		bool TerminateVM(const int vmId);
 		bool Resume(const int itprId, const int vmId = -1);
@@ -88,6 +91,7 @@ namespace network2
 		void Clear();
 
 		script::cVirtualMachine* GetVM(const int vmId);
+		script::cVirtualMachine* GetRemoveVM(const int vmId);
 
 		// iTerminateResponse handler
 		virtual void TerminateResponse(const int vmId) override;
@@ -96,12 +100,13 @@ namespace network2
 	protected:
 		sItpr* GetInterpreterByVMId(const int vmId);
 		int GetInterpreterIdByVMId(const int vmId);
+		int GetInterpreterIdByRemoveVMId(const int vmId);
 		bool RunInterpreter(const int itprId, const int parentVmId
-			, const int vmId, const map<string, vector<string>>& args
-			, const string &nodeName, const int type);
+			, const int vmId, const script::cSymbolTable& symbTable
+			, const string &nodeName, const string& startEvent, const int type);
 		bool RunInterpreter_Sub(const int itprId, const int parentVmId
-			, const int vmId, const map<string, vector<string>>& args
-			, const string& nodeName, const int type);
+			, const int vmId, const script::cSymbolTable& symbTable
+			, const string& nodeName, const string& startEvent, const int type);
 		bool IsChangeSymbolTable(const int itprId);
 		bool IsChangeSymbolTable(const sItpr &itpr);
 		bool SendSpawnInterpreterInfo(const int itprId, const int parentVmId
@@ -112,6 +117,7 @@ namespace network2
 		bool SendSyncVariable(const int itprId, const int vmId
 			, const script::cSymbolTable &symbolTable
 			, const string& varName, const script::sVariable &var);
+		bool SendSyncVMInstruction(const int itprId, script::cVirtualMachine *vm);
 
 		// remotedbg2 protocol hander
 		virtual bool UploadIntermediateCode(remotedbg2::UploadIntermediateCode_Packet &packet) override;

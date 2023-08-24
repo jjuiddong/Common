@@ -76,8 +76,8 @@ namespace common
 			sret, 
 			cstack,
 			synct, // synct, reg1, number	; reg1:timeout ms, number:sync id
-			synci, // synci, reg1, number	; reg1:sync id, number: flow pin id
-			sync, // sync, reg1, number		; reg1:sync id, number: flow pin id, update compare flag
+			synci, // synci, reg1, number	; reg1:sync id, number: sync count
+			sync, // sync, reg1, number		; reg1:sync id, number: sunc pin idx, update compare flag
 			symbolb, 
 			symboli, 
 			symbolf, 

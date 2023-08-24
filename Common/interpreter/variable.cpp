@@ -19,6 +19,7 @@ sVariable::sVariable()
 	: ar(nullptr)
 	, m(nullptr)
 	, id(cSymbolTable::GenID())
+	, flags(0)
 	, arSize(0)
 	, arCapacity(0)
 {
@@ -29,6 +30,7 @@ sVariable::sVariable(const sVariable &rhs)
 	: ar(nullptr)
 	, m(nullptr)
 	, id(cSymbolTable::GenID())
+	, flags(0)
 	, arSize(0)
 	, arCapacity(0)
 {
@@ -278,6 +280,7 @@ sVariable& sVariable::operator=(const sVariable &rhs)
 		ClearArray();
 		type = rhs.type;
 		subTypeStr = rhs.subTypeStr;
+		flags = rhs.flags;
 		var = rhs.var; // variable or array, map type id assign
 		memcpy(typeValues, rhs.typeValues, sizeof(rhs.typeValues));
 

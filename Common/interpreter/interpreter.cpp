@@ -182,9 +182,10 @@ bool cInterpreter::DebugProcess(const float deltaSeconds)
 
 // run interpreter
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 bool cInterpreter::Run(const int vmId
-	, const map<string, vector<string>>& args //= empty
+	, const script::cSymbolTable& symbTable //= {}
+	, const string& startEvent //= "Start Event"
 )
 {
 	if (m_vms.empty())
@@ -199,16 +200,17 @@ bool cInterpreter::Run(const int vmId
 		if (eState::Stop == m_state)
 			m_state = eState::Run;
 	}
-	return RunVM(vmId, args);
+	return RunVM(vmId, symbTable, startEvent);
 }
 
 
 // run interpreter with debug state
 // break when meet break point or force break
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 bool cInterpreter::DebugRun(const int vmId
-	, const map<string, vector<string>>& args //=empty
+	, const script::cSymbolTable& symbTable //= {}
+	, const string& startEvent //= "Start Event"
 )
 {
 	if (m_vms.empty())
@@ -227,16 +229,17 @@ bool cInterpreter::DebugRun(const int vmId
 			m_dbgState = eDebugState::Run;
 		}
 	}
-	return RunVM(vmId, args);
+	return RunVM(vmId, symbTable, startEvent);
 }
 
 
 // run interpreter with debug state
 // start with debug wait state
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 bool cInterpreter::StepRun(const int vmId
-	, const map<string, vector<string>>& args //= empty
+	, const script::cSymbolTable& symbTable //= {}
+	, const string& startEvent //= "Start Event"
 )
 {
 	if (m_vms.empty())
@@ -255,7 +258,7 @@ bool cInterpreter::StepRun(const int vmId
 			m_dbgState = eDebugState::Step;
 		}
 	}
-	return RunVM(vmId, args);
+	return RunVM(vmId, symbTable, startEvent);
 }
 
 
@@ -284,20 +287,33 @@ bool cInterpreter::Stop(const int vmId)
 // vmId: terminate virtual machine id
 // return: success?
 bool cInterpreter::Terminate(const int vmId
-	, const map<string, vector<string>>& args //=empty
+	, const script::cSymbolTable& symbTable //= {}
+	, const string& eventName //= "_Exit"
 )
 {
-	// invoke XXX_Exit event, contain 'return value' with Terminate 'args' data
+	// invoke XXX_eventName event, contain 'return value' with Terminate 'args' data
 	cVirtualMachine* vm = GetVM(vmId);
 	if (!vm)
 		return false;
-	if ((vm->m_parentId >= 0) && !args.empty() && !vm->m_scopeName.empty())
+	if ((vm->m_parentId >= 0) && !vm->m_scopeName.empty())
 	{
 		cVirtualMachine* parent = GetVM(vm->m_parentId);
 		if (parent)
 		{
-			script::cEvent evt(vm->m_scopeName + "_Exit");
-			evt.m_vars2[vm->m_scopeName + "::return value"] = args;
+			script::cEvent evt(vm->m_scopeName + eventName);
+
+			if (eventName == "_Exit")
+			{
+				for (auto& kv : symbTable.m_vars)
+					for (auto& var : kv.second)
+						parent->m_symbTable.m_vars[vm->m_scopeName]["return value"] = var.second;
+			}
+			else
+			{
+				for (auto& kv : symbTable.m_vars)
+					for (auto& var : kv.second)
+						parent->m_symbTable.m_vars[vm->m_scopeName][var.first] = var.second;
+			}
 			parent->PushEvent(evt);
 		}
 	}
@@ -416,9 +432,10 @@ bool cInterpreter::BreakPoint(const bool enable, const int vmId, const uint id)
 
 // intialize VirtualMachine and Run Intermediate Code
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 bool cInterpreter::RunVM(const int vmId
-	, const map<string, vector<string>>& args //= empty
+	, const script::cSymbolTable& symbTable //= {}
+	, const string& startEvent //= "Start Event"
 )
 {
 	if (vmId < 0)
@@ -429,9 +446,12 @@ bool cInterpreter::RunVM(const int vmId
 				vm->AddModule(mod);
 			if (vm->Run())
 			{
-				vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
-				if (!args.empty())
-					vm->m_symbTable.Set("Start Event", "args", args);
+				vm->PushEvent(cEvent(startEvent)); // invoke 'Start Event'
+				for (auto& kv : symbTable.m_vars)
+					for (auto& var : kv.second)
+						vm->m_symbTable.m_vars[startEvent][var.first] = var.second;
+				for (auto& kv : symbTable.m_varMap)
+					vm->m_symbTable.m_varMap[kv.first] = kv.second;
 			}
 		}
 	}
@@ -444,9 +464,12 @@ bool cInterpreter::RunVM(const int vmId
 			vm->AddModule(mod);
 		if (vm->Run())
 		{
-			vm->PushEvent(cEvent("Start Event")); // invoke 'Start Event'
-			if (!args.empty())
-				vm->m_symbTable.Set("Start Event", "args", args);
+			vm->PushEvent(cEvent(startEvent)); // invoke 'Start Event'
+			for (auto& kv : symbTable.m_vars)
+				for (auto& var : kv.second)
+					vm->m_symbTable.m_vars[startEvent][var.first] = var.second;
+			for (auto& kv : symbTable.m_varMap)
+				vm->m_symbTable.m_varMap[kv.first] = kv.second;
 		}
 	}
 	return true;
@@ -625,6 +648,17 @@ cVirtualMachine* cInterpreter::GetVM(const int vmId)
 	auto it = std::find_if(m_vms.begin(), m_vms.end()
 		, [&](const auto& a) { return a->m_id == vmId; });
 	if (m_vms.end() == it)
+		return nullptr;
+	return *it;
+}
+
+
+// return remove virtual machine specific id
+cVirtualMachine* cInterpreter::GetRemoveVM(const int vmId)
+{
+	auto it = std::find_if(m_rmVms.begin(), m_rmVms.end()
+		, [&](const auto& a) { return a->m_id == vmId; });
+	if (m_rmVms.end() == it)
 		return nullptr;
 	return *it;
 }

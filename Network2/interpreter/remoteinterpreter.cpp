@@ -331,48 +331,51 @@ bool cRemoteInterpreter::PushEvent(const int itprId
 // start interpreter
 // itprId: interpreter index, -1: all interpreter
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 // nodeName: RunNodeFile node name (scopeName)
 bool cRemoteInterpreter::Run(const int itprId
 	, const int parentVmId //= -1
 	, const int vmId //= -1
-	, const map<string, vector<string>>& args //=empty
+	, const script::cSymbolTable& symbTable //= {}
 	, const string& nodeName //= ""
+	, const string& startEvent //= "Start Event"
 )
 {
-	return RunInterpreter(itprId, parentVmId, vmId, args, nodeName, 0);
+	return RunInterpreter(itprId, parentVmId, vmId, symbTable, nodeName, startEvent, 0);
 }
 
 
 // start interpreter with debug run
 // itprId: interpreter index, -1: all interpreter
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 // nodeName: RunNodeFile node name (scopeName)
 bool cRemoteInterpreter::DebugRun(const int itprId
 	, const int parentVmId //= -1
 	, const int vmId //= -1
-	, const map<string, vector<string>>& args //=empty
+	, const script::cSymbolTable& symbTable //= {}
 	, const string& nodeName //= ""
+	, const string& startEvent //= "Start Event"
 )
 {
-	return RunInterpreter(itprId, parentVmId, vmId, args, nodeName, 1);
+	return RunInterpreter(itprId, parentVmId, vmId, symbTable, nodeName, startEvent, 1);
 }
 
 
 // start interpreter with one step debugging
 // itprId: interpreter index, -1: all interpreter
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 // nodeName: RunNodeFile node name (scopeName)
 bool cRemoteInterpreter::StepRun(const int itprId
 	, const int parentVmId //= -1
 	, const int vmId //= -1
-	, const map<string, vector<string>>& args //=empty
+	, const script::cSymbolTable& symbTable //= {}
 	, const string& nodeName //= ""
+	, const string& startEvent //= "Start Event"
 )
 {
-	return RunInterpreter(itprId, parentVmId, vmId, args, nodeName, 2);
+	return RunInterpreter(itprId, parentVmId, vmId, symbTable, nodeName, startEvent, 2);
 }
 
 
@@ -778,6 +781,30 @@ int cRemoteInterpreter::GetInterpreterIdByVMId(const int vmId)
 }
 
 
+// find interpreter id (index) by remove virtual machine id
+// vmId: virtual machine id
+// return: interpreter id (index), -1: not found
+int cRemoteInterpreter::GetInterpreterIdByRemoveVMId(const int vmId)
+{
+	int itprId = -1;
+	for (uint i = 0; i < m_interpreters.size(); ++i)
+	{
+		network2::cRemoteInterpreter::sItpr& info = m_interpreters[i];
+		script::cInterpreter* itpr = info.interpreter;
+		if (!itpr)
+			continue;
+		auto it = std::find_if(itpr->m_rmVms.begin(), itpr->m_rmVms.end()
+			, [&](const auto& a) { return a->m_id == vmId; });
+		if (itpr->m_rmVms.end() != it)
+		{
+			itprId = (int)i;
+			break;
+		}
+	}
+	return itprId;
+}
+
+
 // return virtual machine by vmid
 script::cVirtualMachine* cRemoteInterpreter::GetVM(const int vmId)
 {
@@ -792,9 +819,32 @@ script::cVirtualMachine* cRemoteInterpreter::GetVM(const int vmId)
 }
 
 
+// return virtual machine by vmid
+script::cVirtualMachine* cRemoteInterpreter::GetRemoveVM(const int vmId)
+{
+	script::cVirtualMachine* vm = nullptr;
+	for (uint i = 0; i < m_interpreters.size(); ++i)
+	{
+		network2::cRemoteInterpreter::sItpr& info = m_interpreters[i];
+		if (vm = info.interpreter->GetRemoveVM(vmId))
+			break;
+	}
+	return vm;
+}
+
+
 // terminate virtual machine callback function
 void cRemoteInterpreter::TerminateResponse(const int vmId)
 {
+	// send synchronize info with remove virtual machine last instruction
+	if (script::cVirtualMachine* vm = GetRemoveVM(vmId))
+	{
+		const int itprId = GetInterpreterIdByRemoveVMId(vmId);
+		if (itprId >= 0)
+			SendSyncVMInstruction(itprId, vm);
+	}
+	//~
+
 	m_protocol.RemoveInterpreter(network2::ALL_NETID, true, vmId);
 }
 
@@ -821,21 +871,21 @@ cRemoteInterpreter::sItpr* cRemoteInterpreter::GetInterpreterByVMId(const int vm
 // run interpreter
 // itprId: interpreter id, -1:all interpreter
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 // nodeName: RunNodeFile node name (scopeName)
 // type: 0:run, 1:debug run, 2:step run
 bool cRemoteInterpreter::RunInterpreter(const int itprId, const int parentVmId, 
-	const int vmId, const map<string, vector<string>>& args
-	, const string& nodeName, const int type)
+	const int vmId, const script::cSymbolTable& symbTable
+	, const string& nodeName, const string& startEvent, const int type)
 {
 	if (itprId < 0)
 	{
 		for (uint i = 0; i < m_interpreters.size(); ++i)
-			RunInterpreter_Sub(i, parentVmId, vmId, args, nodeName, type);
+			RunInterpreter_Sub(i, parentVmId, vmId, symbTable, nodeName, startEvent, type);
 	}
 	else
 	{
-		return RunInterpreter_Sub(itprId, parentVmId, vmId, args, nodeName, type);
+		return RunInterpreter_Sub(itprId, parentVmId, vmId, symbTable, nodeName, startEvent, type);
 	}
 	return true;
 }
@@ -844,12 +894,12 @@ bool cRemoteInterpreter::RunInterpreter(const int itprId, const int parentVmId,
 // run interpreter
 // itprId: interpreter id
 // vmId: virtual machine id, -1:all vm
-// args: execute argument
+// symbTable: execute argument
 // nodeName: RunNodeFile node name (scopeName)
 // type: 0:run, 1:debug run, 2:step run
 bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVmId
-	, const int vmId, const map<string, vector<string>>& args
-	, const string& nodeName, const int type)
+	, const int vmId, const script::cSymbolTable& symbTable
+	, const string& nodeName, const string& startEvent, const int type)
 {
 	if (m_interpreters.size() <= (uint)itprId)
 		return false;
@@ -867,7 +917,7 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 	switch (type)
 	{
 	case 0: // Run
-		if (result = interpreter->Run(vmId, args))
+		if (result = interpreter->Run(vmId, symbTable, startEvent))
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
@@ -876,7 +926,7 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 		}
 		break;
 	case 1: // DebugRun
-		if (result = interpreter->DebugRun(vmId, args))
+		if (result = interpreter->DebugRun(vmId, symbTable, startEvent))
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
@@ -884,7 +934,7 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 		}
 		break;
 	case 2: // StepRun
-		if (result = interpreter->StepRun(vmId, args))
+		if (result = interpreter->StepRun(vmId, symbTable, startEvent))
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
@@ -973,32 +1023,7 @@ bool cRemoteInterpreter::SendSyncInstruction(const int itprId)
 		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x02)) 
 			|| !vm->m_nsync.instStreaming || vm->m_trace.empty())
 			continue; // no process
-		const uint size = vm->m_trace.size();
-		if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
-			continue; // no process, no changed
-
-		// exception: check buffer overflow
-		// too many execute instruction, limit 200 size, 300x2byte = 600byte
-		const uint MAX_TRACE_SIZE = 300;
-		if (vm->m_trace.size() < MAX_TRACE_SIZE)
-		{
-			m_protocol.SyncVMInstruction(network2::ALL_NETID
-				, true, itprId, vm->m_id, vm->m_trace);
-			vm->ClearCodeTrace(true);
-		}
-		else
-		{
-			// too many code execute, split trace data
-			vector<ushort> trace;
-			trace.reserve(MAX_TRACE_SIZE);
-			for (uint i = 0; i < MAX_TRACE_SIZE; ++i)
-				trace.push_back(vm->m_trace[i]);
-
-			m_protocol.SyncVMInstruction(network2::ALL_NETID
-				, true, itprId, vm->m_id, trace);
-			vm->ClearCodeTrace(true, MAX_TRACE_SIZE);
-		}
-
+		SendSyncVMInstruction(itprId, vm);
 		vm->m_nsync.sync = (vm->m_nsync.sync & ~0x02); // clear flag
 		vm->m_nsync.instStreaming = false; // clear flag
 	}
@@ -1214,6 +1239,38 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 		// todo: another type synchronize
 	}
 
+	return true;
+}
+
+
+// send synchronize virtual machine instruction info
+bool cRemoteInterpreter::SendSyncVMInstruction(const int itprId, script::cVirtualMachine* vm)
+{
+	const uint size = vm->m_trace.size();
+	if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
+		return false; // no process, no changed
+
+	// exception: check buffer overflow
+	// too many execute instruction, limit 200 size, 300x2byte = 600byte
+	const uint MAX_TRACE_SIZE = 300;
+	if (vm->m_trace.size() < MAX_TRACE_SIZE)
+	{
+		m_protocol.SyncVMInstruction(network2::ALL_NETID
+			, true, itprId, vm->m_id, vm->m_trace);
+		vm->ClearCodeTrace(true);
+	}
+	else
+	{
+		// too many code execute, split trace data
+		vector<ushort> trace;
+		trace.reserve(MAX_TRACE_SIZE);
+		for (uint i = 0; i < MAX_TRACE_SIZE; ++i)
+			trace.push_back(vm->m_trace[i]);
+
+		m_protocol.SyncVMInstruction(network2::ALL_NETID
+			, true, itprId, vm->m_id, trace);
+		vm->ClearCodeTrace(true, MAX_TRACE_SIZE);
+	}
 	return true;
 }
 

@@ -93,6 +93,7 @@ namespace common
 			sVariable* FindRealVarInfo(const string& scopeName, const string& symbolName);
 			bool IsExist(const string &scopeName, const string &symbolName);
 			bool RemoveVar(const string &scopeName, const string &symbolName);
+			bool SetVarFlag(const string& scopeName, const string& symbolName, const int flags);
 			
 			// symbol (enum)
 			bool AddSymbol(const sSymbol &type);
@@ -269,7 +270,6 @@ namespace common
 			}
 			return true;
 		}
-
 
 		//--------------------------------------------------------------------------------
 		// get symboltable variable
