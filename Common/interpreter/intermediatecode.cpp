@@ -96,10 +96,6 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.reg1 = GetRegisterIndex(toks[1]);
 			code.var1.vt = VT_BYREF | VT_INT;
 			code.var1.intVal = 0; // tricky code, array type
-			//const VARTYPE vt = common::script::GetVarType(code.cmd);
-			//code.var1 = common::str2variant(vt, toks[2]);
-			//if (vt == VT_EMPTY)
-			//	dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if ((toks[0] == "ldmc")
 			&& (toks.size() >= 3))
@@ -108,10 +104,6 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.reg1 = GetRegisterIndex(toks[1]);
 			code.var1.vt = VT_BYREF | VT_INT;
 			code.var1.intVal = 0; // tricky code, map type
-			//const VARTYPE vt = common::script::GetVarType(code.cmd);
-			//code.var1 = common::str2variant(vt, toks[2]);
-			//if (vt == VT_EMPTY)
-			//	dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if (((toks[0] == "ldcmp")
 			|| (toks[0] == "ldncmp")
@@ -202,6 +194,18 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			&& (toks.size() >= 1))
 		{
 			code.cmd = script::StrToCommand(toks[0]);
+		}
+		else if (((toks[0] == "synct")
+			|| (toks[0] == "synci")
+			|| (toks[0] == "sync"))
+			&& (toks.size() >= 1))
+		{
+			code.cmd = script::StrToCommand(toks[0]);
+			code.reg1 = GetRegisterIndex(toks[1]);
+			const VARTYPE vt = common::script::GetVarType(code.cmd);
+			code.var1 = common::str2variant(vt, toks[2]);
+			if (vt == VT_EMPTY)
+				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if (((toks[0] == "symbolb")
 			|| (toks[0] == "symboli")
@@ -417,6 +421,14 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::cstack:
 		case eCommand::pop:
 			ofs << script::CommandToStr(code.cmd);
+			break;
+
+		case eCommand::synct:
+		case eCommand::synci:
+		case eCommand::sync:
+			ofs << script::CommandToStr(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << common::variant2str(code.var1, true);
 			break;
 
 		case eCommand::symbolb:
