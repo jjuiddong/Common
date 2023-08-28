@@ -25,11 +25,11 @@ public:
 		script::cVirtualMachine* vm = nullptr;
 
 		if (m_rmtItpr->m_interpreters.size() <= (uint)m_itprId)
-			goto $error;		
+			goto $error1;
 		interpreter = m_rmtItpr->m_interpreters[m_itprId].interpreter;
 		vm = interpreter->GetVM(m_vmId);
 		if (!vm)
-			goto $error;		
+			goto $error2;
 
 		SendIntermediateCode(m_rmtItpr->m_protocol, m_rcvId, m_itprId, m_vmId
 			, vm->m_code);
@@ -37,8 +37,19 @@ public:
 		return eRunResult::End;
 
 
-	$error:
+	$error1:
 		// fail, iterpreter id invalid
+		dbg::Logc(1, "error send icode, not found interpreter, itprId: %d, vmId: %d\n"
+			, m_itprId, m_vmId);
+		m_rmtItpr->m_protocol.AckIntermediateCode(m_rcvId, true, m_itprId, m_vmId
+			, 0, 0, 0, 0, {});
+		--m_rmtItpr->m_multiThreading;
+		return eRunResult::End;
+
+	$error2:
+		// fail, vm id invalid
+		//dbg::Logc(1, "error send icode, not found vm, itprId: %d, vmId: %d\n"
+		//	, m_itprId, m_vmId);
 		m_rmtItpr->m_protocol.AckIntermediateCode(m_rcvId, true, m_itprId, m_vmId
 			, 0, 0, 0, 0, {});
 		--m_rmtItpr->m_multiThreading;
