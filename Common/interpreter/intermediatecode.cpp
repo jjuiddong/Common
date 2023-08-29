@@ -90,7 +90,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 				dbg::Logc(3, "Error cIntermediateCode::Read() parse error\n");
 		}
 		else if ((toks[0] == "ldac")
-			&& (toks.size() >= 3))
+			&& (toks.size() >= 2))
 		{
 			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
@@ -98,7 +98,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			code.var1.intVal = 0; // tricky code, array type
 		}
 		else if ((toks[0] == "ldmc")
-			&& (toks.size() >= 3))
+			&& (toks.size() >= 2))
 		{
 			code.cmd = script::StrToCommand(toks[0]);
 			code.reg1 = GetRegisterIndex(toks[1]);
