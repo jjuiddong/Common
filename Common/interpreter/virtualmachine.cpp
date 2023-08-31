@@ -1190,6 +1190,18 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		++reg.idx;
 		break;
 
+	case eCommand::synco:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (!IsAssignable(varType, reg.reg[code.reg1].vt))
+			goto $error_semantic;
+		if (varType != code.var1.vt)
+			goto $error_semantic;
+
+		InitSyncOrderFlow((int)reg.reg[code.reg1], (int)code.var1);
+		++reg.idx;
+		break;
+
 	case eCommand::sync:
 		if (reg.reg.size() <= code.reg1)
 			goto $error_memory;
@@ -1341,6 +1353,7 @@ bool cVirtualMachine::InitSyncTimer(const int syncId, const int timeOut)
 		// add new sync object
 		sSync sync;
 		sync.id = syncId;
+		sync.type = 0; // Sync type
 		sync.enable = true;
 		sync.syncs.clear();
 		sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
@@ -1370,10 +1383,39 @@ bool cVirtualMachine::InitSyncFlow(const int syncId, const int pinCount)
 	{
 		sSync sync;
 		sync.id = syncId;
+		sync.type = 0; // Sync type
 		sync.enable = true;
 		sync.timerId = -1;
 		sync.syncs.clear();
 		for (int i=0; i < pinCount; ++i)
+			sync.syncs.push_back({ i, false });
+		m_syncs.push_back(sync);
+	}
+	else
+	{
+		it->enable = true; // clear flag
+		it->syncs.clear();
+		for (int i = 0; i < pinCount; ++i)
+			it->syncs.push_back({ i, false });
+	}
+	return true;
+}
+
+
+// initialize SyncOrder
+bool cVirtualMachine::InitSyncOrderFlow(const int syncId, const int pinCount)
+{
+	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
+		, [&](auto& a) { return a.id == syncId; });
+	if (m_syncs.end() == it)
+	{
+		sSync sync;
+		sync.id = syncId;
+		sync.type = 1; // SyncOrder type
+		sync.enable = true;
+		sync.timerId = -1;
+		sync.syncs.clear();
+		for (int i = 0; i < pinCount; ++i)
 			sync.syncs.push_back({ i, false });
 		m_syncs.push_back(sync);
 	}
@@ -1401,31 +1443,60 @@ bool cVirtualMachine::CheckSync(const int syncId, const int pinIdx)
 	if (!sync.enable)
 		return false; // all done, nothing to do
 
-	auto it2 = std::find_if(sync.syncs.begin(), sync.syncs.end()
-		, [&](const auto& a) {return a.first == pinIdx; });
-	if (sync.syncs.end() == it2)
-		return false; // error return
-
-	it2->second = true; // sync!
-
-	// check all sync
-	bool isAllSync = true;
-	for (auto& s : sync.syncs)
+	if (0 == sync.type)
 	{
-		if (!s.second)
-		{
-			isAllSync = false;
-			break;
-		}
-	}
-	if (!isAllSync)
-		return false; // nothing to do
+		// Sync
+		auto it2 = std::find_if(sync.syncs.begin(), sync.syncs.end()
+			, [&](const auto& a) {return a.first == pinIdx; });
+		if (sync.syncs.end() == it2)
+			return false; // error return
 
-	// all sync?
-	sync.enable = false; // sync done
-	if (sync.timerId >= 0)
-		StopTimer(sync.timerId);
-	return true;
+		it2->second = true; // sync!
+
+		// check all sync
+		bool isAllSync = true;
+		for (auto& s : sync.syncs)
+		{
+			if (!s.second)
+			{
+				isAllSync = false;
+				break;
+			}
+		}
+		if (!isAllSync)
+			return false; // nothing to do
+
+		// all sync?
+		sync.enable = false; // sync done
+		if (sync.timerId >= 0)
+			StopTimer(sync.timerId);
+
+		return true;
+	}
+	else if (1 == sync.type) 
+	{
+		// SyncOrder
+		if (sync.syncs.size() <= (uint)pinIdx)
+			return false; // error return
+
+		bool isAlreadySync = false;
+		for (uint i = 0; i < sync.syncs.size(); ++i)
+		{
+			if (pinIdx == i) continue;
+			if (sync.syncs[i].second)
+			{
+				isAlreadySync = true;
+				break;
+			}
+		}
+		if (isAlreadySync)
+			return false; // last enter
+		
+		sync.syncs[pinIdx].second = true;
+		return true; // first enter
+	}
+
+	return false;
 }
 
 

@@ -45,6 +45,7 @@ namespace common
 			struct sSync
 			{
 				int id; // unique id
+				int type; // 0:Sync, 1:SyncOrder
 				bool enable; // enable sync?
 				int timerId; // timer id
 				vector<std::pair<int, bool>> syncs; // first: pin index, second:sync?
@@ -83,6 +84,7 @@ namespace common
 			bool IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVarType);
 			bool InitSyncTimer(const int syncId, const int timeOut);
 			bool InitSyncFlow(const int syncId, const int pinCount);
+			bool InitSyncOrderFlow(const int syncId, const int pinCount);
 			bool CheckSync(const int syncId, const int pinIdx);
 			void ClearNSync(const bool enable = false);
 

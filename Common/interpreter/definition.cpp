@@ -71,6 +71,7 @@ static boost::bimap<eCommand, string> g_eCommandToStr =
 			{eCommand::cstack,"cstack"},
 			{eCommand::synct,"synct"},
 			{eCommand::synci,"synci"},
+			{eCommand::synco,"synco"},
 			{eCommand::sync,"sync"},
 			{eCommand::symbolb,"symbolb"},
 			{eCommand::symboli,"symboli"},
@@ -149,6 +150,7 @@ VARTYPE script::GetVarType(const eCommand cmd)
 	case eCommand::timer2:
 	case eCommand::synct:
 	case eCommand::synci:
+	case eCommand::synco:
 	case eCommand::sync:
 		return VT_INT;
 

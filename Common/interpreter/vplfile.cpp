@@ -539,14 +539,23 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 	RETV(m_nodes.empty(), false);
 
 	m_visit.clear(); // avoid duplicate execution
+	m_genNodes.clear();  // avoid duplicate execution
 
 	// make main entry
 	{
-		out.m_codes.push_back({ script::eCommand::nop });
+		out.m_codes.push_back({ script::eCommand::nop }); // no operation
 		script::sInstruction code;
 		code.cmd = script::eCommand::label;
 		code.str1 = "main";
 		out.m_codes.push_back(code);
+
+		// initialize SyncOrder
+		for (auto& node : m_nodes)
+		{
+			if ((eNodeType::Control == node.type) && (node.name == "SyncOrder"))
+				SyncOrderInit_GenCode(node, out);
+		}
+
 		out.m_codes.push_back({ script::eCommand::nop });
 	}
 
@@ -1063,6 +1072,9 @@ bool cVplFile::Control_GenCode(const sNode &prevNode, const sNode &node
 		Sequence_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "Sync")
 		Sync_GenCode(prevNode, node, fromPin, out);
+	else if (node.name == "SyncOrder")
+		SyncOrder_GenCode(prevNode, node, fromPin, out);
+
 	return true;
 }
 
@@ -1924,6 +1936,176 @@ bool cVplFile::Sync_GenCode(const sNode& prevNode, const sNode& node
 }
 
 
+// generate SyncOrder code
+bool cVplFile::SyncOrder_GenCode(const sNode& prevNode, const sNode& node
+	, const sPin& fromPin, OUT common::script::cIntermediateCode& out)
+{
+	RETV(eNodeType::Control != node.type, false);
+	RETV(fromPin.links.empty(), false);
+
+	int inputPinIdx = -1;
+	for (uint i = 0; i < node.inputs.size(); ++i)
+	{
+		const sPin& pin = node.inputs[i];
+		if (fromPin.links[0] == pin.id)
+		{
+			inputPinIdx = (int)i;
+			break;
+		}
+	}
+	if (inputPinIdx < 0)
+		return false;
+
+	const int syncId = node.id;
+
+	// initialize sync?
+	if (node.inputs[inputPinIdx].name == "initialize")
+	{
+		if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
+			return true;
+
+		SyncOrderInit_GenCode(node, out);
+
+		NodeEscape_GenCode(node, out);
+	}
+	else
+	{
+		DebugInfo_GenCode(prevNode, node, fromPin, out);
+
+		// check sync, sync
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::ldic;
+			code.reg1 = 0;
+			code.var1 = syncId;
+			out.m_codes.push_back(code);
+		}
+
+		int syncPinIdx = 0; // sync pin index
+		{
+			for (uint i = 0; i < node.inputs.size(); ++i)
+			{
+				const sPin& pin = node.inputs[i];
+				if ((ePinType::Flow == pin.type) && (pin.name != "initialize"))
+				{
+					if (fromPin.links[0] == pin.id)
+						break;
+					++syncPinIdx;
+				}
+			}
+
+			script::sInstruction code;
+			code.cmd = script::eCommand::sync;
+			code.reg1 = 0; // reg1:syncId
+			code.var1 = syncPinIdx;
+			out.m_codes.push_back(code);
+		}
+
+		const string jmpLabels[4] = { "First Enter1", "Last Enter1"
+			, "First Enter2", "Last Enter2" };
+
+		const string firstEnter = jmpLabels[(syncPinIdx * 2)];
+		const string lastEnter = jmpLabels[(syncPinIdx * 2) + 1];
+
+		// has output pin?
+		bool hasPin1 = false;
+		bool hasPin2 = false;
+		for (auto& pin : node.outputs)
+		{
+			if ((ePinType::Flow == pin.type) && (pin.name == firstEnter)
+				&& (pin.links.size() > 0))
+				hasPin1 = true;
+			else if ((ePinType::Flow == pin.type) && (pin.name == lastEnter)
+				&& (pin.links.size() > 0))
+				hasPin2 = true;
+		}
+
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = hasPin1? (MakeScopeName(node) + "-" + firstEnter) : "blank";
+			out.m_codes.push_back(code);
+		}
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jmp;
+			code.str1 = hasPin2 ? (MakeScopeName(node) + "-" + lastEnter) : "blank";
+			out.m_codes.push_back(code);
+		}
+
+		NodeEscape_GenCode(node, out);
+
+		// generate 'First Enter1, Last Enter1, First Enter2, Last Enter2' output flow
+		if (m_genNodes.end() == m_genNodes.find(node.id))
+		{
+			m_genNodes.insert(node.id); // only once generate
+
+			out.m_codes.push_back({ script::eCommand::nop }); // nop
+
+			for (auto& pin : node.outputs)
+			{
+				if (ePinType::Flow == pin.type)
+				{
+					sNode* next = nullptr; // next node
+					sPin* np = nullptr; // next pin
+					const int linkId = pin.links.empty() ? -1 : pin.links.front();
+					std::tie(next, np) = FindContainPin(linkId);
+					if (next)
+					{
+						// insert jump label
+						{
+							script::sInstruction code;
+							code.cmd = script::eCommand::label;
+							code.str1 = MakeScopeName(node) + "-" + pin.name;
+							out.m_codes.push_back(code);
+						}
+
+						Node_GenCode(node, *next, pin, out);
+					}
+				}
+			}//~for
+		}
+
+	}
+
+	return true;
+}
+
+
+// generate intermediate code, SyncOrder node
+// initialize SyncOrder command
+bool cVplFile::SyncOrderInit_GenCode(const sNode& node
+	, OUT common::script::cIntermediateCode& out)
+{
+	const int syncId = node.id;
+
+	// 1. link input pin count, synco
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::ldic;
+		code.reg1 = 0;
+		code.var1 = syncId;
+		out.m_codes.push_back(code);
+
+		int count = 0;
+		for (auto& pin : node.inputs)
+		{
+			if ((ePinType::Flow == pin.type) && (pin.name != "initialize"))
+				++count;
+		}
+
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::synco;
+			code.reg1 = 0; // reg1:syncId
+			code.var1 = count;
+			out.m_codes.push_back(code);
+		}
+	}
+	return true;
+}
+
+
 // generate intermediate code, operator node
 bool cVplFile::Operator_GenCode(const sNode &node
 	, OUT common::script::cIntermediateCode &out)
@@ -2552,7 +2734,8 @@ bool cVplFile::NodeEscape_GenCode(const sNode &node
 	for (auto& pin : node.outputs)
 		if ((ePinType::Flow == pin.type) && (common::trim2(pin.name).empty()))
 			++outputFlowCnt;
-	const bool isMacro = (0 == inputFlowCnt) && (0 == outputFlowCnt);
+	const bool isMacro = (eNodeType::Control != node.type) 
+		&& (0 == inputFlowCnt) && (0 == outputFlowCnt);
 	
 	if (isMacro)
 		return true; // macro function no need return

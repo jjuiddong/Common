@@ -425,6 +425,7 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 
 		case eCommand::synct:
 		case eCommand::synci:
+		case eCommand::synco:
 		case eCommand::sync:
 			ofs << script::CommandToStr(code.cmd);
 			ofs << " " << GetRegisterName(code.reg1);

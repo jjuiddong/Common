@@ -118,6 +118,10 @@ namespace vpl
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool Sync_GenCode(const sNode& prevNode, const sNode& node
 			, const sPin& fromPin, OUT common::script::cIntermediateCode& out);
+		bool SyncOrder_GenCode(const sNode& prevNode, const sNode& node
+			, const sPin& fromPin, OUT common::script::cIntermediateCode& out);
+		bool SyncOrderInit_GenCode(const sNode& node
+			, OUT common::script::cIntermediateCode& out);
 		bool Operator_GenCode(const sNode &node
 			, OUT common::script::cIntermediateCode &out);
 		bool Variable_GenCode(const sNode &node
@@ -175,6 +179,7 @@ namespace vpl
 		vector<sLink> m_links;
 		common::script::cSymbolTable m_variables;
 		set<int> m_visit; // visit node, use generate intermediate code
+		set<int> m_genNodes; // generate code node, especially SyncOrder
 		int m_jmpLabelSeedId; // to generate unique jump label id
 		int m_syncId; // sync command id
 	};
