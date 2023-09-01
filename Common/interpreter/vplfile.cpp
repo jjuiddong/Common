@@ -2101,6 +2101,16 @@ bool cVplFile::SyncOrderInit_GenCode(const sNode& node
 			code.var1 = count;
 			out.m_codes.push_back(code);
 		}
+
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::seti;
+			code.str1 = MakeScopeName(node);
+			code.str2 = "id";
+			code.reg1 = 0; // reg1:syncId
+			code.var1 = count;
+			out.m_codes.push_back(code);
+		}
 	}
 	return true;
 }

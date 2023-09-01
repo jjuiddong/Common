@@ -70,6 +70,7 @@ namespace common
 			bool StopTick(const int tickId);
 			void SetCodeTrace(const bool isCodeTrace);
 			bool EnableNetworkSync(const bool enable);
+			bool ClearSyncOrder(const int syncId);
 			void ClearCodeTrace(const bool isTakeLast=false, const int removeSize=-1);
 			void Clear();
 

@@ -1540,6 +1540,20 @@ void cVirtualMachine::SetCodeTrace(const bool isCodeTrace)
 }
 
 
+// initialize syncOrder
+bool cVirtualMachine::ClearSyncOrder(const int syncId)
+{
+	auto it = std::find_if(m_syncs.begin(), m_syncs.end()
+		, [&](auto& a) { return a.id == syncId; });
+	if (m_syncs.end() == it)
+		return false;
+	it->enable = true; // clear flag
+	for (auto& sync : it->syncs)
+		sync.second = false;
+	return true;
+}
+
+
 // clear executed code index log
 // isTakeLast: m_trace.back() take, clear remains
 // size: remove size, -1:all remove

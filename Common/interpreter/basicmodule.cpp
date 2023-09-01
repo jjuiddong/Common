@@ -31,6 +31,7 @@ eModuleResult FnVector3(script::cVirtualMachine& vm, const string& scopeName, co
 eModuleResult TerminateVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult ClearSyncOrder(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult TaskSuccess(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult TaskFail(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 
@@ -84,6 +85,7 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "Task Success", TaskSuccess});
 	m_fnMap.insert({ "Task Fail", TaskFail});
 	m_fnMap.insert({ "Sync", Sync});
+	m_fnMap.insert({ "ClearSyncOrder", ClearSyncOrder });
 
 }
 
@@ -420,6 +422,17 @@ eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeNa
 eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
 {
 	// nothing to do
+	return eModuleResult::Done;
+}
+
+
+// synchronize flow pin
+eModuleResult ClearSyncOrder(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int syncId = symbolTable.Get<int>(scopeName, "id");
+	const bool res = vm.ClearSyncOrder(syncId);
+	symbolTable.Set<bool>(scopeName, "result", res);
 	return eModuleResult::Done;
 }
 
