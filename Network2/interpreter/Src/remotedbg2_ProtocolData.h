@@ -342,6 +342,17 @@ using namespace marshalling_json;
 		vector<string> array;
 	};
 
+	struct SyncVMTimer_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmId;
+		string scopeName;
+		int timerId;
+		int time;
+		int actionType;
+	};
+
 	struct AckHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;

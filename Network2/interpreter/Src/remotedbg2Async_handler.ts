@@ -270,6 +270,14 @@ export namespace remotedbg2Async {
 		startIdx: number, 
 		array: string[], 
 	}
+	export type SyncVMTimer_Packet = {
+		itprId: number, 
+		vmId: number, 
+		scopeName: string, 
+		timerId: number, 
+		time: number, 
+		actionType: number, 
+	}
 	export type AckHeartBeat_Packet = {
 	}
 
@@ -665,6 +673,15 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 					handlers.forEach(handler => {
 						if (handler instanceof h2r_ProtocolHandler)
 							handler.SyncVMArrayString(parsePacket)
+					})
+				}
+				break;
+
+			case 3712761243: // SyncVMTimer
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.SyncVMTimer(parsePacket)
 					})
 				}
 				break;
@@ -1437,6 +1454,30 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: SyncVMTimer
+	SyncVMTimer(isBinary: boolean, itprId: number, vmId: number, scopeName: string, timerId: number, time: number, actionType: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushStr(scopeName)
+			packet.pushInt32(timerId)
+			packet.pushInt32(time)
+			packet.pushInt32(actionType)
+			this.node?.sendPacketBinary(5300, 3712761243, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				scopeName,
+				timerId,
+				time,
+				actionType,
+			}
+			this.node?.sendPacket(5300, 3712761243, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -1508,6 +1549,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	SyncVMArrayBool = (packet: remotedbg2Async.SyncVMArrayBool_Packet) => { }
 	SyncVMArrayNumber = (packet: remotedbg2Async.SyncVMArrayNumber_Packet) => { }
 	SyncVMArrayString = (packet: remotedbg2Async.SyncVMArrayString_Packet) => { }
+	SyncVMTimer = (packet: remotedbg2Async.SyncVMTimer_Packet) => { }
 	AckHeartBeat = (packet: remotedbg2Async.AckHeartBeat_Packet) => { }
 }
 

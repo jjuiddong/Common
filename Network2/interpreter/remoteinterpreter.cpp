@@ -860,6 +860,54 @@ void cRemoteInterpreter::TerminateResponse(const int vmId)
 }
 
 
+// start timeout response
+void cRemoteInterpreter::SetTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMTimer(network2::ALL_NETID, true, itprId, vmId, scopeName, timerId, time, 1);
+}
+
+
+// clear timeout response
+void cRemoteInterpreter::ClearTimeOutResponse(const int vmId, const int timerId, const int id)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMTimer(network2::ALL_NETID, true, itprId, vmId, "", timerId, 0, 0);
+}
+
+
+// start interval response
+void cRemoteInterpreter::SetIntervalResponse(const int vmId, const string& scopeName, const int timerId, const int time)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMTimer(network2::ALL_NETID, true, itprId, vmId, scopeName, timerId, time, 2);
+}
+
+
+// clear interval  response
+void cRemoteInterpreter::ClearIntervalResponse(const int vmId, const int timerId, const int id)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMTimer(network2::ALL_NETID, true, itprId, vmId, "", timerId, 0, 0);
+}
+
+
+// start sync timeout response
+void cRemoteInterpreter::SyncTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMTimer(network2::ALL_NETID, true, itprId, vmId, scopeName, timerId, time, 3);
+}
+
+
+// clear sync timeout response
+void cRemoteInterpreter::ClearSyncTimeOutResponse(const int vmId, const int timerId, const int id)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMTimer(network2::ALL_NETID, true, itprId, vmId, "", timerId, 0, 0);
+}
+
+
 // find interpreter by virtual machine id
 // vmId: virtual machine id
 cRemoteInterpreter::sItpr* cRemoteInterpreter::GetInterpreterByVMId(const int vmId)

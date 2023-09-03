@@ -1151,6 +1151,37 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
+			case 3712761243: // SyncVMTimer
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const scopeName = packet.getStr()
+						const timerId = packet.getInt32()
+						const time = packet.getInt32()
+						const actionType = packet.getInt32()
+						const parsePacket = {
+							itprId,
+							vmId,
+							scopeName,
+							timerId,
+							time,
+							actionType,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMTimer(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.SyncVMTimer(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 1133387750: // AckHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -1929,6 +1960,30 @@ remotedbg2.h2r_Protocol = class {
 		}
 	}
 	
+	// Protocol: SyncVMTimer
+	SyncVMTimer(ws, isBinary, itprId, vmId, scopeName, timerId, time, actionType, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushStr(scopeName)
+			packet.pushInt32(timerId)
+			packet.pushInt32(time)
+			packet.pushInt32(actionType)
+			WsSockServer.sendPacketBinary(ws, 5300, 3712761243, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				scopeName,
+				timerId,
+				time,
+				actionType,
+			}
+			WsSockServer.sendPacket(ws, 5300, 3712761243, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
@@ -2000,6 +2055,7 @@ remotedbg2.h2r_ProtocolHandler = class {
 	SyncVMArrayBool(wss, ws, packet) {}
 	SyncVMArrayNumber(wss, ws, packet) {}
 	SyncVMArrayString(wss, ws, packet) {}
+	SyncVMTimer(wss, ws, packet) {}
 	AckHeartBeat(wss, ws, packet) {}
 }
 

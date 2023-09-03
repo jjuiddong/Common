@@ -34,6 +34,7 @@ eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const s
 eModuleResult ClearSyncOrder(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult TaskSuccess(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 eModuleResult TaskFail(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
+eModuleResult Delay(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg);
 
 
 cBasicModule::cBasicModule()
@@ -86,6 +87,7 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "Task Fail", TaskFail});
 	m_fnMap.insert({ "Sync", Sync});
 	m_fnMap.insert({ "ClearSyncOrder", ClearSyncOrder });
+	m_fnMap.insert({ "Delay", Delay});
 
 }
 
@@ -325,6 +327,10 @@ eModuleResult SetTimeOut(cVirtualMachine& vm, const string& scopeName, const str
 	const int timerId = vm.SetTimer(scopeName, time);
 	symbolTable.Set<bool>(scopeName, "result", timerId >= 0);
 	symbolTable.Set<float>(scopeName, "id", (float)timerId);
+
+	if (vm.m_itpr && vm.m_itpr->m_listener)
+		vm.m_itpr->m_listener->SetTimeOutResponse(vm.m_id, scopeName, timerId, time);
+
 	return eModuleResult::Done;
 }
 
@@ -335,6 +341,10 @@ eModuleResult ClearTimeOut(cVirtualMachine& vm, const string& scopeName, const s
 	const int id = symbolTable.Get<int>(scopeName, "id");
 	const bool result = vm.StopTimer(id);
 	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+
+	if (vm.m_itpr && vm.m_itpr->m_listener)
+		vm.m_itpr->m_listener->ClearTimeOutResponse(vm.m_id, id, id);
+
 	return eModuleResult::Done;
 }
 
@@ -346,6 +356,10 @@ eModuleResult SetInterval(cVirtualMachine& vm, const string& scopeName, const st
 	const int timerId = vm.SetTimer(scopeName, time, true);
 	symbolTable.Set<bool>(scopeName, "result", timerId >= 0);
 	symbolTable.Set<float>(scopeName, "id", (float)timerId);
+
+	if (vm.m_itpr && vm.m_itpr->m_listener)
+		vm.m_itpr->m_listener->SetIntervalResponse(vm.m_id, scopeName, timerId, time);
+
 	return eModuleResult::Done;
 }
 
@@ -356,6 +370,10 @@ eModuleResult ClearInterval(cVirtualMachine& vm, const string& scopeName, const 
 	const int id = symbolTable.Get<int>(scopeName, "id");
 	const bool result = vm.StopTimer(id);
 	symbolTable.Set<bool>(scopeName, "result", result, "bool");
+
+	if (vm.m_itpr && vm.m_itpr->m_listener)
+		vm.m_itpr->m_listener->ClearIntervalResponse(vm.m_id, id, id);
+
 	return eModuleResult::Done;
 }
 
@@ -421,7 +439,6 @@ eModuleResult TerminateThisVM(script::cVirtualMachine& vm, const string& scopeNa
 // synchronize flow pin
 eModuleResult Sync(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
 {
-	// nothing to do
 	return eModuleResult::Done;
 }
 
@@ -471,6 +488,20 @@ eModuleResult TaskFail(script::cVirtualMachine& vm, const string& scopeName, con
 	}
 	const bool res = vm.m_itpr ? vm.m_itpr->Terminate(vm.m_id, symbs, "_Fail") : false;
 	symbolTable.Set<bool>(scopeName, "result", res);
+	return eModuleResult::Done;
+}
+
+
+// delay
+eModuleResult Delay(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
+{
+	script::cSymbolTable& symbolTable = vm.m_symbTable;
+	const int time = symbolTable.Get<int>(scopeName, "duration"); // milliseconds
+	const int timerId = script::cSymbolTable::ParseScopeName(scopeName).second;
+
+	if (vm.m_itpr && vm.m_itpr->m_listener)
+		vm.m_itpr->m_listener->SetTimeOutResponse(vm.m_id, scopeName, timerId, time);
+
 	return eModuleResult::Done;
 }
 

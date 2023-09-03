@@ -665,7 +665,7 @@ cVirtualMachine* cInterpreter::GetRemoveVM(const int vmId)
 
 
 // update terminate virtual machine callback function
-bool cInterpreter::SetListener(iTerminateResponse* listener)
+bool cInterpreter::SetListener(iInterpreterResponse* listener)
 {
 	m_listener = listener;
 	return true;

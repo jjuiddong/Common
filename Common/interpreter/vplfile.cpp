@@ -1004,6 +1004,13 @@ bool cVplFile::Function_GenCode(const sNode &prevNode, const sNode &node
 	else if (node.name == "Delay")
 	{
 		{
+			// call 'Delay' function to notify timeout
+			script::sInstruction code;
+			code.cmd = script::eCommand::call;
+			code.str1 = MakeScopeName(node);
+			out.m_codes.push_back(code);
+		}
+		{
 			// delay debug information
 			script::sInstruction inst;
 			inst.cmd = script::eCommand::cmt;

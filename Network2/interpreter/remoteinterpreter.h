@@ -17,7 +17,7 @@ namespace network2
 {
 
 	class cRemoteInterpreter : public remotedbg2::r2h_ProtocolHandler
-							  , public common::script::iTerminateResponse
+							  , public common::script::iInterpreterResponse
 	{
 	public:
 		// interpreter information
@@ -93,8 +93,15 @@ namespace network2
 		script::cVirtualMachine* GetVM(const int vmId);
 		script::cVirtualMachine* GetRemoveVM(const int vmId);
 
-		// iTerminateResponse handler
+		// iInterpreterResponse handler
 		virtual void TerminateResponse(const int vmId) override;
+		virtual void SetTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time) override;
+		virtual void ClearTimeOutResponse(const int vmId, const int timerId, const int id) override;
+		virtual void SetIntervalResponse(const int vmId, const string& scopeName, const int timerId, const int time) override;
+		virtual void ClearIntervalResponse(const int vmId, const int timerId, const int id) override;
+		virtual void SyncTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time) override;
+		virtual void ClearSyncTimeOutResponse(const int vmId, const int timerId, const int id) override;
+		//~
 
 
 	protected:

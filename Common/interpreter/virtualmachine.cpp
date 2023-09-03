@@ -261,21 +261,27 @@ int cVirtualMachine::SetTimer(const string& name, const int timeMillis
 	, const int syncId //=-1
 )
 {
+	int timerId = 0;
 	auto it = std::find_if(m_timers.begin(), m_timers.end()
-		, [&](const auto &a) { return a.name == name; });
+		, [&](const auto& a) { return a.name == name; });
 	if (m_timers.end() != it)
-		return -1; // already exist
-
-	const int timerId = common::GenerateId();
-	m_timers.push_back(
-		{ timerId
-		, name
-		, timeMillis / 1000.f // timer interval (convert seconds unit)
-		, (float)timeMillis / 1000.f  // timer decrease time (convert seconds unit)
-		, isLoop // continuous call timer event?
-		, syncId
-		}
-	);
+	{
+		it->t = it->interval; // initialize
+		timerId = it->id;
+	}
+	else
+	{
+		timerId = common::GenerateId();
+		m_timers.push_back(
+			{ timerId
+			, name
+			, timeMillis / 1000.f // timer interval (convert seconds unit)
+			, (float)timeMillis / 1000.f  // timer decrease time (convert seconds unit)
+			, isLoop // continuous call timer event?
+			, syncId
+			}
+		);
+	}
 	return timerId;
 }
 
@@ -1357,6 +1363,11 @@ bool cVirtualMachine::InitSyncTimer(const int syncId, const int timeOut)
 		sync.enable = true;
 		sync.syncs.clear();
 		sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
+
+		if (m_itpr && m_itpr->m_listener)
+			m_itpr->m_listener->SetTimeOutResponse(m_id, common::format("Sync_%d", syncId)
+				, sync.timerId, timeOut);
+
 		m_syncs.push_back(sync);
 	}
 	else
@@ -1366,9 +1377,18 @@ bool cVirtualMachine::InitSyncTimer(const int syncId, const int timeOut)
 		sync.id = syncId;
 		sync.enable = true;
 		sync.syncs.clear();
-		StopTimer(syncId);
+		StopTimer(sync.timerId);
+
+		if (m_itpr && m_itpr->m_listener)
+			m_itpr->m_listener->ClearTimeOutResponse(m_id, sync.timerId, 0);
+
 		sync.timerId = SetTimer(common::format("Sync_%d-TimeOut", syncId), timeOut, false, syncId);
+
+		if (m_itpr && m_itpr->m_listener)
+			m_itpr->m_listener->SetTimeOutResponse(m_id, common::format("Sync_%d", syncId)
+				, sync.timerId, timeOut);
 	}
+
 	return true;
 }
 
@@ -1469,7 +1489,12 @@ bool cVirtualMachine::CheckSync(const int syncId, const int pinIdx)
 		// all sync?
 		sync.enable = false; // sync done
 		if (sync.timerId >= 0)
+		{
 			StopTimer(sync.timerId);
+
+			if (m_itpr && m_itpr->m_listener)
+				m_itpr->m_listener->ClearTimeOutResponse(m_id, sync.timerId, 0);
+		}
 
 		return true;
 	}

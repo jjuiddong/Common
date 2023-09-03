@@ -270,6 +270,14 @@ export namespace remotedbg2 {
 		startIdx: number, 
 		array: string[], 
 	}
+	export type SyncVMTimer_Packet = {
+		itprId: number, 
+		vmId: number, 
+		scopeName: string, 
+		timerId: number, 
+		time: number, 
+		actionType: number, 
+	}
 	export type AckHeartBeat_Packet = {
 	}
 
@@ -1382,6 +1390,38 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 				}
 				break;
 
+			case 3712761243: // SyncVMTimer
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const scopeName = packet.getStr()
+						const timerId = packet.getInt32()
+						const time = packet.getInt32()
+						const actionType = packet.getInt32()
+						const parsePacket: SyncVMTimer_Packet = {
+							itprId,
+							vmId,
+							scopeName,
+							timerId,
+							time,
+							actionType,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.SyncVMTimer(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: SyncVMTimer_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.SyncVMTimer(parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 1133387750: // AckHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -2161,6 +2201,30 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: SyncVMTimer
+	SyncVMTimer(isBinary: boolean, itprId: number, vmId: number, scopeName: string, timerId: number, time: number, actionType: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushStr(scopeName)
+			packet.pushInt32(timerId)
+			packet.pushInt32(time)
+			packet.pushInt32(actionType)
+			this.node?.sendPacketBinary(5300, 3712761243, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				scopeName,
+				timerId,
+				time,
+				actionType,
+			}
+			this.node?.sendPacket(5300, 3712761243, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -2232,6 +2296,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	SyncVMArrayBool = (packet: remotedbg2.SyncVMArrayBool_Packet) => { }
 	SyncVMArrayNumber = (packet: remotedbg2.SyncVMArrayNumber_Packet) => { }
 	SyncVMArrayString = (packet: remotedbg2.SyncVMArrayString_Packet) => { }
+	SyncVMTimer = (packet: remotedbg2.SyncVMTimer_Packet) => { }
 	AckHeartBeat = (packet: remotedbg2.AckHeartBeat_Packet) => { }
 }
 

@@ -13,10 +13,26 @@ namespace common
 	namespace script
 	{
 
-		// terminate virtual machine listener interface
-		interface iTerminateResponse 
+		// interpreter response interface		
+		interface iInterpreterResponse 
 		{
+			// terminate virtual machine listener interface
 			virtual void TerminateResponse(const int vmId) = 0;
+
+			// start timeout response
+			virtual void SetTimeOutResponse(const int vmId, const string &scopeName, const int timerId, const int time) {}
+			// clear timeout response
+			virtual void ClearTimeOutResponse(const int vmId, const int timerId, const int id) {}
+
+			// start interval response
+			virtual void SetIntervalResponse(const int vmId, const string& scopeName, const int timerId, const int time) {}
+			// clear interval  response
+			virtual void ClearIntervalResponse(const int vmId, const int timerId, const int id) {}
+
+			// start sync timeout response
+			virtual void SyncTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time) {}
+			// clear sync timeout response
+			virtual void ClearSyncTimeOutResponse(const int vmId, const int timerId, const int id) {}
 		};
 
 
@@ -64,7 +80,7 @@ namespace common
 
 			cVirtualMachine* GetVM(const int vmId);
 			cVirtualMachine* GetRemoveVM(const int vmId);
-			bool SetListener(iTerminateResponse* listener);
+			bool SetListener(iInterpreterResponse* listener);
 
 
 		protected:
@@ -95,7 +111,7 @@ namespace common
 			deque<cEvent> m_events;
 			vector<cVirtualMachine*> m_vms; // execute virtual machines
 			vector<cVirtualMachine*> m_rmVms; // remove virtual machines
-			iTerminateResponse* m_listener;
+			iInterpreterResponse* m_listener;
 			vector<iModule*> m_modules; // execute function module, reference
 			float m_dt;
 			set<std::pair<int, uint>> m_breakPoints; // first:vmId, second:node id
