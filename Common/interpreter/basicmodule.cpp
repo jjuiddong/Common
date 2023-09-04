@@ -619,6 +619,10 @@ $error:
 	{
 		// todo: exception process
 	}
+	else if (funcName == "Array.Find")
+	{
+		symbolTable.Set(scopeName, "index", -1.f, "float");
+	}
 	else if (funcName == "Array.Size")
 	{
 		symbolTable.Set<float>(scopeName, "size", 0.f, "float");

@@ -307,7 +307,7 @@ bool cVplFile::AddVariable2(const string &scopeName, const string &name
 			const eSymbolType itemType = typeValues[1]; // array item type
 			for (auto& tok : toks)
 			{
-				common::replaceAll(tok, "'", ""); // remove \' character
+				common::replaceAll(common::trim(tok), "'", ""); // remove \' character
 				switch (itemType)
 				{
 				case eSymbolType::Bool: val = (bool)atoi(tok.c_str()); break;
