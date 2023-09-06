@@ -33,6 +33,9 @@ namespace common
 			virtual void SyncTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time) {}
 			// clear sync timeout response
 			virtual void ClearSyncTimeOutResponse(const int vmId, const int timerId, const int id) {}
+
+			// error occurred!
+			virtual void ErrorVM(const int vmId, const string& msg) {}
 		};
 
 

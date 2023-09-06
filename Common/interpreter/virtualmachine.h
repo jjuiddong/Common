@@ -83,6 +83,7 @@ namespace common
 			void CodeTraceLog(vector<ushort> &trace);
 			void WriteTraceLog(const vector<ushort> &trace);
 			bool IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVarType);
+			bool Error(const string& msg);
 			bool InitSyncTimer(const int syncId, const int timeOut);
 			bool InitSyncFlow(const int syncId, const int pinCount);
 			bool InitSyncOrderFlow(const int syncId, const int pinCount);

@@ -908,6 +908,14 @@ void cRemoteInterpreter::ClearSyncTimeOutResponse(const int vmId, const int time
 }
 
 
+// error message from virtual machine
+void cRemoteInterpreter::ErrorVM(const int vmId, const string& msg)
+{
+	const int itprId = GetInterpreterIdByVMId(vmId);
+	m_protocol.SyncVMOutput(network2::ALL_NETID, true, itprId, vmId, msg);
+}
+
+
 // find interpreter by virtual machine id
 // vmId: virtual machine id
 cRemoteInterpreter::sItpr* cRemoteInterpreter::GetInterpreterByVMId(const int vmId)

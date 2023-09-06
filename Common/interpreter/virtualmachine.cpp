@@ -1246,6 +1246,8 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 $error:
 	dbg::Logc(3, "Error cVirtualMachine::Execute() not valid command. '%s' index=%d, cmd=%d\n"
 		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd);
+	Error(common::format("Error vm.execute, not valid command. '%s' index=%d, cmd=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd));
 	WriteTraceLog(m_trace2);
 	m_state = eState::Stop;
 	return false;
@@ -1253,6 +1255,8 @@ $error:
 $error_semantic:
 	dbg::Logc(3, "Error cVirtualMachine::Execute() Semantic Error.' %s', index=%d, cmd=%d\n"
 		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd);
+	Error(common::format("Error vm.execute, Semantic Error. '%s' index=%d, cmd=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd));
 	WriteTraceLog(m_trace2);
 	m_state = eState::Stop;
 	return false;
@@ -1260,6 +1264,8 @@ $error_semantic:
 $error_memory:
 	dbg::Logc(3, "Error cVirtualMachine::Execute() Memory Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
 		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2);
+	Error(common::format("Error vm.execute, Memory Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2));
 	WriteTraceLog(m_trace2);
 	m_state = eState::Stop;
 	return false;
@@ -1267,6 +1273,8 @@ $error_memory:
 $error_call:
 	dbg::Logc(3, "Error cVirtualMachine::Execute() Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
 		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2);
+	Error(common::format("Error vm.execute, Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2));
 	WriteTraceLog(m_trace2);
 	// vm working, no stop
 	// todo: send error message
@@ -1342,6 +1350,15 @@ bool cVirtualMachine::IsAssignable(const VARTYPE srcVarType, const VARTYPE dstVa
 	case VT_R4: return IsAssignable(dstVarType, srcVarType);
 	}
 	return false;
+}
+
+
+// error process
+bool cVirtualMachine::Error(const string& msg)
+{
+	if (m_itpr->m_listener)
+		m_itpr->m_listener->ErrorVM(m_id, msg);
+	return true;
 }
 
 

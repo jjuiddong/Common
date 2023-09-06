@@ -101,6 +101,7 @@ namespace network2
 		virtual void ClearIntervalResponse(const int vmId, const int timerId, const int id) override;
 		virtual void SyncTimeOutResponse(const int vmId, const string& scopeName, const int timerId, const int time) override;
 		virtual void ClearSyncTimeOutResponse(const int vmId, const int timerId, const int id) override;
+		virtual void ErrorVM(const int vmId, const string &msg) override;
 		//~
 
 
