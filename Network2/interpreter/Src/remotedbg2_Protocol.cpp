@@ -1649,6 +1649,43 @@ void remotedbg2::h2r_Protocol::SyncVMTimer(netid targetId, bool isBinary, const 
 }
 
 //------------------------------------------------------------------------
+// Protocol: ExecuteCustomFunction
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::ExecuteCustomFunction(netid targetId, bool isBinary, const string &fnName, const map<string,vector<string>> &args)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 638159302 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, fnName);
+		marshalling::operator<<(packet, args);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "fnName", fnName);
+			put(props, "args", args);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
 // Protocol: AckHeartBeat
 //------------------------------------------------------------------------
 void remotedbg2::h2r_Protocol::AckHeartBeat(netid targetId, bool isBinary)

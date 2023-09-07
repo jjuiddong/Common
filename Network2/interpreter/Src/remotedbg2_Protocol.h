@@ -65,6 +65,7 @@ public:
 	void SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<float> &array);
 	void SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<string> &array);
 	void SyncVMTimer(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &scopeName, const int &timerId, const int &time, const int &actionType);
+	void ExecuteCustomFunction(netid targetId, bool isBinary, const string &fnName, const map<string,vector<string>> &args);
 	void AckHeartBeat(netid targetId, bool isBinary);
 	static cPacketHeaderJson s_packetHeader;
 };

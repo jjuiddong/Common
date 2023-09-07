@@ -61,6 +61,9 @@ protocol h2r 5300 json
 	SyncVMArrayNumber( int itprId, int vmId, string varName, uint startIdx, vector<float> array );
 	SyncVMArrayString( int itprId, int vmId, string varName, uint startIdx, vector<string> array );
 	SyncVMTimer( int itprId, int vmId, string scopeName, int timerId, int time, int actionType );
+
+	ExecuteCustomFunction(string fnName, map<string, vector<string>> args);
+
 	AckHeartBeat();
 }
 

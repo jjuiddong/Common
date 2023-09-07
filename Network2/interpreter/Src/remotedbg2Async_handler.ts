@@ -278,6 +278,10 @@ export namespace remotedbg2Async {
 		time: number, 
 		actionType: number, 
 	}
+	export type ExecuteCustomFunction_Packet = {
+		fnName: string, 
+		args: Map<string,string[]>, 
+	}
 	export type AckHeartBeat_Packet = {
 	}
 
@@ -682,6 +686,15 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 					handlers.forEach(handler => {
 						if (handler instanceof h2r_ProtocolHandler)
 							handler.SyncVMTimer(parsePacket)
+					})
+				}
+				break;
+
+			case 638159302: // ExecuteCustomFunction
+				{
+					handlers.forEach(handler => {
+						if (handler instanceof h2r_ProtocolHandler)
+							handler.ExecuteCustomFunction(parsePacket)
 					})
 				}
 				break;
@@ -1478,6 +1491,22 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ExecuteCustomFunction
+	ExecuteCustomFunction(isBinary: boolean, fnName: string, args: Map<string,string[]>, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushStr(fnName)
+			packet.pushMapStrArray(args)
+			this.node?.sendPacketBinary(5300, 638159302, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				fnName,
+				args,
+			}
+			this.node?.sendPacket(5300, 638159302, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -1550,6 +1579,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	SyncVMArrayNumber = (packet: remotedbg2Async.SyncVMArrayNumber_Packet) => { }
 	SyncVMArrayString = (packet: remotedbg2Async.SyncVMArrayString_Packet) => { }
 	SyncVMTimer = (packet: remotedbg2Async.SyncVMTimer_Packet) => { }
+	ExecuteCustomFunction = (packet: remotedbg2Async.ExecuteCustomFunction_Packet) => { }
 	AckHeartBeat = (packet: remotedbg2Async.AckHeartBeat_Packet) => { }
 }
 

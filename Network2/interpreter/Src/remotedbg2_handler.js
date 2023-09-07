@@ -1182,6 +1182,29 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
+			case 638159302: // ExecuteCustomFunction
+				{
+					if (option == 1) { // binary?
+						const fnName = packet.getStr()
+						const args = packet.getMapStrArray()
+						const parsePacket = {
+							fnName,
+							args,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.ExecuteCustomFunction(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.ExecuteCustomFunction(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 1133387750: // AckHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -1984,6 +2007,22 @@ remotedbg2.h2r_Protocol = class {
 		}
 	}
 	
+	// Protocol: ExecuteCustomFunction
+	ExecuteCustomFunction(ws, isBinary, fnName, args, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushStr(fnName)
+			packet.pushMapStrArray(args)
+			WsSockServer.sendPacketBinary(ws, 5300, 638159302, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				fnName,
+				args,
+			}
+			WsSockServer.sendPacket(ws, 5300, 638159302, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
@@ -2056,6 +2095,7 @@ remotedbg2.h2r_ProtocolHandler = class {
 	SyncVMArrayNumber(wss, ws, packet) {}
 	SyncVMArrayString(wss, ws, packet) {}
 	SyncVMTimer(wss, ws, packet) {}
+	ExecuteCustomFunction(wss, ws, packet) {}
 	AckHeartBeat(wss, ws, packet) {}
 }
 

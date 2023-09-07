@@ -278,6 +278,10 @@ export namespace remotedbg2 {
 		time: number, 
 		actionType: number, 
 	}
+	export type ExecuteCustomFunction_Packet = {
+		fnName: string, 
+		args: Map<string,string[]>, 
+	}
 	export type AckHeartBeat_Packet = {
 	}
 
@@ -1422,6 +1426,30 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 				}
 				break;
 
+			case 638159302: // ExecuteCustomFunction
+				{
+					if (option == 1) { // binary?
+						const fnName = packet.getStr()
+						const args = packet.getMapStrArray()
+						const parsePacket: ExecuteCustomFunction_Packet = {
+							fnName,
+							args,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.ExecuteCustomFunction(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: ExecuteCustomFunction_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.ExecuteCustomFunction(parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 1133387750: // AckHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -2225,6 +2253,22 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ExecuteCustomFunction
+	ExecuteCustomFunction(isBinary: boolean, fnName: string, args: Map<string,string[]>, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushStr(fnName)
+			packet.pushMapStrArray(args)
+			this.node?.sendPacketBinary(5300, 638159302, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				fnName,
+				args,
+			}
+			this.node?.sendPacket(5300, 638159302, packet)
+		}
+	}
+	
 	// Protocol: AckHeartBeat
 	AckHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -2297,6 +2341,7 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	SyncVMArrayNumber = (packet: remotedbg2.SyncVMArrayNumber_Packet) => { }
 	SyncVMArrayString = (packet: remotedbg2.SyncVMArrayString_Packet) => { }
 	SyncVMTimer = (packet: remotedbg2.SyncVMTimer_Packet) => { }
+	ExecuteCustomFunction = (packet: remotedbg2.ExecuteCustomFunction_Packet) => { }
 	AckHeartBeat = (packet: remotedbg2.AckHeartBeat_Packet) => { }
 }
 

@@ -96,6 +96,7 @@ public:
 	virtual bool SyncVMArrayNumber(remotedbg2::SyncVMArrayNumber_Packet &packet) { return true; }
 	virtual bool SyncVMArrayString(remotedbg2::SyncVMArrayString_Packet &packet) { return true; }
 	virtual bool SyncVMTimer(remotedbg2::SyncVMTimer_Packet &packet) { return true; }
+	virtual bool ExecuteCustomFunction(remotedbg2::ExecuteCustomFunction_Packet &packet) { return true; }
 	virtual bool AckHeartBeat(remotedbg2::AckHeartBeat_Packet &packet) { return true; }
 };
 

@@ -353,6 +353,13 @@ using namespace marshalling_json;
 		int actionType;
 	};
 
+	struct ExecuteCustomFunction_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		string fnName;
+		map<string,vector<string>> args;
+	};
+
 	struct AckHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
