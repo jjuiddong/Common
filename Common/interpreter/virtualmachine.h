@@ -62,7 +62,7 @@ namespace common
 			bool Run();
 			bool Resume();
 			bool Stop();
-			bool PushEvent(const cEvent &evt);
+			bool PushEvent(std::shared_ptr<cEvent> evt);
 			int SetTimer(const string &name, const int timeMillis
 				, const bool isLoop = false
 				, const int syncId = -1);
@@ -108,8 +108,8 @@ namespace common
 			sRegister m_reg;
 			cSymbolTable m_symbTable;
 			cIntermediateCode m_code;
-			common::cCircularQueue2<cEvent> m_events;
-			vector<cEvent> m_delayEvents;
+			vector<std::shared_ptr<cEvent>> m_events;
+			vector<std::shared_ptr<cEvent>> m_delayEvents;
 			vector<sTimer> m_ticks;
 			vector<sTimer> m_timers;
 			vector<sSync> m_syncs;

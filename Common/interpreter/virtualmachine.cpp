@@ -208,25 +208,22 @@ bool cVirtualMachine::Stop()
 }
 
 
-bool cVirtualMachine::PushEvent(const cEvent &evt)
+bool cVirtualMachine::PushEvent(std::shared_ptr<cEvent> evt)
 {
 	// check same event
-	if (evt.m_flags & (int)eEventFlags::Unique)
+	if (evt->m_flags & (int)eEventFlags::Unique)
 	{
-		uint cnt = 0;
-		uint i = m_events.m_front;
-		uint size = m_events.size();
-		while (cnt++ < size)
+		for (uint i=0; i < m_events.size(); ++i)
 		{
-			const auto &e = m_events.m_buffer[i];
-			if (e.m_name != evt.m_name)
+			std::shared_ptr<cEvent> e = m_events[i];
+			if (e->m_name != evt->m_name)
 				continue;
 
 			bool isSame = true;
-			for (auto &kv : evt.m_vars)
+			for (auto &kv : evt->m_vars)
 			{
-				auto it = e.m_vars.find(kv.first);
-				if (e.m_vars.end() == it) {
+				auto it = e->m_vars.find(kv.first);
+				if (e->m_vars.end() == it) {
 					isSame = false;
 					break;
 				}
@@ -238,14 +235,12 @@ bool cVirtualMachine::PushEvent(const cEvent &evt)
 			}
 			if (isSame)
 				return false; // already exist same event
-
-			i = (i + 1) % m_events.SIZE;
 		}
 	}
-	if (evt.m_delayTime > 0.f)
+	if (evt->m_delayTime > 0.f)
 		m_delayEvents.push_back(evt);
 	else
-		m_events.push(evt);
+		m_events.push_back(evt);
 	return true;
 }
 
@@ -318,11 +313,11 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	RETV(eState::Wait != m_state, false);
 	RETV(m_events.empty(), false);
 
-	cEvent &evt = m_events.front();
-	if (evt.m_name == "@@symbol@@")
+	std::shared_ptr<cEvent> evt = m_events.front();
+	if (evt->m_name == "@@symbol@@")
 	{
 		// update symbol value
-		for (auto& kv : evt.m_vars)
+		for (auto& kv : evt->m_vars)
 		{
 			vector<string> out;
 			common::tokenizer(kv.first.c_str(), "::", "", out);
@@ -333,38 +328,16 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 	else
 	{
 		// event trigger
-		const uint addr = m_code.FindJumpAddress(evt.m_name);
-		const bool isSyncFlow = (evt.m_flags & (int)eEventFlags::SyncFlow) > 0;
+		const uint addr = m_code.FindJumpAddress(evt->m_name);
+		const bool isSyncFlow = (evt->m_flags & (int)eEventFlags::SyncFlow) > 0;
 
-		// update symboltable
-		// tricky code: ignore global event if no handler
-		//              no ignore custom event
-		const bool isUpdateSymbol = (UINT_MAX != addr)
-			|| (evt.m_name.find("_") != nullptr);
-		if (isUpdateSymbol)
-		{
-			for (auto &kv : evt.m_vars)
-			{
-				vector<string> out;
-				common::tokenizer(kv.first.c_str(), "::", "", out);
-				if (out.size() >= 2)
-					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
-			}
-			for (auto &kv : evt.m_vars2)
-			{
-				vector<string> out;
-				common::tokenizer(kv.first.c_str(), "::", "", out);
-				if (out.size() >= 2)
-					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
-			}
-			for (auto& kv : evt.m_vars3)
-			{
-				vector<string> out;
-				common::tokenizer(kv.first.c_str(), "::", "", out);
-				if (out.size() >= 2)
-					m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
-			}
-		}
+		// execute event
+		// tricky code: ignore no handle event
+		//              no ignore custom event (callback event)
+		const bool isExecEvent = (UINT_MAX != addr)
+			|| (evt->m_name.find("_") != nullptr);
+		if (isExecEvent)
+			evt->ProcessVM(*this);
 
 		if (UINT_MAX != addr)
 		{
@@ -377,7 +350,7 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 		}
 	}
 
-	m_events.pop();
+	common::removevector2(m_events, 0);
 	return true;
 }
 
@@ -389,25 +362,25 @@ bool cVirtualMachine::ProcessDelayEvent(const float deltaSeconds)
 	RETV(m_delayEvents.empty(), false);
 
 	for (auto& evt : m_delayEvents)
-		evt.m_delayTime -= deltaSeconds;
+		evt->m_delayTime -= deltaSeconds;
 
 	for (uint i=0; i < m_delayEvents.size(); ++i)
 	{
-		auto& evt = m_delayEvents[i];
-		if (evt.m_delayTime < 0.f)
+		std::shared_ptr<cEvent> evt = m_delayEvents[i];
+		if (evt->m_delayTime < 0.f)
 		{
-			const uint addr = m_code.FindJumpAddress(evt.m_name);
+			const uint addr = m_code.FindJumpAddress(evt->m_name);
 			if (UINT_MAX != addr)
 			{
 				// update symboltable
-				for (auto& kv : evt.m_vars)
+				for (auto& kv : evt->m_vars)
 				{
 					vector<string> out;
 					common::tokenizer(kv.first.c_str(), "::", "", out);
 					if (out.size() >= 2)
 						m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
 				}
-				for (auto& kv : evt.m_vars2)
+				for (auto& kv : evt->m_vars2)
 				{
 					vector<string> out;
 					common::tokenizer(kv.first.c_str(), "::", "", out);
@@ -422,7 +395,7 @@ bool cVirtualMachine::ProcessDelayEvent(const float deltaSeconds)
 				// error occurred!!
 				// not found event handling
 				//dbg::Logc(1, "cVirtualMachine::Update(), Not Found EventHandling evt:%s \n"
-				//	, evt.m_name.c_str());
+				//	, evt->m_name.c_str());
 			}
 
 			common::removevector2(m_delayEvents, i);
@@ -451,7 +424,9 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 				// tick event trigger
 				// tick id output
 				const string scopeName = (tick.name + "::id").c_str();
-				PushEvent(cEvent(tick.name, { {scopeName, tick.id} }));
+				std::shared_ptr<cEvent> evt = make_shared<cEvent>(tick.name);
+				evt->m_vars.insert({ scopeName, tick.id });
+				PushEvent(evt);
 				tick.t = tick.interval;
 				//break;
 			}
@@ -470,7 +445,7 @@ bool cVirtualMachine::ProcessTimer(const float deltaSeconds)
 				// timer event trigger
 				// timer id output
 				const string timerName = string(timer.name.c_str()) + "_event";
-				PushEvent(cEvent(timerName));
+				PushEvent(make_shared<cEvent>(timerName));
 
 				// if sync object, disable
 				if (timer.syncId >= 0)

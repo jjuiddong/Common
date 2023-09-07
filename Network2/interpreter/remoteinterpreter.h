@@ -60,7 +60,7 @@ namespace network2
 		bool SendSyncAll();
 
 		bool Process(const float deltaSeconds, const uint procCnt = 1);
-		bool PushEvent(const int itprId, const int vmId, const common::script::cEvent &evt);
+		bool PushEvent(const int itprId, const int vmId, shared_ptr<script::cEvent> evt);
 		bool Run(const int itprId, const int parentVmId = -1, const int vmId = -1
 			, const script::cSymbolTable& symbTable = {}
 			, const string& nodeName = ""

@@ -311,7 +311,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds
 // vmId: virtual machine id, -1: all vm
 // return: success push
 bool cRemoteInterpreter::PushEvent(const int itprId
-	, const int vmId, const common::script::cEvent &evt
+	, const int vmId, shared_ptr<script::cEvent> evt
 )
 {
 	bool res = false;
@@ -1488,8 +1488,7 @@ bool cRemoteInterpreter::ReqStop(remotedbg2::ReqStop_Packet &packet)
 // request interpreter input event protocol handler
 bool cRemoteInterpreter::ReqInput(remotedbg2::ReqInput_Packet &packet)
 {
-	script::cEvent evt(packet.eventName);
-	PushEvent(packet.itprId, packet.vmId, evt);
+	PushEvent(packet.itprId, packet.vmId, make_shared<script::cEvent>(packet.eventName));
 	m_protocol.AckInput(packet.senderId, true, packet.itprId, packet.vmId, 1);
 	return true;
 }
@@ -1509,8 +1508,7 @@ bool cRemoteInterpreter::ReqEvent(remotedbg2::ReqEvent_Packet &packet)
 	}
 	//~
 
-	script::cEvent evt(packet.eventName, vars);
-	PushEvent(packet.itprId, packet.vmId, evt);
+	PushEvent(packet.itprId, packet.vmId, make_shared<script::cEvent>(packet.eventName, vars));
 	m_protocol.AckEvent(packet.senderId, true
 		, packet.itprId, packet.vmId, packet.eventName, 1);
 	return true; 
@@ -1568,8 +1566,7 @@ bool cRemoteInterpreter::ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet&
 	// change symbol event
 	map<string, variant_t> vars;
 	vars[packet.varName] = packet.value.c_str();
-	script::cEvent evt("@@symbol@@", vars);
-	PushEvent(packet.itprId, packet.vmId, evt);
+	PushEvent(packet.itprId, packet.vmId, make_shared<script::cEvent>("@@symbol@@", vars));
 	//~
 
 	m_protocol.AckChangeVariable(packet.senderId, true

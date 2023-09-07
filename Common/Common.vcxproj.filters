@@ -271,6 +271,9 @@
     <ClInclude Include="etc\dump.h">
       <Filter>Etc</Filter>
     </ClInclude>
+    <ClInclude Include="interpreter\event_arg.h">
+      <Filter>interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -450,6 +453,9 @@
     </ClCompile>
     <ClCompile Include="etc\dump.cpp">
       <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter\event_arg.cpp">
+      <Filter>interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

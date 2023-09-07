@@ -116,9 +116,9 @@ bool cInterpreter::RunProcess(const float deltaSeconds)
 {
 	while (!m_events.empty())
 	{
-		cEvent &evt = m_events.front();
+		std::shared_ptr<cEvent> evt = m_events.front();
 		for (auto& vm : m_vms)
-			if ((evt.m_vmId < 0) || (evt.m_vmId == vm->m_id))
+			if ((evt->m_vmId < 0) || (evt->m_vmId == vm->m_id))
 				vm->PushEvent(evt);
 		m_events.pop_front();
 	}
@@ -300,19 +300,19 @@ bool cInterpreter::Terminate(const int vmId
 		cVirtualMachine* parent = GetVM(vm->m_parentId);
 		if (parent)
 		{
-			script::cEvent evt(vm->m_scopeName + eventName);
-
+			shared_ptr<script::cEventArg> evt = 
+				make_shared<script::cEventArg>(vm->m_scopeName + eventName);
 			if (eventName == "_Exit")
 			{
 				for (auto& kv : symbTable.m_vars)
 					for (auto& var : kv.second)
-						parent->m_symbTable.m_vars[vm->m_scopeName]["return value"] = var.second;
+						evt->m_symbTable.m_vars[vm->m_scopeName]["return value"] = var.second;
 			}
 			else
 			{
 				for (auto& kv : symbTable.m_vars)
 					for (auto& var : kv.second)
-						parent->m_symbTable.m_vars[vm->m_scopeName][var.first] = var.second;
+						evt->m_symbTable.m_vars[vm->m_scopeName][var.first] = var.second;
 			}
 			parent->PushEvent(evt);
 		}
@@ -346,10 +346,10 @@ bool cInterpreter::Terminate(const int vmId
 
 // add event
 // vmId: virtual machine id, -1: all vm
-bool cInterpreter::PushEvent(const int vmId, const cEvent &evt)
+bool cInterpreter::PushEvent(const int vmId, std::shared_ptr<cEvent> evt)
 {
 	m_events.push_back(evt);
-	m_events.back().m_vmId = vmId; // update vmId
+	m_events.back()->m_vmId = vmId; // update vmId
 	return true;
 }
 
@@ -446,12 +446,13 @@ bool cInterpreter::RunVM(const int vmId
 				vm->AddModule(mod);
 			if (vm->Run())
 			{
-				vm->PushEvent(cEvent(startEvent)); // invoke 'Start Event'
+				shared_ptr<script::cEventArg> evt = make_shared<script::cEventArg>(startEvent);
 				for (auto& kv : symbTable.m_vars)
 					for (auto& var : kv.second)
-						vm->m_symbTable.m_vars[startEvent][var.first] = var.second;
+						evt->m_symbTable.m_vars[startEvent][var.first] = var.second;
 				for (auto& kv : symbTable.m_varMap)
-					vm->m_symbTable.m_varMap[kv.first] = kv.second;
+					evt->m_symbTable.m_varMap[kv.first] = kv.second;
+				vm->PushEvent(evt); // invoke 'Start Event'
 			}
 		}
 	}
@@ -464,12 +465,13 @@ bool cInterpreter::RunVM(const int vmId
 			vm->AddModule(mod);
 		if (vm->Run())
 		{
-			vm->PushEvent(cEvent(startEvent)); // invoke 'Start Event'
+			shared_ptr<script::cEventArg> evt = make_shared<script::cEventArg>(startEvent);
 			for (auto& kv : symbTable.m_vars)
 				for (auto& var : kv.second)
-					vm->m_symbTable.m_vars[startEvent][var.first] = var.second;
+					evt->m_symbTable.m_vars[startEvent][var.first] = var.second;
 			for (auto& kv : symbTable.m_varMap)
-				vm->m_symbTable.m_varMap[kv.first] = kv.second;
+				evt->m_symbTable.m_varMap[kv.first] = kv.second;
+			vm->PushEvent(evt); // invoke 'Start Event'
 		}
 	}
 	return true;
@@ -636,7 +638,6 @@ void cInterpreter::Clear()
 		delete vm;
 	}
 	m_rmVms.clear();
-
 	m_events.clear();
 	m_modules.clear();
 }

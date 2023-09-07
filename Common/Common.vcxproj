@@ -454,6 +454,7 @@
     <ClInclude Include="interpreter\basicmodule.h" />
     <ClInclude Include="interpreter\debugger.h" />
     <ClInclude Include="interpreter\event.h" />
+    <ClInclude Include="interpreter\event_arg.h" />
     <ClInclude Include="interpreter\intermediatecode.h" />
     <ClInclude Include="interpreter\interpreter.h" />
     <ClInclude Include="interpreter\definition.h" />
@@ -527,6 +528,7 @@
     <ClCompile Include="interpreter\basicmodule.cpp" />
     <ClCompile Include="interpreter\debugger.cpp" />
     <ClCompile Include="interpreter\event.cpp" />
+    <ClCompile Include="interpreter\event_arg.cpp" />
     <ClCompile Include="interpreter\intermediatecode.cpp" />
     <ClCompile Include="interpreter\interpreter.cpp" />
     <ClCompile Include="interpreter\definition.cpp" />

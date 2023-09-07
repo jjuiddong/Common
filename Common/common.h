@@ -146,6 +146,8 @@ using std::stringstream;
 using std::wstringstream;
 using std::min;
 using std::max;
+using std::shared_ptr;
+using std::make_shared;
 
 
 #include "container/vectorhelper.h"
@@ -208,6 +210,7 @@ using std::max;
 #include "interpreter/event.h"
 #include "interpreter/variable.h"
 #include "interpreter/symboltable.h"
+#include "interpreter/event_arg.h"
 #include "interpreter/intermediatecode.h"
 #include "interpreter/module.h"
 #include "interpreter/virtualmachine.h"

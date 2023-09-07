@@ -18,6 +18,7 @@ namespace common
 			SyncFlow	= 0x0002, // remote interpreter synchronize flow animation
 		};
 
+		class cVirtualMachine;
 
 		class cEvent
 		{
@@ -28,6 +29,8 @@ namespace common
 				, const int flags = 0 // composite of eEventFlags
 			);
 			virtual ~cEvent();
+
+			virtual bool ProcessVM(cVirtualMachine &vm);
 
 
 		public:

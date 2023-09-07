@@ -70,7 +70,7 @@ namespace common
 			bool OneStep(const int vmId);
 			bool Break(const int vmId);
 			bool BreakPoint(const bool enable, const int vmId, const uint id);
-			bool PushEvent(const int vmId, const cEvent &evt);
+			bool PushEvent(const int vmId, std::shared_ptr<cEvent> evt);
 			void SetDebugVM(const int vmId);
 			void SetCodeTrace(const bool isTrace);
 			void SetICodeStepDebug(const bool isICodeStep);
@@ -111,7 +111,7 @@ namespace common
 			eState m_state;
 			eRunState m_runState;
 			eDebugState m_dbgState;
-			deque<cEvent> m_events;
+			deque<std::shared_ptr<cEvent>> m_events;
 			vector<cVirtualMachine*> m_vms; // execute virtual machines
 			vector<cVirtualMachine*> m_rmVms; // remove virtual machines
 			iInterpreterResponse* m_listener;
