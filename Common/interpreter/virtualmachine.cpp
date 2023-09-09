@@ -1246,13 +1246,11 @@ $error_memory:
 	return false;
 
 $error_call:
-	dbg::Logc(3, "Error cVirtualMachine::Execute() Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
-		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2);
-	Error(common::format("Error vm.execute, Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d\n"
-		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2));
+	dbg::Logc(3, "Error cVirtualMachine::Execute() Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d, fn=%s\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2, code.str1.c_str());
+	Error(common::format("Error vm.execute, Calling Function Error. '%s', index=%d, type=%d, reg1=%d, reg2=%d, fn=%s\n"
+		, m_code.m_fileName.c_str(), reg.idx, (int)code.cmd, code.reg1, code.reg2, code.str1.c_str()));
 	WriteTraceLog(m_trace2);
-	// vm working, no stop
-	// todo: send error message
 	return false;
 }
 
