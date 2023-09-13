@@ -25,6 +25,7 @@ namespace network2
 		cPacket& operator<<(cPacket& packet, const float& rhs);
 		cPacket& operator<<(cPacket& packet, const double& rhs);
 		cPacket& operator<<(cPacket &packet, const string &rhs);
+		cPacket& operator<<(cPacket& packet, const Vector2& rhs);
 		cPacket& operator<<(cPacket& packet, const Vector3 &rhs);
 		cPacket& operator<<(cPacket& packet, const Vector4 &rhs);
 		cPacket& operator<<(cPacket& packet, const Quaternion &rhs);
@@ -51,6 +52,7 @@ namespace network2
 		cPacket& operator>>(cPacket& packet, OUT float& rhs);
 		cPacket& operator>>(cPacket& packet, OUT double& rhs);
 		cPacket& operator>>(cPacket& packet, OUT string &rhs);
+		cPacket& operator>>(cPacket& packet, OUT Vector2& rhs);
 		cPacket& operator>>(cPacket& packet, OUT Vector3 &rhs);
 		cPacket& operator>>(cPacket& packet, OUT Vector4 &rhs);
 		cPacket& operator>>(cPacket& packet, OUT Quaternion &rhs);
@@ -162,6 +164,13 @@ namespace network2
 		return packet;
 	}
 
+	inline cPacket& marshalling::operator<<(cPacket& packet, const Vector2& rhs)
+	{
+		packet << rhs.x;
+		packet << rhs.y;
+		return packet;
+	}
+	
 	inline cPacket& marshalling::operator<<(cPacket& packet, const Vector3 &rhs)
 	{
 		packet << rhs.x;
@@ -389,6 +398,13 @@ namespace network2
 	inline cPacket& marshalling::operator>>(cPacket& packet, OUT string &rhs)
 	{
 		packet.GetDataString(rhs);
+		return packet;
+	}
+
+	inline cPacket& marshalling::operator>>(cPacket& packet, OUT Vector2& rhs)
+	{
+		packet >> rhs.x;
+		packet >> rhs.y;
 		return packet;
 	}
 

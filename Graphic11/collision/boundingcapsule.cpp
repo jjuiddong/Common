@@ -96,11 +96,66 @@ bool cBoundingCapsule::Intersects(const cBoundingSphere &bsphere
 
 // intersect test with bounding box
 // outGap: return intersect distance
+// reference: 
+//	- https://gamedev.stackexchange.com/questions/166450/get-closest-point-on-box-to-line
+//	- https://math.stackexchange.com/questions/2213165/find-shortest-distance-between-lines-in-3d
 bool cBoundingCapsule::Intersects(const cBoundingBox& bbox
 	, float* outGap //= nullptr
 ) const
 {
-	assert(0);
+	float dist = FLT_MAX;
+	if (bbox.Pick(m_line.pos, m_line.dir, &dist))
+		if (dist < (m_line.len + m_radius))
+			return true; // intersect
+
+	// 8 vertex, 12 edge
+	// 
+	//   Y axis
+	//   |
+	//   |   / Z axis
+	//   |  /
+	//   | /
+	//   --------------> X axis
+	// 
+	//     1 - - - - 2
+	//    /|        /|
+	//   / |       / |
+	//  0 - - - - 3  |
+	//  |  |      |  |
+	//  |  5 - - -|- 6
+	//  | /       | /
+	//  |/        |/
+	//  4 - - - - 7
+	//
+	Vector3 vertices[8] = {
+		//Vector3(-1, 1, -1), Vector3(-1, 1, 1), Vector3(1, 1, 1), Vector3(1, 1, -1),
+		//Vector3(-1, -1, -1), Vector3(-1, -1, 1), Vector3(1, -1, 1), Vector3(1, -1, -1),
+
+		// tricky code: center edge
+		Vector3(-1, 0.1f, -1), Vector3(-1, 0.1f, 1), Vector3(1, 0.1f, 1), Vector3(1, 0.1f, -1),
+		Vector3(-1, -0.1f, -1), Vector3(-1, -0.1f, 1), Vector3(1, -0.1f, 1), Vector3(1, -0.1f, -1),
+	};
+	const Matrix44 mat = bbox.GetMatrix();
+	for (int i = 0; i < 8; ++i)
+		vertices[i] = vertices[i] * mat;
+	const int edges[12][2] = {
+		{0, 1}, {0, 3}, {0, 4},
+		{1, 2}, {1, 5},
+		{2, 3}, {2, 6},
+		{3, 7},
+		{4, 5}, {4, 7},
+		{5, 6},
+		{6, 7},
+	};
+	for (int i = 0; i < 12; ++i) 
+	{
+		const Vector3 &p0 = vertices[edges[i][0]];
+		const Vector3 &p1 = vertices[edges[i][1]];
+		const Line line(p0, p1);
+		const float d = m_line.GetDistance(line);
+		if (d < m_radius)
+			return true; // intersect!!
+	}
 	return false;
 }
 

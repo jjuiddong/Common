@@ -121,6 +121,14 @@ bool cBoundingBox::Collision(const cCollisionObj &obj
 	}
 	break;
 
+	// OBB vs Capsule collision test
+	case eCollisionType::CAPSULE:
+	{
+		if (const cBoundingCapsule * p = dynamic_cast<const cBoundingCapsule*>(&obj))
+			return p->Intersects(*this);
+	}
+	break;
+
 	default:
 		assert(0);
 		break;
