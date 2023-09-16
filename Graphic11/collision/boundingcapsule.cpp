@@ -95,11 +95,29 @@ bool cBoundingCapsule::Intersects(const cBoundingSphere &bsphere
 
 
 // intersect test with bounding box
+// tricky code: convert capsule to two sphere, one box and then check collision
+// outGap: return intersect distance
+bool cBoundingCapsule::Intersects(const cBoundingBox& bbox
+	, float* outGap //= nullptr
+) const
+{
+	// generate two sphere
+	cBoundingSphere sp0((m_line.dir * m_line.len) + m_line.pos, m_radius);
+	cBoundingSphere sp1((m_line.dir * -m_line.len) + m_line.pos, m_radius);
+	// generate one box
+	cBoundingBox box0;
+	box0.SetLineBoundingBox(sp0.GetPos(), sp1.GetPos(), m_radius);
+	return bbox.Collision(sp0) || bbox.Collision(sp1) || bbox.Collision(box0);
+}
+
+
+// warnning!!, this code contain bug!!
+// intersect test with bounding box
 // outGap: return intersect distance
 // reference: 
 //	- https://gamedev.stackexchange.com/questions/166450/get-closest-point-on-box-to-line
 //	- https://math.stackexchange.com/questions/2213165/find-shortest-distance-between-lines-in-3d
-bool cBoundingCapsule::Intersects(const cBoundingBox& bbox
+bool cBoundingCapsule::Intersects2(const cBoundingBox& bbox
 	, float* outGap //= nullptr
 ) const
 {
@@ -147,10 +165,10 @@ bool cBoundingCapsule::Intersects(const cBoundingBox& bbox
 		{5, 6},
 		{6, 7},
 	};
-	for (int i = 0; i < 12; ++i) 
+	for (int i = 0; i < 12; ++i)
 	{
-		const Vector3 &p0 = vertices[edges[i][0]];
-		const Vector3 &p1 = vertices[edges[i][1]];
+		const Vector3& p0 = vertices[edges[i][0]];
+		const Vector3& p1 = vertices[edges[i][1]];
 		const Line line(p0, p1);
 		const float d = m_line.GetDistance(line);
 		if (d < m_radius)
