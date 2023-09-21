@@ -58,7 +58,8 @@ string common::GetHostRealIp()
 		return ""; // error return
 
 	HINTERNET conn = InternetOpenUrlA(net,
-		"http://myexternalip.com/raw",
+		//"http://myexternalip.com/raw",
+		"http://ipecho.net/plain",
 		NULL,
 		0,
 		INTERNET_FLAG_RELOAD,
@@ -68,7 +69,7 @@ string common::GetHostRealIp()
 
 	char buffer[4096];
 	DWORD read;
-	InternetReadFile(conn, buffer, sizeof(buffer) / sizeof(buffer[0]), &read);
+	InternetReadFile(conn, buffer, ARRAYSIZE(buffer), &read);
 	InternetCloseHandle(net);
 
 	return string(buffer, read);
