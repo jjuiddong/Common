@@ -261,3 +261,10 @@ const Vector3& cBoundingCapsule::GetPos() const
 {
 	return m_line.pos;
 }
+
+
+// return capsule sphere boundary size
+float cBoundingCapsule::GetSphereRadius() const
+{
+	return m_line.len + m_radius;
+}

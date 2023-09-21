@@ -50,6 +50,7 @@ namespace common
 			, const float forwardLen, const float sideLen);
 		void SetPos(const Vector3 &pos);
 		const Vector3& GetPos() const;
+		float GetSphereRadius() const;
 
 
 	public:
