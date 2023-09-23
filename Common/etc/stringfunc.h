@@ -13,7 +13,7 @@
 
 namespace common
 {
-	void replaceAll(string& str, const string& from, const string& to);
+	string& replaceAll(string& str, const string& from, const string& to);
 	string& trim(string &str);
 	string trim2(const string &str);
 	void trimw(wstring &str);
