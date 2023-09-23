@@ -435,7 +435,6 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 		case eCommand::symbolb:
 		case eCommand::symboli:
 		case eCommand::symbolf:
-		case eCommand::symbols:
 		case eCommand::symbolab:
 		case eCommand::symbolai:
 		case eCommand::symbolaf:
@@ -453,9 +452,18 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 				ofs << ", \"" << code.str3 << "\"";
 			break;
 
+		case eCommand::symbols:
+			ofs << script::CommandToStr(code.cmd);
+			ofs << " \"" << code.str1 << "\"";
+			ofs << ", \"" << code.str2 << "\"";
+			ofs << ", " << common::replaceAll(common::variant2str(code.var1, true), "\n", "<br>");
+			if (!code.str3.empty())
+				ofs << ", \"" << code.str3 << "\"";
+			break;
+
 		case eCommand::cmt:
 			ofs << "#comment";
-			ofs << " \"" << code.str1 << "\"";
+			ofs << " \"" << common::replaceAll(code.str1, "\n", "<br>") << "\"";
 			ofs << ", " << code.reg1;
 			ofs << ", " << code.reg2;
 			break;
