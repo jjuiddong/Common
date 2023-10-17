@@ -357,7 +357,7 @@ bool cEditManager::Proc_NewLink()
 			{
 				enode->m_outputs.clear();
 
-				endPin->typeStr = ePinType::ToString(ePinType::Int);
+				endPin->typeStr = PinTypeToStr(ePinType::Int);
 
 				for (int i=0; i < 3; ++i)
 				{

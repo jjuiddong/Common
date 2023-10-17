@@ -52,7 +52,7 @@ namespace vpl
 
 	public:
 		ed::NodeId m_id;
-		eNodeType::Enum m_type;
+		eNodeType m_type;
 		StrId m_name;
 		StrId m_desc; // description
 		ImColor m_color;

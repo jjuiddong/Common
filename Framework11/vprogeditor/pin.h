@@ -17,11 +17,11 @@ namespace vpl
 		StrId name;
 		StrId typeStr; // type name
 		int value; // used definition type
-		ePinType::Enum type;
-		ePinKind::Enum kind;
+		ePinType type;
+		ePinKind kind;
 
 		sPin(int id0 = 0, const StrId &name0 = ""
-			, ePinType::Enum type0 = ePinType::Flow)
+			, ePinType type0 = ePinType::Flow)
 			: id(id0), nodeId(0), name(name0), type(type0)
 			, kind(ePinKind::Input), value(0) {
 		}

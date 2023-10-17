@@ -70,7 +70,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 		if (p->name == "node")
 		{
 			cNode node(0,"");
-			node.m_type = eNodeType::FromString(sdata.Get<string>(p, "type", "Event"));
+			node.m_type = StrToNodeType(sdata.Get<string>(p, "type", "Event"));
 			node.m_id = sdata.Get<int>(p, "id", 0);
 			node.m_name = sdata.Get<string>(p, "name", "name");
 			node.m_desc = sdata.Get<string>(p, "desc", node.m_name.c_str());
@@ -109,7 +109,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 
 					const string typeStr = sdata.Get<string>(c, "type", " ");
 					pin.typeStr = typeStr;
-					pin.type = ePinType::FromString(typeStr);
+					pin.type = StrToPinType(typeStr);
 					if (pin.type == ePinType::COUNT) // not found type, check enum type
 					{
 						if (m_symbTable.FindSymbol(typeStr))
@@ -272,7 +272,7 @@ bool cNodeFile::Write_Node(std::ostream &ofs, cNode &node)
 	using namespace std;
 
 	ofs << "node" << endl;
-	ofs << "\t" << "type " << eNodeType::ToString(node.m_type) << endl;
+	ofs << "\t" << "type " << NodeTypeToStr(node.m_type) << endl;
 	ofs << "\t" << "id " << node.m_id.Get() << endl;
 	if (node.m_name.empty())
 		ofs << "\t" << "name \" \"" << endl; // blank name

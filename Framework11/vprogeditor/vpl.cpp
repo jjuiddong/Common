@@ -6,7 +6,7 @@ using namespace framework;
 using namespace vpl;
 
 
-ImColor vpl::GetIconColor(ePinType::Enum type)
+ImColor vpl::GetIconColor(ePinType type)
 {
 	switch (type)
 	{

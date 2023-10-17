@@ -31,7 +31,8 @@ namespace vpl {
 		None,
 		Array,
 		Map,
-		Blank
+		Blank,
+		COUNT
 	};
 
 	enum class ePinKind

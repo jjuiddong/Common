@@ -17,7 +17,7 @@
 
 namespace vpl {
 
-	ImColor GetIconColor(ePinType::Enum type);
+	ImColor GetIconColor(ePinType type);
  	void DrawPinIcon(const sPin& pin, bool connected, int alpha);
 	bool CanCreateLink(sPin* a, sPin* b);
 

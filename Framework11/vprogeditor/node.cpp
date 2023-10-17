@@ -359,7 +359,7 @@ bool cNode::RenderSwitchCaseNode(cEditManager &editMgr
 )
 {
 	// check int selection type?
-	ePinType::Enum pinType = ePinType::COUNT;
+	ePinType pinType = ePinType::COUNT;
 	for (uint i = 0; i < m_inputs.size(); ++i)
 	{
 		auto &pin = m_inputs[i];
