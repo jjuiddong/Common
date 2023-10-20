@@ -21,6 +21,11 @@ namespace common
 		
 		Vector3 Normal() const;
 
+		static float GetAngleFromEdgeLength(const float a, const float b, const float c);
+
+		static std::tuple<float, float, float> GetAngleFromEdgeLength2(
+			const float a, const float b, const float c);
+
 		Vector3 a, b, c;
 	};
 
