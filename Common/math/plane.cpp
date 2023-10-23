@@ -186,3 +186,11 @@ Matrix44 Plane::GetReflectMatrix()
 #endif
 	return reflect;
 }
+
+
+// projection pos to plane
+Vector3 Plane::Projection(const Vector3& pos) const
+{
+	const float d = Distance(pos);
+	return pos + N * -d;
+}

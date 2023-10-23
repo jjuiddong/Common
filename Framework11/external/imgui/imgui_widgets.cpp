@@ -2248,6 +2248,11 @@ bool ImGui::DragScalarN(const char* label, ImGuiDataType data_type, void* v, int
     return value_changed;
 }
 
+bool ImGui::DragDouble(const char* label, double* v, double v_speed, double v_min, double v_max, const char* format, double power)
+{
+    return DragScalar(label, ImGuiDataType_Double, v, v_speed, &v_min, &v_max, format, power);
+}
+
 bool ImGui::DragFloat(const char* label, float* v, float v_speed, float v_min, float v_max, const char* format, float power)
 {
     return DragScalar(label, ImGuiDataType_Float, v, v_speed, &v_min, &v_max, format, power);

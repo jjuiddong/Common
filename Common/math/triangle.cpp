@@ -322,33 +322,40 @@ bool Triangle::Similar(const Triangle &tri, const float limitLen) const
 
 // return angle(radian) from three edge length
 // https://www.quora.com/How-do-I-find-an-angle-when-the-equation-of-three-sides-of-a-triangle-are-given
-float Triangle::GetAngleFromEdgeLength(
-	const float a, const float b, const float c)
+double Triangle::GetAngleFromEdgeLength(
+	const double a, const double b, const double c)
 {
 	//Law of Cosines.For triangle ABC with sides  a, b, c labeled in the usual way,
 	// c^2 = a^2 + b^2 - 2abcosC
 
 	const double p = -(a * a) + b * b + c * c;
-	const double ac = abs(acos(p / (double)(2.0 * b * c)));
-	return (float)ac;
+	const double ac = abs(acos(p / (2.0 * b * c)));
+	return ac;
 }
 
 
 // return angle(radian) from three edge length
+// 
+//                A
+//              /   \
+//           c /     \ b
+//            /       \
+//          B --------- C
+//                a
 // https://www.quora.com/How-do-I-find-an-angle-when-the-equation-of-three-sides-of-a-triangle-are-given
-std::tuple<float, float, float> Triangle::GetAngleFromEdgeLength2(
-	const float a, const float b, const float c)
+std::tuple<double, double, double> Triangle::GetAngleFromEdgeLength2(
+	const double a, const double b, const double c)
 {
 	//Law of Cosines.For triangle ABC with sides  a, b, c labeled in the usual way,
 	// c^2 = a^2 + b^2 - 2abcosC
 
 	const double p1 = a * a + b * b - (c * c);
-	const double ac = abs(acos(p1 / (double)(2.0 * a * b)));
+	const double C = abs(acos(p1 / (2.0 * a * b)));
 
 	const double p2 = a * a - (b * b) + c * c;
-	const double ab = abs(acos(p2 / (double)(2.0 * a * c)));
+	const double B = abs(acos(p2 / (2.0 * a * c)));
 
-	const double aa = MATH_PI - (ac + ab);
+	const double A = MATH_PI2 - (B + C);
 
-	return std::make_tuple<float, float, float>((float)aa, (float)ab, (float)ac);
+	return std::make_tuple(A, B, C);
 }

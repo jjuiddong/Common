@@ -23,6 +23,7 @@ namespace common
 		bool CollisionSphere( const Vector3& vP, float fRadius );
 		int LineCross( const Vector3& v0, const Vector3& v1, Vector3* pvOut ) const;
 		Matrix44 GetReflectMatrix();
+		Vector3 Projection(const Vector3& pos) const;
 
 		const Plane operator * (const Matrix44 &rhs);
 
