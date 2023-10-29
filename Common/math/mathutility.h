@@ -239,5 +239,16 @@ namespace common
 		return t;
 	}
 
+	// return different angle
+	// https://stackoverflow.com/questions/1878907/how-can-i-find-the-smallest-difference-between-two-angles-around-a-point
+	// a1,a2: radian angle
+	inline int GetDiffAngle(const float angle1, const float angle2)
+	{
+		const int a = (int)RAD2ANGLE(angle1);
+		const int b = (int)RAD2ANGLE(angle2);
+		const int an = abs(a - b);
+		const int res = abs((an + 180) % 360 - 180);
+		return res;
+	}
 
 }
