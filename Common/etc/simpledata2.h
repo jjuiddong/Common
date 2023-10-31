@@ -151,4 +151,16 @@ namespace common
 		v.z = (float)atof(it->second[3].c_str());
 		return v;
 	}
+
+	// template specialization (Vector2)
+	template<>
+	inline const Vector2 cSimpleData2::Get(cSimpleData2::sNode* node
+		, const string& key, const Vector2& defaultValue)
+	{
+		FIND_ATTR(node, key, 2);
+		Vector2 v;
+		v.x = (float)atof(it->second[1].c_str());
+		v.y = (float)atof(it->second[2].c_str());
+		return v;
+	}
 }
