@@ -419,6 +419,18 @@
     <ClInclude Include="utility\utility2.h">
       <Filter>utility</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\dbgboxline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgcircleline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgsphereline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg\dbgcylinderline.h">
+      <Filter>dbg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -799,6 +811,18 @@
     </ClCompile>
     <ClCompile Include="utility\utility2.cpp">
       <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgboxline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgcircleline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgsphereline.cpp">
+      <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\dbgcylinderline.cpp">
+      <Filter>dbg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

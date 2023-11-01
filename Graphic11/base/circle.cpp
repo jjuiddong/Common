@@ -73,3 +73,9 @@ void cCircle::SetPos(const Vector3 &pos)
 {
 	m_transform.pos = pos;
 }
+
+
+void cCircle::SetColor(const cColor& color)
+{
+	m_color = color;
+}

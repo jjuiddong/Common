@@ -177,6 +177,7 @@ namespace graphic
 
 		cCube m_dbgCube;
 		cDbgBox m_dbgBox;
+		cDbgBoxLine m_dbgBoxLine;
 		cDbgLine m_dbgLine;
 		cDbgArrow m_dbgArrow;
 		cDbgSphere m_dbgSphere;
