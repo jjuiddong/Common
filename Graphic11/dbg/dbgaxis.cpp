@@ -15,9 +15,16 @@ cDbgAxis::~cDbgAxis()
 }
 
 
-bool cDbgAxis::Create(cRenderer &renderer)
+bool cDbgAxis::Create(cRenderer &renderer
+	, const float alpha //= 0.5f
+)
 {
-	const cColor colors[] = {cColor(1.f, 0.f, 0.f, 0.5f), cColor(0.f, 1.f, 0.f, 0.5f), cColor(0.f, 0.f, 1.f, 0.5f)};
+	const cColor colors[] = 
+	{
+		cColor(1.f, 0.f, 0.f, alpha)
+		, cColor(0.f, 1.f, 0.f, alpha)
+		, cColor(0.f, 0.f, 1.f, alpha)
+	};
 	m_lines[0].Create(renderer, Vector3(0, 0, 0), Vector3(1, 0, 0), 1, colors[0]);
 	m_lines[1].Create(renderer, Vector3(0, 0, 0), Vector3(0, 1, 0), 1, colors[1]);
 	m_lines[2].Create(renderer, Vector3(0, 0, 0), Vector3(0, 0, 1), 1, colors[2]);
