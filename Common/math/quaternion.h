@@ -46,6 +46,7 @@ namespace common
 		Matrix44 GetMatrix() const;
 		Vector3 GetDirection() const;
 
+		void SetIdentity();
 		void SetRotationX( const float fRadian );
 		void SetRotationY( const float fRadian );
 		void SetRotationZ( const float fRadian );

@@ -208,6 +208,14 @@ Vector3 Quaternion::GetDirection() const
 	return -Vector3( 2.0F * ( zx - wy ), 2.0F * ( yz + wx ), 1.0F - 2.0F * ( xx + yy ) ).Normal();
 } //Quaternion::GetDirection
 
+
+void Quaternion::SetIdentity()
+{
+	x = y = z = 0.f;
+	w = 1.f;
+}
+
+
 //--------------------------------
 //
 //--------------------------------
