@@ -1,6 +1,7 @@
 //
 // 2023-11-01, jjuiddong
 // Debug Circle Line
+//  - X-Z plane circle
 //
 #pragma once
 

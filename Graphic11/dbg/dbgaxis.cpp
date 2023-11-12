@@ -59,7 +59,7 @@ void cDbgAxis::SetAxis(const float size, const cBoundingBox &bbox
 	for (int i = 0; i < 3; ++i)
 	{
 		Vector3 v = ((approximate)? axis1[i] : axis2[i]) * tm;
-		m_lines[i].SetLine(orig, v, size);
+		m_lines[i].SetLine(orig, v, v.IsEmpty()? 0.f : size);
 	}
 }
 
