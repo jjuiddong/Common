@@ -289,7 +289,7 @@ Lib/AI/Debug_MD/AI.lib
 
 *.cod
 *.fxo
-
+*.idb
 
 Lib/Network/Debug_DLL/Network.lib
 
