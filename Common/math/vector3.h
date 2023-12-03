@@ -25,6 +25,7 @@ namespace common
 		void Normalize();
 		Vector3 MultiplyNormal( const Matrix44& rhs ) const;
 		Vector3 MultiplyNormal2(const Matrix44& rhs) const;
+		Vector3 MultiplyNormal3(const Matrix44& rhs) const;
 		Vector3 Interpolate( const Vector3 &v, const float alpha) const;
 		Vector3 Minimum(const Vector3 &rhs) const;
 		Vector3 Maximum(const Vector3 &rhs) const;

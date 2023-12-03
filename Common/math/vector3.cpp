@@ -177,6 +177,22 @@ Vector3 Vector3::MultiplyNormal2(const Matrix44& rhs) const
 }
 
 
+// https://gamedev.stackexchange.com/questions/68387/how-to-modify-normal-vectors-with-a-tranformation-matrix
+// normal = vector3 * Inverse(transpose(mat3))
+Vector3 Vector3::MultiplyNormal3(const Matrix44& rhs) const
+{
+	Matrix44 tm = rhs;
+	tm = tm.Transpose().Inverse();
+
+	Vector3 v;
+	v.x = x * tm._11 + y * tm._21 + z * tm._31;
+	v.y = x * tm._12 + y * tm._22 + z * tm._32;
+	v.z = x * tm._13 + y * tm._23 + z * tm._33;
+	v.Normalize();
+	return v;
+}
+
+
 //https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
 Vector3 Vector3::operator * (const Quaternion& rhs) const
 {

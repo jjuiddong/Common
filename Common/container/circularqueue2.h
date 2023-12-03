@@ -62,6 +62,9 @@ namespace common
 	template<class T>
 	void cCircularQueue2<T>::push(const T &t)
 	{
+		if (full())
+			return; // error return, full
+
 		m_buffer[m_rear] = t;
 		m_rear = (m_rear + 1) % SIZE;
 		if (m_rear == m_front)

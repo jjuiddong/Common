@@ -13,7 +13,7 @@ using namespace common;
 //	Constructor
 //--------------------------------
 Quaternion::Quaternion()
-	:x(0), y(0), z(0), w(1)
+	:x(0.f), y(0.f), z(0), w(1.f)
 {
 
 } //Quaternion::Quaternion
@@ -33,8 +33,8 @@ Quaternion::Quaternion( const float fX, const float fY, const float fZ, const fl
 //--------------------------------
 Quaternion::Quaternion( const Vector3& vAxis, const float fAngle )
 {
-	float s = sinf( fAngle / 2 );
-	float c = cosf( fAngle / 2 );
+	const float s = sinf( fAngle / 2.f );
+	const float c = cosf( fAngle / 2.f );
 	x = s * vAxis.x;
 	y = s * vAxis.y;
 	z = s * vAxis.z;
@@ -429,38 +429,65 @@ Quaternion Quaternion::ToOpenGL() const
 	* @return Euler angles in roll-pitch-yaw order. (radian)
 	* http://ai.stanford.edu/~acoates/quaternion.h
 	*/
-Vector3 Quaternion::Euler(void) const
+//Vector3 Quaternion::Euler() const
+//{
+//	double euler[3];
+//	const static double PI_OVER_2 = MATH_PI * 0.5f;
+//	const static double EPSILON = MATH_EPSILON2;
+//	double sqw, sqx, sqy, sqz;
+//
+//	// quick conversion to Euler angles to give tilt to user
+//	sqw = w * w;
+//	sqx = x * x;
+//	sqy = y * y;
+//	sqz = z * z;
+//
+//	euler[1] = asin(clamp(-1, 1, 2.0f * (w*y - x * z)));
+//	if (PI_OVER_2 - fabs(euler[1]) > EPSILON)
+//	{
+//		euler[2] = atan2(2.0f * (x*y + w * z),
+//			sqx - sqy - sqz + sqw);
+//		euler[0] = atan2(2.0f * (w*x + y * z),
+//			sqw - sqx - sqy + sqz);
+//	}
+//	else
+//	{
+//		// compute heading from local 'down' vector
+//		euler[2] = atan2(2 * y*z - 2 * x*w,
+//			2 * x*z + 2 * y*w);
+//		euler[0] = 0.0f;
+//
+//		// If facing down, reverse yaw
+//		if (euler[1] < 0)
+//			euler[2] = MATH_PI - euler[2];
+//	}
+//
+//	return Vector3((float)euler[0], (float)euler[1], (float)euler[2]);
+//}
+
+
+// convert quaternion to euler
+// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+// return roll(x-axis rotation), yaw(y-axis rotation), pich(z-axis rotation)
+Vector3 Quaternion::Euler() const
 {
 	double euler[3];
-	const static double PI_OVER_2 = MATH_PI * 0.5f;
-	const static double EPSILON = MATH_EPSILON2;
-	double sqw, sqx, sqy, sqz;
+	const Quaternion& q = *this;
 
-	// quick conversion to Euler angles to give tilt to user
-	sqw = w * w;
-	sqx = x * x;
-	sqy = y * y;
-	sqz = z * z;
+	// roll (x-axis rotation)
+	double sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
+	double cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+	euler[0] = std::atan2(sinr_cosp, cosr_cosp);
 
-	euler[1] = asin(clamp(-1, 1, 2.0f * (w*y - x * z)));
-	if (PI_OVER_2 - fabs(euler[1]) > EPSILON)
-	{
-		euler[2] = atan2(2.0f * (x*y + w * z),
-			sqx - sqy - sqz + sqw);
-		euler[0] = atan2(2.0f * (w*x + y * z),
-			sqw - sqx - sqy + sqz);
-	}
-	else
-	{
-		// compute heading from local 'down' vector
-		euler[2] = atan2(2 * y*z - 2 * x*w,
-			2 * x*z + 2 * y*w);
-		euler[0] = 0.0f;
+	// yaw (y-axis rotation)
+	double sinp = std::sqrt(1.0 + 2.0 * (q.w * q.y - q.x * q.z));
+	double cosp = std::sqrt(1.0 - 2.0 * (q.w * q.y - q.x * q.z));
+	euler[1] = 2.0 * std::atan2(sinp, cosp) - MATH_PI2 / 2.0;
 
-		// If facing down, reverse yaw
-		if (euler[1] < 0)
-			euler[2] = MATH_PI - euler[2];
-	}
+	// pitch (z-axis rotation)
+	double siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
+	double cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+	euler[2] = std::atan2(siny_cosp, cosy_cosp);
 
 	return Vector3((float)euler[0], (float)euler[1], (float)euler[2]);
 }
