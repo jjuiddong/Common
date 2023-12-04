@@ -468,7 +468,7 @@ Quaternion Quaternion::ToOpenGL() const
 
 // convert quaternion to euler
 // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-// return roll(x-axis rotation), yaw(y-axis rotation), pich(z-axis rotation)
+// return roll(x-axis rotation), yaw(y-axis rotation), pitch(z-axis rotation)
 Vector3 Quaternion::Euler() const
 {
 	double euler[3];
@@ -488,6 +488,26 @@ Vector3 Quaternion::Euler() const
 	double siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
 	double cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
 	euler[2] = std::atan2(siny_cosp, cosy_cosp);
+
+	// tricky code
+	if (euler[0] != euler[0])
+	{
+		euler[0] = MATH_PI2 / 2.0;
+		euler[1] = 0.0;
+		euler[2] = 0.0;
+	}
+	if (euler[1] != euler[1])
+	{
+		euler[0] = 0.0;
+		euler[1] = MATH_PI2 / 2.0;
+		euler[2] = 0.0;
+	}
+	if (euler[2] != euler[2])
+	{
+		euler[0] = 0.0;
+		euler[1] = 0.0;
+		euler[2] = MATH_PI2 / 2.0;
+	}
 
 	return Vector3((float)euler[0], (float)euler[1], (float)euler[2]);
 }
