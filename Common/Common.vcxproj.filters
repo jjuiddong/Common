@@ -457,6 +457,9 @@
     <ClCompile Include="interpreter\event_arg.cpp">
       <Filter>interpreter</Filter>
     </ClCompile>
+    <ClCompile Include="math\mathutility.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">

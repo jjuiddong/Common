@@ -539,6 +539,7 @@
     <ClCompile Include="interpreter\vplfile.cpp" />
     <ClCompile Include="interpreter\vpljsonfile.cpp" />
     <ClCompile Include="math\line.cpp" />
+    <ClCompile Include="math\mathutility.cpp" />
     <ClCompile Include="math\matrix44.cpp" />
     <ClCompile Include="math\plane.cpp" />
     <ClCompile Include="math\plane2.cpp" />
