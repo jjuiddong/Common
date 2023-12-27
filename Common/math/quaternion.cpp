@@ -499,7 +499,7 @@ Vector3 Quaternion::Euler() const
 	if (euler[1] != euler[1])
 	{
 		euler[0] = 0.0;
-		euler[1] = MATH_PI2 / 2.0;
+		euler[1] = (q.y > 0.f)? (MATH_PI2 / 2.0) : -(MATH_PI2 / 2.0);
 		euler[2] = 0.0;
 	}
 	if (euler[2] != euler[2])

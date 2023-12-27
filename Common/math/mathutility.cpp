@@ -260,7 +260,7 @@ float common::GetDiffAngle2(const float angle1, const float angle2)
 {
 	const float d = abs(angle1 - angle2);
 	const float r = (d + MATH_PI) / (MATH_PI * 2.f);
-	const float res = abs(((d + MATH_PI) - (floor(r) * MATH_PI * 2.f) - MATH_PI));
+	const float res = abs((d + MATH_PI) - (floor(r) * MATH_PI * 2.f) - MATH_PI);
 	return res;
 }
 
