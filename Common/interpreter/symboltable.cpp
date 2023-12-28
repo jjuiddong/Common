@@ -327,8 +327,11 @@ bool ConvertVariableToString(script::sVariable& var, OUT string &out)
 
 
 // get variable value to string
+// isAddQuotes: add quotoes if string type
 bool cSymbolTable::GetString(const string& scopeName, const string& symbolName
-	, OUT string& out)
+	, OUT string& out
+	, const bool isAddQuotes //= false
+)
 {
 	sVariable *var = FindRealVarInfo(scopeName, symbolName);
 	//RETV(!var, false);
@@ -348,6 +351,7 @@ bool cSymbolTable::GetString(const string& scopeName, const string& symbolName
 		break;
 	case VT_BSTR:
 		out = (const char*)(bstr_t)var->var;
+		out = "'" + out + "'";
 		break;
 	default:
 	{

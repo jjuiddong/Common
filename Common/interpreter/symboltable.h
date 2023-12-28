@@ -87,7 +87,7 @@ namespace common
 				, OUT variant_t &out);
 
 			bool GetString(const string& scopeName, const string& symbolName
-				, OUT string& out);
+				, OUT string& out, const bool isAddQuotes = false);
 			
 			sVariable* FindVarInfo(const string &scopeName, const string &symbolName);
 			sVariable* FindRealVarInfo(const string& scopeName, const string& symbolName);
