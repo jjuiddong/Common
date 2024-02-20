@@ -50,4 +50,10 @@ namespace common
 	double SaturateAngle2(const double angle);
 	double SaturateAngle2PI(const double angle);
 
+	float GetTetrahedronVolume(const float U, const float u, const float V
+		, const float v, const float W, const float w);
+
+	float GetTriangleArea(const float a, const float b, const float c);
+
+	float GetTriangleEdge(const float a, const float b, const float angle);
 }

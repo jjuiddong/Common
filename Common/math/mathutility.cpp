@@ -349,3 +349,50 @@ double common::SaturateAngle2PI(const double angle)
 }
 
 
+// calc tetrahedron volume
+// Heron-type formula for the volume of a tetrahedron
+// https://en.wikipedia.org/wiki/Tetrahedron
+float common::GetTetrahedronVolume(const float U, const float u, const float V
+	, const float v, const float W, const float w)
+{
+	const double X = (w - U + v) * (U + v + w);
+	const double Y = (u - V + w) * (V + w + u);
+	const double Z = (v - W + u) * (W + u + v);
+	const double x = (U - v + w) * (v - w + U);
+	const double y = (V - w + u) * (w - u + V);
+	const double z = (W - u + v) * (u - v + W);
+
+	const double p = sqrt(x * Y * Z);
+	const double q = sqrt(y * Z * X);
+	const double r = sqrt(z * X * Y);
+	const double s = sqrt(x * y * z);
+
+	const double child = sqrt(
+		(-p + q + r + s) * (p - q + r + s) * (p + q - r + s) * (p + q + r - s));
+	const double parent = 192.0 * u * v * w;
+	const double volume = child / parent;
+	return (float)volume;
+}
+
+
+// calc triangle area (Heron's formula)
+// https://en.wikipedia.org/wiki/Heron%27s_formula
+float common::GetTriangleArea(const float a, const float b, const float c)
+{
+	const double s = 0.5 * (a + b + c);
+	const double area = sqrt(s * (s - a) * (s - b) * (s - c));
+	return (float)area;
+}
+
+
+// calc triangle remain edge length
+// a,b: edge length
+// angle: angle between a,b edge (radian)
+// https://mathbang.net/160#gsc.tab=0
+float common::GetTriangleEdge(const float a, const float b, const float angle)
+{
+	const double s = sin(angle);
+	const double c = cos(angle);
+	const double len = sqrt(s * s + (a - c) * (a - c));
+	return (float)len;
+}
