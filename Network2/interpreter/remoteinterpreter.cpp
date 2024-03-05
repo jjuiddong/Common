@@ -1563,14 +1563,34 @@ bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet)
 // remotedbg2 protocol, request change variable
 bool cRemoteInterpreter::ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet)
 {
-	// change symbol event
 	map<string, variant_t> vars;
-	vars[packet.varName] = packet.value.c_str();
+	script::sVariable* var = nullptr;
+	vector<string> out;
+	script::cVirtualMachine *vm = GetVM(packet.vmId);
+	if (!vm)
+		goto $error1;
+	
+	common::tokenizer(packet.varName, "::", "", out);
+	if (out.size() < 2)
+		goto $error1;
+
+	var = vm->m_symbTable.FindVarInfo(out[0], out[1]);
+	if (!var)
+		goto $error1;
+
+	// change symbol event
+	vars[packet.varName] = common::str2variant(var->var.vt, packet.value);
 	PushEvent(packet.itprId, packet.vmId, make_shared<script::cEvent>("@@symbol@@", vars));
-	//~
 
 	m_protocol.AckChangeVariable(packet.senderId, true
 		, packet.itprId, packet.vmId, packet.varName, 1);
+	return true;
+
+
+$error1:
+	m_protocol.AckChangeVariable(packet.senderId, true
+		, packet.itprId, packet.vmId, packet.varName, 0);
+
 	return true;
 }
 
