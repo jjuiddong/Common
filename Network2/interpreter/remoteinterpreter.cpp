@@ -1151,18 +1151,19 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 				if (vm->m_nsync.chSymbols.end() == it)
 				{
 					// add new symbol
+					// tricky codee: prevent sVariable deepcopy (must shallow copy)
 					isSync = true;
-					script::cVirtualMachine::sSymbol ssymb;
+					script::cVirtualMachine::sSymbol &ssymb = vm->m_nsync.chSymbols[varName];
 					ssymb.name = varName;
 					ssymb.t = 0.f;
-					ssymb.var = var;
-					vm->m_nsync.chSymbols[varName] = ssymb;
+					ssymb.var.ShallowCopy(var);
 				}
 				else
 				{
-					// check change? (VT_BYREF (array or map type) crash)
-					script::cVirtualMachine::sSymbol &ssymb = it->second;
-					if (!(ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var != var.var))
+					// check change?
+					script::cVirtualMachine::sSymbol& ssymb = it->second;
+					if (((ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var.intVal != var.var.intVal))
+						|| (!(ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var != var.var)))
 					{
 						isSync = true;
 						ssymb.var.var = var.var;

@@ -271,6 +271,22 @@ uint sVariable::GetMapSize() const
 }
 
 
+sVariable& sVariable::ShallowCopy(const sVariable& rhs)
+{
+	if (this != &rhs)
+	{
+		ClearArray();
+		ClearMap();
+		type = rhs.type;
+		subTypeStr = rhs.subTypeStr;
+		flags = rhs.flags;
+		var = rhs.var; // variable or array, map type id assign
+		memcpy(typeValues, rhs.typeValues, sizeof(rhs.typeValues));
+	}
+	return *this;
+}
+
+
 // assign operator
 // array deep copy
 sVariable& sVariable::operator=(const sVariable &rhs) 

@@ -43,6 +43,7 @@ namespace common
 			const string& GetMapValueTypeStr();
 			const string& GetArrayElementTypeStr();
 
+			sVariable& ShallowCopy(const sVariable& rhs);
 			sVariable& operator=(const sVariable &rhs);
 			void Clear();
 			void ClearArray();

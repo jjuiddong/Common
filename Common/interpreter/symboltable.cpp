@@ -47,9 +47,13 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 		}
 	}
 
-	variable.type = typeStr;
 	variable.var = var;
-	ParseTypeString(typeStr, variable.typeValues);
+
+	if (!typeStr.empty())
+	{
+		variable.type = typeStr;
+		ParseTypeString(typeStr, variable.typeValues);
+	}
 	return true;
 }
 
