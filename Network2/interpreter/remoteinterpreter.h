@@ -141,6 +141,7 @@ namespace network2
 		virtual bool ReqEvent(remotedbg2::ReqEvent_Packet &packet) override;
 		virtual bool ReqStepDebugType(remotedbg2::ReqStepDebugType_Packet &packet) override;
 		virtual bool ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) override;
+		virtual bool ReqVariableInfo(remotedbg2::ReqVariableInfo_Packet& packet) override;
 		virtual bool ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet) override;
 
 

@@ -1632,6 +1632,48 @@ bool cRemoteInterpreter::ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet)
 }
 
 
+// remotedbg2 protocol, request variable info
+bool cRemoteInterpreter::ReqVariableInfo(remotedbg2::ReqVariableInfo_Packet& packet)
+{
+	map<string, variant_t> vars;
+	script::sVariable* var = nullptr;
+	vector<string> out;
+	script::cVirtualMachine* vm = GetVM(packet.vmId);
+	if (!vm)
+		goto $error1;
+
+	common::tokenizer(packet.varName, "::", "", out);
+	if (out.size() < 2)
+		goto $error1;
+
+	var = vm->m_symbTable.FindVarInfo(out[0], out[1]);
+	if (!var)
+		goto $error1;
+
+	if (var->var.vt & VT_BYREF) // array/map type?
+	{
+		// symbol table synchronize
+		vm->m_nsync.dataStreaming = true;
+		var->flags |= 0x10; // synchronize
+	}
+	else
+	{
+		goto $error2; // not allow primitive type
+	}
+
+	return true;
+
+
+$error1:
+	// nothing to do
+	return true;
+
+$error2: 
+	// not allowed, nothing to do
+	return true;
+}
+
+
 // remotedbg2 protocol, request change variable
 bool cRemoteInterpreter::ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet)
 {
