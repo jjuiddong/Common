@@ -83,8 +83,6 @@ cBasicModule::cBasicModule()
 	m_fnMap.insert({ "Vector3", FnVector3 });
 	m_fnMap.insert({ "TerminateVM", TerminateVM });
 	m_fnMap.insert({ "TerminateThisVM", TerminateThisVM });
-	m_fnMap.insert({ "Task Success", TaskSuccess});
-	m_fnMap.insert({ "Task Fail", TaskFail});
 	m_fnMap.insert({ "Sync", Sync});
 	m_fnMap.insert({ "ClearSyncOrder", ClearSyncOrder });
 	m_fnMap.insert({ "Delay", Delay});
@@ -449,44 +447,6 @@ eModuleResult ClearSyncOrder(script::cVirtualMachine& vm, const string& scopeNam
 	script::cSymbolTable& symbolTable = vm.m_symbTable;
 	const int syncId = symbolTable.Get<int>(scopeName, "id");
 	const bool res = vm.ClearSyncOrder(syncId);
-	symbolTable.Set<bool>(scopeName, "result", res);
-	return eModuleResult::Done;
-}
-
-
-// task success
-eModuleResult TaskSuccess(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
-{
-	script::cSymbolTable& symbolTable = vm.m_symbTable;
-
-	script::cSymbolTable symbs;
-	auto it = symbolTable.m_vars.find(scopeName);
-	if (symbolTable.m_vars.end() != it)
-	{
-		for (auto& kv : it->second)
-			if (0 == kv.second.flags) // input slot widget variable?
-				symbs.m_vars["Success"][kv.first] = kv.second;
-	}
-	const bool res = vm.m_itpr ? vm.m_itpr->Terminate(vm.m_id, symbs, "_Success") : false;
-	symbolTable.Set<bool>(scopeName, "result", res);
-	return eModuleResult::Done;
-}
-
-
-// task fail
-eModuleResult TaskFail(script::cVirtualMachine& vm, const string& scopeName, const string& funcName, void* arg)
-{
-	script::cSymbolTable& symbolTable = vm.m_symbTable;
-
-	script::cSymbolTable symbs;
-	auto it = symbolTable.m_vars.find(scopeName);
-	if (symbolTable.m_vars.end() != it)
-	{
-		for (auto& kv : it->second)
-			if (0 == kv.second.flags) // input slot widget variable?
-				symbs.m_vars["Fail"][kv.first] = kv.second;
-	}
-	const bool res = vm.m_itpr ? vm.m_itpr->Terminate(vm.m_id, symbs, "_Fail") : false;
 	symbolTable.Set<bool>(scopeName, "result", res);
 	return eModuleResult::Done;
 }
