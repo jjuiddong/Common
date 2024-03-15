@@ -262,6 +262,7 @@ bool cRemoteInterpreter::SendSyncAll()
 		SendSyncInstruction(itprId);
 		SendSyncVMRegister(itprId);
 		SendSyncSymbolTable(itprId, -1);
+		SendSyncData(itprId, -1);
 	}
 	return true;
 }
@@ -299,6 +300,7 @@ bool cRemoteInterpreter::Process(const float deltaSeconds
 			SendSyncVMRegister(i);
 			SendSyncInstruction(i);
 			SendSyncSymbolTable(i, -1);
+			SendSyncData(i, -1);
 		}
 	}
 
@@ -1119,7 +1121,7 @@ bool cRemoteInterpreter::SendSyncVMRegister(const int itprId)
 }
 
 
-// synchronize symboltable
+// synchronize symboltable, primitive type (bool, number, string, reference)
 // itprId: interpreter index
 bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 {
@@ -1144,7 +1146,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 			{
 				const string &name = kv2.first;
 				const string varName = scopeName + "_" + kv2.first;
-				const script::sVariable &var = kv2.second;
+				const script::sVariable &cur = kv2.second; // current variable data
 
 				bool isSync = false;
 				auto it = vm->m_nsync.chSymbols.find(varName);
@@ -1156,23 +1158,49 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 					script::cVirtualMachine::sSymbol &ssymb = vm->m_nsync.chSymbols[varName];
 					ssymb.name = varName;
 					ssymb.t = 0.f;
-					ssymb.var.ShallowCopy(var);
+					ssymb.var.ShallowCopy(cur);
 				}
 				else
 				{
 					// check change?
-					script::cVirtualMachine::sSymbol& ssymb = it->second;
-					if (((ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var.intVal != var.var.intVal))
-						|| (!(ssymb.var.var.vt & VT_BYREF) && (ssymb.var.var != var.var)))
+					script::sVariable &prev = it->second.var; // previous variable data
+					if (((prev.var.vt & VT_BYREF) && (prev.var.intVal != cur.var.intVal))
+						|| (!(prev.var.vt & VT_BYREF) && (prev.var != cur.var)))
 					{
 						isSync = true;
-						ssymb.var.var = var.var;
+						prev.var = cur.var;
 					}
 				}
 
 				if (isSync)
 				{
-					symbols.push_back(script::sSyncSymbol(&scopeName, &name, &var.var));
+					// array, map variable has reference?
+					bool isReference = false;
+					if ((script::eSymbolType::Array == cur.typeValues[0])
+						|| (script::eSymbolType::Map == cur.typeValues[0]))
+					{
+						if (cur.id != cur.var.intVal)
+						{
+							isReference = true;
+
+							// synchronize reference array or map variable next times
+							auto it2 = vm->m_symbTable.m_varMap.find(cur.var.intVal);
+							if (vm->m_symbTable.m_varMap.end() != it2)
+							{
+								script::sVariable* real =
+									vm->m_symbTable.FindVarInfo(it2->second.first, it2->second.second);
+								if (real)
+								{
+									real->flags |= 0x10; // data synchronize next time
+									vm->m_nsync.dataStreaming = true;
+								}
+							}
+						}
+					}
+					//~
+
+					symbols.push_back(
+						script::sSyncSymbol(&scopeName, &name, &cur.var, isReference));
 				}
 			}
 		}
@@ -1210,8 +1238,51 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 }
 
 
+// send synchronize data (array, map type)
+bool cRemoteInterpreter::SendSyncData(const int itprId, const int vmId)
+{
+	sItpr& itpr = m_interpreters[itprId];
+	script::cInterpreter* interpreter = itpr.interpreter;
+
+	const uint MaxSyncSymbolCount = 10; // tricky code (todo: streaming)
+
+	for (uint i = 0; i < interpreter->m_vms.size(); ++i)
+	{
+		vector<script::sSyncSymbol> symbols;
+		script::cVirtualMachine* vm = interpreter->m_vms[i];
+		if ((vmId >= 0) && (vm->m_id != vmId))
+			continue; // ignore this vm
+		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x08)) || !vm->m_nsync.dataStreaming)
+			continue;
+
+		for (auto& kv1 : vm->m_symbTable.m_vars)
+		{
+			const string& scopeName = kv1.first;
+			for (auto& kv2 : kv1.second)
+			{
+				script::sVariable& var = kv2.second;
+				if (0x00 == (var.flags & 0x10)) // synchronize flag on?
+					continue;
+				if (!var.IsArray() && !var.IsMap())
+					continue;
+				var.flags &= ~0x10; // clear flag
+
+				const string& name = kv2.first;
+				const string varName = scopeName + "_" + kv2.first;
+				SendSyncVariable(itprId, vm->m_id, vm->m_symbTable, varName, var);
+			}
+		}
+
+		vm->m_nsync.sync = vm->m_nsync.sync & ~0x08; // clear flag
+		vm->m_nsync.dataStreaming = false; // clear flag
+	}//~for
+
+	return true;
+}
+
+
 // send specific variable sync
-// only sync array, map type 
+// only sync array type (map not yet)
 bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 	, const script::cSymbolTable& symbolTable
 	, const string &varName, const script::sVariable& var)

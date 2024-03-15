@@ -10,6 +10,7 @@ namespace
 	const float TIME_SYNC_INSTRUCTION = 0.5f; // seconds unit
 	const float TIME_SYNC_REGISTER = 5.0f; // seconds unit
 	const float TIME_SYNC_SYMBOL = 3.0f; // seconds unit
+	const float TIME_SYNC_DATA = 4.0f; // seconds unit
 }
 
 
@@ -118,6 +119,7 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 		m_nsync.regTime += deltaSeconds;
 		m_nsync.instTime += deltaSeconds;
 		m_nsync.symbTime += deltaSeconds;
+		m_nsync.dataTime += deltaSeconds;
 
 		// sync delay instruction (check next instruction is delay node?)
 		// 'm_reg.idx' is next execute instruction code index
@@ -142,6 +144,11 @@ bool cVirtualMachine::Process(const float deltaSeconds)
 		{
 			m_nsync.symbTime = 0.f;
 			m_nsync.symbStreaming = true;
+		}
+		if (m_nsync.dataTime > TIME_SYNC_DATA)
+		{
+			m_nsync.dataTime = 0.f;
+			//m_nsync.dataStreaming = true;
 		}
 	}
 	//~
@@ -1523,9 +1530,11 @@ bool cVirtualMachine::EnableNetworkSync(const bool enable)
 	m_nsync.regStreaming = enable;
 	m_nsync.instStreaming = enable;
 	m_nsync.symbStreaming = enable;
+	m_nsync.dataStreaming = enable;
 	m_nsync.regTime = TIME_SYNC_REGISTER + 1.0f;
 	m_nsync.instTime = TIME_SYNC_INSTRUCTION + 1.0f;
 	m_nsync.symbTime = TIME_SYNC_SYMBOL + 1.0f;
+	m_nsync.dataTime = TIME_SYNC_DATA + 1.0f;
 	return true;
 }
 
@@ -1541,9 +1550,11 @@ void cVirtualMachine::ClearNSync(
 	m_nsync.regStreaming = false;
 	m_nsync.instStreaming = false;
 	m_nsync.symbStreaming = false;
+	m_nsync.dataStreaming = false;
 	m_nsync.regTime = 0.f;
 	m_nsync.instTime = 0.f;
 	m_nsync.symbTime = 0.f;
+	m_nsync.dataTime = 0.f;
 	m_nsync.chSymbols.clear();
 }
 

@@ -61,11 +61,21 @@ namespace network2 {
 			return packet;
 		}
 
-		inline cPacket& operator<<(cPacket& packet, const script::sSyncSymbol &rhs)
+		inline cPacket& operator<<(cPacket& packet, const script::sSyncSymbol& rhs)
 		{
 			packet << *rhs.scope;
 			packet << *rhs.name;
-			packet << *rhs.var;
+			if (rhs.isReference)
+			{
+				// tricky code: has reference? remove reference typevalue (reverse)
+				variant_t tmp = *rhs.var;
+				tmp.vt = tmp.vt & ~VT_BYREF;
+				packet << tmp;
+			}
+			else
+			{
+				packet << *rhs.var;
+			}
 			return packet;
 		}
 

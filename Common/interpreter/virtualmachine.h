@@ -135,13 +135,15 @@ namespace common
 			struct sNetworkSync // network synchronize variable
 			{
 				bool enable; // enable network synchronize?
-				uint sync; // instant sync, 0x01:register, 0x02:instruction, 0x04:symbol
+				uint sync; // instant sync, 0x01:register, 0x02:instruction, 0x04:symbol, 0x08:data
 				bool regStreaming; // send register synchronize info?
 				bool instStreaming; // send instruction streaming info?
 				bool symbStreaming; // send symboltable synchronize info?
+				bool dataStreaming; // send big data (array, map) synchronize info?
 				float regTime; // register sync time, seconds unit
 				float instTime; // instruction sync time, seconds unit
 				float symbTime; // symboltable sync time, seconds unit
+				float dataTime; // big data(array/map) sync time, seconds unit
 				map<string, sSymbol> chSymbols; // check change variable
 												// key: variable name = scopeName + varname
 			};

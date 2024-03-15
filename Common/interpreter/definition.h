@@ -214,13 +214,14 @@ namespace common
 		// synchronize symbol variable (to marshalling)
 		struct sSyncSymbol
 		{
+			const bool isReference;
 			const string *scope;
 			const string *name;
 			const variant_t *var;
 
 			sSyncSymbol(const string *scope_ = nullptr, const string *name_ = nullptr
-				, const variant_t *var_ = nullptr) 
-			: scope(scope_), name(name_), var(var_) { }
+				, const variant_t *var_ = nullptr, const bool isReference_ = false)
+			: scope(scope_), name(name_), var(var_), isReference(isReference_) { }
 		};
 
 

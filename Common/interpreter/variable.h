@@ -56,7 +56,7 @@ namespace common
 			string type; // type string, Bool, Int, Float, String, Array, Map
 			string subTypeStr; // array element, map value type string
 			eSymbolType typeValues[4]; // maximum: map<string, vector<primitive type>>
-			int flags;
+			int flags; // 0x00:input, 0x02:output, 0x10:sync
 			variant_t var; // value
 
 			// array type

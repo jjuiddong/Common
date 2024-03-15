@@ -122,6 +122,7 @@ namespace network2
 		bool SendSyncVMRegister(const int itprId);
 		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId, const int vmId);
+		bool SendSyncData(const int itprId, const int vmId);
 		bool SendSyncVariable(const int itprId, const int vmId
 			, const script::cSymbolTable &symbolTable
 			, const string& varName, const script::sVariable &var);
