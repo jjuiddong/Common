@@ -1042,12 +1042,14 @@ remotedbg2.h2r_Dispatcher = class {
 						const vmId = packet.getInt32()
 						const varName = packet.getStr()
 						const startIdx = packet.getUint32()
+						const totalSize = packet.getUint32()
 						const array = packet.getTypeVariantVector()
 						const parsePacket = {
 							itprId,
 							vmId,
 							varName,
 							startIdx,
+							totalSize,
 							array,
 						}
 						handlers.forEach(handler => {
@@ -1071,12 +1073,14 @@ remotedbg2.h2r_Dispatcher = class {
 						const vmId = packet.getInt32()
 						const varName = packet.getStr()
 						const startIdx = packet.getUint32()
+						const totalSize = packet.getUint32()
 						const array = packet.getUint8Array()
 						const parsePacket = {
 							itprId,
 							vmId,
 							varName,
 							startIdx,
+							totalSize,
 							array,
 						}
 						handlers.forEach(handler => {
@@ -1100,12 +1104,14 @@ remotedbg2.h2r_Dispatcher = class {
 						const vmId = packet.getInt32()
 						const varName = packet.getStr()
 						const startIdx = packet.getUint32()
+						const totalSize = packet.getUint32()
 						const array = packet.getFloat32Array()
 						const parsePacket = {
 							itprId,
 							vmId,
 							varName,
 							startIdx,
+							totalSize,
 							array,
 						}
 						handlers.forEach(handler => {
@@ -1129,12 +1135,14 @@ remotedbg2.h2r_Dispatcher = class {
 						const vmId = packet.getInt32()
 						const varName = packet.getStr()
 						const startIdx = packet.getUint32()
+						const totalSize = packet.getUint32()
 						const array = packet.getStrArray()
 						const parsePacket = {
 							itprId,
 							vmId,
 							varName,
 							startIdx,
+							totalSize,
 							array,
 						}
 						handlers.forEach(handler => {
@@ -1896,13 +1904,14 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMArray
-	SyncVMArray(ws, isBinary, itprId, vmId, varName, startIdx, array, ) {
+	SyncVMArray(ws, isBinary, itprId, vmId, varName, startIdx, totalSize, array, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushTypeVariantVector(array)
 			WsSockServer.sendPacketBinary(ws, 5300, 1209241191, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1911,6 +1920,7 @@ remotedbg2.h2r_Protocol = class {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			WsSockServer.sendPacket(ws, 5300, 1209241191, packet)
@@ -1918,13 +1928,14 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMArrayBool
-	SyncVMArrayBool(ws, isBinary, itprId, vmId, varName, startIdx, array, ) {
+	SyncVMArrayBool(ws, isBinary, itprId, vmId, varName, startIdx, totalSize, array, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushBoolArray(array)
 			WsSockServer.sendPacketBinary(ws, 5300, 3278867969, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1933,6 +1944,7 @@ remotedbg2.h2r_Protocol = class {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			WsSockServer.sendPacket(ws, 5300, 3278867969, packet)
@@ -1940,13 +1952,14 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMArrayNumber
-	SyncVMArrayNumber(ws, isBinary, itprId, vmId, varName, startIdx, array, ) {
+	SyncVMArrayNumber(ws, isBinary, itprId, vmId, varName, startIdx, totalSize, array, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushFloat32Array(array)
 			WsSockServer.sendPacketBinary(ws, 5300, 3822230413, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1955,6 +1968,7 @@ remotedbg2.h2r_Protocol = class {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			WsSockServer.sendPacket(ws, 5300, 3822230413, packet)
@@ -1962,13 +1976,14 @@ remotedbg2.h2r_Protocol = class {
 	}
 	
 	// Protocol: SyncVMArrayString
-	SyncVMArrayString(ws, isBinary, itprId, vmId, varName, startIdx, array, ) {
+	SyncVMArrayString(ws, isBinary, itprId, vmId, varName, startIdx, totalSize, array, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushStrArray(array)
 			WsSockServer.sendPacketBinary(ws, 5300, 2291689449, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1977,6 +1992,7 @@ remotedbg2.h2r_Protocol = class {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			WsSockServer.sendPacket(ws, 5300, 2291689449, packet)

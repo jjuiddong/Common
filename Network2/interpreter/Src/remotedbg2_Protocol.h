@@ -60,10 +60,10 @@ public:
 	void SyncVMSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmId, const uint &start, const uint &count, const vector<script::sSyncSymbol> &symbol);
 	void SyncVMOutput(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &output);
 	void SyncVMWidgets(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &widgetName);
-	void SyncVMArray(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<variant_t> &array);
-	void SyncVMArrayBool(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<bool> &array);
-	void SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<float> &array);
-	void SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<string> &array);
+	void SyncVMArray(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<variant_t> &array);
+	void SyncVMArrayBool(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<bool> &array);
+	void SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<float> &array);
+	void SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<string> &array);
 	void SyncVMTimer(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &scopeName, const int &timerId, const int &time, const int &actionType);
 	void ExecuteCustomFunction(netid targetId, bool isBinary, const string &fnName, const map<string,vector<string>> &args);
 	void AckHeartBeat(netid targetId, bool isBinary);

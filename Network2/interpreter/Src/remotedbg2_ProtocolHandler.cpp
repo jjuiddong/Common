@@ -1863,6 +1863,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
+				marshalling::operator>>(packet, data.totalSize);
 				marshalling::operator>>(packet, data.array);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArray(data));
 			}
@@ -1887,6 +1888,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
+					get(props, "totalSize", data.totalSize);
 					get(props, "array", data.array);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArray(data));
 				} catch (...) {
@@ -1916,6 +1918,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
+				marshalling::operator>>(packet, data.totalSize);
 				marshalling::operator>>(packet, data.array);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArrayBool(data));
 			}
@@ -1940,6 +1943,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
+					get(props, "totalSize", data.totalSize);
 					get(props, "array", data.array);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArrayBool(data));
 				} catch (...) {
@@ -1969,6 +1973,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
+				marshalling::operator>>(packet, data.totalSize);
 				marshalling::operator>>(packet, data.array);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArrayNumber(data));
 			}
@@ -1993,6 +1998,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
+					get(props, "totalSize", data.totalSize);
 					get(props, "array", data.array);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArrayNumber(data));
 				} catch (...) {
@@ -2022,6 +2028,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 				marshalling::operator>>(packet, data.vmId);
 				marshalling::operator>>(packet, data.varName);
 				marshalling::operator>>(packet, data.startIdx);
+				marshalling::operator>>(packet, data.totalSize);
 				marshalling::operator>>(packet, data.array);
 				SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArrayString(data));
 			}
@@ -2046,6 +2053,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 					get(props, "vmId", data.vmId);
 					get(props, "varName", data.varName);
 					get(props, "startIdx", data.startIdx);
+					get(props, "totalSize", data.totalSize);
 					get(props, "array", data.array);
 					SEND_HANDLER(h2r_ProtocolHandler, prtHandler, SyncVMArrayString(data));
 				} catch (...) {

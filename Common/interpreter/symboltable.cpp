@@ -33,13 +33,16 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 		m_isChange = true;
 
 	// to avoid bstr memory move bug
-	common::clearvariant(m_vars[scopeName][symbolName].var);
+	//common::clearvariant(m_vars[scopeName][symbolName].var);
 	sVariable &variable = m_vars[scopeName][symbolName];
 
-	// if already setting array or map, clear
-	if ((var.vt & VT_BYREF) && (variable.ar || variable.m))
+	const bool isArrayMap = (eSymbolType::Array == variable.typeValues[0])
+		|| (eSymbolType::Map == variable.typeValues[0]);
+
+	// if already setting array/map, clear
+	if ((var.vt & VT_BYREF) && isArrayMap)
 	{
-		// check same variable
+		// ignore same variable
 		if (var.intVal != variable.id)
 		{
 			variable.ClearArrayMemory();
@@ -47,7 +50,53 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 		}
 	}
 
-	variable.var = var;
+	if (isArrayMap && (var.vt == VT_BSTR))
+	{
+		// array/map type, and string input? 
+		// array/map initializer process
+		if (variable.var.intVal != variable.id) // reference?
+		{
+			// find real symbol
+			const auto it = m_varMap.find(variable.var.intVal);
+			if (m_varMap.end() != it)
+				return Set(it->second.first, it->second.second, var, typeStr);
+		}
+		else
+		{
+			variable.ClearArrayMemory();
+			variable.ClearMapMemory();
+
+			vector<string> toks;
+			string initStr = common::variant2str(var);
+			common::trim(initStr);
+			if (initStr == "...")
+				return false; // ignore many array mark
+			common::tokenizer(initStr, ",", "", toks);
+			variable.ReserveArray(toks.size());
+
+			for (auto &tok : toks)
+			{
+				common::replaceAll(common::trim(tok), "'", ""); // remove \' character
+				variant_t val;
+				switch (variable.typeValues[1])
+				{
+				case eSymbolType::Bool: val = (bool)atoi(tok.c_str()); break;
+				case eSymbolType::Enums:
+				case eSymbolType::Int: val = (int)atoi(tok.c_str()); break;
+				case eSymbolType::Float: val = (float)atof(tok.c_str()); break;
+				case eSymbolType::String: val = common::str2variant(VT_BSTR, tok); break;
+				default: break; // error, ignore
+				}
+				variable.PushArrayElement(val);
+			}
+		}
+		variable.flags |= 0x10; // network sync
+	}
+	else
+	{
+		common::clearvariant(variable.var);
+		variable.var = var;
+	}
 
 	if (!typeStr.empty())
 	{

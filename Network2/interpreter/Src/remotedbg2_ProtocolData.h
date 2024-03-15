@@ -309,6 +309,7 @@ using namespace marshalling_json;
 		int vmId;
 		string varName;
 		uint startIdx;
+		uint totalSize;
 		vector<variant_t> array;
 	};
 
@@ -319,6 +320,7 @@ using namespace marshalling_json;
 		int vmId;
 		string varName;
 		uint startIdx;
+		uint totalSize;
 		vector<bool> array;
 	};
 
@@ -329,6 +331,7 @@ using namespace marshalling_json;
 		int vmId;
 		string varName;
 		uint startIdx;
+		uint totalSize;
 		vector<float> array;
 	};
 
@@ -339,6 +342,7 @@ using namespace marshalling_json;
 		int vmId;
 		string varName;
 		uint startIdx;
+		uint totalSize;
 		vector<string> array;
 	};
 

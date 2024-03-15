@@ -1434,7 +1434,7 @@ void remotedbg2::h2r_Protocol::SyncVMWidgets(netid targetId, bool isBinary, cons
 //------------------------------------------------------------------------
 // Protocol: SyncVMArray
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<variant_t> &array)
+void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<variant_t> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1448,6 +1448,7 @@ void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const 
 		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
+		marshalling::operator<<(packet, totalSize);
 		marshalling::operator<<(packet, array);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1462,6 +1463,7 @@ void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const 
 			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
+			put(props, "totalSize", totalSize);
 			put(props, "array", array);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1477,7 +1479,7 @@ void remotedbg2::h2r_Protocol::SyncVMArray(netid targetId, bool isBinary, const 
 //------------------------------------------------------------------------
 // Protocol: SyncVMArrayBool
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<bool> &array)
+void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<bool> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1491,6 +1493,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, co
 		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
+		marshalling::operator<<(packet, totalSize);
 		marshalling::operator<<(packet, array);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1505,6 +1508,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, co
 			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
+			put(props, "totalSize", totalSize);
 			put(props, "array", array);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1520,7 +1524,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayBool(netid targetId, bool isBinary, co
 //------------------------------------------------------------------------
 // Protocol: SyncVMArrayNumber
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<float> &array)
+void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<float> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1534,6 +1538,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, 
 		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
+		marshalling::operator<<(packet, totalSize);
 		marshalling::operator<<(packet, array);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1548,6 +1553,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, 
 			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
+			put(props, "totalSize", totalSize);
 			put(props, "array", array);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);
@@ -1563,7 +1569,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayNumber(netid targetId, bool isBinary, 
 //------------------------------------------------------------------------
 // Protocol: SyncVMArrayString
 //------------------------------------------------------------------------
-void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const vector<string> &array)
+void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, const int &itprId, const int &vmId, const string &varName, const uint &startIdx, const uint &totalSize, const vector<string> &array)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
@@ -1577,6 +1583,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, 
 		marshalling::operator<<(packet, vmId);
 		marshalling::operator<<(packet, varName);
 		marshalling::operator<<(packet, startIdx);
+		marshalling::operator<<(packet, totalSize);
 		marshalling::operator<<(packet, array);
 		packet.EndPack();
 		GetNode()->Send(targetId, packet);
@@ -1591,6 +1598,7 @@ void remotedbg2::h2r_Protocol::SyncVMArrayString(netid targetId, bool isBinary, 
 			put(props, "vmId", vmId);
 			put(props, "varName", varName);
 			put(props, "startIdx", startIdx);
+			put(props, "totalSize", totalSize);
 			put(props, "array", array);
 			stringstream ss;
 			boost::property_tree::write_json(ss, props);

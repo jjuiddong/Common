@@ -56,10 +56,10 @@ protocol h2r 5300 json
 	SyncVMSymbolTable( int itprId, int vmId, uint start, uint count, vector<script::sSyncSymbol> symbol );
 	SyncVMOutput( int itprId, int vmId, string output );
 	SyncVMWidgets( int itprId, int vmId, string widgetName );
-	SyncVMArray( int itprId, int vmId, string varName, uint startIdx, vector<variant_t> array );
-	SyncVMArrayBool( int itprId, int vmId, string varName, uint startIdx, vector<bool> array );
-	SyncVMArrayNumber( int itprId, int vmId, string varName, uint startIdx, vector<float> array );
-	SyncVMArrayString( int itprId, int vmId, string varName, uint startIdx, vector<string> array );
+	SyncVMArray( int itprId, int vmId, string varName, uint startIdx, uint totalSize, vector<variant_t> array );
+	SyncVMArrayBool( int itprId, int vmId, string varName, uint startIdx, uint totalSize, vector<bool> array );
+	SyncVMArrayNumber( int itprId, int vmId, string varName, uint startIdx, uint totalSize, vector<float> array );
+	SyncVMArrayString( int itprId, int vmId, string varName, uint startIdx, uint totalSize, vector<string> array );
 	SyncVMTimer( int itprId, int vmId, string scopeName, int timerId, int time, int actionType );
 
 	ExecuteCustomFunction(string fnName, map<string, vector<string>> args);

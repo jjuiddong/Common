@@ -247,6 +247,7 @@ export namespace remotedbg2Async {
 		vmId: number, 
 		varName: string, 
 		startIdx: number, 
+		totalSize: number, 
 		array: TypeVariant[], 
 	}
 	export type SyncVMArrayBool_Packet = {
@@ -254,6 +255,7 @@ export namespace remotedbg2Async {
 		vmId: number, 
 		varName: string, 
 		startIdx: number, 
+		totalSize: number, 
 		array: Uint8Array | null, 
 	}
 	export type SyncVMArrayNumber_Packet = {
@@ -261,6 +263,7 @@ export namespace remotedbg2Async {
 		vmId: number, 
 		varName: string, 
 		startIdx: number, 
+		totalSize: number, 
 		array: Float32Array | null, 
 	}
 	export type SyncVMArrayString_Packet = {
@@ -268,6 +271,7 @@ export namespace remotedbg2Async {
 		vmId: number, 
 		varName: string, 
 		startIdx: number, 
+		totalSize: number, 
 		array: string[], 
 	}
 	export type SyncVMTimer_Packet = {
@@ -1380,13 +1384,14 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArray
-	SyncVMArray(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: TypeVariant[], ) {
+	SyncVMArray(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, totalSize: number, array: TypeVariant[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushTypeVariantVector(array)
 			this.node?.sendPacketBinary(5300, 1209241191, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1395,6 +1400,7 @@ export class h2r_Protocol extends Network.Protocol {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			this.node?.sendPacket(5300, 1209241191, packet)
@@ -1402,13 +1408,14 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArrayBool
-	SyncVMArrayBool(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: boolean[], ) {
+	SyncVMArrayBool(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, totalSize: number, array: boolean[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushBoolArray(array)
 			this.node?.sendPacketBinary(5300, 3278867969, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1417,6 +1424,7 @@ export class h2r_Protocol extends Network.Protocol {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			this.node?.sendPacket(5300, 3278867969, packet)
@@ -1424,13 +1432,14 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArrayNumber
-	SyncVMArrayNumber(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: number[], ) {
+	SyncVMArrayNumber(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, totalSize: number, array: number[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushFloat32Array(array)
 			this.node?.sendPacketBinary(5300, 3822230413, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1439,6 +1448,7 @@ export class h2r_Protocol extends Network.Protocol {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			this.node?.sendPacket(5300, 3822230413, packet)
@@ -1446,13 +1456,14 @@ export class h2r_Protocol extends Network.Protocol {
 	}
 	
 	// Protocol: SyncVMArrayString
-	SyncVMArrayString(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, array: string[], ) {
+	SyncVMArrayString(isBinary: boolean, itprId: number, vmId: number, varName: string, startIdx: number, totalSize: number, array: string[], ) {
 		if (isBinary) { // binary send?
 			let packet = new Network.Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushUint32(startIdx)
+			packet.pushUint32(totalSize)
 			packet.pushStrArray(array)
 			this.node?.sendPacketBinary(5300, 2291689449, packet.buff, packet.offset)
 		} else { // json string send?
@@ -1461,6 +1472,7 @@ export class h2r_Protocol extends Network.Protocol {
 				vmId,
 				varName,
 				startIdx,
+				totalSize,
 				array,
 			}
 			this.node?.sendPacket(5300, 2291689449, packet)

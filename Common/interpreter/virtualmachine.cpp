@@ -331,6 +331,8 @@ bool cVirtualMachine::ProcessEvent(const float deltaSeconds)
 			if (out.size() >= 2)
 				m_symbTable.Set(out[0].c_str(), out[1].c_str(), kv.second);
 		}
+		m_nsync.symbStreaming = true;
+		m_nsync.dataStreaming = true;
 	}
 	else
 	{

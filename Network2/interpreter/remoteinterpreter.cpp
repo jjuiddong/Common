@@ -1314,7 +1314,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 						break;
 				}
 				m_protocol.SyncVMArrayBool(network2::ALL_NETID, true, itprId, vmId
-					, varName, startIdx, values);
+					, varName, startIdx, var.arSize, values);
 			}
 		}
 		break;
@@ -1337,7 +1337,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 						break;
 				}
 				m_protocol.SyncVMArrayNumber(network2::ALL_NETID, true, itprId, vmId
-					, varName, startIdx, values);
+					, varName, startIdx, var.arSize, values);
 			}
 		}
 		break;
@@ -1360,7 +1360,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 						break;
 				}
 				m_protocol.SyncVMArrayString(network2::ALL_NETID, true, itprId, vmId
-					, varName, startIdx, values);
+					, varName, startIdx, var.arSize, values);
 			}
 		}
 		break;
@@ -1650,8 +1650,18 @@ bool cRemoteInterpreter::ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet&
 	if (!var)
 		goto $error1;
 
+	if (var->var.vt & VT_BYREF) // array/map type?
+	{
+		// tricky code: array type? change string => str1,str2,str3,...
+		// and then convert tokenize with comma
+		vars[packet.varName] = packet.value.c_str();
+	}
+	else 
+	{
+		vars[packet.varName] = common::str2variant(var->var.vt, packet.value);
+	}
+
 	// change symbol event
-	vars[packet.varName] = common::str2variant(var->var.vt, packet.value);
 	PushEvent(packet.itprId, packet.vmId, make_shared<script::cEvent>("@@symbol@@", vars));
 
 	m_protocol.AckChangeVariable(packet.senderId, true
