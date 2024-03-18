@@ -89,6 +89,7 @@ namespace common
 			bool GetString(const string& scopeName, const string& symbolName
 				, OUT string& out, const bool isAddQuotes = false);
 			
+			sVariable* FindVarInfo(const int varId);
 			sVariable* FindVarInfo(const string &scopeName, const string &symbolName);
 			sVariable* FindRealVarInfo(const string& scopeName, const string& symbolName);
 			bool IsExist(const string &scopeName, const string &symbolName);

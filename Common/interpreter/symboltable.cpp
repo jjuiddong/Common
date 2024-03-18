@@ -423,6 +423,16 @@ bool cSymbolTable::GetString(const string& scopeName, const string& symbolName
 }
 
 
+// find variable info from variable id
+sVariable* cSymbolTable::FindVarInfo(const int varId)
+{
+	auto it = m_varMap.find(varId);
+	RETV(m_varMap.end() == it, nullptr);
+	return FindVarInfo(it->second.first, it->second.second);
+}
+
+
+// find variable info from variable name
 sVariable* cSymbolTable::FindVarInfo(const string &scopeName
 	, const string &symbolName)
 {

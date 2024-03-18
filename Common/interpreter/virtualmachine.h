@@ -51,6 +51,14 @@ namespace common
 				vector<std::pair<int, bool>> syncs; // first: pin index, second:sync?
 			};
 
+			// interater
+			struct sIterator
+			{
+				int id; // unique id
+				int varId; // container variable id
+				uint idx; // array index
+			};
+
 			cVirtualMachine(const string &name);
 			virtual ~cVirtualMachine();
 
@@ -89,6 +97,10 @@ namespace common
 			bool InitSyncOrderFlow(const int syncId, const int pinCount);
 			bool CheckSync(const int syncId, const int pinIdx);
 			void ClearNSync(const bool enable = false);
+			bool InitIterator(const int iterId, const int varId);
+			bool CompareIterator(const int iterId);
+			bool NextIterator(const int iterId);
+			bool GetIteratorVal(const int iterId, const int reg);
 
 
 		public:
@@ -113,6 +125,7 @@ namespace common
 			vector<sTimer> m_ticks;
 			vector<sTimer> m_timers;
 			vector<sSync> m_syncs;
+			vector<sIterator> m_its;
 			vector<int> m_stack; // simple integer stack (save return address)
 			vector<iModule*> m_modules; // execute function module, reference
 

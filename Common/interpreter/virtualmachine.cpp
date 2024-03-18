@@ -205,6 +205,7 @@ bool cVirtualMachine::Stop()
 	m_timers.clear();
 	m_ticks.clear();
 	m_syncs.clear();
+	m_its.clear();
 	m_stack.clear();
 
 	// close vm module
@@ -1204,6 +1205,53 @@ bool cVirtualMachine::ExecuteInstruction(const float deltaSeconds, sRegister &re
 		++reg.idx;
 		break;
 
+	case eCommand::iti:
+	{
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (reg.reg.size() <= code.reg2)
+			goto $error_memory;
+		if (varType != reg.reg[code.reg1].vt)
+			goto $error_semantic;
+
+		const int variableId = reg.reg[code.reg2].intVal;
+		InitIterator((int)reg.reg[code.reg1], variableId);
+		++reg.idx;
+	}
+	break;
+
+	case eCommand::itc:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (varType != reg.reg[code.reg1].vt)
+			goto $error_semantic;
+
+		CompareIterator((int)reg.reg[code.reg1]);
+		++reg.idx;
+		break;
+
+	case eCommand::itn:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (varType != reg.reg[code.reg1].vt)
+			goto $error_semantic;
+
+		NextIterator((int)reg.reg[code.reg1]);
+		++reg.idx;
+		break;
+
+	case eCommand::itg:
+		if (reg.reg.size() <= code.reg1)
+			goto $error_memory;
+		if (reg.reg.size() <= code.reg2)
+			goto $error_memory;
+		if (varType != reg.reg[code.reg1].vt)
+			goto $error_semantic;
+
+		GetIteratorVal((int)reg.reg[code.reg1], code.reg2);
+		++reg.idx;
+		break;
+
 	case eCommand::delay:
 		reg.tim -= (deltaSeconds * 1000.f); // second -> millisecond unit
 		if (reg.tim < 0.f)
@@ -1524,6 +1572,79 @@ bool cVirtualMachine::CheckSync(const int syncId, const int pinIdx)
 }
 
 
+// initialize iterator
+bool cVirtualMachine::InitIterator(const int iterId, const int varId)
+{
+	auto it = std::find_if(m_its.begin(), m_its.end()
+		, [&](auto& a) { return a.id == iterId; });
+	if (m_its.end() == it)
+	{
+		sIterator info;
+		info.id = iterId;
+		info.varId = varId;
+		info.idx = 0;
+		m_its.push_back(info);
+	}
+	else
+	{
+		it->idx = 0; // exception process, clear
+	}
+	return true;
+}
+
+
+// compare iterator
+bool cVirtualMachine::CompareIterator(const int iterId)
+{
+	auto it = std::find_if(m_its.begin(), m_its.end()
+		, [&](auto& a) { return a.id == iterId; });
+	if (m_its.end() == it)
+		return false; // error return
+	const sIterator& sit = *it;
+
+	sVariable *var = m_symbTable.FindVarInfo(sit.varId);
+	if (!var) 
+		return false; // error return
+	
+	const bool isOver = var->arSize <= (uint)sit.idx;
+	m_reg.cmp = isOver;
+	return true;
+}
+
+
+// next iterator
+bool cVirtualMachine::NextIterator(const int iterId)
+{
+	auto it = std::find_if(m_its.begin(), m_its.end()
+		, [&](auto& a) { return a.id == iterId; });
+	if (m_its.end() == it)
+		return false; // error return
+
+	sIterator& sit = *it;
+	++sit.idx;
+	return true;
+}
+
+
+// get iterator value
+bool cVirtualMachine::GetIteratorVal(const int iterId, const int reg)
+{
+	auto it = std::find_if(m_its.begin(), m_its.end()
+		, [&](auto& a) { return a.id == iterId; });
+	if (m_its.end() == it)
+		return false; // error return
+	sIterator& sit = *it;
+
+	sVariable* var = m_symbTable.FindVarInfo(sit.varId);
+	if (!var)
+		return false; // error return
+
+	if ((m_reg.reg.size() > (uint)reg) && (var->arSize > sit.idx))
+		m_reg.reg[reg] = var->ar[sit.idx];
+	return true;
+}
+
+
 // enable network synchronize?
 bool cVirtualMachine::EnableNetworkSync(const bool enable)
 {
@@ -1634,6 +1755,7 @@ void cVirtualMachine::Clear()
 	m_timers.clear();
 	m_ticks.clear();
 	m_syncs.clear();
+	m_its.clear();
 	m_stack.clear();
 	for (auto &mod : m_modules)
 		mod->CloseModule(*this);

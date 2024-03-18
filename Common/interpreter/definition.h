@@ -79,6 +79,10 @@ namespace common
 			synci, // synci, reg1, number	; reg1:sync id, number: sync count (sync initialize)
 			synco, // synco, reg1, number	; reg1:sync id, number: sync count (sync order initialize)
 			sync, // sync, reg1, number		; reg1:sync id, number: sync pin idx, update compare flag
+			iti, // iti, reg1, reg2	; iterator initialize, reg1: iterator id, reg2:array/map value
+			itc, // itc, reg1		; iterator indicate end of item?, compare flag true, reg1:iterator id
+			itn, // itn, reg1		; iterator indicate next item, reg1:iterator id
+			itg, // itg, reg1, reg2	; iterator get item, reg1: iterator id, reg2: assign register
 			symbolb, 
 			symboli, 
 			symbolf, 
@@ -96,7 +100,7 @@ namespace common
 			timer2,
 			cmt, 
 			delay, 
-			nop
+			nop // no operation
 		};
 
 		string CommandToStr(const eCommand cmd);

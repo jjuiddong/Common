@@ -432,6 +432,19 @@ bool cIntermediateCode::Write(const StrPath &fileName)
 			ofs << ", " << common::variant2str(code.var1, true);
 			break;
 
+		case eCommand::iti:
+		case eCommand::itg:
+			ofs << script::CommandToStr(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			ofs << ", " << GetRegisterName(code.reg2);
+			break;
+
+		case eCommand::itc:
+		case eCommand::itn:
+			ofs << script::CommandToStr(code.cmd);
+			ofs << " " << GetRegisterName(code.reg1);
+			break;
+
 		case eCommand::symbolb:
 		case eCommand::symboli:
 		case eCommand::symbolf:

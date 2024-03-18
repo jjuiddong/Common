@@ -1075,6 +1075,8 @@ bool cVplFile::Control_GenCode(const sNode &prevNode, const sNode &node
 		While_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "For Loop")
 		ForLoop_GenCode(prevNode, node, fromPin, out);
+	else if (node.name == "ForEach")
+		ForEach_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "Sequence")
 		Sequence_GenCode(prevNode, node, fromPin, out);
 	else if (node.name == "Sync")
@@ -1698,6 +1700,212 @@ bool cVplFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 		{
 			sNode *next = nullptr; // next node
 			sPin *np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && (pin.name == "Exit"))
+			{
+				// insert jump label
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::label;
+					code.str1 = MakeScopeName(*next);
+					out.m_codes.push_back(code);
+				}
+
+				Node_GenCode(node, *next, pin, out);
+				break;
+			}
+		}
+	}
+
+	NodeEscape_GenCode(node, out);
+	return true;
+}
+
+
+// generate foreach syntax code
+bool cVplFile::ForEach_GenCode(const sNode& prevNode, const sNode& node
+	, const sPin& fromPin, OUT common::script::cIntermediateCode& out)
+{
+	RETV(eNodeType::Control != node.type, false);
+	if (!NodeEnter_GenCode(prevNode, node, fromPin, out))
+		return true;
+
+	NodeInput_GenCode(node, 0, true, out);
+
+	const int iterId = node.id; // iterator id
+
+	// initialize iterator
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::ldic;
+		code.reg1 = 1;
+		code.var1 = iterId;
+		out.m_codes.push_back(code);
+	}
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::iti;
+		code.reg1 = 1; // iterator id
+		code.reg2 = 0; // input array
+		out.m_codes.push_back(code);
+	}
+
+	// insert foreach condition jump label
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::label;
+		code.str1 = MakeScopeName(node) + "-cond";
+		out.m_codes.push_back(code);
+	}
+
+	// compare loop condition, iterator == end
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::itc; // (iterator == end) -> jump exit label
+		code.reg1 = 1; // iterator id
+		out.m_codes.push_back(code);
+	}
+
+	// compare condition is false(zero)?  (false condition)
+	{
+		// jump Exit flow
+		// find Exit branch pin
+		string exitLabel;
+		for (auto& pin : node.outputs)
+		{
+			if ((ePinType::Flow == pin.type)
+				&& (pin.name == "Exit"))
+			{
+				sNode* next = nullptr; // next node
+				sPin* np = nullptr; // next pin
+				const int linkId = pin.links.empty() ? -1 : pin.links.front();
+				std::tie(next, np) = FindContainPin(linkId);
+				if (next)
+					exitLabel = MakeScopeName(*next);
+			}
+		}
+
+		if (exitLabel.empty())
+		{
+			// no branch node, jump blank code
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = "blank";
+			out.m_codes.push_back(code);
+		}
+		else
+		{
+			script::sInstruction code;
+			code.cmd = script::eCommand::jnz;
+			code.str1 = exitLabel;
+			out.m_codes.push_back(code);
+		}
+	}
+
+	// setup current iterator value
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::itg;
+		code.reg1 = 1; // iterator id
+		code.reg2 = 2; // iterator value
+		out.m_codes.push_back(code);
+	}
+
+	for (auto& pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+			continue;
+
+		sNode* next = nullptr; // next node
+		sPin* np = nullptr; // next pin
+		const int linkId = pin.links.empty() ? -1 : pin.links.front();
+		std::tie(next, np) = FindContainPin(linkId);
+		if (next && (pin.name == "item") && !pin.typeValues.empty())
+		{
+			using namespace common::script;
+		
+			script::sInstruction code;
+			const eSymbolType itemType = pin.typeValues[0]; // array item type
+			switch (itemType)
+			{
+			case eSymbolType::Bool: code.cmd = script::eCommand::setb; break;
+			case eSymbolType::Enums:
+			case eSymbolType::Int: code.cmd = script::eCommand::seti; break;
+			case eSymbolType::Float: code.cmd = script::eCommand::setf; break;
+			case eSymbolType::String: code.cmd = script::eCommand::sets; break;
+			default: continue;
+			}
+
+			code.str1 = MakeScopeName(node);
+			code.str2 = "item";
+			code.reg1 = 2;
+			out.m_codes.push_back(code);
+			break;
+		}
+	}
+
+	// loop flow node (generate Loop branch node)
+	for (auto& pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode* next = nullptr; // next node
+			sPin* np = nullptr; // next pin
+			const int linkId = pin.links.empty() ? -1 : pin.links.front();
+			std::tie(next, np) = FindContainPin(linkId);
+			if (next && (pin.name == "Loop"))
+			{
+				// push instruction index (not determine)
+				const uint addressIdx = out.m_codes.size();
+				{
+					script::sInstruction code;
+					code.cmd = script::eCommand::pushic;
+					code.var1 = 0; // not determine return address
+					out.m_codes.push_back(code);
+				}
+
+				Node_GenCode(node, *next, pin, out);
+
+				// update jump address
+				out.m_codes[addressIdx].var1 = (int)out.m_codes.size();
+				// pop return jump address
+				out.m_codes.push_back({ script::eCommand::pop });
+			}
+		}
+	}
+
+	// next iterator
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::ldic;
+		code.reg1 = 1;
+		code.var1 = iterId;
+		out.m_codes.push_back(code);
+	}
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::itn;
+		code.reg1 = 1; // iterator id
+		out.m_codes.push_back(code);
+	}
+
+	// Insert Jump ForEach Condition code
+	{
+		script::sInstruction code;
+		code.cmd = script::eCommand::jmp;
+		code.str1 = MakeScopeName(node) + "-cond";
+		out.m_codes.push_back(code);
+	}
+
+	// generate Exit branch node
+	// seperate from this node
+	for (auto& pin : node.outputs)
+	{
+		if (ePinType::Flow == pin.type)
+		{
+			sNode* next = nullptr; // next node
+			sPin* np = nullptr; // next pin
 			const int linkId = pin.links.empty() ? -1 : pin.links.front();
 			std::tie(next, np) = FindContainPin(linkId);
 			if (next && (pin.name == "Exit"))

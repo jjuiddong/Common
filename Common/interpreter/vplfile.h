@@ -114,6 +114,8 @@ namespace vpl
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool ForLoop_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
+		bool ForEach_GenCode(const sNode& prevNode, const sNode& node
+			, const sPin& fromPin, OUT common::script::cIntermediateCode& out);
 		bool Sequence_GenCode(const sNode &prevNode, const sNode &node
 			, const sPin &fromPin, OUT common::script::cIntermediateCode &out);
 		bool Sync_GenCode(const sNode& prevNode, const sNode& node
