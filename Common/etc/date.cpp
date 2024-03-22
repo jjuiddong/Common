@@ -3,6 +3,9 @@
 #include "date.h"
 #include "boost/date_time/gregorian/gregorian.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
+#include <time.h>
+
+
 
 using namespace common;
 
@@ -235,6 +238,74 @@ uint64 common::GetCurrentDateTime6(const string &dateTime)
 		+ (uint64)atoi(out[6].c_str()) % 1000;
 
 	return ret;
+}
+
+
+// return month day, year ex) Mon, 29 Nov 2010 21:54:29
+// email date string format
+string common::GetCurrentDateTime7()
+{
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	boost::gregorian::date dayte(boost::gregorian::day_clock::local_day());
+	boost::posix_time::ptime midnight(dayte);
+	boost::posix_time::ptime
+		now(boost::posix_time::microsec_clock::local_time());
+	boost::posix_time::time_duration td = now - midnight;
+
+	date::ymd_type ymd = second_clock::local_time().date().year_month_day();
+	date::day_of_week_type wday = second_clock::local_time().date().day_of_week();
+
+	stringstream ss;
+	try {
+		ss << wday
+			<< ", " << ymd.day
+			<< " " << ymd.month
+			<< " " << ymd.year
+			<< " " << td.hours()
+			<< ":" << td.minutes()
+			<< ":" << td.seconds()
+			;
+	}
+	catch (...)
+	{
+		// nothing~
+	}
+	return ss.str();
+}
+
+
+// return time string, yyyymmdd hh:mm
+// ex) 20170108 11:05
+string common::GetCurrentDateTime8()
+{
+	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	boost::gregorian::date dayte(boost::gregorian::day_clock::local_day());
+	boost::posix_time::ptime midnight(dayte);
+	boost::posix_time::ptime
+		now(boost::posix_time::microsec_clock::local_time());
+	boost::posix_time::time_duration td = now - midnight;
+
+	date::ymd_type ymd = second_clock::local_time().date().year_month_day();
+
+	stringstream ss;
+	try {
+		ss << ymd.year
+			<< std::setfill('0') << std::setw(2) << ymd.month.as_number()
+			<< std::setfill('0') << std::setw(2) << ymd.day
+			<< " " << std::setfill('0') << std::setw(2) << td.hours()
+			<< ":" << std::setfill('0') << std::setw(2) << td.minutes()
+			;
+	}
+	catch (...)
+	{
+		// nothing~
+	}
+	return ss.str();
 }
 
 
