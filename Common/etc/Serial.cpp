@@ -27,7 +27,6 @@ bool cSerial::Open( const int nPort, const int nBaud )
 	TCHAR szPort[15];
 	DCB dcb;
 
-	//wsprintf( szPort, TEXT("COM%d"), nPort );
 	wsprintf(szPort, TEXT("\\\\.\\COM%d"), nPort);
 	m_dev = CreateFile( szPort
 		, GENERIC_READ | GENERIC_WRITE

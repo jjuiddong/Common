@@ -274,6 +274,12 @@
     <ClInclude Include="interpreter\event_arg.h">
       <Filter>interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="etc\Serial2.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
+    <ClInclude Include="etc\SerialAsync2.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -459,6 +465,12 @@
     </ClCompile>
     <ClCompile Include="math\mathutility.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\Serial2.cpp">
+      <Filter>Etc</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\SerialAsync2.cpp">
+      <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

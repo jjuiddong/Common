@@ -29,7 +29,7 @@ namespace common
 		bool WriteCommByte(unsigned char ucByte);
 
 		bool m_isOpened;
-		HANDLE m_dev; // COM device handle
+		HANDLE m_dev; // COM device handler
 		OVERLAPPED m_read;
 		OVERLAPPED m_write;
 	};
