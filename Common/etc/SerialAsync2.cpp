@@ -86,7 +86,7 @@ int cSerialAsync2::SendData(BYTE *buffer, const uint size)
 		for (uint i = 0; i < size; ++i)
 		{
 			parity = (buffer[i] & 0x0F) ^ parity;
-			parity = (buffer[i] & 0xF0) ^ parity;
+			parity = ((buffer[i] & 0xF0) >> 4) ^ parity;
 		}
 		// parity bit + end bit
 		buf[0] = (char)((parity << 4) | m_sndProtocol.endBit);
