@@ -144,7 +144,7 @@ uint cSerialAsync2::RecvData(BYTE *buffer, const uint size)
 		for (uint i = 0; i < 1; ++i)
 		{
 			parity = (tmpBuffer[i + 1] & 0x0F) ^ parity;
-			parity = (tmpBuffer[i + 1] & 0xF0) ^ parity;
+			parity = ((tmpBuffer[i + 1] & 0xF0) >> 4) ^ parity;
 		}
 		if (((int)(tmpBuffer[2] & 0xF0) >> 4) != parity)
 			return 0; // error return
