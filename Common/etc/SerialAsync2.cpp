@@ -127,31 +127,32 @@ uint cSerialAsync2::RecvData(BYTE *buffer, const uint size)
 			return 0; // error return
 
 		// check start bit, end bit, parity bit
-		// 3: bytes size (start bit + end bit + parity bit + data bit)
-		if (readLen != 3)
-			return 0; // error return
+		// 4: bytes size (start bit + end bit + parity bit + data bit)
+		if (readLen != 6)
+			return 0; // error return, must 4 byte
 
 		// check start bit
 		if ((int)tmpBuffer[0] != m_rcvProtocol.startBit)
 			return 0; // error return
 
 		// check end bit
-		if ((int)(tmpBuffer[2] & 0x0F) != m_rcvProtocol.endBit)
-			return 0; // error return
+		if ((int)(tmpBuffer[readLen-1] & 0x0F) != m_rcvProtocol.endBit)
+			return 0; // error return, end bit error
 
 		// check parity bit
 		uint parity = 0; // parity bit (4bit)
-		for (uint i = 0; i < 1; ++i)
+		for (ushort i = 1; i < readLen-1; ++i)
 		{
-			parity = (tmpBuffer[i + 1] & 0x0F) ^ parity;
-			parity = ((tmpBuffer[i + 1] & 0xF0) >> 4) ^ parity;
+			parity = (tmpBuffer[i] & 0x0F) ^ parity;
+			parity = ((tmpBuffer[i] & 0xF0) >> 4) ^ parity;
 		}
-		if (((int)(tmpBuffer[2] & 0xF0) >> 4) != parity)
-			return 0; // error return
+		if (((int)(tmpBuffer[readLen - 1] & 0xF0) >> 4) != parity)
+			return 0; // error return, parity bit error
 
-		buffer[0] = tmpBuffer[1];
+		for (ushort i = 1; i < (readLen - 1); ++i)
+			buffer[i - 1] = tmpBuffer[i];
 
-		return 1; // data size 1 byte
+		return readLen - 2; // data size
 	}
 
 	return 0;
@@ -233,7 +234,7 @@ int cSerialAsync2::SerialThreadFunction(cSerialAsync2* ser)
 			int cnt = 0; // prevent infinity loop
 			while (cnt++ < 10)
 			{
-				const int rcvLen = ser->m_serial.ReadData(rcvBuffer, 3);
+				const int rcvLen = ser->m_serial.ReadData(rcvBuffer, 6);
 				if (0 == rcvLen)
 					break;
 

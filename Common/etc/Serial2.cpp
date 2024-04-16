@@ -170,14 +170,14 @@ int cSerial2::ReadData( void *buffer, const uint limit )
 	if (!m_dev)
 		return -1;
 
-	int readBytes = ReadDataWaiting();
-	if (readBytes < 0)
+	const int queueSize = ReadDataWaiting();
+	if (queueSize < 0)
 		return -1;
 
-	if (limit < (uint)readBytes)
-		readBytes = (int)limit;
+	if (limit > (uint)queueSize)
+		return 0; // wait
 
-	DWORD dwBytesRead = (DWORD)readBytes;
+	DWORD dwBytesRead = (DWORD)limit;
 	const BOOL result = ReadFile(m_dev, buffer, dwBytesRead, &dwBytesRead, &m_read);
 	if (!result)
 	{
