@@ -85,6 +85,12 @@ bool cSphere::Render(cRenderer &renderer
 }
 
 
+void cSphere::SetPos(const Vector3& pos)
+{
+	m_transform.pos = pos;
+}
+
+
 void cSphere::SetColor(const cColor &color)
 {
 	m_mtrl.m_diffuse = color.GetColor();

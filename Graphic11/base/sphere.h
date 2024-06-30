@@ -30,6 +30,7 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
+		void SetPos(const Vector3& pos);
 		void SetColor(const cColor &color);
 		void SetRadius(const float radius);
 		float GetRadius() const;

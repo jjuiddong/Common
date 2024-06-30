@@ -27,8 +27,8 @@ bool cSerial2::Open( const int port, const int baud )
 		return true; // already open
 
 	char szPort[15];
-	wsprintf(szPort, TEXT("\\\\.\\COM%d"), port);
-	m_dev = CreateFile( szPort
+	sprintf(szPort, "\\\\.\\COM%d", port);
+	m_dev = CreateFileA( szPort
 		, GENERIC_READ | GENERIC_WRITE
 		, 0, NULL, OPEN_EXISTING
 		, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED
