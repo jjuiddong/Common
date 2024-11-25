@@ -71,6 +71,23 @@ bool cNetController::StartUdpServer(cUdpServer *svr
 }
 
 
+bool cNetController::StartUdpServer2(cUdpServer2* svr
+	, const int bindPort
+	, const int packetSize //= DEFAULT_PACKETSIZE
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
+	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
+	, const bool isThreadMode //=true
+)
+{
+	const bool result = svr->Init(bindPort, packetSize, maxPacketCount
+		, sleepMillis, isThreadMode);
+
+	if (!IsExistServer(svr))
+		m_udpServers2.push_back(svr);
+
+	return result;
+}
+
 bool cNetController::StartUdpClient(cUdpClient *client
 	, const Str16 &ip
 	, const int port
@@ -193,6 +210,10 @@ int cNetController::Process(const float deltaSeconds)
 	basic_protocol::UdpServerDispatcher udpSvrDispatcher;
 	for (uint i=0; i < m_udpServers.size(); ++i)
 		cnt += ProcessNetworkNode(m_udpServers[i], &udpSvrDispatcher);
+
+	basic_protocol::UdpServer2Dispatcher udpSvr2Dispatcher;
+	for (uint i = 0; i < m_udpServers2.size(); ++i)
+		cnt += ProcessNetworkNode(m_udpServers2[i], &udpSvr2Dispatcher);
 
 	basic_protocol::WebServerDispatcher webSvrDispatcher;
 	for (uint i = 0; i < m_webServers.size(); ++i)

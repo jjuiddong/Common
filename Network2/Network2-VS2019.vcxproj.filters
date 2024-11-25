@@ -183,6 +183,9 @@
     <ClInclude Include="utility\packetpump.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="udpserver2.h">
+      <Filter>Service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -320,6 +323,9 @@
     </ClCompile>
     <ClCompile Include="utility\packetpump.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="udpserver2.cpp">
+      <Filter>Service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

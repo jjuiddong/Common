@@ -25,6 +25,11 @@ namespace common
 		Vector2& operator *= ( const Vector2& rhs );
 		Vector2& operator /= ( const Vector2& rhs );
 
+		float DotProduct(const Vector2& v) const
+		{
+			return x * v.x + y * v.y;
+		}
+
 		bool operator == (const Vector2& rhs) const
 		{
 			return (x == rhs.x) && (y == rhs.y);

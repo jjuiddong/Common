@@ -76,6 +76,21 @@ void UdpServerDispatcher::Dispatch(cPacket &packet, cUdpServer *svr)
 }
 
 
+// udp Server2 Basic Protocol Dispatcher
+void UdpServer2Dispatcher::Dispatch(cPacket& packet, cUdpServer2* svr)
+{
+	RET(!svr);
+	switch (packet.GetPacketId())
+	{
+	case PACKETID_ERROR_BIND:
+	{
+		svr->ErrorSession(svr->m_id);
+	}
+	break;
+	}
+}
+
+
 // web server packet basic dispatcher
 // Connect, Disconnect, Accept packet handler
 void basic_protocol::WebServerDispatcher::Dispatch(cPacket &packet, cWebServer *svr)

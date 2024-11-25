@@ -12,6 +12,8 @@ cSerialAsync2::cSerialAsync2()
 	, m_sndQ(MAX_BUFFERSIZE)
 	, m_rcvQ(MAX_BUFFERSIZE)
 	, m_sleepMillis(10)
+	, m_packBytes(2)
+	, m_readBytes(6)
 {
 	m_sndProtocol.startBit = (uint)'@';
 	m_sndProtocol.startBitCnt = 8;
@@ -35,7 +37,9 @@ cSerialAsync2::~cSerialAsync2()
 
 
 // open serial
-bool cSerialAsync2::Open(const int portNum, const int baudRate)
+bool cSerialAsync2::Open(const int portNum, const int baudRate
+	, const int readBytes //=6
+)
 {
 	if (eState::Connect == m_state)
 		return true; // already open
@@ -47,6 +51,7 @@ bool cSerialAsync2::Open(const int portNum, const int baudRate)
 
 	m_port = portNum;
 	m_baudRate = baudRate;
+	m_readBytes = readBytes;
 	m_state = eState::Connect;
 	m_thread = std::thread(SerialThreadFunction, this);
 	return true;
@@ -74,23 +79,37 @@ int cSerialAsync2::SendData(BYTE *buffer, const uint size)
 		AutoCSLock cs(m_cs);
 
 		char buf[2];
-		*(ushort*)buf = size + 2; // 2: start bit + end bit + pairty bit (2byte)
+		*(ushort*)buf = size + m_packBytes;
 		m_sndQ.push(buf, 2);
 
 		buf[0] = (char)m_sndProtocol.startBit;
 		m_sndQ.push(buf, 1);
 		m_sndQ.push((char*)buffer, size);
 
-		// parity bit (4bit)
-		uint parity = 0;
-		for (uint i = 0; i < size; ++i)
+		if ((4 == m_rcvProtocol.endBitCnt) && (4 == m_rcvProtocol.parityCnt))
 		{
-			parity = (buffer[i] & 0x0F) ^ parity;
-			parity = ((buffer[i] & 0xF0) >> 4) ^ parity;
+			// parity bit (4bit)
+			uint parity = 0;
+			for (uint i = 0; i < size; ++i)
+			{
+				parity = (buffer[i] & 0x0F) ^ parity;
+				parity = ((buffer[i] & 0xF0) >> 4) ^ parity;
+			}
+			// parity bit + end bit
+			buf[0] = (char)((parity << 4) | m_sndProtocol.endBit);
+			m_sndQ.push(buf, 1);
 		}
-		// parity bit + end bit
-		buf[0] = (char)((parity << 4) | m_sndProtocol.endBit);
-		m_sndQ.push(buf, 1);
+		else
+		{
+			// parity bit (8bit)
+			uint parity = 0;
+			for (uint i = 0; i < size; ++i)
+				parity = buffer[i] ^ parity;
+			// parity bit, end bit
+			buf[0] = parity;
+			buf[1] = m_sndProtocol.endBit;
+			m_sndQ.push(buf, 2);
+		}		
 	}
 	return size;
 }
@@ -100,10 +119,15 @@ int cSerialAsync2::SendData(BYTE *buffer, const uint size)
 // buffer: recv data buffer
 // size: recv buffer size
 // return: data bytes size
-uint cSerialAsync2::RecvData(BYTE *buffer, const uint size)
+//		  -1: connect error
+//		  -2: internal error
+//		  -3: start bit error
+//		  -4: end bit error
+//		  -5: parity bit error
+int cSerialAsync2::RecvData(BYTE *buffer, const uint size)
 {
 	if (eState::Connect != m_state)
-		return 0;
+		return -1; // not connected
 	if (m_rcvQ.empty())
 		return 0;
 	if (0 == size)
@@ -115,44 +139,64 @@ uint cSerialAsync2::RecvData(BYTE *buffer, const uint size)
 		// read data length
 		char buff[2];
 		if (!m_rcvQ.pop(buff, 2))
-			return 0; // error occurred!
+			return -2; // error occurred!
 
 		const ushort readLen = *(ushort*)buff;
 		if (size < (int)readLen)
-			return 0; // error occurred!
+			return -2; // error occurred!
 
 		// read data
 		char tmpBuffer[BUFLEN];
 		if (!m_rcvQ.pop((char*)tmpBuffer, readLen))
-			return 0; // error return
+			return -2; // error return
 
 		// check start bit, end bit, parity bit
 		// 4: bytes size (start bit + end bit + parity bit + data bit)
-		if (readLen != 6)
-			return 0; // error return, must 4 byte
+		if (readLen != m_readBytes)
+			return -2; // error return, must 4 byte
 
 		// check start bit
-		if ((int)tmpBuffer[0] != m_rcvProtocol.startBit)
-			return 0; // error return
+		if ((tmpBuffer[0] & 0xFF) != m_rcvProtocol.startBit)
+			return -3; // error return
 
-		// check end bit
-		if ((int)(tmpBuffer[readLen-1] & 0x0F) != m_rcvProtocol.endBit)
-			return 0; // error return, end bit error
-
-		// check parity bit
-		uint parity = 0; // parity bit (4bit)
-		for (ushort i = 1; i < readLen-1; ++i)
+		if ((4 == m_rcvProtocol.endBitCnt) && (4 == m_rcvProtocol.parityCnt))
 		{
-			parity = (tmpBuffer[i] & 0x0F) ^ parity;
-			parity = ((tmpBuffer[i] & 0xF0) >> 4) ^ parity;
+			// check end bit
+			if ((int)(tmpBuffer[readLen - 1] & 0x0F) != m_rcvProtocol.endBit)
+				return -4; // error return, end bit error
+
+			// check parity bit
+			uint parity = 0; // parity bit (4bit)
+			for (ushort i = 1; i < readLen - 1; ++i)
+			{
+				parity = (tmpBuffer[i] & 0x0F) ^ parity;
+				parity = ((tmpBuffer[i] & 0xF0) >> 4) ^ parity;
+			}
+			if (((int)(tmpBuffer[readLen - 1] & 0xF0) >> 4) != parity)
+				return -5; // error return, parity bit error
 		}
-		if (((int)(tmpBuffer[readLen - 1] & 0xF0) >> 4) != parity)
-			return 0; // error return, parity bit error
+		else
+		{
+			// check end bit
+			if ((tmpBuffer[readLen - 1] & 0xFF) != m_rcvProtocol.endBit)
+				return -4; // error return, end bit error
+
+			// check parity bit
+			uint parity = 0; // parity bit (8bit)
+			for (ushort i = 1; i < readLen - 2; ++i)
+				parity = tmpBuffer[i] ^ parity;
+			if ((tmpBuffer[readLen - 2] & 0xFF) != (parity & 0xFF))
+			{
+				dbg::Logc(1, "error parity bit, src:0x%x, calc:0x%x\n"
+					, tmpBuffer[readLen - 2], parity);
+				return -5; // error return, parity bit error
+			}
+		}
 
 		for (ushort i = 1; i < (readLen - 1); ++i)
 			buffer[i - 1] = tmpBuffer[i];
 
-		return readLen - 2; // data size
+		return readLen - m_packBytes; // data size
 	}
 
 	return 0;
@@ -234,7 +278,7 @@ int cSerialAsync2::SerialThreadFunction(cSerialAsync2* ser)
 			int cnt = 0; // prevent infinity loop
 			while (cnt++ < 10)
 			{
-				const int rcvLen = ser->m_serial.ReadData(rcvBuffer, 6);
+				const int rcvLen = ser->m_serial.ReadData(rcvBuffer, ser->m_readBytes);
 				if (0 == rcvLen)
 					break;
 
@@ -252,7 +296,7 @@ int cSerialAsync2::SerialThreadFunction(cSerialAsync2* ser)
 					// 2 byte read len (ushort)
 					// n byte read data
 					const uint remainSize = ser->m_rcvQ.SIZE - ser->m_rcvQ.size();
-					if (remainSize > (uint)(2 + rcvLen))
+					if (remainSize > (uint)(ser->m_packBytes + rcvLen))
 					{
 						char buff[2];
 						*(ushort*)buff = (ushort)rcvLen;

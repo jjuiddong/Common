@@ -46,6 +46,7 @@ typedef int netid;
 #include "tcpserver.h"
 #include "tcpclient.h"
 #include "udpserver.h"
+#include "udpserver2.h"
 #include "udpclient.h"
 #include "webserver.h"
 #include "webclient.h"

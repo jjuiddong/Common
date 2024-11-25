@@ -283,6 +283,23 @@ float common::GetDiffAngle3(const float fromAngle, const float toAngle)
 }
 
 
+// left radian angle
+// from: from angle
+// to: to angle
+// ratio: 0 ~ 1
+float common::LerpAngle(const float from, const float to, const float ratio)
+{
+
+
+
+	return 0.f;
+
+	//const float CS = (1.f - ratio) * cos(from) + ratio * cos(to);
+	//const float SN = (1.f - ratio) * sin(from) + ratio * sin(to);
+	//return atan2(SN, CS);
+}
+
+
 // return -PI ~ +PI radian angle
 // angle: radian angle
 float common::SaturateAngle(const float angle)

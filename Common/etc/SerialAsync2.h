@@ -20,9 +20,9 @@ namespace common
 		cSerialAsync2();
 		virtual ~cSerialAsync2();
 
-		bool Open(const int portNum, const int baudRate);
+		bool Open(const int portNum, const int baudRate, const int readBytes = 6);
 		int SendData(BYTE *buffer, const uint size);
-		uint RecvData(BYTE *buffer, const uint size);
+		int RecvData(BYTE *buffer, const uint size);
 		bool IsOpen() const;
 		void Close();
 
@@ -50,6 +50,8 @@ namespace common
 		cSerial2 m_serial;
 		int m_port; // port number
 		int m_baudRate; // baud rate
+		int m_packBytes; // packing byte size (start bit + end bit + parity bit, default:2)
+		int m_readBytes; // read serial data byte size (default:6)
 		cCircularQueue2<char> m_sndQ; // send queue
 		cCircularQueue2<char> m_rcvQ; // receive queue
 		sProtocol m_sndProtocol; // send protocol format

@@ -214,6 +214,7 @@
     <ClInclude Include="udpclient.h" />
     <ClInclude Include="udpclientmap.h" />
     <ClInclude Include="udpserver.h" />
+    <ClInclude Include="udpserver2.h" />
     <ClInclude Include="udpservermap.h" />
     <ClInclude Include="udpservermap2.h" />
     <ClInclude Include="utility\all_protocol_displayer.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="udpclient.cpp" />
     <ClCompile Include="udpclientmap.cpp" />
     <ClCompile Include="udpserver.cpp" />
+    <ClCompile Include="udpserver2.cpp" />
     <ClCompile Include="udpservermap.cpp" />
     <ClCompile Include="udpservermap2.cpp" />
     <ClCompile Include="utility\all_protocol_displayer.cpp" />
@@ -289,11 +291,6 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename) protocol Generation...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{ef9ca22d-0c8f-42e9-ab66-98bc1a640f10}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="interpreter\remotedbg2.prt">

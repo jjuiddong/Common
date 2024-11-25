@@ -46,6 +46,8 @@ namespace common
 	int GetDiffAngle(const float angle1, const float angle2);
 	float GetDiffAngle2(const float angle1, const float angle2);
 	float GetDiffAngle3(const float toAngle, const float fromAngle);
+	float LerpAngle(const float from, const float to, const float ratio);
+
 	float SaturateAngle(const float angle);
 	double SaturateAngle2(const double angle);
 	double SaturateAngle2PI(const double angle);
