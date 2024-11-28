@@ -26,12 +26,12 @@ float Vector4::DotProduct(const Vector4& v) const
 }
 
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 XMVECTOR Vector4::GetVectorXM() const
 {
 	return XMLoadFloat4((XMFLOAT4*)this);
 }
-#endif
+//#endif
 
 
 Vector4 Vector4::operator * ( const float & rhs ) const

@@ -46,14 +46,14 @@ namespace graphic
 				return false;
 			m_incTime = 0;
 
-			DWORD ptr = 0;
+			size_t ptr = 0;
 			switch (m_type)
 			{
 			case eType::ASSIMP:
 			{
 				auto result = cResourceManager::Get()->FindAssimpModel(m_key);
 				if (result.second)
-					ptr = (DWORD)result.second;
+					ptr = (size_t)result.second;
 			}
 			break;
 
@@ -67,7 +67,7 @@ namespace graphic
 			{
 				auto result = cResourceManager::Get()->FindTexture(m_key);
 				if (result.second)
-					ptr = (DWORD)result.second;
+					ptr = (size_t)result.second;
 			}
 			break;
 
@@ -76,7 +76,7 @@ namespace graphic
 
 			if (ptr)
 			{
-				*(DWORD*)m_ptr = ptr;
+				*(size_t*)m_ptr = ptr;
 				m_type = eType::NONE;
 				return true;
 			}

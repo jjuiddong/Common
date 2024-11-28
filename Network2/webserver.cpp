@@ -454,7 +454,7 @@ bool cWebServer::ReceiveProcces()
 				int flags = 0;
 				result = session->m_ws->receiveFrame(m_recvBuffer, m_maxBuffLen, flags);
 				if (flags & Poco::Net::WebSocket::FRAME_OP_CLOSE)
-					result = INVALID_SOCKET;
+					result = (int)INVALID_SOCKET;
 			}
 			catch (Poco::TimeoutException)
 			{
@@ -464,10 +464,10 @@ bool cWebServer::ReceiveProcces()
 			{
 				dbg::Logc(1, "cWebServer receive exception netid:%d, %s\n"
 					, session->m_id, e.what());
-				result = INVALID_SOCKET; // connection error
+				result = (int)INVALID_SOCKET; // connection error
 			}
 
-			if ((INVALID_SOCKET == result) || (0 == result))
+			if (((int)INVALID_SOCKET == result) || (0 == result))
 			{
 				// disconnect session
 				session->m_state = eState::Disconnect;

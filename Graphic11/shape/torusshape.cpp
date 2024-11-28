@@ -139,10 +139,10 @@ bool cTorusShape::Create(cRenderer &renderer, const float outerRadius, const flo
 		pvtx += vertexStride;
 	}
 
-	m_vtxBuff.Create(renderer, vertices.size(), vertexStride, initVertices, D3D11_USAGE_DEFAULT);
+	m_vtxBuff.Create(renderer, (int)vertices.size(), vertexStride, initVertices, D3D11_USAGE_DEFAULT);
 
 	// Create Index Buffer
-	m_idxBuff.Create(renderer, indices.size() / 3, (BYTE*)&indices[0]);
+	m_idxBuff.Create(renderer, (int)indices.size() / 3, (BYTE*)&indices[0]);
 
 	m_vtxType = vtxType;
 

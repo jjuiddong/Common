@@ -56,7 +56,7 @@ bool cTemporalBuffer::Create(cRenderer &renderer, const cIndexBuffer &idxBuff)
 
 bool cTemporalBuffer::Create(cRenderer &renderer, const cTexture &texture)
 {
-	const int stride = BitsPerPixel(texture.m_imageInfo.Format) / 8;
+	const int stride = (int)BitsPerPixel(texture.m_imageInfo.Format) / 8;
 	const int bytesSize = texture.m_imageInfo.Width * texture.m_imageInfo.Height * stride;
 	return Create(renderer, bytesSize, stride);
 }

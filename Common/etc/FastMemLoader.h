@@ -40,9 +40,9 @@
 
 
 // 32bit, 64bit 모드 호환
-#if defined(WIN64)
+#if defined(_WIN64)
 	typedef __int64 ptr_type;
-#elif defined(WIN32)
+#elif defined(_WIN32)
 	typedef DWORD ptr_type;
 #else
 	typedef DWORD ptr_type;

@@ -156,7 +156,7 @@ bool cShader11::CompileAndReload(cRenderer &renderer)
 	const StrPath outputFullPath = fullPath.GetFileNameExceptExt2() + ".fxo";
 	common::FileOperationFunc(FO_COPY, m_fxoFileName.c_str(), outputFullPath.c_str());
 
-	if (!Create(renderer, m_fxoFileName, "Unlit", &m_vtxLayout.m_elements[0], m_vtxLayout.m_elements.size()))
+	if (!Create(renderer, m_fxoFileName, "Unlit", &m_vtxLayout.m_elements[0], (int)m_vtxLayout.m_elements.size()))
 		return false;
 
 	return true;

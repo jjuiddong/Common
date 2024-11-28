@@ -72,7 +72,7 @@ bool cSymbolTable::Set(const string &scopeName, const string &symbolName
 			if (initStr == "...")
 				return false; // ignore many array mark
 			common::tokenizer(initStr, ",", "", toks);
-			variable.ReserveArray(toks.size());
+			variable.ReserveArray((uint)toks.size());
 
 			for (auto &tok : toks)
 			{

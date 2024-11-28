@@ -1457,7 +1457,7 @@ bool cVplFile::While_GenCode(const sNode &prevNode, const sNode &node
 			if (next && (pin.name == "Loop"))
 			{
 				// push instruction index (not determine)
-				const uint addressIdx = out.m_codes.size();
+				const size_t addressIdx = out.m_codes.size();
 				{
 					script::sInstruction code;
 					code.cmd = script::eCommand::pushic;
@@ -1630,7 +1630,7 @@ bool cVplFile::ForLoop_GenCode(const sNode &prevNode, const sNode &node
 			if (next && (pin.name == "Loop"))
 			{
 				// push instruction index (not determine)
-				const uint addressIdx = out.m_codes.size();
+				const size_t addressIdx = out.m_codes.size();
 				{
 					script::sInstruction code;
 					code.cmd = script::eCommand::pushic;
@@ -1857,7 +1857,7 @@ bool cVplFile::ForEach_GenCode(const sNode& prevNode, const sNode& node
 			if (next && (pin.name == "Loop"))
 			{
 				// push instruction index (not determine)
-				const uint addressIdx = out.m_codes.size();
+				const size_t addressIdx = out.m_codes.size();
 				{
 					script::sInstruction code;
 					code.cmd = script::eCommand::pushic;
@@ -1949,7 +1949,7 @@ bool cVplFile::Sequence_GenCode(const sNode &prevNode, const sNode &node
 			if (next && np)
 			{
 				// push instruction index (not determine)
-				const uint addressIdx = out.m_codes.size();
+				const size_t addressIdx = out.m_codes.size();
 				{
 					script::sInstruction code;
 					code.cmd = script::eCommand::pushic;
@@ -2967,7 +2967,7 @@ bool cVplFile::NodeEscape_GenCode(const sNode &node
 
 	// check sret/nop duplicate
 	bool isAlreadyEscapeCode = false;
-	const uint csize = out.m_codes.size();
+	const size_t csize = out.m_codes.size();
 	if (csize >= 2) 
 	{
 		isAlreadyEscapeCode = (out.m_codes[csize - 2].cmd == script::eCommand::sret)
@@ -3152,7 +3152,7 @@ uint cVplFile::GetInputFlowCount(const sNode &node)
 	{
 		if (ePinType::Flow == pin.type)
 		{
-			cnt = pin.links.size();
+			cnt = (uint)pin.links.size();
 			break;
 		}
 	}			

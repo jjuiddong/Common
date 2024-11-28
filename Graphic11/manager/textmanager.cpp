@@ -135,7 +135,7 @@ void cTextManager::AddTextRender(cRenderer &renderer
 // Process Command
 void cTextManager::ProcessTextCmd(cRenderer &renderer)
 {
-	uint bufferStartIdx = 0;
+	size_t bufferStartIdx = 0;
 	for (auto &cmd : m_codes)
 	{
 		bool isFindEmptyText = false;
@@ -150,7 +150,7 @@ void cTextManager::ProcessTextCmd(cRenderer &renderer)
 		}
 		else
 		{
-			for (uint i = bufferStartIdx; i < m_buffer.size(); ++i)
+			for (size_t i = bufferStartIdx; i < m_buffer.size(); ++i)
 			{
 				sText *text = m_buffer[i];
 				if ((text->id >= 0) && (text->used))

@@ -229,16 +229,16 @@ void cMesh::CalculateModelVectors(INOUT graphic::sRawMesh2 &mesh)
 	RET(!mesh.tangent.empty());
 	RET(!mesh.binormal.empty());
 
-	const int vertexCount = mesh.vertices.size();
+	const size_t vertexCount = mesh.vertices.size();
 	mesh.tangent.resize(vertexCount);
 	mesh.binormal.resize(vertexCount);
 
 	//const int faceCount = vertexCount / 3;
-	const int faceCount = mesh.indices.size() / 3;
+	const size_t faceCount = mesh.indices.size() / 3;
 	//int index = 0;
 
 	// Go through all the faces and calculate the the tangent, binormal, and normal vectors.
-	for (uint i = 0; i<mesh.indices.size(); i+=3)
+	for (size_t i = 0; i<mesh.indices.size(); i+=3)
 	{
 		// Get the three vertices for this face from the model.
 		sVertexNormTex vertex1, vertex2, vertex3;

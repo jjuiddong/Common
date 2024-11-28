@@ -28,7 +28,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 
 	if (m_isHeaderCopy)
 	{
-		const uint cpSize = min(size, sizeof(m_tempHeader) - m_readLen);
+		const uint cpSize = min(size, (uint)sizeof(m_tempHeader) - m_readLen);
 		memcpy(m_tempHeader + m_readLen, data, cpSize);
 		m_isHeaderCopy = false;
 		data = m_tempHeader;
@@ -149,7 +149,7 @@ uint cSocketBuffer::Push(iPacketHeader *packetHeader, const BYTE *data, const ui
 bool cSocketBuffer::Pop(OUT cPacket &out)
 {
 	if (PopNoRemove(out))
-		return Pop(min(sizeof(out.m_buffer), (uint)out.m_writeIdx));
+		return Pop(min((uint)sizeof(out.m_buffer), (uint)out.m_writeIdx));
 	return false;
 }
 
@@ -181,7 +181,7 @@ bool cSocketBuffer::PopNoRemove(OUT cPacket &out)
 	{
 		out.m_rcvId = m_netId;
 		out.m_writeIdx = packetSize;
-		m_q.frontCopy(out.m_data, min(sizeof(out.m_buffer), packetSize));
+		m_q.frontCopy(out.m_data, min((uint)sizeof(out.m_buffer), packetSize));
 		return true;
 	}
 

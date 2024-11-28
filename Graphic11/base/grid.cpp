@@ -162,7 +162,7 @@ void cGrid::Create(cRenderer &renderer, const int rowCellCount, const int colCel
 		CreateIndexArray<WORD>(rowCellCount, colCellCount, buffer1);
 
 	const int idxSizeOfBytes = is32bit ? sizeof(DWORD) : sizeof(WORD);
-	const int faceCount = (buffer1.size() / idxSizeOfBytes) / 3;
+	const int faceCount = ((int)buffer1.size() / idxSizeOfBytes) / 3;
 	m_idxBuff.Create(renderer, faceCount, (BYTE*)&buffer1[0]
 		, isEditable ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT
 		, is32bit? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT);

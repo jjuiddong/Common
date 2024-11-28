@@ -38,13 +38,13 @@ Vector3 Plane2::Pick(const Vector3& vOrig, const Vector3& vDir) const
 const Plane2 Plane2::operator * (const Matrix44 &rhs)
 {
 	Plane2 out;
-#ifdef USE_D3D9_MATH
-	D3DXPlaneTransform((D3DXPLANE*)&out, (D3DXPLANE*)this, (D3DXMATRIX*)&rhs);
-#elif USE_D3D11_MATH
+//#ifdef USE_D3D9_MATH
+//	D3DXPlaneTransform((D3DXPLANE*)&out, (D3DXPLANE*)this, (D3DXMATRIX*)&rhs);
+//#elif USE_D3D11_MATH
 	XMVECTOR p = XMLoadFloat4((XMFLOAT4*)this);
 	XMMATRIX m = rhs.GetMatrixXM();
 	XMVECTOR r = XMPlaneTransform(p, m);
 	XMStoreFloat4((XMFLOAT4*)&out, r);
-#endif
+//#endif
 	return out;
 }

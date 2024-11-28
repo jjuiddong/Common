@@ -244,7 +244,7 @@ Vector3 Vector3::ToOpenGL() const
 }
 
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 	XMVECTOR Vector3::GetVectorXM() const
 	{
 		return XMLoadFloat3((XMFLOAT3*)this);
@@ -258,7 +258,7 @@ Vector3 Vector3::ToOpenGL() const
 		XMStoreFloat3((XMFLOAT3*)&ret, v);
 		return ret;
 	}
-#endif
+//#endif
 
 
 Vector3 Vector3::operator * (const Transform& rhs) const

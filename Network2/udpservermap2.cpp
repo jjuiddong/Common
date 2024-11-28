@@ -69,7 +69,7 @@ int cUdpServerMap2::AddUdpServer(const StrId &name
 
 	// add minimum udpserver context
 	sThreadContext *sel = nullptr;
-	uint minCount = 10000;
+	size_t minCount = 10000;
 	for (auto &ctx : m_ctxs)
 	{
 		if (ctx->count < minCount)

@@ -29,7 +29,7 @@ bool cBufferedSerial::ReadStringUntil(const char ch, OUT char *out
 
 	char buffer[MAX_BUFFERSIZE];
 	const uint remainSize = m_q.SIZE - m_q.size();
-	const uint buffSize = min(remainSize, sizeof(buffer));
+	const uint buffSize = min(remainSize, (uint)sizeof(buffer));
 	const int readBytes = ReadData(buffer, buffSize);
 	if (readBytes > 0)
 		m_q.push(buffer, readBytes);

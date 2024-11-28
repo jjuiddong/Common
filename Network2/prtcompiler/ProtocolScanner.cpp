@@ -57,12 +57,13 @@ bool cProtocolScanner::LoadFile( const string &fileName
 	, bool isTrace //=false
 )
 {
-	OFSTRUCT of;
-
-	HFILE hFile = OpenFile(fileName.c_str(), &of, OF_READ);
-	if (hFile != EOF)
+	//OFSTRUCT of;
+	//HFILE hFile = OpenFile(fileName.c_str(), &of, OF_READ);
+	HANDLE hFile = CreateFileA(fileName.c_str(), GENERIC_READ, FILE_SHARE_READ
+		, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		const int fileSize = GetFileSize((HANDLE)hFile, nullptr);
+		const int fileSize = GetFileSize(hFile, nullptr);
 		if (fileSize <= 0)
 			return FALSE;
 
@@ -70,8 +71,8 @@ bool cProtocolScanner::LoadFile( const string &fileName
 
 		DWORD readSize = 0;
 		m_fileMem = new BYTE[ fileSize];
-		ReadFile((HANDLE)hFile, m_fileMem, fileSize, &readSize, nullptr);
-		CloseHandle((HANDLE)hFile);
+		ReadFile(hFile, m_fileMem, fileSize, &readSize, nullptr);
+		CloseHandle(hFile);
 
 		m_memSize = fileSize;
 		m_isTrace = isTrace;
@@ -161,7 +162,7 @@ char* cProtocolScanner::CopyTokenStringQ( int nIdx )
 {
 	if (!m_fileMem) return nullptr;
 
-	int len = m_tokQ[ nIdx].str.size();
+	size_t len = m_tokQ[ nIdx].str.size();
 	char *p = new char[ len + 1];
 	strcpy_s( p, len+1, m_tokQ[ nIdx].str.c_str() );
 	return p;
@@ -176,7 +177,7 @@ char cProtocolScanner::GetNextChar()
 		if (GetString(m_buf, MAX_BUFF))
 		{
 			m_linePos = 0;
-			m_bufSize = strlen(m_buf);
+			m_bufSize = (int)strlen(m_buf);
  			if (m_isTrace)
  				printf( "%4d: %s", m_lineNo, m_buf );
 		}

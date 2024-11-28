@@ -195,7 +195,7 @@ void cGridLine::Create(cRenderer &renderer
 	//
 
 	const int idxSizeOfBytes = sizeof(WORD);
-	const int faceCount = buffer1.size() / 2;
+	const int faceCount = (int)buffer1.size() / 2;
 	m_idxBuff.Create(renderer, faceCount, (BYTE*)&buffer1[0]
 		, D3D11_USAGE_DEFAULT, DXGI_FORMAT_R16_UINT, 2);
 

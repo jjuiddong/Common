@@ -167,7 +167,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 		//}
 	}
 
-	m_vtxBuff.Create(renderer, vertices.size(), vertexStride, &buffer[0]);
+	m_vtxBuff.Create(renderer, (int)vertices.size(), vertexStride, &buffer[0]);
 
 
 	// 인덱스 버퍼 생성.
@@ -184,7 +184,7 @@ void cMeshBuffer::CreateMesh(cRenderer &renderer,
 		pi += indexStride;
 	}
 
-	m_idxBuff.Create(renderer, indices.size()/3, tempIdxBuff
+	m_idxBuff.Create(renderer, (int)indices.size()/3, tempIdxBuff
 		, D3D11_USAGE_DEFAULT, (indexStride==sizeof(DWORD))? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT);
 	delete[] tempIdxBuff;
 }

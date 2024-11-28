@@ -117,7 +117,7 @@ const std::string MySQLConnection::EscapeString(const std::string &value) const
     }
 
     char *cValue = new char[(value.length()*2)+1];
-    mysql_real_escape_string(m_MySQLConn, cValue, value.c_str(), value.length());
+    mysql_real_escape_string(m_MySQLConn, cValue, value.c_str(), (uint)value.length());
 
     std::string sRet = cValue;
     delete [] cValue;
@@ -131,7 +131,7 @@ MySQLQuery::MySQLQuery(MySQLConnection *mConn, const std::string &sStatement)
     m_sStatement = sStatement;
     m_iResultRowCount = 0;
 
-    int argCount = std::count(m_sStatement.begin(), m_sStatement.end(), '?');
+    const int argCount = (int)std::count(m_sStatement.begin(), m_sStatement.end(), '?');
     for(int i = 1; i <= argCount; i++)
     {
         m_mArgMap.insert(std::pair<int, std::string>(i, ""));
@@ -430,13 +430,13 @@ time_t MySQLQuery::getTime(const unsigned int &row, const std::string &field)
 
 unsigned int MySQLQuery::GetResultRowCount()
 {
-    const int iRowCount = m_mResultMap.size();
+    const int iRowCount = (int)m_mResultMap.size();
     return iRowCount;
 }
 
 unsigned int MySQLQuery::GetFieldCount()
 {
-    const int iFieldCount = m_mFieldMap.size();
+    const int iFieldCount = (int)m_mFieldMap.size();
     return iFieldCount;
 }
 
@@ -448,7 +448,7 @@ const std::string MySQLQuery::BuildQueryString()
     sPreparedStatement = m_sStatement;
     for(unsigned int i = 1; i <= m_mArgMap.size(); i++)
     {
-        iLastFoundPos = sPreparedStatement.find('?');
+        iLastFoundPos = (int)sPreparedStatement.find('?');
         sPreparedStatement.replace(iLastFoundPos, 1, "");
         sPreparedStatement.insert(iLastFoundPos, m_mArgMap[i]);
     }

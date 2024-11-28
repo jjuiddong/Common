@@ -22,11 +22,11 @@ namespace common
 		explicit Transform(const Vector3 &pos_, const Vector3 &scale_, const Quaternion &rot_);
 
 		Matrix44 GetMatrix() const;
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 		Transform(const XMMATRIX &rhs);
 		XMMATRIX GetMatrixXM() const;
 		const Transform& operator=(const XMMATRIX &rhs);
-#endif
+//#endif
 
 		Transform Inverse() const;
 		Transform operator*(const Transform &rhs) const;
@@ -41,7 +41,7 @@ namespace common
 
 
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 	inline Transform::Transform(const XMMATRIX &rhs)
 	{
 		operator=(rhs);
@@ -65,5 +65,5 @@ namespace common
 		rot.Normalize();
 		return *this;
 	}
-#endif
+//#endif
 }

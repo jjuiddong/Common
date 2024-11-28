@@ -109,63 +109,63 @@ void Matrix44::SetScale(const float scale)
 
 Matrix44 Matrix44::operator * ( const Matrix44& rhs ) const
 {
-#ifdef USE_D3D9_MATH
-	Matrix44 matrix;
-	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
-	return matrix;
-#elif defined(USE_D3D11_MATH)
+//#ifdef USE_D3D9_MATH
+//	Matrix44 matrix;
+//	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
+//	return matrix;
+//#elif defined(USE_D3D11_MATH)
 	XMMATRIX m0 = GetMatrixXM();
 	XMMATRIX m1 = rhs.GetMatrixXM();
 	XMMATRIX r = m0 * m1;
 	Matrix44 matrix;
 	XMStoreFloat4x4((XMFLOAT4X4*)&matrix, r);
 	return matrix;	
-#else
-	Matrix44 matrix;
-	ZeroMemory( &matrix, sizeof( matrix ) );
-
-	for( int i = 0 ; i < 4 ; ++i )
-	{
-		for( int j = 0 ; j < 4 ; ++j )
-		{			
-			for( int k = 0 ; k < 4 ; ++k )
-			{
-				matrix.m[i][j] += m[i][k] * rhs.m[k][j];
-			}
-		}
-	}
-	return matrix;
-#endif // USE_D3D9_MATH
+//#else
+//	Matrix44 matrix;
+//	ZeroMemory( &matrix, sizeof( matrix ) );
+//
+//	for( int i = 0 ; i < 4 ; ++i )
+//	{
+//		for( int j = 0 ; j < 4 ; ++j )
+//		{			
+//			for( int k = 0 ; k < 4 ; ++k )
+//			{
+//				matrix.m[i][j] += m[i][k] * rhs.m[k][j];
+//			}
+//		}
+//	}
+//	return matrix;
+//#endif // USE_D3D9_MATH
 }
 
 
 Matrix44& Matrix44::operator *= ( const Matrix44& rhs )
 {
-#ifdef USE_D3D9_MATH
-	Matrix44 matrix;
-	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
-	*this = matrix;
-	return *this;
-#elif defined(USE_D3D11_MATH)
+//#ifdef USE_D3D9_MATH
+//	Matrix44 matrix;
+//	D3DXMatrixMultiply((D3DXMATRIX*)&matrix, (D3DXMATRIX*)this, (D3DXMATRIX*)&rhs);
+//	*this = matrix;
+//	return *this;
+//#elif defined(USE_D3D11_MATH)
 	*this = operator*(rhs);
 	return *this;
-#else
-	Matrix44 matrix;
-	ZeroMemory( &matrix, sizeof( matrix ) );
-
-	for( int i = 0 ; i < 4 ; ++i )
-	{
-		for( int j = 0 ; j < 4 ; ++j )
-		{			
-			for( int k = 0 ; k < 4 ; ++k )
-			{
-				matrix.m[i][j] += m[i][k] * rhs.m[k][j];
-			}
-		}
-	}
-	*this = matrix;
-	return *this;
-#endif // USE_D3D9_MATH
+//#else
+//	Matrix44 matrix;
+//	ZeroMemory( &matrix, sizeof( matrix ) );
+//
+//	for( int i = 0 ; i < 4 ; ++i )
+//	{
+//		for( int j = 0 ; j < 4 ; ++j )
+//		{			
+//			for( int k = 0 ; k < 4 ; ++k )
+//			{
+//				matrix.m[i][j] += m[i][k] * rhs.m[k][j];
+//			}
+//		}
+//	}
+//	*this = matrix;
+//	return *this;
+//#endif // USE_D3D9_MATH
 }
 
 
@@ -230,25 +230,25 @@ void Matrix44::SetProjection( const float fov, const float aspect, const float n
 void Matrix44::SetProjectionOrthogonal(const float width, const float height
 	, const float nearPlane, const float farPlane)
 {
-#ifdef USE_D3D9_MATH
-	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
-#elif defined(USE_D3D11_MATH)
+//#ifdef USE_D3D9_MATH
+//	D3DXMatrixOrthoLH((D3DXMATRIX*)this, width, height, nearPlane, farPlane);
+//#elif defined(USE_D3D11_MATH)
 	XMMATRIX view = XMMatrixOrthographicLH(width, height, nearPlane, farPlane);
 	XMStoreFloat4x4((XMFLOAT4X4*)this, view);
-#else
-	assert(0);
-#endif
+//#else
+//	assert(0);
+//#endif
 }
 
 
 void Matrix44::SetProjectionOrthogonal(const float left, const float right, const float top, const float bottom, const float nearPlane, const float farPlane)
 {
-#ifdef USE_D3D9_MATH
-	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, top, bottom, nearPlane, farPlane);
-#elif USE_D3D11_MATH
+//#ifdef USE_D3D9_MATH
+//	D3DXMatrixOrthoOffCenterLH((D3DXMATRIX*)this, left, right, top, bottom, nearPlane, farPlane);
+//#elif USE_D3D11_MATH
 	XMMATRIX view = XMMatrixOrthographicOffCenterLH(left, right, top, bottom, nearPlane, farPlane);
 	XMStoreFloat4x4((XMFLOAT4X4*)this, view);
-#endif
+//#endif
 }
 
 
@@ -271,13 +271,13 @@ void Matrix44::SetProjectionScreen(const float width, const float height, const 
 
 Vector3 Matrix44::GetScale() const 
 { 
-#ifdef USE_D3D9_MATH
-	Vector3 s, t;
-	Quaternion q;
-	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
-	return s;
-
-#elif defined (USE_D3D11_MATH)
+//#ifdef USE_D3D9_MATH
+//	Vector3 s, t;
+//	Quaternion q;
+//	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
+//	return s;
+//
+//#elif defined (USE_D3D11_MATH)
 	XMMATRIX xmat = XMLoadFloat4x4((XMFLOAT4X4*)this);
 	XMVECTOR scale, xq, tran;
 	XMMatrixDecompose(&scale, &xq, &tran, xmat);
@@ -285,21 +285,21 @@ Vector3 Matrix44::GetScale() const
 	XMStoreFloat3((XMFLOAT3*)&s, scale);
 	return s;
 
-#endif
-
-	return Vector3(_11, _22, _33);
+//#endif
+//
+//	return Vector3(_11, _22, _33);
 }
 
 
 Quaternion Matrix44::GetQuaternion() const
 {
-#ifdef USE_D3D9_MATH
-	Vector3 s, t;
-	Quaternion q;
-	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
-	return q;
-
-#elif defined (USE_D3D11_MATH)
+//#ifdef USE_D3D9_MATH
+//	Vector3 s, t;
+//	Quaternion q;
+//	D3DXMatrixDecompose((D3DXVECTOR3*)&s, (D3DXQUATERNION*)&q, (D3DXVECTOR3*)&t, (D3DXMATRIX*)this);
+//	return q;
+//
+//#elif defined (USE_D3D11_MATH)
 	// must call XMMatrixDecompose() function
 	// no XMQuaternionRotationMatrix() function 
 	// because Matrix is compose if scale, rot, translate Matrix
@@ -313,42 +313,42 @@ Quaternion Matrix44::GetQuaternion() const
 	XMStoreFloat4((XMFLOAT4*)&q, xq);
 	return q;
 
-#else
-	Quaternion q;
-	float fTr = _11 + _22 + _33 + _44;
-
-	if( fTr >= 1.0F )	// w >= 0.5
-	{
-		float s = sqrtf( fTr );
-		q.x = ( _32 - _23 ) / ( 2.0F * s );
-		q.y = ( _13 - _31 ) / ( 2.0F * s );
-		q.z = ( _21 - _12 ) / ( 2.0F * s );
-		q.w = 0.5F * s;
-	}
-	else
-	{
-		float v[3];
-		int i, j, k;
-
-		if( _11 > _22 )		i = 0;
-		else				i = 1;
-		if( _33 > m[i][i] )	i = 2;
-
-		j = ( i + 1 ) % 3;
-		k = ( j + 1 ) % 3;
-
-		float s = sqrtf( m[i][i] - m[j][j] - m[k][k] + 1.0F );
-		v[i] = 0.5F * s;
-		v[j] = ( m[j][i] + m[i][j] ) / ( 2.0F * s );
-		v[k] = ( m[k][i] + m[i][k] ) / ( 2.0F * s );
-
-		q.x = v[0];
-		q.y = v[1];
-		q.z = v[2];
-		q.w = ( m[k][j] - m[j][k] ) / ( 2.0F * s );
-	}
-	return q;
-#endif // USE_D3D9_MATH
+//#else
+//	Quaternion q;
+//	float fTr = _11 + _22 + _33 + _44;
+//
+//	if( fTr >= 1.0F )	// w >= 0.5
+//	{
+//		float s = sqrtf( fTr );
+//		q.x = ( _32 - _23 ) / ( 2.0F * s );
+//		q.y = ( _13 - _31 ) / ( 2.0F * s );
+//		q.z = ( _21 - _12 ) / ( 2.0F * s );
+//		q.w = 0.5F * s;
+//	}
+//	else
+//	{
+//		float v[3];
+//		int i, j, k;
+//
+//		if( _11 > _22 )		i = 0;
+//		else				i = 1;
+//		if( _33 > m[i][i] )	i = 2;
+//
+//		j = ( i + 1 ) % 3;
+//		k = ( j + 1 ) % 3;
+//
+//		float s = sqrtf( m[i][i] - m[j][j] - m[k][k] + 1.0F );
+//		v[i] = 0.5F * s;
+//		v[j] = ( m[j][i] + m[i][j] ) / ( 2.0F * s );
+//		v[k] = ( m[k][i] + m[i][k] ) / ( 2.0F * s );
+//
+//		q.x = v[0];
+//		q.y = v[1];
+//		q.z = v[2];
+//		q.w = ( m[k][j] - m[j][k] ) / ( 2.0F * s );
+//	}
+//	return q;
+//#endif // USE_D3D9_MATH
 }
 
 
@@ -634,12 +634,12 @@ void Matrix44::InverseMatrix(OUT Matrix44 &out) const
 // 역행렬을 리턴한다.
 Matrix44 Matrix44::Inverse() const
 {
-#ifdef USE_D3D9_MATH
-	Matrix44 matInverse;
-	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
-	return matInverse;
-
-#elif USE_D3D11_MATH
+//#ifdef USE_D3D9_MATH
+//	Matrix44 matInverse;
+//	D3DXMatrixInverse((D3DXMATRIX*)&matInverse, 0, (D3DXMATRIX*)this);
+//	return matInverse;
+//
+//#elif USE_D3D11_MATH
 	XMMATRIX matInverse = XMLoadFloat4x4((XMFLOAT4X4*)this);
 	matInverse = XMMatrixInverse(NULL, matInverse);
 	Matrix44 ret;
@@ -648,11 +648,11 @@ Matrix44 Matrix44::Inverse() const
 	//Matrix44 ret;
 	//InverseMatrix(ret);
 	//return ret;
-#else
-	Matrix44 ret;
-	InverseMatrix(ret);
-	return ret;
-#endif
+//#else
+//	Matrix44 ret;
+//	InverseMatrix(ret);
+//	return ret;
+//#endif
 }
 
 

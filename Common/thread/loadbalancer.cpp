@@ -217,7 +217,7 @@ int cLoadBalancer::ThreadFunction(cLoadBalancer *balancer, sThreadContext *ctx)
 		if (updateCountTime > 5.0) // update every 5 seconds
 		{
 			updateCountTime = 0.0;
-			ctx->count = ctx->tasks.size();
+			ctx->count = (uint)ctx->tasks.size();
 		}
 
 		// thread switching

@@ -173,7 +173,7 @@ namespace common
 		{
 			InitArray(scopeName, symbolName, typeStr);
 			sVariable &variable = m_vars[scopeName][symbolName];
-			variable.ReserveArray(var.size());
+			variable.ReserveArray((uint)var.size());
 			for (auto &v : var)
 				variable.PushArrayElement((bstr_t)v.c_str());
 			return true;
@@ -189,7 +189,7 @@ namespace common
 		{
 			InitArray(scopeName, symbolName, typeStr);
 			sVariable &variable = m_vars[scopeName][symbolName];
-			variable.ReserveArray(var.size());
+			variable.ReserveArray((uint)var.size());
 			variable.ClearArray();
 			for (auto &v : var)
 				variable.PushArrayElement(v);

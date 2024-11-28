@@ -54,7 +54,7 @@ bool cText::Create(cRenderer &renderer
 		IDWriteFactory *pDWriteFactory;
 		HRESULT hResult = fontWrapper->GetDWriteFactory(&pDWriteFactory);
 
-		pDWriteFactory->CreateTextLayout(text,wcslen(text),textFormat,0.0f,0.0f,&m_textLayout);
+		pDWriteFactory->CreateTextLayout(text,(uint)wcslen(text),textFormat,0.0f,0.0f,&m_textLayout);
 
 		// No word wrapping
 		m_textLayout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);

@@ -206,5 +206,5 @@ void cTerrainCursor::GeometryEdit(cRenderer &renderer
 	}
 
 	terrain.HeightmapNormalize(cursorPos, m_outerRadius);
-	terrain.UpdateHeightmapToTile(renderer, &tiles[0], tiles.size());
+	terrain.UpdateHeightmapToTile(renderer, &tiles[0], (int)tiles.size());
 }

@@ -27,7 +27,7 @@ bool DrawGradient::Draw(Gdiplus::Bitmap& bmp, const std::vector<Gdiplus::Color>&
 	{
 		Graphics graph(&bmp);
 
-		int gradRectNum = colors.size()-1;
+		int gradRectNum = (int)colors.size()-1;
 		int gradWidth = bmp.GetWidth()/gradRectNum;
 		int remainder = bmp.GetWidth()%gradRectNum;
 
@@ -50,7 +50,7 @@ bool DrawGradient::Draw(Gdiplus::Bitmap& bmp, const std::vector<Gdiplus::Color>&
 	{
 		Graphics graph(&bmp);
 
-		int gradRectNum = colors.size()-1;
+		int gradRectNum = (int)colors.size()-1;
 		int gradHeight = bmp.GetHeight()/gradRectNum;
 		int remainder = bmp.GetHeight()%gradRectNum;
 

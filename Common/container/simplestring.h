@@ -53,7 +53,7 @@ namespace common
 				if ((m_str[i] == '\n') || (m_str[i] == '\t') || (m_str[i] == '\r') || (m_str[i] == ' '))
 				{
 					const size_t len = size();
-					common::rotateleft(m_str, i+1, len);
+					common::rotateleft(m_str, i+1, (uint)len);
 					m_str[len - 1] = NULL;
 
 					--i;
@@ -244,12 +244,12 @@ namespace common
 
 		hashcode GetHashCode() const {
 			boost::hash<std::string> string_hash;
-			return string_hash(m_str);
+			return (hashcode)string_hash(m_str);
 		}
 
 		hashcode GetHashCode(const String &key) const {
 			boost::hash<std::string> string_hash;
-			return string_hash((*this + key).c_str());
+			return (hashcode)string_hash((*this + key).c_str());
 		}
 
 		size_t size() const {
@@ -282,7 +282,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, (size_t)len);
+			len = min((int)(MAX - 1), len);
 			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf.m_str, len);
 			return buf;
 		}
@@ -293,7 +293,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, (size_t)len);
+			len = min((int)(MAX - 1), len);
 			::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, buf.m_str, len);
 			return buf;
 		}
@@ -306,7 +306,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, (size_t)len);
+			len = min((int)(MAX - 1), len);
 			::MultiByteToWideChar(CP_UTF8, 0, m_str, slength, buf.m_str, len);
 
 			String buf2;
@@ -322,7 +322,7 @@ namespace common
 			int slength = (int)size() + 1;
 			len = ::MultiByteToWideChar(CP_ACP, 0, m_str, slength, 0, 0);
 			String<wchar_t, MAX> buf;
-			len = min(MAX - 1, (size_t)len);
+			len = min((int)(MAX - 1), len);
 			::MultiByteToWideChar(CP_ACP, 0, m_str, slength, buf.m_str, len);
 
 			String buf2;
@@ -675,7 +675,7 @@ namespace common
 			const int slength = (int)size() + 1;
 			int len = ::WideCharToMultiByte(CP_ACP, 0, m_str, slength, 0, 0, NULL, FALSE);
 			String<char, MAX> buf;
-			len = min(MAX - 1, (size_t)len);
+			len = min((int)(MAX - 1), len);
 			::WideCharToMultiByte(CP_ACP, 0, m_str, slength, buf.m_str, len, NULL, FALSE);
 			return buf;
 		}

@@ -559,7 +559,7 @@ int common::strcomposite(char *buff, const int maxSize, const char delimeter, co
 	{
 		auto &data = datas[i];
 		sprintf_s(temp, "%d", data);
-		const int len = strlen(temp);
+		const int len = (int)strlen(temp);
 		if (len < remain)
 		{
 			strncpy(dst, temp, len);
@@ -603,7 +603,7 @@ int common::scanner(const wchar_t *buf, const wchar_t *fmt, ...)
 	{
 		if (*pfR == '%')
 		{
-			const int cmpLen = pfR - pfL;
+			const int cmpLen = (int)(pfR - pfL);
 			if (cmpLen > 0)
 				if (wcsncmp(pb, pfL, cmpLen))
 					break; // not matching fail Scan

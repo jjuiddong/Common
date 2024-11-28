@@ -31,10 +31,10 @@ namespace common
 		Vector3 Maximum(const Vector3 &rhs) const;
 		Vector3 ToOpenGL() const;
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 		XMVECTOR GetVectorXM() const;
 		Vector3 operator * (const XMMATRIX &m) const;
-#endif
+//#endif
 	
 		float DotProduct(const Vector3& v) const
 		{

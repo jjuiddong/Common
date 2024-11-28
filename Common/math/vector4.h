@@ -26,9 +26,9 @@ namespace common
 		bool IsEmpty() const;
 		float DotProduct(const Vector4& v) const;
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 		XMVECTOR GetVectorXM() const;
-#endif
+//#endif
 
 		Vector4 operator * ( const float & rhs ) const;
 		Vector4 operator * ( const Matrix44& rhs ) const;

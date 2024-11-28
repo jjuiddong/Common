@@ -129,7 +129,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 			{
 				if (2 == res)
 				{
-					for (int i = (close.size() - 1); i >= 0; --i)
+					for (int i = ((int)close.size() - 1); i >= 0; --i)
 					{
 						if (close.back().idx == arg.from) break;
 						close.pop_back();
@@ -351,7 +351,7 @@ bool cPathFinder2::CreateEdgeMap()
 uint cPathFinder2::AddVertex(const sVertex &vtx)
 {
 	m_vertices.push_back(vtx);
-	const uint idx = m_vertices.size() - 1;
+	const uint idx = (uint)m_vertices.size() - 1;
 	const int id = atoi(vtx.name.c_str());
 	m_vertices[idx].id = id;
 	return idx;
@@ -750,7 +750,7 @@ bool cPathFinder2::GetCurveEdgeMove(const sEdge& edge, const Vector3& pos
 	const float len1 = lineDist * ratio;
 	const float moveLen = edge.bezierLens[idx] + len1 + newDist;
 
-	uint moveIdx = edge.bezierLens.size() - 1;
+	uint moveIdx = (uint)edge.bezierLens.size() - 1;
 	for (uint i = idx + 1; i < edge.bezierLens.size(); ++i)
 	{
 		if (edge.bezierLens[i] > moveLen)

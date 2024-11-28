@@ -815,7 +815,7 @@ bool cPathFinder::AddArea(const sRectf &area)
 	}
 	
 	sArea data;
-	data.id = m_areas.size();
+	data.id = (int)m_areas.size();
 	data.rect = area;
 	data.indices.reserve(16);
 

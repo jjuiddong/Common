@@ -48,7 +48,7 @@ cPacket::cPacket(iPacketHeader *packetHeader, const BYTE *src, const int byteSiz
 	, m_sndId(0)
 	, m_rcvId(0)
 {
-	m_writeIdx = min((uint)byteSize, sizeof(m_buffer));
+	m_writeIdx = min(byteSize, (int)sizeof(m_buffer));
 	memcpy_s(m_data, sizeof(m_buffer), src, byteSize);
 }
 

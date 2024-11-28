@@ -140,7 +140,7 @@ sGenome cGeneticAlgorithm::GetChromoRoulette()
 //  copies of the NBest most fittest genomes into a population vector
 void cGeneticAlgorithm::GrabNBest(int NBest, const int NumCopies, OUT vector<sGenome> &out)
 {
-	const int size = m_genomes.size();
+	const int size = (int)m_genomes.size();
 	if (NBest > size)
 		NBest = size;
 	//add the required amount of copies of the n most fittest 

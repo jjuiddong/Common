@@ -58,7 +58,7 @@ void cDbgLineStrip::UpdateBuffer(cRenderer &renderer)
 		}
 		m_vtxBuff.Unlock(renderer);
 	}
-	m_pointCount = m_points.size();
+	m_pointCount = (uint)m_points.size();
 }
 
 

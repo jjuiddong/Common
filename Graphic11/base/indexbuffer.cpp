@@ -73,7 +73,7 @@ bool cIndexBuffer::Create(cRenderer &renderer, const int faceCount, BYTE *indice
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = usage;
-	bd.ByteWidth = BitsPerPixel(fmt)/8 * faceCount * primitiveSize;
+	bd.ByteWidth = (uint)BitsPerPixel(fmt)/8 * faceCount * primitiveSize;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	switch (usage)
 	{

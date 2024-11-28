@@ -33,10 +33,10 @@ namespace common
 		Vector3Comm<T> Minimum(const Vector3Comm<T> &rhs) const;
 		Vector3Comm<T> Maximum(const Vector3Comm<T> &rhs) const;
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 		XMVECTOR GetVectorXM() const;
 		Vector3Comm<T> operator * (const XMMATRIX &m) const;
-#endif
+//#endif
 
 		T DotProduct(const Vector3Comm<T>& v) const;
 		Vector3Comm<T> CrossProduct(const Vector3Comm<T>& v) const;
@@ -175,7 +175,7 @@ namespace common
 		return v;
 	}
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 	template<class T>
 	XMVECTOR Vector3Comm<T>::GetVectorXM() const {
 		return XMLoadFloat3((XMFLOAT3*)this);
@@ -189,7 +189,7 @@ namespace common
 		XMStoreFloat3((XMFLOAT3*)&ret, v);
 		return ret;
 	}
-#endif
+//#endif
 
 	template<class T>
 	T Vector3Comm<T>::DotProduct(const Vector3Comm<T>& v) const

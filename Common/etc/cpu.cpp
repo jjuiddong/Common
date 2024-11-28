@@ -106,7 +106,7 @@ int cCpu::GetMemoryUsage()
 	if (!GetProcessMemoryInfo(m_handle, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
 		return -1;
 
-	const uint memSize = pmc.PrivateUsage / (1024 * 1024); // MB
+	const uint memSize = (uint)pmc.PrivateUsage / (uint)(1024 * 1024); // MB
 	return (int)memSize;
 }
 

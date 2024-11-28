@@ -243,7 +243,18 @@ namespace graphic
 #pragma comment(lib, "dxguid.lib")
 
 
-#if defined(_VS2017)
+//#if defined(_VS2017)
+#ifdef _WIN64
+	#ifdef _DEBUG
+		#pragma comment(lib, "FW1FontWrapper/x64/FW1FontWrapperd_vc142_x64.lib")
+		#pragma comment(lib, "Effects11/effects11d_2019-x64.lib")
+		#pragma comment(lib, "assimp-vc142-mtd-x64.lib" ) 
+	#else
+		#pragma comment(lib, "FW1FontWrapper/x64/FW1FontWrapper_vc142_x64.lib")
+		#pragma comment(lib, "Effects11/effects11_2019-x64.lib")
+		#pragma comment(lib, "assimp-vc142-mt-x64.lib" ) 
+	#endif
+#else
 	#ifdef _DEBUG
 		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper_vc141.lib")
 		#pragma comment(lib, "Effects11/effects11d_2017.lib")
@@ -253,16 +264,17 @@ namespace graphic
 		#pragma comment(lib, "Effects11/effects11_2017.lib")
 		#pragma comment(lib, "assimp-vc142-mt.lib" ) 
 	#endif
-
-#elif defined(_VS2015)
-	#ifdef _DEBUG
-		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
-		#pragma comment(lib, "Effects11/effects11d_2015.lib")
-		#pragma comment(lib, "assimp-vc140-mtd.lib" ) 
-	#else
-		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
-		#pragma comment(lib, "Effects11/effects11_2015.lib")
-		#pragma comment(lib, "assimp-vc140-mt.lib" ) 
-	#endif
-
 #endif
+//
+//#elif defined(_VS2015)
+//	#ifdef _DEBUG
+//		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
+//		#pragma comment(lib, "Effects11/effects11d_2015.lib")
+//		#pragma comment(lib, "assimp-vc140-mtd.lib" ) 
+//	#else
+//		#pragma comment(lib, "FW1FontWrapper/Win32/FW1FontWrapper.lib")
+//		#pragma comment(lib, "Effects11/effects11_2015.lib")
+//		#pragma comment(lib, "assimp-vc140-mt.lib" ) 
+//	#endif
+//
+//#endif

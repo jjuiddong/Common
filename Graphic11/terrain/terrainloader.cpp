@@ -200,7 +200,7 @@ bool cTerrainLoader::Read(cRenderer &renderer, const StrPath &fileName)
 			return false;
 
 		m_terrain->HeightmapNormalize();
-		m_terrain->UpdateHeightmapToTile(renderer, &m_terrain->m_tiles[0], m_terrain->m_tiles.size());
+		m_terrain->UpdateHeightmapToTile(renderer, &m_terrain->m_tiles[0], (int)m_terrain->m_tiles.size());
 
 
 		// ¸ðµ¨ ·Îµù

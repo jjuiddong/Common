@@ -116,7 +116,7 @@ void cAssimpLoader::CreateFullNode(const aiNode* node, int parent
 	};
 
 	result.push_back(_n);
-	int new_parent = result.size() - 1;
+	int new_parent = (int)result.size() - 1;
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
 		CreateFullNode(node->mChildren[i], new_parent, result);
@@ -162,7 +162,7 @@ void cAssimpLoader::RemoveNoneAnimationBone(
 			n.parent = nodeMapping[n.parent];
 			reducedNodes.push_back(n);
 
-			nodeMapping[i] = reducedNodes.size() - 1;
+			nodeMapping[i] = (int)reducedNodes.size() - 1;
 		}
 	}
 }
@@ -286,7 +286,7 @@ void cAssimpLoader::CreateMesh()
 				assert(weightsPerVertex[x].size() <= 4);
 				sVertexWeight weight;
 				weight.vtxIdx = x;
-				weight.size = weightsPerVertex[x].size();
+				weight.size = (int)weightsPerVertex[x].size();
 				for (unsigned int a = 0; a < weightsPerVertex[x].size(); a++)
 				{
 					sWeight w;
@@ -792,7 +792,7 @@ void cAssimpLoader::CreateNode(aiNode* node
 {
 	m_rawMeshes->nodes.push_back(sRawNode());
 	sRawNode *newNode = &m_rawMeshes->nodes.back();
-	const int nodeIdx = m_rawMeshes->nodes.size() - 1;
+	const int nodeIdx = (int)m_rawMeshes->nodes.size() - 1;
 	newNode->name = node->mName.data;
 	newNode->localTm = *(Matrix44*)&node->mTransformation;
 	newNode->localTm.Transpose();

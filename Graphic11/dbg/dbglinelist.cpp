@@ -34,7 +34,7 @@ bool cDbgLineList::AddLine(cRenderer &renderer, const Vector3 &p0, const Vector3
 )
 {
 	m_lines.push_back({ p0, p1 });
-	m_lineCount = m_lines.size();
+	m_lineCount = (uint)m_lines.size();
 
 	if (isUpdateBuffer)
 		UpdateBuffer(renderer);
@@ -52,7 +52,7 @@ bool cDbgLineList::AddNextPoint(cRenderer &renderer, const Vector3 &p0
 
 	const Vector3 p = m_lines.empty() ? p0 : m_lines.back().second;
 	m_lines.push_back({ p, p0 });
-	m_lineCount = m_lines.size();
+	m_lineCount = (uint)m_lines.size();
 
 	if (isUpdateBuffer)
 		UpdateBuffer(renderer);
@@ -68,7 +68,7 @@ void cDbgLineList::UpdateBuffer(cRenderer &renderer)
 
 	if (!m_vtxBuff.m_vtxBuff)
 	{
-		m_vtxBuff.Create(renderer, m_lines.size() * 2
+		m_vtxBuff.Create(renderer, (int)m_lines.size() * 2
 			, sizeof(sVertex), D3D11_USAGE_DYNAMIC);
 	}
 

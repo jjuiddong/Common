@@ -266,7 +266,7 @@ bool sVariable::HasMapValue(const string &key)
 uint sVariable::GetMapSize() const
 {
 	if (m)
-		return m->size();
+		return (uint)m->size();
 	return 0;
 }
 

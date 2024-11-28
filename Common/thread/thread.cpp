@@ -243,7 +243,7 @@ bool cThread::RemoveTask(const int id)
 
 int cThread::GetTaskCount()
 {
-	return m_tasks.size();
+	return (int)m_tasks.size();
 }
 
 

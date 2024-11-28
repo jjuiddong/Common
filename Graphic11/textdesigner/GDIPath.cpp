@@ -41,7 +41,7 @@ bool GDIPath::GetStringPath(
 
 	// use a path to record how the text was drawn
 	::BeginPath(hDC);
-	::TextOutW(hDC, ptDraw.X, ptDraw.Y, pszText, wcslen(pszText));
+	::TextOutW(hDC, ptDraw.X, ptDraw.Y, pszText, (int)wcslen(pszText));
 	::EndPath(hDC);
 
 	// Find out how many points are in the path. Note that
@@ -116,7 +116,7 @@ bool GDIPath::GetStringPath(
 	rect.right = rtDraw.X+rtDraw.Width;
 	rect.bottom = rtDraw.Y+rtDraw.Height;
 	::BeginPath(hDC);
-	::DrawTextW(hDC, pszText, wcslen(pszText), &rect, DT_CENTER);
+	::DrawTextW(hDC, pszText, (int)wcslen(pszText), &rect, DT_CENTER);
 	::EndPath(hDC);
 
 	// Find out how many points are in the path. Note that

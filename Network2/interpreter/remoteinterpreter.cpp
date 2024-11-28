@@ -1050,7 +1050,7 @@ bool cRemoteInterpreter::SendSpawnInterpreterInfo(const int itprId, const int pa
 		{
 			// remove *.icode postfix string
 			string fileName = vm->m_code.m_fileName.c_str();
-			const int pos = fileName.rfind(".icode");
+			const int pos = (int)fileName.rfind(".icode");
 			if (pos != string::npos)
 				fileName = fileName.substr(0, pos);
 			//
@@ -1067,7 +1067,7 @@ bool cRemoteInterpreter::SendSpawnInterpreterInfo(const int itprId, const int pa
 
 		// remove *.icode postfix string
 		string fileName = vm->m_code.m_fileName.c_str();
-		const int pos = fileName.rfind(".icode");
+		const int pos = (int)fileName.rfind(".icode");
 		if (pos != string::npos)
 			fileName = fileName.substr(0, pos);
 		//
@@ -1220,13 +1220,13 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 						s.push_back(symbols[offset]);
 
 					m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
-						, itprId, vm->m_id, start, s.size(), s);
+						, itprId, vm->m_id, start, (uint)s.size(), s);
 				}
 			}
 			else
 			{
 				m_protocol.SyncVMSymbolTable(network2::ALL_NETID, true
-					, itprId, vm->m_id, 0, symbols.size(), symbols);
+					, itprId, vm->m_id, 0, (uint)symbols.size(), symbols);
 			}
 		}
 		vm->m_symbTable.SyncChange(); // clear change flag
@@ -1302,7 +1302,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 			uint i = 0;
 			while (i < var.arSize)
 			{
-				uint offset = headerSize + 12 + varName.size() + 1 + 4 + 4; //+4:dummy
+				uint offset = headerSize + 12 + (uint)varName.size() + 1 + 4 + 4; //+4:dummy
 				const uint startIdx = i;
 				vector<bool> values;
 				values.reserve(var.arSize);
@@ -1325,7 +1325,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 			uint i = 0;
 			while (i < var.arSize)
 			{
-				uint offset = headerSize + 12 + varName.size() + 1 + 4 + 4; //+4:dummy
+				uint offset = headerSize + 12 + (uint)varName.size() + 1 + 4 + 4; //+4:dummy
 				const uint startIdx = i;
 				vector<float> values;
 				values.reserve(var.arSize);
@@ -1347,7 +1347,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 			uint i = 0;
 			while (i < var.arSize)
 			{
-				uint offset = headerSize + 12 + varName.size() + 1 + 4 + 4; //+4:dummy
+				uint offset = headerSize + 12 + (uint)varName.size() + 1 + 4 + 4; //+4:dummy
 				const uint startIdx = i;
 				vector<string> values;
 				values.reserve(var.arSize);
@@ -1355,7 +1355,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 				{
 					const string str = (string)(bstr_t)var.ar[i];
 					values.push_back(str);
-					offset += str.size() + 1;
+					offset += (uint)str.size() + 1;
 					if (offset + sizeof(float) > maxPacketSize)
 						break;
 				}
@@ -1385,7 +1385,7 @@ bool cRemoteInterpreter::SendSyncVariable(const int itprId, const int vmId
 // send synchronize virtual machine instruction info
 bool cRemoteInterpreter::SendSyncVMInstruction(const int itprId, script::cVirtualMachine* vm)
 {
-	const uint size = vm->m_trace.size();
+	const size_t size = vm->m_trace.size();
 	if ((size == 2) && (vm->m_trace[0] == vm->m_trace[1]))
 		return false; // no process, no changed
 

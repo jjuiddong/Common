@@ -57,7 +57,7 @@ bool cNavigationMesh::ReadFromPathFile(const char *fileName)
 			for (auto &bplane : bplanes)
 			{
 				m_walls.push_back({ idx, false, bplane });
-				indices.push_back(m_walls.size() - 1);
+				indices.push_back((WORD)m_walls.size() - 1);
 			}
 			m_wallMap[idx] = indices;
 		}
@@ -152,7 +152,7 @@ int cNavigationMesh::BuildPolygonFromPathFinder(const ai::cPathFinder &pathFinde
 	node.center += pathFinder.m_vertices[polyIndices[2]].pos;
 	node.center /= 3.f;
 	m_naviNodes.push_back(node);
-	const int nodeId = m_naviNodes.size() - 1;
+	const int nodeId = (int)m_naviNodes.size() - 1;
 
 	// 인접한 폴리곤을 찾아서 저장한다.
 	const int idx1 = BuildPolygonFromPathFinder(pathFinder, polyIndices[0], polyIndices[1], polyIndices[2], indices);

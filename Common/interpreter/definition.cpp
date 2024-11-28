@@ -310,8 +310,8 @@ bool script::IsVariable(const eSymbolType type)
 //      - return: [Map, String, Array, String]
 bool script::ParseTypeString(const string &typeStr, OUT vector<eSymbolType> &out)
 {
-	const int idx0 = typeStr.find('>');
-	const int idx1 = typeStr.find('<');
+	const int idx0 = (int)typeStr.find('>');
+	const int idx1 = (int)typeStr.find('<');
 	const int idx = ((idx0 < 0) && (idx1 < 0)) ? -1 :
 		(((idx0 < 0) || (idx1 < 0)) ? max(idx0, idx1)
 			: min(idx0, idx1));

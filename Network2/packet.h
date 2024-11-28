@@ -170,7 +170,7 @@ namespace network2
 			return;
 		}
 		memmove_s(m_data + m_writeIdx, m_bufferSize - m_writeIdx, rhs, size);
-		m_writeIdx += size;
+		m_writeIdx += (int)size;
 	}
 
 	template<class T>
@@ -280,7 +280,7 @@ namespace network2
 		if (m_readIdx + (int)size > m_writeIdx)
 			return;
 		memmove_s(rhs, size, m_data + m_readIdx, size);
-		m_readIdx += size;
+		m_readIdx += (int)size;
 	}
 
 	template<class T>

@@ -774,7 +774,7 @@ bool cPathFinder2D::AddTemporaryVertexAndEdges(const Vector3 &pos)
 	vertex.replaceToIdx = to;
 	vertex.pos = pos;
 	m_fastmap->AddVertex(vertex);
-	const int addVtxIdx = m_fastmap->m_vertices.size() - 1;
+	const int addVtxIdx = (int)m_fastmap->m_vertices.size() - 1;
 
 	if (!m_fastmap->AddEdge(addVtxIdx, to))
 	{

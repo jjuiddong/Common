@@ -163,7 +163,7 @@ bool cNodeFile::Read(const StrPath &fileName)
 				const string name = pp->name.c_str();
 				const string typeStr = pp->typeStr.c_str();
 				const string scopeName = common::script::cSymbolTable::MakeScopeName(
-					n->m_name.c_str(), n->m_id.Get());
+					n->m_name.c_str(), (int)n->m_id.Get());
 				const string value = sdata.Get<string>(p, "value", "0");
 
 				_variant_t var;

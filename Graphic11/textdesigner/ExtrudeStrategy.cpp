@@ -96,7 +96,7 @@ bool ExtrudeStrategy::DrawString(
 		GraphicsPath path;
 		Status status = path.AddString(
 			pszText,
-			wcslen(pszText),
+			(int)wcslen(pszText),
 			pFontFamily,
 			fontStyle,
 			(REAL)nfontSize,
@@ -154,7 +154,7 @@ bool ExtrudeStrategy::DrawString(
 		GraphicsPath path;
 		Status status = path.AddString(
 			pszText,
-			wcslen(pszText),
+			(int)wcslen(pszText),
 			pFontFamily,
 			fontStyle,
 			(REAL)nfontSize,
@@ -333,7 +333,7 @@ bool ExtrudeStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,ptDraw,pStrFormat);
+	Status status = path.AddString(pszText,(int)wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,ptDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 
@@ -371,7 +371,7 @@ bool ExtrudeStrategy::MeasureString(
 {
 	using namespace Gdiplus;
 	GraphicsPath path;
-	Status status = path.AddString(pszText,wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
+	Status status = path.AddString(pszText, (int)wcslen(pszText),pFontFamily,fontStyle, (REAL)nfontSize,rtDraw,pStrFormat);
 	if(status!=Ok)
 		return false;
 

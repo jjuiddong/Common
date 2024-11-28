@@ -159,14 +159,14 @@ int Plane::LineCross( const Vector3& v0, const Vector3& v1, Vector3* pvOut ) con
 const Plane Plane::operator * (const Matrix44 &rhs)
 {
 	Plane out;
-#ifdef USE_D3D9_MATH
-	D3DXPlaneTransform((D3DXPLANE*)&out, (D3DXPLANE*)this, (D3DXMATRIX*)&rhs);
-#elif USE_D3D11_MATH
+//#ifdef USE_D3D9_MATH
+//	D3DXPlaneTransform((D3DXPLANE*)&out, (D3DXPLANE*)this, (D3DXMATRIX*)&rhs);
+//#elif USE_D3D11_MATH
 	XMVECTOR p = XMLoadFloat4((XMFLOAT4*)this);
 	XMMATRIX m = rhs.GetMatrixXM();	
 	XMVECTOR r = XMPlaneTransform(p, m);
 	XMStoreFloat4((XMFLOAT4*)&out, r);
-#endif
+//#endif
 	out.N.Normalize();
 	return out;
 }
@@ -176,14 +176,14 @@ const Plane Plane::operator * (const Matrix44 &rhs)
 Matrix44 Plane::GetReflectMatrix()
 {
 	Matrix44 reflect;
-#ifdef USE_D3D9_MATH
-	D3DXMatrixReflect((D3DXMATRIX*)&reflect, (D3DXPLANE*)this);
-#elif USE_D3D11_MATH
+//#ifdef USE_D3D9_MATH
+//	D3DXMatrixReflect((D3DXMATRIX*)&reflect, (D3DXPLANE*)this);
+//#elif USE_D3D11_MATH
 	XMVECTOR plane = XMLoadFloat4((XMFLOAT4*)this);
 	XMMATRIX m;
 	m = XMMatrixReflect(plane);
 	XMStoreFloat4x4((XMFLOAT4X4*)&reflect, m);
-#endif
+//#endif
 	return reflect;
 }
 

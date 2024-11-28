@@ -25,7 +25,7 @@ const double MATH_EPSILON2 = 0.0000000001f;//1.0e-10;
 using std::vector;
 
 
-#ifdef USE_D3D11_MATH
+//#ifdef USE_D3D11_MATH
 	#pragma warning(push)
 	#pragma warning (disable: 4005) //warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
 		#include <d3d11.h>
@@ -37,7 +37,7 @@ using std::vector;
 	#include <DirectXCollision.h>
 
 	using namespace DirectX;
-#endif // USE_D3D11_MATH
+//#endif // USE_D3D11_MATH
 
 
 #include "vectortype.h"

@@ -15,7 +15,7 @@ namespace
 	// srcFileName의 확장자와 compareExtendName 이름이 같다면 true를 리턴한다.
 	// compareExtendName : .bmp, .jpg, .fbx
 	//------------------------------------------------------------------------
-	bool CompareExtendName(const char* srcFileName, const int srcStringMaxLength
+	bool CompareExtendName(const char* srcFileName, const uint srcStringMaxLength
 		, const char* compareExtendName)
 	{
 		const int len = (int)strnlen_s(srcFileName, srcStringMaxLength);
@@ -48,14 +48,14 @@ namespace
 	bool CompareExtendName(const wchar_t* srcFileName, const int srcStringMaxLength
 		, const wchar_t* compareExtendName)
 	{
-		const int len = (int)wcslen(srcFileName);
+		const uint len = (uint)wcslen(srcFileName);
 		if (len <= 0)
 			return FALSE;
 
 		const int TEMPSIZE = 16;
 		int count = 0;
 		wchar_t temp[TEMPSIZE];
-		for (int i = 0; i < len && i < (ARRAYSIZE(temp) - 1); ++i)
+		for (uint i = 0; i < len && i < (ARRAYSIZE(temp) - 1); ++i)
 		{
 			const wchar_t c = srcFileName[len - i - 1];
 			temp[count++] = c;
@@ -107,7 +107,7 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 	WStrPath modifySearchPath;
 	//if (!searchPath.empty() &&
 	//	(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
-	const int searchLen = wcslen(searchPath);
+	const uint searchLen = (uint)wcslen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -143,7 +143,7 @@ bool common::CollectFiles(const vector<WStr32> &findExt, const wchar_t *searchPa
 			{
 				for (auto &ext : findExt)
 				{
-					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					if (CompareExtendName(fd.cFileName, (uint)wcslen(fd.cFileName), ext.c_str()))
 					{
 						out.push_back(modifySearchPath + fd.cFileName);
 						break;
@@ -177,7 +177,7 @@ bool common::CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath
 	WStrPath modifySearchPath;
 	//if (!searchPath.empty() &&
 	//	(searchPath[searchPath.size() - 1] == '/') || (searchPath[searchPath.size() - 1] == '\\'))
-	const int searchLen = wcslen(searchPath);
+	const uint searchLen = (uint)wcslen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -213,7 +213,7 @@ bool common::CollectFiles(const list<WStr32> &findExt, const wchar_t *searchPath
 			{
 				for (auto &ext : findExt)
 				{
-					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					if (CompareExtendName(fd.cFileName, (uint)wcslen(fd.cFileName), ext.c_str()))
 					{
 						out.push_back(modifySearchPath + fd.cFileName);
 						break;
@@ -246,7 +246,7 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 	, const vector<WStr64> &ignoreDirs, OUT vector<WStrPath> &out)
 {
 	WStrPath modifySearchPath;
-	const int searchLen = wcslen(searchPath);
+	const uint searchLen = (uint)wcslen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -285,7 +285,7 @@ bool common::CollectFiles3(const vector<WStr32> &findExt, const wchar_t *searchP
 			{
 				for (auto &ext : findExt)
 				{
-					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					if (CompareExtendName(fd.cFileName, (uint)wcslen(fd.cFileName), ext.c_str()))
 					{
 						out.push_back(modifySearchPath + fd.cFileName);
 						break;
@@ -318,7 +318,7 @@ bool common::CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPat
 	, const list<WStr64> &ignoreDirs, OUT list<WStrPath> &out)
 {
 	WStrPath modifySearchPath;
-	const int searchLen = wcslen(searchPath);
+	const uint searchLen = (uint)wcslen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -357,7 +357,7 @@ bool common::CollectFiles3(const list<WStr32> &findExt, const wchar_t *searchPat
 			{
 				for (auto &ext : findExt)
 				{
-					if (CompareExtendName(fd.cFileName, wcslen(fd.cFileName), ext.c_str()))
+					if (CompareExtendName(fd.cFileName, (uint)wcslen(fd.cFileName), ext.c_str()))
 					{
 						out.push_back(modifySearchPath + fd.cFileName);
 						break;

@@ -207,7 +207,7 @@ bool cWebClient::Process()
 			int flags = 0;
 			result = m_websocket->receiveFrame(m_recvBuffer, m_maxBuffLen, flags);
 			if (flags & Poco::Net::WebSocket::FRAME_OP_CLOSE)
-				result = INVALID_SOCKET;
+				result = (int)INVALID_SOCKET;
 		}
 		catch (Poco::TimeoutException)
 		{
@@ -217,10 +217,10 @@ bool cWebClient::Process()
 		{
 			// socket error occurred!!
 			dbg::Logc(2, "error cWebClient receive, %s\n", e.what());
-			result = SOCKET_ERROR;
+			result = (int)SOCKET_ERROR;
 		}
 
-		if ((SOCKET_ERROR == result) || (0 == result)) // connection error, disconnect
+		if (((int)SOCKET_ERROR == result) || (0 == result)) // connection error, disconnect
 		{
 			m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 			m_state = eState::Disconnect;

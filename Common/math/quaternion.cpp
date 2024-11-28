@@ -139,51 +139,51 @@ Quaternion& Quaternion::slerp(Quaternion q1, Quaternion q2, float time
 //--------------------------------
 Matrix44 Quaternion::GetMatrix() const
 {
-#ifdef USE_D3D9_MATH
-	Matrix44 m;
-	D3DXMatrixRotationQuaternion( (D3DXMATRIX*)&m, (D3DXQUATERNION*)this );
-	return m;
-#elif defined (USE_D3D11_MATH)
+//#ifdef USE_D3D9_MATH
+//	Matrix44 m;
+//	D3DXMatrixRotationQuaternion( (D3DXMATRIX*)&m, (D3DXQUATERNION*)this );
+//	return m;
+//#elif defined (USE_D3D11_MATH)
 	XMVECTOR xq = XMLoadFloat4((XMFLOAT4*)this);
 	XMMATRIX xm = XMMatrixRotationQuaternion(xq);
 	Matrix44 m;
 	XMStoreFloat4x4((XMFLOAT4X4*)&m, xm);
 	return m;
-#else
-	Matrix44 m;
-
-	float X = x;
-	float Y = y;
-	float Z = z;
-	float W = -w;
-
-	float xx = X * X;
-	float xy = X * Y;
-	float xz = X * Z;
-	float xw = X * W;
-	float yy = Y * Y;
-	float yz = Y * Z;
-	float yw = Y * W;
-	float zz = Z * Z;
-	float zw = Z * W;
-
-	m._11 = 1.0f - 2.0f * (yy + zz);
-	m._12 = 2.0f * (xy - zw);
-	m._13 = 2.0f * (xz + yw);
-
-	m._21 = 2.0f * (xy + zw);
-	m._22 = 1 - 2.0f * (xx + zz);
-	m._23 = 2.0f * (yz - xw);
-
-	m._31 = 2.0f * (xz - yw);
-	m._32 = 2.0f * (yz + xw);
-	m._33 = 1.0f - 2.0f * (xx + yy);
-
-	m._14 = m._24 = m._34 = 0.0f;
-	m._41 = m._42 = m._43 = 0.0f;
-	m._44 = 1.0f;
-	return m;
-#endif // USE_D3D9_MATH
+//#else
+//	Matrix44 m;
+//
+//	float X = x;
+//	float Y = y;
+//	float Z = z;
+//	float W = -w;
+//
+//	float xx = X * X;
+//	float xy = X * Y;
+//	float xz = X * Z;
+//	float xw = X * W;
+//	float yy = Y * Y;
+//	float yz = Y * Z;
+//	float yw = Y * W;
+//	float zz = Z * Z;
+//	float zw = Z * W;
+//
+//	m._11 = 1.0f - 2.0f * (yy + zz);
+//	m._12 = 2.0f * (xy - zw);
+//	m._13 = 2.0f * (xz + yw);
+//
+//	m._21 = 2.0f * (xy + zw);
+//	m._22 = 1 - 2.0f * (xx + zz);
+//	m._23 = 2.0f * (yz - xw);
+//
+//	m._31 = 2.0f * (xz - yw);
+//	m._32 = 2.0f * (yz + xw);
+//	m._33 = 1.0f - 2.0f * (xx + yy);
+//
+//	m._14 = m._24 = m._34 = 0.0f;
+//	m._41 = m._42 = m._43 = 0.0f;
+//	m._44 = 1.0f;
+//	return m;
+//#endif // USE_D3D9_MATH
 
 } //Quaternion::GetMatrix4
 

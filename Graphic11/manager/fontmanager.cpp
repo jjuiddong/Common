@@ -23,7 +23,7 @@ std::pair<IFW1FontWrapper*, IDWriteTextFormat*> cFontManager::GetFont(cRenderer 
 	IFW1FontWrapper *fontWrapper = NULL;
 	WStr64 wname = Str64(name).wstr();
 
-	const hashcode hcode = Str64(name).GetHashCode();
+	const hashcode hcode = (hashcode)Str64(name).GetHashCode();
 	auto it = m_fonts.find(hcode);
 	if (m_fonts.end() == it)
 	{

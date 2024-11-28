@@ -301,7 +301,7 @@ StrPath cTexture3d::ConvertTextureFileName(const char *fileName)
 	const Str32 ext = out.GetFileExt();
 	if ((ext == ".tga") || (ext == ".TGA"))
 	{
-		const int len = out.size();
+		const size_t len = out.size();
 		out.m_str[len - 3] = 'd';
 		out.m_str[len - 2] = 'd';
 		out.m_str[len - 1] = 's';

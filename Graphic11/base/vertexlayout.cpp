@@ -25,7 +25,8 @@ bool cVertexLayout::Create(cRenderer &renderer, ID3DBlob *vsBlob
 
 	Create(layout, numElements);
 
-	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
+	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0]
+		, (uint)m_elements.size()
 		, vsBlob->GetBufferPointer()
 		, vsBlob->GetBufferSize()
 		, &m_vertexLayout)))
@@ -48,7 +49,8 @@ bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, c
 		return true;
 	}
 
-	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
+	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0]
+		, (uint)m_elements.size()
 		, pIAInputSignature
 		, IAInputSignatureSize
 		, &m_vertexLayout)))
@@ -71,7 +73,8 @@ bool cVertexLayout::Create(cRenderer &renderer, const BYTE *pIAInputSignature, c
 		return true;
 	}
 
-	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0], m_elements.size()
+	if (FAILED(renderer.GetDevice()->CreateInputLayout((D3D11_INPUT_ELEMENT_DESC*)&m_elements[0]
+		, (uint)m_elements.size()
 		, pIAInputSignature
 		, IAInputSignatureSize
 		, &m_vertexLayout)))
@@ -90,7 +93,7 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 	{
 		m_elements.push_back(layout[i]);
 		m_elements.back().AlignedByteOffset = size;
-		size += BitsPerPixel(layout[i].Format) / 8;
+		size += (int)BitsPerPixel(layout[i].Format) / 8;
 
 		if (Str32("POSITION") == layout[i].SemanticName)
 			m_vertexType |= eVertexType::POSITION;
@@ -128,7 +131,7 @@ bool cVertexLayout::Create(const D3D11_INPUT_ELEMENT_DESC layout[], const int nu
 bool cVertexLayout::Create(const vector<D3D11_INPUT_ELEMENT_DESC> &layout)
 {
 	RETV(layout.empty(), true);
-	return Create(&layout[0], layout.size());
+	return Create(&layout[0], (int)layout.size());
 }
 
 
@@ -254,7 +257,7 @@ int cVertexLayout::GetOffset(const char *semanticName) const
 			isFind = true;
 			break;
 		}
-		offset += BitsPerPixel(elem.Format) / 8;
+		offset += (int)BitsPerPixel(elem.Format) / 8;
 	}
 
 	return isFind? offset : -1;

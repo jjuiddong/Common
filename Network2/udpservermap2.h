@@ -32,7 +32,7 @@ namespace network2
 		{
 			StrId name; // thread name
 			queue<sThreadMsg> msgs; // external -> thread msg
-			std::atomic<uint> count; // udpserver count
+			std::atomic<size_t> count; // udpserver count
 			map<StrId, sServerData> svrs;
 			map<SOCKET, cUdpServer*> svrs2; // reference from svrs, key: udpserver socket
 			char *recvBuffer;

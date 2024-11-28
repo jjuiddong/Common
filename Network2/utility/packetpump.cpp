@@ -151,7 +151,7 @@ bool cPacketPump::Update(const float deltaSeconds
 	for (auto &p : out1)
 		m_timeLines.insert(p->dateTime);
 
-	uint totalSize = 0;
+	size_t totalSize = 0;
 	for (uint i = 0; i < ars3.size(); ++i)
 		totalSize += ars3[i].size();
 	out2.reserve(totalSize);

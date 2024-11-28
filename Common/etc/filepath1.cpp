@@ -216,7 +216,7 @@ bool common::IsRelativePath(const string& path)
 // ./dir1/dir2/file.ext  ==>  dir1/dir2/file.ext
 string common::DeleteCurrentPath(const string& fileName)
 {
-	const int pos = fileName.find(".\\");
+	const uint pos = (uint)fileName.find(".\\");
 	if (pos == 0)
 	{
 		return DeleteCurrentPath(fileName.substr(2));
@@ -661,7 +661,7 @@ int common::CollectFolder(const char* searchPath, OUT vector<string>& out
 	int loop = maxLoop; // count down, when search sub folder
 
 	string modifySearchPath;
-	const int searchLen = strlen(searchPath);
+	const int searchLen = (int)strlen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -711,7 +711,7 @@ int common::CollectFolder2(const char* searchPath, OUT vector<string>& out
 	if (level == 0)
 		return 1; // finish.
 	string modifySearchPath;
-	const int searchLen = strlen(searchPath);
+	const int searchLen = (int)strlen(searchPath);
 	if ((searchLen != 0) &&
 		(searchPath[searchLen - 1] == '/') || (searchPath[searchLen - 1] == '\\'))
 	{
@@ -950,7 +950,7 @@ string common::OpenFileDialog(const HWND hWnd
 			filterSpecs.push_back(spec);
 		}
 
-		pFileOpen->SetFileTypes(filterSpecs.size(), &filterSpecs[0]);
+		pFileOpen->SetFileTypes((uint)filterSpecs.size(), &filterSpecs[0]);
 
 		hr = pFileOpen->Show(hWnd);
 		if (SUCCEEDED(hr))
@@ -1006,7 +1006,7 @@ string common::SaveFileDialog(const HWND hWnd
 			spec.pszSpec = filter.second.c_str();
 			filterSpecs.push_back(spec);
 		}
-		pFileSave->SetFileTypes(filterSpecs.size(), &filterSpecs[0]);
+		pFileSave->SetFileTypes((uint)filterSpecs.size(), &filterSpecs[0]);
 
 		hr = pFileSave->Show(hWnd);
 		if (SUCCEEDED(hr))

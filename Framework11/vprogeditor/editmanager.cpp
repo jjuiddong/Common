@@ -690,7 +690,7 @@ common::script::sVariable*
 
 	const string scopeName =
 		common::script::cSymbolTable::MakeScopeName(
-			node->m_name.c_str(), node->m_id.Get());
+			node->m_name.c_str(), (int)node->m_id.Get());
 
 	common::script::sVariable *var =
 		m_symbTable.FindVarInfo(scopeName, pin->name.c_str());
@@ -711,7 +711,7 @@ bool cEditManager::AddTemporalVar(const ed::PinId id)
 
 	const string scopeName =
 		common::script::cSymbolTable::MakeScopeName(
-			node->m_name.c_str(), node->m_id.Get());
+			node->m_name.c_str(), (int)node->m_id.Get());
 
 	const VARTYPE vt = vpl::GetPin2VarType(pin->type);
 	_variant_t var = common::str2variant(vt, "");
@@ -734,7 +734,7 @@ string cEditManager::GetScopeName(const ed::PinId id)
 
 	const string scopeName =
 		common::script::cSymbolTable::MakeScopeName(
-			node->m_name.c_str(), node->m_id.Get());
+			node->m_name.c_str(), (int)node->m_id.Get());
 	return scopeName;
 }
 
