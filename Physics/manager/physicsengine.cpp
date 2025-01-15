@@ -27,7 +27,7 @@ cPhysicsEngine::~cPhysicsEngine()
 
 bool cPhysicsEngine::InitializePhysx()
 {
-	m_foundation = PxCreateFoundation(PX_FOUNDATION_VERSION
+	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION//PX_FOUNDATION_VERSION
 		, m_defaultAllocatorCallback, m_defaultErrorCallback);
 
 	// pvd connection
@@ -90,8 +90,8 @@ bool cPhysicsEngine::InitializePhysx()
 			PHY_SAFE_RELEASE(m_cudaContextManager);
 		}
 	}
-	if (!sceneDesc.gpuDispatcher && m_cudaContextManager)
-		sceneDesc.gpuDispatcher = m_cudaContextManager->getGpuDispatcher();
+	//if (!sceneDesc.gpuDispatcher && m_cudaContextManager)
+	//	sceneDesc.gpuDispatcher = m_cudaContextManager->getGpuDispatcher();
 
 	//sceneDesc.frictionType = physx::PxFrictionType::eTWO_DIRECTIONAL;
 	//sceneDesc.frictionType = physx::PxFrictionType::eONE_DIRECTIONAL;
@@ -101,7 +101,8 @@ bool cPhysicsEngine::InitializePhysx()
 	//sceneDesc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_STABILIZATION;
-	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+	//sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS; // Physx 3.4
+	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS; // Physx 4.0
 	sceneDesc.sceneQueryUpdateMode = physx::PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_DISABLED;
 	sceneDesc.broadPhaseType = physx::PxBroadPhaseType::eGPU;
 	sceneDesc.gpuMaxNumPartitions = 8;
@@ -147,7 +148,7 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 	if (dt == 0)
 		return true;
 
-	m_stepSize = max(0.01f, dt); // if too small dt, insane phsics simulation
+	m_stepSize = max(0.01f, dt); // if too small dt, insane physics simulation
 	m_isFetch = true;
 
 	physx::PxSceneWriteLock writeLock(*m_scene);

@@ -15,7 +15,7 @@ namespace phys
 		bool isRemove; // auto remove?
 		Str32 name;
 		cRigidActor *actor; // physics object
-		cJoint *joint; // physics object
+		cJoint *j1; // physics object
 		graphic::cNode *node; // render object, reference
 	};
 
@@ -61,17 +61,17 @@ namespace phys
 			, const bool isKinematic = false
 			, const Str32 &name = "cylinder");
 
-		bool AddJoint(cJoint *joint, graphic::cNode *node = nullptr
+		bool AddJoint(cJoint *j1, graphic::cNode *node = nullptr
 			, const bool isAutoRemove=true);
 
 		bool AddCompound(sSyncInfo *sync0, sSyncInfo *sync1);
 
 		sSyncInfo* FindSyncInfo(const int syncId);
 		sSyncInfo* FindSyncInfo(const cRigidActor *actor);
-		sSyncInfo* FindSyncInfo(const cJoint *joint);
+		sSyncInfo* FindSyncInfo(const cJoint *j1);
 		bool RemoveSyncInfo(const int syncId);
 		bool RemoveSyncInfo(const cRigidActor *actor);
-		bool RemoveSyncInfo(const cJoint *joint);
+		bool RemoveSyncInfo(const cJoint *j1);
 		bool RemoveSyncInfo(sSyncInfo *sync);
 		void ClearSyncInfo(const bool isClearGroundPlane=true);
 		void Clear();
@@ -89,8 +89,9 @@ namespace phys
 	public:
 		cPhysicsEngine *m_physics; // reference
 		uint m_activeBufferCapacity;
-		physx::PxActiveTransform *m_bufferedActiveTransforms;
+		//physx::PxActiveTransform *m_bufferedActiveTransforms;
 		vector<sSyncInfo*> m_syncs;
+		physx::PxActor** m_bufferedActiveTransforms;
 	};
 
 }

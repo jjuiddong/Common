@@ -51,6 +51,7 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 	sync->name = name;
 	sync->actor = actor;
 	sync->node = grid;
+	actor->m_actor->userData = sync; // update user data
 	m_syncs.push_back(sync);
 	return sync->id;
 }
@@ -81,6 +82,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	sync->name = name;
 	sync->actor = actor;
 	sync->node = cube;
+	actor->m_actor->userData = sync; // update user data
 	m_syncs.push_back(sync);
 	return sync->id;
 }
@@ -113,6 +115,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	sync->name = name;
 	sync->actor = actor;
 	sync->node = sphere;
+	actor->m_actor->userData = sync; // update user data
 	m_syncs.push_back(sync);
 	return sync->id;
 }
@@ -146,6 +149,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	sync->name = name;
 	sync->actor = actor;
 	sync->node = capsule;
+	actor->m_actor->userData = sync; // update user data
 	m_syncs.push_back(sync);
 	return sync->id;
 }
@@ -179,6 +183,7 @@ int cPhysicsSync::SpawnCylinder(graphic::cRenderer &renderer
 	sync->name = name;
 	sync->actor = actor;
 	sync->node = cylinder;
+	actor->m_actor->userData = sync; // update user data
 	m_syncs.push_back(sync);
 	return sync->id;
 }
@@ -193,62 +198,92 @@ bool cPhysicsSync::Sync()
 
 	using namespace physx;
 
-	// update active actor buffer
-	uint activeActorSize = 0;
+	// https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/RigidBodyDynamics.html
+	uint size = 0;
 	{
-		PxSceneReadLock scopedLock(*scene);
-		const PxActiveTransform* activeTransforms =
-			scene->getActiveTransforms(activeActorSize);
-		if (activeActorSize > m_activeBufferCapacity)
+		//PxSceneReadLock scopedLock(*scene);
+
+		PxActor** activeActors = scene->getActiveActors(size);
+
+		for (uint i = 0; i < size; ++i)
 		{
-			_aligned_free(m_bufferedActiveTransforms);
-
-			m_activeBufferCapacity = activeActorSize;
-			m_bufferedActiveTransforms = (physx::PxActiveTransform*)_aligned_malloc(
-				sizeof(physx::PxActiveTransform) * activeActorSize, 16);
-		}
-
-		if (activeActorSize > 0)
-		{
-			PxMemCopy(m_bufferedActiveTransforms, activeTransforms
-				, sizeof(PxActiveTransform) * activeActorSize);
-		}
-	}
-
-	// update render object
-	for (uint i = 0; i < activeActorSize; ++i)
-	{
-		PxActiveTransform *activeTfm = &m_bufferedActiveTransforms[i];
-
-		auto it = find_if(m_syncs.begin(), m_syncs.end(), [&](const auto &a) {
-			return (a->actor && (a->actor->m_actor == activeTfm->actor)); });
-		if (m_syncs.end() == it)
-			continue;
-
-		sSyncInfo *sync = *it;
-		{
-			Transform tfm;
-			tfm.pos = *(Vector3*)&activeTfm->actor2World.p;
-			tfm.rot = *(Quaternion*)&activeTfm->actor2World.q;
-			const Matrix44 tm0 = tfm.GetMatrix();			
-
-			if (sync->actor)
+			sSyncInfo* sync = (sSyncInfo*)activeActors[i]->userData;
+			if (sync && sync->actor && sync->actor->m_actor)
 			{
-				cRigidActor *actor = sync->actor;
-				for (uint i=0; i < actor->m_meshes.size(); ++i)
-				{
-					graphic::cNode *node = actor->m_meshes[i].node;
-					const Matrix44 tm = actor->m_meshes[i].local * tm0;
+				const PxTransform gtm = sync->actor->m_actor->getGlobalPose();
 
-					Transform m;
-					m.pos = tm.GetPosition();
-					m.rot = tm.GetQuaternion();
-					m.scale = node->m_transform.scale;
-					node->m_transform = m;
+				Transform tfm;
+				tfm.pos = *(Vector3*)&gtm.p;
+				tfm.rot = *(Quaternion*)&gtm.q;
+
+				cRigidActor* actor = sync->actor;
+				for (uint i = 0; i < actor->m_meshes.size(); ++i)
+				{
+					graphic::cNode* node = actor->m_meshes[i].node;
+					tfm.scale = node->m_transform.scale;
+					node->m_transform = tfm;
 				}
 			}
 		}
 	}
+
+
+	// update active actor buffer
+	//uint activeActorSize = 0;
+	//{
+	//	PxSceneReadLock scopedLock(*scene);
+	//	const PxActiveTransform* activeTransforms =
+	//		scene->getActiveTransforms(activeActorSize);
+	//	if (activeActorSize > m_activeBufferCapacity)
+	//	{
+	//		_aligned_free(m_bufferedActiveTransforms);
+
+	//		m_activeBufferCapacity = activeActorSize;
+	//		m_bufferedActiveTransforms = (physx::PxActiveTransform*)_aligned_malloc(
+	//			sizeof(physx::PxActiveTransform) * activeActorSize, 16);
+	//	}
+
+	//	if (activeActorSize > 0)
+	//	{
+	//		PxMemCopy(m_bufferedActiveTransforms, activeTransforms
+	//			, sizeof(PxActiveTransform) * activeActorSize);
+	//	}
+	//}
+
+	//// update render object
+	//for (uint i = 0; i < activeActorSize; ++i)
+	//{
+	//	PxActiveTransform *activeTfm = &m_bufferedActiveTransforms[i];
+
+	//	auto it = find_if(m_syncs.begin(), m_syncs.end(), [&](const auto &a) {
+	//		return (a->actor && (a->actor->m_actor == activeTfm->actor)); });
+	//	if (m_syncs.end() == it)
+	//		continue;
+
+	//	sSyncInfo *sync = *it;
+	//	{
+	//		Transform tfm;
+	//		tfm.pos = *(Vector3*)&activeTfm->actor2World.p;
+	//		tfm.rot = *(Quaternion*)&activeTfm->actor2World.q;
+	//		const Matrix44 tm0 = tfm.GetMatrix();			
+
+	//		if (sync->actor)
+	//		{
+	//			cRigidActor *actor = sync->actor;
+	//			for (uint i=0; i < actor->m_meshes.size(); ++i)
+	//			{
+	//				graphic::cNode *node = actor->m_meshes[i].node;
+	//				const Matrix44 tm = actor->m_meshes[i].local * tm0;
+
+	//				Transform m;
+	//				m.pos = tm.GetPosition();
+	//				m.rot = tm.GetQuaternion();
+	//				m.scale = node->m_transform.scale;
+	//				node->m_transform = m;
+	//			}
+	//		}
+	//	}
+	//}
 
 	return true;
 }
@@ -261,12 +296,12 @@ void cPhysicsSync::onRelease(const physx::PxBase* observed, void* userData
 }
 
 
-bool cPhysicsSync::AddJoint(cJoint *joint
+bool cPhysicsSync::AddJoint(cJoint *j1
 	, graphic::cNode *node // = nullptr
 	, const bool isAutoRemove // = true
 )
 {
-	if (FindSyncInfo(joint))
+	if (FindSyncInfo(j1))
 		return false; // already exist
 
 	sSyncInfo *sync = new sSyncInfo;
@@ -274,9 +309,9 @@ bool cPhysicsSync::AddJoint(cJoint *joint
 	sync->id = common::GenerateId();
 	sync->isRemove = isAutoRemove;
 	sync->name = "joint";
-	sync->joint = joint;
+	sync->j1 = j1;
 	sync->node = node;
-	joint->m_node = node;
+	j1->m_node = node;
 	m_syncs.push_back(sync);
 	return true;
 }
@@ -320,10 +355,10 @@ sSyncInfo* cPhysicsSync::FindSyncInfo(const cRigidActor *actor)
 
 
 // find actor info from joint ptr
-sSyncInfo* cPhysicsSync::FindSyncInfo(const cJoint *joint)
+sSyncInfo* cPhysicsSync::FindSyncInfo(const cJoint *j1)
 {
 	auto it = find_if(m_syncs.begin(), m_syncs.end(), [&](const auto &a) {
-		return a->joint == joint; });
+		return a->j1 == j1; });
 	if (m_syncs.end() == it)
 		return nullptr;
 	return *it;
@@ -345,20 +380,20 @@ bool cPhysicsSync::RemoveSyncInfo(sSyncInfo *sync)
 {
 	common::removevector(m_syncs, sync);
 
-	if (sync->joint) // joint type?
+	if (sync->j1) // joint type?
 	{
 		// remove joint reference
 		// todo: check sync->joint->m_actor0 available
-		if (sync->joint->m_actor0)
-			sync->joint->m_actor0->RemoveJoint(sync->joint);
-		if (sync->joint->m_actor1)
-			sync->joint->m_actor1->RemoveJoint(sync->joint);
+		if (sync->j1->m_actor0)
+			sync->j1->m_actor0->RemoveJoint(sync->j1);
+		if (sync->j1->m_actor1)
+			sync->j1->m_actor1->RemoveJoint(sync->j1);
 	}
 
 	if (sync->isRemove)
 	{
 		SAFE_DELETE(sync->actor);
-		SAFE_DELETE(sync->joint);
+		SAFE_DELETE(sync->j1);
 		//SAFE_DELETE(sync->node);
 	}
 	SAFE_DELETE(sync);
@@ -377,9 +412,9 @@ bool cPhysicsSync::RemoveSyncInfo(const cRigidActor *actor)
 
 
 // remove joint and connections
-bool cPhysicsSync::RemoveSyncInfo(const cJoint *joint)
+bool cPhysicsSync::RemoveSyncInfo(const cJoint *j1)
 {
-	sSyncInfo *sync = FindSyncInfo(joint);
+	sSyncInfo *sync = FindSyncInfo(j1);
 	if (!sync)
 		return false; // not exist
 	return RemoveSyncInfo(sync);
@@ -405,7 +440,7 @@ void cPhysicsSync::ClearSyncInfo(
 		if (p->isRemove)
 		{
 			SAFE_DELETE(p->actor);
-			SAFE_DELETE(p->joint);
+			SAFE_DELETE(p->j1);
 		}
 		delete p;
 

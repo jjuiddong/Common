@@ -116,7 +116,7 @@ namespace phys
 
 
 	protected:
-		void DefaultJointConfiguration(physx::PxJoint *joint);
+		void DefaultJointConfiguration(physx::PxJoint *j1);
 
 		void GetLocalFrame(const Transform &worldTm0, const Transform &worldTm1
 			, const Vector3 &jointPos, const Vector3 &revoluteAxis

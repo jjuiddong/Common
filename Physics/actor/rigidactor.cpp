@@ -30,7 +30,7 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 	PxRigidStatic* plane = PxCreatePlane(*physics.m_physics
 		, PxPlane(*(PxVec3*)&norm, 0), *physics.m_material);
 	if (!plane)
-		return nullptr;
+		return false;
 
 	plane->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 
@@ -275,20 +275,24 @@ bool cRigidActor::ChangeDimension(cPhysicsEngine &physics, const Vector3 &dim)
 	switch (m_shape)
 	{
 	case eShapeType::Box:
-		m_actor->createShape(PxBoxGeometry(*(PxVec3*)&dim), *physics.m_material); 
+		physx::PxRigidActorExt::createExclusiveShape(
+			*m_actor, PxBoxGeometry(*(PxVec3*)&dim), *physics.m_material);
 		break;
 	case eShapeType::Sphere:
-		m_actor->createShape(PxSphereGeometry(dim.x), *physics.m_material);
+		physx::PxRigidActorExt::createExclusiveShape(
+			*m_actor, PxSphereGeometry(dim.x), *physics.m_material);
 		break;
 	case eShapeType::Capsule:
-		m_actor->createShape(PxCapsuleGeometry(dim.y, dim.x), *physics.m_material);
+		physx::PxRigidActorExt::createExclusiveShape(
+			*m_actor, PxCapsuleGeometry(dim.y, dim.x), *physics.m_material);
 		break;
 	case eShapeType::Cylinder:
 	{
 		const float radius = dim.y;
 		const float height = dim.x;
 		PxConvexMesh* convexMesh = GenerateCylinderMesh(physics, radius, height);
-		m_actor->createShape(PxConvexMeshGeometry(convexMesh), *physics.m_material);
+		physx::PxRigidActorExt::createExclusiveShape(
+			*m_actor, PxConvexMeshGeometry(convexMesh), *physics.m_material);
 	}
 	break;
 
@@ -576,11 +580,11 @@ bool cRigidActor::WakeUp()
 
 // add joint reference
 // joint is this rigid actor connection joint
-bool cRigidActor::AddJoint(cJoint *joint)
+bool cRigidActor::AddJoint(cJoint *j1)
 {
-	if (m_joints.end() == std::find(m_joints.begin(), m_joints.end(), joint))
+	if (m_joints.end() == std::find(m_joints.begin(), m_joints.end(), j1))
 	{
-		m_joints.push_back(joint);
+		m_joints.push_back(j1);
 		return true;
 	}
 	return false;
@@ -588,11 +592,11 @@ bool cRigidActor::AddJoint(cJoint *joint)
 
 
 // remove joint reference
-bool cRigidActor::RemoveJoint(cJoint *joint)
+bool cRigidActor::RemoveJoint(cJoint *j1)
 {
-	if (m_joints.end() != std::find(m_joints.begin(), m_joints.end(), joint))
+	if (m_joints.end() != std::find(m_joints.begin(), m_joints.end(), j1))
 	{
-		common::removevector(m_joints, joint);
+		common::removevector(m_joints, j1);
 		return true;
 	}
 	return false;

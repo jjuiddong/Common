@@ -60,14 +60,14 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
-	PxFixedJoint *joint = PxFixedJointCreate(*physics.m_physics
+	PxFixedJoint *j1 = PxFixedJointCreate(*physics.m_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	DefaultJointConfiguration(joint);
+	DefaultJointConfiguration(j1);
 
 	m_type = eJointType::Fixed;
-	m_joint = joint;
+	m_joint = j1;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
@@ -98,14 +98,14 @@ bool cJoint::CreateSpherical(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
-	PxSphericalJoint *joint = PxSphericalJointCreate(*physics.m_physics
+	PxSphericalJoint *j1 = PxSphericalJointCreate(*physics.m_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	DefaultJointConfiguration(joint);
+	DefaultJointConfiguration(j1);
 
 	m_type = eJointType::Spherical;
-	m_joint = joint;
+	m_joint = j1;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
@@ -137,14 +137,14 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxRevoluteJoint *joint = PxRevoluteJointCreate(*physics.m_physics
+	PxRevoluteJoint *j1 = PxRevoluteJointCreate(*physics.m_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	DefaultJointConfiguration(joint);
+	DefaultJointConfiguration(j1);
 
 	m_type = eJointType::Revolute;
-	m_joint = joint;
+	m_joint = j1;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
@@ -180,14 +180,14 @@ bool cJoint::CreatePrismatic(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxPrismaticJoint *joint = PxPrismaticJointCreate(*physics.m_physics
+	PxPrismaticJoint *j1 = PxPrismaticJointCreate(*physics.m_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	DefaultJointConfiguration(joint);
+	DefaultJointConfiguration(j1);
 
 	m_type = eJointType::Prismatic;
-	m_joint = joint;
+	m_joint = j1;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
@@ -223,14 +223,14 @@ bool cJoint::CreateDistance(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxDistanceJoint *joint = PxDistanceJointCreate(*physics.m_physics
+	PxDistanceJoint *j1 = PxDistanceJointCreate(*physics.m_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	DefaultJointConfiguration(joint);
+	DefaultJointConfiguration(j1);
 
 	m_type = eJointType::Distance;
-	m_joint = joint;
+	m_joint = j1;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
@@ -264,14 +264,14 @@ bool cJoint::CreateD6(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxD6Joint *joint = PxD6JointCreate(*physics.m_physics
+	PxD6Joint *j1 = PxD6JointCreate(*physics.m_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
-	DefaultJointConfiguration(joint);
+	DefaultJointConfiguration(j1);
 
 	m_type = eJointType::D6;
-	m_joint = joint;
+	m_joint = j1;
 	m_actor0 = actor0;
 	m_actor1 = actor1;
 	actor0->AddJoint(this);
@@ -955,14 +955,14 @@ bool cJoint::ModifyPivot(cPhysicsEngine &physics
 
 // setting default joint configuration
 // breakage, projection, etc..
-void cJoint::DefaultJointConfiguration(physx::PxJoint *joint)
+void cJoint::DefaultJointConfiguration(physx::PxJoint *j1)
 {
 
 	//joint->setProjectionLinearTolerance(0.5f);
 	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
 	if (m_breakForce > 0.f)
-		joint->setBreakForce(m_breakForce, m_breakForce);
+		j1->setBreakForce(m_breakForce, m_breakForce);
 
 }
 

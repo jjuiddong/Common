@@ -81,8 +81,8 @@ namespace phys
 		bool SetAngularVelocity(const Vector3 velocity);
 		bool ClearForce();
 		bool WakeUp();
-		bool AddJoint(cJoint *joint);
-		bool RemoveJoint(cJoint *joint);
+		bool AddJoint(cJoint *j1);
+		bool RemoveJoint(cJoint *j1);
 		void Clear();
 
 
