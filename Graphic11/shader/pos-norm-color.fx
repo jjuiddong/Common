@@ -8,14 +8,17 @@
 VSOUT_DIFFUSE VS( float4 Pos : POSITION
 	, float3 Normal : NORMAL
 	, float4 Color : COLOR
+	, uint instID : SV_InstanceID
 	, uniform bool IsInstancing
 	 )
 {
 	VSOUT_DIFFUSE output = (VSOUT_DIFFUSE)0;
-	float4 PosW = mul(Pos, gWorld);
+	const matrix mWorld = IsInstancing ? gWorldInst[instID] : gWorld;
+
+	float4 PosW = mul(Pos, mWorld);
     output.Pos = mul(PosW, gView );
     output.Pos = mul( output.Pos, gProjection );
-    output.Normal = normalize( mul(Normal, (float3x3)gWorld) );
+    output.Normal = normalize( mul(Normal, (float3x3)mWorld) );
 	output.PosH = output.Pos;
 	output.toEye = normalize(gEyePosW - PosW).xyz;
     output.Color = Color;
@@ -184,6 +187,19 @@ technique11 Unlit
       	SetDomainShader(NULL);
         SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
+}
+
+
+technique11 Unlit_Instancing
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS(Instancing)));
+		SetGeometryShader(NULL);
+		SetHullShader(NULL);
+		SetDomainShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
 }
 
 

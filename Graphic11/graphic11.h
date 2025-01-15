@@ -149,6 +149,7 @@ namespace graphic {
 #include "base/capsule2.h"
 #include "base/cone.h"
 #include "base/line2dlist.h"
+#include "base/dummy.h"
 
 
 //

@@ -151,11 +151,11 @@ cColor::operator DWORD ()
 }
 
 
-bool cColor::operator == (const cColor &color) {
+bool cColor::operator == (const cColor &color) const {
 	return m_color == color.m_color;
 }
 
 
-bool cColor::operator != (const cColor &color) {
+bool cColor::operator != (const cColor &color) const {
 	return !(operator==(color));
 }

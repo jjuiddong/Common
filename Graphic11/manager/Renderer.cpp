@@ -194,6 +194,7 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_dbgCube.Create(*this, bbox);
+	m_dbgCube2.Create(*this, bbox, (eVertexType::POSITION | eVertexType::COLOR));
 	m_dbgBox.Create(*this, bbox, cColor::RED);
 	m_dbgBoxLine.Create(*this, bbox, cColor::WHITE);
 	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));

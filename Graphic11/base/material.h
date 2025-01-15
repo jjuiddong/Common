@@ -49,6 +49,7 @@ namespace graphic
 		void InitBlue();
 		void InitGreen();
 		void InitYellow();
+		bool SetColor(const cColor& color);
 
 		Str64 DiffuseColor();
 		Str64 AmbientColor();

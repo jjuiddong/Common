@@ -65,8 +65,8 @@ namespace graphic
 		DWORD GetAbgr() const;
 
 		operator DWORD ();
-		bool operator == (const cColor &color);
-		bool operator != (const cColor &color);
+		bool operator == (const cColor &color) const;
+		bool operator != (const cColor &color) const;
 
 
 	public:

@@ -178,7 +178,8 @@ namespace common
 //#ifdef USE_D3D11_MATH
 	template<class T>
 	XMVECTOR Vector3Comm<T>::GetVectorXM() const {
-		return XMLoadFloat3((XMFLOAT3*)this);
+		const float ar[4] = { x, y, z, 1.f };
+		return XMLoadFloat4((XMFLOAT4*)ar);
 	}
 
 	template<class T>

@@ -170,6 +170,7 @@
     <ClInclude Include="base\cylinder.h" />
     <ClInclude Include="base\d3dx11effect.h" />
     <ClInclude Include="base\depthbuffer.h" />
+    <ClInclude Include="base\dummy.h" />
     <ClInclude Include="base\dxInit.h" />
     <ClInclude Include="base\gizmo.h" />
     <ClInclude Include="base\graphicdef.h" />
@@ -316,6 +317,7 @@
     <ClCompile Include="base\cube.cpp" />
     <ClCompile Include="base\cylinder.cpp" />
     <ClCompile Include="base\depthbuffer.cpp" />
+    <ClCompile Include="base\dummy.cpp" />
     <ClCompile Include="base\dxinit.cpp" />
     <ClCompile Include="base\gizmo.cpp" />
     <ClCompile Include="base\grid.cpp" />

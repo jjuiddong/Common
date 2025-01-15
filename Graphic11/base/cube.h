@@ -38,6 +38,22 @@ namespace graphic
 		void SetColor( const cColor &color );
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &tm = XMIdentity, const int flags = 1) override;
+
+		virtual bool RenderInstancing(cRenderer& renderer
+			, const int count
+			, const Matrix44* transforms
+			, const XMMATRIX& parentTm = XMIdentity
+			, const int flags = 1
+		) override;
+
+		virtual bool RenderInstancing2(cRenderer& renderer
+			, const int count
+			, const Matrix44* transforms
+			, const Vector3* colors
+			, const XMMATRIX& parentTm = XMIdentity
+			, const int flags = 1
+		);
+
 		virtual cNode* Clone(cRenderer &renderer) const override;
 
 

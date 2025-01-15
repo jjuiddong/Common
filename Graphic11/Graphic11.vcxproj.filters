@@ -431,6 +431,9 @@
     <ClInclude Include="dbg\dbgcylinderline.h">
       <Filter>dbg</Filter>
     </ClInclude>
+    <ClInclude Include="base\dummy.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -823,6 +826,9 @@
     </ClCompile>
     <ClCompile Include="dbg\dbgcylinderline.cpp">
       <Filter>dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="base\dummy.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

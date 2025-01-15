@@ -7,7 +7,7 @@ using namespace graphic;
 
 cMaterial::cMaterial()
 {
-	InitRed();
+	InitWhite();
 }
 
 cMaterial::~cMaterial()
@@ -107,6 +107,17 @@ void cMaterial::InitYellow()
 {
 	Init(Vector4(1, 1, 0, 1)*0.3f, Vector4(1, 1, 0, 1), Vector4(1, 1, 0, 1));
 	//Init(Vector4(0.2f, 0.2f, 0, 1), Vector4(1, 1, 0, 1), Vector4(1, 1, 1, 1));
+}
+
+
+// set color
+bool cMaterial::SetColor(const cColor& color)
+{
+	const Vector4 c = color.GetColor();
+	const Vector4 ambient(c.x * 0.3f, c.y * 0.3f, c.z * 0.3f, c.w);
+	const Vector4 diffuse(c.x * 0.7f, c.y * 0.7f, c.z * 0.7f, c.w);
+	Init(ambient, diffuse, c);
+	return true;
 }
 
 

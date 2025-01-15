@@ -176,6 +176,7 @@ namespace graphic
 		map<int, int> m_preShadersDrawCall; // key = vertex type, value = count
 
 		cCube m_dbgCube;
+		cCube m_dbgCube2;
 		cDbgBox m_dbgBox;
 		cDbgBoxLine m_dbgBoxLine;
 		cDbgLine m_dbgLine;

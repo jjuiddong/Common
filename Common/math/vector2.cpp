@@ -11,6 +11,13 @@ float Vector2::Length() const
 }
 
 
+float Vector2::LengthRoughly(const Vector2& rhs) const
+{
+	Vector2 v = *this - rhs;
+	return v.x * v.x + v.y * v.y;
+}
+
+
 float Vector2::Distance(const Vector2 &rhs) const
 {
 	Vector2 v = *this - rhs;

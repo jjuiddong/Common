@@ -11,7 +11,9 @@ namespace common
 		Vector2(float x0, float y0) : x(x0), y(y0) {}
 
 		inline bool IsEmpty() const;
+		inline bool IsEqual(const Vector2& rhs, const float epsilon) const;
 		float Length() const;
+		float LengthRoughly(const Vector2& rhs) const;
 		Vector2 Normal() const;
 		float Distance(const Vector2 &rhs) const;
 		void Normalize();
@@ -33,6 +35,11 @@ namespace common
 		bool operator == (const Vector2& rhs) const
 		{
 			return (x == rhs.x) && (y == rhs.y);
+		}
+
+		bool operator != (const Vector2& rhs) const
+		{
+			return (x != rhs.x) || (y != rhs.y);
 		}
 
 		template <class T>
@@ -64,4 +71,10 @@ namespace common
 	{
 		return (x == 0) && (y == 0);
 	}
+
+	inline bool Vector2::IsEqual(const Vector2& rhs, const float epsilon) const
+	{
+		return Distance(rhs) < epsilon;
+	}
+
 }
