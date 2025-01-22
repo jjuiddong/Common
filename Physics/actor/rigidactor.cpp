@@ -84,7 +84,8 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 		mesh.shape = eShapeType::Box;
 		mesh.local = Matrix44::Identity;
 		m_meshes.push_back(mesh);
-	}	return true;
+	}	
+	return true;
 }
 
 
@@ -235,14 +236,15 @@ physx::PxConvexMesh* cRigidActor::GenerateCylinderMesh(cPhysicsEngine &physics
 	vector<unsigned short> coneIndices(numConeIndices);
 	shape.GenerateConeMesh2(slices, radius, height, &conePositions[0], &coneIndices[0], 0, false);
 
+	PxTolerancesScale scale;
+	PxCookingParams params(scale);
 	PxConvexMeshDesc convexDesc;
 	convexDesc.points.count = numConeVertices;
 	convexDesc.points.stride = sizeof(PxVec3);
 	convexDesc.points.data = &conePositions[0];
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-	PxConvexMesh* convexMesh = physics.m_cooking->createConvexMesh(convexDesc
+	PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc
 		, physics.m_physics->getPhysicsInsertionCallback());
-
 	return convexMesh;
 }
 
@@ -376,27 +378,35 @@ bool cRigidActor::Compound(cPhysicsEngine &physics, cRigidActor *src)
 		switch (mesh.shape)
 		{
 		case eShapeType::Box:
-			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
-				, shape->getGeometry().box()
-				, *physics.m_material);
-			break;
 		case eShapeType::Sphere:
-			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
-				, shape->getGeometry().sphere()
-				, *physics.m_material);
-			break;
 		case eShapeType::Capsule:
-			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
-				, shape->getGeometry().capsule()
-				, *physics.m_material);
-			break;
 		case eShapeType::Cylinder:
-		{
 			newShape = PxRigidActorExt::createExclusiveShape(*m_actor
-				, shape->getGeometry().convexMesh()
-				, *physics.m_material);
-		}
-		break;
+				, shape->getGeometry(), *physics.m_material);
+			break;
+
+		//case eShapeType::Box:
+		//	newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+		//		, shape->getGeometry().box()
+		//		, *physics.m_material);
+		//	break;
+		//case eShapeType::Sphere:
+		//	newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+		//		, shape->getGeometry().sphere()
+		//		, *physics.m_material);
+		//	break;
+		//case eShapeType::Capsule:
+		//	newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+		//		, shape->getGeometry().capsule()
+		//		, *physics.m_material);
+		//	break;
+		//case eShapeType::Cylinder:
+		//{
+		//	newShape = PxRigidActorExt::createExclusiveShape(*m_actor
+		//		, shape->getGeometry().convexMesh()
+		//		, *physics.m_material);
+		//}
+		//break;
 
 		case eShapeType::Plane: // not support
 		case eShapeType::Convex: // not support
@@ -554,6 +564,22 @@ bool cRigidActor::SetAngularVelocity(const Vector3 velocity)
 {
 	if (PxRigidDynamic *p = m_actor->is<PxRigidDynamic>())
 		p->setAngularVelocity(*(PxVec3*)&velocity);
+	return true;
+}
+
+
+bool cRigidActor::SetContactOffset(const float offset)
+{
+	if (PxRigidDynamic* p = m_actor->is<PxRigidDynamic>())
+	{
+		const uint size = p->getNbShapes();
+		for (uint i = 0; i < size; ++i)
+		{
+			PxShape* shape;
+			if (p->getShapes(&shape, 1, i) > 0)
+				shape->setContactOffset(offset);
+		}
+	}
 	return true;
 }
 

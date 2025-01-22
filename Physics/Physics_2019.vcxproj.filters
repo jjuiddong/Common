@@ -24,6 +24,9 @@
     <ClInclude Include="manager\physicssync.h">
       <Filter>manager</Filter>
     </ClInclude>
+    <ClInclude Include="articulation\articulation.h">
+      <Filter>articulation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -39,6 +42,9 @@
     <ClCompile Include="manager\physicssync.cpp">
       <Filter>manager</Filter>
     </ClCompile>
+    <ClCompile Include="articulation\articulation.cpp">
+      <Filter>articulation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="manager">
@@ -52,6 +58,9 @@
     </Filter>
     <Filter Include="joint">
       <UniqueIdentifier>{aa6b5bce-464f-45aa-b5f1-1ac2cc1088be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="articulation">
+      <UniqueIdentifier>{fa1cbf2b-c92e-44c1-9bc9-9c8b64097c97}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

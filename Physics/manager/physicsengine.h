@@ -42,7 +42,6 @@ namespace phys
 		physx::PxMaterial *m_material;
 		physx::PxPvd *m_pvd;
 		physx::PxPvdTransport *m_transport;
-		physx::PxCooking *m_cooking;
 		physx::PxDefaultAllocator m_defaultAllocatorCallback;
 		physx::PxPvdInstrumentationFlags m_pvdFlags;
 		cDefaultErrorCallback m_defaultErrorCallback;

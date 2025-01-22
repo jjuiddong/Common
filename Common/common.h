@@ -7,6 +7,7 @@
 
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #define BOOST_USE_WINDOWS_H // for vs2019, boost library
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // prevent bind warning
 
 // Pre Processor Environment Setting
 //#ifndef _VS2015

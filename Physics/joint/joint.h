@@ -9,7 +9,17 @@
 namespace phys
 {
 
-	DECLARE_ENUM(eJointType, Fixed, Spherical, Revolute, Prismatic, Distance, D6, Compound, None);
+	enum class eJointType
+	{
+		Fixed,
+		Spherical,
+		Revolute,
+		Prismatic,
+		Distance,
+		D6,
+		Compound,
+		None
+	};
 
 
 	class cJoint
@@ -55,6 +65,7 @@ namespace phys
 
 		bool ReconnectBreakJoint(cPhysicsEngine &physics);
 		double GetRelativeAngle();
+		double GetAngle();
 		int GetLimitContact();
 
 		// joint pivot
@@ -116,6 +127,7 @@ namespace phys
 
 
 	protected:
+	public:
 		void DefaultJointConfiguration(physx::PxJoint *j1);
 
 		void GetLocalFrame(const Transform &worldTm0, const Transform &worldTm1
@@ -125,7 +137,7 @@ namespace phys
 
 	public:
 		int m_id; // unique id
-		eJointType::Enum m_type;
+		eJointType m_type;
 		bool m_referenceMode; // m_joint is reference, for ui joint renderer
 		cRigidActor *m_actor0; // joint pair actor0, reference
 		cRigidActor *m_actor1; // joint pair actor1, reference

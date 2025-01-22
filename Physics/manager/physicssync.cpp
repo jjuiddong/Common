@@ -456,6 +456,4 @@ void cPhysicsSync::Clear()
 		m_physics->m_physics->unregisterDeletionListener(*this);
 
 	ClearSyncInfo();
-
-	_aligned_free(m_bufferedActiveTransforms);
 }

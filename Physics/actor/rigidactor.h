@@ -13,8 +13,23 @@ namespace phys
 	class cPhysicsEngine;
 	class cJoint;
 
-	DECLARE_ENUM(eRigidType, Static, Dynamic, None);
-	DECLARE_ENUM(eShapeType, Plane, Box, Sphere, Capsule, Cylinder, Convex, None);
+	enum class eRigidType
+	{
+		Static,
+		Dynamic,
+		None
+	};
+
+	enum class eShapeType
+	{
+		Plane,
+		Box,
+		Sphere,
+		Capsule,
+		Cylinder,
+		Convex,
+		None
+	};
 
 	class cRigidActor
 	{
@@ -79,6 +94,7 @@ namespace phys
 		float GetMaxAngularVelocity();
 		bool SetLinearVelocity(const Vector3 velocity);
 		bool SetAngularVelocity(const Vector3 velocity);
+		bool SetContactOffset(const float offset);
 		bool ClearForce();
 		bool WakeUp();
 		bool AddJoint(cJoint *j1);
@@ -95,14 +111,14 @@ namespace phys
 
 	public:
 		int m_id;
-		eRigidType::Enum m_type;
-		eShapeType::Enum m_shape;
+		eRigidType m_type;
+		eShapeType m_shape;
 		physx::PxRigidActor *m_actor;
 		vector<cJoint*> m_joints; // reference
 
 		struct sMesh
 		{
-			eShapeType::Enum shape;
+			eShapeType shape;
 			graphic::cNode *node; // graphic node
 			Matrix44 local; // relative transform nodes[0] to current
 		};

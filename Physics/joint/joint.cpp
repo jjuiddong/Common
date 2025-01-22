@@ -25,7 +25,8 @@ cJoint::cJoint()
 	, m_maxDriveVelocity(0.f)
 	, m_cycleDriveAccel(0.f)
 	, m_toggleDir(true)
-	, m_limit(-MATH_PI/2.f, MATH_PI/2.f, 0.01f)
+	//, m_limit(-MATH_PI/2.f, MATH_PI/2.f, 0.01f)
+	, m_limit(-MATH_PI / 2.f, MATH_PI / 2.f)
 	, m_curAngle(0)
 	, m_updateAngleT(0)
 {
@@ -142,6 +143,12 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 		, actor1->m_actor, localFrame1);
 
 	DefaultJointConfiguration(j1);
+
+	//PxJointAngularLimitPair limitPair(-PxPi, PxPi);
+	//limitPair.stiffness = 100;
+	//limitPair.damping = 0.0f;
+	//j1->setLimit(limitPair);
+	//j1->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 
 	m_type = eJointType::Revolute;
 	m_joint = j1;
@@ -419,6 +426,15 @@ double cJoint::GetRelativeAngle()
 }
 
 
+// return revolute joint angle
+double cJoint::GetAngle()
+{
+	if (PxRevoluteJoint* p = m_joint->is<PxRevoluteJoint>())
+		return p->getAngle();
+	return 0.0;
+}
+
+
 // return contact limit
 //  lower contact: 1
 //  upper contact: 2
@@ -533,7 +549,7 @@ physx::PxJointLimitCone cJoint::GetConeLimit()
 {
 	if (PxSphericalJoint *p = m_joint->is<PxSphericalJoint>())
 		return p->getLimitCone();
-	return physx::PxJointLimitCone(0,0,0.01f);
+	return physx::PxJointLimitCone(0,0);
 }
 
 
@@ -560,7 +576,7 @@ physx::PxJointAngularLimitPair cJoint::GetAngularLimit()
 {
 	if (PxRevoluteJoint *p = m_joint->is<PxRevoluteJoint>())
 		return p->getLimit();
-	return physx::PxJointAngularLimitPair(0, 0, 0);
+	return physx::PxJointAngularLimitPair(0, 0);
 }
 
 
@@ -715,11 +731,11 @@ bool cJoint::SetLinearLimit(const physx::PxJointLinearLimitPair &config)
 // retur linear limit configuration
 physx::PxJointLinearLimitPair cJoint::GetLinearLimit()
 {
-	RETV(!m_joint, physx::PxJointLinearLimitPair(PxTolerancesScale(), 0, 0, 0.01f));
+	RETV(!m_joint, physx::PxJointLinearLimitPair(PxTolerancesScale(), 0, 0));
 
 	if (PxPrismaticJoint *p = m_joint->is<PxPrismaticJoint>())
 		return p->getLimit();
-	return physx::PxJointLinearLimitPair(PxTolerancesScale(), 0, 0, 0.01f);
+	return physx::PxJointLinearLimitPair(PxTolerancesScale(), 0, 0);
 }
 
 
@@ -958,8 +974,8 @@ bool cJoint::ModifyPivot(cPhysicsEngine &physics
 void cJoint::DefaultJointConfiguration(physx::PxJoint *j1)
 {
 
-	//joint->setProjectionLinearTolerance(0.5f);
-	//joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+	//j1->setProjectionLinearTolerance(0.5f);
+	//j1->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
 
 	if (m_breakForce > 0.f)
 		j1->setBreakForce(m_breakForce, m_breakForce);

@@ -62,9 +62,6 @@ bool cPhysicsEngine::InitializePhysx()
 	params.meshWeldTolerance = 0.001f;
 	params.meshPreprocessParams = physx::PxMeshPreprocessingFlags(physx::PxMeshPreprocessingFlag::eWELD_VERTICES);
 	params.buildGPUData = true; //Enable GRB data being produced in cooking.
-	m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_foundation, params);
-	if (!m_cooking)
-		return false;
 
 	// scene initialize
 	physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
@@ -139,20 +136,30 @@ bool cPhysicsEngine::InitializePhysx()
 
 bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 {
+	const float step = 1.f / 60.f;
+	m_accTime += deltaSeconds * m_timerScale;
+	if (m_accTime > step)
+	{
+		m_accTime -= step;
+		physx::PxSceneWriteLock writeLock(*m_scene);
+		m_scene->simulate(step, nullptr, m_scratchBlock, m_scratchBlockSize);
+		m_isFetch = true;
+	}
+
 	// not use stepper
 	//m_accTime += min(deltaSeconds, m_stepSize);
 	//if (m_accTime < m_stepSize)
 	//	return false;
 	//m_accTime -= m_stepSize;
-	const float dt = deltaSeconds * m_timerScale;
-	if (dt == 0)
-		return true;
 
-	m_stepSize = max(0.01f, dt); // if too small dt, insane physics simulation
-	m_isFetch = true;
 
-	physx::PxSceneWriteLock writeLock(*m_scene);
-	m_scene->simulate(m_stepSize, nullptr, m_scratchBlock, m_scratchBlockSize);
+	//const float dt = deltaSeconds * m_timerScale;
+	//if (dt == 0)
+	//	return true;
+	//m_stepSize = max(0.01f, dt); // if too small dt, insane physics simulation
+	//m_isFetch = true;
+	//physx::PxSceneWriteLock writeLock(*m_scene);
+	//m_scene->simulate(m_stepSize, nullptr, m_scratchBlock, m_scratchBlockSize);
 	return true;
 }
 
@@ -234,7 +241,6 @@ void cPhysicsEngine::Clear()
 	PHY_SAFE_RELEASE(m_scene);
 	PHY_SAFE_RELEASE(m_cudaContextManager);
 	PHY_SAFE_RELEASE(m_cpuDispatcher);
-	PHY_SAFE_RELEASE(m_cooking);
 	PHY_SAFE_RELEASE(m_material);
 	PHY_SAFE_RELEASE(m_physics);
 	PHY_SAFE_RELEASE(m_pvd);

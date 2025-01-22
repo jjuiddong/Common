@@ -795,7 +795,12 @@ Vector3 cConfig::GetVector3(const string &key
 	vector<string> strs;
 	tokenizer(str, ";", "", strs);
 	if (strs.size() < 3)
-		return Vector3::Zeroes;
+	{
+		strs.clear();
+		tokenizer(str, ",", "", strs);
+		if (strs.size() < 3)
+			return defaultValue;
+	}
 
 	const Vector3 ret(
 		(float)atof(strs[0].c_str())

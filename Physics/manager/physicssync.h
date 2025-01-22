@@ -88,10 +88,7 @@ namespace phys
 
 	public:
 		cPhysicsEngine *m_physics; // reference
-		uint m_activeBufferCapacity;
-		//physx::PxActiveTransform *m_bufferedActiveTransforms;
 		vector<sSyncInfo*> m_syncs;
-		physx::PxActor** m_bufferedActiveTransforms;
 	};
 
 }
