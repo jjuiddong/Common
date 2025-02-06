@@ -13,10 +13,10 @@ cCapsule::cCapsule()
 	m_mtrl.InitWhite();
 }
 
-cCapsule::cCapsule(cRenderer &renderer, const float radius, const float halfHeight
+cCapsule::cCapsule(cRenderer& renderer, const float radius, const float halfHeight
 	, const int stacks, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-	, const cColor &color //= cColor::WHITE
+	, const cColor& color //= cColor::WHITE
 )
 	: cNode(common::GenerateId(), "cylinder", eNodeType::MODEL)
 	, m_radius(0)
@@ -30,10 +30,10 @@ cCapsule::~cCapsule()
 }
 
 
-bool cCapsule::Create(cRenderer &renderer, const float radius, const float halfHeight
+bool cCapsule::Create(cRenderer& renderer, const float radius, const float halfHeight
 	, const int stacks, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
-	, const cColor &color //= cColor::WHITE
+	, const cColor& color //= cColor::WHITE
 )
 {
 	m_mtrl.m_diffuse = color.GetColor();
@@ -42,7 +42,7 @@ bool cCapsule::Create(cRenderer &renderer, const float radius, const float halfH
 	m_vtxType = vtxType;
 
 	Transform tfm;
-	tfm.scale = Vector3(1,1,1);
+	tfm.scale = Vector3(1, 1, 1);
 	m_boundingBox.SetBoundingBox(tfm);
 
 	m_transform.scale = Vector3(halfHeight + radius, radius, radius);
@@ -53,12 +53,14 @@ bool cCapsule::Create(cRenderer &renderer, const float radius, const float halfH
 }
 
 
-bool cCapsule::Render(cRenderer &renderer
-	, const XMMATRIX &parentTm //= XMIdentity
+// render capsule
+// flags: composite of eRenderFlag 
+bool cCapsule::Render(cRenderer& renderer
+	, const XMMATRIX& parentTm //= XMIdentity
 	, const int flags //= 1
 )
 {
-	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
+	cShader11* shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_vtxType);
 	assert(shader);
 	shader->SetTechnique(m_techniqueName.c_str());
 	shader->Begin();
@@ -68,10 +70,20 @@ bool cCapsule::Render(cRenderer &renderer
 	renderer.m_cbMaterial = m_mtrl.GetMaterial();
 	renderer.m_cbMaterial.Update(renderer, 2);
 
+	ID3D11RasterizerState* oldState = NULL;
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
 		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
+	}
+	else if ((flags & eRenderFlag::WIREFRAME) || IsRenderFlag(eRenderFlag::WIREFRAME))
+	{
+		renderer.GetDevContext()->RSGetState(&oldState);
+		renderer.GetDevContext()->RSSetState(renderer.m_renderState.Wireframe());
+	}
 	else
+	{
 		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), NULL, 0xffffffff);
+	}
 
 	// render sphere first
 	Transform tfm0;
@@ -103,6 +115,8 @@ bool cCapsule::Render(cRenderer &renderer
 
 	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
 		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	else if ((flags & eRenderFlag::WIREFRAME) || IsRenderFlag(eRenderFlag::WIREFRAME))
+		renderer.GetDevContext()->RSSetState(oldState);
 	else
 		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.Opaque(), NULL, 0xffffffff);
 

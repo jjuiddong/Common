@@ -209,6 +209,9 @@ Vector3 Vector3::operator * (const Quaternion& rhs) const
 }
 
 
+// v: target vector
+// alpha: 0 ~ 1,
+//		  0: this, 1:v
 Vector3 Vector3::Interpolate( const Vector3 &v, const float alpha) const
 {
 	return Vector3(x + (alpha * ( v.x - x ) ),

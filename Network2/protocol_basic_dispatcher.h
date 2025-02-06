@@ -42,6 +42,13 @@ namespace basic_protocol
 		void Dispatch(cPacket& packet, cUdpServer2* svr);
 	};
 
+	// UDP Client2 Basic Protocol Dispatcher
+	class UdpClient2Dispatcher
+	{
+	public:
+		void Dispatch(cPacket& packet, cUdpClient2* client);
+	};
+
 	// Web Server Basic Protocol Dispatcher
 	class WebServerDispatcher
 	{

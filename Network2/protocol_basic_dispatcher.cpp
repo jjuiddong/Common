@@ -91,6 +91,23 @@ void UdpServer2Dispatcher::Dispatch(cPacket& packet, cUdpServer2* svr)
 }
 
 
+// udp client2 basic packet dispatcher
+// Disconnect packet dispatch
+void basic_protocol::UdpClient2Dispatcher::Dispatch(cPacket& packet, cUdpClient2* client)
+{
+	RET(!client);
+
+	switch (packet.GetPacketId())
+	{
+	case PACKETID_DISCONNECT:
+	{
+		// nothing to do
+	}
+	break;
+	}
+}
+
+
 // web server packet basic dispatcher
 // Connect, Disconnect, Accept packet handler
 void basic_protocol::WebServerDispatcher::Dispatch(cPacket &packet, cWebServer *svr)

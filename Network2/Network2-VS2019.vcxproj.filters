@@ -186,6 +186,9 @@
     <ClInclude Include="udpserver2.h">
       <Filter>Service</Filter>
     </ClInclude>
+    <ClInclude Include="udpclient2.h">
+      <Filter>Service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -325,6 +328,9 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="udpserver2.cpp">
+      <Filter>Service</Filter>
+    </ClCompile>
+    <ClCompile Include="udpclient2.cpp">
       <Filter>Service</Filter>
     </ClCompile>
   </ItemGroup>

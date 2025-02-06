@@ -59,6 +59,15 @@ namespace network2
 			, const bool isThread = true
 		);
 
+		bool StartUdpClient2(cUdpClient2* client
+			, const Str16& ip
+			, const int port
+			, const int packetSize = DEFAULT_PACKETSIZE
+			, const int maxPacketCount = DEFAULT_PACKETCOUNT
+			, const int sleepMillis = DEFAULT_SLEEPMILLIS
+			, const bool isThread = true
+		);
+
 		bool StartWebServer(cWebServer *svr
 			, const int bindPort
 			, const int packetSize = DEFAULT_PACKETSIZE
@@ -92,6 +101,7 @@ namespace network2
 		vector<cUdpServer*> m_udpServers; // reference
 		vector<cUdpServer2*> m_udpServers2; // reference
 		vector<cUdpClient*> m_udpClients; // reference
+		vector<cUdpClient2*> m_udpClients2; // reference
 		vector<cWebServer*> m_webServers; // reference
 		vector<cWebClient*> m_webClients; // reference
 	};

@@ -92,6 +92,8 @@ void cCube::SetColor(const cColor &color)
 }
 
 
+// render cube
+// flags: composite of eRenderFlag 
 bool cCube::Render(cRenderer &renderer
 	, const XMMATRIX &tm //= XMIdentity
 	, const int flags //= 1
@@ -99,7 +101,7 @@ bool cCube::Render(cRenderer &renderer
 {
 	RETV(!m_isEnable, false);
 	RETV(!IsVisible(), false);
-	RETV(((m_renderFlags & flags) != flags), false);
+	//RETV(((m_renderFlags & flags) != flags), false);
 
 	cShader11 *shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
 	assert(shader);
@@ -125,6 +127,15 @@ bool cCube::Render(cRenderer &renderer
 		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
 		m_shape.Render(renderer);
 		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	}
+	else if ((flags & eRenderFlag::WIREFRAME) || IsRenderFlag(eRenderFlag::WIREFRAME))
+	{
+		ID3D11RasterizerState* oldState = NULL;
+		renderer.GetDevContext()->RSGetState(&oldState);
+		renderer.GetDevContext()->RSSetState(renderer.m_renderState.Wireframe());
+		m_shape.Render(renderer);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+		renderer.GetDevContext()->RSSetState(oldState);
 	}
 	else
 	{

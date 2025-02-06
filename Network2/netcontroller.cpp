@@ -88,6 +88,7 @@ bool cNetController::StartUdpServer2(cUdpServer2* svr
 	return result;
 }
 
+
 bool cNetController::StartUdpClient(cUdpClient *client
 	, const Str16 &ip
 	, const int port
@@ -102,6 +103,25 @@ bool cNetController::StartUdpClient(cUdpClient *client
 
 	if (!IsExistClient(client))
 		m_udpClients.push_back(client);
+
+	return result;
+}
+
+
+bool cNetController::StartUdpClient2(cUdpClient2* client
+	, const Str16& ip
+	, const int port
+	, const int packetSize //= DEFAULT_PACKETSIZE
+	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
+	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
+	, const bool isThread //= true
+)
+{
+	const bool result = client->Init(ip, port, packetSize
+		, maxPacketCount, sleepMillis, isThread);
+
+	if (!IsExistClient(client))
+		m_udpClients2.push_back(client);
 
 	return result;
 }
@@ -224,6 +244,10 @@ int cNetController::Process(const float deltaSeconds)
 	for (uint i=0; i < m_tcpClients.size(); ++i)
 		cnt += ProcessNetworkNode(m_tcpClients[i], &clientDispatcher);
 
+	basic_protocol::UdpClient2Dispatcher udpClientDispatcher;
+	for (uint i = 0; i < m_udpClients2.size(); ++i)
+		cnt += ProcessNetworkNode(m_udpClients2[i], &udpClientDispatcher);
+
 	basic_protocol::WebClientDispatcher webClientDispatcher;
 	for (uint i=0; i < m_webClients.size(); ++i)
 		cnt += ProcessNetworkNode(m_webClients[i], &webClientDispatcher);
@@ -245,6 +269,11 @@ int cNetController::Dispatch(cNetworkNode *node)
 		basic_protocol::UdpServerDispatcher udpSvrDispatcher;
 		return ProcessNetworkNode(svr, &udpSvrDispatcher);
 	}
+	else if (cUdpServer2* svr = dynamic_cast<cUdpServer2*>(node))
+	{
+		basic_protocol::UdpServer2Dispatcher udpSvrDispatcher;
+		return ProcessNetworkNode(svr, &udpSvrDispatcher);
+	}
 	else if (cWebServer *svr = dynamic_cast<cWebServer*>(node))
 	{
 		basic_protocol::WebServerDispatcher webSvrDispatcher;
@@ -253,6 +282,11 @@ int cNetController::Dispatch(cNetworkNode *node)
 	else if (cTcpClient *cli = dynamic_cast<cTcpClient*>(node))
 	{
 		basic_protocol::ClientDispatcher clientDispatcher;
+		return ProcessNetworkNode(cli, &clientDispatcher);
+	}
+	else if (cUdpClient2* cli = dynamic_cast<cUdpClient2*>(node))
+	{
+		basic_protocol::UdpClient2Dispatcher clientDispatcher;
 		return ProcessNetworkNode(cli, &clientDispatcher);
 	}
 	else if (cWebClient *cli = dynamic_cast<cWebClient*>(node))
@@ -273,6 +307,8 @@ bool cNetController::RemoveServer(cNetworkNode *svr)
 		common::removevector(m_tcpServers, p);
 	if (cUdpServer *p = dynamic_cast<cUdpServer*>(svr))
 		common::removevector(m_udpServers, p);
+	if (cUdpServer2* p = dynamic_cast<cUdpServer2*>(svr))
+		common::removevector(m_udpServers2, p);
 	if (cWebServer *p = dynamic_cast<cWebServer*>(svr))
 		common::removevector(m_webServers, p);
 
@@ -289,6 +325,8 @@ bool cNetController::RemoveClient(cNetworkNode *cli)
 		common::removevector(m_tcpClients, p);
 	if (cUdpClient *p = dynamic_cast<cUdpClient*>(cli))
 		common::removevector(m_udpClients, p);
+	if (cUdpClient2* p = dynamic_cast<cUdpClient2*>(cli))
+		common::removevector(m_udpClients2, p);
 	if (cWebClient *p = dynamic_cast<cWebClient*>(cli))
 		common::removevector(m_webClients, p);
 
@@ -303,6 +341,10 @@ bool cNetController::IsExistServer(const cNetworkNode *svr)
 			return true;
 
 	for (auto &p : m_udpServers)
+		if (p == svr)
+			return true;
+
+	for (auto& p : m_udpServers2)
 		if (p == svr)
 			return true;
 
@@ -321,6 +363,10 @@ bool cNetController::IsExistClient(const cNetworkNode *cli)
 			return true;
 
 	for (auto &p : m_udpClients)
+		if (p == cli)
+			return true;
+
+	for (auto& p : m_udpClients2)
 		if (p == cli)
 			return true;
 

@@ -18,7 +18,10 @@ namespace graphic
 		cDbgAxis();
 		virtual ~cDbgAxis();
 
-		bool Create(cRenderer &renderer, const float alpha = 0.5f);
+		bool Create(cRenderer &renderer, const float alpha = 0.5f
+			, const float length = 1.f
+			, const float width = 1.f
+		);
 		void SetAxis(const float size, const cBoundingBox &bbox, const bool approximate=true);
 		void SetAxis(const cBoundingBox &bbox, const bool approximate = true);
 		void Render(cRenderer &renderer, const XMMATRIX &tm=XMIdentity);

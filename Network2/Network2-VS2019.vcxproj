@@ -212,6 +212,7 @@
     <ClInclude Include="tcpclient.h" />
     <ClInclude Include="tcpserver.h" />
     <ClInclude Include="udpclient.h" />
+    <ClInclude Include="udpclient2.h" />
     <ClInclude Include="udpclientmap.h" />
     <ClInclude Include="udpserver.h" />
     <ClInclude Include="udpserver2.h" />
@@ -266,6 +267,7 @@
     <ClCompile Include="tcpclient.cpp" />
     <ClCompile Include="tcpserver.cpp" />
     <ClCompile Include="udpclient.cpp" />
+    <ClCompile Include="udpclient2.cpp" />
     <ClCompile Include="udpclientmap.cpp" />
     <ClCompile Include="udpserver.cpp" />
     <ClCompile Include="udpserver2.cpp" />

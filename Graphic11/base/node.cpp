@@ -48,7 +48,8 @@ cNode::~cNode()
 }
 
 
-// 자식노드의 Render 를 호출한다.
+// render graphic node and then call child node render function
+// flags: composite of eRenderFlag 
 bool cNode::Render(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
@@ -92,6 +93,8 @@ bool cNode::Render(cRenderer &renderer
 }
 
 
+// instancing render
+// flags: composite of eRenderFlag 
 bool cNode::RenderInstancing(cRenderer &renderer
 	, const int count
 	, const Matrix44 *transforms

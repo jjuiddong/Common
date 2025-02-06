@@ -175,11 +175,20 @@ bool common::GetIntersectPoint(const Vector2& AP1, const Vector2& AP2, const Vec
 	return true;
 }
 
+
 // return 0.0 ~ 1.0
 float common::Saturate(const float f)
 {
 	return min(1.f, max(0.f, f));
 }
+
+
+// return -1.0 ~ +1.0
+float common::Saturate2(const float f)
+{
+	return min(1.f, max(-1.f, f));
+}
+
 
 
 // Line : p0 - p1

@@ -37,6 +37,7 @@ namespace common
 		, const Vector2& BP1, const Vector2& BP2, Vector2* IP);
 
 	float Saturate(const float f);
+	float Saturate2(const float f);
 
 	float GetShortestLen(const Vector3& p0, const Vector3& p1, const Vector3& p);
 	float GetShortestLen(const Ray& ray, const Vector3& p);

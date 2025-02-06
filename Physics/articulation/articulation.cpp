@@ -32,8 +32,6 @@ bool cArticulation::Create(cPhysicsEngine& physics
 	if (isFixed)
 		m_art->setArticulationFlag(PxArticulationFlag::eFIX_BASE, true);
 	m_art->setSolverIterationCounts(solverIterationCount);
-
-	//physics.m_scene->addArticulation(*m_art);
 	return true;
 }
 
@@ -65,7 +63,11 @@ int cArticulation::AddBoxLink(cPhysicsEngine& physics
 	PxRigidBodyExt::updateMassAndInertia(*link, mass);
 
 	const int id = common::GenerateId();
-	m_links.insert({ id, link });
+	sLinkInfo info;
+	info.type = eShapeType::Box;
+	info.link = link;
+	info.scale = tfm.scale;
+	m_links.insert({ id, info });
 	return id;
 }
 
@@ -100,7 +102,11 @@ int cArticulation::AddSphereLink(cPhysicsEngine& physics
 	PxRigidBodyExt::updateMassAndInertia(*link, mass);
 
 	const int id = common::GenerateId();
-	m_links.insert({ id, link });
+	sLinkInfo info;
+	info.type = eShapeType::Sphere;
+	info.link = link;
+	info.radius = radius;
+	m_links.insert({ id, info });
 	return id;
 }
 
@@ -137,7 +143,12 @@ int cArticulation::AddCapsuleLink(cPhysicsEngine& physics
 	PxRigidBodyExt::updateMassAndInertia(*link, mass);
 
 	const int id = common::GenerateId();
-	m_links.insert({ id, link });
+	sLinkInfo info;
+	info.type = eShapeType::Capsule;
+	info.link = link;
+	info.radius = radius;
+	info.halfHeight = halfHeight;
+	m_links.insert({ id, info });
 	return id;
 }
 
@@ -175,7 +186,12 @@ int cArticulation::AddCylinderLink(cPhysicsEngine& physics
 	PxRigidBodyExt::updateMassAndInertia(*link, mass);
 
 	const int id = common::GenerateId();
-	m_links.insert({ id, link });
+	sLinkInfo info;
+	info.type = eShapeType::Cylinder;
+	info.link = link;
+	info.radius = radius;
+	info.height = height;
+	m_links.insert({ id, info });
 	return id;
 }
 
@@ -195,7 +211,7 @@ physx::PxArticulationLink* cArticulation::GetLink(const int linkId)
 	auto it = m_links.find(linkId);
 	if (m_links.end() == it)
 		return nullptr;
-	return it->second;
+	return it->second.link;
 }
 
 
@@ -317,6 +333,171 @@ physx::PxD6Joint* cArticulation::AddD6Joint(
 }
 
 
+// set joint velocity drive parameter
+bool cArticulation::SetJointDriveVelocityByLink(const int linkId
+	, const float damping, const float stiffness, const float maxForce, const float velocity)
+{
+	PxArticulationLink *link = GetLink(linkId);
+	if (!link) return false; // error return
+
+	PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
+	return SetJointDriveVelocity(joint, damping, stiffness, maxForce, velocity);
+}
+
+
+// set joint velocity drive parameter
+bool cArticulation::SetJointDriveVelocity(physx::PxArticulationJointReducedCoordinate* joint
+	, const float damping, const float stiffness, const float maxForce, const float velocity)
+{
+	PxArticulationDrive param;
+	param.stiffness = stiffness;
+	param.damping = damping;
+	param.maxForce = maxForce;
+	param.driveType = PxArticulationDriveType::eVELOCITY;
+
+	joint->setDriveParams(PxArticulationAxis::eTWIST, param);
+	joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);
+	joint->setDriveVelocity(PxArticulationAxis::eTWIST, velocity);
+	return true;
+}
+
+
+// set joint drive target parameter by link id
+bool cArticulation::SetJointDriveTargetByLink(const int linkId
+	, const float damping, const float stiffness, const float maxForce, const float target)
+{
+	PxArticulationLink* link = GetLink(linkId);
+	if (!link) return false; // error return
+
+	PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
+	return SetJointDriveTarget(joint, damping, stiffness, maxForce, target);
+}
+
+
+// set joint drive target parameter
+bool cArticulation::SetJointDriveTarget(physx::PxArticulationJointReducedCoordinate* joint
+	, const float damping, const float stiffness, const float maxForce, const float target)
+{
+	PxArticulationDrive param;
+	param.stiffness = stiffness;
+	param.damping = damping;
+	param.maxForce = maxForce;
+	param.driveType = PxArticulationDriveType::eTARGET;
+
+	joint->setDriveParams(PxArticulationAxis::eTWIST, param);
+	joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);
+	joint->setDriveTarget(PxArticulationAxis::eTWIST, target);
+	return true;
+}
+
+
+// render articulation object  (wire frame render)
+bool cArticulation::Render(graphic::cRenderer & renderer
+	, const XMMATRIX & parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	using namespace graphic;
+
+	for (auto& kv : m_links)
+	{
+		const phys::cArticulation::sLinkInfo& info = kv.second;
+		switch (info.type)
+		{
+		case phys::eShapeType::Box:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+			const Transform tm = Transform(Vector3(), info.scale) *
+				Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
+			renderer.m_dbgCube.SetCube(tm);
+			renderer.m_dbgCube.SetColor(cColor::WHITE);
+			renderer.m_dbgCube.Render(renderer, parentTm, flags);
+
+			renderer.m_dbgCube.SetColor(cColor::BLACK);
+			renderer.m_dbgCube.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+		}
+		break;
+
+		case phys::eShapeType::Sphere:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+			renderer.m_sphere.SetPos(*(Vector3*)&pose.p);
+			renderer.m_sphere.SetRadius(info.radius);
+			renderer.m_sphere.SetColor(cColor::WHITE);
+			renderer.m_sphere.Render(renderer, parentTm, flags);
+
+			renderer.m_sphere.SetColor(cColor::BLACK);
+			renderer.m_sphere.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+
+		}
+		break;
+
+		case phys::eShapeType::Capsule:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+			const Transform tm = Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
+			renderer.m_capsule.m_transform.pos = tm.pos;
+			renderer.m_capsule.m_transform.rot = tm.rot;
+			renderer.m_capsule.SetDimension(info.radius, info.halfHeight);
+			renderer.m_capsule.SetColor(cColor::WHITE);
+			renderer.m_capsule.Render(renderer, parentTm, flags);
+
+			renderer.m_capsule.SetColor(cColor::BLACK);
+			renderer.m_capsule.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+		}
+		break;
+
+		case phys::eShapeType::Cylinder:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+			const Transform tm = Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
+			renderer.m_cylinder.m_transform.pos = tm.pos;
+			renderer.m_cylinder.m_transform.rot = tm.rot;
+			renderer.m_cylinder.SetDimension(info.radius, info.height);
+			renderer.m_cylinder.SetColor(cColor::WHITE);
+			renderer.m_cylinder.Render(renderer, parentTm, flags);
+
+			renderer.m_cylinder.SetColor(cColor::BLACK);
+			renderer.m_cylinder.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+		}
+		break;
+
+		default: break;
+		}
+	}
+
+	return true;
+}
+
+
+// set global pose root link
+bool cArticulation::SetGlobalPose(const Transform& tfm)
+{
+	RETV(!m_art, false);
+
+	using namespace physx;
+	PxTransform tm;
+	tm.p = *(PxVec3*)&tfm.pos;
+	tm.q = *(PxQuat*)&tfm.rot;
+	m_art->setRootGlobalPose(tm);
+	return true;
+}
+
+
+// return global pose root link
+Transform cArticulation::GetGlobalPose() const
+{
+	Transform tfm;
+	RETV(!m_art, tfm);
+
+	using namespace physx;
+	PxTransform tm = m_art->getRootGlobalPose();
+	tfm.pos = *(Vector3*)&tm.p;
+	tfm.rot = *(Quaternion*)&tm.q;
+	return tfm;
+}
+
+
 // create cylinder convex mesh
 physx::PxConvexMesh* cArticulation::GenerateCylinderMesh(cPhysicsEngine& physics
 	, const float radius, const float height)
@@ -387,9 +568,12 @@ void cArticulation::GetLocalFrame(const Transform& worldTm0, const Transform& wo
 
 
 // clear
-void cArticulation::Clear()
+void cArticulation::Clear(cPhysicsEngine *physics)
 {
 	m_links.clear();
-	//SAFE_RELEASE2(m_art);
+
+	if (physics && physics->m_scene && m_art)
+		physics->m_scene->removeArticulation(*m_art);
+	SAFE_RELEASE2(m_art);
 }
 

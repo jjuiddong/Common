@@ -73,7 +73,25 @@ namespace phys
 		bool SetAttribute(const float linearDamping, const float angularDamping
 			, const float maxLinearVelocity, const float maxAngularVelocity);
 
-		void Clear();
+		bool SetJointDriveVelocityByLink(const int linkId
+			, const float damping, const float stiffness, const float maxForce, const float velocity);
+
+		bool SetJointDriveVelocity(physx::PxArticulationJointReducedCoordinate* joint
+			, const float damping, const float stiffness, const float maxForce, const float velocity);
+
+		bool SetJointDriveTargetByLink(const int linkId
+			, const float damping, const float stiffness, const float maxForce, const float target);
+
+		bool SetJointDriveTarget(physx::PxArticulationJointReducedCoordinate* joint
+			, const float damping, const float stiffness, const float maxForce, const float target);
+
+		bool Render(graphic::cRenderer& renderer, const XMMATRIX& parentTm = graphic::XMIdentity
+			, const int flags = 1);
+
+		bool SetGlobalPose(const Transform& tfm);
+		Transform GetGlobalPose() const;
+
+		void Clear(cPhysicsEngine *physics = nullptr);
 
 
 	protected:
@@ -86,8 +104,18 @@ namespace phys
 
 
 	public:
+		struct sLinkInfo
+		{
+			eShapeType type;
+			physx::PxArticulationLink *link;
+			Vector3 scale; // box
+			float radius; // sphere, cylinder, capsule
+			float height; // cylinder
+			float halfHeight; // capsule
+		};
+
 		physx::PxArticulationReducedCoordinate* m_art;
-		map<int, physx::PxArticulationLink*> m_links; // reference, key:link id
+		map<int, sLinkInfo> m_links; // reference, key:link id
 	};
 
 }

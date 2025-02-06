@@ -46,6 +46,8 @@ void cSphere::Create(cRenderer &renderer, const float radius, const int stacks, 
 }
 
 
+// render sphere
+// flags: composite of eRenderFlag 
 bool cSphere::Render(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
@@ -72,6 +74,15 @@ bool cSphere::Render(cRenderer &renderer
 		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
 		m_shape.Render(renderer);
 		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	}
+	else if ((flags & eRenderFlag::WIREFRAME) || IsRenderFlag(eRenderFlag::WIREFRAME))
+	{
+		ID3D11RasterizerState* oldState = NULL;
+		renderer.GetDevContext()->RSGetState(&oldState);
+		renderer.GetDevContext()->RSSetState(renderer.m_renderState.Wireframe());
+		m_shape.Render(renderer);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+		renderer.GetDevContext()->RSSetState(oldState);
 	}
 	else
 	{

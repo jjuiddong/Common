@@ -15,8 +15,14 @@ cDbgAxis::~cDbgAxis()
 }
 
 
+// create debug axis
+// alpha: alph blending value
+// length: line length
+// width: line width
 bool cDbgAxis::Create(cRenderer &renderer
 	, const float alpha //= 0.5f
+	, const float length // = 1.f
+	, const float width // = 1.f
 )
 {
 	const cColor colors[] = 
@@ -25,9 +31,9 @@ bool cDbgAxis::Create(cRenderer &renderer
 		, cColor(0.f, 1.f, 0.f, alpha)
 		, cColor(0.f, 0.f, 1.f, alpha)
 	};
-	m_lines[0].Create(renderer, Vector3(0, 0, 0), Vector3(1, 0, 0), 1, colors[0]);
-	m_lines[1].Create(renderer, Vector3(0, 0, 0), Vector3(0, 1, 0), 1, colors[1]);
-	m_lines[2].Create(renderer, Vector3(0, 0, 0), Vector3(0, 0, 1), 1, colors[2]);
+	m_lines[0].Create(renderer, Vector3(0, 0, 0), Vector3(length, 0, 0), width, colors[0]);
+	m_lines[1].Create(renderer, Vector3(0, 0, 0), Vector3(0, length, 0), width, colors[1]);
+	m_lines[2].Create(renderer, Vector3(0, 0, 0), Vector3(0, 0, length), width, colors[2]);
 
 	m_lines[0].m_isSolid = true;
 	m_lines[1].m_isSolid = true;
