@@ -399,6 +399,11 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 {
 	using namespace graphic;
 
+	renderer.m_dbgCube.SetColor(cColor::WHITE);
+	renderer.m_sphere.SetColor(cColor::WHITE);
+	renderer.m_capsule.SetColor(cColor::WHITE);
+	renderer.m_cylinder.SetColor(cColor::WHITE);
+
 	for (auto& kv : m_links)
 	{
 		const phys::cArticulation::sLinkInfo& info = kv.second;
@@ -410,10 +415,7 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 			const Transform tm = Transform(Vector3(), info.scale) *
 				Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
 			renderer.m_dbgCube.SetCube(tm);
-			renderer.m_dbgCube.SetColor(cColor::WHITE);
 			renderer.m_dbgCube.Render(renderer, parentTm, flags);
-
-			renderer.m_dbgCube.SetColor(cColor::BLACK);
 			renderer.m_dbgCube.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
 		}
 		break;
@@ -423,12 +425,8 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 			const PxTransform pose = info.link->getGlobalPose();
 			renderer.m_sphere.SetPos(*(Vector3*)&pose.p);
 			renderer.m_sphere.SetRadius(info.radius);
-			renderer.m_sphere.SetColor(cColor::WHITE);
 			renderer.m_sphere.Render(renderer, parentTm, flags);
-
-			renderer.m_sphere.SetColor(cColor::BLACK);
 			renderer.m_sphere.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
-
 		}
 		break;
 
@@ -439,10 +437,7 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 			renderer.m_capsule.m_transform.pos = tm.pos;
 			renderer.m_capsule.m_transform.rot = tm.rot;
 			renderer.m_capsule.SetDimension(info.radius, info.halfHeight);
-			renderer.m_capsule.SetColor(cColor::WHITE);
 			renderer.m_capsule.Render(renderer, parentTm, flags);
-
-			renderer.m_capsule.SetColor(cColor::BLACK);
 			renderer.m_capsule.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
 		}
 		break;
@@ -454,10 +449,7 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 			renderer.m_cylinder.m_transform.pos = tm.pos;
 			renderer.m_cylinder.m_transform.rot = tm.rot;
 			renderer.m_cylinder.SetDimension(info.radius, info.height);
-			renderer.m_cylinder.SetColor(cColor::WHITE);
 			renderer.m_cylinder.Render(renderer, parentTm, flags);
-
-			renderer.m_cylinder.SetColor(cColor::BLACK);
 			renderer.m_cylinder.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
 		}
 		break;

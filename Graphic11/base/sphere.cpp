@@ -77,6 +77,10 @@ bool cSphere::Render(cRenderer &renderer
 	}
 	else if ((flags & eRenderFlag::WIREFRAME) || IsRenderFlag(eRenderFlag::WIREFRAME))
 	{
+		renderer.m_cbMaterial.m_v->ambient = XMVectorSet(0, 0, 0, 0);
+		renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(0, 0, 0, 0);
+		renderer.m_cbMaterial.Update(renderer, 2);
+
 		ID3D11RasterizerState* oldState = NULL;
 		renderer.GetDevContext()->RSGetState(&oldState);
 		renderer.GetDevContext()->RSSetState(renderer.m_renderState.Wireframe());
