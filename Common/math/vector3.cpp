@@ -209,6 +209,13 @@ Vector3 Vector3::operator * (const Quaternion& rhs) const
 }
 
 
+Vector3& Vector3::operator *= (const Quaternion& rhs)
+{
+	*this = operator*(rhs);
+	return *this;
+}
+
+
 // v: target vector
 // alpha: 0 ~ 1,
 //		  0: this, 1:v

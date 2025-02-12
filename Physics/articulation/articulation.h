@@ -88,6 +88,8 @@ namespace phys
 		bool Render(graphic::cRenderer& renderer, const XMMATRIX& parentTm = graphic::XMIdentity
 			, const int flags = 1);
 
+		bool SetKinematic(const bool isKinematic);
+
 		bool SetGlobalPose(const Transform& tfm);
 		Transform GetGlobalPose() const;
 

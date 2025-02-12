@@ -462,6 +462,19 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 }
 
 
+// set kinematic
+bool cArticulation::SetKinematic(const bool isKinematic)
+{
+	RETV(!m_art, false);
+	for (auto& kv : m_links)
+	{
+		sLinkInfo& info = kv.second;
+		info.link->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
+	}
+	return true;
+}
+
+
 // set global pose root link
 bool cArticulation::SetGlobalPose(const Transform& tfm)
 {
@@ -568,4 +581,3 @@ void cArticulation::Clear(cPhysicsEngine *physics)
 		physics->m_scene->removeArticulation(*m_art);
 	SAFE_RELEASE2(m_art);
 }
-

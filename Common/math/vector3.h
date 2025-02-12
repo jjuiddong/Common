@@ -60,8 +60,9 @@ namespace common
 		Vector3& operator /= ( const Vector3& rhs );
 
 		Vector3 operator * ( const Matrix44& rhs ) const;
-		Vector3 operator * (const Quaternion& rhs) const;
 		Vector3& operator *= ( const Matrix44& rhs );
+		Vector3 operator * (const Quaternion& rhs) const;
+		Vector3& operator *= (const Quaternion& rhs);
 		Vector3 operator * (const Transform& rhs) const;
 		Vector3& operator *= (const Transform& rhs);
 
