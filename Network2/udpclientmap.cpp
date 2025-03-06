@@ -31,7 +31,7 @@ bool cUdpClientMap::Init(const int startUdpPort, const int portCount
 {
 	Clear();
 
-	// 미리 UDP Client Port를 등록한다.
+	// prepare udp port
 	for (int i = 0; i < portCount; ++i)
 		m_portMap.push_back({ startUdpPort + i, false });
 
@@ -49,7 +49,7 @@ bool cUdpClientMap::Init(const int startUdpPort, const int portCount
 
 
 // Add Udp Client and Start, return udp port
-// if fail, return -1
+// return: udp port, if fail, return -1
 int cUdpClientMap::AddUdpClient(const StrId &name, const Str16 &ip
 	, const int udpPort //= -1
 )
@@ -94,7 +94,7 @@ bool cUdpClientMap::RemoveUdpClient(const StrId &name)
 
 cUdpClientMap::sClientData& cUdpClientMap::FindUdpClient(const StrId &name)
 {
-	static sClientData nullClientData{ "null", NULL };
+	static sClientData nullClientData{ "null", nullptr };
 	AutoCSLock cs(m_cs);
 	auto it = m_clients.find(name);
 	if (m_clients.end() == it)
@@ -103,8 +103,8 @@ cUdpClientMap::sClientData& cUdpClientMap::FindUdpClient(const StrId &name)
 }
 
 
-// 쓰지않는 udp port를 리턴한다.
-// 없으면 -1
+// return availible udp port
+// if not exist, return -1
 int cUdpClientMap::GetReadyPort()
 {
 	common::AutoCSLock cs(m_cs);
@@ -120,7 +120,7 @@ int cUdpClientMap::GetReadyPort()
 }
 
 
-// port를 bind할 수 있는 포트로 설정한다.
+// update availible port
 void cUdpClientMap::SetReadyPort(const int readyPort)
 {
 	common::AutoCSLock cs(m_cs);
@@ -156,21 +156,22 @@ void cUdpClientMap::Clear()
 }
 
 
-int cUdpClientMap::ThreadFunction(cUdpClientMap *udpSvrMap)
+// udpclientmap thread function
+int cUdpClientMap::ThreadFunction(cUdpClientMap *udpCliMap)
 {
 	network2::cNetController netController;
 
-	while (udpSvrMap->m_isThreadLoop)
+	while (udpCliMap->m_isThreadLoop)
 	{
 		// Process Message
-		while (udpSvrMap->m_isThreadLoop && !udpSvrMap->m_sendThreadMsgs.empty())
+		while (udpCliMap->m_isThreadLoop && !udpCliMap->m_sendThreadMsgs.empty())
 		{
 			sThreadMsg msg;
-			udpSvrMap->m_cs.Lock();
-			msg = udpSvrMap->m_sendThreadMsgs.front();
-			//common::rotatepopvector(udpSvrMap->m_sendThreadMsgs, 0);
-			common::removevector2(udpSvrMap->m_sendThreadMsgs, 0);
-			udpSvrMap->m_cs.Unlock();
+			udpCliMap->m_cs.Lock();
+			msg = udpCliMap->m_sendThreadMsgs.front();
+			//common::rotatepopvector(udpCliMap->m_sendThreadMsgs, 0);
+			common::removevector2(udpCliMap->m_sendThreadMsgs, 0);
+			udpCliMap->m_cs.Unlock();
 
 			switch (msg.type)
 			{
@@ -178,34 +179,34 @@ int cUdpClientMap::ThreadFunction(cUdpClientMap *udpSvrMap)
 			{
 				network2::cUdpClient *client = new network2::cUdpClient(
 					StrId("UdpClient") + "-" + msg.name
-					, udpSvrMap->m_logId);
+					, udpCliMap->m_logId);
 
 				netController.StartUdpClient(client, msg.ip, msg.port
-					, udpSvrMap->m_packetSize, udpSvrMap->m_packetCount, udpSvrMap->m_sleepMillis
-					, udpSvrMap->m_isThreadMode);
+					, udpCliMap->m_packetSize, udpCliMap->m_packetCount, udpCliMap->m_sleepMillis
+					, udpCliMap->m_isThreadMode);
 
-				udpSvrMap->m_cs.Lock();
+				udpCliMap->m_cs.Lock();
 				sClientData clientData;
 				clientData.name = msg.name;
 				clientData.client = client;
-				udpSvrMap->m_clients.insert({ msg.name, clientData });
-				udpSvrMap->m_cs.Unlock();
+				udpCliMap->m_clients.insert({ msg.name, clientData });
+				udpCliMap->m_cs.Unlock();
 			}
 			break;
 
 			case sThreadMsg::REMOVE_CLIENT:
 			{
-				udpSvrMap->m_cs.Lock();
-				auto it = udpSvrMap->m_clients.find(msg.name);
-				if (udpSvrMap->m_clients.end() != it)
+				udpCliMap->m_cs.Lock();
+				auto it = udpCliMap->m_clients.find(msg.name);
+				if (udpCliMap->m_clients.end() != it)
 				{
 					auto svr = it->second;
 					netController.RemoveClient(svr.client);
-					udpSvrMap->SetReadyPort(svr.client->m_port);
-					udpSvrMap->m_clients.erase(msg.name);
+					udpCliMap->SetReadyPort(svr.client->m_port);
+					udpCliMap->m_clients.erase(msg.name);
 					delete svr.client;
 				}
-				udpSvrMap->m_cs.Unlock();
+				udpCliMap->m_cs.Unlock();
 			}
 			break;
 
@@ -215,15 +216,15 @@ int cUdpClientMap::ThreadFunction(cUdpClientMap *udpSvrMap)
 
 		netController.Process(0.001f);
 
-		if (!udpSvrMap->m_isThreadMode && !udpSvrMap->m_clients.empty())
+		if (!udpCliMap->m_isThreadMode && !udpCliMap->m_clients.empty())
 		{
-			udpSvrMap->m_cs.Lock();
-			for (auto kv : udpSvrMap->m_clients)
+			udpCliMap->m_cs.Lock();
+			for (auto kv : udpCliMap->m_clients)
 				kv.second.client->Process();
-			udpSvrMap->m_cs.Unlock();
+			udpCliMap->m_cs.Unlock();
 		}
 
-		const int sleepTime = udpSvrMap->m_clients.empty() ? 100 : udpSvrMap->m_sleepMillis;
+		const int sleepTime = udpCliMap->m_clients.empty() ? 100 : udpCliMap->m_sleepMillis;
 		if (sleepTime > 0)
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}

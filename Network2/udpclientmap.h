@@ -42,7 +42,7 @@ namespace network2
 
 
 	public:
-		vector<std::pair<int, bool>> m_portMap; // 사용할수있는 UDP Port, (port, available)
+		vector<std::pair<int, bool>> m_portMap; // ready port, (port, available)
 		map<StrId, sClientData> m_clients;
 		int m_packetSize;
 		int m_packetCount;
