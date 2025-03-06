@@ -11,7 +11,7 @@ cPhysicsEngine::cPhysicsEngine()
 	: m_objSync(nullptr)
 	, m_scratchBlock(nullptr)
 	, m_scratchBlockSize(1024 * 128)
-	, m_isPVD(true)
+	, m_isPVD(false)
 	, m_stepSize(1.f/50.f)
 	, m_accTime(0.f)
 	, m_isFetch(false)
@@ -29,6 +29,8 @@ bool cPhysicsEngine::InitializePhysx()
 {
 	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION//PX_FOUNDATION_VERSION
 		, m_defaultAllocatorCallback, m_defaultErrorCallback);
+	if (!m_foundation)
+		return false;
 
 	// pvd connection
 	if (m_isPVD)
