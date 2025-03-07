@@ -138,6 +138,8 @@ bool cPhysicsEngine::InitializePhysx()
 
 bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 {
+	RETV(!m_scene, false);
+
 	const float step = 1.f / 60.f;
 	m_accTime += deltaSeconds * m_timerScale;
 	if (m_accTime > step)
@@ -169,6 +171,8 @@ bool cPhysicsEngine::PreUpdate(const float deltaSeconds)
 // update physx result info
 bool cPhysicsEngine::PostUpdate(const float deltaSeconds)
 {
+	RETV(!m_scene, false);
+
 	if (m_isFetch)
 	{
 		m_isFetch = false;
