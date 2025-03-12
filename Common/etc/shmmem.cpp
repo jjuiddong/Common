@@ -52,7 +52,6 @@ bool cShmmem::IsOpen()
 }
 
 
-
 bool cShmmem::Remove()
 {
 	boost::interprocess::shared_memory_object::remove(m_name.c_str());

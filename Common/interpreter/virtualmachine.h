@@ -51,7 +51,7 @@ namespace common
 				vector<std::pair<int, bool>> syncs; // first: pin index, second:sync?
 			};
 
-			// interater
+			// iterator
 			struct sIterator
 			{
 				int id; // unique id
