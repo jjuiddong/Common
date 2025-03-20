@@ -417,6 +417,13 @@ Quaternion Quaternion::Inverse() const
 	return Quaternion(-x, -y, -z, w);
 }
 
+
+bool Quaternion::IsEmpty() const
+{
+	return (x == 0.f) && (y == 0.f) && (z == 0.f) && (w == 1.f);
+}
+
+
 // https://gamedev.net/forums/topic/555078-convert-quaternions-from-d3d-to-opengl/4566316/
 Quaternion Quaternion::ToOpenGL() const
 {

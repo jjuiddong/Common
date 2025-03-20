@@ -58,6 +58,7 @@ namespace common
 		const Quaternion& Normalize();
 		Quaternion Normal() const;
 		Quaternion Inverse() const;
+		bool IsEmpty() const;
 		Quaternion ToOpenGL() const;
 
 		float GetRotationAngleXZ() const;
@@ -67,11 +68,15 @@ namespace common
 			return (x * q2.x) + (y * q2.y) + (z * q2.z) + (w * q2.w);
 		}
 
-		bool operator==(const Quaternion &rhs) {
+		bool operator==(const Quaternion &rhs) const {
 			return (abs(x - rhs.x) < MATH_EPSILON) &&
 				(abs(y - rhs.y) < MATH_EPSILON) &&
 				(abs(z - rhs.z) < MATH_EPSILON) &&
 				(abs(w - rhs.w) < MATH_EPSILON);
+		}
+
+		bool operator!=(const Quaternion& rhs) const {
+			return !operator==(rhs);
 		}
 
 		//https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
