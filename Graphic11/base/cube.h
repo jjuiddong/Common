@@ -49,7 +49,7 @@ namespace graphic
 		virtual bool RenderInstancing2(cRenderer& renderer
 			, const int count
 			, const Matrix44* transforms
-			, const Vector3* colors
+			, const Vector4* colors
 			, const XMMATRIX& parentTm = XMIdentity
 			, const int flags = 1
 		);

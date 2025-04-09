@@ -196,7 +196,7 @@ bool cCube::RenderInstancing(cRenderer& renderer
 bool cCube::RenderInstancing2(cRenderer& renderer
 	, const int count
 	, const Matrix44* transforms
-	, const Vector3* colors
+	, const Vector4* colors
 	, const XMMATRIX& parentTm //= XMIdentity
 	, const int flags //= 1
 )
@@ -225,7 +225,16 @@ bool cCube::RenderInstancing2(cRenderer& renderer
 	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(1,1,1,1);
 	renderer.m_cbMaterial.Update(renderer, 2);
 
-	m_shape.RenderInstancing(renderer, count);
+	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
+		m_shape.RenderInstancing(renderer, count);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	}
+	else
+	{
+		m_shape.RenderInstancing(renderer, count);
+	}
 
 	return __super::RenderInstancing(renderer, count, transforms, parentTm, flags);
 }
