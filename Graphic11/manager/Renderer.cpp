@@ -193,10 +193,12 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_cylinder.Create(*this, 1, 1, 10);
 	m_capsule.Create(*this, 1, 1, 10, 10);
 	m_cone.Create(*this, 1, 1, 20, eVertexType::POSITION);
+	m_quad.Create(*this, 1, 1, Vector3(0, 0, 0), eVertexType::POSITION | eVertexType::COLOR
+		, "", false, cQuadShape::ePlaneType::XZ);
 
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
-	m_dbgCube.Create(*this, bbox);
-	m_dbgCube2.Create(*this, bbox, (eVertexType::POSITION | eVertexType::COLOR));
+	m_cube.Create(*this, bbox);
+	m_cube2.Create(*this, bbox, (eVertexType::POSITION | eVertexType::COLOR));
 	m_dbgBox.Create(*this, bbox, cColor::RED);
 	m_dbgBoxLine.Create(*this, bbox, cColor::WHITE);
 	m_dbgArrow.Create(*this, Vector3(0, 0, 0), Vector3(1, 1, 1));

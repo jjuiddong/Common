@@ -178,6 +178,18 @@ string common::GetFileNameExceptExt(const string& fileName)
 }
 
 
+/**
+ @brief fileName의 확장자를 제외한 파일이름을 리턴한다.
+ */
+string common::GetFileNameExceptExt2(const string& fileName)
+{
+	char srcFileName[MAX_PATH];
+	strcpy_s(srcFileName, MAX_PATH, fileName.c_str());
+	PathRemoveExtensionA(srcFileName);
+	return srcFileName;
+}
+
+
 // pathFrom경로에서 pathTo 경로의 파일을 접근하기 위한 상대경로를 리턴한다.
 // ex) 
 // pathFrom : c:/project/media,  pathTo : c:/project/media/terrain/file.txt

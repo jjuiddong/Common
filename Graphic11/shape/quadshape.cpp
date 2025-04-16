@@ -101,6 +101,15 @@ void cQuadShape::Render(cRenderer &renderer)
 }
 
 
+void cQuadShape::RenderInstancing(cRenderer & renderer, const int count)
+{
+	m_vtxBuff.Bind(renderer);
+
+	renderer.GetDevContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	renderer.GetDevContext()->DrawInstanced(4, count, 0, 0);
+}
+
+
 // Set UV Position
 // Vector2.xy = {u , v}
 // lt : left top

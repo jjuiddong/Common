@@ -32,6 +32,21 @@ namespace graphic
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
+		virtual bool RenderInstancing(cRenderer& renderer
+			, const int count
+			, const Matrix44* transforms
+			, const XMMATRIX& parentTm = XMIdentity
+			, const int flags = 1
+		) override;
+
+		virtual bool RenderInstancing2(cRenderer& renderer
+			, const int count
+			, const Matrix44* transforms
+			, const Vector4* colors
+			, const XMMATRIX& parentTm = XMIdentity
+			, const int flags = 1
+		);
+
 		//void SetUV(cRenderer &renderer, const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb);
 
 

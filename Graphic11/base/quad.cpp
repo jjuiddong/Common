@@ -56,6 +56,7 @@ bool cQuad::Create(cRenderer &renderer, const float width, const float height,
 }
 
 
+// render
 bool cQuad::Render(cRenderer &renderer
 	, const XMMATRIX &parentTm //= XMIdentity
 	, const int flags //= 1
@@ -85,6 +86,94 @@ bool cQuad::Render(cRenderer &renderer
 
 	return __super::Render(renderer, parentTm, flags);
 }
+
+
+// instancing render
+bool cQuad::RenderInstancing(cRenderer& renderer
+	, const int count
+	, const Matrix44* transforms
+	, const XMMATRIX& parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	cShader11* shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	const Str32 technique = m_techniqueName + "_Instancing";
+	shader->SetTechnique(technique.c_str());
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	for (int i = 0; i < count; ++i)
+	{
+		const XMMATRIX tm = transforms[i].GetMatrixXM();
+		renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm * transform);
+	}
+
+	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbInstancing.Update(renderer, 3);
+
+	const Vector4 color = m_color.GetColor();
+	Vector4 ambient = m_color.GetColor();
+	Vector4 diffuse = m_color.GetColor();
+	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(ambient.x, ambient.y, ambient.z, ambient.w);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(diffuse.x, diffuse.y, diffuse.z, diffuse.w);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
+	m_shape.RenderInstancing(renderer, count);
+
+	return __super::RenderInstancing(renderer, count, transforms, parentTm, flags);
+}
+
+
+// instancing render
+bool cQuad::RenderInstancing2(cRenderer& renderer
+	, const int count
+	, const Matrix44* transforms
+	, const Vector4* colors
+	, const XMMATRIX& parentTm //= XMIdentity
+	, const int flags //= 1
+)
+{
+	cShader11* shader = (m_shader) ? m_shader : renderer.m_shaderMgr.FindShader(m_shape.m_vtxType);
+	assert(shader);
+	const Str32 technique = m_techniqueName + "_Instancing2";
+	shader->SetTechnique(technique.c_str());
+	shader->Begin();
+	shader->BeginPass(renderer, 0);
+
+	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	for (int i = 0; i < count; ++i)
+	{
+		const XMMATRIX tm = transforms[i].GetMatrixXM();
+		const XMVECTOR col = colors[i].GetVectorXM();
+		renderer.m_cbInstancing.m_v->worlds[i] = XMMatrixTranspose(tm * transform);
+		renderer.m_cbInstancing.m_v->diffuses[i] = col;
+	}
+
+	renderer.m_cbPerFrame.Update(renderer);
+	renderer.m_cbLight.Update(renderer, 1);
+	renderer.m_cbInstancing.Update(renderer, 3);
+
+	renderer.m_cbMaterial.m_v->ambient = XMVectorSet(1, 1, 1, 1);
+	renderer.m_cbMaterial.m_v->diffuse = XMVectorSet(1, 1, 1, 1);
+	renderer.m_cbMaterial.Update(renderer, 2);
+
+	if (IsRenderFlag(eRenderFlag::ALPHABLEND))
+	{
+		renderer.GetDevContext()->OMSetBlendState(renderer.m_renderState.NonPremultiplied(), 0, 0xffffffff);
+		m_shape.RenderInstancing(renderer, count);
+		renderer.GetDevContext()->OMSetBlendState(NULL, 0, 0xffffffff);
+	}
+	else
+	{
+		m_shape.RenderInstancing(renderer, count);
+	}
+
+	return __super::RenderInstancing(renderer, count, transforms, parentTm, flags);
+}
+
 
 //
 //// Set UV Position

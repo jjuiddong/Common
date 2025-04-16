@@ -175,8 +175,8 @@ namespace graphic
 		map<int, int> m_shadersDrawCall; // key = vertex type, value = count
 		map<int, int> m_preShadersDrawCall; // key = vertex type, value = count
 
-		cCube m_dbgCube;
-		cCube m_dbgCube2;
+		cCube m_cube;
+		cCube m_cube2;
 		cDbgBox m_dbgBox;
 		cDbgBoxLine m_dbgBoxLine;
 		cDbgLine m_dbgLine;
@@ -192,6 +192,11 @@ namespace graphic
 		cCylinder m_cylinder;
 		cCapsule m_capsule;
 		cCone m_cone;
+		cQuad m_quad;
+
+		// instancing render buffer
+		vector<Matrix44> m_mats; // instancing renderer matrix buffer
+		vector<Vector4> m_colors; // instancing renderer color buffer
 	};
 
 

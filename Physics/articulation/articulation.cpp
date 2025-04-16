@@ -399,7 +399,7 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 {
 	using namespace graphic;
 
-	renderer.m_dbgCube.SetColor(cColor::WHITE);
+	renderer.m_cube.SetColor(cColor::WHITE);
 	renderer.m_sphere.SetColor(cColor::WHITE);
 	renderer.m_capsule.SetColor(cColor::WHITE);
 	renderer.m_cylinder.SetColor(cColor::WHITE);
@@ -414,9 +414,9 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 			const PxTransform pose = info.link->getGlobalPose();
 			const Transform tm = Transform(Vector3(), info.scale) *
 				Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
-			renderer.m_dbgCube.SetCube(tm);
-			renderer.m_dbgCube.Render(renderer, parentTm, flags);
-			renderer.m_dbgCube.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+			renderer.m_cube.SetCube(tm);
+			renderer.m_cube.Render(renderer, parentTm, flags);
+			renderer.m_cube.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
 		}
 		break;
 

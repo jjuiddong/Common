@@ -59,6 +59,8 @@ namespace graphic
 
 		void Render(cRenderer &renderer) override;
 
+		virtual void RenderInstancing(cRenderer& renderer, const int count) override;
+
 		void SetUV(cRenderer &renderer, const Vector2 &lt, const Vector2 &rt, const Vector2 &lb, const Vector2 &rb);
 
 
@@ -66,6 +68,7 @@ namespace graphic
 		float m_width;
 		float m_height;
 		cVertexBuffer m_vtxBuff;
+		cIndexBuffer m_idxBuff;
 		cVertexLayout m_vtxLayout;
 	};
 

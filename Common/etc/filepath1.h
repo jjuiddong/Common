@@ -8,6 +8,7 @@ namespace common
 	string GetFullFileName(const string& fileName);
 	string GetFileName(const string& fileName);
 	string GetFileNameExceptExt(const string& fileName);
+	string GetFileNameExceptExt2(const string& fileName);
 	string RelativePathTo(const string& pathFrom, const string& pathTo);
 	wstring RelativePathToW(const wstring& pathFrom, const wstring& pathTo);
 	bool IsRelativePath(const string& path);
