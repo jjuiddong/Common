@@ -103,7 +103,8 @@ bool cQuad::RenderInstancing(cRenderer& renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	//const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX transform = parentTm;
 	for (int i = 0; i < count; ++i)
 	{
 		const XMMATRIX tm = transforms[i].GetMatrixXM();
@@ -143,7 +144,8 @@ bool cQuad::RenderInstancing2(cRenderer& renderer
 	shader->Begin();
 	shader->BeginPass(renderer, 0);
 
-	const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	//const XMMATRIX transform = m_transform.GetMatrixXM() * parentTm;
+	const XMMATRIX transform = parentTm;
 	for (int i = 0; i < count; ++i)
 	{
 		const XMMATRIX tm = transforms[i].GetMatrixXM();

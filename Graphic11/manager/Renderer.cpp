@@ -195,6 +195,7 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_cone.Create(*this, 1, 1, 20, eVertexType::POSITION);
 	m_quad.Create(*this, 1, 1, Vector3(0, 0, 0), eVertexType::POSITION | eVertexType::COLOR
 		, "", false, cQuadShape::ePlaneType::XZ);
+	m_quad.SetRenderFlag(eRenderFlag::ALPHABLEND, true);
 
 	cBoundingBox bbox(Vector3(0, 0, 0), Vector3(1, 1, 1)*0.2f, Quaternion());
 	m_cube.Create(*this, bbox);

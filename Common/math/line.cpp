@@ -107,11 +107,21 @@ Vector3 Line::Projection(const Vector3 &position) const
 }
 
 
-// get point one line
+// get point on line
 Vector3 Line::GetPointOnLine(const Vector3 &position) const
 {
 	const Vector3 toPoint = position - pos;
 	float distOnLine = toPoint.DotProduct(dir) / len;
 	distOnLine = clamp(-1.f, 1.f, distOnLine) * len;
+	return dir * distOnLine + pos;
+}
+
+
+// get point on line (outside line)
+Vector3 Line::GetPointOnLine2(const Vector3& position) const
+{
+	const Vector3 toPoint = position - pos;
+	float distOnLine = toPoint.DotProduct(dir) / len;
+	distOnLine = distOnLine * len;
 	return dir * distOnLine + pos;
 }
