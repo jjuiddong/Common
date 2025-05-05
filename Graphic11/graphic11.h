@@ -173,6 +173,7 @@ namespace graphic {
 #include "dbg/dbgquad.h"
 //#include "dbg/dbgquad2.h"
 #include "dbg/dbgaxis.h"
+#include "dbg/dbgaxis2.h"
 
 #include "base/gizmo.h"
 

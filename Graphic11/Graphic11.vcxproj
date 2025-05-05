@@ -224,6 +224,7 @@
     <ClInclude Include="collision\frustum.h" />
     <ClInclude Include="dbg\dbgarrow.h" />
     <ClInclude Include="dbg\dbgaxis.h" />
+    <ClInclude Include="dbg\dbgaxis2.h" />
     <ClInclude Include="dbg\dbgbox.h" />
     <ClInclude Include="dbg\dbgboxline.h" />
     <ClInclude Include="dbg\dbgcircleline.h" />
@@ -366,6 +367,7 @@
     <ClCompile Include="collision\frustum.cpp" />
     <ClCompile Include="dbg\dbgarrow.cpp" />
     <ClCompile Include="dbg\dbgaxis.cpp" />
+    <ClCompile Include="dbg\dbgaxis2.cpp" />
     <ClCompile Include="dbg\dbgbox.cpp" />
     <ClCompile Include="dbg\dbgboxline.cpp" />
     <ClCompile Include="dbg\dbgcircleline.cpp" />
