@@ -22,6 +22,13 @@ cDateTime2::cDateTime2(const uint64 dateTime)
 	SetTime(dateTime);
 }
 
+// dateTime: YYYY-MM-DD-HH-MM-SS-mmm
+cDateTime2::cDateTime2(const string &dateTime)
+	: m_t(0)
+{
+	SetTime(dateTime);
+}
+
 cDateTime2::~cDateTime2()
 {
 }
@@ -49,6 +56,68 @@ void cDateTime2::SetTime(const uint64 dateTime)
 	{
 		const ptime t = ptime(date((uint)year, (uint)month, (uint)day)
 					, time_duration((uint)hour, (uint)minute, (uint)second));
+		const ptime time_t_epoch(date(1970, 1, 1));
+		const time_duration diff = t - time_t_epoch;
+		m_t = diff.total_milliseconds();
+		m_t += millis;
+	}
+	catch (...)
+	{
+		// nothing
+	}
+}
+
+
+// set time
+// dateTime: YYYY-MM-DD-HH-MM-SS-mmm
+void cDateTime2::SetTime(const string &dateTime)
+{
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	if (dateTime.empty())
+		return;
+
+	uint64 year = 0;
+	uint64 month = 0;
+	uint64 day = 0;
+	uint64 hour = 0;
+	uint64 minute = 0;
+	uint64 second = 0;
+	uint64 millis = 0;
+
+	int state = 0;
+	int val = 0;
+	const char* c = dateTime.c_str();
+	while (*c != '\0')
+	{
+		if ('-' == *c)
+		{
+			switch (state)
+			{
+			case 0: year = val; break;
+			case 1: month = val; break;
+			case 2: day = val; break;
+			case 3: hour = val; break;
+			case 4: minute = val; break;
+			case 5: second = val; break;
+			case 6: millis = val; break;
+			}
+			val = 0;
+			++state;
+		}
+		else
+		{
+			val = (val * 10) + *c - '0';
+		}
+		++c;
+	}
+
+	m_t = 0;
+	try
+	{
+		const ptime t = ptime(date((uint)year, (uint)month, (uint)day)
+			, time_duration((uint)hour, (uint)minute, (uint)second));
 		const ptime time_t_epoch(date(1970, 1, 1));
 		const time_duration diff = t - time_t_epoch;
 		m_t = diff.total_milliseconds();

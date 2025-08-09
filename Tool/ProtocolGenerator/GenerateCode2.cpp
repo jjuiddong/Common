@@ -445,8 +445,8 @@ string compiler2::GetProtocolDispatcherClassName(const string &protocolName )
 //      - return: [map, string, vector, string]
 bool compiler2::ParseTypeString(const string &typeStr, OUT vector<string> &out)
 {
-	const int idx0 = typeStr.find('>');
-	const int idx1 = typeStr.find('<');
+	const int idx0 = (int)typeStr.find('>');
+	const int idx1 = (int)typeStr.find('<');
 	const int idx = ((idx0 < 0) && (idx1 < 0)) ? -1 :
 		(((idx0 < 0) || (idx1 < 0)) ? max(idx0, idx1)
 			: min(idx0, idx1));

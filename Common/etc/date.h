@@ -21,6 +21,8 @@ namespace common
 	uint64 GetCurrentDateTime6(const string &dateTime);
 	string GetCurrentDateTime7(); // email date string, (Mon, 29 Nov 2010 21:54:29)
 	string GetCurrentDateTime8(); // yyyymmdd hh:mm
+	uint64 GetCurrentDateTime9(const string &dateTime);
+	uint64 GetCurrentDateTime10(const uint64 dateTime);
 	
 	int DateCompare(const int ymd0, const int ymd1);
 	int DateCompare2(const int yyyy1, const int mm1, const int dd1

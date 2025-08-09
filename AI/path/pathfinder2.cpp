@@ -8,10 +8,95 @@ using namespace ai;
 cPathFinder2::cPathFinder2()
 {
 }
-
+cPathFinder2::cPathFinder2(const cPathFinder2& rhs)
+{
+	operator=(rhs);
+}
 cPathFinder2::~cPathFinder2()
 {
 	Clear();
+}
+
+
+// read file (binary type)
+//
+// file format:
+// vertex count
+// vertex array
+// edge count
+// edge array
+bool cPathFinder2::Read(const string& fileName)
+{
+	Clear();
+
+	using namespace std;
+	ifstream ifs(fileName, ios::binary);
+	if (!ifs.is_open())
+		return false; // error return
+
+	char fmt[3];
+	ifs.read(fmt, 3);
+	if ((fmt[0] != 'P') || (fmt[1] != 'A') || (fmt[2] != 'T'))
+		return false; // file format error
+
+	int vtxSize = 0;
+	ifs.read((char*)&vtxSize, sizeof(vtxSize));
+
+	for (int i = 0; i < vtxSize; ++i)
+	{
+		sVertex vtx;
+		ifs.read((char*)&vtx.id, sizeof(vtx.id));
+		ifs.read((char*)&vtx.type, sizeof(vtx.type));
+		ifs.read((char*)&vtx.pos, sizeof(vtx.pos));
+		vtx.name.Format("%d", vtx.id);
+		AddVertex(vtx);
+	}
+
+	int edgeSize = 0;
+	ifs.read((char*)&edgeSize, sizeof(edgeSize));
+	for (int i = 0; i < edgeSize; ++i)
+	{
+		int from, to;
+		ifs.read((char*)&from, sizeof(from));
+		ifs.read((char*)&to, sizeof(to));
+		AddEdge(from, to);
+	}
+	return true;
+}
+
+
+// write file
+bool cPathFinder2::Write(const string& fileName)
+{
+	using namespace std;
+	ofstream ofs(fileName, ios::binary);
+	if (!ofs.is_open())
+		return false; // error return
+
+	ofs.write("PAT", 3); // file extents
+
+	int edgeSize = 0;
+	const int vtxSize = (int)m_vertices.size();
+	ofs.write((char*)&vtxSize, sizeof(vtxSize));
+	for (auto& vtx : m_vertices)
+	{
+		ofs.write((char*)&vtx.id, sizeof(vtx.id));
+		ofs.write((char*)&vtx.type, sizeof(vtx.type));
+		ofs.write((char*)&vtx.pos, sizeof(vtx.pos));
+		edgeSize += (int)vtx.edges.size();
+	}
+
+	ofs.write((char*)&edgeSize, sizeof(edgeSize));
+	for (uint i = 0; i < m_vertices.size(); ++i)
+	{
+		auto& vtx = m_vertices[i];
+		for (auto& e : vtx.edges)
+		{
+			ofs.write((char*)&i, sizeof(i));
+			ofs.write((char*)&e.to, sizeof(e.to));
+		}
+	}
+	return true;
 }
 
 
@@ -853,6 +938,25 @@ bool cPathFinder2::IsOnEdge(const sEdge& edge, const Vector3& pos
 			return true;
 	}
 	return false;
+}
+
+
+// assign operator
+cPathFinder2& cPathFinder2::operator=(const cPathFinder2& rhs)
+{
+	if (this != &rhs)
+	{
+		m_vertices = rhs.m_vertices;
+		
+		m_edgeMap.clear();
+		for (uint i = 0; i < (uint)m_vertices.size(); ++i)
+		{
+			auto& vtx = m_vertices[i];
+			for (auto& e : vtx.edges)
+				m_edgeMap.insert({ std::make_pair(i, e.to), &e });
+		}
+	}
+	return *this;
 }
 
 

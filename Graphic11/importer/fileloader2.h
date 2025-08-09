@@ -189,17 +189,17 @@ namespace graphic
 				goto $error;
 			}
 
-			return eRunResult::END;
+			return eRunResult::End;
 
 		$error:
 			dbg::ErrLogp("Error cTaskFileLoader2 %d, %s\n"
 				, m_loadType, m_fileName.c_str());
 			m_fileLoader->FailLoad(m_fileName.c_str());
 			SAFE_DELETE(data);
-			return eRunResult::END;
+			return eRunResult::End;
 
 		$cancel:
-			return eRunResult::END;
+			return eRunResult::End;
 		}
 
 		int m_loadType; // 0 or 1
@@ -263,7 +263,7 @@ namespace graphic
 				p->~T(); // call destructor
 				delete p;
 			}
-			return eRunResult::END;
+			return eRunResult::End;
 		}
 
 		string m_fileName;

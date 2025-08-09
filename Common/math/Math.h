@@ -15,8 +15,9 @@ const double MATH_EPSILON2 = 0.0000000001f;//1.0e-10;
 #define FLOAT_EQ(x,v)	(fabs((x)-(v)) < (MATH_EPSILON))
 #define ABS( x )	( (x) >= 0 ? (x) : -(x) )
 #define ANGLE2RAD(angle) ((MATH_PI*(angle)) * (1.0f/180.f))
-#define ANGLE2RAD2(angle) ((MATH_PI2*(angle)) * (1.0f/180.f))
+#define ANGLE2RAD2(angle) ((MATH_PI2*(angle)) * (1.0/180.0))
 #define RAD2ANGLE(radian) ((radian) * (180.0f/MATH_PI))
+#define RAD2ANGLE2(radian) ((radian) * (180.0/MATH_PI2))
 
 
 #include <math.h>

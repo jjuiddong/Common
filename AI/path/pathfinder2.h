@@ -10,6 +10,9 @@
 //	- rename transition -> edge
 //	- curve edge information
 //
+// 2025-07-31
+//	- read/write pathfind file
+//
 #pragma once
 
 
@@ -93,7 +96,11 @@ namespace ai
 		};
 
 		cPathFinder2();
+		cPathFinder2(const cPathFinder2 &rhs);
 		virtual ~cPathFinder2();
+
+		bool Read(const string& fileName);
+		bool Write(const string& fileName);
 
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
@@ -149,6 +156,9 @@ namespace ai
 			, OUT Vector3& outDir);
 		static bool IsOnEdge(const sEdge& edge, const Vector3& pos
 			, const float offset = 0.05f);
+
+
+		cPathFinder2& operator=(const cPathFinder2& rhs);
 
 
 	protected:

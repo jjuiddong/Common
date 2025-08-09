@@ -27,6 +27,7 @@ namespace graphic
 		cColor(const Vector3 &color);
 		cColor(const Vector4 &color);
 		cColor(const DWORD color);
+		cColor(const cColor& rhs);
 
 		static const cColor BLACK;
 		static const cColor WHITE;

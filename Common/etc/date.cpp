@@ -4,7 +4,7 @@
 #include "boost/date_time/gregorian/gregorian.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include <time.h>
-
+#include <ctime>
 
 
 using namespace common;
@@ -306,6 +306,32 @@ string common::GetCurrentDateTime8()
 		// nothing~
 	}
 	return ss.str();
+}
+
+
+// return date time to millisecond
+// reference: https://stackoverflow.com/questions/321793/date-time-conversion-string-representation-to-time-t
+// datetime: 2017-01-08-11-05-30-010, YYYY-MM-DD-HH-MM-SS-mmm
+uint64 common::GetCurrentDateTime9(const string& dateTime)
+{
+	std::tm d0 = { 0 };
+	std::istringstream ss(dateTime);
+	ss >> std::get_time(&d0, "%Y-%m-%d-%H-%M-%S");
+	auto t0 = std::chrono::system_clock::from_time_t(std::mktime(&d0));
+	auto duration_since_epoch = t0.time_since_epoch();
+	auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration_since_epoch);
+	//long long milliseconds_since_epoch = millis.count();
+	return millis.count();
+}
+
+
+// return date time to millisecond
+// reference: https://stackoverflow.com/questions/321793/date-time-conversion-string-representation-to-time-t
+// datetime: 20170108110530010, YYYYMMDDHHMMSSmmm
+uint64 common::GetCurrentDateTime10(const uint64 dateTime)
+{
+	cDateTime2 t(dateTime);
+	return t.m_t;
 }
 
 

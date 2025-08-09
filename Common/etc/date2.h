@@ -31,9 +31,11 @@ namespace common
 	public:
 		cDateTime2();
 		cDateTime2(const uint64 dateTime);
+		cDateTime2(const string& dateTime);
 		virtual ~cDateTime2();
 
 		void SetTime(const uint64 dateTime);
+		void SetTime(const string &dateTime);
 		void SetTime(const cDateTime2 &dateTime);
 		void UpdateCurrentTime();
 		uint64 GetTimeInt64() const;

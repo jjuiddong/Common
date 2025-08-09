@@ -65,6 +65,11 @@ cColor::cColor(const DWORD color)
 {	
 }
 
+cColor::cColor(const cColor& rhs)
+{
+	m_color = rhs.m_color;
+}
+
 cColor::~cColor()
 {
 }
