@@ -797,7 +797,7 @@ void compiler3::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol)
 	WriteDispatchSwitchCase(fs, protocol->packet);
 
 	fs << tab << "default:\n";
-		fs << tab << "\tDbg.Log(0, 1, `RemoteDbg2 receive not defined packet bin:${option}, ${packetId}`)\n";
+		fs << tab << "\tDbg.Log(0, 1, `" << g_protocolName << "." << g_handlerClassName << " receive not defined packet bin : ${option}, ${packetId}`)\n";
 		fs << tab << "\tbreak;\n";
 	fs << tab << "}//~switch\n";
 	fs << "\t}//~dispatch()\n";

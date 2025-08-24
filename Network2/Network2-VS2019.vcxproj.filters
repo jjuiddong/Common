@@ -66,9 +66,6 @@
     <ClInclude Include="socketbuffer.h">
       <Filter>Packet</Filter>
     </ClInclude>
-    <ClInclude Include="sql\mysqlquery.h">
-      <Filter>MySQL</Filter>
-    </ClInclude>
     <ClInclude Include="prtcompiler\ProtocolDefine.h">
       <Filter>PrtCompiler</Filter>
     </ClInclude>
@@ -236,9 +233,6 @@
     </ClCompile>
     <ClCompile Include="socketbuffer.cpp">
       <Filter>Packet</Filter>
-    </ClCompile>
-    <ClCompile Include="sql\mysqlquery.cpp">
-      <Filter>MySQL</Filter>
     </ClCompile>
     <ClCompile Include="prtcompiler\ProtocolDefine.cpp">
       <Filter>PrtCompiler</Filter>

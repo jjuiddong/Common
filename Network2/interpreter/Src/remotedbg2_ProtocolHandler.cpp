@@ -18,10 +18,10 @@ remotedbg2::r2h_Dispatcher::r2h_Dispatcher()
 bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &handlers)
 {
 	const int protocolId = packet.GetProtocolId();
-	const int packetId = packet.GetPacketId();
+	const uint packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 1418562193: // UploadIntermediateCode
+	case 457514035: // UploadIntermediateCode
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -70,7 +70,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1644585100: // ReqIntermediateCode
+	case 795015035: // ReqIntermediateCode
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -117,7 +117,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 923151823: // ReqRun
+	case 682133217: // ReqRun
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -164,7 +164,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2884814738: // ReqOneStep
+	case 2870899790: // ReqOneStep
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -209,7 +209,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 742173167: // ReqResumeRun
+	case 3748318806: // ReqResumeRun
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -254,7 +254,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 784411795: // ReqBreak
+	case 2831828176: // ReqBreak
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -301,7 +301,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2487089996: // ReqBreakPoint
+	case 1838451287: // ReqBreakPoint
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -352,7 +352,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1453251868: // ReqStop
+	case 1371786614: // ReqStop
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -397,7 +397,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3140751413: // ReqInput
+	case 3482448363: // ReqInput
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -446,7 +446,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 186222094: // ReqEvent
+	case 2822441921: // ReqEvent
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -497,7 +497,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3084593987: // ReqStepDebugType
+	case 2515517823: // ReqStepDebugType
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -542,7 +542,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2166551586: // ReqDebugInfo
+	case 3176404268: // ReqDebugInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -587,7 +587,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 4127584998: // ReqVariableInfo
+	case 695140836: // ReqVariableInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -636,7 +636,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1626832220: // ReqChangeVariable
+	case 2174514456: // ReqChangeVariable
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -687,7 +687,7 @@ bool remotedbg2::r2h_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2532286881: // ReqHeartBeat
+	case 3763178599: // ReqHeartBeat
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<r2h_ProtocolHandler>(handlers, prtHandler))
@@ -754,10 +754,10 @@ remotedbg2::h2r_Dispatcher::h2r_Dispatcher()
 bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandlers &handlers)
 {
 	const int protocolId = packet.GetProtocolId();
-	const int packetId = packet.GetPacketId();
+	const uint packetId = packet.GetPacketId();
 	switch (packetId)
 	{
-	case 1281093745: // Welcome
+	case 3696227036: // Welcome
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -802,7 +802,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 4005257575: // AckUploadIntermediateCode
+	case 275980554: // AckUploadIntermediateCode
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -851,7 +851,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1397310616: // AckIntermediateCode
+	case 994148536: // AckIntermediateCode
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -908,7 +908,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 977092268: // SpawnTotalInterpreterInfo
+	case 3719566959: // SpawnTotalInterpreterInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -959,7 +959,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 762776747: // SpawnInterpreterInfo
+	case 24455197: // SpawnInterpreterInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1012,7 +1012,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 940777945: // RemoveInterpreter
+	case 1638782716: // RemoveInterpreter
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1057,7 +1057,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 4148808214: // AckRun
+	case 2902549966: // AckRun
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1104,7 +1104,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3643391279: // AckOneStep
+	case 595084065: // AckOneStep
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1151,7 +1151,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1012496086: // AckResumeRun
+	case 601884097: // AckResumeRun
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1198,7 +1198,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2129545277: // AckBreak
+	case 1020437751: // AckBreak
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1247,7 +1247,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2045074648: // AckBreakPoint
+	case 1057870316: // AckBreakPoint
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1300,7 +1300,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 114435221: // AckStop
+	case 1755796261: // AckStop
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1347,7 +1347,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1658444570: // AckInput
+	case 3028964340: // AckInput
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1396,7 +1396,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1906481345: // AckEvent
+	case 1257402006: // AckEvent
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1447,7 +1447,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 4225702489: // AckStepDebugType
+	case 586554168: // AckStepDebugType
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1494,7 +1494,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 4276104084: // AckDebugInfo
+	case 735183747: // AckDebugInfo
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1541,7 +1541,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3660358812: // AckChangeVariable
+	case 2665558547: // AckChangeVariable
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1592,7 +1592,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 4206107288: // SyncVMInstruction
+	case 2385736043: // SyncVMInstruction
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1641,7 +1641,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3001685594: // SyncVMRegister
+	case 3080259290: // SyncVMRegister
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1692,7 +1692,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3045798844: // SyncVMSymbolTable
+	case 4266750021: // SyncVMSymbolTable
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1745,7 +1745,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1348120458: // SyncVMOutput
+	case 2045997333: // SyncVMOutput
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1794,7 +1794,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 323195839: // SyncVMWidgets
+	case 2686259685: // SyncVMWidgets
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1843,7 +1843,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1209241191: // SyncVMArray
+	case 3305233207: // SyncVMArray
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1898,7 +1898,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3278867969: // SyncVMArrayBool
+	case 2817606738: // SyncVMArrayBool
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -1953,7 +1953,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3822230413: // SyncVMArrayNumber
+	case 7391856: // SyncVMArrayNumber
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -2008,7 +2008,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 2291689449: // SyncVMArrayString
+	case 3300699295: // SyncVMArrayString
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -2063,7 +2063,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 3712761243: // SyncVMTimer
+	case 909166531: // SyncVMTimer
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -2118,7 +2118,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 638159302: // ExecuteCustomFunction
+	case 3996115506: // ExecuteCustomFunction
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))
@@ -2165,7 +2165,7 @@ bool remotedbg2::h2r_Dispatcher::Dispatch(cPacket &packet, const ProtocolHandler
 		}
 		break;
 
-	case 1133387750: // AckHeartBeat
+	case 1130150688: // AckHeartBeat
 		{
 			ProtocolHandlers prtHandler;
 			if (!HandlerMatching<h2r_ProtocolHandler>(handlers, prtHandler))

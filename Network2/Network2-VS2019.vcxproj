@@ -207,7 +207,6 @@
     <ClInclude Include="prtcompiler\ProtocolScanner.h" />
     <ClInclude Include="session.h" />
     <ClInclude Include="socketbuffer.h" />
-    <ClInclude Include="sql\mysqlquery.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tcpclient.h" />
     <ClInclude Include="tcpserver.h" />
@@ -257,7 +256,6 @@
     <ClCompile Include="prtcompiler\ProtocolScanner.cpp" />
     <ClCompile Include="session.cpp" />
     <ClCompile Include="socketbuffer.cpp" />
-    <ClCompile Include="sql\mysqlquery.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -286,17 +284,29 @@
   <ItemGroup>
     <CustomBuild Include="interpreter\remotedbg.prt">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename) protocol Generation...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename) protocol Generation...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="interpreter\remotedbg2.prt">
       <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename) protocol Generation...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename) protocol Generation...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RelativeDir)\Src\%(Filename)_Protocol.h;%(RelativeDir)\Src\%(Filename)_Protocol.cpp;%(RelativeDir)\Src\%(Filename)_ProtocolData.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.h;%(RelativeDir)\Src\%(Filename)_ProtocolHandler.cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RelativeDir)..\..\Bin\ProtocolGenerator.exe -s %(FullPath) -p stdafx.h -m marshalling</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename) protocol Generation...</Message>

@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 	{
 		fileName = vm["src"].as<std::string>();
 	}
-
+	
 	string pchFileName;
 	if (vm.count("pch"))
 	{

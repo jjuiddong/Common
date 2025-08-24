@@ -10,7 +10,7 @@ void remotedbg::s2c_Protocol::AckOneStep(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 3643391279 );
+	packet.SetPacketId( 595084065 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -22,7 +22,7 @@ void remotedbg::s2c_Protocol::AckDebugRun(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 3424042780 );
+	packet.SetPacketId( 2973361577 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -34,7 +34,7 @@ void remotedbg::s2c_Protocol::AckBreak(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 2129545277 );
+	packet.SetPacketId( 1020437751 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -46,7 +46,7 @@ void remotedbg::s2c_Protocol::AckTerminate(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 2796337704 );
+	packet.SetPacketId( 1790914558 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -58,7 +58,7 @@ void remotedbg::s2c_Protocol::UpdateInformation(netid targetId, const string &fi
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 4250626157 );
+	packet.SetPacketId( 344970534 );
 	packet << fileName;
 	packet << vmName;
 	packet << instIndex;
@@ -73,7 +73,7 @@ void remotedbg::s2c_Protocol::UpdateState(netid targetId, const string &vmName, 
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 3965635729 );
+	packet.SetPacketId( 1467227726 );
 	packet << vmName;
 	packet << instIndex;
 	packet.EndPack();
@@ -87,7 +87,7 @@ void remotedbg::s2c_Protocol::UpdateSymbolTable(netid targetId, const int &start
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 1225501702 );
+	packet.SetPacketId( 3048159225 );
 	packet << start;
 	packet << count;
 	packet << vmName;
@@ -107,7 +107,7 @@ void remotedbg::c2s_Protocol::ReqOneStep(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 2884814738 );
+	packet.SetPacketId( 2870899790 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -119,7 +119,7 @@ void remotedbg::c2s_Protocol::ReqDebugRun(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 2143400932 );
+	packet.SetPacketId( 2613943626 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -131,7 +131,7 @@ void remotedbg::c2s_Protocol::ReqBreak(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 784411795 );
+	packet.SetPacketId( 2831828176 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }
@@ -143,7 +143,7 @@ void remotedbg::c2s_Protocol::ReqTerminate(netid targetId)
 {
 	cPacket packet(&s_packetHeader);
 	packet.SetProtocolId( GetId() );
-	packet.SetPacketId( 3042238079 );
+	packet.SetPacketId( 1343450833 );
 	packet.EndPack();
 	GetNode()->Send(targetId, packet);
 }

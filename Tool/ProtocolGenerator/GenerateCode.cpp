@@ -730,7 +730,7 @@ void compiler::WriteProtocolDispatchFunc(ofstream &fs, sProtocol *protocol, eFor
 	fs << "bool " << g_protocolName << "::" << g_className << "::Dispatch(cPacket &packet, const ProtocolHandlers &handlers)\n", 
 	fs << "{\n";
 		fs << "\tconst int protocolId = packet.GetProtocolId();\n";
-		fs << "\tconst int packetId = packet.GetPacketId();\n";
+		fs << "\tconst uint packetId = packet.GetPacketId();\n";
 
 	if (protocol->packet)
 	{

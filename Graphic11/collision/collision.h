@@ -33,7 +33,6 @@ namespace common
 				_max.z = pos.z;
 		}
 
-
 		bool IsOk()
 		{ // min, max 초기값 그대로이면 false를 리턴한다.
 			// 혹은 max 가 min 보다 작으면 false를 리턴한다.
@@ -41,6 +40,13 @@ namespace common
 				return false;
 			return true;
 		}
+
+		void Clear()
+		{
+			_min = Vector3::Max;
+			_max = Vector3::Min;
+		}
+
 	};
 
 }

@@ -64,7 +64,7 @@ typedef int netid;
 #include "protocol_basic_dispatcher.h"
 #include "protocol_all_handler.h"
 #include "definition_marshalling.h"
-#include "sql/mysqlquery.h"
+//#include "sql/mysqlquery.h"
 
 #include "prtcompiler/ProtocolDefine.h"
 #include "prtcompiler/ProtocolParser.h"
