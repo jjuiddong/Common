@@ -45,13 +45,13 @@ namespace common
 
 
 	// cTask search object
-	class IsTask : public std::unary_function<cTask*, bool>
-	{
-	public:
-		IsTask(int taskId):m_id(taskId) {}
-		int m_id;
-		bool operator ()(cTask *t) const
-			{ return (t->m_id == m_id); }
-	};
+	//class IsTask : public std::unary_function<cTask*, bool>
+	//{
+	//public:
+	//	IsTask(int taskId):m_id(taskId) {}
+	//	int m_id;
+	//	bool operator ()(cTask *t) const
+	//		{ return (t->m_id == m_id); }
+	//};
 
 }

@@ -250,10 +250,11 @@ int cThread::GetTaskCount()
 /**
 @brief  taskId에 해당하는 task를 리턴.
 */
-cTask*	cThread::GetTask(const int taskId)
+cTask* cThread::GetTask(const int taskId)
 {
 	//AutoCSLock cs(m_taskCS); 동기화 하지 않는다.
-	auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(taskId));
+	auto it = find_if(m_tasks.begin(), m_tasks.end()
+		, [&](auto& a) { return taskId == a->m_id; } );
 	if (m_tasks.end() == it)
 		return NULL; // 없다면 실패
 	return *it;
@@ -365,7 +366,8 @@ void cThread::UpdateTask()
 
 	for (auto &p : m_addTasks)
 	{
-		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(p->m_id));
+		auto it = find_if(m_tasks.begin(), m_tasks.end()
+			, [&](auto& a) { return p->m_id == a->m_id; });
 		if (m_tasks.end() == it) // not exist
 		{
 			if (m_maxTask < 0) // infinity
@@ -412,7 +414,8 @@ void cThread::UpdateTask()
 
 	for (auto &id : m_removeTasks)
 	{
-		auto it = find_if(m_tasks.begin(), m_tasks.end(), IsTask(id));
+		auto it = find_if(m_tasks.begin(), m_tasks.end()
+			, [&](auto& a) { return id == a->m_id; });
 		if (m_tasks.end() != it)
 		{
 			cTask *p = *it;

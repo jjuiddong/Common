@@ -6,6 +6,7 @@
 #include "Poco/Net/HTTPMessage.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/PollSet.h"
 
 using namespace std;
 using namespace network2;
@@ -167,6 +168,8 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 // for single thread tcpclient
 bool cWebClient::Process()
 {
+	using Poco::Net::PollSet;
+
 	if (eState::Connect != m_state)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepMillis));
@@ -179,16 +182,29 @@ bool cWebClient::Process()
 		m_sendBuffer = new char[m_maxBuffLen];
 
 	// receive packet
-	Poco::Net::Socket::SocketList reads;
-	Poco::Net::Socket::SocketList writes;
-	Poco::Net::Socket::SocketList excepts;
-	reads.push_back(*m_websocket);
+	PollSet ps;
+	ps.add(*m_websocket, PollSet::POLL_READ);
+	//Poco::Net::Socket::SocketList reads;
+	//Poco::Net::Socket::SocketList writes;
+	//Poco::Net::Socket::SocketList excepts;
+	//reads.push_back(*m_websocket);
 
 	int selResult = 0;
 	try
 	{
-		selResult = m_websocket->select(reads, writes, excepts
-			, Poco::Timespan(0, m_sleepMillis * 1000));
+		PollSet::SocketModeMap sm = ps.poll(Poco::Timespan(0, m_sleepMillis * 1000));
+		for (const auto& s : sm)
+		{
+			if (s.second & PollSet::POLL_READ) 
+				++selResult;
+			if (s.second & PollSet::POLL_ERROR)
+			{
+				selResult = SOCKET_ERROR;
+				break;
+			}
+		}
+		//selResult = m_websocket->select(reads, writes, excepts
+		//	, Poco::Timespan(0, m_sleepMillis * 1000));
 	}
 	catch (Poco::TimeoutException)
 	{
@@ -300,24 +316,24 @@ bool cWebClient::ConnectServer()
 	m_request->set("origin", "http://www.websocket.org");
 	m_response = new Poco::Net::HTTPResponse;
 
-	try 
+	bool isConnection = false;
+
+	try
 	{
 		m_websocket = new Poco::Net::WebSocket(*m_session, *m_request, *m_response);
 		m_websocket->setReceiveTimeout(Poco::Timespan(0, m_sleepMillis * 1000));
 		m_recvQueue.Push(m_id, ConnectPacket(this, m_id));
+		isConnection = true;
 	}
 	catch (std::exception &e)
 	{
-		m_state = eState::Disconnect;
 		m_recvQueue.Push(m_id, DisconnectPacket(this, m_id));
 		dbg::Logc(2, "Error!! WebClient Connection, url=%s, port=%d, desc=%s\n"
 			, m_url.c_str(), m_port, e.what());
-		return false;
 	}
 
-	m_state = eState::Connect;
-
-	return true;
+	m_state = isConnection? eState::Connect : eState::Disconnect;
+	return isConnection;
 }
 
 
@@ -353,6 +369,12 @@ void cWebClient::Close()
 
 	if (m_websocket)
 		m_websocket->close();
+	if (m_session)
+		m_session->reset();
+	if (m_request)
+		m_request->clear();
+	if (m_response)
+		m_response->clear();
 
 	SAFE_DELETE(m_websocket);
 	SAFE_DELETE(m_session);

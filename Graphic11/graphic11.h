@@ -250,11 +250,11 @@ namespace graphic
 	#ifdef _DEBUG
 		#pragma comment(lib, "FW1FontWrapper/x64/FW1FontWrapperd_vc142_x64.lib")
 		#pragma comment(lib, "Effects11/effects11d_2019-x64.lib")
-		#pragma comment(lib, "assimp-vc142-mtd-x64.lib" ) 
+		#pragma comment(lib, "assimp-vc142-mtd.lib" ) 
 	#else
 		#pragma comment(lib, "FW1FontWrapper/x64/FW1FontWrapper_vc142_x64.lib")
 		#pragma comment(lib, "Effects11/effects11_2019-x64.lib")
-		#pragma comment(lib, "assimp-vc142-mt-x64.lib" ) 
+		#pragma comment(lib, "assimp-vc142-mt.lib" ) 
 	#endif
 #else
 	#ifdef _DEBUG
