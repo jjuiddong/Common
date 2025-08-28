@@ -87,7 +87,7 @@ remotedbg2.r2h_Dispatcher = class {
 
 		// dispatch function
 		switch (packetId) {
-			case 457514035: // UploadIntermediateCode
+			case 201763535: // UploadIntermediateCode
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -112,7 +112,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 795015035: // ReqIntermediateCode
+			case 2564628098: // ReqIntermediateCode
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -135,7 +135,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 682133217: // ReqRun
+			case 4041661876: // ReqRun
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -158,7 +158,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 2870899790: // ReqOneStep
+			case 250175983: // ReqOneStep
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -179,7 +179,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 3748318806: // ReqResumeRun
+			case 433520154: // ReqResumeRun
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -200,7 +200,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 2831828176: // ReqBreak
+			case 1318526848: // ReqBreak
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -223,7 +223,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 1838451287: // ReqBreakPoint
+			case 3344680000: // ReqBreakPoint
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -250,7 +250,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 1371786614: // ReqStop
+			case 4009815483: // ReqStop
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -271,7 +271,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 3482448363: // ReqInput
+			case 1145831178: // ReqInput
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -296,7 +296,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 2822441921: // ReqEvent
+			case 1246662946: // ReqEvent
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -323,7 +323,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 2515517823: // ReqStepDebugType
+			case 2764328627: // ReqStepDebugType
 				{
 					if (option == 1) { // binary?
 						const stepDbgType = packet.getInt32()
@@ -344,7 +344,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 3176404268: // ReqDebugInfo
+			case 207775889: // ReqDebugInfo
 				{
 					if (option == 1) { // binary?
 						const vmIds = packet.getInt32Array()
@@ -365,7 +365,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 695140836: // ReqVariableInfo
+			case 1419406571: // ReqVariableInfo
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -390,7 +390,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 2174514456: // ReqChangeVariable
+			case 1095285398: // ReqChangeVariable
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -417,7 +417,7 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
-			case 3763178599: // ReqHeartBeat
+			case 2149460281: // ReqHeartBeat
 				{
 					if (option == 1) { // binary?
 						const parsePacket = {
@@ -477,7 +477,7 @@ remotedbg2.h2r_Dispatcher = class {
 
 		// dispatch function
 		switch (packetId) {
-			case 3696227036: // Welcome
+			case 3047429: // Welcome
 				{
 					if (option == 1) { // binary?
 						const msg = packet.getStr()
@@ -498,7 +498,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 275980554: // AckUploadIntermediateCode
+			case 2462931757: // AckUploadIntermediateCode
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -523,7 +523,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 994148536: // AckIntermediateCode
+			case 3529554811: // AckIntermediateCode
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getUint8()
@@ -556,7 +556,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 3719566959: // SpawnTotalInterpreterInfo
+			case 641506255: // SpawnTotalInterpreterInfo
 				{
 					if (option == 1) { // binary?
 						const totalCount = packet.getInt32()
@@ -583,7 +583,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 24455197: // SpawnInterpreterInfo
+			case 3321369215: // SpawnInterpreterInfo
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -612,7 +612,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 1638782716: // RemoveInterpreter
+			case 1233636689: // RemoveInterpreter
 				{
 					if (option == 1) { // binary?
 						const vmId = packet.getInt32()
@@ -633,7 +633,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 2902549966: // AckRun
+			case 3610915871: // AckRun
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -656,7 +656,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 595084065: // AckOneStep
+			case 3508334431: // AckOneStep
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -679,7 +679,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 601884097: // AckResumeRun
+			case 599066917: // AckResumeRun
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -702,7 +702,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 1020437751: // AckBreak
+			case 3655568643: // AckBreak
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -727,7 +727,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 1057870316: // AckBreakPoint
+			case 3327558841: // AckBreakPoint
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -756,7 +756,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 1755796261: // AckStop
+			case 3614765391: // AckStop
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -779,7 +779,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 3028964340: // AckInput
+			case 3422905177: // AckInput
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -804,7 +804,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 1257402006: // AckEvent
+			case 4273588753: // AckEvent
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -831,7 +831,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 586554168: // AckStepDebugType
+			case 831321155: // AckStepDebugType
 				{
 					if (option == 1) { // binary?
 						const stepDbgType = packet.getInt32()
@@ -854,7 +854,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 735183747: // AckDebugInfo
+			case 1917526265: // AckDebugInfo
 				{
 					if (option == 1) { // binary?
 						const vmIds = packet.getInt32Array()
@@ -877,7 +877,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 2665558547: // AckChangeVariable
+			case 910405673: // AckChangeVariable
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -904,7 +904,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 2385736043: // SyncVMInstruction
+			case 601265629: // SyncVMInstruction
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -929,7 +929,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 3080259290: // SyncVMRegister
+			case 398018375: // SyncVMRegister
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -956,7 +956,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 4266750021: // SyncVMSymbolTable
+			case 20168650: // SyncVMSymbolTable
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -985,7 +985,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 2045997333: // SyncVMOutput
+			case 2811960017: // SyncVMOutput
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1010,7 +1010,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 2686259685: // SyncVMWidgets
+			case 2243507416: // SyncVMWidgets
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1035,7 +1035,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 3305233207: // SyncVMArray
+			case 1959519461: // SyncVMArray
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1066,7 +1066,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 2817606738: // SyncVMArrayBool
+			case 3675896516: // SyncVMArrayBool
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1097,7 +1097,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 7391856: // SyncVMArrayNumber
+			case 1234136920: // SyncVMArrayNumber
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1128,7 +1128,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 3300699295: // SyncVMArrayString
+			case 1603321848: // SyncVMArrayString
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1159,7 +1159,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 909166531: // SyncVMTimer
+			case 4149275049: // SyncVMTimer
 				{
 					if (option == 1) { // binary?
 						const itprId = packet.getInt32()
@@ -1190,7 +1190,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 3996115506: // ExecuteCustomFunction
+			case 445946481: // ExecuteCustomFunction
 				{
 					if (option == 1) { // binary?
 						const fnName = packet.getStr()
@@ -1213,7 +1213,7 @@ remotedbg2.h2r_Dispatcher = class {
 				}
 				break;
 
-			case 1130150688: // AckHeartBeat
+			case 2075525090: // AckHeartBeat
 				{
 					if (option == 1) { // binary?
 						const parsePacket = {
@@ -1253,14 +1253,14 @@ remotedbg2.r2h_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(code)
-			WsSockServer.sendPacketBinary(ws, 5301, 457514035, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 201763535, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				code,
 			}
-			WsSockServer.sendPacket(ws, 5301, 457514035, packet)
+			WsSockServer.sendPacket(ws, 5301, 201763535, packet)
 		}
 	}
 	
@@ -1270,13 +1270,13 @@ remotedbg2.r2h_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
-			WsSockServer.sendPacketBinary(ws, 5301, 795015035, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 2564628098, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 			}
-			WsSockServer.sendPacket(ws, 5301, 795015035, packet)
+			WsSockServer.sendPacket(ws, 5301, 2564628098, packet)
 		}
 	}
 	
@@ -1286,13 +1286,13 @@ remotedbg2.r2h_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushStr(runType)
-			WsSockServer.sendPacketBinary(ws, 5301, 682133217, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 4041661876, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				runType,
 			}
-			WsSockServer.sendPacket(ws, 5301, 682133217, packet)
+			WsSockServer.sendPacket(ws, 5301, 4041661876, packet)
 		}
 	}
 	
@@ -1301,12 +1301,12 @@ remotedbg2.r2h_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
-			WsSockServer.sendPacketBinary(ws, 5301, 2870899790, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 250175983, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 			}
-			WsSockServer.sendPacket(ws, 5301, 2870899790, packet)
+			WsSockServer.sendPacket(ws, 5301, 250175983, packet)
 		}
 	}
 	
@@ -1315,12 +1315,12 @@ remotedbg2.r2h_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
-			WsSockServer.sendPacketBinary(ws, 5301, 3748318806, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 433520154, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 			}
-			WsSockServer.sendPacket(ws, 5301, 3748318806, packet)
+			WsSockServer.sendPacket(ws, 5301, 433520154, packet)
 		}
 	}
 	
@@ -1330,13 +1330,13 @@ remotedbg2.r2h_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
-			WsSockServer.sendPacketBinary(ws, 5301, 2831828176, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 1318526848, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 			}
-			WsSockServer.sendPacket(ws, 5301, 2831828176, packet)
+			WsSockServer.sendPacket(ws, 5301, 1318526848, packet)
 		}
 	}
 	
@@ -1348,7 +1348,7 @@ remotedbg2.r2h_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushBool(enable)
 			packet.pushUint32(id)
-			WsSockServer.sendPacketBinary(ws, 5301, 1838451287, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 3344680000, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1356,7 +1356,7 @@ remotedbg2.r2h_Protocol = class {
 				enable,
 				id,
 			}
-			WsSockServer.sendPacket(ws, 5301, 1838451287, packet)
+			WsSockServer.sendPacket(ws, 5301, 3344680000, packet)
 		}
 	}
 	
@@ -1365,12 +1365,12 @@ remotedbg2.r2h_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
-			WsSockServer.sendPacketBinary(ws, 5301, 1371786614, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 4009815483, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 			}
-			WsSockServer.sendPacket(ws, 5301, 1371786614, packet)
+			WsSockServer.sendPacket(ws, 5301, 4009815483, packet)
 		}
 	}
 	
@@ -1381,14 +1381,14 @@ remotedbg2.r2h_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(eventName)
-			WsSockServer.sendPacketBinary(ws, 5301, 3482448363, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 1145831178, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				eventName,
 			}
-			WsSockServer.sendPacket(ws, 5301, 3482448363, packet)
+			WsSockServer.sendPacket(ws, 5301, 1145831178, packet)
 		}
 	}
 	
@@ -1400,7 +1400,7 @@ remotedbg2.r2h_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushStr(eventName)
 			packet.pushMapStrArray(values)
-			WsSockServer.sendPacketBinary(ws, 5301, 2822441921, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 1246662946, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1408,7 +1408,7 @@ remotedbg2.r2h_Protocol = class {
 				eventName,
 				values,
 			}
-			WsSockServer.sendPacket(ws, 5301, 2822441921, packet)
+			WsSockServer.sendPacket(ws, 5301, 1246662946, packet)
 		}
 	}
 	
@@ -1417,12 +1417,12 @@ remotedbg2.r2h_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(stepDbgType)
-			WsSockServer.sendPacketBinary(ws, 5301, 2515517823, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 2764328627, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				stepDbgType,
 			}
-			WsSockServer.sendPacket(ws, 5301, 2515517823, packet)
+			WsSockServer.sendPacket(ws, 5301, 2764328627, packet)
 		}
 	}
 	
@@ -1431,12 +1431,12 @@ remotedbg2.r2h_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32Array(vmIds)
-			WsSockServer.sendPacketBinary(ws, 5301, 3176404268, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 207775889, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				vmIds,
 			}
-			WsSockServer.sendPacket(ws, 5301, 3176404268, packet)
+			WsSockServer.sendPacket(ws, 5301, 207775889, packet)
 		}
 	}
 	
@@ -1447,14 +1447,14 @@ remotedbg2.r2h_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
-			WsSockServer.sendPacketBinary(ws, 5301, 695140836, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 1419406571, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				varName,
 			}
-			WsSockServer.sendPacket(ws, 5301, 695140836, packet)
+			WsSockServer.sendPacket(ws, 5301, 1419406571, packet)
 		}
 	}
 	
@@ -1466,7 +1466,7 @@ remotedbg2.r2h_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushStr(value)
-			WsSockServer.sendPacketBinary(ws, 5301, 2174514456, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 1095285398, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1474,7 +1474,7 @@ remotedbg2.r2h_Protocol = class {
 				varName,
 				value,
 			}
-			WsSockServer.sendPacket(ws, 5301, 2174514456, packet)
+			WsSockServer.sendPacket(ws, 5301, 1095285398, packet)
 		}
 	}
 	
@@ -1482,11 +1482,11 @@ remotedbg2.r2h_Protocol = class {
 	ReqHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
-			WsSockServer.sendPacketBinary(ws, 5301, 3763178599, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5301, 2149460281, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 			}
-			WsSockServer.sendPacket(ws, 5301, 3763178599, packet)
+			WsSockServer.sendPacket(ws, 5301, 2149460281, packet)
 		}
 	}
 	
@@ -1504,12 +1504,12 @@ remotedbg2.h2r_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushStr(msg)
-			WsSockServer.sendPacketBinary(ws, 5300, 3696227036, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3047429, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				msg,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3696227036, packet)
+			WsSockServer.sendPacket(ws, 5300, 3047429, packet)
 		}
 	}
 	
@@ -1520,14 +1520,14 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 275980554, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 2462931757, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 275980554, packet)
+			WsSockServer.sendPacket(ws, 5300, 2462931757, packet)
 		}
 	}
 	
@@ -1542,7 +1542,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushUint8(index)
 			packet.pushUint32(totalBufferSize)
 			packet.pushUint8Array(data)
-			WsSockServer.sendPacketBinary(ws, 5300, 994148536, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3529554811, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1553,7 +1553,7 @@ remotedbg2.h2r_Protocol = class {
 				totalBufferSize,
 				data,
 			}
-			WsSockServer.sendPacket(ws, 5300, 994148536, packet)
+			WsSockServer.sendPacket(ws, 5300, 3529554811, packet)
 		}
 	}
 	
@@ -1565,7 +1565,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(index)
 			packet.pushInt32(itprId)
 			packet.pushInt32Array(vmIds)
-			WsSockServer.sendPacketBinary(ws, 5300, 3719566959, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 641506255, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				totalCount,
@@ -1573,7 +1573,7 @@ remotedbg2.h2r_Protocol = class {
 				itprId,
 				vmIds,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3719566959, packet)
+			WsSockServer.sendPacket(ws, 5300, 641506255, packet)
 		}
 	}
 	
@@ -1586,7 +1586,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushStr(nodeFileName)
 			packet.pushStr(nodeName)
-			WsSockServer.sendPacketBinary(ws, 5300, 24455197, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3321369215, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1595,7 +1595,7 @@ remotedbg2.h2r_Protocol = class {
 				nodeFileName,
 				nodeName,
 			}
-			WsSockServer.sendPacket(ws, 5300, 24455197, packet)
+			WsSockServer.sendPacket(ws, 5300, 3321369215, packet)
 		}
 	}
 	
@@ -1604,12 +1604,12 @@ remotedbg2.h2r_Protocol = class {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
 			packet.pushInt32(vmId)
-			WsSockServer.sendPacketBinary(ws, 5300, 1638782716, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 1233636689, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				vmId,
 			}
-			WsSockServer.sendPacket(ws, 5300, 1638782716, packet)
+			WsSockServer.sendPacket(ws, 5300, 1233636689, packet)
 		}
 	}
 	
@@ -1619,13 +1619,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 2902549966, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3610915871, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 2902549966, packet)
+			WsSockServer.sendPacket(ws, 5300, 3610915871, packet)
 		}
 	}
 	
@@ -1635,13 +1635,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 595084065, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3508334431, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 595084065, packet)
+			WsSockServer.sendPacket(ws, 5300, 3508334431, packet)
 		}
 	}
 	
@@ -1651,13 +1651,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 601884097, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 599066917, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 601884097, packet)
+			WsSockServer.sendPacket(ws, 5300, 599066917, packet)
 		}
 	}
 	
@@ -1668,14 +1668,14 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 1020437751, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3655568643, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 1020437751, packet)
+			WsSockServer.sendPacket(ws, 5300, 3655568643, packet)
 		}
 	}
 	
@@ -1688,7 +1688,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushBool(enable)
 			packet.pushUint32(id)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 1057870316, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3327558841, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1697,7 +1697,7 @@ remotedbg2.h2r_Protocol = class {
 				id,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 1057870316, packet)
+			WsSockServer.sendPacket(ws, 5300, 3327558841, packet)
 		}
 	}
 	
@@ -1707,13 +1707,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(itprId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 1755796261, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3614765391, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 1755796261, packet)
+			WsSockServer.sendPacket(ws, 5300, 3614765391, packet)
 		}
 	}
 	
@@ -1724,14 +1724,14 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 3028964340, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3422905177, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3028964340, packet)
+			WsSockServer.sendPacket(ws, 5300, 3422905177, packet)
 		}
 	}
 	
@@ -1743,7 +1743,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushStr(eventName)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 1257402006, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 4273588753, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1751,7 +1751,7 @@ remotedbg2.h2r_Protocol = class {
 				eventName,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 1257402006, packet)
+			WsSockServer.sendPacket(ws, 5300, 4273588753, packet)
 		}
 	}
 	
@@ -1761,13 +1761,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32(stepDbgType)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 586554168, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 831321155, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				stepDbgType,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 586554168, packet)
+			WsSockServer.sendPacket(ws, 5300, 831321155, packet)
 		}
 	}
 	
@@ -1777,13 +1777,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushInt32Array(vmIds)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 735183747, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 1917526265, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				vmIds,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 735183747, packet)
+			WsSockServer.sendPacket(ws, 5300, 1917526265, packet)
 		}
 	}
 	
@@ -1795,7 +1795,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushStr(varName)
 			packet.pushInt32(result)
-			WsSockServer.sendPacketBinary(ws, 5300, 2665558547, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 910405673, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1803,7 +1803,7 @@ remotedbg2.h2r_Protocol = class {
 				varName,
 				result,
 			}
-			WsSockServer.sendPacket(ws, 5300, 2665558547, packet)
+			WsSockServer.sendPacket(ws, 5300, 910405673, packet)
 		}
 	}
 	
@@ -1814,14 +1814,14 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushUint16Array(indices)
-			WsSockServer.sendPacketBinary(ws, 5300, 2385736043, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 601265629, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				indices,
 			}
-			WsSockServer.sendPacket(ws, 5300, 2385736043, packet)
+			WsSockServer.sendPacket(ws, 5300, 601265629, packet)
 		}
 	}
 	
@@ -1833,7 +1833,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(vmId)
 			packet.pushInt32(infoType)
 			Make_sRegister(packet,reg)
-			WsSockServer.sendPacketBinary(ws, 5300, 3080259290, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 398018375, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1841,7 +1841,7 @@ remotedbg2.h2r_Protocol = class {
 				infoType,
 				reg,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3080259290, packet)
+			WsSockServer.sendPacket(ws, 5300, 398018375, packet)
 		}
 	}
 	
@@ -1854,7 +1854,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushUint32(start)
 			packet.pushUint32(count)
 			Make_sSyncSymbolVector(packet,symbol)
-			WsSockServer.sendPacketBinary(ws, 5300, 4266750021, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 20168650, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1863,7 +1863,7 @@ remotedbg2.h2r_Protocol = class {
 				count,
 				symbol,
 			}
-			WsSockServer.sendPacket(ws, 5300, 4266750021, packet)
+			WsSockServer.sendPacket(ws, 5300, 20168650, packet)
 		}
 	}
 	
@@ -1874,14 +1874,14 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(output)
-			WsSockServer.sendPacketBinary(ws, 5300, 2045997333, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 2811960017, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				output,
 			}
-			WsSockServer.sendPacket(ws, 5300, 2045997333, packet)
+			WsSockServer.sendPacket(ws, 5300, 2811960017, packet)
 		}
 	}
 	
@@ -1892,14 +1892,14 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(itprId)
 			packet.pushInt32(vmId)
 			packet.pushStr(widgetName)
-			WsSockServer.sendPacketBinary(ws, 5300, 2686259685, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 2243507416, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
 				vmId,
 				widgetName,
 			}
-			WsSockServer.sendPacket(ws, 5300, 2686259685, packet)
+			WsSockServer.sendPacket(ws, 5300, 2243507416, packet)
 		}
 	}
 	
@@ -1913,7 +1913,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushUint32(startIdx)
 			packet.pushUint32(totalSize)
 			packet.pushTypeVariantVector(array)
-			WsSockServer.sendPacketBinary(ws, 5300, 3305233207, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 1959519461, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1923,7 +1923,7 @@ remotedbg2.h2r_Protocol = class {
 				totalSize,
 				array,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3305233207, packet)
+			WsSockServer.sendPacket(ws, 5300, 1959519461, packet)
 		}
 	}
 	
@@ -1937,7 +1937,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushUint32(startIdx)
 			packet.pushUint32(totalSize)
 			packet.pushBoolArray(array)
-			WsSockServer.sendPacketBinary(ws, 5300, 2817606738, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 3675896516, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1947,7 +1947,7 @@ remotedbg2.h2r_Protocol = class {
 				totalSize,
 				array,
 			}
-			WsSockServer.sendPacket(ws, 5300, 2817606738, packet)
+			WsSockServer.sendPacket(ws, 5300, 3675896516, packet)
 		}
 	}
 	
@@ -1961,7 +1961,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushUint32(startIdx)
 			packet.pushUint32(totalSize)
 			packet.pushFloat32Array(array)
-			WsSockServer.sendPacketBinary(ws, 5300, 7391856, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 1234136920, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1971,7 +1971,7 @@ remotedbg2.h2r_Protocol = class {
 				totalSize,
 				array,
 			}
-			WsSockServer.sendPacket(ws, 5300, 7391856, packet)
+			WsSockServer.sendPacket(ws, 5300, 1234136920, packet)
 		}
 	}
 	
@@ -1985,7 +1985,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushUint32(startIdx)
 			packet.pushUint32(totalSize)
 			packet.pushStrArray(array)
-			WsSockServer.sendPacketBinary(ws, 5300, 3300699295, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 1603321848, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -1995,7 +1995,7 @@ remotedbg2.h2r_Protocol = class {
 				totalSize,
 				array,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3300699295, packet)
+			WsSockServer.sendPacket(ws, 5300, 1603321848, packet)
 		}
 	}
 	
@@ -2009,7 +2009,7 @@ remotedbg2.h2r_Protocol = class {
 			packet.pushInt32(timerId)
 			packet.pushInt32(time)
 			packet.pushInt32(actionType)
-			WsSockServer.sendPacketBinary(ws, 5300, 909166531, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 4149275049, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				itprId,
@@ -2019,7 +2019,7 @@ remotedbg2.h2r_Protocol = class {
 				time,
 				actionType,
 			}
-			WsSockServer.sendPacket(ws, 5300, 909166531, packet)
+			WsSockServer.sendPacket(ws, 5300, 4149275049, packet)
 		}
 	}
 	
@@ -2029,13 +2029,13 @@ remotedbg2.h2r_Protocol = class {
 			let packet = new Packet(512)
 			packet.pushStr(fnName)
 			packet.pushMapStrArray(args)
-			WsSockServer.sendPacketBinary(ws, 5300, 3996115506, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 445946481, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 				fnName,
 				args,
 			}
-			WsSockServer.sendPacket(ws, 5300, 3996115506, packet)
+			WsSockServer.sendPacket(ws, 5300, 445946481, packet)
 		}
 	}
 	
@@ -2043,11 +2043,11 @@ remotedbg2.h2r_Protocol = class {
 	AckHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
 			let packet = new Packet(512)
-			WsSockServer.sendPacketBinary(ws, 5300, 1130150688, packet.buff, packet.offset)
+			WsSockServer.sendPacketBinary(ws, 5300, 2075525090, packet.buff, packet.offset)
 		} else { // json string send?
 			const packet = {
 			}
-			WsSockServer.sendPacket(ws, 5300, 1130150688, packet)
+			WsSockServer.sendPacket(ws, 5300, 2075525090, packet)
 		}
 	}
 	

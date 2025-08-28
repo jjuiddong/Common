@@ -1336,6 +1336,7 @@ void cVirtualMachine::CodeTraceLog(vector<ushort> &trace)
 		else
 		{
 			// jump instruction index
+			trace.back() += 1; // contain previous jmp command
 			trace.push_back(m_reg.idx);
 			trace.push_back(m_reg.idx);
 		}
