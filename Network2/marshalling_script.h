@@ -45,9 +45,9 @@ namespace network2 {
 
 		inline cPacket& operator<<(cPacket& packet, const script::cIntermediateCode &rhs)
 		{
-			packet << rhs.m_codes.size();
-			for (auto &inst : rhs.m_codes)
-				packet << inst;
+			packet << (int)rhs.m_codes.size();
+			for (uint i=0; i < (uint)rhs.m_codes.size(); ++i)
+				packet << rhs.m_codes[i];
 			return packet;
 		}
 

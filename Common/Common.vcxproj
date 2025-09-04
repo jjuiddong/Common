@@ -470,6 +470,7 @@
     <ClInclude Include="thread\mutex.h" />
     <ClInclude Include="thread\semaphore.h" />
     <ClInclude Include="thread\task.h" />
+    <ClInclude Include="thread\taskflow.h" />
     <ClInclude Include="thread\thread.h" />
     <ClInclude Include="thread\threaddef.h" />
     <ClInclude Include="thread\tpsemaphore.h" />
@@ -548,6 +549,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_MD|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="thread\loadbalancer.cpp" />
+    <ClCompile Include="thread\taskflow.cpp" />
     <ClCompile Include="thread\thread.cpp" />
     <ClCompile Include="thread\tpsemaphore.cpp" />
     <ClCompile Include="thread\wqsemaphore.cpp" />

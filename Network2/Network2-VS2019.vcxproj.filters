@@ -135,27 +135,6 @@
     <ClInclude Include="marshalling_script.h">
       <Filter>Marshalling</Filter>
     </ClInclude>
-    <ClInclude Include="ftpclient\BlockingSocket.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
-    <ClInclude Include="ftpclient\Definements.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
-    <ClInclude Include="ftpclient\FTPClient.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
-    <ClInclude Include="ftpclient\FTPDataTypes.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
-    <ClInclude Include="ftpclient\FTPFileStatus.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
-    <ClInclude Include="ftpclient\FTPListParse.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
-    <ClInclude Include="ftpclient\smart_ptr.h">
-      <Filter>FTP</Filter>
-    </ClInclude>
     <ClInclude Include="utility\utility.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -281,21 +260,6 @@
     </ClCompile>
     <ClCompile Include="interpreter\Src\remotedbg2_ProtocolHandler.cpp">
       <Filter>Interpreter\protocol_src</Filter>
-    </ClCompile>
-    <ClCompile Include="ftpclient\BlockingSocket.cpp">
-      <Filter>FTP</Filter>
-    </ClCompile>
-    <ClCompile Include="ftpclient\FTPClient.cpp">
-      <Filter>FTP</Filter>
-    </ClCompile>
-    <ClCompile Include="ftpclient\FTPDataTypes.cpp">
-      <Filter>FTP</Filter>
-    </ClCompile>
-    <ClCompile Include="ftpclient\FTPFileStatus.cpp">
-      <Filter>FTP</Filter>
-    </ClCompile>
-    <ClCompile Include="ftpclient\FTPListParse.cpp">
-      <Filter>FTP</Filter>
     </ClCompile>
     <ClCompile Include="utility\utility.cpp">
       <Filter>Utility</Filter>

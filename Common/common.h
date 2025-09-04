@@ -191,6 +191,7 @@ using std::make_shared;
 #include "thread/task.h"
 #include "thread/mutex.h"
 #include "thread/thread.h"
+#include "thread/taskflow.h"
 #include "thread/wqsemaphore.h"
 #include "thread/tpsemaphore.h"
 #include "thread/loadbalancer.h"

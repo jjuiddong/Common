@@ -1778,7 +1778,7 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
 			(marsh.GetHeaderSize() + 20);
 		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
-			bufferSize / CHUNK_SIZE : bufferSize / CHUNK_SIZE + 1;
+			bufferSize / CHUNK_SIZE : (bufferSize / CHUNK_SIZE) + 1;
 
 		uint index = 0;
 		uint cursor = 0;

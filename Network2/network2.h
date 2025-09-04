@@ -79,7 +79,7 @@ typedef int netid;
 #include "utility/packetpump.h"
 #include "utility/utility.h"
 
-#include "FtpClient/FTPClient.h"
+//#include "FtpClient/FTPClient.h"
 
 #pragma comment( lib, "wsock32.lib" )
 #pragma comment(lib, "Ws2_32.lib")
