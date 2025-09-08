@@ -23,6 +23,7 @@ namespace common
 		virtual bool FinishChild(cTfTask *task) { return true; }
 		virtual void Clear() {}
 		bool IsFinish();
+		bool IsAllChildSuccess();
 		bool CloseTask();
 		bool CloseChildTask(cTfTask* childTask);
 		bool CloseAllChildTask();
@@ -41,16 +42,17 @@ namespace common
 		eState m_state;
 		int m_id;
 		string m_name;
-		bool m_isShutdown; // shutdown?
 		cTfTask* m_parent; // parent task
 		cTaskFlow* m_tf; // reference
+		int m_result; // task result, 0:fail, 1:success
 		int m_syncVal; // synchronize value. default:0
+		bool m_isShutdown; // shutdown?
 		vector<std::pair<bool, cTfTask*>> m_children; // child task, first: finish?
 	};
 
 	inline cTfTask::cTfTask(int id, const string& name)
 		: m_state(eState::Process), m_id(id), m_name(name), m_isShutdown(false)
-		, m_tf(nullptr), m_parent(nullptr)
+		, m_result(0), m_tf(nullptr), m_parent(nullptr), m_syncVal(0)
 	{
 	}
 

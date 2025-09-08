@@ -119,6 +119,22 @@ bool cTfTask::IsFinish()
 }
 
 
+// is all child task success finish?
+bool cTfTask::IsAllChildSuccess()
+{
+	bool isSuccess = true;
+	for (auto& child : m_children)
+	{
+		if (1 != child.second->m_result)
+		{
+			isSuccess = false; // fail
+			break;
+		}
+	}
+	return isSuccess;
+}
+
+
 // finish task
 bool cTfTask::CloseTask()
 {
