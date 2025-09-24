@@ -107,7 +107,10 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 		}
 		else if (((toks[0] == "ldcmp")
 			|| (toks[0] == "ldncmp")
-			|| (toks[0] == "ldtim"))
+			|| (toks[0] == "ldtim")
+			|| (toks[0] == "itc")
+			|| (toks[0] == "itn")
+			)
 			&& (toks.size() >= 2))
 		{
 			code.cmd = script::StrToCommand(toks[0]);
@@ -137,6 +140,8 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 			|| (toks[0] == "remf")
 			|| (toks[0] == "opand")
 			|| (toks[0] == "opor")
+			|| (toks[0] == "iti")
+			|| (toks[0] == "itg")
 			)
 			&& (toks.size() >= 3))
 		{
