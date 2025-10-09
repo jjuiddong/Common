@@ -663,7 +663,7 @@ bool cVplFile::GenerateIntermediateCode(OUT common::script::cIntermediateCode &o
 	}
 
 	out.m_variables = m_variables;
-	out.m_fileName = m_fileName.GetFileNameExceptExt2();
+	out.m_fileName = StrPath(m_fileName).GetFileNameExceptExt2().c_str();
 	out.m_fileName += ".icode";
 	out.InitOptimizeInfo();
 

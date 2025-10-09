@@ -19,7 +19,7 @@ namespace common
 			virtual ~cDebugger();
 
 			bool Init(cInterpreter *interpreter);
-			bool LoadIntermediateCode(const StrPath &fileName
+			bool LoadIntermediateCode(const string &fileName
 				, const int parentVmId = -1
 				, const string& scopeName = "");
 			bool Process(const float deltaSeconds);

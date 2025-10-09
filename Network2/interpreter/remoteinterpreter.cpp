@@ -65,6 +65,44 @@ public:
 
 
 //----------------------------------------------------------------------------------
+// Send VM Tree data Task
+struct sVmInfo
+{
+	int itprId; // interpreter id
+	int vmId; // virtual machine id
+	int parentVmId; // parent virtual machine id
+	string scopeName; // name_id
+	string fileName; // source filename
+};
+
+bool SendVMTreeStream(remotedbg2::h2r_Protocol& protocol
+	, const netid recvId, const vector<sVmInfo>& vms);
+
+class cSendVMTreeTask : public common::cTask
+{
+public:
+	cSendVMTreeTask(cRemoteInterpreter* rmtItpr, const netid rcvId
+		, const vector<sVmInfo> &vms)
+		: common::cTask(2, "cSendVMTreeTask")
+		, m_rmtItpr(rmtItpr), m_rcvId(rcvId), m_vms(vms)
+	{
+	}
+	virtual eRunResult Run(const double deltaSeconds)
+	{
+		SendVMTreeStream(m_rmtItpr->m_protocol, m_rcvId, m_vms);
+		--m_rmtItpr->m_multiThreading;
+		return eRunResult::End;
+	}
+
+public:
+	cRemoteInterpreter* m_rmtItpr;
+	netid m_rcvId;
+	const vector<sVmInfo> m_vms;
+};
+
+
+
+//----------------------------------------------------------------------------------
 // cRemoteInterpreter
 cRemoteInterpreter::cRemoteInterpreter(
 	const StrId &name
@@ -133,7 +171,7 @@ bool cRemoteInterpreter::Init(cNetController &netController
 // load intermediate code
 // fileName: intermediate code filename
 // return virtual machine id, -1:error
-int cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName
+int cRemoteInterpreter::LoadIntermediateCode(const string &fileName
 	, const int parentVmId //=-1
 	, const string& scopeName //= ""
 )
@@ -162,7 +200,7 @@ int cRemoteInterpreter::LoadIntermediateCode(const StrPath &fileName
 // load intermediate code 
 // fileNames: intermediate code filename array
 // parentVmId: parent virtual machine id, -1:root
-bool cRemoteInterpreter::LoadIntermediateCode(const vector<StrPath> &fileNames
+bool cRemoteInterpreter::LoadIntermediateCode(const vector<string> &fileNames
 	, const int parentVmId //=-1
 	, const string& scopeName //= ""
 )
@@ -1719,6 +1757,59 @@ $error1:
 }
 
 
+// request virtual machine tree data
+bool cRemoteInterpreter::ReqVMTree(remotedbg2::ReqVMTree_Packet& packet)
+{
+	if (m_interpreters.empty())
+	{
+		// fail, nothing to do
+		m_protocol.AckVMTree(packet.senderId, true, 0, 0);
+	}
+	else
+	{
+		vector<sVmInfo> vms;
+		for (uint i=0; i < (uint)m_interpreters.size(); ++i)
+		{
+			sItpr& itpr = m_interpreters[i];
+			if (!itpr.interpreter) continue;
+
+			for (auto& vm : itpr.interpreter->m_vms)
+			{
+				sVmInfo info;
+				info.itprId = i;
+				info.vmId = vm->m_id;
+				info.parentVmId = vm->m_parentId;
+				info.scopeName = vm->m_scopeName;
+				info.fileName = vm->m_code.m_fileName;
+				vms.push_back(info);
+			}
+		}
+
+		if (vms.empty())
+		{
+			// fail, nothing to do
+			m_protocol.AckVMTree(packet.senderId, true, 0, 0);
+		}
+		else
+		{
+			m_protocol.AckVMTree(packet.senderId, true, 1, 1);
+
+			if (m_threads)
+			{
+				++m_multiThreading;
+				m_threads->PushTask(new cSendVMTreeTask(this, packet.senderId, vms));
+			}
+			else
+			{
+				SendVMTreeStream(m_protocol, packet.senderId, vms);
+			}
+		}
+	}
+
+	return true;
+}
+
+
 // is webserver connected?
 bool cRemoteInterpreter::IsConnect()
 {
@@ -1773,7 +1864,7 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	else
 	{
 		// 12 bytes = itpr, vmId, result, count, index
-		// 2 * 4byte = vmId, totalBufferSize, buffsize
+		// 2 * 4byte = totalBufferSize, buffsize
 		// 20 bytes = 12 + 8
 		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
 			(marsh.GetHeaderSize() + 20);
@@ -1796,5 +1887,62 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	}
 
 	g_memPool.Free(buff);
+	return true;
+}
+
+
+// send vm tree information with streaming
+bool SendVMTreeStream(remotedbg2::h2r_Protocol& protocol
+	, const netid recvId, const vector<sVmInfo>& vms)
+{
+	using boost::property_tree::ptree;
+	try {
+		ptree pt;
+		ptree group;
+		for (auto& info : vms)
+		{
+			ptree vm;
+			vm.put("itprId", info.itprId);
+			vm.put("id", info.vmId);
+			vm.put("parent", info.parentVmId);
+			vm.put("scope", info.scopeName);
+			vm.put("file", info.fileName);
+			group.push_back(std::make_pair("", vm));
+		}
+		pt.add_child("vms", group);
+
+		stringstream ss;
+		boost::property_tree::write_json(ss, pt);
+		const string str = ss.str();
+
+		cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
+		const uint bufferSize = (uint)str.length();
+
+		// 8 bytes = id, total count, index
+		// 2 * 4byte = totalBufferSize, buffsize
+		// 16 bytes = 8 + 8
+		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
+			(marsh.GetHeaderSize() + 16);
+		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
+			bufferSize / CHUNK_SIZE : (bufferSize / CHUNK_SIZE) + 1;
+
+		uint index = 0;
+		uint cursor = 0;
+		while (cursor < bufferSize)
+		{
+			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
+			vector<BYTE> data(size);
+			memcpy_s(&data[0], size, &str[cursor], size);
+			protocol.AckVMTreeStream(recvId, true
+				, 1, (ushort)totalCount, (ushort)index, bufferSize, data);
+
+			cursor += size;
+			++index;
+		}
+	}
+	catch (...) {
+		return false;
+	}
+
 	return true;
 }

@@ -1350,7 +1350,7 @@ void cVirtualMachine::WriteTraceLog(const vector<ushort> &trace)
 	if (trace.empty())
 		return;
 
-	StrPath fileName = m_code.m_fileName.GetFileNameExceptExt2();
+	StrPath fileName = StrPath(m_code.m_fileName).GetFileNameExceptExt2();
 	fileName += ".trace";
 	std::ofstream ofs(fileName.c_str());
 	if (!ofs.is_open())

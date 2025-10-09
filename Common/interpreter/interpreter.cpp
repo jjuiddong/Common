@@ -35,7 +35,7 @@ bool cInterpreter::Init()
 // load intermediate code, add new vm
 // parentVmId: parent virtual machine id, -1:root
 // return virtual machine id, -1: error
-int cInterpreter::LoadIntermediateCode(const StrPath &icodeFileName
+int cInterpreter::LoadIntermediateCode(const string &icodeFileName
 	, const int parentVmId //=-1
 	, const string& scopeName //= ""
 )
@@ -493,7 +493,7 @@ int cInterpreter::InitVM(const cIntermediateCode& icode
 	}
 	else
 	{
-		vmName = icode.m_fileName.GetFileNameExceptExt().c_str();
+		vmName = StrPath(icode.m_fileName).GetFileNameExceptExt().c_str();
 		vmName += common::format(".VM%d", m_vms.size());
 	}
 

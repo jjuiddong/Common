@@ -26,11 +26,11 @@ cIntermediateCode::~cIntermediateCode()
 
 // read intermediate code file
 // fileName: *.icode file
-bool cIntermediateCode::Read(const StrPath &fileName)
+bool cIntermediateCode::Read(const string &fileName)
 {
 	Clear();
 
-	m_fileName = fileName.GetFullFileName();
+	m_fileName = StrPath(fileName).GetFullFileName().c_str();
 
 	using namespace std;
 	ifstream ifs(fileName.c_str());
@@ -301,7 +301,7 @@ bool cIntermediateCode::Read(const StrPath &fileName)
 
 
 // write intermediate code file
-bool cIntermediateCode::Write(const StrPath &fileName)
+bool cIntermediateCode::Write(const string &fileName)
 {
 	using namespace std;
 	ofstream ofs(fileName.c_str());

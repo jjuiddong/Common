@@ -113,6 +113,11 @@ using namespace marshalling_json;
 		string value;
 	};
 
+	struct ReqVMTree_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+	};
+
 	struct ReqHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -257,6 +262,23 @@ using namespace marshalling_json;
 		int vmId;
 		string varName;
 		int result;
+	};
+
+	struct AckVMTree_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int id;
+		int result;
+	};
+
+	struct AckVMTreeStream_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int id;
+		ushort count;
+		ushort index;
+		uint totalBufferSize;
+		vector<BYTE> data;
 	};
 
 	struct SyncVMInstruction_Packet {

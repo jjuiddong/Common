@@ -54,8 +54,8 @@ namespace common
 			cIntermediateCode(const cIntermediateCode &rhs);
 			virtual ~cIntermediateCode();
 
-			bool Read(const StrPath &fileName);
-			bool Write(const StrPath &fileName);
+			bool Read(const string &fileName);
+			bool Write(const string &fileName);
 			bool InitOptimizeInfo();
 			uint FindJumpAddress(const StrId &label);
 			bool IsLoaded();
@@ -70,7 +70,7 @@ namespace common
 
 
 		public:
-			StrPath m_fileName;
+			string m_fileName;
 			vector<sInstruction> m_codes;
 			cSymbolTable m_variables; // initial variable symboltable
 			map<StrId, uint> m_jmpMap; //key: jump name, data: code line

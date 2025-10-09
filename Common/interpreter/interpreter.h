@@ -48,7 +48,7 @@ namespace common
 			virtual ~cInterpreter();
 
 			bool Init();
-			int LoadIntermediateCode(const StrPath &icodeFileName
+			int LoadIntermediateCode(const string &icodeFileName
 				, const int parentVmId = -1
 				, const string& scopeName = "");
 			int LoadIntermediateCode(const cIntermediateCode &icode

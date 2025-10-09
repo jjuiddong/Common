@@ -43,10 +43,10 @@ namespace network2
 			, const bool isThreadMode = true
 			, const bool isSpawnHttpSvr = true
 		);
-		int LoadIntermediateCode(const StrPath &fileName
+		int LoadIntermediateCode(const string &fileName
 			, const int parentVmId = -1
 			, const string& scopeName = "");
-		bool LoadIntermediateCode(const vector<StrPath> &fileNames
+		bool LoadIntermediateCode(const vector<string> &fileNames
 			, const int parentVmId = -1
 			, const string& scopeName = "");
 		int LoadIntermediateCode(const common::script::cIntermediateCode &icode
@@ -143,6 +143,7 @@ namespace network2
 		virtual bool ReqDebugInfo(remotedbg2::ReqDebugInfo_Packet &packet) override;
 		virtual bool ReqVariableInfo(remotedbg2::ReqVariableInfo_Packet& packet) override;
 		virtual bool ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet) override;
+		virtual bool ReqVMTree(remotedbg2::ReqVMTree_Packet& packet) override;
 
 
 	public:

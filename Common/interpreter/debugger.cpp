@@ -35,7 +35,7 @@ bool cDebugger::Init(cInterpreter *interpreter)
 
 // load intermediate code, and then DebugRun state
 // parentVmId: parent virtual machine id, -1:root
-bool cDebugger::LoadIntermediateCode(const StrPath &fileName
+bool cDebugger::LoadIntermediateCode(const string &fileName
 	, const int parentVmId //=-1
 	, const string& scopeName //= ""
 )

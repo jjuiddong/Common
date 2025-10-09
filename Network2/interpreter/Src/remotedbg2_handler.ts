@@ -123,6 +123,8 @@ export namespace remotedbg2 {
 		varName: string, 
 		value: string, 
 	}
+	export type ReqVMTree_Packet = {
+	}
 	export type ReqHeartBeat_Packet = {
 	}
 
@@ -213,6 +215,17 @@ export namespace remotedbg2 {
 		vmId: number, 
 		varName: string, 
 		result: number, 
+	}
+	export type AckVMTree_Packet = {
+		id: number, 
+		result: number, 
+	}
+	export type AckVMTreeStream_Packet = {
+		id: number, 
+		count: number, 
+		index: number, 
+		totalBufferSize: number, 
+		data: Uint8Array | null, 
 	}
 	export type SyncVMInstruction_Packet = {
 		itprId: number, 
@@ -647,6 +660,26 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 						handlers.forEach(handler => {
 							if (handler instanceof r2h_ProtocolHandler)
 								handler.ReqChangeVariable(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 1696701698: // ReqVMTree
+				{
+					if (option == 1) { // binary?
+						const parsePacket: ReqVMTree_Packet = {
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqVMTree(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: ReqVMTree_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqVMTree(parsePacket)
 						})
 					}
 				}
@@ -1137,6 +1170,60 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 						handlers.forEach(handler => {
 							if (handler instanceof h2r_ProtocolHandler)
 								handler.AckChangeVariable(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 3389117266: // AckVMTree
+				{
+					if (option == 1) { // binary?
+						const id = packet.getInt32()
+						const result = packet.getInt32()
+						const parsePacket: AckVMTree_Packet = {
+							id,
+							result,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckVMTree(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: AckVMTree_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckVMTree(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 3768290937: // AckVMTreeStream
+				{
+					if (option == 1) { // binary?
+						const id = packet.getInt32()
+						const count = packet.getUint16()
+						const index = packet.getUint16()
+						const totalBufferSize = packet.getUint32()
+						const data = packet.getUint8Array()
+						const parsePacket: AckVMTreeStream_Packet = {
+							id,
+							count,
+							index,
+							totalBufferSize,
+							data,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckVMTreeStream(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: AckVMTreeStream_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckVMTreeStream(parsePacket)
 						})
 					}
 				}
@@ -1728,6 +1815,18 @@ export class r2h_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ReqVMTree
+	ReqVMTree(isBinary: boolean, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			this.node?.sendPacketBinary(5301, 1696701698, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+			}
+			this.node?.sendPacket(5301, 1696701698, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -2057,6 +2156,44 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: AckVMTree
+	AckVMTree(isBinary: boolean, id: number, result: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(id)
+			packet.pushInt32(result)
+			this.node?.sendPacketBinary(5300, 3389117266, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				id,
+				result,
+			}
+			this.node?.sendPacket(5300, 3389117266, packet)
+		}
+	}
+	
+	// Protocol: AckVMTreeStream
+	AckVMTreeStream(isBinary: boolean, id: number, count: number, index: number, totalBufferSize: number, data: number[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(id)
+			packet.pushUint16(count)
+			packet.pushUint16(index)
+			packet.pushUint32(totalBufferSize)
+			packet.pushUint8Array(data)
+			this.node?.sendPacketBinary(5300, 3768290937, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				id,
+				count,
+				index,
+				totalBufferSize,
+				data,
+			}
+			this.node?.sendPacket(5300, 3768290937, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(isBinary: boolean, itprId: number, vmId: number, indices: number[], ) {
 		if (isBinary) { // binary send?
@@ -2324,6 +2461,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 	ReqDebugInfo = (packet: remotedbg2.ReqDebugInfo_Packet) => { }
 	ReqVariableInfo = (packet: remotedbg2.ReqVariableInfo_Packet) => { }
 	ReqChangeVariable = (packet: remotedbg2.ReqChangeVariable_Packet) => { }
+	ReqVMTree = (packet: remotedbg2.ReqVMTree_Packet) => { }
 	ReqHeartBeat = (packet: remotedbg2.ReqHeartBeat_Packet) => { }
 }
 
@@ -2351,6 +2489,8 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	AckStepDebugType = (packet: remotedbg2.AckStepDebugType_Packet) => { }
 	AckDebugInfo = (packet: remotedbg2.AckDebugInfo_Packet) => { }
 	AckChangeVariable = (packet: remotedbg2.AckChangeVariable_Packet) => { }
+	AckVMTree = (packet: remotedbg2.AckVMTree_Packet) => { }
+	AckVMTreeStream = (packet: remotedbg2.AckVMTreeStream_Packet) => { }
 	SyncVMInstruction = (packet: remotedbg2.SyncVMInstruction_Packet) => { }
 	SyncVMRegister = (packet: remotedbg2.SyncVMRegister_Packet) => { }
 	SyncVMSymbolTable = (packet: remotedbg2.SyncVMSymbolTable_Packet) => { }
