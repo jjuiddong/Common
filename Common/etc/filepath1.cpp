@@ -91,7 +91,7 @@ string common::GetFilePathExceptFileName(const string& fileName)
 
 
 /**
- @brief  fileName에서 확장자를 리턴한다.
+ @brief  return filename extends string (.txt, .jpg ...)
  */
 string common::GetFileExt(const string& fileName)
 {
