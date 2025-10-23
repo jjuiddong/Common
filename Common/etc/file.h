@@ -19,6 +19,9 @@ namespace common
 
 		static int ReadAll(const StrPath& fileName, const bool isBinary
 			, const uint size, OUT char* dest);
+
+		static std::pair<uint, char*> ReadAll2(const StrPath& fileName
+			, const bool isBinary);
 	};
 
 }
