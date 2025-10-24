@@ -125,6 +125,10 @@ export namespace remotedbg2 {
 	}
 	export type ReqVMTree_Packet = {
 	}
+	export type ReqSyncSymbolTable_Packet = {
+		itprId: number, 
+		vmId: number, 
+	}
 	export type ReqHeartBeat_Packet = {
 	}
 
@@ -222,6 +226,19 @@ export namespace remotedbg2 {
 	}
 	export type AckVMTreeStream_Packet = {
 		id: number, 
+		count: number, 
+		index: number, 
+		totalBufferSize: number, 
+		data: Uint8Array | null, 
+	}
+	export type AckSyncSymbolTable_Packet = {
+		itprId: number, 
+		vmId: number, 
+		result: number, 
+	}
+	export type AckSymbolTableStream_Packet = {
+		itprId: number, 
+		vmId: number, 
 		count: number, 
 		index: number, 
 		totalBufferSize: number, 
@@ -680,6 +697,30 @@ export class r2h_Dispatcher extends Network.Dispatcher {
 						handlers.forEach(handler => {
 							if (handler instanceof r2h_ProtocolHandler)
 								handler.ReqVMTree(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 1935417126: // ReqSyncSymbolTable
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const parsePacket: ReqSyncSymbolTable_Packet = {
+							itprId,
+							vmId,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqSyncSymbolTable(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: ReqSyncSymbolTable_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof r2h_ProtocolHandler)
+								handler.ReqSyncSymbolTable(parsePacket)
 						})
 					}
 				}
@@ -1224,6 +1265,64 @@ export class h2r_Dispatcher extends Network.Dispatcher {
 						handlers.forEach(handler => {
 							if (handler instanceof h2r_ProtocolHandler)
 								handler.AckVMTreeStream(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 2019731778: // AckSyncSymbolTable
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const result = packet.getInt32()
+						const parsePacket: AckSyncSymbolTable_Packet = {
+							itprId,
+							vmId,
+							result,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckSyncSymbolTable(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: AckSyncSymbolTable_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckSyncSymbolTable(parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 1151204869: // AckSymbolTableStream
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const count = packet.getUint16()
+						const index = packet.getUint16()
+						const totalBufferSize = packet.getUint32()
+						const data = packet.getUint8Array()
+						const parsePacket: AckSymbolTableStream_Packet = {
+							itprId,
+							vmId,
+							count,
+							index,
+							totalBufferSize,
+							data,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckSymbolTableStream(parsePacket)
+						})
+					} else { // json?
+						const parsePacket: AckSymbolTableStream_Packet = 
+							JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof h2r_ProtocolHandler)
+								handler.AckSymbolTableStream(parsePacket)
 						})
 					}
 				}
@@ -1827,6 +1926,22 @@ export class r2h_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: ReqSyncSymbolTable
+	ReqSyncSymbolTable(isBinary: boolean, itprId: number, vmId: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			this.node?.sendPacketBinary(5301, 1935417126, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+			}
+			this.node?.sendPacket(5301, 1935417126, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(isBinary: boolean, ) {
 		if (isBinary) { // binary send?
@@ -2194,6 +2309,48 @@ export class h2r_Protocol extends Network.Protocol {
 		}
 	}
 	
+	// Protocol: AckSyncSymbolTable
+	AckSyncSymbolTable(isBinary: boolean, itprId: number, vmId: number, result: number, ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushInt32(result)
+			this.node?.sendPacketBinary(5300, 2019731778, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				result,
+			}
+			this.node?.sendPacket(5300, 2019731778, packet)
+		}
+	}
+	
+	// Protocol: AckSymbolTableStream
+	AckSymbolTableStream(isBinary: boolean, itprId: number, vmId: number, count: number, index: number, totalBufferSize: number, data: number[], ) {
+		if (isBinary) { // binary send?
+			let packet = new Network.Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushUint16(count)
+			packet.pushUint16(index)
+			packet.pushUint32(totalBufferSize)
+			packet.pushUint8Array(data)
+			this.node?.sendPacketBinary(5300, 1151204869, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				count,
+				index,
+				totalBufferSize,
+				data,
+			}
+			this.node?.sendPacket(5300, 1151204869, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(isBinary: boolean, itprId: number, vmId: number, indices: number[], ) {
 		if (isBinary) { // binary send?
@@ -2462,6 +2619,7 @@ export class r2h_ProtocolHandler extends Network.Handler {
 	ReqVariableInfo = (packet: remotedbg2.ReqVariableInfo_Packet) => { }
 	ReqChangeVariable = (packet: remotedbg2.ReqChangeVariable_Packet) => { }
 	ReqVMTree = (packet: remotedbg2.ReqVMTree_Packet) => { }
+	ReqSyncSymbolTable = (packet: remotedbg2.ReqSyncSymbolTable_Packet) => { }
 	ReqHeartBeat = (packet: remotedbg2.ReqHeartBeat_Packet) => { }
 }
 
@@ -2491,6 +2649,8 @@ export class h2r_ProtocolHandler extends Network.Handler {
 	AckChangeVariable = (packet: remotedbg2.AckChangeVariable_Packet) => { }
 	AckVMTree = (packet: remotedbg2.AckVMTree_Packet) => { }
 	AckVMTreeStream = (packet: remotedbg2.AckVMTreeStream_Packet) => { }
+	AckSyncSymbolTable = (packet: remotedbg2.AckSyncSymbolTable_Packet) => { }
+	AckSymbolTableStream = (packet: remotedbg2.AckSymbolTableStream_Packet) => { }
 	SyncVMInstruction = (packet: remotedbg2.SyncVMInstruction_Packet) => { }
 	SyncVMRegister = (packet: remotedbg2.SyncVMRegister_Packet) => { }
 	SyncVMSymbolTable = (packet: remotedbg2.SyncVMSymbolTable_Packet) => { }

@@ -57,7 +57,7 @@ namespace network2
 			, const string& scopeName = "");
 		bool AddModule(common::script::iModule *mod);
 		bool RemoveModule(common::script::iModule *mod);
-		bool SendSyncAll();
+		bool SendSyncAll(const bool isForce = false);
 
 		bool Process(const float deltaSeconds, const uint procCnt = 1);
 		bool PushEvent(const int itprId, const int vmId, shared_ptr<script::cEvent> evt);
@@ -122,6 +122,8 @@ namespace network2
 		bool SendSyncVMRegister(const int itprId);
 		bool SendSyncInstruction(const int itprId);
 		bool SendSyncSymbolTable(const int itprId, const int vmId);
+		bool SendSyncSymbolTableAll(const netid rcvId, const int itprId, const int vmId
+			, const bool isSyncStartArgument = false);
 		bool SendSyncData(const int itprId, const int vmId);
 		bool SendSyncVariable(const int itprId, const int vmId
 			, const script::cSymbolTable &symbolTable
@@ -144,6 +146,7 @@ namespace network2
 		virtual bool ReqVariableInfo(remotedbg2::ReqVariableInfo_Packet& packet) override;
 		virtual bool ReqChangeVariable(remotedbg2::ReqChangeVariable_Packet& packet) override;
 		virtual bool ReqVMTree(remotedbg2::ReqVMTree_Packet& packet) override;
+		virtual bool ReqSyncSymbolTable(remotedbg2::ReqSyncSymbolTable_Packet& packet) override;
 
 
 	public:

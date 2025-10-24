@@ -563,6 +563,43 @@ void remotedbg2::r2h_Protocol::ReqVMTree(netid targetId, bool isBinary)
 }
 
 //------------------------------------------------------------------------
+// Protocol: ReqSyncSymbolTable
+//------------------------------------------------------------------------
+void remotedbg2::r2h_Protocol::ReqSyncSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmId)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 1935417126 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
 // Protocol: ReqHeartBeat
 //------------------------------------------------------------------------
 void remotedbg2::r2h_Protocol::ReqHeartBeat(netid targetId, bool isBinary)
@@ -1328,6 +1365,90 @@ void remotedbg2::h2r_Protocol::AckVMTreeStream(netid targetId, bool isBinary, co
 		ptree props;
 		try {
 			put(props, "id", id);
+			put(props, "count", count);
+			put(props, "index", index);
+			put(props, "totalBufferSize", totalBufferSize);
+			put(props, "data", data);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: AckSyncSymbolTable
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::AckSyncSymbolTable(netid targetId, bool isBinary, const int &itprId, const int &vmId, const int &result)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 2019731778 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
+		marshalling::operator<<(packet, result);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
+			put(props, "result", result);
+			stringstream ss;
+			boost::property_tree::write_json(ss, props);
+			packet << ss.str();
+			packet.EndPack();
+			GetNode()->Send(targetId, packet);
+		} catch (...) {
+			dbg::Logp("json packet maker error\n");
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// Protocol: AckSymbolTableStream
+//------------------------------------------------------------------------
+void remotedbg2::h2r_Protocol::AckSymbolTableStream(netid targetId, bool isBinary, const int &itprId, const int &vmId, const ushort &count, const ushort &index, const uint &totalBufferSize, const vector<BYTE> &data)
+{
+	cPacket packet(&s_packetHeader);
+	packet.SetProtocolId( GetId() );
+	packet.SetPacketId( 1151204869 );
+	packet.SetPacketOption(0x01, (uint)isBinary);
+	if (isBinary)
+	{
+		// marshaling binary
+		packet.Alignment4(); // set 4byte alignment
+		marshalling::operator<<(packet, itprId);
+		marshalling::operator<<(packet, vmId);
+		marshalling::operator<<(packet, count);
+		marshalling::operator<<(packet, index);
+		marshalling::operator<<(packet, totalBufferSize);
+		marshalling::operator<<(packet, data);
+		packet.EndPack();
+		GetNode()->Send(targetId, packet);
+	}
+	else
+	{
+		// marshaling json
+		using boost::property_tree::ptree;
+		ptree props;
+		try {
+			put(props, "itprId", itprId);
+			put(props, "vmId", vmId);
 			put(props, "count", count);
 			put(props, "index", index);
 			put(props, "totalBufferSize", totalBufferSize);

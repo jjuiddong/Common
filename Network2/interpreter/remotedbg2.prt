@@ -27,6 +27,7 @@ protocol r2h 5301 json
 	ReqVariableInfo(int itprId, int vmId, string varName);
 	ReqChangeVariable(int itprId, int vmId, string varName, string value);
 	ReqVMTree();
+	ReqSyncSymbolTable(int itprId, int vmId);
 	ReqHeartBeat();
 }
 
@@ -35,8 +36,7 @@ protocol h2r 5300 json
 {
 	Welcome( string msg );
 	AckUploadIntermediateCode(int itprId, int vmId, int result );
-	AckIntermediateCode(BYTE itprId, int vmId, BYTE result, BYTE count, BYTE index
-		, uint totalBufferSize, vector<BYTE> data );
+	AckIntermediateCode(BYTE itprId, int vmId, BYTE result, BYTE count, BYTE index, uint totalBufferSize, vector<BYTE> data );
 	SpawnTotalInterpreterInfo(int totalCount, int index, int itprId, vector<int> vmIds);
 	SpawnInterpreterInfo(int itprId, int parentVmId, int vmId, string nodeFileName, string nodeName);
 	RemoveInterpreter(int vmId);
@@ -54,6 +54,8 @@ protocol h2r 5300 json
 	AckChangeVariable(int itprId, int vmId, string varName, int result);
 	AckVMTree(int id, int result);
 	AckVMTreeStream(int id, ushort count, ushort index, uint totalBufferSize, vector<BYTE> data );
+	AckSyncSymbolTable(int itprId, int vmId, int result);
+	AckSymbolTableStream(int itprId, int vmId, ushort count, ushort index, uint totalBufferSize, vector<BYTE> data );
 
 	SyncVMInstruction( int itprId, int vmId, vector<ushort> indices );
 	SyncVMRegister( int itprId, int vmId, int infoType, script::cVirtualMachine::sRegister reg );

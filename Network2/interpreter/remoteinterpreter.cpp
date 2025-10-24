@@ -63,7 +63,6 @@ public:
 	netid m_rcvId;
 };
 
-
 //----------------------------------------------------------------------------------
 // Send VM Tree data Task
 struct sVmInfo
@@ -98,6 +97,37 @@ public:
 	cRemoteInterpreter* m_rmtItpr;
 	netid m_rcvId;
 	const vector<sVmInfo> m_vms;
+};
+
+//----------------------------------------------------------------------------------
+// Send SymbolTable Task
+bool SendSymbolTableStream(remotedbg2::h2r_Protocol& protocol
+	, const int itprId, const int vmId,  const netid recvId
+	, const vector<script::sSyncSymbol>& symbs);
+
+class cSendSymbolTableTask : public common::cTask
+{
+public:
+	cSendSymbolTableTask(cRemoteInterpreter* rmtItpr, const int itprId
+		, const int vmId, const netid rcvId, const vector<script::sSyncSymbol>& symbs)
+		: common::cTask(2, "cSendSymbolTableTask")
+		, m_rmtItpr(rmtItpr), m_itprId(itprId), m_vmId(vmId)
+		, m_rcvId(rcvId), m_symbs(symbs)
+	{
+	}
+	virtual eRunResult Run(const double deltaSeconds)
+	{
+		SendSymbolTableStream(m_rmtItpr->m_protocol, m_itprId, m_vmId, m_rcvId, m_symbs);
+		--m_rmtItpr->m_multiThreading;
+		return eRunResult::End;
+	}
+
+public:
+	cRemoteInterpreter* m_rmtItpr;
+	int m_itprId;
+	int m_vmId;
+	netid m_rcvId;
+	const vector<script::sSyncSymbol> m_symbs;
 };
 
 
@@ -291,7 +321,9 @@ bool cRemoteInterpreter::RemoveModule(common::script::iModule *mod)
 
 // send sync vm register, instruction, symbol
 // update latest information with interpreter client
-bool cRemoteInterpreter::SendSyncAll()
+bool cRemoteInterpreter::SendSyncAll(
+	const bool isForce //= false
+)
 {
 	for (uint k = 0; k < m_interpreters.size(); ++k)
 	{
@@ -299,7 +331,7 @@ bool cRemoteInterpreter::SendSyncAll()
 		sItpr &itpr = m_interpreters[itprId];
 		SendSyncInstruction(itprId);
 		SendSyncVMRegister(itprId);
-		SendSyncSymbolTable(itprId, -1);
+		SyncInformation(itprId, -1);
 		SendSyncData(itprId, -1);
 	}
 	return true;
@@ -1276,6 +1308,91 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 }
 
 
+// synchronize symboltable, primitive type (bool, number, string, reference)
+// itprId: interpreter index
+// vmId: virtual machine id
+// isSyncStartArgument: sync start event argument?
+bool cRemoteInterpreter::SendSyncSymbolTableAll(const netid rcvId
+	, const int itprId, const int vmId
+	, const bool isSyncStartArgument //=false
+)
+{
+	if ((uint)m_interpreters.size() <= (uint)itprId)
+		return false; // error return
+
+	sItpr& itpr = m_interpreters[itprId];
+	script::cInterpreter* interpreter = itpr.interpreter;
+	script::cVirtualMachine* vm = interpreter->GetVM(vmId);
+	if (!vm)
+		return false; // error return
+
+	vector<script::sSyncSymbol> symbols;
+
+	for (auto& kv1 : vm->m_symbTable.m_vars)
+	{
+		const string& scopeName = kv1.first;
+		for (auto& kv2 : kv1.second)
+		{
+			// check start event argument
+			if (isSyncStartArgument && (scopeName != "Task Start"))
+				continue;
+
+			const string& name = kv2.first;
+			const script::sVariable& cur = kv2.second; // current variable data
+
+			// array, map variable has reference?
+			bool isReference = false;
+			if ((script::eSymbolType::Array == cur.typeValues[0])
+				|| (script::eSymbolType::Map == cur.typeValues[0]))
+			{
+				if (cur.id != cur.var.intVal)
+				{
+					isReference = true;
+
+					// synchronize reference array or map variable next times
+					auto it2 = vm->m_symbTable.m_varMap.find(cur.var.intVal);
+					if (vm->m_symbTable.m_varMap.end() != it2)
+					{
+						script::sVariable* real =
+							vm->m_symbTable.FindVarInfo(it2->second.first, it2->second.second);
+						if (real)
+						{
+							real->flags |= 0x10; // data synchronize next time
+							vm->m_nsync.dataStreaming = true;
+						}
+					}
+				}
+			}
+			//~
+
+			symbols.push_back(
+				script::sSyncSymbol(&scopeName, &name, &cur.var, isReference));
+		}
+	}
+
+	// send current vm symbol table info
+	if (symbols.empty())
+	{
+		m_protocol.AckSyncSymbolTable(rcvId, true, itprId, vmId, 0);
+	}
+	else
+	{
+		m_protocol.AckSyncSymbolTable(rcvId, true, itprId, vmId, 1);
+		SendSymbolTableStream(m_protocol, itprId, vmId, rcvId, symbols);
+	}
+
+	// send child vm symbol table info (start event argument variable)
+	for (uint i = 0; i < (uint)interpreter->m_vms.size(); ++i)
+	{
+		script::cVirtualMachine *vm = interpreter->m_vms[i];
+		if (vmId != vm->m_parentId) continue;
+		SendSyncSymbolTableAll(rcvId, itprId, vm->m_id, true);
+	}
+
+	return true;
+}
+
+
 // send synchronize data (array, map type)
 bool cRemoteInterpreter::SendSyncData(const int itprId, const int vmId)
 {
@@ -1810,6 +1927,25 @@ bool cRemoteInterpreter::ReqVMTree(remotedbg2::ReqVMTree_Packet& packet)
 }
 
 
+// request sync symboltable
+bool cRemoteInterpreter::ReqSyncSymbolTable(remotedbg2::ReqSyncSymbolTable_Packet& packet)
+{
+	if (!IsRunning(packet.itprId))
+	{
+		// fail, ignore
+		m_protocol.AckSyncSymbolTable(packet.senderId, true, packet.itprId, packet.vmId, 0);
+		return true;
+	}
+
+	if (!SendSyncSymbolTableAll(packet.senderId, packet.itprId, packet.vmId))
+		m_protocol.AckSyncSymbolTable(packet.senderId, true, packet.itprId, packet.vmId, 0);
+
+	// send all vm symbol table
+	m_protocol.AckSyncSymbolTable(packet.senderId, true, packet.itprId, -1, 1);
+	return true;
+}
+
+
 // is webserver connected?
 bool cRemoteInterpreter::IsConnect()
 {
@@ -1835,10 +1971,6 @@ void cRemoteInterpreter::Clear()
 }
 
 
-namespace {
-	common::cMemoryPool2<1024 * 100> g_memPool;
-}
-
 // send intermediate code, using remotedbg2 protocol
 bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 	, const netid recvId, const int itprId, const int vmId
@@ -1846,7 +1978,7 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 {
 	// marshalling intermedatecode to byte stream
 	const uint BUFFER_SIZE = 1024 * 100;
-	BYTE *buff = (BYTE*)g_memPool.Alloc();
+	BYTE *buff = new BYTE[BUFFER_SIZE];
 
 	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
 	marsh.m_data = buff;
@@ -1886,7 +2018,7 @@ bool SendIntermediateCode(remotedbg2::h2r_Protocol &protocol
 		}
 	}
 
-	g_memPool.Free(buff);
+	delete[] buff;
 	return true;
 }
 
@@ -1944,5 +2076,57 @@ bool SendVMTreeStream(remotedbg2::h2r_Protocol& protocol
 		return false;
 	}
 
+	return true;
+}
+
+
+// send symboltable with streaming
+bool SendSymbolTableStream(remotedbg2::h2r_Protocol& protocol
+	, const int itprId, const int vmId, const netid recvId
+	, const vector<script::sSyncSymbol>& symbs)
+{
+	// marshalling symboltable to byte stream
+	const uint BUFFER_SIZE = 1024 * 100;
+	BYTE* buff = new BYTE[BUFFER_SIZE];
+
+	cPacket marsh(network2::GetPacketHeader(ePacketFormat::JSON));
+	marsh.m_data = buff;
+	marsh.m_bufferSize = BUFFER_SIZE;
+	marsh.m_writeIdx = 0;
+	network2::marshalling::operator<<(marsh, symbs);
+
+	// send split
+	const uint bufferSize = (uint)marsh.m_writeIdx;
+	if (bufferSize == 0)
+	{
+		// no intermediate code, fail!
+		protocol.AckSymbolTableStream(recvId, true, itprId, vmId, 0, 0, 0, {});
+	}
+	else
+	{
+		// 12 bytes = itpr(4), vmId(4), count(2), index(2)
+		// 2 * 4byte = totalBufferSize, buffsize
+		// 20 bytes = 12 + 8
+		const uint CHUNK_SIZE = network2::DEFAULT_PACKETSIZE -
+			(marsh.GetHeaderSize() + 20);
+		const uint totalCount = ((bufferSize % CHUNK_SIZE) == 0) ?
+			bufferSize / CHUNK_SIZE : (bufferSize / CHUNK_SIZE) + 1;
+
+		uint index = 0;
+		uint cursor = 0;
+		while (cursor < bufferSize)
+		{
+			const uint size = std::min(bufferSize - cursor, CHUNK_SIZE);
+			vector<BYTE> data(size);
+			memcpy_s(&data[0], size, &marsh.m_data[cursor], size);
+			protocol.AckSymbolTableStream(recvId, true
+				, itprId, vmId, totalCount, index, bufferSize, data);
+
+			cursor += size;
+			++index;
+		}
+	}
+
+	delete[] buff;
 	return true;
 }

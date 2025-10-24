@@ -436,6 +436,29 @@ remotedbg2.r2h_Dispatcher = class {
 				}
 				break;
 
+			case 1935417126: // ReqSyncSymbolTable
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const parsePacket = {
+							itprId,
+							vmId,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+								handler.ReqSyncSymbolTable(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.r2h_ProtocolHandler)
+								handler.ReqSyncSymbolTable(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
 			case 2149460281: // ReqHeartBeat
 				{
 					if (option == 1) { // binary?
@@ -970,6 +993,62 @@ remotedbg2.h2r_Dispatcher = class {
 						handlers.forEach(handler => {
 							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
 								handler.AckVMTreeStream(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 2019731778: // AckSyncSymbolTable
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const result = packet.getInt32()
+						const parsePacket = {
+							itprId,
+							vmId,
+							result,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.AckSyncSymbolTable(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.AckSyncSymbolTable(wss, ws, parsePacket)
+						})
+					}
+				}
+				break;
+
+			case 1151204869: // AckSymbolTableStream
+				{
+					if (option == 1) { // binary?
+						const itprId = packet.getInt32()
+						const vmId = packet.getInt32()
+						const count = packet.getUint16()
+						const index = packet.getUint16()
+						const totalBufferSize = packet.getUint32()
+						const data = packet.getUint8Array()
+						const parsePacket = {
+							itprId,
+							vmId,
+							count,
+							index,
+							totalBufferSize,
+							data,
+						}
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.AckSymbolTableStream(wss, ws, parsePacket)
+						})
+					} else { // json?
+						const parsePacket = JSON.parse(packet.getStr())
+						handlers.forEach(handler => {
+							if (handler instanceof remotedbg2.h2r_ProtocolHandler)
+								handler.AckSymbolTableStream(wss, ws, parsePacket)
 						})
 					}
 				}
@@ -1561,6 +1640,22 @@ remotedbg2.r2h_Protocol = class {
 		}
 	}
 	
+	// Protocol: ReqSyncSymbolTable
+	ReqSyncSymbolTable(ws, isBinary, itprId, vmId, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			WsSockServer.sendPacketBinary(ws, 5301, 1935417126, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+			}
+			WsSockServer.sendPacket(ws, 5301, 1935417126, packet)
+		}
+	}
+	
 	// Protocol: ReqHeartBeat
 	ReqHeartBeat(ws, isBinary, ) {
 		if (isBinary) { // binary send?
@@ -1928,6 +2023,48 @@ remotedbg2.h2r_Protocol = class {
 		}
 	}
 	
+	// Protocol: AckSyncSymbolTable
+	AckSyncSymbolTable(ws, isBinary, itprId, vmId, result, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushInt32(result)
+			WsSockServer.sendPacketBinary(ws, 5300, 2019731778, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				result,
+			}
+			WsSockServer.sendPacket(ws, 5300, 2019731778, packet)
+		}
+	}
+	
+	// Protocol: AckSymbolTableStream
+	AckSymbolTableStream(ws, isBinary, itprId, vmId, count, index, totalBufferSize, data, ) {
+		if (isBinary) { // binary send?
+			let packet = new Packet(512)
+			packet.pushInt32(itprId)
+			packet.pushInt32(vmId)
+			packet.pushUint16(count)
+			packet.pushUint16(index)
+			packet.pushUint32(totalBufferSize)
+			packet.pushUint8Array(data)
+			WsSockServer.sendPacketBinary(ws, 5300, 1151204869, packet.buff, packet.offset)
+		} else { // json string send?
+			const packet = {
+				itprId,
+				vmId,
+				count,
+				index,
+				totalBufferSize,
+				data,
+			}
+			WsSockServer.sendPacket(ws, 5300, 1151204869, packet)
+		}
+	}
+	
 	// Protocol: SyncVMInstruction
 	SyncVMInstruction(ws, isBinary, itprId, vmId, indices, ) {
 		if (isBinary) { // binary send?
@@ -2196,6 +2333,7 @@ remotedbg2.r2h_ProtocolHandler = class {
 	ReqVariableInfo(wss, ws, packet) {}
 	ReqChangeVariable(wss, ws, packet) {}
 	ReqVMTree(wss, ws, packet) {}
+	ReqSyncSymbolTable(wss, ws, packet) {}
 	ReqHeartBeat(wss, ws, packet) {}
 }
 
@@ -2225,6 +2363,8 @@ remotedbg2.h2r_ProtocolHandler = class {
 	AckChangeVariable(wss, ws, packet) {}
 	AckVMTree(wss, ws, packet) {}
 	AckVMTreeStream(wss, ws, packet) {}
+	AckSyncSymbolTable(wss, ws, packet) {}
+	AckSymbolTableStream(wss, ws, packet) {}
 	SyncVMInstruction(wss, ws, packet) {}
 	SyncVMRegister(wss, ws, packet) {}
 	SyncVMSymbolTable(wss, ws, packet) {}

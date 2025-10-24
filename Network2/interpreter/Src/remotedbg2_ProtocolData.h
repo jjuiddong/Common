@@ -118,6 +118,13 @@ using namespace marshalling_json;
 		netid senderId;
 	};
 
+	struct ReqSyncSymbolTable_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmId;
+	};
+
 	struct ReqHeartBeat_Packet {
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
@@ -275,6 +282,25 @@ using namespace marshalling_json;
 		cProtocolDispatcher *pdispatcher;
 		netid senderId;
 		int id;
+		ushort count;
+		ushort index;
+		uint totalBufferSize;
+		vector<BYTE> data;
+	};
+
+	struct AckSyncSymbolTable_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmId;
+		int result;
+	};
+
+	struct AckSymbolTableStream_Packet {
+		cProtocolDispatcher *pdispatcher;
+		netid senderId;
+		int itprId;
+		int vmId;
 		ushort count;
 		ushort index;
 		uint totalBufferSize;
