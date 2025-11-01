@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -292,6 +292,30 @@ class PxQuatT
 		const Type dot2 = (x * vx + y * vy + z * vz);
 		return PxVec3T<Type>((vx * w2 + (y * vz - z * vy) * w + x * dot2), (vy * w2 + (z * vx - x * vz) * w + y * dot2),
 						     (vz * w2 + (x * vy - y * vx) * w + z * dot2));
+	}
+
+	/** \brief computes inverse rotation of x-axis */
+	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3T<Type> getInvBasisVector0() const
+	{
+		const Type x2 = x * Type(2.0);
+		const Type w2 = w * Type(2.0);
+		return PxVec3T<Type>((w * w2) - Type(1.0) + x * x2, (-z * w2) + y * x2, (y * w2) + z * x2);
+	}
+
+	/** \brief computes the inverse rotation of the y-axis */
+	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3T<Type> getInvBasisVector1() const
+	{
+		const Type y2 = y * Type(2.0);
+		const Type w2 = w * Type(2.0);
+		return PxVec3T<Type>((z * w2) + x * y2, (w * w2) - Type(1.0) + y * y2, (-x * w2) + z * y2);
+	}
+
+	/** \brief computes the inverse rotation of the z-axis */
+	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3T<Type> getInvBasisVector2() const
+	{
+		const Type z2 = z * Type(2.0);
+		const Type w2 = w * Type(2.0);
+		return PxVec3T<Type>((-y * w2) + x * z2, (x * w2) + y * z2, (w * w2) - Type(1.0) + z * z2);
 	}
 
 	/**

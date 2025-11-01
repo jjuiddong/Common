@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -51,6 +51,8 @@ namespace physx
 /**
 \brief Enum for selecting the friction algorithm used for simulation.
 
+\deprecated Since only the patch friction model is supported now, the friction type option is obsolete.
+
 #PxFrictionType::ePATCH is the default friction logic (Couloumb type friction model). Friction gets computed per contact patch.
 Up to two contact points lying in the contact patch area are selected as friction anchors to which friction impulses are applied. If there
 are more than two contact points, to select anchors from, the anchors are selected using a heuristic that tries to maximize the distance
@@ -64,13 +66,11 @@ and all velocity iterations (unless #PxSceneFlag::eENABLE_FRICTION_EVERY_ITERATI
 
 #PxFrictionType::eFRICTION_COUNT is the total number of friction models supported by the SDK.
 */
-struct PxFrictionType
+struct PX_DEPRECATED PxFrictionType
 {
 	enum Enum
 	{
 		ePATCH,				//!< Select default patch-friction model.
-		eONE_DIRECTIONAL PX_DEPRECATED, //!< \deprecated Will be removed in a future version without replacement. Please do not use.
-		eTWO_DIRECTIONAL PX_DEPRECATED,	//!< \deprecated Will be removed in a future version without replacement. Please do not use.
 		eFRICTION_COUNT		//!< The total number of friction models supported by the SDK.
 	};
 };
@@ -343,6 +343,33 @@ struct PxSceneFlag
 		*/
 		eENABLE_SOLVER_RESIDUAL_REPORTING = (1 << 19),
 
+		/**
+		\brief Reorders articulation contact constraints and articulation joint maximum velocity constraints in the solver.
+
+		When this flag is raised, the solver will observe the following order:
+		- joint friction, joint drive, joint position limit
+		- link dynamic contact
+		- link static contact
+		- joint max velocity
+
+		When the flag is lowered, the solver will observe a modified order:
+		- link dynamic contact
+		- joint friction, joint drive, joint position limit
+		- joint max velocity
+		- link static contact
+
+		Raising the flag can be useful for certain simulation scenarios such as gripping, where it is desirable for dynamic contact 
+		to be resolved after joint drive but before max joint velocity.
+
+		\note Raising this flag may have a negative effect on simulation performance.
+
+		\note A goal of raising this flag is shallower contact penetration. This will in turn result in a reduced force 
+		reported by PxArticulationCache::linkIncomingJointForce.
+ 
+		<b>Default</b> false
+		*/
+		eSOLVE_ARTICULATION_CONTACT_LAST = (1 << 20),
+
 		eMUTABLE_FLAGS = eENABLE_ACTIVE_ACTORS|eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS
 	};
 };
@@ -539,7 +566,6 @@ public:
 	*/
 	PxPostSolveCallback* deformableVolumePostSolveCallback;
 
-
 	/**
 	\brief Shared global filter data which will get passed into the filter shader.
 
@@ -618,6 +644,17 @@ public:
 	PxBroadPhaseCallback*	broadPhaseCallback;
 
 	/**
+	\brief Optional GPU broad-phase descriptor.
+
+	This is only used for the GPU broadphase (PxBroadPhaseType::eGPU).
+
+	<b>Default:</b> NULL
+
+	\see PxBroadPhaseType
+	*/
+	PxGpuBroadPhaseDesc*	gpuBroadPhaseDesc;
+
+	/**
 	\brief Expected scene limits.
 
 	\see PxSceneLimits PxScene.getLimits()
@@ -627,13 +664,13 @@ public:
 	/**
 	\brief Selects the friction algorithm to use for simulation.
 
-	\note frictionType cannot be modified after the first call to any of PxScene::simulate, PxScene::solve and PxScene::collide
+	\deprecated Since only the patch friction model is supported now, the frictionType parameter is obsolete.
 
 	<b>Default:</b> PxFrictionType::ePATCH
 
-	\see PxFrictionType PxScene.setFrictionType(), PxScene.getFrictionType()
+	\see PxFrictionType PxScene.getFrictionType()
 	*/
-	PxFrictionType::Enum frictionType;
+	PX_DEPRECATED PxFrictionType::Enum frictionType;
 
 	/**
 	\brief Selects the solver algorithm to use.
@@ -1001,6 +1038,7 @@ PX_INLINE PxSceneDesc::PxSceneDesc(const PxTolerancesScale& scale):
 
 	broadPhaseType					(PxBroadPhaseType::ePABP),
 	broadPhaseCallback				(NULL),
+	gpuBroadPhaseDesc				(NULL),
 
 	frictionType					(PxFrictionType::ePATCH),
 	solverType						(PxSolverType::ePGS),
@@ -1101,11 +1139,17 @@ PX_INLINE bool PxSceneDesc::isValid() const
 	if(!gpuDynamicsConfig.isValid())
 		return false;
 
-	if (flags & PxSceneFlag::eENABLE_DIRECT_GPU_API)
+	if(flags & PxSceneFlag::eENABLE_DIRECT_GPU_API)
 	{
 		if(!(flags & PxSceneFlag::eENABLE_GPU_DYNAMICS && broadPhaseType == PxBroadPhaseType::eGPU))
 			return false;
+
+		if(flags & PxSceneFlag::eENABLE_CCD)
+			return false;
 	}
+
+	if(gpuBroadPhaseDesc && broadPhaseType != PxBroadPhaseType::eGPU)
+		return false;
 #endif
 
 	if(contactPairSlabSize == 0)

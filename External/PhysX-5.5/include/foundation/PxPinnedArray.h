@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -125,7 +125,7 @@ namespace physx
 	typedef PxArray<PxBounds3, PxVirtualAllocator>			PxBoundsArrayPinned;
 	typedef	PxArray<PxReal, PxVirtualAllocator>				PxFloatArrayPinned;
 	typedef	PxArray<PxU32, PxVirtualAllocator>				PxInt32ArrayPinned;
-    typedef PxArray<PxU16, PxVirtualAllocator>				PxInt16ArrayPinned;
+	typedef PxArray<PxU16, PxVirtualAllocator>				PxInt16ArrayPinned;
 	typedef	PxArray<PxU8, PxVirtualAllocator>				PxInt8ArrayPinned;
 
 	// PT: new versions
@@ -136,7 +136,7 @@ namespace physx
 	typedef PxArray<PxBounds3, PxPinnedAllocator<PxBounds3> >					PxBoundsArrayPinnedSafe;
 	typedef	PxArray<PxReal, PxPinnedAllocator<PxReal> >							PxFloatArrayPinnedSafe;
 	typedef	PxArray<PxU32, PxPinnedAllocator<PxU32> >							PxInt32ArrayPinnedSafe;
-    typedef PxArray<PxU16, PxPinnedAllocator<PxU16> >							PxInt16ArrayPinnedSafe;
+	typedef PxArray<PxU16, PxPinnedAllocator<PxU16> >							PxInt16ArrayPinnedSafe;
 	typedef	PxArray<PxU8, PxPinnedAllocator<PxU8> >								PxInt8ArrayPinnedSafe;
 
 #if !PX_DOXYGEN

@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -114,15 +114,6 @@ struct PxConvexFlag
 		in incorrect inertia for very thin hulls.
 		*/
 		eFAST_INERTIA_COMPUTATION = (1 << 6),
-
-		/**
-		\brief Convex hulls are created with respect to GPU simulation limitations. Vertex limit and polygon limit 
-		is set to 64 and vertex limit per face is internally set to 32.
-		\note Can be used only with eCOMPUTE_CONVEX flag.
-
-		\deprecated since PhysX 5.2. Setting #PxCookingParams::buildGPUData to true always cooks GPU-compatible meshes.
-		*/
-		eGPU_COMPATIBLE PX_DEPRECATED = (1 << 7),
 
 		/**
 		\brief Convex hull input vertices are shifted to be around origin to provide better computation stability.

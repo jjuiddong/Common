@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -596,65 +596,6 @@ namespace physx
 		virtual		void				putToSleep() = 0;
 
 		/**
-		\deprecated The COM velocity limits will be removed in a future version without replacement.
-
-		\brief Sets the limit on the magnitude of the linear velocity of the articulation's center of mass.
-
-		- The limit acts on the linear velocity of the entire articulation. The velocity is calculated from the total momentum
-		and the spatial inertia of the articulation.
-		- The limit only applies to floating-base articulations.
-		- A benefit of the COM velocity limit is that it is evenly applied to the whole articulation, which results in fewer visual
-		artifacts compared to link rigid-body damping or joint-velocity limits. However, these per-link or per-degree-of-freedom
-		limits may still help avoid numerical issues.
-
-		\note This call may not be made during simulation.
-
-		\param[in]  maxLinearVelocity The maximal linear velocity magnitude. <b>Range:</b> [0, PX_MAX_F32); <b>Default:</b> 1e+6.
-
-		\see setMaxCOMAngularVelocity, PxRigidBody::setLinearDamping, PxRigidBody::setAngularDamping, PxArticulationJointReducedCoordinate::setMaxJointVelocity
-		*/
-		PX_DEPRECATED virtual		void				setMaxCOMLinearVelocity(const PxReal maxLinearVelocity) = 0;
-
-		/**
-		\deprecated The COM velocity limits will be removed in a future version without replacement.
-		\brief Gets the limit on the magnitude of the linear velocity of the articulation's center of mass.
-
-		\return The maximal linear velocity magnitude.
-
-		\see setMaxCOMLinearVelocity
-		*/
-		PX_DEPRECATED virtual		PxReal				getMaxCOMLinearVelocity() const = 0;
-
-		/**
-		\deprecated The COM velocity limits will be removed in a future version without replacement.
-		\brief Sets the limit on the magnitude of the angular velocity at the articulation's center of mass.
-
-		- The limit acts on the angular velocity of the entire articulation. The velocity is calculated from the total momentum
-		and the spatial inertia of the articulation.
-		- The limit only applies to floating-base articulations.
-		- A benefit of the COM velocity limit is that it is evenly applied to the whole articulation, which results in fewer visual
-		artifacts compared to link rigid-body damping or joint-velocity limits. However, these per-link or per-degree-of-freedom
-		limits may still help avoid numerical issues.
-
-		\note This call may not be made during simulation.
-
-		\param[in]  maxAngularVelocity The maximal angular velocity magnitude. <b>Range:</b> [0, PX_MAX_F32); <b>Default:</b> 1e+6
-
-		\see setMaxCOMLinearVelocity, PxRigidBody::setLinearDamping, PxRigidBody::setAngularDamping, PxArticulationJointReducedCoordinate::setMaxJointVelocity
-		*/
-		PX_DEPRECATED virtual		void				setMaxCOMAngularVelocity(const PxReal maxAngularVelocity) = 0;
-
-		/**
-		\deprecated The COM velocity limits will be removed in a future version without replacement.
-		\brief Gets the limit on the magnitude of the angular velocity at the articulation's center of mass.
-
-		\return The maximal angular velocity magnitude.
-
-		\see setMaxCOMAngularVelocity
-		*/
-		PX_DEPRECATED virtual		PxReal				getMaxCOMAngularVelocity() const = 0;
-
-		/**
 		\brief Adds a link to the articulation with default attribute values.
 
 		\param[in] parent The parent link in the articulation. Must be NULL if (and only if) this is the root link.
@@ -854,6 +795,17 @@ namespace physx
 
 		\note This call may only be made on articulations that are in a scene, and may not be made during simulation.
 
+		\note Calling applyCache(cache, PxArticulationCacheFlag::eROOT_TRANSFORM) has the same outcome as calling 
+		PxArticulationReducedCoordinate::setRootGlobalPose() followed by PxArticulationReducedCoordinate::updateKinematic(PxArticulationKinematicFlag::ePOSITION).
+		Similarly, calling applyCache(cache, PxArticulationCacheFlag::eROOT_VELOCITIES) is the cache equivalent of calling 
+		PxArticulationReducedCoordinate::setRootLinearVelocity() followed by PxArticulationReducedCoordinate::updateKinematic(PxArticulationKinematicFlag::eVELOCITY).  
+		Joint positions follow a similar pattern with applyCache(cache, PxArticulationCacheFlag::ePOSITION) having the same outcome as callling 
+		PxArticulationJointReducedCoordinate::setJointPosition() followed by PxArticulationReducedCoordinate::updateKinematic(PxArticulationKinematicFlag::ePOSITION).  
+		Finally, joint velocities updated with applyCache(PxArticulationCacheFlag::eVELOCITY) will produce the same outcome as calling 
+		PxArticulationJointReducedCoordinate::setJointVelocity() followed by PxArticulationReducedCoordinate::updateKinematic(PxArticulationKinematicFlag::eVELOCITY).
+
+		\note This method should not be used if the direct GPU API is enabled. See #PxDirectGPUAPI for the details.
+
 		\see PxArticulationCache, PxArticulationCacheFlags, createCache, copyInternalStateToCache, PxScene::applyArticulationData
 		*/
 		virtual		void					applyCache(PxArticulationCache& cache, const PxArticulationCacheFlags flags, bool autowake = true) = 0;
@@ -865,6 +817,8 @@ namespace physx
 		\param[in] flags Indicate which data to copy from the articulation to the cache.
 
 		\note This call may only be made on articulations that are in a scene, and may not be made during simulation.
+
+		\note This method should not be used if the direct GPU API is enabled. See #PxDirectGPUAPI for the details.
 
 		\see PxArticulationCache, PxArticulationCacheFlags, createCache, applyCache
 		*/
@@ -1049,17 +1003,17 @@ namespace physx
 		virtual		void					computeJointAcceleration(PxArticulationCache& cache) const = 0;
 
 		/**
-		\brief Computes the joint forces for the given articulation state and joint accelerations, not considering gravity.
+		\brief Computes the joint forces for the given articulation pose and joint accelerations, not considering gravity and velocity.
 
-		- Inputs:	Joint accelerations (in cache) and articulation state (joint positions and velocities (in cache), and base transform and spatial velocity).
+		- Inputs:	Joint accelerations (in cache).
 		- Outputs:	Joint forces (in cache).
 
-		- The computation includes Coriolis terms. However, joint drives and potential damping terms are not considered in the computation
+		- Gravity, Coriolis effects, joint drives and potential damping terms are not considered in the computation
 		(for example, linear link damping or joint friction).
-		- Prior to the computation, update/set the base spatial velocity with PxArticulationCache::rootLinkData and applyCache().
+		- To compute the joint force for a different pose, the joint positions and root transform first need to be applied with applyCache() as this function ignores any values set to joint positions and root transform in the cache
 		- commonInit() must be called before the computation, and after setting the articulation pose via applyCache().
 
-		\param[in,out] cache In: PxArticulationCache::jointAcceleration and PxArticulationCache::jointVelocity; Out: PxArticulationCache::jointForce.
+		\param[in,out] cache In: PxArticulationCache::jointAcceleration; Out: PxArticulationCache::jointForce.
 
 		\note This call may only be made on articulations that are in a scene, and may not be made during simulation.
 
@@ -1209,7 +1163,7 @@ namespace physx
 
 		\note This call may not be made during simulation.
 
-		\see PxContactJoint, PxFixedJoint, PxSphericalJoint, PxRevoluteJoint, PxPrismaticJoint, PxDistanceJoint, PxD6Joint
+		\see PxFixedJoint, PxSphericalJoint, PxRevoluteJoint, PxPrismaticJoint, PxDistanceJoint, PxD6Joint
 		*/
 		virtual	PX_DEPRECATED	void		addLoopJoint(PxConstraint* joint) = 0;
 
@@ -1274,6 +1228,8 @@ namespace physx
 		\note PxArticulationCache::rootLinkData similarly allows the root link pose to be updated and potentially offers better performance 
 		if the root link pose is to be updated along with other state variables. 
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see getRootGlobalPose, updateKinematic, PxArticulationCache, applyCache
 		*/
 		virtual		void					setRootGlobalPose(const PxTransform& pose, bool autowake = true) = 0;
@@ -1288,6 +1244,8 @@ namespace physx
 
 		\note PxArticulationCache::rootLinkData similarly allows the root link pose to be queried and potentially offers better performance if the root
 		link pose is to be queried along with other state variables. 
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\see setRootGlobalPose, PxArticulationCache, copyInternalStateToCache
 		*/
@@ -1310,6 +1268,8 @@ namespace physx
 		\note PxArticulationCache::rootLinkData similarly allows the root link linear velocity to be updated and potentially offers better performance 
 		if the root link linear velocity is to be updated along with other state variables. 
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see updateKinematic, getRootLinearVelocity, setRootAngularVelocity, getRootAngularVelocity, PxRigidBody::getCMassLocalPose, PxArticulationCache, applyCache
 		*/
 		virtual		void					setRootLinearVelocity(const PxVec3& linearVelocity, bool autowake = true) = 0;
@@ -1326,6 +1286,8 @@ namespace physx
 
 		\note PxArticulationCache::rootLinkData similarly allows the root link linear velocity to be queried and potentially offers better performance 
 		if the root link linear velocity is to be queried along with other state variables. 
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\see setRootLinearVelocity, setRootAngularVelocity, getRootAngularVelocity, PxRigidBody::getCMassLocalPose, PxArticulationCache, applyCache
 		*/
@@ -1347,6 +1309,8 @@ namespace physx
 		\note PxArticulationCache::rootLinkData similarly allows the root link angular velocity to be updated and potentially offers better performance 
 		if the root link angular velocity is to be updated along with other state variables. 
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see updateKinematic, getRootAngularVelocity, setRootLinearVelocity, getRootLinearVelocity, PxArticulationCache, applyCache
 		*/
 		virtual		void					setRootAngularVelocity(const PxVec3& angularVelocity, bool autowake = true) = 0;
@@ -1361,6 +1325,8 @@ namespace physx
 
 		\note PxArticulationCache::rootLinkData similarly allows the root link angular velocity to be queried and potentially offers better performance 
 		if the root link angular velocity is to be queried along with other state variables. 
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\see setRootAngularVelocity, setRootLinearVelocity, getRootLinearVelocity, PxArticulationCache, applyCache
 		*/
@@ -1380,18 +1346,11 @@ namespace physx
 		is running.  The exceptions to this rule are a split simulation during #PxScene::collide() and up to #PxScene::advance(); 
 		in PxContactModifyCallback; and in contact report callbacks.
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see PxArticulationLink::getLinkIndex, PxRigidBody::getCMassLocalPose
 		*/
 		virtual		PxSpatialVelocity		getLinkAcceleration(const PxU32 linkId) = 0;
-
-		/**
-		\brief Returns the GPU articulation index.
-
-		\return The GPU index, or 0xFFFFFFFF if the articulation is not in a scene or PxSceneFlag::eENABLE_DIRECT_GPU_API is not set.
-
-		\deprecated use getGpuIndex() instead.
-		*/
-		virtual		PX_DEPRECATED PxU32					getGpuArticulationIndex() = 0;
 
 		/**
 		\brief Returns the GPU articulation index.

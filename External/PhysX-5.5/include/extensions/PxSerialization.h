@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -41,15 +41,13 @@
 PX_BINARY_SERIAL_VERSION is used to version the PhysX binary data and meta data. The global unique identifier of the PhysX SDK needs to match 
 the one in the data and meta data, otherwise they are considered incompatible. A 32 character wide GUID can be generated with https://www.guidgenerator.com/ for example. 
 */
-#define PX_BINARY_SERIAL_VERSION "FF020CDD6F8B434CA53C97D149017ED3"
+#define PX_BINARY_SERIAL_VERSION "49FB7605F83144B6825C2673CF3840C9"
 
 
 #if !PX_DOXYGEN
 namespace physx
 {
 #endif
-
-	class PxBinaryConverter;
 
 /**
 \brief Utility functions for serialization
@@ -233,50 +231,6 @@ public:
 	\see PxCollection, PxOutputStream, PxSerialization::complete, PxSerialization::createCollectionFromBinary, PxSerializationRegistry
 	*/
 	static	bool			serializeCollectionToBinary(PxOutputStream& outputStream, PxCollection& collection, PxSerializationRegistry& sr, const PxCollection* externalRefs = NULL, bool exportNames = false );
-
-	/**
-	\brief Serializes a collection to a binary stream.
-
-	\deprecated Deterministic binary serialization is deprecated. PxSerialization::serializeCollectionToBinary might become deterministic in the future.
-
-	Convenience function that serializes a collection to a stream while rebasing memory addresses and handles
-	to achieve a deterministic output, independent of the PhysX runtime environment the objects have been created in. 
-
-	The same functionality can be achieved by manually
-	- creating a binary data stream with PxSerialization::serializeCollectionToBinary
-	- producing the binary meta data of the current runtime platform with PxSerialization::dumpBinaryMetaData
-	- converting the binary data stream with the PxBinaryConverter, using the binary meta for both source and destination
-
-	\see PxSerialization::serializeCollectionToBinary, PxSerialization::dumpBinaryMetaData, PxBinaryConverter
-	*/
-	PX_DEPRECATED static bool serializeCollectionToBinaryDeterministic(PxOutputStream& outputStream, PxCollection& collection, PxSerializationRegistry& sr, const PxCollection* externalRefs = NULL, bool exportNames = false);
-
-	/** 
-	\brief Dumps the binary meta-data to a stream.
-
-	\deprecated Binary conversion and binary meta data are deprecated.
-
-	A meta-data file contains information about the SDK's internal classes and about custom user types ready 
-	for serialization. Such a file is needed to convert binary-serialized data from one platform to another (re-targeting). 
-	The converter needs meta-data files for the source and target platforms to perform conversions.
-
-	Custom user types can be supported with PxSerializationRegistry::registerBinaryMetaDataCallback (see the guide for more information). 
-	
-	\param[out] outputStream Stream to write meta data to	
-	\param[in] sr PxSerializationRegistry instance with information about registered classes used for conversion.
-	
-	\see PxOutputStream, PxSerializationRegistry
-	*/
-	PX_DEPRECATED static void dumpBinaryMetaData(PxOutputStream& outputStream, PxSerializationRegistry& sr);
-
-	/**
-	\brief Creates binary converter for re-targeting binary-serialized data.
-	
-	\deprecated Binary conversion and binary meta data are deprecated.
-
-	\return Binary converter instance.
-	*/
-	PX_DEPRECATED static PxBinaryConverter* createBinaryConverter();
 
 	/**
 	\brief Creates an application managed registry for serialization.

@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -223,6 +223,7 @@ namespace physx
 		to #PxSceneDesc::wakeCounterResetValue if the counter value is below the reset value.
 
 		\note This call is not allowed while the simulation is running.
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\note For spherical joints, target must be in range [-Pi, Pi].
 
@@ -240,7 +241,9 @@ namespace physx
 		\brief Returns the joint drive position target for the given axis.
 
 		\param[in] axis The target axis.
-		
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\return The target position.
 
 		\see PxArticulationAxis, setDriveTarget
@@ -259,6 +262,8 @@ namespace physx
 
 		\note This call is not allowed while the simulation is running.
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see PxArticulationAxis, getDriveVelocity
 
 		<b>Default:</b> 0.0
@@ -269,6 +274,8 @@ namespace physx
 		\brief Returns the joint drive velocity target for the given axis.
 
 		\param[in] axis The target axis.
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\return The target velocity.
 
@@ -320,7 +327,7 @@ namespace physx
 
 		<b>Default:</b> 0.05
 		*/
-		virtual		void				setFrictionCoefficient(const PxReal coefficient) = 0;
+		virtual	PX_DEPRECATED	void	setFrictionCoefficient(const PxReal coefficient) = 0;
 
 		/**
 		\brief Gets the joint friction coefficient.
@@ -329,7 +336,33 @@ namespace physx
 
 		\see setFrictionCoefficient
 		*/
-		virtual		PxReal				getFrictionCoefficient() const = 0;
+		virtual	PX_DEPRECATED	PxReal	getFrictionCoefficient() const = 0;
+
+		/**
+		\brief Configures joint friction.
+
+		See PxJointFrictionParams for parameter details; and the manual for further information. The new friction model is applied to all axes where setFrictionParams() has been called. 
+		For axes where setFrictionParams() hasn't been used, the deprecated friction model remains in effect. See setFrictionCoefficient().
+
+		\param[in] axis The target axis.
+		\param[in] jointFrictionParams The joint friction parameters.
+
+		\note This call is not allowed while the simulation is running.
+		
+		<b>Default:</b> PxJointFrictionParams(0.0f, 0.0f, 0.0f)
+		*/
+		virtual void setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams) = 0;
+
+		/**
+		\brief Gets per-axis joint friction parameters struct.
+
+		\param[in] axis The target axis.
+
+		\return The joint friction parameters.
+
+		\see setFrictionParams()
+		*/
+		virtual PxJointFrictionParams getFrictionParams(PxArticulationAxis::Enum axis) const = 0;
 
 		/**
 		\brief Sets the maximal joint velocity enforced for all axes.
@@ -345,7 +378,7 @@ namespace physx
 
 		<b>Default:</b> 100.0
 		*/
-		virtual		void				setMaxJointVelocity(const PxReal maxJointV) = 0;
+		virtual	 PX_DEPRECATED	void				setMaxJointVelocity(const PxReal maxJointV) = 0;
 
 		/**
 		\brief Gets the maximal joint velocity enforced for all axes.
@@ -354,7 +387,35 @@ namespace physx
 
 		\see setMaxJointVelocity
 		*/
-		virtual		PxReal				getMaxJointVelocity() const = 0;
+		virtual	 PX_DEPRECATED	PxReal				getMaxJointVelocity() const = 0;
+
+		/**
+		\brief Sets the maximal joint velocity enforced for the given axis.
+
+		- The solver will apply appropriate joint-space impulses in order to enforce the per-axis joint-velocity limit.
+		- The velocity units are linear units (equivalent to scene units) per second for a translational axis, or radians per second for a rotational axis.
+
+		\param[in] axis The target axis.
+		\param[in] maxJointV The maximal per-axis joint velocity.
+
+		\note This call is not allowed while the simulation is running.
+
+		\see getMaxJointVelocity()
+
+		<b>Default:</b> 100.0
+		*/
+		virtual		void				setMaxJointVelocity(PxArticulationAxis::Enum axis, const PxReal maxJointV) = 0;
+
+		/**
+		\brief Gets the maximal joint velocity enforced for the given axis.
+
+		\param[in] axis The target axis.
+		
+		\return The maximal joint velocity for the given axis.
+
+		\see setMaxJointVelocity()
+		*/
+		virtual		PxReal				getMaxJointVelocity(PxArticulationAxis::Enum axis) const = 0;
 
 		/**
 		\brief Sets the joint position for the given axis.
@@ -367,6 +428,8 @@ namespace physx
 		\param[in] jointPos The joint position in linear units (equivalent to scene units) for a translational axis, or radians for a rotational axis.
 
 		\note This call is not allowed while the simulation is running.
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\note For PxArticulationJointType::eSPHERICAL, jointPos must be in range [-Pi, Pi].
 		\note For PxArticulationJointType::eREVOLUTE, jointPos must be in range [-2*Pi, 2*Pi].
@@ -395,6 +458,8 @@ namespace physx
 		\note This call is not allowed while the simulation is running except in a split simulation during #PxScene::collide() and up to #PxScene::advance(),
 		and in PxContactModifyCallback or in contact report callbacks.
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see PxArticulationAxis, setJointPosition, PxArticulationCache::jointPosition
 		*/
 		virtual		PxReal				getJointPosition(PxArticulationAxis::Enum axis) const = 0;
@@ -410,6 +475,8 @@ namespace physx
 		\param[in] jointVel The joint velocity in linear units (equivalent to scene units) per second for a translational axis, or radians per second for a rotational axis.
 
 		\note This call is not allowed while the simulation is running.
+
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 		\see PxArticulationAxis, getJointVelocity, PxArticulationCache::jointVelocity, PxArticulationReducedCoordinate::updateKinematic
 
@@ -429,6 +496,8 @@ namespace physx
 		\note This call is not allowed while the simulation is running except in a split simulation during #PxScene::collide() and up to #PxScene::advance(),
 		and in PxContactModifyCallback or in contact report callbacks.
 
+		\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 		\see PxArticulationAxis, setJointVelocity, PxArticulationCache::jointVelocity
 		*/
 		virtual		PxReal				getJointVelocity(PxArticulationAxis::Enum axis) const = 0;
@@ -444,6 +513,29 @@ namespace physx
 
 		//public variables:
 		void*									userData;	//!< The user can assign this to whatever, usually to create a 1:1 relationship with a user object.
+
+		/**
+		\brief Sets a name string for the object that can be retrieved with getName().
+	
+		This is for debugging and is not used by the SDK. The string is not copied by the SDK, 
+		only the pointer is stored.
+
+		\param[in] name String to set the objects name to.
+
+		<b>Default:</b> NULL
+
+		\see getName()
+		*/
+		virtual		void			setName(const char* name)		= 0;
+
+		/**
+		\brief Retrieves the name string set with setName().
+
+		\return Name string associated with object.
+
+		\see setName()
+		*/
+		virtual		const char*		getName()			const	= 0;
 
 	protected:
 		PX_INLINE								PxArticulationJointReducedCoordinate(PxType concreteType, PxBaseFlags baseFlags) : PxBase(concreteType, baseFlags) {}

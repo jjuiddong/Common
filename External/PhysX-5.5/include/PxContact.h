@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -813,7 +813,7 @@ private:
 };
 
 /**
-\brief Contains contact information for a contact reported by the direct-GPU contact report API. See PxScene::copyContactData().
+\brief Contains contact information for a contact reported by the direct-GPU contact report API. See PxDirectGPUAPI::copyContactData().
 */
 struct PxGpuContactPair
 {

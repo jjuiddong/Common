@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -148,7 +148,6 @@ class PxPoolBase : public PxUserAllocated, public Alloc
 		T* t = allocate();
 		return t ? PX_PLACEMENT_NEW(t, T(a, b, c, d, e, f)) : NULL;
 	}
-
 	
 	template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 	PX_INLINE T* construct(A1& a, A2& b, A3& c, A4& d, A5& e, A6& f, A7& g)
@@ -182,9 +181,9 @@ class PxPoolBase : public PxUserAllocated, public Alloc
 	// All the allocated slabs, sorted by pointer
 	PxArray<void*, Alloc> mSlabs;
 
-	uint32_t mElementsPerSlab;
+	const uint32_t mElementsPerSlab;
 	uint32_t mUsed;
-	uint32_t mSlabSize;
+	const uint32_t mSlabSize;
 
 	FreeList* mFreeElement; // Head of free-list
 
@@ -264,4 +263,3 @@ class PxPool2 : public PxPoolBase<T, Alloc>
 } // namespace physx
 
 #endif
-

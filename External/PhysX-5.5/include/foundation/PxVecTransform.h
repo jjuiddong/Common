@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -70,12 +70,6 @@ class PxTransformV
 		return PxTransformV(QuatRotateInv(q, V3Neg(p)), QuatConjugate(q));
 	}
 
-	PX_FORCE_INLINE void normalize()
-	{
-		p = V3Zero();
-		q = QuatIdentity();
-	}
-
 	PX_FORCE_INLINE void invalidate()
 	{
 		p = V3Splat(FMax());
@@ -101,6 +95,13 @@ class PxTransformV
 		PX_ASSERT(isFinite());
 		// return q.rotate(input);
 		return QuatRotate(q, input);
+	}
+
+	// PT: avoid some multiplies when immediately normalizing a rotated vector
+	PX_FORCE_INLINE Vec3V rotateAndNormalize(const Vec3VArg input) const
+	{
+		PX_ASSERT(isFinite());
+		return QuatRotateAndNormalize(q, input);
 	}
 
 	PX_FORCE_INLINE Vec3V rotateInv(const Vec3VArg input) const

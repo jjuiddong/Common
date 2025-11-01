@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -62,7 +62,6 @@ struct PxHitFlag
 		eANY_HIT					= (1<<5),	//!< Report any first hit. Used for geometries that contain more than one primitive. For meshes,
 												//!< if neither eMESH_MULTIPLE nor eANY_HIT is specified, a single closest hit will be reported.
 		eMESH_MULTIPLE				= (1<<6),	//!< Report all hits for meshes rather than just the first. Not applicable to sweep queries.
-		eMESH_ANY					= eANY_HIT,	//!< \deprecated Deprecated, please use eANY_HIT instead.
 		eMESH_BOTH_SIDES			= (1<<7),	//!< Report hits with back faces of mesh triangles. Also report hits for raycast
 												//!< originating on mesh surface and facing away from the surface normal. Not applicable to sweep queries.
 												//!< Please refer to the user guide for heightfield-specific differences.
@@ -178,10 +177,22 @@ struct PxGeomSweepHit : PxLocationHit
 */
 struct PxGeomIndexPair
 {
-    PX_FORCE_INLINE PxGeomIndexPair()												{}
-    PX_FORCE_INLINE PxGeomIndexPair(PxU32 _id0, PxU32 _id1) : id0(_id0), id1(_id1)	{}
+	PX_FORCE_INLINE PxGeomIndexPair()												{}
+	PX_FORCE_INLINE PxGeomIndexPair(PxU32 _id0, PxU32 _id1) : id0(_id0), id1(_id1)	{}
 
 	PxU32	id0, id1;
+};
+
+/**
+\brief Pair of indices and a distance between involved objects or triangles.
+*/
+struct PxGeomIndexClosePair : PxGeomIndexPair
+{
+	PX_FORCE_INLINE PxGeomIndexClosePair()									{}
+	PX_FORCE_INLINE PxGeomIndexClosePair(PxU32 _id0, PxU32 _id1, float d) :
+		PxGeomIndexPair(_id0, _id1), distance(d)							{}
+
+	float	distance;
 };
 
 #if !PX_DOXYGEN

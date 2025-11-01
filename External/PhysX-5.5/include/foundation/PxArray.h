@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -559,13 +559,13 @@ class PxArray : protected Alloc
 
 	PX_INLINE T* allocate(uint32_t size, uint32_t* cookie=NULL)
 	{
-		if(size > 0)
+		// always call Alloc::allocate to respect cookie logic even if size is 0
+		T* p = reinterpret_cast<T*>(Alloc::allocate(sizeof(T) * size, PX_FL, cookie));
+		if(size > 0 && p)
 		{
-			T* p = reinterpret_cast<T*>(Alloc::allocate(sizeof(T) * size, PX_FL, cookie));
 			PxMarkSerializedMemory(p, sizeof(T) * size);
-			return p;
 		}
-		return NULL;
+		return p;
 	}
 
 	PX_INLINE void deallocate(void* mem, uint32_t* cookie=NULL)
@@ -677,7 +677,7 @@ PX_NOINLINE T& PxArray<T, Alloc>::growAndPushBack(const T& a)
 {
 	const uint32_t capacity = capacityIncrement();
 
-	uint32_t cookie;
+	uint32_t cookie = 0;
 	T* newData = allocate(capacity, &cookie);
 	PX_ASSERT((!capacity) || (newData && (newData != mData)));
 	copy(newData, newData + mSize, mData);
@@ -699,7 +699,7 @@ PX_NOINLINE T& PxArray<T, Alloc>::growAndPushBack(const T& a)
 template <class T, class Alloc>
 PX_NOINLINE void PxArray<T, Alloc>::recreate(uint32_t capacity)
 {
-	uint32_t cookie;
+	uint32_t cookie = 0;
 	T* newData = allocate(capacity, &cookie);
 	PX_ASSERT((!capacity) || (newData && (newData != mData)));
 

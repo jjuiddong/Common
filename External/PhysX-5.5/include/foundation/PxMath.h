@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -58,15 +58,15 @@ namespace physx
 #endif
 
 // constants
-static const float PxPi = float(3.141592653589793);
-static const float PxHalfPi = float(1.57079632679489661923);
-static const float PxTwoPi = float(6.28318530717958647692);
-static const float PxInvPi = float(0.31830988618379067154);
-static const float PxInvTwoPi = float(0.15915494309189533577);
-static const float PxPiDivTwo = float(1.57079632679489661923);
-static const float PxPiDivFour = float(0.78539816339744830962);
-static const float PxSqrt2 = float(1.4142135623730951);
-static const float PxInvSqrt2 = float(0.7071067811865476);
+static constexpr float PxPi = float(3.141592653589793);
+static constexpr float PxHalfPi = float(1.57079632679489661923);
+static constexpr float PxTwoPi = float(6.28318530717958647692);
+static constexpr float PxInvPi = float(0.31830988618379067154);
+static constexpr float PxInvTwoPi = float(0.15915494309189533577);
+static constexpr float PxPiDivTwo = float(1.57079632679489661923);
+static constexpr float PxPiDivFour = float(0.78539816339744830962);
+static constexpr float PxSqrt2 = float(1.4142135623730951);
+static constexpr float PxInvSqrt2 = float(0.7071067811865476);
 
 /**
 \brief The return value is the greater of the two specified values.

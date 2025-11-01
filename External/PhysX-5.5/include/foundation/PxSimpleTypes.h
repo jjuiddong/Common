@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -76,6 +76,12 @@ static const PxIntBool PxIntTrue = 1;
 typedef PxU32 PxArticulationGPUIndex;
 typedef PxU32 PxRigidDynamicGPUIndex;
 typedef PxU32 PxShapeGPUIndex;
+
+typedef PxU32 PxConstraintGPUIndex;
+#define PX_INVALID_CONSTRAINT_GPU_INDEX 0xffffFFFF
+
+typedef PxConstraintGPUIndex PxD6JointGPUIndex;
+#define PX_INVALID_D6_JOINT_GPU_INDEX PX_INVALID_CONSTRAINT_GPU_INDEX
 
 #if !PX_DOXYGEN
 } // namespace physx

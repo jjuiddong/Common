@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2024 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -73,8 +73,8 @@ PX_FLAGS_OPERATORS(PxPrismaticJointFlag::Enum, PxU16)
  \brief A prismatic joint permits relative translational movement between two bodies along
  an axis, but no relative rotational movement.
 
- the axis on each body is defined as the line containing the origin of the joint frame and
- extending along the x-axis of that frame
+ The axis on each body is defined as the line containing the origin of the joint frame and
+ extending along the x-axis of that frame.
 
  \image html prismJoint.png
 
