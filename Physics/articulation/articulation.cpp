@@ -353,7 +353,7 @@ bool cArticulation::SetJointDriveVelocity(physx::PxArticulationJointReducedCoord
 	param.stiffness = stiffness;
 	param.damping = damping;
 	param.maxForce = maxForce;
-	param.driveType = PxArticulationDriveType::eVELOCITY;
+	param.driveType = PxArticulationDriveType::eACCELERATION;
 
 	joint->setDriveParams(PxArticulationAxis::eTWIST, param);
 	joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);
@@ -382,7 +382,7 @@ bool cArticulation::SetJointDriveTarget(physx::PxArticulationJointReducedCoordin
 	param.stiffness = stiffness;
 	param.damping = damping;
 	param.maxForce = maxForce;
-	param.driveType = PxArticulationDriveType::eTARGET;
+	param.driveType = PxArticulationDriveType::eACCELERATION;
 
 	joint->setDriveParams(PxArticulationAxis::eTWIST, param);
 	joint->setMotion(PxArticulationAxis::eTWIST, PxArticulationMotion::eFREE);

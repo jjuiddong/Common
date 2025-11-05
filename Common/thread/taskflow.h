@@ -47,7 +47,7 @@ namespace common
 		int m_result; // task result, 0:fail, 1:success
 		int m_syncVal; // synchronize value. default:0
 		bool m_isShutdown; // shutdown?
-		vector<std::pair<bool, cTfTask*>> m_children; // child task, first: finish?
+		vector<std::pair<bool, cTfTask*>> m_children; // first: finish?, child task
 	};
 
 	inline cTfTask::cTfTask(int id, const string& name)

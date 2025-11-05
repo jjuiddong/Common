@@ -80,15 +80,16 @@ bool cPhysicsEngine::InitializePhysx()
 	if (!sceneDesc.filterShader)
 		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 
-	physx::PxCudaContextManagerDesc cudaContextManagerDesc;
-	m_cudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaContextManagerDesc);
-	if (m_cudaContextManager)
-	{
-		if (!m_cudaContextManager->contextIsValid())
-		{
-			PHY_SAFE_RELEASE(m_cudaContextManager);
-		}
-	}
+	//physx::PxCudaContextManagerDesc cudaContextManagerDesc;
+	//m_cudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaContextManagerDesc);
+	//if (m_cudaContextManager)
+	//{
+	//	if (!m_cudaContextManager->contextIsValid())
+	//	{
+	//		PHY_SAFE_RELEASE(m_cudaContextManager);
+	//	}
+	//}
+
 	//if (!sceneDesc.gpuDispatcher && m_cudaContextManager)
 	//	sceneDesc.gpuDispatcher = m_cudaContextManager->getGpuDispatcher();
 

@@ -157,7 +157,8 @@ bool cRemoteInterpreter::Reuse(const StrId &name, const int logId)
 	m_server.m_name = name;
 	m_server.m_id = common::GenerateId(); // new netid
 	m_server.SetLogId(logId);
-	network2::LogSession(logId, m_server);
+	if (logId >= 0)
+		network2::LogSession(logId, m_server);
 	m_server.m_sendQueue.ClearBuffer();
 	m_server.m_recvQueue.ClearBuffer();
 

@@ -30,6 +30,8 @@ public:
 
 	virtual eRunResult Run(const double deltaSeconds) override
 	{
+		RETV(m_logData.id < 0, eRunResult::End);
+
 		switch (m_logData.type)
 		{
 		case 0: // session log
@@ -102,6 +104,9 @@ const string& network2::GetPacketLogPath(const int logId)
 // logId: packet log directory path id
 bool network2::LogSession(const int logId, const cSession &session)
 {
+	if (logId < 0)
+		return false; // disable log
+
 	cPacketLogTask *task = new cPacketLogTask();
 	task->m_logData.id = logId;
 	task->m_logData.type = 0;

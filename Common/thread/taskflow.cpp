@@ -43,9 +43,9 @@ bool cTfTask::FinishChildTask(cTfTask* childTask)
 	if (m_children.end() == it)
 		return false; // error, not exist
 
-	it->first = true; // finish
-
 	FinishChild(childTask);
+
+	it->first = true; // finish
 	return true;
 }
 
