@@ -57,5 +57,9 @@ namespace common
 	int strcomposite(char *buff, const int maxSize, const char delimter, const vector<int> &datas);
 
 	int scanner(const wchar_t *buf, const wchar_t *fmt, ...);
+
+	bool binary2base64(BYTE *src, const uint size, OUT string &out);
+	bool base642binary(const char* src, const uint size, OUT vector<BYTE> &out);
+
 }
 

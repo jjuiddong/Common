@@ -1,6 +1,9 @@
 
 #include "stdafx.h"
 #include "stringfunc.h"
+#include <Windows.h>
+#include <wincrypt.h>
+#pragma comment(lib, "crypt32.lib")
 
 
 string& common::replaceAll(std::string& str, const std::string& from, const std::string& to) {
@@ -679,4 +682,45 @@ int common::scanner(const wchar_t *buf, const wchar_t *fmt, ...)
 		return scanCount; // success
 
 	return -1; // fail
+}
+
+
+// convert binary data to base64 string
+// reference: https://stackoverflow.com/questions/6385319/how-to-convert-a-binary-string-into-base64-encoded-data
+// src: binary data
+// size: src byte size
+bool common::binary2base64(BYTE* src, const uint size, OUT string& out)
+{
+	RETV(!src || (size == 0), false);
+
+	const DWORD flags = CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF;
+
+	DWORD bufferSize = 0;
+	if (!CryptBinaryToStringA(src, size, flags, nullptr, &bufferSize))
+		return false;
+
+	out.resize(bufferSize);
+	if (!CryptBinaryToStringA(src, size, flags, out.data(), &bufferSize))
+		return false;
+
+	return true;
+}
+
+
+// convert base64 string to binary data
+bool common::base642binary(const char* src, const uint size, OUT vector<BYTE>& out)
+{
+	RETV(!src, false);
+
+	const DWORD flags = CRYPT_STRING_BASE64;
+
+	DWORD bufferSize = 0;
+	if (!CryptStringToBinaryA(src, size, flags, nullptr, &bufferSize, nullptr, nullptr))
+		return false;
+
+	out.resize(bufferSize);
+	if (!CryptStringToBinaryA(src, size, flags, out.data(), &bufferSize, nullptr, nullptr))
+		return false;
+
+	return true;
 }
