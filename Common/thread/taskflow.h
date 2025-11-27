@@ -45,14 +45,15 @@ namespace common
 		cTfTask* m_parent; // parent task
 		cTaskFlow* m_tf; // reference
 		int m_result; // task result, 0:fail, 1:success
-		int m_syncVal; // synchronize value. default:0
+		std::atomic<int> m_syncVal; // synchronize value. default:0
+		std::atomic<int> m_finCnt; // finish child task count
 		bool m_isShutdown; // shutdown?
 		vector<std::pair<bool, cTfTask*>> m_children; // first: finish?, child task
 	};
 
 	inline cTfTask::cTfTask(int id, const string& name)
 		: m_state(eState::Process), m_id(id), m_name(name), m_isShutdown(false)
-		, m_result(0), m_tf(nullptr), m_parent(nullptr), m_syncVal(0)
+		, m_result(0), m_tf(nullptr), m_parent(nullptr), m_syncVal(0), m_finCnt(0)
 	{
 	}
 

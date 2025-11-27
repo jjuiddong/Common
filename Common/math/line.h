@@ -19,6 +19,7 @@ namespace common
 		Vector3 Projection(const Vector3 &position) const;
 		Vector3 GetPointOnLine(const Vector3 &position) const;
 		Vector3 GetPointOnLine2(const Vector3& position) const;
+		Vector3 GetNormal(const Vector3& position) const;
 
 		Vector3 dir; // unit vector
 		Vector3 pos; // line center

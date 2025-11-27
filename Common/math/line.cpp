@@ -125,3 +125,11 @@ Vector3 Line::GetPointOnLine2(const Vector3& position) const
 	distOnLine = distOnLine * len;
 	return dir * distOnLine + pos;
 }
+
+
+// get line normal vector
+Vector3 Line::GetNormal(const Vector3& position) const
+{
+	const Vector3 p0 = GetPointOnLine2(position);
+	return (position - p0).Normal();
+}

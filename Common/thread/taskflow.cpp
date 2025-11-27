@@ -45,7 +45,11 @@ bool cTfTask::FinishChildTask(cTfTask* childTask)
 
 	FinishChild(childTask);
 
+	if (it->first)
+		return false; // already finished
+
 	it->first = true; // finish
+	++m_finCnt;
 	return true;
 }
 
@@ -106,15 +110,7 @@ bool cTfTask::CloseAllChildTask()
 // is finish all child task?
 bool cTfTask::IsFinish()
 {
-	bool isFinish = true;
-	for (auto& child : m_children)
-	{
-		if (!child.first)
-		{
-			isFinish = false;
-			break;
-		}
-	}
+	const bool isFinish = (int)m_children.size() <= m_finCnt;
 	return isFinish;
 }
 
@@ -266,7 +262,6 @@ bool cTaskFlow::NextStep(cTfTask* task)
 		// notify finished task to parent
 		cTfTask* parent = task->m_parent;
 		parent->FinishChildTask(task);
-		//delete task;
 
 		bool isRoot = false; // is remove root task?
 		cTfTask* c = parent;
@@ -281,7 +276,7 @@ bool cTaskFlow::NextStep(cTfTask* task)
 				AutoCSLock cs(m_finCs);
 				if (0 != c->m_syncVal)
 					break; // nothing to do
-				c->m_syncVal = 1;
+				++c->m_syncVal;
 			}
 
 			// all child task finished, execute next step
@@ -306,15 +301,11 @@ bool cTaskFlow::NextStep(cTfTask* task)
 					c->m_children.clear();
 					m_rmCs.Unlock();
 
-					//delete c;
 					c = tmp; // c->m_parent
 				}
 				else
 				{
 					// remove root task, child task
-					//for (auto& c : c->m_children)
-					//	delete c.second;
-					//delete c;
 					isRoot = true;
 					break; // finish
 				}
