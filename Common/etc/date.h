@@ -23,6 +23,7 @@ namespace common
 	string GetCurrentDateTime8(); // yyyymmdd hh:mm
 	uint64 GetCurrentDateTime9(const string &dateTime);
 	uint64 GetCurrentDateTime10(const uint64 dateTime);
+	string GetCurrentDateTime11(); // yyyy-mm-ddThh:mm:ss
 	
 	int DateCompare(const int ymd0, const int ymd1);
 	int DateCompare2(const int yyyy1, const int mm1, const int dd1

@@ -335,6 +335,42 @@ uint64 common::GetCurrentDateTime10(const uint64 dateTime)
 }
 
 
+// return time string, yyyy-mm-ddThh:mm:ss
+// ex) 2017-01-08T11:05:30
+string common::GetCurrentDateTime11()
+{
+	// http://stackoverflow.com/questions/22975077/how-to-convert-a-boostptime-to-string
+
+	using namespace boost::gregorian;
+	using namespace boost::posix_time;
+
+	boost::gregorian::date dayte(boost::gregorian::day_clock::local_day());
+	boost::posix_time::ptime midnight(dayte);
+	boost::posix_time::ptime
+		now(boost::posix_time::microsec_clock::local_time());
+	boost::posix_time::time_duration td = now - midnight;
+
+	date::ymd_type ymd = second_clock::local_time().date().year_month_day();
+
+	stringstream ss;
+	try {
+		ss << ymd.year
+			<< "-" << std::setfill('0') << std::setw(2) << ymd.month.as_number()
+			<< "-" << std::setfill('0') << std::setw(2) << ymd.day
+			<< "T" << std::setfill('0') << std::setw(2) << td.hours()
+			<< ":" << std::setfill('0') << std::setw(2) << td.minutes()
+			<< ":" << std::setfill('0') << std::setw(2) << td.seconds()
+			;
+	}
+	catch (...)
+	{
+		// nothing~
+	}
+
+	return ss.str();
+}
+
+
 // return : duration day, yyyymmdd1 - yyyymmdd0
 // ex) 20200120 - 20191201
 int common::DateCompare(const int ymd1, const int ymd0)
