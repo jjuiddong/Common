@@ -590,6 +590,7 @@ int cTaskFlow::ThreadFunction(cTaskFlow* tf)
 
 			if (task->IsFinish())
 			{
+				task->m_state = cTfTask::eState::Complete;
 				task->Complete();
 
 				if (task->IsFinish())
