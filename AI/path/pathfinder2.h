@@ -157,6 +157,7 @@ namespace ai
 		static bool IsOnEdge(const sEdge& edge, const Vector3& pos
 			, const float offset = 0.05f);
 
+		bool Serialize(OUT vector<BYTE>& out);
 
 		cPathFinder2& operator=(const cPathFinder2& rhs);
 

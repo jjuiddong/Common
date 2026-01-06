@@ -941,6 +941,78 @@ bool cPathFinder2::IsOnEdge(const sEdge& edge, const Vector3& pos
 }
 
 
+// serialize path data (same as file read/write)
+bool cPathFinder2::Serialize(OUT vector<BYTE>& out)
+{
+	// calc bytesize 
+	int byteSize = 0;
+	const int vtxSize = (int)m_vertices.size();
+	byteSize += sizeof(int); // vertex size
+	byteSize += m_vertices.size() * 20;
+	int edgeSize = 0;
+	for (auto& vtx : m_vertices)
+		edgeSize += (int)vtx.edges.size();
+	byteSize += sizeof(int); // edge size
+	byteSize += edgeSize * 8;
+	//byteSize += sizeof(int); // bbox size
+	//byteSize += m_bounds.size() * 44;
+	//~
+
+	out.clear();
+	out.resize(byteSize, 0);
+	int cursor = 0;
+	BYTE* dst = &out[0];
+
+	*(int*)(dst + cursor) = (int)m_vertices.size();
+	cursor += sizeof(int);
+	for (auto& vtx : m_vertices)
+	{
+		*(int*)(dst + cursor) = vtx.id;
+		cursor += sizeof(vtx.id);
+
+		*(int*)(dst + cursor) = vtx.type;
+		cursor += sizeof(vtx.type);
+
+		*(Vector3*)(dst + cursor) = vtx.pos;
+		cursor += sizeof(vtx.pos);
+	}
+
+	*(int*)(dst + cursor) = edgeSize;
+	cursor += sizeof(edgeSize);
+	for (uint i = 0; i < (uint)m_vertices.size(); ++i)
+	{
+		auto& vtx = m_vertices[i];
+		for (auto& e : vtx.edges)
+		{
+			*(int*)(dst + cursor) = i;
+			cursor += sizeof(i);
+
+			*(int*)(dst + cursor) = e.to;
+			cursor += sizeof(e.to);
+		}
+	}
+
+	//*(int*)(dst + cursor) = (int)m_bounds.size();
+	//cursor += sizeof(int);
+	//for (auto& bound : m_bounds)
+	//{
+	//	*(int*)(dst + cursor) = bound.type;
+	//	cursor += sizeof(bound.type);
+
+	//	*(Vector3*)(dst + cursor) = *(Vector3*)&bound.bbox.m_bbox.Center;
+	//	cursor += sizeof(Vector3);
+
+	//	*(Vector3*)(dst + cursor) = *(Vector3*)&bound.bbox.m_bbox.Extents;
+	//	cursor += sizeof(Vector3);
+
+	//	*(Quaternion*)(dst + cursor) = *(Quaternion*)&bound.bbox.m_bbox.Orientation;
+	//	cursor += sizeof(Quaternion);
+	//}
+
+	return true;
+}
+
+
 // assign operator
 cPathFinder2& cPathFinder2::operator=(const cPathFinder2& rhs)
 {
