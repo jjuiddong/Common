@@ -19,12 +19,13 @@ cPathFinder2::~cPathFinder2()
 
 
 // read file (binary type)
-//
 // file format:
-// vertex count
-// vertex array
-// edge count
-// edge array
+//	- vertex count
+//	- vertex array
+//	- edge count
+//	- edge array
+//	- boundary count
+//	- boundary array
 bool cPathFinder2::Read(const string& fileName)
 {
 	Clear();
@@ -61,6 +62,43 @@ bool cPathFinder2::Read(const string& fileName)
 		ifs.read((char*)&to, sizeof(to));
 		AddEdge(from, to);
 	}
+
+	if (ifs.eof())
+		return true; // end of file? finish
+
+	// read boundary
+	struct sBBox
+	{
+		int type;
+		Vector3 pos;
+		Vector3 scale;
+		Quaternion rot;
+	};
+
+	int boundarySize = 0;
+	ifs.read((char*)&boundarySize, sizeof(boundarySize));
+
+	if (boundarySize > 0)
+	{
+		sBBox* bboxs = new sBBox[boundarySize];
+		ifs.read((char*)bboxs, sizeof(sBBox) * boundarySize);
+
+		m_bounds.reserve(boundarySize);
+		for (int i = 0; i < boundarySize; ++i)
+		{
+			const sBBox& bbox = bboxs[i];
+			sBoundary bound;
+			Transform tfm;
+			tfm.pos = bbox.pos;
+			tfm.scale = bbox.scale;
+			tfm.rot = bbox.rot;
+			bound.type = bbox.type;
+			bound.bbox.SetBoundingBox(tfm);
+			m_bounds.push_back(bound);
+		}
+
+		SAFE_DELETEA(bboxs);
+	}
 	return true;
 }
 
@@ -96,6 +134,34 @@ bool cPathFinder2::Write(const string& fileName)
 			ofs.write((char*)&e.to, sizeof(e.to));
 		}
 	}
+
+	// write boundingbox
+	struct sBBox
+	{
+		int type;
+		Vector3 pos;
+		Vector3 scale;
+		Quaternion rot;
+	};
+	vector<sBBox> bboxs;
+	bboxs.reserve(m_bounds.size());
+	for (auto& bound: m_bounds)
+	{
+		if (3 == bound.type) continue; // ignore dynamic add boundingbox
+
+		sBBox bx;
+		bx.type = bound.type;
+		bx.pos = *(Vector3*)&bound.bbox.m_bbox.Center;
+		bx.scale = *(Vector3*)&bound.bbox.m_bbox.Extents;
+		bx.rot = *(Quaternion*)&bound.bbox.m_bbox.Orientation;
+		bboxs.push_back(bx);
+	}
+
+	const int size = (int)bboxs.size();
+	ofs.write((char*)&size, sizeof(size));
+	if (size > 0)
+		ofs.write((char*)&bboxs[0], sizeof(sBBox) * size);
+
 	return true;
 }
 
@@ -104,6 +170,7 @@ bool cPathFinder2::Write(const string& fileName)
 bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 	, OUT vector<Vector3> &out
 	, const set<sEdge2> *disableEdges //= nullptr
+	, const sCollision *collision //= nullptr
 	, OUT vector<uint> *outTrackVertexIndices //= nullptr
 	, OUT vector<sEdge2> *outTrackEdges //= nullptr
 )
@@ -115,7 +182,8 @@ bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 	if (endIdx < 0)
 		return false;
 
-	return Find(startIdx, endIdx, out, disableEdges, outTrackVertexIndices, outTrackEdges);
+	return Find(startIdx, endIdx, out, disableEdges, collision
+		, outTrackVertexIndices, outTrackEdges);
 }
 
 
@@ -123,30 +191,37 @@ bool cPathFinder2::Find(const Vector3 &start, const Vector3 &end
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<Vector3> &out
 	, const set<sEdge2> *disableEdges //= nullptr
+	, const sCollision *collision //= nullptr
 	, OUT vector<uint> *outTrackVertexIndices //= nullptr
 	, OUT vector<sEdge2> *outTrackEdges //= nullptr
 )
 {
 	vector<uint> verticesIndices;
-	Find(startIdx, endIdx, verticesIndices, disableEdges);
+	Find(startIdx, endIdx, verticesIndices, disableEdges, collision);
+
+	vector<uint> waypoints;
+	if (collision)
+		FindShortPath(verticesIndices, waypoints, collision);
+	else
+		waypoints = verticesIndices;
 
 	if (outTrackVertexIndices)
-		*outTrackVertexIndices = verticesIndices;
+		*outTrackVertexIndices = waypoints;
 
 	// Store Tracking Edge
 	if (outTrackEdges)
 	{
-		outTrackEdges->reserve(verticesIndices.size());
-		for (int i = 0; i < (int)verticesIndices.size() - 1; ++i)
+		outTrackEdges->reserve(waypoints.size());
+		for (int i = 0; i < (int)waypoints.size() - 1; ++i)
 		{
-			const int from = verticesIndices[i];
-			const int to = verticesIndices[i + 1];
+			const int from = waypoints[i];
+			const int to = waypoints[i + 1];
 			outTrackEdges->push_back(sEdge2(from, to));
 		}
 	}
 
-	out.reserve(verticesIndices.size());
-	for (auto idx : verticesIndices)
+	out.reserve(waypoints.size());
+	for (auto idx : waypoints)
 		out.push_back(m_vertices[idx].pos);
 
 	return true;
@@ -159,6 +234,7 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 	, OUT vector<uint> &out
 	, const set<sEdge2> *disableEdges //= nullptr
+	, const sCollision *collision //= nullptr
 	, const bool isChangeDirPenalty //= false
 	, const sTarget* target //= nullptr
 	, const float rotationLimit //= -2.f
@@ -199,6 +275,10 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		arg.target = target;
 	}
 
+	sCollision collide; // temporal collision object
+	if (collision)
+		collide = *collision;
+
 	bool isFind = false; // find path?
 	while (1)
 	{
@@ -231,13 +311,31 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		}
 
 		const sVertex &vtx0 = m_vertices[node.idx];
-		for (auto &tr : vtx0.edges)
+		for (auto &e : vtx0.edges)
 		{
-			const auto it2 = cset.find(tr.to);
+			const auto it2 = cset.find(e.to);
 			if (cset.end() != it2)
 				continue;
 
-			const sVertex &vtx1 = m_vertices[tr.to];
+			const sVertex &vtx1 = m_vertices[e.to];
+
+			// collision check
+			if (collision)
+			{
+				bool isCollision = false;
+				collide.bsphere.SetPos(vtx1.pos);
+				for (auto& bound : m_bounds)
+				{
+					if (bound.bbox.Collision(collide.bsphere))
+					{
+						isCollision = true;
+						break;
+					}
+				}
+				if (isCollision)
+					continue; // collision!, no pass this path
+			}
+			//~
 
 			// calc direction change penalty
 			float penalty = 0.f;
@@ -254,25 +352,25 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 			}
 			//~
 
-			const auto it1 = oset.find(tr.to);
+			const auto it1 = oset.find(e.to);
 			if (oset.end() != it1)
 			{
 				sNode *n = nullptr;
 				auto it = std::find_if(open.begin(), open.end()
-					, [&](auto &a) {return a.idx == tr.to; });
+					, [&](auto &a) {return a.idx == e.to; });
 				if (it != open.end())
 				{
 					n = &*it;
 				}
 				else
 				{
-					oset.erase(tr.to); // error occurred, exception process
+					oset.erase(e.to); // error occurred, exception process
 					continue;
 				}
 
 				// update node info?
-				const float len = node.len + tr.distance + penalty;
-				const float tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos) + penalty;
+				const float len = node.len + e.distance + penalty;
+				const float tot = node.len + e.distance + vtx1.pos.Distance(endVtx.pos) + penalty;
 				if (tot < n->tot)
 				{
 					n->prev = node.idx;
@@ -283,12 +381,12 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 			else
 			{
 				sNode n;
-				n.idx = tr.to;
+				n.idx = e.to;
 				n.prev = node.idx;
-				n.len = node.len + tr.distance + penalty;
-				n.tot = node.len + tr.distance + vtx1.pos.Distance(endVtx.pos) + penalty;
+				n.len = node.len + e.distance + penalty;
+				n.tot = node.len + e.distance + vtx1.pos.Distance(endVtx.pos) + penalty;
 				open.push_back(n);
-				oset.insert(tr.to);
+				oset.insert(e.to);
 			}
 		}
 
@@ -425,8 +523,8 @@ bool cPathFinder2::CreateEdgeMap()
 	m_edgeMap.clear();
 
 	for (uint i = 0; i < m_vertices.size(); ++i)
-		for (auto &edge : m_vertices[i].edges)
-			m_edgeMap[{i, edge.to}] = &edge;
+		for (auto &e : m_vertices[i].edges)
+			m_edgeMap[{i, e.to}] = &e;
 	return true;
 }
 
@@ -486,17 +584,17 @@ bool cPathFinder2::SetCurveEdge(const uint fromVtxIdx, const uint toVtxIdx
 	RETV(fromVtxIdx == toVtxIdx, false);
 
 	sVertex& vtx = m_vertices[fromVtxIdx];
-	for (auto &edge : vtx.edges) 
+	for (auto &e : vtx.edges) 
 	{
-		if (edge.to == toVtxIdx)
+		if (e.to == toVtxIdx)
 		{
-			edge.isCurve = isCurve;
+			e.isCurve = isCurve;
 			if (isCurve)
 			{
-				edge.curveAngle = angle;
-				edge.curveDist = dist;
-				edge.distance = arcLen;
-				edge.dirFrVtxIdx = directionFrVtxIdx;
+				e.curveAngle = angle;
+				e.curveDist = dist;
+				e.distance = arcLen;
+				e.dirFrVtxIdx = directionFrVtxIdx;
 			}
 			break;
 		}
@@ -511,8 +609,8 @@ bool cPathFinder2::IsExistEdge(const uint fromVtxIdx, const uint toVtxIdx)
 	RETV2((int)m_vertices.size() <= fromVtxIdx, false);
 	RETV(fromVtxIdx == toVtxIdx, false);
 	sVertex &vtx = m_vertices[fromVtxIdx];
-	for (auto &tr : vtx.edges)
-		if (tr.to == toVtxIdx)
+	for (auto &e : vtx.edges)
+		if (e.to == toVtxIdx)
 			return true;
 	return false;
 }
@@ -551,9 +649,9 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 				break;
 			}
 	for (auto &v : m_vertices)
-		for (auto &tr : v.edges)
-			if (vtxIdx < (uint)tr.to)
-				--tr.to;
+		for (auto &e : v.edges)
+			if (vtxIdx < (uint)e.to)
+				--e.to;
 
 	// remove index vertex
 	removevector2(m_vertices, vtxIdx);
@@ -602,9 +700,9 @@ cPathFinder2::sEdge* cPathFinder2::GetEdge(const uint from, const uint to)
 	if ((m_vertices.size() >= from) || (m_vertices.size() >= to))
 		return nullptr;
 	sVertex &vtx = m_vertices[from];
-	for (auto& edge : vtx.edges)
-		if (edge.to == to)
-			return &edge;
+	for (auto& e : vtx.edges)
+		if (e.to == to)
+			return &e;
 	return nullptr;
 }
 
@@ -954,8 +1052,8 @@ bool cPathFinder2::Serialize(OUT vector<BYTE>& out)
 		edgeSize += (int)vtx.edges.size();
 	byteSize += sizeof(int); // edge size
 	byteSize += edgeSize * 8;
-	//byteSize += sizeof(int); // bbox size
-	//byteSize += m_bounds.size() * 44;
+	byteSize += sizeof(int); // bbox size
+	byteSize += m_bounds.size() * 44;
 	//~
 
 	out.clear();
@@ -992,22 +1090,22 @@ bool cPathFinder2::Serialize(OUT vector<BYTE>& out)
 		}
 	}
 
-	//*(int*)(dst + cursor) = (int)m_bounds.size();
-	//cursor += sizeof(int);
-	//for (auto& bound : m_bounds)
-	//{
-	//	*(int*)(dst + cursor) = bound.type;
-	//	cursor += sizeof(bound.type);
+	*(int*)(dst + cursor) = (int)m_bounds.size();
+	cursor += sizeof(int);
+	for (auto& bound : m_bounds)
+	{
+		*(int*)(dst + cursor) = bound.type;
+		cursor += sizeof(bound.type);
 
-	//	*(Vector3*)(dst + cursor) = *(Vector3*)&bound.bbox.m_bbox.Center;
-	//	cursor += sizeof(Vector3);
+		*(Vector3*)(dst + cursor) = *(Vector3*)&bound.bbox.m_bbox.Center;
+		cursor += sizeof(Vector3);
 
-	//	*(Vector3*)(dst + cursor) = *(Vector3*)&bound.bbox.m_bbox.Extents;
-	//	cursor += sizeof(Vector3);
+		*(Vector3*)(dst + cursor) = *(Vector3*)&bound.bbox.m_bbox.Extents;
+		cursor += sizeof(Vector3);
 
-	//	*(Quaternion*)(dst + cursor) = *(Quaternion*)&bound.bbox.m_bbox.Orientation;
-	//	cursor += sizeof(Quaternion);
-	//}
+		*(Quaternion*)(dst + cursor) = *(Quaternion*)&bound.bbox.m_bbox.Orientation;
+		cursor += sizeof(Quaternion);
+	}
 
 	return true;
 }
@@ -1032,7 +1130,132 @@ cPathFinder2& cPathFinder2::operator=(const cPathFinder2& rhs)
 }
 
 
+// find short path
+// out: return waypoint vertex index array
+bool cPathFinder2::FindShortPath(const vector<uint>& path
+	, OUT vector<uint>& out
+	, const sCollision* collision //= nullptr
+)
+{
+	RETV(path.size() <= 2, false);
+	RETV(!collision, false);
+
+	vector<uint> waypoints; // vertex index array
+	waypoints.push_back(path[0]);
+
+	int state = 0;
+	uint startIdx = 0;
+	uint cursorIdx = 0;
+	uint nextIdx = 1;
+	Vector3 robotDir;
+
+	bool isLoop = true;
+	while (isLoop)
+	{
+		switch (state)
+		{
+		case 0: // search waypoint
+		{
+			if (((uint)path.size() - 1) <= nextIdx)
+			{
+				waypoints.push_back(path.back());
+				isLoop = false;
+				break; // finish
+			}
+
+			const int vtxIdx = path[cursorIdx];
+			const int nextVtxIdx = path[nextIdx];
+			auto& vtx0 = m_vertices[vtxIdx];
+			auto& vtx1 = m_vertices[nextVtxIdx];
+
+			// find edge
+			auto it = std::find_if(vtx0.edges.begin(), vtx0.edges.end()
+				, [&](const auto& e) {return e.to == nextVtxIdx; });
+			if (vtx0.edges.end() == it)
+				break; // error, finish
+			bool isWayPoint = false;
+			if (robotDir.IsEmpty())
+				robotDir = (vtx1.pos - vtx0.pos).Normal();
+			if (robotDir.DotProduct(it->dir0) < 0.9f)
+				isWayPoint = true;
+
+			if (isWayPoint)
+			{
+				state = 1;
+				//wpIdx = nextIdx;
+				++nextIdx;
+			}
+			else
+			{
+				cursorIdx = nextIdx;
+				++nextIdx;
+			}
+		}
+		break;
+
+		case 1: // search short path
+		{
+			if ((uint)path.size() <= nextIdx)
+			{
+				waypoints.push_back(path.back());
+				isLoop = false;
+				break; // finish
+			}
+
+			const int vtxIdx = path[startIdx];
+			const int nextVtxIdx = path[nextIdx];
+			auto& vtx0 = m_vertices[vtxIdx];
+			auto& vtx1 = m_vertices[nextVtxIdx];
+
+			cBoundingCapsule bcapsule;
+			bcapsule.SetCapsule(Vector3(vtx0.pos.x, 0.f, vtx0.pos.z)
+				, Vector3(vtx1.pos.x, 0.f, vtx1.pos.z), collision->bsphere.GetRadius());
+
+			bool isCollision = false;
+			for (auto& bound : m_bounds)
+			{
+				if (bound.bbox.Collision(bcapsule))
+				{
+					isCollision = true;
+					break;
+				}
+			}
+
+			if (isCollision)
+			{
+				waypoints.push_back(path[nextIdx - 1]);
+				startIdx = nextIdx - 1;
+				cursorIdx = nextIdx - 1;
+				robotDir = Vector3(0, 0, 0); // empty vector
+				state = 0; // search waypoint
+			}
+			else
+			{
+				++nextIdx;
+			}
+		}
+		break;
+		}//~switch
+	}//~while
+
+	out = waypoints;
+	return true;
+}
+
+
+// clear dynamic added boundingbox
+void cPathFinder2::ClearDynamicBounds()
+{
+	auto it = std::remove_if(m_bounds.begin(), m_bounds.end()
+		, [&](const auto& a) { return 3 == a.type; });
+	m_bounds.erase(it, m_bounds.end());
+}
+
+
+// clear
 void cPathFinder2::Clear()
 {
 	m_vertices.clear();
+	m_bounds.clear();
+	m_edgeMap.clear();
 }

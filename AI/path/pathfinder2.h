@@ -12,6 +12,9 @@
 //
 // 2025-07-31
 //	- read/write pathfind file
+// 
+// 2026-01-31
+//	- collision check
 //
 #pragma once
 
@@ -95,6 +98,21 @@ namespace ai
 			const sTarget* target;
 		};
 
+		// boundary
+		struct sBoundary
+		{
+			int type; // 1:wall, 2:guide, 3:dynamic
+			float t; // decrease time, dynamic type
+			cBoundingBox bbox;
+		};
+
+		// collision 
+		struct sCollision
+		{
+			int type;
+			graphic::cBoundingSphere bsphere;
+		};
+
 		cPathFinder2();
 		cPathFinder2(const cPathFinder2 &rhs);
 		virtual ~cPathFinder2();
@@ -105,6 +123,7 @@ namespace ai
 		bool Find(const Vector3 &start, const Vector3 &end
 			, OUT vector<Vector3> &out
 			, const set<sEdge2> *disableEdges = nullptr
+			, const sCollision* collision = nullptr
 			, OUT vector<uint> *outTrackVertexIndices = nullptr
 			, OUT vector<sEdge2> *outTrackEdges = nullptr
 		);
@@ -112,6 +131,7 @@ namespace ai
 		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<Vector3>& out
 			, const set<sEdge2>* disableEdges = nullptr
+			, const sCollision* collision = nullptr
 			, OUT vector<uint>* outTrackVertexIndices = nullptr
 			, OUT vector<sEdge2>* outTrackEdges = nullptr
 		);
@@ -119,6 +139,7 @@ namespace ai
 		bool Find(const uint startIdx, const uint endIdx
 			, OUT vector<uint>& out
 			, const set<sEdge2>* disableEdges = nullptr
+			, const sCollision* collision = nullptr
 			, const bool isChangeDirPenalty = false
 			, const sTarget* target = nullptr
 			, const float rotationLimit = -2.f
@@ -141,6 +162,7 @@ namespace ai
 		int GetVertexIndexByName(const Str16 &name) const;
 		sEdge* GetEdge(const uint from, const uint to);
 		void ReservedVertexBuffer(const uint vertexCount);
+		void ClearDynamicBounds();
 		void Clear();
 
 		static float GetCurveEdgeDistance(const sEdge& edge, const Vector3& pos
@@ -164,9 +186,12 @@ namespace ai
 
 	protected:
 		inline int ArriveTarget(sTargetArg &arg);
+		bool FindShortPath(const vector<uint>& path
+			, OUT vector<uint>& out, const sCollision* collision = nullptr);
 
 	public:
 		vector<sVertex> m_vertices;
+		vector<sBoundary> m_bounds; // collision boundary
 
 		// fast search from-to edge data, generate from CreateEdgeMap
 		// key: from-to vertex index, value: edge
