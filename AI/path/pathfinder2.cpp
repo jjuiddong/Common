@@ -306,6 +306,27 @@ bool cPathFinder2::Find(const uint startIdx, const uint endIdx
 		}
 		else if (node.idx == endIdx)
 		{
+			// collision check
+			if (collision)
+			{
+				const sVertex& vtx0 = m_vertices[node.idx];
+
+				bool isCollision = false;
+				collide.bsphere.SetPos(vtx0.pos);
+				for (uint i=0; i < m_bounds.size(); ++i)
+				{
+					auto& bound = m_bounds[i];
+					if (bound.bbox.Collision(collide.bsphere))
+					{
+						isCollision = true;
+						break;
+					}
+				}
+				if (isCollision)
+					break; // finish, destination collision!.
+			}
+			//~
+
 			isFind = true;
 			break; // finish
 		}
@@ -655,6 +676,30 @@ bool cPathFinder2::RemoveVertex(const uint vtxIdx)
 
 	// remove index vertex
 	removevector2(m_vertices, vtxIdx);
+	return true;
+}
+
+
+// remove collision boundary
+// id: boundary id
+bool cPathFinder2::RemoveBoundary(const int id)
+{
+	auto it = std::remove_if(m_bounds.begin(), m_bounds.end()
+		, [&](auto& a) {return a.id == id; });
+	if (m_bounds.end() != it)
+		m_bounds.erase(it);
+	return true;
+}
+
+
+// remove collision boundary
+// id: boundary name
+bool cPathFinder2::RemoveBoundaryByName(const StrId& name)
+{
+	auto it = std::remove_if(m_bounds.begin(), m_bounds.end()
+		, [&](auto& a) {return a.name == name; });
+	if (m_bounds.end() != it)
+		m_bounds.erase(it);
 	return true;
 }
 

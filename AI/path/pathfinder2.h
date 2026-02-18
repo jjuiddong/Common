@@ -101,8 +101,10 @@ namespace ai
 		// boundary
 		struct sBoundary
 		{
+			int id; // unique id
 			int type; // 1:wall, 2:guide, 3:dynamic
 			float t; // decrease time, dynamic type
+			StrId name;
 			cBoundingBox bbox;
 		};
 
@@ -157,6 +159,8 @@ namespace ai
 		bool IsExistEdge(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveEdge(const uint fromVtxIdx, const uint toVtxIdx);
 		bool RemoveVertex(const uint vtxIdx);
+		bool RemoveBoundary(const int id);
+		bool RemoveBoundaryByName(const StrId &name);
 		sVertex* GetVertexByIndex(const uint vtxIdx);
 		sVertex* GetVertexByName(const Str16 &name);
 		int GetVertexIndexByName(const Str16 &name) const;
