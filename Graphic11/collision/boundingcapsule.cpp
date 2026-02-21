@@ -106,8 +106,7 @@ bool cBoundingCapsule::Intersects(const cBoundingBox& bbox
 	cBoundingSphere sp1((m_line.dir * -m_line.len) + m_line.pos, m_radius);
 	// generate one box
 	cBoundingBox box0;
-	//box0.SetLineBoundingBox(sp0.GetPos(), sp1.GetPos(), m_radius);
-	box0.SetLineBoundingBox(sp0.GetPos(), sp1.GetPos(), m_line.len);
+	box0.SetLineBoundingBox(sp0.GetPos(), sp1.GetPos(), m_radius);
 	return bbox.Collision(sp0) || bbox.Collision(sp1) || bbox.Collision(box0);
 }
 
