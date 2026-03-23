@@ -1205,7 +1205,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 	{
 		vector<script::sSyncSymbol> symbols;
 		script::cVirtualMachine *vm = interpreter->m_vms[i];
-		if ((vmId >= 0) && (vm->m_id != vmId))
+		if (!vm->IsRun() || ((vmId >= 0) && (vm->m_id != vmId)))
 			continue; // ignore this vm
 		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x04)) || !vm->m_nsync.symbStreaming)
 			continue;
@@ -1224,12 +1224,21 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 				if (vm->m_nsync.chSymbols.end() == it)
 				{
 					// add new symbol
-					// tricky codee: prevent sVariable deepcopy (must shallow copy)
+					// tricky code: prevent sVariable deepcopy (must shallow copy)
 					isSync = true;
-					script::cVirtualMachine::sSymbol &ssymb = vm->m_nsync.chSymbols[varName];
+					script::cVirtualMachine::sSymbol& ssymb = vm->m_nsync.chSymbols[varName];
 					ssymb.name = varName;
 					ssymb.t = 0.f;
-					ssymb.var.ShallowCopy(cur);
+					if (!ssymb.var.ShallowCopy(cur))
+					{
+						// debug code
+						dbg::Logc(1, "error remote interpreter, symboltable sync, shallowcopy\n");
+						dbg::Logc(1, "\t-vm: %s\n", vm->m_name.c_str());
+						dbg::Logc(1, "\t-varName: %s\n", varName.c_str());
+						dbg::Logc(1, "\t-src vt: %d\n", cur.var.vt);
+						dbg::Logc(1, "\t-src intVal: %d\n", cur.var.intVal);
+						dbg::Logc(1, "\t-src bstrVal: %x\n", cur.var.bstrVal);
+					}
 				}
 				else
 				{
@@ -1324,7 +1333,7 @@ bool cRemoteInterpreter::SendSyncSymbolTableAll(const netid rcvId
 	sItpr& itpr = m_interpreters[itprId];
 	script::cInterpreter* interpreter = itpr.interpreter;
 	script::cVirtualMachine* vm = interpreter->GetVM(vmId);
-	if (!vm)
+	if (!vm || !vm->IsRun())
 		return false; // error return
 
 	vector<script::sSyncSymbol> symbols;
@@ -1406,7 +1415,7 @@ bool cRemoteInterpreter::SendSyncData(const int itprId, const int vmId)
 	{
 		vector<script::sSyncSymbol> symbols;
 		script::cVirtualMachine* vm = interpreter->m_vms[i];
-		if ((vmId >= 0) && (vm->m_id != vmId))
+		if (!vm->IsRun() || ((vmId >= 0) && (vm->m_id != vmId)))
 			continue; // ignore this vm
 		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x08)) || !vm->m_nsync.dataStreaming)
 			continue;

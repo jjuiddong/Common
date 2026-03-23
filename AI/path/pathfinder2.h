@@ -54,7 +54,7 @@ namespace ai
 		struct sVertex
 		{
 			int id; // calc from name, atoi()
-			int type;
+			int type; // 0:normal, 1:start, 2:work, 3:charge, 4:pick
 			Str16 name; // number string
 			Vector3 pos;
 			vector<sEdge> edges;

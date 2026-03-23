@@ -1663,6 +1663,13 @@ bool cVirtualMachine::EnableNetworkSync(const bool enable)
 }
 
 
+// is running?
+bool cVirtualMachine::IsRun() const
+{
+	return (eState::Run == m_state) || (eState::Wait == m_state);
+}
+
+
 // clear network synchronize data
 // enable: enable network synchronize?
 void cVirtualMachine::ClearNSync(

@@ -271,8 +271,9 @@ uint sVariable::GetMapSize() const
 }
 
 
-sVariable& sVariable::ShallowCopy(const sVariable& rhs)
+bool sVariable::ShallowCopy(const sVariable& rhs)
 {
+	bool reval = true;
 	if (this != &rhs)
 	{
 		ClearArray();
@@ -280,10 +281,19 @@ sVariable& sVariable::ShallowCopy(const sVariable& rhs)
 		type = rhs.type;
 		subTypeStr = rhs.subTypeStr;
 		flags = rhs.flags;
-		var = rhs.var; // variable or array, map type id assign
 		memcpy(typeValues, rhs.typeValues, sizeof(rhs.typeValues));
+
+		__try
+		{
+			var = rhs.var; // variable or array, map type id assign
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			//memcpy(&var, &rhs.var, sizeof(rhs.var));
+			reval = false;
+		}
 	}
-	return *this;
+	return reval;
 }
 
 
