@@ -8,6 +8,7 @@
 //  - add array get, push
 //
 import TypeVariant from "./variant"
+import {TextEncoder, TextDecoder} from 'util'
 
 const VT_EMPTY = 0;
 const VT_I2 = 2;

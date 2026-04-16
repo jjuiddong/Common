@@ -4,6 +4,9 @@
 //	- poco library websocket server
 //		- https://pocoproject.org/
 //
+// 2026-04-07
+//	- update ssl
+//
 #pragma once
 
 #include "Poco/Net/Socket.h"
@@ -14,6 +17,7 @@ namespace Poco {
 	namespace Net {
 		class ServerSocket;
 		class HTTPServer;
+		class Context;
 	}
 }
 
@@ -36,6 +40,8 @@ namespace network2
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
 			, const bool isSpawnHttpSvr = true
+			, const string& sslKeyFileName = ""
+			, const string& sslCertFileName = ""
 		);
 		bool Process();
 		bool AddSession(const SOCKET sock, const Str16 &ip, const int port);
@@ -67,6 +73,8 @@ namespace network2
 	public:
 		Poco::Net::ServerSocket *m_websocket;
 		Poco::Net::HTTPServer *m_httpServer;
+		Poco::Net::Context* m_sslCtx; // ssl context
+		bool m_isCrSSL; // is create ssl context?
 
 		bool m_isThreadMode; // thread mode?
 		int m_maxBuffLen; // recv buffer size

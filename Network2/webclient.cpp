@@ -6,7 +6,14 @@
 #include "Poco/Net/HTTPMessage.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/HTTPSClientSession.h"
 #include "Poco/Net/PollSet.h"
+#include "Poco/Net/SSLManager.h"
+#include "Poco/Net/HTTPServer.h"
+#include "Poco/Net/SecureServerSocket.h"
+#include "Poco/Net/Context.h"
+#include "Poco/Net/AcceptCertificateHandler.h"
+
 
 using namespace std;
 using namespace network2;
@@ -28,6 +35,8 @@ cWebClient::cWebClient(
 	, m_sendBuffer(nullptr)
 	, m_isThreadMode(false)
 	, m_sessionListener(nullptr)
+	, m_sslCtx(nullptr)
+	, m_isCrSSL(false)
 {
 }
 
@@ -36,6 +45,11 @@ cWebClient::~cWebClient()
 	Close();
 	SAFE_DELETEA(m_recvBuffer);
 	SAFE_DELETEA(m_sendBuffer);
+	if (m_isCrSSL)
+	{
+		m_isCrSSL = false;
+		SAFE_DELETE(m_sslCtx);
+	}
 }
 
 
@@ -44,6 +58,8 @@ bool cWebClient::Init(const string &url
 	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //= true
+	, const string& sslKeyFileName //= ""
+	, const string& sslCertFileName //= ""
 )
 {
 	Close();
@@ -70,6 +86,28 @@ bool cWebClient::Init(const string &url
 	m_sleepMillis = sleepMillis;
 	m_maxBuffLen = packetSize + 14; //+14 websocket header
 	m_isThreadMode = isThreadMode;
+
+	// create web client ssl context
+	if (!sslKeyFileName.empty() && !sslCertFileName.empty())
+	{
+		using namespace Poco::Net;
+		try 
+		{
+			m_isCrSSL = true;
+			m_sslCtx = new Context(Context::CLIENT_USE
+				, sslKeyFileName, sslCertFileName, ""
+				, Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+			Poco::SharedPtr<InvalidCertificateHandler> pHandler =
+				new AcceptCertificateHandler(false);
+			SSLManager::instance().initializeClient(nullptr, pHandler, m_sslCtx);
+		}
+		catch (std::exception& e)
+		{
+			dbg::Logc(1, "error webclient ssl key, %s, %s, %s\n", sslKeyFileName.c_str(),
+				sslCertFileName.c_str(), e.what());
+			return false;
+		}
+	}
 
 	m_state = eState::ReadyConnect;
 
@@ -150,10 +188,12 @@ int cWebClient::SendPacket(const SOCKET sock, const cPacket &packet)
 	if (m_websocket)
 	{
 		try {
-			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
-			result = m_websocket->sendFrame2(m_sendBuffer, m_maxBuffLen
-				, packet.m_data, packet.GetPacketSize()
+			result = m_websocket->sendFrame(packet.m_data, packet.GetPacketSize()
 				, Poco::Net::WebSocket::FRAME_BINARY);
+			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
+			//result = m_websocket->sendFrame2(m_sendBuffer, m_maxBuffLen
+			//	, packet.m_data, packet.GetPacketSize()
+			//	, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
 			// nothing~
@@ -310,7 +350,11 @@ bool cWebClient::ConnectServer()
 
 	m_state = eState::TryConnect;
 
-	m_session = new Poco::Net::HTTPClientSession(m_url, m_port);
+	if (m_sslCtx) // with ssl, https
+		m_session = new Poco::Net::HTTPSClientSession(m_url, m_port, m_sslCtx);
+	else // http
+		m_session = new Poco::Net::HTTPClientSession(m_url, m_port);
+
 	m_request = new Poco::Net::HTTPRequest(Poco::Net::HTTPRequest::HTTP_GET
 		, "/?encoding=text", Poco::Net::HTTPMessage::HTTP_1_1);
 	m_request->set("origin", "http://www.websocket.org");

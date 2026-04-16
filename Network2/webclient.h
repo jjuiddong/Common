@@ -4,6 +4,9 @@
 //	- poco library websocket client
 //		- https://pocoproject.org/
 //
+// 2026-04-07
+//	- update ssl
+//
 #pragma once
 
 // Poco library class forward declaration
@@ -13,6 +16,7 @@ namespace Poco {
 		class HTTPRequest;
 		class HTTPResponse;
 		class WebSocket;
+		class Context;
 	}
 }
 
@@ -33,6 +37,8 @@ namespace network2
 			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
+			, const string &sslKeyFileName = ""
+			, const string &sslCertFileName = ""
 		);
 		bool ReConnect();
 		bool Process();
@@ -61,6 +67,8 @@ namespace network2
 		Poco::Net::HTTPRequest *m_request;
 		Poco::Net::HTTPResponse *m_response;
 		Poco::Net::WebSocket *m_websocket;
+		Poco::Net::Context *m_sslCtx; // ssl context
+		bool m_isCrSSL; // is create ssl context?
 
 		string m_url; // webserver url
 		bool m_isThreadMode; // thread mode?

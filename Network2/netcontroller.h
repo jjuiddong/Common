@@ -75,6 +75,8 @@ namespace network2
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThreadMode = true
 			, const bool isSpawnHttpSvr = true
+			, const string& sslKeyFileName = ""
+			, const string& sslCertFileName = ""
 		);
 
 		bool StartWebClient(cWebClient *client
@@ -83,6 +85,8 @@ namespace network2
 			, const int maxPacketCount = DEFAULT_PACKETCOUNT
 			, const int sleepMillis = DEFAULT_SLEEPMILLIS
 			, const bool isThread = true
+			, const string& sslKeyFileName = ""
+			, const string& sslCertFileName = ""
 		);
 
 		int Process(const float deltaSeconds);

@@ -134,10 +134,13 @@ bool cNetController::StartWebServer(cWebServer *svr
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //=true
 	, const bool isSpawnHttpSvr //= true
+	, const string& sslKeyFileName //= ""
+	, const string& sslCertFileName //= ""
 )
 {
 	const bool result = svr->Init(bindPort, packetSize, maxPacketCount
-		, sleepMillis, isThreadMode, isSpawnHttpSvr);
+		, sleepMillis, isThreadMode, isSpawnHttpSvr
+		, sslKeyFileName, sslCertFileName);
 
 	if (!IsExistServer(svr))
 		m_webServers.push_back(svr);
@@ -152,10 +155,13 @@ bool cNetController::StartWebClient(cWebClient *client
 	, const int maxPacketCount //= DEFAULT_PACKETCOUNT
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThread //= true
+	, const string& sslKeyFileName //= ""
+	, const string& sslCertFileName //= ""
 )
 {
 	const bool result = client->Init(url, packetSize
-		, maxPacketCount, sleepMillis, isThread);
+		, maxPacketCount, sleepMillis, isThread
+		, sslKeyFileName, sslCertFileName);
 
 	if (!IsExistClient(client))
 		m_webClients.push_back(client);

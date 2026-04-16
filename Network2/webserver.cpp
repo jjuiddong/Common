@@ -12,6 +12,13 @@
 #include "Poco/Net/NetException.h"
 #include "Poco/Net/HTTPClientSession.h"
 
+#include "Poco/Net/SSLManager.h"
+#include "Poco/Net/HTTPServer.h"
+#include "Poco/Net/SecureServerSocket.h"
+#include "Poco/Net/Context.h"
+#include "Poco/Net/AcceptCertificateHandler.h"
+#include "Poco/Net/KeyConsoleHandler.h"
+
 
 using namespace network2;
 using Poco::Net::ServerSocket;
@@ -113,6 +120,8 @@ cWebServer::cWebServer(
 	, m_sendBuffer(nullptr)
 	, m_isThreadMode(true)
 	, m_isUpdateSocket(false)
+	, m_sslCtx(nullptr)
+	, m_isCrSSL(false)
 {
 }
 
@@ -123,6 +132,11 @@ cWebServer::~cWebServer()
 	SAFE_DELETE(m_sessionFactory);
 	SAFE_DELETEA(m_recvBuffer);
 	SAFE_DELETEA(m_sendBuffer);
+	if (m_isCrSSL)
+	{
+		m_isCrSSL = false;
+		SAFE_DELETE(m_sslCtx);
+	}
 }
 
 
@@ -134,6 +148,8 @@ bool cWebServer::Init(const int bindPort
 	, const int sleepMillis //= DEFAULT_SLEEPMILLIS
 	, const bool isThreadMode //= true
 	, const bool isSpawnHttpSvr //= true
+	, const string& sslKeyFileName //= ""
+	, const string& sslCertFileName //= ""
 )
 {
 	Close();
@@ -145,6 +161,31 @@ bool cWebServer::Init(const int bindPort
 	m_isThreadMode = isThreadMode;
 	m_timer.Create();
 
+	// create web server ssl context
+	if (!sslKeyFileName.empty() && !sslCertFileName.empty())
+	{
+		using namespace Poco::Net;
+		try
+		{
+			m_isCrSSL = true;
+			m_sslCtx = new Context(Context::SERVER_USE
+				, sslKeyFileName, sslCertFileName, ""
+				, Context::VERIFY_NONE);
+
+			Poco::SharedPtr<InvalidCertificateHandler> ptrCert =
+				new AcceptCertificateHandler(true);
+			Poco::SharedPtr<PrivateKeyPassphraseHandler> ptrHandler =
+				new KeyConsoleHandler(true);
+			SSLManager::instance().initializeServer(ptrHandler, ptrCert, m_sslCtx);
+		}
+		catch (std::exception& e)
+		{
+			dbg::Logc(1, "error webserver ssl key, %s, %s, %s\n", sslKeyFileName.c_str(),
+				sslCertFileName.c_str(), e.what());
+			return false;
+		}
+	}
+
 	if (!m_recvQueue.Init(packetSize, maxPacketCount))
 		goto $error;
 	if (!m_sendQueue.Init(packetSize, maxPacketCount))
@@ -154,7 +195,11 @@ bool cWebServer::Init(const int bindPort
 	{
 		try
 		{
-			m_websocket = new Poco::Net::ServerSocket(bindPort);
+			if (m_sslCtx)
+				m_websocket = new Poco::Net::SecureServerSocket(bindPort, 64, m_sslCtx);
+			else
+				m_websocket = new Poco::Net::ServerSocket(bindPort);
+
 			m_httpServer = new Poco::Net::HTTPServer( new cHTTPRequestHandlerFactory(*this)
 				, *m_websocket, new HTTPServerParams);
 			m_httpServer->start(); // http server thread start
@@ -448,6 +493,10 @@ bool cWebServer::ReceiveProcces()
 				continue; // not found session
 
 			cWebSession *session = it->second;
+
+			if (!session->IsConnect())
+				continue; // disconnect session
+
 			int result = 0;
 			try
 			{
@@ -554,10 +603,13 @@ int cWebServer::SendImmediate(const netid rcvId, const cPacket &packet)
 	if (session->m_ws)
 	{
 		try {
-			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
-			result = session->m_ws->sendFrame2(m_sendBuffer, m_maxBuffLen
-				, packet.m_data, packet.GetPacketSize()
+			result = session->m_ws->sendFrame(packet.m_data, packet.GetPacketSize()
 				, Poco::Net::WebSocket::FRAME_BINARY);
+
+			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
+			//result = session->m_ws->sendFrame2(m_sendBuffer, m_maxBuffLen
+			//	, packet.m_data, packet.GetPacketSize()
+			//	, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
 			dbg::Logc(1, "cWebServer send exception1, %s\n", e.what());
@@ -577,10 +629,12 @@ int cWebServer::SendAll(const cPacket &packet, set<netid> *outErrs //= nullptr
 			continue;
 		int result = 0;
 		try {
-			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
-			result = session->m_ws->sendFrame2(m_sendBuffer, m_maxBuffLen
-				, packet.m_data, packet.GetPacketSize()
+			result = session->m_ws->sendFrame(packet.m_data, packet.GetPacketSize()
 				, Poco::Net::WebSocket::FRAME_BINARY);
+			// upgrade sendFrame() -> sendFrame2(), to avoid memory alloc
+			//result = session->m_ws->sendFrame2(m_sendBuffer, m_maxBuffLen
+			//	, packet.m_data, packet.GetPacketSize()
+			//	, Poco::Net::WebSocket::FRAME_BINARY);
 		}
 		catch (std::exception &e) {
 			dbg::Logc(1, "cWebServer send exception2, %s\n", e.what());
