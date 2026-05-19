@@ -283,6 +283,9 @@
     <ClInclude Include="thread\taskflow.h">
       <Filter>thread</Filter>
     </ClInclude>
+    <ClInclude Include="etc\serialasync3.h">
+      <Filter>Etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -477,6 +480,9 @@
     </ClCompile>
     <ClCompile Include="thread\taskflow.cpp">
       <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="etc\serialasync3.cpp">
+      <Filter>Etc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

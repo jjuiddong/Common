@@ -335,19 +335,19 @@ physx::PxD6Joint* cArticulation::AddD6Joint(
 
 // set joint velocity drive parameter
 bool cArticulation::SetJointDriveVelocityByLink(const int linkId
-	, const float damping, const float stiffness, const float maxForce, const float velocity)
+	, const float stiffness, const float damping, const float maxForce, const float velocity)
 {
 	PxArticulationLink *link = GetLink(linkId);
 	if (!link) return false; // error return
 
 	PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
-	return SetJointDriveVelocity(joint, damping, stiffness, maxForce, velocity);
+	return SetJointDriveVelocity(joint, stiffness, damping, maxForce, velocity);
 }
 
 
 // set joint velocity drive parameter
 bool cArticulation::SetJointDriveVelocity(physx::PxArticulationJointReducedCoordinate* joint
-	, const float damping, const float stiffness, const float maxForce, const float velocity)
+	, const float stiffness, const float damping, const float maxForce, const float velocity)
 {
 	PxArticulationDrive param;
 	param.stiffness = stiffness;
@@ -364,19 +364,19 @@ bool cArticulation::SetJointDriveVelocity(physx::PxArticulationJointReducedCoord
 
 // set joint drive target parameter by link id
 bool cArticulation::SetJointDriveTargetByLink(const int linkId
-	, const float damping, const float stiffness, const float maxForce, const float target)
+	, const float stiffness, const float damping, const float maxForce, const float target)
 {
 	PxArticulationLink* link = GetLink(linkId);
 	if (!link) return false; // error return
 
 	PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
-	return SetJointDriveTarget(joint, damping, stiffness, maxForce, target);
+	return SetJointDriveTarget(joint, stiffness, damping, maxForce, target);
 }
 
 
 // set joint drive target parameter
 bool cArticulation::SetJointDriveTarget(physx::PxArticulationJointReducedCoordinate* joint
-	, const float damping, const float stiffness, const float maxForce, const float target)
+	, const float stiffness, const float damping, const float maxForce, const float target)
 {
 	PxArticulationDrive param;
 	param.stiffness = stiffness;
@@ -433,9 +433,8 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 		case phys::eShapeType::Capsule:
 		{
 			const PxTransform pose = info.link->getGlobalPose();
-			const Transform tm = Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
-			renderer.m_capsule.m_transform.pos = tm.pos;
-			renderer.m_capsule.m_transform.rot = tm.rot;
+			renderer.m_capsule.m_transform.pos = *(Vector3*)&pose.p;
+			renderer.m_capsule.m_transform.rot = *(Quaternion*)&pose.q;
 			renderer.m_capsule.SetDimension(info.radius, info.halfHeight);
 			renderer.m_capsule.Render(renderer, parentTm, flags);
 			renderer.m_capsule.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
@@ -445,12 +444,122 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 		case phys::eShapeType::Cylinder:
 		{
 			const PxTransform pose = info.link->getGlobalPose();
-			const Transform tm = Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
-			renderer.m_cylinder.m_transform.pos = tm.pos;
-			renderer.m_cylinder.m_transform.rot = tm.rot;
+			renderer.m_cylinder.m_transform.pos = *(Vector3*)&pose.p;
+			renderer.m_cylinder.m_transform.rot = *(Quaternion*)&pose.q;
 			renderer.m_cylinder.SetDimension(info.radius, info.height);
 			renderer.m_cylinder.Render(renderer, parentTm, flags);
 			renderer.m_cylinder.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+		}
+		break;
+
+		default: break;
+		}
+	}
+
+	return true;
+}
+
+
+// get articulation shape info
+bool cArticulation::GetShapeInfo(OUT vector<float>& out)
+{
+	using namespace graphic;
+
+	for (auto& kv : m_links)
+	{
+		const phys::cArticulation::sLinkInfo& info = kv.second;
+		switch (info.type)
+		{
+		case phys::eShapeType::Box:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+			const Transform tm = Transform(Vector3(), info.scale) *
+				Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
+			Transform tm2;
+			tm2.pos = tm.pos.ToOpenGL();
+			tm2.scale = tm.scale.ToOpenGL();
+			tm2.rot = tm.rot.ToOpenGL();
+
+			out.push_back(0.f); // box
+			out.push_back(tm2.pos.x);
+			out.push_back(tm2.pos.y);
+			out.push_back(tm2.pos.z);
+			out.push_back(tm2.scale.x);
+			out.push_back(tm2.scale.y);
+			out.push_back(tm2.scale.z);
+			out.push_back(tm2.rot.x);
+			out.push_back(tm2.rot.y);
+			out.push_back(tm2.rot.z);
+			out.push_back(tm2.rot.w);
+		}
+		break;
+
+		case phys::eShapeType::Sphere:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+			const Vector3 pos = (*(Vector3*)&pose.p).ToOpenGL();		
+
+			out.push_back(1.f); // sphere
+			out.push_back(pos.x);
+			out.push_back(pos.y);
+			out.push_back(pos.z);
+			out.push_back(info.radius);
+		}
+		break;
+
+		case phys::eShapeType::Capsule:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+
+			// tricky code: quaternion from 2 normal vector
+			Vector3 n0 = (Vector3(1, 0, 0) * (*(Quaternion*)&pose.q)).Normal();
+			Vector3 n1 = (Vector3(0, 1, 0) * (*(Quaternion*)&pose.q)).Normal();
+			n0 = n0.ToOpenGL();
+			n1 = n1.ToOpenGL();
+
+			Transform tm2;
+			tm2.pos = (*(Vector3*)&pose.p).ToOpenGL();
+
+			out.push_back(2.f); // capsule
+			out.push_back(tm2.pos.x);
+			out.push_back(tm2.pos.y);
+			out.push_back(tm2.pos.z);
+			out.push_back(n0.x);
+			out.push_back(n0.y);
+			out.push_back(n0.z);
+			out.push_back(n1.x);
+			out.push_back(n1.y);
+			out.push_back(n1.z);
+			out.push_back(info.radius);
+			out.push_back(info.halfHeight);
+		}
+		break;
+
+		case phys::eShapeType::Cylinder:
+		{
+			const PxTransform pose = info.link->getGlobalPose();
+
+			// tricky code: quaternion from 2 normal vector
+			Vector3 n0 = (Vector3(1, 0, 0) * (*(Quaternion*)&pose.q)).Normal();
+			Vector3 n1 = (Vector3(0, 1, 0) * (*(Quaternion*)&pose.q)).Normal();
+			n0 = n0.ToOpenGL();
+			n1 = n1.ToOpenGL();
+
+			Transform tm2;
+			tm2.pos = (*(Vector3*)&pose.p).ToOpenGL();
+
+			out.push_back(3.f); // cylinder
+			out.push_back(tm2.pos.x);
+			out.push_back(tm2.pos.y);
+			out.push_back(tm2.pos.z);
+			out.push_back(n0.x);
+			out.push_back(n0.y);
+			out.push_back(n0.z);
+			out.push_back(n1.x);
+			out.push_back(n1.y);
+			out.push_back(n1.z);
+			out.push_back(info.radius);
+			out.push_back(info.height);
 		}
 		break;
 

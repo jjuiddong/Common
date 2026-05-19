@@ -27,7 +27,7 @@ bool cPhysicsSync::Create(cPhysicsEngine *physics)
 
 
 // if ground plane, name is "ground"
-int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnPlane(graphic::cRenderer *renderer
 	, const Vector3& norm
 	, const Str32 &name //= "plane"
 )
@@ -37,8 +37,9 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 
 	using namespace graphic;
 	graphic::cGrid *grid = new graphic::cGrid();
-	grid->Create(renderer, 1000, 1000, 1.f, 1.f
-		, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0));
+	if (renderer)
+		grid->Create(*renderer, 1000, 1000, 1.f, 1.f
+			, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::TEXTURE0));
 	grid->m_mtrl.InitGray4();
 
 	cRigidActor *actor = new cRigidActor();
@@ -58,7 +59,7 @@ int cPhysicsSync::SpawnPlane(graphic::cRenderer &renderer
 }
 
 
-int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnBox(graphic::cRenderer *renderer
 	, const Transform& tfm
 	, const float density //= 1.f
 	, const bool isKinematic //= false
@@ -69,7 +70,8 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 	RETV(!m_physics->m_scene, false);
 
 	graphic::cCube *cube = new graphic::cCube();
-	cube->Create(renderer);
+	if (renderer)
+		cube->Create(*renderer);
 	cube->SetCube(tfm);
 
 	cRigidActor *actor = new cRigidActor();
@@ -89,7 +91,7 @@ int cPhysicsSync::SpawnBox(graphic::cRenderer &renderer
 }
 
 
-int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnSphere(graphic::cRenderer *renderer
 	, const Transform &tfm
 	, const float radius
 	, const float density //= 1.f
@@ -101,7 +103,8 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 	RETV(!m_physics->m_scene, false);
 
 	graphic::cSphere *sphere = new graphic::cSphere();
-	sphere->Create(renderer, radius, 10, 10);
+	if (renderer)
+		sphere->Create(*renderer, radius, 10, 10);
 	sphere->m_transform.pos = tfm.pos;
 	sphere->m_transform.rot = tfm.rot;
 
@@ -122,7 +125,7 @@ int cPhysicsSync::SpawnSphere(graphic::cRenderer &renderer
 }
 
 
-int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnCapsule(graphic::cRenderer *renderer
 	, const Transform& tfm
 	, const float radius
 	, const float halfHeight
@@ -135,7 +138,8 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 	RETV(!m_physics->m_scene, false);
 
 	graphic::cCapsule *capsule = new graphic::cCapsule();
-	capsule->Create(renderer, radius, halfHeight, 16, 8);
+	if (renderer)
+		capsule->Create(*renderer, radius, halfHeight, 16, 8);
 	capsule->m_transform.pos = tfm.pos;
 	capsule->m_transform.rot = tfm.rot;
 
@@ -156,7 +160,7 @@ int cPhysicsSync::SpawnCapsule(graphic::cRenderer &renderer
 }
 
 
-int cPhysicsSync::SpawnCylinder(graphic::cRenderer &renderer
+int cPhysicsSync::SpawnCylinder(graphic::cRenderer *renderer
 	, const Transform& tfm
 	, const float radius
 	, const float height
@@ -169,7 +173,8 @@ int cPhysicsSync::SpawnCylinder(graphic::cRenderer &renderer
 	RETV(!m_physics->m_scene, false);
 
 	graphic::cCylinder *cylinder = new graphic::cCylinder();
-	cylinder->Create(renderer, radius, height, 8);
+	if (renderer)
+		cylinder->Create(*renderer, radius, height, 8);
 	cylinder->m_transform.pos = tfm.pos;
 	cylinder->m_transform.rot = tfm.rot;
 

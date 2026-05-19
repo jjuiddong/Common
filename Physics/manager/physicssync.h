@@ -28,24 +28,24 @@ namespace phys
 
 		bool Create(cPhysicsEngine *physics);
 
-		int SpawnPlane(graphic::cRenderer &renderer
+		int SpawnPlane(graphic::cRenderer *renderer
 			, const Vector3 &norm
 			, const Str32 &name = "plane");
 
-		int SpawnBox(graphic::cRenderer &renderer
+		int SpawnBox(graphic::cRenderer *renderer
 			, const Transform &tfm
 			, const float density = 1.f
 			, const bool isKinematic = false
 			, const Str32 &name = "box");
 
-		int SpawnSphere(graphic::cRenderer &renderer
+		int SpawnSphere(graphic::cRenderer *renderer
 			, const Transform &tfm
 			, const float radius
 			, const float density = 1.f
 			, const bool isKinematic = false
 			, const Str32 &name = "sphere");
 
-		int SpawnCapsule(graphic::cRenderer &renderer
+		int SpawnCapsule(graphic::cRenderer *renderer
 			, const Transform &tfm
 			, const float radius
 			, const float halfHeight
@@ -53,7 +53,7 @@ namespace phys
 			, const bool isKinematic = false
 			, const Str32 &name = "capsule");
 
-		int SpawnCylinder(graphic::cRenderer &renderer
+		int SpawnCylinder(graphic::cRenderer *renderer
 			, const Transform &tfm
 			, const float radius
 			, const float height

@@ -252,6 +252,11 @@ Vector3 Vector3::ToOpenGL() const
 {
 	return Vector3(x, y, -z);
 }
+// convert OpenGL <-> DX space, toggle
+Vector3 Vector3::ToDX() const
+{
+	return Vector3(x, y, -z);
+}
 
 
 //#ifdef USE_D3D11_MATH

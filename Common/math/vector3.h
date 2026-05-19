@@ -30,6 +30,7 @@ namespace common
 		Vector3 Minimum(const Vector3 &rhs) const;
 		Vector3 Maximum(const Vector3 &rhs) const;
 		Vector3 ToOpenGL() const;
+		Vector3 ToDX() const;
 
 //#ifdef USE_D3D11_MATH
 		XMVECTOR GetVectorXM() const;

@@ -179,6 +179,7 @@ using std::make_shared;
 #include "etc/BufferedSerial.h"
 #include "etc/SerialAsync.h"
 #include "etc/SerialAsync2.h"
+#include "etc/serialasync3.h"
 #include "etc/ip.h"
 #include "etc/date.h"
 #include "etc/date2.h"

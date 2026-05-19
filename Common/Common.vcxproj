@@ -424,6 +424,7 @@
     <ClInclude Include="etc\Serial2.h" />
     <ClInclude Include="etc\SerialAsync.h" />
     <ClInclude Include="etc\SerialAsync2.h" />
+    <ClInclude Include="etc\serialasync3.h" />
     <ClInclude Include="etc\setutil.h" />
     <ClInclude Include="etc\shmmem.h" />
     <ClInclude Include="etc\simpledata.h" />
@@ -502,6 +503,7 @@
     <ClCompile Include="etc\Serial2.cpp" />
     <ClCompile Include="etc\SerialAsync.cpp" />
     <ClCompile Include="etc\SerialAsync2.cpp" />
+    <ClCompile Include="etc\serialasync3.cpp" />
     <ClCompile Include="etc\setutil.cpp" />
     <ClCompile Include="etc\shmmem.cpp" />
     <ClCompile Include="etc\simpledata.cpp" />

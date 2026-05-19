@@ -74,16 +74,16 @@ namespace phys
 			, const float maxLinearVelocity, const float maxAngularVelocity);
 
 		bool SetJointDriveVelocityByLink(const int linkId
-			, const float damping, const float stiffness, const float maxForce, const float velocity);
+			, const float stiffness, const float damping, const float maxForce, const float velocity);
 
 		bool SetJointDriveVelocity(physx::PxArticulationJointReducedCoordinate* joint
-			, const float damping, const float stiffness, const float maxForce, const float velocity);
+			, const float stiffness, const float damping, const float maxForce, const float velocity);
 
 		bool SetJointDriveTargetByLink(const int linkId
-			, const float damping, const float stiffness, const float maxForce, const float target);
+			, const float stiffness, const float damping, const float maxForce, const float target);
 
 		bool SetJointDriveTarget(physx::PxArticulationJointReducedCoordinate* joint
-			, const float damping, const float stiffness, const float maxForce, const float target);
+			, const float stiffness, const float damping, const float maxForce, const float target);
 
 		bool Render(graphic::cRenderer& renderer, const XMMATRIX& parentTm = graphic::XMIdentity
 			, const int flags = 1);
@@ -92,6 +92,8 @@ namespace phys
 
 		bool SetGlobalPose(const Transform& tfm);
 		Transform GetGlobalPose() const;
+
+		bool GetShapeInfo(OUT vector<float>& out);
 
 		void Clear(cPhysicsEngine *physics = nullptr);
 
