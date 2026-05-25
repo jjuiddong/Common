@@ -2,6 +2,9 @@
 // 2020-01-18, jjuiddong
 // PhysX engine wrapper class
 // physics object manager
+// 
+// 2026-05-23
+//	- multi PxScene
 //
 #pragma once
 
@@ -28,6 +31,7 @@ namespace phys
 		bool Play();
 		bool Pause();
 		void Clear();
+		static void ClearPhysx();
 
 
 	protected:
@@ -37,14 +41,15 @@ namespace phys
 
 
 	public:
-		physx::PxFoundation *m_foundation;
-		physx::PxPhysics *m_physics;
-		physx::PxMaterial *m_material;
-		physx::PxPvd *m_pvd;
-		physx::PxPvdTransport *m_transport;
-		physx::PxDefaultAllocator m_defaultAllocatorCallback;
-		physx::PxPvdInstrumentationFlags m_pvdFlags;
-		cDefaultErrorCallback m_defaultErrorCallback;
+		static physx::PxFoundation *s_foundation;
+		static physx::PxPhysics *s_physics;
+		static physx::PxPvd *s_pvd;
+		static physx::PxPvdTransport *s_transport;
+		static physx::PxDefaultAllocator s_defaultAllocatorCallback;
+		static physx::PxPvdInstrumentationFlags s_pvdFlags;
+		static cDefaultErrorCallback s_defaultErrorCallback;
+
+		physx::PxMaterial* m_material;
 		physx::PxDefaultCpuDispatcher *m_cpuDispatcher;
 		physx::PxCudaContextManager *m_cudaContextManager;
 		physx::PxScene *m_scene;

@@ -6,6 +6,14 @@
 using namespace phys;
 using namespace physx;
 
+physx::PxFoundation* cPhysicsEngine::s_foundation = nullptr;
+physx::PxPhysics* cPhysicsEngine::s_physics = nullptr;
+physx::PxPvd* cPhysicsEngine::s_pvd = nullptr;
+physx::PxPvdTransport* cPhysicsEngine::s_transport = nullptr;
+physx::PxDefaultAllocator cPhysicsEngine::s_defaultAllocatorCallback;
+physx::PxPvdInstrumentationFlags cPhysicsEngine::s_pvdFlags;
+cDefaultErrorCallback cPhysicsEngine::s_defaultErrorCallback;
+
 
 cPhysicsEngine::cPhysicsEngine()
 	: m_objSync(nullptr)
@@ -27,36 +35,43 @@ cPhysicsEngine::~cPhysicsEngine()
 
 bool cPhysicsEngine::InitializePhysx()
 {
-	m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION//PX_FOUNDATION_VERSION
-		, m_defaultAllocatorCallback, m_defaultErrorCallback);
-	if (!m_foundation)
+	if (!s_foundation)
+		s_foundation = PxCreateFoundation(PX_PHYSICS_VERSION
+			, s_defaultAllocatorCallback, s_defaultErrorCallback);
+	if (!s_foundation)
 		return false;
 
 	// pvd connection
-	if (m_isPVD)
+	if (m_isPVD && !s_transport)
 	{
 		sPvdParameters pvdParams;
-		m_transport = physx::PxDefaultPvdSocketTransportCreate(pvdParams.ip.c_str(), pvdParams.port
+		s_transport = physx::PxDefaultPvdSocketTransportCreate(pvdParams.ip.c_str(), pvdParams.port
 			, pvdParams.timeout);
-		if (m_transport == NULL)
+		if (s_transport == nullptr)
 			return false;
-		m_pvdFlags = physx::PxPvdInstrumentationFlag::eALL;
+		s_pvdFlags = physx::PxPvdInstrumentationFlag::eALL;
 		if (!pvdParams.useFullPvdConnection)
-			m_pvdFlags = physx::PxPvdInstrumentationFlag::ePROFILE;
-		m_pvd = physx::PxCreatePvd(*m_foundation);
-		m_pvd->connect(*m_transport, m_pvdFlags);
+			s_pvdFlags = physx::PxPvdInstrumentationFlag::ePROFILE;
+		s_pvd = physx::PxCreatePvd(*s_foundation);
+		s_pvd->connect(*s_transport, s_pvdFlags);
 	}//~pvd
 
-	bool recordMemoryAllocations = true;
 	physx::PxTolerancesScale scale;
 	//scale.length = 10;
 	//scale.speed = 10;
-	m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, scale
-		, recordMemoryAllocations, m_pvd);
 
-	m_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::eUSER_RELEASE);
+	if (!s_physics)
+	{
+		bool recordMemoryAllocations = true;
+		s_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *s_foundation, scale
+			, recordMemoryAllocations, s_pvd);
+	}
+	if (!s_physics)
+		return false;
 
-	m_material = m_physics->createMaterial(0.5f, 0.5f, 0.1f);
+	s_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::eUSER_RELEASE);
+
+	m_material = s_physics->createMaterial(0.5f, 0.5f, 0.1f);
 	if (!m_material)
 		return false;
 
@@ -66,7 +81,7 @@ bool cPhysicsEngine::InitializePhysx()
 	params.buildGPUData = true; //Enable GRB data being produced in cooking.
 
 	// scene initialize
-	physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
+	physx::PxSceneDesc sceneDesc(s_physics->getTolerancesScale());
 	sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 	if (!sceneDesc.cpuDispatcher)
 	{
@@ -81,7 +96,7 @@ bool cPhysicsEngine::InitializePhysx()
 		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 
 	//physx::PxCudaContextManagerDesc cudaContextManagerDesc;
-	//m_cudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaContextManagerDesc);
+	//m_cudaContextManager = PxCreateCudaContextManager(*s_foundation, cudaContextManagerDesc);
 	//if (m_cudaContextManager)
 	//{
 	//	if (!m_cudaContextManager->contextIsValid())
@@ -107,7 +122,7 @@ bool cPhysicsEngine::InitializePhysx()
 	sceneDesc.broadPhaseType = physx::PxBroadPhaseType::eGPU;
 	sceneDesc.gpuMaxNumPartitions = 8;
 
-	m_scene = m_physics->createScene(sceneDesc);
+	m_scene = s_physics->createScene(sceneDesc);
 	if (!m_scene)
 		return false;
 
@@ -237,20 +252,26 @@ bool cPhysicsEngine::Pause()
 
 void cPhysicsEngine::Clear()
 {
+	if (s_physics)
+		s_physics->unregisterDeletionListener(*this);
 	SAFE_DELETE(m_objSync);
 	if (m_scratchBlock)
 	{
 		_aligned_free(m_scratchBlock);
 		m_scratchBlock = nullptr;
 	}
-	if (m_physics)
-		m_physics->unregisterDeletionListener(*this);
+	PHY_SAFE_RELEASE(m_material);
 	PHY_SAFE_RELEASE(m_scene);
 	PHY_SAFE_RELEASE(m_cudaContextManager);
 	PHY_SAFE_RELEASE(m_cpuDispatcher);
-	PHY_SAFE_RELEASE(m_material);
-	PHY_SAFE_RELEASE(m_physics);
-	PHY_SAFE_RELEASE(m_pvd);
-	PHY_SAFE_RELEASE(m_transport);
-	PHY_SAFE_RELEASE(m_foundation);
+}
+
+
+// clear physx::PxFoundation
+void cPhysicsEngine::ClearPhysx()
+{
+	PHY_SAFE_RELEASE(s_physics);
+	PHY_SAFE_RELEASE(s_pvd);
+	PHY_SAFE_RELEASE(s_transport);
+	PHY_SAFE_RELEASE(s_foundation);
 }

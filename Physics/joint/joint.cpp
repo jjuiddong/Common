@@ -54,14 +54,14 @@ bool cJoint::CreateFixed(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 
 	PxTransform localFrame0, localFrame1;
 	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
-	PxFixedJoint *j1 = PxFixedJointCreate(*physics.m_physics
+	PxFixedJoint *j1 = PxFixedJointCreate(*physics.s_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
@@ -92,14 +92,14 @@ bool cJoint::CreateSpherical(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 
 	PxTransform localFrame0, localFrame1;
 	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
-	PxSphericalJoint *j1 = PxSphericalJointCreate(*physics.m_physics
+	PxSphericalJoint *j1 = PxSphericalJointCreate(*physics.s_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
@@ -131,14 +131,14 @@ bool cJoint::CreateRevolute(cPhysicsEngine &physics
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1
 	, const Vector3 &revoluteAxis)
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 
 	PxTransform localFrame0, localFrame1;
 	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxRevoluteJoint *j1 = PxRevoluteJointCreate(*physics.m_physics
+	PxRevoluteJoint *j1 = PxRevoluteJointCreate(*physics.s_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
@@ -180,14 +180,14 @@ bool cJoint::CreatePrismatic(cPhysicsEngine &physics
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1
 	, const Vector3 &revoluteAxis)
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 
 	PxTransform localFrame0, localFrame1;
 	const Vector3 jointPos = (pivot0 + pivot1) / 2.f;
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxPrismaticJoint *j1 = PxPrismaticJointCreate(*physics.m_physics
+	PxPrismaticJoint *j1 = PxPrismaticJointCreate(*physics.s_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
@@ -221,7 +221,7 @@ bool cJoint::CreateDistance(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 
 	const Vector3 revoluteAxis(1, 0, 0);
 
@@ -230,7 +230,7 @@ bool cJoint::CreateDistance(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxDistanceJoint *j1 = PxDistanceJointCreate(*physics.m_physics
+	PxDistanceJoint *j1 = PxDistanceJointCreate(*physics.s_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 
@@ -262,7 +262,7 @@ bool cJoint::CreateD6(cPhysicsEngine &physics
 	, cRigidActor *actor0, const Transform &worldTfm0, const Vector3 &pivot0
 	, cRigidActor *actor1, const Transform &worldTfm1, const Vector3 &pivot1)
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 
 	const Vector3 revoluteAxis(1, 0, 0);
 
@@ -271,7 +271,7 @@ bool cJoint::CreateD6(cPhysicsEngine &physics
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, revoluteAxis, localFrame0, localFrame1);
 
-	PxD6Joint *j1 = PxD6JointCreate(*physics.m_physics
+	PxD6Joint *j1 = PxD6JointCreate(*physics.s_physics
 		, actor0->m_actor, localFrame0
 		, actor1->m_actor, localFrame1);
 

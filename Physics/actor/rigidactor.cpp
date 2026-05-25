@@ -27,7 +27,7 @@ bool cRigidActor::CreatePlane(cPhysicsEngine &physics
 )
 {
 	PxSceneWriteLock scopedLock(*physics.m_scene);
-	PxRigidStatic* plane = PxCreatePlane(*physics.m_physics
+	PxRigidStatic* plane = PxCreatePlane(*physics.s_physics
 		, PxPlane(*(PxVec3*)&norm, 0), *physics.m_material);
 	if (!plane)
 		return false;
@@ -63,7 +63,7 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	const PxQuat rot = *(PxQuat*)&q;
 
 	PxSceneWriteLock scopedLock(*physics.m_scene);
-	PxRigidDynamic* box = PxCreateDynamic(*physics.m_physics
+	PxRigidDynamic* box = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxBoxGeometry(*(PxVec3*)&tfm.scale), *physics.m_material, density);
 	PX_ASSERT(box);
@@ -105,7 +105,7 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	q.Normalize();
 	const PxQuat rot = *(PxQuat*)&q;
 
-	PxRigidDynamic* sphere = PxCreateDynamic(*physics.m_physics
+	PxRigidDynamic* sphere = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxSphereGeometry(radius), *physics.m_material, density);
 	PX_ASSERT(sphere);
@@ -148,7 +148,7 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 
 	PxSceneWriteLock scopedLock(*physics.m_scene);
 
-	PxRigidDynamic* capsule = PxCreateDynamic(*physics.m_physics
+	PxRigidDynamic* capsule = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxCapsuleGeometry(radius, halfHeight), *physics.m_material, density);
 	PX_ASSERT(capsule);
@@ -195,7 +195,7 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 	
 	PxConvexMesh* convexMesh = GenerateCylinderMesh(physics, radius, height);
 
-	PxRigidDynamic* convex = PxCreateDynamic(*physics.m_physics
+	PxRigidDynamic* convex = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxConvexMeshGeometry(convexMesh), *physics.m_material, density);
 	PX_ASSERT(convex);
@@ -244,7 +244,7 @@ physx::PxConvexMesh* cRigidActor::GenerateCylinderMesh(cPhysicsEngine &physics
 	convexDesc.points.data = &conePositions[0];
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 	PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc
-		, physics.m_physics->getPhysicsInsertionCallback());
+		, physics.s_physics->getPhysicsInsertionCallback());
 	return convexMesh;
 }
 

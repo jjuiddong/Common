@@ -23,12 +23,12 @@ bool cArticulation::Create(cPhysicsEngine& physics
 	, const int solverIterationCount //= 32,
 )
 {
-	RETV(!physics.m_physics, false);
+	RETV(!physics.s_physics, false);
 	RETV(!physics.m_scene, false);
 
 	Clear();
 
-	m_art = physics.m_physics->createArticulationReducedCoordinate();
+	m_art = physics.s_physics->createArticulationReducedCoordinate();
 	if (isFixed)
 		m_art->setArticulationFlag(PxArticulationFlag::eFIX_BASE, true);
 	m_art->setSolverIterationCounts(solverIterationCount);
@@ -326,7 +326,7 @@ physx::PxD6Joint* cArticulation::AddD6Joint(
 	GetLocalFrame(worldTfm0, worldTfm1, jointPos
 		, Vector3::Zeroes, localFrame0, localFrame1);
 
-	PxD6Joint* joint = PxD6JointCreate(*physics.m_physics
+	PxD6Joint* joint = PxD6JointCreate(*physics.s_physics
 		, link0, localFrame0, link1, localFrame1);
 
 	return joint;
@@ -635,7 +635,7 @@ physx::PxConvexMesh* cArticulation::GenerateCylinderMesh(cPhysicsEngine& physics
 	convexDesc.points.data = &conePositions[0];
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 	PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc
-		, physics.m_physics->getPhysicsInsertionCallback());
+		, physics.s_physics->getPhysicsInsertionCallback());
 	return convexMesh;
 }
 

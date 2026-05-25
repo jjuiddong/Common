@@ -20,8 +20,8 @@ bool cPhysicsSync::Create(cPhysicsEngine *physics)
 {
 	m_physics = physics;
 	physics->SetPhysicsSync(this);
-	if (physics->m_physics)
-		physics->m_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::eUSER_RELEASE);
+	if (physics->s_physics)
+		physics->s_physics->registerDeletionListener(*this, physx::PxDeletionEventFlag::eUSER_RELEASE);
 	return true;
 }
 
@@ -458,8 +458,8 @@ void cPhysicsSync::ClearSyncInfo(
 // clear physics actor, joint object
 void cPhysicsSync::Clear()
 {
-	if (m_physics && m_physics->m_physics)
-		m_physics->m_physics->unregisterDeletionListener(*this);
+	if (m_physics && m_physics->s_physics)
+		m_physics->s_physics->unregisterDeletionListener(*this);
 
 	ClearSyncInfo();
 }
