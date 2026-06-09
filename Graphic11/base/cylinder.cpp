@@ -8,6 +8,7 @@ cCylinder::cCylinder()
 	: cNode(common::GenerateId(), "cylinder", eNodeType::MODEL)
 	, m_radius(0)
 	, m_height(0)
+	, m_type(eCylinderType::AxisX)
 {
 	m_mtrl.InitWhite();
 }
@@ -16,12 +17,13 @@ cCylinder::cCylinder(cRenderer &renderer, const float radius, const float height
 	, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
 	, const cColor &color //= cColor::WHITE
+	, const eCylinderType type //= eCylinderType::AxisX
 )
 	: cNode(common::GenerateId(), "cylinder", eNodeType::MODEL)
 	, m_radius(0)
 	, m_height(0)
 {
-	Create(renderer, radius, height, slices, vtxType, color);
+	Create(renderer, radius, height, slices, vtxType, color, type);
 }
 
 cCylinder::~cCylinder()
@@ -29,24 +31,23 @@ cCylinder::~cCylinder()
 }
 
 
-bool cCylinder::Create(cRenderer &renderer, const float radius, const float height
+bool cCylinder::Create(cRenderer& renderer, const float radius, const float height
 	, const int slices
 	, const int vtxType //= (eVertexType::POSITION | eVertexType::NORMAL)
-	, const cColor &color //= cColor::WHITE
+	, const cColor& color //= cColor::WHITE
+	, const eCylinderType type //= eCylinderType::AxisX
 )
 {
 	m_mtrl.m_diffuse = color.GetColor();
-	m_radius = radius;
-	m_height = height;
 	m_vtxType = vtxType;
+	m_type = type;
+	SetDimension(radius, height);
 
 	Transform tfm;
 	tfm.scale = Vector3(1, 1, 1);
 	m_boundingBox.SetBoundingBox(tfm);
 
-	m_transform.scale = Vector3(height/2.f, radius, radius);
-
-	return m_shape.Create(renderer, 1.f, 2.f, slices, vtxType, color);
+	return m_shape.Create(renderer, 1.f, 2.f, slices, vtxType, color, true, type);
 }
 
 
@@ -122,5 +123,17 @@ void cCylinder::SetDimension(const float radius, const float height)
 {
 	m_radius = radius;
 	m_height = height;
-	m_transform.scale = Vector3(height/2.f, radius, radius);
+
+	switch (m_type)
+	{
+	case eCylinderType::AxisX:
+		m_transform.scale = Vector3(height / 2.f, radius, radius);
+		break;
+	case eCylinderType::AxisY:
+		m_transform.scale = Vector3(radius, height / 2.f, radius);
+		break;
+	case eCylinderType::AxisZ:
+		m_transform.scale = Vector3(radius, radius, height / 2.f);
+		break;
+	}
 }

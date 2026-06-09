@@ -1,6 +1,7 @@
 //
 // 2020-01-20, jjuiddong
 // cylinder renderer
+//	- default x-axis height cylinder
 //
 #pragma once
 
@@ -16,13 +17,15 @@ namespace graphic
 		cCylinder(cRenderer &renderer, const float radius, const float height
 			, const int slices
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const eCylinderType type = eCylinderType::AxisX);
 		virtual ~cCylinder();
 
 		bool Create(cRenderer &renderer, const float radius, const float height
 			, const int slices
 			, const int vtxType = (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
-			, const cColor &color = cColor::WHITE);
+			, const cColor &color = cColor::WHITE
+			, const eCylinderType type = eCylinderType::AxisX);
 
 		virtual bool Render(cRenderer &renderer, const XMMATRIX &parentTm = XMIdentity, const int flags = 1) override;
 
@@ -32,6 +35,7 @@ namespace graphic
 
 
 	public:
+		eCylinderType m_type;
 		cCylinderShape m_shape;
 		cMaterial m_mtrl;
 		float m_radius;

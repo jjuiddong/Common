@@ -38,8 +38,8 @@ bool cArticulation::Create(cPhysicsEngine& physics
 
 // create and add box link
 // parentLinkId: parent link id, -1=root
-// tfm: link pos, scale, rotation
-// mass: link mass
+// tfm: box pos, dimension, rotation (world space)
+// mass: box mass
 // return: link id, -1:fail return
 int cArticulation::AddBoxLink(cPhysicsEngine& physics
 	, const int parentLinkId, const Transform& tfm
@@ -55,9 +55,10 @@ int cArticulation::AddBoxLink(cPhysicsEngine& physics
 
 	PxArticulationLink* link = m_art->createLink(parent
 		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot));
+	RETV(!link, -1);
 
 	PxRigidActorExt::createExclusiveShape(*link
-		, PxBoxGeometry(tfm.scale.x, tfm.scale.y, tfm.scale.z)
+		, PxBoxGeometry(tfm.scale.x / 2.f, tfm.scale.y / 2.f, tfm.scale.z / 2.f)
 		, material? *material : *physics.m_material);
 
 	PxRigidBodyExt::updateMassAndInertia(*link, mass);
@@ -74,7 +75,7 @@ int cArticulation::AddBoxLink(cPhysicsEngine& physics
 
 // create and add sphere link
 // parentLinkId: parent link id, -1=root
-// tfm: link pos, scale, rotation
+// tfm: link pos, scale, rotation (world space)
 // radius: sphere radius
 // mass: link mass
 // return: link id, -1:fail return
@@ -94,6 +95,7 @@ int cArticulation::AddSphereLink(cPhysicsEngine& physics
 
 	PxArticulationLink* link = m_art->createLink(parent
 		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot));
+	RETV(!link, -1);
 
 	physx::PxRigidActorExt::createExclusiveShape(*link
 		, PxSphereGeometry(radius)
@@ -113,7 +115,7 @@ int cArticulation::AddSphereLink(cPhysicsEngine& physics
 
 // create and add capsule link
 // parentLinkId: parent link id, -1=root
-// tfm: link pos, scale, rotation
+// tfm: link pos, scale, rotation (world space)
 // radius: capsule radius
 // halfHeight: capsule half height
 // mass: link mass
@@ -135,6 +137,7 @@ int cArticulation::AddCapsuleLink(cPhysicsEngine& physics
 
 	PxArticulationLink* link = m_art->createLink(parent
 		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot));
+	RETV(!link, -1);
 
 	physx::PxRigidActorExt::createExclusiveShape(*link
 		, PxCapsuleGeometry(radius, halfHeight)
@@ -153,9 +156,9 @@ int cArticulation::AddCapsuleLink(cPhysicsEngine& physics
 }
 
 
-// create and add cylinder link
+// create and add cylinder link (y-axis height cylinder)
 // parentLinkId: parent link id, -1=root
-// tfm: link pos, scale, rotation
+// tfm: link pos, scale, rotation (world space)
 // radius: cylinder radius
 // height: cylinder height
 // mass: link mass
@@ -177,6 +180,7 @@ int cArticulation::AddCylinderLink(cPhysicsEngine& physics
 
 	PxArticulationLink* link = m_art->createLink(parent
 		, PxTransform(*(PxVec3*)&tfm.pos, *(PxQuat*)&tfm.rot));
+	RETV(!link, -1);
 
 	PxConvexMesh* convexMesh = GenerateCylinderMesh(physics, radius, height);
 	physx::PxRigidActorExt::createExclusiveShape(*link
@@ -237,6 +241,8 @@ bool cArticulation::SetAttribute(const float linearDamping, const float angularD
 
 
 // add joint
+// parentPivot0, childPivot1: world space
+// axis: rotate axis, world space
 physx::PxArticulationJointReducedCoordinate* cArticulation::AddJoint(
 	const int childLinkId
 	, const eJointType jointType
@@ -250,6 +256,7 @@ physx::PxArticulationJointReducedCoordinate* cArticulation::AddJoint(
 	RETV(!child, nullptr);
 
 	PxArticulationJointReducedCoordinate* joint = child->getInboundJoint();
+	RETV(!joint, nullptr);
 	PxArticulationLink* parent = &joint->getParentArticulationLink();
 
 	const PxTransform parentTm = parent->getGlobalPose();
@@ -295,11 +302,13 @@ physx::PxArticulationJointReducedCoordinate* cArticulation::AddJoint(
 	joint->setJointType(jtype);
 	joint->setParentPose(localFrame0);
 	joint->setChildPose(localFrame1);
+	m_joints.push_back(joint);
 	return joint;
 }
 
 
 // add d6 joint
+// pivot0, pivot1: (world space)
 physx::PxD6Joint* cArticulation::AddD6Joint(
 	cPhysicsEngine& physics
 	, const int linkId0, const Vector3& pivot0
@@ -402,7 +411,7 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 	renderer.m_cube.SetColor(cColor::WHITE);
 	renderer.m_sphere.SetColor(cColor::WHITE);
 	renderer.m_capsule.SetColor(cColor::WHITE);
-	renderer.m_cylinder.SetColor(cColor::WHITE);
+	renderer.m_cylinder2.SetColor(cColor::WHITE);
 
 	for (auto& kv : m_links)
 	{
@@ -412,8 +421,9 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 		case phys::eShapeType::Box:
 		{
 			const PxTransform pose = info.link->getGlobalPose();
-			const Transform tm = Transform(Vector3(), info.scale) *
+			const Transform tm = Transform(Vector3(), info.scale * 0.5f) *
 				Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
+			
 			renderer.m_cube.SetCube(tm);
 			renderer.m_cube.Render(renderer, parentTm, flags);
 			renderer.m_cube.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
@@ -444,11 +454,13 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 		case phys::eShapeType::Cylinder:
 		{
 			const PxTransform pose = info.link->getGlobalPose();
-			renderer.m_cylinder.m_transform.pos = *(Vector3*)&pose.p;
-			renderer.m_cylinder.m_transform.rot = *(Quaternion*)&pose.q;
-			renderer.m_cylinder.SetDimension(info.radius, info.height);
-			renderer.m_cylinder.Render(renderer, parentTm, flags);
-			renderer.m_cylinder.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
+			const Transform tm = Transform(*(Vector3*)&pose.p, *(Quaternion*)&pose.q);
+
+			renderer.m_cylinder2.m_transform.pos = tm.pos;
+			renderer.m_cylinder2.m_transform.rot = tm.rot;
+			renderer.m_cylinder2.SetDimension(info.radius, info.height);
+			renderer.m_cylinder2.Render(renderer, parentTm, flags);
+			renderer.m_cylinder2.Render(renderer, parentTm, flags | eRenderFlag::WIREFRAME);
 		}
 		break;
 
@@ -460,8 +472,10 @@ bool cArticulation::Render(graphic::cRenderer & renderer
 }
 
 
-// get articulation shape info
-bool cArticulation::GetShapeInfo(OUT vector<float>& out)
+// get link shape info
+bool cArticulation::GetShapeInfo(OUT vector<float>& out
+	, const uint maxSize //= 100
+)
 {
 	using namespace graphic;
 
@@ -472,14 +486,14 @@ bool cArticulation::GetShapeInfo(OUT vector<float>& out)
 		{
 		case phys::eShapeType::Box:
 		{
+			if (((uint)out.size() + 11) > maxSize)
+				break;
+
 			const PxTransform pose = info.link->getGlobalPose();
 			const Transform tm = Transform(Vector3(), info.scale) *
 				Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
-			Transform tm2;
-			tm2.pos = tm.pos.ToOpenGL();
-			tm2.scale = tm.scale.ToOpenGL();
-			tm2.rot = tm.rot.ToOpenGL();
-
+			Transform tm2 = tm;
+		
 			out.push_back(0.f); // box
 			out.push_back(tm2.pos.x);
 			out.push_back(tm2.pos.y);
@@ -496,8 +510,11 @@ bool cArticulation::GetShapeInfo(OUT vector<float>& out)
 
 		case phys::eShapeType::Sphere:
 		{
+			if (((uint)out.size() + 5) > maxSize)
+				break;
+
 			const PxTransform pose = info.link->getGlobalPose();
-			const Vector3 pos = (*(Vector3*)&pose.p).ToOpenGL();		
+			Vector3 pos = (*(Vector3*)&pose.p);
 
 			out.push_back(1.f); // sphere
 			out.push_back(pos.x);
@@ -509,27 +526,22 @@ bool cArticulation::GetShapeInfo(OUT vector<float>& out)
 
 		case phys::eShapeType::Capsule:
 		{
+			if (((uint)out.size() + 10) > maxSize)
+				break;
+
 			const PxTransform pose = info.link->getGlobalPose();
-
-			// tricky code: quaternion from 2 normal vector
-			Vector3 n0 = (Vector3(1, 0, 0) * (*(Quaternion*)&pose.q)).Normal();
-			Vector3 n1 = (Vector3(0, 1, 0) * (*(Quaternion*)&pose.q)).Normal();
-			n0 = n0.ToOpenGL();
-			n1 = n1.ToOpenGL();
-
 			Transform tm2;
-			tm2.pos = (*(Vector3*)&pose.p).ToOpenGL();
+			tm2.pos = (*(Vector3*)&pose.p);
+			tm2.rot = Quaternion(pose.q.x, pose.q.y, pose.q.z, pose.q.w);
 
 			out.push_back(2.f); // capsule
 			out.push_back(tm2.pos.x);
 			out.push_back(tm2.pos.y);
 			out.push_back(tm2.pos.z);
-			out.push_back(n0.x);
-			out.push_back(n0.y);
-			out.push_back(n0.z);
-			out.push_back(n1.x);
-			out.push_back(n1.y);
-			out.push_back(n1.z);
+			out.push_back(tm2.rot.x);
+			out.push_back(tm2.rot.y);
+			out.push_back(tm2.rot.z);
+			out.push_back(tm2.rot.w);
 			out.push_back(info.radius);
 			out.push_back(info.halfHeight);
 		}
@@ -537,27 +549,22 @@ bool cArticulation::GetShapeInfo(OUT vector<float>& out)
 
 		case phys::eShapeType::Cylinder:
 		{
+			if (((uint)out.size() + 10) > maxSize)
+				break;
+
 			const PxTransform pose = info.link->getGlobalPose();
-
-			// tricky code: quaternion from 2 normal vector
-			Vector3 n0 = (Vector3(1, 0, 0) * (*(Quaternion*)&pose.q)).Normal();
-			Vector3 n1 = (Vector3(0, 1, 0) * (*(Quaternion*)&pose.q)).Normal();
-			n0 = n0.ToOpenGL();
-			n1 = n1.ToOpenGL();
-
 			Transform tm2;
-			tm2.pos = (*(Vector3*)&pose.p).ToOpenGL();
+			tm2.pos = (*(Vector3*)&pose.p);
+			tm2.rot = Quaternion(pose.q.x, pose.q.y, pose.q.z, pose.q.w);
 
 			out.push_back(3.f); // cylinder
 			out.push_back(tm2.pos.x);
 			out.push_back(tm2.pos.y);
 			out.push_back(tm2.pos.z);
-			out.push_back(n0.x);
-			out.push_back(n0.y);
-			out.push_back(n0.z);
-			out.push_back(n1.x);
-			out.push_back(n1.y);
-			out.push_back(n1.z);
+			out.push_back(tm2.rot.x);
+			out.push_back(tm2.rot.y);
+			out.push_back(tm2.rot.z);
+			out.push_back(tm2.rot.w);
 			out.push_back(info.radius);
 			out.push_back(info.height);
 		}
@@ -567,6 +574,18 @@ bool cArticulation::GetShapeInfo(OUT vector<float>& out)
 		}
 	}
 
+	return true;
+}
+
+
+// return all joint value
+bool cArticulation::GetJointValues(OUT vector<float>& out)
+{
+	for (auto& joint : m_joints)
+	{
+		const float value = joint->getJointPosition(PxArticulationAxis::eTWIST);
+		out.push_back(value);
+	}
 	return true;
 }
 
@@ -605,6 +624,9 @@ Transform cArticulation::GetGlobalPose() const
 	RETV(!m_art, tfm);
 
 	using namespace physx;
+	if (!m_art->getScene())
+		return tfm;
+
 	PxTransform tm = m_art->getRootGlobalPose();
 	tfm.pos = *(Vector3*)&tm.p;
 	tfm.rot = *(Quaternion*)&tm.q;
@@ -613,26 +635,23 @@ Transform cArticulation::GetGlobalPose() const
 
 
 // create cylinder convex mesh
+// y-axis height cylinder
 physx::PxConvexMesh* cArticulation::GenerateCylinderMesh(cPhysicsEngine& physics
 	, const float radius, const float height)
 {
-	const int slices = 10;
+	const int slices = 20;
 	graphic::cCylinderShape shape;
-	const int numConeVertices = (slices * 2 + 1) * 2;
-	const int numConeIndices = slices * 2 * 6;
-	const int numCapsuleVertices = numConeVertices;
-	const int numCapsuleIndices = numConeIndices;
-
-	vector<Vector3> conePositions(numConeVertices);
-	vector<unsigned short> coneIndices(numConeIndices);
-	shape.GenerateConeMesh2(slices, radius, height, &conePositions[0], &coneIndices[0], 0, false);
+	const int sideVtxCnt = slices * 2;
+	vector<Vector3> positions(sideVtxCnt);
+	shape.GenerateCylinderMesh(slices, radius, height, &positions[0], nullptr, false
+		, graphic::eCylinderType::AxisY);
 
 	PxTolerancesScale scale;
 	PxCookingParams params(scale);
 	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = numConeVertices;
+	convexDesc.points.count = (uint)positions.size();
 	convexDesc.points.stride = sizeof(PxVec3);
-	convexDesc.points.data = &conePositions[0];
+	convexDesc.points.data = &positions[0];
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 	PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc
 		, physics.s_physics->getPhysicsInsertionCallback());
@@ -643,7 +662,8 @@ physx::PxConvexMesh* cArticulation::GenerateCylinderMesh(cPhysicsEngine& physics
 // calc localFrame for PxJoint~ Function seriese
 // worldTm0 : actor0 world transform
 // worldTm1 : actor1 world transform
-// revoluteAxis : revolution Axis
+// jointPos : joint pos, world space
+// revoluteAxis : revolution Axis, world space
 //			      if ZeroVector, ignore revolute axis
 // out0 : return actor0 localFrame
 // out1 : return actor1 localFrame
@@ -685,6 +705,7 @@ void cArticulation::GetLocalFrame(const Transform& worldTm0, const Transform& wo
 void cArticulation::Clear(cPhysicsEngine *physics)
 {
 	m_links.clear();
+	m_joints.clear();
 
 	if (physics && physics->m_scene && m_art)
 		physics->m_scene->removeArticulation(*m_art);

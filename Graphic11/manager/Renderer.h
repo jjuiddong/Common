@@ -189,7 +189,8 @@ namespace graphic
 		cRect2D m_rect2D;
 		cRect3D m_rect3D;
 		cSphere m_sphere;
-		cCylinder m_cylinder;
+		cCylinder m_cylinder; // x-axis height cylinder
+		cCylinder m_cylinder2; // y-axis height cylinder
 		cCapsule m_capsule;
 		cCone m_cone;
 		cQuad m_quad;

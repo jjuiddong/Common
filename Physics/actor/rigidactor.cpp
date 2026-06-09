@@ -225,23 +225,19 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 physx::PxConvexMesh* cRigidActor::GenerateCylinderMesh(cPhysicsEngine &physics
 	, const float radius, const float height)
 {
-	const int slices = 10;
+	const int slices = 20;
 	graphic::cCylinderShape shape;
-	const int numConeVertices = (slices * 2 + 1) * 2;
-	const int numConeIndices = slices * 2 * 6;
-	const int numCapsuleVertices = numConeVertices;
-	const int numCapsuleIndices = numConeIndices;
-
-	vector<Vector3> conePositions(numConeVertices);
-	vector<unsigned short> coneIndices(numConeIndices);
-	shape.GenerateConeMesh2(slices, radius, height, &conePositions[0], &coneIndices[0], 0, false);
+	const int sideVtxCnt = slices * 2;
+	vector<Vector3> positions(sideVtxCnt);
+	shape.GenerateCylinderMesh(slices, radius, height, &positions[0], nullptr, false
+		, graphic::eCylinderType::AxisY);
 
 	PxTolerancesScale scale;
 	PxCookingParams params(scale);
 	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = numConeVertices;
+	convexDesc.points.count = (uint)positions.size();
 	convexDesc.points.stride = sizeof(PxVec3);
-	convexDesc.points.data = &conePositions[0];
+	convexDesc.points.data = &positions[0];
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 	PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc
 		, physics.s_physics->getPhysicsInsertionCallback());

@@ -93,7 +93,8 @@ namespace phys
 		bool SetGlobalPose(const Transform& tfm);
 		Transform GetGlobalPose() const;
 
-		bool GetShapeInfo(OUT vector<float>& out);
+		bool GetShapeInfo(OUT vector<float>& out, const uint maxSize = 100);
+		bool GetJointValues(OUT vector<float>& out);
 
 		void Clear(cPhysicsEngine *physics = nullptr);
 
@@ -112,7 +113,7 @@ namespace phys
 		{
 			eShapeType type;
 			physx::PxArticulationLink *link;
-			Vector3 scale; // box
+			Vector3 scale; // box dimension
 			float radius; // sphere, cylinder, capsule
 			float height; // cylinder
 			float halfHeight; // capsule
@@ -120,6 +121,7 @@ namespace phys
 
 		physx::PxArticulationReducedCoordinate* m_art;
 		map<int, sLinkInfo> m_links; // reference, key:link id
+		vector<physx::PxArticulationJointReducedCoordinate*> m_joints; // all joint, reference
 	};
 
 }

@@ -60,6 +60,7 @@ namespace common
 		Quaternion Inverse() const;
 		bool IsEmpty() const;
 		Quaternion ToOpenGL() const;
+		Quaternion ToDX() const;
 
 		float GetRotationAngleXZ() const;
 

@@ -431,6 +431,13 @@ Quaternion Quaternion::ToOpenGL() const
 }
 
 
+// https://gamedev.net/forums/topic/555078-convert-quaternions-from-d3d-to-opengl/4566316/
+Quaternion Quaternion::ToDX() const
+{
+	return Quaternion(x, y, z, -w);
+}
+
+
 /** @brief Returns an equivalent euler angle representation of
 	* this quaternion.
 	* @return Euler angles in roll-pitch-yaw order. (radian)

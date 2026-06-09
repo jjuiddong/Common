@@ -191,6 +191,8 @@ void cRenderer::InitRenderer(HWND hWnd, const float width, const float height)
 	m_rect3D.Create(*this, 32);
 	m_sphere.Create(*this, 1, 10, 10);
 	m_cylinder.Create(*this, 1, 1, 10);
+	m_cylinder2.Create(*this, 1, 1, 40, (eVertexType::POSITION | eVertexType::NORMAL | eVertexType::COLOR)
+		, cColor::WHITE, eCylinderType::AxisY);
 	m_capsule.Create(*this, 1, 1, 10, 10);
 	m_cone.Create(*this, 1, 1, 20, eVertexType::POSITION);
 	m_quad.Create(*this, 1, 1, Vector3(0, 0, 0), eVertexType::POSITION | eVertexType::COLOR

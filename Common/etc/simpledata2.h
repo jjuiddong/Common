@@ -139,6 +139,18 @@ namespace common
 		return it->second[1];
 	}
 
+	// template specialization (Vector2)
+	template<>
+	inline const Vector2 cSimpleData2::Get(cSimpleData2::sNode* node
+		, const string& key, const Vector2& defaultValue)
+	{
+		FIND_ATTR(node, key, 2);
+		Vector2 v;
+		v.x = (float)atof(it->second[1].c_str());
+		v.y = (float)atof(it->second[2].c_str());
+		return v;
+	}
+
 	// template specialization (Vector3)
 	template<>
 	inline const Vector3 cSimpleData2::Get(cSimpleData2::sNode* node
@@ -152,15 +164,18 @@ namespace common
 		return v;
 	}
 
-	// template specialization (Vector2)
+	// template specialization (Vector4)
 	template<>
-	inline const Vector2 cSimpleData2::Get(cSimpleData2::sNode* node
-		, const string& key, const Vector2& defaultValue)
+	inline const Vector4 cSimpleData2::Get(cSimpleData2::sNode* node
+		, const string& key, const Vector4& defaultValue)
 	{
-		FIND_ATTR(node, key, 2);
-		Vector2 v;
+		FIND_ATTR(node, key, 4);
+		Vector4 v;
 		v.x = (float)atof(it->second[1].c_str());
 		v.y = (float)atof(it->second[2].c_str());
+		v.z = (float)atof(it->second[3].c_str());
+		v.w = (float)atof(it->second[4].c_str());
 		return v;
 	}
+
 }
