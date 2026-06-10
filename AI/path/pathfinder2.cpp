@@ -473,15 +473,13 @@ inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
 		&& (destPos.Distance(toPos) > arg.targetDist))
 		return 0;
 
-	// tricky code: only support OpenGL space
-	// OpenGL -> DX
-	const Vector3 f = arg.target->dir.ToOpenGL();// (arg.target->dir.x, arg.target->dir.y, -arg.target->dir.z);
-	const Vector3 dir = objDir.ToOpenGL();// (objDir.x, objDir.y, -objDir.z);
-	const Vector3 local = arg.target->target.ToOpenGL();// (arg.target->target.x, arg.target->target.y, -arg.target->target.z);
+	const Vector3 f = arg.target->dir;
+	const Vector3 dir = objDir;
+	const Vector3 local = arg.target->target;
 	Quaternion rot;
 	rot.SetRotationArc(f, dir, Vector3(0, 1, 0));
 	const Vector3 localTarget = local * rot;
-	const Vector3 target = toPos + localTarget.ToOpenGL();// Vector3(localTarget.x, localTarget.y, -localTarget.z);
+	const Vector3 target = toPos + localTarget;
 
 	const float dist1 = destPos.Distance(target);
 	if (dist1 <= arg.target->radius)
@@ -489,7 +487,7 @@ inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
 
 	if (UINT_MAX != arg.from)
 	{
-		const Vector3 target2 = frPos + localTarget.ToOpenGL();
+		const Vector3 target2 = frPos + localTarget;
 		const float dist2 = destPos.Distance(target2);
 		if (dist2 <= arg.target->radius)
 			return 2; // destination from node
@@ -499,7 +497,7 @@ inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
 	Quaternion rot2;
 	rot2.SetRotationArc(f, -dir, Vector3(0, 1, 0));
 	const Vector3 localTarget2 = local * rot2;
-	const Vector3 target3 = toPos + localTarget2.ToOpenGL();
+	const Vector3 target3 = toPos + localTarget2;
 
 	const float dist3 = destPos.Distance(target3);
 	if (dist3 <= arg.target->radius)
@@ -507,7 +505,7 @@ inline int cPathFinder2::ArriveTarget(sTargetArg& arg)
 
 	if (UINT_MAX != arg.from)
 	{
-		const Vector3 target4 = frPos + localTarget2.ToOpenGL();
+		const Vector3 target4 = frPos + localTarget2;
 		const float dist4 = destPos.Distance(target4);
 		if (dist4 <= arg.target->radius)
 			return 2; // destination from node
