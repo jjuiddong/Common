@@ -66,7 +66,8 @@ bool cRigidActor::CreateBox(cPhysicsEngine &physics
 	PxRigidDynamic* box = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxBoxGeometry(*(PxVec3*)&tfm.scale), *physics.m_material, density);
-	PX_ASSERT(box);
+	RETV(!box, false);
+	//PX_ASSERT(box);
 
 	DefaultRigidActorConfiguration(box);
 
@@ -108,7 +109,8 @@ bool cRigidActor::CreateSphere(cPhysicsEngine &physics
 	PxRigidDynamic* sphere = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxSphereGeometry(radius), *physics.m_material, density);
-	PX_ASSERT(sphere);
+	//PX_ASSERT(sphere);
+	RETV(!sphere, false);
 
 	DefaultRigidActorConfiguration(sphere);
 
@@ -151,7 +153,8 @@ bool cRigidActor::CreateCapsule(cPhysicsEngine &physics
 	PxRigidDynamic* capsule = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxCapsuleGeometry(radius, halfHeight), *physics.m_material, density);
-	PX_ASSERT(capsule);
+	//PX_ASSERT(capsule);
+	RETV(!capsule, false);
 
 	DefaultRigidActorConfiguration(capsule);
 	capsule->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic);
@@ -198,7 +201,8 @@ bool cRigidActor::CreateCylinder(cPhysicsEngine &physics
 	PxRigidDynamic* convex = PxCreateDynamic(*physics.s_physics
 		, PxTransform(*(PxVec3*)&tfm.pos, rot)
 		, PxConvexMeshGeometry(convexMesh), *physics.m_material, density);
-	PX_ASSERT(convex);
+	//PX_ASSERT(convex);
+	RETV(!convex, false);
 
 	DefaultRigidActorConfiguration(convex);
 

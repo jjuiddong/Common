@@ -65,6 +65,7 @@ int cArticulation::AddBoxLink(cPhysicsEngine& physics
 
 	const int id = common::GenerateId();
 	sLinkInfo info;
+	info.id = id;
 	info.type = eShapeType::Box;
 	info.link = link;
 	info.scale = tfm.scale;
@@ -105,6 +106,7 @@ int cArticulation::AddSphereLink(cPhysicsEngine& physics
 
 	const int id = common::GenerateId();
 	sLinkInfo info;
+	info.id = id;
 	info.type = eShapeType::Sphere;
 	info.link = link;
 	info.radius = radius;
@@ -147,6 +149,7 @@ int cArticulation::AddCapsuleLink(cPhysicsEngine& physics
 
 	const int id = common::GenerateId();
 	sLinkInfo info;
+	info.id = id;
 	info.type = eShapeType::Capsule;
 	info.link = link;
 	info.radius = radius;
@@ -191,6 +194,7 @@ int cArticulation::AddCylinderLink(cPhysicsEngine& physics
 
 	const int id = common::GenerateId();
 	sLinkInfo info;
+	info.id = id;
 	info.type = eShapeType::Cylinder;
 	info.link = link;
 	info.radius = radius;
@@ -578,6 +582,123 @@ bool cArticulation::GetShapeInfo(OUT vector<float>& out
 }
 
 
+// return articulation link shape info
+// return bytes size, if dst null, return total byte size
+int cArticulation::GetShapeInfo2(INOUT BYTE* dst)
+{
+	using namespace graphic;
+
+#define SET_VALUE(pdst, value, type) \
+	*(type*)pdst = (type)value; \
+	pdst += sizeof(type);
+
+	int writeSize = 0;
+
+	for (auto& kv : m_links)
+	{
+		const phys::cArticulation::sLinkInfo& info = kv.second;
+		switch (info.type)
+		{
+		case phys::eShapeType::Box:
+		{
+			if (dst)
+			{
+				const PxTransform pose = info.link->getGlobalPose();
+				const Transform tm = Transform(Vector3(), info.scale) *
+					Transform(*(Quaternion*)&pose.q) * Transform(*(Vector3*)&pose.p);
+
+				SET_VALUE(dst, info.id, int);
+				SET_VALUE(dst, phys::eShapeType::Box, int);
+				SET_VALUE(dst, tm.pos.x, float);
+				SET_VALUE(dst, tm.pos.y, float);
+				SET_VALUE(dst, tm.pos.z, float);
+				SET_VALUE(dst, tm.scale.x, float);
+				SET_VALUE(dst, tm.scale.y, float);
+				SET_VALUE(dst, tm.scale.z, float);
+				SET_VALUE(dst, tm.rot.x, float);
+				SET_VALUE(dst, tm.rot.y, float);
+				SET_VALUE(dst, tm.rot.z, float);
+				SET_VALUE(dst, tm.rot.w, float);
+			}
+			writeSize += 48;
+		}
+		break;
+
+		case phys::eShapeType::Sphere:
+		{
+			if (dst)
+			{
+				const PxTransform pose = info.link->getGlobalPose();
+				Vector3 pos = (*(Vector3*)&pose.p);
+
+				SET_VALUE(dst, info.id, int);
+				SET_VALUE(dst, phys::eShapeType::Sphere, int);
+				SET_VALUE(dst, pos.x, float);
+				SET_VALUE(dst, pos.y, float);
+				SET_VALUE(dst, pos.z, float);
+				SET_VALUE(dst, info.radius, float);
+			}
+			writeSize += 24;
+		}
+		break;
+
+		case phys::eShapeType::Capsule:
+		{
+			if (dst)
+			{
+				const PxTransform pose = info.link->getGlobalPose();
+				Transform tm;
+				tm.pos = (*(Vector3*)&pose.p);
+				tm.rot = Quaternion(pose.q.x, pose.q.y, pose.q.z, pose.q.w);
+
+				SET_VALUE(dst, info.id, int);
+				SET_VALUE(dst, info.type, int);
+				SET_VALUE(dst, tm.pos.x, float);
+				SET_VALUE(dst, tm.pos.y, float);
+				SET_VALUE(dst, tm.pos.z, float);
+				SET_VALUE(dst, tm.rot.x, float);
+				SET_VALUE(dst, tm.rot.y, float);
+				SET_VALUE(dst, tm.rot.z, float);
+				SET_VALUE(dst, tm.rot.w, float);
+				SET_VALUE(dst, info.radius, float);
+				SET_VALUE(dst, info.halfHeight, float);
+			}
+			writeSize += 44;
+		}
+		break;
+
+		case phys::eShapeType::Cylinder:
+		{
+			if (dst)
+			{
+				const PxTransform pose = info.link->getGlobalPose();
+				Transform tm;
+				tm.pos = (*(Vector3*)&pose.p);
+				tm.rot = Quaternion(pose.q.x, pose.q.y, pose.q.z, pose.q.w);
+
+				SET_VALUE(dst, info.id, int);
+				SET_VALUE(dst, info.type, int);
+				SET_VALUE(dst, tm.pos.x, float);
+				SET_VALUE(dst, tm.pos.y, float);
+				SET_VALUE(dst, tm.pos.z, float);
+				SET_VALUE(dst, tm.rot.x, float);
+				SET_VALUE(dst, tm.rot.y, float);
+				SET_VALUE(dst, tm.rot.z, float);
+				SET_VALUE(dst, tm.rot.w, float);
+				SET_VALUE(dst, info.radius, float);
+				SET_VALUE(dst, info.height, float);
+			}
+			writeSize += 44;
+		}
+		break;
+
+		default: break;
+		}
+	}
+	return writeSize;
+}
+
+
 // return all joint value
 bool cArticulation::GetJointValues(OUT vector<float>& out)
 {
@@ -585,6 +706,18 @@ bool cArticulation::GetJointValues(OUT vector<float>& out)
 	{
 		const float value = joint->getJointPosition(PxArticulationAxis::eTWIST);
 		out.push_back(value);
+	}
+	return true;
+}
+
+
+// update articulation link sync reference
+bool cArticulation::UpdateSyncInfo(sSyncInfo* sync)
+{
+	for (auto& kv : m_links)
+	{
+		if (kv.second.link)
+			kv.second.link->userData = sync;
 	}
 	return true;
 }

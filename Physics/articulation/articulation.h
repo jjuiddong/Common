@@ -7,6 +7,7 @@
 
 namespace phys
 {
+	struct sSyncInfo;
 
 	class cArticulation
 	{
@@ -94,7 +95,11 @@ namespace phys
 		Transform GetGlobalPose() const;
 
 		bool GetShapeInfo(OUT vector<float>& out, const uint maxSize = 100);
+		int GetShapeInfo2(INOUT BYTE *dst);
+
 		bool GetJointValues(OUT vector<float>& out);
+
+		bool UpdateSyncInfo(sSyncInfo *sync);
 
 		void Clear(cPhysicsEngine *physics = nullptr);
 
@@ -111,6 +116,7 @@ namespace phys
 	public:
 		struct sLinkInfo
 		{
+			int id; // unique id
 			eShapeType type;
 			physx::PxArticulationLink *link;
 			Vector3 scale; // box dimension

@@ -28,6 +28,8 @@ namespace phys
 		Capsule,
 		Cylinder,
 		Convex,
+		Joint,
+		Articulation,
 		None
 	};
 
