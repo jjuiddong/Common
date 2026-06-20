@@ -20,6 +20,8 @@ namespace phys
 		Compound,
 		None
 	};
+	eJointType StringToJointType(const string& str);
+	string JointTypeToString(const eJointType type);
 
 
 	class cJoint

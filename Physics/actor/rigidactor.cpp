@@ -7,6 +7,67 @@ using namespace phys;
 using namespace physx;
 
 
+// convert string to eRigidType
+eRigidType phys::StringToRigidType(const string& str)
+{
+	if (str == "Static")
+		return eRigidType::Static;
+	else if (str == "Dynamic")
+		return eRigidType::Dynamic;
+	return eRigidType::None;
+}
+string phys::RigidTypeToString(const eRigidType& type)
+{
+	switch (type)
+	{
+	case eRigidType::Static: return "Static";
+	case eRigidType::Dynamic: return "Dynamic";
+	default: return "";
+	}
+	return "";
+}
+
+// convert string to Shapetype
+eShapeType phys::StringToShapeType(const string& str)
+{
+	if (str == "Plane")
+		return eShapeType::Plane;
+	else if (str == "Box")
+		return eShapeType::Box;
+	else if (str == "Sphere")
+		return eShapeType::Sphere;
+	else if (str == "Capsule")
+		return eShapeType::Capsule;
+	else if (str == "Cylinder")
+		return eShapeType::Cylinder;
+	else if (str == "Convex")
+		return eShapeType::Convex;
+	else if (str == "Joint")
+		return eShapeType::Joint;
+	else if (str == "Articulation")
+		return eShapeType::Articulation;
+	return eShapeType::None;
+}
+
+string phys::ShapeTypeToString(const eShapeType& type)
+{
+	switch (type)
+	{
+	case eShapeType::Plane: return "Plane";
+	case eShapeType::Box: return "Box";
+	case eShapeType::Sphere: return "Sphere";
+	case eShapeType::Capsule: return "Capsule";
+	case eShapeType::Cylinder: return "Cylinder";
+	case eShapeType::Convex: return "Convex";
+	case eShapeType::Joint: return "Joint";
+	case eShapeType::Articulation: return "Articulation";
+	default: return "";
+	}
+	return "";
+}
+
+//-----------------------------------------------------------------------------
+// cRigidActor
 cRigidActor::cRigidActor()
 	: m_id(common::GenerateId())
 	, m_actor(nullptr)

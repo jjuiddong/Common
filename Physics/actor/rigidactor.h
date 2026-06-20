@@ -19,6 +19,8 @@ namespace phys
 		Dynamic,
 		None
 	};
+	eRigidType StringToRigidType(const string& str);
+	string RigidTypeToString(const eRigidType& type);
 
 	enum class eShapeType
 	{
@@ -32,6 +34,9 @@ namespace phys
 		Articulation,
 		None
 	};
+	eShapeType StringToShapeType(const string& str);
+	string ShapeTypeToString(const eShapeType& type);
+
 
 	class cRigidActor
 	{

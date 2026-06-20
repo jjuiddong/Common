@@ -318,7 +318,6 @@ void cCylinderShape::GenerateCylinderMesh(const int slices
 					, (float)cos(angle) * radius
 					, (float)sin(angle) * radius);
 				break;
-
 			case eCylinderType::AxisY:
 				p = Vector3((float)cos(angle) * radius
 					, (i == 0) ? height / 2.f : -height / 2.f
@@ -352,7 +351,6 @@ void cCylinderShape::GenerateCylinderMesh(const int slices
 						, (float)cos(angle) * radius
 						, (float)sin(angle) * radius);
 					break;
-
 				case eCylinderType::AxisY:
 					p = Vector3((float)cos(angle) * radius
 						, (i == 0) ? height / 2.f : -height / 2.f
@@ -396,12 +394,12 @@ void cCylinderShape::GenerateCylinderMesh(const int slices
 		{
 			// add a quad
 			*(indices++) = i;
-			*(indices++) = slices + ((i + 1) % slices);
 			*(indices++) = slices + i;
+			*(indices++) = slices + ((i + 1) % slices);
 
 			*(indices++) = slices + ((i + 1) % slices);
-			*(indices++) = i;
 			*(indices++) = (i + 1) % slices;
+			*(indices++) = i;
 		}
 
 		// add head face

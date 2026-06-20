@@ -6,6 +6,40 @@ using namespace phys;
 using namespace physx;
 
 
+eJointType phys::StringToJointType(const string& str)
+{
+	if (str == "Fixed")
+		return eJointType::Fixed;
+	else if (str == "Spherical")
+		return eJointType::Spherical;
+	else if (str == "Revolute")
+		return eJointType::Revolute;
+	else if (str == "Prismatic")
+		return eJointType::Prismatic;
+	else if (str == "Distance")
+		return eJointType::Distance;
+	else if (str == "D6")
+		return eJointType::D6;
+	else if (str == "Compound")
+		return eJointType::Compound;
+	return eJointType::None;
+}
+string phys::JointTypeToString(const eJointType type)
+{
+	switch (type)
+	{
+	case eJointType::Fixed: return "Fixed";
+	case eJointType::Spherical: return "Spherical";
+	case eJointType::Revolute: return "Revolute";
+	case eJointType::Prismatic: return "Prismatic";
+	case eJointType::Distance: return "Distance";
+	case eJointType::D6: return "D6";
+	case eJointType::Compound: return "Compound";
+	}
+	return "";
+}
+
+
 cJoint::cJoint()
 	: m_id(common::GenerateId())
 	, m_type(eJointType::None)
