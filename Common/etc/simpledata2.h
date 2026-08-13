@@ -125,9 +125,29 @@ namespace common
 		, const string &key, const T &defaultValue)
 	{
 		FIND_ATTR(node, key, 1);
-		_variant_t v = (T)0;
-		v = common::str2variant(v.vt, it->second[1]);
-		return (T)v;
+		//_variant_t v = (T)0;
+		//v = common::str2variant(v.vt, it->second[1]);
+		//return (T)v;
+
+		const string& value = it->second[1];
+		if constexpr (std::is_same_v<T, bool>)
+			return (T)atoi(value.c_str());
+		else if constexpr (std::is_same_v<T, short>)
+			return (T)atoi(value.c_str());
+		else if constexpr (std::is_same_v<T, long>)
+			return (T)atoi(value.c_str());
+		else if constexpr (std::is_same_v<T, int>)
+			return (T)atoi(value.c_str());
+		else if constexpr (std::is_same_v<T, uint>)
+			return (T)strtoul(value.c_str(), nullptr, 0);
+		else if constexpr (std::is_same_v<T, float>)
+			return (T)atof(value.c_str());
+		else if constexpr (std::is_same_v<T, double>)
+			return (T)atof(value.c_str());
+		else if constexpr (std::is_same_v<T, string>)
+			return value;
+
+		return (T)0;
 	}
 
 	// template specialization (string)
