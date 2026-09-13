@@ -54,9 +54,34 @@ bool cBoundingCapsule::Pick(const Ray &ray
 	, OUT float *distance //= NULL
 ) const
 {
-	// nothing~
-	assert(0);
-	return false;
+	{
+		const float len = ray.orig.Distance(m_line.pos);
+		const Vector3 p1 = ray.orig + ray.dir * (len + m_line.len) * 2.f;
+		const Line line(ray.orig, p1);
+		const float dist = line.GetDistance(m_line);
+
+		if (dist > m_radius)
+			return false;
+	}
+
+	// calc 2d distance
+	if (distance)
+	{
+		const Vector3 p2 = m_line.GetPointOnLine2(ray.orig);
+		const Vector3 dir = (p2 - ray.orig).Normal();
+
+		const float dist = ray.orig.Distance(p2);
+		if (dist < m_radius)
+		{
+			*distance = 0.f;
+			return true;
+		}
+
+		const float c = common::Saturate2(dir.DotProduct(ray.dir));
+		*distance = (dist - m_radius) / c;
+	}
+
+	return true;
 }
 
 

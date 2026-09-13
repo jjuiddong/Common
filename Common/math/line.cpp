@@ -44,6 +44,17 @@ float Line::GetDistance(const Vector3 &position) const
 }
 
 
+// return distance of line to 3d pos (outside line point)
+float Line::GetDistance2(const Vector3& position) const
+{
+	const Vector3 toPoint = position - pos;
+	const float distOnLine = toPoint.DotProduct(dir);
+	const Vector3 pointOnLine = pos + dir * distOnLine;
+	const float dist = pointOnLine.Distance(position);
+	return dist;
+}
+
+
 // return distance of line to line
 // reference: https://wickedengine.net/2020/04/26/capsule-collision-detection/
 // update 2023-07-18, check bestA point bug,
@@ -121,8 +132,9 @@ Vector3 Line::GetPointOnLine(const Vector3 &position) const
 Vector3 Line::GetPointOnLine2(const Vector3& position) const
 {
 	const Vector3 toPoint = position - pos;
-	float distOnLine = toPoint.DotProduct(dir) / len;
-	distOnLine = distOnLine * len;
+	//float distOnLine = toPoint.DotProduct(dir) / len;
+	//distOnLine = distOnLine * len;
+	const float distOnLine = toPoint.DotProduct(dir);
 	return dir * distOnLine + pos;
 }
 

@@ -102,6 +102,12 @@ void network2::GetPacketElement(const ePacketFormat format
 		Packet2Variant<unsigned __int64>(format, packet, v);
 	else if (typeStr == "__int64")
 		Packet2Variant<__int64>(format, packet, v);
+	else if (typeStr == "Vector2")
+		packet.m_readIdx += sizeof(Vector2);
+	else if (typeStr == "Vector3")
+		packet.m_readIdx += sizeof(Vector3);
+	else if (typeStr == "Vector4")
+		packet.m_readIdx += sizeof(Vector4);
 }
 
 
