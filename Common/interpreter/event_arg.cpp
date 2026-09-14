@@ -17,5 +17,6 @@ bool cEventArg::ProcessVM(cVirtualMachine& vm)
 	for (auto& kv : m_symbTable.m_varMap)
 		vm.m_symbTable.m_varMap[kv.first] = kv.second;
 
+	vm.m_nsync.sync |= 0x0F; // instant symbol table sync
 	return true;
 }

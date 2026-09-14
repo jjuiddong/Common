@@ -634,7 +634,7 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const int vmId)
 	{
 		for (auto& vm : itpr.interpreter->m_vms)
 		{
-			vm->m_nsync.sync = 0x4; // instant symbol synchronize
+			vm->m_nsync.sync = 0x04; // instant symbol synchronize
 			vm->m_nsync.symbStreaming = true;
 		}
 	}
@@ -642,7 +642,7 @@ bool cRemoteInterpreter::SyncInformation(const int itprId, const int vmId)
 	{
 		if (script::cVirtualMachine* vm = GetVM(vmId))
 		{
-			vm->m_nsync.sync = 0x4; // instant symbol synchronize
+			vm->m_nsync.sync = 0x04; // instant symbol synchronize
 			vm->m_nsync.symbStreaming = true;
 		}
 	}
@@ -667,7 +667,7 @@ bool cRemoteInterpreter::SyncVMInformation(const int vmId, const vector<string>&
 	{
 		for (auto& vm : itpr.interpreter->m_vms)
 		{
-			vm->m_nsync.sync = 0x4; // instant symbol synchronize
+			vm->m_nsync.sync = 0x04; // instant symbol synchronize
 			vm->m_nsync.symbStreaming = true;
 		}
 	}
@@ -1061,7 +1061,6 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
-			SyncInformation(itprId, vmId);
 			return true;
 		}
 		break;
@@ -1070,7 +1069,6 @@ bool cRemoteInterpreter::RunInterpreter_Sub(const int itprId, const int parentVm
 		{
 			itpr.state = sItpr::eState::Run;
 			SendSpawnInterpreterInfo(itprId, parentVmId, vmId, nodeName);
-			SyncInformation(itprId, vmId);
 		}
 		break;
 	case 2: // StepRun
@@ -1205,7 +1203,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 	{
 		vector<script::sSyncSymbol> symbols;
 		script::cVirtualMachine *vm = interpreter->m_vms[i];
-		if (!vm->IsRun() || ((vmId >= 0) && (vm->m_id != vmId)))
+		if ((!vm->IsRun() && !(vm->m_nsync.sync & 0x04)) || ((vmId >= 0) && (vm->m_id != vmId)))
 			continue; // ignore this vm
 		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x04)) || !vm->m_nsync.symbStreaming)
 			continue;
@@ -1294,7 +1292,7 @@ bool cRemoteInterpreter::SendSyncSymbolTable(const int itprId, const int vmId)
 				{
 					const uint start = offset;
 					vector<script::sSyncSymbol> s;
-					for (uint k = 0; 
+					for (uint k = 0;
 						(k < MaxSyncSymbolCount) && (offset < symbols.size());
 						++k, ++offset)
 						s.push_back(symbols[offset]);
@@ -1333,7 +1331,7 @@ bool cRemoteInterpreter::SendSyncSymbolTableAll(const netid rcvId
 	sItpr& itpr = m_interpreters[itprId];
 	script::cInterpreter* interpreter = itpr.interpreter;
 	script::cVirtualMachine* vm = interpreter->GetVM(vmId);
-	if (!vm || !vm->IsRun())
+	if (!vm || (!vm->IsRun() && (0 == vm->m_nsync.sync)))
 		return false; // error return
 
 	vector<script::sSyncSymbol> symbols;
@@ -1415,7 +1413,7 @@ bool cRemoteInterpreter::SendSyncData(const int itprId, const int vmId)
 	{
 		vector<script::sSyncSymbol> symbols;
 		script::cVirtualMachine* vm = interpreter->m_vms[i];
-		if (!vm->IsRun() || ((vmId >= 0) && (vm->m_id != vmId)))
+		if ((!vm->IsRun() && !(vm->m_nsync.sync & 0x08)) || ((vmId >= 0) && (vm->m_id != vmId)))
 			continue; // ignore this vm
 		if (!(vm->m_nsync.enable || (vm->m_nsync.sync & 0x08)) || !vm->m_nsync.dataStreaming)
 			continue;
