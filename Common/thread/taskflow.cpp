@@ -180,9 +180,40 @@ bool cTaskFlow::Init(const int threadCount //=-1
 }
 
 
-// push task
-bool cTaskFlow::PushTask(cTfTask* task)
+// call complete task callback function
+// if use task callback, must call this fuction 
+bool cTaskFlow::Process()
 {
+	if (m_callbackQ.empty())
+		return true; // nothing to do
+
+	AutoCSLock cs(m_callbackCs);
+	while (!m_callbackQ.empty())
+	{
+		cTfTask *task = m_callbackQ.front();  m_callbackQ.pop();
+		if (task->m_callback)
+		{
+			task->m_callback(task);
+			task->m_callback = nullptr;
+		}
+
+		if (task->IsFinish())
+			NextStep(task); // finish task, next step
+		else
+			ExecuteChildTask(task);
+	}
+	return true;
+}
+
+
+// push task
+bool cTaskFlow::PushTask(cTfTask* task
+	, std::function<void(cTfTask*)> callback //= nullptr
+)
+{
+	if (task && callback)
+		task->m_callback = callback;
+
 	AutoCSLock cs(m_readyCs);
 	if (m_isSequence)
 	{
@@ -571,6 +602,11 @@ void cTaskFlow::Clear(
 		delete m_readyQ.back();
 		m_readyQ.pop_back();
 	}
+	while (!m_callbackQ.empty())
+	{
+		delete m_callbackQ.front();
+		m_callbackQ.pop();
+	}
 	m_waitQ.clear();
 }
 
@@ -593,10 +629,18 @@ int cTaskFlow::ThreadFunction(cTaskFlow* tf)
 				task->m_state = cTfTask::eState::Complete;
 				task->Complete();
 
-				if (task->IsFinish())
-					tf->NextStep(task); // finish task, next step
+				if (task->m_callback)
+				{
+					AutoCSLock cs(tf->m_callbackCs);
+					tf->m_callbackQ.push(task);
+				}
 				else
-					tf->ExecuteChildTask(task);
+				{
+					if (task->IsFinish())
+						tf->NextStep(task); // finish task, next step
+					else
+						tf->ExecuteChildTask(task);
+				}
 			}
 			else
 			{
@@ -607,10 +651,18 @@ int cTaskFlow::ThreadFunction(cTaskFlow* tf)
 		{
 			task->Complete();
 
-			if (task->IsFinish())
-				tf->NextStep(task); // finish task, next step
+			if (task->m_callback)
+			{
+				AutoCSLock cs(tf->m_callbackCs);
+				tf->m_callbackQ.push(task);
+			}
 			else
-				tf->ExecuteChildTask(task);
+			{
+				if (task->IsFinish())
+					tf->NextStep(task); // finish task, next step
+				else
+					tf->ExecuteChildTask(task);
+			}
 		}
 	}
 	return 1;

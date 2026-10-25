@@ -49,6 +49,7 @@ namespace common
 		std::atomic<int> m_finCnt; // finish child task count
 		bool m_isShutdown; // shutdown?
 		vector<std::pair<bool, cTfTask*>> m_children; // first: finish?, child task
+		std::function<void(cTfTask*)> m_callback; // complete callback
 	};
 
 	inline cTfTask::cTfTask(int id, const string& name)
@@ -69,7 +70,8 @@ namespace common
 		virtual ~cTaskFlow();
 
 		bool Init(const int threadCount = -1, const bool isSequence = true);
-		bool PushTask(cTfTask* task);
+		bool Process();
+		bool PushTask(cTfTask* task, std::function<void(cTfTask*)> callback = nullptr);
 		cTfTask* PopTask();
 		bool CloseTask(const string& taskName);
 		bool CloseTask(const int taskId);
@@ -92,9 +94,11 @@ namespace common
 		std::deque<cTfTask*> m_tasks; // execute queue (child task)
 		std::deque<cTfTask*> m_waitQ; // executed root task (prevent insert task while running task)
 		std::deque<cTfTask*> m_readyQ; // ready task queue (wait until finish execute-queue)
+		std::queue<cTfTask*> m_callbackQ; // complete task queue (if has callback)
 		vector<std::thread*> m_threads; // thread pool
 		CriticalSection m_cs; // m_tasks synchronization
 		CriticalSection m_readyCs; // m_readyQ synchronization
+		CriticalSection m_callbackCs; // m_callbackQ synchronization
 		CriticalSection m_finCs; // task finish synchronization
 		CriticalSection m_rmCs; // remove task synchronization
 		cSemaphore m_sema;
